@@ -28,7 +28,7 @@ import { voxelizeHumanBodySkin } from "./voxelizeHumanBodySkin";
  * `spanMetres / 5` around it, padded by `rho` and two cells
  * (`voxelizeHumanBodySkin`), which holds the exact distance from every voxel
  * to the skin and tells a voxel in the air from one in the flesh by the
- * angle-weighted pseudo-normal of the skin near it. A voxel in the air whose
+ * pseudo-normal of the skin sample nearest to it. A voxel in the air whose
  * distance to the skin is at least `rho` less one cell, and no more than two
  * cells beyond it, is a centre a ball could rest on (the centre nearest to a
  * skin vertex lies on that shell). A second distance transform from those
@@ -37,8 +37,16 @@ import { voxelizeHumanBodySkin } from "./voxelizeHumanBodySkin";
  * vertex within `rho` of that centre is on the closing surface already and
  * stays; a vertex beyond is moved toward the centre to the ball surface, by
  * the excess `d - rho` eased in over the first `cell / 2` of it (a
- * smoothstep), so a vertex touching a convex or flat place moves by nothing and
- * the displacement is continuous across the surface. The lift then runs along
+ * smoothstep). The centre sits on the grid, so its excess over a vertex of a
+ * flat or convex place is a quantisation error and not a crease: up to a
+ * cell's lateral offset over a ball of radius `rho` is a millimetre or two, and
+ * it tilts the normal by the offset over `rho`. The move is therefore also
+ * scaled by how far the ball resting on the vertex along its own normal
+ * pokes into the skin, eased in the same way: that ball touches the vertex by
+ * construction, and where it is free no skin sample is nearer to its centre
+ * than `rho`, so a vertex of a place the ball fits moves by nothing and the
+ * displacement stays continuous across the surface. The sample spacing, not
+ * the cell, bounds the error of that distance. The lift then runs along
  * the skin normal where the vertex stayed and along the ball outward normal
  * where it moved, blended by the same easing, and that normal is returned for
  * the moved vertices. Voxel quantisation costs at most a fraction of a cell in
@@ -54,7 +62,7 @@ import { voxelizeHumanBodySkin } from "./voxelizeHumanBodySkin";
  * crossing itself where two parts of the body press together. A garment whose
  * grid would exceed 16 million voxels is refused.
  *
- * @evidence contracts/common.md#principled-implementation The closing of a set by a ball is dilation followed by erosion, and its boundary is where a ball rolling on the outside touches: a crease narrower than the ball's diameter stays unreached and is bridged by the ball's arc, which is the geometry of cloth that cannot bend tighter than a radius. The distance transform is exact between voxel centres; the ball's centre is snapped to the exact clearance from the nearest sample, so the quantisation of the grid moves the arc along its own surface and not off it. The flesh side of the skin is excluded by `voxelizeHumanBodySkin` through the angle-weighted pseudo-normal (Baerentzen and Aanaes 2005), which needs the skin's winding to be consistent and is ambiguous only on the medial axis of a sheet thinner than the cell.
+ * @evidence contracts/common.md#principled-implementation The closing of a set by a ball is dilation followed by erosion, and its boundary is where a ball rolling on the outside touches: a crease narrower than the ball's diameter stays unreached and is bridged by the ball's arc, which is the geometry of cloth that cannot bend tighter than a radius. The distance transform is exact between voxel centres; the ball's centre is snapped to the exact clearance from the nearest sample, so the quantisation of the grid moves the arc along its own surface and not off it. The flesh side of the skin is excluded by `voxelizeHumanBodySkin` through the pseudo-normal of the nearest feature (Baerentzen and Aanaes 2005), which needs the skin's winding to be consistent and is ambiguous only on the medial axis of a sheet thinner than the sample spacing. A vertex whose own ball is free is on the closing surface by definition, so the snapped centre moves it only in proportion to how far that ball pokes into the skin; the poke is measured against the skin samples, whose spacing (not the cell) bounds its error, and it trusts the supplied vertex normal, so a normal that contradicts the skin's geometry (a wall facing up) reads the ball as free there. The crotch's crease, where the ball cannot enter, still takes the grid's centre and carries the cell's quantisation as a stated ceiling.
  * @evidence contracts/common.md#clear-and-simple-design One responsibility: turn the skin under a garment into the closed, lifted surface. The voxels, their distance and the grouping have their own owners, the cut and the clipping stay in `createHumanBodyUnderwear`, and the one length this pass owns is the ball's radius, from the table.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No landmark, region or vertex is named: the same closing runs on any skin, and a crease is found by whether the ball reaches it. Nothing is patched around another module.
  * @evidence contracts/common.md#meaningful-documentation The comment states the closing, the method in the order it runs, the easing that keeps the displacement continuous, the frame and winding it relies on, and what the pass does not model.
@@ -152,8 +160,17 @@ function closeCluster(props: {
     const centre = sample.map((value, k) => value + (rho * away[k]) / clearance);
     const toCentre = subtract(centre, x);
     const distance = Math.hypot(toCentre[0], toCentre[1], toCentre[2]);
-    const weight = smoothstep((distance - rho) / ease);
+    // the ball resting on the vertex along its own normal: where it stays
+    // clear of the skin the vertex is on the closing surface already, and the
+    // snapped centre above only decides where a ball that does not fit lands
     let normal = at3(normals, v);
+    const rest = x.map((value, k) => value + rho * normal[k]);
+    const touch = voxels.nearest(
+      voxels.distance.source[voxels.voxelOf(rest)],
+      rest,
+    );
+    const poke = rho - Math.hypot(...subtract(rest, touch));
+    const weight = smoothstep((distance - rho) / ease) * smoothstep(poke / ease);
     let position = x;
     if (weight > 0) {
       // the closing surface's point nearest to x, and the ball's outward normal

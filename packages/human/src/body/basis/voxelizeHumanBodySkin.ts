@@ -7,20 +7,26 @@ import { measureHumanBodyDistanceField } from "./measureHumanBodyDistanceField";
  *
  * The grid covers the points padded by `pad`, in cubic cells of `cell`. Every
  * skin triangle that reaches it is sampled at a barycentric spacing of at most
- * `cell / 2`, and each sample falls in the voxel nearest to it. Each occupied
- * voxel keeps the mean of its samples' positions and the mean of their sign
- * normals: the pseudo-normal of the feature the sample lies on, which is the
- * face normal inside a face, the sum of the two unit face normals on an edge
- * and the angle-weighted vertex normal at a vertex (Baerentzen and Aanaes 2005,
+ * three quarters of a cell along its longest edge, and each sample falls in the
+ * voxel nearest to it. Each sample keeps its position and its sign normal: the
+ * pseudo-normal of the feature it lies on, which is the face normal inside a
+ * face, the sum of the unit face normals of the faces that share an edge and
+ * the angle-weighted vertex normal at a vertex (Baerentzen and Aanaes 2005,
  * "Signed distance computation using the angle weighted pseudonormal", IEEE
- * TVCG 11(3)). A pseudo-normal is valid only on its own feature, so a sample
- * inside a face is never blended with the normals at the face's corners, which
- * tilt it away from the face it lies on. The pseudo-normal is what tells the
- * air from the flesh on a concave feature, where the normal of one adjoining
- * face reads a point behind a crease's floor as in front of its wall. The exact
- * distance transform of the
- * occupied voxels (`measureHumanBodyDistanceField`) is the distance from each
- * voxel to the skin, to within the cell.
+ * TVCG 11(3)). A feature is the same feature whichever vertex indices name it,
+ * so corners at one position (a material or UV seam duplicates them) are
+ * welded by their exact coordinates, and an edge is open only where one
+ * triangle has it. The exact distance transform of the occupied voxels
+ * (`measureHumanBodyDistanceField`) is the distance from each voxel to the
+ * skin, to within the cell.
+ *
+ * A voxel is air or flesh by the sign of the offset from the skin sample
+ * nearest to its centre against that sample's pseudo-normal, which is the
+ * Baerentzen and Aanaes test applied to the sampled surface. The test needs no
+ * neighbouring faces: a pseudo-normal is valid on its own feature, so it holds
+ * on both sides of a wedge edge or a crease floor, where a sum over the normals
+ * of several features reads a point above a convex edge against the faces that
+ * point away from it.
  *
  * The skin is read in metres of its own frame and with counter-clockwise
  * triangles seen from outside; samples beyond the grid are dropped, so the
@@ -29,10 +35,10 @@ import { measureHumanBodyDistanceField } from "./measureHumanBodyDistanceField";
  * collision model: the queries answer about the skin as posed and nothing
  * else.
  *
- * @evidence contracts/common.md#principled-implementation Sampling each triangle finer than the cell and reading the exact distance transform of the occupied voxels bounds the distance to the skin by the cell, and the angle-weighted pseudo-normal is the standard sign for a point nearest a vertex or an edge of a consistently wound closed surface (Baerentzen and Aanaes 2005). Voxel means keep a query constant time; on the medial axis of a sheet thinner than the cell the sign is ambiguous, and a grid of the size of a garment's neighbourhood does not resolve features under a cell.
+ * @evidence contracts/common.md#principled-implementation Sampling each triangle finer than the cell and reading the exact distance transform of the occupied voxels bounds the distance to the skin by the cell, and the pseudo-normal of the nearest feature is the standard sign for a point of a consistently wound closed surface (Baerentzen and Aanaes 2005). Two features within the sample spacing of equal distance (the medial axis of a sheet thinner than a cell) can swap which one is nearest, so the sign there is ambiguous; an open boundary carries only the single face normal, which gives the reach of the sheet and no more. A grid of the size of a garment's neighbourhood does not resolve features under a cell.
  * @evidence contracts/common.md#clear-and-simple-design One responsibility: turn the skin near a set of points into a distance grid and the four queries its consumer needs. The ball, the closing and the garment stay with the consumer, and the distance transform stays with its own owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No garment, landmark or vertex is named; the same grid answers for any skin and points, and the sign comes from the mesh's pseudo-normals and not from a case of the body.
- * @evidence contracts/common.md#meaningful-documentation The comment states the grid, the sampling, what each occupied voxel keeps and why, the frame and winding assumed, and what a query answers, on the declaration and on the returned structure.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the grid, the sampling, what each sample keeps and why, how a voxel is read as air or flesh, the frame and winding assumed, and what a query answers, on the declaration and on the returned structure.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is a grid operation and defines no part or group.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only the grid its consumer sized.
@@ -81,15 +87,28 @@ export function voxelizeHumanBodySkin(props: {
     // only the triangles that reach the grid: a vertex at its edge sums the
     // pseudo-normal over the triangles it has there, which no sample near it
     // depends on
-    const reaching = trianglesReaching(corner, indices, origin, dimensions, cell);
+    const reaching = trianglesReaching(
+      corner,
+      indices,
+      origin,
+      dimensions,
+      cell,
+    );
     const pseudo = pseudoNormals(corner, indices, reaching);
-    const vertices = corner.length / 3;
     for (const t of reaching) {
       const a = indices[t] * 3;
       const b = indices[t + 1] * 3;
       const c = indices[t + 2] * 3;
-      const e1 =[corner[b] - corner[a], corner[b + 1] - corner[a + 1], corner[b + 2] - corner[a + 2]];
-      const e2 = [corner[c] - corner[a], corner[c + 1] - corner[a + 1], corner[c + 2] - corner[a + 2]];
+      const e1 = [
+        corner[b] - corner[a],
+        corner[b + 1] - corner[a + 1],
+        corner[b + 2] - corner[a + 2],
+      ];
+      const e2 = [
+        corner[c] - corner[a],
+        corner[c + 1] - corner[a + 1],
+        corner[c + 2] - corner[a + 2],
+      ];
       const unit = pseudo.face.get(t);
       if (unit === undefined) continue;
       const steps = Math.max(
@@ -127,7 +146,6 @@ export function voxelizeHumanBodySkin(props: {
           positions[taken * 3 + 2] = pz;
           const normal = featureNormal(
             pseudo,
-            vertices,
             [indices[t], indices[t + 1], indices[t + 2]],
             [steps - i - j, i, j],
             unit,
@@ -138,7 +156,7 @@ export function voxelizeHumanBodySkin(props: {
     }
   }
 
-  // bucket the samples by voxel and keep each occupied voxel's mean
+  // bucket the samples by voxel
   const occupied = new Uint8Array(total);
   const start = new Int32Array(total + 1);
   for (let s = 0; s < taken; s++) {
@@ -148,26 +166,7 @@ export function voxelizeHumanBodySkin(props: {
   for (let voxel = 0; voxel < total; voxel++) start[voxel + 1] += start[voxel];
   const order = new Int32Array(taken);
   const fill = start.slice(0, total);
-  const mean = new Float32Array(total * 6);
-  for (let s = 0; s < taken; s++) {
-    const voxel = cells[s];
-    order[fill[voxel]++] = s;
-    for (let k = 0; k < 3; k++) {
-      mean[voxel * 6 + k] += positions[s * 3 + k];
-      mean[voxel * 6 + 3 + k] += normals[s * 3 + k];
-    }
-  }
-  for (let voxel = 0; voxel < total; voxel++) {
-    const used = start[voxel + 1] - start[voxel];
-    if (used === 0) continue;
-    const length =
-      Math.hypot(mean[voxel * 6 + 3], mean[voxel * 6 + 4], mean[voxel * 6 + 5]) ||
-      1;
-    for (let k = 0; k < 3; k++) {
-      mean[voxel * 6 + k] /= used;
-      mean[voxel * 6 + 3 + k] /= length;
-    }
-  }
+  for (let s = 0; s < taken; s++) order[fill[cells[s]]++] = s;
   const field = measureHumanBodyDistanceField({
     dimensions,
     sites: occupied,
@@ -180,6 +179,37 @@ export function voxelizeHumanBodySkin(props: {
     origin[1] + (Math.floor(voxel / nx) % ny) * cell,
     origin[2] + Math.floor(voxel / (nx * ny)) * cell,
   ];
+  // the sample nearest to `at` among those of `voxel` and its neighbours, or
+  // -1 where they hold none; a neighbour past the grid's edge clamps onto the
+  // voxel itself
+  const sampleNear = (voxel: number, at: readonly number[]): number => {
+    const i = voxel % nx;
+    const j = Math.floor(voxel / nx) % ny;
+    const k = Math.floor(voxel / (nx * ny));
+    let best = Infinity;
+    let sample = -1;
+    for (let dk = -1; dk <= 1; dk++)
+      for (let dj = -1; dj <= 1; dj++)
+        for (let di = -1; di <= 1; di++) {
+          const neighbour =
+            Math.min(nx - 1, Math.max(0, i + di)) +
+            nx *
+              (Math.min(ny - 1, Math.max(0, j + dj)) +
+                ny * Math.min(nz - 1, Math.max(0, k + dk)));
+          for (let s = start[neighbour]; s < start[neighbour + 1]; s++) {
+            const base = order[s] * 3;
+            const gap =
+              (positions[base] - at[0]) ** 2 +
+              (positions[base + 1] - at[1]) ** 2 +
+              (positions[base + 2] - at[2]) ** 2;
+            if (gap < best) {
+              best = gap;
+              sample = order[s];
+            }
+          }
+        }
+    return sample;
+  };
   return {
     dimensions,
     cell,
@@ -195,33 +225,10 @@ export function voxelizeHumanBodySkin(props: {
       return ijk[0] + nx * (ijk[1] + ny * ijk[2]);
     },
     nearest: (voxel, at) => {
-      const i = voxel % nx;
-      const j = Math.floor(voxel / nx) % ny;
-      const k = Math.floor(voxel / (nx * ny));
-      let best = Infinity;
-      let position = at.slice();
-      // a neighbour past the grid's edge clamps onto the voxel itself
-      for (let dk = -1; dk <= 1; dk++)
-        for (let dj = -1; dj <= 1; dj++)
-          for (let di = -1; di <= 1; di++) {
-            const neighbour =
-              Math.min(nx - 1, Math.max(0, i + di)) +
-              nx *
-                (Math.min(ny - 1, Math.max(0, j + dj)) +
-                  ny * Math.min(nz - 1, Math.max(0, k + dk)));
-            for (let s = start[neighbour]; s < start[neighbour + 1]; s++) {
-              const base = order[s] * 3;
-              const gap =
-                (positions[base] - at[0]) ** 2 +
-                (positions[base + 1] - at[1]) ** 2 +
-                (positions[base + 2] - at[2]) ** 2;
-              if (gap < best) {
-                best = gap;
-                position = [positions[base], positions[base + 1], positions[base + 2]];
-              }
-            }
-          }
-      return position;
+      const s = sampleNear(voxel, at);
+      return s < 0
+        ? at.slice()
+        : [positions[s * 3], positions[s * 3 + 1], positions[s * 3 + 2]];
     },
     centres: (rho) => {
       const clear = ((rho - cell) / cell) ** 2;
@@ -230,32 +237,14 @@ export function voxelizeHumanBodySkin(props: {
       for (let voxel = 0; voxel < total; voxel++) {
         const squared = distance.squared[voxel];
         if (squared < clear || squared >= shell) continue;
-        // a dipole sum of the occupied voxels around the nearest one, each
-        // its sample count times the cosine of the vector to it against its mean
-        // pseudo-normal over the squared distance: positive in the air, negative
-        // in the flesh, and a point behind a crease's floor reads negative
-        // whichever wall is nearest
+        // air where the voxel lies on the side the nearest sample's
+        // pseudo-normal points to
         const at = centre(voxel);
-        const near = distance.source[voxel];
-        const ni = near % nx;
-        const nj = Math.floor(near / nx) % ny;
-        const nk = Math.floor(near / (nx * ny));
-        let side = 0;
-        for (let k = Math.max(0, nk - 2); k <= Math.min(nz - 1, nk + 2); k++)
-          for (let j = Math.max(0, nj - 2); j <= Math.min(ny - 1, nj + 2); j++)
-            for (let i = Math.max(0, ni - 2); i <= Math.min(nx - 1, ni + 2); i++) {
-              const u = i + nx * (j + ny * k);
-              const used = start[u + 1] - start[u];
-              if (used === 0) continue;
-              const dx = at[0] - mean[u * 6];
-              const dy = at[1] - mean[u * 6 + 1];
-              const dz = at[2] - mean[u * 6 + 2];
-              const squared = dx * dx + dy * dy + dz * dz;
-              side +=
-                (used *
-                  (dx * mean[u * 6 + 3] + dy * mean[u * 6 + 4] + dz * mean[u * 6 + 5])) /
-                (squared * Math.sqrt(squared));
-            }
+        const s = sampleNear(distance.source[voxel], at) * 3;
+        const side =
+          (at[0] - positions[s]) * normals[s] +
+          (at[1] - positions[s + 1]) * normals[s + 1] +
+          (at[2] - positions[s + 2]) * normals[s + 2];
         if (side > 0) result[voxel] = 1;
       }
       return result;
@@ -306,7 +295,10 @@ function trianglesReaching(
 
 /** The sign normals of the triangles a mesh offers a grid, by feature. */
 interface IPseudoNormals {
-  /** Angle-weighted vertex pseudo-normals, three numbers per vertex. */
+  /** The first vertex index at each vertex's exact position. */
+  weld: Int32Array;
+
+  /** Angle-weighted vertex pseudo-normals by welded vertex, three numbers each. */
   vertex: Float64Array;
 
   /** Sum of the unit normals of the triangles that share an edge, by edge key. */
@@ -323,16 +315,29 @@ interface IPseudoNormals {
  * three that Baerentzen and Aanaes (2005) prove give the sign of a point whose
  * nearest surface point lies on that feature. A sample inside a face therefore
  * carries the face normal and is never tilted by the faces at its corners.
+ * Corners at one exact position are one vertex, so an edge between two
+ * triangles that name its ends by different indices (a UV or material seam) is
+ * shared, and a triangle without area adds nothing.
  */
 function pseudoNormals(
   positions: readonly number[],
   indices: readonly number[],
   triangles: readonly number[],
 ): IPseudoNormals {
+  const count = positions.length / 3;
+  const weld = new Int32Array(count).fill(-1);
+  const first = new Map<string, number>();
+  for (const t of triangles)
+    for (let k = 0; k < 3; k++) {
+      const v = indices[t + k];
+      if (weld[v] >= 0) continue;
+      const key = positions.slice(v * 3, v * 3 + 3).join(",");
+      weld[v] = first.get(key) ?? v;
+      first.set(key, weld[v]);
+    }
   const vertex = new Float64Array(positions.length);
   const edge = new Map<number, number[]>();
   const face = new Map<number, number[]>();
-  const count = positions.length / 3;
   const p = new Float64Array(9);
   for (const t of triangles) {
     for (let k = 0; k < 3; k++)
@@ -346,7 +351,11 @@ function pseudoNormals(
     const unit = [fx / size, fy / size, fz / size];
     face.set(t, unit);
     for (let k = 0; k < 3; k++) {
-      const key = edgeKey(indices[t + k], indices[t + ((k + 1) % 3)], count);
+      const key = edgeKey(
+        weld[indices[t + k]],
+        weld[indices[t + ((k + 1) % 3)]],
+        count,
+      );
       const sum = edge.get(key);
       if (sum === undefined) edge.set(key, unit.slice());
       else for (let axis = 0; axis < 3; axis++) sum[axis] += unit[axis];
@@ -363,13 +372,13 @@ function pseudoNormals(
         (ax * bx + ay * by + az * bz) /
         (Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz));
       const angle = Math.acos(Math.min(1, Math.max(-1, cosine)));
-      const at = indices[t + k] * 3;
+      const at = weld[indices[t + k]] * 3;
       vertex[at] += angle * unit[0];
       vertex[at + 1] += angle * unit[1];
       vertex[at + 2] += angle * unit[2];
     }
   }
-  return { vertex, edge, face };
+  return { weld, vertex, edge, face };
 }
 
 /** The key of the undirected edge between two vertices of a mesh of `count`. */
@@ -386,19 +395,22 @@ function edgeKey(first: number, second: number, count: number): number {
  */
 function featureNormal(
   pseudo: IPseudoNormals,
-  count: number,
   corners: readonly [number, number, number],
   weights: readonly [number, number, number],
   face: readonly number[],
 ): readonly number[] {
   const present = [0, 1, 2].filter((k) => weights[k] !== 0);
   if (present.length === 1) {
-    const at = corners[present[0]] * 3;
+    const at = pseudo.weld[corners[present[0]]] * 3;
     return [pseudo.vertex[at], pseudo.vertex[at + 1], pseudo.vertex[at + 2]];
   }
   if (present.length === 2)
     return pseudo.edge.get(
-      edgeKey(corners[present[0]], corners[present[1]], count),
+      edgeKey(
+        pseudo.weld[corners[present[0]]],
+        pseudo.weld[corners[present[1]]],
+        pseudo.weld.length,
+      ),
     )!;
   return face;
 }

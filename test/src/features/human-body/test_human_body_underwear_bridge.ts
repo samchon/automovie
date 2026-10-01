@@ -21,8 +21,9 @@ import { humanBodyUnderwearFixture } from "../internal/humanBodyUnderwearFixture
  *
  * Scenarios:
  * 1. Span zero: the groove vertices sit in the groove, at z = 0.074.
- * 2. Span 0.04: every groove vertex of the garment stands within 1 mm of the
- *    bridging arc and its normal points out (z > 0.7, blended from the skin's where a vertex is only partly moved); the vertices away from
+ * 2. Span 0.04: every groove-floor vertex of the garment stands within 1 mm of the
+ *    bridging arc and its normal points out (z > 0.7), no vertex dives more than
+ *    1 mm below the arc; the vertices away from
  *    the groove keep z = 0.104 and the normal +Z; the triangle count is
  *    unchanged.
  */
@@ -92,24 +93,29 @@ export const test_human_body_underwear_bridge = (): void => {
   );
 
   const bridged = dress(0.04);
-  // a bridged groove vertex leaves the crest plane's lift (z = 0.104) for the
-  // arc a little below it, so the groove is what stands below 0.1035
-  const grooveBridged = [...new Array(bridged.positions.length / 3).keys()].filter(
-    (v) => bridged.positions[v * 3 + 2]! < 0.1035,
-  );
+  // the groove floor is the column of vertices on the axis of the laid garment,
+  // which the bridged garment shares by index
+  const floor = grooveLaid;
+  const arc = 0.104 - 0.0006;
   TestValidator.equals(
     "the cut is unchanged",
     bridged.indices!.length,
     laid.indices!.length,
   );
   TestValidator.predicate(
-    "span 0.04: the groove is bridged and its normals point out",
-    grooveBridged.length >= grooveLaid.length &&
-      grooveBridged.every(
+    "span 0.04: the groove floor is bridged and its normals point out",
+    floor.length === grooveLaid.length &&
+      floor.every(
         (v) =>
-          Math.abs(bridged.positions[v * 3 + 2]! - (0.104 - 0.0006)) < 0.001 &&
+          Math.abs(bridged.positions[v * 3 + 2]! - arc) < 0.001 &&
           bridged.normals![v * 3 + 2]! > 0.7,
       ),
+  );
+  TestValidator.predicate(
+    "span 0.04: no vertex of the garment dives below the arc",
+    [...new Array(bridged.positions.length / 3).keys()].every(
+      (v) => bridged.positions[v * 3 + 2]! > arc - 0.001,
+    ),
   );
   const away = [...new Array(bridged.positions.length / 3).keys()].filter(
     (v) => Math.abs(bridged.positions[v * 3]!) > 0.03,

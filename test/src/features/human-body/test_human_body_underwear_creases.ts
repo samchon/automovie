@@ -175,7 +175,7 @@ export const test_human_body_underwear_creases = (): void => {
     );
     TestValidator.predicate(
       "narrow slit: a top point is not bridged " + vertex,
-      closed.bridged[vertex]! < 0.15,
+      closed.bridged[vertex] === 0,
     );
   }
 
@@ -190,7 +190,7 @@ export const test_human_body_underwear_creases = (): void => {
       "wide slit: wall point " + vertex + " is lifted along its normal",
       lifted.every((value, k) => nclose(value, skin[k]! + lift * normal[k]!, 1e-3)),
     );
-    TestValidator.predicate("wide slit: not bridged " + vertex, open.bridged[vertex]! < 0.15);
+    TestValidator.predicate("wide slit: not bridged " + vertex, open.bridged[vertex] === 0);
   }
 
   // 3. a slit narrower than the diameter but wide: the arc's sag is 6.6 mm
@@ -228,7 +228,7 @@ export const test_human_body_underwear_creases = (): void => {
   });
   TestValidator.predicate(
     "a flat top has nothing to bridge",
-    plain.bridged.every((w) => w < 0.15) &&
+    plain.bridged.every((w) => w === 0) &&
       nclose(plain.positions[1]!, 0.05 + lift, 1e-3) &&
       nclose(plain.positions[4]!, 0.05 + lift, 1e-3),
   );
