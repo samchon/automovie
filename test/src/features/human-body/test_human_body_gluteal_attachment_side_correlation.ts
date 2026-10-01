@@ -16,6 +16,9 @@ import typia from "typia";
  * 2. Each union-side record refuses a left origin with a right insertion.
  * 3. A maximus record also refuses origins from both sides; the shared sacrum
  *    remains a valid origin with one side's insertion.
+ * 4. A single-side parameter admits only that side's record, so the
+ *    distribution over a union changes nothing for one side, and a left record
+ *    stays refused where the right is asked for.
  */
 export const test_human_body_gluteal_attachment_side_correlation = (): void => {
   for (const side of ["left", "right"])
@@ -65,5 +68,23 @@ export const test_human_body_gluteal_attachment_side_correlation = (): void => {
       origins: [{ structure: "sacrum", site: "dorsalSurface" }],
       insertions: [{ structure: "rightFemur", site: "glutealTuberosity" }],
     }),
+  );
+  TestValidator.equals(
+    "a single-side parameter admits its own side and refuses the other",
+    [
+      typia.is<IAutoMovieHumanBodyGluteusMaximusAttachments<"left">>({
+        origins: [{ structure: "leftCoxalBone", site: "posteriorIlium" }],
+        insertions: [{ structure: "leftFemur", site: "glutealTuberosity" }],
+      }),
+      typia.is<IAutoMovieHumanBodyGluteusMediusAttachments<"right">>({
+        origins: [{ structure: "leftCoxalBone", site: "iliumBetweenGlutealLines" }],
+        insertions: [{ structure: "rightFemur", site: "greaterTrochanterLateralFacet" }],
+      }),
+      typia.is<IAutoMovieHumanBodyGluteusMinimusAttachments<"right">>({
+        origins: [{ structure: "rightCoxalBone", site: "iliumBetweenAnteriorAndInferiorGlutealLines" }],
+        insertions: [{ structure: "rightFemur", site: "greaterTrochanterAnteriorFacet" }],
+      }),
+    ],
+    [true, false, true],
   );
 };

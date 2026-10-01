@@ -51,6 +51,15 @@ import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemor
  * unknown, and a sum past the output axis's range stays past it, so the
  * engine's pose validation refuses each of them in the builder as it did
  * before, with the coupled angle in the diagnostic.
+ *
+ * @evidence contracts/common.md#principled-implementation Each coupling adds a piecewise-linear function of its source's elevation to an output axis: zero at and below the first knot, linear inside the bracketing segment, the last ordinate held beyond, with a nanodegree tolerance at the first knot for the cone formula's float error. For a TT shoulder source the elevation is the document's goal, else the shaped rest in `shoulderRest`, else the basis's A-pose, so an omitted goal and the same rest written as a goal add the same angle; without a rest the omitted goal reads the A-pose and the two spellings differ, which the caller avoids by passing the rest. The sums are not judged here: the engine's pose validation refuses an out-of-range sum with the coupled angle in the diagnostic.
+ * @evidence contracts/common.md#clear-and-simple-design One loop over the declared couplings with one curve evaluator and the pelvifemoral rhythm appended last; the rest is an optional map and no coupling reads anything else.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case by body, fixture or expected angle, and no foreign state is patched; the document's own joints are copied before an addition so the caller's entries are unchanged.
+ * @evidence contracts/common.md#meaningful-documentation States what each coupling reads and adds, the unjudged sum, duplicate and unknown joint handling, the rhythm additions, the curve's knot behaviour and the rest an omitted goal reads.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines and groups no part; it adds coupled angles to joint rows.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive; it returns joint angles and their contributions.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the builder poses the coupled angles.
  */
 export function resolveHumanBodyCouplings(
   basis: Pick<
