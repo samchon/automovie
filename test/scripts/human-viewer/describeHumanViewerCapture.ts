@@ -18,6 +18,7 @@ export function describeHumanViewerCapture(props: {
   buildMs: number;
   showMs: number;
   pngMs: number;
+  spans?: Record<string, number>;
   started: number;
   waited: number;
   decoded: number;
@@ -30,6 +31,8 @@ export function describeHumanViewerCapture(props: {
     showMs: props.showMs,
     buildMs: props.built === 0 ? 0 : props.buildMs,
     pngMs: props.pngMs,
+    spans: props.spans ?? {},
+    otherMs: Math.max(0, props.showMs - Object.values(props.spans ?? {}).reduce((sum, ms) => sum + ms, 0)),
     decodeMs: props.finished - props.decoded,
   };
   return {

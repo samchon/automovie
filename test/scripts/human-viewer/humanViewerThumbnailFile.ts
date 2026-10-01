@@ -33,7 +33,8 @@ export function humanViewerThumbnailFile(
     fields.delete("lane");
     const address = parseHumanViewerAddress(fields.toString());
     const document = inventory.documents.find((entry) => entry.id === address.doc);
-    if (document === undefined) return null;
+    // A frame carrying a reference photograph never reaches the disk cache.
+    if (document === undefined || address.ref !== null) return null;
     return path.join(
       storage,
       "thumbnails",

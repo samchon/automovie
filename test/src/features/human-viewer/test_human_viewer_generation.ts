@@ -22,7 +22,7 @@ export const test_human_viewer_generation = async (): Promise<void> => {
   const viewer: HumanViewerHandle = {
     show: () => new Promise((resolve) => { pending.push(resolve); }),
     parts: () => ["head"], renderer: () => "hardware", revision: () => "old",
-    builds: () => 2, buildMs: () => 3, address: () => address, png: () => "frame",
+    builds: () => 2, buildMs: () => 3, spans: () => ({ workerMs: 4 }), address: () => address, png: () => "frame",
   };
   const old = createHumanViewerGeneration(viewer);
   const one = old.handle.show(address);
@@ -44,8 +44,8 @@ export const test_human_viewer_generation = async (): Promise<void> => {
     () => old.handle.show(address), "source generation was replaced"));
   TestValidator.equals("stable observation identity", [old.handle.parts(),
     old.handle.renderer(), old.handle.revision(), old.handle.builds(),
-    old.handle.buildMs(), old.handle.png()],
-    [["head"], "hardware", "old", 2, 3, "frame"]);
+    old.handle.buildMs(), old.handle.spans(), old.handle.png()],
+    [["head"], "hardware", "old", 2, 3, { workerMs: 4 }, "frame"]);
   TestValidator.predicate("caller address identity", old.handle.address() === address);
   const fresh = createHumanViewerGeneration({ ...viewer,
     revision: () => "new", show: () => Promise.resolve() });

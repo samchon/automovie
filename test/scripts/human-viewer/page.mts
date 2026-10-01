@@ -44,6 +44,8 @@ import { assertHumanViewerSource } from "./assertHumanViewerSource";
 import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceError";
 import type { HumanViewerWork } from "./HumanViewerWork";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
+import { captureHumanViewerReference } from "./captureHumanViewerReference";
+import { createHumanViewerSpans } from "./createHumanViewerSpans";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
@@ -63,6 +65,8 @@ const pending = new Map<
   { resolve: (value: Result) => void; reject: (error: Error) => void }
 >();
 let sequence = 0;
+/** Where a capture spends its time inside the page, by named stage. */
+const spans = createHumanViewerSpans(() => performance.now());
 let builds = 0;
 let buildMs = 0;
 let workingDocument = "";
@@ -92,6 +96,12 @@ worker.onerror = (error) => {
 };
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
+/** The photograph layer of the frame on screen, null while none is shown. */
+let composition: {
+  mode: "split" | "overlay" | "swipe";
+  opacity: number;
+  size: number;
+} | null = null;
 let active:
   | ReturnType<typeof createConnectedFaceViewport>
   | ReturnType<
@@ -121,13 +131,14 @@ function port<Input, Output>(
       const key = selected.key + (ao ? "-ao" : "-direct");
       void (async () => {
         work("cache-read");
-        const cached = await fetch(`/cache/${key}`);
+        const cached = await spans.measure("cacheReadMs", () => fetch(`/cache/${key}`));
         let value: Result;
         if (cached.ok)
-          value = decodeHumanViewerPreview(await cached.text()) as Result;
+          value = await spans.measure("cacheDecodeMs", async () =>
+            decodeHumanViewerPreview(await cached.text()) as Result);
         else {
           work("build");
-          value = await new Promise<Result>((resolve, reject) => {
+          value = await spans.measure("workerMs", () => new Promise<Result>((resolve, reject) => {
             const workerId = ++sequence;
             pending.set(workerId, { resolve, reject });
             worker.postMessage({
@@ -136,15 +147,15 @@ function port<Input, Output>(
               basis: selected.basis,
               input: { ...input, occlusion: ao },
             });
-          });
+          }));
           // Only numerical results enter disk persistence. Photos remain in a
           // separate display layer, and are never serialized here.
           work("cache-write");
-          await fetch(`/cache/${key}`, {
+          await spans.measure("cacheWriteMs", () => fetch(`/cache/${key}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: encodeHumanViewerPreview(value),
-          });
+          }));
         }
         work("prepare");
         transport.onmessage?.({
@@ -166,6 +177,7 @@ function port<Input, Output>(
 }
 
 async function show(address: HumanViewerAddress): Promise<void> {
+  spans.reset();
   workingDocument = address.doc;
   work("loading");
   // A hand-written document can appear or change after the page loaded.
@@ -346,6 +358,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
     address.ref,
     address.opacity,
   );
+  composition = null;
   reference.style.display = comparison.enabled ? "block" : "none";
   reference.style.clipPath = "";
   reference.style.opacity = "1";
@@ -370,6 +383,11 @@ async function show(address: HumanViewerAddress): Promise<void> {
         reference.style.opacity = String(1 - comparison.renderOpacity);
       else reference.style.clipPath = `inset(0 0 0 ${address.opacity * 100}%)`;
     }
+    composition = {
+      mode: comparison.mode!,
+      opacity: address.opacity,
+      size: address.size,
+    };
     active.finish();
   } else canvas.style.width = `${address.size}px`;
   const svg = document.querySelector<SVGSVGElement>("#landmarks")!;
@@ -432,12 +450,20 @@ async function main(): Promise<void> {
       revision: () => catalogue.revision,
       builds: () => builds,
       buildMs: () => buildMs,
+      spans: () => spans.snapshot(),
       address: () => current,
       png: () => {
         active.finish();
         const gl = renderer.getContext();
         assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
-        return canvas.toDataURL("image/png");
+        if (composition === null) return canvas.toDataURL("image/png");
+        // The photograph is a DOM layer above the canvas, so compose it in.
+        return captureHumanViewerReference({
+          composition,
+          photo: document.querySelector<HTMLImageElement>("#reference")!,
+          render: canvas,
+          create: () => document.createElement("canvas"),
+        });
       },
     },
   });

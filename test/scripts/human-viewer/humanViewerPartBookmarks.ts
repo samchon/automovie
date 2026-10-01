@@ -13,7 +13,10 @@ const face = (
  * names, in the order the face is read from the skin outward. The meshes are
  * the connected basis's own names and the hair builder's, and a document that
  * leaves one out (a subject without hair has no scalp mesh) simply does not
- * list it, which the gallery shows. Hair is opened on a subject that has hair.
+ * list it, which the gallery shows. Hair is opened on a subject that has hair
+ * and a neutral expression, because a published expression document the
+ * numerical contact check refuses cannot be drawn at all. The fringe sits on a
+ * hand-written input, so a checkout without the local inputs shows its refusal.
  */
 export const humanViewerPartBookmarks: readonly IHumanViewerPartBookmark[] = [
   face("face-skin", "Face surface", "Skin", ["Human/skin"]),
@@ -35,14 +38,14 @@ export const humanViewerPartBookmarks: readonly IHumanViewerPartBookmark[] = [
     "Hair",
     "Scalp hair",
     ["numerical-hair:scalp"],
-    "emma-watson-connected",
+    "kdy1-connected",
   ),
   face(
     "hair-fringe",
     "Hair",
     "Fringe",
     ["numerical-hair:fringe"],
-    "emma-watson-connected",
+    "file:f2-contact-off/daniel-radcliffe-connected-neutral",
   ),
   {
     id: "body-skin",

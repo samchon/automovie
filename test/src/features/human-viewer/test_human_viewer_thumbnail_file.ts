@@ -7,7 +7,9 @@ import { humanViewerThumbnailFile } from "../../../scripts/human-viewer/humanVie
  *
  * Scenarios:
  * 1. Queue lanes share one frame identity while camera and source changes do not.
- * 2. Unknown documents, invalid addresses and an empty inventory refuse a path.
+ * 2. A frame that carries a reference photograph refuses a path, so a photograph
+ *    never reaches the disk cache.
+ * 3. Unknown documents, invalid addresses and an empty inventory refuse a path.
  */
 export const test_human_viewer_thumbnail_file = (): void => {
   const inventory = { revision: "display-one", documents: [{ id: "neutral", key: "basis-one" }] };
@@ -28,6 +30,8 @@ export const test_human_viewer_thumbnail_file = (): void => {
   inventory.documents[0].key = "basis-two";
   TestValidator.predicate("new numerical result changes authority", afterDisplay !==
     identify("doc=neutral&size=320"));
+  TestValidator.equals("a reference photograph is never cached",
+    identify("doc=neutral&size=320&ref=split"), null);
   TestValidator.equals("unknown document", identify("doc=missing"), null);
   TestValidator.equals("invalid address", identify("doc=neutral&size=-1"), null);
   TestValidator.equals("empty inventory", humanViewerThumbnailFile(

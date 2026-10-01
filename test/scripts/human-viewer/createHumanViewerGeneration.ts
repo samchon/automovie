@@ -22,6 +22,7 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
     revision: () => viewer.revision(),
     builds: () => viewer.builds(),
     buildMs: () => viewer.buildMs(),
+    spans: () => viewer.spans(),
     address: () => viewer.address(),
     png: () => viewer.png(),
     show: (address) => {

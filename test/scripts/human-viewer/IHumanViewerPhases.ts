@@ -23,6 +23,17 @@ export interface IHumanViewerPhases {
   /** Numerical worker time, zero for a cached model. */
   buildMs?: number;
 
+  /**
+   * Page milliseconds per named stage of `showMs` (cache read, cache decode,
+   * numerical worker, cache write). They can overlap nothing and are summed by
+   * name, so `otherMs` is the remainder: resident construction, textures and
+   * drawing, which the page does not time separately.
+   */
+  spans?: Record<string, number>;
+
+  /** `showMs` minus the sum of `spans`, never negative. */
+  otherMs?: number;
+
   /** Canvas encoding to a PNG data URL. */
   pngMs?: number;
 

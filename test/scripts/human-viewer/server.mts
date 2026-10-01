@@ -38,6 +38,7 @@ import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationSt
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
 import { describeHumanViewerCapture } from "./describeHumanViewerCapture";
+import { describeHumanViewerPass } from "./describeHumanViewerPass";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const source = createHumanViewerSource(directory);
@@ -93,7 +94,7 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
   const bytes = Buffer.from(result.png.split(",")[1], "base64");
   const reading = describeHumanViewerCapture({
     doc: address.doc, ao: address.ao, built: result.built, buildMs: result.buildMs,
-    showMs: result.showMs, pngMs: result.pngMs, started, waited, decoded,
+    showMs: result.showMs, pngMs: result.pngMs, spans: result.spans, started, waited, decoded,
     finished: performance.now(), wallTime: Date.now(), pendingEditAt,
   });
   phases = reading.phases;
@@ -294,6 +295,7 @@ async function main(): Promise<void> {
           serializeHumanViewerAddress(address),
         );
         response.setHeader("X-Renderer", renderer);
+        response.setHeader("X-Pass-Reading", describeHumanViewerPass(address.pass));
         response.setHeader("X-Human-Build", lastRender?.build ?? "unknown");
         response.setHeader(
           "X-Render-Ms",
@@ -333,7 +335,7 @@ async function main(): Promise<void> {
           address.doc,
           JSON.stringify(
             Object.fromEntries(
-              Object.entries(phases).map(([key, value]) => [key, Math.round(value)]),
+              Object.entries(phases).filter((entry): entry is [string, number] => typeof entry[1] === "number").map(([key, value]) => [key, Math.round(value)]),
             ),
           ),
         );

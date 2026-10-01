@@ -6,6 +6,7 @@
  */
 import type { Page } from "playwright";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import type { HumanViewerHandle } from "./HumanViewerHandle";
 
 /** Capture page timing and PNG data under the caller's selected source revision. */
 export async function readHumanViewerCapture(
@@ -23,17 +24,8 @@ export async function readHumanViewerCapture(
   // Passing the viewer explicitly avoids serializing a closure into the page.
   const result = await page.evaluate(
     async (input) => {
-      const viewer = (
-        window as unknown as {
-          __humanViewer: {
-            show: (address: HumanViewerAddress) => Promise<void>;
-            png: () => string;
-            revision: () => string;
-            builds: () => number;
-            buildMs: () => number;
-          };
-        }
-      ).__humanViewer;
+      const viewer = (window as unknown as { __humanViewer: HumanViewerHandle })
+        .__humanViewer;
       if (viewer.revision() !== input.revision)
         throw new Error("The source revision has not finished loading");
       const before = viewer.builds();
@@ -47,6 +39,7 @@ export async function readHumanViewerCapture(
         buildMs: viewer.buildMs(),
         showMs: t1 - t0,
         pngMs: performance.now() - t1,
+        spans: viewer.spans(),
       };
     },
     { address, revision },
