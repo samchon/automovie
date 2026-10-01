@@ -37,6 +37,7 @@ const MARGIN_METRES = 1e-9;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No surface, landmark, rule or expected girth is named; the list depends on the triangles, the normal and the levels alone, and the cut still decides every crossing.
  * @evidence contracts/common.md#meaningful-documentation The comment states the reason for the index, the superset guarantee and its margin, the ordering the cut relies on, the units and the cost.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is an index over triangles and defines no part or group.
+ * @evidence contracts/modeling.md#spatial-conventions Positions are metres in the rest body's frame and the normal is a direction in that frame, so a level is a projection onto it that is metres for the unit normal the caller passes; the 1e-9 m margin is compared in that same unit, and the function converts no unit or frame.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only triangle ordinals of the surface it was given.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.

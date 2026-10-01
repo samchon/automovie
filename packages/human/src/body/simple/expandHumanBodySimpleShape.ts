@@ -62,10 +62,13 @@ const CONVERGENCE = 1e-5;
  * shapes need not produce identical bodies. Channels the table does not name
  * pass through untouched. The detailed tier remains the document's canonical
  * form, and the returned record is fresh. The canonical expansion is checked
- * against all requested readings before this detailed residue is reapplied;
- * those readings are not promised for the residue-bearing result.
+ * against all requested readings before this detailed residue is reapplied.
+ * The residue-bearing body is then solved again along the same named
+ * directions and checked against the same readings, so every channel outside
+ * those directions keeps its residue, and a request the residue makes
+ * unreachable is refused like any other.
  *
- * @evidence contracts/common.md#principled-implementation Table terms are summed before envelope projection so the inverse reads the same combined channel map. Sequential measured-reach inversions warm up a simultaneous shared-body solve; unresolved systems retain complete strict reach sampling. A final shared-body assertion checks every canonical requested reading after stature reconciliation. The optional detailed-residue result deliberately preserves prior edits and is not covered by that target assertion.
+ * @evidence contracts/common.md#principled-implementation Table terms are summed before envelope projection so the inverse reads the same combined channel map. Sequential measured-reach inversions warm up a simultaneous shared-body solve; unresolved systems retain complete strict reach sampling. A final shared-body assertion checks every canonical requested reading after stature reconciliation. The optional detailed-residue result is the difference of two expansions, which is exact only where readings add over channels, so it is solved again from where it stands and passes the same assertion.
  * @evidence contracts/common.md#clear-and-simple-design One compiler orders table expansion, measured inversion, canonical verification and optional residue transfer; numerical iteration and measurement definitions have separate owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No person or photograph is selected. The numerical budgets and pass counts are stated policies, not anatomical limits; measured-reach refusal remains separate from transient warm-up saturation.
  * @evidence contracts/common.md#meaningful-documentation States the simple-to-detailed conversion, coupled physical readings, omitted measurements, refusal, detailed residue and the precise boundary of canonical target verification.
@@ -77,7 +80,7 @@ const CONVERGENCE = 1e-5;
  * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the emitted form.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The simple table and measurement owners define the anatomical formulas and constants; this compiler introduces only explicitly numerical acceptance budgets.
  * @evidenceExclude contracts/anatomy.md#permitted-range The table and basis own admitted parameter envelopes; this compiler enforces those existing envelopes without defining a new physiological interval.
- * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to the detailed tier, which remains canonical. The optional detailed residue preserves that existing detailed authority and can change the achieved simple readings; it is documented rather than concealed by a target-success claim.
+ * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to the detailed tier, which remains canonical. The optional detailed residue preserves that existing detailed authority on every channel outside the solved named directions, and the body it yields is held to the requested readings.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
@@ -268,5 +271,14 @@ export function expandHumanBodySimpleShape(
     if (value === 0) delete result[id];
     else result[id] = value;
   }
-  return result;
+  // The difference of two expansions is exact only where the readings add up
+  // over the channels, and a skin volume or a tape section does not. The
+  // composed body is therefore solved again along the same named directions
+  // from where it stands, so the residue on every channel outside them is
+  // kept, a body already inside its budgets is returned unchanged, and a
+  // request the residue makes unreachable is refused rather than answered
+  // with a compromise.
+  const final = solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
+  assertHumanBodySimpleValues(basis, final, unknowns);
+  return final;
 }

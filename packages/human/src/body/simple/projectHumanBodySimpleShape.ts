@@ -31,6 +31,20 @@ const MASS_ITERATIONS = 4;
  * The physical readings share one evaluated rest skin and landmark set;
  * identity curves and the mass fixed point consume those same values without
  * silently changing the candidate body between two tape sites.
+ *
+ * @evidence contracts/common.md#principled-implementation Stature and tapes are read on one shaped rest skin through a shared reader. Mass is that skin's volume at the density of the fat that the body's own sex, age and mass imply, iterated a fixed four steps from the lowest admitted fat fraction toward their fixed point; the density moves little per step, but the iteration is a truncation that is not checked for convergence. Each identity channel is read through the inverse of its first term row after the other rows on that channel are removed with the parameters read so far, which inverts the same sum the expansion builds, and this requires those curves to be invertible.
+ * @evidence contracts/common.md#clear-and-simple-design One projection function over one reader; curve inversion, volume, density and the tape channel readings keep their own owners, and the expansion subtracts this same projection instead of repeating it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No person, photograph or expected value is named; an identity channel the basis lacks reads as its neutral by the table's rule, and a tape the surface cannot answer is omitted rather than invented.
+ * @evidence contracts/common.md#meaningful-documentation States what is read back and how, the shared skin, the mass fixed point, the muscle's removal of other rows, the neutral for absent channels, the default of all tapes and the editor and expansion consumers.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group.
+ * @evidence contracts/modeling.md#parameter-channels It reads the identity channels (sex, age, muscle) through their term rows, and a channel the basis lacks reads as its neutral zero, which projects to sex 0, age 25 and muscle 0. It defines no channel and does not establish that the identity channels vary independent traits.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits a record of simple values and no geometry.
+ * @evidence contracts/modeling.md#spatial-conventions Stature and tapes are metres and mass is kilograms on the shaped rest skin, age is years and sex and muscle are dimensionless macro values; the readers own the skin frame and no conversion happens here.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; it reports numbers.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The term table and the measurement rules own the anatomical formulas and sources; this projection adds no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It reports what a body's weights say and refuses nothing; admission of the values belongs to the expansion and the basis envelopes.
+ * @evidence contracts/anatomy.md#parametric-authority It is the documented inverse of the simple-to-detailed conversion that the expansion applies: the same weights give the same named values (sex, age, stature, mass, muscle, tapes), so an editor shows named measurements and never a morph weight, and the expansion subtracts this projection to keep detailed residue. No input addresses geometry.
  */
 export function projectHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
