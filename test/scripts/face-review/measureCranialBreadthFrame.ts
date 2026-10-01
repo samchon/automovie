@@ -9,11 +9,15 @@ export interface ICranialBreadthFrame {
   euryon: number;
   /** The euryon's depth: the full span from here backward. */
   depth: number;
-  /** The auricles' highest point: nothing at or below it moves. */
+  /** The auricles' lowest point: the span rises from nothing here. */
+  earBottom: number;
+  /** The auricles' highest point: above it the span may reach forward. */
   earTop: number;
+  /** The auricles' most anterior point: below the ear top nothing ahead of it moves. */
+  earFront: number;
   /** The brow cards' greatest half-width: nothing within it moves. */
   browSide: number;
-  /** The depth of the brow's lateral end: nothing in front of it moves. */
+  /** The depth of the brow's lateral end: the temple's span ends here. */
   front: number;
 }
 
@@ -26,16 +30,17 @@ export interface ICranialBreadthFrame {
  * and a calliper reads on the skull (the 3D Facial Norms study, Weinberg et
  * al. 2016, PMC4841054 Table 2, defines maximum cranial width as euryon to
  * euryon by spreading callipers; ANSUR II measures head breadth). The ear
- * top is the highest auricle vertex and the brow's lateral end the brow vertex
- * farthest from the midline; the frame is the set of four lengths and two
- * heights the control's weights are laid out by, so no number is a constant of
- * one subject. The head is read as symmetric about x = 0, the basis's own
- * convention, by absolute lateral distance.
+ * bottom and ear front are the auricles' lowest and most anterior vertices,
+ * and the brow's lateral end the brow vertex farthest from the midline; the
+ * frame is the set of lengths and heights the control's weights are laid out
+ * by, so no number is a constant of one subject. The head is read as
+ * symmetric about x = 0, the basis's own convention, by absolute lateral
+ * distance.
  *
  * The frame must order the way a head does, or no cranial control exists on the
- * surface: the ears end below the euryon, the brows end inside the head's
- * side and the brow's lateral end lies in front of the euryon. Pure, and the
- * inputs are only read.
+ * surface: the ears begin below the euryon, the brows end inside the head's
+ * side and the ears' front lies ahead of the euryon, so the span can end
+ * behind the face. Pure, and the inputs are only read.
  *
  * @param props.positions Skin positions, flat xyz.
  * @param props.scalp Vertices of the scalp's hair domains.
@@ -63,15 +68,19 @@ export function measureCranialBreadthFrame(props: {
     side: Math.abs(P[3 * euryon]!),
     euryon: P[3 * euryon + 1]!,
     depth: P[3 * euryon + 2]!,
+    earBottom: Math.min(...props.auricles.map((v) => P[3 * v + 1]!)),
     earTop: Math.max(...props.auricles.map((v) => P[3 * v + 1]!)),
+    earFront: Math.max(...props.auricles.map((v) => P[3 * v + 2]!)),
     browSide: Math.abs(B[3 * lateral]!),
     front: B[3 * lateral + 2]!,
   };
-  if (!(frame.earTop < frame.euryon))
-    throw new Error("The ears end below the euryon.");
+  if (!(frame.earBottom < frame.euryon))
+    throw new Error("The ears begin below the euryon.");
   if (!(frame.browSide > 0 && frame.browSide < frame.side))
     throw new Error("The brows end inside the head's side.");
-  if (!(frame.front > frame.depth))
-    throw new Error("The brow's lateral end lies in front of the euryon.");
+  if (!(frame.earFront > frame.depth))
+    throw new Error("The ears' front lies ahead of the euryon.");
+  if (!(frame.front > frame.earFront && frame.earTop < frame.euryon))
+    throw new Error("The brow's lateral end lies ahead of the ears.");
   return frame;
 }

@@ -15,8 +15,9 @@
  * The frame is read on the source's neutral (`measureCranialBreadthFrame`):
  * the scalp's vertices from the hair domains, the auricles of
  * `faceUnseenParts` and the brow cards. The unit is 5 mm a side at full span,
- * 10 mm of head breadth. The envelope [-1, 3] reaches 181 mm broader (the
- * widest observed head breadth is 180 mm) and, narrower, the source's own
+ * 10 mm of head breadth. The envelope [-1, 2.5] reaches 176 mm broader (the
+ * widest observed head breadth is 180 mm, but at +3, 181 mm, two skin
+ * triangles cross, so the envelope stops where the surface stays clean) and, narrower, the source's own
  * breadth, because the vertices outside the control's span keep that breadth:
  * the response is linear to about -0.5 (146 mm) and then saturates, so heads
  * narrower than the source remain `headWidth`'s, which also narrows the face.
@@ -46,10 +47,11 @@ const source = basis.json;
 const human = source.surfaces.find((one) => one.id === "Human")!;
 const brows = source.surfaces.find((one) => one.id === "Human.eyebrow001")!;
 const parts = faceUnseenParts(source, human);
+const auricles = [...parts.auricles.left, ...parts.auricles.right];
 const frame = measureCranialBreadthFrame({
   positions: human.positions,
   scalp: parts.scalp,
-  auricles: [...parts.auricles.left, ...parts.auricles.right],
+  auricles,
   brows: brows.positions,
 });
 const prepared = prepareCranialBreadthBasis({
@@ -60,8 +62,9 @@ const prepared = prepareCranialBreadthBasis({
   skin: "Human",
   channel: "cranialBreadth",
   frame,
+  auricles,
   unit: 0.005,
-  envelope: [-1, 3],
+  envelope: [-1, 2.5],
   neutralBreadth: millimetres / 1000,
 });
 const skinAt = (weight: number) =>
@@ -79,7 +82,7 @@ const skinAt = (weight: number) =>
 const rest = skinAt(0);
 const triangles: number[] = [];
 for (let t = 0; t < human.indices.length; t += 3) triangles.push(t);
-const faults = [-1, 3].map((w) =>
+const faults = [-1, 2.5].map((w) =>
   faceSupportFaults({
     source: rest,
     positions: skinAt(w),
@@ -98,7 +101,7 @@ writeFaceBasisRevision({
   fields: {
     sourceBreadthMetres: 2 * frame.side,
     neutralBreadthMetres: breadth(rest),
-    envelopeEndBreadthsMetres: [-1, 3].map((w) => breadth(skinAt(w))),
+    envelopeEndBreadthsMetres: [-1, 2.5].map((w) => breadth(skinAt(w))),
     faultsAtEnds: faults,
   },
   recorded: new Date(),

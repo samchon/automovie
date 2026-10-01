@@ -1,6 +1,6 @@
 {
-  "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
-  "basisSha256": "c2e9c3fbb73d1ea0a9e9e4ec6808a6ccc7082730007f6418de38812b6be1acde",
+  "basis": "mpfb-connected-head-2026-10-02-cranial-breadth",
+  "basisSha256": "01ca86bf39a054ffe7d18cc59f89cb80e6392f359e9ca65e0cbf86720b4d2d67",
   "protocol": "3dfn-surface-landmarks",
   "status": "candidate",
   "midline": {

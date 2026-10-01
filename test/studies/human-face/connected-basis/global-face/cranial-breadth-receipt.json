@@ -1,0 +1,54 @@
+{
+  "source": "mpfb-connected-head-2026-09-28-crown-scallop",
+  "revision": "mpfb-connected-head-2026-10-02-cranial-breadth",
+  "channel": "cranialBreadth",
+  "frame": {
+    "side": 0.07065191119909286,
+    "euryon": 0.05146074295043945,
+    "depth": 0.0377659797668457,
+    "earBottom": -0.011912226676940918,
+    "earTop": 0.037064552307128906,
+    "earFront": 0.052274610847234726,
+    "browSide": 0.057311199605464935,
+    "front": 0.11215271493531899
+  },
+  "unit": 0.005,
+  "envelope": [
+    -1,
+    2.5
+  ],
+  "neutralBreadth": 0.151,
+  "bakedWeight": 0.9696177601814265,
+  "rows": 2758,
+  "sourceBreadthMetres": 0.14130382239818573,
+  "neutralBreadthMetres": 0.151,
+  "envelopeEndBreadthsMetres": [
+    0.141,
+    0.176
+  ],
+  "faultsAtEnds": [
+    0,
+    0
+  ],
+  "recorded": "2026-10-01T16:04:23.001Z",
+  "inputs": {
+    "basis": {
+      "sha256": "c2e9c3fbb73d1ea0a9e9e4ec6808a6ccc7082730007f6418de38812b6be1acde",
+      "bytes": 27139199
+    },
+    "subjects": {
+      "sha256": "0f9fd6f811c8e11f114d059797a7f32b41dd1341f13c742f446dd4adbc7d18e6",
+      "bytes": 119438
+    },
+    "controls": {
+      "sha256": "97289cc7e215d48a3df9d8efd9d2a48516d391d436f3f65c56be3041ddff72e5",
+      "bytes": 7452
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "01ca86bf39a054ffe7d18cc59f89cb80e6392f359e9ca65e0cbf86720b4d2d67",
+      "bytes": 27199043
+    }
+  }
+}

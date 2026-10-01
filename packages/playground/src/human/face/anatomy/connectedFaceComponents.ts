@@ -22,7 +22,7 @@ import { connectedFaceNose } from "./connectedFaceNose";
  *
  */
 export const connectedFaceComponents: IAutoMovieHumanFaceComponentTree = {
-  basis: "mpfb-connected-head-2026-09-28-crown-scallop",
+  basis: "mpfb-connected-head-2026-10-02-cranial-breadth",
   root: {
     id: "face",
     label: "Face",

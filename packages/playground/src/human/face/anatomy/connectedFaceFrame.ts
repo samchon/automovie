@@ -53,6 +53,7 @@ export const connectedFaceFrame: IAutoMovieHumanFaceComponentTree.Node = {
         "foreheadHeight",
         "foreheadProjection",
         "templeWidth",
+        "cranialBreadth",
         "headOutlineInvertedtriangular",
         "headOutlineDiamond",
         "headOutlineOval",
