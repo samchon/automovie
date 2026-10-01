@@ -41,12 +41,13 @@ const POPULATION = [
  * The analytic box of the simple fixture gains the sixteen channels on an
  * endpoint that moves nothing, so the solved stature, girths and mass are the
  * fixture's and each weight is the row's own value. At 25 years:
- * 1. A woman at BMI 22 gets hip breadth -0.119, hip depth 0 and calf fat
- *    0.099 on both sides; at BMI 30, -0.544, 0.168 and 0.119. Neither sex
+ * 1. A woman at BMI 22 gets hip breadth -0.469, hip depth 0 and calf fat
+ *    0.099 on both sides; at BMI 30, -1 (the channel's own limit), 0.168 and
+ *    0.119. Neither sex
  *    gets a gluteal projection.
  * 2. A man gets none of the woman's hip or calf rows.
  * 3. Between knots the weight is linear: a woman at BMI 24 gets the hip
- *    breadth halfway between -0.119 and -0.342; below the survey's support
+ *    breadth halfway between -0.469 and -0.742; below the survey's support
  *    the rows fade, to zero at BMI 15 and halfway at 16.5.
  * 4. A woman's hip breadth narrows with the body mass index and her hip
  *    depth grows.
@@ -125,8 +126,8 @@ export const test_human_body_simple_population = (): void => {
   const woman30 = body(-1, 30);
   const man22 = body(1, 22);
   const man30 = body(1, 30);
-  expect("woman at BMI 22", woman22, [0, -0.119, 0, 0.099]);
-  expect("woman at BMI 30", woman30, [0, -0.544, 0.168, 0.119]);
+  expect("woman at BMI 22", woman22, [0, -0.469, 0, 0.099]);
+  expect("woman at BMI 30", woman30, [0, -1, 0.168, 0.119]);
   expect("man at BMI 22", man22, [0, 0, 0, 0]);
   expect("man at BMI 30", man30, [0, 0, 0, 0]);
   TestValidator.predicate(
@@ -145,12 +146,12 @@ export const test_human_body_simple_population = (): void => {
   );
   TestValidator.predicate(
     "linear between knots",
-    nclose(body(-1, 24).hipScaleHoriz, (-0.119 - 0.342) / 2, 1e-9),
+    nclose(body(-1, 24).hipScaleHoriz, (-0.469 - 0.742) / 2, 1e-9),
   );
   TestValidator.predicate(
     "fading below the survey's support",
     nclose(body(-1, 15).hipScaleHoriz, 0, 1e-9) &&
-      nclose(body(-1, 16.5).hipScaleHoriz, 0.143 / 2, 1e-9),
+      nclose(body(-1, 16.5).hipScaleHoriz, -0.207 / 2, 1e-9),
   );
   const distal = (
     title: string,
@@ -199,7 +200,7 @@ export const test_human_body_simple_population = (): void => {
   TestValidator.predicate(
     "the refitted rows follow the survey's ages",
     nclose(body(1, 22, 14).measureUpperlegHeight, -0.05 / 2, 1e-9) &&
-      nclose(body(-1, 22, 70).hipScaleHoriz, -0.119 / 2, 1e-9) &&
+      nclose(body(-1, 22, 70).hipScaleHoriz, -0.469 / 2, 1e-9) &&
       nclose(body(-1, 22, 90).hipScaleHoriz ?? 0, 0, 1e-9) &&
       nclose(body(1, 22, 11).measureUpperlegHeight ?? 0, 0, 1e-9),
   );
