@@ -8,6 +8,9 @@ import { IPortraitEarShape } from "./IPortraitEarShape";
  * `IPortraitEarShape.sampling`; it is the single owner of that default, so the
  * document resolver and the validator cannot disagree about it. Callers that
  * change it receive a copy, never this object.
+ *
+ * The three counts are mesh resolution conventions, not anatomical values: they
+ * set how finely the authored outline is sampled and carry no unit or frame.
  */
 export const portraitEarSampling: Readonly<
   NonNullable<IPortraitEarShape["sampling"]>

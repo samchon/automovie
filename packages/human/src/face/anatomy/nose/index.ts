@@ -9,4 +9,5 @@ export * from "./portraitNostrilContains";
 export * from "./portraitNostrilRimNormal";
 export * from "./resizePortraitNostrilRim";
 export * from "./resolvePortraitNoseShape";
+export * from "./resolvePortraitNoseSocket";
 export * from "./structures";

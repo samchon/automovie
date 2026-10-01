@@ -128,6 +128,22 @@ const FIRST: IFaceValidLimit[] = [
 
 const LIMITS: Record<string, IFaceValidLimit[]> = {
   first: FIRST,
+  "tip-lip-order": [
+    {
+      channel: "noseDepth",
+      side: "minimum",
+      value: -0.5,
+      study:
+        "Measured at the midline from the skin and lip surfaces, the pronasale stands 6.2 mm in front of the upper lip's anterior surface at 0, 0.4 mm at -0.5, then 0.2 mm behind it at -0.55 and 5.2 mm behind it at -1, where the profile keeps a nub no living nose leaves behind its upper lip",
+    },
+    {
+      channel: "mouthForwardPosition",
+      side: "maximum",
+      value: 0.6,
+      study:
+        "Measured the same way, the pronasale stands 6.2 mm in front of the upper lip's anterior surface at 0, 0.1 mm at 0.6, then 0.9 mm behind it at 0.7 and 3.9 mm behind it at 1, where the upper lip stands ahead of the nasal tip",
+    },
+  ],
   "eye-elevation": both(
     "EyeElevation",
     "maximum",

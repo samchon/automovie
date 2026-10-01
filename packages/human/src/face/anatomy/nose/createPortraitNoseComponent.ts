@@ -6,6 +6,7 @@ import { fitPortraitNostrilRim } from "./fitPortraitNostrilRim";
 import { portraitNoseDepth } from "./portraitNoseDepth";
 import { resizePortraitNostrilRim } from "./resizePortraitNostrilRim";
 import { resolvePortraitNoseShape } from "./resolvePortraitNoseShape";
+import { resolvePortraitNoseSocket } from "./resolvePortraitNoseSocket";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
 
@@ -13,7 +14,7 @@ import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
  * Build one replaceable nose against the host's declared nasal attachment.
  *
  * The socket (host attachments, in millimetres of the head frame: +X anatomical
- * left, +Y up, +Z anterior) and the shape are copied and admitted here, and
+ * left, +Y up, +Z anterior) and the shape are admitted and copied here, and
  * `fit` later reads the actual host. Every shape input is a named nasal
  * measurement (widths and projections in millimetres, aperture scales, an
  * aperture tilt in degrees), never a vertex, curve or patch. Fitting proceeds
@@ -32,16 +33,7 @@ export function createPortraitNoseComponent(
   inputSocket: IPortraitNoseSocket,
   inputShape: IPortraitNoseShape,
 ): IPortraitComponent {
-  const socket = {
-    ...inputSocket,
-    tipRadius: [...inputSocket.tipRadius] as [number, number],
-    surface: [...inputSocket.surface],
-    nostrils: inputSocket.nostrils.map((faces) => [...faces]),
-    supportPlane:
-      inputSocket.supportPlane === undefined
-        ? undefined
-        : [...inputSocket.supportPlane],
-  };
+  const socket = resolvePortraitNoseSocket(inputSocket);
   const shape = resolvePortraitNoseShape(inputShape);
   return {
     id: "nose",
