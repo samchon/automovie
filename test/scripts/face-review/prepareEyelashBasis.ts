@@ -9,7 +9,7 @@ import { faceEyelashTransverseScale } from "./faceEyelashTransverseScale";
 import { locateFaceEyelashTriangle } from "./locateFaceEyelashTriangle";
 import { rasterizeEyelashSegment } from "./rasterizeEyelashSegment";
 
-/** A lid's lashes as the anatomy reports them. */
+/** Authored representative or measured fibre dimensions for one lid; the caller owns their source domain. */
 export interface IEyelashNorm {
   /** The lash surface region that carries this lid's cards. */
   region: string;
@@ -22,8 +22,9 @@ export interface IEyelashNorm {
   /** Fibre diameter, mm. */
   diameter: number;
   /**
-   * The share of the lid's follicles growing (anagen); a growing lash is
-   * anywhere between none and its full length, a resting one full length.
+   * The representative share in anagen. Texture synthesis assigns a growing
+   * fibre a uniform fraction of its nominal full length and a resting fibre
+   * that full length. This phase construction is not a measured distribution.
    */
   growing: number;
 }
@@ -271,14 +272,19 @@ export const faceEyelashLift = (
  * edge at the same fraction along the lid for its length, read as arc length
  * on the card's own curved surface, so the card's curl is the lash's. The
  * full length follows the norm's medial, central and lateral values
- * piecewise linearly. Lash follicles cycle out of step with one another and
- * a lash grows at a steady rate through its growing phase (Thibaut et al.,
- * Br J Dermatol 2010;162:304-310), so a lid holds its resting lashes at full
- * length and its growing ones, `growing` of them, at a length uniform between
- * none and full; which ones grow, and how far, is seeded. A fibre is
- * drawn with its diameter in the card's own scale, tapering to a tenth at the
- * tip, and a pixel it covers partly takes that coverage as alpha, so fibres
- * finer than a pixel stay fine. Pure: returns new values.
+ * piecewise linearly. Growing fibres use a seeded uniform fraction of that
+ * nominal length; resting fibres use the full length. This idealizes steady
+ * within-fibre growth and stationary unbiased phase sampling. Thibaut et al.
+ * (Br J Dermatol 2010;162:304-310) report variable growth in their cohort;
+ * that observation does not establish the uniform fraction used here.
+ *
+ * Diameter uses the transverse UV-to-metre metric. The linear taper to one
+ * tenth at the tip is an authored rendering convention, not a measured lash
+ * profile. Each continuous strip contributes its pixel-intersection area as
+ * alpha, composed once per fibre. A length beyond the source card stops at
+ * its tip; neither the nominal norm nor raster continuity certifies the
+ * source card's root attachment, biological orientation or curvature.
+ * Pure: returns new values.
  */
 export function drawEyelashTexture(props: {
   cards: readonly IEyelashCard[];
