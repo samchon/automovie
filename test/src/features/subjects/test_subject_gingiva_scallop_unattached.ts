@@ -2,10 +2,12 @@ import { TestValidator } from "@nestia/e2e";
 
 import { prepareGingivaScallopBasis } from "../../../scripts/face-review/prepareGingivaScallopBasis";
 import { gingivaScallopFixture } from "../internal/gingivaScallopFixture";
+import { throwsError } from "../internal/predicates";
 
 /**
- * Without attachments the fixture's lower octahedron is an upper crown to a
- * scalloped gum, the one at the midline.
+ * Removing attachments makes a previously mandibular crown enter the upper
+ * set. Its clinical landmarks were never registered, so the norm-driven
+ * preparation refuses rather than guessing a gingival zenith for that crown.
  */
 export const test_subject_gingiva_scallop_unattached = (): void => {
   const { basis, base } = gingivaScallopFixture();
@@ -13,9 +15,9 @@ export const test_subject_gingiva_scallop_unattached = (): void => {
   delete unattached.surfaces.find((one) => one.id === "teeth")!.attachments;
   TestValidator.predicate(
     "unattached",
-    prepareGingivaScallopBasis({
+    throwsError(() => prepareGingivaScallopBasis({
       ...base,
       basis: unattached,
-    }).receipt.anterior.some((one) => Math.abs(one.centre) < 1e-9),
+    }), ["Clinical crown height needs landmark registration"]),
   );
 };

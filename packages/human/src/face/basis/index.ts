@@ -15,6 +15,8 @@ export * from "./evaluateHumanFaceRest";
 export * from "./humanFaceBasisWeights";
 export * from "./humanFaceBasisRegion";
 export * from "./measureHumanFaceAperture";
+export * from "./measureHumanFaceApertureGap";
+export * from "./measureHumanFaceTongueSection";
 export * from "./poseHumanFaceSurface";
 export * from "./resolveHumanFaceArticulation";
 export * from "./resolveHumanFaceContact";

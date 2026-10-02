@@ -20,7 +20,4 @@ export const humanFaceRegions = [
   "neck",
   "dentition",
   "lowerDentition",
-  "orbits",
-  "relief",
-  "curves",
 ] as const;

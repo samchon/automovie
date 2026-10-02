@@ -18,6 +18,14 @@ import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
  * a continuous central edge even when the two proximal corners differ.
  * The result pairs this owned mesh with its directed cervical cap cycle; the
  * cycle is constructed with the loft, before any row placement or packing.
+ *
+ * @evidence contracts/common.md#principled-implementation The crown is a loft of 32-sided rings whose half-width follows a contact-crest profile (0.92 to 1 by the crest, then a power-law narrowing to the cervical ratio), whose depth follows a sine thickening from a thin cutting edge, and whose edge corners rise as x^2 (1-v)^4; the exponents 0.45 on the cosine and sine round the section toward a rounded rectangle. Regular sampling rows and the contour crests share one sorted level list, so a crest cannot be skipped. Normals are area-weighted. The premises are the admitted crown and a mesial direction of plus or minus one.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The declaration builds the enamel of one tooth, the smallest part, and pairs it with its own cervical loop; hidden roots are not modelled.
+ * @evidence contracts/modeling.md#emitted-geometry The primitive count follows the loft's resolution, 32 columns and 11 sampled levels plus the distinct contour crests, and is independent of the crown's dimensions; a smaller representation would lose the width, cervical and incisal-edge shaping the loft is for.
+ * @evidence contracts/modeling.md#spatial-conventions Millimetres in the crown's local frame with +Y towards the gingiva and +Z towards the lip; the cervical cycle is vertex identities.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the crown's dimensions as inputs and defines no channel of its own.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The declaration builds one crown; the clearance between neighbours is the row's separation.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the crown type's named dimensions.
  */
 export function preparePortraitDentalCrown(
   s: IPortraitDentalCrown,

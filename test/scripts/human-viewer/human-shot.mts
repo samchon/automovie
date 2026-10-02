@@ -12,6 +12,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseHumanShotRequest } from "./parseHumanShotRequest";
+import { planHumanViewerWatch } from "./planHumanViewerWatch";
+import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
@@ -30,7 +32,7 @@ let owned: ChildProcess | undefined;
 const probe = async (): Promise<Health | null | undefined> => {
   try {
     const response = await fetch(origin + "/health", {
-      signal: AbortSignal.timeout(2000),
+      signal: AbortSignal.timeout(8000),
     });
     const health = (await response.json()) as Health;
     if (health.service !== "automovie-human-viewer")
@@ -55,8 +57,70 @@ const kill = (pid: number): void => {
     });
   else process.kill(pid, "SIGTERM");
 };
+/**
+ * Keep the viewer alive from outside its process. `planHumanViewerWatch` decides
+ * from the recorded process and the probe: an answering server is left alone,
+ * a silent one whose recorded process is alive is busy and waited for until
+ * `HANG_MS`, and only a dead one is started. A restart kills the recorded and
+ * owned processes and waits until the port is free before the new server
+ * starts, so two servers never contend for it. The watcher owns the started
+ * server as a child, so stopping the watcher stops it.
+ */
+async function watch(): Promise<void> {
+  const HANG_MS = 600000;
+  let silentSince: number | null = null;
+  const pause = (ms: number) =>
+    new Promise<undefined>((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  for (;;) {
+    let health: Health | null | undefined;
+    try {
+      health = await probe();
+    } catch {
+      health = undefined;
+    }
+    const record = path.join(storage, "server.json");
+    const saved = fs.existsSync(record)
+      ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
+      : null;
+    const answered = health?.service !== undefined;
+    silentSince = answered ? null : (silentSince ?? Date.now());
+    const plan = planHumanViewerWatch({
+      answered,
+      recordedAlive: saved !== null && processAlive(saved.pid),
+      ownedRunning: owned !== undefined && owned.exitCode === null,
+      silentMs: silentSince === null ? 0 : Date.now() - silentSince,
+      limitMs: HANG_MS,
+    });
+    if (plan === "start") {
+      console.error("watch: no server, starting");
+      start();
+      silentSince = Date.now() + 180000;
+    } else if (plan === "restart") {
+      console.error("watch: server silent for " + HANG_MS / 1000 + " s, restarting");
+      if (saved !== null) kill(saved.pid);
+      if (owned?.pid) kill(owned.pid);
+      fs.rmSync(record, { force: true });
+      // The port is released only when the old process is gone.
+      for (let wait = 0; wait < 30 && (await probe().catch(() => undefined)) !== null; ++wait)
+        await pause(1000);
+      start();
+      silentSince = Date.now() + 180000;
+    }
+    await pause(3000);
+  }
+}
+const processAlive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
 async function main(): Promise<void> {
-  let health = await probe();
+  const health = await probe();
   if (request.command === "status") {
     console.log(JSON.stringify(health ?? { ready: false }));
     process.exitCode = health?.ready ? 0 : 3;
@@ -79,7 +143,14 @@ async function main(): Promise<void> {
     fs.rmSync(record, { force: true });
     return;
   }
+  if (request.command === "watch") return watch();
   if (health === null) {
+    start();
+  }
+  await ready();
+}
+/** Start the server as a child of this process. */
+function start(): void {
     const require = createRequire(import.meta.url);
     const launcher = path.join(
       path.dirname(require.resolve("ttsc/package.json")),
@@ -90,7 +161,7 @@ async function main(): Promise<void> {
       [
         launcher,
         "-P",
-        path.join(directory, "tsconfig.json"),
+        path.join(directory, "tsconfig.node.json"),
         path.join(directory, "server.mts"),
       ],
       {
@@ -107,7 +178,9 @@ async function main(): Promise<void> {
     process.once("SIGTERM", () => {
       if (owned?.pid) kill(owned.pid);
     });
-  }
+}
+async function ready(): Promise<void> {
+  let health = await probe();
   for (let attempt = 0; !health?.ready && attempt < 3000; ++attempt) {
     if (owned?.exitCode !== null && owned?.exitCode !== undefined)
       throw new Error("The owned viewer exited before readiness");
@@ -119,8 +192,9 @@ async function main(): Promise<void> {
   if (!health?.ready) throw new Error("The viewer did not become ready");
   if (request.command === "ensure") console.log(JSON.stringify(health));
   else {
-    const response = await fetch(
-      origin + "/" + request.command + "?" + request.query,
+    const response = await retryHumanViewerFetch(
+      () => fetch(origin + "/" + request.command + "?" + request.query),
+      { attempts: 3, pause: (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }) },
     );
     if (!response.ok) throw new Error(await response.text());
     if (request.command === "warm") console.log(await response.text());

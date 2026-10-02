@@ -1,6 +1,6 @@
 /**
  * Export every published study document at rest, hair included, through the
- * actual connected runtime, for `capture-articulation.mjs` to render on a
+ * actual connected runtime, for `capture-articulation.ts` to render on a
  * real GPU. Run from the test package:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/export-subject-views.ts STUDY OUTPUT [id,id,...]

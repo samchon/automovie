@@ -8,6 +8,30 @@ type Section<K extends string> = { attachment: number } & Record<
  * row order; an anatomical validator may instead admit a returning fold and
  * is then applied to every authored and interpolated section. Positive finite
  * offsets and an attachment outside all tissue remain common requirements.
+ *
+ * The witnesses are copied on entry. Between two of them every offset,
+ * projection and the attachment take the weight `3t^2 - 2t^3`, so each value
+ * stays between its two witnesses and the curve has zero longitudinal slope at
+ * every witness. Offsets and projections are millimetres in the lid's section
+ * frame and progress is dimensionless. Fewer than two or more than 32
+ * witnesses, a first or last progress other than exactly zero and one,
+ * non-increasing progress, a non-finite or non-positive offset, an attachment
+ * not beyond the outermost offset, and any failure of the optional validator
+ * throw, at construction for the witnesses and at query time for each
+ * interpolated section; a query outside [0,1] throws too. Each query returns a
+ * fresh object.
+ *
+ * @evidence contracts/common.md#principled-implementation A convex weight in [0,1] applied to every scalar of two valid sections gives a section whose scalars lie between theirs, so positivity and, for strictly ordered witnesses, the strict order of the offsets survive interpolation, which is why the ordinary profile needs no per-sample ordering test. The optional validator exists because the folded upper lid deliberately breaks the ordering for one role, and there the interpolated section is checked instead of assumed. Smoothstep gives zero slope at each witness, so the tissue rows meet without a kink.
+ * @evidence contracts/common.md#clear-and-simple-design One generic function owns witness validation and interpolation for both lids, so the upper and lower profiles differ only by their role lists and validator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The sampler is a function of the witnesses and query only, with no case named after a subject or fixture and no compensating retry.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the interpolation weight, its consequences, the units, the copy, each refusal and when it is raised, and that each query returns a fresh object.
+ * @evidence contracts/modeling.md#spatial-conventions Offsets, projections and attachments are millimetres in one section frame and progress is a dimensionless medial-to-lateral fraction, so no unit or frame is converted here.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function interpolates section witnesses and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines no channel; the section fields it reads are declared by the section types.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the attachment distance it returns is consumed by the lid rows that meet the host skin.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing; the lids built from its sections are observed under the eye component.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; it interpolates the witnesses its caller supplies.
  */
 export function createPortraitLidSectionSampler<K extends string>(
   input: readonly { at: number; section: Section<K> }[],

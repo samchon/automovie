@@ -12,7 +12,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * Eyelid closure is an observed-relative tissue motion; gaze is a rigid optical rotation.
  *
  * Scenarios:
- * 1. Open, half-closed, closed and inverted observation use the common 3:1 closure seam.
+ * 1. Open, half-closed, closed and inverted observation use the common 9:1 closure seam: the upper lid travels nine tenths and the lower lid one tenth of the aperture.
  * 2. Identity results are owned copies; yaw and pitch preserve the optical radius and rotate normals.
  * 3. Finite bounds are accepted and adjacent closure, sampling and buffer errors refuse.
  */
@@ -32,10 +32,11 @@ export const test_subject_eye_performance = (): void => {
     ...performance,
     blink: 0.5,
   });
-  TestValidator.equals(
-    "half closure",
-    [half.upper[1].y, half.lower[1].y],
-    [1.5, -0.5],
+  TestValidator.predicate(
+    "half closure moves the upper margin nine times as far as the lower",
+    nclose(half.upper[1].y, 1.2) &&
+      nclose(half.lower[1].y, -0.8) &&
+      nclose((3 - half.upper[1].y) / (half.lower[1].y + 1), 9),
   );
   const closed = posePortraitLidCurves(upper, lower, {
     ...performance,
@@ -46,10 +47,9 @@ export const test_subject_eye_performance = (): void => {
     ...performance,
     observedBlink: 0.5,
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "neutral from observation",
-    [neutral.upper[1].y, neutral.lower[1].y],
-    [6, -2],
+    nclose(neutral.upper[1].y, 6.6) && nclose(neutral.lower[1].y, -1.4),
   );
   for (const band of [
     [],

@@ -11,7 +11,7 @@
  * the state's. The states are the coupled cases the articulation exists for:
  * rest, half and full opening, opening with closure, tongue out with and
  * without opening, protrusion, laterotrusion, conjugate gaze and blink.
- * `capture-articulation.mjs` renders the written `model.json` files on a real
+ * `capture-articulation.ts` renders the written `model.json` files on a real
  * GPU; `census.json` records the crossing pairs of every state so a render is
  * read beside its numbers. A state the builder refuses is recorded as a
  * refusal with its message, never skipped silently. Counts are strict

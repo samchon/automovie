@@ -10,6 +10,7 @@
 import { assertPortraitEyebrowProfile } from "../brow/assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "../brow/portraitEyebrowProfile";
 import { assertPortraitEyelashProfile } from "../lash/assertPortraitEyelashProfile";
+import { assertPortraitUpperLashCount } from "../lash/assertPortraitUpperLashCount";
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import { createPortraitOcularTissues } from "./createPortraitOcularTissues";
@@ -160,6 +161,7 @@ export function resolvePortraitEyeInputs(
     throw new Error(
       "Corneal boundary must be aperture or limbus when supplied.",
     );
+  assertPortraitUpperLashCount(shape.upperLashes);
   const positive = [
     shape.widthScale,
     shape.openingScale,
@@ -179,7 +181,7 @@ export function resolvePortraitEyeInputs(
     shape.lowerLidVolume,
     shape.lidThickness,
   ];
-  const counts = [shape.upperLashes, ...Object.values(shape.sampling)];
+  const counts = Object.values(shape.sampling);
   if (
     positive.some((v) => !Number.isFinite(v) || v <= 0) ||
     nonnegative.some((v) => !Number.isFinite(v) || v < 0) ||

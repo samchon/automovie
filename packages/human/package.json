@@ -23,6 +23,10 @@
       "browser": "./lib/browser/face/*.js",
       "default": "./src/face/*.ts"
     },
+    "./human/*": {
+      "browser": "./lib/browser/human/*.js",
+      "default": "./src/human/*.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -67,6 +71,11 @@
         "types": "./lib/face/*.d.ts",
         "browser": "./lib/browser/face/*.js",
         "default": "./lib/face/*.js"
+      },
+      "./human/*": {
+        "types": "./lib/human/*.d.ts",
+        "browser": "./lib/browser/human/*.js",
+        "default": "./lib/human/*.js"
       },
       "./package.json": "./package.json"
     }

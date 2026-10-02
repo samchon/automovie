@@ -2,7 +2,7 @@
  * Landmark anchors on a connected basis surface, and their positions in any
  * built document.
  *
- * `fit-face-landmarks.ts` anchors the detector's 478 landmarks once on the
+ * The removed `fit-face-landmarks.ts` anchors the detector's 478 landmarks once on the
  * shared neutral: each landmark pixel of a neutral render is cast back along
  * its capture ray (`faceShapeFitCamera.ts`) onto the surface, and the nearest
  * hit is stored as three basis vertex ids and barycentric weights. The same

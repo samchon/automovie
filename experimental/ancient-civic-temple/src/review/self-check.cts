@@ -44,7 +44,7 @@ import {
   modelHandoffRows,
   modelIdentityOwnerFailures,
 } from "./model-handoff-audit";
-import { checkModelProseConsistency } from "./model-prose-consistency.mjs";
+import { checkModelProseConsistency } from "./checkModelProseConsistency.mjs";
 import { checkModelSurfaceBinding } from "./model-surface-binding.mjs";
 import { checkModelTessellation } from "./model-tessellation-census.mjs";
 import { ownFacadeFailures, ownFacadeViews } from "./own-facade-view";
@@ -387,7 +387,7 @@ try {
   console.log(
     execFileSync(
       process.execPath,
-      [join(__dirname, "model-contact-census.mjs")],
+      ["--import", "tsx", join(__dirname, "model-contact-census.mts")],
       { encoding: "utf8", windowsHide: true },
     ).trim(),
   );
@@ -410,7 +410,7 @@ try {
   console.log(
     execFileSync(
       process.execPath,
-      [join(__dirname, "model-geometry-bounds.mjs")],
+      ["--import", "tsx", join(__dirname, "model-geometry-bounds.mts")],
       { encoding: "utf8", windowsHide: true },
     ).trim(),
   );

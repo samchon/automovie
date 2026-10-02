@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { modelParts, occupancyUnionRows } from "../model-occupancy-union.mjs";
+import { modelParts } from "../modelParts.mjs";
+import { occupancyUnionRows } from "../model-occupancy-union.mjs";
 import { modelSections } from "../model-tessellation-census.mjs";
 
 const root = join(__dirname, "../../../docs/models");

@@ -1,3 +1,4 @@
+import { autoMovieModelRecipeDependsOn } from "./autoMovieModelRecipeDependsOn";
 import { resolveProductionFrameRate } from "@automovie/engine";
 import {
   AutoMovieContentDigest,
@@ -57,6 +58,7 @@ import {
   encodeAutoMoviePathSegment,
 } from "./contentIdentity";
 import { parseAutoMovieStructuredJson } from "./duplicateAwareJson";
+import { planAutoMovieGeneratedPublication } from "./planAutoMovieGeneratedPublication";
 import { planAutoMovieProductionLayoutMigration } from "./planAutoMovieProductionLayoutMigration";
 import { planAutoMovieProductionRegistration } from "./planAutoMovieProductionRegistration";
 import { probeProductionMedia } from "./probeProductionMedia";
@@ -128,76 +130,15 @@ import {
   validateAutoMovieProductionGraph,
 } from "./validateProductionDesign";
 
-/**
- * Summary returned when a production repository is opened.
- */
-export interface IAutoMovieProductionProjectSummary {
-  /**
-   * Absolute active root.
-   */
-  root: string;
-  /**
-   * Exact active production inside the project.
-   */
-  productionId: string;
-  /**
-   * Every registered production, in portable code-unit order.
-   */
-  productions: string[];
-  /**
-   * Production manifest format.
-   */
-  formatVersion: number;
-  /**
-   * Current monotonic revision.
-   */
-  revision: number;
-  /**
-   * True when this call initialized a fresh production manifest.
-   */
-  initialized: boolean;
-}
+import type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
+import type { IAutoMovieProductionProjectSummary } from "./IAutoMovieProductionProjectSummary";
+import type { IAutoMovieVerifiedRepaintSelection } from "./IAutoMovieVerifiedRepaintSelection";
 
-/**
- * Current candidate plus the exact immutable selection that activated it.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Preserves active selection identity for aggregate observation and final publication.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Joins the verified candidate to its current selection record without receipt inference.
- */
-export interface IAutoMovieVerifiedRepaintSelection {
-  /** Verified candidate receipt the selection activated. */
-  receipt: IAutoMovieRepaintReceipt;
-  /** Stable identity of the selection record. */
-  selectionId: string;
-  /** Digest of the immutable selection record bytes. */
-  selectionDigest: AutoMovieContentDigest;
-}
-
-/**
- * One declared coding-agent input whose bytes enter compile identity.
- */
-export interface IAutoMovieProductionContentInput {
-  /**
-   * Project-relative normalized path.
-   */
-  path: string;
-  /**
-   * Whether the file belongs to a coding-agent source root. Source text uses
-   * the same BOM/EOL normalization as a bound shot module before
-   * fingerprinting.
-   */
-  source: boolean;
-  /**
-   * Whether the file was explicitly declared through `contentRoots` or
-   * `contentFiles` as a renderer/configuration/asset input. One path may be
-   * both source and render content when declarations overlap.
-   */
-  render: boolean;
-  /**
-   * Exact bytes, or null for one declared optional file that is absent.
-   */
-  bytes: Uint8Array | null;
-}
+// Preserve the existing module import boundary while the defining identities
+// live with their source-input, project-inspection and repaint domains.
+export type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
+export type { IAutoMovieProductionProjectSummary } from "./IAutoMovieProductionProjectSummary";
+export type { IAutoMovieVerifiedRepaintSelection } from "./IAutoMovieVerifiedRepaintSelection";
 
 interface IAutoMovieActiveRepaintReceipt {
   version: 2;
@@ -247,10 +188,8 @@ const REPAINT_RETRYABLE_FAILURE_CLASSES: ReadonlySet<AutoMovieRepaintFailureClas
     "internal",
   ]);
 
-/**
- * A guarded production commit no longer matches its input snapshot.
- */
-export class AutoMovieProductionInputRaceError extends Error {}
+import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
+export { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 
 /**
  * Structured source-read failure used by the builder diagnostic boundary.
@@ -4207,46 +4146,16 @@ export class AutoMovieProductionProject {
   ): number {
     const serializedManifest = serializeJson(manifest);
     return this.commitFiles(
-      () => {
-        const writes: IStagedFile[] = [];
-        const previous = this.generatedManifest();
-        const nextPaths = new Set(files.keys());
-        for (const entry of previous?.files ?? [])
-          if (nextPaths.has(entry.path) === false)
-            writes.push({
-              path: resolveInside(this.generatedRoot(), entry.path),
-              content: null,
-            });
-        for (const [relativePath, bytes] of files) {
-          const absolute = resolveInside(this.generatedRoot(), relativePath);
-          const content = Buffer.from(bytes);
-          if (
-            fileSystem.existsSync(absolute) === false ||
-            Buffer.from(this.readGeneratedFile(relativePath)).equals(
-              content,
-            ) === false
-          )
-            writes.push({ path: absolute, content });
-        }
-        const manifestPath = path.join(
-          this.productionStateRoot,
-          "generated-manifest.json",
-        );
-        const residentManifest = this.readTrackedStateFile(
-          "generated-manifest.json",
-        );
-        if (
-          residentManifest === null ||
-          Buffer.from(residentManifest).equals(
-            Buffer.from(serializedManifest, "utf8"),
-          ) === false
-        )
-          writes.push({
-            path: manifestPath,
-            content: serializedManifest,
-          });
-        return writes;
-      },
+      () => planAutoMovieGeneratedPublication({
+        previous: this.generatedManifest(),
+        files,
+        serializedManifest,
+        resolveMember: (relative) => resolveInside(this.generatedRoot(), relative),
+        exists: (absolute) => fileSystem.existsSync(absolute),
+        readMember: (relative) => this.readGeneratedFile(relative),
+        manifestPath: path.join(this.productionStateRoot, "generated-manifest.json"),
+        readManifest: () => this.readTrackedStateFile("generated-manifest.json"),
+      }),
       inputCurrent,
       expectedRevision,
       () => this.assertGeneratedOutputCurrent(files, serializedManifest),
@@ -5385,7 +5294,7 @@ const consequencesOf = (
   if (target.kind === "model") {
     addReview({ kind: "asset", id: target.id });
     for (const [id] of graph.models)
-      if (modelRecipeDependsOn(graph, id, target.id)) {
+      if (autoMovieModelRecipeDependsOn(graph.models, id, target.id)) {
         addReview({
           kind: "design",
           design: { kind: "model", id },
@@ -5393,7 +5302,7 @@ const consequencesOf = (
         addReview({ kind: "asset", id });
       }
     for (const [id, formation] of graph.formations)
-      if (modelRecipeDependsOn(graph, formation.modelRecipe, target.id)) {
+      if (autoMovieModelRecipeDependsOn(graph.models, formation.modelRecipe, target.id)) {
         affectedFormations.add(id);
         addReview({
           kind: "design",
@@ -5416,7 +5325,7 @@ const consequencesOf = (
         shot.participants.some(
           (participant) =>
             participant.kind === "actor" &&
-            modelRecipeDependsOn(graph, participant.id, target.id),
+            autoMovieModelRecipeDependsOn(graph.models, participant.id, target.id),
         )) ||
       shot.participants.some(
         (participant) =>
@@ -5536,22 +5445,6 @@ const mergeMutationConsequences = (
       ...new Set([...current.removedGenerated, ...next.removedGenerated]),
     ].sort(compareCodeUnits),
   };
-};
-
-const modelRecipeDependsOn = (
-  graph: IAutoMovieProductionDesignGraph,
-  model: string,
-  dependency: string,
-  visited: Set<string> = new Set(),
-): boolean => {
-  if (model === dependency) return true;
-  if (visited.has(model)) return false;
-  const branch = new Set(visited).add(model);
-  return (graph.models.get(model)?.lod ?? []).some(
-    (lod) =>
-      lod.recipe !== model &&
-      modelRecipeDependsOn(graph, lod.recipe, dependency, branch),
-  );
 };
 
 const reviewConsequenceKey = (

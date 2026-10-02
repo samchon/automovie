@@ -59,11 +59,13 @@ const globe = (axis: Point, bulge: number, maxDegrees = 180): Point[] => {
  * 1. A globe whose cornea points along +Z has axis +Z, centre and radius of
  *    the 12 mm sphere, reference +Y, limbus asin(11.71/24) and pupil
  *    asin(3.5/24), the population's absolute sizes on it, and the painted
- *    half-angle asin(11.71/24.2); a globe scaled to 4.8 mm holds its limbus
- *    at a right angle; a cornea pointing straight up (+Y) takes the +X
+ *    half-angle asin(11.71/24.2); a globe scaled to 4.8 mm radius refuses
+ *    instead of shortening its absolute iris; a cornea pointing up takes the +X
  *    reference instead.
  * 2. Fewer than eight vertices, coplanar vertices, a sphere without cornea
- *    and a cornea with no sclera behind it refuse.
+ *    and a cornea with no sclera behind it refuse. A globe smaller than the
+ *    3.5 mm pupil and a globe smaller than the 11.71 mm iris both refuse;
+ *    a globe just above the iris diameter retains its absolute chord.
  * 3. The rasterizer keeps a texel once when two triangles share it, skips a
  *    degenerate UV triangle, clips the triangle to the texture and drops
  *    texels beyond the limbus plus margin; its angles are those of the
@@ -88,20 +90,44 @@ export const test_subject_human_iris_disc = (): void => {
     "painted",
     nclose(disc.painted, Math.asin(11.71 / 24.2)),
   );
-  const small = locateHumanFaceIrisDisc(
-    globe([0, 0, 1], 0.0008).map(
-      (point) =>
-        point.map((value, k) => {
-          const centre = [0.03, 0.03, 0.1][k]!;
-          return centre + (value - centre) * 0.4;
-        }) as Point,
-    ),
+  const small = globe([0, 0, 1], 0.0008).map(
+    (point) =>
+      point.map((value, k) => {
+        const centre = [0.03, 0.03, 0.1][k]!;
+        return centre + (value - centre) * 0.4;
+      }) as Point,
   );
   TestValidator.predicate(
-    "a globe smaller than the iris holds a right angle",
-    nclose(small.limbus, Math.PI / 2) &&
-      nclose(small.pupil, Math.asin(3.5 / 9.6), 1e-4) &&
-      nclose(small.painted, disc.painted),
+    "a globe smaller than the iris cannot shorten its absolute chord",
+    throwsError(() => locateHumanFaceIrisDisc(small), "absolute iris diameter"),
+  );
+  const scaleGlobe = (diameter: number): Point[] =>
+    globe([0, 0, 1], 0.0008).map((point) =>
+      point.map((value, k) => {
+        const centre = [0.03, 0.03, 0.1][k]!;
+        return centre + (value - centre) * diameter / 24;
+      }) as Point,
+    );
+  TestValidator.predicate(
+    "a globe smaller than its pupil refuses",
+    throwsError(() => locateHumanFaceIrisDisc(scaleGlobe(3.48)), "absolute iris diameter"),
+  );
+  TestValidator.predicate(
+    "a globe just below the iris diameter refuses",
+    throwsError(() => locateHumanFaceIrisDisc(scaleGlobe(11.70)), "absolute iris diameter"),
+  );
+  const exactIris = locateHumanFaceIrisDisc(scaleGlobe(11.71));
+  TestValidator.predicate(
+    "the diameter boundary is an equatorial iris with a smaller pupil",
+    nclose(exactIris.limbus, Math.PI / 2) && exactIris.pupil < exactIris.limbus &&
+      nclose(2 * exactIris.radius * Math.sin(exactIris.limbus), 0.01171, 1e-12),
+  );
+  const irisBoundary = locateHumanFaceIrisDisc(scaleGlobe(11.72));
+  TestValidator.predicate(
+    "a globe just above the iris diameter keeps the absolute iris and annulus",
+    irisBoundary.limbus > irisBoundary.pupil &&
+      nclose(2 * irisBoundary.radius * Math.sin(irisBoundary.limbus), 0.01171, 1e-12) &&
+      nclose(2 * irisBoundary.radius * Math.sin(irisBoundary.pupil), 0.0035, 1e-12),
   );
   const upward = locateHumanFaceIrisDisc(globe([0, 1, 0], 0.0008));
   TestValidator.predicate(

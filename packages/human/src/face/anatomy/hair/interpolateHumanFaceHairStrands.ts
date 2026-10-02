@@ -40,6 +40,58 @@ type StrandRoot = {
  * query: a strand inherits the clearance its guides were integrated with.
  * Whether that inherited clearance holds between guides is what the crossing
  * census measures, not what this function guarantees.
+ *
+ * @evidence contracts/common.md#principled-implementation A strand takes its
+ *   nearest guides on its own side of the part, weights them by exp(-d /
+ *   spacing) with d the distance between posed roots, and blends their
+ *   displacements from their roots at equal arc-length fractions, so the blend
+ *   is a convex combination of like-parameterised curves and scales to the
+ *   strand's own regional length. The weight kernel, the cut-off at twice the
+ *   spacing and the linear clump profile are modelling conventions of a hair
+ *   hierarchy, not derived quantities, and the comment says the clearance a
+ *   strand inherits is not guaranteed between guides; the caller places and
+ *   falls back where it fails. The guide spacing is the mean nearest-guide
+ *   distance, which needs at least two guides and refuses when it is not
+ *   positive.
+ * @evidence contracts/common.md#clear-and-simple-design One pass over the
+ *   strands with the guide curves measured once; contact is not touched here,
+ *   and the caller decides what a strand that fails the chord test becomes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject or style: guides and strands go through one blend, and a
+ *   strand no guide reaches follows its single nearest guide.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   the selection, weights, blend, length scaling, clump, the source of the
+ *   method and what the function does not guarantee.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function computes a value and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidence contracts/modeling.md#emitted-geometry One strand is emitted for
+ *   each root that is not a guide, so the strands grow with the requested count
+ *   and shrink with the guide fraction, and each strand has as many stations as
+ *   its longest chosen guide. Integrating only the guide fraction, an eighth in
+ *   most published styles, is the smaller representation of the same population
+ *   and is why this function exists.
+ * @evidence contracts/modeling.md#spatial-conventions Roots and guide stations
+ *   are posed metres in the head frame, the reference points are neutral chart
+ *   metres used only for the part side and the regional length, and
+ *   displacements are subtracted from the guide root before blending, so each
+ *   strand is rebuilt from its own root.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
+ *   only centrelines and touches no surface; growHumanFaceHairStrand places them
+ *   against the skin.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function
+ *   owns no part, group or joint and displays nothing; the builder that owns the
+ *   assembled hair is where the result is observed.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
+ *   no anatomical value of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function interpolateHumanFaceHairStrands(props: {
   layer: IAutoMovieHumanFaceHair.Layer;

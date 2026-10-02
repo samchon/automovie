@@ -18,6 +18,12 @@ Art direction, scale, location, subject, material, tier와 budget 변경이 affe
 
 직접 참조뿐 아니라 shared prototype, instance, palette role, state schedule, route, reflection, shadow, sound context와 derived quantity를 consequence surface에 포함해야 한다. 한 render가 겉으로 비슷하다는 이유로 다른 deliverable을 current라고 유지하지 않아야 한다.
 
+### LOD Recipe의 변경 의존성 {#production-design-lod-change-dependency}
+
+Model recipe 변경의 영향은 그 identity 자체와 해당 recipe를 직접 또는 여러 LOD 참조를 거쳐 사용하는 model identity에 이어져야 한다. 자기 참조는 허용하며 순환 참조만으로 관련 없는 model이 영향 대상이 되지 않아야 한다.
+
+참조된 recipe가 현재 inventory에 없어도 그 identity에 대한 직접 의존성을 지우지 않아야 한다. 누락된 recipe에서 선언되지 않은 다른 의존성을 추측하지 않고, 분석이 authored recipe나 LOD 참조를 변경하지 않아야 한다.
+
 ### Breakdown 산출물 {#production-design-breakdown-deliverables}
 
 Location list, character·prop·set list, asset plan, palette, material board, state schedule, budget와 unresolved decision을 동일한 source identity에서 산출할 수 있어야 한다.

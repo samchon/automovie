@@ -8,6 +8,7 @@ import {
   prepareGingivaBasis,
 } from "../../../scripts/face-review/prepareGingivaBasis";
 import { humanFaceContactFixture } from "../internal/humanFaceContactFixture";
+import { registerSyntheticDentalLandmarks } from "../internal/registerSyntheticDentalLandmarks";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -128,6 +129,12 @@ export const test_subject_gingiva_basis_preparation = (): void => {
     revision: "analytic-contact/2",
     norms: [0.08, 0.08, 0.08] as [number, number, number],
     resolution: 0.004,
+    registrations: registerSyntheticDentalLandmarks(basis,
+      [2.03, 2.09, 2.15, 2.21, 2.27, 2.33].map((_centre, at) => offset + at * 8),
+      [2.03, 2.09, 2.15, 2.21, 2.27, 2.33].map((centre) => {
+        const weight = (centre - 1.9) / 0.6;
+        return { vertices: [added.gum, added.gum + 1], weights: [1 - weight, weight] };
+      })),
   };
   const raised = prepareGingivaBasis(base);
   const shiftOf = (vertex: number) =>

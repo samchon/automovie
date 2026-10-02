@@ -1,4 +1,7 @@
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import { humanViewerChoices } from "./humanViewerChoices";
+import { parseHumanViewerLight } from "./parseHumanViewerLight";
 
 /**
  * Admit the same fields from a bookmark hash or an HTTP query. Refuse unknown
@@ -16,14 +19,22 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const allowed = [
     "doc",
     "parts",
+    "hide",
+    "zoom",
     "view",
     "pass",
     "frame",
     "ao",
+    "shadows",
+    "light",
     "size",
     "fmt",
     "ref",
+    "landmarks",
+    "calibrate",
     "opacity",
+    "pitch",
+    "look",
   ];
   for (const key of fields.keys()) {
     if (!allowed.includes(key))
@@ -33,24 +44,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   }
   const view = fields.get("view") ?? "front";
   const pass = fields.get("pass") ?? "beauty";
-  if (
-    ![
-      "front",
-      "left-three-quarter",
-      "left",
-      "back",
-      "right-three-quarter",
-      "right",
-      "top",
-      "bottom",
-    ].includes(view)
-  )
+  if (!(humanViewerChoices.views as readonly string[]).includes(view))
     throw new Error(`Unknown view: ${view}`);
-  if (
-    !["beauty", "clay", "normal", "depth", "flat", "wire", "outline"].includes(
-      pass,
-    )
-  )
+  if (!(humanViewerChoices.passes as readonly string[]).includes(pass))
     throw new Error(`Unknown pass: ${pass}`);
   const number = (
     key: string,
@@ -77,8 +73,39 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
       throw new Error("frame requires a finite centre and positive radius");
     frame = values as NonNullable<typeof frame>;
   }
+  const lookText = fields.get("look");
+  let look: HumanViewerAddress["look"] = null;
+  if (lookText !== null) {
+    const values = lookText
+      .split(",")
+      .map((text) => (text.trim() === "" ? NaN : Number(text)));
+    if (
+      (values.length !== 6 && values.length !== 7) ||
+      !values.every(Number.isFinite) ||
+      Math.abs(values[0]) > 180 ||
+      Math.abs(values[1]) >= 90 ||
+      values[2] <= 0 ||
+      (values.length === 7 && (values[6] <= 0 || values[6] >= 180))
+    )
+      throw new Error(
+        "look requires yaw, pitch, distance, target x, y, z and an optional field of view",
+      );
+    look = (
+      values.length === 6 ? [...values, 28] : values
+    ) as NonNullable<HumanViewerAddress["look"]>;
+  }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
+  const shadows = fields.get("shadows") ?? "on";
+  if (shadows !== "on" && shadows !== "off")
+    throw new Error("shadows must be on or off");
+  const landmarks = fields.get("landmarks") ?? "off";
+  if (landmarks !== "off" && landmarks !== "on")
+    throw new Error("landmarks must be on or off");
+  const calibrate = fields.get("calibrate") ?? "off";
+  if (calibrate !== "off" && calibrate !== "on")
+    throw new Error("calibrate must be on or off");
+  const light = fields.get("light");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
     throw new Error("Only PNG is supported");
   const ref = fields.get("ref");
@@ -92,13 +119,27 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     (parts === "" || parts.split(",").some((part) => part.trim() === ""))
   )
     throw new Error("parts must contain mesh names");
+  const hide = fields.get("hide");
+  if (
+    hide !== null &&
+    (hide === "" || hide.split(",").some((part) => part.trim() === ""))
+  )
+    throw new Error("hide must contain mesh names");
   return {
     doc,
     parts: parts === null ? [] : parts.split(","),
+    hide: hide === null ? [] : hide.split(","),
+    zoom: number("zoom", 1, 0.2, 8),
     view: view as HumanViewerAddress["view"],
+    pitch: number("pitch", 0, -89, 89),
+    look,
     pass: pass as HumanViewerAddress["pass"],
     frame,
     ao: ao === "on",
+    shadows: shadows === "on",
+    landmarks: landmarks === "on",
+    calibrate: calibrate === "on",
+    light: light === null ? null : parseHumanViewerLight(light),
     size,
     ref: ref as HumanViewerAddress["ref"],
     opacity: number("opacity", 0.5, 0, 1),

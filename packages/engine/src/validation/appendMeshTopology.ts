@@ -1,11 +1,16 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
+import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Append mesh-topology violations to a collector, the shared body behind the
  * standalone {@link validateMeshTopology} and `validateModel`'s mesh check.
+ * Welding assigns current position identities; edge-key preparation then
+ * chooses exact numeric pairs when possible and delimited pairs otherwise.
+ * This representation changes neither traversal nor diagnostics and imposes
+ * no additional population ceiling on structurally valid input.
  *
  * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `appendMeshTopology` appends welded-edge topology faults at the caller's exact mesh-part path.
  * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `appendMeshTopology` shares one incidence-and-winding calculation between model validation and the public standalone result.
@@ -40,7 +45,8 @@ export const appendMeshTopology = (
     forward?: Direction;
     reverse?: Direction;
   };
-  const undirected = new Map<string, Edge>();
+  const edgeKey = createMeshEdgeKey(labels.length);
+  const undirected = new Map<number | string, Edge>();
   const directed: Direction[] = [];
   for (let i = 0; i < indices.length; i += 3) {
     const a = vertices[indices[i]!]!;
@@ -55,9 +61,8 @@ export const appendMeshTopology = (
       const to = corners[(e + 1) % 3]!;
       const low = Math.min(from, to),
         high = Math.max(from, to);
-      // A string of integer IDs avoids a numeric pair encoding's safe-integer
-      // ceiling; coordinate strings are reconstructed only for violations.
-      const key = `${low}/${high}`;
+      // Coordinate strings are reconstructed only for violations.
+      const key = edgeKey(low, high);
       let edge = undirected.get(key);
       if (edge === undefined) {
         edge = { low, high, count: 0 };

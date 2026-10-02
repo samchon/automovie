@@ -1,5 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /** A nearest geometric feature and its oriented distance in mesh-local metres. */
@@ -24,6 +26,8 @@ interface Best {
 }
 
 interface Edge {
+  low: number;
+  high: number;
   normal: number[];
   count: number;
   balance: number;
@@ -49,12 +53,11 @@ interface Triangle {
   }[];
   low: number[];
   high: number[];
+  /** Box centre per axis, measured once for the hierarchy's median splits. */
+  centre: number[];
 }
 
-type Node = {
-  low: number[];
-  high: number[];
-} & ({ triangles: Triangle[] } | { left: Node; right: Node });
+type Node = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<Triangle>>;
 
 const subtract = (a: readonly number[], b: readonly number[]): number[] =>
   a.map((value, axis) => value - b[axis]);
@@ -122,6 +125,10 @@ const unit = (vector: readonly number[]): number[] => {
  * from 149 to 18 microseconds and a published subject's hair, which is this
  * query millions of times over, from 28.1 to 4.2 seconds, with the exported
  * model identical byte for byte.
+ * A triangle of a visited leaf is also skipped when its own box is farther than
+ * the running best; on a 33,600-triangle sphere walked by a curve this cut the
+ * features examined per query from 221 to 83, with every field of all 60,000
+ * results identical.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies metric surface attachments from resident geometry without item-specific approximations.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves source geometry while checking the closed oriented topology required by signed feature distances.
@@ -145,7 +152,7 @@ export function createAutoMovieSignedMeshQuery(
   const identities = new Map<string, number>();
   const vertices: number[] = [];
   for (let at = 0; at < positions.length; at += 3) {
-    const key = positions.slice(at, at + 3).join(",");
+    const key = `${positions[at]},${positions[at + 1]},${positions[at + 2]}`;
     let identity = identities.get(key);
     if (identity === undefined) {
       identity = identities.size;
@@ -160,7 +167,8 @@ export function createAutoMovieSignedMeshQuery(
     { length: identities.size },
     () => new Map<number, Set<number>>(),
   );
-  const edges = new Map<string, Edge>();
+  const edges = new Map<number | string, Edge>();
+  const edgeKey = createMeshEdgeKey(identities.size);
   const triangles: Triangle[] = [];
   for (let at = 0; at < indices.length; at += 3) {
     const source = indices.slice(at, at + 3);
@@ -200,10 +208,16 @@ export function createAutoMovieSignedMeshQuery(
         }
         neighbors.add(y);
       }
-      const key = from < to ? `${from}:${to}` : `${to}:${from}`;
+      const key = edgeKey(Math.min(from, to), Math.max(from, to));
       let edge = edges.get(key);
       if (edge === undefined) {
-        edge = { normal: [0, 0, 0], count: 0, balance: 0 };
+        edge = {
+          low: Math.min(from, to),
+          high: Math.max(from, to),
+          normal: [0, 0, 0],
+          count: 0,
+          balance: 0,
+        };
         edges.set(key, edge);
       }
       for (let axis = 0; axis < 3; axis++) edge.normal[axis] += normal[axis];
@@ -219,6 +233,8 @@ export function createAutoMovieSignedMeshQuery(
         edge,
       });
     }
+    const low = a.map((value, axis) => Math.min(value, b[axis], c[axis]));
+    const high = a.map((value, axis) => Math.max(value, b[axis], c[axis]));
     triangles.push({
       id: at / 3,
       a,
@@ -230,8 +246,9 @@ export function createAutoMovieSignedMeshQuery(
       abac,
       determinant,
       segments,
-      low: a.map((value, axis) => Math.min(value, b[axis], c[axis])),
-      high: a.map((value, axis) => Math.max(value, b[axis], c[axis])),
+      low,
+      high,
+      centre: low.map((value, axis) => (value + high[axis]) / 2),
     });
   }
   const open = options?.boundary === "open";
@@ -249,9 +266,11 @@ export function createAutoMovieSignedMeshQuery(
     unit(edge.normal);
   }
   const rim = new Set<number>();
-  for (const [key, edge] of edges.entries())
-    if (edge.count === 1)
-      for (const vertex of key.split(":")) rim.add(Number(vertex));
+  for (const edge of edges.values())
+    if (edge.count === 1) {
+      rim.add(edge.low);
+      rim.add(edge.high);
+    }
   for (const [vertex, link] of links.entries()) {
     if (link.size === 0) continue;
     const visited = new Set<number>(),
@@ -270,7 +289,7 @@ export function createAutoMovieSignedMeshQuery(
       );
     unit(vertexNormals[vertex]);
   }
-  const root = buildTree(triangles);
+  const root = buildAutoMovieMeshQueryHierarchy(triangles);
   // Callers walk: a hair strand steps a few millimetres, a contact pass sweeps
   // one ring of a surface. The feature that won the last query is therefore
   // usually still near, and measuring it first gives the traversal a bound
@@ -281,16 +300,14 @@ export function createAutoMovieSignedMeshQuery(
   return (point) => {
     if (point.length !== 3 || !point.every(Number.isFinite))
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
-    const extent2 = point.reduce(
-      (total, value, axis) =>
-        total +
-        Math.max(
-          Math.abs(value - root.low[axis]),
-          Math.abs(value - root.high[axis]),
-        ) **
-          2,
-      0,
-    );
+    let extent2 = 0;
+    for (let axis = 0; axis < 3; axis++) {
+      const reach = Math.max(
+        Math.abs(point[axis] - root.low[axis]),
+        Math.abs(point[axis] - root.high[axis]),
+      );
+      extent2 += reach ** 2;
+    }
     if (!Number.isFinite(extent2))
       throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: Best = {
@@ -303,20 +320,7 @@ export function createAutoMovieSignedMeshQuery(
       boundary: false,
     };
     if (recent !== undefined) consider(point, recent, vertexNormals, rim, best);
-    const visit = (node: Node): void => {
-      if (bound(node, point) > best.distance2) return;
-      if ("triangles" in node) {
-        for (const triangle of node.triangles)
-          consider(point, triangle, vertexNormals, rim, best);
-      } else if (bound(node.left, point) <= bound(node.right, point)) {
-        visit(node.left);
-        visit(node.right);
-      } else {
-        visit(node.right);
-        visit(node.left);
-      }
-    };
-    visit(root);
+    visit(root, bound(root, point), point, vertexNormals, rim, best);
     recent = best.hit;
     // A nonempty finite admitted tree always supplies a nearest feature.
     const hit = best,
@@ -334,36 +338,51 @@ export function createAutoMovieSignedMeshQuery(
   };
 }
 
+/**
+ * Nearest-first traversal of the bounding-box hierarchy. A node is entered
+ * whenever its box is no farther than the running best, and its children's
+ * boxes are measured once here and passed down, so the order and the pruning
+ * are those of a traversal that re-measured them on entry, without the
+ * repeated measurement or a closure allocated per query.
+ */
+const visit = (
+  node: Node,
+  nodeBound: number,
+  point: readonly number[],
+  vertexNormals: number[][],
+  rim: ReadonlySet<number>,
+  best: Best,
+): void => {
+  if (nodeBound > best.distance2) return;
+  if ("triangles" in node) {
+    // A triangle's own box bounds its distance from below exactly as a node's
+    // box does, so one that cannot be as near as the running best is skipped
+    // by the same rule and the same comparison, before its projection.
+    for (const triangle of node.triangles)
+      if (bound(triangle, point) <= best.distance2)
+        consider(point, triangle, vertexNormals, rim, best);
+    return;
+  }
+  const left = bound(node.left, point),
+    right = bound(node.right, point);
+  if (left <= right) {
+    visit(node.left, left, point, vertexNormals, rim, best);
+    visit(node.right, right, point, vertexNormals, rim, best);
+  } else {
+    visit(node.right, right, point, vertexNormals, rim, best);
+    visit(node.left, left, point, vertexNormals, rim, best);
+  }
+};
+
 /** Bounding boxes are lower bounds, so traversal order cannot select a farther feature. */
-const bound = (node: Node, point: readonly number[]): number => {
+const bound = (
+  node: Pick<Node, "low" | "high">,
+  point: readonly number[],
+): number => {
   const x = Math.max(0, node.low[0] - point[0], point[0] - node.high[0]),
     y = Math.max(0, node.low[1] - point[1], point[1] - node.high[1]),
     z = Math.max(0, node.low[2] - point[2], point[2] - node.high[2]);
   return x * x + y * y + z * z;
-};
-
-const buildTree = (triangles: Triangle[]): Node => {
-  const low = [Infinity, Infinity, Infinity],
-    high = [-Infinity, -Infinity, -Infinity];
-  for (const triangle of triangles)
-    for (let axis = 0; axis < 3; axis++) {
-      low[axis] = Math.min(low[axis], triangle.low[axis]);
-      high[axis] = Math.max(high[axis], triangle.high[axis]);
-    }
-  if (triangles.length <= 12) return { low, high, triangles };
-  const sizes = subtract(high, low),
-    axis = sizes.indexOf(Math.max(...sizes));
-  triangles.sort(
-    (a, b) =>
-      (a.low[axis] + a.high[axis]) / 2 - (b.low[axis] + b.high[axis]) / 2,
-  );
-  const middle = Math.floor(triangles.length / 2);
-  return {
-    low,
-    high,
-    left: buildTree(triangles.slice(0, middle)),
-    right: buildTree(triangles.slice(middle)),
-  };
 };
 
 /**

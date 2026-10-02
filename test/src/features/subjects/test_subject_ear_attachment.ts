@@ -1,5 +1,5 @@
 import { buildPortraitEars } from "@automovie/human/face/anatomy/cranium/buildPortraitEars";
-import { portraitEarShape } from "@automovie/human/face/anatomy/ear/portraitEarShape";
+import { portraitEarShape as fullEarShape } from "@automovie/human/face/anatomy/ear/portraitEarShape";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,6 +16,11 @@ import { throwsError } from "../internal/predicates";
  *    placement, nonpositive dimensions and missing host intersections refuse.
  */
 export const test_subject_ear_attachment = (): void => {
+  // Placement does not depend on tessellation, so the scenario samples coarsely.
+  const portraitEarShape = {
+    ...fullEarShape,
+    sampling: { columns: 12, frontRows: 8, backRows: 6 },
+  };
   const host = (right: number, left: number): IAutoMovieMesh => ({
     positions: [right, left].flatMap((x) => [
       x,
@@ -36,8 +41,8 @@ export const test_subject_ear_attachment = (): void => {
     uvs: null,
     skin: null,
   });
-  const before = buildPortraitEars(host(-0.07, 0.07));
-  const after = buildPortraitEars(host(-0.08, 0.09));
+  const before = buildPortraitEars(host(-0.07, 0.07), portraitEarShape);
+  const after = buildPortraitEars(host(-0.08, 0.09), portraitEarShape);
   TestValidator.equals("one shell per anatomical side", before.length, 4);
   for (let i = 0; i < before.length; i++) {
     const a = before[i].geometry,

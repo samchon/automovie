@@ -2,21 +2,20 @@ import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/
 import { TestValidator } from "@nestia/e2e";
 
 import {
-  portraitNasalSection,
   portraitNoseShape,
   portraitNoseSocket,
 } from "../../subjects/generated-korean-girl-01/configuration";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * The nose component applies common projection scaling before rim/body fitting.
+ * The nose component applies common projection scaling before rim fitting.
  * A hand planar socket makes the target effect and unchanged attachments exact.
  *
  * Scenarios:
  * 1. A half-depth point at (2,2,5) above z=y/2 targets (2,2,3); support stays
  *    fixed. Omitted/one paths agree without requiring support identities.
- * 2. Copied binding input remains owned; missing/nonresident support refuses.
- *    Another complete section/body basis cannot be silently stacked with scale.
+ * 2. Copied binding input remains owned; missing/nonresident support refuses,
+ *    and a nonpositive or non-finite scale refuses.
  */
 export const test_subject_nasal_support_component = (): void => {
   const host = {
@@ -43,9 +42,6 @@ export const test_subject_nasal_support_component = (): void => {
     // move the hand-built support datums before the support assertion runs.
     tipProjection: 0,
     alarProjection: 0,
-    lobules: undefined,
-    section: undefined,
-    body: undefined,
   };
   const component = createPortraitNoseComponent(socket, shape),
     plan = component.fit(host);
@@ -93,31 +89,4 @@ export const test_subject_nasal_support_component = (): void => {
         createPortraitNoseComponent(socket, { ...shape, depthScale }),
       ),
     );
-  TestValidator.predicate(
-    "section basis conflict",
-    throwsError(() =>
-      createPortraitNoseComponent(socket, {
-        ...shape,
-        section: portraitNasalSection,
-      }),
-    ),
-  );
-  TestValidator.predicate(
-    "body basis conflict",
-    throwsError(() =>
-      createPortraitNoseComponent(socket, {
-        ...shape,
-        body: {
-          shape: { section: portraitNasalSection },
-          joinWidth: 2,
-          depthReach: 10,
-        },
-      }),
-    ),
-  );
-  createPortraitNoseComponent(socket, {
-    ...shape,
-    depthScale: 1,
-    section: portraitNasalSection,
-  });
 };

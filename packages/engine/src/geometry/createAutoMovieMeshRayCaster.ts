@@ -5,6 +5,10 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * distance along the ray to its first triangle, in the mesh-local metre frame
  * and measured along the unit direction, or null when none lies within
  * `maximum`; `blocked` answers only whether one does, and stops at the first.
+ * `nearestHit` also returns the original triangle ordinal, before BVH sorting.
+ * Equal travel selects the lowest ordinal for that metadata; the distance keeps
+ * the same raw value as `nearest`, including the sign of zero. Returned records
+ * are independent of later queries and can be retained or changed by callers.
  * Both skip hits closer than `minimum` (default zero), so a ray leaving a
  * surface can ignore the triangle it starts on. Triangle winding does not
  * matter; a ray grazing a triangle's plane finds no isolated intersection and
@@ -13,6 +17,11 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * bounding volume hierarchy: each node splits its triangles at the median of
  * their centroids along the axis their centroids spread furthest, down to four
  * a leaf.
+ * Normal finite direction norms retain the original division arithmetic.
+ * An overflowing or subnormal norm instead scales components by their largest
+ * absolute value before normalization: one scaled component has magnitude one
+ * and their norm lies in [1,sqrt(3)]. Binary64's smallest normal, 2^-1022, marks
+ * a representation regime, not an admitted direction range or tolerance.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Resolves visibility along rays from existing resident triangles so a dependent surface fact can follow its host geometry.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Queries a mesh without changing topology or attributes and retains the caller's metric coordinate frame.
@@ -25,6 +34,13 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): {
     maximum: number,
     minimum?: number,
   ) => number | null;
+  /** Owned nearest travel and original index-triplet identity, or no hit. */
+  nearestHit: (
+    origin: readonly number[],
+    direction: readonly number[],
+    maximum: number,
+    minimum?: number,
+  ) => { distance: number; triangle: number } | null;
   blocked: (
     origin: readonly number[],
     direction: readonly number[],
@@ -129,7 +145,7 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): {
     maximum: number,
     minimum: number,
     any: boolean,
-  ): number | null => {
+  ): { distance: number; triangle: number } | null => {
     const length = Math.hypot(direction[0], direction[1], direction[2]);
     if (
       origin.length !== 3 ||
@@ -148,13 +164,24 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): {
     const ox = origin[0];
     const oy = origin[1];
     const oz = origin[2];
-    const dx = direction[0] / length;
-    const dy = direction[1] / length;
-    const dz = direction[2] / length;
+    let dx = direction[0] / length;
+    let dy = direction[1] / length;
+    let dz = direction[2] / length;
+    if (!Number.isFinite(length) || length < 2 ** -1022) {
+      const scale = Math.max(Math.abs(direction[0]), Math.abs(direction[1]), Math.abs(direction[2]));
+      const x = direction[0] / scale;
+      const y = direction[1] / scale;
+      const z = direction[2] / scale;
+      const scaledLength = Math.hypot(x, y, z);
+      dx = x / scaledLength;
+      dy = y / scaledLength;
+      dz = z / scaledLength;
+    }
     const ix = 1 / dx;
     const iy = 1 / dy;
     const iz = 1 / dz;
     let best = maximum;
+    let bestTriangle = Infinity;
     let found = false;
     let top = 0;
     stack[top++] = 0;
@@ -225,15 +252,22 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): {
         if (v < 0 || u + v > 1) continue;
         const hit = (e2x * qx + e2y * qy + e2z * qz) * inv;
         if (hit < minimum || hit > best) continue;
+        // Edges belong to every incident triangle. Metadata uses original
+        // identity rather than traversal order; legacy distance assignment
+        // still visits every admitted equal hit and preserves its raw zero.
+        if (hit < best) bestTriangle = order[i];
+        else bestTriangle = Math.min(bestTriangle, order[i]);
         best = hit;
         found = true;
-        if (any) return best;
+        if (any) return { distance: best, triangle: bestTriangle };
       }
     }
-    return found ? best : null;
+    return found ? { distance: best, triangle: bestTriangle } : null;
   };
   return {
     nearest: (origin, direction, maximum, minimum = 0) =>
+      cast(origin, direction, maximum, minimum, false)?.distance ?? null,
+    nearestHit: (origin, direction, maximum, minimum = 0) =>
       cast(origin, direction, maximum, minimum, false),
     blocked: (origin, direction, maximum, minimum = 0) =>
       cast(origin, direction, maximum, minimum, true) !== null,

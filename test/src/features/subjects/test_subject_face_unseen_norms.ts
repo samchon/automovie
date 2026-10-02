@@ -1,10 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  FACE_UNSEEN_NORMS,
-  faceUnseenNorm,
-  measureFaceUnseen,
-} from "../../../scripts/face-review/faceUnseenNorms";
+import { measureFaceUnseen } from "../../../scripts/face-review/faceUnseenNorms";
+import { FACE_UNSEEN_NORMS, faceUnseenNorm } from "../../../scripts/face-review/faceUnseenPopulation";
 import { nclose } from "../internal/predicates";
 
 /**

@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { portraitWebAlphaTest } from "../../../scripts/face-review/web/logic.mjs";
+import { portraitWebAlphaTest } from "../../../scripts/face-review/web/portraitWebAlphaTest";
 
 /**
  * The capture page cuts textures exactly as the product viewer does.

@@ -1,18 +1,22 @@
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 
 /**
- * The median length, in metres of the neutral skin, of one unit of the UV
- * layout over a material's regions: per triangle, the square root of its
- * surface area over its UV area, the median across the triangles that have
- * both. A layout packs regions at different densities, so a detail tiled at
- * one scale over it is right at the median and within the layout's own spread
- * elsewhere. A material none of whose triangles has a UV area is refused.
+ * The area-weighted median length, in metres of the neutral skin, of one unit
+ * of the UV layout over a material's regions: per triangle, the square root of
+ * its surface area over its UV area, and the ratio below which half of the
+ * material's surface area lies. A layout packs regions at different
+ * densities, so a detail tiled at one scale over it is right at that ratio and
+ * within the layout's own spread elsewhere (a body's shin, neck and chest
+ * differ by tens of percent, so the spread is the unresolved part). The
+ * weighting is by surface area because a viewer sees area: the count of
+ * triangles over-weights the hands, feet and face, whose triangles are many
+ * and small. A material none of whose triangles has a UV area is refused.
  */
 export function humanBodySkinMetresPerUv(
   basis: IAutoMovieHumanBodyBasis,
   material: string,
 ): number {
-  const ratios: number[] = [];
+  const ratios: { ratio: number; area: number }[] = [];
   for (const surface of basis.surfaces) {
     const p = surface.positions;
     for (const region of surface.regions) {
@@ -37,12 +41,21 @@ export function humanBodySkinMetresPerUv(
           uv[(t + 2) * 2 + 1] - uv[t * 2 + 1],
         ];
         const uvArea = Math.abs(u1[0] * u2[1] - u1[1] * u2[0]) / 2;
-        if (uvArea > 0 && area > 0) ratios.push(Math.sqrt(area / uvArea));
+        if (uvArea > 0 && area > 0)
+          ratios.push({ ratio: Math.sqrt(area / uvArea), area });
       }
     }
   }
   if (ratios.length === 0)
     throw new Error("A skin detail needs the skin material's UV layout.");
-  ratios.sort((x, y) => x - y);
-  return ratios[Math.floor(ratios.length / 2)];
+  ratios.sort((x, y) => x.ratio - y.ratio);
+  const half = ratios.reduce((sum, { area }) => sum + area, 0) / 2;
+  let seen = 0;
+  let chosen = ratios[0].ratio;
+  for (const { ratio, area } of ratios) {
+    seen += area;
+    chosen = ratio;
+    if (seen >= half) break;
+  }
+  return chosen;
 }

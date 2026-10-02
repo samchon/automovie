@@ -2,6 +2,7 @@ import { seededValue } from "@automovie/engine";
 
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieHumanBodySkinDetail";
+import { createHumanBodySkinPoreSampler } from "./createHumanBodySkinPoreSampler";
 
 /**
  * A tileable tangent-space normal map of the skin's micro-relief, as a PNG
@@ -10,14 +11,18 @@ import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieH
  *
  * The relief is a height field over one square tile of the table's physical
  * size. The primary lines of the skin's glyphic pattern are families of
- * parallel grooves, each family a whole number of grooves across the tile
- * along an integer direction so the tile repeats seamlessly, each groove a
+ * parallel grooves with integer UV phase coefficients so the tile repeats
+ * seamlessly. An unwarped groove follows constant `a*u + b*v`, perpendicular to the
+ * phase gradient `(a, b)`; each groove is a
  * Gaussian valley of the family's width, its phase warped by `wander` of a
  * groove and its depth scaled by `1 + vary` times a second field, held at
  * zero, where each field is a periodic sum of six integer-frequency
- * sinusoids, so the lines wander, deepen and break as skin's do. Follicular openings (pores) are Gaussian dimples at
- * the table's density, placed on a seeded jittered grid that wraps with the
- * tile. The normal at a texel is `normalize(-dh/dx, -dh/dy, 1)` from
+ * sinusoids, so the lines wander, deepen and break as skin's do. Follicular
+ * openings are Gaussian dimples whose nearest-integer tile population and
+ * equal-area seeded placement belong to createHumanBodySkinPoreSampler.
+ * This is a sampling convention, not a measured point process or whole-body
+ * density guarantee. The field wraps with the tile. The normal at a texel is
+ * `normalize(-dh/dx, -dh/dy, 1)` from
  * wrapped central differences of the height, both in micrometres, stored as
  * `(n + 1) / 2` in linear 8-bit RGB with opaque alpha. Every value comes from
  * the table and `seededValue`, so the same table yields the same bytes.
@@ -25,6 +30,11 @@ import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieH
 export function createHumanBodySkinDetailTexture(
   table: IAutoMovieHumanBodySkinDetail,
 ): string {
+  const pores = createHumanBodySkinPoreSampler({
+    seed: table.seed,
+    tileMillimetres: table.tileMillimetres,
+    perSquareCentimetre: table.pores.perSquareCentimetre,
+  });
   const size = table.pixels;
   const micrometresPerPixel = (table.tileMillimetres * 1000) / size;
   const height = new Float64Array(size * size);
@@ -87,30 +97,23 @@ export function createHumanBodySkinDetailTexture(
           depth * Math.exp(-((offset / family.width) ** 2));
       }
   });
-  // pores: one per jittered grid cell, the grid wrapping with the tile
-  const cells = Math.max(
-    1,
-    Math.round(
-      Math.sqrt(table.pores.perSquareCentimetre) * (table.tileMillimetres / 10),
-    ),
-  );
   const radius = table.pores.radiusMicrometres / micrometresPerPixel;
   const reach = Math.ceil(radius * 3);
-  for (let cy = 0; cy < cells; cy++)
-    for (let cx = 0; cx < cells; cx++) {
-      const px = ((cx + seededValue(table.seed, 7, cx, cy, 1)) * size) / cells;
-      const py = ((cy + seededValue(table.seed, 7, cx, cy, 2)) * size) / cells;
-      for (let dy = -reach; dy <= reach; dy++)
-        for (let dx = -reach; dx <= reach; dx++) {
-          const x = Math.floor(px) + dx;
-          const y = Math.floor(py) + dy;
-          const r = Math.hypot(x + 0.5 - px, y + 0.5 - py) / radius;
-          const wx = ((x % size) + size) % size;
-          const wy = ((y % size) + size) % size;
-          height[wy * size + wx] -=
-            table.pores.depthMicrometres * Math.exp(-(r * r));
-        }
-    }
+  for (let index = 0; index < pores.count; index++) {
+    const [u, v] = pores.at(index);
+    const px = u * size;
+    const py = v * size;
+    for (let dy = -reach; dy <= reach; dy++)
+      for (let dx = -reach; dx <= reach; dx++) {
+        const x = Math.floor(px) + dx;
+        const y = Math.floor(py) + dy;
+        const r = Math.hypot(x + 0.5 - px, y + 0.5 - py) / radius;
+        const wx = ((x % size) + size) % size;
+        const wy = ((y % size) + size) % size;
+        height[wy * size + wx] -=
+          table.pores.depthMicrometres * Math.exp(-(r * r));
+      }
+  }
   const rgba = new Uint8Array(size * size * 4);
   const at = (x: number, y: number) =>
     height[(((y % size) + size) % size) * size + (((x % size) + size) % size)];

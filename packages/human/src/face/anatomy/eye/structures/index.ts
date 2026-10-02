@@ -9,8 +9,6 @@ export * from "./IPortraitLowerLidProfile";
 export * from "./IPortraitLowerLidSection";
 export * from "./IPortraitOcularTissueBoundary";
 export * from "./IPortraitOcularTissueShape";
-export * from "./IPortraitOrbitalSupportShape";
-export * from "./IPortraitOrbitalSupportStation";
 export * from "./IPortraitUpperLidPoint";
 export * from "./IPortraitUpperLidProfile";
 export * from "./IPortraitUpperLidSection";

@@ -85,6 +85,7 @@ export function createHumanPreviewStage(props: {
     roots: () => (active === undefined ? [] : [active]),
     clay,
     height: () => canvas.getBoundingClientRect().height,
+    invalidateShadows: () => { renderer.shadowMap.needsUpdate = true; },
   });
   const {
     cameraView,

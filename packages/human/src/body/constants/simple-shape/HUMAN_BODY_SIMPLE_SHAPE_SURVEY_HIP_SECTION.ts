@@ -25,7 +25,18 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_SECTION: IAutoMovieHumanBodySimp
     // support, over the body mass index and over age, where they crossed the
     // census's extreme bodies (the study README).
     {
-      // ANSUR II people: hipScaleHoriz, women
+      // ANSUR II people: hipScaleHoriz, women. Refit under the rearmost hip
+      // rule: read the way the survey reads it, the r10 knots left a woman's
+      // buttock circumference 25 mm (thin), 26 mm (average) and 45 mm
+      // (heavy) above the survey's across 60 women spread over the 1st to
+      // 99th body mass index percentile (`ansur-proportion-census.ts`, identity
+      // card only), and lying the legs together changed that tape by under
+      // 11 mm, so the stance was not the cause. Each knot below is the r10
+      // value less the bias the census measured at its body mass index, over
+      // 70 mm per unit of this channel, which the census measured by two
+      // offsets (-0.1 and -0.2). The channel's own limit is -1, so the
+      // heavy knots stop there and keep the part of the bias this row cannot
+      // reach.
       channel: "hipScaleHoriz",
       gain: 1,
       curves: [
@@ -40,11 +51,11 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_SECTION: IAutoMovieHumanBodySimp
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.143],
-            [22, -0.119],
-            [26, -0.342],
-            [30, -0.544],
-            [35, -0.789],
+            [18, -0.207],
+            [22, -0.469],
+            [26, -0.742],
+            [30, -1],
+            [35, -1],
             [45, 0],
           ],
         },

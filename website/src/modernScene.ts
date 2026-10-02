@@ -7,9 +7,13 @@
 import { buildMesh, buildScene } from "modern-suburban-house/viewer/scene";
 import type * as THREE from "three";
 
-import type { IViewerScene } from "../../experimental/modern-suburban-house/src/viewer/scenePayload";
-
-export type ModernPayload = IViewerScene;
+/**
+ * The scene payload the production uploader accepts, read from its signature.
+ * A relative import of the payload module would reach the production sources
+ * by their real path, outside the test project root, and the test runner then
+ * writes their compiled output beside them.
+ */
+export type ModernPayload = Parameters<typeof buildScene>[0];
 export const modernMesh = buildMesh;
 export const modernScene = (
   payload: ModernPayload,

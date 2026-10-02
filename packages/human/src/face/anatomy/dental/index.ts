@@ -7,4 +7,6 @@ export * from "./createPortraitDentalComponent";
 export * from "./createPortraitMandibularDentition";
 export * from "./preparePortraitDentalCrown";
 export * from "./preparePortraitDentalRow";
+export * from "./resolvePortraitDentalCrown";
+export * from "./separatePortraitDentalCrowns";
 export * from "./structures";

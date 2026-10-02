@@ -8,6 +8,27 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
  * Rotate an optical mesh about its unchanged globe centre. All distances use
  * the mesh's construction millimetres, while normals receive rotation only.
  * A zero gaze difference preserves every number rather than renormalizing it.
+ *
+ * Positive yaw turns a forward (+Z) point towards +X, the anatomical left, and
+ * positive pitch turns it towards +Y, up. The pitch is applied about the
+ * head's X axis and the yaw about its Y axis, both through `center`, so every
+ * point's distance from `center`, and hence the globe's radius, is unchanged. Normals receive the rotation without the
+ * translation. The result is a copy; the input mesh is never modified. A
+ * performance outside its ranges, a non-finite centre or coordinate, buffers
+ * whose triples do not align, and a rotation that overflows finite numbers all
+ * throw.
+ *
+ * @evidence contracts/common.md#principled-implementation A rotation about a fixed centre is rigid, so it preserves every distance to that centre, and rotating a unit normal by the same quaternion without translation keeps it a unit normal of the rotated surface. Building the quaternion from a yaw about Y and a pitch about X composes two exact axis rotations, and the identity case returns the copy untouched so zero gaze introduces no rounding.
+ * @evidence contracts/common.md#clear-and-simple-design One function rotates one mesh about one centre by one performance; positions and normals share a single quaternion and no option or state exists.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rotation is a function of the mesh, centre and gaze only, with no case named after a subject or fixture and no foreign method replaced.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the sign convention of each angle, the axes, what is preserved, the ownership of the result and every refusal.
+ * @evidence contracts/modeling.md#spatial-conventions Positions and centre share the head's right-handed millimetre frame (+X left, +Y up, +Z anterior) and angles are degrees; no unit or frame is converted, and the rotation is a named step about the globe centre.
+ * @evidence contracts/anatomy.md#parametric-authority The input is the named physiological motion of gaze as yaw and pitch relative to the observation; no input addresses a vertex.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function rotates a mesh it is given and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the performance record and defines no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits the vertex and index population of its input and no primitive of its own.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and moves a mesh rigidly about its own centre, so no boundary it shares with another part changes shape.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing; the optical parts it rotates are observed under the eye component.
  */
 export function posePortraitOpticalMesh(
   input: IAutoMovieMesh,

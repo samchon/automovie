@@ -3,7 +3,10 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { modelSections } from "../model-tessellation-census.mjs";
-import { declaredBoundRows, dimensionalExpression, explicitEquationRows, explicitRangeRows } from "../model-prose-consistency.mjs";
+import { declaredBoundRows } from "../declaredBoundRows.mjs";
+import { dimensionalExpression } from "../dimensionalExpression.mjs";
+import { explicitEquationRows } from "../explicitEquationRows.mjs";
+import { explicitRangeRows } from "../explicitRangeRows.mjs";
 
 const section = (file: string, id: string): string => {
   const source = readFileSync(join(__dirname, `../../../docs/models/${file}.md`), "utf8");

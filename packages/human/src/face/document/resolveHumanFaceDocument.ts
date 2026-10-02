@@ -1,13 +1,16 @@
 import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
 import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
+import { portraitFacialFrameWidthLimit } from "../anatomy/cranium/portraitFacialFrameWidthLimit";
 import { portraitCranialChinHeight } from "../anatomy/cranium/portraitCranialChinHeight";
-import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
+import { resolvePortraitNeckShape } from "../anatomy/cranium/resolvePortraitNeckShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
 import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
+import { portraitEarSampling } from "../anatomy/ear/portraitEarSampling";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { resolvePortraitSkinShape } from "../anatomy/skin/resolvePortraitSkinShape";
+import { assertPortraitTongueWithinArch } from "../anatomy/tongue/assertPortraitTongueWithinArch";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { applyHumanFaceControls } from "./applyHumanFaceControls";
@@ -112,13 +115,11 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
       browProfile:
         document.basis.recipe.eye.browProfile ?? portraitEyebrowProfile,
     },
-    neck: document.basis.recipe.neck ?? portraitNeckShape,
+    neck: resolvePortraitNeckShape(chinY, document.basis.recipe.neck),
     ear: {
       ...(document.basis.recipe.ear ?? portraitEarShape),
       sampling: document.basis.recipe.ear?.sampling ?? {
-        columns: 112,
-        frontRows: 60,
-        backRows: 40,
+        ...portraitEarSampling,
       },
     },
     cranium: resolvePortraitCraniumShape(chinY, document.basis.recipe.cranium),
@@ -127,24 +128,6 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
     applyHumanFaceControls(baseline, chinY, document.controls),
     document.detail,
   );
-  const nasalOverride = document.detail?.nose?.body?.shape;
-  const nasalBasis = baseline.nose.body?.shape;
-  if (nasalOverride !== undefined && nasalBasis !== undefined) {
-    // A new alternative replaces the old shape's complete payload. Within the
-    // same alternative, ordinary detailed-field inheritance still applies.
-    // Ambiguous inputs remain ambiguous for geometry admission to refuse.
-    const keys = ["stations", "section", "lobules"] as const;
-    const incoming = keys.filter((key) => key in nasalOverride);
-    const inherited = keys.filter((key) => key in nasalBasis);
-    if (
-      incoming.length === 1 &&
-      inherited.length === 1 &&
-      incoming[0] !== inherited[0]
-    )
-      recipe.nose.body!.shape = structuredClone(nasalOverride) as NonNullable<
-        IAutoMovieHumanFaceRecipe["nose"]["body"]
-      >["shape"];
-  }
   recipe.skin = resolvePortraitSkinShape(recipe.skin);
   if (recipe.hair !== undefined) recipe.hair = resolveHair(recipe.hair);
   if (recipe.hairLayers !== undefined)
@@ -162,6 +145,14 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   });
   const right = side("right"),
     left = side("left");
+  const widthLimit = portraitFacialFrameWidthLimit(observationHost, frame, [
+    { socket: bindings.eyes.right, shape: right.eye },
+    { socket: bindings.eyes.left, shape: left.eye },
+  ]);
+  if (frame.widthScale > widthLimit)
+    throw new Error(
+      `Facial-frame widthScale ${frame.widthScale} exceeds ${widthLimit.toFixed(3)}, the widest at which both eyes fit their sockets.`,
+    );
   if (
     (right.cheek !== undefined || left.cheek !== undefined) &&
     bindings.cheeks === undefined
@@ -182,6 +173,12 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   const expression = resolveHumanFaceExpression(document.expression);
   if (recipe.tongue !== undefined && bindings.jawHinge === undefined)
     throw new Error("A tongue profile requires an explicit jaw hinge.");
+  if (recipe.tongue !== undefined && recipe.lowerDentition !== undefined)
+    assertPortraitTongueWithinArch(
+      recipe.tongue,
+      recipe.lowerDentition.row,
+      recipe.lowerDentition.placement.recess,
+    );
   if (
     recipe.tongue === undefined &&
     [

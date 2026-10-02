@@ -1,13 +1,13 @@
 import {
   applyPortraitFinalSurfaces,
-  createPortraitSkinColour,
+  createPortraitColourField,
   refinePortraitSurfaceSampling,
   subdivideControlMesh,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import {
-  skinColourRegion,
+  skinColourField,
   skinColourSquare,
 } from "../internal/skinColourFixture";
 
@@ -25,17 +25,14 @@ import {
 export const test_subject_skin_colour_coordinates = (): void => {
   const square = skinColourSquare(),
     reference = square.positions.map((p) => [...p]);
-  const sample = createPortraitSkinColour(
-    { positions: [[0, 0, 0]], indices: [], viewRay: [0, 0, 1] },
-    [
-      {
-        ...skinColourRegion(),
-        radius: [0.5, 0.5, 0.5],
-        gain: [0.25, 0.5, 0.75],
-        strength: 1,
-      },
-    ],
-  );
+  const sample = createPortraitColourField([
+    {
+      ...skinColourField(),
+      radius: [0.5, 0.5, 0.5],
+      gain: [0.25, 0.5, 0.75],
+      strength: 1,
+    },
+  ]);
   TestValidator.equals(
     "corners miss compact field",
     square.positions.map(sample),

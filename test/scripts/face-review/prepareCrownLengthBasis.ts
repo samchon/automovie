@@ -5,6 +5,7 @@ import type {
 } from "@automovie/human";
 
 import { meshComponents } from "./prepareGingivaBasis";
+import { createDentalCrownAxis } from "./createDentalCrownAxis";
 
 /**
  * The maxillary crowns nearest the midline lengthened cervically to their
@@ -112,9 +113,7 @@ export function prepareCrownLengthBasis(input: {
       vertices.filter((v) => P[3 * v + 1]! <= bottom + reach / 10),
     );
     const cervical = mean(ring);
-    const axis = cervical.map((value, k) => value - incisal[k]!);
-    const span = Math.hypot(...axis);
-    const unit = axis.map((value) => value / span);
+    const { unit } = createDentalCrownAxis(incisal, cervical);
     // Along the axis from the incisal edge: the ring's least and most
     // cervical points, and the crown's length to the latter.
     const along = (v: number) =>

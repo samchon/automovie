@@ -37,7 +37,6 @@ export const humanFaceBindingsFixture: IAutoMovieHumanFaceDocument["basis"]["bin
       alarOffset: 12.5,
       alarY: -13.5,
       alarRadius: 5.5,
-      sectionAnchor: 4,
       surface: [
         1, 2, 3, 4, 5, 19, 20, 44, 45, 47, 48, 49, 51, 59, 60, 64, 75, 79, 94,
         97, 98, 99, 100, 102, 114, 115, 120, 121, 125, 126, 128, 129, 131, 134,

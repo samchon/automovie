@@ -4,7 +4,7 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IFaceUnseenIndex } from "../../../scripts/face-review/faceUnseenNorms";
+import type { IFaceUnseenIndex } from "../../../scripts/face-review/faceUnseenIndices";
 import { prepareUnseenEnvelopeBasis } from "../../../scripts/face-review/prepareUnseenEnvelopeBasis";
 import { throwsError } from "../internal/predicates";
 

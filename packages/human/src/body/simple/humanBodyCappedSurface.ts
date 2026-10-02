@@ -8,7 +8,6 @@ import { humanBodySurfaceBoundary } from "./humanBodySurfaceBoundary";
 
 interface CappedSurface {
   closed: IAutoMovieMesh;
-  caps: IAutoMovieMesh;
   volume: number;
   signedVolume: number;
   assertValid(): void;
@@ -31,6 +30,24 @@ interface CappedSurface {
  * straddle or sliver even though no volume is shared. Distances within
  * 1e-12 of the model diagonal and areas within 1e-12 of its square count as
  * contact at that numerical boundary. No UV or material seam is introduced.
+ *
+ * `assertGeometry` runs for every trial body of a mass inversion, so it
+ * tests the cap against the source faces near it and against itself, each
+ * over a compact mesh of only the triangles and vertices involved: the
+ * crossing test scans its whole buffer on admission, and the body's tens of
+ * thousands of untouched vertices were most of its cost.
+ *
+ * @evidence contracts/common.md#principled-implementation The enclosed volume of a closed, consistently wound surface is the sum of the signed tetrahedra each triangle spans with the origin; each open loop is closed by a fan to its centroid wound against its boundary edges so the sum stays the enclosed volume. Containment is the total solid angle (the arctangent solid-angle form) exceeding half a turn, which is exact for a closed oriented surface away from its faces. Contact is decided by strict crossings plus clipped coplanar area, with the stated 1e-12 relative floor where rotated coordinates leave rounding residues.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No body, surface or expected volume is named; the only tolerance is the stated numerical floor at exact contact, and the cap checks refuse instead of compensating.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the closing, the winding, the containment and contact rules, the tolerance floor, and why the geometry check works on compact meshes.
+ * @evidence contracts/modeling.md#spatial-conventions Positions are metres in the basis frame and every test is made in that one frame; nothing is converted.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry the viewer displays; the cap fan is an internal measuring surface of one triangle per boundary edge.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no quantity; it refuses a degenerate or crossing cap and the caller refuses unreachable targets.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a body.
  */
 export function humanBodyCappedSurface(
   positions: number[],
@@ -59,7 +76,6 @@ export function humanBodyCappedSurface(
     skin: null,
   });
   const closed = mesh(closedIndices);
-  const caps = mesh(capIndices);
   const at = (v: number): number[] => closedPositions.slice(v * 3, v * 3 + 3);
   let signedVolume = 0;
   // The oriented tetrahedron sum V = Σ a · (b × c) / 6. Read each corner
@@ -105,7 +121,6 @@ export function humanBodyCappedSurface(
   };
   return {
     closed,
-    caps,
     volume,
     signedVolume,
     interiorPoint,
@@ -120,25 +135,20 @@ export function humanBodyCappedSurface(
         if (Math.hypot(...cross(subtract(b, a), subtract(c, a))) === 0)
           throw new Error("A body boundary cap cannot have zero-area faces.");
       }
+      if (capIndices.length === 0) return;
+      const capMesh = compactMesh(closedPositions, capIndices);
       if (
-        capIndices.length > 0 &&
         measureAutoMovieMeshCrossings(
-          caps,
-          mesh(nearCapTriangles(closedPositions, indices, capIndices)),
+          capMesh,
+          compactMesh(
+            closedPositions,
+            nearCapTriangles(closedPositions, indices, capIndices),
+          ),
         ).length > 0
       )
         throw new Error("A body boundary cap cannot cross its source surface.");
-      const count = capIndices.length / 3;
-      for (let bit = 1; bit < count; bit *= 2) {
-        const first: number[] = [];
-        const second: number[] = [];
-        for (let triangle = 0; triangle < count; triangle++)
-          (triangle & bit ? first : second).push(
-            ...capIndices.slice(triangle * 3, triangle * 3 + 3),
-          );
-        if (measureAutoMovieMeshCrossings(mesh(first), mesh(second)).length > 0)
-          throw new Error("A body boundary cap cannot cross itself.");
-      }
+      if (measureAutoMovieMeshCrossings(capMesh, capMesh).length > 0)
+        throw new Error("A body boundary cap cannot cross itself.");
     },
     assertValid(): void {
       this.assertGeometry();
@@ -314,6 +324,31 @@ function coplanarOverlapArea(
     twiceArea += p[0] * q[1] - p[1] * q[0];
   }
   return Math.abs(twiceArea) / 2;
+}
+
+/**
+ * A mesh of just these triangles over just the vertices they use, in
+ * first-use order, with the same coordinates.
+ *
+ * The crossing test admits a mesh by scanning its whole position buffer, and
+ * a cap check hands it a few hundred triangles that index a body of tens of
+ * thousands of vertices; every scan of the unused ones is cost with no
+ * geometry in it. The predicates read corner coordinates and never vertex
+ * numbers, so renumbering leaves every decision as it was.
+ */
+function compactMesh(positions: number[], triangles: number[]): IAutoMovieMesh {
+  const renumbered = new Map<number, number>();
+  const compact: number[] = [];
+  const indices = triangles.map((vertex) => {
+    let index = renumbered.get(vertex);
+    if (index === undefined) {
+      index = renumbered.size;
+      renumbered.set(vertex, index);
+      compact.push(...positions.slice(vertex * 3, vertex * 3 + 3));
+    }
+    return index;
+  });
+  return { positions: compact, indices, normals: null, uvs: null, skin: null };
 }
 
 /**

@@ -1,18 +1,16 @@
+import { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
+export { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
+export { AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION } from "./AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION";
 import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
 import {
   AutoMovieProductionFrameCapture,
   IAutoMovieBuildProjectInput,
   IAutoMovieBuildProjectOutput,
-  IAutoMovieCaptionGraphemeSegmentationIdentity,
-  IAutoMovieCaptionReadabilityProfile,
-  IAutoMovieCaptionReadabilityReport,
   IAutoMovieDiagnostic,
-  IAutoMovieFilmTimeline,
   IAutoMovieProductionInspection,
   IAutoMovieProductionNextAction,
   IAutoMovieRenderBundleManifest,
 } from "@automovie/interface";
-import { inspectAutoMovieCaptionReadabilityWithRuntime } from "@automovie/render";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -51,37 +49,6 @@ import type { IAutoMovieProductionDesignGraph } from "./validateProductionDesign
  * a state tree existing before the project can be opened.
  */
 const PROJECT_MARKERS = ["package.json", "lint.config.ts"] as const;
-
-const CAPTION_GRAPHEME_REQUESTED_LOCALE = "en";
-const CAPTION_GRAPHEME_SEGMENTER = new Intl.Segmenter(
-  CAPTION_GRAPHEME_REQUESTED_LOCALE,
-  {
-    granularity: "grapheme",
-  },
-);
-const CAPTION_GRAPHEME_SEGMENTER_OPTIONS =
-  CAPTION_GRAPHEME_SEGMENTER.resolvedOptions();
-
-/**
- * Exact grapheme implementation this package can evaluate.
- *
- * The identity is derived from the same segmenter that performs measurement.
- * The production still chooses whether to adopt it and owns every threshold;
- * a different complete identity remains unsupported without fallback.
- *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Declares the complete grapheme segmentation identity, including the Unicode and ICU revision and the requested and resolved locale, that every measurement reports and that a profile must equal exactly before a verdict exists.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Fixes the actual complete segmentation identity the readability contract compares a requested profile identity against, so an unsupported identity stays measure-only instead of falling back to this segmenter.
- */
-export const AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION = Object.freeze({
-  algorithm: "intl-segmenter-grapheme",
-  version: `unicode-${process.versions.unicode}/icu-${process.versions.icu}`,
-  granularity: CAPTION_GRAPHEME_SEGMENTER_OPTIONS.granularity as "grapheme",
-  locale: Object.freeze({
-    kind: "requested-resolved" as const,
-    requested: CAPTION_GRAPHEME_REQUESTED_LOCALE,
-    resolved: CAPTION_GRAPHEME_SEGMENTER_OPTIONS.locale,
-  }),
-}) satisfies IAutoMovieCaptionGraphemeSegmentationIdentity;
 
 /**
  * Find the nearest immutable AutoMovie workspace from one host-owned seed.
@@ -283,23 +250,6 @@ export const inspectAutoMovieProduction = (
     nextActions,
   };
 };
-
-/**
- * Measure every canonical caption cue and apply only a matching supported
- * production-owned language profile.
- *
- * Missing profiles retain measurements with `not-run`. Unsupported requested
- * segmentation is also `not-run`; the fixed installed segmenter still reports
- * measure-only facts but is never substituted to produce a verdict.
- */
-export const inspectAutoMovieCaptionReadability = (
-  timeline: IAutoMovieFilmTimeline,
-  profiles: readonly IAutoMovieCaptionReadabilityProfile[],
-): IAutoMovieCaptionReadabilityReport =>
-  inspectAutoMovieCaptionReadabilityWithRuntime(timeline, profiles, {
-    identity: AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION,
-    segment: (value) => CAPTION_GRAPHEME_SEGMENTER.segment(value),
-  });
 
 const listFiles = (root: string): string[] => {
   const output: string[] = [];

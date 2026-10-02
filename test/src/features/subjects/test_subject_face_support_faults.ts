@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  faceSupportFaultTriangles,
-  faceSupportFaults,
-} from "../../../scripts/face-review/faceEnvelope";
+import { faceSupportFaultTriangles } from "../../../scripts/face-review/faceSupportFaultTriangles";
+import { faceSupportFaults } from "../../../scripts/face-review/faceSupportFaults";
 
 /** A horizontal host and a separate vertical blade, in metres. */
 const host = [0, 0, 0, 1, 0, 0, 0, 1, 0];
@@ -55,6 +53,11 @@ export const test_subject_face_support_faults = (): void => {
     "the two contact triangles may meet",
     faults(crossed, new Set([0, 3])),
     0,
+  );
+  TestValidator.equals(
+    "one contact triangle does not exempt its other tissue",
+    [faults(crossed, new Set([0])), faults(crossed, new Set([3]))],
+    [1, 1],
   );
   TestValidator.equals(
     "a triangle outside the selected support is not charged",
