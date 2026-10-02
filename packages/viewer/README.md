@@ -92,4 +92,4 @@ glTF loader는 viewer가 소유하지 않는다. host가 `GLTFLoader`와 앱별 
 
 `stickman.html`과 film/impact 계열 route는 motion-first viewer path다. 테스트와 캡처는 이 경로를 우선한다.
 
-`body.html`, `face.html`은 신체·얼굴 실험 표면이다. viewer runtime의 계약을 검증하는 곳이 아니라, 다음 모델 제작 실험을 위한 playground로 둔다.
+`face.html`은 얼굴 실험 표면이다. viewer runtime의 계약을 검증하는 곳이 아니라, 다음 모델 제작 실험을 위한 playground로 둔다.

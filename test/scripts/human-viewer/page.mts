@@ -9,6 +9,11 @@ import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
 } from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import {
+  type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanPersonDocument,
+  serializeHumanPersonDocument,
+} from "@automovie/human";
 import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport";
 import type {
   ConnectedFaceRequest,
@@ -33,6 +38,17 @@ import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerReference } from "./planHumanViewerReference";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
+import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue";
+import { assertHumanViewerSource } from "./assertHumanViewerSource";
+import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceError";
+import type { HumanViewerWork } from "./HumanViewerWork";
+import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
+import { addHumanViewerCalibration } from "./addHumanViewerCalibration";
+import { captureHumanViewerReference } from "./captureHumanViewerReference";
+import { drawHumanViewerLandmarks } from "./drawHumanViewerLandmarks";
+import { layoutHumanViewerReference } from "./layoutHumanViewerReference";
+import { createHumanViewerSpans } from "./createHumanViewerSpans";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
@@ -52,13 +68,26 @@ const pending = new Map<
   { resolve: (value: Result) => void; reject: (error: Error) => void }
 >();
 let sequence = 0;
+/** Where a capture spends its time inside the page, by named stage. */
+const spans = createHumanViewerSpans(() => performance.now());
 let builds = 0;
+let buildMs = 0;
+let workingDocument = "";
+const work = (phase: HumanViewerWork["phase"]): void => {
+  console.log("HUMAN_WORK " + JSON.stringify({ revision: catalogue?.revision ?? "bootstrap",
+    frame: new URLSearchParams(location.search).get("generation") ?? "direct",
+    doc: workingDocument, phase, at: Date.now(), pending: pending.size,
+    geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
+  } satisfies HumanViewerWork));
+};
 worker.onmessage = ({ data }) => {
   const request = pending.get(data.id);
   pending.delete(data.id);
   if (request === undefined) return;
+  work("numeric-reply");
   if (data.success) {
     ++builds;
+    buildMs = data.buildMs ?? 0;
     request.resolve(data.value);
   } else request.reject(new Error(data.error));
 };
@@ -66,15 +95,27 @@ worker.onerror = (error) => {
   for (const request of pending.values())
     request.reject(new Error(error.message));
   pending.clear();
+  work("failed");
 };
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
+/** The photograph layer of the frame on screen, null while none is shown. */
+let composition: {
+  mode: "split" | "overlay" | "swipe";
+  opacity: number;
+  size: number;
+  landmarks: { x: number; y: number; group: string }[];
+} | null = null;
 let active:
   | ReturnType<typeof createConnectedFaceViewport>
-  | ReturnType<typeof createConnectedBodyViewport>;
+  | ReturnType<
+      typeof createConnectedBodyViewport<IAutoMovieHumanBodyBasisDocument>
+    >
+  | ReturnType<typeof createConnectedBodyViewport<IAutoMovieHumanPersonDocument>>;
 type Resident = {
   stage: typeof active;
   group: THREE.Group;
+  resize: () => void;
   release: () => void;
 };
 const residents = createHumanViewerCache<Resident>(32, (resident) =>
@@ -93,46 +134,59 @@ function port<Input, Output>(
     postMessage: ({ id, input }) => {
       const key = selected.key + (ao ? "-ao" : "-direct");
       void (async () => {
-        const cached = await fetch(`/cache/${key}`);
+        work("cache-read");
+        const cached = await spans.measure("cacheReadMs", () => fetch(`/cache/${key}`));
         let value: Result;
         if (cached.ok)
-          value = decodeHumanViewerPreview(await cached.text()) as Result;
+          value = await spans.measure("cacheDecodeMs", async () =>
+            decodeHumanViewerPreview(await cached.text()) as Result);
         else {
-          value = await new Promise<Result>((resolve, reject) => {
+          work("build");
+          value = await spans.measure("workerMs", () => new Promise<Result>((resolve, reject) => {
             const workerId = ++sequence;
             pending.set(workerId, { resolve, reject });
             worker.postMessage({
               id: workerId,
               domain: selected.domain,
+              basis: selected.basis,
               input: { ...input, occlusion: ao },
             });
-          });
+          }));
           // Only numerical results enter disk persistence. Photos remain in a
           // separate display layer, and are never serialized here.
-          await fetch(`/cache/${key}`, {
+          work("cache-write");
+          await spans.measure("cacheWriteMs", () => fetch(`/cache/${key}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: encodeHumanViewerPreview(value),
-          });
+          }));
         }
+        work("prepare");
         transport.onmessage?.({
           data: { id, success: true, value: value as Output },
         });
-      })().catch((error: unknown) =>
+      })().catch((error: unknown) => {
+        work("failed");
         transport.onmessage?.({
           data: {
             id,
             success: false,
             error: error instanceof Error ? error.message : String(error),
           },
-        }),
-      );
+        });
+      });
     },
   };
   return transport;
 }
 
 async function show(address: HumanViewerAddress): Promise<void> {
+  spans.reset();
+  workingDocument = address.doc;
+  work("loading");
+  // A hand-written document can appear or change after the page loaded.
+  if (address.doc.startsWith("file:"))
+    catalogue = admitHumanViewerCatalogue(catalogue, await (await fetch("/docs")).json());
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
@@ -146,6 +200,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
   let resident = residents.get(key);
   if (resident === undefined) {
     const controls: OrbitControls[] = [];
+    let resize = (): void => {};
     const settings = {
       outputColorSpace: THREE.SRGBColorSpace as string,
       toneMapping: THREE.LinearToneMapping as THREE.ToneMapping,
@@ -196,7 +251,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
         controls.push(orbit);
         return orbit;
       },
-      observeResize: (_resize: () => void) => {},
+      observeResize: (observer: () => void) => { resize = observer; },
       loadTexture: (asset: string) => loader.loadAsync(asset),
     };
     if (selected.domain === "face") {
@@ -209,9 +264,31 @@ async function show(address: HumanViewerAddress): Promise<void> {
       stage.publish(model);
       resident = {
         stage,
+        resize,
         group: model.frame.resident.group,
         release: () => {
           stage.cancel();
+          controls.forEach((control) => control.dispose());
+          disposeHumanPreview(model.frame.resident.group);
+        },
+      };
+    } else if (selected.domain === "person") {
+      // a whole person is drawn by the body stage: the worker answers its
+      // protocol with the composed model, and only the document text differs
+      const stage = createConnectedBodyViewport<IAutoMovieHumanPersonDocument>({
+        ...props,
+        serialize: serializeHumanPersonDocument,
+        worker: () =>
+          port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
+      });
+      const model = await stage.build(selected.document);
+      stage.publish(model);
+      resident = {
+        stage,
+        resize,
+        group: model.frame.resident.group,
+        release: () => {
+          stage.disposeWorker();
           controls.forEach((control) => control.dispose());
           disposeHumanPreview(model.frame.resident.group);
         },
@@ -226,6 +303,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
       stage.publish(model);
       resident = {
         stage,
+        resize,
         group: model.frame.resident.group,
         release: () => {
           stage.disposeWorker();
@@ -237,32 +315,44 @@ async function show(address: HumanViewerAddress): Promise<void> {
     residents.set(key, resident);
   }
   active = resident.stage;
-  renderer.setSize(address.size, address.size, false);
-  // Resizing the shared surface precedes framing, which observes its aspect.
+  // A rig left from an earlier show must not enter this show's framing.
+  addHumanViewerCalibration(resident.group, false);
+  work("draw");
+  resizeHumanViewerFrame(address.size, display, canvas, resident.resize);
+  // The stage pairs renderer size with camera projection before fitting.
   active.fitView();
-  active.observe.pass(address.pass);
-  const missing = active.observe.isolate(
-    address.parts.length === 0 ? null : address.parts,
-  );
-  if (missing.length !== 0)
-    throw new Error("Unknown mesh: " + missing.join(","));
-  if (address.frame === null && address.parts.length !== 0)
+  applyHumanViewerVisibility(active, address);
+  if (address.frame === null && (address.parts.length !== 0 || address.zoom !== 1)) {
+    const box = frameHumanViewerParts(resident.group, address.parts);
     active.observe.frame({
-      ...frameHumanViewerParts(resident.group, address.parts),
+      center: box.center,
+      radius: box.radius / address.zoom,
       view: address.view,
+      pitch: address.pitch,
     });
-  else if (address.frame === null) active.observe.view(address.view);
+  } else if (address.frame === null)
+    active.observe.view(address.view, { pitch: address.pitch });
   else
     active.observe.frame({
       center: address.frame.slice(0, 3) as [number, number, number],
-      radius: address.frame[3],
+      radius: address.frame[3] / address.zoom,
       view: address.view,
+      pitch: address.pitch,
     });
+  if (address.look !== null) {
+    const [yaw, pitch, distance, x, y, z, fov] = address.look;
+    active.observe.look({
+      position: faceShapeFitView(
+        { yaw, pitch, distance, target: [x, y, z], fov },
+        address.size,
+      ).eye,
+      target: [x, y, z],
+      fov,
+    });
+  }
+  addHumanViewerCalibration(resident.group, address.calibrate);
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
-  const controls = document.querySelector<HTMLDivElement>(
-    "#reference-controls",
-  )!;
   const info = (await (
     await fetch("/reference-info?" + new URLSearchParams({ doc: address.doc }))
   ).json()) as {
@@ -270,12 +360,12 @@ async function show(address: HumanViewerAddress): Promise<void> {
     camera: IFaceLikenessCamera | null;
     landmarks: { x: number; y: number; group: string }[];
   };
-  controls.hidden = !info.available;
   const comparison = planHumanViewerReference(
     info.available,
     address.ref,
     address.opacity,
   );
+  composition = null;
   reference.style.display = comparison.enabled ? "block" : "none";
   reference.style.clipPath = "";
   reference.style.opacity = "1";
@@ -300,58 +390,63 @@ async function show(address: HumanViewerAddress): Promise<void> {
         reference.style.opacity = String(1 - comparison.renderOpacity);
       else reference.style.clipPath = `inset(0 0 0 ${address.opacity * 100}%)`;
     }
+    composition = {
+      mode: comparison.mode!,
+      opacity: address.opacity,
+      size: address.size,
+      landmarks: address.landmarks ? info.landmarks : [],
+    };
     active.finish();
   } else canvas.style.width = `${address.size}px`;
-  const svg = document.querySelector<SVGSVGElement>("#landmarks")!;
-  svg.replaceChildren();
-  svg.setAttribute("viewBox", "0 0 1 1");
-  for (const point of info.landmarks) {
-    const circle = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle",
-    );
-    circle.setAttribute("cx", String(point.x));
-    circle.setAttribute("cy", String(point.y));
-    circle.setAttribute("r", "0.004");
-    circle.setAttribute("fill", "#00ffff");
-    circle.setAttribute("data-group", point.group);
-    svg.append(circle);
-  }
+  drawHumanViewerLandmarks(
+    document.querySelector<SVGSVGElement>("#landmarks")!,
+    () => document.createElementNS("http://www.w3.org/2000/svg", "circle"),
+    composition === null || !address.landmarks
+      ? null
+      : (() => {
+          const layout = layoutHumanViewerReference(composition.mode, composition.size,
+            composition.opacity, { width: reference.naturalWidth, height: reference.naturalHeight },
+            info.landmarks);
+          return { width: layout.width, height: layout.height,
+            radius: layout.markerRadius, markers: layout.markers };
+        })(),
+  );
   current = address;
+  work("idle");
   status.textContent = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
-  const gallery = document.querySelector<HTMLDivElement>("#gallery")!;
-  gallery.replaceChildren();
-  for (const name of active.observe.parts()) {
-    const anchor = document.createElement("a");
-    anchor.textContent = name;
-    anchor.href =
-      "#" +
-      serializeHumanViewerAddress({ ...address, parts: [name], frame: null });
-    gallery.append(anchor);
-  }
 }
 
 let queue = Promise.resolve();
+/** Tell the host page what is displayed, so its controls follow the frame. */
+const announce = (): void => {
+  parent.postMessage(
+    {
+      type: "human:address",
+      address: serializeHumanViewerAddress(current),
+      parts: active.observe.parts(),
+      doc: current.doc,
+    },
+    location.origin,
+  );
+};
 const apply = (address: HumanViewerAddress): Promise<void> => {
-  const next = queue.then(() => show(address));
+  const next = queue.then(() => show(address)).then(announce);
   queue = next.catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : String(error);
   });
   return next;
 };
 async function main(): Promise<void> {
+  const source = async (): Promise<void> => {
+    const health = await (await fetch("/health")).json() as Parameters<typeof humanViewerCandidateSourceError>[0];
+    assertHumanViewerSource(humanViewerCandidateSourceError(health));
+  };
+  await source();
   catalogue = await (await fetch("/docs")).json();
   await apply(parseHumanViewerAddress(location.hash));
+  await source();
   addEventListener("hashchange", () => {
-    void apply(parseHumanViewerAddress(location.hash)).then(() => {
-      parent.postMessage(
-        {
-          type: "human:address",
-          address: serializeHumanViewerAddress(current),
-        },
-        location.origin,
-      );
-    });
+    void apply(parseHumanViewerAddress(location.hash));
   });
   Object.assign(window, {
     __humanViewer: {
@@ -360,37 +455,26 @@ async function main(): Promise<void> {
       renderer: () => String(active.renderer()),
       revision: () => catalogue.revision,
       builds: () => builds,
+      buildMs: () => buildMs,
+      spans: () => spans.snapshot(),
       address: () => current,
       png: () => {
         active.finish();
         const gl = renderer.getContext();
         assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
-        return canvas.toDataURL("image/png");
+        if (composition === null) return canvas.toDataURL("image/png");
+        // The photograph is a DOM layer above the canvas, so compose it in.
+        return captureHumanViewerReference({
+          composition,
+          landmarks: composition.landmarks,
+          photo: document.querySelector<HTMLImageElement>("#reference")!,
+          render: canvas,
+          create: () => document.createElement("canvas"),
+        });
       },
     },
   });
   parent.postMessage({ type: "human:ready" }, location.origin);
-  const mode = document.querySelector<HTMLSelectElement>("#reference-mode")!;
-  const opacity =
-    document.querySelector<HTMLInputElement>("#reference-opacity")!;
-  const updateReference = (): void => {
-    location.hash = serializeHumanViewerAddress({
-      ...current,
-      ref: mode.value as NonNullable<HumanViewerAddress["ref"]>,
-      opacity: Number(opacity.value),
-    });
-  };
-  mode.addEventListener("change", updateReference);
-  opacity.addEventListener("input", updateReference);
-  document
-    .querySelector<HTMLInputElement>("#reference-landmarks")!
-    .addEventListener("change", (event) => {
-      document.querySelector<SVGSVGElement>("#landmarks")!.style.display = (
-        event.target as HTMLInputElement
-      ).checked
-        ? "block"
-        : "none";
-    });
   // A human orbit is display-only. Finish on demand and while the pointer moves.
   canvas.addEventListener("pointermove", () => active.finish());
   canvas.addEventListener("wheel", () =>

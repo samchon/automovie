@@ -3,6 +3,7 @@ import {
   growHumanFaceHairStrand,
   humanFaceHairContact,
 } from "@automovie/human";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -22,6 +23,11 @@ import { nclose, throwsError } from "../internal/predicates";
  *    left between them.
  * 3. That refusal is the contact rule's own, in a slot narrower than the
  *    clearance it must keep.
+ * 4. A strand is recognised at its first bad chord: the stations after it are
+ *    not projected, and a strand with no bad chord is projected in full.
+ * 5. A refusing integrator is called once and its own Error propagates after
+ *    a bad chord or projection refusal, including a later refusal that early
+ *    placement rejection must never reach.
  */
 export const test_subject_human_hair_strand_growth = (): void => {
   const layer = {
@@ -66,7 +72,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
       nclose(placed.length, 0.05) &&
       nclose(placed.clearance, contact.clearance - contact.epsilon),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a strand whose stations outrun the step is grown",
     growHumanFaceHairStrand({
       strand: {
@@ -76,8 +82,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
       },
       contact,
       integrate: () => stretched,
-    }),
-    stretched,
+    }) === stretched,
   );
   const grown = {
     points: [root, Vector3.create(0, 0.3, 0)],
@@ -91,7 +96,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
       throw new Error("Numerical hair contact did not converge.");
     },
   };
-  TestValidator.equals(
+  TestValidator.predicate(
     "a strand the projection refuses is grown",
     growHumanFaceHairStrand({
       strand: {
@@ -101,8 +106,7 @@ export const test_subject_human_hair_strand_growth = (): void => {
       },
       contact: refusing,
       integrate: () => grown,
-    }),
-    grown,
+    }) === grown,
   );
   // Two walls 20 mm apart cannot hold a 21 mm clearance: a point in the slot
   // between them is pushed into the opposite wall until the contact refuses.
@@ -129,4 +133,86 @@ export const test_subject_human_hair_strand_growth = (): void => {
       "did not converge",
     ),
   );
+  let projected = 0;
+  const counting = {
+    ...contact,
+    project: (point: IAutoMovieVector3) => {
+      projected++;
+      return contact.project(point);
+    },
+  };
+  const fresh = () => ({
+    points: [
+      root,
+      near,
+      Vector3.create(0, 0.4, 0),
+      Vector3.create(0, 0.401, 0),
+      Vector3.create(0, 0.402, 0),
+    ],
+    length: 0.3,
+    normal: Vector3.create(0, 1, 0),
+  });
+  let earlyIntegrations = 0;
+  const earlyResult = growHumanFaceHairStrand({
+    strand: fresh(),
+    contact: counting,
+    integrate: () => {
+      earlyIntegrations++;
+      return stretched;
+    },
+  });
+  TestValidator.predicate(
+    "the first bad chord grows the strand",
+    earlyResult === stretched,
+  );
+  TestValidator.equals("the first bad chord integrates once", earlyIntegrations, 1);
+  TestValidator.equals(
+    "no station after the bad chord is projected",
+    projected,
+    2,
+  );
+  projected = 0;
+  growHumanFaceHairStrand({
+    strand: {
+      points: [
+        root,
+        near,
+        Vector3.create(0, 0.1035, 0),
+        Vector3.create(0, 0.1055, 0),
+      ],
+      length: 0.05,
+      normal: Vector3.create(0, 1, 0),
+    },
+    contact: counting,
+    integrate: () => stretched,
+  });
+  TestValidator.equals("a placed strand is projected in full", projected, 3);
+  for (const mode of ["bad chord", "projection refusal", "later refusal"] as const) {
+    const failure = new Error("The integrator owns this refusal.");
+    let integrations = 0, projections = 0;
+    let caught: unknown;
+    try {
+      growHumanFaceHairStrand({
+        strand: fresh(),
+        contact: {
+          ...contact,
+          project: (point) => {
+            projections++;
+            if (mode === "projection refusal" || (mode === "later refusal" && projections === 3))
+              throw new Error("Projection refuses before integration.");
+            return contact.project(point);
+          },
+        },
+        integrate: () => {
+          integrations++;
+          throw failure;
+        },
+      });
+    } catch (error: unknown) {
+      caught = error;
+    }
+    TestValidator.predicate(mode + " propagates the integrator Error", caught === failure);
+    TestValidator.equals(mode + " integrates once", integrations, 1);
+    TestValidator.equals(mode + " projects only until placement refuses", projections, mode === "projection refusal" ? 1 : 2);
+  }
 };

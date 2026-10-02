@@ -8,7 +8,7 @@
  *
  * MODELS is the `export-subject-views.ts` directory (its `views.json` and
  * `<subject>__rest.json` are hashed), MANIFEST the `manifest` output that
- * lists the missing photographs, DETECTIONS_DIR one `detect-face-likeness.py`
+ * lists the missing photographs, DETECTIONS_DIR one detector
  * run over the photographs and both captures, and the two capture
  * directories hold `reference-yaw` and `reference-yaw-hair-mask` PNGs taken
  * with the `yaw` and `frame` pose files.
@@ -25,8 +25,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { type IFaceLikenessComparison } from "./faceLikenessComparison";
 import {
-  type IFaceLikenessComparison,
   compareFaceLikeness,
   summarizeFaceLikeness,
 } from "./faceLikenessCompare";

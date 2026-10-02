@@ -33,6 +33,30 @@ import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
  * The acceleration structure uses engine metres; emitted parts use createMetricMeshPart
  * for their final metric conversion. Zero fibres produce no parts. Counts above
  * 4096 refuse rather than allocating an unbounded brow mesh population.
+ *
+ * The skin is treated as a single-valued height field over the head's XY
+ * plane (the frontmost hit along +Z), which holds over the forehead and brow
+ * band where the surface faces forward and is not valid on an overhang. Each
+ * fibre `i` of `n` roots at fraction `(i + 0.5) / n` along the brow and at a
+ * band height set by the golden-ratio sequence, so the roots are evenly
+ * spread and replay identically. Thinning removes whole fibres by an
+ * end-fade envelope and keeps the original index in the part id
+ * (`<side>-brow-hair-<i>`), so an unchanged fibre keeps its identity when a
+ * neighbour is removed. Each fibre is one part in the `brows` finish: a
+ * ribbon of `2 * (segments + 1)` vertices, or an eight-sided tube.
+ * A non-finite dimension, a boundary without a side or with fewer than two
+ * identities per edge or an identity outside the skin, a root that leaves the
+ * supporting skin, a fibre whose path along the skin has zero length and a
+ * ribbon with no projected tangent throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Depth is the frontmost skin height at each fibre sample, and the local normal is the gradient of that height by central differences, so the offset of radius plus clearance plus arch along the normal keeps the cross section clear of the surface's tangent plane on a slope. The approximations are stated: a height-field skin, a normal estimated over one fibre radius on a piecewise-planar mesh (so it is the face normal within a triangle), and contact on curved skin left to rendered inspection. Roots use the golden-ratio sequence, a low-discrepancy sequence that spreads roots evenly without random state.
+ * @evidence contracts/common.md#clear-and-simple-design One function turns a skin, a boundary, a count and a profile into fibre parts in the order validate, sample roots, thin, trace a projected path and lift it onto the skin, with the flow, the profile check and the metric conversion delegated to their owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No case is named after a subject, fixture or photograph; the fibres are a function of the skin, boundary, count and profile, a root off the skin throws instead of being clamped, and no compensating retry exists.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the height-field assumption and where it fails, how roots and thinning are chosen, the part identities, the vertex count of a ribbon, the units and every refusal.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The function returns the fibre population of one eyebrow as separate parts, one per fibre, named `<side>-brow-hair-<i>` with the original sequence index, so the brow is the group and a fibre is the smallest part with its own identity; thinning changes membership and never renumbers a survivor. The group's composition and order are owned here and no fibre's shape is copied from another.
+ * @evidence contracts/modeling.md#emitted-geometry The population is `browFibres` fibres of a fixed lattice each, `2 * (segments + 1)` vertices and `2 * segments` triangles for a ribbon, so it grows with the fibre count and the segment count (at most 4096 and 32) and not with any authored feature; thinning only removes whole fibres. Individual fibres are the form the profile describes, which a texture card cannot supply at close range, and the cap bounds the population.
+ * @evidence contracts/modeling.md#spatial-conventions The skin and boundary are head millimetres in one right-handed frame with +Z anterior, the depth sampler works in engine metres through explicit division by 1000 at each query and multiplication on the hit, and the parts are converted to metres once by the metric part builder.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the profile and count and defines no channel.
  */
 export function buildPortraitEyebrow(
   skin: IControlMesh,

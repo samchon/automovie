@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  portraitWebHairMaskPart,
-  portraitWebHairMaskPixels,
-} from "../../../scripts/face-review/web/logic.mjs";
+import { portraitWebHairMaskPart } from "../../../scripts/face-review/web/portraitWebHairMaskPart";
+import { portraitWebHairMaskPixels } from "../../../scripts/face-review/web/portraitWebHairMaskPixels";
 import { throwsError } from "../internal/predicates";
 
 /**

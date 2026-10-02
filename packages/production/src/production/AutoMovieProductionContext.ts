@@ -12,6 +12,10 @@ import {
   openAutoMovieProduction,
 } from "./openAutoMovieProduction";
 import type { AutoMovieModelArchetypeRegistry } from "./productionArchetypes";
+import type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionContextOptions";
+import { resolveAutoMovieProductionContextOptions } from "./resolveAutoMovieProductionContextOptions";
+
+export type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionContextOptions";
 
 /**
  * Active services for one resident production repository.
@@ -45,6 +49,11 @@ export interface IAutoMovieProductionServices {
 export class AutoMovieProductionContext {
   private readonly root: string;
   private readonly services = new Map<string, IAutoMovieProductionServices>();
+  private readonly capture: IAutoMovieProductionContextOptions["capture"];
+  private readonly defaultProductionId: IAutoMovieProductionContextOptions["productionId"];
+  private readonly archetypes: IAutoMovieProductionContextOptions["archetypes"];
+  private readonly authoringEvidence: IAutoMovieProductionContextOptions["authoringEvidence"];
+  private readonly currentAuthoringEvidence: IAutoMovieProductionContextOptions["currentAuthoringEvidence"];
 
   /**
    * Open one host-fixed production context.
@@ -54,19 +63,32 @@ export class AutoMovieProductionContext {
    * generated freshness without the same declaration reads every compiled
    * production as stale. Hand it the declaration the compile read.
    */
+  public constructor(options: IAutoMovieProductionContextOptions);
+  /** @deprecated Pass one named IAutoMovieProductionContextOptions record. */
   public constructor(
-    private readonly capture?: AutoMovieProductionFrameCapture,
+    capture?: AutoMovieProductionFrameCapture,
     projectRoot?: string,
-    private readonly defaultProductionId?: string,
-    /** Archetype catalogue every production opened here is judged against. */
-    private readonly archetypes?: AutoMovieModelArchetypeRegistry,
-    /** Exact graph-derived authoring identity the compile was judged against. */
-    private readonly authoringEvidence?: IAutoMovieProductionEvidence,
-    /** Fresh graph reader used by every atomic currentness confirmation. */
-    private readonly currentAuthoringEvidence?: () => IAutoMovieProductionEvidence,
+    productionId?: string,
+    archetypes?: AutoMovieModelArchetypeRegistry,
+    authoringEvidence?: IAutoMovieProductionEvidence,
+    currentAuthoringEvidence?: () => IAutoMovieProductionEvidence,
+  );
+  public constructor(
+    input?: IAutoMovieProductionContextOptions | AutoMovieProductionFrameCapture,
+    projectRoot?: string,
+    productionId?: string,
+    archetypes?: AutoMovieModelArchetypeRegistry,
+    authoringEvidence?: IAutoMovieProductionEvidence,
+    currentAuthoringEvidence?: () => IAutoMovieProductionEvidence,
   ) {
-    validateProductionId(defaultProductionId);
-    this.root = findAutoMovieProjectRoot(projectRoot);
+    const options = resolveAutoMovieProductionContextOptions({ input, legacy: { projectRoot, productionId, archetypes, authoringEvidence, currentAuthoringEvidence } });
+    validateProductionId(options.productionId);
+    this.root = findAutoMovieProjectRoot(options.projectRoot);
+    this.capture = options.capture;
+    this.defaultProductionId = options.productionId;
+    this.archetypes = options.archetypes;
+    this.authoringEvidence = options.authoringEvidence;
+    this.currentAuthoringEvidence = options.currentAuthoringEvidence;
   }
 
   /**

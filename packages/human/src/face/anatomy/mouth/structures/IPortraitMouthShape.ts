@@ -8,6 +8,14 @@ import { IPortraitOralChamber } from "./IPortraitOralChamber";
  * distances are millimetres; scales multiply the subject's measured socket.
  * The row contains its own crown dimensions rather than one repeated tooth.
  *
+ * @evidence contracts/common.md#principled-implementation Every member is a dimension the mouth fit consumes: width and opening scales about the measured socket, corner lift, projections, an optional section, band ratios, border refinement, blend reach and the oral cavity and legacy crown placement. Scales multiply the measured socket, so the identity configuration reproduces the subject's own mouth.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The type carries data only: no special case, foreign mutation or compensating path exists in it.
+ * @evidence contracts/common.md#meaningful-documentation Each member states its unit, sign, admitted range and what omission means, and the type states that scales multiply the measured socket.
+ * @evidence contracts/modeling.md#spatial-conventions All distances are millimetres in the head frame with +Z forward; scales are unitless multipliers about the measured socket's centre; crown lists run from negative to positive X.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The type emits no primitive.
+ * @evidence contracts/modeling.md#shared-boundaries The members that touch a boundary state their effect on it: the section and seam projection are zero on the shared band edges and corners, band thickness scales about the actual inner curve, and the oral rim is fixed by cavity construction.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The type owns no part, group or joint by itself; the observation belongs to the component that consumes it.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The type admits nothing; `createPortraitMouthComponent` and its helpers refuse values outside the documented ranges.
  * @author Samchon
  */
 export interface IPortraitMouthShape {

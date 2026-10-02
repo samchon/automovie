@@ -4,8 +4,8 @@ import type {
   IAutoMovieHumanFaceControlMap,
 } from "@automovie/human";
 
-import { extendFaceEnvelope } from "./faceEnvelope";
-import type { FaceUnseenReading, IFaceUnseenIndex } from "./faceUnseenNorms";
+import { extendFaceEnvelope } from "./extendFaceEnvelope";
+import type { FaceUnseenReading, IFaceUnseenIndex } from "./faceUnseenIndices";
 
 /**
  * The unseen envelope revision of the connected face basis: each control

@@ -64,6 +64,65 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * kept station and every emitted triangle stays the same.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
+ *
+ * @evidence contracts/common.md#principled-implementation Each curve becomes a
+ *   ribbon centred on its own polyline: the transverse frame starts from the
+ *   first non-parallel tangent and is carried along the kept stations by the
+ *   minimal rotation between successive averaged tangents (Rodrigues), then
+ *   re-projected off the tangent to remove drift, so the ribbon does not twist
+ *   except where the curve does. Antiparallel tangents have no unique minimal
+ *   rotation and refuse. The half width is the taper's radius, and where a
+ *   corner would enter the skin it is solved back by a safeguarded Newton step
+ *   on the corner's own signed distance, falling back on the provable bound free
+ *   distance minus clearance, and both sides take the tighter width so the
+ *   ribbon stays centred. Skipping a query when the 1-Lipschitz bound already
+ *   certifies the full width changes no vertex. Ribbon-to-ribbon contact and
+ *   self-intersection are not established, as the comment says.
+ * @evidence contracts/common.md#clear-and-simple-design One owner of the
+ *   ribbon, taking the station choice from selectHumanFaceHairStations and the
+ *   shared contact proof from humanFaceHairFreeDistanceBound; frame transport,
+ *   width fit and triangle assembly stay together because they share the running
+ *   frame and the witness sample.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject or style: widths, taper and clearance come from the
+ *   density, the layer and the same query the integrator used, and a station
+ *   that cannot be fitted refuses instead of being patched.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   the frame construction, facing, fitting rule, the certified skip, ownership
+ *   of the buffers and what is not established.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function builds one mesh for all the curves of a layer; the hair builder
+ *   names the part and its material.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidence contracts/modeling.md#emitted-geometry Each curve emits a root fan
+ *   and one row of two vertices per kept station, so the population is ribbon
+ *   count times the stations the curve needs to stay within a tenth of the
+ *   ribbon's half width and a quarter of the clearance: a straight lock is one
+ *   segment and a curl keeps its bends. Measured on the published faces with the
+ *   face builder, the long gathered head produces 127,188 triangles and the
+ *   tightly curled head 263,086. A card or a coarser fixed step would not keep
+ *   the integrated stations exact, whereas selecting stations by tolerance does.
+ * @evidence contracts/modeling.md#spatial-conventions Curve stations and query
+ *   are metres in the head frame; tangents and frames are unit vectors; UV u is
+ *   the ribbon side and v the cumulative arc length over the measured total,
+ *   which the taper shares. No portrait millimetre conversion is applied.
+ * @evidence contracts/modeling.md#shared-boundaries A ribbon meets the skin
+ *   through the same signed-distance query and requested clearance the fibre
+ *   path was integrated with, and its corners are fitted outside the skin at
+ *   every kept station, so the ribbon does not enter the scalp. The ribbon
+ *   narrows where the scalp is close and opens as it leaves. Where a station is
+ *   not at least the clearance and half a step from the surface the function
+ *   refuses, and nothing here keeps two ribbons apart.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
+ *   no anatomical value of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function buildHumanFaceHairMesh(
   curves: ReturnType<typeof integrateHumanFaceHairCurve>[],

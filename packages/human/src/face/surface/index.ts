@@ -5,7 +5,6 @@ export * from "./applyPortraitRegionReplacements";
 export * from "./applyPortraitSurfaceLayers";
 export * from "./assertPortraitInteriorBindings";
 export * from "./portraitDirectionalContactFrame";
-export * from "./createPortraitControlLayer";
 export * from "./createPortraitDirectionalContact";
 export * from "./createPortraitDirectionalIntersection";
 export * from "./createPortraitInteriorFinisher";

@@ -5,11 +5,9 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  findSeamPair,
-  prepareContactBasis,
-  sealCrownRings,
-} from "../../../scripts/face-review/prepareContactBasis";
+import { findSeamPair } from "../../../scripts/face-review/findSeamPair";
+import { prepareContactBasis } from "../../../scripts/face-review/prepareContactBasis";
+import { sealCrownRings } from "../../../scripts/face-review/sealCrownRings";
 import { humanFaceContactFixture } from "../internal/humanFaceContactFixture";
 import { nclose, throwsError } from "../internal/predicates";
 

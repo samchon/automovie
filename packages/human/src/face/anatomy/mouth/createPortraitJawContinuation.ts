@@ -21,6 +21,15 @@ import { posePortraitJawPoint } from "./posePortraitJawPoint";
  * band retains facial performance's weight. These are kinematic attachments,
  * not recovered muscle weights, joint translation or a collision simulation.
  * Matching observed/current angles omit the extra assembly path exactly.
+ *
+ * @evidence contracts/common.md#principled-implementation Facial performance's own constraints identify the restored source vertices, so the mouth's tissue is never restored or posed twice. Below the oral band the jaw rotation is continued to a fixed cervical boundary by weighting the angle along each sagittal ray with a monotone rational quadratic of the polar angle about the hinge, which has unit endpoint derivatives and does not reverse the field the way multiplying Cartesian falloffs does. The premises (chin below the hinge and above the lower neck, tissue anterior to the hinge, angular clearance) are checked and refused when unmet; equal observed and current angles omit the path exactly.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; the transition is derived from the hinge, the chin and the lower neck section and not tuned to a result.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the sector, the continuation, the anchoring, that the weights are kinematic and not muscle weights and that matching angles omit the path.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The declaration is the jaw's continuation of the cranium and neck, a performance field over tissue that other components own; it owns no part.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the observed and current jaw opening and defines no channel of its own.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The declaration emits no primitive; it poses appended tissue before common subdivision.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres and degrees about the +X hinge; the polar angle is radians internally and converted at the rotation.
+ * @evidence contracts/modeling.md#shared-boundaries The rotation is continued to a posterior hinge plane and the lower cervical section that stay anchored, joined with unit endpoint derivatives, and the oral band keeps facial performance's own weight, so the field is continuous with the fixed and the oral tissue. It does not model condylar translation or guarantee that skin is free of self-intersection.
  */
 export function createPortraitJawContinuation(
   inputHost: IPortraitComponentHost,

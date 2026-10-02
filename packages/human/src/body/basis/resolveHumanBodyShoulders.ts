@@ -12,6 +12,7 @@ import type {
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
 import { humanBodyShoulderTtRotation } from "./humanBodyShoulderTtRotation";
+import { humanBodyShoulderPoseFromDirection } from "./humanBodyShoulderPoseFromDirection";
 
 /**
  * Resolve a thorax-relative total shoulder goal after the declared girdle
@@ -43,26 +44,19 @@ export function resolveHumanBodyShoulders(
   const thoraxRest = rest.get("upperChest");
   for (const joint of basis.joints) {
     if (joint.shoulder === undefined) continue;
+    if (joint.bone !== "leftUpperArm" && joint.bone !== "rightUpperArm")
+      throw new Error("A TT shoulder readout needs a named upper arm.");
     if (thorax === undefined || thoraxRest === undefined)
       throw new Error("Thorax-relative shoulder needs an upperChest frame.");
     const arm = byBone.get(joint.bone);
     const armRest = rest.get(joint.bone);
     if (arm === undefined || armRest === undefined)
       throw new Error("Thorax-relative shoulder needs a resolved arm frame.");
-    const side = joint.bone === "leftUpperArm" ? 1 : -1;
     const restDirection = Quaternion.rotateVector(
       armRest.rotation,
       Vector3.create(0, 1, 0),
     );
-    const aPose = {
-      bone: joint.bone,
-      plane:
-        (Math.atan2(restDirection.z, side * restDirection.x) * 180) / Math.PI,
-      elevation:
-        (Math.acos(Math.max(-1, Math.min(1, -restDirection.y))) * 180) /
-        Math.PI,
-      axialRotation: 0,
-    } as IAutoMovieHumanBodyShoulderPose;
+    const aPose = humanBodyShoulderPoseFromDirection({ bone: joint.bone, direction: restDirection });
     const target = shoulders.find((pose) => pose.bone === joint.bone) ?? aPose;
     const relative = Quaternion.multiply(
       humanBodyShoulderTtRotation(target),

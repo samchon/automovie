@@ -50,6 +50,14 @@ Continuity entry는 subject 또는 location, state key, value, story time 또는
 
 Art direction, scale, location, subject, material, tier와 budget 변경은 scene, asset, shot, sound, edit, render, evidence, shared prototype, instance, palette role, schedule, route, reflection, shadow, sound context와 quantity까지 영향 edge를 출력한다. Comparison은 added, removed, replaced, changed와 unchanged identity 및 semantic consequence를 보존하고 byte diff만으로 의미를 판단하지 않는다.
 
+### LOD 참조의 변경 의존 관계 {#narrative-intent-lod-change-dependency}
+
+<!-- @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-lod-change-dependency 직접·전이 LOD 참조와 자기 identity, 순환 및 누락 recipe의 변경 의존성을 정의한다. -->
+
+Recipe identity를 node로, 각 LOD의 recipe 참조를 directed edge로 해석한다. Model이 dependency와 같은 identity이거나 그 dependency에 이르는 edge 경로가 있으면 변경 의존 관계가 성립한다. 이는 geometry, 거리 임계값이나 tier 선택의 계산과 별도 관계다.
+
+없는 recipe는 outgoing edge가 없지만 참조 identity는 보존한다. 자기 edge와 순환은 관련 없는 dependency를 만들지 않으며, 한 순환 경로를 탐색했다는 이유로 다른 경로의 도달 가능성을 누락하지 않는다. 분석은 입력 inventory와 LOD를 수정하지 않고 의존 여부만 반환하며 recipe의 구조·참조 유효성 판정은 별도 검증으로 남긴다.
+
 ## Deliverable Inventory {#narrative-intent-design-deliverable-inventory}
 
 ### Authority, Gap과 Freshness {#narrative-intent-deliverable-authority-gaps}

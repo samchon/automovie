@@ -92,19 +92,6 @@ async function main(): Promise<void> {
       },
     },
   );
-  Object.assign(window, {
-    __connectedFace: {
-      snapshot: panel.snapshot,
-      document: () => panel.snapshot()?.document,
-      camera: viewport.cameraView,
-      // Review hooks: exact placement, named views, region framing, part
-      // isolation and hiding, structural passes. They change what is drawn
-      // and never the document.
-      ...viewport.observe,
-      finish: viewport.finish,
-      renderer: viewport.renderer,
-    },
-  });
   await panel.ready;
 }
 void main().catch((error: unknown) => {

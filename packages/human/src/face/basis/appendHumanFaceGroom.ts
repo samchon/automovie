@@ -24,6 +24,15 @@ import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFace
  * and an approximation for any other; whether the result reads as that person's
  * hair is a judgement no measurement here makes.
  *
+ * @evidence contracts/common.md#principled-implementation The hair is composed as additional parts after the resident face parts with its own finish, so the face keeps its order and identity and an export that ignored hair still finds the same face. Locks are placed where they were seated, which the docs state is right for the seated face only.
+ * @evidence contracts/common.md#clear-and-simple-design Composition only: identity collision check, hair build, concatenation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A finish identity that collides refuses; no input is mutated.
+ * @evidence contracts/common.md#meaningful-documentation States why the groom is a separate resource, that the result is a new model and what is not asserted about it.
+ * @evidence contracts/modeling.md#part-identity-and-grouping It is a group composer: it appends the hair part group to the face's parts without copying any member's geometry.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source appendHumanFaceGroom carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range appendHumanFaceGroom admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority appendHumanFaceGroom defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#parameter-channels appendHumanFaceGroom defines and consumes no parameter channel of a form.
  * @author Samchon
  */
 export function appendHumanFaceGroom(props: {

@@ -20,8 +20,10 @@ const requireDirection = humanFaceHairFrame.direction;
  * so a strand keeps the same clearance its guides were integrated with
  * without being integrated itself. A projection that does not converge in 64
  * steps refuses.
- * A successful sample is retained within this contact instance. If its
- * 1-Lipschitz lower bound proves the next candidate free, projection returns
+ * The last sample is kept, so a point sampled twice in a row is queried once.
+ * A successful sample is also retained as a witness within this contact
+ * instance. If its 1-Lipschitz lower bound proves the next candidate free,
+ * projection returns
  * that candidate without a new surface query. The witness is copied and owned
  * by this collider, so another face cannot install a stale contact sample.
  *
@@ -38,6 +40,55 @@ const requireDirection = humanFaceHairFrame.direction;
  * A ribbon is far wider than the fibre path it stands for, and paying for that
  * width here would lift every strand off the scalp by half a ribbon; the mesh
  * owner keeps the ribbon's own corners outside instead.
+ *
+ * @evidence contracts/common.md#principled-implementation The clearance is
+ *   half a sampling step plus the requested clearance plus a rounding allowance,
+ *   and the projection moves a point to exactly that clearance along the nearest
+ *   feature's outward direction and repeats, since one move can land inside
+ *   another feature. Distance to a closed set is 1-Lipschitz, so a chord no
+ *   longer than one step between two stations that each keep the clearance keeps
+ *   it along the whole chord, which is why the step is exported with the rule. A
+ *   projection that has not converged in 64 moves refuses. The kept last sample
+ *   and the kept witness only skip a query whose answer is already known: the
+ *   same coordinates return the identical hit, and a strictly certified point
+ *   returns itself, so neither changes any station. The premise is a closed,
+ *   consistently oriented collider.
+ * @evidence contracts/common.md#clear-and-simple-design One rule per curve
+ *   shared by the integrator, the strand projector and, through its clearance,
+ *   the mesher, so the three cannot disagree; its only state is the last sample
+ *   and the last witness, both private to the instance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject and no foreign state: the caches live in the instance,
+ *   are compared by coordinates and are never installed from another face, and a
+ *   point that cannot be placed refuses.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   the clearance, the projection, who calls it, what is cached and why the
+ *   cache is exact, the chord the step gives and why the clearance is the
+ *   fibre's own and not the ribbon's.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function computes a value and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
+ *   no primitive.
+ * @evidence contracts/modeling.md#spatial-conventions Points, root, length,
+ *   step, clearance and the rounding allowance are metres in the head frame of
+ *   the supplied query, and nothing is converted; the allowance scales with the
+ *   largest of the root's coordinates, the length, the step and the clearance.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
+ *   no surface and joins no neighbouring part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function
+ *   owns no part, group or joint and displays nothing; the builder that owns the
+ *   assembled hair is where the result is observed.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
+ *   no anatomical value of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function humanFaceHairContact(props: {
   layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;
@@ -69,7 +120,25 @@ export function humanFaceHairContact(props: {
       layer.clearance,
     );
   const clearance = h / 2 + layer.clearance + 2 * epsilon;
-  const sample = (p: IAutoMovieVector3) => query([p.x, p.y, p.z]);
+  // The projection of a step returns the very point the integrator samples
+  // next, so the last query is kept: the same coordinates give the same hit,
+  // because the query is deterministic in its point. The hit is shared and
+  // read only.
+  let sampled:
+    | { point: IAutoMovieVector3; hit: ReturnType<typeof query> }
+    | undefined;
+  const sample = (p: IAutoMovieVector3): ReturnType<typeof query> => {
+    if (
+      sampled !== undefined &&
+      sampled.point.x === p.x &&
+      sampled.point.y === p.y &&
+      sampled.point.z === p.z
+    )
+      return sampled.hit;
+    const hit = query([p.x, p.y, p.z]);
+    sampled = { point: { x: p.x, y: p.y, z: p.z }, hit };
+    return hit;
+  };
   const outward = (p: IAutoMovieVector3, hit: ReturnType<typeof sample>) =>
     hit.distance === 0
       ? Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2])

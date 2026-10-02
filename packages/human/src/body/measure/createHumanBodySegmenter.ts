@@ -44,6 +44,19 @@ type PartPlan = {
  * one dominant-bone region. A dominant skin weight is a rig attachment,
  * not a physical bone surface or a tissue boundary. The caller still runs
  * exact triangle crossing checks on each newly posed result.
+ *
+ * @evidence contracts/common.md#principled-implementation Each output vertex takes its greatest skin-weight joint, and each triangle takes the majority joint of its three corners, the first corner's on a three-way tie, so every triangle lands in exactly one part. The plan depends only on the admitted basis and is compiled once, while the returned evaluator refuses a build whose corner order, vertex population or render positions and normals differ from the connected posed skin it copies. The dominant weight is a rig attachment and not a physical bone surface, so the parts name contact witnesses and not tissue boundaries.
+ * @evidence contracts/common.md#clear-and-simple-design A compile step (basis-only topology) is separated from a per-build evaluator that copies posed values, so a worker keeps the compiled function across documents; the Float32 UV identity comes from the one shared region helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No joint, region or expected contact is named, and a mismatched build is refused instead of being patched to fit the plan.
+ * @evidence contracts/common.md#meaningful-documentation States what is compiled, the dominant-weight and tie rules, what the evaluator checks and copies, that nothing posed is cached and that the parts are contact witnesses and not bone surfaces.
+ * @evidence contracts/modeling.md#part-identity-and-grouping A part is one region's triangles owned by one dominant joint, named `joint/surface/region` (the joint alone when the basis has one region), and the partition is the group of those parts in joint-then-region order. It copies the posed positions and normals but owns no shape of its own.
+ * @evidenceExclude contracts/modeling.md#parameter-channels It defines and consumes no morph channel.
+ * @evidence contracts/modeling.md#emitted-geometry Every triangle of a region is emitted once, in one part, and every part vertex is a distinct (source vertex, corner UV) pair of the builder's own region, so the counts follow the basis's regions and not any authored feature.
+ * @evidence contracts/modeling.md#spatial-conventions Positions and normals are the builder's posed metres in the builder's output frame, copied without conversion; vertex ordinals are source ordinals offset per surface.
+ * @evidence contracts/modeling.md#shared-boundaries Neighbouring parts are cut along triangle edges whose endpoints copy identical posed values from the same skin, so the cut neither gaps nor overlaps. The partition is a measurement witness, not a render surface, and promises no normal continuity beyond the source skin's.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source A dominant skin weight is a rig attachment and carries no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It admits or bounds no anatomical quantity.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority It is not an input through which a caller shapes a body.
  */
 export function createHumanBodySegmenter(basis: IAutoMovieHumanBodyBasis): (
   built: IAutoMovieHumanBodyBuild,

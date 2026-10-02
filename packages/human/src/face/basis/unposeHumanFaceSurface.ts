@@ -29,6 +29,20 @@ const matrixOf = (
  * A blend whose rotations cancel to a singular `L` is refused, because such a
  * vertex has no rest position that reproduces the pose; an unattached vertex
  * is returned unchanged. Inputs are never mutated; the result is fresh.
+ *
+ * @evidence contracts/common.md#principled-implementation Per vertex the blend is affine, p' = L p + c with L = I + sum w (R - I) and c = sum w (pivot + t - R pivot); the inverse is L^-1 (p' - c) by Cramer's rule with the determinant tested against 1e-12, so a blend whose rotations cancel is refused instead of inverted. This is exactly the forward map in poseHumanFaceSurface.
+ * @evidence contracts/common.md#clear-and-simple-design One accumulation pass and one 3x3 solve per attached vertex.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case or compensating path.
+ * @evidence contracts/common.md#meaningful-documentation Derives the affine form, states exactness and the singular refusal.
+ * @evidence contracts/modeling.md#spatial-conventions Same basis-metre head frame as poseHumanFaceSurface.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping unposeHumanFaceSurface is a pure computation and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels unposeHumanFaceSurface defines and consumes no parameter channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry unposeHumanFaceSurface decides no primitive population of a form.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries unposeHumanFaceSurface constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation unposeHumanFaceSurface owns no part, group or joint that a viewer displays; its consumers own the observation.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source unposeHumanFaceSurface carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range unposeHumanFaceSurface admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority unposeHumanFaceSurface defines no input through which a caller shapes a human form.
  */
 export function unposeHumanFaceSurface(
   posed: readonly number[],

@@ -11,28 +11,36 @@
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
+import path from "node:path";
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
+import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
+import { readHumanViewerInputs } from "./readHumanViewerInputs";
 
 export function readHumanViewerCatalogue(props: {
   basisFiles: { face: string; body: string };
   documentsFile: string;
-  source: string;
+  /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
+  inputsDirectory?: string;
+  /** Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once. */
+  basisOf?: (file: string) => { id: string; digest: string };
+  /** The digests the page reloads on and each domain's builds depend on. */
+  revisions: IHumanViewerRevisions;
 }): HumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
-  const source = props.source;
-  const bases = Object.fromEntries(
-    Object.entries(props.basisFiles).map(([domain, file]) => {
-      const bytes = fs.readFileSync(file);
-      const id = /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(
-        gunzipSync(bytes).toString("utf8"),
-      );
-      if (id === null) throw new Error("Basis does not open with an identity");
-      return [domain, { id: JSON.parse(id[1]) as string, digest: hash(bytes) }];
-    }),
-  );
+  const sources = props.revisions;
+  const readBasis = (file: string): { id: string; digest: string } => {
+    if (props.basisOf !== undefined) return props.basisOf(file);
+    const bytes = fs.readFileSync(file);
+    return { id: readHumanViewerBasisIdentity(bytes), digest: hash(bytes) };
+  };
+  const bases = {
+    face: readBasis(props.basisFiles.face),
+    body: readBasis(props.basisFiles.body),
+  };
   const subjects = JSON.parse(
     fs.readFileSync(props.documentsFile, "utf8"),
   ) as Extract<
@@ -49,14 +57,52 @@ export function readHumanViewerCatalogue(props: {
     },
     ...subjects,
   ];
+  // a person is a published face on the neutral body, and the reference face
+  // on each standard body state, joined at the neck
+  const people = [
+    ...faces.map((document) => ({
+      id: "person:" + document.id,
+      name: document.name ?? document.id,
+      face: document,
+      body: {
+        id: "person-body",
+        name: "neutral body",
+        basis: bases.body.id,
+        shape: {},
+      },
+    })),
+    ...Object.entries(standardBodyReviewStates()).map(([name, state]) => ({
+      id: "person:reference:" + name,
+      name: "reference " + name,
+      face: faces[0],
+      body: {
+        id: "person-body:" + name,
+        name,
+        basis: bases.body.id,
+        ...state,
+      },
+    })),
+  ];
+  const inputs =
+    props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
+      ? readHumanViewerInputs({
+          io: {
+            names: () => fs.readdirSync(props.inputsDirectory!),
+            read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
+          },
+          bases,
+          sources,
+        })
+      : { documents: [], rejected: [] };
   return {
-    revision: source,
+    revision: sources.browser,
+    rejected: inputs.rejected,
     documents: [
       ...faces.map((document) => ({
         id: document.id,
         domain: "face" as const,
         document,
-        key: hash(JSON.stringify(document) + bases.face.digest + source),
+        key: hash(JSON.stringify(document) + bases.face.digest + sources.face),
       })),
       ...Object.entries(standardBodyReviewStates()).map(([name, state]) => {
         const document = {
@@ -69,9 +115,16 @@ export function readHumanViewerCatalogue(props: {
           id: document.id,
           domain: "body" as const,
           document,
-          key: hash(JSON.stringify(document) + bases.body.digest + source),
+          key: hash(JSON.stringify(document) + bases.body.digest + sources.body),
         };
       }),
+      ...people.map((document) => ({
+        id: document.id,
+        domain: "person" as const,
+        document,
+        key: humanViewerPersonKey({ document, bases, sources }),
+      })),
+      ...inputs.documents,
     ],
   };
 }

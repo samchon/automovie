@@ -3,6 +3,7 @@ export * from "./selectHostFacesInsideLoop";
 export * from "./linearInterpolate";
 export * from "./createMetricMeshPart";
 export * from "./triangulateSurfaceLattice";
+export * from "./weldLatticeSeamNormals";
 export * from "./millimetrePoint";
 export * from "./intersectRayWithHeightField";
 export * from "./extractTriangleRegion";

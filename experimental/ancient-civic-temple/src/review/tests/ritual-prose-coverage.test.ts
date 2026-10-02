@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkModelProseConsistency, explicitEquationRows } from "../model-prose-consistency.mjs";
+import { checkModelProseConsistency } from "../checkModelProseConsistency.mjs";
+import { explicitEquationRows } from "../explicitEquationRows.mjs";
 
 void test("the new ritual prototypes enter the dimensional review population", () => {
   const census = checkModelProseConsistency();

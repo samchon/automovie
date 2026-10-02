@@ -1,6 +1,8 @@
 import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
+import { createJointPoseRow } from "./createJointPoseRow";
+
 /** A review state: the shape channels and pose a document is built from. */
 export interface IBodyReviewState {
   shape: Record<string, number>;
@@ -16,7 +18,7 @@ const joint = (
   abduction: number | null = null,
   twist: number | null = null,
 ): IAutoMovieJointPose =>
-  ({ bone, flexion, abduction, twist }) as unknown as IAutoMovieJointPose;
+  createJointPoseRow(bone, { flexion, abduction, twist });
 
 /**
  * The review states a body change is looked at in by default: the macro axes

@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { portraitWebCapturePose } from "../../../scripts/face-review/web/logic.mjs";
+import { portraitWebCapturePose } from "../../../scripts/face-review/web/portraitWebCapturePose";
 import { throwsError } from "../internal/predicates";
 
 /**

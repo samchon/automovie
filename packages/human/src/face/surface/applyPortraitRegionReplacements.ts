@@ -7,6 +7,20 @@ import { IPortraitRegionReplacement } from "./structures/IPortraitRegionReplacem
  * Regions must be distinct and present with one oriented loop. Removal occurs
  * once on an owned mesh; appending one patch cannot change another's boundary
  * basis. Empty replacements preserve the input object exactly.
+ *
+ * @evidence contracts/common.md#principled-implementation Every replacement's boundary is read from the unmodified mesh before any face is removed, faces of all replaced groups are removed once on an owned copy, and only then are the patches appended, so one patch cannot change another's boundary basis.
+ * @evidence contracts/common.md#clear-and-simple-design Plan, remove, append, verify attribute alignment.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No replacement is ordered specially; duplicate or negative labels refuse.
+ * @evidence contracts/common.md#meaningful-documentation States the phase order and the identity-preserving empty case.
+ * @evidence contracts/modeling.md#shared-boundaries Each replacement receives the oriented boundary loop of its reserved region and its appender builds against those resident vertices, so the patch shares the host boundary exactly.
+ * @evidence contracts/modeling.md#spatial-conventions Construction millimetres throughout; nothing is converted.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source applyPortraitRegionReplacements carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range applyPortraitRegionReplacements admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority applyPortraitRegionReplacements defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping applyPortraitRegionReplacements is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels applyPortraitRegionReplacements defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry applyPortraitRegionReplacements emits no primitive.
+ * @evidenceExclude contracts/modeling.md#rendered-observation applyPortraitRegionReplacements owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function applyPortraitRegionReplacements(
   mesh: IControlMesh,

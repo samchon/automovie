@@ -16,6 +16,30 @@ import { IPortraitCornea } from "./structures/IPortraitCornea";
  * The back surface is an axial offset, not a second physiological curvature.
  * Reverse its triangle winding and join the outer rim so material volume has a
  * manifold boundary. The single centre vertices avoid degenerate pole quads.
+ *
+ * With `columns` angular samples (one per extent) and `radialSamples` rings,
+ * the shell has `2 * (1 + radialSamples * columns)` vertices and
+ * `4 * columns * radialSamples` triangles: each surface is a fan of `columns`
+ * triangles about the centre plus two triangles per cell of the remaining
+ * rings, and a wall of `2 * columns` triangles joins the two outermost rings.
+ * At least three columns are required. The count follows the two sampling
+ * parameters and never the size of the aperture or the number of lids. A
+ * non-finite dimension, a curvature radius not above the aperture radius, a
+ * globe radius below the curvature radius, a rim lift not above the thickness,
+ * an extent not in (0, radius], fewer than three columns, a non-integral ring
+ * count and a support height that is not finite all throw.
+ *
+ * @evidence contracts/common.md#principled-implementation The corneal front is the sphere of the given curvature radius written as a sag relative to the underlying globe's sag at the same radius, both measured from the aperture rim, so at the rim the shell sits exactly the declared lift above the support and towards the centre it domes by the difference of the two sags. The back surface is the same surface displaced by a constant axial thickness, and an outer wall closes the boundary. Each approximation is stated: the shell is a rendering surface, its back is an offset and not a second curvature, and no physiological completeness is claimed.
+ * @evidence contracts/common.md#clear-and-simple-design One function turns one description into one closed shell by three steps in order, rings of the front, the offset back and the rim wall, with the pole handled by a single centre vertex and no option.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The shell is a function of its input record only; nothing is named after a subject or fixture and no compensating path masks an invalid dimension, which throws.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the sag construction, the back surface and wall, the counts and their formula, every refusal, and that the count is independent of aperture and lids.
+ * @evidence contracts/modeling.md#emitted-geometry The population is `2 * (1 + radialSamples * columns)` vertices and `4 * columns * radialSamples` triangles from the eye's iris sampling parameters only: at the 3 columns by 1 ring minimum it is 8 vertices and 12 triangles, and it grows linearly in each parameter (for example 64 columns by 8 rings is 1,026 vertices and 2,048 triangles), whatever the iris radius or the lids. The function sets no maximum count. A parametric revolved surface with one centre vertex is the representation the regular cap needs, and only the per-column extent, not a per-feature primitive, expresses lid clipping.
+ * @evidence contracts/modeling.md#spatial-conventions Every length is head millimetres in one right-handed frame with +Z anterior, the centre is an in-plane point and the depth comes from the support surface, and the shell stays in millimetres until the metric part builder converts it once.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function emits one shell mesh and defines neither the part identity that displays it nor the eye group; the eye builder names and groups it.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the eye's corneal and iris dimensions and defines no channel.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds one closed shell whose two surfaces meet at one shared rim ring; the skin that meets the eye near this shell is built by the contact and lid declarations from this same mesh.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value of its own; the radii and curvatures are its input's, and their basis belongs to the eye shape and its admission.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines and converts no input a caller shapes a face through.
  */
 export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   if (

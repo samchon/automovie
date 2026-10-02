@@ -1,3 +1,5 @@
+export * from "./assertHumanBodySimpleValues";
+export * from "./IHumanBodySimpleUnknown";
 export * from "./expandHumanBodySimpleShape";
 export * from "./humanBodyClipRing";
 export * from "./humanBodySimplePosture";
@@ -7,3 +9,4 @@ export * from "./humanBodySurfaceBoundary";
 export * from "./measureHumanBodySimpleShape";
 export * from "./measureHumanBodyVolume";
 export * from "./projectHumanBodySimpleShape";
+export * from "./solveHumanBodySimpleCoupling";

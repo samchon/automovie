@@ -12,7 +12,7 @@
  * the camera target, and choose the distance and target that fit that box
  * plus a margin into the square viewport at the same yaw and pitch.
  *
- * The camera model is `capture-articulation.mjs`'s: a square perspective
+ * The camera model is `capture-articulation.ts`'s: a square perspective
  * view of `fovDegrees` vertical field, camera at
  * `target + distance * (cos p sin y, sin p, cos p cos y)` in the export's
  * Y-up metre frame, looking at the target. The fit is exact for points on the

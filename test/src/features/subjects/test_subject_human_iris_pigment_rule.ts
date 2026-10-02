@@ -34,7 +34,9 @@ const srgb = (value: number): number =>
  *    globes are not globes, so the painted texture is the same.
  * 5. A pigment outside the unit range, an articulated eye other than
  *    leftEye and rightEye, a basis without articulated eyes and an eye whose
- *    globe has no embedded texture refuse by name.
+ *    globe has no embedded texture refuse by name. A globe too small for the
+ *    absolute iris refuses only when pigment is requested; omission/null keep
+ *    the original material bytes and do not demand that optional disc.
  */
 export const test_subject_human_iris_pigment_rule = (): void => {
   const basis = humanFaceIrisGlobeFixture();
@@ -42,6 +44,14 @@ export const test_subject_human_iris_pigment_rule = (): void => {
   const rule = createHumanFaceIrisPigment(basis);
   const brown = { base: [0.05, 0.02, 0.01], variation: [0, 0, 0] };
   const blue = { base: [0.02, 0.05, 0.12], variation: [0, 0, 0] };
+  const undersized = humanFaceIrisGlobeFixture({ radius: 0.0048, size: 32 });
+  const optional = createHumanFaceIrisPigment(undersized);
+  const unpainted = structuredClone(undersized.materials);
+  optional(undefined, unpainted);
+  optional(null, unpainted);
+  TestValidator.equals("omitted iris keeps an unpaintable globe's materials", unpainted, undersized.materials);
+  TestValidator.predicate("requested absolute iris refuses an undersized globe", throwsError(() =>
+    optional({ left: brown, right: blue }, unpainted), "absolute iris diameter"));
   const materials = structuredClone(basis.materials);
   rule({ left: brown, right: blue }, materials);
   const image = decodePng(materials[1].baseColorTexture as string);

@@ -45,8 +45,5 @@ export const createHumanFaceDetailChannel = (
     dentition: "basis.bindings.dentition: fixed maxillary frame",
     lowerDentition:
       "basis.bindings.mouth.lower and jawHinge: observed mandibular frame",
-    orbits: "recipe.orbits: retained superior-orbit anchors",
-    relief: "named supplemental skin supports",
-    curves: "named supplemental anatomical curves",
   }[region],
 });

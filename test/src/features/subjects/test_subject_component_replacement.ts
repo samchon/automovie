@@ -1,4 +1,3 @@
-import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,8 +21,8 @@ import { referenceControlNet } from "../../subjects/generated-korean-girl-01/con
  * 2. The right eye stays unchanged, skin adjacent to the edited parts changes,
  *    and the distant chin remains fixed. The edited eye recalculates its skin
  *    reservation while unrelated component cut identities remain stable.
- * 3. The assembled replacement cage has two oppositely wound incident faces on each internal
- *    edge and exactly four closed boundary loops, with no new seam openings.
+ * The assembled cage's seam topology is pinned by
+ * `test_subject_component_replacement_seam`.
  */
 export const test_subject_component_replacement = (): void => {
   const sampling = { eyeColumns: 12, eyeRows: 6, irisColumns: 16, irisRows: 4 };
@@ -107,54 +106,4 @@ export const test_subject_component_replacement = (): void => {
     replacement.source[152],
     host.positions[152],
   );
-  // Inspect the assembled cage's exact seam topology. Loop refinement has its
-  // own adjacency/label scenarios and does not create these component joins.
-  const head = buildPortraitHead(host, replacementParts, 0);
-  {
-    const edges = new Map<
-      string,
-      { a: number; b: number; count: number; direction: number }
-    >();
-    for (let i = 0; i < head.refined.indices.length; i += 3)
-      for (let j = 0; j < 3; j++) {
-        const a = head.refined.indices[i + j],
-          b = head.refined.indices[i + ((j + 1) % 3)];
-        const key = Math.min(a, b) + "/" + Math.max(a, b);
-        const edge = edges.get(key) ?? { a, b, count: 0, direction: 0 };
-        edge.count++;
-        edge.direction += a < b ? 1 : -1;
-        edges.set(key, edge);
-      }
-    TestValidator.predicate(
-      "no nonmanifold or inverted seam",
-      [...edges.values()].every(
-        (edge) =>
-          edge.count === 1 || (edge.count === 2 && edge.direction === 0),
-      ),
-    );
-    const boundary = new Map<number, number[]>();
-    for (const edge of edges.values())
-      if (edge.count === 1) {
-        boundary.set(edge.a, [...(boundary.get(edge.a) ?? []), edge.b]);
-        boundary.set(edge.b, [...(boundary.get(edge.b) ?? []), edge.a]);
-      }
-    TestValidator.predicate(
-      "every border is a closed loop",
-      [...boundary.values()].every((neighbours) => neighbours.length === 2),
-    );
-    const seen = new Set<number>();
-    let loops = 0;
-    for (const seed of boundary.keys()) {
-      if (seen.has(seed)) continue;
-      loops++;
-      const pending = [seed];
-      while (pending.length !== 0) {
-        const at = pending.pop()!;
-        if (seen.has(at)) continue;
-        seen.add(at);
-        pending.push(...boundary.get(at)!);
-      }
-    }
-    TestValidator.equals("only anatomical openings and crop remain", loops, 4);
-  }
 };

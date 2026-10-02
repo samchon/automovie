@@ -1,7 +1,7 @@
-import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { measureHumanFaceTongueSection } from "./measureHumanFaceTongueSection";
 
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 
@@ -16,11 +16,26 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * forward normal, because the tongue rides the mandible: a protruding or
  * sliding jaw carries tongue and lower incisors together and protrudes
  * nothing, while the tongue's own channel carries it past that edge.
- * Protrusion is the largest forward offset, thickness the extent of the
- * slab's vertices along up. A failure names the protrusion channel, the
+ * Protrusion is the largest forward offset of a resident triangle, thickness
+ * the extent of its intersection with the slab along up. Source corners alone
+ * can miss a section entirely, so measureHumanFaceTongueSection also measures
+ * edge intersections with both slab planes. A protruding surface with no slab
+ * intersection refuses because no passage thickness can be established.
+ * A failure names the protrusion channel, the
  * gap that is short and the millimetres measured and needed, so an author
  * opens the jaw or parts the lips by a stated amount instead of guessing.
  * Nothing is clamped or moved here.
+ *
+ * @evidence contracts/common.md#principled-implementation The part of a tongue crossing the incisal plane needs a slab thickness no larger than both apertures. The section owner measures the complete triangle/slab intersection, including edge crossings when every source corner is outside. An absent section refuses rather than using an undefined or negative-infinite thickness, and a shortfall reports the channel, gap and metres needed.
+ * @evidence contracts/common.md#clear-and-simple-design One shared triangle-section measurement followed by comparison against the two apertures.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses with figures and moves nothing.
+ * @evidence contracts/common.md#meaningful-documentation States the geometric rule, the plane, and what the error tells an author.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres in the shared head frame; millimetres appear only in the message text.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping evaluateHumanFacePassage is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels evaluateHumanFacePassage defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry evaluateHumanFacePassage emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries evaluateHumanFacePassage constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation evaluateHumanFacePassage owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function evaluateHumanFacePassage(
   contact: Contact,
@@ -35,26 +50,19 @@ export function evaluateHumanFacePassage(
       gap: number;
     };
   },
+  indices: readonly number[],
 ): { protrudingMetres: number; thicknessMetres: number } | null {
-  const origin = frame.incisors.lower;
-  let protruding = 0;
-  let low = Infinity;
-  let high = -Infinity;
-  for (let at = 0; at < tongue.length; at += 3) {
-    const offset = Vector3.subtract(
-      Vector3.create(tongue[at], tongue[at + 1], tongue[at + 2]),
-      origin,
-    );
-    const forward = Vector3.dot(offset, frame.forward);
-    protruding = Math.max(protruding, forward);
-    if (Math.abs(forward) <= contact.passage.slabMetres) {
-      const height = Vector3.dot(offset, frame.up);
-      low = Math.min(low, height);
-      high = Math.max(high, height);
-    }
-  }
+  const section = measureHumanFaceTongueSection(tongue, indices, {
+    origin: frame.incisors.lower,
+    forward: frame.forward,
+    up: frame.up,
+    slabMetres: contact.passage.slabMetres,
+  });
+  const protruding = section.protrudingMetres;
   if (protruding <= contact.toleranceMetres) return null;
-  const thickness = high - low;
+  if (section.thicknessMetres === null)
+    throw new Error("The protruding tongue has no incisal slab section to measure.");
+  const thickness = section.thicknessMetres;
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const [name, gap, channel] of [
     ["incisors", frame.incisors.gap, contact.closure.reference],

@@ -55,7 +55,7 @@ function textured(surface: Surface): Surface {
  * 1. The same table gives the same bytes and another seed other bytes; a
  *    flat table (no lines, pores of zero depth) is the flat normal
  *    `(128, 128, 255)` everywhere at the table's size, opaque.
- * 2. One line family of four grooves along X, neither wandering nor
+ * 2. One line family of four constant-X grooves, neither wandering nor
  *    varying: the texels midway between grooves are flat and those just past
  *    a groove tilt toward it, red below 128 on its +X side and above on its
  *    -X side.

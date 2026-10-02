@@ -6,6 +6,7 @@
  */
 import {
   type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanPersonDocument,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
 
@@ -25,10 +26,22 @@ import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the admitted worker resident while correlating preview and export transactions.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Leaves file encoding to the explicit worker export request.
  */
-export function createConnectedBodyPreview(props: {
+export function createConnectedBodyPreview<
+  Document extends
+    | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
+>(props: {
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
   renderer: ReturnType<typeof createConnectedBodyRenderer>;
+  /** Text of a document for the worker; a body document unless the stage draws people. */
+  serialize?: (document: Document) => string;
 }) {
+  const serialize =
+    props.serialize ??
+    ((document: Document) =>
+      serializeHumanBodyBasisDocument(
+        document as IAutoMovieHumanBodyBasisDocument,
+      ));
   const worker = createHumanResidentWorker(props.worker);
   let generation = 0;
   let withdraw: (() => void) | undefined;
@@ -40,7 +53,7 @@ export function createConnectedBodyPreview(props: {
   return {
     cancel,
     build: async (
-      document: IAutoMovieHumanBodyBasisDocument,
+      document: Document,
       measure = false,
       anatomy = false,
     ) => {
@@ -48,7 +61,7 @@ export function createConnectedBodyPreview(props: {
       const ticket = generation;
       const request = worker.request({
         operation: "preview",
-        document: serializeHumanBodyBasisDocument(document),
+        document: serialize(document),
         measure,
         anatomy,
       });
@@ -70,10 +83,10 @@ export function createConnectedBodyPreview(props: {
         extras: result.extras,
       };
     },
-    export: async (document: IAutoMovieHumanBodyBasisDocument) => {
+    export: async (document: Document) => {
       const result = await worker.request({
         operation: "export",
-        document: serializeHumanBodyBasisDocument(document),
+        document: serialize(document),
       }).result;
       if (result.operation !== "export")
         throw new Error("Expected an exported body file.");

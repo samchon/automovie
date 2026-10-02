@@ -1,4 +1,5 @@
 import { humanFaceContactFixture } from "./humanFaceContactFixture";
+import { registerSyntheticDentalLandmarks } from "./registerSyntheticDentalLandmarks";
 
 export const GINGIVA_SCALLOP_CENTRES = [2.03, 2.09, 2.15, 2.21, 2.27, 2.33];
 
@@ -113,6 +114,11 @@ export function gingivaScallopFixture() {
       revision: "analytic-contact/3",
       norms: [0.08, 0.08, 0.08] as [number, number, number],
       resolution: 0.004,
+      registrations: registerSyntheticDentalLandmarks(basis,
+        GINGIVA_SCALLOP_CENTRES.map((_centre, at) => offset + at * 8),
+        GINGIVA_SCALLOP_CENTRES.map((_centre, at) => ({
+          vertices: [added.gum + 1 + at * 2], weights: [1],
+        }))),
     },
   };
 }

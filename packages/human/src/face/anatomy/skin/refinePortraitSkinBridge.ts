@@ -6,6 +6,18 @@
  * XY attachment chart. The caller owns that annulus admission. Incomplete,
  * nonfinite or numerically degenerate triangles are refused here.
  * Positions are head millimetres; the caller provides the original skin query.
+ *
+ * @evidence contracts/common.md#principled-implementation Inserting one interior sample per bridge triangle and then applying Lawson edge flips while the planar in-circle determinant is strictly positive reaches the Delaunay triangulation of the fixed vertex set in the XY chart; strict improvement excludes cocircular oscillation and every flip is checked for a convex quadrilateral. Coordinates are scaled by the largest magnitude before the determinant so it stays well conditioned, and a nonpositive-area triangle is refused.
+ * @evidence contracts/common.md#clear-and-simple-design Two phases, insertion then flipping, with all adjacency rebuilt each pass.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; degenerate or non-counterclockwise input is refused.
+ * @evidence contracts/common.md#meaningful-documentation States the chart, the boundary-retention rule, the depth callback and the caller's admission duty.
+ * @evidence contracts/modeling.md#emitted-geometry The population follows from the bridge: one new vertex and three triangles per input triangle, and a flip preserves the triangle count. A plain fan of the annulus would leave valence-three vertices at every sample, which this representation avoids; no smaller representation provides interior samples on the original surface.
+ * @evidence contracts/modeling.md#spatial-conventions Head millimetres in the admitted XY attachment chart, with depth read from the caller's original-surface query in the same unit.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping refinePortraitSkinBridge is a pure computation and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels refinePortraitSkinBridge defines and consumes no parameter channel.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source refinePortraitSkinBridge carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range refinePortraitSkinBridge admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority refinePortraitSkinBridge defines no input through which a caller shapes a human form.
  */
 export function refinePortraitSkinBridge(
   input: readonly (readonly number[])[],

@@ -4,7 +4,13 @@
  * replies never alter the scene directly; the panel commits a prepared frame
  * and owns the document paired with it. The face shown beside the body remains
  * display only and never enters the body export.
+ * The viewport owns static shadow invalidation for publication, observation
+ * visibility and pass, caster toggles, and companion membership or placement.
  */
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 import * as THREE from "three";
 
 import { createHumanObservation } from "../common/observation/createHumanObservation";
@@ -18,19 +24,28 @@ import type {
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
 
-type Host = Pick<
+type Host<Document> = Pick<
   Parameters<typeof createHumanViewport>[0],
-  "canvas" | "pixelRatio" | "renderer" | "orbit" | "observeResize"
+  "canvas" | "pixelRatio" | "orbit" | "observeResize"
 > & {
+  renderer: Parameters<typeof createHumanViewport>[0]["renderer"] & {
+    shadowMap: Pick<THREE.WebGLShadowMap, "enabled" | "type" | "autoUpdate" | "needsUpdate">;
+  };
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
   loadTexture: (asset: string) => Promise<THREE.Texture>;
+  /** Text of a document for the worker; a body document unless the stage draws people. */
+  serialize?: (document: Document) => string;
 };
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow and companion face controls around the committed posed body.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps camera and companion display state separate from numerical body documents.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps camera, companion and normalized inspection-light direction in renderer state, preserving each light's distance and restoring studio defaults without changing numerical body documents.
  */
-export function createConnectedBodyViewport(props: Host) {
+export function createConnectedBodyViewport<
+  Document extends
+    | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
+>(props: Host<Document>) {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -38,17 +53,25 @@ export function createConnectedBodyViewport(props: Host) {
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   const shadowLights: THREE.DirectionalLight[] = [];
-  for (const [x, y, z, power, color] of [
-    [-1.5, 1.75, 2.25, 2.3, 0xffe9d8],
-    [1.75, 0.5, 1.5, 0.85, 0xdaeaff],
-    [0.5, 1.5, -1.25, 1.6, 0xffffff],
-  ]) {
+  const directional = new Map<string, {
+    light: THREE.DirectionalLight;
+    rest: THREE.Vector3;
+  }>();
+  for (const [name, x, y, z, power, color] of [
+    ["key", -1.5, 1.75, 2.25, 2.3, 0xffe9d8],
+    ["fill", 1.75, 0.5, 1.5, 0.85, 0xdaeaff],
+    ["rim", 0.5, 1.5, -1.25, 1.6, 0xffffff],
+  ] as const) {
     const light = new THREE.DirectionalLight(color, power);
+    light.name = name;
     light.position.set(x, y, z);
+    directional.set(name, { light, rest: light.position.clone() });
     scene.add(light);
     if (x < 0) {
       shadowLights.push(light);
@@ -88,14 +111,16 @@ export function createConnectedBodyViewport(props: Host) {
     roots: () => (active === undefined ? [] : [active]),
     clay,
     height: () => canvas.getBoundingClientRect().height,
+    invalidateShadows: () => { renderer.shadowMap.needsUpdate = true; },
   });
   const numerical = createConnectedBodyRenderer({
     loadTexture: props.loadTexture,
     maxAnisotropy: renderer.capabilities.getMaxAnisotropy(),
   });
-  const preview = createConnectedBodyPreview({
+  const preview = createConnectedBodyPreview<Document>({
     worker: props.worker,
     renderer: numerical,
+    serialize: props.serialize,
   });
   type Model = Awaited<ReturnType<typeof preview.build>>;
   const {
@@ -126,6 +151,7 @@ export function createConnectedBodyViewport(props: Host) {
     ...preview,
     publish: (model: Model): void => {
       const group = numerical.publish(model.frame);
+      renderer.shadowMap.needsUpdate = true;
       if (active !== group) {
         if (active !== undefined) scene.remove(active);
         active = group;
@@ -138,21 +164,66 @@ export function createConnectedBodyViewport(props: Host) {
     observe: observation.hooks,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
+      renderer.shadowMap.needsUpdate = true;
     },
     setShadows: (enabled: boolean): void => {
       for (const light of shadowLights) light.castShadow = enabled;
+      renderer.shadowMap.needsUpdate = true;
+    },
+    /**
+     * Change one named inspection light's direction while retaining its
+     * original distance, colour, intensity and caster policy. All three lights
+     * target the world origin. The dimensionless direction points from that
+     * origin toward the light in the displayed Y-up, Z-forward frame.
+     * Each call restores the other lights; null restores the whole studio.
+     * Unknown names and nonfinite or zero norms refuse before any mutation.
+     * Scaling by the largest component before normalization also keeps
+     * finite subnormal and very large directions representable. This affects
+     * display only, never the numerical model, document or exported bytes.
+     */
+    setLightDirection: (input: {
+      name: string;
+      direction: readonly [number, number, number];
+    } | null): void => {
+      const selected = input === null ? null : directional.get(input.name);
+      if (selected === undefined)
+        throw new Error("Unknown inspection light: " + input!.name);
+      const magnitude = input === null ? 1 : Math.hypot(...input.direction);
+      if (!Number.isFinite(magnitude) || magnitude === 0)
+        throw new Error("An inspection light needs a finite nonzero direction.");
+      let changed = false;
+      for (const one of directional.values()) {
+        const goal = one.rest.clone();
+        if (input !== null && one === selected) {
+          const distance = one.rest.length();
+          const scale = Math.max(...input.direction.map(Math.abs));
+          const norm = Math.hypot(...input.direction.map((x) => x / scale));
+          goal.set(
+            (input.direction[0] / scale / norm) * distance,
+            (input.direction[1] / scale / norm) * distance,
+            (input.direction[2] / scale / norm) * distance,
+          );
+        }
+        if (!one.light.position.equals(goal)) {
+          one.light.position.copy(goal);
+          changed = true;
+        }
+      }
+      if (changed) renderer.shadowMap.needsUpdate = true;
     },
     companion: {
       show: (group: THREE.Group | undefined): void => {
         if (companion !== undefined) scene.remove(companion);
         companion = group;
         if (group !== undefined) scene.add(group);
+        renderer.shadowMap.needsUpdate = true;
       },
       place: (matrix: THREE.Matrix4): void => {
         if (companion === undefined) return;
         companion.matrixAutoUpdate = false;
         companion.matrix.copy(matrix);
         companion.matrixWorldNeedsUpdate = true;
+        renderer.shadowMap.needsUpdate = true;
       },
     },
     finish: (): void => {

@@ -1,14 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  FACE_ANTHROPOMETRY_INDICES,
-  FACE_ANTHROPOMETRY_LOWER_EDGE,
-  FACE_ANTHROPOMETRY_UPPER_EDGE,
-  type FaceAnthropometryPoint,
-  faceAnthropometryFrame,
-  faceAnthropometryWeights,
-  measureFaceAnthropometry,
-} from "../../../scripts/face-review/faceAnthropometry";
+import { FACE_ANTHROPOMETRY_LOWER_EDGE, FACE_ANTHROPOMETRY_UPPER_EDGE, faceAnthropometryFrame, faceAnthropometryWeights, measureFaceAnthropometry } from "../../../scripts/face-review/faceAnthropometry";
+import { FACE_ANTHROPOMETRY_INDICES } from "../../../scripts/face-review/faceAnthropometryIndices";
+import { type FaceAnthropometryPoint } from "../../../scripts/face-review/IFaceAnthropometryIndex";
 import { nclose, throwsError } from "../internal/predicates";
 
 /** A symmetric synthetic face with every landmark the indices read. */

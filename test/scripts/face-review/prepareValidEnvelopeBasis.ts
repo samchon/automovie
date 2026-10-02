@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanFaceControlMap,
 } from "@automovie/human";
 
-import { faceSupportFaults } from "./faceEnvelope";
+import { faceSupportFaults } from "./faceSupportFaults";
 
 /** One side of a channel to bring inside where its surface stays valid. */
 export interface IFaceValidLimit {

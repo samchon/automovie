@@ -64,16 +64,6 @@ export const test_subject_human_face_editable_detail = (): void => {
       "detail.nose.cavityOffset",
     ),
   );
-  unsafeDetail({ relief: [{ id: "free", regions: [] }] });
-  TestValidator.predicate(
-    "new relief population refuses",
-    throwsError(() => assertHumanFaceEditableDetail(face), "detail.relief"),
-  );
-  unsafeDetail({ curves: [{ id: "free", curves: [] }] });
-  TestValidator.predicate(
-    "new curve population refuses",
-    throwsError(() => assertHumanFaceEditableDetail(face), "detail.curves"),
-  );
   const sideSections = structuredClone(
     face.basis.recipe.eye.lowerLidProfile!.sections,
   );

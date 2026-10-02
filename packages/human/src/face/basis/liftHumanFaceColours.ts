@@ -13,6 +13,20 @@ import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
  * their albedo too. An albedo that would exceed one refuses by name: no
  * surface reflects more light than it receives. Materials whose parts stay
  * within one are untouched. Mutates the parts' colours and the materials.
+ *
+ * @evidence contracts/common.md#principled-implementation A vertex colour multiplies the material base colour, so dividing every part's colour by the per-channel maximum L and multiplying the base by L leaves every vertex albedo unchanged while colours return to [0,1]; parts of the material with no colours take 1/L, which preserves their albedo too. An albedo above one is not a reflectance and is refused by name.
+ * @evidence contracts/common.md#clear-and-simple-design Two passes: find the per-material per-channel maxima, then fold them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; the rule applies to every material whose parts exceed one.
+ * @evidence contracts/common.md#meaningful-documentation States the invariant preserved, the refusal and that materials and part colours are mutated.
+ * @evidence contracts/modeling.md#spatial-conventions Linear RGB throughout; no unit or frame change.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping liftHumanFaceColours is a pure computation and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels liftHumanFaceColours defines and consumes no parameter channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry liftHumanFaceColours decides no primitive population of a form.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries liftHumanFaceColours constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation liftHumanFaceColours owns no part, group or joint that a viewer displays; its consumers own the observation.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source liftHumanFaceColours carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range liftHumanFaceColours admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority liftHumanFaceColours defines no input through which a caller shapes a human form.
  */
 export function liftHumanFaceColours(
   parts: readonly { material: string; geometry: { mesh: IAutoMovieMesh } }[],

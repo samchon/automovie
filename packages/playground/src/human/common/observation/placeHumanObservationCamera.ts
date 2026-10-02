@@ -28,15 +28,26 @@ const DIRECTIONS: Record<
  * @param view Direction to look from.
  * @param target Point looked at, metres.
  * @param distance Distance from the target, metres, positive.
+ * @param pitch Degrees added to the view's elevation (positive raises the
+ *   camera, looking down), finite and within [-89, 89]; zero keeps the named
+ *   direction. The sum is clamped to the pole guard so the orbit's up vector
+ *   stays defined.
  */
 export function placeHumanObservationCamera(
   view: HumanObservationView,
   target: readonly [number, number, number],
   distance: number,
+  pitch = 0,
 ): { position: [number, number, number]; target: [number, number, number] } {
   if (!Object.hasOwn(DIRECTIONS, view))
     throw new Error(`Unknown observation view "${String(view)}".`);
-  const { azimuth, elevation } = DIRECTIONS[view];
+  if (!Number.isFinite(pitch) || Math.abs(pitch) > 89)
+    throw new Error("Observation pitch must be finite, within [-89, 89].");
+  const { azimuth } = DIRECTIONS[view];
+  const elevation = Math.max(
+    -89.9,
+    Math.min(89.9, DIRECTIONS[view].elevation + pitch),
+  );
   const a = (azimuth * Math.PI) / 180;
   const e = (elevation * Math.PI) / 180;
   return {

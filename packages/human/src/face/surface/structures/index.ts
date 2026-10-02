@@ -6,6 +6,5 @@ export * from "./IPortraitFinalSurface";
 export * from "./IPortraitFinalSurfaceHost";
 export * from "./IPortraitInterior";
 export * from "./IPortraitRegionReplacement";
-export * from "./IPortraitSurfaceControl";
 export * from "./IPortraitSurfaceHost";
 export * from "./IPortraitSurfaceLayer";

@@ -26,6 +26,19 @@ const finiteTriple = (values: readonly number[]): boolean =>
  *
  * This is structural admission. It does not judge the anatomy of an axis or
  * a weight; the preparation receipt that published them owns that evidence.
+ *
+ * @evidence contracts/common.md#principled-implementation Structural admission of the joints: landmarks are unique and finite, sparse rows are resident, strictly increasing and nonzero, each articulation channel is an expression channel that drives exactly one joint, axes are unit within 1e-6, the opening angle is positive, the full authored opening respects its own translation limit, and per-vertex attachment weights are in (0,1] summing to at most one. A weight to nothing is refused because it would silently skin to the cranium.
+ * @evidence contracts/common.md#clear-and-simple-design Checks landmarks, then joints, then attachments, each in its own block.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It throws on every violation and judges no anatomy, as the docs say.
+ * @evidence contracts/common.md#meaningful-documentation States what is admitted, in what order and that the anatomy of an axis is not judged here.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceArticulation carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceArticulation admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceArticulation defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertHumanFaceArticulation is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels assertHumanFaceArticulation defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry assertHumanFaceArticulation emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries assertHumanFaceArticulation constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation assertHumanFaceArticulation owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertHumanFaceArticulation(
   basis: IAutoMovieHumanFaceBasis,

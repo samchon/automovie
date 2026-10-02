@@ -10,6 +10,19 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Original positions and vertex identities remain available to anatomical
  * finishers; resident triangles use the welded representative. Unselected open
  * eyes, the neck crop, ordinary nearby surfaces and their topology stay intact.
+ *
+ * @evidence contracts/common.md#principled-implementation Welding exactly coincident vertices on the selected free-boundary components closes a contact seam without moving any vertex; a reversed duplicate face pair at a commissure is the two sides of a collapsed fold and is removed together, while a same-oriented duplicate, a material mismatch or a repeated fold refuses. After welding, every selected surviving edge must have two opposite incident faces or the call refuses, so a declared closure is proved, not assumed.
+ * @evidence contracts/common.md#clear-and-simple-design Component collection, welding, duplicate elimination and a final closure check in one function over one edge map.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only explicitly requested rims weld and only exact coordinate equality identifies contact; it never snaps nearby surfaces.
+ * @evidence contracts/common.md#meaningful-documentation States what welds, what is preserved for interior finishers, and what remains open.
+ * @evidence contracts/modeling.md#shared-boundaries It constructs the shared boundary of two coincident free rims from the same welded vertices, so the seam has no gap and no doubled face; the join fails (refuses) for a rim that is not simple and closed or that has no coincident vertices.
+ * @evidence contracts/modeling.md#spatial-conventions Coordinates are compared for exact equality in the mesh's own frame and unit; nothing is converted.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source sealPortraitContactSeams carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range sealPortraitContactSeams admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority sealPortraitContactSeams defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping sealPortraitContactSeams is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels sealPortraitContactSeams defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry sealPortraitContactSeams emits no primitive.
  */
 export function sealPortraitContactSeams(
   mesh: IControlMesh,

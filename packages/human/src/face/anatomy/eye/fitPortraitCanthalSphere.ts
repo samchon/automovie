@@ -17,6 +17,31 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * do not force a larger optical radius. Radius remains an authored dimension,
  * not a clinical estimate. Skin attachment and performed corneal clearance
  * remain separate admission conditions of the consuming component.
+ *
+ * For each lid point inside the optical disk, the ray parallel to `direction`
+ * meets the sphere of the given radius, centred on the canthal-midpoint axis,
+ * in front of that centre by the half-chord `sqrt(radius^2 - t^2)`, with `t`
+ * the point's distance from the axis. The centre depth that puts that point
+ * on the sphere is the point's depth minus the half-chord; the fit takes the
+ * mean of these depths over the lower rim and the interior upper points, which
+ * is the least-squares centre depth along the ray. It is then capped at the
+ * value that keeps each visible canthus on or in front of the sphere and moved
+ * by `lift` (millimetres along the ray, positive towards the camera side). The
+ * inputs are head millimetres, and the returned centre and radius are in them.
+ * Curves shorter than three samples, a non-positive radius, a non-finite
+ * value, a zero direction, endpoints that are not shared or not distinct, no
+ * lid ray inside the disk, and a depth that would hide a canthus all throw.
+ *
+ * @evidence contracts/common.md#principled-implementation With the radius and the transverse position fixed by the canthal midpoint axis, each lid point constrains only the centre depth, and the mean of those constraints minimises the sum of squared depth residuals, so the fit is the exact least-squares solution of its one-parameter model. Points outside the disk have no intersection and contribute nothing, which is why at least one must remain. Capping by the canthal residuals keeps the fixed corners visible rather than enlarging the globe, and the fit says it does not recover an anatomical globe centre.
+ * @evidence contracts/common.md#clear-and-simple-design One function reduces two curves, a ray and a radius to one sphere by one depth solve, and delegates the connective tissue between the sphere and the corners to the canthal mesh builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The depth is computed from the given curves and radius alone, with no value chosen for a subject or fixture and no compensating retry.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the model, why the mean is the least-squares depth, the cap and the lift, the units and every refusal, and says that the radius is authored and not a clinical estimate.
+ * @evidence contracts/modeling.md#spatial-conventions Every input and the returned sphere are head millimetres in one right-handed frame with the camera ray pointing anteriorly; the depth solve is along that named ray and converts no frame.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function fits one sphere and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the eye's radius and lift and defines no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function returns a sphere and builds no surface; the canthal mesh builder joins this sphere to the fixed corners.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing; the globe it places is observed under the eye component.
  */
 export function fitPortraitCanthalSphere(
   upper: readonly Point[],

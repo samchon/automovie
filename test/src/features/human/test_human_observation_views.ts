@@ -19,7 +19,11 @@ import { nclose } from "../internal/predicates";
  * 3. Negative twin: a left view is the mirror of the right view across the
  *    sagittal plane, not the same camera, and the front is not the back.
  * 4. The distance scales the offset linearly.
- * 5. Negative twin: a name outside the eight views throws with the name.
+ * 5. Pitch raises or lowers a horizon view about the target at the same
+ *    distance: front at +30 degrees stands at (0, 2 sin 30, 2 cos 30), a
+ *    negative pitch mirrors it below, a pole view plus pitch clamps to the pole
+ *    guard, and a pitch beyond 89 degrees or NaN throws.
+ * 6. Negative twin: a name outside the eight views throws with the name.
  */
 export const test_human_observation_views = (): void => {
   const target: [number, number, number] = [0.1, 1.2, -0.3];
@@ -71,6 +75,30 @@ export const test_human_observation_views = (): void => {
     "front is not back",
     !near(offset("front"), offset("back")),
   );
+  const lifted = placeHumanObservationCamera("front", target, 2, 30).position;
+  const lowered = placeHumanObservationCamera("front", target, 2, -30).position;
+  TestValidator.predicate(
+    "pitch lifts and lowers about the target",
+    near(lifted.map((v, i) => v - target[i]), [0, 1, Math.sqrt(3)]) &&
+      near(lowered.map((v, i) => v - target[i]), [0, -1, Math.sqrt(3)]),
+  );
+  TestValidator.predicate(
+    "pole plus pitch stays at the guard",
+    placeHumanObservationCamera("top", target, 2, 40).position[1] - target[1] <
+      2.0001,
+  );
+  for (const pitch of [89.5, -89.5, NaN])
+    TestValidator.predicate(
+      `pitch ${pitch} refuses`,
+      (() => {
+        try {
+          placeHumanObservationCamera("front", target, 2, pitch);
+          return false;
+        } catch {
+          return true;
+        }
+      })(),
+    );
   let refusal = "";
   try {
     placeHumanObservationCamera("sideways" as never, target, 2);

@@ -4,12 +4,12 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/anchor-face-landmarks.ts STUDY DETECTIONS CAPTURES OUTPUT.json
  *
- * STUDY holds `basis.json.gz`. CAPTURES is a `capture-articulation.mjs`
+ * STUDY holds `basis.json.gz`. CAPTURES is a `capture-articulation.ts`
  * record of the neutral document (no shape, expression or hair) rendered
  * under each subject's camera: the neutral model file is copied under every
  * subject id and captured with the `reference-yaw` pose file, so each
  * capture shows the shared neutral from that subject's view. DETECTIONS is
- * one `detect-face-likeness.py` run over those renders, with image ids
+ * one detector run over those renders, with image ids
  * `neutral:<file stem>`.
  *
  * Why per view: the face-oval landmarks are a silhouette, and a silhouette

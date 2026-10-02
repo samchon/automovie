@@ -36,43 +36,23 @@
  *   3 mm, wide enough for the source's sculpt, narrow enough to refuse an
  *   endpoint that translates the globe outright.
  */
-import type {
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceControlMap,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import {
   type IArticulatedBasisInput,
   prepareArticulatedBasis,
 } from "./prepareArticulatedBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { readFaceStudyFile } from "./readFaceStudyFile";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const attachments = read("face-attachments.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
+const attachments = readFaceStudyFile<unknown>(fs, studyDirectory, "face-attachments.json.gz");
 const CHEN_2021 = { degrees: 27.4, forwardMetres: 0.0143, downMetres: 0.0035 };
 const input: IArticulatedBasisInput = {
   basis: basis.json as IArticulatedBasisInput["basis"],
@@ -130,52 +110,30 @@ const input: IArticulatedBasisInput = {
     replayMetres: 0.000001,
   },
   revision,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  documents: subjects.json,
+  controls: controls.json,
 };
 const prepared = prepareArticulatedBasis(input);
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  configuration: {
-    jaw: input.jaw,
-    eyes: input.eyes,
-    attachedSurfaces: input.attachedSurfaces,
-    carriers: input.carriers,
-  },
-  coupling: {
-    source: "Chen et al. 2021, Dentomaxillofac Radiol 50:20190464, PMC7860955",
-    ...CHEN_2021,
-  },
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    attachments: {
-      sha256: digest(attachments.bytes),
-      bytes: attachments.bytes.length,
+const { receipt } = writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "articulation-receipt.json",
+  prepared,
+  inputs: { basis, attachments, subjects, controls },
+  fields: {
+    configuration: {
+      jaw: input.jaw,
+      eyes: input.eyes,
+      attachedSurfaces: input.attachedSurfaces,
+      carriers: input.carriers,
     },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
+    coupling: {
+      source: "Chen et al. 2021, Dentomaxillofac Radiol 50:20190464, PMC7860955",
+      ...CHEN_2021,
+    },
   },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "articulation-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  recorded: new Date(),
+});
 console.log(
   JSON.stringify(
     {

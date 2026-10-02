@@ -5,6 +5,8 @@ import { faceLikenessSrgbToLab } from "../../../scripts/face-review/faceLikeness
 import {
   FACE_LIKENESS_BLENDSHAPES,
   type IFaceLikenessObservation,
+} from "../../../scripts/face-review/faceLikenessComparison";
+import {
   compareFaceLikeness,
   summarizeFaceLikeness,
 } from "../../../scripts/face-review/faceLikenessCompare";

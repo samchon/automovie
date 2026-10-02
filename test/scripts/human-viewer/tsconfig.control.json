@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.scripts.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "rootDir": "../..",
+    "types": ["node"]
+  },
+  "include": ["human-viewer-control.mts"]
+}

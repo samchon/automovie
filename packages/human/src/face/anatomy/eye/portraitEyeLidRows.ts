@@ -125,10 +125,11 @@ export const portraitEyeLidRows = (
             ? 1
             : weights[index] * (1 - (position - index)) +
               weights[index + 1] * (position - index);
-        // Width and reach are image-fit controls, not metadata.  Width scales
-        // the visible fullness against the authored lateral reach; reach then
-        // gates the roll toward each canthus so the pad occupies the same
-        // measured fraction of the lower-lid silhouette as the reference.
+        // Width and reach are two lengths along the lower lid, each the extent
+        // centred on the aperture over which the roll keeps its full relief.
+        // Each gates the roll toward the canthi by its own smoothstep
+        // envelope and the two envelopes multiply, so the shorter length
+        // bounds the fully raised region.
         const lateral = Math.abs(progress - 0.5) * 2;
         const span = Math.max(right - left, 1e-6);
         const envelope = (range: number): number => {

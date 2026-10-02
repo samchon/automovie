@@ -8,7 +8,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * Facial proportions and downstream cranial/hinge attachments share one basis.
  *
  * Scenarios:
- * 1. Intermediate width/length change the resolved frame and common host together.
+ * 1. Intermediate width/length change the resolved frame and common host together;
+ *    the width stays inside the widest scale at which both eyes fit their sockets.
  * 2. Exact detail takes precedence and is independent of interaction order.
  * 3. Jaw hinges receive the same frame; original observations are unchanged.
  * 4. Invalid combined dimensions refuse rather than clamp or fall back.
@@ -16,12 +17,12 @@ import { nclose, throwsError } from "../internal/predicates";
 export const test_subject_human_frame = (): void => {
   const document = humanFaceFixture();
   document.basis.bindings.jawHinge = { x: 0, y: 0, z: -45 };
-  document.controls = { faceWidth: 0.1, faceLength: 0.1 };
+  document.controls = { faceWidth: 0.02, faceLength: 0.1 };
   const original = structuredClone(document),
     face = resolveHumanFaceDocument(document);
   TestValidator.predicate(
     "trait reaches detailed width",
-    nclose(face.recipe.frame!.widthScale!, 1.1),
+    nclose(face.recipe.frame!.widthScale!, 1.02),
   );
   TestValidator.predicate(
     "trait reaches detailed length",
