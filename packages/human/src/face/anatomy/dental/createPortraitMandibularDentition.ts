@@ -18,6 +18,16 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * Fit owns the observed-relative pose in head millimetres; native preparation
  * returns a fresh copy without applying that rotation again. The compatibility
  * finisher packs the same producer's mesh through the shared metric boundary.
+ *
+ * @evidence contracts/common.md#principled-implementation The lower row is prepared by the same producer as the upper, reflected through the cervical-to-incisal axis with its normals and winding, then placed by the shared oral frame at the lower-lip anchor and rotated as a rigid body about the jaw hinge by the observed-relative angle, so the crowns follow only the mandible and never the lips.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named, and the reflected cervical cycle is reversed with the winding it accompanies; no compensation hides a wrong frame.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the frame, the row's independent crowns, that lip separation, smile and pucker do not move it and that no occlusion solver is implied.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The declaration is one group, the lower dental row as one part with one cervical loop per crown, composed by the row producer.
+ * @evidence contracts/modeling.md#spatial-conventions Sockets name host vertices; offsets are millimetres in the head frame, angles degrees about the hinge, and the result is packed once at the metric boundary.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the observed and current jaw angles from the expression rather than defining a channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The primitives are the row's own.
+ * @evidence contracts/modeling.md#shared-boundaries The row is placed in the frame of the lower lip anchor and rotated about the same hinge as the lower lip and tongue, through one shared rotation, so lower enamel, lip and tongue move as one mandible; it is not brought into contact with the upper row, so occlusal contact is not guaranteed.
+ * @evidence contracts/anatomy.md#parametric-authority Inputs are three named oral landmarks, two named nonnegative placement offsets, a named hinge with observed and current angles and a row of named crown dimensions; none addresses a vertex, curve or patch.
  */
 export function createPortraitMandibularDentition(
   inputSocket: {

@@ -3,7 +3,7 @@
  *
  * `measure-face-likeness.ts` and `plan-face-likeness-views.ts` call these
  * functions with the 478 MediaPipe Face Landmarker points written by
- * `detect-face-likeness.py`, in image pixels with +x right and +y down. Every
+ * the external detector (`faceLikenessIo.ts`), in image pixels with +x right and +y down. Every
  * function is pure: it reads caller-owned arrays and returns new values.
  *
  * The alignment is a 2D similarity (uniform scale, rotation, translation, no

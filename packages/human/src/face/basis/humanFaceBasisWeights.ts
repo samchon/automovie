@@ -22,6 +22,17 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * at either end of its span, which is the whole envelope unless the input
  * names one. A corrective is shape-only when every driver is a shape channel,
  * which is what lets landmarks and identity read it.
+ *
+ * @evidence contracts/common.md#principled-implementation Channel weights are checked against each channel's envelope and kind, then a corrective activation is min(1, gain * product of the clamped driver factors), so it is present only when every driver is present. Each factor is a tent over its driver (rising from `below` to `peak`, falling to `above`), and admission (assertHumanFaceBasis) guarantees below < peak <= above <= 1 so the divisions are defined. A sum would fire a corrective on one driver alone, which is the pose it was authored to leave untouched.
+ * @evidence contracts/common.md#clear-and-simple-design One function that turns a document into weights and activations; the geometry belongs to evaluateHumanFaceRest.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-domain value refuses instead of clamping, so no hidden edit of the document occurs.
+ * @evidence contracts/common.md#meaningful-documentation States the boundary role, the activation form with its reason, the in-between semantics and shape-only classification.
+ * @evidence contracts/modeling.md#parameter-channels Each channel is one signed trait whose neutral is zero (admission requires the envelope to contain zero); the positive and negative endpoints are named separately. Correctives are the declared dependencies between channels and they are computed here, not hidden in the geometry.
+ * @evidence contracts/modeling.md#spatial-conventions Weights are dimensionless coordinates in each channel's envelope; no unit conversion happens.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping humanFaceBasisWeights is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry humanFaceBasisWeights emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries humanFaceBasisWeights constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation humanFaceBasisWeights owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function humanFaceBasisWeights(
   basis: IAutoMovieHumanFaceBasis,

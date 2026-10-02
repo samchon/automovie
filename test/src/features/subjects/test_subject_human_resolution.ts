@@ -23,7 +23,7 @@ export const test_subject_human_resolution = (): void => {
     eye: { widthScale: 1.1, browProfile: { radius: 0.06 } },
     neck: { upper: { width: 35 } },
     cranium: { capDepth: 0 },
-    relief: [],
+    skinColour: [],
   };
   document.asymmetry = {
     left: { eye: { widthScale: 1.3 }, ear: { projection: 15 } },
@@ -47,7 +47,7 @@ export const test_subject_human_resolution = (): void => {
     result.recipe.cranium!.capDepth,
     0,
   );
-  TestValidator.equals("array replacement", result.recipe.relief, []);
+  TestValidator.equals("array replacement", result.recipe.skinColour, []);
   TestValidator.equals("one-sided performance", result.expression.blink, {
     right: 0.3,
     left: 0,

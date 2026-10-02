@@ -20,8 +20,18 @@ export interface HumanViewerAddress {
   /** Exact mesh names; empty means the assembled subject. */
   parts: string[];
 
+  /** Exact mesh names hidden, the rest shown; combines with `parts` by hiding from the isolated set. */
+  hide: string[];
+
   /** Anatomical viewing direction from the shared observation hook. */
   view: HumanObservationView;
+
+  /**
+   * Degrees added to the named view's elevation about the framed centre,
+   * positive raising the camera. It reaches views from below or above at any
+   * oblique azimuth, where the eight named directions cannot.
+   */
+  pitch: number;
 
   /** Display-only material pass. */
   pass: HumanObservationPass;
@@ -29,8 +39,44 @@ export interface HumanViewerAddress {
   /** Optional sphere centre and radius in metres. */
   frame: [number, number, number, number] | null;
 
+  /**
+   * Exact camera in the displayed model's metres: yaw and pitch in degrees,
+   * the distance from the target, the target and the vertical field of view
+   * in degrees, placed as `faceShapeFitView` places a portrait camera. It
+   * overrides `view`, `pitch` and `frame`, so a measured pose renders exactly
+   * where it was measured.
+   */
+  look: [number, number, number, number, number, number, number] | null;
+
+  /**
+   * Multiplier of the fitted camera distance's inverse: two shows the framed
+   * subject twice as large, a half twice as far. The framing centre stays.
+   */
+  zoom: number;
+
   /** Bake numerical ambient occlusion when true. */
   ao: boolean;
+
+  /** Cast display shadows through the viewport's lights; absent addresses default on. */
+  shadows: boolean;
+
+  /**
+   * Body/Person inspection override for one studio light. The dimensionless
+   * direction points from the world-origin target toward the light in Y-up
+   * coordinates. Null restores the viewport's original studio directions.
+   * It affects display only and never participates in numerical cache keys.
+   */
+  light: { name: string; direction: [number, number, number] } | null;
+
+  /** Mark the photograph's observed landmarks over it, when a photograph is shown. */
+  landmarks: boolean;
+
+  /**
+   * Add the hand-typed calibration spheres of `humanViewerCalibrationRig` beside
+   * the subject, after framing, so a frame can be checked against independent
+   * arithmetic. Off by default; it adds geometry to the picture only.
+   */
+  calibrate: boolean;
 
   /** Square capture side in pixels. */
   size: number;

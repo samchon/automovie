@@ -20,6 +20,20 @@ const HALF_READOUT_METRES = 0.00005;
  * `current` is the existing channel weight. A target already equal at this
  * resolution returns it unchanged, preserving the document's detailed
  * residue when a user repeats the value on screen.
+ *
+ * @evidence contracts/common.md#principled-implementation Endpoint readings bracket the target, so a continuous response has a root inside; alternating a secant estimate (kept only while strictly inside the bracket) with a midpoint shrinks the bracket at least by half every two steps, and the loop ends within half the 0.1 mm readout or when binary64 cannot split the bracket. The premise is a bracket-consistent response: a flat response, a reading outside the endpoint span by more than the readout, and a discontinuity that never reaches the readout are each refused instead of extrapolated.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns only the numerical inverse; the instrument, the channel and the shaped skin stay with the caller through the read callback, so there is no layer or option beyond the bracket state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No target, person or measurement is special-cased; an unreachable target is refused with the reach rather than clamped, and no secondary channel or vertex is invented to make a target fit.
+ * @evidence contracts/common.md#meaningful-documentation States the method, who owns the instrument, the readout stop rule, the refusal effects and the meaning of `current` (an equal target returns the existing weight so detailed residue survives).
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group; it sees one scalar weight.
+ * @evidenceExclude contracts/modeling.md#parameter-channels It receives a weight range and a current weight with no knowledge of any channel's trait, neutral or positive direction; the caller owns the channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
+ * @evidence contracts/modeling.md#spatial-conventions Targets and readings are metres, the weight is the caller's dimensionless channel weight, and the 0.1 mm readout interval is stated in metres; no frame or unit is converted.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no part, group or joint a viewer displays.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The caller's measurement rule defines the instrument. The only constant is the editor's 0.1 mm readout interval, a display resolution and not an anatomical value.
+ * @evidence contracts/anatomy.md#permitted-range A target is admitted only inside the reach the endpoint readings span; outside it the call refuses naming that reach, with no clamping or extrapolation, and neither the range nor the current weight is changed. The range is the caller's channel envelope, and combinations of several channels are outside this one-dimensional owner.
+ * @evidence contracts/anatomy.md#parametric-authority It is the deterministic inverse of a named measurement in metres to a channel weight: the same readings give the same weight, and the forward direction is the caller's reading of that same rule. Only a metric target and a scalar weight enter, so no input addresses a vertex, curve, strand or patch; a flat, reversing or discontinuous response has no inverse and is refused.
  */
 export function invertHumanBodyMeasurement(input: {
   range: [number, number];

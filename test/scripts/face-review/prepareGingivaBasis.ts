@@ -4,9 +4,14 @@ import {
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
+import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
+import { measureDentalClinicalHeight } from "./measureDentalClinicalHeight";
 
 /** One crown as a frontal view shows it, metres. */
 export interface IClinicalCrown {
+  /** Legacy type name; the value is explicitly a frontal display proxy. */
+  measurement: "frontal-Y-display-proxy";
+
   /** The crown's centroid across the face (x). */
   centre: number;
   /** Height of the crown seen from the front, its edge up to what covers it. */
@@ -144,10 +149,10 @@ export function faceFrontVisible(
  * orthographically along -z at `resolution`, nearest surface winning, and
  * for each crown the run of its own pixels up from its lowest one in the
  * column through its centroid, and what lies directly above that run. The
- * clinical crown of an anterior tooth is measured this way on casts, from
- * the incisal edge to the gingival zenith along the tooth's axis (Melo et
- * al., Sci Rep 2019;9:730). `crowns` lists each crown's component; `gum` the
- * components that are gingiva. Pure.
+ * name is retained for existing script consumers. This is a frontal Y display
+ * proxy, not a registered clinical crown height: camera alignment establishes
+ * neither a tooth axis nor the gingival zenith. `crowns` lists each crown's
+ * component; `gum` the components that are gingiva. Pure.
  */
 export function faceClinicalCrowns(props: {
   positions: readonly number[];
@@ -185,6 +190,7 @@ export function faceClinicalCrowns(props: {
     while (top > 0 && owner[(top - 1) * width + c] === crown) --top;
     const next = top > 0 ? owner[(top - 1) * width + c]! : -1;
     result.set(crown, {
+      measurement: "frontal-Y-display-proxy",
       centre,
       visible: (bottom - top + 1) * resolution,
       above: next < 0 ? "none" : props.gum.has(next) ? "gum" : "tooth",
@@ -201,32 +207,41 @@ export function faceClinicalCrowns(props: {
  * from the front, the central incisors show 6.3 mm, the laterals 5.6 and the
  * canines 5.4, where 384 young adults show 9.35, 7.75 and 8.68 from the
  * incisal edge to the gingival zenith (Melo et al., Sci Rep 2019;9:730),
- * although the crown meshes run 9.3 to 11.3 mm. A smile that parts the lips
- * as far as the photograph's therefore shows gum where the photograph shows
- * teeth. The crowns stay where the dental revision seated them; the
+ * although the crown meshes run 9.3 to 11.3 mm. A frontal raster is not that
+ * axial clinical measurement. This preparation requires registered axis,
+ * gingival-zenith and incisal/cusp anchors before driving a norm; an absent
+ * registration refuses. The crowns stay where the dental revision seated them; the
  * maxillary gum (the dentition components that are neither a sealed crown,
  * `contact.colliders`, nor bound to the mandible) rises as one body by the
- * mean shortfall of the six anterior crowns (the six maxillary crowns
+ * mean registered axial shortfall converted to Y movement by each landmark's
+ * exact response, for the six anterior crowns (the six maxillary crowns
  * nearest the midline, paired with `norms` in that order: centrals, laterals,
  * canines), or by less: the largest rise at which the front view shows no
  * root ring (the sealed rim, `contact.colliders`) of a maxillary crown it
  * did not show before, since past it that crown would stand open above its
- * gum. The receipt names which bound held. Endpoint rows are displacements and stay valid; documents and
- * controls are restamped. Pure: the inputs are cloned.
+ * gum. The receipt labels registered-landmark measurements and names the
+ * active bound. Landmark identity and acquisition remain the registrar's
+ * evidence obligation; this arithmetic does not certify a real mesh or a
+ * population mean as a permitted range. Endpoint rows remain supplied
+ * displacements; a derivative still owes its new basis registration.
+ * Documents and controls are restamped. Inputs are cloned.
  */
 export function prepareGingivaBasis(input: {
   basis: IAutoMovieHumanFaceBasis;
   documents: IAutoMovieHumanFaceBasisDocument[];
   controls: IAutoMovieHumanFaceControlMap;
   revision: string;
-  /** Clinical crown heights of the central, lateral and canine, metres. */
+  /** Sample mean clinical-height targets, metres; they define no permitted range. */
   norms: readonly [number, number, number];
   resolution: number;
+  /** Source-component registrations; absent metadata cannot drive clinical norms. */
+  registrations?: ReadonlyMap<number, IDentalClinicalRegistration>;
 }): {
   basis: IAutoMovieHumanFaceBasis;
   documents: IAutoMovieHumanFaceBasisDocument[];
   controls: IAutoMovieHumanFaceControlMap;
   receipt: {
+    clinicalMeasurement: "registered-landmark-axis-distance";
     source: string;
     revision: string;
     shiftMetres: number;
@@ -286,9 +301,17 @@ export function prepareGingivaBasis(input: {
   if (anterior.length < 6)
     throw new Error("The front view shows fewer than six maxillary crowns.");
   const normOf = (rank: number) => input.norms[Math.floor(rank / 2)]!;
+  const moving = new Set([...component.keys()].filter((vertex) => upperGum.has(component[vertex]!)));
+  const clinical = (positions: readonly number[], crown: number) => {
+    const measured = measureDentalClinicalHeight(positions, basis.id, input.registrations?.get(crown), moving);
+    if (!(measured.metresPerUpShift > 0))
+      throw new Error("A clinical gingival zenith must follow the maxillary gum in the cervical direction.");
+    return measured;
+  };
+  const initial = new Map(anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]));
   const byNorm =
     anterior.reduce(
-      (sum, [, crown], rank) => sum + normOf(rank) - crown.visible,
+      (sum, [crown], rank) => sum + (normOf(rank) - initial.get(crown)!.heightMetres) / initial.get(crown)!.metresPerUpShift,
       0,
     ) / anterior.length;
   const original = teeth.positions.slice();
@@ -352,7 +375,7 @@ export function prepareGingivaBasis(input: {
   let movedVertices = 0;
   for (let v = 0; v < vertices; ++v)
     if (upperGum.has(component[v]!)) ++movedVertices;
-  const after = measure(teeth.positions);
+  const after = new Map(anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]));
   const source = basis.id;
   basis.id = revision;
   const build = createHumanFaceBasisBuilder(basis);
@@ -366,6 +389,7 @@ export function prepareGingivaBasis(input: {
     documents: restamped,
     controls: { ...controls, basis: revision },
     receipt: {
+      clinicalMeasurement: "registered-landmark-axis-distance",
       source,
       revision,
       shiftMetres: shift,
@@ -375,8 +399,8 @@ export function prepareGingivaBasis(input: {
       anterior: anterior.map(([crown, measured], rank) => ({
         centre: measured.centre,
         normMetres: normOf(rank),
-        beforeMetres: measured.visible,
-        afterMetres: after.get(crown)!.visible,
+        beforeMetres: initial.get(crown)!.heightMetres,
+        afterMetres: after.get(crown)!.heightMetres,
       })),
     },
   };

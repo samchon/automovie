@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { modelSurfaceBindingCensus } from "../model-surface-binding.mjs";
 import { modelSections } from "../model-tessellation-census.mjs";
-import { modelParts } from "../model-occupancy-union.mjs";
+import { modelParts } from "../modelParts.mjs";
 
 const modelRoot = join(__dirname, "../../../docs/models");
 const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))

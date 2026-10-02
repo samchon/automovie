@@ -31,7 +31,12 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * added exactly as on one the document wrote; the pose itself is validated
  * later by the builder, so this reads angles without judging them. Upper-arm
  * drivers read TT total elevation or axial rotation from the separate
- * shoulder goal and its measured A-pose rest. Old fixed-axis upper-arm
+ * shoulder goal and its A-pose rest, which is the basis's fixed A-pose unless
+ * the caller passes `shoulderRest`, the shaped body's own rest per arm
+ * (`resolveHumanBodyShapedShoulderRest`). An omitted goal then means that
+ * rest for the kernels, the elevation drivers and the couplings alike, so
+ * omitting a goal and writing the rest as an explicit goal select the same
+ * deformation; a measurement path that has no shaped skeleton passes none. Old fixed-axis upper-arm
  * drivers cannot pass basis admission. A TT orientation kernel contributes
  * its clamped fall-off from its centre, divided by the sum of its family's
  * kernels where that sum exceeds one: a family is the kernels of one humerus
@@ -48,12 +53,25 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * sum where it exceeds one: a mixed body wears a blend of its traits'
  * corrections instead of their sum, and a body on one example alone wears it
  * as solved.
+ *
+ * @evidence contracts/common.md#principled-implementation Channel weights are checked against their envelopes, then each corrective is the product form min(1, weight times the clamped ramps of all its drivers), so a corrective fires only where every driver is present, which a sum would not give. Shoulder kernels are clamped geodesic fall-offs in SO(3), normalised by the sum of their family where it exceeds one so kernels solved at neighbouring poses interpolate (the pose-space-deformation argument of Lewis et al. 2000, with normalised overlap in place of a radial-basis solve). The omitted shoulder goal is the shaped rest handed in by `shoulderRest`, else the basis's A-pose, and the kernels, elevation drivers and couplings read that one map, so the goal omitted and the goal written as the rest select one deformation. The premise is that no shaped rest sits inside a kernel support; admission guarantees it for the basis A-pose, and a measurement over 916 r16 shapes (channel extremes, macro corners and random mixes) found the nearest rest 29 degrees outside every support, but a different basis or shape space could break it and would then activate the kernel at rest.
+ * @evidence contracts/common.md#clear-and-simple-design One function orders admission, coupling, kernels, ramps and the two normalisations; the per-basis corrective plan is memoised once because an admitted basis is immutable, and the shaped rest is one optional parameter owned by its own resolver rather than recomputed here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No person, fixture or measurement result is special-cased, and no foreign object is patched. The memoised plan is a WeakMap keyed by the immutable admitted basis. The optional rest map exists for an actual supported difference, a body whose arms hang off the A-pose, and a measurement path without a skeleton passes none.
+ * @evidence contracts/common.md#meaningful-documentation States the product form, both ramp definitions, the kernel normalisation and its source, the shape-example blend, the meaning of an omitted goal under `shoulderRest`, and that the inputs are read and not mutated.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines and groups no part; it turns a document into channel weights and corrective activations.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive; the activations scale rows the evaluator applies later.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the posed form.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,
   document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose"> & {
     shoulders?: IAutoMovieHumanBodyShoulderPose[];
   },
+  shoulderRest: ReadonlyMap<
+    IAutoMovieHumanBodyShoulderPose["bone"],
+    IAutoMovieHumanBodyShoulderPose
+  > = new Map(),
 ): {
   weights: Map<string, number>;
   activations: { target: string; activation: number }[];
@@ -83,6 +101,7 @@ export function humanBodyBasisWeights(
     basis,
     document.pose ?? [],
     document.shoulders ?? [],
+    shoulderRest,
   ).joints;
   const angles = new Map(pose.map((joint) => [joint.bone, joint]));
   const shoulderAngles = new Map(
@@ -91,7 +110,12 @@ export function humanBodyBasisWeights(
   const shoulderNeutral = new Map(
     basis.joints
       .filter((joint) => joint.shoulder !== undefined)
-      .map((joint) => [joint.bone, joint.shoulder!.neutral]),
+      .map((joint) => [
+        joint.bone,
+        shoulderRest.get(
+          joint.bone as IAutoMovieHumanBodyShoulderPose["bone"],
+        ) ?? joint.shoulder!.neutral,
+      ]),
   );
   /** One shoulder kernel's value: the clamped fall-off from its centre. */
   const kernel = (
@@ -159,15 +183,7 @@ export function humanBodyBasisWeights(
   // so no pose wears more than one whole correction of a family, and a
   // kernel whose window reaches no other centre of its family is exactly
   // its own correction at its centre.
-  const families = correctives.map((corrective) =>
-    corrective.inputs.map((input, at) =>
-      "shoulder" in input
-        ? input.shoulder +
-          "|" +
-          JSON.stringify(corrective.inputs.filter((_, other) => other !== at))
-        : null,
-    ),
-  );
+  const { families, examples: named } = correctivePlan(basis);
   const values = correctives.map((corrective) =>
     corrective.inputs.map((input) => ("shoulder" in input ? kernel(input) : 1)),
   );
@@ -188,32 +204,15 @@ export function humanBodyBasisWeights(
   // one, so a mixed body wears a blend of the corrections solved on its
   // traits rather than all of them added. A body on one example's channels
   // alone reads a sum of at most one and wears that example as solved.
-  const shapes = correctives.map((corrective) => {
-    const posed = corrective.inputs.filter(
-      (input): input is Exclude<Input, { channel: string }> =>
-        !("channel" in input),
-    );
-    const tissue = corrective.inputs.filter(
-      (input): input is Extract<Input, { channel: string }> =>
-        "channel" in input,
-    );
-    if (posed.length === 0 || tissue.length === 0) return null;
-    return {
-      pose: posed
-        .map((input) =>
-          "shoulder" in input
-            ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
-            : `${input.bone}.${input.axis}.${input.side}`,
-        )
-        .sort((a, b) => a.localeCompare(b))
-        .join("+"),
-      example: tissue
-        .map((input) => `${input.channel}.${input.side}`)
-        .sort((a, b) => a.localeCompare(b))
-        .join("+"),
-      factor: tissue.reduce((total, input) => total * ramp(input), 1),
-    };
-  });
+  const shapes = named.map((one) =>
+    one === null
+      ? null
+      : {
+          pose: one.pose,
+          example: one.example,
+          factor: one.tissue.reduce((total, input) => total * ramp(input), 1),
+        },
+  );
   const examples = new Map<string, Map<string, number>>();
   for (const shape of shapes) {
     if (shape === null) continue;
@@ -251,3 +250,73 @@ export function humanBodyBasisWeights(
   }));
   return { weights, activations, pose };
 }
+
+type Corrective = NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number];
+type CorrectiveInput = Corrective["inputs"][number];
+
+/**
+ * What the corrective table alone fixes: each shoulder kernel's family key
+ * and each shape example's pose key, example key and channel drivers. None of
+ * it reads a weight or a pose, and the keys cost a JSON encoding per
+ * corrective, which the simple tier's inversions would otherwise pay on
+ * every one of their hundred-odd trial bodies. An admitted basis is
+ * immutable, so the plan is read once per basis and shared.
+ */
+function correctivePlan(basis: IAutoMovieHumanBodyBasis): {
+  families: (string | null)[][];
+  examples: ({
+    pose: string;
+    example: string;
+    tissue: Extract<CorrectiveInput, { channel: string }>[];
+  } | null)[];
+} {
+  const cached = plans.get(basis);
+  if (cached !== undefined) return cached;
+  const correctives = basis.correctives ?? [];
+  const plan = {
+    families: correctives.map((corrective) =>
+      corrective.inputs.map((input, at) =>
+        "shoulder" in input
+          ? input.shoulder +
+            "|" +
+            JSON.stringify(
+              corrective.inputs.filter((_, other) => other !== at),
+            )
+          : null,
+      ),
+    ),
+    examples: correctives.map((corrective) => {
+      const posed = corrective.inputs.filter(
+        (input): input is Exclude<CorrectiveInput, { channel: string }> =>
+          !("channel" in input),
+      );
+      const tissue = corrective.inputs.filter(
+        (input): input is Extract<CorrectiveInput, { channel: string }> =>
+          "channel" in input,
+      );
+      if (posed.length === 0 || tissue.length === 0) return null;
+      return {
+        pose: posed
+          .map((input) =>
+            "shoulder" in input
+              ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
+              : `${input.bone}.${input.axis}.${input.side}`,
+          )
+          .sort((a, b) => a.localeCompare(b))
+          .join("+"),
+        example: tissue
+          .map((input) => `${input.channel}.${input.side}`)
+          .sort((a, b) => a.localeCompare(b))
+          .join("+"),
+        tissue,
+      };
+    }),
+  };
+  plans.set(basis, plan);
+  return plan;
+}
+
+const plans = new WeakMap<
+  IAutoMovieHumanBodyBasis,
+  ReturnType<typeof correctivePlan>
+>();

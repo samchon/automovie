@@ -26,13 +26,14 @@ import type { humanFaceStudyDocuments } from "./studies";
  * the per-person image observations remain separately identified in review.md.
  * Deterministic replay and source correctness do not accept photographic likeness.
  * No review fingerprints are authored for these inspections.
+ * Retired nasal section, station, lobule and envelope experiments remain in
+ * the historical observations; they do not claim current source exports.
  * @evidence {@link humanFaceConnectedReview} Retains the connected-prior schema, numerical evaluation and real consumer inspection as a domain of the complete source population.
  *
  * @evidence {@link humanFaceInteriorReview} Retains the native interior preparation inspection within the whole construction population.
- * @evidence {@link Human.portraitNasalCavityOffset} Read the common X-axis rotation of the authored millimetre displacement and both actual consumers: legacy lining and envelope construction. The extraction preserves the original expression order, axis signs and returned array ownership.
+ * @evidence {@link Human.portraitNasalCavityOffset} Read the common X-axis rotation of the millimetre displacement consumed by appendPortraitNostrils; the current component rotates its aperture in the same frame. The removed envelope alternative is no longer a consumer, and this arithmetic inspection claims neither airway measurements nor rendered acceptance.
  * @evidence {@link humanFaceDetailReview} Retains numerical editor and domain inventory inspections in the complete construction review.
  * @evidence {@link humanFaceOcularReview} Retains all ocular source inspections as part of the complete construction review.
- * @evidence {@link Human.createPortraitNasalEnvelope} Read input ownership and refusals, periodic rim interpolation, original/refined boundary lineage, actual shoulder normals, independent cavity-axis rim frame, shared exterior/vestibular jets and connected rings/floor. The same appender supports the host and replaces its reserved region after subdivision. Hand-known coordinates survive zero/one/two refinement rounds. The fan proxy crossed both rims in the source probe; full-section support removed those measured crossings. This inspection is not whole-source review or visual acceptance.
  *
  * @evidence {@link Human.createPortraitSkinColour} Inspects owned name-ordered compact colour multiplication after reference refinement.
  * @evidence {@link Human.assertPortraitOralLining} Admits the selected enclosure dimensions.
@@ -81,7 +82,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.createPortraitHairNormalTexture} Encodes the card mask's shared fibre widths as resident transverse shading detail.
  * @evidence {@link Human.refinePortraitSkinBridge} Retains original-surface interior witnesses inside the attachment boundary.
  * @evidence {@link Human.appendPortraitCranium} Appends the cranial continuation to the shared control cage.
- * @evidence {@link Human.appendPortraitNasalRimSection} Connects resident outer skin identities through a new crest to the lining-owned inner loop.
  * @evidence {@link Human.appendPortraitNeck} Appends the authored neck continuation and its crop to the cranial cage.
  * @evidence {@link Human.appendPortraitNostrils} Builds support rings and closed cavity floors from the fitted shared aperture.
  * @evidence {@link Human.applyHumanFaceControls} Applies the trait layer to an owned recipe before exact detailed overrides.
@@ -103,7 +103,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.buildPortraitMouth} Builds the recessed cavity and, when requested, the legacy upper crowns from final lip curves.
  * @evidence {@link Human.createHumanFaceEditor} Owns atomic face-document/model publication, cancellation and undoable history for the application.
  * @evidence {@link Human.createPortraitCheekLayer} Derives owned cheek and fold fields from live refined skin attachments.
- * @evidence {@link Human.createPortraitControlLayer} Solves coupled anatomical targets into fields consumed by the shared surface assembler.
  * @evidence {@link Human.createPortraitDentalArc} Samples the supplied dental guide by cumulative XZ distance rather than projected width or spline progress.
  * @evidence {@link Human.createPortraitDentalComponent} Attaches the complete dental row to live refined oral anchors without cutting or deforming skin.
  * @evidence {@link Human.createPortraitDirectionalIntersection} Intersects the foremost resident triangle from either side while preserving the original transverse projection; the canthal consumer uses its actual emitted surface.
@@ -118,16 +117,8 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.createPortraitMaterials} Produces owned reusable skin, dental and optical material defaults for a caller's face.
  * @evidence {@link Human.createPortraitMouthComponent} Fits the curved lip bands and declares their shared skin border, oral opening and interior finisher.
  * @evidence {@link Human.createPortraitMouthPerformance} Poses the actual paired oral margins while retaining the surrounding vermilion volume.
- * @evidence {@link Human.createPortraitNasalBody} Builds the connected lower-nasal surface field from ordered stations and transverse controls.
- * @evidence {@link Human.createPortraitNasalBodySurface} Adapts a lower-nasal body field to the shared skin surface and its recorded view ray.
- * @evidence {@link Human.createPortraitNasalLobules} Binds copied local ellipsoid sections to support-scaled skin before exterior and rim fitting.
- * @evidence {@link Human.createPortraitNasalRimSection} Derives outer and crest rings from the actual aperture's shared normals and existing rim jets.
- * @evidence {@link Human.createPortraitNasalSection} Evaluates the optional continuous nasal depth loft against a translated host datum.
  * @evidence {@link Human.createPortraitNasalSupport} Resolves nasal projection from one subject-bound facial support plane.
  * @evidence {@link Human.createPortraitNoseComponent} Fits procedural exterior and shared nasal openings before constructing their lining.
- * @evidence {@link Human.createPortraitOrbitalSupport} Builds the actual skin-based upper-orbit field consumed by portraitAssembly.
- * @evidence {@link Human.createPortraitReliefCurveLayer} Samples adjacent controls into overlapping metric fields while preserving live endpoints and boundary ownership.
- * @evidence {@link Human.createPortraitReliefLayer} Converts owned anatomical support settings into engine deformation fields on the live skin.
  * @evidence {@link Human.exportHumanFace} Carries the actual static face as GLB and glTF/resources through a module-independent byte boundary.
  * @evidence {@link Human.fitPortraitNostrilRim} Regularizes an authored nasal cut boundary while preserving cyclic vertex ownership and centroid.
  * @evidence {@link Human.fitPortraitOralContact} Places the rigid enamel group behind its lip and then fits the cavity behind that placed group.
@@ -148,7 +139,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.IPortraitFinalSurface} Specifies a callback returning resident vertex targets rather than a detached mesh.
  * @evidence {@link Human.IPortraitFinalSurfaceHost} Exposes the common post-layer geometry seen by final component proposals.
  * @evidence {@link Human.IPortraitRegionReplacement} Describes a reserved group and its later appender against the refined socket.
- * @evidence {@link Human.IPortraitSurfaceControl} Describes a named requested movement on the common refined surface.
  * @evidence {@link Human.IPortraitSurfaceHost} Gives anatomical layers the shared post-subdivision coordinates, topology and normal field.
  * @evidence {@link Human.IPortraitSurfaceLayer} Separates a surface layer's identity from its derivation of metric engine fields on live attachments.
  * @evidence {@link Human.mergeHumanFaceSettings} Composes basis, detail and side settings without retaining mutable input objects.
@@ -165,9 +155,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.portraitLipTriangles} Selects the connected lip band bounded by the two authored anatomical loops.
  * @evidence {@link Human.float32MeshBuffers} Materializes and validates the actual Float32/Uint32 geometry delivered to glTF.
  * @evidence {@link Human.linearInterpolate} Interpolates scalar coordinates and dimensions within the authored surface sections.
- * @evidence {@link Human.portraitNasalJetCorrection} Extends a nasal boundary jet toward an unchanged far end.
- * @evidence {@link Human.portraitNasalRimJets} Derives tangent/transverse rim jets from the shared aperture points, normals and exterior samples.
- * @evidence {@link Human.portraitNasalViewRay} Derives the image-depth ray from the captured horizontal and vertical camera rows.
  * @evidence {@link Human.portraitNeckShape} Selects the active cranial/neck section dimensions and crop.
  * @evidence {@link Human.areaWeightedNormals} Computes the shared skin/lining normal field before material regions are separated.
  * @evidence {@link Human.portraitNoseDepth} Evaluates the basic central-tip and paired-alar relief in the socket frame.
@@ -188,9 +175,8 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.resolveHumanFaceExpression} Expands each requested expression into explicit independently admitted right/left and scalar values.
  * @evidence {@link Human.resolvePortraitCraniumShape} Resolves copied cranial defaults and admits complete caller-owned sagittal sections.
  * @evidence {@link Human.resolvePortraitEarSampling} Validates pinna dimensions separately from bounded mesh sampling.
+ * @evidence {@link Human.resolvePortraitNoseShape} Read copied scalar admission, lining fractions in (0,1), roundness in [0,1] and nonnegative adaptation reach. This establishes numerical construction premises and preserves caller ownership; living-body ranges remain unimplemented.
  * @evidence {@link Human.resolvePortraitFacialFrameShape} Supplies owned neutral frame dimensions and refuses unsupported numerical combinations.
- * @evidence {@link Human.samplePortraitNasalEntry} Samples the connected vestibular meridian from a shared rim jet and aperture frame.
- * @evidence {@link Human.samplePortraitNasalSection} Interpolates one nasal section jet while retaining its point and derivative.
  * @evidence {@link Human.sealPortraitContactSeams} Closes only declared coincident free-boundary tissue contacts after refinement.
  * @evidence {@link Human.serializeHumanFaceDocument} Publishes only the numerical document through the same admission contract used on load.
  * @evidence {@link Human.subdivideControlMesh} Refines the connected triangular cage before its shared normals and interiors are finalized.
@@ -212,7 +198,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
  * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
  * @evidence {@link Human.createPortraitHairFibreTexture} Builds the hair texture both the colour and normal maps are generated from.
- * @evidence {@link Human.sampleCyclicNasalSection} Closes a circumferential nasal station list without repeating its first sample.
  * @evidence {@link Human.humanFaceDetailDefinition} Resolves a named detail channel to its declared definition for the editor.
  * @evidence {@link Human.portraitFacialOvalVertices} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
  * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
@@ -245,7 +230,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.portraitTongueRows} States how many rings the lingual surface is sampled along, root to tip.
  * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
  * @evidence {@link Human.triangleAreaVector} Measures a triangle so a degenerate face is not carried into an export.
- * @evidence {@link Human.unitNasalNormal} Normalises a nasal envelope station to its own circumferential unit.
  * @evidence {@link Human.writeHumanFaceDetail} Writes one admitted detail edit into the document the editor owns.
  * @evidence {@link humanFaceFibreReview} Retains inspection of the connected fibre pigment path separately from photographic likeness.
  * @evidence {@link humanFaceIrisReview} Retains inspection of the connected iris pigment path separately from photographic likeness.

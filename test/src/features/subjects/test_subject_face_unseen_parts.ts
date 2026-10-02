@@ -4,12 +4,8 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  FACE_UNSEEN_NORMS,
-  faceMidlineTriangles,
-  faceUnseenIntervals,
-  faceUnseenParts,
-} from "../../../scripts/face-review/faceUnseenNorms";
+import { faceMidlineTriangles, faceUnseenParts } from "../../../scripts/face-review/faceUnseenNorms";
+import { FACE_UNSEEN_NORMS, faceUnseenIntervals } from "../../../scripts/face-review/faceUnseenPopulation";
 import { nclose } from "../internal/predicates";
 
 /** A closed box's corners and its outward counter-clockwise faces. */

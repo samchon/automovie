@@ -12,78 +12,37 @@
  * each lid's range: 77.5 of 75 to 80 lower lashes over 125 of 90 to 160
  * upper ones (Aumond and Bitton, J Optom 2018;11:211-222).
  */
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceControlMap,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareLowerLashBasis } from "./prepareLowerLashBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
 const prepared = prepareLowerLashBasis({
-  basis: basis.json as IAutoMovieHumanFaceBasis,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  basis: basis.json,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   lashes: "Human.eyelashes01",
   eyes: "Human.low-poly",
   count: 77.5 / 125,
 });
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  recorded: new Date().toISOString(),
-  citation:
-    "Aumond S, Bitton E. The eyelash follicle features and anomalies: a review. J Optom 2018;11(4):211-222: the lower lid carries 75-80 lashes in three to four rows, the upper 90-160 in five to six.",
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
+writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "lower-lash-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    citation:
+      "Aumond S, Bitton E. The eyelash follicle features and anomalies: a review. J Optom 2018;11(4):211-222: the lower lid carries 75-80 lashes in three to four rows, the upper 90-160 in five to six.",
   },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "lower-lash-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  recorded: new Date(),
+});
 console.log(JSON.stringify(prepared.receipt, null, 2));

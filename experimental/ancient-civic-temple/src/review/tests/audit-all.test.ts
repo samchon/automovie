@@ -1,13 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const { auditStatuses, runAudit } = require("../audit-all.cjs") as {
-  auditStatuses: (statuses: number[]) => number;
-  runAudit: (
-    run: (command: string, args: string[], options: { shell: boolean; windowsHide: boolean }) => { status: number | null },
-    write: (line: string) => void,
-  ) => number;
-};
+import { auditStatuses, runAudit } from "../audit-all.cjs";
 
 void test("audit sums failures and still runs every gate", () => {
   assert.equal(auditStatuses([0, 1, 0, 2]), 2);

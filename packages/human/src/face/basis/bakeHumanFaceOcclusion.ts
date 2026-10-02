@@ -24,6 +24,19 @@ const LIFT = 0.00005;
  * written as equal 8-bit R, G and B. A vertex without a normal is taken as
  * fully visible. The model is not changed. It refuses a ray count or size
  * that is not a positive integer.
+ *
+ * @evidence contracts/common.md#principled-implementation Each receiving vertex casts cosine-weighted rays about its normal (a golden-angle spiral with radius sqrt((i+1/2)/rays), which is Malley's mapping of a uniform disc to the cosine distribution), from 0.05 mm off the surface to the model's bounding diagonal, and the unblocked share is the vertex visibility of a distant uniform ambient light. Texels take the barycentric mix of their triangle's visibilities and four rings of neighbour means fill UV-seam gutters. It is a per-vertex estimate, so visibility varies linearly across a triangle and features smaller than the mesh spacing are not resolved.
+ * @evidence contracts/common.md#clear-and-simple-design Visibility per vertex, rasterisation per material, gutter fill and encoding, each in its own block.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific rule; a non-positive ray count or size refuses.
+ * @evidence contracts/common.md#meaningful-documentation States occluders, receivers, ray construction, gutter fill, encoding and that the model is not changed.
+ * @evidence contracts/modeling.md#emitted-geometry One texture of size x size per receiving opaque material and rays x vertices casts; both follow the resolution options and the mesh, not an author's feature list.
+ * @evidence contracts/modeling.md#spatial-conventions Model metres for positions, the 0.05 mm lift is the constant 5e-5 m, texture coordinates in [0,1] with V flipped to image rows.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source bakeHumanFaceOcclusion carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range bakeHumanFaceOcclusion admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority bakeHumanFaceOcclusion defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping bakeHumanFaceOcclusion is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels bakeHumanFaceOcclusion defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries bakeHumanFaceOcclusion constructs no surface that meets another part.
  */
 export function bakeHumanFaceOcclusion(
   model: IAutoMovieModel,

@@ -5,14 +5,13 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
-import { createHumanFaceHairTailSpread } from "./createHumanFaceHairTailSpread";
-import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
+import { createHumanFaceHairGatherStage } from "./createHumanFaceHairGatherStage";
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { humanFaceHairLength } from "./humanFaceHairLength";
-import { humanFaceHairSequence } from "./humanFaceHairSequence";
+import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 
 const requireDirection = humanFaceHairFrame.direction;
 
@@ -56,6 +55,66 @@ const requireDirection = humanFaceHairFrame.direction;
  * contact projector's fibre-path clearance by that step and a floating-point margin. Such a step
  * uses the exact same candidate the contact projector would return; stations
  * near skin still take the original projection and bisection path.
+ *
+ * @evidence contracts/common.md#principled-implementation The lock is a
+ *   fixed-step integral of a direction field: each station moves one sampling
+ *   step along the combed direction, projected by the contact rule to keep the
+ *   skin clearance, so the polyline is the geometry that is meshed and no spline
+ *   is refit. The step is bisected back if the projection moves farther than the
+ *   step, so every chord is at most one step, which with the 1-Lipschitz signed
+ *   distance is what keeps the requested clearance along each chord. A step is
+ *   skipped from a query only when the distance already sampled proves it free,
+ *   and the last chord is cut to the remaining length, so the lock is exactly
+ *   the authored metric length. A step the contact blocks entirely, a length
+ *   shorter than the emergence and an exhausted budget refuse and never return a
+ *   shorter lock. The premises are a closed, consistently oriented collider and
+ *   a field that is finite; the root fan and hair-to-hair contact are not
+ *   covered, as the comment says.
+ * @evidence contracts/common.md#clear-and-simple-design The function keeps the
+ *   walk, the contact and the length. The gathering state lives in
+ *   createHumanFaceHairGatherStage, the turn limit in limitHumanFaceHairTurn,
+ *   the contact rule in humanFaceHairContact and the field in
+ *   evaluateHumanFaceHairDirection, so each formula has one owner and the walk
+ *   reads as a sequence of named steps.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject or style and no foreign state: every lock meets the same
+ *   field, contact and turn limit, and a step that cannot be taken refuses with
+ *   where it stopped instead of sliding along the wall or shortening the lock.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   what is integrated and returned, who owns the points, the clearance argument
+ *   and its limits, the refusals and the free-step certificate.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function computes a value and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidence contracts/modeling.md#emitted-geometry The stations are the length
+ *   divided by the sampling step, so a lock is a few hundred stations at the
+ *   published steps and its cost grows with authored length over step. Both are
+ *   bounded by the million-interval budget that assertHumanFaceHair enforces
+ *   before allocation and the million-station budget the builder counts.
+ * @evidence contracts/modeling.md#spatial-conventions Root, reference, origin,
+ *   stations, step, clearance and length are metres in the head frame, the
+ *   reference and origin are neutral chart positions used only for the field and
+ *   the regional length, directions are unit vectors and the arc length in error
+ *   messages is converted to millimetres for reading only.
+ * @evidence contracts/modeling.md#shared-boundaries The lock meets the skin
+ *   through the contact rule's clearance, half a step plus the requested
+ *   clearance, from one definition that the projector for interpolated strands
+ *   also uses, and it never enters the collider. The join can open only where
+ *   the collider is not embedded, which the builder's closure and the
+ *   deformation own, and it then refuses.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function
+ *   owns no part, group or joint and displays nothing; the builder that owns the
+ *   assembled hair is where the result is observed.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
+ *   no anatomical value of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function integrateHumanFaceHairCurve(props: {
   layer: IAutoMovieHumanFaceHair.Layer;
@@ -69,88 +128,20 @@ export function integrateHumanFaceHairCurve(props: {
   gatherDirection?: (point: IAutoMovieVector3) => IAutoMovieVector3;
 }) {
   const { layer, query } = props;
-  if (
-    layer.gather !== undefined &&
-    (props.gatherAnchor === undefined || props.gatherDirection === undefined)
-  )
-    throw new Error("Gathered hair needs its attached scalp anchor.");
+  const stage = createHumanFaceHairGatherStage({
+    layer,
+    reference: props.reference,
+    root: props.root,
+    sequence: props.sequence,
+    anchor: props.gatherAnchor,
+    gatherDirection: props.gatherDirection,
+  });
   const length = humanFaceHairLength(
     layer,
     props.origin,
     props.reference,
     props.sequence,
   );
-  const phase = 2 * Math.PI * humanFaceHairSequence(props.sequence, 11);
-  const gather = layer.gather;
-  const tailLayer =
-    gather === undefined
-      ? undefined
-      : {
-          ...layer,
-          flow: gather.tail.direction,
-          part: undefined,
-          lift: { ...layer.lift, strength: 0 },
-        };
-  let tied = false;
-  let tieDistance = 0;
-  let spread: ((distance: number) => IAutoMovieVector3) | undefined;
-  const enterTie = (point: IAutoMovieVector3, distance: number): void => {
-    tied = true;
-    tieDistance = distance;
-    if (gather?.tail.spread !== undefined)
-      spread = createHumanFaceHairTailSpread({
-        axis: Vector3.create(...gather.tail.direction),
-        anchor: props.gatherAnchor!,
-        entry: point,
-        root: props.root,
-        phase: 2 * Math.PI * humanFaceHairSequence(props.sequence, 23),
-        radialFraction: Math.sqrt(humanFaceHairSequence(props.sequence, 29)),
-        ...gather.tail.spread,
-      });
-  };
-  if (
-    gather !== undefined &&
-    Vector3.length(Vector3.subtract(props.gatherAnchor!, props.root)) <=
-      gather.radius
-  )
-    enterTie(props.root, 0);
-  let nearestTie =
-    gather === undefined
-      ? Infinity
-      : Vector3.length(Vector3.subtract(props.gatherAnchor!, props.root));
-  let nearestPoint = props.root;
-  const desired = (
-    point: IAutoMovieVector3,
-    normal: IAutoMovieVector3,
-    distance: number,
-  ): IAutoMovieVector3 => {
-    if (tied) {
-      const tail = evaluateHumanFaceHairDirection({
-        layer: tailLayer!,
-        root: props.reference,
-        normal,
-        distance: distance - tieDistance,
-        phase,
-      });
-      return spread === undefined
-        ? tail
-        : requireDirection(Vector3.add(tail, spread(distance - tieDistance)));
-    }
-    const ordinary = evaluateHumanFaceHairDirection({
-      layer,
-      root: props.reference,
-      normal,
-      distance,
-      phase,
-    });
-    if (gather === undefined) return ordinary;
-    return requireDirection(
-      Vector3.add(
-        Vector3.scale(ordinary, 1 - gather.strength),
-        Vector3.scale(props.gatherDirection!(point), gather.strength),
-      ),
-    );
-  };
   const h = layer.samplingStep;
   const {
     clearance,
@@ -170,7 +161,11 @@ export function integrateHumanFaceHairCurve(props: {
             hairline: layer.hairline,
             chart: Vector3.subtract(props.reference, props.origin),
             normal: props.normal,
-            field: desired(props.root, requireDirection(props.normal), 0),
+            field: stage.direction(
+              props.root,
+              requireDirection(props.normal),
+              0,
+            ),
           }),
         ),
         clearance,
@@ -188,22 +183,9 @@ export function integrateHumanFaceHairCurve(props: {
     iteration++
   ) {
     const hit = sample(p);
-    if (gather !== undefined) {
-      const gap = Vector3.length(Vector3.subtract(props.gatherAnchor!, p));
-      if (gap < nearestTie) {
-        nearestTie = gap;
-        nearestPoint = p;
-      }
-    }
+    stage.observe(p, cumulative);
     const normal = outward(p, hit);
-    if (
-      gather !== undefined &&
-      !tied &&
-      Vector3.length(Vector3.subtract(props.gatherAnchor!, p)) <= gather.radius
-    ) {
-      enterTie(p, cumulative);
-    }
-    let direction = desired(p, normal, cumulative);
+    let direction = stage.direction(p, normal, cumulative);
     if (
       hit.signedDistance <= clearance + h &&
       Vector3.dot(direction, normal) < 0
@@ -214,33 +196,17 @@ export function integrateHumanFaceHairCurve(props: {
           Vector3.scale(normal, Vector3.dot(direction, normal)),
         ),
       );
-    // A hair cannot turn faster than the tightest curl a head grows. The
-    // eight-class curl survey puts the tightest curve diameter below 1.2 cm
-    // (Loussouarn et al. 2007, recorded in the project's hair research note),
-    // so a step of h turns at most h / 6 mm. A field that asks for more is
-    // asking for a kink, which has no ribbon frame and no follicle.
-    if (points.length > 1) {
-      const before = requireDirection(
-        Vector3.subtract(points[points.length - 1], points[points.length - 2]),
-      );
-      const turn = Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(before, direction))),
-      );
-      const limit = h / 0.006;
-      if (turn > limit) {
-        const across = Vector3.subtract(
-          direction,
-          Vector3.scale(before, Vector3.dot(direction, before)),
-        );
-        direction =
-          Vector3.length(across) > 0
-            ? Vector3.add(
-                Vector3.scale(before, Math.cos(limit)),
-                Vector3.scale(requireDirection(across), Math.sin(limit)),
-              )
-            : before;
-      }
-    }
+    if (points.length > 1)
+      direction = limitHumanFaceHairTurn({
+        before: requireDirection(
+          Vector3.subtract(
+            points[points.length - 1],
+            points[points.length - 2],
+          ),
+        ),
+        direction,
+        step: h,
+      });
     // One step along a direction: the contact's own projection of a full
     // step, bisected back when that projection lands farther than the step,
     // which is the chord bound the clearance argument rests on.
@@ -296,28 +262,20 @@ export function integrateHumanFaceHairCurve(props: {
             .join(", ") +
           ").",
       );
-    if (gather !== undefined && !tied) {
+    if (stage.pending()) {
       const remaining = Math.min(1, (length - cumulative) / distance);
       const end = Vector3.add(
         p,
         Vector3.scale(Vector3.subtract(q, p), remaining),
       );
-      const segment = Vector3.subtract(end, p);
-      const fromTie = Vector3.subtract(p, props.gatherAnchor!);
-      const a = Vector3.dot(segment, segment);
-      const b = 2 * Vector3.dot(fromTie, segment);
-      const c = Vector3.dot(fromTie, fromTie) - gather.radius ** 2;
-      const discriminant = b * b - 4 * a * c;
-      if (discriminant >= 0) {
-        const fraction = (-b - Math.sqrt(discriminant)) / (2 * a);
-        if (fraction >= 0 && fraction <= 1) {
-          q = Vector3.add(p, Vector3.scale(segment, fraction));
-          cumulative += Vector3.length(Vector3.subtract(q, p));
-          enterTie(q, cumulative);
-          if (fraction > 0) points.push(q);
-          p = q;
-          continue;
-        }
+      const fraction = stage.crossing(p, end);
+      if (fraction !== undefined) {
+        q = Vector3.add(p, Vector3.scale(Vector3.subtract(end, p), fraction));
+        cumulative += Vector3.length(Vector3.subtract(q, p));
+        stage.enter(q, cumulative);
+        if (fraction > 0) points.push(q);
+        p = q;
+        continue;
       }
     }
     if (distance >= length - cumulative - epsilon) {
@@ -332,10 +290,7 @@ export function integrateHumanFaceHairCurve(props: {
   }
   if (cumulative !== length)
     throw new Error("Numerical hair exhausted its metric integration budget.");
-  if (gather !== undefined && !tied)
-    throw new Error(
-      `A gathered lock ended before it reached its scalp tie: sequence ${props.sequence}, nearest ${nearestTie} m at ${JSON.stringify(nearestPoint)}, anchor ${JSON.stringify(props.gatherAnchor)}, final ${Vector3.length(Vector3.subtract(props.gatherAnchor!, p))} m.`,
-    );
+  stage.assertTied(p);
   return {
     points,
     length,

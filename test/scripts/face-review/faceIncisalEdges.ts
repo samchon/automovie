@@ -4,7 +4,7 @@ import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
  * The incisal edge vertices of a contact basis's dentition.
  *
  * `prepareDentalPosition` measures the resting display from them and
- * `fit-face-landmarks.ts` observes them against a photograph's teeth. The
+ * The removed `fit-face-landmarks.ts` observes them against a photograph's teeth. The
  * contact's incisal pair is where the two crowns meet, which is not their
  * edges, so each edge is read from the crown that holds the pair's vertex:
  * the connected component of the dentition surface, its lowest vertex for

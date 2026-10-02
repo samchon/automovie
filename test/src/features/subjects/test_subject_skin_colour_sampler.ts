@@ -1,11 +1,12 @@
-import { createPortraitSkinColour } from "@automovie/human";
+import { createPortraitColourField } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
-import { skinColourRegion } from "../internal/skinColourFixture";
+import { skinColourField } from "../internal/skinColourFixture";
 
 /**
  * The colour envelope is reference-bound and independent of declaration order.
+ * It is the kernel every colour path shares; the named-site resolution has its own scenario file.
  *
  * Scenarios:
  * 1. Hand-calculated centre, half-radius, boundary and exterior RGB values
@@ -16,9 +17,8 @@ import { skinColourRegion } from "../internal/skinColourFixture";
  *    names preserves multiplication order and values.
  */
 export const test_subject_skin_colour_sampler = (): void => {
-  const host = { positions: [[0, 0, 0]], indices: [], viewRay: [0, 0, 1] };
-  const region = skinColourRegion(),
-    sample = createPortraitSkinColour(host, [region]);
+  const region = skinColourField(),
+    sample = createPortraitColourField([region]);
   const close = (point: number[], expected: number[]) =>
     sample(point).every((v, i) => nclose(v, expected[i], 1e-12));
   TestValidator.predicate(
@@ -30,7 +30,7 @@ export const test_subject_skin_colour_sampler = (): void => {
   TestValidator.equals("exterior identity", sample([3, 0, 0]), [1, 1, 1]);
   TestValidator.equals(
     "empty identity",
-    createPortraitSkinColour(host, [])([0, 0, 0]),
+    createPortraitColourField([])([0, 0, 0]),
     [1, 1, 1],
   );
   for (const change of [
@@ -39,10 +39,10 @@ export const test_subject_skin_colour_sampler = (): void => {
   ])
     TestValidator.equals(
       "identity field",
-      createPortraitSkinColour(host, [{ ...region, ...change }])([0, 0, 0]),
+      createPortraitColourField([{ ...region, ...change }])([0, 0, 0]),
       [1, 1, 1],
     );
-  const saturated = createPortraitSkinColour(host, [
+  const saturated = createPortraitColourField([
     { ...region, gain: [0, 0, 0], strength: 1 },
   ]);
   for (const x of [0, 1e-16, 1e-12, 1e-8])
@@ -57,12 +57,12 @@ export const test_subject_skin_colour_sampler = (): void => {
   };
   TestValidator.equals(
     "order independent",
-    createPortraitSkinColour(host, [region, other])([1, 0, 0]),
-    createPortraitSkinColour(host, [other, region])([1, 0, 0]),
+    createPortraitColourField([region, other])([1, 0, 0]),
+    createPortraitColourField([other, region])([1, 0, 0]),
   );
   region.gain[0] = 0;
   region.radius[0] = 100;
-  host.positions[0][0] = 100;
+  region.center[0] = 100;
   TestValidator.predicate(
     "owned input basis",
     close([0, 0, 0], [0.9, 0.8, 0.7]),

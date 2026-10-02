@@ -3,12 +3,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * How many neighbours the local density is read from. The k-nearest-neighbour
- * estimator of Loftsgaarden & Quesenberry (1965) reads the density at a sample
- * from the disc that reaches its k-th neighbour; its unbiased form divides by
- * k - 1, which needs k >= 3 for a finite variance, and every further neighbour
- * widens the disc a root's own neighbourhood is read from. Four is that
- * smallest stable choice, not a style control: it is the estimator's own
- * numerical parameter, like an iteration budget.
+ * construction of Loftsgaarden & Quesenberry (1964, NASA-CR-59360) reads a
+ * neighbourhood out to its k-th observation. Here a local homogeneous planar
+ * Poisson approximation derives the intensity estimate (k - 1) / (pi D_k^2),
+ * whose variance is intensity squared / (k - 2). Three is the smallest finite
+ * variance choice; four is a fixed estimation convention that halves that
+ * variance while widening the sampled neighbourhood. It is not an anatomical
+ * value or a style control, and low-discrepancy scalp roots only approximate
+ * this stochastic model.
  */
 const NEIGHBOURS = 4;
 
@@ -33,6 +35,51 @@ const NEIGHBOURS = 4;
  * Search is the direct pairwise one within the admitted thousand-root layer.
  * This states coverage, not the fibre's own diameter, and nothing here keeps a
  * ribbon outside the skin; `buildHumanFaceHairMesh` owns that.
+ *
+ * @evidence contracts/common.md#principled-implementation For roots that are a
+ *   spatial point process of intensity l per unit area, pi * D_k^2 * l is gamma
+ *   distributed with shape k, so (k - 1) / (pi * D_k^2) is an unbiased estimate
+ *   of l when k > 1 and has finite variance when k > 2; the area a root stands
+ *   for is the reciprocal, pi * D_k^2 / (k - 1), and its side is D_k * sqrt(pi /
+ *   (k - 1)) as computed. Its intensity variance is l^2 / (k - 2), so four
+ *   neighbours halve the variance of the smallest finite choice, three. The
+ *   premises are approximate here: the roots are a low-discrepancy sample on a
+ *   curved surface, the distance is the Euclidean chord and not the geodesic,
+ *   and a root at a thinning boundary has neighbours on one side only, so its
+ *   width is larger, as the comment states. A population of four or fewer roots
+ *   falls back to the growth area over the count.
+ * @evidence contracts/common.md#clear-and-simple-design One pairwise scan per
+ *   root with a fixed neighbour count that is the estimator's own parameter, and
+ *   no spatial index, since the layer is admitted at a thousand roots.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject or style; width follows only the roots' own spacing and
+ *   the domain area.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   the estimator, its degrees of freedom, the fallback, the boundary bias and
+ *   that it states coverage and not fibre diameter.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function computes a value and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function returns
+ *   one width per root and emits no primitive; the mesher owns the emitted rows.
+ * @evidence contracts/modeling.md#spatial-conventions Roots are the current
+ *   shape's positions in metres and the area is square metres; the result is a
+ *   width in metres. Nothing is converted.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
+ *   no surface and joins no neighbouring part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function
+ *   owns no part, group or joint and displays nothing; the builder that owns the
+ *   assembled hair is where the result is observed.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The width is derived
+ *   from the population's own spacing and carries no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function humanFaceHairDensity(props: {
   roots: readonly IAutoMovieVector3[];

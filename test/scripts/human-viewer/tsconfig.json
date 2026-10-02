@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.scripts.json",
   "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"] },
-  "include": ["*.ts", "*.mts"]
+  "include": ["*.ts", "*.mts"],
+  "exclude": ["human-viewer-control.mts"]
 }

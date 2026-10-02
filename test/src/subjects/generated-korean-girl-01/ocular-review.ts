@@ -1,7 +1,7 @@
 import type * as Human from "@automovie/human";
 
 /**
- * Optical identity, lids, lashes, brows and orbital support.
+ * Optical identity, lids, lashes and brows.
  * The frozen study root retains this domain through the native evidence graph.
  * Existing source inspections and historical capture limitations are preserved
  * verbatim. This carrier neither changes geometry nor accepts current likeness;
@@ -50,16 +50,6 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitOcularTissueBoundary.upper} Supplies the upper surface of each local tissue section.
  * @evidence {@link Human.IPortraitOcularTissueBoundary.lower} Anchors the wet margin and the lower side of the medial patch.
  * @evidence {@link Human.IPortraitOcularTissueBoundary.globe} Supplies ocular support height in the same millimetre construction frame.
- * @evidence {@link Human.IPortraitOrbitalSupportStation} Owns one forehead/brow/sulcus section on a subject-bound upper orbit.
- * @evidence {@link Human.IPortraitOrbitalSupportStation.name} Preserves station identity in the three coupled anatomical targets.
- * @evidence {@link Human.IPortraitOrbitalSupportStation.anchor} Binds the section to a live retained brow-skin datum.
- * @evidence {@link Human.IPortraitOrbitalSupportStation.forehead} Locates and constrains the surface above the brow pad.
- * @evidence {@link Human.IPortraitOrbitalSupportStation.browProjection} Sets the target anterior movement at the brow's own resident skin section.
- * @evidence {@link Human.IPortraitOrbitalSupportStation.sulcus} Defines the lower side of the upper-orbit support relationship.
- * @evidence {@link Human.IPortraitOrbitalSupportShape} Groups bounded upper-orbit sections under one interpolation support.
- * @evidence {@link Human.IPortraitOrbitalSupportShape.radius} Sets the common millimetre support used by the existing coupled solver.
- * @evidence {@link Human.IPortraitOrbitalSupportShape.stations} Supplies all section targets including stationary neighbouring witnesses.
- * @evidence {@link Human.createPortraitOrbitalSupport} Builds the actual skin-based upper-orbit field consumed by portraitAssembly.
  * @evidence {@link Human.IPortraitLowerLidPoint} Gives a named lower-tissue sample its planar offset and anterior section projection.
  * @evidence {@link Human.IPortraitLowerLidPoint.offset} Places tissue in order from the aperture towards surrounding skin.
  * @evidence {@link Human.IPortraitLowerLidPoint.projection} Shapes each tissue sample relative to its common support bridge.

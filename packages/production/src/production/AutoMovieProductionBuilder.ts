@@ -1,3 +1,5 @@
+import { compileAutoMovieLibrary } from "./compileAutoMovieLibrary";
+import { publishAutoMovieGeneratedCompilation } from "./publishAutoMovieGeneratedCompilation";
 import {
   materializeCompiledFormationInventory,
   materializeCompiledInstanceSetInventory,
@@ -16,7 +18,6 @@ import {
   IAutoMovieBuildProjectOutput,
   IAutoMovieCompiledContractRealization,
   IAutoMovieCompiledShotSource,
-  IAutoMovieConstraintViolation,
   IAutoMovieDesignEvidence,
   IAutoMovieDesignLineage,
   IAutoMovieDesignReference,
@@ -25,7 +26,6 @@ import {
   IAutoMovieFilmEdit,
   IAutoMovieGeneratedFile,
   IAutoMovieGeneratedManifest,
-  IAutoMovieLibraryBuildContext,
   IAutoMovieModel,
   IAutoMovieRenderBundleManifest,
 } from "@automovie/interface";
@@ -35,7 +35,6 @@ import path from "node:path";
 import typia from "typia";
 
 import {
-  AutoMovieProductionInputRaceError,
   AutoMovieProductionProject,
   IAutoMovieProductionContentInput,
 } from "./AutoMovieProductionProject";
@@ -49,22 +48,13 @@ import {
   normalizeAutoMovieSource,
 } from "./contentIdentity";
 import { inspectAutoMovieDerivedArtifacts } from "./derivedArtifacts";
+import { confirmAutoMovieBuildInputSnapshot } from "./confirmAutoMovieBuildInputSnapshot";
 import { designReferenceDiagnostics } from "./designReferenceDiagnostics";
 import { parseAutoMovieStructuredJson } from "./duplicateAwareJson";
-import { generatedOwnershipDiagnosticMessage } from "./generatedOwnershipDiagnosticMessage";
-import { autoMovieLibraryArtifactSourceTargets } from "./libraryArtifactTargets";
-import {
-  IAutoMovieLibraryAuthoringSnapshot,
-  captureAutoMovieLibraryAuthoringSnapshot,
-  createAutoMovieLibrarySourceExecutionPlan,
-  sameAutoMovieLibraryAuthoringSnapshot,
-} from "./libraryAuthoringSnapshot";
-import { libraryBuildInputFingerprint } from "./libraryBuildInputFingerprint";
+import { inspectAutoMovieGeneratedOwnership } from "./inspectAutoMovieGeneratedOwnership";
 import { listAutoMovieProjectModules } from "./listAutoMovieProjectModules";
 import {
   IAutoMovieExternalModelRuntimeBinding,
-  IAutoMovieMaterializedLibraryResult,
-  materializeAutoMovieLibraryFiles,
   materializeCompiledShot,
   materializeProductionModels,
 } from "./materializeProduction";
@@ -82,7 +72,6 @@ import {
   filmSourcePathDiagnostic,
   listFiles,
   missingDesignDiagnostics,
-  normalizeSlash,
   sourcePathDiagnostic,
 } from "./productionBuildDiagnostics";
 import {
@@ -122,7 +111,6 @@ import {
 } from "./productionShotAssembly";
 import { validateCompiledShot } from "./productionShotValidation";
 import {
-  ICompiledLibraryOwnerRegistration,
   ISourceBuildResult,
   buildLibrarySource,
 } from "./productionSourceBuild";
@@ -140,11 +128,6 @@ import { screenplayLedgerDiagnostics } from "./screenplayLedgerDiagnostics";
 import { screenplayProseDiagnostics } from "./screenplayProseDiagnostics";
 import { screenplayTimingDiagnostics } from "./screenplayTimingDiagnostics";
 import { shotDeterminismDiagnostics } from "./shotDeterminismDiagnostics";
-import {
-  autoMovieSourceContentDiagnostic,
-  autoMovieSourceContentFinding,
-  autoMovieValidationFindings,
-} from "./sourceContentDiagnostics";
 import {
   attributeAutoMovieCompiledShotSource,
   resolveAutoMovieSourceOwnerBinding,
@@ -248,7 +231,23 @@ export class AutoMovieProductionBuilder {
       delete require.cache[id];
 
     if (this.authoringEvidence?.manifest.kind === "library")
-      return this.runLibrary(input, materialize, this.authoringEvidence);
+      return compileAutoMovieLibrary({
+        project: this.project,
+        input,
+        materialize,
+        authoringEvidence: this.authoringEvidence,
+        currentAuthoringEvidence: this.currentAuthoringEvidence,
+        runtime: {
+          readDerived: (enabled) => readAutoMovieLibraryDerivedInputs({ project: this.project, enabled }),
+          evaluateSource: buildLibrarySource,
+          listGenerated: listFiles,
+          validators: {
+            environment: validateBuiltEnvironment,
+            model: validateModel,
+            context: validateAutoMovieEnvironmentContext,
+          },
+        },
+      });
     const timedAuthoring = resolveAutoMovieTimedAuthoringKind(
       this.authoringEvidence,
     )!;
@@ -706,7 +705,12 @@ export class AutoMovieProductionBuilder {
           };
     if (manifest !== null)
       diagnostics.push(
-        ...this.generatedOwnershipDiagnostics(manifest, materialize),
+        ...inspectAutoMovieGeneratedOwnership({
+          project: this.project,
+          expected: manifest,
+          repairDeclaredFiles: materialize,
+          listFiles,
+        }),
       );
     if (timedAuthoring.kind === "brief" && screenplay !== null)
       diagnostics.push({
@@ -948,10 +952,9 @@ export class AutoMovieProductionBuilder {
           });
     }
     diagnostics.sort(compareDiagnostics);
-    const inputRaceFailure = (message: string): IAutoMovieBuildProjectOutput =>
-      this.inputRaceFailure({ diagnostics, inputFingerprint, message });
     const confirmInputSnapshot = (): IAutoMovieBuildProjectOutput | null =>
-      this.confirmInputSnapshot({
+      confirmAutoMovieBuildInputSnapshot({
+        authority: this.project,
         diagnostics,
         inputCurrent,
         inputFingerprint,
@@ -1000,736 +1003,13 @@ export class AutoMovieProductionBuilder {
           materialized: [],
         }
       );
-    let revision: number;
-    try {
-      revision = this.project.commitGenerated(
-        sourceFiles,
-        sourceManifest,
-        inputCurrent,
-        inputRevision,
-      );
-    } catch (error) {
-      if (error instanceof AutoMovieProductionInputRaceError === false)
-        throw error;
-      return inputRaceFailure(error.message);
-    }
-    return {
-      success: true,
-      revision,
-      builder: {
-        version: AUTOMOVIE_PRODUCTION_BUILD_VERSION,
-        inputFingerprint,
-      },
+    return publishAutoMovieGeneratedCompilation({
+      authority: this.project,
+      publication: { files: sourceFiles, manifest: sourceManifest, inputCurrent, inputRevision },
+      inputFingerprint,
       diagnostics,
       materialized,
-    };
-  }
-
-  /**
-   * Execute, publish and gate one generated reusable library.
-   *
-   * A film reaches its compiled artifacts through shots. A library has none, so
-   * this is the whole of its source path: every file the enforced source
-   * branches select is linked, inspected, transpiled and evaluated in the same
-   * deterministic sandbox a shot runs in, every owner registration it exports is
-   * matched against an exact active design H2, and what those owners return is
-   * validated by the engine and published atomically as builder-owned bytes.
-   *
-   * The order matters. The built environments this run produced are what the
-   * review consumer derives its required observation population from, so they
-   * are handed over from memory rather than read back from the tree: an owner
-   * whose building the compile just refused must not be charged observations
-   * against a stale copy of it, and an owner whose building it accepted must be
-   * charged them whether or not anything has been written yet.
-   */
-  private runLibrary(
-    input: IAutoMovieBuildProjectInput,
-    materialize: boolean,
-    initialAuthoring: IAutoMovieProductionEvidence,
-  ): IAutoMovieBuildProjectOutput {
-    // The dispatcher selects this path from the evidence it already holds, so
-    // the only question left is whether a fresher reading is available.
-    const authoring =
-      this.currentAuthoringEvidence === undefined
-        ? initialAuthoring
-        : this.currentAuthoringEvidence();
-    const inputRevision = this.project.revision();
-    const snapshot = captureAutoMovieLibraryAuthoringSnapshot({
-      root: this.project.root,
-      evidence: authoring,
-      readSource: (source) => this.project.readSource(source),
-    });
-    const snapshotAuthoring: IAutoMovieProductionEvidence = {
-      ...authoring,
-      configuration: snapshot.configuration,
-      manifest: snapshot.manifest,
-      designBranches: snapshot.designBranches,
-      designOwners: snapshot.designOwners,
-      sourceOwners: snapshot.sourceOwners,
-    };
-    const requireReviewed = input.scope === "review" || input.scope === "final";
-    const execution = createAutoMovieLibrarySourceExecutionPlan(
-      snapshot,
-      requireReviewed,
-    );
-    const sources = snapshot.sources.map((source) => source.path);
-    const derived = this.libraryDerivedInputs(input.scope !== "design");
-    const inputFingerprint = this.libraryInputFingerprint(
-      snapshot,
-      derived.fields,
-    );
-    const diagnostics: IAutoMovieDiagnostic[] = [...derived.diagnostics];
-    if (input.scope !== "design")
-      diagnostics.push(
-        ...execution.problems.map(
-          (message): IAutoMovieDiagnostic => ({
-            code: "source-owner-mismatch",
-            category: "error",
-            phase: "source",
-            target: "library-source-owners",
-            path: null,
-            message,
-          }),
-        ),
-      );
-
-    // The exact addresses a source registration is allowed to name. A library
-    // owner declares which completed decision it realizes. Exact graph
-    // ownership prevents an unrelated artifact from borrowing that decision.
-    const units = new Map<string, IAutoMovieLibraryBuildContext>();
-    const sourceBranchByDesign = new Map<string, string>();
-    for (const owner of snapshotAuthoring.designOwners)
-      for (const unit of owner.units) {
-        const address = `${owner.path}#${unit.anchor}`;
-        units.set(address, {
-          production: this.project.productionId,
-          branch: owner.branch,
-          design: owner.path,
-          anchor: unit.anchor,
-          derivedArtifacts: derived.artifacts,
-        });
-        sourceBranchByDesign.set(address, owner.sourceBinding?.branch ?? "");
-      }
-    for (const entry of execution.entries)
-      if (entry.branch === "productionSources") {
-        const separator = entry.owner.lastIndexOf("#");
-        units.set(entry.owner, {
-          production: this.project.productionId,
-          branch: entry.branch,
-          design: entry.owner.slice(0, separator),
-          anchor: entry.owner.slice(separator + 1),
-          derivedArtifacts: derived.artifacts,
-        });
-        sourceBranchByDesign.set(entry.owner, entry.branch);
-      }
-
-    const results: IAutoMovieMaterializedLibraryResult[] = [];
-    const registeredBy = new Map<string, string>();
-    const environmentOwner = new Map<string, string>();
-    // Claimed like the other two, though a context is the world rather than a
-    // thing in it. Two map owners adopting one id are two answers to "what is
-    // north here", and the report that read whichever landed second would be
-    // measuring one owner's work against the other's world.
-    const contextOwner = new Map<string, string>();
-    const models = new Map<string, IAutoMovieModel>();
-    const modelOwner = new Map<string, string>();
-    if (
-      input.scope !== "design" &&
-      derived.diagnostics.every((item) => item.category !== "error")
-    )
-      for (const source of sources) {
-        let text: string | null = null;
-        try {
-          text = this.readLibrarySource(source);
-        } catch (error) {
-          diagnostics.push({
-            code: "source-path-missing",
-            category: "error",
-            phase: "source",
-            target: `library-source:${source}`,
-            path: source,
-            message: `Library source "${source}" is selected by a reviewed source binding but cannot be read (${errorMessage(error)}). Restore the exact tracked file or correct the binding before compiling.`,
-          });
-        }
-        if (text === null) continue;
-        const sourceDigest = digestAutoMovieBytes(Buffer.from(text, "utf8"));
-        const compiled = buildLibrarySource({
-          path: source,
-          source: text,
-          sourceRoot: this.project.root,
-          context: (design) => units.get(design) ?? null,
-          admit: (exportName, design) =>
-            resolveAutoMovieSourceOwnerBinding({
-              bindings: snapshotAuthoring.sourceOwners,
-              // Admission runs only for a design `context` resolved from the
-              // same owner population, so the branch is always recorded.
-              branch: sourceBranchByDesign.get(design)!,
-              sourcePath: source,
-              exportName,
-              owner: design,
-              sourceDigest,
-              requireReviewed,
-            }),
-        });
-        diagnostics.push(...compiled.diagnostics);
-        for (const registration of compiled.registrations) {
-          const context = units.get(registration.design)!;
-          const target = `library:${context.branch}:${registration.design}`;
-          const previous = registeredBy.get(registration.design);
-          if (previous !== undefined) {
-            diagnostics.push({
-              code: "source-registration-mismatch",
-              category: "error",
-              phase: "source",
-              target,
-              path: source,
-              message: `Library design owner "${registration.design}" is registered by both "${previous}" and "${source}#${registration.export}". Keep one source export per reviewed H2; two registrations make the published artifact depend on file order.`,
-            });
-            continue;
-          }
-          registeredBy.set(
-            registration.design,
-            `${source}#${registration.export}`,
-          );
-          const accepted =
-            context.branch === "productionSources"
-              ? this.acceptLibraryProductionContribution({
-                  diagnostics,
-                  registration,
-                  source,
-                  target,
-                })
-              : this.acceptLibraryContribution({
-                  context,
-                  diagnostics,
-                  contextOwner,
-                  environmentOwner,
-                  modelOwner,
-                  models,
-                  registration,
-                  source,
-                  target,
-                });
-          if (accepted === false) continue;
-          results.push({
-            branch: context.branch,
-            owner: registration.design,
-            source,
-            export: registration.export,
-            sourceDigest: digestAutoMovieBytes(Buffer.from(text, "utf8")),
-            contribution: registration.contribution,
-          });
-        }
-      }
-
-    if (input.scope !== "design")
-      for (const entry of execution.entries)
-        if (
-          entry.branch === "productionSources" &&
-          registeredBy.has(entry.owner) === false
-        )
-          diagnostics.push({
-            code: "source-export-missing",
-            category: requireReviewed ? "error" : "warning",
-            phase: "source",
-            target: `library:productionSources:${entry.owner}`,
-            path: entry.sourcePath,
-            message: `Production source "${entry.sourcePath}#${entry.exportName}" did not register its exact settings owner "${entry.owner}" as a zero-payload library delivery. Export one synchronous IAutoMovieLibrarySourceOwner for that address.`,
-          });
-
-    // An owner whose branch already has source and no registration is an
-    // unrealized decision. It warns while source is being written, because that
-    // is the ordinary state of a branch in progress, and blocks from review on,
-    // where a design document with nothing behind it is the exact thing the
-    // library gate exists to refuse.
-    if (input.scope !== "design")
-      for (const owner of [...snapshotAuthoring.designOwners].sort(
-        (left, right) => compareCodeUnits(left.path, right.path),
-      )) {
-        // A branch that has not started its source yet owes no registration,
-        // and neither does one whose binding selects no file. The owner is read
-        // from the population it came from rather than looked up again, so the
-        // binding is in hand and no absent-owner case can arise here.
-        const binding = owner.sourceBinding;
-        if (binding === null || binding.paths.length === 0) continue;
-        for (const unit of [...owner.units].sort((left, right) =>
-          compareCodeUnits(left.anchor, right.anchor),
-        )) {
-          const address = `${owner.path}#${unit.anchor}`;
-          if (registeredBy.has(address)) continue;
-          diagnostics.push({
-            code: "source-export-missing",
-            category:
-              input.scope === "review" || input.scope === "final"
-                ? "error"
-                : "warning",
-            phase: "source",
-            target: `library:${owner.branch}:${address}`,
-            path: owner.path,
-            message: `No source export in the ${binding.branch} population registers library design owner "${address}". Export one owner whose \`design\` names that exact document and anchor, so this reviewed decision has a compiled artifact behind it.`,
-          });
-        }
-      }
-
-    if (input.scope !== "design")
-      diagnostics.push(
-        ...productionTextureClosureDiagnostics({
-          production: this.project.productionId,
-          models: results.flatMap((result) => result.contribution.models),
-          environments: results.flatMap(
-            (result) => result.contribution.environments,
-          ),
-          scenes: [],
-          assets: derived.assets,
-          content: derived.content,
-        }),
-      );
-
-    const publication =
-      input.scope === "design"
-        ? null
-        : materializeAutoMovieLibraryFiles({
-            production: this.project.productionId,
-            builder: AUTOMOVIE_PRODUCTION_BUILD_PROTOCOL,
-            inputFingerprint,
-            results,
-          });
-    const entries: IAutoMovieGeneratedFile[] =
-      publication === null
-        ? []
-        : [...publication.files]
-            .map(([file, bytes]) => ({
-              path: file,
-              owner: "builder" as const,
-              digest: digestAutoMovieBytes(bytes),
-              sourceTargets: autoMovieLibraryArtifactSourceTargets(
-                file,
-                publication.index,
-              ),
-            }))
-            .sort((left, right) => compareCodeUnits(left.path, right.path));
-    const manifest: IAutoMovieGeneratedManifest | null =
-      publication === null
-        ? null
-        : {
-            version: 1,
-            builder: {
-              packageVersion: AUTOMOVIE_PRODUCTION_BUILD_VERSION,
-              protocolVersion: AUTOMOVIE_PRODUCTION_BUILD_PROTOCOL,
-            },
-            inputFingerprint,
-            files: entries,
-          };
-    if (manifest !== null)
-      diagnostics.push(
-        ...this.generatedOwnershipDiagnostics(manifest, materialize),
-      );
-
-    diagnostics.sort(compareDiagnostics);
-
-    const inputCurrent = (): boolean => {
-      if (this.currentAuthoringEvidence === undefined) return false;
-      try {
-        return (
-          sameAutoMovieLibraryAuthoringSnapshot(
-            snapshot,
-            captureAutoMovieLibraryAuthoringSnapshot({
-              root: this.project.root,
-              evidence: this.currentAuthoringEvidence(),
-              readSource: (source) => this.project.readSource(source),
-            }),
-          ) &&
-          this.libraryInputFingerprint(
-            snapshot,
-            this.libraryDerivedInputs(input.scope !== "design").fields,
-          ) === inputFingerprint
-        );
-      } catch {
-        return false;
-      }
-    };
-    const builder = {
-      version: AUTOMOVIE_PRODUCTION_BUILD_VERSION,
-      inputFingerprint,
-    };
-    const confirmInputSnapshot = (): IAutoMovieBuildProjectOutput | null =>
-      this.confirmInputSnapshot({
-        diagnostics,
-        inputCurrent,
-        inputFingerprint,
-        inputRevision,
-      });
-    const failed = diagnostics.some(
-      (diagnostic) => diagnostic.category === "error",
-    );
-    if (failed || input.scope === "design" || materialize === false)
-      return (
-        confirmInputSnapshot() ?? {
-          success: failed === false,
-          revision: inputRevision,
-          builder,
-          diagnostics,
-          materialized: [],
-        }
-      );
-    const materializedFiles = statusesOf(this.project, entries);
-    let revision: number;
-    try {
-      revision = this.project.commitGenerated(
-        publication!.files,
-        manifest!,
-        inputCurrent,
-        inputRevision,
-      );
-    } catch (error) {
-      if (error instanceof AutoMovieProductionInputRaceError === false)
-        throw error;
-      return this.inputRaceFailure({
-        diagnostics,
-        inputFingerprint,
-        message: error.message,
-      });
-    }
-    return {
-      success: true,
-      revision,
-      builder,
-      diagnostics,
-      materialized: materializedFiles,
-    };
-  }
-
-  /** Normalized project source text, read exactly as the film linker reads it. */
-  private readLibrarySource(relative: string): string {
-    return Buffer.from(
-      normalizeAutoMovieSource(this.project.readSource(relative)),
-    ).toString("utf8");
-  }
-
-  /**
-   * The builder input identity of one library, recomputed on demand.
-   *
-   * A library's inputs include the production namespace every build context and
-   * the index carry, the portable authoring projection, selected source bytes,
-   * content inventory and verified derivation closure. The same read answers
-   * both the result identity and the atomic publication's concurrent-edit
-   * guard, which compares the resident snapshot digest separately.
-   */
-  private libraryInputFingerprint(
-    snapshot: IAutoMovieLibraryAuthoringSnapshot,
-    derivedFields: readonly IAutoMovieFingerprintField[],
-  ): AutoMovieContentDigest {
-    return libraryBuildInputFingerprint({
-      production: this.project.productionId,
-      snapshot,
-      derivedFields,
     });
   }
 
-  /** Read the same verified content closure for execution and publication. */
-  private libraryDerivedInputs(
-    enabled: boolean,
-  ): ReturnType<typeof readAutoMovieLibraryDerivedInputs> {
-    return readAutoMovieLibraryDerivedInputs({
-      project: this.project,
-      enabled,
-    });
-  }
-
-  /** Admit settings serialization only as a zero-payload lineage result. */
-  private acceptLibraryProductionContribution(props: {
-    diagnostics: IAutoMovieDiagnostic[];
-    registration: ICompiledLibraryOwnerRegistration;
-    source: string;
-    target: string;
-  }): boolean {
-    const contribution = props.registration.contribution;
-    const populations =
-      contribution.environments.length +
-      contribution.models.length +
-      contribution.contexts.length;
-    if (populations === 0) return true;
-    props.diagnostics.push({
-      code: "source-export-invalid",
-      category: "error",
-      phase: "source",
-      target: props.target,
-      path: props.source,
-      message: `Production source export "${props.registration.export}" serializes settings and must return empty environments, models, and contexts. Publish semantic artifacts from their reviewed design-source owner instead.`,
-    });
-    return false;
-  }
-
-  /**
-   * Validate one owner's contribution and claim the ids it publishes.
-   *
-   * The engine validators decide whether the building and the models are
-   * coherent, exactly as they do for a shot's code-authored environment, so a
-   * library and a film cannot disagree about what a valid building is. What is
-   * decided here instead is ownership: two owners publishing one id would write
-   * one file twice, and which of them won would depend on the order the source
-   * population happened to be read in.
-   */
-  private acceptLibraryContribution(props: {
-    context: IAutoMovieLibraryBuildContext;
-    contextOwner: Map<string, string>;
-    diagnostics: IAutoMovieDiagnostic[];
-    environmentOwner: Map<string, string>;
-    modelOwner: Map<string, string>;
-    models: Map<string, IAutoMovieModel>;
-    registration: ICompiledLibraryOwnerRegistration;
-    source: string;
-    target: string;
-  }): boolean {
-    const before = props.diagnostics.length;
-    // The path is sliced and printed without a fallback because the two
-    // validators below build every violation path from `$input.` and neither
-    // ever reports at the bare root: a contribution that is not a record at all
-    // is refused earlier, by the shape check on what `build()` returned, with a
-    // message of its own. A fallback for the empty remainder was a second
-    // sentence for a case that cannot arrive here, and no test could reach it.
-    const report = (violation: IAutoMovieConstraintViolation): void => {
-      props.diagnostics.push(
-        autoMovieSourceContentDiagnostic({
-          finding: autoMovieSourceContentFinding(
-            violation,
-            `Library owner "${props.registration.design}" publishes ${violation.path.slice("$input".length)} that ${violation.expected}. Correct ${props.source} before compiling.`,
-          ),
-          target: props.target,
-          path: props.source,
-        }),
-      );
-    };
-    const claim = (
-      owners: Map<string, string>,
-      id: string,
-      kind: string,
-    ): boolean => {
-      const previous = owners.get(id);
-      if (previous !== undefined) {
-        props.diagnostics.push({
-          code: "source-export-invalid",
-          category: "error",
-          phase: "source",
-          target: props.target,
-          path: props.source,
-          message: `Library ${kind} "${id}" is published by both "${previous}" and "${props.registration.design}". Give every published ${kind} one owner; two owners write one builder-owned file twice.`,
-        });
-        return false;
-      }
-      owners.set(id, props.registration.design);
-      return true;
-    };
-    for (const environment of props.registration.contribution.environments) {
-      for (const violation of autoMovieValidationFindings(
-        validateBuiltEnvironment({ environment }),
-      ))
-        report(violation);
-      claim(props.environmentOwner, environment.id, "built environment");
-    }
-    for (const model of props.registration.contribution.models) {
-      for (const violation of autoMovieValidationFindings(
-        validateModel({ model }),
-      ))
-        report(violation);
-      if (claim(props.modelOwner, model.id, "model"))
-        props.models.set(model.id, model);
-    }
-    for (const context of props.registration.contribution.contexts) {
-      for (const violation of autoMovieValidationFindings(
-        validateAutoMovieEnvironmentContext({ context }),
-      ))
-        report(violation);
-      claim(props.contextOwner, context.id, "environment context");
-    }
-    return props.diagnostics
-      .slice(before)
-      .every((diagnostic) => diagnostic.category !== "error");
-  }
-
-  /**
-   * Publish the refusal a builder-input race produces.
-   *
-   * Both shapes end here rather than carrying a copy each. What raced is the
-   * same fact whichever gate noticed it, and a second spelling of the message
-   * would be a second answer to "what does a caller do about this".
-   */
-  private inputRaceFailure(props: {
-    diagnostics: IAutoMovieDiagnostic[];
-    inputFingerprint: AutoMovieContentDigest;
-    message: string;
-  }): IAutoMovieBuildProjectOutput {
-    props.diagnostics.push({
-      code: "compile-input-changed",
-      category: "error",
-      phase: "compile",
-      target: "builder-input",
-      path: null,
-      message: `${props.message} Re-run the scaffold compile command against the current design, source, and declared content snapshot.`,
-    });
-    props.diagnostics.sort(compareDiagnostics);
-    return {
-      success: false,
-      revision: this.project.revision(),
-      builder: {
-        version: AUTOMOVIE_PRODUCTION_BUILD_VERSION,
-        inputFingerprint: props.inputFingerprint,
-      },
-      diagnostics: props.diagnostics,
-      materialized: [],
-    };
-  }
-
-  /** Confirm nothing moved under a result that publishes no generated bytes. */
-  private confirmInputSnapshot(props: {
-    diagnostics: IAutoMovieDiagnostic[];
-    inputCurrent: () => boolean;
-    inputFingerprint: AutoMovieContentDigest;
-    inputRevision: number;
-  }): IAutoMovieBuildProjectOutput | null {
-    try {
-      this.project.confirmCurrentSnapshot(
-        props.inputCurrent,
-        props.inputRevision,
-      );
-      return null;
-    } catch (error) {
-      if (error instanceof AutoMovieProductionInputRaceError === false)
-        throw error;
-      return this.inputRaceFailure({ ...props, message: error.message });
-    }
-  }
-
-  private generatedOwnershipDiagnostics(
-    expected: IAutoMovieGeneratedManifest,
-    repairDeclaredFiles: boolean,
-  ): IAutoMovieDiagnostic[] {
-    const manifest = this.project.generatedManifest();
-    const generatedManifestPath = normalizeSlash(
-      path.relative(
-        this.project.root,
-        this.project.trackedStatePath("generated-manifest.json"),
-      ),
-    );
-    const diagnostics: IAutoMovieDiagnostic[] = [];
-    const expectedByPath = new Map(
-      expected.files.map((file) => [normalizeSlash(file.path), file]),
-    );
-    const declaredByPath = new Map(
-      (manifest?.files ?? []).map((file) => [normalizeSlash(file.path), file]),
-    );
-    if (manifest === null)
-      diagnostics.push({
-        code: "generated-manifest-missing",
-        category: repairDeclaredFiles ? "warning" : "error",
-        phase: "compile",
-        target: "generated-manifest",
-        path: generatedManifestPath,
-        message: repairDeclaredFiles
-          ? "Compiler-owned output has no generated manifest. The builder will publish the exact current ownership manifest with the derived files."
-          : "Compiler-owned output has no generated manifest. Run the scaffold compile command before trusting generated bytes.",
-      });
-    for (const file of listFiles(this.project.generatedRoot())) {
-      const relative = normalizeSlash(
-        path.relative(this.project.generatedRoot(), file),
-      );
-      if (expectedByPath.has(relative) === false) {
-        const declared = declaredByPath.get(relative);
-        let matchesDeclared = false;
-        try {
-          matchesDeclared =
-            declared !== undefined &&
-            digestAutoMovieBytes(this.project.readGeneratedFile(relative)) ===
-              declared.digest;
-        } catch {
-          matchesDeclared = false;
-        }
-        diagnostics.push({
-          code: matchesDeclared
-            ? "generated-stale-output"
-            : "generated-unowned",
-          category:
-            matchesDeclared && repairDeclaredFiles ? "warning" : "error",
-          phase: "compile",
-          target: relative,
-          path: normalizeSlash(path.relative(this.project.root, file)),
-          message: matchesDeclared
-            ? repairDeclaredFiles
-              ? `Generated file "${relative}" belonged to the prior builder result but is absent from the current result. The builder will remove it.`
-              : `Generated file "${relative}" is stale output from a different compile. Run the scaffold compile command to remove it.`
-            : `Generated file "${relative}" is not the canonical output derived from current source and design. Remove it before running the builder.`,
-        });
-      }
-    }
-    for (const entry of expected.files) {
-      const file = path.resolve(this.project.generatedRoot(), entry.path);
-      let actual: AutoMovieContentDigest | null = null;
-      try {
-        actual = digestAutoMovieBytes(
-          this.project.readGeneratedFile(entry.path),
-        );
-      } catch (error) {
-        if (error instanceof Error && error.message.includes("does not exist"))
-          actual = null;
-        else {
-          diagnostics.push({
-            code: "generated-path-outside",
-            category: "error",
-            phase: "compile",
-            target: entry.path,
-            path: normalizeSlash(path.relative(this.project.root, file)),
-            message:
-              error instanceof Error
-                ? error.message
-                : `Generated file "${entry.path}" is unsafe. Remove the link before running the builder.`,
-          });
-          continue;
-        }
-      }
-      if (actual !== entry.digest)
-        diagnostics.push({
-          code: "generated-tampered",
-          category: repairDeclaredFiles ? "warning" : "error",
-          phase: "compile",
-          target: entry.path,
-          path: normalizeSlash(path.relative(this.project.root, file)),
-          message: generatedOwnershipDiagnosticMessage({
-            actual,
-            expected: entry.digest,
-            repair: repairDeclaredFiles,
-          }),
-        });
-    }
-    if (
-      manifest !== null &&
-      manifest.inputFingerprint !== expected.inputFingerprint
-    )
-      diagnostics.push({
-        code: "generated-stale",
-        category: repairDeclaredFiles ? "warning" : "error",
-        phase: "compile",
-        target: "generated-manifest",
-        path: generatedManifestPath,
-        message: repairDeclaredFiles
-          ? `Generated input ${manifest.inputFingerprint} differs from current ${expected.inputFingerprint}. The builder will refresh all builder-owned output.`
-          : `Generated input ${manifest.inputFingerprint} differs from current ${expected.inputFingerprint}. Run the scaffold compile command before trusting generated output.`,
-      });
-    if (
-      manifest !== null &&
-      Buffer.from(canonicalAutoMovieJsonBytes(manifest)).equals(
-        Buffer.from(canonicalAutoMovieJsonBytes(expected)),
-      ) === false
-    )
-      diagnostics.push({
-        code: "generated-manifest-stale",
-        category: repairDeclaredFiles ? "warning" : "error",
-        phase: "compile",
-        target: "generated-manifest",
-        path: generatedManifestPath,
-        message: repairDeclaredFiles
-          ? "The generated manifest does not exactly match builder-derived inventory, digests, identity, and provenance. The builder will replace it."
-          : "The generated manifest does not exactly match builder-derived inventory, digests, identity, and provenance. Run the scaffold compile command before trusting generated output.",
-      });
-    return diagnostics;
-  }
 }

@@ -15,20 +15,14 @@
  * at the last step of the render study that still reads as a face, each
  * `study` naming what the next step shows (`prepareValidEnvelopeBasis`).
  */
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceControlMap,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
 import {
   type IFaceValidLimit,
   prepareValidEnvelopeBasis,
 } from "./prepareValidEnvelopeBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
 /** Both sides of a paired control, or one control. */
 const both = (
@@ -134,6 +128,22 @@ const FIRST: IFaceValidLimit[] = [
 
 const LIMITS: Record<string, IFaceValidLimit[]> = {
   first: FIRST,
+  "tip-lip-order": [
+    {
+      channel: "noseDepth",
+      side: "minimum",
+      value: -0.5,
+      study:
+        "Measured at the midline from the skin and lip surfaces, the pronasale stands 6.2 mm in front of the upper lip's anterior surface at 0, 0.4 mm at -0.5, then 0.2 mm behind it at -0.55 and 5.2 mm behind it at -1, where the profile keeps a nub no living nose leaves behind its upper lip",
+    },
+    {
+      channel: "mouthForwardPosition",
+      side: "maximum",
+      value: 0.6,
+      study:
+        "Measured the same way, the pronasale stands 6.2 mm in front of the upper lip's anterior surface at 0, 0.1 mm at 0.6, then 0.9 mm behind it at 0.7 and 3.9 mm behind it at 1, where the upper lip stands ahead of the nasal tip",
+    },
+  ],
   "eye-elevation": both(
     "EyeElevation",
     "maximum",
@@ -154,62 +164,28 @@ if (
   throw new Error(
     `Supply the study directory, the new revision, a new output directory and a limit set (${Object.keys(LIMITS).join(", ")}).`,
   );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
 const prepared = prepareValidEnvelopeBasis({
-  basis: basis.json as IAutoMovieHumanFaceBasis,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  basis: basis.json,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   surface: "Human",
   contact: ["Human/lips"],
   step: 0.05,
   limits: LIMITS[set]!,
 });
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  recorded: new Date().toISOString(),
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
-  },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(
-    output,
+writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile:
     set === "first"
       ? "valid-envelope-receipt.json"
       : `valid-envelope-${set}-receipt.json`,
-  ),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  prepared,
+  inputs: { basis, subjects, controls },
+  recorded: new Date(),
+});
 console.log(
   prepared.receipt.limits
     .map(

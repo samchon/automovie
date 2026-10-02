@@ -21,7 +21,7 @@ import { pvCellTexture } from "../house/canopy-finish";
 import { observations } from "../house/observations";
 import { passageClearance } from "../house/passage-clearance";
 import { materialFrameQuestions } from "../materials/007-observation";
-import { makeTextureAssets } from "../materials/generate-textures.mjs";
+import { makeTextureAssets } from "../materials/generate-textures.cjs";
 import type { MaterialTextureScaleAudit } from "../materials/observation";
 import { instancePaletteReference } from "./instance-palette";
 

@@ -2,8 +2,9 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
  * Read-only browser observation protocol, shared by the page host and server.
- * Numerical document editing is absent. PNGs contain the GPU canvas alone:
- * local photographs and their paths never enter numerical cache persistence.
+ * Numerical document editing is absent. A PNG may contain a
+ * composed local photograph, but photographs and their paths never enter
+ * numerical cache persistence.
  *
  * @evidence contracts/common.md#principled-implementation The protocol separates display selection from numerical authoring and private reference resources.
  * @evidence contracts/common.md#clear-and-simple-design A single browser contract serves resident HTTP and human navigation.
@@ -27,9 +28,15 @@ export interface HumanViewerHandle {
   /** Actual numerical worker builds, excluding disk and GPU cache hits. */
   builds(): number;
 
+  /** Milliseconds the numerical worker took for the last build, zero before the first. */
+  buildMs(): number;
+
+  /** Page milliseconds per named stage of the last show, empty for a pure cache hit. */
+  spans(): Record<string, number>;
+
   /** Last committed display selection. */
   address(): HumanViewerAddress;
 
-  /** Finished raw canvas PNG, excluding local reference display layers. */
+  /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
   png(): string;
 }

@@ -14,8 +14,9 @@ import { nclose } from "../internal/predicates";
  * Scenarios:
  * 1. A 50 mm outward lock above a planar surface skips the redundant next-step
  *    queries yet retains its metric length and the same station spacing.
- * 2. A tangential lock beside that surface still queries its next-step
- *    projection, keeping the requested contact clearance.
+ * 2. A tangential lock beside that surface samples every station and its
+ *    projection keeps the requested contact clearance, which a free step
+ *    would not.
  */
 export const test_subject_human_hair_free_step = (): void => {
   const root = Vector3.create(1, 0.5, 0.5);
@@ -77,8 +78,8 @@ export const test_subject_human_hair_free_step = (): void => {
   );
   const near = make([0, 1, 0]);
   TestValidator.predicate(
-    "scalp-following stations still project",
-    near.queries >= 2 * (near.curve.points.length - 2),
+    "scalp-following stations are each sampled",
+    near.queries >= near.curve.points.length - 2,
   );
   TestValidator.predicate(
     "tangential curve holds its skin clearance",

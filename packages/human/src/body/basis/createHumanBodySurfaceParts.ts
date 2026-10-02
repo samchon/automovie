@@ -1,7 +1,7 @@
 /**
  * Compile the connected body's posed skin and its material-region output.
  * The original vertex identities stay shared through shape, dual-quaternion
- * skinning and optional gravity sag; normals are computed from the final
+ * skinning, optional rest-detail filtering and gravity sag; normals are computed from the final
  * Y-up, Z-forward metre positions before regions split UV or material seams.
  * The basis owns sag neighbourhoods once. The caller owns document-rest and
  * lean-shape evaluation so skin colour, veins and sag reuse the same basis.
@@ -52,7 +52,9 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored
     const restShape =
-      posed && basis.surfaces.some((surface) => surface.sag !== undefined)
+      posed && basis.surfaces.some(
+        (surface) => surface.sag !== undefined || surface.mush !== undefined,
+      )
         ? restAll()
         : null;
     const posedSurfaces: { positions: number[]; normals: number[] }[] = [];

@@ -48,8 +48,7 @@
     "viewer": "tsx src/viewer/server.cts",
     "self-check": "tsx src/review/self-check.cts",
     "test": "tsx --test src/review/tests/*.test.ts",
-    "audit": "node src/review/audit-all.cjs",
-    "review-audit": "node src/review/benchmark-audit.cjs"
+    "audit": "tsx src/review/audit-all.cts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

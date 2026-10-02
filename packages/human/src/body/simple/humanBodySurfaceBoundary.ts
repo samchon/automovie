@@ -11,6 +11,20 @@
  * immutable, and the simple tier reads the same neck ring at every sample of
  * every inversion, where walking the topology again cost more than the
  * shape it measures. Callers treat the result as read-only.
+ *
+ * @evidence contracts/common.md#principled-implementation An edge is on the open boundary when its reverse edge is absent, so the unmatched directed edges form the boundary, and following them from vertex to vertex yields ordered loops. The premise is a consistently wound surface: a repeated directed edge, a branched chain or an open chain is refused instead of producing a partial boundary. The cache is keyed by the index array's identity, which holds because an admitted basis is immutable.
+ * @evidence contracts/common.md#clear-and-simple-design One function reads the topology once and serves both the flat vertex set and the ordered loops from the same cached walk.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No height, plane or vertex is remembered or special-cased, and the cached result is shared read-only instead of recomputed per consumer.
+ * @evidence contracts/common.md#meaningful-documentation States what the boundary is on the body basis, why it comes from topology, the ordered-loop option, the refusals and the shared read-only cache.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group; it reads the opening of one given surface.
+ * @evidenceExclude contracts/modeling.md#parameter-channels It defines and consumes no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits vertex indices of an existing surface and no geometry.
+ * @evidenceExclude contracts/modeling.md#spatial-conventions It carries vertex indices only, with no unit or frame.
+ * @evidence contracts/modeling.md#shared-boundaries The clip height rule and the volume cap both read the neck ring from this one topological definition instead of a remembered plane, so the two readings cannot disagree about where the opening is. It only identifies the boundary and promises no normal continuity, and it refuses any surface whose opening is not separate loops.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It admits or bounds no anatomical quantity.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input through which a caller shapes a body.
  */
 export function humanBodySurfaceBoundary(indices: number[]): number[];
 export function humanBodySurfaceBoundary(

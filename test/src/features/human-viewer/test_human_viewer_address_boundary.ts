@@ -6,7 +6,9 @@ import { parseHumanViewerAddress } from "../../../scripts/human-viewer/parseHuma
  * Exact protocol limits remain admitted beside their refused neighbours.
  * Scenarios:
  * 1. Both size and opacity bounds and a positive tiny frame radius are admitted.
- * 2. Every existing observation direction and pass and local reference mode is admitted.
+ * 2. Pitch admits both exact limits, refuses beyond them (see the refusal
+ *    scenario), and is omitted from the encoding at its zero default.
+ * 3. Every existing observation direction and pass and local reference mode is admitted.
  */
 export function test_human_viewer_address_boundary(): void {
   TestValidator.equals(
@@ -22,6 +24,14 @@ export function test_human_viewer_address_boundary(): void {
   TestValidator.predicate(
     "positive radius",
     parseHumanViewerAddress("frame=0,0,0,0.000001").frame !== null,
+  );
+  TestValidator.equals(
+    "pitch limits",
+    [
+      parseHumanViewerAddress("pitch=89").pitch,
+      parseHumanViewerAddress("pitch=-89").pitch,
+    ],
+    [89, -89],
   );
   for (const view of [
     "front",

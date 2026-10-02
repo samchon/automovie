@@ -4,139 +4,171 @@
  * Vite transforms working-tree source; one real Chromium page serializes
  * capture requests. Numerical disk payloads and PID ownership live under the
  * ignored .shots tree. The host never edits documents or anatomical source.
- * HTTP failures include a cause and never return an earlier revision's PNG.
+ * Last-good PNGs retain their source identity; HTTP failures include a cause.
  */
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { gzipSync } from "node:zlib";
 import { type Page, chromium } from "playwright";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
 
-import { judgeViewerRenderer } from "../viewer/judgeViewerRenderer";
+import { HumanViewerStartingError } from "./HumanViewerStartingError";
+import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
+import { forHumanViewerComparison } from "./forHumanViewerComparison";
+import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import type { IHumanViewerPhases } from "./IHumanViewerPhases";
+import { judgeViewerRenderer } from "./judgeViewerRenderer";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
-import { encodeHumanViewerPreview } from "./encodeHumanViewerPreview";
+import { createHumanViewerQueue } from "./createHumanViewerQueue";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
+import { humanViewerThumbnailFile } from "./humanViewerThumbnailFile";
+import { openHumanViewerHref } from "./openHumanViewerHref";
 import { planHumanViewerSheet } from "./planHumanViewerSheet";
-import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
+import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
 import { renderHumanViewerSheet } from "./renderHumanViewerSheet.mjs";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { serveHumanViewerData } from "./serveHumanViewerData.mjs";
+import { warmHumanViewerDocuments } from "./warmHumanViewerDocuments";
+import { publishedHumanViewerWarmDocuments } from "./publishedHumanViewerWarmDocuments";
+import { readHumanViewerWork } from "./readHumanViewerWork";
+import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
+import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationStatus";
+import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
+import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
+import { describeHumanViewerCapture } from "./describeHumanViewerCapture";
+import { describeHumanViewerPass } from "./describeHumanViewerPass";
+import { humanViewerQueuePosition } from "./humanViewerQueuePosition";
+import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailStore";
+import { createNodeHumanViewerThumbnailDisk } from "./createNodeHumanViewerThumbnailDisk";
+import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
+import { retryAcrossHumanViewerGeneration } from "./retryAcrossHumanViewerGeneration";
+import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(directory, "../../..");
-const storage = path.join(root, ".shots/human-viewer");
-const basisFiles = {
-  face: path.join(
-    root,
-    "test/studies/human-face/connected-basis/global-face/basis.json.gz",
-  ),
-  body: path.join(
-    root,
-    "test/studies/human-body/connected-basis/basis.json.gz",
-  ),
-};
-const documentsFile = path.join(
-  root,
-  "test/studies/human-face/connected-basis/global-face/subjects.json",
-);
-const hash = (bytes: string | Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const sourceFiles = new Map<string, string>();
-const sourceRoots = [
-  "human",
-  "engine",
-  "interface",
-  "viewer",
-  "playground",
-].map((name) => path.join(root, "packages", name, "src"));
-sourceRoots.push(directory);
-function collect(directory: string): void {
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) collect(file);
-    else if (/\.(ts|mts|cts|json|html|wasm)$/.test(file))
-      sourceFiles.set(file, hash(fs.readFileSync(file)));
-  }
-}
-for (const source of sourceRoots) collect(source);
-for (const file of [
-  "pnpm-lock.yaml",
-  "config/tsconfig.json",
-  "packages/human/tsconfig.json",
-  "packages/human/package.json",
-  "test/package.json",
-  "test/scripts/body-review/standardBodyReviewDocuments.ts",
-  "test/scripts/face-review/faceShapeFitCamera.ts",
-  "test/scripts/face-review/faceLikenessFraming.ts",
-  ...Object.values(basisFiles).map((file) => path.relative(root, file)),
-  path.relative(root, documentsFile),
-])
-  sourceFiles.set(
-    path.join(root, file),
-    hash(fs.readFileSync(path.join(root, file))),
-  );
-const revision = (): string =>
-  hash(
-    [...sourceFiles]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([file, digest]) => path.relative(root, file) + ":" + digest)
-      .join("\n"),
-  );
-const catalogue = () =>
-  readHumanViewerCatalogue({ basisFiles, documentsFile, source: revision() });
+const source = createHumanViewerSource(directory);
+const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } = source;
 let inventory = catalogue();
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
 let readyRevision = "";
 let sourceUpdating = false;
-let queue: Promise<void> = Promise.resolve();
-const serial = <T,>(task: () => Promise<T>): Promise<T> => {
-  const next = queue.then(task);
-  queue = next.then(() => {}).catch(() => {});
-  return next;
-};
+let work: ReturnType<typeof readHumanViewerWork> = null;
+const lifetime = createHumanViewerCaptureLifetime();
+// Edits arrive in bursts, so a revision warms only after sixty quiet seconds.
+const warmReadiness = createHumanViewerWarmReadiness((revision) => { void warm(revision); },
+  { stableMs: 60000 });
+/** Requests allowed to wait behind the running one before a new one is refused. */
+const QUEUE_LIMIT = 12;
+const queue = createHumanViewerQueue({
+  limit: QUEUE_LIMIT,
+  patience: 3,
+  now: () => performance.now(),
+  // Background warming starts only when no modeler has asked for a minute.
+  quietMs: 60000,
+});
+/** The last edit that reached a build, and the edit still waiting for its first frame. */
+let lastEdit: { files: string[]; at: string; moved: string[] } | null = null;
+let pendingEditAt: number | null = null;
+let phases: IHumanViewerPhases = {};
+let lastRender: {
+  doc: string;
+  ms: number;
+  build: "cache" | "built";
+  sinceEditMs: number | null;
+  phases: IHumanViewerPhases;
+} | null = null;
+const lastBuild: Record<string, { doc: string; ms: number } | undefined> = {};
+/** Every numerical build this server saw, by document, so a saving can be measured. */
+const builds: Record<string, { ms: number; ao: boolean; at: string }> = {};
+const warming = { revision: "", total: 0, done: 0, skipped: 0,
+  failures: [] as { id: string; reason: string }[], current: null as string | null };
+/** What the compile process last reported, read from the file it writes. */
+const sourceStatus = () => readHumanViewerCompilationStatus(() =>
+  fs.readFileSync(path.join(storage, "source-status.json"), "utf8"));
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
-  if (sourceUpdating) throw new Error("Source revision is being prepared");
+  if (renderer.trim() === "")
+    throw new HumanViewerStartingError("The viewer is starting, retry");
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("A real GPU is required: " + renderer);
-  if (errors.length !== 0)
-    throw new Error("Source transformation failed: " + errors.join("; "));
-  const selectedRevision = inventory.revision;
-  await page.waitForFunction(
-    () =>
-      Boolean((window as unknown as { __humanViewer?: unknown }).__humanViewer),
-    undefined,
-    { timeout: 120000 },
-  );
-  // Passing the viewer explicitly avoids serializing a closure into the page.
-  const result = await page.evaluate(
-    async (input) => {
-      const viewer = (
-        window as unknown as {
-          __humanViewer: {
-            show: (address: HumanViewerAddress) => Promise<void>;
-            png: () => string;
-            revision: () => string;
-          };
-        }
-      ).__humanViewer;
-      if (viewer.revision() !== input.revision)
-        throw new Error("The source revision has not finished loading");
-      await viewer.show(input.address);
-      return viewer.png();
-    },
-    { address, revision: selectedRevision },
-  );
-  if (sourceUpdating || inventory.revision !== selectedRevision)
+  // A broken working tree never stops the last good build from being drawn:
+  // the frame says which build it came from and the source error stands beside it.
+  const selectedRevision = readyRevision === "" ? inventory.revision : readyRevision;
+  const started = performance.now();
+  const result = await lifetime.run(() => readHumanViewerCapture(page, address, selectedRevision));
+  const waited = result.waited;
+  if (readyRevision !== selectedRevision)
     throw new Error(
       "Source changed during capture; the mixed revision was discarded",
     );
-  return Buffer.from(result.split(",")[1], "base64");
+  const decoded = performance.now();
+  const bytes = Buffer.from(result.png.split(",")[1], "base64");
+  const reading = describeHumanViewerCapture({
+    doc: address.doc, ao: address.ao, built: result.built, buildMs: result.buildMs,
+    showMs: result.showMs, pngMs: result.pngMs, spans: result.spans, started, waited, decoded,
+    finished: performance.now(), wallTime: Date.now(), pendingEditAt,
+  });
+  phases = reading.phases;
+  const domain = inventory.documents.find((entry) => entry.id === address.doc)?.domain;
+  if (reading.lastBuild !== null && reading.build !== null && domain !== undefined) {
+    lastBuild[domain] = reading.lastBuild;
+    builds[address.doc] = reading.build;
+  }
+  lastRender = reading.lastRender;
+  pendingEditAt = null;
+  return bytes;
+}
+/** Wait until the page has a ready generation again, at most thirty seconds. */
+const settleGeneration = (): Promise<void> => waitForHumanViewerGeneration(
+  () => readyRevision !== "" && !sourceUpdating,
+  (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }));
+const thumbnails = createHumanViewerThumbnailStore(createNodeHumanViewerThumbnailDisk(fs, path.join),
+  path.join(storage, "thumbnails"), path.join);
+/** Stream a stored PNG with its provenance headers. */
+function sendPng(response: ServerResponse, file: string, headers: Record<string, string>): void {
+  response.setHeader("Content-Type", "image/png");
+  for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
+  fs.createReadStream(file).pipe(response);
+}
+const pruneThumbnails = (): void => thumbnails.prune(inventory.revision);
+const thumbnailFile = (search: string): string | null =>
+  humanViewerThumbnailFile(search, storage, inventory);
+/**
+ * Build every published document that has no numerical result on disk yet, at
+ * the lowest priority, so the first person or script to ask for one finds it
+ * built. Each document is its own queue entry: a request in a higher lane
+ * starts as soon as the one running finishes. A new source revision ends the
+ * pass, which the page reload restarts.
+ */
+async function writeThumbnail(file: string, png: Buffer): Promise<void> {
+  await fs.promises.mkdir(path.dirname(file), { recursive: true });
+  await fs.promises.writeFile(file + ".tmp", png);
+  await fs.promises.rename(file + ".tmp", file);
+}
+async function warm(revision: string): Promise<void> {
+  const thumbnail = (id: string): string =>
+    openHumanViewerHref(id).thumbnail.slice("/render?".length);
+  await warmHumanViewerDocuments({
+    revision,
+    documents: publishedHumanViewerWarmDocuments(inventory.documents),
+    currentRevision: () => readyRevision,
+    cached: (id) => {
+      const file = thumbnailFile(thumbnail(id));
+      return file === null || fs.existsSync(file);
+    },
+    capture: async (id) => {
+      const search = thumbnail(id);
+      const png = await capture(parseHumanViewerAddress(search));
+      const file = thumbnailFile(search);
+      if (file !== null) await writeThumbnail(file, png);
+    },
+    queue: (id, run) => queue.run("warm " + id, run, "bulk"),
+    status: warming,
+  });
 }
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
@@ -156,146 +188,97 @@ async function main(): Promise<void> {
         pid: process.pid,
         revision: inventory.revision,
         renderer,
-        ready:
-          !sourceUpdating &&
-          readyRevision === inventory.revision &&
-          errors.length === 0,
+        // A ready server can draw. It may be drawing the last good build
+        // while the newest source fails: `serving` and `sourceError` say so.
+        ready: readyRevision !== "" && renderer !== "",
+        serving: {
+          revision: readyRevision,
+          current: inventory.revision,
+          stale: readyRevision !== inventory.revision,
+          goodAt: sourceStatus().goodAt,
+        },
+        sourceError: sourceStatus().error ?? errors[errors.length - 1] ?? null,
+        compilation: sourceStatus(),
         errors,
+        sourceUpdating,
+        work,
+        revisions: revisions.current(),
+        queue: { limit: QUEUE_LIMIT, ...queue.status() },
+        lastEdit,
+        lastRender,
+        lastBuild,
+        builds,
+        warm: warming,
+        uptimeMs: Math.round(process.uptime() * 1000),
       });
-    if (url.pathname === "/docs") return json(inventory);
-    if (url.pathname === "/reference-info" || url.pathname === "/reference") {
-      const id = (url.searchParams.get("doc") ?? "").replace(/-connected$/, "");
-      const directory = path.join(storage, "references");
-      const filename = fs.existsSync(directory)
-        ? fs
-            .readdirSync(directory)
-            .find(
-              (name) =>
-                path.parse(name).name === id &&
-                /\.(png|jpg|jpeg|webp)$/i.test(name),
-            )
-        : undefined;
-      if (url.pathname === "/reference-info") {
-        const poses = JSON.parse(
-          fs.readFileSync(
-            path.join(
-              root,
-              "test/studies/human-face/connected-basis/global-face/population/poses-lens-frame.json",
-            ),
-            "utf8",
-          ),
-        );
-        const landmarksFile = path.join(directory, "landmarks.json");
-        const landmarks = fs.existsSync(landmarksFile)
-          ? JSON.parse(fs.readFileSync(landmarksFile, "utf8"))[id]
-          : undefined;
-        return json({
-          available: filename !== undefined,
-          camera: filename === undefined ? null : (poses[id] ?? null),
-          landmarks: landmarks ?? [],
-        });
-      }
-      if (filename === undefined) {
-        response.statusCode = 404;
-        response.end();
-        return;
-      }
-      response.setHeader("Cache-Control", "no-store");
-      response.setHeader(
-        "Content-Type",
-        filename.endsWith(".png")
-          ? "image/png"
-          : filename.endsWith(".webp")
-            ? "image/webp"
-            : "image/jpeg",
-      );
-      fs.createReadStream(path.join(directory, filename)).pipe(response);
-      return;
-    }
-    if (url.pathname.startsWith("/basis/")) {
-      const domain = url.pathname.slice(7);
-      if (domain !== "face" && domain !== "body") {
-        response.statusCode = 404;
-        response.end();
-        return;
-      }
-      response.setHeader("Content-Type", "application/gzip");
-      fs.createReadStream(basisFiles[domain]).pipe(response);
-      return;
-    }
-    if (url.pathname.startsWith("/cache/")) {
-      const key = url.pathname.slice(7);
-      if (
-        !inventory.documents.some(
-          (document) =>
-            key === document.key + "-direct" || key === document.key + "-ao",
-        )
-      ) {
-        response.statusCode = 409;
-        return json({ error: "Unknown or stale numerical cache identity" });
-      }
-      const file = path.join(storage, "cache", key + ".json.gz");
-      if (request.method === "PUT") {
-        const chunks: Buffer[] = [];
-        request.on("data", (chunk: Buffer) => chunks.push(chunk));
-        request.on("end", () => {
-          try {
-            const bytes = Buffer.concat(chunks);
-            const payload = JSON.parse(bytes.toString("utf8"));
-            if (payload.operation !== "preview" || payload.model === undefined)
-              throw new Error("Expected numerical preview");
-            fs.writeFileSync(
-              file + ".tmp",
-              gzipSync(encodeHumanViewerPreview(payload)),
-            );
-            fs.renameSync(file + ".tmp", file);
-            response.statusCode = 204;
-            response.end();
-          } catch {
-            response.statusCode = 400;
-            json({ error: "Invalid numerical cache payload" });
-          }
-        });
-        return;
-      }
-      if (request.method !== "GET") {
-        response.statusCode = 405;
-        response.end();
-        return;
-      }
-      if (!fs.existsSync(file)) {
-        response.statusCode = 404;
-        response.end();
-        return;
-      }
-      response.setHeader("Content-Type", "application/json");
-      response.setHeader("Content-Encoding", "gzip");
-      fs.createReadStream(file).pipe(response);
-      return;
-    }
+    if (serveHumanViewerData({ url, request, response, root, storage,
+      basisFiles, inputsDirectory, inventory, catalogue, json,
+      publish: (nextInventory) => { inventory = nextInventory; },
+    })) return;
     if (
       ["/render", "/parts", "/sheet", "/compare", "/warm"].includes(
         url.pathname,
       )
     ) {
       const start = performance.now();
-      void serial(async () => {
+      const lane = url.searchParams.get("lane") ?? (url.pathname === "/warm" ? "bulk" : "cli");
+      if (lane !== "ui" && lane !== "cli" && lane !== "bulk") {
+        response.statusCode = 422;
+        return json({ error: "lane must be ui, cli or bulk" });
+      }
+      // A misspelled document fails here, not after a wait in the queue.
+      for (const name of ["doc", "against"]) {
+        const wanted = url.searchParams.get(name);
+        if (
+          wanted !== null &&
+          url.searchParams.get("axes") === null &&
+          !inventory.documents.some((entry) => entry.id === wanted)
+        ) {
+          response.statusCode = 422;
+          return json({
+            error: `Unknown document ${wanted}; ${inventory.documents.length} are published, see /docs`,
+          });
+        }
+      }
+      if (url.pathname === "/render" && lane === "bulk") {
+        const file = thumbnailFile(url.search);
+        if (file !== null && fs.existsSync(file))
+          return sendPng(response, file, { "X-Human-Build": "thumbnail-cache",
+            "X-Human-Revision": inventory.revision, "X-Human-Stale": "false" });
+        // The new revision has not drawn it yet: show the last good picture, dimmed.
+        const older = file === null ? null : thumbnails.stale(file, inventory.revision);
+        if (older !== null)
+          return sendPng(response, older, { "X-Human-Build": "thumbnail-stale", "X-Human-Stale": "true" });
+      }
+      const received = performance.now();
+      const ahead = humanViewerQueuePosition(queue.status(), lane);
+      let settledMs = 0;
+      void queue.run(url.pathname + url.search, () => retryAcrossHumanViewerGeneration(async () => {
+        const queued = performance.now() - received;
         const fields = new URLSearchParams(url.search);
+        fields.delete("lane");
         const axes = fields.get("axes");
         fields.delete("axes");
         const against = fields.get("against");
         fields.delete("against");
         if (url.pathname === "/sheet" && !fields.has("size"))
           fields.set("size", "320");
+        applyHumanViewerPose(fields, (file) =>
+          fs.readFileSync(
+            path.join(root, "test/studies/human-face/connected-basis/global-face/population", file + ".json"),
+            "utf8",
+          ),
+        );
         const address = parseHumanViewerAddress(fields.toString());
-        const selectedRevision = inventory.revision;
+        const selectedRevision =
+          readyRevision === "" ? inventory.revision : readyRevision;
         let png: Buffer;
         if (url.pathname === "/sheet") {
           if (axes === null) throw new Error("A sheet requires review axes");
           png = await renderHumanViewerSheet({
             page,
             capture,
-            revision: () => inventory.revision,
+            revision: () => readyRevision,
             cells: planHumanViewerSheet(
               address,
               axes,
@@ -315,9 +298,9 @@ async function main(): Promise<void> {
         } else if (url.pathname === "/compare") {
           if (against === null)
             throw new Error("A comparison requires an against document");
-          const first = PNG.sync.read(await capture(address));
+          const first = PNG.sync.read(await capture(forHumanViewerComparison(address, address.doc)));
           const second = PNG.sync.read(
-            await capture({ ...address, doc: against }),
+            await capture(forHumanViewerComparison(address, against)),
           );
           const compared = composeHumanViewerPixels(
             first.width,
@@ -332,14 +315,20 @@ async function main(): Promise<void> {
           composed.data.set(compared.data);
           png = PNG.sync.write(composed);
         } else png = await capture(address);
-        if (inventory.revision !== selectedRevision)
+        if (readyRevision !== selectedRevision)
           throw new Error("Source changed during request");
         response.setHeader("X-Human-Revision", selectedRevision);
+        response.setHeader("X-Human-Stale", String(selectedRevision !== inventory.revision));
         response.setHeader(
           "X-Viewer-Address",
           serializeHumanViewerAddress(address),
         );
         response.setHeader("X-Renderer", renderer);
+        // Time spent behind other requests and waiting out a source rebuild.
+        response.setHeader("X-Human-Queue-Position", String(ahead));
+        response.setHeader("X-Human-Waited-Ms", String(Math.round(queued + settledMs)));
+        response.setHeader("X-Pass-Reading", describeHumanViewerPass(address.pass));
+        response.setHeader("X-Human-Build", lastRender?.build ?? "unknown");
         response.setHeader(
           "X-Render-Ms",
           (performance.now() - start).toFixed(1),
@@ -358,11 +347,40 @@ async function main(): Promise<void> {
             })),
           );
         }
+        if (url.pathname === "/render" && lane === "bulk" && selectedRevision === inventory.revision) {
+          const file = thumbnailFile(url.search);
+          if (file !== null) await writeThumbnail(file, png);
+        }
+        const before = performance.now();
         response.setHeader("Content-Type", "image/png");
         response.end(png);
-      }).catch((error: unknown) => {
-        response.statusCode = 422;
-        json({ error: error instanceof Error ? error.message : String(error) });
+        phases = {
+          ...phases,
+          queueMs: queued,
+          responseMs: performance.now() - before,
+          totalMs: performance.now() - received,
+        };
+        if (lastRender !== null) lastRender.phases = phases;
+        console.log(
+          "REQUEST",
+          url.pathname,
+          address.doc,
+          JSON.stringify(
+            Object.fromEntries(
+              Object.entries(phases).filter((entry): entry is [string, number] => typeof entry[1] === "number").map(([key, value]) => [key, Math.round(value)]),
+            ),
+          ),
+        );
+      }, { settle: async () => {
+        const began = performance.now();
+        await settleGeneration();
+        settledMs += performance.now() - began;
+      }, attempts: 4 }), lane).catch((error: unknown) => {
+        const refusal = classifyHumanViewerRefusal(error);
+        response.statusCode = refusal.status;
+        if (refusal.retryAfter !== null)
+          response.setHeader("Retry-After", String(refusal.retryAfter));
+        json({ error: describeHumanViewerFailure(error instanceof Error ? error.message : String(error)) });
       });
       return;
     }
@@ -390,15 +408,34 @@ async function main(): Promise<void> {
     viewport: { width: 1160, height: 930 },
     deviceScaleFactor: 1,
   });
+  const failed = (cause: string): void => {
+    errors = [cause];
+    readyRevision = "";
+    lifetime.fail(new Error(cause));
+  };
+  page.on("crash", () => failed("Resident GPU page crashed"));
+  page.on("close", () => failed("Resident GPU page closed"));
+  browser.on("disconnected", () => failed("Resident GPU browser disconnected"));
   page.on("pageerror", (error) => {
     errors.push(error.message);
     console.error(error.message);
   });
   page.on("console", (message) => {
-    if (message.text().startsWith("HUMAN_READY "))
+    if (message.text().startsWith("HUMAN_WORK ")) {
+      work = readHumanViewerWork(message.text().slice(11));
+      return;
+    }
+    if (message.text().startsWith("HUMAN_ERROR ")) {
+      errors = [message.text().slice(12)];
+      return;
+    }
+    if (message.text().startsWith("HUMAN_READY ")) {
+      errors = [];
       readyRevision = message.text().slice(12);
+      warmReadiness.source(readyRevision);
+    }
   });
-  await page.goto("http://127.0.0.1:5175/view#ao=off", {
+  await page.goto("http://127.0.0.1:5175/view?resident=1#ao=off", {
     timeout: 600000,
     waitUntil: "domcontentloaded",
   });
@@ -416,6 +453,8 @@ async function main(): Promise<void> {
   console.log("RENDERER", renderer);
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("Software renderer refused");
+  pruneThumbnails();
+  warmReadiness.hardware();
   fs.writeFileSync(
     path.join(storage, "server.json"),
     JSON.stringify({
@@ -424,52 +463,26 @@ async function main(): Promise<void> {
       port: 5175,
     }),
   );
-  vite.watcher.add([
-    ...sourceRoots,
-    ...sourceFiles.keys(),
-    ...Object.values(basisFiles),
-    documentsFile,
-  ]);
-  let reload: ReturnType<typeof setTimeout> | undefined;
-  const changed = new Set<string>();
-  vite.watcher.on("all", (_event, input: string) => {
-    const file = path.resolve(input);
-    const ownedSource =
-      sourceRoots.some((directory) => file.startsWith(directory + path.sep)) &&
-      /\.(ts|mts|cts|json|html|wasm)$/.test(file);
-    if (
-      !ownedSource &&
-      !sourceFiles.has(file) &&
-      !Object.values(basisFiles).includes(file) &&
-      file !== documentsFile
-    )
-      return;
-    sourceUpdating = true;
-    changed.add(file);
-    if (reload !== undefined) clearTimeout(reload);
-    reload = setTimeout(() => {
-      errors = [];
-      readyRevision = "";
-      try {
-        for (const changedFile of changed) {
-          if (fs.existsSync(changedFile))
-            sourceFiles.set(changedFile, hash(fs.readFileSync(changedFile)));
-          else sourceFiles.delete(changedFile);
-        }
-        changed.clear();
-        inventory = catalogue();
-        sourceUpdating = false;
-        vite.ws.send({
-          type: "custom",
-          event: "human:revision",
-          data: { revision: inventory.revision },
-        });
-      } catch (error) {
-        errors.push(error instanceof Error ? error.message : String(error));
-      }
-    }, 100);
+  fs.mkdirSync(inputsDirectory, { recursive: true });
+  const stopSources = subscribeHumanViewerSources({
+    source,
+    add: (files) => vite.watcher.add(files),
+    watch: (changed) => { vite.watcher.on("all", changed); },
+    inputs: () => { inventory = catalogue(); },
+    updating: (value) => { sourceUpdating = value; },
+    publish: (files, moved) => {
+      lastEdit = { files: files.map((file) => path.relative(root, file)),
+        at: new Date().toISOString(), moved };
+      pendingEditAt = Date.now();
+      inventory = catalogue();
+      pruneThumbnails();
+    },
+    browser: () => vite.ws.send({ type: "custom", event: "human:revision",
+      data: { revision: inventory.revision } }),
+    error: (error) => errors.push(error instanceof Error ? error.message : String(error)),
   });
   const close = async (): Promise<void> => {
+    stopSources();
     await browser.close();
     await vite.close();
     fs.rmSync(path.join(storage, "server.json"), { force: true });

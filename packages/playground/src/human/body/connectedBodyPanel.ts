@@ -26,6 +26,7 @@ import { bodyAnatomyReading } from "./bodyAnatomyReading";
 import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
 import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
+import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
@@ -118,22 +119,7 @@ export function mountConnectedBodyPanel<
       (scale) => [scale.id, scale],
     ),
   );
-  const groups = [
-    ...new Set(
-      props.basis.channels
-        .filter((channel) => {
-          const measurement = scales.get(channel.id)?.measurement;
-          return (
-            measurement !== null &&
-            measurement !== undefined &&
-            measurement.neutral !== null &&
-            measurement.positive !== null &&
-            (channel.negative === null || measurement.negative !== null)
-          );
-        })
-        .map((channel) => channel.group),
-    ),
-  ];
+  const groups = bodyMeasuredGroups(props.basis.channels, scales);
   app.innerHTML = connectedBodyPanelMarkup(groups);
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;

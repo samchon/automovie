@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { imbrexFootMargin, pinPlateRadialMargin, ridgeFootGap, ridgeSectionAt, rollSheetGap, strapBattenVerticalMargin } from "../model-contact-math.mjs";
+import { imbrexFootMargin } from "../imbrexFootMargin.mjs";
+import { pinPlateRadialMargin } from "../pinPlateRadialMargin.mjs";
+import { ridgeFootGap } from "../ridgeFootGap.mjs";
+import { ridgeSectionAt } from "../ridgeSectionAt.mjs";
+import { rollSheetGap } from "../rollSheetGap.mjs";
+import { strapBattenVerticalMargin } from "../strapBattenVerticalMargin.mjs";
 
 const openingSource = readFileSync(join(__dirname, "../../../docs/models/openings.md"), "utf8");
 const tileSource = readFileSync(join(__dirname, "../../../docs/models/cladding.md"), "utf8");

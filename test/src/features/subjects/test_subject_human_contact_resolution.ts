@@ -21,8 +21,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. With the crown left open, a corner whose nearest feature is the rim at
  *    rest or when posed is left alone.
  * 5. A crown covered by 0.01 of tissue stops the pressed corner, which rested
- *    farther out, 0.01 off its face; a cover beyond the corner's rest
- *    clearance returns it to that clearance.
+ *    farther out, 0.01 off its face. A cover beyond its rest clearance asks
+ *    for the capped rest floor, but the first lower-crown normal candidate
+ *    approaches the upper crown and violates that original signed floor.
+ *    The consumer refuses this unverified candidate rather than publishing
+ *    a clearance inferred only from the lower crown's infinite face plane.
  */
 export const test_subject_human_contact_resolution = (): void => {
   const { basis, document } = humanFaceContactFixture();
@@ -175,9 +178,17 @@ export const test_subject_human_contact_resolution = (): void => {
       nclose(distance(thin), 0.01) &&
       nclose(last!.resolved[0].maxDepthMetres, depth + 0.01),
   );
-  const thick = coverWith(1);
+  const step = (clearance + depth) / Math.sqrt(3);
+  const candidate = [0.05 + step, -0.25 + step, 1.05 + step];
+  // The upper octahedron's edge contains (0.1,0.3,1.1). Distance to this
+  // actual collider point bounds the nearest surface distance from above.
+  const upperDistance = Math.hypot(candidate[0] - 0.1, candidate[1] - 0.3, candidate[2] - 1.1);
   TestValidator.predicate(
-    "a cover past the rest clearance keeps the rest clearance",
-    nclose(distance(thick), clearance),
+    "the lower-crown plane candidate cannot satisfy the original combined crown floor",
+    upperDistance < clearance && nclose(clearance - upperDistance, 0.06053475940191472, 1e-12),
+  );
+  TestValidator.predicate(
+    "a cover past rest clearance refuses an unverified combined-crown candidate",
+    throwsError(() => coverWith(1), ["mouth", "original contact floor", "vertex 4", "60.53 mm"]),
   );
 };

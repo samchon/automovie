@@ -11,19 +11,15 @@
  * reference interval is the union of each population's mean plus and minus
  * two standard deviations (`prepareLipEnvelopeBasis`).
  */
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceControlMap,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
-
-import { prepareLipEnvelopeBasis } from "./prepareLipEnvelopeBasis";
-
 /** ls-sto, sto-li and ch-ch as [mean, SD] in millimetres. */
+;
+
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
+import { prepareLipEnvelopeBasis } from "./prepareLipEnvelopeBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
+
 const NORMS: Record<
   string,
   { upper: [number, number]; lower: [number, number]; width: [number, number] }
@@ -65,25 +61,10 @@ const NORMS: Record<
   },
 };
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
 // Each population's ratio with its standard deviation, and the union of
 // the two-deviation intervals.
 const ratios = Object.entries(NORMS).map(([population, one]) => {
@@ -99,13 +80,11 @@ const interval = (measure: "upper" | "lower"): [number, number] => [
   Math.min(...ratios.map((one) => one[measure].mean - 2 * one[measure].spread)),
   Math.max(...ratios.map((one) => one[measure].mean + 2 * one[measure].spread)),
 ];
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
 const prepared = prepareLipEnvelopeBasis({
-  basis: basis.json as IAutoMovieHumanFaceBasis,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  basis: basis.json,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   surface: "Human",
   lips: "Human/lips",
@@ -116,46 +95,27 @@ const prepared = prepareLipEnvelopeBasis({
   step: 0.05,
   reach: 3,
 });
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
+writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "lip-envelope-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    populations: ratios,
+    citations: {
+      european:
+        "Wong/Weinberg et al., 3D Facial Norms compared with Farkas (PMC6571015), supplementary tables S17 (ch-ch), S22 (ls-sto) and S23 (sto-li): 3dMD, ages 19 to 25, 320 men and 575 women.",
+      kenyan:
+        "Virdi SS, Wertheim D, Naini FB, Maxillofac Plast Reconstr Surg 2019;41:9 (PMC6384287): direct anthropometry, Nairobi university sample aged 18 to 30, 36 men and 36 women; African-American means (Farkas, Katic and Forrest 2007) agree but carry no deviations.",
+      chinese:
+        "Jayaratne YSN et al., 3dMD, Hong Kong Chinese aged 18 to 35, 51 men and 52 women.",
+      korean:
+        "Kwon SH et al., Ann Dermatol 2021;33:52-60 (PMC7875215): 3D, Korean women aged 20 to 39, 48.",
+      excluded:
+        "Samples chosen for attractiveness, facial harmony or occlusion, orthodontic and surgical patients.",
+    },
+  },
+  recorded: new Date(),
 });
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  recorded: new Date().toISOString(),
-  populations: ratios,
-  citations: {
-    european:
-      "Wong/Weinberg et al., 3D Facial Norms compared with Farkas (PMC6571015), supplementary tables S17 (ch-ch), S22 (ls-sto) and S23 (sto-li): 3dMD, ages 19 to 25, 320 men and 575 women.",
-    kenyan:
-      "Virdi SS, Wertheim D, Naini FB, Maxillofac Plast Reconstr Surg 2019;41:9 (PMC6384287): direct anthropometry, Nairobi university sample aged 18 to 30, 36 men and 36 women; African-American means (Farkas, Katic and Forrest 2007) agree but carry no deviations.",
-    chinese:
-      "Jayaratne YSN et al., 3dMD, Hong Kong Chinese aged 18 to 35, 51 men and 52 women.",
-    korean:
-      "Kwon SH et al., Ann Dermatol 2021;33:52-60 (PMC7875215): 3D, Korean women aged 20 to 39, 48.",
-    excluded:
-      "Samples chosen for attractiveness, facial harmony or occlusion, orthodontic and surgical patients.",
-  },
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
-  },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "lip-envelope-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
 console.log(JSON.stringify(prepared.receipt, null, 2));

@@ -16,5 +16,7 @@ export * from "./portraitLipTriangles";
 export * from "./posePortraitJawPoint";
 export * from "./preparePortraitMouth";
 export * from "./preparePortraitOralLining";
+export * from "./resolvePortraitOralContact";
+export * from "./retreatPortraitEnamel";
 export * from "./structures";
 export * from "./tracePortraitOralBoundary";

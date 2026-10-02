@@ -1,4 +1,5 @@
 export * from "./evaluateHumanBodyMeasurement";
+export * from "./indexHumanBodySectionTriangles";
 export * from "./invertHumanBodyMeasurement";
 export * from "./measureHumanBodyBasisChannels";
 export * from "./measureHumanBodySection";

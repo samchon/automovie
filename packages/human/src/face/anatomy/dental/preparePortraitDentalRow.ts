@@ -1,13 +1,11 @@
-import {
-  mergeAutoMovieMeshes,
-  separateAutoMovieMeshSequence,
-} from "@automovie/engine";
+import { mergeAutoMovieMeshes } from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { createPortraitDentalArc } from "./createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "./preparePortraitDentalCrown";
+import { separatePortraitDentalCrowns } from "./separatePortraitDentalCrowns";
 import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
 
 /**
@@ -16,8 +14,18 @@ import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * arc length establishes nominal crown centres. The same tangent rotates each crown's
  * positions and normals, while all cervical ends share the group's Y=0 plane.
  * Neither a lip landmark's height nor an individual ray hit can tilt one tooth.
+ * Nominal arc spacing cannot keep rotated proximal faces apart, so the intact
+ * crowns are then shifted along group X until they no longer overlap.
  * Returns the merged owned mesh and one directed cervical cycle per input
  * crown in that crown's order, expressed in merged native vertex identities.
+ *
+ * @evidence contracts/common.md#principled-implementation Crowns are placed by cumulative arc length along an ellipse guide, each rotated by the arc tangent (an orthonormal rotation of positions and normals, so enamel width is preserved), and then shifted along X by the engine's sequence separation until the complete proximal surfaces clear. The merge preserves input order, so the per-crown cervical cycles are carried by an offset of native vertex identities and never recovered by position. The premises are positive semiaxes, a nonnegative gap and at least one crown.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The declaration is the arch group: it composes the crowns, owns their order, spacing, rotation and separation and copies no crown's shape.
+ * @evidence contracts/modeling.md#emitted-geometry The population is the crowns' own meshes, one loft per crown, so the count grows with the number of crowns the caller authors and each crown's size is fixed by its constructor.
+ * @evidence contracts/modeling.md#spatial-conventions Millimetres in the group's local frame (+X across the arch, +Y towards the gingiva, +Z towards the lip); the separation solves in metres and converts back at one named step in `separatePortraitDentalCrowns`.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the row's dimensions and defines no channel of its own.
+ * @evidence contracts/modeling.md#shared-boundaries Neighbouring crowns meet at one boundary definition, the contact gap: every adjacent pair is separated from complete surfaces so they touch at most, verified by the sequence separation's clearance measurement along X, and the nominal ellipse is only a guide. The join is measured along one axis, so a crown pair whose rotated proximal faces overlap in a direction the X measurement does not see is a limit of the engine measurement.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the row type's named dimensions.
  */
 export function preparePortraitDentalRow(input: IPortraitDentalRow) {
   const shape = structuredClone(input);
@@ -88,29 +96,9 @@ export function preparePortraitDentalRow(input: IPortraitDentalRow) {
     }
   }
   // Arc-distance widths establish nominal centres but cannot account for the
-  // rotated three-dimensional proximal faces. An optional complete-surface fit
-  // shifts each intact crown along group X and balances the two end shifts. It
-  // retains Y/Z, crown orientation and shape; the nominal ellipse is a guide,
-  // not an exact locus after this explicitly requested contact adjustment.
-  const placed =
-    shape.contactGap === undefined
-      ? crowns
-      : separateAutoMovieMeshSequence(
-          crowns.map((mesh) => ({
-            ...mesh,
-            positions: mesh.positions.map((value) => value / 1000),
-          })),
-          "x",
-          shape.contactGap / 1000,
-        ).map((mesh, index) => {
-          const shift =
-            (mesh.positions[0] - crowns[index].positions[0] / 1000) * 1000;
-          return {
-            ...mesh,
-            positions: crowns[index].positions.map((value, axis) =>
-              axis % 3 === 0 ? value + shift : value,
-            ),
-          };
-        });
+  // rotated three-dimensional proximal faces, so the intact crowns are shifted
+  // along group X until no two overlap. The nominal ellipse is a guide, not an
+  // exact locus after this always-applied separation.
+  const placed = separatePortraitDentalCrowns(crowns, shape.contactGap ?? 0);
   return { mesh: mergeAutoMovieMeshes(placed), cervical };
 }

@@ -164,12 +164,6 @@ import type {
  * @evidence {@link Human.IControlMesh.groups} Retains each triangle's material-region ownership through subdivision.
  * @evidence {@link Human.createPortraitDirectionalIntersection} Intersects the foremost resident triangle from either side while preserving the original transverse projection; the canthal consumer uses its actual emitted surface.
  * @evidence {@link Human.createPortraitDirectionalContact} Resolves a contact target from resident triangles along a declared projection direction.
- * @evidence {@link Human.IPortraitSurfaceControl} Describes a named requested movement on the common refined surface.
- * @evidence {@link Human.IPortraitSurfaceControl.name} Names each anatomical handle and fixes deterministic elimination order.
- * @evidence {@link Human.IPortraitSurfaceControl.anchor} Supplies the retained host vertex from which a control is located.
- * @evidence {@link Human.IPortraitSurfaceControl.offset} Places an intermediate control relative to its live anatomical datum.
- * @evidence {@link Human.IPortraitSurfaceControl.displacement} Prescribes the combined XYZ movement at one control position.
- * @evidence {@link Human.createPortraitControlLayer} Solves coupled anatomical targets into fields consumed by the shared surface assembler.
  * @evidence {@link Human.IPortraitComponent} Separates an anatomical instance's identity, finishes and host-fitting operation.
  * @evidence {@link Human.IPortraitComponent.id} Names the fitting owner used to reject duplicate component instances.
  * @evidence {@link Human.IPortraitComponent.fit} Produces original-host constraints, cuts and the later attachment procedure.
@@ -199,11 +193,6 @@ import type {
  * @evidence {@link Human.subdivideControlMesh} Refines the connected triangular cage before its shared normals and interiors are finalized.
  * @evidence {@link Human.assertPortraitSkinTopology} Audits the declared openings and stitches of the complete control cage before refinement.
  * @evidence {@link Human.blendPortraitSkin} Adapts neighbouring skin to exact component attachments on one unchanged host.
- * @evidence {@link Human.IPortraitReliefRegion} Separates each support's live vertex binding and offset from its metric support radii and signed displacement.
- * @evidence {@link Human.createPortraitReliefLayer} Converts owned anatomical support settings into engine deformation fields on the live skin.
- * @evidence {@link Human.IPortraitReliefCurvePoint} Declares one resident attachment, offset, support and displacement control for a continuous anatomical surface curve.
- * @evidence {@link Human.IPortraitReliefCurve} Groups ordered curve controls under one named surface responsibility.
- * @evidence {@link Human.createPortraitReliefCurveLayer} Samples adjacent controls into overlapping metric fields while preserving live endpoints and boundary ownership.
  * @evidence {@link Human.IPortraitSurfaceHost} Gives anatomical layers the shared post-subdivision coordinates, topology and normal field.
  * @evidence {@link Human.IPortraitSurfaceLayer} Separates a surface layer's identity from its derivation of metric engine fields on live attachments.
  * @evidence {@link Human.applyPortraitSurfaceLayers} Applies the composed surface displacement with open-rim protection before common normals and material extraction.
@@ -224,7 +213,6 @@ import type {
  * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
  * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
  * @evidence {@link Human.createPortraitHairFibreTexture} Builds the hair texture both the colour and normal maps are generated from.
- * @evidence {@link Human.sampleCyclicNasalSection} Closes a circumferential nasal station list without repeating its first sample.
  * @evidence {@link Human.portraitFacialOvalVertices} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
  * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
  * @evidence {@link Human.frontWeight} States how much of the tongue's forward shaping reaches a given station.
@@ -241,7 +229,6 @@ import type {
  * @evidence {@link Human.portraitTongueRows} States how many rings the lingual surface is sampled along, root to tip.
  * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
  * @evidence {@link Human.triangleAreaVector} Measures a triangle so a degenerate face is not carried into an export.
- * @evidence {@link Human.unitNasalNormal} Normalises a nasal envelope station to its own circumferential unit.
  */
 export const portraitSurfaceReview = {
   scope: "surface construction inspection",

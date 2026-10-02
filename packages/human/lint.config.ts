@@ -79,8 +79,9 @@ export default {
     "evidence/graph": ["warning", graph],
     "evidence/singular": "warning",
     "evidence/todo": "warning",
-    // Dependencies run face -> common <- body. `common` imports neither
-    // anatomy, and the two anatomies never import each other.
+    // Dependencies run face -> common <- body, and `human` composes both.
+    // `common` imports neither anatomy, the two anatomies never import each
+    // other, and neither imports the composition.
     "boundaries/element-types": [
       "error",
       {
@@ -88,11 +89,12 @@ export default {
           { type: "common", pattern: "src/common/**" },
           { type: "body", pattern: "src/body/**" },
           { type: "face", pattern: "src/face/**" },
+          { type: "human", pattern: "src/human/**" },
         ],
         rules: [
-          { from: "common", disallow: ["body", "face"] },
-          { from: "body", disallow: "face" },
-          { from: "face", disallow: "body" },
+          { from: "common", disallow: ["body", "face", "human"] },
+          { from: "body", disallow: ["face", "human"] },
+          { from: "face", disallow: ["body", "human"] },
         ],
       },
     ],

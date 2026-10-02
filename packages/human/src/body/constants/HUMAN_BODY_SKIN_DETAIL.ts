@@ -5,11 +5,16 @@ import type { IAutoMovieHumanBodySkinDetail } from "../structures/IAutoMovieHuma
  *
  * - **Primary lines** are 20 to 100 µm deep and secondary lines 5 to 40 µm,
  *   perpendicular to the primary (Hashimoto 1974, as quoted by Zahouani et
- *   al. 2014). On a young adult's volar forearm the two primary families run
- *   at about 43 and 137 degrees (Diosa et al. 2021), closing about one
- *   polygon per square millimetre (Trojahn et al. 2015): two families at
- *   right angles about 0.8 mm apart, 40 µm deep, and their secondary lines a
- *   quarter millimetre apart, 12 µm deep.
+ *   al. 2014). Diosa et al. 2021 reconstructed one representative left
+ *   forearm image per age group from Zahouani's data. The 30–40-year image's
+ *   manually measured median directions were 43.3 and 136.5 degrees relative
+ *   to the arm's proximal-distal axis; they are not whole-body population
+ *   directions. This periodic tile authors integer directions of 45 and
+ *   135 degrees in its UV frame, about 0.8 mm apart and 40 µm deep, with
+ *   secondary lines a quarter millimetre apart and 12 µm deep. It uses the
+ *   roughly one polygon per square millimetre description (Trojahn et al.
+ *   2015) as an appearance proxy; a source UV layout does not establish the
+ *   anatomical orientation or local physical density of that proxy.
  * - **Follicular openings**: Otberg et al. 2004 measured hair-follicle
  *   densities in six volunteers (doi:10.1046/j.0022-202X.2003.22110.x):
  *   back 29, thorax 22, upper arm 32, forearm 18, thigh 17 and calf 14 per

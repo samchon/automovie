@@ -1,121 +1,47 @@
-import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
-import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
-import { appendPortraitNasalRimSection } from "./appendPortraitNasalRimSection";
 import { appendPortraitNostrils } from "./appendPortraitNostrils";
-import { createPortraitNasalBodySurface } from "./createPortraitNasalBodySurface";
-import { createPortraitNasalEnvelope } from "./createPortraitNasalEnvelope";
-import { createPortraitNasalLobules } from "./createPortraitNasalLobules";
-import { createPortraitNasalRimSection } from "./createPortraitNasalRimSection";
-import { createPortraitNasalSection } from "./createPortraitNasalSection";
 import { createPortraitNasalSupport } from "./createPortraitNasalSupport";
 import { fitPortraitNostrilRim } from "./fitPortraitNostrilRim";
-import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { portraitNoseDepth } from "./portraitNoseDepth";
 import { resizePortraitNostrilRim } from "./resizePortraitNostrilRim";
+import { resolvePortraitNoseShape } from "./resolvePortraitNoseShape";
+import { resolvePortraitNoseSocket } from "./resolvePortraitNoseSocket";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
 
 /**
  * Build one replaceable nose against the host's declared nasal attachment.
+ *
+ * The socket (host attachments, in millimetres of the head frame: +X anatomical
+ * left, +Y up, +Z anterior) and the shape are admitted and copied here, and
+ * `fit` later reads the actual host. Every shape input is a named nasal
+ * measurement (widths and projections in millimetres, aperture scales, an
+ * aperture tilt in degrees), never a vertex, curve or patch. Fitting proceeds
+ * in one order: resolve one depth field (support-plane projection scale, tip
+ * and alar relief) and use it for both the exterior targets and the pre-fit
+ * aperture samples; regularize, resize, rotate and raise each opening about its
+ * own fitted centre, so the rim and its lining share one frame. `attach` runs
+ * after host subdivision and adds the lining, whose rim vertices are the fitted
+ * opening's own, so skin and lining cannot separate.
+ *
+ * A refused shape or socket throws before any geometry exists; the caller's
+ * inputs are never mutated. The lining is a geometric hypothesis, not a
+ * measured airway, and no likeness is claimed.
  */
 export function createPortraitNoseComponent(
   inputSocket: IPortraitNoseSocket,
   inputShape: IPortraitNoseShape,
 ): IPortraitComponent {
-  const socket = {
-    ...inputSocket,
-    tipRadius: [...inputSocket.tipRadius] as [number, number],
-    surface: [...inputSocket.surface],
-    nostrils: inputSocket.nostrils.map((faces) => [...faces]),
-    supportPlane:
-      inputSocket.supportPlane === undefined
-        ? undefined
-        : [...inputSocket.supportPlane],
-  };
-  const shape = { ...inputShape, cavityOffset: [...inputShape.cavityOffset] };
-  const bindLobules = createPortraitNasalLobules(inputShape.lobules);
-  const rimSection =
-    inputShape.rimSection === undefined
-      ? undefined
-      : { ...inputShape.rimSection };
-  const envelopes = structuredClone(inputShape.envelopes ?? []);
-  if (
-    envelopes.length !== 0 &&
-    (envelopes.length !== socket.nostrils.length ||
-      rimSection !== undefined ||
-      inputShape.body !== undefined ||
-      inputShape.rimRefinement === "curve")
-  )
-    throw new Error(
-      "Complete nasal envelopes need one profile per opening and cannot stack legacy rim or final-body construction.",
-    );
-  if (
-    (shape.rimRefinement ?? "surface") !== "surface" &&
-    shape.rimRefinement !== "curve"
-  )
-    throw new Error("Nasal rim refinement must be surface or curve.");
-  const body =
-    inputShape.body === undefined
-      ? undefined
-      : structuredClone(inputShape.body);
-  if (inputShape.section !== undefined && body !== undefined)
-    throw new Error(
-      "Choose one pre-fit or final nasal section basis, not two stacked constructions.",
-    );
-  if (
-    (inputShape.lobules?.length ?? 0) !== 0 &&
-    (inputShape.section !== undefined || body !== undefined)
-  )
-    throw new Error(
-      "Choose local nasal lobules or a complete section/body basis.",
-    );
-  if (
-    (shape.depthScale ?? 1) !== 1 &&
-    (inputShape.section !== undefined ||
-      (body !== undefined && !("lobules" in body.shape)))
-  )
-    throw new Error("Choose one nasal depth-scale or section/body basis.");
-  if (!Number.isFinite(shape.depthScale ?? 1) || (shape.depthScale ?? 1) <= 0)
-    throw new Error("Nasal depth scale must be finite and positive.");
-  const section =
-    inputShape.section === undefined
-      ? undefined
-      : createPortraitNasalSection(inputShape.section);
-  if (
-    [
-      shape.widthScale,
-      shape.nostrilWidthScale,
-      shape.nostrilHeightScale,
-      shape.cavityContraction,
-      shape.rimSupport,
-    ].some((v) => !Number.isFinite(v) || v <= 0) ||
-    shape.cavityContraction >= 1 ||
-    shape.rimSupport >= 1 ||
-    !Number.isFinite(shape.rimRoundness) ||
-    shape.rimRoundness < 0 ||
-    shape.rimRoundness > 1 ||
-    !Number.isFinite(shape.blendReach) ||
-    shape.blendReach < 0 ||
-    ![
-      shape.tipProjection,
-      shape.alarProjection,
-      shape.nostrilRise,
-      shape.nostrilTilt,
-    ].every(Number.isFinite) ||
-    shape.cavityOffset.length !== 3 ||
-    !shape.cavityOffset.every(Number.isFinite)
-  )
-    throw new Error(
-      "Nasal dimensions must be finite, with positive openings and a contracted inner lining.",
-    );
+  const socket = resolvePortraitNoseSocket(inputSocket);
+  const shape = resolvePortraitNoseShape(inputShape);
   return {
     id: "nose",
     fit: (host) => {
       const supportIds = socket.supportPlane ?? [];
+      const scaled = (shape.depthScale ?? 1) !== 1;
       if (
-        (shape.depthScale ?? 1) !== 1 &&
+        scaled &&
         supportIds.some(
           (id) =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
@@ -123,79 +49,66 @@ export function createPortraitNoseComponent(
       )
         throw new Error("Nasal support plane must name resident skin datums.");
       const support = createPortraitNasalSupport(
-        (shape.depthScale ?? 1) === 1
-          ? []
-          : supportIds.map((id) => host.positions[id]),
+        scaled ? supportIds.map((id) => host.positions[id]) : [],
         shape.depthScale,
       );
-      const datum =
-        socket.sectionAnchor === undefined
-          ? undefined
-          : host.positions[socket.sectionAnchor];
-      if (
-        (section !== undefined || body !== undefined) &&
-        (!Number.isInteger(socket.sectionAnchor) ||
-          socket.sectionAnchor! < 0 ||
-          datum === undefined ||
-          datum.length !== 3 ||
-          !datum.every(Number.isFinite))
-      )
-        throw new Error(
-          "A nasal section needs a resident finite socket datum.",
-        );
       // One depth evaluator owns both exterior targets and pre-fit aperture
-      // samples. A section replaces the inferred local depth; the existing tip
-      // and alar controls remain explicit additional signed offsets. The lining
-      // later reads the actual fitted rim, so it cannot retain a stale basis.
-      const baseDepth = (point: number[]): number =>
-        support(point) +
-        portraitNoseDepth(point, socket, shape) +
-        (section === undefined ? 0 : section(point, datum!));
-      const sculptedDatums = host.positions.map((point) => [
-        point[0],
-        point[1],
-        point[2] + baseDepth(point),
-      ]);
-      const lobules = bindLobules(sculptedDatums);
-      const depth = (point: number[]): number => {
-        const base = baseDepth(point);
-        return base + lobules([point[0], point[1], point[2] + base]);
-      };
+      // samples; the lining later reads the actual fitted rim, so it cannot
+      // retain a stale basis.
+      const depth = (point: number[]): number =>
+        support(point) + portraitNoseDepth(point, socket, shape);
       const openings = socket.nostrils.map((ordinals) =>
         ordinals.map((i) => host.indices.slice(3 * i, 3 * i + 3)),
       );
+      // Width scales the nose about its midline where the nasal structures
+      // lie and fades to identity toward the attachment boundary. A jump from
+      // full scale to none at the boundary would need the surrounding skin to
+      // absorb the whole lateral displacement, which folds it. The fade runs
+      // over the subject's skin-adaptation reach, measured from the nearest
+      // skin the component does not pin. Smoothstep makes the displacement
+      // derivative vanish at each end of the fade; it does not bound the
+      // interior derivative or prove that the fitted skin cannot fold. The
+      // openings themselves widen by the full stated ratio.
+      const pinned = new Set<number>(socket.surface);
+      for (const faces of openings)
+        for (const face of faces) for (const id of face) pinned.add(id);
+      const free =
+        shape.widthScale === 1
+          ? []
+          : host.positions.filter((_p, id) => !pinned.has(id));
+      const clearance = (point: number[]): number =>
+        free.length === 0
+          ? Infinity
+          : Math.min(...free.map((q) => Math.hypot(...point.map((v, i) => v - q[i]))));
+      const widening = (id: number): number => {
+        const t =
+          shape.blendReach > 0
+            ? Math.min(1, clearance(host.positions[id]) / shape.blendReach)
+            : 1;
+        return 1 + (shape.widthScale - 1) * t * t * (3 - 2 * t);
+      };
       const targets = new Map<number, number[]>();
       for (const id of socket.surface) {
         const point = host.positions[id];
         targets.set(id, [
-          socket.midline + (point[0] - socket.midline) * shape.widthScale,
+          socket.midline + (point[0] - socket.midline) * widening(id),
           point[1],
           point[2] + depth(point),
         ]);
       }
-      // Exterior tangents belong to the sculpted skin before an aperture plane
-      // moves its cut vertices. Capture that basis once for every rim section.
-      const nasalCuts = new Set(socket.nostrils.flat());
-      const skinNormals =
-        rimSection === undefined && envelopes.length === 0
-          ? undefined
-          : areaWeightedNormals(
-              host.positions.flatMap((point, id) => targets.get(id) ?? point),
-              host.indices.filter(
-                (_value, index) => !nasalCuts.has(Math.floor(index / 3)),
-              ),
-            );
+      const rimDelta = new Map<number, number[]>();
       for (const faces of openings) {
         const ids = orderCutPatchBoundary(faces).map((edge) => edge.a);
+        const fitted = fitPortraitNostrilRim(
+          ids.map((id) => [
+            host.positions[id][0],
+            host.positions[id][1],
+            host.positions[id][2] + depth(host.positions[id]),
+          ]),
+          shape.rimRoundness,
+        );
         const rim = resizePortraitNostrilRim(
-          fitPortraitNostrilRim(
-            ids.map((id) => [
-              host.positions[id][0],
-              host.positions[id][1],
-              host.positions[id][2] + depth(host.positions[id]),
-            ]),
-            shape.rimRoundness,
-          ),
+          fitted,
           shape.nostrilWidthScale,
           shape.nostrilHeightScale,
         );
@@ -218,43 +131,55 @@ export function createPortraitNoseComponent(
             point = rim[vertex];
           const y = point[1] - center[1];
           const z = point[2] - centerZ;
-          targets.set(id, [
+          const edited = [
             socket.midline + (point[0] - socket.midline) * shape.widthScale,
             center[1] +
               shape.nostrilRise +
               y * Math.cos(angle) -
               z * Math.sin(angle),
             centerZ + y * Math.sin(angle) + z * Math.cos(angle),
-          ]);
+          ];
+          // What this opening's edit moved the rim by, relative to the rim
+          // as the volume edits alone leave it.
+          const unedited = [
+            socket.midline + (fitted[vertex][0] - socket.midline) * shape.widthScale,
+            fitted[vertex][1],
+            fitted[vertex][2],
+          ];
+          rimDelta.set(id, edited.map((v, axis) => v - unedited[axis]));
+          targets.set(id, edited);
         }
       }
-      const rimBands =
-        rimSection === undefined
-          ? undefined
-          : openings.map((faces) => {
-              const ids = orderCutPatchBoundary(faces).map((edge) => edge.a);
-              const section = createPortraitNasalRimSection(
-                ids.map((id) => targets.get(id)!),
-                rimSection,
-                ids.map((id) => skinNormals!.slice(id * 3, id * 3 + 3)),
-              );
-              ids.forEach((id, i) => targets.set(id, section.outer[i]));
-              return { ids, section };
-            });
-      const fittedEnvelopes = envelopes.map((profile, index) => {
-        const ids = orderCutPatchBoundary(openings[index]).map(
-          (edge) => edge.a,
-        );
-        const envelope = createPortraitNasalEnvelope(
-          ids.map((id) => targets.get(id)!),
-          ids.map((id) => skinNormals!.slice(id * 3, id * 3 + 3)),
-          profile,
-          portraitNasalCavityOffset(shape),
-          shape.cavityContraction,
-        );
-        ids.forEach((id, i) => targets.set(id, envelope.outer[i]));
-        return { ids, envelope };
-      });
+      // The rim's move is spread into the pinned skin around it, decaying to
+      // nothing over the adaptation reach. Left pinned in place, that skin
+      // would be turned over by a rim that moves farther than one edge, which
+      // renders as a thin blade across the opening. Spreading the move reduces
+      // this jump but does not establish injectivity of the fitted surface;
+      // admission must inspect that surface independently.
+      if (shape.blendReach > 0 && rimDelta.size !== 0)
+        for (const id of socket.surface) {
+          if (rimDelta.has(id)) continue;
+          let nearest = Infinity;
+          let sum = [0, 0, 0],
+            weight = 0;
+          for (const [rimId, delta] of rimDelta) {
+            const distance = Math.hypot(
+              ...host.positions[id].map((v, i) => v - host.positions[rimId][i]),
+            );
+            nearest = Math.min(nearest, distance);
+            const w = 1 / Math.max(distance * distance, 1e-12);
+            sum = sum.map((v, i) => v + w * delta[i]);
+            weight += w;
+          }
+          const t = Math.max(0, 1 - nearest / shape.blendReach);
+          const fade = t * t * (3 - 2 * t);
+          if (fade === 0) continue;
+          const target = targets.get(id)!;
+          targets.set(
+            id,
+            target.map((v, i) => v + (fade * sum[i]) / weight),
+          );
+        }
       return {
         constraints: [...targets].map(([vertex, target]) => ({
           vertex,
@@ -263,74 +188,15 @@ export function createPortraitNoseComponent(
         })),
         cutFaces: socket.nostrils.flat(),
         attach: (cage, _adapted, region) => {
-          const liningGroup = region("nostril-interiors", "nasal-interior");
-          if (fittedEnvelopes.length !== 0) {
-            const skinGroup = region("nasal-rims", "skin");
-            const replacements = fittedEnvelopes.map(
-              ({ ids, envelope }, index) => {
-                const group = region(
-                  "nasal-envelope-reserved-" + index,
-                  "skin",
-                );
-                // Refine against the same complete section, not a fan to the
-                // floor: that fan pulls the outer attachment across the rim.
-                envelope.append(cage, ids, ids, group, group);
-                return {
-                  group,
-                  append: (mesh: IControlMesh, boundary: readonly number[]) =>
-                    envelope.append(
-                      mesh,
-                      boundary,
-                      ids,
-                      skinGroup,
-                      liningGroup,
-                    ),
-                };
-              },
-            );
-            return { openings: [], replacements, finish: () => [] };
-          }
-          const bandGroup =
-            rimBands === undefined ? undefined : region("nasal-rims", "skin");
-          const innerLoops =
-            rimBands === undefined
-              ? openings.map((faces) =>
-                  orderCutPatchBoundary(faces).map((edge) => edge.a),
-                )
-              : rimBands.map(({ ids, section }) =>
-                  appendPortraitNasalRimSection(cage, ids, section, bandGroup!),
-                );
-          const liningFaces =
-            rimBands === undefined
-              ? openings
-              : innerLoops.map((loop) =>
-                  Array.from({ length: loop.length - 2 }, (_, i) => [
-                    loop[0],
-                    loop[i + 1],
-                    loop[i + 2],
-                  ]),
-                );
-          appendPortraitNostrils(cage, liningFaces, shape, liningGroup);
-          return {
-            openings: [],
-            // Both exterior and vestibule share these actual fitted rim IDs.
-            // Opposite triangles may be asymmetric; they must not pull a
-            // deliberately smooth aperture contour back into a pinched edge.
-            curves: shape.rimRefinement === "curve" ? innerLoops : undefined,
-            finalSurface:
-              body === undefined
-                ? undefined
-                : createPortraitNasalBodySurface(
-                    body.shape,
-                    socket.sectionAnchor!,
-                    liningGroup,
-                    host.viewRay,
-                    body.joinWidth,
-                    body.depthReach,
-                    sculptedDatums,
-                  ),
-            finish: () => [],
-          };
+          // The exterior skin and the vestibular lining share the actual
+          // fitted rim ids, so an aperture edit moves both together.
+          appendPortraitNostrils(
+            cage,
+            openings,
+            shape,
+            region("nostril-interiors", "nasal-interior"),
+          );
+          return { openings: [], finish: () => [] };
         },
       };
     },

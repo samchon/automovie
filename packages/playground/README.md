@@ -38,7 +38,7 @@ Appearance edits linear RGB and numerical pigmentation fields. Hair layers expos
 
 A rejected edit preserves the last valid document/model. Undo, redo and reset operate on successful edits. Saved JSON retains numerical values and the shared basis identity. The self-contained GLB contains generated geometry and procedural images for the current expression. It is a derived static export. Generated geometry and unresolved likeness are separate outcomes.
 
-Pure editor adapter tests live in the workspace test package and import this private application's `src/human` modules through its workspace dependency. They construct an in-memory DOM or renderer port without starting a browser. `connectedViewport` composes resident numerical requests, staged geometry and explicit export. `residentWorker` correlates replies and recovers after transport failure. Manual frame completion applies the current clay and orbit state before drawing, just as the animation loop does. The connected face stage reuses static shadow maps between edits and refreshes them when geometry is published or clay and shadow casters change; orbiting the camera does not invalidate the maps. Historical procedural adapters remain source-level research consumers; the published face entries no longer bundle their personal guide documents. Actual GPU captures remain a separate visual check.
+Pure editor adapter tests live in the workspace test package and import this private application's `src/human` modules through its workspace dependency. They construct an in-memory DOM or renderer port without starting a browser. `connectedViewport` composes resident numerical requests, staged geometry and explicit export. `residentWorker` correlates replies and recovers after transport failure. Manual frame completion applies the current clay and orbit state before drawing, just as the animation loop does. The connected face stage reuses static shadow maps between edits and refreshes them when geometry is published or clay and shadow casters change; orbiting the camera does not invalidate the maps. Actual GPU captures remain a separate visual check.
 
 ## Other pages
 
@@ -49,12 +49,11 @@ Pure editor adapter tests live in the workspace test package and import this pri
 - `film.html`: script/stage/block/perform/cut pipeline output.
 - `launch.html`, `impact.html`, `attach.html`, `trampoline.html`: projectile, impact, attachment and jump actions.
 - `knight.html`, `archery.html`, `spar.html`: mounted, archery and boxing scenes.
-- `body.html`, `mhhead.html`, `mhfull.html`: retained body and MakeHuman research surfaces, independent from the human face editor.
 
 ## Motion assets
 
 Hand-authored libraries remain in `src/stickman-motion.ts` (including walk/run, wave, dance and shadowbox), `src/horse-motion.ts` (gaits, turns and rear), `src/cat-motion.ts` (gaits, leap, sit, stretch and tail flick) and `src/spar.ts` (the boxing exchange).
 
-Engine-generated motion is exercised by `attach-view.ts`, `launch-view.ts`, `impact-view.ts`, `trampoline-view.ts`, `gesture-view.ts`, `showcase-view.ts` and `film-view.ts`. Model/rig build scripts under `scripts/` produce the GLB scaffolds; `scripts/mh/` retains separate MakeHuman research utilities.
+Engine-generated motion is exercised by `attach-view.ts`, `launch-view.ts`, `impact-view.ts`, `trampoline-view.ts`, `gesture-view.ts`, `showcase-view.ts` and `film-view.ts`. Model/rig build scripts under `scripts/` produce the GLB scaffolds.
 
 Locomotion migration prioritizes humanoid walk/run/stroll/sprint, horse walk/trot/gallop/travel and cat walk/prowl. Non-gait gestures remain hand-authored until their own action/profile contract exists. A profile-generated replacement first needs regression checks against the existing observable behavior and playground captures for silhouette and timing.

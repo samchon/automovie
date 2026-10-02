@@ -5,8 +5,7 @@
   "version": "0.1.0",
   "exports": {
     "./viewer/scene": {
-      "types": "./src/viewer/scene.d.mts",
-      "default": "./src/viewer/scene.mjs"
+      "default": "./src/viewer/scene.mts"
     }
   },
   "license": "MIT",
@@ -45,15 +44,13 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
-    "test": "node --import tsx --test src/measurements/*.test.cjs src/measurements/*.test.ts src/spaces/*.test.cjs",
-    "docs-review-host": "node src/measurements/docs-review-host.cjs",
-    "check": "node src/measurements/check.cjs",
-    "check:spaces": "node src/measurements/check.cjs --layer=spaces",
-    "regression:1952-repair": "node src/measurements/scene-regression.cjs",
-    "check:models": "node src/measurements/check.cjs --layer=models",
-    "check:settings": "node src/measurements/check.cjs --layer=settings",
-    "review-check": "node src/measurements/review-check.cjs",
-    "review-check:spaces": "node src/measurements/review-check.cjs D:/AutoMovieBench/probes --spaces"
+    "test": "node --import tsx --test src/measurements/*.test.cts src/measurements/*.test.ts src/spaces/*.test.cts",
+    "docs-review-host": "tsx src/measurements/docs-review-host.cts",
+    "check": "tsx src/measurements/check.cts",
+    "check:spaces": "tsx src/measurements/check.cts --layer=spaces",
+    "regression:1952-repair": "tsx src/measurements/scene-regression.cts",
+    "check:models": "tsx src/measurements/check.cts --layer=models",
+    "check:settings": "tsx src/measurements/check.cts --layer=settings"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

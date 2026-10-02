@@ -5,25 +5,14 @@ import { createPortraitCheekLayer } from "@automovie/human/face/anatomy/cheek/cr
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 import { createPortraitDentalComponent } from "@automovie/human/face/anatomy/dental/createPortraitDentalComponent";
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
-import { createPortraitOrbitalSupport } from "@automovie/human/face/anatomy/eye/createPortraitOrbitalSupport";
 import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
-import { type IPortraitOrbitalSupportShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitOrbitalSupportShape";
 import { createPortraitMouthComponent } from "@automovie/human/face/anatomy/mouth/createPortraitMouthComponent";
 import { type IPortraitMouthShape } from "@automovie/human/face/anatomy/mouth/structures/IPortraitMouthShape";
 import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
 import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
-import { createPortraitReliefCurveLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefCurveLayer";
-import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 
-import {
-  type IPortraitNasalDetail,
-  portraitNasalLayerFor,
-  portraitOrbitalRelief,
-  portraitPerioralRelief,
-  portraitPhiltralCurves,
-} from "./anatomy";
 import { portraitEyeShape, portraitEyeSockets } from "./eyeSettings";
 import type { IPortraitHairShape } from "./hairProxy";
 import {
@@ -43,7 +32,6 @@ export {
 
 export {
   portraitNoseSocket,
-  portraitNasalSection,
   portraitNoseShape,
   alternatePortraitNose,
 } from "./noseSettings";
@@ -160,33 +148,6 @@ export function portraitComponentsFor(
   ];
 }
 
-/**
- * Upper-orbit sections retained as authored data for both assembly and capture.
- * These small fitted displacements are not anatomical population dimensions.
- */
-export const portraitOrbitalSupportShapes: readonly {
-  side: "right" | "left";
-  shape: IPortraitOrbitalSupportShape;
-}[] = (["right", "left"] as const).map((side, i) => ({
-  side,
-  shape: {
-    radius: 14,
-    stations: (i === 0 ? [107, 105, 70] : [336, 334, 300]).map(
-      (anchor, station) => ({
-        name: ["medial", "middle", "lateral"][station],
-        anchor,
-        forehead: { height: 9, projection: 0 },
-        browProjection: [0.6, 0.7, 0.25][station],
-        sulcus: { descent: 8, projection: [0.03, -0.12, -0.05][station] },
-      }),
-    ),
-  },
-}));
-
-/** Restore the basic nose and its original supports after the patch-join regression. */
-export const portraitNasalSupportDetail: IPortraitNasalDetail | undefined =
-  undefined;
-
 /** Retained measured-cage baseline for independent component experiments. */
 export const measuredPortraitAssembly = {
   // Appearance is authored independently of the shared anatomical source basis.
@@ -220,17 +181,6 @@ export const measuredPortraitAssembly = {
   subdivisionRounds: 3,
   surfaceLayers: [
     ...portraitCheekLayersFor(portraitCheekShape, portraitCheekShape),
-    // The restored procedural nose requires its original support field.
-    portraitNasalLayerFor(portraitNasalSupportDetail),
-    createPortraitReliefLayer("orbital-support", portraitOrbitalRelief),
-    createPortraitReliefLayer("perioral-support", portraitPerioralRelief),
-    createPortraitReliefCurveLayer("philtral-curves", portraitPhiltralCurves),
-    // Upper orbital support belongs to skin form, independently of brow hair.
-    // Paired small anterior pad sections sit between fixed forehead witnesses
-    // and a shallow superior orbital sulcus. Values are fitting hypotheses.
-    ...portraitOrbitalSupportShapes.map(({ side, shape }) =>
-      createPortraitOrbitalSupport(side, shape),
-    ),
   ],
 };
 

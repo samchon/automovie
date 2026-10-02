@@ -4,10 +4,8 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  faceSupportFaultTriangles,
-  faceSupportFaults,
-} from "../../../scripts/face-review/faceEnvelope";
+import { faceSupportFaultTriangles } from "../../../scripts/face-review/faceSupportFaultTriangles";
+import { faceSupportFaults } from "../../../scripts/face-review/faceSupportFaults";
 import {
   faceVermilionRatios,
   prepareLipEnvelopeBasis,
@@ -120,8 +118,9 @@ const head = (): IAutoMovieHumanFaceBasis => {
  *    their envelopes, and a control whose endpoints move nothing on the
  *    surface is not extended.
  * 6. A triangle turned over and a pair that come to cross count as faults;
- *    pairs sharing a vertex do not; a moved triangle passing through one
- *    outside the support counts too.
+ *    boundary-only shared-vertex contact does not. A transverse fold through
+ *    shared-vertex faces still counts, as its independent scenario checks;
+ *    a moved triangle passing through one outside the support counts too.
  * 7. A repeated revision, an unknown surface or region, no lip contact and
  *    a one-sided or unknown channel refuse.
  */

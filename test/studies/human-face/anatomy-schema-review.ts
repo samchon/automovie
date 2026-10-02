@@ -5,15 +5,6 @@ import type * as Human from "@automovie/human";
  * This carrier groups anatomical parameter types by their source ownership and
  * preserves the prior observations and their limits. It is not a new anatomical
  * or likeness acceptance of the current connected population.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection} Inspected the five fields and constructor admission: phase is original edge-ordinal progress, width/crest are millimetres, crestPosition is interior to the width, and roll is a signed section-plane angle. This is an authored surface section, not a measured cartilage cross-section.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection.at} Inspected zero-origin strictly increasing unit phases, cyclic wrap and original/refined seed ordering. This parameter is not physical arc length.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection.width} Inspected finite positive admission, non-overshooting station interpolation and the actual outward attachment displacement. A too-small representable displacement refuses.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection.crest} Inspected signed finite relief along the aperture section normal and the shared Hermite crest jet. Zero and negative values remain authored geometric choices.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection.crestPosition} Inspected strict zero/one boundaries and its split of the physical width between the two exterior Hermite intervals.
- * @evidence {@link Human.IPortraitNasalEnvelopeSection.roll} Inspected finite signed degrees, full-turn reduction and the orthonormal cavity-axis aperture frame. Exterior skin normals own attachment, not the rolled rim; the exterior end and vestibular beginning use the same reversed jet.
- * @evidence {@link Human.IPortraitNasalEnvelope} Inspected the complete cyclic profile, separate tessellation control, positive bounded interpolation and array ownership. A profile adds expression space without accepting likeness or certifying tissue clearance.
- * @evidence {@link Human.IPortraitNasalEnvelope.sections} Inspected copied nonempty ordered stations, single-station uniform behavior, periodic last-to-first interpolation and complete-array document replacement.
- * @evidence {@link Human.IPortraitNasalEnvelope.segments} Inspected integer 2..64 admission and actual exterior/vestibular row sampling. The limit is a tessellation budget, not an anatomical range.
  * @evidence {@link Human.IPortraitSkinColourRegion} Inspects all six fields against reference binding, finite admission and the document consumer.
  * @evidence {@link Human.IPortraitOralChamber} Inspects complete internal-room dimensions separately from the aperture and tooth placement.
  * @evidence {@link Human.IPortraitOralChamber.horizontalExpansion} Inspects the independent transverse half-extent increment.
@@ -67,24 +58,10 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitMouthPerformance} Records observed/current separation, mandibular angles and optional commissure/protrusion changes.
  * @evidence {@link Human.IPortraitMouthShape} Declares lip fitting and the separate legacy cavity/crown settings.
  * @evidence {@link Human.IPortraitMouthSocket} Binds the oral opening and surrounding vermilion to subject-owned vertex identities.
- * @evidence {@link Human.IPortraitNasalApertureFrame} Groups the origin and inward axis of one fitted nasal aperture plane.
- * @evidence {@link Human.IPortraitNasalBodyShape} Groups the ordered lower-nasal stations and independent midline, shoulder, alar and crease controls.
- * @evidence {@link Human.IPortraitNasalBodyStation} Defines one ordered lower-nasal station and its midline, shoulder and alar extents.
- * @evidence {@link Human.IPortraitNasalJet} Groups one sampled nasal-section point and its derivative.
- * @evidence {@link Human.IPortraitNasalLobule} Declares a resident datum, apex offset, three physical radii and normalized inner section extent for each local nasal body.
- * @evidence {@link Human.IPortraitNasalRimJet} Groups one nasal rim point with its tangent and transverse directions.
- * @evidence {@link Human.IPortraitNasalRimSection} Separates exterior tissue width from the fitted aperture and its crest relief.
- * @evidence {@link Human.IPortraitNasalSection} Groups transverse poles, station rows and bounded identity-transition controls.
- * @evidence {@link Human.IPortraitNasalSectionStation} Defines one transverse depth-control row of the optional nasal loft.
  * @evidence {@link Human.IPortraitNeckSection} Describes one cross-section of the authored neck continuation.
  * @evidence {@link Human.IPortraitNeckShape} Groups upper/lower neck sections and the crop policy for the cranial continuation.
- * @evidence {@link Human.IPortraitNoseShape} Separates exterior, opening, lining and optional complete-basis controls.
+ * @evidence {@link Human.IPortraitNoseShape} Read the current projection and aperture ratios, metric tip/alar/rise displacements, tilt, lining fractions and adaptation reach with their component, support and lining consumers. The former section, station, lobule and envelope inputs were removed; these numerical definitions do not establish living-body ranges or rendered acceptance.
  * @evidence {@link Human.IPortraitNoseSocket} Binds procedural nasal controls and original opening faces to the measured host.
- * @evidence {@link Human.IPortraitOrbitalSupportShape} Groups bounded upper-orbit sections under one interpolation support.
- * @evidence {@link Human.IPortraitOrbitalSupportStation} Owns one forehead/brow/sulcus section on a subject-bound upper orbit.
- * @evidence {@link Human.IPortraitReliefCurve} Groups ordered curve controls under one named surface responsibility.
- * @evidence {@link Human.IPortraitReliefCurvePoint} Declares one resident attachment, offset, support and displacement control for a continuous anatomical surface curve.
- * @evidence {@link Human.IPortraitReliefRegion} Separates each support's live vertex binding and offset from its metric support radii and signed displacement.
  * @evidence {@link Human.IPortraitSkinConstraint} Carries one exact resident skin target and its surrounding adaptation reach.
  */
 export const humanFaceAnatomySchemaReview = true;

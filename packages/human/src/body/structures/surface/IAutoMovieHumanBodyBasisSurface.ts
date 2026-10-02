@@ -1,5 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
+
 /**
  * One connected skin surface in the common right-handed Y-up, Z-forward
  * basis frame, with shared positions in metres.
@@ -58,6 +60,9 @@ export interface IAutoMovieHumanBodyBasisSurface {
     boneIndices: number[];
     weights: number[];
   };
+
+  /** Optional numerical rest-detail filter after skinning, before sag. */
+  mush?: IAutoMovieHumanBodyBasisSurfaceMush;
 
   /**
    * Soft-tissue sag proxy under gravity after skinning, or absent for none.
