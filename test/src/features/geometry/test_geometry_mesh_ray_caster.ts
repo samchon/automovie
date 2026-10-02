@@ -22,6 +22,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    finds the same hits; an empty mesh finds none.
  * 4. Incomplete, nonfinite or out-of-range buffers and a zero direction,
  *    nonfinite origin or inverted range refuse.
+ * 5. Nearest-hit records retain original triangle ordinals through BVH sorting,
+ *    select the lowest ordinal on shared-edge ties, preserve the legacy raw
+ *    distance including both zero signs, and own their returned records.
  */
 export const test_geometry_mesh_ray_caster = (): void => {
   const mesh = (
@@ -59,6 +62,52 @@ export const test_geometry_mesh_ray_caster = (): void => {
       caster.nearest([0.3, 0.4, 1], [1, 0, 0], 10) === null &&
       caster.nearest([2, 2, 0], up, 10) === null &&
       nclose(caster.nearest([0.2, 0.2, 5], [0, 0, -1], 10)!, 2),
+  );
+  const firstHit = caster.nearestHit([0.3, 0.4, 0], up, 10);
+  const edgeHit = caster.nearestHit([0.5, 0.5, 0], up, 1, 1);
+  const laterHit = caster.nearestHit([0.3, 0.4, 0], up, 10, 1.5);
+  const reverseHit = caster.nearestHit([0.2, 0.2, 5], [0, 0, -5], 10);
+  TestValidator.predicate("original identities, exact bounds and nonunit directions",
+    firstHit !== null && firstHit.triangle === 1 && nclose(firstHit.distance, 1) &&
+    edgeHit !== null && edgeHit.triangle === 0 && nclose(edgeHit.distance, 1) &&
+    laterHit !== null && laterHit.triangle === 3 && nclose(laterHit.distance, 3) &&
+    reverseHit !== null && reverseHit.triangle === 2 && nclose(reverseHit.distance, 2) &&
+    caster.nearestHit([0.3, 0.4, 0], up, 0.5) === null,
+  );
+  const reversePlanes = createAutoMovieMeshRayCaster(mesh(
+    [...b.positions, ...a.positions], [...b.indices, ...a.indices.map((id) => id + 4)],
+  ));
+  const closer = reversePlanes.nearestHit([0.3, 0.4, 0], up, 10);
+  TestValidator.predicate("a later closer hit resets its original identity",
+    closer !== null && closer.triangle === 3 && nclose(closer.distance, 1),
+  );
+  const spread = [...a.positions];
+  const spreadIndices = [...a.indices];
+  for (const x of [-3, -2, -1, 1, 2, 3]) {
+    const base = spread.length / 3;
+    spread.push(x, 0, 3, x + 0.25, 0, 3, x, 0.25, 3);
+    spreadIndices.push(base, base + 1, base + 2);
+  }
+  const splitCaster = createAutoMovieMeshRayCaster(mesh(spread, spreadIndices));
+  const splitHit = splitCaster.nearestHit([0.5, 0.5, 0], up, 10);
+  TestValidator.predicate("BVH order never replaces the original shared-edge ordinal",
+    splitHit !== null && splitHit.triangle === 0 && nclose(splitHit.distance, 1),
+  );
+  for (const winding of [[0, 1, 2, 0, 2, 1], [0, 2, 1, 0, 1, 2]]) {
+    const onPlane = createAutoMovieMeshRayCaster(mesh([0, 0, 0, 1, 0, 0, 0, 1, 0], winding));
+    const hit = onPlane.nearestHit([0.2, 0.2, 0], up, 1);
+    const expectedZero = winding[1] === 1 ? 0 : -0;
+    TestValidator.predicate("metadata ties preserve the legacy raw sign of zero",
+      hit !== null && hit.triangle === 0 && Object.is(hit.distance, expectedZero) &&
+      Object.is(hit.distance, onPlane.nearest([0.2, 0.2, 0], up, 1)) &&
+      onPlane.blocked([0.2, 0.2, 0], up, 1),
+    );
+  }
+  firstHit!.distance = 100;
+  firstHit!.triangle = 100;
+  const independentHit = caster.nearestHit([0.3, 0.4, 0], up, Infinity);
+  TestValidator.predicate("returned metadata is independent and retains the existing infinite limit",
+    independentHit !== null && independentHit.triangle === 1 && nclose(independentHit.distance, 1),
   );
   // A field of small triangles and random rays against brute force.
   let seed = 7;
@@ -138,6 +187,7 @@ export const test_geometry_mesh_ray_caster = (): void => {
   const editable = mesh([...positions], [...indices]);
   const frozen = createAutoMovieMeshRayCaster(editable);
   editable.positions.fill(100);
+  editable.indices!.fill(0);
   const flat = indices.flatMap((i) => positions.slice(3 * i, 3 * i + 3));
   TestValidator.predicate(
     "snapshots, nonindexed input, empty mesh",
@@ -153,6 +203,52 @@ export const test_geometry_mesh_ray_caster = (): void => {
       createAutoMovieMeshRayCaster(mesh([], [])).nearest([0, 0, 0], up, 10) ===
         null,
   );
+  const frozenHit = frozen.nearestHit([0.3, 0.4, 0], up, 10);
+  const implicitHit = createAutoMovieMeshRayCaster(mesh(flat, null)).nearestHit([0.3, 0.4, 0], up, 10);
+  TestValidator.predicate("metadata owns buffers and respects implicit original triplets",
+    frozenHit !== null && frozenHit.triangle === 1 && nclose(frozenHit.distance, 1) &&
+    implicitHit !== null && implicitHit.triangle === 1 && nclose(implicitHit.distance, 1) &&
+    createAutoMovieMeshRayCaster(mesh([], [])).nearestHit([0, 0, 0], up, 10) === null &&
+    caster.nearestHit([0.3, 0.4, 1], [1, 0, 0], 10) === null,
+  );
+  const invalid: Parameters<typeof caster.nearestHit>[] = [
+    [[0, 0], up, 1], [[0, 0, 0], [0, 0], 1],
+    [[0, NaN, 0], up, 1], [[0, 0, 0], [0, Infinity, 0], 1],
+    [[0, 0, 0], [0, 0, 0], 1], [[0, 0, 0], up, NaN],
+    [[0, 0, 0], up, -1], [[0, 0, 0], up, 1, -1],
+    [[0, 0, 0], up, 1, NaN], [[0, 0, 0], up, 1, 2],
+  ];
+  for (const args of invalid)
+    TestValidator.predicate("nearest-hit admission shares the existing range and vector contract",
+      throwsError(() => caster.nearestHit(...args), "A ray needs"),
+    );
+  // Equal nonzero components point along (1,1,1), independently of scale.
+  // From (-.3,-.4,0), z=1 is met at (.7,.6,1), a sqrt(3)-metre chord.
+  const scales = [1, 1e308, Number.MAX_VALUE, Number.MIN_VALUE];
+  const readings = scales.map((scale) => ({
+    scale,
+    nearest: caster.nearest([-0.3, -0.4, 0], [scale, scale, scale], 10),
+    hit: caster.nearestHit([-0.3, -0.4, 0], [scale, scale, scale], 10),
+    reverse: caster.nearestHit([1.3, 1.4, 2], [-scale, -scale, -scale], 10),
+    miss: caster.nearestHit([2, 2, 0], [scale, scale, scale], 10),
+  }));
+  TestValidator.predicate(`finite direction scale preserves the unit metric: ${JSON.stringify(readings)}`,
+    readings.every((one) => one.nearest !== null && one.hit !== null && one.reverse !== null &&
+      nclose(one.nearest, Math.sqrt(3), 1e-12) && nclose(one.hit.distance, Math.sqrt(3), 1e-12) &&
+      nclose(one.reverse.distance, Math.sqrt(3), 1e-12) && one.reverse.triangle === 1 &&
+      one.hit.triangle === 0 && one.miss === null),
+  );
+  const smallestNormal = 2 ** -1022;
+  for (const scale of [smallestNormal - Number.MIN_VALUE, smallestNormal, smallestNormal + Number.MIN_VALUE])
+    for (const sign of [-1, 1]) {
+      const origin = [0.3, 0.4, sign > 0 ? 0 : 2];
+      const direction = [0, 0, sign * scale];
+      const hit = caster.nearestHit(origin, direction, 10);
+      TestValidator.predicate("both sides of the IEEE normal boundary keep axial metric and ownership",
+        hit !== null && hit.triangle === 1 && nclose(hit.distance, 1) &&
+        Object.is(hit.distance, caster.nearest(origin, direction, 10)) && direction[2] === sign * scale,
+      );
+    }
   TestValidator.predicate(
     "refusals",
     throwsError(

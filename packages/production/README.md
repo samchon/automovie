@@ -4,6 +4,10 @@ This package exposes production building, document binding, capture, inspection,
 
 That is a deliberate boundary rather than an omission. What an authoring agent knows comes from the skill the project ships and from what this package refuses; a refusal names the invariant it enforces and the correction that owns it, and the agent reads the project to find the rest. A capability an agent cannot reach by reading the project and running its scripts does not exist.
 
+The stored-project compiler keeps generated ownership admission, changed-output publication planning, library owner context and source evaluation, contribution admission, and read-only input confirmation as separate policies. They share the project's existing namespace, revision and transaction authority. A byte-identical publication plan writes nothing, and an invalid library contribution retains its claimed identities so a later owner cannot silently replace it. Timed and library publication use the same settlement policy, which requires the acquired revision and currentness guard. If an input race is followed by a failed current-revision observation, both original failures remain visible rather than an invented revision result.
+
+`createAutoMovieProductionSourceStatus` composes fresh snapshot observation with one retained successful gate result. Its default runtime physically lists generated output and observes Node's current module cache. A host supplying its own loader can provide the complete observations through the named `runtime` input; it must describe the same project and loader used by the source gate. This input does not replace project fencing or permit omission of generated entries or loaded modules.
+
 ## Stored-project compile and inspection
 
 ```ts

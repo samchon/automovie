@@ -24,6 +24,12 @@ import { retainAutoMovieProductionSourceStatus } from "./retainAutoMovieProducti
  * The builder carries its own evidence, so a caller that must compile with
  * freshly read evidence supplies a builder that reads it on every run.
  *
+ * Runtime observations belong to the host that executed that builder. The
+ * default reads Node's module cache and physically lists the generated root.
+ * A host with its own loader supplies the same complete observations through
+ * the named runtime port; it must include every generated entry and every
+ * loaded module. The port changes neither snapshot comparison nor refusal.
+ *
  * @evidence requirements/agent-authoring/source-owned-loop.md#agent-narrowest-valid-check Gives every capture, receipt and publication check of one project a gate status that executes authored source only when its inputs moved.
  * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Serves a gate answer as current only while a freshly read snapshot equals the one it referenced.
  */
@@ -39,22 +45,36 @@ export const createAutoMovieProductionSourceStatus = (props: {
 
   /** Fresh graph reader a current compile would consult. */
   currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
-}): (() => IAutoMovieBuildProjectOutput) =>
-  retainAutoMovieProductionSourceStatus({
+
+  /** Complete generated and loader observations of the same project runtime. */
+  runtime?: {
+    /** Physical generated-root listing, including unowned and linked entries. */
+    listFiles: (root: string) => string[];
+
+    /** Fresh module cache of the loader that ran the source gate. */
+    moduleCache: () => Readonly<Record<string, unknown>>;
+  };
+}): (() => IAutoMovieBuildProjectOutput) => {
+  const runtime = props.runtime ?? {
+    listFiles,
+    moduleCache: () => createRequire(
+      path.join(props.project.root, "package.json"),
+    ).cache,
+  };
+  return retainAutoMovieProductionSourceStatus({
     acquire: (documents) =>
       acquireAutoMovieProductionSourceSnapshot({
         project: props.project,
         authoring:
           props.currentAuthoringEvidence?.() ?? props.authoringEvidence,
         documents,
-        listFiles,
+        listFiles: runtime.listFiles,
       }),
     evaluate: () =>
       evaluateAutoMovieProductionSource({
         project: props.project,
         builder: props.builder,
-        moduleCache: createRequire(
-          path.join(props.project.root, "package.json"),
-        ).cache,
+        moduleCache: runtime.moduleCache(),
       }),
   });
+};

@@ -26,12 +26,14 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
   string,
   IAutoMovieHumanBodyMeasurement
 > = {
-  // at the nipple's height, where ISO 8559-1 takes the bust girth and ANSUR
-  // the chest circumference: the left nipple-areola fill's centre. The
-  // largest girth up to three fifths of the way to the upper thoracic
-  // landmark read a man's chest 5 to 11 cm small, his nipple standing at
-  // 0.87 to 0.92 of that span, and higher up a heavy body's arms meet the
-  // trunk in the section
+  /**
+   * Reads bare rest A-pose skin in a horizontal plane through the left nipple-areola fill's centre.
+   *
+   * The 2011 protocol (Hotzman et al., NATICK/TR-11/017, section 6.4.25) places the chest tape at the right chest point anterior in anthropometric standing, at the maximum point of quiet respiration; women's landmark is on a bra. Footnote 7 distinguishes the earlier male thelion level from this protocol and states that the female procedure is unchanged. These survey sites and acquisition conditions remain distinct from this rest-skin instrument. This rule does not establish equivalence with the ISO 8559-1 protocol.
+   * https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf
+   *
+   * The largest girth up to three fifths of the way to the upper thoracic landmark read a man's chest 5 to 11 cm small, his nipple standing at 0.87 to 0.92 of that span, and higher up a heavy body's arms meet the trunk in the section.
+   */
   measureBustCirc: {
     kind: "girth",
     from: "joint-spine-2",

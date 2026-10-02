@@ -23,7 +23,10 @@ export interface IPortraitColourField {
   center: [number, number, number];
   /** Positive support radii in that same coordinate unit. */
   radius: [number, number, number];
-  /** Linear RGB multipliers in [0,1]. White is the identity. */
+  /**
+   * Finite nonnegative linear RGB multipliers; white is the identity.
+   * Values above one lighten, subject to the consumer's albedo admission.
+   */
   gain: [number, number, number];
   /** Envelope strength in [0,1]. Zero is the identity. */
   strength: number;

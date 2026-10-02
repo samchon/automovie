@@ -1,30 +1,4 @@
-/** How one body reading answers one ANSUR II column. */
-export interface IAnsurBodyMeasure {
-  /** Report name. */
-  name: string;
-
-  /**
-   * What the body is read with: a `measureHumanBodySimpleShape.channel` rule
-   * id, or the height of a skeleton landmark above the lowest skin point.
-   */
-  read:
-    | { kind: "channel"; id: string }
-    | { kind: "landmarkHeight"; landmark: string };
-
-  /** Lower-cased ANSUR II column, in millimetres. */
-  column: string;
-
-  /**
-   * True when the body reading and the survey measure the same thing under
-   * the same definition, so a residual is a defect of the body or of the
-   * simple tier's solve. False when the definitions differ and the residual
-   * mixes a real difference with a definition difference; the reason says
-   * which.
-   */
-  sameDefinition: boolean;
-
-  reason: string;
-}
+import type { IAnsurBodyMeasure } from "./IAnsurBodyMeasure";
 
 /**
  * The body readings a census compares with ANSUR II (measurement protocol:
@@ -33,42 +7,45 @@ export interface IAnsurBodyMeasure {
  * identity-card inputs, so they are never a residual; every row here is an
  * output the body derives from them.
  *
- * Each row's `reason` is the checked difference or agreement: the buttock,
- * calf, ankle and wrist tapes are the instruments the body's rule table
- * documents (`HUMAN_BODY_MEASUREMENTS`, `HUMAN_BODY_ANSUR_II_REFERENCE`); the
- * others are listed because a viewer reads them as proportion even though the
- * survey landmark is a different structure from the body's joint centre or
- * tape rule. The survey stands the subject in a prescribed posture and the
- * body is read at its rest A-pose, a difference the table cannot remove.
+ * The survey instruments below were checked against Hotzman et al. (2011),
+ * sections 6.4.5, 6.4.17, 6.4.22, 6.4.25 and 6.4.93:
+ * https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf.
+ * `HUMAN_BODY_MEASUREMENTS` owns the body instruments. Their sampled rest
+ * sections approximate some survey sites, but anatomical purpose alone does
+ * not establish identical planes, sides, landmarks or acquisition postures.
+ * `HUMAN_BODY_ANSUR_II_REFERENCE` remains comparable sample context, not proof
+ * of protocol identity. The census and its formatter pass these distinctions
+ * through without altering any measurement or fitted body. A residual also
+ * includes individual variation that the identity-card inputs do not specify.
  */
 export const ANSUR_BODY_MEASURES: readonly IAnsurBodyMeasure[] = [
   {
     name: "buttock circumference",
     read: { kind: "channel", id: "measureHipsCirc" },
     column: "buttockcircumference",
-    sameDefinition: true,
-    reason: "both at the rearmost buttock projection",
+    sameDefinition: false,
+    reason: "the body samples the shared rearmost trunk section in its rest A-pose; the survey uses the right buttock's maximum projection level with heels together",
   },
   {
     name: "calf circumference",
     read: { kind: "channel", id: "measureCalfCirc" },
     column: "calfcircumference",
-    sameDefinition: true,
-    reason: "both the maximum standing calf tape",
+    sameDefinition: false,
+    reason: "the body samples the maximum left calf section perpendicular to the knee-to-ankle axis at rest; the survey uses the maximum horizontal right-calf tape standing with heels about 10 cm apart",
   },
   {
     name: "ankle circumference",
     read: { kind: "channel", id: "measureAnkleCirc" },
     column: "anklecircumference",
-    sameDefinition: true,
-    reason: "both the minimum tape above the malleoli",
+    sameDefinition: false,
+    reason: "the body samples the minimum left ankle section perpendicular to the knee-to-ankle axis at rest; the survey uses the minimum horizontal ankle tape standing with feet about 10 cm apart",
   },
   {
     name: "wrist circumference",
     read: { kind: "channel", id: "measureWristCirc" },
     column: "wristcircumference",
-    sameDefinition: true,
-    reason: "both at the narrowest forearm tape near the stylion",
+    sameDefinition: false,
+    reason: "the body samples the minimum left distal-forearm section at rest; the survey places the tape at stylion perpendicular to the right forearm with elbow flexed 90 degrees and palm up",
   },
   {
     name: "waist circumference",
@@ -82,7 +59,7 @@ export const ANSUR_BODY_MEASURES: readonly IAnsurBodyMeasure[] = [
     read: { kind: "channel", id: "measureBustCirc" },
     column: "chestcircumference",
     sameDefinition: false,
-    reason: "the body reads bare skin at the nipple level, ANSUR over clothing",
+    reason: "the body reads bare skin at its left nipple-fill level at rest; the 2011 protocol uses the right chest-point level at quiet respiration, a bra landmark for women, and notes its change from the earlier male thelion level",
   },
   {
     name: "thigh circumference",

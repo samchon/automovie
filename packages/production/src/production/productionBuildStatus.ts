@@ -12,7 +12,7 @@ import {
 
 /** Compare intended generated files with the bytes currently stored. */
 export const statusesOf = (
-  project: AutoMovieProductionProject,
+  project: Pick<AutoMovieProductionProject, "readGeneratedFile">,
   files: readonly IAutoMovieGeneratedFile[],
 ): IAutoMovieMaterializedFile[] => {
   return files.map((file) => {

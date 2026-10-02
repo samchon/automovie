@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import { createHumanBodySurfaceMush } from "./createHumanBodySurfaceMush";
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { humanBodySkinDownDirection } from "./humanBodySkinDownDirection";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
@@ -11,7 +12,12 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  *
  * The surface owns its skin weights and sag neighbourhoods. The body builder
  * supplies one shaped position array, the joint transforms, and the matching
- * rest and lean arrays for the same document revision. Skinning precedes sag:
+ * rest and lean arrays for the same document revision. Optional rest-detail
+ * filtering corrects the skinning of the neutral shape, then the full
+ * corrected-minus-neutral skinning displacement is added. Both skin samples
+ * use the same transforms; subtraction preserves pose correctives even when
+ * distributed twist makes skinning depend on position. Sag follows that
+ * result, while its gravity derivative still receives pure skinning:
  * the sag field compares gravity in the rest and posed skin frames, then moves
  * the posed vertices in metres. The basis and document are read only; each
  * evaluation returns a new position array for normal and region projection.
@@ -34,6 +40,10 @@ export function createHumanBodyPosedSurface(
     surface.sag === undefined
       ? null
       : createHumanBodySurfaceSag(surface, surface.sag);
+  const mush =
+    surface.mush === undefined
+      ? null
+      : createHumanBodySurfaceMush(surface, surface.mush);
   return ({ shaped, transforms, rest, lean, document }) => {
     const skinned = skinHumanBodySurface(
       shaped,
@@ -41,7 +51,17 @@ export function createHumanBodyPosedSurface(
       joints,
       transforms,
     );
-    if (sag === null || rest === null) return skinned;
+    const filtered =
+      mush === null || rest === null
+        ? skinned
+        : (() => {
+            const neutral = skinHumanBodySurface(
+              rest, surface.skin, joints, transforms,
+            );
+            const restored = mush(rest, neutral);
+            return skinned.map((value, i) => value + (restored[i] - neutral[i]));
+          })();
+    if (sag === null || rest === null) return filtered;
     const declared = surface.sag!;
     const softness = Math.min(
       declared.softness.range[1],
@@ -56,7 +76,7 @@ export function createHumanBodyPosedSurface(
     return sag({
       rest,
       lean: lean(),
-      skinned,
+      skinned: filtered,
       hanging: humanBodySkinDownDirection({
         positions: shaped,
         skinned,

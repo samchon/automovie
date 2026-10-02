@@ -2,6 +2,7 @@ export * from "./AutoMovieHumanBodySimpleParameter";
 export * from "./IAutoMovieHumanBodyBasis";
 export * from "./rig/IAutoMovieHumanBodyBasisJoint";
 export * from "./surface/IAutoMovieHumanBodyBasisSurface";
+export * from "./surface/IAutoMovieHumanBodyBasisSurfaceMush";
 export * from "./IAutoMovieHumanBodyBasisDocument";
 export * from "./IAutoMovieHumanBodyShoulderPose";
 export * from "./IAutoMovieHumanBodyBuild";
