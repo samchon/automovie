@@ -6,7 +6,7 @@
 
 Every rendered project is self-contained:
 
-- the scaffold's [contract-target inventory](./scaffold/.agents/skills/evidence-graph/contract-targets.md) is installed inside the generated project's `docs` root;
+- the scaffold's [contract-target inventory](./scaffold/.agents/skills/evidence-graph/contract-inventory.md) is installed inside the generated project's `docs` root;
 - `docs/contracts` contains production-specific additive targets;
 - one typed `lint.config.ts` owns the production shape, population scope, branch stages, local claims, and evidence graph;
 - `.agents/skills/{contract,production-lifecycle,evidence-graph,source-authoring,review-verification}` exposes five distinct contract and authoring triggers with conditionally loaded sibling procedures;
@@ -15,6 +15,8 @@ Every rendered project is self-contained:
 `renderScaffold` excludes working artifacts from its source population. A `node_modules`, `.git`, or `.cache` directory in the scaffold, and any file carrying a builder-output shape, belong to whoever ran a tool in that directory rather than to the template, and none reaches a generated project. That exclusion is load-bearing rather than tidy: the repository ignores the paths a stray type-check emits under the scaffold, so nothing else in the toolchain can see one, and a generated project's loader prefers an emitted `.js` to the `.ts` beside it.
 
 The scaffold's [static-document policy](./scaffold/README.md#static-document-updates) owns installed instructions, contracts, and other project files. Updating the package does not update those files.
+
+The source inventory carries its root ignore rules in `scaffold/_gitignore`, which the materializer installs as `.gitignore`. This keeps npm's pack-time `.gitignore` to `.npmignore` rename from changing the generated project's Git boundary. A direct `.gitignore` source remains supported; supplying both root identities is a collision and refuses the candidate.
 
 Initial scaffold candidates validate local targets and heading links from every shipped Markdown skill topic as well as the five `SKILL.md` routers and `AGENTS.md`. The complete installation population includes referenced README, configuration and asset files. Router frontmatter and H1-only shape apply to entry points; conditional procedures keep their own headings. A broken sibling route refuses creation before publication. Later project-owned edits follow the static-document policy.
 

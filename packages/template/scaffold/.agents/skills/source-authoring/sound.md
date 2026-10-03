@@ -2,15 +2,7 @@
 
 Sound establishes causality, scale, space, rhythm, attention, and continuity. Build it from semantic events and authored ambience rather than decorating the finished image with unrelated effects.
 
-## Sound layers
-
-- Dialogue carries language, intention, breath, and proximity.
-- Foley makes contact and material action legible.
-- Effects express events, machinery, weapons, weather, and exceptional forces.
-- Ambience defines continuous place, time, population, and acoustic condition.
-- Music shapes structure and emotion but must not erase required information.
-
-Give each layer a narrative job. If two sounds compete for the same job, simplify or establish hierarchy.
+Declare required dialogue, contact, event, ambience and music functions against semantic events and the delivered timeline.
 
 ## What an authored cue plays
 
@@ -46,9 +38,7 @@ Caption readability is evaluated only against a production-selected, versioned p
 
 ## Mix hierarchy
 
-Mix at the declared sample rate, channel layout, and codec profile. Maintain headroom. Control masking by timing, spectrum, level, and spatial placement before applying heavy processing. Use dynamics to preserve intelligibility, not to make every moment equally loud.
-
-Shape ambience across edits with L-cuts and J-cuts. Crossfade room tone where continuity is intended; use a hard acoustic boundary only when story or place changes. Silence is an authored layer and should have a reason.
+Mix at the declared sample rate, channel layout and codec profile. Preserve required intelligibility and ambience continuity across authored edits.
 
 ## Verification
 
@@ -56,6 +46,4 @@ Probe final media facts, resident sample count, duration, channel count, sample 
 
 ## Evidence for a sound verdict
 
-Sound has no turntable, so its evidence is the media facts and the delivered timeline rather than a frame. Probe the final media, then record what it proved in the evidence citation that owns it: the cut's own audio on its sequence owner, and the mix, the dialogue intelligibility, and the audiovisual runtime on the film source.
-
-A picture review never discharges a sound obligation, and neither does a waveform nobody listened to.
+Follow [Production review](../review-verification/review.md) on the final decoded sound and timeline, retaining media facts and observations with the owning sequence or film source. A picture review or unheard waveform cannot discharge a sound obligation.

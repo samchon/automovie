@@ -10,7 +10,7 @@ Inspect the actual graphics vendor and renderer before claiming hardware acceler
 
 ## Select the complete view set
 
-After a coherent change to silhouette, major mass, opening, contact, attachment, articulation, or material response, observe the current result before a dependent stage consumes it. Choose the views and states that can answer that change's question. This intermediate observation does not narrow the finite review set or the final whole-production scope.
+[Author process Self-Review](self-review.md#intermediate-observation) owns when intermediate observation is due and what it invalidates. This document owns the view and capture conditions.
 
 Derive views from the contract being judged before drawing them. A shot owes its declared frame-and-pass population. An isolated model needs the required silhouette, opposing perspectives, relevant articulation extremes, and difficult or occluded details. Name which complete population a sample represents and the contract that permits that inference.
 

@@ -32,17 +32,7 @@ Swing, slide, and fold are not three contracts. A swing leaf is one revolute pan
 
 The state vocabulary is yours and the arithmetic is the engine's. `closed`, `open`, `vent`, `barred`, and a production's own term are the same kind of record: a named state gives every panel of the operation a value, in radians for a revolute panel and metres for a prismatic one. That is what lets a temple's pivoting bronze leaf, a hall's barred gate, a casement, and a curtain-wall vent be one record under different numbers, so nothing here assumes any period's ironmongery.
 
-`validateBuiltEnvironment` refuses this family by name, and reading the refusals before authoring is cheaper than reading them afterwards:
-
-- an opening declaring panels while naming no filling element, because a leaf that fills nothing is a leaf nobody can point at;
-- a panel element that does not resolve, or that is neither the filling element nor a descendant of it;
-- a panel element already driven by another panel anywhere in the work, because one element carries one displacement and a second claim would silently lose the first;
-- a non-positive leaf width or height;
-- a zero travel axis, a non-finite pivot, a lowest travel above zero, a highest travel below zero, a range with no travel in it, or a turning leaf given more than a full turn;
-- an operation declaring no panel, or declaring no named state;
-- a state that drives an unknown panel, drives one panel twice, leaves a declared panel with no value, or drives a panel outside its own travel;
-- a current state naming no declared state;
-- an empty or duplicated panel, state, or hardware id, an empty hardware kind, or a hardware element that does not resolve.
+Read the installed `IAutoMovieOpeningOperation` and `validateBuiltEnvironment` contracts for panel membership, finite local geometry and travel, unique ids, complete state values and hardware validation. One element has one displacement owner; a second panel cannot drive it.
 
 Rigging a leaf buys you no visibility change, and this is the connection authors get wrong. The room culler treats a boundary carrying an opening as a portal whether or not a leaf fills it and whatever state that leaf stands in, because a shut leaf is movable state and the cull stays conservative. [Design branch ownership](design-branches.md#ownership-direction) owns that rule and the rest of the space graph; what follows for your rig is that the state a leaf stands in never moves a space between the drawn set and the hidden one, so a shot that needs the room beyond a door out of the picture is solved by framing, lighting, or the design, never by the hinge. What the travel does feed is clearance and, separately, the swing an audience sees: `builtOpeningSweepEnvelope` returns the world volume each panel sweeps across its whole travel, which is the number a swing clearance is argued from, and the next section owns what it takes to put that swing in a frame.
 
@@ -54,13 +44,7 @@ A named state is a configuration, not a movement. It says where a leaf stands, a
 
 Address a building's panel by its staged set-piece node, the environment id and the panel's element id joined as `<environment>/<element>`, which is the node id `builtOpeningPanelPlacements` answers with. Address a prop's leaf by its lowered joint, `<placement>/<joint>`, which the prop gate section below defines. The clips go on the shot's own `objectMotions`, and they are measured rather than trusted: they resolve through the engine's frame solver with every staged prop's profile bound at its own placement prefix, so a track driving a hinge past the travel its profile declares is refused with the channel and the owning profile both named.
 
-An object-motion track interpolates `step` or `linear`. `cubicspline` is refused by name, because a spline's tangents can leave a declared travel between two bounded keys while nothing downstream clamps an object clip; the viewer writes it onto the object verbatim. The rest of what the gate refuses:
-
-- a node no shot staged, and a joint no staged prop declares, because a clip addressing nothing is written, validated, stored, and rendered as silence;
-- a node this shot's performance already drives, because a performer moves off its rig rather than off a transform clip that would fight the pose every frame;
-- a channel a baked clip already drives, or a clip id a baked clip already carries, since one channel carries one authority;
-- a clip id duplicated among the authored clips;
-- a key outside the shot's own clock, because a time past the end is data no frame reads.
+An object-motion track interpolates `step` or `linear`. `cubicspline` is refused by name, because a spline's tangents can leave a declared travel between two bounded keys while nothing downstream clamps an object clip; the viewer writes it onto the object verbatim. Read the object-motion gate for staged-node resolution, performer and baked-channel ownership, unique clip ids and shot-clock key bounds.
 
 Getting the numbers for those keys is where an author stalls. `builtOpeningPanelPlacements` returns each panel's world placement at one named state and refuses a state the opening does not declare, so a key at a half-open angle is bought by declaring that half-open state and reading its placement, never by passing an angle to the query. Declare on the opening every state the shot has to pass through, then read them. The query is not reachable from shot source, so a project script asks and the shot carries the keys that come back.
 
@@ -76,7 +60,7 @@ For handled objects, verify grip anchors, support-hand reach, sight line, and mo
 
 An object that is not part of a building is a prop, and `forgeProp` is the gate it passes. Its model contract: the model id must equal the prop's own scene node, since staging joins on it; the origin must be generated unless the spec names the builder registration its imported bytes came from; and the skeleton must be null. A riggable performer goes through the cast gate instead, and a prop's moving parts are articulation nodes rather than bones, so an imported appearance carrying humanoid bones is refused here as a performer standing where furniture should be.
 
-The articulation contract is reported all at once rather than one failure at a time, so a single correction round sees the whole list. Joint ids must be non-empty and unique. Every parent must resolve inside the declared nodes without a cycle, where `null` means the prop's own root and a joint may declare its parent after itself. Each joint's optional mesh must name one part of this prop's own model, and no part may be claimed by two joints, because a part rides one frame. The binding must target the declared profile, every mapped value must name a declared node, and every semantic key the profile references must be mapped.
+Read the installed `forgeProp` contract for articulation identity, parent resolution, acyclicity, part ownership and complete profile binding. `null` parents mean the prop root; declaration order does not constrain parent resolution. Collect its complete diagnostic set before correction.
 
 The mesh reference is the one authors forget, and forgetting it is silent. A joint that names no part still builds its frame and still turns, so a hinge declared without its leaf turns nothing while the shot validates clean and shows a door standing still. Name the part on the joint that carries it. A joint that only positions other joints legitimately names none, and a prop drawing an imported appearance has no addressable parts in the model the viewer builds, so a joint of one may name none and its frame still turns whatever it holds.
 
