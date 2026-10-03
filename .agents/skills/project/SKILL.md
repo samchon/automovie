@@ -39,26 +39,16 @@ A logic example belongs in a pure unit test, a shipped archetype in `packages/ar
 
 ## Layout
 
-- `packages/interface` (`@automovie/interface`): the type hub and AST the LLM emits against (geometry, skeleton and rig, pose, expression, motion, material, model, scene, validation). Pure types with no runtime dependency, under the development skill's rough-types rule.
-- `packages/engine` (`@automovie/engine`): the deterministic engine: math, forward kinematics, range-of-motion and other constraint validators, motion sampling, tessellation, and the film pipeline (stage, block, perform, cut). TypeScript with a pinned synchronous numerical WebAssembly kernel for constrained displacement, and no `three.js`. The [engine README](../../../packages/engine/README.md#constrained-surface-displacement) owns that runtime and its rebuilding boundary.
-- `packages/evidence` (`@automovie/evidence`): the reusable production-authoring evidence graph. It validates film, brief and library topology and turns one generated project's stages plus additive claims into `@ttsc/evidence` configuration. One typed `lint.config.ts` owns that project-local declaration, and every reusable target lives in the generated project's scaffold-local `docs` inventory.
-- `packages/human` (`@automovie/human`): numerical facial anatomy, identity and expression documents, component replacement, editor state and static face export. Named people and photograph-derived documents belong in test studies, never in this capability package. Its [README](../../../packages/human/README.md) owns package use. Read [human.md](human.md) before changing or investigating it for input/source responsibilities, scientific meaning and connected-unit diagnosis and verification.
-- `packages/archetypes` (`@automovie/archetypes`): the shipped model-archetype catalogue (parameter schemas, bounds, geometry builders, declarative gait tables) behind one registry the builder is handed and does not enumerate. A figure or prop the engine happens to ship lives here, so what a production performs stays the production's decision.
-- `packages/ingest` (`@automovie/ingest`): glTF and model ingestion through `@gltf-transform/core`.
-- `packages/viewer` (`@automovie/viewer`): the render and playback surface over `three.js`, the only library package that imports `three`. A viewer, not an editor. `playground` imports it as the demo application that mounts the viewer.
-- `packages/render` (`@automovie/render`): the deterministic frame schedule and encode plan a render spec turns into, plus headless capture, guide passes, caption planning and sidecars, and chunked sequence rendering.
-- `packages/cli` (`automovie`): the binary that scaffolds and inspects a production repository. `packages/template/scaffold/` is the blank authoring harness it stamps out (see the scaffold skill).
-- `packages/create-automovie`: the one-command project creator, a thin front door onto the same scaffolder.
-- `packages/playground`: Vite demo pages exercising the pipeline end to end, capture-verified through headless Chrome (see the viewer-verification skill).
-- `packages/mcp` (`@automovie/mcp`): four read-only authored Markdown reference operations over the same providers as the local JSON command. It reads indices and annotation-free source projections and does not edit, compile, render, run commands or validate evidence.
-- `packages/production` (`@automovie/production`): the deterministic production library a generated project runs on: the builder, the tracked project store, capture, inspection and the render job. It answers a project's own scripts and offers no network surface. The repository hosts no internal LLM or production-action tool server, and authoring doctrine stays in the shipped skills, separate from the optional Markdown reference navigation.
-- `test/` (`@automovie/test`): the `@nestia/e2e` `DynamicExecutor` program. The development skill's Testing section owns its rules.
-- `experimental/{ancient-civic-temple,medieval-baron-manor,modern-suburban-house,future-citizen-house}`: four retained architectural productions consumed by the public website's interactive 3D tours. The [website README](../../../website/README.md) owns their source and asset handoff. These retained productions are not disposable sandbox targets.
-- `website/` (`@automovie/website`): the Vite static site published to GitHub Pages at `https://samchon.github.io/automovie/` by `.github/workflows/website.yml`. The [website README](../../../website/README.md) owns its collection, tours, galleries and commands.
-- `config/` (`@automovie/config`): the workspace-wide base `tsconfig.json` and shared lint policy.
-- `docs/` (`@automovie/docs`): product requirements and package-independent system specifications, checked as an evidence graph during the workspace build.
-- `.wiki/` (gitignored): the working knowledge base, owned by the documentation skill.
-- `.references/` (gitignored): downloaded reference materials (specifications, example models, motion datasets) for reference study.
+The [root package map](../../../README.md#packages) and each package README own API inventories. Preserve these boundaries when choosing an owner:
+
+- `interface` is the pure-type authoring AST; `engine` owns deterministic computation and runtime admission. The [engine README](../../../packages/engine/README.md#constrained-surface-displacement) owns its pinned numerical WebAssembly kernel and rebuilding boundary.
+- `viewer` is the only library package importing `three.js`; `playground` mounts it. `production` orchestrates the engine, evidence and render libraries without a network authoring surface. `mcp` provides read-only Markdown navigation and never authors, executes or judges evidence.
+- `human` owns numerical human capability and participates in implementation contracts outside the repository triangle. Read [human.md](human.md) before investigating or changing it for source/input responsibilities, scientific meaning and connected-unit verification. Its [README](../../../packages/human/README.md) owns supported use. Named people and photograph-derived documents belong in test studies.
+- `archetypes` owns the shipped figure/prop catalogue behind the registry the builder is handed. Customer-authored content stays in its own production.
+- `template/scaffold` owns the generated authoring harness under the [scaffold skill](../scaffold/SKILL.md); `cli` and `create-automovie` install it. `evidence` turns a production's typed declaration into its separate contract graph.
+- `docs` owns repository requirements/specifications; `config` owns shared TypeScript/lint policy; `test` owns the pure-unit suite under the [development skill](../development/SKILL.md#testing).
+- The four retained architectural productions under `experimental/` feed the public website and are not disposable sandboxes. The [website README](../../../website/README.md) owns that handoff and deployment.
+- `.wiki/` is ignored working knowledge under the [documentation skill](../documentation/wiki.md); `.references/` holds ignored downloaded research materials.
 
 ## Commands
 
@@ -70,4 +60,4 @@ pnpm --filter @automovie/test start       # run the test suite (ttsx, no separat
 pnpm --filter @automovie/website build    # type-check and bundle the public site into website/dist
 ```
 
-Node 22 LTS, pnpm 10. CI: `.github/workflows/{build,test,website}.yml`; `website.yml` also deploys `website/dist` to the `gh-pages` branch on a `master` push.
+The workspace pins Node 22.23.2 and pnpm 10 in `pnpm-workspace.yaml` and the root `package.json`. CI commands live in `.github/workflows/{build,test,website}.yml`; `website.yml` also deploys `website/dist` to `gh-pages` on a `master` push.

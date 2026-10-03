@@ -38,7 +38,7 @@ Record raw candidates before fact-checking, so overlapping observations can be c
 
 Each discovery round follows the [review skill's law](../review/SKILL.md#non-negotiable-review-law) over the entire declared scope:
 
-1. Audit the whole scope: source, tests, documentation, CI, packaging, rendered output, platform behavior, sibling-repository and upstream provenance, and open and closed issue and pull-request history. Source is one evidence layer among several, so also run a generated project's own scripts, render through the viewer under the viewer-verification skill, and inspect upstream behavior, consumers, fixtures, public documentation and closed decisions.
+1. Audit the whole declared scope and its consequence surface: source, tests, documentation, CI, packaging, consumers and open and closed decisions. For affected visual output, use the viewer-verification skill; for a generated consumer, run its actual scripts; for platform or upstream-source claims, inspect that behavior and provenance. Source reading alone cannot settle those applicable claims.
 2. Audit the current implementation and its history against the development skill's [Forbidden](../development/SKILL.md#forbidden) section as a retrospective contract and not only a rule for future changes. A violation is a meaningful candidate even when it predates the campaign or passes every test at 100% coverage, and resemblance or stylistic preference proves nothing.
 3. Record every raw candidate with its evidence in the knowledge base before adjudication, and discard no suspicion because it looks duplicative or inconvenient.
 4. Adjudicate each candidate: reopen its evidence and reproduce the behavior, verify ownership, provenance and any claimed **Forbidden** classification from purpose, control flow, consequence and history, trace the full consequence surface, and compare open and closed issues and pull requests. Record accept, partial acceptance, rewrite, combine, split, reject or defer with the supporting evidence, so later rounds do not rediscover a rejected premise as new.
@@ -68,9 +68,9 @@ An issue is one topic, not one package. Walk the topic down the contract before 
 
 | Layer | What the body answers |
 | --- | --- |
-| `docs/requirements` | Which requirement already promises this capability, or which promise the topic adds |
-| `docs/specifications` | Which specification makes that promise precise |
-| `packages/*` | Which package owns the logic, and which anchors its public exports cite |
+| `docs/requirements` | Which requirement promises the capability, or why the active package contract is outside the repository triangle |
+| `docs/specifications` | Which specification makes that promise precise, when the triangle applies |
+| `packages/*` | The logic owner and its active requirement/specification or implementation-checklist responsibilities |
 | Sandbox engine surface | Whether authoring source has to call it, and through which surface entry and bridge |
 | `packages/template/scaffold/.agents/skills` | How an authoring agent comes to know the capability is there |
 | Tests | Reachability and the negative twin, not the logic alone |

@@ -24,6 +24,8 @@ AutoMovie has no repository review service, finding ledger, approval state or wa
 
 Declare the branch, base and head, working-tree state, artifact revision, and the file or rendered-output population the round reads. A conclusion applies only to that surface: a clean check, an empty finding set, elapsed time or a judgment over one file never implies wider approval.
 
+An intermediate review declares the coherent result being submitted and its consequence surface. Final integration covers the complete base-to-head change and coupled consumers. A correction restarts the declared review surface and repeats the observations it invalidates; it does not turn an intermediate review into a repository-wide audit. Identify affected shared boundaries, derivatives and consumers when choosing the surface.
+
 Write each finding at the narrowest reproducible location: changed line, public symbol, test case, diagnostic, target identity, frame, interval, subject or render view. Separate what was observed, what the contract requires, the consequence, and any cause proved from control flow or history; an unproved cause stays a hypothesis. Classify a verified finding by affected contract or behavior, impact, reproduction conditions and repair priority (impact and priority are different facts). Several manifestations may share one root cause, and each reproducing location remains evidence until the whole class is repaired.
 
 Compare alternatives only when their source, intent, platform, inputs, time position and presentation conditions make the comparison meaningful. Name the common basis and the actual difference, and report the comparison limit when the basis does not match.
@@ -34,8 +36,8 @@ Preserve history through commits and formal pull-request reviews. A later correc
 
 Self-Review and an unqualified review request use this workflow:
 
-1. Establish the complete change surface, including the pull request base-to-head diff and any uncommitted changes.
-2. Perform one complete round under the Non-Negotiable Review Law. Include correctness and boundaries, numeric and quaternion behavior, determinism, Windows and POSIX behavior, state, public API compatibility, test isolation and the 100% coverage mandate, CI and packaging, and documentation and `.wiki`. Add the [evidence graph skill](../evidence-graph/SKILL.md) for a changed requirement, specification, public citation or graph configuration, the [contracts skill](../contracts/SKILL.md) for a declaration enrolled in a contracts claim (the checker confirms an answer exists and this round judges whether it is true), and the [viewer-verification skill](../viewer-verification/SKILL.md) for anything visual.
+1. Declare the review boundary. An intermediate coherent-result review includes that result's complete changes and consequence surface. Final integration and an unqualified Self-Review include the entire pull-request base-to-head diff and all uncommitted changes.
+2. Perform one complete round under the Non-Negotiable Review Law over that surface. Apply the [evidence graph skill](../evidence-graph/SKILL.md) for a changed requirement, specification, public citation or graph configuration, the [contracts skill](../contracts/SKILL.md) for a declaration enrolled in a contracts claim, and the [viewer-verification skill](../viewer-verification/SKILL.md) for visual behavior. A checker establishes that an answer exists; this review judges its truth and actual consequence.
 3. Reproduce every suspected defect before accepting it.
 4. Apply every sound improvement and run the narrowest verification the owning workflow authorizes.
 5. If anything changed, restart at step 1 as a fresh full round.
@@ -45,12 +47,11 @@ Self-Review does not authorize creating, pushing, updating or merging a pull req
 
 ## "It is missing" is a claim that needs its own evidence
 
-A failed search proves a name was not found, not that a capability is absent or that its absence was unintended. This repository records deliberate omissions in contract JSDoc and the guide corpus, where a grep for the capability does not reach. Complete all four steps before writing that something is missing:
+A failed name search does not establish a missing capability or an unintended omission. Before accepting that claim, inspect:
 
-1. Read the contract type's JSDoc, where deliberate exclusions are stated ("the sun direction is an input, not a computation").
-2. Search the four shipped authoring skills under `packages/template/scaffold/.agents/skills/{production-lifecycle,evidence-graph,source-authoring,review-verification}/` in the user's vocabulary, because they teach in a director's words (a curtain, a ridge, a reverberant room) and a search by type name finds nothing even where the topic is covered.
-3. Check whether related fields already exist and read why. Half a mechanism usually means the other half was deferred under another name.
-4. Confirm the probe: verify how the target is spelled, count consumers by exported symbol rather than module filename, and read checked-in source rather than a generated artifact.
+1. The owning contract and type JSDoc, related fields, and any declared exclusion or reopening condition.
+2. The checked-in implementation and reachable consumer, using the actual exported identity rather than only a filename or generated artifact.
+3. The relevant guide and closed decision. When generated-production authoring reachability is in question, follow the [scaffold skill](../scaffold/SKILL.md#authoring-procedures-live-with-the-production) to the applicable shipped route and search in the author's vocabulary.
 
 When the steps turn up a declared position, the finding becomes "this was deferred, and here is what now lets it be done deliberately within stated bounds", which carries a different burden of proof.
 
@@ -58,11 +59,11 @@ When the steps turn up a declared position, the finding becomes "this was deferr
 
 ## Let the builder decide what it can
 
-Looking costs frames, attention and a written justification, and every verdict stales when anything upstream moves. Reserve it for what only looking settles.
+Choose evidence for the claim. A numerical check, source trace and rendered observation answer different questions, and each result is tied to the source and input it inspected.
 
 - Binding, exports, determinism, engine enforcement and error paths are settled by reading the module.
 - Identity, references, scope, ownership, ranges and downstream consumability are settled by the records and compile diagnostics.
-- Acceptance outcomes are settled by the builder's explicit per-predicate verdict for each authored opening, closing, event, camera, actor and formation predicate.
+- A mechanically specified acceptance predicate requires its actual validator result. Citation counts and passing compilation do not establish anatomical validity or clinical qualification.
 - Whether a silhouette reads, a performance is credible or a cut lands is settled by frames alone.
 
-A claim that satisfies [falsifiable acceptance](../../../docs/requirements/story/coverage-and-acceptance.md#story-falsifiable-acceptance) is by construction a predicate, and one that needs [scene observability](../../../docs/requirements/story/scenes-and-observable-action.md#story-scene-observability) is by construction pixels. When a review keeps producing the same class of finding, ask whether a diagnostic belongs somewhere else, and measure what already refuses the case before writing another check, because a regex beside a parser is a second, worse spelling of a rule that already held. State what the frames showed in the evidence citation on the source that claims the unit is realized; a citation that names no observation is not a review.
+For generated-production predicates and actual-output evidence, follow the shipped [production review procedure](../../../packages/template/scaffold/.agents/skills/review-verification/review.md). When a finding repeats, inspect the existing refusal before adding a diagnostic at the actual owner. Do not add a source-text approximation beside the parser or validator that already owns that rule.
