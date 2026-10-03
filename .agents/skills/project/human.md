@@ -1,4 +1,4 @@
-﻿# Human package
+# Human package
 
 Read this document before investigating or changing `packages/human`. The [package README](../../../packages/human/README.md) owns supported APIs and their current consumers. Read the task's public issue and the selected input, source and consumer before choosing a representation.
 
