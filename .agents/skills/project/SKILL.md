@@ -35,7 +35,7 @@ The product packages hold general capability. Named catalogue entries, furniture
 
 Pre-built content also destroys a measurement: the subject-independence benchmark asks whether an agent can build a film from a subject the repository planted nothing for, so anything planted for a subject removes what it measures.
 
-A logic example belongs in a pure unit test, a shipped archetype in `packages/archetypes`, and a production authored for an experiment in its disposable sandbox under the [experiment skill](../experiment/SKILL.md). None belongs in `engine`, `interface` or the scaffold every generated project inherits verbatim.
+A logic example belongs in a pure unit test, a shipped archetype in `packages/archetypes`, and a temporary production in its own disposable sandbox. The [scaffold skill](../scaffold/SKILL.md#verification) owns generated-consumer verification. None belongs in `engine`, `interface` or the scaffold every generated project inherits verbatim.
 
 ## Layout
 
@@ -53,7 +53,7 @@ A logic example belongs in a pure unit test, a shipped archetype in `packages/ar
 - `packages/mcp` (`@automovie/mcp`): four read-only authored Markdown reference operations over the same providers as the local JSON command. It reads indices and annotation-free source projections and does not edit, compile, render, run commands or validate evidence.
 - `packages/production` (`@automovie/production`): the deterministic production library a generated project runs on: the builder, the tracked project store, capture, inspection and the render job. It answers a project's own scripts and offers no network surface. The repository hosts no internal LLM or production-action tool server, and authoring doctrine stays in the shipped skills, separate from the optional Markdown reference navigation.
 - `test/` (`@automovie/test`): the `@nestia/e2e` `DynamicExecutor` program. The development skill's Testing section owns its rules.
-- `experimental/{ancient-civic-temple,medieval-baron-manor,modern-suburban-house,future-citizen-house}`: four retained architectural productions consumed by the public website's interactive 3D tours. The [website README](../../../website/README.md) owns their source and asset handoff. Disposable sandboxes follow the [experiment skill](../experiment/SKILL.md).
+- `experimental/{ancient-civic-temple,medieval-baron-manor,modern-suburban-house,future-citizen-house}`: four retained architectural productions consumed by the public website's interactive 3D tours. The [website README](../../../website/README.md) owns their source and asset handoff. These retained productions are not disposable sandbox targets.
 - `website/` (`@automovie/website`): the Vite static site published to GitHub Pages at `https://samchon.github.io/automovie/` by `.github/workflows/website.yml`. The [website README](../../../website/README.md) owns its collection, tours, galleries and commands.
 - `config/` (`@automovie/config`): the workspace-wide base `tsconfig.json` and shared lint policy.
 - `docs/` (`@automovie/docs`): product requirements and package-independent system specifications, checked as an evidence graph during the workspace build.

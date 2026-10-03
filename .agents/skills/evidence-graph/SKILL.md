@@ -54,7 +54,9 @@ Keep source-text snapshots, repository-shape validators and unpaid-host exceptio
 
 ## Carrier population
 
-Derive the complete carrier population from a source-tree glob and never from a hand-written union of paths. A listed population makes "owes no evidence" the default for every file added later, and nothing reports the omission.
+Select the complete public export population for the repository triangle. Implementation checklists instead select the responsibility owners defined by the contracts skill; preserve unpaid owner claims when transport or helper obligations change. Neither citation counts nor a passing native check establish implementation quality.
+
+Derive each complete carrier population from a source-tree glob rather than a fixed path list, so new declarations enter a defined domain by default.
 
 - Write each whole-population exclusion as a negative pattern beside the positive one, and state in the population's JSDoc why that file owes no package contract. Three reasons are accepted: a barrel re-exports declarations that already answer at their definition, a process entry point is not a contract carrier, and a generated file is not authored.
 - Cross every directory depth (`src/**/*.ts`), because a one-level glob admits only the top directory.

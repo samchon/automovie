@@ -59,9 +59,9 @@ Self-Review and exhaustive review rounds over one whole surface. Read for every 
 
 Exhaustive discovery, vetted issues, implementation in dependency order, one PR per cycle. Read for a broad audit or many issue candidates, not for one defined issue.
 
-### [Experiment](.agents/skills/experiment/SKILL.md)
+### [Mission Supervision](.agents/skills/mission-supervision/SKILL.md)
 
-Disposable sandbox under `experimental/` for trying things and benchmarking an authoring agent. Read when the user wants to try something out or run a benchmark.
+Assignment, shared ownership and intermediate acceptance for a long mission. Read only when the user explicitly invokes `mission-supervision`.
 
 ### [3D Modeling](.agents/skills/3d-modeling/SKILL.md)
 

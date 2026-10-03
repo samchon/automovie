@@ -1,6 +1,6 @@
 # Common Implementation Principles
 
-These chapters apply to every enrolled declaration. Give grounds a reviewer can check against the actual declaration. Keep straightforward decisions brief and do not invent alternatives or development history to fill an answer.
+These principles apply to every maintained declaration during implementation and review. Answer the chapters selected by the package configuration with checkable grounds specific to the declaration's responsibility. Document nonobvious grounds at their owner; repeating generic compliance sentences supplies no evidence.
 
 ## Principled Implementation
 
@@ -18,7 +18,7 @@ Make responsibility, dependencies and control flow apparent through the simplest
 
 Keep decisions with the responsibility that owns them instead of duplicating the same policy across independent paths. Hide changeable implementation details behind meaningful boundaries so a later change can remain local. This supports extension through maintainable code rather than unused extension mechanisms.
 
-Explain how the declaration's organization exposes its responsibility and why any nonobvious layer, option or separation is necessary. Fewer lines, files or methods are not the objective by themselves. A simple type can describe how its members are organized without inventing an architecture.
+Document the reason for a nonobvious layer, option or separation at its owner. Ordinary types and adapters need their useful contract, without an architectural self-assessment.
 
 ## Prohibited Implementation Shortcuts
 
@@ -31,7 +31,7 @@ Do not substitute a shortcut for the implementation the product requires:
 
 These substitutions can satisfy known examples while leaving the product dependent on foreign internals or a false premise. Identify any relevant special case, foreign mutation or compensating path and explain its basis in an actual supported requirement. State an unresolved violation honestly; do not recite every prohibition where the declaration has no such mechanism.
 
-A permanent acknowledgment concerns mechanisms present in the implementation. It need not reconstruct discarded designs or the repair history. A passing test or renamed wrapper does not establish that a compensation is legitimate.
+Document the basis of mechanisms actually present, rather than an assertion that shortcuts are absent. Repair history belongs in the issue. A passing test or renamed wrapper does not establish that a compensation is legitimate.
 
 ## Meaningful documentation
 
@@ -41,4 +41,4 @@ Follow the documentation skill in related repository documents and apply its par
 
 Separate descriptive prose from acknowledgment tags with a blank comment line. Separate documented properties with a blank source line so each explanation is visibly associated with its member. Properties retain useful native documentation without separate checklist acknowledgments.
 
-Identify the useful facts present in the native documentation and the applicable documentation guidance followed, including related repository documents changed. Assess the written information and its presentation. The acknowledgment must not stand in for missing documentation or repeat the other chapters' implementation arguments.
+Review the native documentation itself for these facts. A sentence saying that documentation is useful cannot replace missing ownership, units, failure effects or input meaning.

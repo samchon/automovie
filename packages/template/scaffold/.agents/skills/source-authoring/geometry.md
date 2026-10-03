@@ -16,7 +16,7 @@ A primitive is a compact parametric recipe. An explicit mesh may be imported, ba
 
 Transforming or merging meshes is not a Boolean union. Concatenating intersecting closed solids can preserve their separate triangles while leaving internal faces and a non-manifold visual result. Use separate parts when that is the reviewed representation. If the result requires a true union, difference, remesh, or another operation AutoMovie does not contract, stop, record the missing capability, and revise the representation or product boundary explicitly.
 
-## Consequence ledger
+## Operation consequences
 
 For each operation, account for all fields it receives and all consumers it affects:
 

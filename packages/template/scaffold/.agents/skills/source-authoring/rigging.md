@@ -12,6 +12,8 @@ Use primitive recipes as bounded constructive geometry, not as an excuse for arb
 
 ## Hierarchy and pivots
 
+Assign local geometry and shared arrangement to their actual owners. A controlled interface states its units, frame, supported range, neutral meaning, and affected neighbours. Attachments consume the final host surface or an explicit correspondence maintained by that host's producer; an earlier proxy cannot supply current attachment coordinates after assembly or deformation changes. Recompute affected attachments and derived geometry together. Fixed representations need only the interfaces their actual consumers require.
+
 Parent according to mechanical or anatomical motion. Put a pivot at the true hinge, axle, ball joint, or sliding axis. Freeze unintended transforms before binding. A door pivot belongs on the hinge line; a wheel axis passes through its hub; a human limb chain rotates about joint centers.
 
 Where that pivot is written down depends on what the moving thing belongs to, and the two answers are not interchangeable. A building's own door, shutter, gate, or sash states its axis and pivot inside its opening record, in the coordinates the next section names. A prop states them as the local transform of its own articulation node. Authoring the first as if it were the second produces a leaf that no opening drives and no clearance check measures.

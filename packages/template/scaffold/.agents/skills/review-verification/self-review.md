@@ -1,6 +1,6 @@
 # Author process Self-Review
 
-Run this solo immediately after each complete process boundary below and before continuing or handing the result to another owner:
+Close one coherent change through this procedure before dependent work consumes it. Combine the applicable processes below into that boundary rather than reviewing the same unchanged population again for each process:
 
 - production-specific contract discovery and classification;
 - settings, research, one design branch, one narrative layer, brief, or one source layer authorship;
@@ -10,7 +10,7 @@ Run this solo immediately after each complete process boundary below and before 
 
 During screenplay naturalness, the [expression-only boundary](../production-lifecycle/naturalness.md#expression-only-boundary) binds the review. Repair wording and performance in final, but route any missing or changed story, action, identity, timing, or audiovisual content to construction before restarting the final pass.
 
-The author who performed the process is its one reviewer. Declare one complete affected surface and do not split it by file, package, concern, or agent. This is a process-boundary check, not an approval gate.
+The author remains responsible for the complete affected surface. Declare its source revision, changed owners, dependencies, consumers, and acceptance conditions. Solo work needs no additional reviewer; a user-selected team keeps one complete integration judgment. This is a process check, not an approval gate.
 
 ## Complete round
 
@@ -18,7 +18,7 @@ The author who performed the process is its one reviewer. Declare one complete a
 2. Trace every decision source and authority, earliest semantic owner, upstream dependency, downstream consequence, claim, exclusion, review, stage, diagnostic, and next-layer or cross-owner handoff the process used or changed.
 3. Read the whole declared surface before repairing anything. Keep every sound finding until the complete read ends.
 4. Repair the complete finding set together at its earliest owners. Propagate every consequence, renew affected evidence reviews, and run the process's narrowest required verification.
-5. After any edit, restart a complete round from the current state with no preset round limit. Continue or hand off only after one complete round finds nothing and makes no edit.
+5. Recheck each repaired owner and every relationship, derived result, and observation whose basis changed. Retain unrelated current results only when their inputs and acceptance conditions remain unchanged. Finish with a complete read of the declared affected surface that finds nothing and makes no edit; widen it whenever a finding exposes an omitted consequence.
 
 When the boundary includes evidence authorship, repair, or review, complete [Independent semantic review](semantic-review.md) over every affected relationship and both completing-population axes. Compiler diagnostics and a clean graph remain inputs to this Self-Review, never its semantic verdict.
 

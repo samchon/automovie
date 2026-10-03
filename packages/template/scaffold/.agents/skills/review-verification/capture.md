@@ -8,7 +8,9 @@ Before capturing, name the source revision and explicit inputs, subject or shot,
 
 Inspect the actual graphics vendor and renderer before claiming hardware acceleration. A requested backend is not evidence of the backend that drew the picture. Keep the runtime and presentation conditions fixed for comparisons.
 
-## Select the complete view set
+## Select the view set
+
+After a coherent change to silhouette, major mass, opening, contact, attachment, articulation, or material response, observe the current result before a dependent stage consumes it. Choose the views and states that can answer that change's question. This intermediate observation does not narrow the finite review set or the final whole-production scope.
 
 Derive views from the contract being judged before drawing them. A shot owes its declared frame-and-pass population. An isolated model needs the required silhouette, opposing perspectives, relevant articulation extremes, and difficult or occluded details. Name which complete population a sample represents and the contract that permits that inference.
 
