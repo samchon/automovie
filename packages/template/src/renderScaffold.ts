@@ -73,10 +73,12 @@ const toPosix = (value: string): string => value.split(path.sep).join("/");
  * The rendered key for one scaffold-relative path.
  *
  * Path segments receive the same strict substitution and unknown-token failure
- * as file payloads. No shipped path carries a token today — authored content
- * directories are named for their owner rather than for the production — but a path is rendered
- * through the same gate as its content so a templated one can never be shipped
- * verbatim by having taken a quieter route.
+ * as file payloads. No shipped path carries a token today. Authored content
+ * directories are named for their owner rather than for the production. A path is rendered
+ * through the same gate as its content so a templated one cannot be shipped
+ * verbatim. The root `_gitignore` stand-in becomes `.gitignore` only at this
+ * boundary: npm pack otherwise renames the real file to `.npmignore`.
+ * Nested names remain ordinary authored paths.
  */
 const renderKey = (
   relative: string,
@@ -84,8 +86,9 @@ const renderKey = (
 ): string => {
   const dir = path.dirname(relative);
   const base = path.basename(relative);
+  const outputBase = dir === "." && base === "_gitignore" ? ".gitignore" : base;
   return renderTemplate(
-    toPosix(dir === "." ? base : path.join(dir, base)),
+    toPosix(dir === "." ? outputBase : path.join(dir, outputBase)),
     variables,
   );
 };
@@ -221,7 +224,8 @@ export const scaffoldAssetDirectory = (
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map:
  * read every asset, normalize line endings, substitute `{{name}}` and the
- * catalog-resolved `{{version:*}}` tokens without renaming authored filenames.
+ * catalog-resolved `{{version:*}}` tokens, and restore the root pack-safe
+ * `_gitignore` stand-in to the installed `.gitignore` identity.
  *
  * The map is deliberately not written to disk here (that is {@link writeFiles}'s
  * job). Callers can inspect the returned candidate or pass it directly to the

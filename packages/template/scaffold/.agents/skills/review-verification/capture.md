@@ -10,6 +10,8 @@ Inspect the actual graphics vendor and renderer before claiming hardware acceler
 
 ## Select the complete view set
 
+[Author process Self-Review](self-review.md#intermediate-observation) owns when intermediate observation is due and what it invalidates. This document owns the view and capture conditions.
+
 Derive views from the contract being judged before drawing them. A shot owes its declared frame-and-pass population. An isolated model needs the required silhouette, opposing perspectives, relevant articulation extremes, and difficult or occluded details. Name which complete population a sample represents and the contract that permits that inference.
 
 Use beauty for appearance and the applicable structural passes for geometry, identity, depth, normals, outlines, and pose. A structural pass cannot establish lighting or material appearance. A sectioned or isolated subject cannot discharge an audience-frame requirement.

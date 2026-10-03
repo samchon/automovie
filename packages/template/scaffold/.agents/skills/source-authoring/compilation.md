@@ -2,6 +2,8 @@
 
 Compile and execute the production's typed source. [Ownership](../../../README.md#ownership) owns the project layout and file boundary. A library producer returns the declared model, map, or environment directly; film and brief producers additionally realize the selected staging, motion, camera, sound, and timing. Do not introduce a serialized project store between a producer and its consumers.
 
+Keep deterministic producers pure over declared typed inputs, units and seeds. Shot and film build functions use no clock, network, process, filesystem or unseeded randomness. Acquire external inputs before execution and pass the same values to preview, measurements and delivery.
+
 Read the selected kind, active design and source branches, and exact graph-selected owners before execution. A source export implements its reviewed design address. A helper does not become a design owner merely because its code is under `src`; the evidence declaration selects that relationship.
 
 Keep package and compiler settings in `package.json`. The source compiler checks the complete source program, including any command or browser modules the production authors. Select the execution tooling required by those modules and keep its entry points under the source root. A browser producer must not import Node-only modules at runtime.

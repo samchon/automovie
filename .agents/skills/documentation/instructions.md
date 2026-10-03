@@ -15,7 +15,7 @@
 - Make the `AGENTS.md` pointer mirror that scope more briefly, and correct the description first when the scope changes.
 - Put always-applicable procedure in `SKILL.md`. Put a topic needed only under a condition in one directly linked sibling document, one level deep, with its read condition.
 - Add a skill when a concern would otherwise inflate `AGENTS.md`, and merge skills that share most of their structure.
-- Create no nested skill directories, no `agents/openai.yaml` and no unreferenced examples or metadata.
+- Create no nested skill directories or unreferenced examples. Use `agents/openai.yaml` only for an invocation policy required by the skill, such as disabling implicit invocation; keep operational rules in the skill body.
 
 ## Writing
 

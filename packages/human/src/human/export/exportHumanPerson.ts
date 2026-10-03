@@ -19,15 +19,6 @@ import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensio
  * @evidence contracts/common.md#clear-and-simple-design Build the document, write both containers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is patched; unsupported resources refuse in the shared exporter.
  * @evidence contracts/common.md#meaningful-documentation The comment states why no rig is written and why one module instance is kept.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function serializes a model and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive of its own.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The function converts no unit or frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input.
  */
 export async function exportHumanPerson(model: IAutoMovieModel): Promise<{
   glb: Uint8Array<ArrayBuffer>;

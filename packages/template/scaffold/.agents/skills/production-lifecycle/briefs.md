@@ -12,6 +12,6 @@ Briefs do not select `obligations/story/narratives.md` or `principles/story/narr
 
 ## Gate
 
-Start at `briefs: "draft"` after settings completion under [Evidence staging](../evidence-graph/staging.md#transitions). Design branches may proceed in parallel; each completed foundation adds its targets and reopens affected brief evidence. Before `evidence`, verify that one document completely allocates the observable contract, the address map contains no hidden or artificial unit boundary, every H2, H3, and H4 answers the common and brief principle checklists, the H2 population supplies every common and brief-obligation owner, every observation is falsifiable at its declared condition, and no downstream shot must invent narrative or design meaning. Hand the completed brief to source work through the same staging owner.
+Design branches may proceed in parallel; each completed foundation adds its targets and reopens affected brief evidence. Before `evidence`, verify that one document completely allocates the observable contract, the address map contains no hidden or artificial unit boundary, every observation is falsifiable at its declared condition, and no downstream shot must invent narrative or design meaning.
 
-Run [Author process Self-Review](../review-verification/self-review.md) to its clean round before the transition. Follow [Evidence staging](../evidence-graph/staging.md).
+Complete the brief through the [lifecycle handoff](index.md#handoff) before source work consumes it.

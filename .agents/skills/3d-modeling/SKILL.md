@@ -37,7 +37,7 @@ A residual, a fitted preset or a baked artifact is defined against a base (`subj
 
 - Nest types by anatomy or domain and document each channel in its field JSDoc. The form a channel takes is answered under the contracts skill's [Parameter Channels](../contracts/modeling.md#parameter-channels) chapter.
 - Enforce ranges in `engine` validators and never with `typia` tags in `interface`; the development skill's rough-types rule owns that boundary.
-- Record the study behind a numeric range in `.wiki/04-domain-research/`, and read that directory before deriving a range again.
+- Record the study behind a numeric range in `.wiki/04-domain-research/` and consult the relevant existing study before deriving it again. When local records are absent, start from the public task and primary source; their absence is no prerequisite for diagnosis.
 
 ## Every angle, every scale
 
