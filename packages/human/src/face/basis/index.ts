@@ -21,5 +21,6 @@ export * from "./poseHumanFaceSurface";
 export * from "./resolveHumanFaceArticulation";
 export * from "./resolveHumanFaceContact";
 export * from "./replayHumanFaceSourceRefinements";
+export * from "./applyHumanFaceSourceClosure";
 export * from "./summarizeHumanFaceArticulation";
 export * from "./unposeHumanFaceSurface";

@@ -15,13 +15,20 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceContactSummary {
-  /** Signed interlabial gap along the opening direction after closure and tissue contact, metres. */
+  /** Final signed interlabial gap, metres: registered source-span representative or the legacy authored pair. */
   interlabialMetres: number;
+
+  /**
+   * Authored native-companion pair's final projected gap, metres, when source
+   * closure uses a different registered representative for interlabialMetres.
+   * This retains that actual source diagnostic and does not measure full seal.
+   */
+  sourceNativeInterlabialMetres?: number;
 
   /** Signed interincisal gap along the opening direction on the final posed geometry, metres. */
   interincisalMetres: number;
 
-  /** Preliminary posed aperture ratio used to scale closure before contact, never negative. */
+  /** Nonnegative native companion aperture ratio; source-span mode evaluates it at fixed native endpoints. */
   closureRatio: number;
 
   /** Tongue past the incisal plane: how far and how thick over the slab, or null when it stayed behind. */

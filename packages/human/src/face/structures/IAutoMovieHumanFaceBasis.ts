@@ -1,6 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
+import type { IAutoMovieHumanFaceSourceClosurePlan } from "./IAutoMovieHumanFaceSourceClosurePlan";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
 
 /**
@@ -248,10 +249,14 @@ export interface IAutoMovieHumanFaceBasis {
    * along the basis frame's vertical (made perpendicular to the mandibular
    * axis) are the interlabial and interincisal apertures. `closure` is the channel
    * whose rows were decomposed as a delta at `reference` weight one (the
-   * ARKit sense of a lip closure over an open jaw): the builder applies them
-   * scaled by the ratio of the current aperture to the reference aperture,
-   * so weight one seals the lips at any opening and the seal never overshoots
-   * a half-open jaw. `passage` names the tongue surface and its protrusion
+   * ARKit sense of a lip closure over an open jaw). Legacy replay scales that
+   * native companion by the authored aperture ratio. A prepared `sourceSpan`
+   * instead reads fixed native closure-zero/one states, replays their source
+   * points, forms the registered closed endpoint and applies the requested
+   * weight once before rigid contact. Its registered representative supplies
+   * the final interlabial reading; the native pair still owns companion gain.
+   * Source registration and final geometry/contact observation establish seal,
+   * rather than native aperture scaling alone. `passage` names the tongue surface and its protrusion
    * channel: a tongue past the incisal plane must be thinner, over the slab
    * about that plane, than both apertures, because a constant-volume muscular
    * hydrostat cannot be pressed through closed teeth or sealed lips.
@@ -278,8 +283,13 @@ export interface IAutoMovieHumanFaceBasis {
     /** Incisal edge midline vertices on one surface, upper then lower. */
     incisors: { surface: string; upper: number; lower: number };
 
-    /** Aperture-coupled closure channel and the opening channel it was decomposed against. */
-    closure: { channel: string; reference: string };
+    /** Native companion channel/reference, with optional post-replay source closure. */
+    closure: {
+      channel: string;
+      reference: string;
+      /** Fixed native-zero/one endpoints feed one requested source-span blend before rigid contact. */
+      sourceSpan?: IAutoMovieHumanFaceSourceClosurePlan;
+    };
 
     /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
     passage: { surface: string; channel: string; slabMetres: number };

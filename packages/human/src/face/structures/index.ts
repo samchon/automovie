@@ -1,4 +1,5 @@
 export * from "./IAutoMovieHumanFaceBasis";
+export * from "./IAutoMovieHumanFaceSourceClosurePlan";
 export * from "./IAutoMovieHumanFaceBasisDocument";
 export * from "./IAutoMovieHumanFaceBindings";
 export * from "./IAutoMovieHumanFaceChannelScale";

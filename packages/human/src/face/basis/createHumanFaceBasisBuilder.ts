@@ -1,9 +1,10 @@
 import { validateModel } from "@automovie/engine";
-import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMeshWeldPartitionMatcher";
+import { createMeshPhysicalPartitionMatcher } from "@automovie/engine/math/createMeshPhysicalPartitionMatcher";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
 import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
+import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
@@ -48,6 +49,10 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * same transform before their own tissue rows are added. A basis without
  * articulation evaluates the same rest layer and poses nothing, which is the
  * purely linear prior; a basis without contact stops after posing.
+ * A sourceSpan uses the pose owner's separate fixed closure-zero/one native
+ * paths with identical other inputs, refinement replay, one source endpoint
+ * blend and then the same rigid contact, passage and normal stages. The
+ * legacy aperture-scaled residual above remains the path without sourceSpan.
  *
  * The pose evaluator owns that sequence in one module. The builder retains
  * only the latest channel-weight vector and its posed positions, contact
@@ -72,7 +77,10 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * of the eye's colour still multiplies the repainted texture. Fields contain no
  * image data. A new model owns its arrays and materials; neither basis nor
  * edits mutate. Model structure and materials are admitted on the prepared
- * neutral. Repeated edits retain that structure and check their welded vertex
+ * neutral. Registered surfaces gather their canonical physical samples through
+ * the region's UV table in the document instance and source-generation domain.
+ * Opposite contact samples stay distinct; UV and normal aliases keep one ID.
+ * Repeated edits check connectivity, source meaning and the current legacy
  * partition; a changed partition takes the full model gate again. Finite
  * normal construction and channel/material domains remain per-edit checks.
  *
@@ -95,7 +103,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
  *
- * @evidence contracts/common.md#principled-implementation The builder evaluates weights, rest layer, articulation, closure, attached posing, contact, final-aperture/passage admission, common normals and region separation in the pose owner's documented order. Reuse is keyed by the inputs each stage reads: channel weights for pose, pose identity for occlusion, and pose plus hair layers for hair. Every edit re-checks its welded vertex partition and takes full model admission again when it changes.
+ * @evidence contracts/common.md#principled-implementation The pose owner distinguishes legacy closure from fixed native/replayed source endpoints before rigid contact, passage and normals. Reuse is keyed by the inputs each stage reads: channel weights for pose, pose identity for occlusion, and pose plus hair layers for hair. Each edit checks source incidence, alias agreement, legacy coordinate equivalence and coordinate-collapsed triangle participation; a change takes full model admission again.
  * @evidence contracts/common.md#clear-and-simple-design An orchestrator: it holds the caches and calls one named owner per stage; no stage's formula lives in it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached hair result is certified only after the full model passes validateModel, and identity collisions with resident geometry refuse; nothing is special-cased for a subject or a document.
  * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order with each owner, what is retained between edits, what is admitted once and per edit, and the limits of the contact stage.
@@ -140,15 +148,28 @@ export function createHumanFaceBasisBuilder(
       : createHumanFaceOcclusionCache((model) =>
           bakeHumanFaceOcclusion(model, occlusion),
         );
-  const surfaces = basis.surfaces.map((surface) => ({
-    surface,
-    regions: surface.regions.map((region) => ({
-      region,
-      evaluate: createHumanBasisRegion(region),
-    })),
-  }));
+  const surfaces = basis.surfaces.map((surface) => {
+    const source = surface.sourcePartition;
+    if (source !== undefined) {
+      if (source.generation.trim() === "")
+        throw new Error("Facial physical registration needs a nonempty source generation.");
+      const extent = source.originalVertices + source.intersections.length +
+        (source.refinements?.length ?? 0);
+      if (!Number.isSafeInteger(source.originalVertices) || source.originalVertices < 3 ||
+        !Number.isSafeInteger(extent) || source.samples.length !== surface.positions.length / 3 ||
+        Array.from(source.samples).some(sample => !Number.isSafeInteger(sample) || sample < 0 || sample >= extent))
+        throw new Error("Facial physical registration needs dense samples in its declared safe canonical source domain.");
+    }
+    return {
+      surface,
+      regions: surface.regions.map((region) => ({
+        region,
+        evaluate: createHumanBasisRegion(region),
+      })),
+    };
+  });
   let partitions:
-    | ReturnType<typeof createMeshWeldPartitionMatcher>[]
+    | ReturnType<typeof createMeshPhysicalPartitionMatcher>[]
     | undefined;
   const build = (
     inputDocument: IAutoMovieHumanFaceBasisDocument,
@@ -229,7 +250,11 @@ export function createHumanFaceBasisBuilder(
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: evaluate(positions, surfaceNormals, colors),
+          mesh: evaluate(positions, surfaceNormals, colors,
+            surface.sourcePartition === undefined ? undefined : {
+              domain: humanPhysicalSourceDomain(document.id, surface.sourcePartition.generation),
+              samples: surface.sourcePartition.samples,
+            }),
         },
         attachedBone: null,
         transform: null,
@@ -249,13 +274,14 @@ export function createHumanFaceBasisBuilder(
       asset: null,
     };
     // Fixed indices, UVs, references and resident finishes were admitted on the
-    // neutral. Only deformation can change welded incidence; reuse the verdict
-    // exactly while its equivalence classes stay fixed. Never assume an endpoint
-    // cannot merge or split vertices merely because its scalar is in range.
+    // neutral. Explicit source meaning and alias agreement, connectivity and
+    // the current legacy partition govern reuse. Contact coordinates alone
+    // cannot merge registered opposite points. After a fresh admission, capture
+    // its actual instance rather than retaining the constructor's neutral ID.
     if (
       partitions === undefined ||
       parts.some(
-        (part, index) => !partitions![index](part.geometry.mesh.positions),
+        (part, index) => !partitions![index](part.geometry.mesh),
       )
     ) {
       const validation = validateModel({ model });
@@ -264,10 +290,9 @@ export function createHumanFaceBasisBuilder(
           "The evaluated facial basis is not a valid resident model: " +
             JSON.stringify(validation),
         );
-      if (partitions === undefined)
-        partitions = parts.map((part) =>
-          createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
-        );
+      partitions = parts.map((part) =>
+        createMeshPhysicalPartitionMatcher(part.geometry.mesh),
+      );
     }
     if (bakeOcclusion !== undefined)
       for (const [id, uri] of bakeOcclusion(pose, model))
