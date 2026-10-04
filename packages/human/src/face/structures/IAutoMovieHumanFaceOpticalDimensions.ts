@@ -21,6 +21,7 @@
  * @evidenceExclude contracts/anatomy.md#anatomical-source Carries caller-supplied dimensions and introduces no measured anatomical number.
  * @evidenceExclude contracts/anatomy.md#permitted-range Geometric feasibility is admitted by the profile, without claiming a physiological range.
  * @evidence contracts/anatomy.md#parametric-authority Defines dimensions of named ocular components instead of editing source vertices or fitting a personal mesh.
+ * @author Samchon
  */
 export interface IAutoMovieHumanFaceOpticalDimensions {
   /** Positive posterior spherical globe radius in millimetres, not axial length. */

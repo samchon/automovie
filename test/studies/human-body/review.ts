@@ -12,6 +12,7 @@ import type { IHumanBodyStudyProvenance } from "./IHumanBodyStudyProvenance";
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Carries inspected source identity and candidate-qualified static readback.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The specification index groups complete generation, joints, documents and editing; this carrier inspects one source-rest physical candidate and candidate export, while full anatomy remains unavailable.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Carries the inspected source-to-primitive identity boundary without claiming rig or clinical document reconstruction.
+ * @author Samchon
  */
 export interface humanBodyStudyReview {
   /**

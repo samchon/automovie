@@ -25,6 +25,7 @@
  * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical value or clinical frame.
  * @evidence contracts/anatomy.md#permitted-range Shared runtime admission preserves the declared source envelope and the converted source-joint and actual parent-relative range checks.
  * @evidence contracts/anatomy.md#parametric-authority The caller requests named motion degrees rather than vertices, axes or arbitrary meshes.
+ * @author Samchon
  */
 export interface IAutoMovieHumanBodyThighGoal {
   /** The source thigh whose orientation is requested. */

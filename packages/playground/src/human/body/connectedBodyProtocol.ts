@@ -21,6 +21,7 @@ import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult"
  * Mesh attributes at the preview and GLB Float32 precision boundary.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the numerical surface shown by the connected body editor.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies directly drawable Float32 body geometry to the preview.
+ * @author Samchon
  */
 export interface ConnectedBodyMesh {
   /** Metre positions, three scalars per vertex.
@@ -62,6 +63,7 @@ export interface ConnectedBodyMesh {
 /** Static model part whose geometry travels in transferable buffers.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the committed body regions together.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps each resident region's geometry paired with its material binding.
+ * @author Samchon
  */
 export interface ConnectedBodyPart
   extends Omit<IAutoMovieModelPart, "geometry"> {
@@ -71,6 +73,7 @@ export interface ConnectedBodyPart
 /** Portable model metadata paired with transferable part geometry.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the full body visible as one committed preview.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries all region buffers and finishes in one preview transaction.
+ * @author Samchon
  */
 export interface ConnectedBodyModel extends Omit<IAutoMovieModel, "parts"> {
   /** Draw-order parts, each with its own transfer ownership. */

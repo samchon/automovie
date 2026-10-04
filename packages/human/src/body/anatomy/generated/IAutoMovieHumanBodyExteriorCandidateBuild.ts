@@ -14,6 +14,7 @@ import type { IAutoMovieHumanBodyExteriorCandidateReport } from "./IAutoMovieHum
  * @evidence contracts/common.md#clear-and-simple-design One model and one report travel together to preview and export consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested context is retained without population means or false resolved tissue.
  * @evidence contracts/common.md#meaningful-documentation States the physical candidate and clinical availability distinction.
+ * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateBuild {
   /** The body builder's admitted static surface, with its actual finishes. */

@@ -27,6 +27,7 @@ import type { IAutoMovieHumanFaceSourceClosureRow } from "./IAutoMovieHumanFaceS
  * @evidenceExclude contracts/anatomy.md#anatomical-source Defines source correspondence and arithmetic, not measured tissue or a biological law.
  * @evidenceExclude contracts/anatomy.md#permitted-range The arithmetic request domain is not a physiological motion range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Introduces no personal vertex, curve or sculpt input.
+ * @author Samchon
  */
 export interface IAutoMovieHumanFaceSourceClosurePlan {
   /** Must match the selected surface's supplied pose/normal source generation. */

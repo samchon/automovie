@@ -31,6 +31,7 @@ import type { IAutoMovieHumanFaceOpticalSupportTarget } from "./IAutoMovieHumanF
  * @evidenceExclude contracts/anatomy.md#anatomical-source Qualifies source authoring correspondence and carries no clinical measurement.
  * @evidenceExclude contracts/anatomy.md#permitted-range Introduces no physiological bound.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The caller's seven dimensions own independent geometry; this record owns placement only.
+ * @author Samchon
  */
 export interface IAutoMovieHumanFaceOpticalSupport {
   /** Explicit anatomical attachment owner, never inferred from an X coordinate. */
