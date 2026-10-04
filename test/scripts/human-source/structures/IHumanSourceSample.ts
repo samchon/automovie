@@ -26,4 +26,6 @@ export interface IHumanSourceSample {
   rowsDelta: Float64Array;
   landmarkDelta: Float64Array;
   states: Map<string, IHumanSourceSampleState>;
+  /** Part id -> subdivision level -> refitted positions (states x vertices x 3). */
+  partPositions: Map<string, Map<string, Float64Array>>;
 }

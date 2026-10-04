@@ -9,6 +9,7 @@ import { assembleHumanSourceGeneration } from "./assembleHumanSourceGeneration.t
 import { assembleHumanSourceP1 } from "./assembleHumanSourceP1.ts";
 import { classifyHumanSourceRows } from "./classifyHumanSourceRows.ts";
 import { compareHumanSourceBodyStage } from "./compareHumanSourceBodyStage.ts";
+import { bindHumanSourceParts } from "./bindHumanSourceParts.ts";
 import { buildHumanSourceCut } from "./buildHumanSourceCut.ts";
 import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
@@ -53,7 +54,8 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * define every channel crossing the neck once on its band
  * (`extendHumanSourceBand`), define every MPFB macro once over the whole skin
  * (`defineHumanSourceMacros`, superseding the band for those endpoints), build
- * the P1 pair, measure every row's carry on
+ * the P1 pair after binding the attached parts to the skin and regenerating
+ * their body-control rows (`bindHumanSourceParts`), measure every row's carry on
  * those artifacts, classify provenance from the measured residuals, and write
  * them with the reproduction record and a content-only manifest.
  * Tracked published bases are read only.
@@ -188,17 +190,23 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   const extended = extendHumanSourceBand({ generation: assembled, face, body, cut, faceRows, reader, field, sample });
   log("band", extended.checks);
   const macros = defineHumanSourceMacros({ generation: extended.generation, face, body, cut, faceRows, reader, field });
-  const generation = macros.generation;
   log("macros", macros.checks);
+  const parts = bindHumanSourceParts({ generation: macros.generation, face, body, cut, faceRows, sample, reader, offset: extraction.frame.offset });
+  const generation = parts.generation;
+  log("parts", parts.checks);
   const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });
   log("generation", generation.id, "p1", p1.checks);
+  // A part macro row regenerated from the refit is no longer a carried loss.
+  const aliasedEndpoints = new Set(generation.aliases.flatMap((a) => Object.keys(a.endpoints)));
+  const regeneratedPartRow = (surface: string, row: string, kind: string): boolean =>
+    kind === "part-not-regenerated" && aliasedEndpoints.has(row) && generation.parts.some((p) => p.id === surface);
   const measured = measureHumanSourceCarry({ rows: [...faceRows.rows, ...bodyRows.rows, ...rigRows.rows], face, body, cut, generation, p1 });
   const classified = classifyHumanSourceRows(measured);
   const files = writeHumanSourceArtifacts(output, generation, p1, {
     generation: generation.id,
     rows: classified.rows,
-    losses: [...faceRows.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
-    checks: { cut: cut.checks, band: extended.checks, macros: macros.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
+    losses: [...faceRows.losses.filter((l) => !regeneratedPartRow(l.surface, l.row, l.kind)), ...parts.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
+    checks: { cut: cut.checks, band: extended.checks, macros: macros.checks, parts: parts.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
   });
   if (generation.inputs.length !== inputs.length) throw new Error("The generation identity does not cover every recorded input.");
   // The manifest records content and the identities it was computed from: the

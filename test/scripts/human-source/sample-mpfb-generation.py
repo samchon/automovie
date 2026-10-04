@@ -9,6 +9,8 @@ does both):
       --python test/scripts/human-source/sample-mpfb-generation.py -- \
       --data <work>/upstream/mpfb2/src/mpfb/data \
       --extra <work>/upstream/mpfb-extra-targets \
+      --assets <work>/upstream/makehuman-system-assets \
+      --makehuman <work>/upstream/makehuman \
       --out <work>/sample
 
 What is sampled, all on one default human and one subdivided skin:
@@ -22,6 +24,8 @@ What is sampled, all on one default human and one subdivided skin:
    every extra-targets expression file. Each state stores the exact skin delta
    and the landmark delta in Blender coordinates.
 4. Restore and require the neutral skin and the landmarks back bit for bit.
+5. Load the five attached face parts and refit them in the neutral and every
+   body macro node, pair and face macro node state, at subdivision levels 0-2.
 
 Nothing here rounds, clips, flattens or converts frames; the compiler owns
 those steps so every published convention is applied in one visible place.
@@ -39,6 +43,7 @@ from mpfb_generation import catalogue  # noqa: E402
 from mpfb_generation.flatten import fill_operator  # noqa: E402
 from mpfb_generation.landmarks import centroids, joint_groups  # noqa: E402
 from mpfb_generation.session import Session  # noqa: E402
+from mpfb_generation.parts import LEVELS, Parts, part_files  # noqa: E402
 from mpfb_generation.store import Store  # noqa: E402
 
 
@@ -56,6 +61,8 @@ def main():
     arguments = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     data = argument(arguments, "--data")
     extra = argument(arguments, "--extra")
+    assets = argument(arguments, "--assets")
+    makehuman = argument(arguments, "--makehuman")
     output = argument(arguments, "--out")
     started = time.time()
     store = Store(output)
@@ -141,6 +148,28 @@ def main():
     if recovery != 0.0 or landmark_recovery != 0.0:
         raise SystemExit("Restoring every control did not recover the neutral exactly.")
 
+    # Attached parts, refitted per macro state. Loaded only after the skin pass
+    # and its recovery check, so a proxy can never alter a skin sample.
+    parts = Parts(session, part_files(assets, makehuman))
+    part_states = ["neutral"] + [state["name"] for state in store.states if state["kind"] in ("body-macro", "body-macro-pair", "face-macro")]
+    samples = {}
+    for name in part_states:
+        if name == "neutral":
+            session.set_macro()
+        else:
+            state = next(state for state in store.states if state["name"] == name)
+            session.set_macro(**state["recipe"]["macro"])
+        samples[name] = parts.sample()
+    session.set_macro()
+    part_records = []
+    for index, part in enumerate(parts.items):
+        files = {}
+        for level in LEVELS:
+            stack = np.stack([samples[name][part][level] for name in part_states])
+            files[str(level)] = store.array(f"part-{index}-level-{level}.f64", stack, "<f8")
+        part_records.append({"id": part, "files": files, "vertices": {str(level): int(samples["neutral"][part][level].shape[0]) for level in LEVELS}})
+    log("parts", [(record["id"], record["vertices"]) for record in part_records])
+
     manifest_path = os.path.join(os.path.dirname(data), "blender_manifest.toml")
     with open(manifest_path, encoding="utf-8") as file:
         extension = [line.strip() for line in file if line.startswith("version") or line.startswith("blender_version_min")]
@@ -154,6 +183,8 @@ def main():
         "polygons": int(len(topology["loop_start"])),
         "loops": int(len(topology["loop_vertex"])),
         "landmarkIds": list(groups.keys()),
+        "parts": part_records,
+        "partStates": part_states,
         "regionalChannels": regional,
         "neutralRecoveryMetres": recovery,
         "landmarkRecoveryMetres": landmark_recovery,

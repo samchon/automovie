@@ -50,5 +50,8 @@ export function readHumanSourceSample(directory: string): IHumanSourceSample {
     rowsDelta: f64("rows.f64"),
     landmarkDelta: f64("landmarks.f64"),
     states: new Map(manifest.states.map((state) => [state.name, state])),
+    partPositions: new Map(
+      manifest.parts.map((part) => [part.id, new Map(Object.entries(part.files).map(([level, file]) => [level, f64(file)]))]),
+    ),
   };
 }

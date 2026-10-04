@@ -14,7 +14,8 @@ export interface IHumanSourceLoss {
     | "p1-dropped-overlap"
     | "unavailable-at-new-support"
     | "not-regenerated-from-upstream"
-    | "part-not-regenerated";
+    | "part-not-regenerated"
+    | "part-rigid-relative-motion";
   vertices: number;
   maximumMetres: number;
   reason: string;

@@ -9,6 +9,7 @@ import type { IHumanSourceGenerationBand } from "./IHumanSourceGenerationBand.ts
 import type { IHumanSourceGenerationBandTarget } from "./IHumanSourceGenerationBandTarget.ts";
 import type { IHumanSourceGenerationChannel } from "./IHumanSourceGenerationChannel.ts";
 import type { IHumanSourceGenerationCorrective } from "./IHumanSourceGenerationCorrective.ts";
+import type { IHumanSourceGenerationGap } from "./IHumanSourceGenerationGap.ts";
 import type { IHumanSourceGenerationInput } from "./IHumanSourceGenerationInput.ts";
 import type { IHumanSourceGenerationLandmarks } from "./IHumanSourceGenerationLandmarks.ts";
 import type { IHumanSourceGenerationPart } from "./IHumanSourceGenerationPart.ts";
@@ -39,7 +40,8 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * owner. `bandTargets` records each extended endpoint. Endpoints listed in
  * `anchor.targets` (every MPFB macro, defined once over the whole skin) are
  * stored relative to `anchor` on head-only vertices instead and need no band;
- * `aliases` records the face controls that named the same macros.
+ * `aliases` records the face controls that named the same macros; `gaps`
+ * names what is deliberately left unrepresented, with its size and owners.
  *
  * @author Samchon
  */
@@ -67,4 +69,5 @@ export interface IHumanSourceGeneration {
   attachments: IHumanSourceGenerationAttachment[];
   anchor: IHumanSourceGenerationAnchor | null;
   aliases: IHumanSourceGenerationAlias[];
+  gaps: IHumanSourceGenerationGap[];
 }

@@ -157,18 +157,29 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
         row.role === "neutral" ? Float64Array.from(positions) : denseHumanSourceRows(targets[row.row], count);
       const published = pick(face.landmarks.positions, face.landmarks.targets);
       const neutral = row.role === "neutral" ? zeros(count) : face.landmarks.positions;
-      p2 = measureHumanSourceError({ published, candidate: pick(faceLandmarks.positions, faceLandmarks.targets), neutral });
+      // A macro row now lives under its body owner, relative to the eye anchor.
+      const owner = row.role === "neutral" ? undefined : aliasOf.get(row.row);
+      const stored = owner === undefined ? pick(faceLandmarks.positions, faceLandmarks.targets) : denseHumanSourceRows(faceLandmarks.targets[owner], count);
+      p2 = measureHumanSourceError({ published, candidate: stored, neutral });
+      if (owner !== undefined) note = `${note}; P2 reads ${owner} relative to the eye anchor`;
       p1Error = measureHumanSourceError({ published, candidate: pick(p1.face.landmarks!.positions, p1.face.landmarks!.targets), neutral });
     } else if (row.basis === "face" && row.role === "part-endpoint") {
       const surface = face.surfaces.find((s) => s.id === row.surface)!;
       const p1Surface = p1.face.surfaces.find((s) => s.id === row.surface)!;
       const count = surface.positions.length / 3;
+      const stored = generation.parts.find((p) => p.id === row.surface)!;
+      const owner = aliasOf.get(row.row);
+      p2 = measureHumanSourceError({
+        published: denseHumanSourceRows(surface.targets[row.row], count),
+        candidate: denseHumanSourceRows(owner === undefined ? stored.surface.targets[row.row] : stored.bodyTargets[owner], count),
+        neutral: surface.positions,
+      });
+      if (owner !== undefined) note = `${note}; P2 reads body row ${owner} regenerated through the part binding`;
       p1Error = measureHumanSourceError({
         published: denseHumanSourceRows(surface.targets[row.row], count),
         candidate: denseHumanSourceRows(p1Surface.targets[row.row], count),
         neutral: surface.positions,
       });
-      note = `${note}; P2 references the part instead of storing it`;
     } else if (row.basis === "body" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
       const d = denseHumanSourceRows(bodySurface.targets[row.row], bodyCount);
       const map = skinRows(row.row);

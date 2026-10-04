@@ -54,6 +54,8 @@ run(
     "--python", path.join(scripts, "sample-mpfb-generation.py"), "--",
     "--data", path.join(workPath, "upstream/mpfb2/src/mpfb/data"),
     "--extra", path.join(workPath, "upstream/mpfb-extra-targets"),
+    "--assets", path.join(workPath, "upstream/makehuman-system-assets"),
+    "--makehuman", path.join(workPath, "upstream/makehuman"),
     "--out", path.join(workPath, "sample"),
   ],
   { ...process.env, BLENDER_USER_RESOURCES: path.join(workPath, "blender-profile") },

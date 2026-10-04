@@ -1,3 +1,4 @@
+import type { IHumanSourceSamplePart } from "./IHumanSourceSamplePart.ts";
 import type { IHumanSourceSampleFile } from "./IHumanSourceSampleFile.ts";
 import type { IHumanSourceSampleState } from "./IHumanSourceSampleState.ts";
 
@@ -17,6 +18,8 @@ export interface IHumanSourceSampleManifest {
   polygons: number;
   loops: number;
   landmarkIds: string[];
+  parts: IHumanSourceSamplePart[];
+  partStates: string[];
   neutralRecoveryMetres: number;
   landmarkRecoveryMetres: number;
   elapsedSeconds: number;

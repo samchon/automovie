@@ -40,7 +40,7 @@
     },
     {
       "name": "makehuman",
-      "consumed": false,
+      "consumed": true,
       "locator": "https://github.com/makehumancommunity/makehuman/archive/a8bc2d54ff0ac92e78ff71431b1023eda42bf482.zip",
       "revision": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
       "archive": "makehuman-a8bc2d54ff0ac92e78ff71431b1023eda42bf482.zip",
@@ -50,7 +50,7 @@
       "contentSha256": "6ed6c1d2b14a033ce7d16cd081791937dcb26e5cc5436f10b5f6c9c145dab0c6",
       "rights": {
         "data": "CC0-1.0 (bundled graphics, LICENSE.ASSETS.md)",
-        "code": "AGPL-3.0-or-later (LICENSE.CODE.md); not executed by this producer"
+        "code": "AGPL-3.0-or-later (LICENSE.CODE.md); not executed: only the CC0 low-poly eye MHCLO/OBJ data is read, by MPFB"
       },
       "licenses": {
         "LICENSE.md": "edd99571ca62698f78c943fd4fffb159a413c315fa0d4819d3cec5cadaf8b4f1",
@@ -60,7 +60,7 @@
     },
     {
       "name": "makehuman-system-assets",
-      "consumed": false,
+      "consumed": true,
       "locator": "https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
       "revision": "archive identity by container digest; no upstream revision id",
       "archive": "makehuman_system_assets_cc0.zip",

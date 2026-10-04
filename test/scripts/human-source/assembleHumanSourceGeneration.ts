@@ -162,7 +162,10 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
         basisSha256: input.faceSha256,
         vertices: s.positions.length / 3,
         endpoints: Object.keys(s.targets).length,
-        provenance: "carried from the published face; part fitting must be reimplemented to regenerate",
+        provenance: "carried from the published face",
+        surface: s,
+        binding: null,
+        bodyTargets: {},
       })),
     stamps,
     band: null,
@@ -170,5 +173,6 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
     attachments: [],
     anchor: null,
     aliases: [],
+    gaps: [],
   };
 }
