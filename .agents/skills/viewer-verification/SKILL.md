@@ -17,4 +17,4 @@ For quantitative readings, validate the instrument against an independent known 
 
 ## Choose the tool
 
-Read [tool usage](tool-usage.md) before using the resident human viewer, a custom Playwright page, pixel calibration or a before/after capture. It owns commands, readiness checks, pass limits and process protection. Reuse another session's viewer without restarting or stopping it. Keep captures local and preserve tracked changes during comparisons.
+Read [tool usage](tool-usage.md) before using the resident human viewer, a custom Playwright page, pixel calibration or a before/after capture. It owns commands, readiness checks, pass limits and process protection. Reuse another session's viewer, or run your own on a separate port, without restarting or stopping it. Keep captures local and preserve tracked changes during comparisons.
