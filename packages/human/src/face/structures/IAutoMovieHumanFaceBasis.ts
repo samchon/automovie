@@ -1,5 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
+
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
  * The caller supplies licensed geometry; this package supplies no person's mesh.
@@ -302,6 +304,9 @@ export interface IAutoMovieHumanFaceBasis {
 
     /** Shared flat XYZ positions, before material or UV seam splitting. */
     positions: number[];
+
+    /** Optional shared-source cell lineage, prepared after the final neutral crop. */
+    sourcePartition?: IAutoMovieHumanBasisSourcePartition;
 
     /** Oriented triangles over those shared vertex identities. */
     indices: number[];

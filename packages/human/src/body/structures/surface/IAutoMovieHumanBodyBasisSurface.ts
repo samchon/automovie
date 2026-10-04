@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import type { IAutoMovieHumanBasisSourcePartition } from "../../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
 
 /**
@@ -28,6 +29,9 @@ export interface IAutoMovieHumanBodyBasisSurface {
 
   /** Shared flat XYZ positions, before material or UV seam splitting. */
   positions: number[];
+
+  /** Optional shared-source cell lineage for a consuming face/body assembly. */
+  sourcePartition?: IAutoMovieHumanBasisSourcePartition;
 
   /** Oriented triangles over those shared vertex identities. */
   indices: number[];
