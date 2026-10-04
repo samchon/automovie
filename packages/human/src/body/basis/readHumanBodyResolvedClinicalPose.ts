@@ -1,0 +1,91 @@
+import { type IAutoMovieResolvedBone, DEFAULT_JOINT_AXES, Quaternion, Vector3, decomposeJointRotation } from "@automovie/engine";
+import type { IAutoMovieJointPose } from "@automovie/interface";
+
+import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { humanBodyFlexionAxesCollinear } from "./humanBodyFlexionAxesCollinear";
+
+/**
+ * Read clinical coordinates from the actual resolved parent and child frames.
+ *
+ * The skeleton resolver owns the shaped rest frames and clinical axes. The
+ * pose resolver calls this after its pelvis turn; the editor reads that same
+ * pose result. Removing the parent world rotation and then the local rest
+ * rotation gives the articulation consumed by the engine's existing inverse.
+ * This helper does not turn bones, change caller values or judge a range.
+ * Its numbers describe this source rig, not measured personal joint capacity.
+ *
+ * Unchanged local frames retain exact authored coordinates. A shared flexion
+ * line permits scalar composition only for a constrained child's neutral
+ * abduction and twist. Unbounded root values always use the actual inverse,
+ * because a scalar sum can lose the tilt at enormous authored angles. The
+ * child proof is exact vector collinearity or its declared flexion landmark
+ * pair being the same bilateral hip line. This avoids a trigonometric round
+ * trip at exact sagittal endpoints. Other changed frames use the engine's
+ * double-precision inverse, including its finite/near-gimbal conventions.
+ * No mathematically certified angular uncertainty interval is claimed.
+ *
+ * @evidence contracts/common.md#principled-implementation Uses the engine's inverse of jointToQuaternion on inverse(parent world) times child world with the local rest removed, reusing its axes and clinical rest frames. A constrained child's proved shared-axis neutral-abduction/twist left product combines scalar flexion algebraically, preserving exact sagittal endpoints. Root and noncommuting products retain the engine inverse's numerical convention.
+ * @evidence contracts/common.md#clear-and-simple-design One index of actual resolved bones and one pass over the supplied skeleton, with no second skeleton or angle extraction formula.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads actual parent relations and rotations, without named-child exceptions or a replacement angle total.
+ * @evidence contracts/common.md#meaningful-documentation States the composition order, frame ownership, read-only behavior and source-rig meaning.
+ * @evidence contracts/modeling.md#spatial-conventions Rotations are unit quaternion frames in the shared right-handed body space; the engine inverse converts local articulation to the skeleton's clinical degrees.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part or assembly.
+ * @evidence contracts/modeling.md#parameter-channels Reads each existing bone's named clinical flexion, abduction and twist with its own neutral/sign frame. It reports their actual combined result without changing the authored channels or treating a scalar rhythm contribution as an independent motion.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no shared surface.
+ * @evidenceExclude contracts/modeling.md#rendered-observation Reads frames for the owning assembly and draws no result.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical value or range; the supplied skeleton owns the source frame.
+ * @evidenceExclude contracts/anatomy.md#permitted-range Range admission belongs to the caller.
+ * @evidence contracts/anatomy.md#parametric-authority Returns the existing named clinical motion coordinates through the engine's inverse, without a personal surface input.
+ */
+export function readHumanBodyResolvedClinicalPose(input: {
+  rig: ReturnType<typeof resolveHumanBodySkeleton>;
+  resolved: readonly IAutoMovieResolvedBone[];
+  basis: IAutoMovieHumanBodyBasis;
+  pose: readonly IAutoMovieJointPose[];
+  tilt: number;
+}): IAutoMovieJointPose[] {
+  const { rig } = input;
+  const resolved = new Map(input.resolved.map((bone) => [bone.bone, bone]));
+  const root = rig.skeleton.bones.find((bone) => bone.parent === null)!;
+  const upperLegs = ["leftUpperLeg", "rightUpperLeg"] as const;
+  const hips = upperLegs.map((name) => rig.skeleton.bones.find((bone) => bone.bone === name));
+  const hipLine = input.tilt === 0 ? undefined : Vector3.subtract(hips[0]!.rest.translation, hips[1]!.rest.translation);
+  return rig.skeleton.bones.filter((bone) => input.basis.joints.find((joint) => joint.bone === bone.bone)!.shoulder === undefined).map((bone) => {
+    const contract = input.basis.joints.find((joint) => joint.bone === bone.bone)!;
+    const row = input.pose.find((joint) => joint.bone === bone.bone);
+    const original = {
+      bone: bone.bone,
+      flexion: row?.flexion ?? contract.neutral.flexion,
+      abduction: row?.abduction ?? contract.neutral.abduction,
+      twist: row?.twist ?? contract.neutral.twist,
+    };
+    if (input.tilt === 0 || (bone.bone !== root.bone && bone.parent !== root.bone)) return original;
+    // The current closed humanoid set supplies every nonroot's override or
+    // engine default range; only the root is unbounded.
+    if (bone.parent === root.bone) {
+      const localAxis = Quaternion.rotateVector(Quaternion.inverse(bone.rest.rotation), hipLine!);
+      const flexionAxis = (rig.axes[bone.bone] ?? DEFAULT_JOINT_AXES).flexion;
+      const sharedNames = upperLegs.map((name) => input.basis.joints.find((joint) => joint.bone === name)!.head);
+      const declaredLine = contract.flexionAxis !== undefined && contract.flexionAxis.every((name, index) => name === sharedNames[index] || name === sharedNames[1 - index]);
+      const collinear = declaredLine || humanBodyFlexionAxesCollinear(localAxis, flexionAxis);
+      const sagittal = original.abduction === contract.neutral.abduction && original.twist === contract.neutral.twist;
+      if (collinear && sagittal) {
+        const direction = Vector3.dot(localAxis, flexionAxis) > 0 ? 1 : -1;
+        return { ...original, flexion: original.flexion + input.tilt * direction * contract.signs.flexion };
+      }
+    }
+    const actual = resolved.get(bone.bone)!;
+    const parent = bone.parent === null ? undefined : resolved.get(bone.parent)!;
+    const local = Quaternion.multiply(
+      parent === undefined ? Quaternion.identity() : Quaternion.inverse(parent.worldRotation),
+      actual.worldRotation,
+    );
+    const articulation = Quaternion.multiply(Quaternion.inverse(bone.rest.rotation), local);
+    return {
+      bone: bone.bone,
+      ...decomposeJointRotation(articulation, rig.axes[bone.bone], rig.frames[bone.bone]),
+    };
+  });
+}

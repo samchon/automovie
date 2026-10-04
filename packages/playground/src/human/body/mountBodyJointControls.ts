@@ -2,6 +2,7 @@ import {
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   resolveHumanBodyCouplings,
+  resolveHumanBodyDocumentPose,
   resolveHumanBodyShapeShoulderRest,
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
@@ -16,6 +17,9 @@ import { renderBodyShoulderControls } from "./bodyShoulderControls";
  * shoulder event. An invalid pending shape withdraws that event through the
  * panel's existing refusal owner; no stale rest or partially authored goal is
  * substituted. The panel still owns draft, history and model publication.
+ * Generic joint rows read that draft through the builder's rig-only pose
+ * resolver, so the three clinical coordinates follow its actual post-pelvis
+ * parent frames. A range refusal uses the same transaction refusal path.
  * Ranges describe admission of this source rig and establish no clinical bone
  * frame or measured personal motion capacity.
  *
@@ -75,6 +79,13 @@ export function mountBodyJointControls(props: {
   container.append(picker, rows);
   const shapedRest = rest();
   if (shapedRest === undefined) return;
+  let clinical;
+  try {
+    clinical = resolveHumanBodyDocumentPose(basis, draft);
+  } catch (error) {
+    props.refuse(error);
+    return;
+  }
   if (bone === "leftUpperArm" || bone === "rightUpperArm") {
     const shoulderBone = bone;
     const joint = basis.joints.find((one) => one.bone === bone)!;
@@ -106,6 +117,7 @@ export function mountBodyJointControls(props: {
     bone,
     pose: draft.pose ?? [],
     currentPose: () => props.current().pose ?? [],
+    clinical,
     coupled: resolveHumanBodyCouplings(
       basis,
       draft.pose ?? [],

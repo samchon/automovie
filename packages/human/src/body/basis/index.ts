@@ -26,6 +26,7 @@ export * from "./humanBodyShoulderElevationLimit";
 export * from "./humanBodyShoulderReaches";
 export * from "./resolveHumanBodyCouplings";
 export * from "./resolveHumanBodyPelvifemoralRhythm";
+export * from "./resolveHumanBodyDocumentPose";
 export * from "./resolveHumanBodyShapedShoulderRest";
 export * from "./resolveHumanBodyShapeShoulderRest";
 export * from "./resolveHumanBodySkeleton";

@@ -43,8 +43,10 @@ import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemor
  * forward kinematics and the corrective ramps read. The rhythm's additions
  * (the root's posterior tilt, the lumbar joint's and the hips' pelvic-relative
  * change, `resolveHumanBodyPelvifemoralRhythm`) join the contribution list
- * for the editor; the builder applies them to the pose it validates and
- * turns the pelvis by the tilt.
+ * for the editor as coordination increments. The builder turns the pelvis
+ * by that tilt, then reads and validates the actual changed parent-relative
+ * coordinates through its shared pose resolver. Combined clinical totals
+ * need not equal those scalar additions.
  *
  * The sum is not judged here. A duplicate joint in the document stays
  * duplicated (its first entry receives the addition), an unknown joint stays
