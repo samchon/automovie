@@ -1,6 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
+import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
 
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
@@ -307,6 +308,9 @@ export interface IAutoMovieHumanFaceBasis {
 
     /** Optional shared-source cell lineage, prepared after the final neutral crop. */
     sourcePartition?: IAutoMovieHumanBasisSourcePartition;
+
+    /** Optional native-after-posing replay of appended shared oral refinement samples. */
+    sourcePosePlan?: IAutoMovieHumanFaceSourcePosePlan;
 
     /** Oriented triangles over those shared vertex identities. */
     indices: number[];

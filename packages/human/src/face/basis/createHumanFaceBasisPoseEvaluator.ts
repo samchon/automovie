@@ -10,6 +10,7 @@ import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
+import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
 import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
@@ -17,7 +18,8 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * Compile the connected basis's geometry stage, independent of appearance.
  * One call receives admitted channel weights and the matching identity shape,
  * and owns rest deformation, shaped joint landmarks, aperture-scaled closure,
- * attached posing, contact, final aperture/passage and shared surface normals
+ * attached posing, native source refinement replay, contact, final
+ * aperture/passage and shared surface normals
  * in that order. Closure scaling reads the earlier posed aperture, while the
  * admission and summary read the corrected geometry the renderer receives.
  * All positions remain basis metres in the Y-up, +Z-anterior head frame.
@@ -50,6 +52,15 @@ export function createHumanFaceBasisPoseEvaluator(
   normals: ReadonlyMap<string, readonly number[]>;
   summary: IAutoMovieHumanFaceContactSummary | null;
 } {
+  for (const surface of basis.surfaces)
+    if (
+      surface.sourcePosePlan !== undefined &&
+      surface.sourcePartition !== undefined &&
+      surface.sourcePosePlan.generation !== surface.sourcePartition.generation
+    )
+      throw new Error(
+        "Face source pose and normal partitions need the same compiler generation.",
+      );
   const closure = new Set(
     basis.contact === undefined ? [] : [basis.contact.closure.channel],
   );
@@ -113,13 +124,16 @@ export function createHumanFaceBasisPoseEvaluator(
     basis.surfaces.forEach((surface, index) => {
       posed.set(
         surface.id,
-        motions !== undefined && (surface.attachments?.length ?? 0) > 0
-          ? poseHumanFaceSurface(
-              rest.surfaces[index],
-              surface.attachments!,
-              motions,
-            )
-          : rest.surfaces[index],
+        replayHumanFaceSourceRefinements(
+          surface.sourcePosePlan,
+          motions !== undefined && (surface.attachments?.length ?? 0) > 0
+            ? poseHumanFaceSurface(
+                rest.surfaces[index],
+                surface.attachments!,
+                motions,
+              )
+            : rest.surfaces[index],
+        ),
       );
     });
     if (contact !== undefined) {
