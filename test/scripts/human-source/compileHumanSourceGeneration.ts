@@ -157,7 +157,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     blender: sample.manifest.blender,
     numpy: sample.manifest.numpy,
     extension: sample.manifest.extension.join("; "),
-    manifestSha256: sha(fs.readFileSync(path.join(work, "sample/manifest.json"))),
+    // Content digests only: the sample manifest itself carries the run clock.
     ...Object.fromEntries(Object.entries(sample.manifest.files).map(([name, file]) => [name, file.sha256])),
   };
   const generation = assembleHumanSourceGeneration({
@@ -182,15 +182,16 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     losses: [...faceRows.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
     checks: { cut: cut.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
   });
+  // The manifest names content only: no clock, host or absolute path, and the
+  // acquisition records drop whether an archive came from cache or download,
+  // so any checkout regenerating the same bytes writes the same manifest.
   fs.writeFileSync(
     path.join(output, "generation-manifest.json"),
     JSON.stringify(
       {
         generation: generation.id,
         node: process.version,
-        elapsedSeconds: (Date.now() - started) / 1000,
-        work,
-        acquisition: acquisition.sources,
+        acquisition: acquisition.sources.map((source) => Object.fromEntries(Object.entries(source).filter(([key]) => key !== "downloaded"))),
         inputs,
         sample: sampleRecord,
         outputs: files,
