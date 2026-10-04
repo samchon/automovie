@@ -27,6 +27,9 @@ const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
  * Binary64 witnesses still round: this is not an exact contact predicate or a
  * certified distance lower bound. Callers own their precision allowance and
  * represented-output verification.
+ * Equal computed residual distances choose the lowest first-segment parameter,
+ * then the lowest second parameter. Reversing a segment changes that canonical
+ * orientation on a nonunique minimum; it does not change the separation.
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Returns paired contact witnesses and their shared separation without an absolute scale-dependent parallel cutoff.
@@ -84,7 +87,11 @@ export const closestPointsBetweenSegments = (
       Vector3.scale(v, alongB),
     );
     const distance = Math.hypot(residual.x, residual.y, residual.z);
-    if (distance < best) {
+    if (
+      distance < best ||
+      (distance === best &&
+        (alongA < s || (alongA === s && alongB < t)))
+    ) {
       best = distance;
       s = alongA;
       t = alongB;
