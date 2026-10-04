@@ -1,6 +1,7 @@
 /**
- * The neck band of the one skin and its blend weights (#2689 N2 request,
- * `n2-band-channel-request.md` C-3).
+ * The neck band of the one skin and its blend weights: where the source rig
+ * spreads neck motion, so channels crossing the cut fade over the same support
+ * the skinning blends over.
  *
  * `loopSamples` are the 184 cut-sample skin ids ordered by azimuth about the
  * vertical axis through their neutral centroid `axis` ([x, z], metres); a

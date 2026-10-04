@@ -3,7 +3,8 @@
  * recipe reproduces the stored cut-sample rows and supplies E on the band.
  * `derived`: E is the cut-sample row carried to each band vertex at its loop
  * parameter. `macro-owned-by-body`: a face macro row faded to zero at the cut,
- * the cut value belonging to the body macro (request C-5). `unavailable`: the
+ * the cut value belonging to the body macro of the same upstream axis so the
+ * global dimension is counted once. `unavailable`: the
  * cut-sample rows themselves have no source value, so no extension exists.
  *
  * @author Samchon

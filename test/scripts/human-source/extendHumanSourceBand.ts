@@ -12,22 +12,31 @@ const POSITION_TOLERANCE_METRES = 2e-6;
 const WEIGHT_TOLERANCE = 1e-7;
 
 /**
- * Define every channel that crosses the neck once, on the one skin
- * (`n2-band-channel-request.md` C-1..C-6).
+ * Define every channel that crosses the neck once, on the one skin, so the
+ * evaluator needs no runtime seam: each crossing field is stored offline as
+ * rows that are continuous across the cut and fade out within the band.
  *
  * Body endpoints: rows on head-only vertices become relative to the rigid head
  * carry Δ (the endpoint's `joint-head` landmark row), `s(v)·(E(v) − Δ)` on the
  * head band and nothing beyond it; the published absolute rows they replace
  * are counted. Face endpoints that move the cut gain `s'(v)·E(v)` on the body
- * band. Face macro endpoints instead fade to zero at the cut, `(1 − s(v))·F`,
- * because the body macro owns the cut value of the same upstream quantity
- * (main decision C-5). E is the upstream recipe when it reproduces the stored
- * cut-sample rows; otherwise the cut-sample row carried to the vertex's loop
- * parameter (derived); an endpoint whose cut-sample rows have no source value
- * stays unavailable. Face attachment weights reaching the cut are extended the
- * same way as face rows: the source authored that weight on neck skin, so the
- * band carries it on rather than cutting it off inside the head (see the N2
- * record). Landmark rows are unchanged.
+ * band.
+ *
+ * Face macro endpoints instead fade to zero at the cut, `(1 − s(v))·F`. A face
+ * macro and the body macro of the same axis sample one MPFB macro node, and a
+ * person's global dimension may be counted once, so the body macro owns it at
+ * the cut.
+ *
+ * E is the upstream recipe when it reproduces the stored cut-sample rows;
+ * otherwise the cut-sample row carried to the vertex's loop parameter
+ * (derived). An endpoint whose cut-sample rows have no source value stays
+ * unavailable.
+ *
+ * Face attachment weights reaching the cut are extended the same way as face
+ * rows. Fading them inside the head instead would change the published jaw
+ * motion of the submandibular skin the head band covers, whose extent reaches
+ * the chin. Landmark rows are unchanged: a joint position is identity, not a
+ * surface blend.
  */
 export function extendHumanSourceBand(input: IHumanSourceBandInput): IHumanSourceBandExtension {
   const { generation, face, body, cut, faceRows, reader, field, sample } = input;

@@ -44,6 +44,16 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       }
   const carryLandmark = generation.band?.carryLandmark ?? null;
   const carryIndex = carryLandmark === null ? -1 : body.landmarks.ids.indexOf(carryLandmark);
+  const anchorTargets = new Set(generation.anchor?.targets ?? []);
+  const anchorIndex = (generation.anchor?.landmarks ?? []).map((id) => body.landmarks.ids.indexOf(id));
+  const anchorOf = (name: string): number[] => {
+    const rows = body.landmarks.targets[name] ?? [];
+    const sum = [0, 0, 0];
+    for (let i = 0; i < rows.length; i += 4) if (anchorIndex.includes(rows[i])) for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c];
+    return sum.map((x) => x / Math.max(1, anchorIndex.length));
+  };
+  const aliasOf = new Map<string, string>();
+  for (const alias of generation.aliases) for (const [from, to] of Object.entries(alias.endpoints)) aliasOf.set(from, to);
   const carryOf = (name: string): number[] => {
     const rows = body.landmarks.targets[name] ?? [];
     for (let i = 0; i < rows.length; i += 4) if (rows[i] === carryIndex) return [rows[i + 1], rows[i + 2], rows[i + 3]];
@@ -76,7 +86,7 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
   };
   const weightDifference = (rowsOf: (v: number) => Map<string, number> | undefined, count: number) => {
     let missing = 0;
-    const field = new Float64Array(3 * count);
+    const compared: number[] = [];
     for (let v = 0; v < count; v++) {
       const candidate = rowsOf(v);
       if (candidate === undefined) {
@@ -92,9 +102,9 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       let worst = 0;
       for (const slot of new Set([...published.keys(), ...candidate.keys()]))
         worst = Math.max(worst, Math.abs((published.get(slot) ?? 0) - (candidate.get(slot) ?? 0)));
-      field[3 * v] = worst;
+      compared.push(worst, 0, 0);
     }
-    return { field, missing };
+    return { field: Float64Array.from(compared), missing };
   };
   const slotRows = (joints: readonly string[], boneIndices: readonly number[], weights: readonly number[], at: number): Map<string, number> => {
     const out = new Map<string, number>();
@@ -110,9 +120,18 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
     let note = row.note;
     if (row.basis === "face" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
       const d = denseHumanSourceRows(human.targets[row.row], faceCount);
-      const map = skinRows(row.row);
-      const candidate = Float64Array.from({ length: 3 * faceCount }, (_, i) => map.get(cut.faceToG1[Math.floor(i / 3)])?.[i % 3] ?? 0);
+      // An aliased face endpoint is read from the body endpoint that owns it,
+      // relative to the head anchor as the face frame was: the stored head row,
+      // or the absolute cut-sample row minus the anchor delta.
+      const owner = aliasOf.get(row.row);
+      const map = skinRows(owner ?? row.row);
+      const anchor = owner === undefined ? [0, 0, 0] : anchorOf(owner);
+      const candidate = Float64Array.from({ length: 3 * faceCount }, (_, i) => {
+        const g = cut.faceToG1[Math.floor(i / 3)];
+        return (map.get(g)?.[i % 3] ?? 0) - (owner !== undefined && g >= n ? anchor[i % 3] : 0);
+      });
       p2 = measureHumanSourceError({ published: d, candidate, neutral: human.positions });
+      if (owner !== undefined) note = `${note}; P2 reads alias ${owner} relative to the eye anchor`;
       p1Error = measureHumanSourceError({ published: d, candidate: denseHumanSourceRows(p1Human.targets[row.row], faceCount), neutral: human.positions });
     } else if (row.basis === "face" && row.surface === "Human" && row.role === "neutral") {
       const published = Float64Array.from(human.positions);
@@ -153,7 +172,8 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
     } else if (row.basis === "body" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
       const d = denseHumanSourceRows(bodySurface.targets[row.row], bodyCount);
       const map = skinRows(row.row);
-      const carry = carryIndex < 0 ? [0, 0, 0] : carryOf(row.row);
+      const anchored = anchorTargets.has(row.row);
+      const carry = anchored ? anchorOf(row.row) : carryIndex < 0 ? [0, 0, 0] : carryOf(row.row);
       const p1Map = new Map<number, number[]>();
       const p1Rows = p1Body.targets[row.row] ?? [];
       for (let i = 0; i < p1Rows.length; i += 4) p1Map.set(p1Rows[i], [p1Rows[i + 1], p1Rows[i + 2], p1Rows[i + 3]]);
@@ -162,7 +182,7 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       for (let v = 0; v < bodyCount; v++) {
         const x = kept[v];
         const stored = map.get(x);
-        const relative = carryIndex >= 0 && headOnly[x] === 1;
+        const relative = (anchored || carryIndex >= 0) && headOnly[x] === 1;
         const j = p1Of.get(x);
         for (let c = 0; c < 3; c++) {
           candidate[3 * v + c] = (stored?.[c] ?? 0) + (relative ? carry[c] : 0);
@@ -191,9 +211,10 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
         const j = p1Of.get(kept[v]);
         return j === undefined ? undefined : slotRows(pw.joints, pw.boneIndices, pw.weights, j);
       }, bodyCount);
-      p2 = measureHumanSourceError({ published: zeros(bodyCount), candidate: skin.field, neutral: zeros(bodyCount) });
-      p1Error = measureHumanSourceError({ published: zeros(bodyCount), candidate: p1w.field, neutral: zeros(bodyCount) });
-      note = `${note}; P1 leaves ${p1w.missing} dropped vertices uncompared`;
+      const compared = (field: Float64Array): number => field.length / 3;
+      p2 = measureHumanSourceError({ published: zeros(compared(skin.field)), candidate: skin.field, neutral: zeros(compared(skin.field)) });
+      p1Error = measureHumanSourceError({ published: zeros(compared(p1w.field)), candidate: p1w.field, neutral: zeros(compared(p1w.field)) });
+      note = `${note}; P1 compares ${compared(p1w.field)} vertices, ${p1w.missing} dropped above the cut`;
     } else if (row.basis === "body" && row.surface === "landmarks") {
       const count = body.landmarks.ids.length;
       const pick = (positions: readonly number[], targets: Record<string, number[]>): Float64Array =>

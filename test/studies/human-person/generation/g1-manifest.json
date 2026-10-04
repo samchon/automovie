@@ -1,5 +1,5 @@
 {
- "generation": "9a900975aa01f5a72483b4a742aef76954a8c67806326639013d491f95870661",
+ "generation": "5887fca5a6940ef60a56b2c9ca6dfa39472e274599b9bcb12b2802a179a394bf",
  "upstream": [
   {
    "name": "mpfb2",
@@ -74,8 +74,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/assembleHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 9511,
-   "sha256": "2dc3a5a57d57f2c8d9f2a03d1bbe0e39ba9fda004b750c78cbc100c3f7777457"
+   "bytes": 9546,
+   "sha256": "04c99f60ebb7875f8413c3ff53847b5288ac345664fcfab4c6c7097d946683a3"
   },
   {
    "role": "producer",
@@ -123,8 +123,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/compileHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 12897,
-   "sha256": "cec0b2f561f96128a2748d73f7eca638de63987a004aa867821842e48fd9f724"
+   "bytes": 13269,
+   "sha256": "08190df329c19d1c8046df2fdcb94b6bdd0da71318442e8ac76156dce04005a9"
   },
   {
    "role": "producer",
@@ -149,6 +149,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceMacros.ts",
+   "revision": null,
+   "bytes": 11700,
+   "sha256": "f422cec33c8989e82d4bb6a8a4e2b9ff1e43f3a35f8be092448e78d4d84daa96"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/denseHumanSourceRows.ts",
    "revision": null,
    "bytes": 631,
@@ -158,8 +165,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/extendHumanSourceBand.ts",
    "revision": null,
-   "bytes": 11388,
-   "sha256": "76d8ef2d9d351e3256b5f854bd59157d4429135e13b2c6052956de23709fa26a"
+   "bytes": 11669,
+   "sha256": "be4e4a9a4236c6d35dd03cd03babcccc6472cc10e97e73d37f8cee6acd9d028d"
   },
   {
    "role": "producer",
@@ -172,15 +179,15 @@
    "role": "producer",
    "path": "test/scripts/human-source/measureHumanSourceBand.ts",
    "revision": null,
-   "bytes": 8057,
-   "sha256": "95af26b01e41fdde3ce9e5cc68cca6b09a40e51b006a4cb5c389480063eaaf2b"
+   "bytes": 8295,
+   "sha256": "43f2cac27ad1ce151ca50719f03b3ab05f19dd9dbd5890e955b9c2a9ac1ad375"
   },
   {
    "role": "producer",
    "path": "test/scripts/human-source/measureHumanSourceCarry.ts",
    "revision": null,
-   "bytes": 13507,
-   "sha256": "f1e8af7b26a82ee042aa902c0e08df4c23778766f9ebbd0791597dd112fa723c"
+   "bytes": 14994,
+   "sha256": "238681d2c556aaf06b9213b524e3135cb2e1d4ac220770120ec89b9457816086"
   },
   {
    "role": "producer",
@@ -387,6 +394,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceChannelSide.ts",
+   "revision": null,
+   "bytes": 260,
+   "sha256": "342898e53faece9115968e78d31fb33ce3891130f1d0544100443ccca490b0a4"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceChinReceipt.ts",
    "revision": null,
    "bytes": 181,
@@ -473,8 +487,22 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 3644,
-   "sha256": "562e0cc1585d23e46af7a0f9dcb70b148a561cdb839e06ee9ede7af421966127"
+   "bytes": 4148,
+   "sha256": "b5fa8091dc6bb2482e746f574f79abf6c7d38d66b3529f2699fd11584e5340a1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationAlias.ts",
+   "revision": null,
+   "bytes": 556,
+   "sha256": "e516a4b3b0f1b2879a067c2955562cace04ada065a0a8c9c979cc12bdb2e2d5f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationAnchor.ts",
+   "revision": null,
+   "bytes": 507,
+   "sha256": "b10b5d63838e14a8d08a1860a262bebc70ff67afe6471ef90720277a5acd1e7c"
   },
   {
    "role": "producer",
@@ -487,15 +515,15 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGenerationBand.ts",
    "revision": null,
-   "bytes": 1348,
-   "sha256": "68c25cc3aa85897c2c5d2b811962341151b4c7d99bad346de9f7e7a12b2427be"
+   "bytes": 1422,
+   "sha256": "958e4934fc91f76c3b7796b33aa632864e05b6a01ebc33cfe5b64d0d4066aa09"
   },
   {
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGenerationBandTarget.ts",
    "revision": null,
-   "bytes": 761,
-   "sha256": "dc5b2e4d874f57fdc6bb464c0123620f8b999cb4a2c0eb9210a2a9d681a68e4a"
+   "bytes": 816,
+   "sha256": "a3042425aa21402d592db96ca84d85ec69c134d7b74d70ac29a9ea9d78c4ab44"
   },
   {
    "role": "producer",
@@ -580,6 +608,20 @@
    "revision": null,
    "bytes": 627,
    "sha256": "f25fac3b7e5a20a4404a8b14ab0991e90a768dda5bb72ed166c6aca49075dc55"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMacroDefinition.ts",
+   "revision": null,
+   "bytes": 365,
+   "sha256": "3e5f3f046d5380e71fca705b5be0061f242bf7e3faf685c768d6cfa2338ecca4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMacroInput.ts",
+   "revision": null,
+   "bytes": 947,
+   "sha256": "53fba231bff2446f9b3b1e1ae16f76c25924947fe525d327839e0e1cf4e8be3b"
   },
   {
    "role": "producer",
@@ -833,24 +875,24 @@
  },
  "outputs": {
   "g1-generation.json.gz": {
-   "bytes": 56422268,
-   "sha256": "de81faffff5907f8d97860dfaa7a2cd30e0d00776f90135affd647ff35006677"
+   "bytes": 54514387,
+   "sha256": "8cda71d2ea4f089cf6d84da0ae113946e6ccfdabb3543ed43388cddfdf2383bb"
   },
   "p1-body-basis.json.gz": {
    "bytes": 30371301,
-   "sha256": "f3161fd4c501f2809fff949257783ed4cb40d82233a1e0ae0c40102a906d7388"
+   "sha256": "877a3f5217db4ddd78486db2ce2ae4a13f4121591a986a6f49dd79564149c0c0"
   },
   "p1-face-basis.json.gz": {
-   "bytes": 27868466,
-   "sha256": "8cd5b5f85d7d83d50dc14d8124ab02460901841287406b6122ac01fea8394965"
+   "bytes": 27868470,
+   "sha256": "65b7e79405870260402a9effee06e027c109da9529285aa72cf5cf2ac585479c"
   },
   "reproduction-rows.tsv": {
-   "bytes": 603006,
-   "sha256": "ce287b5fce219a7510b8fd7807c43182f8e9ccd0473c31cd33f99537e20af787"
+   "bytes": 603710,
+   "sha256": "a1c6ded6fce3744e8add8334111f25e02d582eab8060dd7104195cb25fd552be"
   },
   "reproduction.json": {
-   "bytes": 2871047,
-   "sha256": "dcfaee0d8aec141bc0187841fe2f1b24fd84e7d86ce91a4634722c721c162739"
+   "bytes": 2872560,
+   "sha256": "c2e279909ee3c230ba1cac40fc8822bd8ab9bbd2cc06acb23485736525566723"
   }
  }
 }

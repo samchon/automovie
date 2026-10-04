@@ -6,7 +6,8 @@ const AZIMUTH_BINS = 72;
 
 /**
  * Measure the neck band of the one skin from its neutral and its one weight
- * map (request B, C-3). The band is where the source rig spreads neck motion:
+ * map. The band is where the source rig spreads neck motion, so a shape blend
+ * and the skinning blend share one support:
  * head-partition vertices with head weight below one, body-partition vertices
  * with any neck or head weight, cut samples excluded from both because they
  * keep their absolute rows. Each band vertex's loop parameter is its azimuth
@@ -59,6 +60,8 @@ export function measureHumanSourceBand(generation: IHumanSourceGeneration): IHum
       const gap = Math.abs(a - b);
       if (gap !== 1 && gap !== loop.length - 1) nonNeighbourEdges++;
     }
+  if (nonNeighbourEdges > 0)
+    throw new Error(`The cut loop is not star-shaped about its centroid axis (${nonNeighbourEdges} edges skip azimuth neighbours); azimuth is no loop parameter.`);
   const circular = (values: ArrayLike<number>, centres: ArrayLike<number>, theta: number): number => {
     const m = centres.length;
     let upper = 0;

@@ -13,6 +13,7 @@ import { buildHumanSourceCut } from "./buildHumanSourceCut.ts";
 import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
 import { createHumanSourceDeltaReader } from "./createHumanSourceDeltaReader.ts";
+import { defineHumanSourceMacros } from "./defineHumanSourceMacros.ts";
 import { extendHumanSourceBand } from "./extendHumanSourceBand.ts";
 import { measureHumanSourceCarry } from "./measureHumanSourceCarry.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
@@ -50,7 +51,9 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * Every input is then read and the input record is frozen, so the generation
  * id assembled next covers all of them. Assemble the one-skin generation,
  * define every channel crossing the neck once on its band
- * (`extendHumanSourceBand`), build the P1 pair, measure every row's carry on
+ * (`extendHumanSourceBand`), define every MPFB macro once over the whole skin
+ * (`defineHumanSourceMacros`, superseding the band for those endpoints), build
+ * the P1 pair, measure every row's carry on
  * those artifacts, classify provenance from the measured residuals, and write
  * them with the reproduction record and a content-only manifest.
  * Tracked published bases are read only.
@@ -183,8 +186,10 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     inputs,
   });
   const extended = extendHumanSourceBand({ generation: assembled, face, body, cut, faceRows, reader, field, sample });
-  const generation = extended.generation;
   log("band", extended.checks);
+  const macros = defineHumanSourceMacros({ generation: extended.generation, face, body, cut, faceRows, reader, field });
+  const generation = macros.generation;
+  log("macros", macros.checks);
   const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });
   log("generation", generation.id, "p1", p1.checks);
   const measured = measureHumanSourceCarry({ rows: [...faceRows.rows, ...bodyRows.rows, ...rigRows.rows], face, body, cut, generation, p1 });
@@ -193,7 +198,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     generation: generation.id,
     rows: classified.rows,
     losses: [...faceRows.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
-    checks: { cut: cut.checks, band: extended.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
+    checks: { cut: cut.checks, band: extended.checks, macros: macros.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
   });
   if (generation.inputs.length !== inputs.length) throw new Error("The generation identity does not cover every recorded input.");
   // The manifest records content and the identities it was computed from: the

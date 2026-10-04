@@ -168,5 +168,7 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
     band: null,
     bandTargets: [],
     attachments: [],
+    anchor: null,
+    aliases: [],
   };
 }

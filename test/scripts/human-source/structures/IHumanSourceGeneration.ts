@@ -2,6 +2,8 @@ import type { IAutoMovieHumanBodyBasisCoupling } from "@automovie/human/body/str
 import type { IAutoMovieHumanBodyBasisJoint } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyBasisJoint";
 import type { IAutoMovieHumanBodyBasisPelvifemoral } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyBasisPelvifemoral";
 
+import type { IHumanSourceGenerationAlias } from "./IHumanSourceGenerationAlias.ts";
+import type { IHumanSourceGenerationAnchor } from "./IHumanSourceGenerationAnchor.ts";
 import type { IHumanSourceGenerationAttachment } from "./IHumanSourceGenerationAttachment.ts";
 import type { IHumanSourceGenerationBand } from "./IHumanSourceGenerationBand.ts";
 import type { IHumanSourceGenerationBandTarget } from "./IHumanSourceGenerationBandTarget.ts";
@@ -34,7 +36,10 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * head-band vertices are relative to the rigid head carry of the
  * `band.carryLandmark` landmark row, face endpoint rows on body-band vertices
  * are absolute, and cut-sample rows stay absolute values of their partition
- * owner. `bandTargets` records each extended endpoint.
+ * owner. `bandTargets` records each extended endpoint. Endpoints listed in
+ * `anchor.targets` (every MPFB macro, defined once over the whole skin) are
+ * stored relative to `anchor` on head-only vertices instead and need no band;
+ * `aliases` records the face controls that named the same macros.
  *
  * @author Samchon
  */
@@ -60,4 +65,6 @@ export interface IHumanSourceGeneration {
   band: IHumanSourceGenerationBand | null;
   bandTargets: IHumanSourceGenerationBandTarget[];
   attachments: IHumanSourceGenerationAttachment[];
+  anchor: IHumanSourceGenerationAnchor | null;
+  aliases: IHumanSourceGenerationAlias[];
 }
