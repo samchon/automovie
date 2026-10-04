@@ -6,12 +6,16 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 
 /**
  * Compile immutable compact deformation fields into a mesh operation. Every
  * position uses the same summed field, and normals use its analytic inverse
- * transpose. Splitting one skin into material regions therefore cannot create
- * a new lighting seam. UVs, triangle identities and skin bindings are retained.
+ * transpose. Physical source lineage is copied and admitted before and after
+ * deformation: vertex-specific influence may not separate declared aliases.
+ * Legacy correspondence still follows current positions. Splitting one skin
+ * into material regions therefore cannot create a new lighting seam. UVs,
+ * triangle identities and skin bindings are retained.
  *
  * Influence is (1-r²)^3 inside the normalized ellipsoid and zero outside.
  * Nonfinite fields, nonpositive radii and local orientation reversal are refused.
@@ -64,6 +68,8 @@ export function createAutoMovieMeshDeformer(
     return { center, radius, displacement, stretch };
   });
   return (mesh, influence) => {
+    if (mesh.physicalVertices !== undefined)
+      resolveAutoMovieMeshPhysicalVertices(mesh);
     const indices =
       mesh.indices ??
       Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i);
@@ -188,7 +194,17 @@ export function createAutoMovieMeshDeformer(
       }
     }
     assertDeformedTriangles(mesh.positions, positions, indices, cofactors);
-    return { ...mesh, positions, normals };
+    const result = { ...mesh, positions, normals,
+      ...(mesh.physicalVertices === undefined ? {} : {
+        physicalVertices: {
+          sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
+          vertices: mesh.physicalVertices.vertices.slice(),
+        },
+      }),
+    };
+    if (result.physicalVertices !== undefined)
+      resolveAutoMovieMeshPhysicalVertices(result);
+    return result;
   };
 }
 

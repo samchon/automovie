@@ -8,6 +8,8 @@ export * from "./assembleAutoMovieQuadraticProgram";
 export * from "./closestPointOnSegmentXZ";
 export * from "./closestPointsBetweenSegments";
 export * from "./cofactorAutoMovieJacobian";
+export * from "./createMeshPhysicalPartitionMatcher";
+export * from "./resolveAutoMovieMeshPhysicalVertices";
 export * from "./convexHull2D";
 export * from "./linearColorToSrgbHex";
 export * from "./mixSeed";

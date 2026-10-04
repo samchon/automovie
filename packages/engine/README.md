@@ -212,6 +212,8 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 
 ## 직접 조합하는 공개 callable
 
+`resolveAutoMovieMeshPhysicalVertices` admits `IAutoMovieMesh.physicalVertices` and returns owned compact physical labels and per-render identities. The optional table retains original `(domain,id)` pairs across merge and remerge; `null` vertices continue welding by current position, even after deformation. Domains identify actual physical instances, so two placements using the same pair must agree on its current coordinate-grid cell. Malformed metadata and separated aliases refuse without legacy fallback. Topology validation and inspection share these identities while coordinate degeneration, areas, orientation, crossings and Float32 conversion keep their independent checks. TypeScript mesh generators emit correspondence alongside geometry; no new authoring tool is required. `createMeshPhysicalPartitionMatcher` captures connectivity, source-pair meaning and legacy equivalence for an already admitted mesh, returning false on changed or malformed candidates. It does not replace geometry or material validation. Both functions are available through `@automovie/engine/math/*`; the existing positions-only weld matcher retains its contract.
+
 다음 callable은 테스트 편의를 위한 노출이 아니라, 라이브러리 소비자가 엔진의
 결정론적 중간 단계와 검증기를 직접 조합할 수 있도록 유지하는 공개 표면이다.
 

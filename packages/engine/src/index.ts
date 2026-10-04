@@ -1,5 +1,7 @@
 /** Engine entry point; geometry and film retain their domain export owners. */
 export * from "./film";
+export * from "./math/createMeshPhysicalPartitionMatcher";
+export * from "./math/resolveAutoMovieMeshPhysicalVertices";
 export * from "./geometry";
 export * from "./math/adjacentAutoMovieFloat64";
 export * from "./math/interpolateAutoMovieTrianglePoint";

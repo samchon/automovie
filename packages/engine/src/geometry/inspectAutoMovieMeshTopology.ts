@@ -2,23 +2,28 @@
  * Measure triangle topology and signed volume from actual mesh buffers.
  * Asset authors and diagnostics call this through proceduralMesh; validation
  * verdicts remain in validateMeshTopology. Index admission precedes traversal,
- * positions weld on the declared nanometre grid, and input arrays are never
- * mutated. Coordinates are metres and volume is cubic metres. Colour, normal
+ * legacy positions weld on the declared nanometre grid and declared source
+ * aliases retain physical incidence. Input arrays are never mutated.
+ * Coordinates are metres and volume is cubic metres. Colour, normal
  * and UV finiteness is counted without allocating concatenated attribute copies.
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
  * Measure a mesh's triangle topology instead of assuming it.
  *
- * Vertices weld by position, because a builder that gives each face its own
- * corners is still one closed shell. A closed solid must report `watertight`;
+ * Legacy vertices weld by position: face-local corners can still be one shell.
+ * A closed solid must report `watertight`;
  * an assembly of members that share faces, or a surface meant to stay open,
  * reports its boundary and non-manifold edge counts rather than pretending.
+ * Declared source pairs instead retain physical incidence across contact.
+ * Coordinate-collapsed triangles remain degenerate independently of that
+ * incidence. Invalid explicit correspondence throws its named refusal.
  *
  * This measures; it does not judge. `validateMeshTopology` is the engine's
  * verdict on the same surface, adding winding consistency and an `expectClosed`
@@ -38,6 +43,8 @@ export const inspectAutoMovieMeshTopology = (
     countNonFinite(mesh.colors ?? null) +
     countNonFinite(mesh.reliefWeights ?? null);
   const indices = triangleIndicesOf(mesh, "mesh topology");
+  const physical = mesh.physicalVertices === undefined
+    ? undefined : resolveAutoMovieMeshPhysicalVertices(mesh);
   const key = (at: number): string =>
     [0, 1, 2]
       .map((axis) =>
@@ -47,11 +54,13 @@ export const inspectAutoMovieMeshTopology = (
   const edges = new Map<string, number>();
   const degenerateTriangles: number[] = [];
   for (let index = 0; index < indices.length; index += 3) {
-    const corners = [0, 1, 2].map((corner) => key(indices[index + corner]!));
-    if (new Set(corners).size < 3) {
+    const coordinateCorners = [0, 1, 2].map((corner) => key(indices[index + corner]!));
+    if (new Set(coordinateCorners).size < 3) {
       degenerateTriangles.push(index / 3);
       continue;
     }
+    const corners = physical === undefined ? coordinateCorners
+      : [0, 1, 2].map((corner) => String(physical.vertices[indices[index + corner]!]));
     for (let edge = 0; edge < 3; ++edge) {
       // The degenerate skip above leaves three distinct corner keys, so the
       // two ends of an edge can never compare equal here.

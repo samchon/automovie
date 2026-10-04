@@ -1,16 +1,18 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Append mesh-topology violations to a collector, the shared body behind the
  * standalone {@link validateMeshTopology} and `validateModel`'s mesh check.
- * Welding assigns current position identities; edge-key preparation then
+ * Physical correspondence assigns declared source identities and current
+ * position identities for legacy vertices; edge-key preparation then
  * chooses exact numeric pairs when possible and delimited pairs otherwise.
- * This representation changes neither traversal nor diagnostics and imposes
- * no additional population ceiling on structurally valid input.
+ * Omitted correspondence keeps legacy traversal and diagnostic labels exactly.
+ * Compact identities impose no population ceiling beyond valid array buffers.
  *
  * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `appendMeshTopology` appends welded-edge topology faults at the caller's exact mesh-part path.
  * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `appendMeshTopology` shares one incidence-and-winding calculation between model validation and the public standalone result.
@@ -21,6 +23,19 @@ export const appendMeshTopology = (
   collector: ViolationCollector,
   expectClosed: boolean,
 ): void => {
+  let physical: ReturnType<typeof resolveAutoMovieMeshPhysicalVertices> | undefined;
+  if (mesh.physicalVertices !== undefined) {
+    try {
+      physical = resolveAutoMovieMeshPhysicalVertices(mesh);
+    } catch (error) {
+      collector.push(
+        "topology", `${path}.physicalVertices`,
+        String(error),
+        mesh.physicalVertices,
+      );
+      return;
+    }
+  }
   const vertexCount = mesh.positions.length / 3;
   if (vertexCount === 0 || !Number.isInteger(vertexCount)) return;
   const indices =
@@ -33,10 +48,12 @@ export const appendMeshTopology = (
   )
     return;
 
-  // Quantize each source vertex once, then count edges by compact identities.
-  // Coordinates still determine welding on every evaluation: deforming two
-  // previously distinct vertices onto one grid point must change the verdict.
-  const { labels, vertices } = weldMeshVertices(mesh.positions);
+  // Coordinate collapse is independent of physical edge incidence.
+  // Legacy coordinates determine welding on every evaluation. Explicit aliases
+  // have already agreed on that grid, while separate contact points stay apart.
+  // Coordinate-collapsed triangles remain redundant independently of identity.
+  const coordinate = weldMeshVertices(mesh.positions);
+  const { labels, vertices } = physical ?? coordinate;
   type Direction = { from: number; to: number; count: number };
   type Edge = {
     low: number;
@@ -49,12 +66,14 @@ export const appendMeshTopology = (
   const undirected = new Map<number | string, Edge>();
   const directed: Direction[] = [];
   for (let i = 0; i < indices.length; i += 3) {
+    const ga = coordinate.vertices[indices[i]!]!,
+      gb = coordinate.vertices[indices[i + 1]!]!,
+      gc = coordinate.vertices[indices[i + 2]!]!;
+    if (ga === gb || gb === gc || gc === ga)
+      continue;
     const a = vertices[indices[i]!]!;
     const b = vertices[indices[i + 1]!]!;
     const c = vertices[indices[i + 2]!]!;
-    // A triangle with a repeated welded vertex (a pole ring, a collapsed cap)
-    // carries no surface: skip it, exactly as the watertightness oracle does.
-    if (a === b || b === c || c === a) continue;
     const corners = [a, b, c];
     for (let e = 0; e < 3; ++e) {
       const from = corners[e]!;

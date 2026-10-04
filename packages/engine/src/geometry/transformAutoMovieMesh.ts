@@ -2,6 +2,7 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 import { finiteVector } from "./finiteVector";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -14,6 +15,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * flips triangle winding so the outward face stays outward. UVs ride along
  * untouched, because a placement moves a surface without re-cutting its atlas.
  * Linear RGB follows the same vertex identities and is copied unchanged.
+ * Physical correspondence is admitted and copied, retaining its original
+ * source pairs. Reusing a pair in another placement still asserts one point;
+ * a later merge refuses disagreement rather than renaming the physical instance.
  *
  * That is what makes a placed member's coordinates local rather than global,
  * and it is the one thing to know before rotating an atlas-bearing member.
@@ -50,6 +54,8 @@ export const transformAutoMovieMesh = (
   if (mesh.skin !== null)
     throw new Error("procedural mesh transform does not accept skinning");
   const triangles = triangleIndicesOf(mesh, "mesh transform");
+  if (mesh.physicalVertices !== undefined)
+    resolveAutoMovieMeshPhysicalVertices(mesh);
   const translation = transform.translation ?? { x: 0, y: 0, z: 0 };
   finiteVector(translation, "mesh transform translation");
   const rotation = transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 };
@@ -96,7 +102,7 @@ export const transformAutoMovieMesh = (
       triangles[index + (mirrored ? 2 : 1)]!,
       triangles[index + (mirrored ? 1 : 2)]!,
     );
-  return {
+  const result: IAutoMovieMesh = {
     positions,
     normals: mesh.normals === null ? null : normals,
     uvs: mesh.uvs === null ? null : [...mesh.uvs],
@@ -106,5 +112,14 @@ export const transformAutoMovieMesh = (
       : { reliefWeights: [...mesh.reliefWeights] }),
     indices,
     skin: null,
+    ...(mesh.physicalVertices === undefined ? {} : {
+      physicalVertices: {
+        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
+        vertices: mesh.physicalVertices.vertices.slice(),
+      },
+    }),
   };
+  if (result.physicalVertices !== undefined)
+    resolveAutoMovieMeshPhysicalVertices(result);
+  return result;
 };
