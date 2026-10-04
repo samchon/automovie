@@ -1,6 +1,34 @@
 import type * as Human from "@automovie/human";
 
 /**
+ * Public carrier for the inspected candidate-only interchange boundary.
+ * It records no anatomical or clinical acceptance of the complete body.
+ *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This family index spans complete body authoring and browser workflow; this carrier records only inspected static candidate interchange.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Carries inspected source identity and candidate-qualified static readback.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The specification index groups generation, joints, documents and editing; this carrier owns only candidate export source inspection.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Carries the inspected source-to-primitive identity boundary without claiming rig or clinical document reconstruction.
+ */
+export interface humanBodyStudyReview {
+  /**
+   * Inspected candidate asset identity, independent of whole-body qualification.
+   *
+   * The real writer/readback scenarios and current numerical request export
+   * carry source IDs and actual primitive intervals, with reference-only target
+   * provenance. Clinical registration, complete bones and skin remain unavailable.
+   *
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularAssetCorrespondence} Read the separate source partition and candidate-only qualification through actual GLB/glTF readback; this describes a target sphere rather than a validated bone or person.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularAssetCorrespondence.geometry} Read the common constructor's actual prepared populations and the reader's accessor/index partition admission; source IDs are not material-derived anatomy.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularAssetCorrespondence.qualification} Read supported revision/reference, target/reference-rig-only and unavailable whole skin/parts, with no clinical certificate or editable document inferred.
+   * @evidence {@link Human.readHumanBodyArticularAssetCorrespondence} Read legacy absence, malformed/unsupported namespace refusal, common interval delegation and exact candidate-ID join, with owned output and recovery scenarios.
+   * @evidence {@link Human.exportHumanBody} Read optional same-Document qualification before the existing writer and metadata-free face/body/person defaults through actual byte and geometry comparisons.
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Inspects static candidate identity at the actual exporter while preserving the numerical document and anatomical limitations.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Inspects primitive source correspondence at Float32 output without claiming a rig or clinical edit roundtrip.
+   */
+  readonly articularAssetIdentity: "candidate-only";
+}
+
+/**
  * Current construction-source inspection for the portable body studies.
  *
  * Every public declaration of the body folder was read against the basis it
@@ -118,7 +146,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.briefs} Read each style's waist fraction, the leg line's crotch, front and back depths, and its gusset and outer distances.
  * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.bra} Read the nipple skin landmark and the band's bottom, front and back fractions and the strap's centre and half width.
  * @evidence {@link Human.segmentHumanBodyModel} Read the dominant-bone partition against the census: one part per bone in joint order, majority and first-corner tie rules, the UV-seam vertex walk, and the population check that refuses a mismatched build.
- * @evidence {@link Human.exportHumanBody} Read the static export: the face's portrait document and writer applied to the built body model, no rig written.
+ * @evidence {@link Human.exportHumanBody} Read the static model-only writer and optional candidate-report qualification in the same constructed Document, preserving legacy bytes and unavailable whole anatomy without writing a rig or restoring clinical document controls.
  * @evidence {@link Human.measureHumanBodyBasisChannels} Read the whole-surface RMS accumulation, the empty-population refusal and the rule evaluation through the same shape path the builder uses.
  * @evidence {@link Human.humanBodySurfaceBoundary} Read the directed-edge census: an edge whose reverse no triangle owns is a boundary edge, and its endpoints are the ring.
  * @evidence {@link Human.humanBodyClipRing} Read the boundary-first ring with the highest-vertex fallback the closed analytic box needs.
@@ -153,8 +181,9 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.parseHumanBodyBasisDocument} Read the shared UTF-16 envelope, JSON parsing and the admission hand-off.
  * @evidence {@link Human.serializeHumanBodyBasisDocument} Read admission before serialization and the envelope check on the escaped, formatted text.
  */
-export const humanBodyStudyReview = {
+export const humanBodyStudyReview: humanBodyStudyReview & { basis: string; receipt: string; likeness: "unaccepted" } = {
   basis: "connected-basis/README.md",
   receipt: "connected-basis/extraction-receipt.json",
   likeness: "unaccepted",
+  articularAssetIdentity: "candidate-only",
 };

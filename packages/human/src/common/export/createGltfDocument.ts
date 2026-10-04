@@ -7,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { Document, TextureInfo } from "@gltf-transform/core";
+import typia from "typia";
 import {
   KHRMaterialsClearcoat,
   KHRMaterialsIOR,
@@ -16,6 +17,8 @@ import {
 
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
+import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanStaticPartCorrespondence";
+import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
 
 /** glTF sampler wrap mode 33071: a face texture never tiles past its UV0 square. */
 const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
@@ -36,8 +39,21 @@ const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
  * Prefer exportHumanFace for portable bytes. This low-level Document must be
  * written by the same glTF-Transform module instance that created it; mixing
  * CommonJS and ES-module instances can discard its geometry during writing.
+ *
+ * Source identity is an explicit opt-in. The same prepared material members
+ * that enter the merge supply primitive-local element intervals; metadata is
+ * absent by default. These source IDs establish no anatomical qualification.
+ *
+ * @evidence contracts/common.md#principled-implementation Source registration consumes actual ordered prepared meshes before writing, and the common reader checks the partition against final accessors; geometry conversion remains with the existing engine and Float32 owners.
+ * @evidence contracts/common.md#clear-and-simple-design One constructor owns material membership, source-ID mapping and final primitive creation; no serialized grouping is reconstructed.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional metadata changes neither source geometry nor the legacy default and conveys no anatomical certification.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes optional source identity and the existing static exporter limitations.
  */
-export function createGltfDocument(model: IAutoMovieModel): Document {
+export function createGltfDocument(model: IAutoMovieModel, options?: {
+  /** True opts into source part IDs and prepared element intervals; absent or false preserves legacy output. */
+  sourcePartIdentity?: boolean;
+}): Document {
+  const identity = typia.assertEquals<{ sourcePartIdentity?: boolean }>(options === undefined ? {} : options).sourcePartIdentity === true;
   if (
     model.skeleton !== null ||
     model.materials.some((m) =>
@@ -270,6 +286,25 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
           .setArray(packed.uvs)
           .setBuffer(buffer),
       );
+    if (identity) {
+      let vertexOffset = 0;
+      let indexOffset = 0;
+      const correspondence: IAutoMovieHumanStaticPartCorrespondence = {
+        version: 1,
+        sourceModel: model.id,
+        parts: members.map((part, ordinal) => {
+          const prepared = meshes[ordinal];
+          const vertexCount = prepared.positions.length / 3;
+          const indexCount = prepared.indices!.length;
+          const record = { id: part.id, vertexOffset, vertexCount, indexOffset, indexCount };
+          vertexOffset += vertexCount;
+          indexOffset += indexCount;
+          return record;
+        }),
+      };
+      primitive.setExtras({ automovieSourceParts: correspondence });
+      readHumanStaticPartCorrespondence(primitive);
+    }
     scene.addChild(
       document
         .createNode(finish.id)

@@ -27,7 +27,7 @@ export function createConnectedBodyAnatomicalRuntime(basis: IAutoMovieHumanBodyB
     const inspection = inspect(document);
     const model = createHumanBodyArticularCandidateModel({ id: document.id, name: document.name, inspection });
     if (request.operation === "export") {
-      const { glb } = await exportHumanBody(model);
+      const { glb } = await exportHumanBody(model, inspection);
       return { operation: "export", glb };
     }
     return {

@@ -4,6 +4,7 @@ import { createConnectedBodyRenderer } from "@automovie/playground/src/human/bod
 import type { ConnectedBodyRequest, ConnectedBodyResult } from "@automovie/playground/src/human/body/connectedBodyProtocol";
 import type { HumanResidentPort } from "@automovie/playground/src/human/common/residentWorker";
 import { WebIO } from "@gltf-transform/core";
+import { readHumanBodyArticularAssetCorrespondence } from "@automovie/human/body/export/readHumanBodyArticularAssetCorrespondence";
 import { serializeHumanBodyAnatomicalDocument } from "@automovie/human/body/document/serializeHumanBodyAnatomicalDocument";
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 import { TestValidator } from "@nestia/e2e";
@@ -65,6 +66,7 @@ export async function test_human_body_anatomical_runtime(): Promise<void> {
   const asset = (await new WebIO().readBinary(exported.glb)).getRoot();
   TestValidator.equals("resident export returns the candidate finish only", asset.listMaterials().map((material) => material.getName()), ["articular-inspection"]);
   TestValidator.equals("resident export merges the two candidate parts", asset.listMeshes().length, 1);
+  TestValidator.equals("resident export carries candidate source IDs", readHumanBodyArticularAssetCorrespondence(asset.listMeshes()[0].listPrimitives()[0])!.geometry.parts.map((part) => part.id), ["leftHumerus/head-candidate", "leftFemur/head-candidate"]);
   const legacy = await runtime({ ...request, document: serializeHumanBodyBasisDocument({ id: "legacy", name: "Legacy", basis: basis.id, shape: {} }) });
   if (legacy.operation !== "preview") throw new Error("legacy preview expected");
   TestValidator.equals("legacy report remains absent", legacy.anatomicalRequest, undefined);

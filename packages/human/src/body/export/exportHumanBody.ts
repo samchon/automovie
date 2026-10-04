@@ -1,8 +1,13 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
+import typia from "typia";
 
 import { createGltfDocument } from "../../common/export/createGltfDocument";
 import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
+import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
+import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
+import type { IAutoMovieHumanBodyArticularAssetCorrespondence } from "./IAutoMovieHumanBodyArticularAssetCorrespondence";
+import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
 
 /**
  * Serialize a built body to GLB and glTF with resident resources.
@@ -15,12 +20,48 @@ import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensio
  * replays the document through the builder rather than animating the file.
  * The package keeps document creation and the writer in one module instance
  * for the same reason the face does: glTF-Transform relies on class identity.
+ *
+ * An optional inspection enables source identity in that same construction and
+ * joins candidate-only qualification before writing. The report supplies
+ * reference provenance, never a clinical certificate or editable document.
+ * Every actual source ID must match exactly one reported candidate. Omitting
+ * the report preserves the existing one-argument output and metadata absence.
+ *
+ * @evidence contracts/common.md#principled-implementation Common construction owns actual intervals and admission; this writer joins only exact candidate IDs and qualification in the same Document before the original serialization.
+ * @evidence contracts/common.md#clear-and-simple-design Optional candidate qualification extends the existing body writer without a second container or a reconstructed merge.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
+ * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel): Promise<{
+export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
-  const document = createGltfDocument(model);
+  const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
+  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined });
+  if (report !== undefined) {
+    if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)
+      throw new Error("Unsupported or empty articular inspection qualification.");
+    const candidates = new Map(report.candidates.map((candidate) => [candidate.part + "/head-candidate", candidate]));
+    const actual = document.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives());
+    const ids = actual.flatMap((primitive) => readHumanStaticPartCorrespondence(primitive)!.parts.map((part) => part.id));
+    if (candidates.size !== report.candidates.length || ids.length !== candidates.size || ids.some((id) => !candidates.has(id)))
+      throw new Error("Articular report must match every actual source candidate exactly once.");
+    for (const primitive of actual) {
+      const mapping = readHumanStaticPartCorrespondence(primitive)!;
+      const qualification: IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"] = {
+        version: 1,
+        generatorRevision: "articular-head-inspection/1",
+        reference: { ...report.reference },
+        skin: { ...report.skin },
+        parts: mapping.parts.map((part) => {
+          const candidate = candidates.get(part.id)!;
+          return { id: `${candidate.part}/head-candidate`, source: candidate.source, registration: candidate.registration, partResolution: { ...candidate.partResolution } };
+        }),
+      };
+      primitive.setExtras({ ...primitive.getExtras(), automovieArticularInspection: qualification });
+      readHumanBodyArticularAssetCorrespondence(primitive);
+    }
+  }
   const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);
