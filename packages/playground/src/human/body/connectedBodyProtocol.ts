@@ -7,6 +7,7 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyHumeralHead,
   IAutoMovieHumanBodyShoulderPose,
+  IAutoMovieHumanBodyAnatomicalInspection,
 } from "@automovie/human";
 import type {
   IAutoMovieJointPose,
@@ -121,6 +122,8 @@ export type ConnectedBodyResult =
         | { status: "unavailable"; reason: "skin-crossing" | "ct-domain" }
         | null;
       extras: Record<string, unknown>;
+      /** Candidate-only numerical inspection; legacy body previews omit it. */
+      anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;
     }
   | { operation: "export"; glb: Uint8Array<ArrayBuffer> }
   | {

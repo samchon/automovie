@@ -1,4 +1,7 @@
 export * from "./shoulder/createHumanBodyHumeralHeads";
+export * from "./articulation/createHumanBodyAnatomicalInspection";
+export * from "./articulation/createHumanBodyArticularCandidateModel";
+export type { IAutoMovieHumanBodyAnatomicalInspection } from "./generated/IAutoMovieHumanBodyAnatomicalInspection";
 export * from "./shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
 export * from "./lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
 export type { IAutoMovieHumanBodyFemoralHead } from "./lower-limb/IAutoMovieHumanBodyFemoralHead";

@@ -9,6 +9,7 @@
  */
 import type {
   IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanBodyAnatomicalDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
 import * as THREE from "three";
@@ -44,6 +45,7 @@ type Host<Document> = Pick<
 export function createConnectedBodyViewport<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
 >(props: Host<Document>) {
   const { renderer, canvas } = props;

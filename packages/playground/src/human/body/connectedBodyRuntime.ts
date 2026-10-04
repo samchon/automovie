@@ -19,6 +19,7 @@ import {
   parseHumanBodyBasisDocument,
   projectHumanBodySimpleShape,
   stepHumanBodyArmsDown,
+  assertTextSize,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
@@ -28,6 +29,7 @@ import type {
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
+import { createConnectedBodyAnatomicalRuntime } from "./createConnectedBodyAnatomicalRuntime";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -57,6 +59,7 @@ export function createConnectedBodyRuntime(
   } = {},
 ) {
   const evaluate = createHumanBodyBasisBuilder(basis);
+  let anatomical: ReturnType<typeof createConnectedBodyAnatomicalRuntime> | undefined;
   const segment = createHumanBodySegmenter(basis);
   const sliceMs = options.sliceMs ?? 25;
   const yieldThread =
@@ -109,6 +112,10 @@ export function createConnectedBodyRuntime(
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
     const mine = ++received;
+    assertTextSize(request.document);
+    const record: unknown = JSON.parse(request.document);
+    if (record !== null && typeof record === "object" && Object.hasOwn(record, "tier"))
+      return (anatomical ??= createConnectedBodyAnatomicalRuntime(basis))(request);
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
     const document = parseHumanBodyBasisDocument(request.document);

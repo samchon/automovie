@@ -6,6 +6,7 @@
  */
 import {
   type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanBodyAnatomicalDocument,
   type IAutoMovieHumanPersonDocument,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
@@ -29,6 +30,7 @@ import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
 export function createConnectedBodyPreview<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
 >(props: {
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
@@ -81,6 +83,7 @@ export function createConnectedBodyPreview<
         crossings: result.crossings,
         anatomy: result.anatomy,
         extras: result.extras,
+        anatomicalRequest: result.anatomicalRequest,
       };
     },
     export: async (document: Document) => {

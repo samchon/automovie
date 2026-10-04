@@ -4,6 +4,7 @@ export * from "./rig/IAutoMovieHumanBodyBasisJoint";
 export * from "./surface/IAutoMovieHumanBodyBasisSurface";
 export * from "./surface/IAutoMovieHumanBodyBasisSurfaceMush";
 export * from "./IAutoMovieHumanBodyBasisDocument";
+export * from "./IAutoMovieHumanBodyAnatomicalDocument";
 export * from "./IAutoMovieHumanBodyShoulderPose";
 export * from "./IAutoMovieHumanBodyBuild";
 export * from "./IAutoMovieHumanBodyChannelScale";

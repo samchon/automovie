@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>automovie: numerical body request inspection</title>
+    <style>
+      body{margin:0;background:#161c23;color:#e4eaf0;font:14px/1.5 system-ui}main{display:grid;grid-template-columns:1fr 440px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}textarea{box-sizing:border-box;width:100%;height:300px}button{margin:3px;padding:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a7d1f0}.views{position:absolute;top:12px;left:12px}#request-status[data-state=error]{color:#ffb5b5}@media(max-width:800px){main{display:block;height:auto}section{height:60vh}}
+    </style>
+  </head>
+  <body>
+    <main id="app">
+      <section><canvas id="request-canvas"></canvas><div class="views"><button data-view="0">Front</button><button data-view="45">Left oblique</button><button data-view="-45">Right oblique</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="request-fit">Fit candidates</button><label><input id="request-clay" type="checkbox" />Clay</label></div></section>
+      <aside>
+        <h1>Numerical request inspection</h1>
+        <p>Explicit target articular radii become spheres in a neutral reference rig. Requested stature, mass and tissue detail do not generate the displayed body. Skin and complete bones remain unavailable.</p>
+        <p><a href="connected-body.html">Legacy connected body editor</a></p>
+        <pre id="request-status" role="status">Loading reference source…</pre>
+        <label for="request-json">Complete numerical request (JSON)</label>
+        <textarea id="request-json" spellcheck="false"></textarea>
+        <div><button id="request-apply">Apply request</button><button id="request-load">Load request</button><input id="request-file" type="file" accept=".json,application/json" hidden /></div>
+        <div><button id="request-undo" disabled>Undo</button><button id="request-redo" disabled>Redo</button><button id="request-save" disabled>Save numerical request</button><button id="request-export" disabled>Export inspection candidates</button></div>
+        <p>Use generatorRevision <code>articular-head-inspection/1</code> with the reference basis shown above. Detailed requests require age, standing stature and mass. Humeral/femoral sphere-fitted-radius targets are millimetres. Omitted radii remain unknown. Unregistered imaging acquisitions are refused.</p>
+      </aside>
+    </main>
+    <script type="module" src="/src/connected-body-anatomical.ts"></script>
+  </body>
+</html>
