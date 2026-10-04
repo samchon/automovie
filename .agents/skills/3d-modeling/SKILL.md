@@ -31,8 +31,6 @@ A residual, a fitted preset or a baked artifact is defined against a base (`subj
 - Enforce ranges in `engine` validators and never with `typia` tags in `interface`; the development skill's rough-types rule owns that boundary.
 - Record the study behind a numeric range in `.wiki/04-domain-research/` and consult the relevant existing study before deriving it again. When local records are absent, start from the public task and primary source; their absence is no prerequisite for diagnosis.
 
-## Every scale
-
-Verify at the distance the shot uses as well as close up: a proxy that reads at fifty metres can be nonsense in a close framing, and a shape tuned in close-up can vanish in a crowd. Silhouette survives distance, so judge it there.
+## Pipeline discipline
 
 Keep scratch in gitignored directories and promote only stabilized logic into packages.
