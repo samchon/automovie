@@ -4,6 +4,8 @@
  * unrounded, where F is the nipple-exclusion fill in Blender coordinates and S
  * the frame map `[x, z - offset, -y]`, in that order. `neutral` is
  * `S(F(neutral))` and `landmarks` the frame-mapped joint-cube delta.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceBodyField {
   neutral: Float64Array;

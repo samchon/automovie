@@ -8,6 +8,8 @@ import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
 /**
  * A historical body publication to compare the upstream replay against, on
  * the published body's vertex order (it must share the published triangles).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceStageInput {
   stage: IAutoMovieHumanBodyBasis;

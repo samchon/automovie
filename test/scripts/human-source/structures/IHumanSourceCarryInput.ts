@@ -1,21 +1,22 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
-import type { IHumanSourceBodyReproduction } from "./IHumanSourceBodyReproduction.ts";
 import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
-import type { IHumanSourceTopology } from "./IHumanSourceTopology.ts";
+import type { IHumanSourceP1 } from "./IHumanSourceP1.ts";
+import type { IHumanSourceReproductionRow } from "./IHumanSourceReproductionRow.ts";
 
 /**
- * Inputs of the P1 pair: the published bases re-bound to the generation's one cut.
+ * Inputs of the carry measurement: the reproduction rows, the published bases
+ * and the two written representations they are compared against.
  *
  * @author Samchon
  */
-export interface IHumanSourceP1Input {
+export interface IHumanSourceCarryInput {
+  rows: readonly IHumanSourceReproductionRow[];
   face: IAutoMovieHumanFaceBasis;
   body: IAutoMovieHumanBodyBasis;
-  generation: IHumanSourceGeneration;
   cut: IHumanSourceCut;
-  topology: IHumanSourceTopology;
-  bodyRows: IHumanSourceBodyReproduction;
+  generation: IHumanSourceGeneration;
+  p1: IHumanSourceP1;
 }

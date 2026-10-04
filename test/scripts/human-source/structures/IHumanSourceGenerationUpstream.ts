@@ -3,6 +3,8 @@
  * content digest that identifies it, the digest of each license text and the
  * rights split the license states. `consumed` sources were read by the
  * sampler; the others are recorded for the rights chain only.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationUpstream {
   name: string;

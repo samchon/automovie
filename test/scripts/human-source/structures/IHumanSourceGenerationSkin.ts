@@ -11,6 +11,8 @@ import type { IHumanSourceCutSample } from "./IHumanSourceCutSample.ts";
  * partition label each (0 head, 1 body), the source parent triangle and three
  * corner UVs. The face and body vertex maps let derivatives authored on the
  * published surfaces be re-addressed without searching by position.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationSkin {
   originalVertices: number;

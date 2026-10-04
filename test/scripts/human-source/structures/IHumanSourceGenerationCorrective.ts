@@ -6,6 +6,8 @@ import type { IHumanSourceGenerationCorrectiveInput } from "./IHumanSourceGenera
  * One combination corrective of the generation with its published origin.
  * Face inputs name channel sides; body inputs may also name a joint pose
  * driver, kept in the published body form.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationCorrective {
   id: string;

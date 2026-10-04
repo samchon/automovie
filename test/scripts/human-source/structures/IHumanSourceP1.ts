@@ -5,6 +5,8 @@ import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/
  * The P1 representation: the current two-basis structure with both skins
  * bound to the generation's one frozen cut through `sourcePartition`, so the
  * runtime seam joins identical source samples. Basis ids are new.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceP1 {
   face: IAutoMovieHumanFaceBasis;

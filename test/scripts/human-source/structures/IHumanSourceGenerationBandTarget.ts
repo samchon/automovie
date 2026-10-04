@@ -5,6 +5,8 @@
  * parameter. `macro-owned-by-body`: a face macro row faded to zero at the cut,
  * the cut value belonging to the body macro (request C-5). `unavailable`: the
  * cut-sample rows themselves have no source value, so no extension exists.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationBandTarget {
   target: string;

@@ -11,6 +11,8 @@ import type { IHumanSourceTopology } from "./IHumanSourceTopology.ts";
  * lower-face preparation's recorded bake factor of the source chin endpoint
  * (`lower-face-receipt.json`). `tolerance` is the deleted recipe recovery's
  * acceptance residual in metres.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceFaceInput {
   face: IAutoMovieHumanFaceBasis;

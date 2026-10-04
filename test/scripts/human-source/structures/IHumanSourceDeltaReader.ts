@@ -4,6 +4,8 @@ import type { IHumanSourceSampleState } from "./IHumanSourceSampleState.ts";
  * Frame-converted access to the sampled states. `skin` returns a dense XYZ
  * delta per source vertex and `landmarks` one per joint cube, both in the
  * shared frame (`[dx, dz, -dy]` of the Blender delta), unrounded.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceDeltaReader {
   has(name: string): boolean;

@@ -6,6 +6,8 @@ import type { IHumanSourceSampleWeights } from "./IHumanSourceSampleWeights.ts";
  * One sampling run loaded in memory, still in Blender coordinates. Arrays are
  * flat: `neutral` is XYZ per skin vertex, `landmarksNeutral` XYZ per landmark,
  * `loopUv` UV per loop, `flattenOperator` row-major (interior x boundary).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceSample {
   directory: string;

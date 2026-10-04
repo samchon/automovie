@@ -9,6 +9,8 @@ import type { IHumanSourceCutSample } from "./IHumanSourceCutSample.ts";
  * in complement order. `faceToG1` maps each published face skin vertex,
  * `r16ToSource` each published body skin vertex to its exact source twin, and
  * `p1Body*` describe the complementary body surface of the P1 representation.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceCut {
   minimumY: number;

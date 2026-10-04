@@ -3,6 +3,8 @@
  * forward), fan-triangulated from each polygon's first loop corner as both
  * published bases were. `cornerUv` is two values per triangle corner with V
  * flipped to the published convention (`1 - v`).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceTopology {
   offset: number;

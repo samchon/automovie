@@ -6,12 +6,17 @@ import type { IHumanSourceReproductionError } from "./IHumanSourceReproductionEr
  * `regeneration` compares the published field with the value freshly derived
  * from the pinned upstream through `recipe`; it is null when no upstream state
  * reproduces the row (`provenance` then names where the value comes from).
- * `p2` compares the published field with its representation on the one-skin
- * generation, `p1` with the complementary two-surface representation; a
- * nonzero carry error means published vertices the representation dropped.
+ * `p2` compares the published field with what the written one-skin generation
+ * evaluates to on the published vertices (a body row on a head-only vertex
+ * counts as head carry plus row), `p1` with the written P1 pair; both are
+ * measured on the artifacts after assembly, and null means the representation
+ * does not store the field (an attached part is referenced, not copied) or it
+ * was not measured, never a silent zero.
  * `newSupport` says whether vertices the published surface never had receive
  * a value: regenerated from upstream, unavailable, or not needed because the
  * row does not reach them.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceReproductionRow {
   basis: "face" | "body";

@@ -5,6 +5,8 @@
  * field moves); `float32MaximumMetres` is the largest coordinate difference
  * after each field is added to the published neutral and rounded to Float32,
  * the precision a GPU vertex buffer receives.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceReproductionError {
   maximumMetres: number;

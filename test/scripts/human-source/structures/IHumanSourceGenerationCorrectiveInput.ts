@@ -1,4 +1,8 @@
-/** One driving side of a combination corrective, as published. */
+/**
+ * One driving side of a combination corrective, as published.
+ *
+ * @author Samchon
+ */
 export interface IHumanSourceGenerationCorrectiveInput {
   channel: string;
   side: "positive" | "negative";

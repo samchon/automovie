@@ -8,6 +8,8 @@ import type { IHumanSourceReproductionRow } from "./IHumanSourceReproductionRow.
  * endpoint is listed in `unavailable` with its reason. `newOriginals` are
  * body-side source vertices the published body never had and `droppedR16`
  * published body vertices on the head side of the cut (r16 vertex ids).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceBodyReproduction {
   rows: IHumanSourceReproductionRow[];

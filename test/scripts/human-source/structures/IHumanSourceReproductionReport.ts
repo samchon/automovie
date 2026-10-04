@@ -5,6 +5,8 @@ import type { IHumanSourceReproductionRow } from "./IHumanSourceReproductionRow.
  * The reproduction record of one generation: every published row with its
  * regeneration and carry errors, every loss, and the measured checks of each
  * stage (cut identity, coverage, maps, counts).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceReproductionReport {
   generation: string;

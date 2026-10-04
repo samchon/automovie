@@ -14,6 +14,8 @@
  * `1 - (6t^5 - 15t^4 + 10t^3)`: exactly one on the cut, zero at the band end
  * and beyond, C2 and monotone. Everything is computed from the neutral
  * geometry and the one weight map; no value is authored.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationBand {
   method: string;

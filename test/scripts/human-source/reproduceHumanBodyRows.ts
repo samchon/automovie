@@ -57,13 +57,6 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
 
   const recipeOf = createHumanSourceBodyRecipes(reader, field);
   const correctiveTargets = new Set((body.correctives ?? []).map((c) => c.target));
-  const zero = (vertices: number): IHumanSourceReproductionError => ({
-    maximumMetres: 0,
-    rmsMetres: 0,
-    float32MaximumMetres: 0,
-    comparedVertices: vertices,
-    differingVertices: 0,
-  });
   const rows: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceLoss[] = [];
   const g1Targets: Record<string, number[]> = {};
@@ -151,15 +144,13 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
     for (const row of g1Rows) g1.push(...row);
     g1Targets[name] = g1;
 
-    // P1 carry: published vertices the complement drops.
-    const p1Carried = Float64Array.from(d);
+    // Published vertices the P1 complement drops (its carry is measured on the artifact).
     let droppedMagnitude = 0;
     let droppedMoving = 0;
     for (const v of droppedR16) {
       const m = Math.hypot(d[3 * v], d[3 * v + 1], d[3 * v + 2]);
       if (m > 0) droppedMoving++;
       droppedMagnitude = Math.max(droppedMagnitude, m);
-      p1Carried.fill(0, 3 * v, 3 * v + 3);
     }
     if (droppedMoving > 0)
       losses.push({
@@ -179,8 +170,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
       provenance: recipe === null ? "carried-published" : "upstream-recipe",
       recipe: recipe === null ? null : recipe.state,
       regeneration,
-      p2: zero(count),
-      p1: measureHumanSourceError({ published: d, candidate: p1Carried, neutral: surface.positions }),
+      p2: null,
+      p1: null,
       newSupport: rounded !== null ? "regenerated" : isUnavailable ? "unavailable" : "not-needed",
       note:
         rounded !== null

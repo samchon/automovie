@@ -35,6 +35,8 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * `band.carryLandmark` landmark row, face endpoint rows on body-band vertices
  * are absolute, and cut-sample rows stay absolute values of their partition
  * owner. `bandTargets` records each extended endpoint.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGeneration {
   schema: string;

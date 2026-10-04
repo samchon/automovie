@@ -1,4 +1,8 @@
-/** One source as `prepare-mpfb-profile.py` observed it in a work directory. */
+/**
+ * One source as `prepare-mpfb-profile.py` observed it in a work directory.
+ *
+ * @author Samchon
+ */
 export interface IHumanSourceAcquisitionSource {
   name: string;
   status?: string;

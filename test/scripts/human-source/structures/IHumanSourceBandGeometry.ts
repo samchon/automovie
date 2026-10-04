@@ -6,6 +6,8 @@ import type { IHumanSourceGenerationBand } from "./IHumanSourceGenerationBand.ts
  * band weights (zero outside each band), the partition of each vertex (0 head
  * only, 1 body only, 2 cut sample) and the loop samples' azimuths in
  * `band.loopSamples` order.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceBandGeometry {
   band: IHumanSourceGenerationBand;

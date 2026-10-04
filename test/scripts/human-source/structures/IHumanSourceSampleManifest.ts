@@ -4,6 +4,8 @@ import type { IHumanSourceSampleState } from "./IHumanSourceSampleState.ts";
 /**
  * `manifest.json` of one Blender sampling run (`sample-mpfb-generation.py`).
  * Coordinates in every referenced file are Blender metres, Z up, facing -Y.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceSampleManifest {
   schema: string;

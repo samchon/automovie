@@ -5,7 +5,6 @@ import { measureHumanSourceError } from "./measureHumanSourceError.ts";
 import { pruneHumanSourceWeights } from "./pruneHumanSourceWeights.ts";
 import { roundHalfEven } from "./roundHalfEven.ts";
 import type { IHumanSourceLoss } from "./structures/IHumanSourceLoss.ts";
-import type { IHumanSourceReproductionError } from "./structures/IHumanSourceReproductionError.ts";
 import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceReproductionRow.ts";
 import type { IHumanSourceRigInput } from "./structures/IHumanSourceRigInput.ts";
 import type { IHumanSourceRigReproduction } from "./structures/IHumanSourceRigReproduction.ts";
@@ -28,17 +27,10 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
   const surface = body.surfaces[0];
   const count = surface.positions.length / 3;
   const kept = cut.r16ToSource;
-  const zero = (vertices: number): IHumanSourceReproductionError => ({
-    maximumMetres: 0,
-    rmsMetres: 0,
-    float32MaximumMetres: 0,
-    comparedVertices: vertices,
-    differingVertices: 0,
-  });
   const rows: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceLoss[] = [];
-  const row = (partial: Omit<IHumanSourceReproductionRow, "basis" | "p2" | "p1" | "newSupport">, vertices: number): void => {
-    rows.push({ basis: "body", p2: zero(vertices), p1: null, newSupport: "not-needed", ...partial });
+  const row = (partial: Omit<IHumanSourceReproductionRow, "basis" | "p2" | "p1" | "newSupport">): void => {
+    rows.push({ basis: "body", p2: null, p1: null, newSupport: "not-needed", ...partial });
   };
 
   // Skin neutral.
@@ -58,7 +50,6 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
       }),
       note: "post-extraction neutral changes are reported as residual, not replayed",
     },
-    count,
   );
 
   // Landmarks.
@@ -88,7 +79,6 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
       }),
       note: "absolute positions",
     },
-    ids.length,
   );
   const recipeOf = createHumanSourceBodyRecipes(reader, field);
   for (const [name, published] of Object.entries(body.landmarks.targets)) {
@@ -111,7 +101,6 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
               }),
         note: recipe === null ? "authored after extraction" : "micrometre rows",
       },
-      ids.length,
     );
   }
 
@@ -148,7 +137,6 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
       }),
       note: `dimensionless; per-vertex largest weight difference; ${unequalSlots} slot memberships differ`,
     },
-    count,
   );
 
   // Joints.
@@ -182,7 +170,6 @@ export function reproduceHumanBodyRig(input: IHumanSourceRigInput): IHumanSource
           ? "parent and head/tail cubes equal upstream; frame, signs, rest angles and constraint carried"
           : "joint identity differs from upstream; carried",
       },
-      2,
     );
     if (!identical)
       losses.push({

@@ -6,6 +6,8 @@ import type { IHumanSourceReproductionRow } from "./IHumanSourceReproductionRow.
  * endpoint in one-skin vertex ids, ascending; `recipes` names the upstream
  * state of each recipe-matched endpoint and `shifts` its frame shift (metres,
  * subtracted from the state to give the published row).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceFaceReproduction {
   rows: IHumanSourceReproductionRow[];

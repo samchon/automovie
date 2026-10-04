@@ -2,6 +2,8 @@
  * One shape or expression control of the generation, with the published
  * basis it came from. Endpoint names address `targets`; ranges are the
  * published authoring envelopes, not anatomical ranges.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceGenerationChannel {
   id: string;

@@ -10,7 +10,11 @@ import type { IHumanSourceGenerationUpstream } from "./IHumanSourceGenerationUps
 import type { IHumanSourceRigReproduction } from "./IHumanSourceRigReproduction.ts";
 import type { IHumanSourceTopology } from "./IHumanSourceTopology.ts";
 
-/** Everything the bundle assembly consumes, already verified upstream of it. */
+/**
+ * Everything the bundle assembly consumes, already verified upstream of it.
+ *
+ * @author Samchon
+ */
 export interface IHumanSourceAssemblyInput {
   face: IAutoMovieHumanFaceBasis;
   body: IAutoMovieHumanBodyBasis;

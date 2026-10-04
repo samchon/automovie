@@ -3,6 +3,8 @@
  * `rows.i32` and `rows.f64` in elements (vertices); `landmarkOffset` addresses
  * `landmarks.f64` in landmarks. `recipe` is the source convention that
  * produced the state (a target path, macro overrides, or pair endpoints).
+ *
+ * @author Samchon
  */
 export interface IHumanSourceSampleState {
   name: string;

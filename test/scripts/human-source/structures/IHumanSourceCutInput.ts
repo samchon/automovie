@@ -10,6 +10,8 @@ import type { IHumanSourceTopology } from "./IHumanSourceTopology.ts";
  * was cut against (Git `bfbb0f885`, id `...-2026-09-20-rigid-mandible`);
  * `face` and `body` are the published skin surfaces. `minimumY` is the
  * published face recrop plane in metres.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceCutInput {
   topology: IHumanSourceTopology;

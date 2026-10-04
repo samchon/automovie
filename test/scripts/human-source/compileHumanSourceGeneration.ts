@@ -14,6 +14,7 @@ import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
 import { createHumanSourceDeltaReader } from "./createHumanSourceDeltaReader.ts";
 import { extendHumanSourceBand } from "./extendHumanSourceBand.ts";
+import { measureHumanSourceCarry } from "./measureHumanSourceCarry.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
 import { reproduceHumanBodyRig } from "./reproduceHumanBodyRig.ts";
@@ -45,10 +46,13 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * Order: verify the acquisition against the lock and the sample against its
  * manifest; read the published face and body and the two historical faces by
  * digest; freeze the neck cut (`buildHumanSourceCut`); reproduce face rows,
- * body rows and the body rig; classify provenance from measured residuals;
- * compare the replay with historical body stages; assemble the one-skin
- * generation, define every channel crossing the neck once on its band
- * (`extendHumanSourceBand`), and build the P1 pair; write them with the reproduction record.
+ * body rows and the body rig; compare the replay with historical body stages.
+ * Every input is then read and the input record is frozen, so the generation
+ * id assembled next covers all of them. Assemble the one-skin generation,
+ * define every channel crossing the neck once on its band
+ * (`extendHumanSourceBand`), build the P1 pair, measure every row's carry on
+ * those artifacts, classify provenance from the measured residuals, and write
+ * them with the reproduction record and a content-only manifest.
  * Tracked published bases are read only.
  */
 export function compileHumanSourceGeneration(work: string, output: string, repository: string): string {
@@ -154,6 +158,15 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   log("body rows", bodyRows.rows.length, "unavailable", Object.keys(bodyRows.unavailable).length);
   const rigRows = reproduceHumanBodyRig({ body, cut, reader, field, sample, gameEngineRig: rig });
   log("rig rows", rigRows.rows.length);
+  const stages: Record<string, Record<string, number | boolean | string>> = {};
+  for (const revision of BODY_STAGE_REVISIONS) {
+    const stage = readHumanSourceInput<IAutoMovieHumanBodyBasis>(inputs, "historical body stage", repository, "test/studies/human-body/connected-basis/basis.json.gz", revision, null);
+    stages[revision] = compareHumanSourceBodyStage({ stage, revision, cut, reader, field, sample });
+    log("stage", revision, stages[revision]);
+  }
+  // Every input is read by now. Freezing the record makes a later read throw
+  // instead of silently escaping the generation identity computed below.
+  Object.freeze(inputs);
 
   const sampleRecord: Record<string, string | number> = {
     blender: sample.manifest.blender,
@@ -174,36 +187,32 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   log("band", extended.checks);
   const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });
   log("generation", generation.id, "p1", p1.checks);
-  const classified = classifyHumanSourceRows([...faceRows.rows, ...bodyRows.rows, ...rigRows.rows]);
-  const stages: Record<string, Record<string, number | boolean | string>> = {};
-  for (const revision of BODY_STAGE_REVISIONS) {
-    const stage = readHumanSourceInput<IAutoMovieHumanBodyBasis>(inputs, "historical body stage", repository, "test/studies/human-body/connected-basis/basis.json.gz", revision, null);
-    stages[revision] = compareHumanSourceBodyStage({ stage, revision, cut, reader, field, sample });
-    log("stage", revision, stages[revision]);
-  }
+  const measured = measureHumanSourceCarry({ rows: [...faceRows.rows, ...bodyRows.rows, ...rigRows.rows], face, body, cut, generation, p1 });
+  const classified = classifyHumanSourceRows(measured);
   const files = writeHumanSourceArtifacts(output, generation, p1, {
     generation: generation.id,
     rows: classified.rows,
     losses: [...faceRows.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
     checks: { cut: cut.checks, band: extended.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
   });
-  // The manifest names content only: no clock, host or absolute path, and the
-  // acquisition records drop whether an archive came from cache or download,
-  // so any checkout regenerating the same bytes writes the same manifest.
+  if (generation.inputs.length !== inputs.length) throw new Error("The generation identity does not cover every recorded input.");
+  // The manifest records content and the identities it was computed from: the
+  // locked upstream, every input digest, the sample's file digests with the
+  // pinned tool versions that produced them, and every output digest. It holds
+  // no clock, host, path, runtime or acquisition-route fact, so a checkout that
+  // regenerates the same bytes writes the same manifest. Those run facts go to
+  // `run-environment.json`, a record of this run rather than of the content.
   fs.writeFileSync(
     path.join(output, "generation-manifest.json"),
     JSON.stringify(
-      {
-        generation: generation.id,
-        node: process.version,
-        acquisition: acquisition.sources.map((source) => Object.fromEntries(Object.entries(source).filter(([key]) => key !== "downloaded"))),
-        inputs,
-        sample: sampleRecord,
-        outputs: files,
-      },
+      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, outputs: files },
       null,
       1,
     ) + "\n",
+  );
+  fs.writeFileSync(
+    path.join(output, "run-environment.json"),
+    JSON.stringify({ node: process.version, acquisition: acquisition.sources }, null, 1) + "\n",
   );
   log("written", output, ((Date.now() - started) / 1000).toFixed(1), "s");
   return generation.id;

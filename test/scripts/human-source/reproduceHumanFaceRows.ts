@@ -53,13 +53,6 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
       return { name: s.name, field, sum: sum(field) };
     });
   const correctiveTargets = new Set((face.correctives ?? []).map((c) => c.target));
-  const zero = (vertices: number): IHumanSourceReproductionError => ({
-    maximumMetres: 0,
-    rmsMetres: 0,
-    float32MaximumMetres: 0,
-    comparedVertices: vertices,
-    differingVertices: 0,
-  });
   const rows: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceLoss[] = [];
   const recipes: Record<string, string> = {};
@@ -130,8 +123,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
       provenance: matched ? "upstream-recipe" : "carried-published",
       recipe: matched ? bestName : null,
       regeneration,
-      p2: zero(count),
-      p1: zero(count),
+      p2: null,
+      p1: null,
       newSupport: "not-needed",
       note: matched
         ? `shift [${bestShift.map((x) => x.toExponential(3)).join(", ")}] m`
@@ -165,8 +158,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
         candidate: neutral,
         neutral: new Float64Array(3 * ids.length),
       }),
-      p2: zero(ids.length),
-      p1: zero(ids.length),
+      p2: null,
+      p1: null,
       newSupport: "not-needed",
       note: "absolute positions compared; a constant difference is a frame translation, not a shape change",
     });
@@ -191,8 +184,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
         provenance: recipe === undefined ? "carried-published" : "upstream-recipe",
         recipe: recipe ?? null,
         regeneration,
-        p2: zero(ids.length),
-        p1: zero(ids.length),
+        p2: null,
+        p1: null,
         newSupport: "not-needed",
         note: recipe === undefined ? "skin endpoint has no upstream recipe" : "skin recipe and frame shift reused",
       });
@@ -217,8 +210,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
       candidate: freshNeutral,
       neutral: new Float64Array(3 * count),
     }),
-    p2: zero(count),
-    p1: zero(count),
+    p2: null,
+    p1: null,
     newSupport: "not-needed",
     note: "later neutral bakes (cranial breadth and others) are not replayed here; their residual is reported, not hidden",
   });
@@ -243,8 +236,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
       provenance: "upstream-recipe",
       recipe: "weights.default.json subtree sum interpolated through the subdivision",
       regeneration: measureHumanSourceError({ published: expand(published), candidate: expand(fresh), neutral: new Float64Array(3 * count) }),
-      p2: zero(count),
-      p1: zero(count),
+      p2: null,
+      p1: null,
       newSupport: "not-needed",
       note: "dimensionless weights in the metre fields",
     });
@@ -253,7 +246,6 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
   // Attached parts: carried verbatim; their fitting producer is not in the repository.
   for (const surface of face.surfaces) {
     if (surface.id === "Human") continue;
-    const vertices = surface.positions.length / 3;
     for (const [name, published] of Object.entries(surface.targets)) {
       let magnitude = 0;
       for (let i = 0; i < published.length; i += 4)
@@ -266,8 +258,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
         provenance: "carried-part",
         recipe: null,
         regeneration: null,
-        p2: zero(vertices),
-        p1: zero(vertices),
+        p2: null,
+        p1: null,
         newSupport: "not-needed",
         note: "part carried verbatim",
       });

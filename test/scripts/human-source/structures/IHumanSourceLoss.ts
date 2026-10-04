@@ -3,6 +3,8 @@
  * generation does not reproduce. `vertices` counts the affected vertices and
  * `maximumMetres` is the largest published displacement among them, so the
  * size of what is missing is visible instead of being filled with zero.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceLoss {
   basis: "face" | "body";

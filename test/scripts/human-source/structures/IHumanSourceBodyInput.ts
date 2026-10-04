@@ -5,7 +5,11 @@ import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
 import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
 import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
 
-/** Inputs of the body reproduction: the published body and the replayed source field. */
+/**
+ * Inputs of the body reproduction: the published body and the replayed source field.
+ *
+ * @author Samchon
+ */
 export interface IHumanSourceBodyInput {
   body: IAutoMovieHumanBodyBasis;
   cut: IHumanSourceCut;

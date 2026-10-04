@@ -8,7 +8,11 @@ import type { IHumanSourceFaceReproduction } from "./IHumanSourceFaceReproductio
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
 import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
 
-/** Inputs of the band extension: the assembled generation and the upstream it came from. */
+/**
+ * Inputs of the band extension: the assembled generation and the upstream it came from.
+ *
+ * @author Samchon
+ */
 export interface IHumanSourceBandInput {
   generation: IHumanSourceGeneration;
   face: IAutoMovieHumanFaceBasis;

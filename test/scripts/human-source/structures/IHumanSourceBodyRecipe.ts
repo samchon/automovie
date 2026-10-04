@@ -4,6 +4,8 @@
  * macro pair the pair state minus its two endpoint deltas (the extractor's
  * combination residual). `skin` has XYZ per source vertex, `landmarks` per
  * sampled joint cube.
+ *
+ * @author Samchon
  */
 export interface IHumanSourceBodyRecipe {
   state: string;
