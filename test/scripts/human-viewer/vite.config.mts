@@ -6,21 +6,19 @@
  * The production playground configuration is untouched.
  */
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { type ViteDevServer, defineConfig } from "vite";
+import { type ModuleNode, type ViteDevServer, defineConfig } from "vite";
 
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
+import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
-const output = path.resolve(
-  directory,
-  "../../../.shots/human-viewer",
-  `compile-${process.pid}.json`,
-);
+const outputDirectory = path.resolve(directory, "../../../.shots/human-viewer");
 interface IGraph {
   edges: Record<string, string[]>;
   globals: string[];
@@ -35,52 +33,64 @@ const status = path.resolve(
   directory,
   "../../../.shots/human-viewer/source-status.json",
 );
-const compilation = createHumanViewerCompilation(async () => {
-  fs.mkdirSync(path.dirname(output), { recursive: true });
-  await new Promise<undefined>((resolve, reject) => {
-    const child = spawn(
-      process.execPath,
-      [path.join(directory, "compile-human.mts"), human, output],
-      { windowsHide: true, stdio: "ignore" },
+const compilation = createHumanViewerCompilation(
+  async () => {
+    // Invalidations and config reloads can overlap children in the same process.
+    // Artifact identity is independent of deterministic transformed source.
+    const output = path.join(
+      outputDirectory,
+      `compile-${process.pid}-${randomUUID()}.json`,
     );
-    child.once("error", reject);
-    child.once("exit", (code) =>
-      code === 0 ? resolve(undefined) : reject(new Error(`The human compile exited with ${code}`)),
+    fs.mkdirSync(path.dirname(output), { recursive: true });
+    await new Promise<undefined>((resolve, reject) => {
+      const child = spawn(
+        process.execPath,
+        [path.join(directory, "compile-human.mts"), human, output],
+        { windowsHide: true, stdio: "ignore" },
+      );
+      child.once("error", reject);
+      child.once("exit", (code) =>
+        code === 0
+          ? resolve(undefined)
+          : reject(new Error(`The human compile exited with ${code}`)),
+      );
+    });
+    const result = JSON.parse(fs.readFileSync(output, "utf8")) as {
+      files?: Record<string, string>;
+      graph?: IGraph;
+      error?: string;
+    };
+    fs.rmSync(output, { force: true });
+    if (result.files === undefined)
+      throw new Error(result.error ?? "The human compile failed");
+    const files = Object.fromEntries(
+      Object.entries(result.files).map(([file, source]) => [
+        path.resolve(human, file).replaceAll("\\", "/"),
+        source,
+      ]),
     );
-  });
-  const result = JSON.parse(fs.readFileSync(output, "utf8")) as {
-    files?: Record<string, string>;
-    graph?: IGraph;
-    error?: string;
-  };
-  fs.rmSync(output, { force: true });
-  if (result.files === undefined) throw new Error(result.error ?? "The human compile failed");
-  const files = Object.fromEntries(
-    Object.entries(result.files).map(([file, source]) => [
-      path.resolve(human, file).replaceAll("\\", "/"),
-      source,
-    ]),
-  );
-  const graph = result.graph;
-  server.watcher.add([
-    ...Object.keys(files),
-    ...(graph === undefined
-      ? []
-      : [
-          ...Object.keys(graph.edges),
-          ...Object.values(graph.edges).flat(),
-          ...graph.globals,
-          ...graph.configs,
-          ...Object.values(graph.candidates ?? {}).flat(),
-          ...(graph.resolutionInputs ?? []),
-        ].map((file) => path.resolve(human, file))),
-  ]);
-  return files;
-}, (report) => {
-  // The server reads this file for /health, since it cannot import this module's state.
-  fs.mkdirSync(path.dirname(status), { recursive: true });
-  fs.writeFileSync(status, JSON.stringify(report));
-});
+    const graph = result.graph;
+    server.watcher.add([
+      ...Object.keys(files),
+      ...(graph === undefined
+        ? []
+        : [
+            ...Object.keys(graph.edges),
+            ...Object.values(graph.edges).flat(),
+            ...graph.globals,
+            ...graph.configs,
+            ...Object.values(graph.candidates ?? {}).flat(),
+            ...(graph.resolutionInputs ?? []),
+          ].map((file) => path.resolve(human, file))),
+    ]);
+    return files;
+  },
+  (report) => {
+    // The server reads this file for /health, since it cannot import this module's state.
+    fs.mkdirSync(path.dirname(status), { recursive: true });
+    fs.writeFileSync(status, JSON.stringify(report));
+  },
+);
 export default defineConfig({
   root: directory,
   plugins: [
@@ -97,7 +107,15 @@ export default defineConfig({
           const code = await compilation.source(id);
           return code === undefined ? undefined : { code };
         },
-        compilation.invalidate,
+        () => {
+          const seen = new Set<ModuleNode>();
+          invalidateHumanViewerGeneration(
+            path.join(human, "src"),
+            server.moduleGraph.idToModuleMap.values(),
+            compilation.invalidate,
+            (module) => server.moduleGraph.invalidateModule(module, seen),
+          );
+        },
       ),
       configureServer: (instance) => {
         server = instance;

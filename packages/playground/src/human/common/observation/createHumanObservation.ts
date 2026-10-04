@@ -2,6 +2,10 @@ import * as THREE from "three";
 
 import type { HumanObservationPass } from "./HumanObservationPass";
 import type { HumanObservationView } from "./HumanObservationView";
+import { createHumanObservationAlbedoPass } from "./createHumanObservationAlbedoPass";
+import { getHumanObservationBounds } from "./getHumanObservationBounds";
+import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefinition";
+import { isHumanObservationAuxiliary } from "./isHumanObservationAuxiliary";
 import { placeHumanObservationCamera } from "./placeHumanObservationCamera";
 
 /** Width of the outline pass rim on screen, CSS pixels. */
@@ -44,6 +48,8 @@ const FALLBACK_DISTANCE = 0.65;
  * @param host.clay The viewport's grey material, shared with its clay toggle.
  * @param host.height Height of the drawing surface in CSS pixels, which sets the outline's width.
  * @param host.invalidateShadows Notify the viewport when its cached caster display changes.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Provides current-source camera, geometry and material observations independently of asset edits.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps auxiliary instruments out of subject bounds and restores display changes before source publication.
  */
 export function createHumanObservation(host: {
   scene: THREE.Scene;
@@ -71,14 +77,16 @@ export function createHumanObservation(host: {
   // nothing is written to the scene until a hook is used
   let engaged = false;
   const materials: Record<
-    Exclude<HumanObservationPass, "beauty" | "clay" | "outline">,
+    Exclude<HumanObservationPass, "beauty" | "clay" | "outline" | "albedo">,
     THREE.Material
   > = {
-    normal: new THREE.MeshNormalMaterial({ side: THREE.DoubleSide }),
+    normal: new THREE.MeshNormalMaterial(
+      getHumanObservationPassDefinition("normal").parameters,
+    ),
     // grey, nearer lighter, linear over the subject's own depth range: the
     // hardware depth is nonlinear in the clip planes and reads as flat black
     depth: new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
+      ...getHumanObservationPassDefinition("depth").parameters,
       uniforms: { near: { value: 0 }, far: { value: 1 } },
       vertexShader: `varying float viewDepth;
 void main() {
@@ -94,24 +102,19 @@ void main() {
   gl_FragColor = vec4(vec3(1.0 - t), 1.0);
 }`,
     }),
-    flat: new THREE.MeshStandardMaterial({
-      color: 0x999999,
-      roughness: 0.75,
-      flatShading: true,
-      side: THREE.DoubleSide,
-    }),
-    wire: new THREE.MeshBasicMaterial({
-      color: 0xdddddd,
-      wireframe: true,
-      side: THREE.DoubleSide,
-    }),
+    flat: new THREE.MeshStandardMaterial(
+      getHumanObservationPassDefinition("flat").parameters,
+    ),
+    wire: new THREE.MeshBasicMaterial(
+      getHumanObservationPassDefinition("wire").parameters,
+    ),
   };
   // the outline pass swaps each mesh's own material for this white one, since
   // a scene-wide override would repaint the rim as well
-  const white = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
-    side: THREE.DoubleSide,
-  });
+  const white = new THREE.MeshBasicMaterial(
+    getHumanObservationPassDefinition("outline").parameters,
+  );
+  const albedo = createHumanObservationAlbedoPass();
   const swapped = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   // the silhouette rim is the back faces pushed out along their normals
   const rim = new THREE.ShaderMaterial({
@@ -127,18 +130,22 @@ void main() {
   const hulls = new Map<THREE.Mesh, THREE.Mesh>();
 
   const meshes = (): THREE.Mesh[] => {
-    const found: THREE.Mesh[] = [];
+    const found = new Set<THREE.Mesh>();
     for (const root of host.roots())
       root.traverse((object) => {
         const mesh = object as THREE.Mesh;
-        if (mesh.isMesh === true && !isHull(mesh)) found.push(mesh);
+        if (
+          mesh.isMesh === true &&
+          !isHull(mesh) &&
+          !isHumanObservationAuxiliary(mesh)
+        )
+          found.add(mesh);
       });
-    return found;
+    return [...found];
   };
   const isHull = (mesh: THREE.Mesh): boolean => mesh.material === rim;
   const subject = (): { center: THREE.Vector3; radius: number } | null => {
-    const box = new THREE.Box3();
-    for (const mesh of meshes()) box.expandByObject(mesh, true);
+    const box = getHumanObservationBounds(meshes());
     if (box.isEmpty()) return null;
     const sphere = box.getBoundingSphere(new THREE.Sphere());
     return { center: sphere.center, radius: sphere.radius };
@@ -166,6 +173,13 @@ void main() {
   const unmatched = (ids: readonly string[] | null): string[] => {
     const names = new Set(meshes().map((mesh) => mesh.name));
     return (ids ?? []).filter((id) => !names.has(id));
+  };
+  const restoreMaterials = (): void => {
+    albedo.clear();
+    for (const [mesh, own] of swapped) mesh.material = own;
+    swapped.clear();
+    for (const hull of hulls.values()) hull.removeFromParent();
+    hulls.clear();
   };
   const hooks = {
     /**
@@ -247,10 +261,7 @@ void main() {
 
     /** Choose how the subject is drawn; `beauty` restores the product frame. */
     pass: (next: HumanObservationPass): void => {
-      if (
-        !["beauty", "clay", "outline", ...Object.keys(materials)].includes(next)
-      )
-        throw new Error(`Unknown observation pass "${String(next)}".`);
+      getHumanObservationPassDefinition(next);
       engaged = true;
       if (pass !== next) host.invalidateShadows?.();
       pass = next;
@@ -273,6 +284,12 @@ void main() {
   return {
     /** The hooks a review page exposes. */
     hooks,
+    /** Restore borrowed display state before numerical publication/disposal; keep requested hooks. */
+    restore: (): void => {
+      restoreMaterials();
+      for (const mesh of hiddenByUs) mesh.visible = true;
+      hiddenByUs.clear();
+    },
     /**
      * The material to draw the scene with: the pass when one is chosen, else
      * the clay material when the viewport's clay toggle is on, else none.
@@ -280,7 +297,7 @@ void main() {
     override: (clayEnabled: boolean): THREE.Material | null => {
       if (pass === "beauty") return clayEnabled ? host.clay : null;
       if (pass === "clay") return host.clay;
-      if (pass === "outline") return null;
+      if (pass === "outline" || pass === "albedo") return null;
       return materials[pass];
     },
 
@@ -288,6 +305,15 @@ void main() {
     apply: (): void => {
       if (!engaged) return;
       const shown = meshes();
+      if (pass !== "albedo") albedo.clear();
+      if (pass !== "outline") {
+        for (const [mesh, own] of swapped) mesh.material = own;
+        swapped.clear();
+        for (const hull of hulls.values()) hull.removeFromParent();
+        hulls.clear();
+      }
+      // Admission precedes visibility mutation so a refused new group remains intact.
+      if (pass === "albedo") albedo.apply(shown);
       for (const mesh of shown) {
         const wanted =
           (isolated === null || isolated.has(mesh.name)) &&
@@ -303,7 +329,10 @@ void main() {
       }
       // a mesh that left the roots is not this stage's to keep hidden
       for (const mesh of hiddenByUs)
-        if (!shown.includes(mesh)) hiddenByUs.delete(mesh);
+        if (!shown.includes(mesh)) {
+          mesh.visible = true;
+          hiddenByUs.delete(mesh);
+        }
       const seen = pass === "depth" || pass === "outline" ? subject() : null;
       if (pass === "depth" && seen !== null) {
         const distance = camera.position.distanceTo(seen.center);
@@ -314,12 +343,6 @@ void main() {
       // leave the outline pass: give every mesh its own material back and
       // drop the rims, including those of groups since replaced
       if (pass !== "outline") {
-        for (const [mesh, own] of swapped) mesh.material = own;
-        swapped.clear();
-        for (const [mesh, hull] of hulls) {
-          mesh.remove(hull);
-          hulls.delete(mesh);
-        }
         return;
       }
       // the rim is a world-space shell, so its thickness for a constant screen

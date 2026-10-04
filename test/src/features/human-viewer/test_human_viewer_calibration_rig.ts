@@ -33,6 +33,8 @@ export const test_human_viewer_calibration_rig = (): void => {
   TestValidator.equals("typed position", first.position.toArray(), [...humanViewerCalibrationRig[0].position]);
   const material = first.material as THREE.MeshBasicMaterial;
   TestValidator.equals("opts out of tone mapping", material.toneMapped, false);
+  TestValidator.equals("retains true material during scene overrides", material.allowOverride, false);
+  TestValidator.equals("not part of the observed subject", rig.userData.humanObservationAuxiliary, true);
   TestValidator.equals("pure colour", [material.color.r, material.color.g, material.color.b], [1, 0, 0]);
   addHumanViewerCalibration(root, true);
   TestValidator.equals("replaced not doubled", root.children.length, 2);

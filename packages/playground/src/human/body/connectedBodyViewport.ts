@@ -150,6 +150,7 @@ export function createConnectedBodyViewport<
   return {
     ...preview,
     publish: (model: Model): void => {
+      observation.restore();
       const group = numerical.publish(model.frame);
       renderer.shadowMap.needsUpdate = true;
       if (active !== group) {
@@ -158,7 +159,10 @@ export function createConnectedBodyViewport<
         scene.add(group);
       }
     },
-    dispose: (model: Model): void => numerical.dispose(model.frame),
+    dispose: (model: Model): void => {
+      observation.restore();
+      numerical.dispose(model.frame);
+    },
     fitView,
     cameraView,
     observe: observation.hooks,

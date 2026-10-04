@@ -17,6 +17,9 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * `cli` request has arrived for `quietMs`, so background work never starts in
  * front of a person or script that is about to ask. The status names the running request and each lane's
  * length so a stalled server can be told from a busy one.
+ * A cancelled waiting entry is removed before its callback starts. Cancelling
+ * a running requester rejects its result but retains the GPU slot until the
+ * actual task settles; rejecting a promise does not stop work on the page.
  */
 export function createHumanViewerQueue(props: {
   limit: number;
@@ -73,7 +76,9 @@ export function createHumanViewerQueue(props: {
       label: string,
       task: () => Promise<T>,
       lane: HumanViewerLane = "cli",
+      signal?: AbortSignal,
     ): Promise<T> => {
+      if (signal?.aborted) return Promise.reject(signal.reason);
       if (lines[lane].length >= props.limit)
         return Promise.reject(
           new HumanViewerQueueFullError(
@@ -82,25 +87,46 @@ export function createHumanViewerQueue(props: {
         );
       if (lane !== "bulk") foregroundAt = props.now();
       return new Promise<T>((resolve, reject) => {
-        lines[lane].push({
+        let started = false;
+        let cancelled = false;
+        const entry: IEntry = {
           label,
           start: async () => {
+            started = true;
             const start = props.now();
             running = { label, start };
             let failed = true;
             try {
-              resolve(await task());
-              failed = false;
+              signal?.throwIfAborted();
+              const result = await task();
+              if (!cancelled) {
+                resolve(result);
+                failed = false;
+              }
             } catch (error) {
               reject(error);
             } finally {
+              signal?.removeEventListener("abort", abort);
               last = { label, ms: props.now() - start, failed };
               running = null;
               drain();
             }
           },
-        });
-        drain();
+        };
+        const abort = (): void => {
+          cancelled = true;
+          reject(signal!.reason);
+          if (!started) {
+            // A not-started entry still belongs to exactly this lane.
+            lines[lane].splice(lines[lane].indexOf(entry), 1);
+            signal!.removeEventListener("abort", abort);
+            drain();
+          }
+        };
+        lines[lane].push(entry);
+        signal?.addEventListener("abort", abort, { once: true });
+        if (signal?.aborted) abort();
+        else drain();
       });
     },
     status: (): IHumanViewerQueueStatus => ({

@@ -3,9 +3,9 @@ import type { HumanObservationView } from "@automovie/playground/src/human/commo
 
 /**
  * The named views and passes an address may choose, in the order the viewer
- * lists them. The playground's own tuples cannot be imported at runtime from
- * this Node package, so the lists are written here once, and the `satisfies`
- * clauses make the compiler refuse a name the playground does not know.
+ * lists them. The `satisfies` clauses make the compiler refuse a name the
+ * playground does not know. Pass readings and material parameters remain
+ * owned by the shared product observation definition.
  */
 export const humanViewerChoices = {
   /** Body viewport's public inspection-light names, used by parsing and UI. */
@@ -26,6 +26,7 @@ export const humanViewerChoices = {
     "normal",
     "depth",
     "flat",
+    "albedo",
     "wire",
     "outline",
   ] as const satisfies readonly HumanObservationPass[],

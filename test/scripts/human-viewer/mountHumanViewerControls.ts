@@ -17,6 +17,7 @@ import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
 import { neighbourHumanViewerDocument } from "./neighbourHumanViewerDocument";
 import { openHumanViewerHref } from "./openHumanViewerHref";
 import { humanViewerChoices } from "./humanViewerChoices";
+import { describeHumanViewerPass } from "./describeHumanViewerPass";
 import { mountHumanViewerLightControls } from "./mountHumanViewerLightControls";
 import { humanViewerLightDocuments } from "./humanViewerLightDocuments";
 
@@ -58,8 +59,11 @@ export function mountHumanViewerControls(props: {
     button.addEventListener("click", () => change({ view }));
     views.append(button);
   }
-  for (const name of humanViewerChoices.passes)
-    pass.append(new Option(name, name));
+  for (const name of humanViewerChoices.passes) {
+    const option = new Option(name, name);
+    option.title = describeHumanViewerPass(name);
+    pass.append(option);
+  }
   doc.addEventListener("change", () =>
     change({ doc: doc.value, parts: [], hide: [], frame: null, light: null }),
   );

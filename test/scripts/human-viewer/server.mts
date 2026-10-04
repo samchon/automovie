@@ -15,7 +15,6 @@ import { PNG } from "pngjs";
 import { createServer } from "vite";
 
 import { HumanViewerStartingError } from "./HumanViewerStartingError";
-import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
 import { forHumanViewerComparison } from "./forHumanViewerComparison";
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
 import type { IHumanViewerPhases } from "./IHumanViewerPhases";
@@ -24,6 +23,7 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
 import { createHumanViewerQueue } from "./createHumanViewerQueue";
+import { queueHumanViewerRequest } from "./queueHumanViewerRequest";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { humanViewerThumbnailFile } from "./humanViewerThumbnailFile";
 import { openHumanViewerHref } from "./openHumanViewerHref";
@@ -46,7 +46,6 @@ import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailSto
 import { createNodeHumanViewerThumbnailDisk } from "./createNodeHumanViewerThumbnailDisk";
 import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
 import { retryAcrossHumanViewerGeneration } from "./retryAcrossHumanViewerGeneration";
-import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const source = createHumanViewerSource(directory);
@@ -253,7 +252,8 @@ async function main(): Promise<void> {
       const received = performance.now();
       const ahead = humanViewerQueuePosition(queue.status(), lane);
       let settledMs = 0;
-      void queue.run(url.pathname + url.search, () => retryAcrossHumanViewerGeneration(async () => {
+      void queueHumanViewerRequest({ queue, response, label: url.pathname + url.search, lane, task: (request) => retryAcrossHumanViewerGeneration(async () => {
+        const requestCapture = (address: HumanViewerAddress) => request.run(() => capture(address));
         const queued = performance.now() - received;
         const fields = new URLSearchParams(url.search);
         fields.delete("lane");
@@ -275,32 +275,32 @@ async function main(): Promise<void> {
         let png: Buffer;
         if (url.pathname === "/sheet") {
           if (axes === null) throw new Error("A sheet requires review axes");
-          png = await renderHumanViewerSheet({
+          png = await request.run(() => renderHumanViewerSheet({
             page,
-            capture,
+            capture: requestCapture,
             revision: () => readyRevision,
             cells: planHumanViewerSheet(
               address,
               axes,
               inventory.documents.map((entry) => entry.id),
             ),
-          });
+          }));
         } else if (url.pathname === "/warm") {
           const warmed = [];
           for (const entry of inventory.documents.filter(
             (entry) => entry.domain === "face",
           )) {
             const before = performance.now();
-            await capture({ ...address, doc: entry.id });
+            await requestCapture({ ...address, doc: entry.id });
             warmed.push({ document: entry.id, ms: performance.now() - before });
           }
           return json({ revision: selectedRevision, warmed });
         } else if (url.pathname === "/compare") {
           if (against === null)
             throw new Error("A comparison requires an against document");
-          const first = PNG.sync.read(await capture(forHumanViewerComparison(address, address.doc)));
+          const first = PNG.sync.read(await requestCapture(forHumanViewerComparison(address, address.doc)));
           const second = PNG.sync.read(
-            await capture(forHumanViewerComparison(address, against)),
+            await requestCapture(forHumanViewerComparison(address, against)),
           );
           const compared = composeHumanViewerPixels(
             first.width,
@@ -314,9 +314,10 @@ async function main(): Promise<void> {
           });
           composed.data.set(compared.data);
           png = PNG.sync.write(composed);
-        } else png = await capture(address);
+        } else png = await requestCapture(address);
         if (readyRevision !== selectedRevision)
           throw new Error("Source changed during request");
+        request.check();
         response.setHeader("X-Human-Revision", selectedRevision);
         response.setHeader("X-Human-Stale", String(selectedRevision !== inventory.revision));
         response.setHeader(
@@ -334,11 +335,11 @@ async function main(): Promise<void> {
           (performance.now() - start).toFixed(1),
         );
         if (url.pathname === "/parts") {
-          const parts = await page.evaluate(() =>
+          const parts = await request.run(() => page.evaluate(() =>
             (
               window as unknown as { __humanViewer: { parts: () => string[] } }
             ).__humanViewer.parts(),
-          );
+          ));
           return json(
             parts.map((name) => ({
               name,
@@ -351,6 +352,7 @@ async function main(): Promise<void> {
           const file = thumbnailFile(url.search);
           if (file !== null) await writeThumbnail(file, png);
         }
+        request.check();
         const before = performance.now();
         response.setHeader("Content-Type", "image/png");
         response.end(png);
@@ -373,15 +375,9 @@ async function main(): Promise<void> {
         );
       }, { settle: async () => {
         const began = performance.now();
-        await settleGeneration();
+        await request.run(() => settleGeneration());
         settledMs += performance.now() - began;
-      }, attempts: 4 }), lane).catch((error: unknown) => {
-        const refusal = classifyHumanViewerRefusal(error);
-        response.statusCode = refusal.status;
-        if (refusal.retryAfter !== null)
-          response.setHeader("Retry-After", String(refusal.retryAfter));
-        json({ error: describeHumanViewerFailure(error instanceof Error ? error.message : String(error)) });
-      });
+      }, attempts: 4 }) });
       return;
     }
     if (url.pathname === "/view") request.url = "/view.html" + url.search;

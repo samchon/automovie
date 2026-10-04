@@ -120,6 +120,8 @@ export function createHumanPreviewStage(props: {
   renderer.setAnimationLoop(render);
 
   return {
+    /** Restore display-owned materials before the numerical owner releases a resident. */
+    restoreObservation: observation.restore,
     publish,
     fitView,
     cameraView,
