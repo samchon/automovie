@@ -6,7 +6,7 @@ Use `docs/research` only when a production decision depends on external evidence
 
 Derive research questions from delivery scope, the settings coverage map, representation and motion risks, narrative claims, asset provenance, and review conditions. Identify the exact downstream decision each answer could change, the uncertainty that matters, and the direct evidence that could settle or bound it.
 
-Retrieve support through [External retrieval](index.md#external-retrieval). Record source identity, used portion, material date and authority, disagreements and missing coverage, and the exact production decision affected.
+Retrieve support through [External retrieval](index.md#external-retrieval). Record source identity, used portion, material date and authority, disagreements and missing coverage, and the exact production decision affected. For a quantity, also record its definition, measurement conditions and supported range, so the interpreting settings decision and its implementation apply the value only within them.
 
 When research compares implementation methods, use [Implementation strategy](../source-authoring/implementation-strategy.md) to choose discriminating experiments and establish the actual consumer result. This research layer continues to own the external evidence and its interpretation boundary.
 

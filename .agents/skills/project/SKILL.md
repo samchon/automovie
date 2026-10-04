@@ -1,6 +1,6 @@
 ---
 name: project
-description: Defines the automovie product contract, what the product deliberately does not do, the long-haul mission, workspace layout, and canonical commands. Use when orienting in the repository, working inside any package, choosing a build, test, format, or coverage command, or judging whether a proposed capability is in scope.
+description: Defines the automovie product contract, what the product deliberately does not do, the long-haul mission, workspace layout, and canonical commands. Use when orienting in the repository, working inside any package, choosing a build, test or format command, or judging whether a proposed capability is in scope.
 ---
 
 # Project Outline
@@ -52,12 +52,9 @@ The [root package map](../../../README.md#packages) and each package README own 
 
 ## Commands
 
-```bash
-pnpm install                              # workspace install (native TypeScript 7 / tsgo via ttsc)
-pnpm run build                            # docs evidence lint plus recursive package builds
-pnpm run format                           # prettier write
-pnpm --filter @automovie/test start       # run the test suite (ttsx, no separate compile step)
-pnpm --filter @automovie/website build    # type-check and bundle the public site into website/dist
-```
+The [root README](../../../README.md#repository-development) lists the install, build and test entry points, and each package README owns its own scripts. Facts the tree does not show:
 
-The workspace pins Node 22.23.2 and pnpm 10 in `pnpm-workspace.yaml` and the root `package.json`. CI commands live in `.github/workflows/{build,test,website}.yml`; `website.yml` also deploys `website/dist` to `gh-pages` on a `master` push.
+- `pnpm run build` also runs the docs evidence lint, so a contract or citation defect fails the build.
+- The [development skill](../development/SKILL.md#testing) owns the test commands, and `pnpm run format` runs once before merge under the [pull-request skill](../pull-request/SKILL.md).
+- The workspace runs Node 22.23.2 (`useNodeVersion` in `pnpm-workspace.yaml`), and `human` and generated projects declare Node 22.23.2 or later because older Node 22 loaders can expose an unevaluated ES-module dependency in a mixed CommonJS and ES-module import graph.
+- `.github/workflows/{build,test,website}.yml` own the CI commands; `website.yml` also deploys `website/dist` on a `master` push.

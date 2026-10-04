@@ -19,20 +19,15 @@
 
 ## Writing
 
-- **Add a rule for a real need.** Write an instruction because a run went wrong or a boundary needs a guard. A rule with no observed need is length that dilutes the ones that matter.
-- **Optimize for comprehension.** A shorter document that makes the reader infer prerequisites, reasons, exceptions or stop conditions is not concise. Include the context needed to execute correctly.
-- **Remove repetition and keep substance.** Keep the rationale when it prevents a plausible mistake.
-- **Give each paragraph one job.** Split purpose, rule, rationale, procedure and consequence instead of making the reader separate a dense block.
-- **Use structure as compression.** Numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, code blocks for exact commands. Do not hide a workflow inside one long sentence.
-- **State the rule before its reason.** Write what to do, then name the exclusion. Use negative phrasing only for a named failure mode the affirmative rule does not already exclude, because "X, not Y" and a heading built the same way state a contrast and leave the reader to derive the instruction.
-- **Separate requirements from defaults.** Mark what is mandatory and what is a starting point, and name the mode a rule applies to when it differs between modes.
+- **Write a rule for a real need, with its reason.** Add an instruction because a run went wrong or a boundary needs a guard, and keep the reason when it prevents a plausible mistake. Leave out general coding, writing or craft teaching the agent already has, because it dilutes the rules that matter, and leave incident narratives, dated anecdotes and one campaign's counts to the issue or pull request that recorded them, because they go stale.
+- **Keep what the reader cannot infer.** Units, frames, refusals, compatibility, authority, prerequisites and stop conditions stay even when the document gets longer; a shorter text that leaves them to inference is not concise.
+- **Give each paragraph one job, and use structure.** Separate purpose, rule, reason, procedure and consequence. Use numbered lists for ordered procedures, bullets for choices, tables for repeated mappings and code blocks for exact commands.
+- **State the rule before its reason.** Use negative phrasing only for a named failure the affirmative rule does not already exclude, because "X, not Y" leaves the reader to derive the instruction.
+- **Separate requirements from defaults.** Mark what is mandatory and what is a starting point, and name the mode a rule applies to when modes differ.
 - **Use one term per concept.** A second word for the same thing reads as a second thing.
-- **Point instead of paraphrasing.** Do not restate what the `.wiki/`, a README or a source comment already says; link to it. A skill carries cross-cutting rules and conventions, not a second copy of project docs.
-- **State the finish line.** Give a long task a completion condition the agent can check, and have the agent keep its parts in a list it updates. A turn that ends without a tool call is a report and proves nothing about the task, so an instruction that lets the agent stop after reporting leaves work open.
-- **Name the specific stop or pattern.** The agent responds to instructions that name the early stops to avoid and the stops that are wanted. A general instruction such as "avoid a generic look" mostly swaps one default for another, so list the concrete patterns to avoid or produce and check which ones the first result used.
-- **Give the task and its acceptance condition.** Leave the amount of reasoning to the agent. Do not tell it to think carefully or to write its reasoning into the response.
-- **Send the agent to the sources.** For a loosely specified task, name the places to look before acting, including ones the request does not mention, because the agent otherwise starts quickly and misses information the request never pointed to.
-- **Keep history out.** Write the rule and the reason that prevents a plausible mistake. An incident narrative, a dated anecdote or a count from one campaign goes stale, so leave it to the issue or pull request that recorded it.
+- **Point instead of paraphrasing.** Link to the `.wiki/`, a README, source JSDoc or command help instead of restating it. A skill carries cross-cutting rules and conventions, not a second copy of project docs.
+- **State the task, its acceptance condition and its finish line.** Leave the amount of reasoning to the agent and never ask it to write its reasoning into the response. Give a long task a checkable completion condition and a task list the agent updates; a turn that ends without a tool call is a report, so an instruction that lets the agent stop after reporting leaves work open. Name the specific early stops to avoid and the stops that are wanted, and the concrete patterns to avoid or produce, then check which ones the first result used, because the agent responds to named patterns and a general instruction mostly swaps one default for another.
+- **Send the agent to the sources.** For a loosely specified task, name the places to look before acting, including ones the request does not mention, because the agent otherwise starts quickly and misses them.
 
 ## Authority
 

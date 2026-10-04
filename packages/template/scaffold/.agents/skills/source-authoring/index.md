@@ -30,6 +30,4 @@ Read only the craft that the current source change reaches:
 
 ## Source execution and verification
 
-Implement completed design decisions as typed values and functions in their source owners. Follow [Ownership](ownership.md) for the boundary between authoring inputs and outputs, and [Compilation](compilation.md) for execution.
-
 Close a coherent source change through [Author process Self-Review](../review-verification/self-review.md) before dependent work consumes it. That owner combines the applicable checks and current observations; [Review verification](../review-verification/SKILL.md) routes final acceptance.

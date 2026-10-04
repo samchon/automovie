@@ -6,7 +6,7 @@ These chapters address declarations that own anatomical values, controls, ranges
 
 Apply to declarations that carry an anatomical value, range, proportion, landmark or tissue behavior.
 
-Ground each value in a primary measurement, a dissection study or an established physiological account. Keep the measured quantity, protocol, population and conditions with the value. Distinguish measured, derived, population-fitted and conventional values. Population fits apply only to the population the source measured; a photograph, scalar or render does not determine a person's full anatomy or hidden tissue.
+Ground each value in a primary measurement, a dissection study or an established physiological account. Keep the measured quantity, protocol, population and conditions with the value. Distinguish measured, derived, population-fitted and conventional values. Population fits apply only to the population the source measured, and a value measured at one site, direction or state applies only there; extending it across a region is a new inference that needs its own grounds and a check of the resulting geometry. A photograph, scalar or render does not determine a person's full anatomy or hidden tissue.
 
 Identify the source by author, year and venue, the quantity it measures under its own definition, its population and conditions, and the kind of the value. Separate what the source states from what the declaration infers. Cite only a source that was read, because a remembered figure is not a citation. State where the source is weak or absent or where the declaration departs from it, and what the declaration does there.
 

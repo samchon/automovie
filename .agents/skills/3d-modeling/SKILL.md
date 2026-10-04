@@ -9,19 +9,11 @@ This skill governs everything the product models: procedural geometry, spaces an
 
 A figure carries readable structure. Joints obey range-of-motion limits, feet plant on the actual ground function, and gait comes from a declared table. The project skill's [Out of Scope](../project/SKILL.md#out-of-scope) section routes the appearance boundary.
 
-## Measure, then conclude
+## Measure and look before concluding
 
-Measure, evaluate, decide, in that order. Assert no cause, verdict or fix before you have measured the geometry and looked at a render, because reasoning from one number or an assumption produces confident wrong fixes.
+Assert no cause, verdict or fix before you have measured the geometry (landmark distances, bounds, angles, byte digests) and looked at the current render, because reasoning from one number or an assumption produces confident wrong fixes. To attribute a change to a cause, compare renders with and without it instead of guessing which edit helped.
 
-Measure numerically (landmark distances, bounds, angles, byte digests) and look at the result. To attribute a change to a cause, render an A/B with and without it instead of guessing which edit helped.
-
-Judge with a directional key light that casts the planes. A soft even wash makes a broken shape look passable and a good one dull. Flat shading and normal display isolate geometry from material when the question is whether the shape is right.
-
-## Verify, then report
-
-Change, render, review the render yourself, critique it honestly and change again, until the result is correct or you reach a real, named ceiling. Report only then, evidence first, stating what is still wrong.
-
-Claiming a fix before showing the verified render is forbidden. Let the render carry the claim and describe the remaining flaws yourself, because "less bad than before" is not "correct". The [viewer-verification skill](../viewer-verification/SKILL.md) defines how to drive the render.
+Iterate change, render and your own critique until the result is correct or reaches a named ceiling, then report with the render as evidence and the remaining flaws stated, because "less bad than before" is not "correct". Claiming a fix before showing the verified render is forbidden. The [viewer-verification skill](../viewer-verification/SKILL.md) owns how to capture and read the render, and the contracts skill's [Rendered Observation](../contracts/modeling.md#rendered-observation) chapter owns which views, states and scales a part, joint or assembly owes.
 
 ## Rebuild a broken foundation
 
@@ -39,12 +31,8 @@ A residual, a fitted preset or a baked artifact is defined against a base (`subj
 - Enforce ranges in `engine` validators and never with `typia` tags in `interface`; the development skill's rough-types rule owns that boundary.
 - Record the study behind a numeric range in `.wiki/04-domain-research/` and consult the relevant existing study before deriving it again. When local records are absent, start from the public task and primary source; their absence is no prerequisite for diagnosis.
 
-## Every angle, every scale
+## Every scale
 
-A model is not its most flattering view. Verify at the distance the shot uses: a proxy that reads at fifty metres can be nonsense in a close framing, and a shape tuned in close-up can vanish in a crowd. Silhouette survives distance, so judge it there.
+Verify at the distance the shot uses as well as close up: a proxy that reads at fifty metres can be nonsense in a close framing, and a shape tuned in close-up can vanish in a crowd. Silhouette survives distance, so judge it there.
 
-The views, extremes and scales a part, a joint or an assembly owes are answered under the contracts skill's [Rendered Observation](../contracts/modeling.md#rendered-observation) chapter.
-
-## Pipeline discipline
-
-Keep scratch in gitignored directories and promote only stabilized logic into packages. The render harness drives the deployed viewer headless and multi-angle with form-revealing lighting.
+Keep scratch in gitignored directories and promote only stabilized logic into packages.

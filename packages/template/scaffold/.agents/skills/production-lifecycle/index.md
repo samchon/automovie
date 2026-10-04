@@ -22,10 +22,6 @@ Follow the [static-document update policy](../../../README.md#static-document-up
 
 Follow [Ownership](../../../README.md#ownership) for the project source and file boundary; client registration is not a production step.
 
-### Read-only authored reference
-
-An optional annotation-free reference view or reader edition does not replace the complete annotated reads required for evidence inspection or satisfy an authoring or observation obligation.
-
 ### Interrupted maintenance
 
 Preserve a coherent Git checkpoint before changing contracts or delivery indexes. After an interruption, inspect the complete diff and the affected graph before resuming. Reconcile the owned files against that checkpoint without discarding production edits, then rerun their declared checks. A partially applied update is not an admitted authoring state.
@@ -59,7 +55,7 @@ Every subject a later layer stages, animates, voices, or observes has a settings
 
 Use the ignored `.wiki/` for local ideas, research, questions, and continuity aids. Nothing there binds the production; promote every retained fact or decision into its canonical `docs` owner and never commit `.wiki`.
 
-When a reader edition is requested, bind the selected authored population into a Markdown artifact without changing its canonical files. Select construction or final explicitly, preserve visible prose, headings, and ordered groups, and omit evidence comments and citation anchors. Read the complete edition as an audience; formatting it does not pay authorship or review obligations.
+When a reader edition is requested, bind the selected authored population into a Markdown artifact without changing its canonical files. Select construction or final explicitly, preserve visible prose, headings, and ordered groups, and omit evidence comments and citation anchors. Read the complete edition as an audience. An edition or other annotation-free reference view does not replace the complete annotated reads evidence inspection requires, and formatting it pays no authorship, review or observation obligation.
 
 ## Handoff
 

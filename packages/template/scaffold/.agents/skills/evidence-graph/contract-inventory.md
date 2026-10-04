@@ -132,7 +132,7 @@ A duty every selected unit answers independently belongs in `principles`; a role
 
 ## Sources
 
-Every reusable H2 cites the sources that support its rule. A source does not replace the production's decision. Prefer specifications, primary documentation, scholarship, and established practice, and record product-specific decisions only in their production owner.
+Every reusable H2 cites the sources that support its rule. A source does not replace the production's decision. Prefer specifications, primary documentation, scholarship, and established practice, and record product-specific decisions only in their production owner. Cite only a source whose used passage you read and found applicable at its stated conditions; a remembered reference or a search portal is not support.
 
 ## Change and review
 

@@ -25,9 +25,7 @@ Evaluate cuts at the exact reduced rational delivery frame rate and snap edits t
 
 ## EDL discipline
 
-Each edit decision names the source shot, source offset, source duration, destination interval, transition, and audiovisual intent. Preserve source offsets for L-cuts, J-cuts, dialogue overlap, ambience continuity, and action matching. Do not retime a semantic event without updating acceptance and sound consequences.
-
-Preserve sound source ownership and exact timeline offsets across J-cuts, L-cuts and overlaps.
+Each edit decision names the source shot, source offset, source duration, destination interval, transition, and audiovisual intent. Preserve sound source ownership and exact source offsets across L-cuts, J-cuts, dialogue overlap, ambience continuity, and action matching. Do not retime a semantic event without updating acceptance and sound consequences.
 
 ## Measure the boundary
 
@@ -41,10 +39,6 @@ Order the beats by the timeline rather than by whatever order the compiled shots
 
 Pass the current producer's shot results to `validateFilmContinuity` in actual timeline order. Preserve repeated occurrences and their source-time intervals. A missing shot is a missing input to repair, not an empty array to skip. Read warnings as well as failures before recording a continuity observation.
 
-## Review pass
-
-Watch once without stopping for story and emotion, once with the frame ruler for continuity and event timing, and once listening without looking for dialogue, ambience, rhythm, and accidental silence. Inspect every boundary in both directions. Sequence review owns local cut logic; film review owns the accumulated pace and narrative completion.
-
 ## Look at the cut
 
-Follow [Capture](../review-verification/capture.md) and [Production review](../review-verification/review.md). Inspect each cut's outgoing and incoming exact frames plus an adjacent frame on each side. Judge local cut logic and accumulated whole-film pace at their respective scopes.
+Follow [Capture](../review-verification/capture.md) and [Production review](../review-verification/review.md). Watch once without stopping for story and emotion, once with the frame ruler for continuity and event timing, and once listening without looking for dialogue, ambience, rhythm, and accidental silence. Inspect each cut's outgoing and incoming exact frames plus an adjacent frame on each side. Sequence review owns local cut logic; film review owns the accumulated pace and narrative completion.
