@@ -33,7 +33,7 @@ import { assertHumanViewerFrame } from "./assertHumanViewerFrame";
 import { createHumanViewerCache } from "./createHumanViewerCache";
 import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
 import { drawHumanViewerFrame } from "./drawHumanViewerFrame";
-import { encodeHumanViewerPreview } from "./encodeHumanViewerPreview";
+import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks";
 import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerReference } from "./planHumanViewerReference";
@@ -158,7 +158,7 @@ function port<Input, Output>(
           await spans.measure("cacheWriteMs", () => fetch(`/cache/${key}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: encodeHumanViewerPreview(value),
+            body: new Blob([...encodeHumanViewerPreviewChunks(value)], { type: "application/json" }),
           }));
         }
         work("prepare");

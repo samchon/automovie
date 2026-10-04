@@ -36,6 +36,7 @@ import { warmHumanViewerDocuments } from "./warmHumanViewerDocuments";
 import { publishedHumanViewerWarmDocuments } from "./publishedHumanViewerWarmDocuments";
 import { readHumanViewerWork } from "./readHumanViewerWork";
 import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
+import { observeHumanViewerRendererTarget } from "./observeHumanViewerRendererTarget";
 import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationStatus";
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
@@ -275,7 +276,7 @@ async function main(): Promise<void> {
         let png: Buffer;
         if (url.pathname === "/sheet") {
           if (axes === null) throw new Error("A sheet requires review axes");
-          png = await request.run(() => renderHumanViewerSheet({
+          png = await request.run(() => lifetime.run(() => renderHumanViewerSheet({
             page,
             capture: requestCapture,
             revision: () => readyRevision,
@@ -284,7 +285,7 @@ async function main(): Promise<void> {
               axes,
               inventory.documents.map((entry) => entry.id),
             ),
-          }));
+          })));
         } else if (url.pathname === "/warm") {
           const warmed = [];
           for (const entry of inventory.documents.filter(
@@ -335,11 +336,11 @@ async function main(): Promise<void> {
           (performance.now() - start).toFixed(1),
         );
         if (url.pathname === "/parts") {
-          const parts = await request.run(() => page.evaluate(() =>
+          const parts = await request.run(() => lifetime.run(() => page.evaluate(() =>
             (
               window as unknown as { __humanViewer: { parts: () => string[] } }
             ).__humanViewer.parts(),
-          ));
+          )));
           return json(
             parts.map((name) => ({
               name,
@@ -404,14 +405,12 @@ async function main(): Promise<void> {
     viewport: { width: 1160, height: 930 },
     deviceScaleFactor: 1,
   });
-  const failed = (cause: string): void => {
+  const stopRenderer = await observeHumanViewerRendererTarget({ browser, page,
+    failed: (cause, physicalSettled) => {
     errors = [cause];
     readyRevision = "";
-    lifetime.fail(new Error(cause));
-  };
-  page.on("crash", () => failed("Resident GPU page crashed"));
-  page.on("close", () => failed("Resident GPU page closed"));
-  browser.on("disconnected", () => failed("Resident GPU browser disconnected"));
+    lifetime.fail(new Error(cause), physicalSettled);
+  } });
   page.on("pageerror", (error) => {
     errors.push(error.message);
     console.error(error.message);
@@ -480,6 +479,7 @@ async function main(): Promise<void> {
   const close = async (): Promise<void> => {
     stopSources();
     await browser.close();
+    await stopRenderer();
     await vite.close();
     fs.rmSync(path.join(storage, "server.json"), { force: true });
     process.exit(0);

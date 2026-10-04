@@ -1,3 +1,5 @@
+import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks";
+
 /**
  * Serialize only numerical preview protocol fields, preserving transferred
  * Float32/Uint32 geometry with explicit tags. Display/reference metadata is
@@ -18,23 +20,5 @@ export function encodeHumanViewerPreview(value: {
   extras?: unknown;
   anatomy?: unknown;
 }): string {
-  if (value.operation !== "preview" || value.model === undefined)
-    throw new Error("Only numerical previews are cached");
-  return JSON.stringify(
-    {
-      operation: "preview",
-      model: value.model,
-      articulation: value.articulation,
-      contact: value.contact,
-      crossings: value.crossings,
-      extras: value.extras,
-      anatomy: value.anatomy,
-    },
-    (_key, entry) =>
-      entry instanceof Float32Array
-        ? { $array: "Float32", values: Array.from(entry) }
-        : entry instanceof Uint32Array
-          ? { $array: "Uint32", values: Array.from(entry) }
-          : entry,
-  );
+  return [...encodeHumanViewerPreviewChunks(value)].join("");
 }
