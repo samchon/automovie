@@ -6,6 +6,8 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
 /**
  * One allocated face group on the GPU and what decides whether a later
  * frame may write into its buffers instead of allocating a new group.
+ *
+ * @author Samchon
  */
 export interface IConnectedFaceResident {
   /** The displayed Three group. */

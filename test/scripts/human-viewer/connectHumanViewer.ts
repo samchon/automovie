@@ -1,6 +1,6 @@
 import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
 import type { IHumanViewerClient } from "./IHumanViewerClient";
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IConnectHumanViewerProps } from "./IConnectHumanViewerProps";
 import type { IHumanShotHealth } from "./IHumanShotHealth";
 import type { IHumanViewerErrorBody } from "./IHumanViewerErrorBody";
@@ -49,7 +49,7 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
-      const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<HumanViewerCatalogue, "rejected">;
+      const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<IHumanViewerCatalogue, "rejected">;
       const refused = scan.rejected.find((entry) => entry.file === label + ".json");
       if (refused !== undefined) throw new Error(refused.reason);
     },

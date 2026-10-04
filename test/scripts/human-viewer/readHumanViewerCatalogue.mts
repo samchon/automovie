@@ -13,29 +13,20 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
-import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
-import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
+import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument";
+import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
+import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
+import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerInputs } from "./readHumanViewerInputs";
 
-export function readHumanViewerCatalogue(props: {
-  basisFiles: { face: string; body: string };
-  documentsFile: string;
-  /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
-  inputsDirectory?: string;
-  /** Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once. */
-  basisOf?: (file: string) => { id: string; digest: string };
-  /** The digests the page reloads on and each domain's builds depend on. */
-  revisions: IHumanViewerRevisions;
-  /** Digest and identity of an input sidecar, or null while it is being read. */
-  sidecar?: (name: string) => IHumanViewerSidecarFacts | null;
-}): HumanViewerCatalogue {
+export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps): IHumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
   const sources = props.revisions;
-  const readBasis = (file: string): { id: string; digest: string } => {
+  const readBasis = (file: string): IHumanViewerBasisIdentity => {
     if (props.basisOf !== undefined) return props.basisOf(file);
     const bytes = fs.readFileSync(file);
     return { id: readHumanViewerBasisIdentity(bytes), digest: hash(bytes) };
@@ -46,10 +37,7 @@ export function readHumanViewerCatalogue(props: {
   };
   const subjects = JSON.parse(
     fs.readFileSync(props.documentsFile, "utf8"),
-  ) as Extract<
-    HumanViewerCatalogue["documents"][number],
-    { domain: "face" }
-  >["document"][];
+  ) as IHumanViewerSubjectDocument[];
   const faces = [
     {
       id: "connected-reference",
@@ -96,6 +84,8 @@ export function readHumanViewerCatalogue(props: {
           bases,
           sources,
           sidecar: props.sidecar ?? (() => null),
+          admission: props.admission ?? ((): IHumanViewerAdmission =>
+            ({ state: "pending", reason: "awaiting admission: no viewer page admits documents" })),
         })
       : { documents: [], rejected: [] };
   return {

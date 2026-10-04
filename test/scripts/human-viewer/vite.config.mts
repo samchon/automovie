@@ -27,6 +27,17 @@ interface IGraph {
   candidates?: Record<string, string[]>;
   resolutionInputs?: string[];
 }
+/** What the compile process writes: the transformed files and graph, or the error. */
+interface ICompileOutput {
+  /** Transformed TypeScript by package-relative path, on success. */
+  files?: Record<string, string>;
+
+  /** Import graph and compiler inputs to watch, on success. */
+  graph?: IGraph;
+
+  /** The compiler's failure, when no files were produced. */
+  error?: string;
+}
 let server: ViteDevServer;
 const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 // The transform runs in a child process: it is a synchronous call that takes
@@ -59,11 +70,7 @@ const compilation = createHumanViewerCompilation(
           : reject(new Error(`The human compile exited with ${code}`)),
       );
     });
-    const result = JSON.parse(fs.readFileSync(output, "utf8")) as {
-      files?: Record<string, string>;
-      graph?: IGraph;
-      error?: string;
-    };
+    const result = JSON.parse(fs.readFileSync(output, "utf8")) as ICompileOutput;
     fs.rmSync(output, { force: true });
     if (result.files === undefined) {
       console.log(`COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`);

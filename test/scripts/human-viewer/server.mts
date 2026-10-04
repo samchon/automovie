@@ -21,10 +21,12 @@ import { createServer } from "vite";
 import viewerConfig from "./vite.config.mjs";
 
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import type { HumanViewerHandle } from "./HumanViewerHandle";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
+import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
 import { createHumanViewerCapture } from "./createHumanViewerCapture";
 import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 import { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge";
@@ -56,6 +58,18 @@ const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } = sou
 let inventory = catalogue();
 // A candidate sidecar read off the request path finished: publish its documents.
 source.sidecarsChanged(() => { inventory = catalogue(); });
+// Input documents are admitted by their owners in the page, which carries the
+// human runtime the server does not load; a verdict republishes the catalogue.
+const admission = createHumanViewerAdmission({
+  ready: () => readyRevision !== "",
+  // Through the capture lifetime, so a renderer failure refuses the request
+  // instead of leaving the rescan waiting on a page that cannot answer.
+  admit: (domain, text) => lifetime.run(() => page.evaluate((input) =>
+    (window as unknown as Record<"__humanViewer", HumanViewerHandle>).__humanViewer.admit(input.domain, input.text),
+  { domain, text })),
+  changed: () => { inventory = catalogue(); },
+});
+source.admitWith(admission.of);
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
@@ -190,7 +204,7 @@ async function main(): Promise<void> {
       return;
     }
     if (serveHumanViewerData({ url, request, response, root, storage,
-      basisFiles, inputsDirectory, inventory, catalogue, json,
+      basisFiles, inputsDirectory, inventory, catalogue, json, admitted: admission.settled,
       publish: (nextInventory) => { inventory = nextInventory; },
     })) return;
     if (serveHumanViewerCapture({ url, request, response, json, root, queue,
@@ -292,6 +306,8 @@ async function main(): Promise<void> {
       errors = [];
       readyRevision = message.text().slice(12);
       warmReadiness.source(readyRevision);
+      // A ready generation can admit the inputs still pending.
+      inventory = catalogue();
     }
   });
   phase("loading the page");
@@ -313,7 +329,7 @@ async function main(): Promise<void> {
   );
   renderer = await page.evaluate(() =>
     (
-      window as unknown as { __humanViewer: { renderer: () => string } }
+      window as unknown as Record<"__humanViewer", HumanViewerHandle>
     ).__humanViewer.renderer(),
   );
   console.log("RENDERER", renderer);

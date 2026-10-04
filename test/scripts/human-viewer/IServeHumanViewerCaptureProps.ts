@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Page } from "playwright";
 
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { createHumanViewerCapture } from "./createHumanViewerCapture";
 import type { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 import type { createHumanViewerQueue } from "./createHumanViewerQueue";
@@ -35,7 +35,7 @@ export interface IServeHumanViewerCaptureProps {
   queue: ReturnType<typeof createHumanViewerQueue>;
 
   /** Current catalogue. */
-  inventory: () => HumanViewerCatalogue;
+  inventory: () => IHumanViewerCatalogue;
 
   /** Source generation the page has ready, empty while none is. */
   readyRevision: () => string;

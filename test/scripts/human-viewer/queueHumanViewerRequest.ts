@@ -1,6 +1,5 @@
-import type { HumanViewerLane } from "./HumanViewerLane";
 import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
-import type { createHumanViewerQueue } from "./createHumanViewerQueue";
+import type { IQueueHumanViewerRequestProps } from "./IQueueHumanViewerRequestProps";
 import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
 /**
@@ -17,25 +16,9 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not race physical page work, restart a viewer or rewrite source freshness.
  * @evidence contracts/common.md#meaningful-documentation Separates request completion, physical operation settlement and response-write ownership.
  */
-export function queueHumanViewerRequest<Value>(props: {
-  queue: Pick<ReturnType<typeof createHumanViewerQueue>, "run">;
-  label: string;
-  lane: HumanViewerLane;
-  response: {
-    destroyed: boolean;
-    writableFinished: boolean;
-    statusCode: number;
-    on: (event: "close", listener: () => void) => unknown;
-    off: (event: "close", listener: () => void) => unknown;
-    setHeader: (name: string, value: string) => unknown;
-    end: (body: string) => unknown;
-  };
-  task: (request: {
-    signal: AbortSignal;
-    check: () => void;
-    run: <Result>(operation: () => Promise<Result>) => Promise<Result>;
-  }) => Promise<Value>;
-}): Promise<Value | undefined> {
+export function queueHumanViewerRequest<Value>(
+  props: IQueueHumanViewerRequestProps<Value>,
+): Promise<Value | undefined> {
   const controller = new AbortController();
   const close = (): void => {
     if (!props.response.writableFinished)

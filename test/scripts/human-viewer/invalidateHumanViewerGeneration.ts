@@ -1,3 +1,5 @@
+import type { IHumanViewerModuleNode } from "./IHumanViewerModuleNode";
+
 /**
  * Withdraw a complete compiler generation and its served runtime transforms.
  * Type-only dependencies do not appear in Vite's runtime import graph, so a
@@ -13,7 +15,7 @@
  * @evidence contracts/common.md#meaningful-documentation Explains type-only dependency reach and in-flight snapshot ownership.
  */
 export function invalidateHumanViewerGeneration<
-  Module extends { id: string | null },
+  Module extends IHumanViewerModuleNode,
 >(
   sourceRoot: string,
   modules: Iterable<Module>,

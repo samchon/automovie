@@ -5,7 +5,7 @@
  */
 import { createHash } from "node:crypto";
 import path from "node:path";
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerThumbnailInventory } from "./IHumanViewerThumbnailInventory";
 import { humanViewerThumbnailDirectory } from "./planHumanViewerThumbnailPrune";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
@@ -28,7 +28,7 @@ const hash = (bytes: string): string =>
 export function humanViewerThumbnailFile(
   search: string,
   folder: string,
-  inventory: { revision: string; documents: readonly Pick<HumanViewerCatalogue["documents"][number], "id" | "key">[] },
+  inventory: IHumanViewerThumbnailInventory,
 ): string | null {
   try {
     const fields = new URLSearchParams(search);

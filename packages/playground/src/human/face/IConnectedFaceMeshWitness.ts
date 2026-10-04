@@ -4,6 +4,8 @@ import type { createMeshPhysicalPartitionMatcher } from "@automovie/engine";
  * Exact copies of the source arrays of one face mesh that passed the Float32
  * and manifold gates, so a later frame with the same arrays reuses the
  * verdict and a changed array takes the full gates again.
+ *
+ * @author Samchon
  */
 export interface IConnectedFaceMeshWitness {
   /** Source vertex positions, copied. */

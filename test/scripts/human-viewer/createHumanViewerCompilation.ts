@@ -9,7 +9,11 @@ import type { IHumanViewerCompilationStatus } from "./IHumanViewerCompilationSta
  * The compile is asynchronous because it runs in a process of its own: lookups
  * that arrive while a generation compiles share it and wait, and the server
  * keeps answering its other requests. An invalidation during a compile only
- * withdraws that generation from later lookups, which start a fresh one.
+ * withdraws that generation from later lookups, which start a fresh one. At
+ * most one compile process runs: a fresh generation waits for the running
+ * one, and a queued generation that is itself invalidated before it starts
+ * never compiles, so a burst of edits costs one compile after the running one
+ * rather than one overlapping compile per edit.
  *
  * Other sessions edit the working tree while this runs, so a compile can fail
  * on a half-written file. A failed attempt keeps serving the last generation
@@ -33,17 +37,37 @@ export function createHumanViewerCompilation(
   let epoch = 0;
   let good: Record<string, string> | undefined;
   let goodAt: string | null = null;
+  // The compile process that is running or queued last. A new compile waits
+  // for it instead of running beside it: overlapping compiles of a source
+  // that keeps changing each ran slower and all but the last were discarded.
+  let running: Promise<unknown> = Promise.resolve();
+  /** The generation of the current epoch, starting its compile when needed. */
+  const current = (): Promise<Record<string, string>> => {
+    if (generation !== undefined) return generation;
+    const selectedEpoch = epoch;
+    const compiled = running.catch(() => undefined).then(() =>
+      // Superseded while it waited: no compile runs for an obsolete epoch.
+      selectedEpoch === epoch ? compile() : null);
+    running = compiled;
+    const started: Promise<Record<string, string>> = compiled.then((files) => {
+      if (files === null) {
+        if (generation === started) generation = undefined;
+        return current();
+      }
+      if (selectedEpoch === epoch) {
+        good = files;
+        goodAt = now();
+        report({ error: null, goodAt });
+      }
+      return files;
+    });
+    generation = started;
+    return started;
+  };
   return {
     source: async (file: string): Promise<string | undefined> => {
       const selectedEpoch = epoch;
-      const started = (generation ??= compile().then((files) => {
-        if (selectedEpoch === epoch) {
-          good = files;
-          goodAt = now();
-          report({ error: null, goodAt });
-        }
-        return files;
-      }));
+      const started = current();
       try {
         return (await started)[file];
       } catch (error) {

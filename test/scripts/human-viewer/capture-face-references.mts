@@ -26,6 +26,8 @@ import { fileURLToPath } from "node:url";
 import { connectHumanViewer } from "./connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "./createNodeHumanViewerClientIo";
 import { humanViewerInstance } from "./humanViewerInstance";
+import type { IHumanViewerRefusedModel } from "./IHumanViewerRefusedModel";
+import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument";
 import { resolveHumanViewerPose } from "./resolveHumanViewerPose";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -41,7 +43,7 @@ async function main(): Promise<void> {
   const label = "study-" + path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
   const documents = JSON.parse(
     fs.readFileSync(path.join(study, "subjects.json"), "utf8"),
-  ) as { id: string }[];
+  ) as IHumanViewerSubjectDocument[];
   const candidate = path.join(study, "basis.json.gz");
   await viewer.drop({
     label,
@@ -53,7 +55,7 @@ async function main(): Promise<void> {
   const occlusion = process.env.OCCLUSION !== "off";
   fs.mkdirSync(output, { recursive: true });
   const captures: Record<string, unknown>[] = [];
-  const refused: { model: string; reason: string }[] = [];
+  const refused: IHumanViewerRefusedModel[] = [];
   for (const document of documents) {
     const subject = document.id.replace(/-connected$/u, "");
     if (poses[subject] === undefined) continue;

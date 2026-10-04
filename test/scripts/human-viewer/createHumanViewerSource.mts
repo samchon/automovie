@@ -9,6 +9,7 @@ import path from "node:path";
 
 import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo";
+import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps";
 import { createHumanViewerSidecarFacts } from "./createHumanViewerSidecarFacts";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
 
@@ -107,6 +108,8 @@ export function createHumanViewerSource(directory: string) {
   // Candidate sidecars are read off the request path; when one becomes known
   // the host republishes its catalogue through the registered listener.
   let sidecarListener = (): void => {};
+  // The host binds the page's admission once its page exists.
+  let admission: IReadHumanViewerCatalogueProps["admission"];
   const sidecars = createHumanViewerSidecarFacts({
     stamp: (name) => {
       const stat = fs.statSync(path.join(inputsDirectory, name));
@@ -123,9 +126,12 @@ export function createHumanViewerSource(directory: string) {
       basisOf,
       revisions: revisions.current(),
       sidecar: sidecars.facts,
+      admission,
     });
   return { root, storage, basisFiles, documentsFile, inputsDirectory, slash,
     revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); },
     /** Register the host's republication for sidecars whose facts became known. */
-    sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; } };
+    sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; },
+    /** Bind the page owner's document admission. */
+    admitWith: (judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>): void => { admission = judge; } };
 }

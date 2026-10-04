@@ -1,3 +1,5 @@
+import type { IHumanViewerPreviewProjection } from "./IHumanViewerPreviewProjection";
+
 /** Target size of one piece, in UTF-16 code units. */
 const BLOCK = 65536;
 
@@ -19,15 +21,7 @@ const BLOCK = 65536;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Chunk boundaries affect transport allocation only, without discarding vertices, metadata or numerical precision.
  * @evidence contracts/common.md#meaningful-documentation Defines projection, Unicode boundaries, typed-array tags and ownership.
  */
-export function* encodeHumanViewerPreviewChunks(value: {
-  operation: string;
-  model?: unknown;
-  articulation?: unknown;
-  contact?: unknown;
-  crossings?: unknown;
-  extras?: unknown;
-  anatomy?: unknown;
-}): Generator<string> {
+export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjection): Generator<string> {
   if (value.operation !== "preview" || value.model === undefined)
     throw new Error("Only numerical previews are cached");
   const projection = {
@@ -46,7 +40,7 @@ export function* encodeHumanViewerPreviewChunks(value: {
     entry === undefined || typeof entry === "function" || typeof entry === "symbol";
   const prepare = (entry: unknown, key: string): unknown => {
     if (entry !== null && (typeof entry === "object" || typeof entry === "function" || typeof entry === "bigint")) {
-      const json = (entry as { toJSON?: (key: string) => unknown }).toJSON;
+      const json = (entry as Partial<Record<"toJSON", (key: string) => unknown>>).toJSON;
       if (typeof json === "function") return json.call(entry, key);
     }
     return entry;

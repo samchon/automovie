@@ -3,7 +3,11 @@ import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
 import type { IConnectedFaceResident } from "./IConnectedFaceResident";
 
-/** A prepared face frame: the group it will be drawn by and the arrays it will write. */
+/**
+ * A prepared face frame: the group it will be drawn by and the arrays it will write.
+ *
+ * @author Samchon
+ */
 export interface IConnectedFaceFrame {
   /** Group the frame publishes into. */
   resident: IConnectedFaceResident;

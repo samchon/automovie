@@ -43,6 +43,15 @@ export function readHumanViewerPersonSidecar(text: Buffer): IHumanViewerPersonSi
     }
     throw new Error("A person packet ends inside a string");
   };
+  /** The first byte of the value whose key string ends at `end`. */
+  const opening = (end: number): number | undefined => {
+    let after = end + 1;
+    while (after < text.length && text[after] !== 0x3a) ++after;
+    ++after;
+    while (after < text.length && (text[after] === 0x20 || text[after] === 0x0a ||
+      text[after] === 0x0d || text[after] === 0x09)) ++after;
+    return text[after];
+  };
   const keys: string[] = [];
   const identities = new Map<string, string>();
   let depth = 0;
@@ -64,20 +73,21 @@ export function readHumanViewerPersonSidecar(text: Buffer): IHumanViewerPersonSi
         } else {
           keys.push(value);
           // A number or literal value has no structural byte of its own, so
-          // it is recognized here; only strings and objects are identities.
-          let after = end + 1;
-          while (after < text.length && text[after] !== 0x3a) ++after;
-          ++after;
-          while (after < text.length && (text[after] === 0x20 || text[after] === 0x0a ||
-            text[after] === 0x0d || text[after] === 0x09)) ++after;
-          const opening = text[after];
-          if (opening === QUOTE || opening === 0x7b || opening === 0x5b) {
+          // its kind is read from the byte after the colon. The packet id
+          // must be a string; any other value kind would let a nested string
+          // stand in for it.
+          const kind = opening(end);
+          if (value === "id" && kind !== QUOTE) throw new Error("A person packet needs a string id");
+          if (kind === QUOTE || kind === 0x7b || kind === 0x5b) {
             key = value;
             valueNext = true;
-          } else if (value === "id") throw new Error("A person packet needs a string id");
+          }
         }
       } else if (depth === 2 && key !== null && first === "key") {
-        first = value === "id" ? "value" : null;
+        // Only a string value of the first member is an identity; a number,
+        // literal, object or array leaves the identity missing, never lets
+        // the next key stand in for it.
+        first = value === "id" && opening(end) === QUOTE ? "value" : null;
       } else if (depth === 2 && key !== null && first === "value") {
         identities.set(key, value);
         first = null;

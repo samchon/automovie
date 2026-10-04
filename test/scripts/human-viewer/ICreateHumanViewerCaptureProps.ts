@@ -1,6 +1,6 @@
 import type { Page } from "playwright";
 
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 
 /**
@@ -26,7 +26,7 @@ export interface ICreateHumanViewerCaptureProps {
   readyRevision: () => string;
 
   /** Current catalogue. */
-  inventory: () => HumanViewerCatalogue;
+  inventory: () => IHumanViewerCatalogue;
 
   /** Dispatch ownership against renderer failure. */
   lifetime: ReturnType<typeof createHumanViewerCaptureLifetime>;

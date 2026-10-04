@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerBasisFiles } from "./IHumanViewerBasisFiles";
 
 /**
@@ -33,14 +33,17 @@ export interface IServeHumanViewerDataProps {
   inputsDirectory: string;
 
   /** Catalogue the request is answered against. */
-  inventory: HumanViewerCatalogue;
+  inventory: IHumanViewerCatalogue;
 
   /** Reads a fresh catalogue for a rescan. */
-  catalogue: () => HumanViewerCatalogue;
+  catalogue: () => IHumanViewerCatalogue;
 
   /** Publishes a rescanned catalogue to the host. */
-  publish: (inventory: HumanViewerCatalogue) => void;
+  publish: (inventory: IHumanViewerCatalogue) => void;
 
   /** Answers with a JSON value. */
   json: (value: unknown) => void;
+
+  /** Resolves when the page has given its verdict on every input it was asked about. */
+  admitted: () => Promise<void>;
 }

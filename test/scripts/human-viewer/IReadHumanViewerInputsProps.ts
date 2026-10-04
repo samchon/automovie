@@ -1,3 +1,5 @@
+import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
 import type { IHumanViewerInputsIo } from "./IHumanViewerInputsIo";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
@@ -22,4 +24,7 @@ export interface IReadHumanViewerInputsProps {
 
   /** Digest and identity of a sidecar file, or null while it is still being read. */
   sidecar: (name: string) => IHumanViewerSidecarFacts | null;
+
+  /** The page owner's admission verdict for one input document at its key. */
+  admission: (entry: IHumanViewerCatalogueEntry) => IHumanViewerAdmission;
 }

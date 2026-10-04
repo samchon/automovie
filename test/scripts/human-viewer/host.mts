@@ -9,12 +9,14 @@
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import type { HumanViewerHandle } from "./HumanViewerHandle";
+import type { IHumanViewerFrameMessage } from "./IHumanViewerFrameMessage";
+import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus";
 import { mountHumanViewerControls } from "./mountHumanViewerControls";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
 
-type Child = Window & { __humanViewer: HumanViewerHandle };
+type Child = Window & Record<"__humanViewer", HumanViewerHandle>;
 let active: HTMLIFrameElement | undefined;
 let candidate: HTMLIFrameElement | undefined;
 /** A source change arrived while a candidate was still preparing. */
@@ -33,9 +35,7 @@ const begin = (what: string): void => {
     const seconds = Math.round((Date.now() - started) / 1000);
     let busy = "";
     try {
-      const health = (await (await fetch("/health")).json()) as {
-        queue: { waiting: Record<string, number> };
-      };
+      const health = (await (await fetch("/health")).json()) as Record<"queue", IHumanViewerQueueStatus>;
       const count = Object.values(health.queue.waiting).reduce((a, b) => a + b, 0);
       busy = count === 0 ? "" : `, server queue ${count}`;
     } catch {
@@ -142,12 +142,7 @@ function followUp(): void {
 addEventListener(
   "message",
   (
-    event: MessageEvent<{
-      type?: string;
-      error?: string;
-      address?: string;
-      parts?: string[];
-    }>,
+    event: MessageEvent<IHumanViewerFrameMessage>,
   ) => {
     if (event.origin !== location.origin) return;
     if (
@@ -203,6 +198,7 @@ addEventListener(
       spans: () => viewer.spans(),
       address: () => viewer.address(),
       png: () => viewer.png(),
+      admit: (domain, text) => viewer.admit(domain, text),
     };
     Object.assign(window, { __humanViewer: handle });
     console.log("HUMAN_READY " + handle.revision());

@@ -1,13 +1,14 @@
-import { admitHumanPersonDocument } from "@automovie/human";
 import { createHash } from "node:crypto";
 
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerInputs } from "./IHumanViewerInputs";
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
 
 /**
  * The hand-written documents and candidate bases dropped into the viewer's
@@ -24,8 +25,11 @@ import { humanViewerPersonKey } from "./humanViewerPersonKey";
  * is built against and the digest of the source its domain's build reads, so editing a file or the builder
  * gives a new resident and never a stale frame. Photographs are never read.
  * A Person uses both published basis identities and digests, both anatomy
- * sources and the actual composer's numerical source. Its paired schema is
- * admitted by the Person owner. A `<name>.basis.json.gz` sidecar refuses for
+ * sources and the actual composer's numerical source. Only its id and its two
+ * declared basis names are read here. Every input document, face, body or
+ * person, is admitted by its owner in the viewer page (`props.admission`);
+ * until that verdict exists it is listed as pending, and an owner refusal is
+ * listed with its reason, so schema errors show at `/rescan` and `/docs`. A `<name>.basis.json.gz` sidecar refuses for
  * a Person: one basis file does not specify the two independent basis
  * authorities. A Person built on candidates instead takes
  * `<name>.person.json.gz`, one person generation packet that opens with its
@@ -38,9 +42,17 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
   const hash = (bytes: string | Uint8Array): string =>
     createHash("sha256").update(bytes).digest("hex");
   const available = new Set(props.io.names());
-  const documents: HumanViewerCatalogue["documents"] = [];
+  const documents: IHumanViewerCatalogue["documents"] = [];
   const rejected: IHumanViewerRejectedInput[] = [];
-  for (const file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
+  // A document is drawable only after its owner admitted it in the page; a
+  // pending or refused one is listed with the file and its reason instead.
+  let file = "";
+  const accept = (entry: IHumanViewerCatalogueEntry): void => {
+    const admission = props.admission(entry);
+    if (admission.state === "admitted") documents.push(entry);
+    else rejected.push({ file, reason: `${entry.id}: ${admission.reason ?? admission.state}` });
+  };
+  for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
     const name = file.slice(0, -".json".length);
     try {
@@ -69,35 +81,35 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
         if (domain === "person") {
           if (candidate !== null)
             throw new Error("Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.");
-          const person = admitHumanPersonDocument(document);
+          const person = readHumanViewerPersonBases(document as object);
           if (packetFacts !== null) {
             if (packetFacts.packet === null)
               throw new Error(`${packetFile}: ${packetFacts.failure ?? "not a person packet"}`);
             const digest = packetFacts.digest;
             const packet = packetFacts.packet;
-            if (person.face.basis !== packet.face)
-              throw new Error(`The person names face basis ${person.face.basis} but its packet ${packetFile} carries face basis ${packet.face}`);
-            if (person.body.basis !== packet.body)
-              throw new Error(`The person names body basis ${person.body.basis} but its packet ${packetFile} carries body basis ${packet.body}`);
-            documents.push({
-              id: many ? `file:${name}/${person.id}` : `file:${name}`,
+            if (person.face !== packet.face)
+              throw new Error(`The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`);
+            if (person.body !== packet.body)
+              throw new Error(`The person names body basis ${person.body} but its packet ${packetFile} carries body basis ${packet.body}`);
+            accept({
+              id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
-              document: person,
-              key: humanViewerPersonKey({ document: person,
+              document,
+              key: humanViewerPersonKey({ document,
                 bases: { face: { digest }, body: { digest } }, sources: props.sources }),
               basis: `${name}@${digest.slice(0, 12)}`,
             });
             continue;
           }
-          if (person.face.basis !== props.bases.face.id)
-            throw new Error(`The person names face basis ${person.face.basis} but is built on ${props.bases.face.id}`);
-          if (person.body.basis !== props.bases.body.id)
-            throw new Error(`The person names body basis ${person.body.basis} but is built on ${props.bases.body.id}`);
-          documents.push({
-            id: many ? `file:${name}/${person.id}` : `file:${name}`,
+          if (person.face !== props.bases.face.id)
+            throw new Error(`The person names face basis ${person.face} but is built on ${props.bases.face.id}`);
+          if (person.body !== props.bases.body.id)
+            throw new Error(`The person names body basis ${person.body} but is built on ${props.bases.body.id}`);
+          accept({
+            id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain: "person",
-            document: person,
-            key: humanViewerPersonKey({ document: person, bases: props.bases, sources: props.sources }),
+            document,
+            key: humanViewerPersonKey({ document, bases: props.bases, sources: props.sources }),
           });
           continue;
         }
@@ -113,7 +125,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
           );
         const digest = candidate === null ? props.bases[domain].digest : candidate.digest;
         const id = many ? `file:${name}/${named.id}` : `file:${name}`;
-        documents.push({
+        accept({
           id,
           domain,
           document,
@@ -121,7 +133,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
           ...(candidate === null
             ? {}
             : { basis: `${name}@${digest.slice(0, 12)}` }),
-        } as HumanViewerCatalogue["documents"][number]);
+        });
       }
     } catch (error) {
       rejected.push({

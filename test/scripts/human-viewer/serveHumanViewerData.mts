@@ -79,14 +79,25 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
       return true;
     }
     if (url.pathname === "/rescan") {
+      // A rescan answers after the page owner has judged every new or changed
+      // input, so its rejected list already holds their admission reasons; a
+      // page that is not ready leaves them listed as pending, by name.
       inventory = catalogue();
       publish(inventory);
-      return handled({
-        documents: inventory.documents
-          .filter((entry) => entry.id.startsWith("file:"))
-          .map((entry) => entry.id),
-        rejected: inventory.rejected,
+      void props.admitted().then(() => {
+        inventory = catalogue();
+        publish(inventory);
+        handled({
+          documents: inventory.documents
+            .filter((entry) => entry.id.startsWith("file:"))
+            .map((entry) => entry.id),
+          rejected: inventory.rejected,
+        });
+      }).catch((error: unknown) => {
+        response.statusCode = 500;
+        json({ error: "Rescan failed: " + (error instanceof Error ? error.message : String(error)) });
       });
+      return true;
     }
     if (url.pathname.startsWith("/cache/")) {
       const key = url.pathname.slice(7);

@@ -31,6 +31,7 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import { assertHumanViewerFrame } from "./assertHumanViewerFrame";
 import { createHumanViewerCache } from "./createHumanViewerCache";
 import { drawHumanViewerFrame } from "./drawHumanViewerFrame";
+import { admitHumanViewerDocument } from "./admitHumanViewerDocument";
 import { createHumanViewerNumericalPort } from "./createHumanViewerNumericalPort.mjs";
 import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
@@ -401,6 +402,7 @@ async function main(): Promise<void> {
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
       address: () => current,
+      admit: admitHumanViewerDocument,
       png: () => {
         active.finish();
         const gl = renderer.getContext();

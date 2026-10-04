@@ -1,4 +1,4 @@
-import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 
 /**
@@ -10,7 +10,7 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
  */
 export interface IHumanViewerInputs {
   /** Accepted documents as catalogue entries. */
-  documents: HumanViewerCatalogue["documents"];
+  documents: IHumanViewerCatalogue["documents"];
 
   /** Refused files with their reasons. */
   rejected: IHumanViewerRejectedInput[];

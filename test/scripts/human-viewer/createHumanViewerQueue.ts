@@ -1,6 +1,8 @@
 import type { HumanViewerLane } from "./HumanViewerLane";
 import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus";
 import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
+import type { ICreateHumanViewerQueueProps } from "./ICreateHumanViewerQueueProps";
+import type { IHumanViewerQueueRunning } from "./IHumanViewerQueueRunning";
 
 const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
 
@@ -24,15 +26,7 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * a running requester rejects its result but retains the GPU slot until the
  * actual task settles; rejecting a promise does not stop work on the page.
  */
-export function createHumanViewerQueue(props: {
-  limit: number;
-  patience: number;
-  now: () => number;
-  /** Quiet period before a bulk request may start; zero or absent means none. */
-  quietMs?: number;
-  /** Runs a callback after a delay; defaults to `setTimeout`. */
-  later?: (run: () => void, ms: number) => void;
-}) {
+export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
   if (!Number.isInteger(props.limit) || props.limit < 1)
     throw new Error("The queue limit must be a positive integer");
   if (!Number.isInteger(props.patience) || props.patience < 1)
@@ -42,7 +36,7 @@ export function createHumanViewerQueue(props: {
     start: () => Promise<void>;
   }
   const lines: Record<HumanViewerLane, IEntry[]> = { ui: [], cli: [], bulk: [] };
-  let running: { label: string; start: number } | null = null;
+  let running: IHumanViewerQueueRunning | null = null;
   let last: IHumanViewerQueueStatus["last"] = null;
   let streak = 0;
   let foregroundAt = Number.NEGATIVE_INFINITY;
