@@ -1,3 +1,7 @@
+import type { IAutoMovieHumanPersonSourceCoverageProps } from "../structures/IAutoMovieHumanPersonSourceCoverageProps";
+import type { IAutoMovieHumanPersonSourceEdge } from "../structures/IAutoMovieHumanPersonSourceEdge";
+import type { IAutoMovieHumanPersonSourceInterval } from "../structures/IAutoMovieHumanPersonSourceInterval";
+
 /**
  * Prove complete positive chart coverage of an admitted source triangle tree.
  * Cell sample IDs name immutable preimages in the parent's ordered corners.
@@ -22,16 +26,11 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range Checks source coverage rather than a biological range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes immutable compiler lineage rather than shaping inputs.
  */
-export function validateHumanPersonSourceCoverage(props: {
-  parentTriangles: readonly number[];
-  cells: readonly { parent: number; samples: readonly number[] }[];
-  preimage: (
-    parent: number,
-    sample: number,
-  ) => readonly { id: number; weight: number }[];
-}): void {
+export function validateHumanPersonSourceCoverage(
+  props: IAutoMovieHumanPersonSourceCoverageProps,
+): void {
   const preimage = props.preimage;
-  const edges: Map<string, { from: number; to: number; count: number }>[] =
+  const edges: Map<string, IAutoMovieHumanPersonSourceEdge>[] =
     Array.from({ length: props.parentTriangles.length / 3 }, () => new Map());
   for (const cell of props.cells) {
     const parent = cell.parent;
@@ -71,7 +70,7 @@ export function validateHumanPersonSourceCoverage(props: {
   }
   for (let parent = 0; parent < edges.length; parent++) {
     const original = props.parentTriangles.slice(parent * 3, parent * 3 + 3);
-    const intervals: { start: number; end: number }[][] = [[], [], []];
+    const intervals: IAutoMovieHumanPersonSourceInterval[][] = [[], [], []];
     for (const edge of edges[parent].values()) {
       if (edge.count === 2) continue;
       const from = preimage(parent, edge.from);

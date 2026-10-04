@@ -1,7 +1,5 @@
-import type { IAutoMovieModel } from "@automovie/interface";
-
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
-import type { IAutoMovieHumanFaceHair } from "../../face/structures/IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanPersonHairClearanceProps } from "../structures/IAutoMovieHumanPersonHairClearanceProps";
 import { keepHumanPersonHairClear } from "./keepHumanPersonHairClear";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 
@@ -34,20 +32,9 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
-export function clearHumanPersonHair(props: {
-  /** The face parts, placed on the head, whose meshes may be replaced. */
-  parts: IAutoMovieModel["parts"];
-  /** Whether a part ID belongs to the face producer's actual hair emission. */
-  isGenerated: (id: string) => boolean;
-  /** The hair document's layers, or none. */
-  layers: readonly Pick<
-    IAutoMovieHumanFaceHair["layers"][number],
-    "clearance" | "samplingStep"
-  >[];
-  /** The body's posed skin positions and retained triangles. */
-  positions: readonly number[];
-  indices: readonly number[];
-}): void {
+export function clearHumanPersonHair(
+  props: IAutoMovieHumanPersonHairClearanceProps,
+): void {
   const generated = props.parts.filter((part) => props.isGenerated(part.id));
   if (generated.length === 0) return;
   const meshes = generated.map(meshOfHumanPart);

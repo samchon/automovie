@@ -8,12 +8,9 @@ import type {
 import { evaluateHumanFaceRest } from "../../face/basis/evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "../../face/basis/humanFaceBasisWeights";
 import { resolveHumanFaceArticulation } from "../../face/basis/resolveHumanFaceArticulation";
-import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
-import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
-import type { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
-
-/** A bone's world frame: a position in metres and an orientation. */
-type Frame = { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+import type { IAutoMovieHumanPersonBone } from "../structures/IAutoMovieHumanPersonBone";
+import type { IAutoMovieHumanPersonBoneFrames } from "../structures/IAutoMovieHumanPersonBoneFrames";
+import type { IAutoMovieHumanPersonFaceBonesProps } from "../structures/IAutoMovieHumanPersonFaceBonesProps";
 
 /**
  * The jaw and the two eyes as bones under the body's `head`, with the rest
@@ -55,11 +52,9 @@ type Frame = { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
  * @evidenceExclude contracts/anatomy.md#permitted-range The jaw's translation budget and the eyes' ranges are refused by the resolver.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input.
  */
-export function resolveHumanPersonFaceBones(props: {
-  basis: IAutoMovieHumanFaceBasis;
-  document: Pick<IAutoMovieHumanFaceBasisDocument, "shape" | "expression">;
-  head: ReturnType<typeof createHumanPersonHeadTransform>;
-}): { bone: AutoMovieHumanoidBone; rest: Frame; posed: Frame }[] {
+export function resolveHumanPersonFaceBones(
+  props: IAutoMovieHumanPersonFaceBonesProps,
+): IAutoMovieHumanPersonBone[] {
   const { basis, document, head } = props;
   if (basis.articulation === undefined) return [];
   const state = humanFaceBasisWeights(basis, document);
@@ -81,7 +76,7 @@ export function resolveHumanPersonFaceBones(props: {
     centre: IAutoMovieVector3,
     translation: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
-  ): { rest: Frame; posed: Frame } => ({
+  ): IAutoMovieHumanPersonBoneFrames => ({
     rest: {
       position: {
         x: centre.x + head.shift.x,

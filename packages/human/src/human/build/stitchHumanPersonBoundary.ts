@@ -3,7 +3,9 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { assertDirection } from "../../common/mesh/assertDirection";
 import { triangleAreaVector } from "../../common/mesh/triangleAreaVector";
-import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
+import type { IAutoMovieHumanPersonBoundarySample } from "../structures/IAutoMovieHumanPersonBoundarySample";
+import type { IAutoMovieHumanPersonBoundaryStitchProps } from "../structures/IAutoMovieHumanPersonBoundaryStitchProps";
+import type { IAutoMovieHumanPersonEdgeSplit } from "../structures/IAutoMovieHumanPersonEdgeSplit";
 
 /**
  * Subdivide one posed skin region onto the common face/body neck polyline.
@@ -61,18 +63,9 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical document admission precedes this mesh stage.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The inputs are internal evaluated meshes and their source identities, not user sculpting controls.
  */
-export function stitchHumanPersonBoundary(props: {
-  mesh: IAutoMovieMesh;
-  sources: readonly number[];
-  side: "face" | "body";
-  seam: IAutoMovieHumanPersonSeam;
-  face: readonly number[];
-  faceNormals: readonly number[];
-  /** Body source positions after rig posing, before collar alignment; failure provenance only. */
-  bodyBeforeCollar?: readonly number[];
-  /** Canonical physical pairs aligned with the registered face loop. */
-  physicalBoundary?: readonly NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number][];
-}): IAutoMovieMesh {
+export function stitchHumanPersonBoundary(
+  props: IAutoMovieHumanPersonBoundaryStitchProps,
+): IAutoMovieMesh {
   const { mesh, sources, side, seam, face, faceNormals, bodyBeforeCollar } = props;
   if (mesh.skin !== null)
     throw new Error("Person boundary subdivision requires an already posed mesh.");
@@ -128,7 +121,7 @@ export function stitchHumanPersonBoundary(props: {
       },
     }),
   };
-  const canonical = (parameter: number): { point: number[]; normal: number[] } => {
+  const canonical = (parameter: number): IAutoMovieHumanPersonBoundarySample => {
     const edge = Math.floor(parameter);
     const fraction = parameter - edge;
     const a = seam.faceLoop[edge];
@@ -266,7 +259,7 @@ export function stitchHumanPersonBoundary(props: {
   for (let at = 0; at < indices.length; at += 3) {
     const triangle = indices.slice(at, at + 3);
     const perimeter: number[] = [];
-    const splits: { from: number; to: number; added: number[] }[] = [];
+    const splits: IAutoMovieHumanPersonEdgeSplit[] = [];
     let touched = false;
     for (let k = 0; k < 3; k++) {
       const a = triangle[k];

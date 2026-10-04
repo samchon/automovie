@@ -1,12 +1,11 @@
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
+import type { IAutoMovieHumanPersonPerformedSkin } from "../structures/IAutoMovieHumanPersonPerformedSkin";
+import type { IAutoMovieHumanPersonSourceNormalInput } from "../structures/IAutoMovieHumanPersonSourceNormalInput";
+import type { IAutoMovieHumanPersonSourcePartitionsProps } from "../structures/IAutoMovieHumanPersonSourcePartitionsProps";
 import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells";
 import { createHumanPersonNormalTransport } from "./createHumanPersonNormalTransport";
 import { validateHumanPersonNormalTransport } from "./validateHumanPersonNormalTransport";
 import { validateHumanPersonSourcePartitions } from "./validateHumanPersonSourcePartitions";
-
-type Surface = Parameters<
-  typeof validateHumanPersonSourcePartitions
->[0]["face"];
 
 /**
  * Compile one performed normal field for two complementary source partitions.
@@ -62,22 +61,9 @@ type Surface = Parameters<
  * @evidenceExclude contracts/anatomy.md#permitted-range Coordinate admission establishes numerical representability, not a biological range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes immutable compiler lineage and performed geometry, not personal shaping inputs.
  */
-export function createHumanPersonSourceNormals(props: {
-  face: Surface;
-  body: Surface;
-}):
-  | ((input: {
-      face: readonly number[];
-      body: readonly number[];
-      bodyIndices: readonly number[];
-      reference?: {
-        generation: string;
-        face: readonly number[];
-        body: readonly number[];
-        bodyIndices: readonly number[];
-      };
-    }) => number[])
-  | undefined {
+export function createHumanPersonSourceNormals(
+  props: IAutoMovieHumanPersonSourcePartitionsProps,
+): ((input: IAutoMovieHumanPersonSourceNormalInput) => number[]) | undefined {
   const plan = validateHumanPersonSourcePartitions(props);
   if (plan === undefined) return undefined;
   const faceIndices = [...props.face.indices];
@@ -183,11 +169,7 @@ export function createHumanPersonSourceNormals(props: {
       },
     };
   };
-  const legacy = (input: {
-    face: readonly number[];
-    body: readonly number[];
-    bodyIndices: readonly number[];
-  }): number[] => {
+  const legacy = (input: IAutoMovieHumanPersonPerformedSkin): number[] => {
     const { parentAreas } = evaluateHumanPersonSourceCells({ plan, faceIndices, bodyIndices, input });
     return referenceField(parentAreas).normals;
   };

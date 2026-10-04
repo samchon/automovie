@@ -1,10 +1,11 @@
 import { cofactorAutoMovieJacobian, Vector3 } from "@automovie/engine";
 
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
+import type { IAutoMovieHumanPersonCellFrame } from "../structures/IAutoMovieHumanPersonCellFrame";
+import type { IAutoMovieHumanPersonNormalStar } from "../structures/IAutoMovieHumanPersonNormalStar";
+import type { IAutoMovieHumanPersonNormalTransportProps } from "../structures/IAutoMovieHumanPersonNormalTransportProps";
+import type { IAutoMovieHumanPersonSourceNormalInput } from "../structures/IAutoMovieHumanPersonSourceNormalInput";
 import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells";
-import type { validateHumanPersonNormalTransport } from "./validateHumanPersonNormalTransport";
-
-type Evaluation = Parameters<typeof evaluateHumanPersonSourceCells>[0];
 
 /**
  * Transport ancestral shading through fixed source-cell differentials.
@@ -42,17 +43,9 @@ type Evaluation = Parameters<typeof evaluateHumanPersonSourceCells>[0];
  * @evidenceExclude contracts/anatomy.md#permitted-range Admits numerical fields, not biological ranges.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes compiled lineage without personal vertex input.
  */
-export function createHumanPersonNormalTransport(props: {
-  evaluation: Omit<Evaluation, "input">;
-  transport: NonNullable<ReturnType<typeof validateHumanPersonNormalTransport>>;
-  referenceField: (parentAreas: readonly number[]) => {
-    normals: number[];
-    at: (sample: number, parent: number) => readonly number[];
-  };
-  identity: (sample: number, parent: number) => string;
-}): (input: Evaluation["input"] & {
-  reference?: Evaluation["input"] & { generation: string };
-}) => number[] {
+export function createHumanPersonNormalTransport(
+  props: IAutoMovieHumanPersonNormalTransportProps,
+): (input: IAutoMovieHumanPersonSourceNormalInput) => number[] {
   const { evaluation, transport } = props;
   const { plan } = evaluation;
   const used = [evaluation.faceIndices, evaluation.bodyIndices].map((indices) => [...new Set(indices)]);
@@ -92,7 +85,7 @@ export function createHumanPersonNormalTransport(props: {
       throw new Error("Person normal transport needs every fixed source cell point.");
     return [...value];
   };
-  const frame = (points: number[][], scale: number): { matrix: number[]; area: number } => {
+  const frame = (points: number[][], scale: number): IAutoMovieHumanPersonCellFrame => {
     const vector = (one: number[]) => Vector3.create(one[0], one[1], one[2]);
     const a = Vector3.subtract(vector(points[1]), vector(points[0]));
     const b = Vector3.subtract(vector(points[2]), vector(points[0]));
@@ -119,7 +112,7 @@ export function createHumanPersonNormalTransport(props: {
         cofactorAutoMovieJacobian(frame(cell.samples.map((sample) => point(before.sourcePositions, sample)), 1).matrix);
       return referenceNormals;
     }
-    const stars = new Map<string, { sum: number[]; reference: readonly number[]; changed: boolean }>();
+    const stars = new Map<string, IAutoMovieHumanPersonNormalStar>();
     for (const cell of transport.cells) {
       const prior = cell.samples.map((sample) => point(before.sourcePositions, sample));
       const actual = cell.samples.map((sample) => point(current.sourcePositions, sample));

@@ -1,7 +1,7 @@
 import {
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanPersonGeneration,
   createHumanPersonBuilder,
+  createHumanPersonGenerationBuilder,
   exportHumanPerson,
   parseHumanPersonDocument,
 } from "@automovie/human";
@@ -13,8 +13,10 @@ import type {
 } from "../body/connectedBodyProtocol";
 
 /**
- * Keep one compiled face basis and body basis in a worker and evaluate whole
- * people against them. It answers the body editor's request protocol, so the
+ * Keep one compiled face basis and body basis, or one source generation read
+ * as one skin with a head/body partition (`createHumanPersonGenerationBuilder`,
+ * selected by the presence of its head weight map), in a worker and evaluate
+ * whole people against them. It answers the body editor's request protocol, so the
  * body stage draws a person exactly as it draws a body: a preview packs the
  * composed model's Float32 buffers (the composed model is one static resident
  * model, its face parts, body parts and seam ribbon together) and an export
@@ -55,12 +57,17 @@ import type {
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour The runtime colours no skin.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition The runtime divides no skin into local regions.
  */
-export function createConnectedPersonRuntime(bases: {
-  face: IAutoMovieHumanFaceBasis;
-  body: IAutoMovieHumanBodyBasis;
-}) {
-  const evaluate = createHumanPersonBuilder(bases);
-  let last: { document: string; built: ReturnType<typeof evaluate> } | undefined;
+export function createConnectedPersonRuntime(
+  source:
+    | IAutoMovieHumanPersonGeneration
+    | Pick<IAutoMovieHumanPersonGeneration, "face" | "body">,
+) {
+  const evaluate =
+    "headSkin" in source
+      ? createHumanPersonGenerationBuilder({ generation: source })
+      : createHumanPersonBuilder(source);
+  let lastDocument: string | undefined;
+  let lastBuilt: ReturnType<typeof evaluate> | undefined;
   return async (
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
@@ -68,8 +75,11 @@ export function createConnectedPersonRuntime(bases: {
       throw new Error("A person has no arms-down solve.");
     const document = parseHumanPersonDocument(request.document);
     const built =
-      last?.document === request.document ? last.built : evaluate(document);
-    last = { document: request.document, built };
+      lastDocument === request.document && lastBuilt !== undefined
+        ? lastBuilt
+        : evaluate(document);
+    lastDocument = request.document;
+    lastBuilt = built;
     if (request.operation === "export")
       return {
         operation: "export",

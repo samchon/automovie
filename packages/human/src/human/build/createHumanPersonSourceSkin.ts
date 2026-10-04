@@ -1,13 +1,12 @@
-import type { IAutoMovieModel } from "@automovie/interface";
-
 import { skinHumanBodySurface } from "../../body/basis/skinHumanBodySurface";
-import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieHumanBodyBuild";
 import { conformHumanPersonCollar } from "../seam/conformHumanPersonCollar";
 import { createHumanPersonFaceSkin } from "../seam/createHumanPersonFaceSkin";
-import type { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
 import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
+import type { IAutoMovieHumanPersonSourceSkin } from "../structures/IAutoMovieHumanPersonSourceSkin";
+import type { IAutoMovieHumanPersonSourceSkinInput } from "../structures/IAutoMovieHumanPersonSourceSkinInput";
+import type { IAutoMovieHumanPersonSourceSkinProps } from "../structures/IAutoMovieHumanPersonSourceSkinProps";
 import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
+import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 
 /**
@@ -34,24 +33,9 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  * @evidenceExclude contracts/anatomy.md#permitted-range Consumes already admitted anatomy rather than defining a biological range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes owner-built geometry without a new user shaping input.
  */
-export function createHumanPersonSourceSkin(props: {
-  faceCount: number;
-  faceRegions: ReadonlyMap<string, readonly number[]>;
-  bodyBasis: IAutoMovieHumanBodyBasis;
-  bodySkin: {
-    index: number;
-    surface: IAutoMovieHumanBodyBasis["surfaces"][number];
-  };
-  seam: ReturnType<typeof createHumanPersonSeam>;
-  neutralBody: readonly number[];
-  jawVertices: readonly number[];
-  neutralHead: { x: number; y: number; z: number };
-}): (input: { face: IAutoMovieModel; body: IAutoMovieHumanBodyBuild }) => {
-  face: number[];
-  body: number[];
-  bodyBeforeCollar: number[];
-  head: ReturnType<typeof createHumanPersonHeadTransform>;
-} {
+export function createHumanPersonSourceSkin(
+  props: IAutoMovieHumanPersonSourceSkinProps,
+): (input: IAutoMovieHumanPersonSourceSkinInput) => IAutoMovieHumanPersonSourceSkin {
   const {
     faceCount,
     faceRegions,
@@ -60,13 +44,13 @@ export function createHumanPersonSourceSkin(props: {
     seam,
     neutralBody,
     jawVertices,
-    neutralHead,
+    neutralAnchor,
   } = props;
   const cut = seam.cut!;
   return ({ face, body }) => {
     const bones = new Map(body.bones.map((one) => [one.bone, one]));
     const head = createHumanPersonHeadTransform({
-      neutral: neutralHead,
+      anchor: { neutral: neutralAnchor, shaped: humanPersonEyeCentre(body.landmarks) },
       rest: bones.get("head")!.rest,
       posed: bones.get("head")!.posed,
     });

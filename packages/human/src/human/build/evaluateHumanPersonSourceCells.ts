@@ -1,5 +1,7 @@
 import { triangleAreaVector } from "../../common/mesh/triangleAreaVector";
-import type { validateHumanPersonSourcePartitions } from "./validateHumanPersonSourcePartitions";
+import type { IAutoMovieHumanPersonSourceCellArea } from "../structures/IAutoMovieHumanPersonSourceCellArea";
+import type { IAutoMovieHumanPersonSourceCellEvaluation } from "../structures/IAutoMovieHumanPersonSourceCellEvaluation";
+import type { IAutoMovieHumanPersonSourceCellEvaluationProps } from "../structures/IAutoMovieHumanPersonSourceCellEvaluationProps";
 
 /**
  * Admit one performed pair of complementary source skins before shading.
@@ -26,19 +28,9 @@ import type { validateHumanPersonSourcePartitions } from "./validateHumanPersonS
  * @evidenceExclude contracts/anatomy.md#permitted-range Checks representation rather than a biological range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes performed geometry rather than a shaping input.
  */
-export function evaluateHumanPersonSourceCells(props: {
-  plan: NonNullable<ReturnType<typeof validateHumanPersonSourcePartitions>>;
-  faceIndices: readonly number[];
-  bodyIndices: readonly number[];
-  input: {
-    face: readonly number[];
-    body: readonly number[];
-    bodyIndices: readonly number[];
-  };
-}): {
-  parentAreas: number[];
-  sourcePositions: ReadonlyMap<number, readonly number[]>;
-} {
+export function evaluateHumanPersonSourceCells(
+  props: IAutoMovieHumanPersonSourceCellEvaluationProps,
+): IAutoMovieHumanPersonSourceCellEvaluation {
   const { plan, faceIndices, bodyIndices, input } = props;
   const used = [faceIndices, bodyIndices].map((indices) => new Set(indices));
   if (
@@ -55,7 +47,7 @@ export function evaluateHumanPersonSourceCells(props: {
   );
   const samples = new Map<number, number[]>();
   const sourcePositions = new Map<number, readonly number[]>();
-  const cells: { parent: number; vector: number[] }[] = [];
+  const cells: IAutoMovieHumanPersonSourceCellArea[] = [];
   const domains = [
     { positions: input.face, indices: faceIndices, record: plan.face },
     { positions: input.body, indices: bodyIndices, record: plan.body },

@@ -7,17 +7,24 @@
 import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanPersonGeneration,
 } from "@automovie/human";
 import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
 import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
 import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
 
+import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
+
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const face = new Map<string, Promise<ReturnType<typeof createConnectedFaceRuntime>>>();
 const body = new Map<string, Promise<ReturnType<typeof createConnectedBodyRuntime>>>();
 const person = new Map<string, Promise<ReturnType<typeof createConnectedPersonRuntime>>>();
-/** The published basis, or the candidate a hand-written document was dropped beside. */
+/**
+ * The published basis, or the candidate a hand-written document was dropped
+ * beside. A person candidate is one packet at `/basis/person`: a face/body
+ * basis pair or a one-skin source generation.
+ */
 const basisUrl = (domain: string, candidate: string | undefined): string =>
   `/basis/${domain}` +
   (candidate === undefined ? "" : `?candidate=${encodeURIComponent(candidate)}`);
@@ -38,28 +45,28 @@ const runtimeOf = <T,>(
   }
   return found;
 };
-scope.onmessage = async (
-  event: MessageEvent<{
-    id: number;
-    domain: "face" | "body" | "person";
-    basis?: string;
-    input: { document: string; occlusion?: boolean };
-  }>,
-) => {
+scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
   const { id, domain, basis, input } = event.data;
   const identity = domain + ":" + (basis ?? "");
   try {
     const runtime =
       domain === "person"
         ? await runtimeOf(person, identity, async () =>
-            createConnectedPersonRuntime({
-              face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-                read: () => fetch(basisUrl("face", undefined)),
-              }),
-              body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-                read: () => fetch(basisUrl("body", undefined)),
-              }),
-            }),
+            createConnectedPersonRuntime(
+              basis === undefined
+                ? {
+                    face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
+                      read: () => fetch(basisUrl("face", undefined)),
+                    }),
+                    body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
+                      read: () => fetch(basisUrl("body", undefined)),
+                    }),
+                  }
+                : await readConnectedFaceAsset<
+                    | IAutoMovieHumanPersonGeneration
+                    | Pick<IAutoMovieHumanPersonGeneration, "face" | "body">
+                  >({ read: () => fetch(basisUrl("person", basis)) }),
+            ),
           )
         : domain === "face"
         ? await runtimeOf(face, identity, () =>

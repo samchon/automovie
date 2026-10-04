@@ -1,12 +1,11 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
+import type { IAutoMovieHumanPersonSourceChart } from "../structures/IAutoMovieHumanPersonSourceChart";
+import type { IAutoMovieHumanPersonSourcePartitionPlan } from "../structures/IAutoMovieHumanPersonSourcePartitionPlan";
+import type { IAutoMovieHumanPersonSourcePartitionsProps } from "../structures/IAutoMovieHumanPersonSourcePartitionsProps";
+import type { IAutoMovieHumanPersonSourceSurface } from "../structures/IAutoMovieHumanPersonSourceSurface";
+import type { IAutoMovieHumanPersonSourceWeight } from "../structures/IAutoMovieHumanPersonSourceWeight";
 import { validateHumanPersonSourceCoverage } from "./validateHumanPersonSourceCoverage";
-
-type Surface = {
-  positions: readonly number[];
-  indices: readonly number[];
-  sourcePartition?: IAutoMovieHumanBasisSourcePartition;
-};
 
 /**
  * Admit the two complementary cell charts of a compiled shared skin source.
@@ -46,21 +45,9 @@ type Surface = {
  * @evidenceExclude contracts/anatomy.md#permitted-range Index domains are not biological ranges.
  * @evidenceExclude contracts/anatomy.md#parametric-authority This compiler provenance is not a personal shaping input.
  */
-export function validateHumanPersonSourcePartitions(props: {
-  face: Surface;
-  body: Surface;
-}):
-  | {
-      face: IAutoMovieHumanBasisSourcePartition;
-      body: IAutoMovieHumanBasisSourcePartition;
-      sampleCount: number;
-      preimage: (sample: number) => readonly { id: number; weight: number }[];
-      chart: (sample: number) => {
-        originals: readonly [number, number, number];
-        coordinates: readonly [number, number];
-      };
-    }
-  | undefined {
+export function validateHumanPersonSourcePartitions(
+  props: IAutoMovieHumanPersonSourcePartitionsProps,
+): IAutoMovieHumanPersonSourcePartitionPlan | undefined {
   const face = props.face.sourcePartition;
   const body = props.body.sourcePartition;
   if (face === undefined && body === undefined) return undefined;
@@ -70,7 +57,7 @@ export function validateHumanPersonSourcePartitions(props: {
     Number.isSafeInteger(value) && value >= 0 && value < count;
   const domain = (
     record: IAutoMovieHumanBasisSourcePartition,
-    surface: Surface,
+    surface: IAutoMovieHumanPersonSourceSurface,
   ): void => {
     if (
       record.generation.trim() === "" ||
@@ -221,19 +208,13 @@ export function validateHumanPersonSourcePartitions(props: {
   const captured = [copy(face), copy(body)];
   const source = captured[0];
   const sampleCount = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
-  const chartCache = new Map<number, {
-    originals: readonly [number, number, number];
-    coordinates: readonly [number, number];
-  }>();
-  const chart = (sample: number): {
-      originals: readonly [number, number, number];
-      coordinates: readonly [number, number];
-    } => {
+  const chartCache = new Map<number, IAutoMovieHumanPersonSourceChart>();
+  const chart = (sample: number): IAutoMovieHumanPersonSourceChart => {
       if (!integer(sample, sampleCount))
         throw new Error("Person source sample leaves its captured canonical domain.");
       const cached = chartCache.get(sample);
       if (cached !== undefined) return cached;
-      let result: { originals: readonly [number, number, number]; coordinates: readonly [number, number] };
+      let result: IAutoMovieHumanPersonSourceChart;
       if (sample < source.originalVertices)
         result = { originals: [sample, sample, sample], coordinates: [0, 0] };
       else {
@@ -255,8 +236,8 @@ export function validateHumanPersonSourcePartitions(props: {
       chartCache.set(sample, result);
       return result;
     };
-  const preimageCache = new Map<number, readonly { id: number; weight: number }[]>();
-  const preimage = (sample: number): readonly { id: number; weight: number }[] => {
+  const preimageCache = new Map<number, readonly IAutoMovieHumanPersonSourceWeight[]>();
+  const preimage = (sample: number): readonly IAutoMovieHumanPersonSourceWeight[] => {
     const cached = preimageCache.get(sample);
     if (cached !== undefined) return cached;
     const one = chart(sample);

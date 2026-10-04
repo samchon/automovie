@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanBasisNormalTransport } from "../../common/basis/IAutoMovieHumanBasisNormalTransport";
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
+import type { IAutoMovieHumanPersonNormalTransportPlan } from "../structures/IAutoMovieHumanPersonNormalTransportPlan";
+import type { IAutoMovieHumanPersonNormalTransportValidationProps } from "../structures/IAutoMovieHumanPersonNormalTransportValidationProps";
+import type { IAutoMovieHumanPersonSourceWeight } from "../structures/IAutoMovieHumanPersonSourceWeight";
 import { validateHumanPersonSourceCoverage } from "./validateHumanPersonSourceCoverage";
-import type { validateHumanPersonSourcePartitions } from "./validateHumanPersonSourcePartitions";
 
 /**
  * Admit fixed source normal cells independently of renderer tessellation.
@@ -28,29 +29,9 @@ import type { validateHumanPersonSourcePartitions } from "./validateHumanPersonS
  * @evidenceExclude contracts/anatomy.md#permitted-range Index/chart domains are not physiological ranges.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Compiler lineage is not a personal vertex editing input.
  */
-export function validateHumanPersonNormalTransport(props: {
-  plan: NonNullable<ReturnType<typeof validateHumanPersonSourcePartitions>>;
-  face: {
-    indices: readonly number[];
-    transport?: IAutoMovieHumanBasisNormalTransport;
-  };
-  body: {
-    indices: readonly number[];
-    transport?: IAutoMovieHumanBasisNormalTransport;
-  };
-}):
-  | {
-      cells: {
-        parent: number;
-        samples: [number, number, number];
-        domains: [number, number, number];
-      }[];
-      bindings: (
-        | undefined
-        | { parent: number; cell?: number; coordinates?: [number, number] }
-      )[][];
-    }
-  | undefined {
+export function validateHumanPersonNormalTransport(
+  props: IAutoMovieHumanPersonNormalTransportValidationProps,
+): IAutoMovieHumanPersonNormalTransportPlan | undefined {
   const { plan } = props;
   const left = props.face.transport;
   const right = props.body.transport;
@@ -229,7 +210,7 @@ export function validateHumanPersonNormalTransport(props: {
     });
   });
   const normalParents = cells.flatMap((cell) => cell.samples);
-  const incidentCharts = new Map<string, { id: number; weight: number }[]>();
+  const incidentCharts = new Map<string, IAutoMovieHumanPersonSourceWeight[]>();
   const emitted = sides.flatMap((side, which) =>
     records[which].parents.map((parent, cell) => {
       const normalParent = offsets[parent] + transports[which].cells[cell];

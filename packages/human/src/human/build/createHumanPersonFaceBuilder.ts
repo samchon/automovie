@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
 import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
+import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
 
 /**
  * Pair a person's admitted face with its actual generated hair identities.
@@ -28,7 +29,7 @@ import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBas
  */
 export function createHumanPersonFaceBuilder(
   basis: IAutoMovieHumanFaceBasis,
-  occlusion?: { rays: number; size: number },
+  occlusion?: IAutoMovieHumanFaceOcclusionOptions,
 ) {
   let emitted: readonly string[] = [];
   const build = createHumanFaceBasisBuilder(basis, {

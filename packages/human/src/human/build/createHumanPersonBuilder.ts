@@ -4,12 +4,13 @@ import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
-import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
+import type { IAutoMovieHumanPersonSkinCandidate } from "../structures/IAutoMovieHumanPersonSkinCandidate";
+import type { IAutoMovieHumanPersonSkinSurface } from "../structures/IAutoMovieHumanPersonSkinSurface";
 import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
-import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
@@ -23,17 +24,16 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
 import { createHumanPersonSourceNormals } from "./createHumanPersonSourceNormals";
 import { createHumanPersonSourceSkin } from "./createHumanPersonSourceSkin";
+import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
 
 /** The one connected skin surface of a basis: the surface that draws the skin material. */
-const skinSurfaceOf = <
-  T extends { id: string; regions: { id: string; material: string }[] },
->(
+const skinSurfaceOf = <T extends IAutoMovieHumanPersonSkinCandidate>(
   surfaces: T[],
-): { index: number; surface: T } => {
+): IAutoMovieHumanPersonSkinSurface<T> => {
   const index = surfaces.findIndex((surface) =>
     surface.regions.some(
       (region) => region.material === HUMAN_PERSON_SEAM.skinMaterial,
@@ -110,11 +110,9 @@ const skinSurfaceOf = <
  * @evidenceExclude contracts/anatomy.md#permitted-range The builder bounds no anatomical quantity; the two documents' ranges are their owners'.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes two documents of named inputs and adds none.
  */
-export function createHumanPersonBuilder(props: {
-  face: IAutoMovieHumanFaceBasis;
-  body: IAutoMovieHumanBodyBasis;
-  occlusion?: { rays: number; size: number };
-}): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
+export function createHumanPersonBuilder(
+  props: IAutoMovieHumanPersonBuilderProps,
+): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
   const { face: faceBasis, body: bodyBasis } = props;
   const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
 
@@ -186,12 +184,13 @@ export function createHumanPersonBuilder(props: {
       humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
     ]),
   );
-  const headLandmark = bodyBasis.landmarks.ids.indexOf("joint-head");
-  const neutralHead = {
-    x: bodyBasis.landmarks.positions[headLandmark * 3],
-    y: bodyBasis.landmarks.positions[headLandmark * 3 + 1],
-    z: bodyBasis.landmarks.positions[headLandmark * 3 + 2],
-  };
+  const neutralAnchor = humanPersonEyeCentre(
+    Object.fromEntries(bodyBasis.landmarks.ids.map((id, at) => [id, {
+      x: bodyBasis.landmarks.positions[at * 3],
+      y: bodyBasis.landmarks.positions[at * 3 + 1],
+      z: bodyBasis.landmarks.positions[at * 3 + 2],
+    }])),
+  );
 
   const evaluateSkin = createHumanPersonSourceSkin({
     faceCount,
@@ -201,7 +200,7 @@ export function createHumanPersonBuilder(props: {
     seam,
     neutralBody,
     jawVertices,
-    neutralHead,
+    neutralAnchor,
   });
 
   return (document) => {

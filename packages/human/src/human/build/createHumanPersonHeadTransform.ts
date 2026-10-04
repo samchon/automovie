@@ -1,18 +1,21 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import type { IAutoMovieHumanPersonHeadTransform } from "../structures/IAutoMovieHumanPersonHeadTransform";
+import type { IAutoMovieHumanPersonHeadTransformProps } from "../structures/IAutoMovieHumanPersonHeadTransformProps";
 
 /**
  * The rigid transform that carries a part built in the neutral head frame onto
  * the posed head bone of a shaped body.
  *
  * Every face part except the neck skin is built once in the neutral frame the
- * two bases share, where the head joint stands at `neutral`. A body shape
- * (height, proportions, neck length) moves that joint to `rest.position` and a
- * pose turns the bone to `posed`, so a point `p` of the face lands at
- * `R (p + (rest.position - neutral)) + t`, with `R = posed.rotation *
+ * two bases share. That frame is centred on the eyes (the face basis rows are
+ * the upstream state minus the eye centre's shift), so the shape carry is the
+ * displacement of the same anchor, the body's eye centre, from
+ * `anchor.neutral` to `anchor.shaped`; carrying by the head joint instead
+ * left a uniform 5–6 mm offset at the neck for the age and sex macros. A pose
+ * turns the bone to `posed`, so a point `p` of the face lands at
+ * `R (p + (anchor.shaped - anchor.neutral)) + t`, with `R = posed.rotation *
  * rest.rotation⁻¹` and `t = posed.position - R rest.position`. This is what
  * skinning gives a vertex bound to one bone with weight one, which is the
  * property the bone's rigid parts (the skull, the jaw arch, the eyes, the hair
@@ -38,21 +41,10 @@ import type {
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
-export function createHumanPersonHeadTransform(props: {
-  /** The head joint in the neutral frame the face was built in. */
-  neutral: IAutoMovieVector3;
-  /** The bone's shaped rest frame. */
-  rest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-  /** The bone's posed frame. */
-  posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-}): {
-  /** The change of orientation the posed bone makes from its rest, `posed * rest⁻¹`. */
-  rotation: IAutoMovieQuaternion;
-  shift: IAutoMovieVector3;
-  point: (p: IAutoMovieVector3) => IAutoMovieVector3;
-  direction: (n: IAutoMovieVector3) => IAutoMovieVector3;
-} {
-  const { neutral, rest, posed } = props;
+export function createHumanPersonHeadTransform(
+  props: IAutoMovieHumanPersonHeadTransformProps,
+): IAutoMovieHumanPersonHeadTransform {
+  const { anchor, rest, posed } = props;
   const rotation = Quaternion.multiply(
     posed.rotation,
     Quaternion.inverse(rest.rotation),
@@ -61,7 +53,7 @@ export function createHumanPersonHeadTransform(props: {
     posed.position,
     Quaternion.rotateVector(rotation, rest.position),
   );
-  const shift = Vector3.subtract(rest.position, neutral);
+  const shift = Vector3.subtract(anchor.shaped, anchor.neutral);
   const x = Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
   const y = Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
   const z = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
