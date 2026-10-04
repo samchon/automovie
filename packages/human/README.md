@@ -70,6 +70,8 @@ The playground's `face.html` and `connected-face.html` mount the same product co
 
 `clipHumanFaceBasisSurface` in the `face/basis/` subpath prepares an open neck boundary at a neutral Y plane. It shares edge intersections and affine endpoint stencils while retaining corner UV seams. Its region-local maps identify wholly retained triangles whose barycentric attachment coordinates remain usable. Callers own a new basis revision, dependent resource bindings and explicit handling of attachments on cut triangles. The ordinary builder reconstructs normals from the result.
 
+`interpolateHumanBasisSourceTriangle` in the `common/basis/` subpath evaluates one geometry, normal or attribute component from ordered corner values and two affine coordinates `[u, v]`. Inputs remain read only, with finite `u >= 0`, `v >= 0` and `u + v <= 1`; the implicit weights are `(1-u-v, u, v)`. Exact corners preserve stored values, and inactive-edge coefficients evaluate no unused difference. Nonfinite inputs and unrepresentable active arithmetic refuse. The caller retains the component's unit and frame, source compatibility and geometric validity.
+
 ### Declared surfaces without a product consumer
 
 Two exported surfaces have no product path today. They are kept on purpose and this section is their registration; the tests are their only callers.
