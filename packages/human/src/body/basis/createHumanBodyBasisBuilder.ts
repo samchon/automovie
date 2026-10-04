@@ -40,18 +40,24 @@ import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShould
  * does not establish collision-free or physiological movement.
  * Recompiling for a different basis revision creates new appearance and sag
  * caches; no cached result is shared across independent basis builders.
+ * The optional physicalSource constructor mode registers actual native
+ * indexed incidence or declared canonical source samples before UV gathering.
+ * Omission preserves the existing model and metadata absence. Registration
+ * changes no coordinates and supplies no clinical tissue certification.
  */
 export function createHumanBodyBasisBuilder(
   input: IAutoMovieHumanBodyBasis,
+  options?: { physicalSource?: "native-indexed" | "source-partition" },
 ): (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyBuild {
   const basis = structuredClone(
     typia.assertEquals<IAutoMovieHumanBodyBasis>(input),
   );
   assertHumanBodyBasis(basis);
+  const physicalSource = options === undefined ? undefined : typia.assertEquals<{ physicalSource?: "native-indexed" | "source-partition" }>(options).physicalSource;
   const appearance = createHumanBodyAppearance(basis);
   // the underwear's per-vertex arm weights, on the first document wearing it
   let dress: ReturnType<typeof createHumanBodyUnderwear> | null = null;
-  const surfaces = createHumanBodySurfaceParts(basis);
+  const surfaces = createHumanBodySurfaceParts(basis, physicalSource);
   return (inputDocument) => {
     const document = admitHumanBodyBasisDocument(inputDocument);
     if (

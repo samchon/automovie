@@ -1,3 +1,4 @@
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
@@ -17,6 +18,8 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * vertex numbering belongs to the region, so the decision `drop` makes is
  * about shared skin vertices the caller looks up through the region's own
  * corner table.
+ * Physical source rows are copied and survivor references follow this same
+ * compaction; unused source rows remain valid without renaming any source ID.
  *
  * @evidence contracts/common.md#principled-implementation Removing every triangle with a marked corner and then the unreferenced vertices, with one renumbering applied to every parallel attribute array, is the standard compaction of an indexed mesh and keeps each attribute attached to its vertex.
  * @evidence contracts/common.md#clear-and-simple-design One pass marks the surviving triangles, one renumbers the vertices, and each attribute array is gathered by the same table.
@@ -38,6 +41,8 @@ export function dropHumanMeshTriangles(
 ): IAutoMovieMesh {
   if (mesh.indices === null)
     throw new Error("Dropping triangles needs an indexed mesh.");
+  if (mesh.physicalVertices !== undefined)
+    resolveAutoMovieMeshPhysicalVertices(mesh);
   const count = mesh.positions.length / 3;
   const indices: number[] = [];
   for (let corner = 0; corner < mesh.indices.length; corner += 3) {
@@ -74,5 +79,11 @@ export function dropHumanMeshTriangles(
     ...(mesh.reliefWeights === undefined
       ? {}
       : { reliefWeights: gather(mesh.reliefWeights, 1) }),
+    ...(mesh.physicalVertices === undefined ? {} : {
+      physicalVertices: {
+        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
+        vertices: survivors.map((vertex) => mesh.physicalVertices!.vertices[vertex]),
+      },
+    }),
   };
 }

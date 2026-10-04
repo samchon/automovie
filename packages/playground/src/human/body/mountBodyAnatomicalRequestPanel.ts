@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
+import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import { parseHumanBodyAnatomicalDocument } from "@automovie/human/body/document/parseHumanBodyAnatomicalDocument";
 import { serializeHumanBodyAnatomicalDocument } from "@automovie/human/body/document/serializeHumanBodyAnatomicalDocument";
 import type { IAutoMovieHumanBodyAnatomicalDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyAnatomicalDocument";
@@ -19,6 +20,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  */
 export function mountBodyAnatomicalRequestPanel<Model extends {
   anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;
+  exteriorCandidate?: IAutoMovieHumanBodyExteriorCandidateBuild["exterior"];
 }>(app: HTMLElement, props: {
   basis: string;
   viewport: {
@@ -58,6 +60,17 @@ export function mountBodyAnatomicalRequestPanel<Model extends {
       status(snapshot.error, "error");
       return;
     }
+    const exterior = snapshot.model.exteriorCandidate;
+    if (exterior !== undefined) {
+      const metric = exterior.fulfilled;
+      status([
+        "Source-conditioned exterior candidate. Reference: " + exterior.reference.basis,
+        "Bare source-rest nipple-level protocol; clinical skin and internal anatomy remain unavailable.",
+        `Bust target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${metric.residualMetres * 1000} mm.`,
+        "Unfulfilled supplied context: " + exterior.unfulfilledContext.join(", "),
+      ].join("\n"), "ready");
+      return;
+    }
     const report = snapshot.model.anatomicalRequest!;
     status([
       "Target spheres only. Reference rig: " + report.reference.basis,
@@ -74,9 +87,17 @@ export function mountBodyAnatomicalRequestPanel<Model extends {
       props.viewport.dispose(model);
       throw new Error("Superseded numerical inspection build.");
     }
-    if (model.anatomicalRequest === undefined) {
+    const articular = model.anatomicalRequest;
+    const exterior = model.exteriorCandidate;
+    try {
+      const qualified = document.generatorRevision === "source-conditioned-exterior/1"
+        ? exterior !== undefined && articular === undefined && exterior.generatorRevision === document.generatorRevision && exterior.reference.basis === document.basis && serializeHumanBodyAnatomicalDocument(exterior.requested) === serializeHumanBodyAnatomicalDocument(document)
+        : articular !== undefined && exterior === undefined && articular.generatorRevision === document.generatorRevision && articular.reference.basis === document.basis;
+      if (!qualified)
+        throw new Error("The worker supplied no matching unique numerical candidate qualification.");
+    } catch (error) {
       props.viewport.dispose(model);
-      throw new Error("The worker supplied no numerical inspection qualification.");
+      throw error;
     }
     return model;
   };
@@ -84,7 +105,7 @@ export function mountBodyAnatomicalRequestPanel<Model extends {
     try {
       const document = parseHumanBodyAnatomicalDocument(value);
       if (!intents.isCurrent(ticket)) return false;
-      status("Building target-sphere candidates…", "building");
+      status(document.generatorRevision === "source-conditioned-exterior/1" ? "Building source-conditioned exterior…" : "Building target-sphere candidates…", "building");
       if (editor === undefined) {
         const model = await build(document);
         if (!intents.isCurrent(ticket)) {
@@ -123,7 +144,7 @@ export function mountBodyAnatomicalRequestPanel<Model extends {
     try {
       const bytes = await props.viewport.export(snapshot.document);
       if (intents.isCurrent(ticket) && editor.snapshot().model === snapshot.model)
-        props.download(snapshot.document.id + ".inspection-candidates.glb", bytes, "model/gltf-binary");
+        props.download(snapshot.document.id + (snapshot.model.exteriorCandidate === undefined ? ".inspection-candidates.glb" : ".exterior-candidate.glb"), bytes, "model/gltf-binary");
     } catch (error) {
       if (intents.isCurrent(ticket)) status(error instanceof Error ? error.message : String(error), "error");
     }

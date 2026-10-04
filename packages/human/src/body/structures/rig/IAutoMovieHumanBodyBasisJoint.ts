@@ -97,6 +97,27 @@ export interface IAutoMovieHumanBodyBasisJoint {
   distributeTwist?: boolean;
 
   /**
+   * Opt-in orientation goals for a named thigh in this exact source revision.
+   * The reference's rest-to-current rigid travel carries this thigh's shaped
+   * rest orientation, then its existing Euler axes/signs/neutral apply. The
+   * joint's range is the conservative source authoring envelope; converted
+   * source pose and actual parent-relative ranges remain independently checked.
+   * Admission requires an independent reference and pose-independent rig
+   * landmarks. This registration is a source rig, not individual clinical
+   * anatomy. Correctives and pelvic coordination keep converted raw degrees.
+   */
+  sourceReferenceGoal?: {
+    /** Existing source bone whose rest/current orientation defines travel. */
+    reference: AutoMovieHumanoidBone;
+    /** Source articulation in the reference-transported thigh rest frame. */
+    coordinates: "reference-rest-euler";
+    /** No personal anatomical frame or clinical capacity is certified. */
+    qualification: "source-rig-only";
+    /** Preserves the published corrective and coordination input convention. */
+    rhythmDriver: "converted-source-pose";
+  };
+
+  /**
    * Humerothoracic authoring coordinates for an upper arm. Only the two
    * upper arms carry this field. Their generic Euler axes are held at zero;
    * the shoulder goal is resolved from the thorax after girdle coupling.

@@ -105,6 +105,12 @@ export function humanFaceHairContact(props: {
     hit: ReturnType<typeof props.query>,
   ) => IAutoMovieVector3;
   project: (p: IAutoMovieVector3) => IAutoMovieVector3;
+  /** Same-collider offset proposal; every query spends the caller's lock budget. */
+  retract: (
+    point: IAutoMovieVector3,
+    offset: number,
+    budget: { remaining: number },
+  ) => { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 } {
   const { layer, query } = props;
   const h = layer.samplingStep;
@@ -180,5 +186,37 @@ export function humanFaceHairContact(props: {
       "Numerical hair contact did not converge on the closed surface.",
     );
   };
-  return { clearance, step: h, epsilon, sample, outward, project };
+  const retract = (
+    input: IAutoMovieVector3,
+    offset: number,
+    budget: { remaining: number },
+  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+    if (!Number.isFinite(offset) || offset < clearance - epsilon)
+      throw new Error("Hair offset retraction requires the unchanged free clearance.");
+    if (budget === undefined || budget === null ||
+        !Number.isSafeInteger(budget.remaining) || budget.remaining < 0)
+      throw new Error("Hair offset retraction requires its safe-integer shared budget.");
+    const read = (point: IAutoMovieVector3): ReturnType<typeof sample> => {
+      if (budget.remaining === 0)
+        throw new Error("Hair offset retraction exhausted its shared geometry budget.");
+      budget.remaining--;
+      return sample(point);
+    };
+    let point = input;
+    for (let attempt = 0; attempt < 64; attempt++) {
+      const hit = read(point);
+      const normal = outward(point, hit);
+      const candidate = Vector3.add(
+        Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
+        Vector3.scale(normal, offset),
+      );
+      const measured = read(candidate);
+      if (measured.signedDistance >= clearance - epsilon &&
+          Math.abs(measured.signedDistance - offset) <= epsilon)
+        return { point: candidate, normal };
+      point = candidate;
+    }
+    throw new Error("Hair offset retraction did not converge on its closed surface.");
+  };
+  return { clearance, step: h, epsilon, sample, outward, project, retract };
 }

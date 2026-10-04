@@ -10,6 +10,7 @@ import * as THREE from "three";
 import { applyDetailNormal } from "./detailNormalShading";
 import { applyMaterialOverlays } from "./materialOverlayShading";
 import { applySubsurfaceShading } from "./subsurfaceShading";
+import { AutoMovieGeometryPhysicalVertices } from "./AutoMovieGeometryPhysicalVertices";
 
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
@@ -68,6 +69,8 @@ export const buildGeometry = (
     );
   }
   if (mesh.normals === null) geo.computeVertexNormals();
+  AutoMovieGeometryPhysicalVertices.writeOwned(geo, mesh.physicalVertices);
+  AutoMovieGeometryPhysicalVertices.read(geo);
   return geo;
 };
 

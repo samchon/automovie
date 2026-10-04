@@ -84,6 +84,7 @@ export function createConnectedBodyPreview<
         anatomy: result.anatomy,
         extras: result.extras,
         anatomicalRequest: result.anatomicalRequest,
+        exteriorCandidate: result.exteriorCandidate,
       };
     },
     export: async (document: Document) => {

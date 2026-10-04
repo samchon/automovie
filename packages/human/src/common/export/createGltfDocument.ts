@@ -19,6 +19,7 @@ import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
 import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanStaticPartCorrespondence";
 import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
+import { readHumanMeshPhysicalVertices } from "./readHumanMeshPhysicalVertices";
 
 /** glTF sampler wrap mode 33071: a face texture never tiles past its UV0 square. */
 const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
@@ -41,8 +42,12 @@ const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
  * CommonJS and ES-module instances can discard its geometry during writing.
  *
  * Source identity is an explicit opt-in. The same prepared material members
- * that enter the merge supply primitive-local element intervals; metadata is
- * absent by default. These source IDs establish no anatomical qualification.
+ * that enter the merge supply primitive-local element intervals; this source-part
+ * namespace is absent by default. These IDs establish no anatomical qualification.
+ * Supplied mesh physical correspondence is independent: the standard writer
+ * always preserves its source-pair/null lineage in a separate JSON namespace
+ * and unnormalized Uint16 VEC2 custom accessor containing low/high words of
+ * each 32-bit table reference. Missing correspondence keeps legacy bytes.
  *
  * @evidence contracts/common.md#principled-implementation Source registration consumes actual ordered prepared meshes before writing, and the common reader checks the partition against final accessors; geometry conversion remains with the existing engine and Float32 owners.
  * @evidence contracts/common.md#clear-and-simple-design One constructor owns material membership, source-ID mapping and final primitive creation; no serialized grouping is reconstructed.
@@ -50,7 +55,7 @@ const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
  * @evidence contracts/common.md#meaningful-documentation Distinguishes optional source identity and the existing static exporter limitations.
  */
 export function createGltfDocument(model: IAutoMovieModel, options?: {
-  /** True opts into source part IDs and prepared element intervals; absent or false preserves legacy output. */
+  /** True opts into source part IDs and prepared intervals; absent or false omits this namespace independently of physical correspondence. */
   sourcePartIdentity?: boolean;
 }): Document {
   const identity = typia.assertEquals<{ sourcePartIdentity?: boolean }>(options === undefined ? {} : options).sourcePartIdentity === true;
@@ -304,6 +309,28 @@ export function createGltfDocument(model: IAutoMovieModel, options?: {
       };
       primitive.setExtras({ automovieSourceParts: correspondence });
       readHumanStaticPartCorrespondence(primitive);
+    }
+    if (mesh.physicalVertices !== undefined) {
+      // Existing composition owns this pair table. Accessor values are local
+      // references; opaque safe integer source IDs remain lossless JSON.
+      // glTF 2.0 custom attributes cannot use uint32. Two unnormalized uint16
+      // words preserve each 32-bit reference at four-byte vertex alignment.
+      const references = new Uint16Array(mesh.physicalVertices.vertices.length * 2);
+      mesh.physicalVertices.vertices.forEach((reference, vertex) => {
+        const value = reference === null ? 0 : reference + 1;
+        references[vertex * 2] = value % 65536;
+        references[vertex * 2 + 1] = Math.floor(value / 65536);
+      });
+      primitive.setAttribute("_AUTOMOVIE_PHYSICAL_SOURCE", document.createAccessor()
+        .setType("VEC2")
+        .setNormalized(false)
+        .setArray(references)
+        .setBuffer(buffer));
+      primitive.setExtras({ ...primitive.getExtras(), automoviePhysicalVertices: {
+        version: 1, attribute: "_AUTOMOVIE_PHYSICAL_SOURCE",
+        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
+      } });
+      readHumanMeshPhysicalVertices(primitive);
     }
     scene.addChild(
       document

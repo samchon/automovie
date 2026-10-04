@@ -6,6 +6,8 @@ Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/Auto
 
 Instanced model/object flattening preserves mixed coloured and bare parts. Its owned geometry copies use a common Float32 RGB(A) layout, decoding normalized imported attributes and filling absent RGB or alpha with one; entirely bare models remain buffer-free. Malformed colour cardinality or a non-RGB(A) tuple is refused before merging.
 
+`AutoMovieGeometryPhysicalVertices` preserves declared physical source correspondence on generated geometry and reads it from an already-loaded static glTF geometry. `read(mesh.geometry)` returns an owned source domain/ID table and nullable render-vertex references; it never changes imported attributes or user data. Standard glTF references use two unnormalized Uint16 words, including interleaved accessors, while opaque safe integer IDs remain JSON values. Absence retains ordinary current-position incidence, and explicit null entries remain separate from declared source points. `writeOwned` replaces only metadata on viewer-owned generated geometry; imported wire records refuse writes. This is runtime ownership and inspection, not an assertion of anatomical identity or an exemption from geometry validation.
+
 `resolveAutoMovieFilmBeautyComposition` classifies the one or two beauty
 layers the production sampler returns for a film frame as a direct render, a
 fade over black, or a cross-dissolve, and refuses any other cardinality or

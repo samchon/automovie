@@ -1,6 +1,7 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
+import type { IAutoMovieHumanBodyThighGoal } from "./IAutoMovieHumanBodyThighGoal";
 import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
 
 /**
@@ -61,6 +62,16 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * shoulder girdle is posed; the girdle still transports its joint centre.
    */
   shoulders?: IAutoMovieHumanBodyShoulderPose[];
+
+  /**
+   * Explicit source-reference thigh orientations, only in an exact basis
+   * revision that declares their reference-rest-euler convention. These do
+   * not reinterpret legacy pose rows; a thigh cannot have both authorities.
+   * Explicit zero retains the reference-relative rest relationship and is
+   * distinct from omitting the goal. Individual clinical registration and
+   * ground/contact support are not supplied by these source-rig goals.
+   */
+  thighGoals?: IAutoMovieHumanBodyThighGoal[];
 
   /**
    * Optional skin colour by anatomical site: the cheek albedo the face wears,

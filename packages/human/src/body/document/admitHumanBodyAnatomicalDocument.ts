@@ -5,16 +5,16 @@ import { liftHumanBodySimpleAnatomicalTargets } from "../anatomy/measurements/li
 import type { IAutoMovieHumanBodyAnatomicalDocument } from "../structures/IAutoMovieHumanBodyAnatomicalDocument";
 
 /**
- * Admit a complete request for the concrete articular-head inspector.
+ * Admit a complete request for the concrete articular or exterior producer.
  *
  * Exact schema admission requires age, stature and mass before the shared
- * physical-scalar gate runs. This recognizes one executable inspection
- * revision, not a registry of hypothetical tissue generators. Acquisitions
+ * physical-scalar gate runs. This recognizes two executable candidate
+ * revisions, not a registry of hypothetical tissue generators. Acquisitions
  * remain intact; registration and the reference identity are inspected later.
  * It reads caller-owned values and certifies no physiological surface.
  *
  * @evidence contracts/common.md#principled-implementation Exact complete schema admission precedes the shared finite physical-value owner, preventing a sparse record from passing as a complete request.
- * @evidence contracts/common.md#clear-and-simple-design One concrete revision and the existing simple lift serve the two declared tiers.
+ * @evidence contracts/common.md#clear-and-simple-design Two concrete revisions and the existing simple lift serve the declared tiers; each producer checks its own revision.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing context is refused rather than filled from a neutral body.
  * @evidence contracts/common.md#meaningful-documentation States the admission order, ownership and distinction from surface qualification.
  * @evidence contracts/modeling.md#parameter-channels The selected tier retains absolute measurements; simple paired targets use the single shared lift without mutating the saved request.
@@ -31,7 +31,7 @@ export function admitHumanBodyAnatomicalDocument(
   input: unknown,
 ): IAutoMovieHumanBodyAnatomicalDocument {
   const document = typia.assertEquals<IAutoMovieHumanBodyAnatomicalDocument>(input);
-  if (document.generatorRevision !== "articular-head-inspection/1")
+  if (document.generatorRevision !== "articular-head-inspection/1" && document.generatorRevision !== "source-conditioned-exterior/1")
     throw new Error("Unsupported body generatorRevision: " + document.generatorRevision);
   if ([document.id, document.name, document.basis].some((value) => value.trim() === ""))
     throw new Error("Anatomical requests need nonempty id, name and basis.");

@@ -10,8 +10,10 @@
  * does not establish collision-free or anatomically valid contact.
  */
 import type { IAutoMovieModel } from "@automovie/interface";
+import { autoMovieRenderDigest, canonicalizeAutoMovieJson } from "@automovie/engine";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -29,8 +31,43 @@ import type { skinHumanBodySurface } from "./skinHumanBodySurface";
  * the unsplit positions and normals are also returned for garment cutting.
  * A rest document uses its skinned positions without a sag calculation;
  * anatomical relief weights are evaluated only for posed textured skin.
+ * Explicit physicalSource compilation captures native content fingerprints or
+ * canonical sample IDs before any UV split. Each document supplies its actual
+ * instance to the sole namespace helper. Missing or mismatched registration
+ * refuses; omission keeps the original position-derived output.
+ * @evidence contracts/common.md#principled-implementation Uses actual preUV source incidence and the existing canonical digest/domain owners; performance changes coordinates without inventing point identity.
+ * @evidence contracts/common.md#clear-and-simple-design One compiled source registration accompanies the existing shared-skin and region stages.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Native indices are not output UV ordinals or fake canonical samples, and normal islands do not identify physical points.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes explicit registration from default absence and clinical acceptance.
+ * @evidence contracts/modeling.md#emitted-geometry Original source incidence travels beside the unchanged performed coordinate and normal arrays through the same region gather.
+ * @evidence contracts/modeling.md#spatial-conventions Positions remain in the original metre frame; dimensionless samples identify points without transforming them.
+ * @evidence contracts/modeling.md#shared-boundaries Material and UV aliases of a source point receive the same instance-bound identity.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source Registration identifies supplied geometry, not an anatomical quantity or cohort.
+ * @evidenceExclude contracts/anatomy.md#permitted-range Pose and source admission remain independent of this incidence registration.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority This internal source registration is not a numerical body sculpt input.
  */
-export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
+export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, physicalSource?: "native-indexed" | "source-partition") {
+  // Compilation captures incidence before performance and UV gathering. The
+  // instance is supplied by each admitted document, never a generation alone.
+  const registrations = basis.surfaces.map((surface) => {
+    if (physicalSource === undefined) return undefined;
+    const source = surface.sourcePartition;
+    if (physicalSource === "native-indexed") {
+      if (source !== undefined)
+        throw new Error("Native indexed registration cannot relabel a declared canonical source partition.");
+      const fingerprint = autoMovieRenderDigest(canonicalizeAutoMovieJson({ positions: surface.positions, indices: surface.indices }));
+      return {
+        identity: canonicalizeAutoMovieJson({ mode: "native-indexed", basis: basis.id, surface: surface.id, fingerprint }),
+        samples: Array.from({ length: surface.positions.length / 3 }, (_, vertex) => vertex),
+      };
+    }
+    if (source === undefined || source.generation.trim() === "")
+      throw new Error("Physical source-partition registration needs the actual canonical source record.");
+    const extent = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
+    if (!Number.isSafeInteger(source.originalVertices) || source.originalVertices < 3 || !Number.isSafeInteger(extent) || source.samples.length !== surface.positions.length / 3 || source.samples.some((sample) => !Number.isSafeInteger(sample) || sample < 0 || sample >= extent))
+      throw new Error("Physical source-partition samples must match the actual preUV surface and safe canonical domain.");
+    return { identity: source.generation, samples: Array.from(source.samples) };
+  });
   const posedSurface = basis.surfaces.map((surface) =>
     createHumanBodyPosedSurface(surface, basis.joints),
   );
@@ -97,6 +134,10 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
           skinMaterial: skin,
           colors: coloured === null ? null : coloured.colors[index],
           reliefWeights,
+          physical: registrations[index] === undefined ? undefined : {
+            domain: humanPhysicalSourceDomain(document.id, registrations[index]!.identity),
+            samples: registrations[index]!.samples,
+          },
         });
       },
     );

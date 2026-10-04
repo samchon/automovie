@@ -8,9 +8,11 @@ import type {
   IAutoMovieHumanBodyHumeralHead,
   IAutoMovieHumanBodyShoulderPose,
   IAutoMovieHumanBodyAnatomicalInspection,
+  IAutoMovieHumanBodyExteriorCandidateBuild,
 } from "@automovie/human";
 import type {
   IAutoMovieJointPose,
+  IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
@@ -46,6 +48,11 @@ export type ConnectedBodyMesh = {
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries indexed preview topology.
    */
   indices: Uint32Array<ArrayBuffer>;
+  /** Owned source-pair/null incidence, cloned without narrowing opaque IDs.
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Preserves declared source incidence beside the committed numerical frame.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries independently owned source correspondence with the existing Float32 display buffers.
+   */
+  physicalVertices?: IAutoMovieMesh["physicalVertices"];
   /** Already posed, so the viewer must not attempt skin binding.
    * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the committed posed body as static geometry.
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prevents the display layer from skinning an already posed surface.
@@ -124,6 +131,8 @@ export type ConnectedBodyResult =
       extras: Record<string, unknown>;
       /** Candidate-only numerical inspection; legacy body previews omit it. */
       anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;
+      /** Actual source-conditioned exterior; never a resolved clinical skin. */
+      exteriorCandidate?: IAutoMovieHumanBodyExteriorCandidateBuild["exterior"];
     }
   | { operation: "export"; glb: Uint8Array<ArrayBuffer> }
   | {

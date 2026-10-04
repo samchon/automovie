@@ -12,8 +12,13 @@ type Stencil = { a: number; b: number; t: number };
  * their independent seams. Normals are reconstructed by the ordinary builder.
  *
  * Inputs are read only and must already satisfy basis correspondence admission.
- * Output arrays are owned. Region triangle maps contain only wholly retained
- * triangles, whose corner order and barycentric attachment coordinates survive.
+ * Output arrays are owned.
+ * `correspondence` preserves the frozen source-edge preimage of each output
+ * vertex, in output order: a resident source vertex has a=b and t=0, and
+ * an edge vertex is (1-t)*a+t*b with a<b. A complementary source compiler
+ * consumes these same identities rather than fitting positions to a new edge.
+ * Region triangle maps contain only wholly retained triangles, whose corner
+ * order and barycentric attachment coordinates survive.
  * A caller must refuse or explicitly rebind an attachment on a clipped triangle;
  * an absent mapping never means permission to discard that attachment. The
  * caller also assigns a new basis revision and updates every dependent binding.
@@ -21,6 +26,9 @@ type Stencil = { a: number; b: number; t: number };
  * Prepare numerical hair domains/contact closure after clipping. Their triangle
  * and vertex correspondence cannot be copied through a new cut; supplied hair
  * metadata refuses so this operation never leaves a stale closed collider.
+ * A surface already bound to a shared source partition likewise refuses:
+ * prepare the new common partition maps after the final crop instead of
+ * copying bindings whose sample and parent populations belong to the old cut.
  *
  * @evidence contracts/common.md#principled-implementation Clipping a triangle mesh at a plane keeps the part with y >= plane: each source edge crossing the plane owns one intersection vertex whose position is the affine blend of its ends (y set to the plane), so shape, expression and corrective rows and attachment weights, all affine in the vertices, are evaluated by the same frozen stencil and correspondence survives edits. Convex polygons from clipping are fanned into triangles and corner UVs interpolate along the same edge parameter.
  * @evidence contracts/common.md#clear-and-simple-design One pass over regions building stencils, then one pass over positions, rows and attachments.
@@ -34,19 +42,26 @@ type Stencil = { a: number; b: number; t: number };
  * @evidenceExclude contracts/anatomy.md#parametric-authority clipHumanFaceBasisSurface defines no input through which a caller shapes a human form.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping clipHumanFaceBasisSurface is a computation over existing data and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#parameter-channels clipHumanFaceBasisSurface defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#rendered-observation clipHumanFaceBasisSurface consumes an admitted source and a caller-supplied mathematical plane, owning only affine clipping and correspondence; it defines no anatomical part, assembly, pose or observation conditions. The crop/bake revision producer and consuming face or person assembly retain their observation responsibilities.
  */
 export function clipHumanFaceBasisSurface(
   source: Surface,
   minimumY: number,
-): { surface: Surface; retainedTriangles: Map<string, Map<number, number>> } {
+): {
+  surface: Surface;
+  retainedTriangles: Map<string, Map<number, number>>;
+  correspondence: readonly Readonly<Stencil>[];
+} {
   if (!Number.isFinite(minimumY))
     throw new Error("Facial clipping needs a finite Y plane.");
   if (
     source.hairDomains !== undefined ||
-    source.hairContactClosure !== undefined
+    source.hairContactClosure !== undefined ||
+    source.sourcePartition !== undefined ||
+    source.sourcePosePlan !== undefined
   )
     throw new Error(
-      "Prepare hair domains and contact closure after facial clipping.",
+      "Prepare hair domains, contact closure, source partition and source pose plan after facial clipping.",
     );
   const stencils: Stencil[] = [];
   const vertices = new Map<string, number>();
@@ -169,5 +184,5 @@ export function clipHumanFaceBasisSurface(
       });
       return rows.length === 0 ? [] : [{ owner: attachment.owner, rows }];
     });
-  return { surface, retainedTriangles };
+  return { surface, retainedTriangles, correspondence: stencils };
 }

@@ -3,6 +3,7 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanFaceSourceClosurePlan } from "./IAutoMovieHumanFaceSourceClosurePlan";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
+import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
 
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
@@ -19,6 +20,15 @@ import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSou
 export interface IAutoMovieHumanFaceBasis {
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
+
+  /**
+   * Optional producer-qualified native optical registration, independent of skin
+   * source partitions. Supplied numerical optics require the matching side's
+   * exact source/chart witnesses. Omission retains the legacy authored globes.
+   * These records qualify geometric placement, not clinical ocular dimensions
+   * or an observed eyelid margin.
+   */
+  opticalSupport?: IAutoMovieHumanFaceOpticalSupport[];
 
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
   channels: {

@@ -30,6 +30,8 @@ export function admitHumanBodyBasisDocument(
       if (angle !== null) values.push(angle);
   for (const shoulder of document.shoulders ?? [])
     values.push(shoulder.plane, shoulder.elevation, shoulder.axialRotation);
+  for (const goal of document.thighGoals ?? [])
+    values.push(goal.flexion, goal.abduction, goal.twist);
   if (document.skinColour !== undefined)
     values.push(...Object.values(document.skinColour.cheek));
   if (document.skinDetail !== undefined)
@@ -45,6 +47,7 @@ export function admitHumanBodyBasisDocument(
   }
   const bones = (document.pose ?? []).map((joint) => joint.bone);
   const shoulderBones = (document.shoulders ?? []).map((one) => one.bone);
+  const goalBones = (document.thighGoals ?? []).map((one) => one.bone);
   if (
     !values.every(Number.isFinite) ||
     (document.humeralHeads !== undefined &&
@@ -55,12 +58,14 @@ export function admitHumanBodyBasisDocument(
     new Set(bones).size !== bones.length ||
     bones.some((bone) => bone === "leftUpperArm" || bone === "rightUpperArm") ||
     new Set(shoulderBones).size !== shoulderBones.length ||
+    new Set(goalBones).size !== goalBones.length ||
+    goalBones.some((bone) => bones.includes(bone)) ||
     (document.shoulders ?? []).some(
       (one) => one.plane < -180 || one.plane >= 180,
     )
   )
     throw new Error(
-      "Body edits need finite numbers, positive anatomical radii, nonempty identities, unique bones, shoulder goals in thorax-tt coordinates and canonical planes.",
+      "Body edits need finite numbers, positive anatomical radii, nonempty identities, unique bones, distinct pose and thigh-goal authorities, shoulder goals in thorax-tt coordinates and canonical planes.",
     );
   return document;
 }

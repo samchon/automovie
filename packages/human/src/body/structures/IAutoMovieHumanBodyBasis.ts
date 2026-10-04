@@ -63,6 +63,17 @@ export interface IAutoMovieHumanBodyBasis {
   /** Ordered dimensionless shape controls. */
   channels: IAutoMovieHumanBodyBasisChannel[];
 
+  /**
+   * Declared targets whose source dependencies remain incomplete on this
+   * revision. Their retained rows are not a complete field: any nonzero
+   * channel gain or corrective activation refuses before applying rows.
+   * Zero activation can replay the neutral without treating missing source
+   * values as zero. IDs must belong to the declared target population and
+   * be unique. Omission preserves legacy behavior and certifies no source,
+   * anatomical, cohort or contact validity.
+   */
+  unavailableTargets?: string[];
+
   /** Authored corrective driver and endpoint. */
   correctives?: IAutoMovieHumanBodyBasisCorrective[];
 

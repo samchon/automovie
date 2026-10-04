@@ -6,6 +6,7 @@ export * from "./surface/IAutoMovieHumanBodyBasisSurfaceMush";
 export * from "./IAutoMovieHumanBodyBasisDocument";
 export * from "./IAutoMovieHumanBodyAnatomicalDocument";
 export * from "./IAutoMovieHumanBodyShoulderPose";
+export * from "./IAutoMovieHumanBodyThighGoal";
 export * from "./IAutoMovieHumanBodyBuild";
 export * from "./IAutoMovieHumanBodyChannelScale";
 export * from "./IAutoMovieHumanBodyMeasurement";

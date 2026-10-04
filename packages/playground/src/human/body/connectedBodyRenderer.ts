@@ -5,7 +5,9 @@
  * new group. Only the renderer owns and releases GPU and texture resources.
  */
 import type { IAutoMovieModel } from "@automovie/interface";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
 import {
+  AutoMovieGeometryPhysicalVertices,
   AutoMovieTextureCache,
   buildModel,
   materialTextureBindings,
@@ -26,7 +28,11 @@ type Resident = {
   textures: AutoMovieTextureCache;
   released: boolean;
 };
-type Frame = { resident: Resident; model: ConnectedBodyModel };
+type Frame = {
+  resident: Resident;
+  model: ConnectedBodyModel;
+  physical: ConnectedBodyPart["geometry"]["mesh"]["physicalVertices"][];
+};
 
 const sameArray = (
   a: ArrayLike<number> | null,
@@ -92,8 +98,17 @@ export function createConnectedBodyRenderer(props: {
   };
   return {
     prepare: async (model: ConnectedBodyModel): Promise<Frame> => {
+      const physical = model.parts.map((part) => {
+        const metadata = structuredClone(part.geometry.mesh.physicalVertices);
+        if (metadata !== undefined)
+          resolveAutoMovieMeshPhysicalVertices({
+            positions: Array.from(part.geometry.mesh.positions),
+            physicalVertices: metadata,
+          });
+        return metadata;
+      });
       if (active !== undefined && sameStructure(active, model))
-        return { resident: active, model };
+        return { resident: active, model, physical };
       const textures = new AutoMovieTextureCache(async (asset) => {
         const texture = await props.loadTexture(asset);
         texture.flipY = false;
@@ -137,6 +152,7 @@ export function createConnectedBodyRenderer(props: {
             released: false,
           },
           model,
+          physical,
         };
       } catch (error) {
         if (group !== undefined) releaseGroup(group);
@@ -148,6 +164,19 @@ export function createConnectedBodyRenderer(props: {
       const resident = frame.resident;
       if (resident.released)
         throw new Error("This prepared body has been released.");
+      if (frame.model.parts.length !== frame.physical.length)
+        throw new Error("Prepared body physical correspondence changed: parts.");
+      // Finish every metadata/coordinate check before touching displayed buffers.
+      for (const [index, part] of frame.model.parts.entries()) {
+        const metadata = frame.physical[index];
+        if (JSON.stringify(part.geometry.mesh.physicalVertices) !== JSON.stringify(metadata))
+          throw new Error("Prepared body physical correspondence changed: " + part.id);
+        if (metadata !== undefined)
+          resolveAutoMovieMeshPhysicalVertices({
+            positions: Array.from(part.geometry.mesh.positions),
+            physicalVertices: metadata,
+          });
+      }
       for (const [index, part] of frame.model.parts.entries()) {
         const geometry = resident.meshes[index].geometry;
         const positions = geometry.getAttribute(
@@ -166,6 +195,7 @@ export function createConnectedBodyRenderer(props: {
         }
         geometry.computeBoundingBox();
         geometry.computeBoundingSphere();
+        AutoMovieGeometryPhysicalVertices.writeOwned(geometry, frame.physical[index]);
       }
       resident.group.name = frame.model.name ?? frame.model.id;
       resident.parts = frame.model.parts;

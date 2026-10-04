@@ -1,12 +1,14 @@
 import type * as Human from "@automovie/human";
+import type { createHumanBodySurfaceParts } from "@automovie/human/body/basis/createHumanBodySurfaceParts";
+import type { createHumanBodySurfaceRegionParts } from "@automovie/human/body/basis/createHumanBodySurfaceRegionParts";
 
 /**
- * Public carrier for the inspected candidate-only interchange boundary.
+ * Public carrier for inspected physical candidates and static interchange.
  * It records no anatomical or clinical acceptance of the complete body.
  *
- * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This family index spans complete body authoring and browser workflow; this carrier records only inspected static candidate interchange.
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This family index spans complete body authoring and browser workflow; this carrier records bounded source-rest exterior and static candidate interchange without accepting complete anatomy.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Carries inspected source identity and candidate-qualified static readback.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The specification index groups generation, joints, documents and editing; this carrier owns only candidate export source inspection.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The specification index groups complete generation, joints, documents and editing; this carrier inspects one source-rest physical candidate and candidate export, while full anatomy remains unavailable.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Carries the inspected source-to-primitive identity boundary without claiming rig or clinical document reconstruction.
  */
 export interface humanBodyStudyReview {
@@ -26,6 +28,33 @@ export interface humanBodyStudyReview {
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Inspects primitive source correspondence at Float32 output without claiming a rig or clinical edit roundtrip.
    */
   readonly articularAssetIdentity: "candidate-only";
+  /**
+   * Inspected fictional source-rest exterior, independent of clinical anatomy.
+   * The tiny authored source and actual r16 producer use the same compiled
+   * builder, final Float32 instrument and bounded inverse. Complete context
+   * survives; unregistered observed girths refuse and every clinical part
+   * remains unavailable. This records a physical candidate, not GeneratedSkin.
+   *
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference} Read one constructor-owned source binding without adding morph controls to the numerical document.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.basis} Read exact source identity and mismatch refusal against immutable compiled geometry.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.channel} Read the source response and its existing envelope through the same final-surface inverse.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.incidence} Read explicit native indexed or actual canonical source registration while the ordinary body constructor retains absent metadata.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.evaluation} Read the explicit source-rest recipe rather than registered personal posture.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.protocol} Read bare source nipple-level convention and the distinct observed posture/plane/site refusal.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.measurement} Read the source-owned witness rule through the single extracted instrument and unavailable sections.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild} Read the actual static exterior beside clinical unavailable output and preserved complete context.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild.model} Read real resident admission, source partition and original writer/readback at Float32 precision.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild.exterior} Read fulfilled girth/residual/source section, exact unfulfilled paths and candidate-only anatomical availability.
+   * @evidence {@link Human.createHumanBodyExteriorTargetBuilder} Read actual compiled final-surface inversion, source endpoints, refusal/recovery and default-neutral preservation.
+   * @evidence {@link Human.readHumanBodyShapedMeasurement} Read the cohesive legacy instrument extraction and its observed final Float32 plane/seed without a duplicated formula.
+   * @evidence {@link Human.createHumanBodyBasisBuilder} Read explicit physicalSource compilation from actual native content or canonical samples, preserving default body output and independent geometry admission.
+   * @evidence {@link createHumanBodySurfaceParts} Read preUV source identity and actual document instance through the sole domain helper without changing posed coordinates or normals.
+   * @evidence {@link createHumanBodySurfaceRegionParts} Read the same authoritative UV gather for XYZ and physical samples, preserving source incidence across material/UV aliases.
+   * @evidence {@link Human.measureHumanBodySection} Read optional engine-resolved source-pair/null edge incidence in the existing cut, retaining omitted-argument raw-index behavior and unchanged plane/hull/seed calculations.
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Inspects the first physical exterior request consumer while preserving unsupported context and unavailable anatomy.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Inspects exactly one candidate report with transactional request/frame history.
+   */
+  readonly sourceConditionedExterior: "candidate-only";
 }
 
 /**
@@ -186,4 +215,5 @@ export const humanBodyStudyReview: humanBodyStudyReview & { basis: string; recei
   receipt: "connected-basis/extraction-receipt.json",
   likeness: "unaccepted",
   articularAssetIdentity: "candidate-only",
+  sourceConditionedExterior: "candidate-only",
 };

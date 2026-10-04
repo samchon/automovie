@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 
 /**
  * Cut a triangle surface with a plane and return the closed section loop
@@ -25,6 +26,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * straddles the plane; the section is then exactly the one a full walk
  * gives, because the extra triangles straddle nothing and the crossings
  * keep the full walk's order.
+ * Optional declared physical correspondence supplies engine-resolved edge
+ * identity, allowing attribute aliases to close the same source contour.
+ * Interpolation still reads actual coordinates. No physical argument keeps
+ * the original raw-index behavior; explicit points are not coordinate welded.
  *
  * The perimeter follows the contour into every concavity; the girth is the
  * perimeter of the loop's convex hull in the plane, which is what a tape
@@ -52,6 +57,7 @@ export function measureHumanBodySection(
   plane: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
   seed: IAutoMovieVector3,
   triangles?: readonly number[],
+  physicalVertices?: IAutoMovieMesh["physicalVertices"],
 ): {
   perimeter: number;
   girth: number;
@@ -60,6 +66,7 @@ export function measureHumanBodySection(
   centroid: IAutoMovieVector3;
 } | null {
   const count = positions.length / 3;
+  const physical = physicalVertices === undefined ? undefined : resolveAutoMovieMeshPhysicalVertices({ positions, physicalVertices });
   const distance = new Float64Array(count);
   const measure = (v: number): void => {
     distance[v] =
@@ -76,7 +83,9 @@ export function measureHumanBodySection(
   const points = new Map<string, [number, number, number]>();
   const adjacency = new Map<string, string[]>();
   const crossing = (a: number, b: number): string => {
-    const key = a < b ? a + "/" + b : b + "/" + a;
+    const first = physical?.vertices[a] ?? a;
+    const second = physical?.vertices[b] ?? b;
+    const key = first < second ? first + "/" + second : second + "/" + first;
     if (!points.has(key)) {
       const t = distance[a] / (distance[a] - distance[b]);
       points.set(key, [

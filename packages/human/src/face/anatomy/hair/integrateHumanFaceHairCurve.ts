@@ -16,6 +16,8 @@ import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound
 import { humanFaceHairLength } from "./humanFaceHairLength";
 import type { launchHumanFaceHairCurve } from "./launchHumanFaceHairCurve";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
+import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
+import { transportHumanFaceHairGatherStep } from "./transportHumanFaceHairGatherStep";
 
 const requireDirection = humanFaceHairFrame.direction;
 
@@ -185,6 +187,7 @@ export function integrateHumanFaceHairCurve(props: {
   const points = [{ ...props.root }];
   let cumulative = 0;
   let freeFrom: number | undefined;
+  let gatherOffset: number | undefined;
   let p = points[0];
   while (cumulative < length && budget.remaining > 0) {
     budget.remaining--;
@@ -229,8 +232,16 @@ export function integrateHumanFaceHairCurve(props: {
     const advance = (
       along: IAutoMovieVector3,
     ): { point: IAutoMovieVector3; distance: number } => {
+      // A pending free lock acquired its datum at its only rooted-to-free
+      // transition. Tie state never returns from the tail to pending.
+      const transported = stage.pending() && layer.gather!.strength > 0;
       const candidate = Vector3.add(p, Vector3.scale(along, h));
-      let point = humanFaceHairFreeDistanceBound({
+      const move = (parameter: number): IAutoMovieVector3 => transported
+        ? transportHumanFaceHairGatherStep({ point: p, direction: along, normal,
+            parameter, strength: layer.gather!.strength, offset: gatherOffset!,
+            contact: rule, budget }).point
+        : contact(Vector3.add(p, Vector3.scale(along, parameter)));
+      let point = transported ? move(h) : humanFaceHairFreeDistanceBound({
         sampled: p,
         distance: hit.signedDistance,
         candidate,
@@ -246,7 +257,7 @@ export function integrateHumanFaceHairCurve(props: {
         point = p;
         for (let bisect = 0; bisect < 48; bisect++) {
           const middle = (low + high) / 2;
-          const trial = contact(Vector3.add(p, Vector3.scale(along, middle)));
+          const trial = move(middle);
           if (Vector3.length(Vector3.subtract(trial, p)) > h) high = middle;
           else {
             low = middle;
@@ -269,7 +280,8 @@ export function integrateHumanFaceHairCurve(props: {
           while (true) {
             const along = first
               ? initialDirection
-              : limitHumanFaceHairTurn({ before, direction: normal, step });
+              : steerHumanFaceHairRootedStep({ point: p, before, normal, step,
+                  contact: rule, budget });
             interval = createHumanFaceHairExteriorInterval({
               root: p,
               direction: along,
@@ -348,8 +360,14 @@ export function integrateHumanFaceHairCurve(props: {
     } else cumulative += distance;
     if (interval !== undefined) {
       interval.spend();
-      if (sample(q).signedDistance >= clearance - epsilon)
+      const free = sample(q).signedDistance;
+      if (free >= clearance - epsilon) {
         freeFrom = points.length;
+        if (stage.pending()) gatherOffset = free;
+      }
+    } else if (stage.pending()) {
+      gatherOffset = Math.max(clearance - epsilon, gatherOffset! +
+        Vector3.dot(direction, normal) * Vector3.length(Vector3.subtract(q, p)));
     }
     points.push(q);
     p = q;

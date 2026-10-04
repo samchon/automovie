@@ -1,3 +1,4 @@
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { assertDirection } from "../../common/mesh/assertDirection";
@@ -42,6 +43,10 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * each region vertex to its connected skin source. It copies all arrays;
  * every result is in metres in the shared Y-up, Z-forward frame. Changing
  * the seam or either basis invalidates the region's subdivision.
+ * Registered meshes require the face boundary's explicit source pairs.
+ * Existing endpoint pairs must agree, and metadata is copied independently.
+ * A new edge point or centroid needs a registration owner this stage does
+ * not supply, so correspondence-present subdivision refuses that case.
  *
  * @evidence contracts/common.md#principled-implementation A union of the two ordered edge partitions gives both surfaces identical segments; interpolating each shared point from the same face edge avoids a floating-point definition on each side, and centroid fans subdivide the incident skins rather than emitting degenerate joining faces.
  * @evidence contracts/common.md#clear-and-simple-design One canonical ordered boundary feeds region-local edge subdivision and attribute interpolation; the person builder supplies the already posed surfaces.
@@ -65,11 +70,18 @@ export function stitchHumanPersonBoundary(props: {
   faceNormals: readonly number[];
   /** Body source positions after rig posing, before collar alignment; failure provenance only. */
   bodyBeforeCollar?: readonly number[];
+  /** Canonical physical pairs aligned with the registered face loop. */
+  physicalBoundary?: readonly { domain: string; id: number }[];
 }): IAutoMovieMesh {
   const { mesh, sources, side, seam, face, faceNormals, bodyBeforeCollar } = props;
   if (mesh.skin !== null)
     throw new Error("Person boundary subdivision requires an already posed mesh.");
   const count = seam.faceLoop.length;
+  if (mesh.physicalVertices !== undefined) {
+    resolveAutoMovieMeshPhysicalVertices(mesh);
+    if (props.physicalBoundary === undefined || props.physicalBoundary.length !== count)
+      throw new Error("Person physical registration needs the complete registered face boundary.");
+  }
   const pointAt = (parameter: number): number[] => {
     const edge = Math.floor(parameter);
     const fraction = parameter - edge;
@@ -109,6 +121,12 @@ export function stitchHumanPersonBoundary(props: {
     ...(mesh.colors === undefined ? {} : { colors: mesh.colors.slice() }),
     ...(mesh.reliefWeights === undefined ? {} : { reliefWeights: mesh.reliefWeights.slice() }),
     indices: [],
+    ...(mesh.physicalVertices === undefined ? {} : {
+      physicalVertices: {
+        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
+        vertices: mesh.physicalVertices.vertices.slice(),
+      },
+    }),
   };
   const canonical = (parameter: number): { point: number[]; normal: number[] } => {
     const edge = Math.floor(parameter);
@@ -127,11 +145,21 @@ export function stitchHumanPersonBoundary(props: {
   sources.forEach((source, vertex) => {
     const parameter = parameterOf.get(source);
     if (parameter === undefined) return;
+    if (output.physicalVertices !== undefined) {
+      const reference = output.physicalVertices.vertices[vertex];
+      const actual = reference === null ? undefined : output.physicalVertices.sources[reference];
+      const expected = Number.isInteger(parameter) ? props.physicalBoundary![parameter] : undefined;
+      if (actual === undefined || expected === undefined ||
+          actual.domain !== expected.domain || actual.id !== expected.id)
+        throw new Error("Person physical registration needs matching registered boundary endpoint identities.");
+    }
     const value = canonical(parameter);
     output.positions.splice(vertex * 3, 3, ...value.point);
     output.normals?.splice(vertex * 3, 3, ...value.normal);
   });
   const append = (vertices: readonly number[], weights: readonly number[], parameter?: number): number => {
+    if (output.physicalVertices !== undefined)
+      throw new Error("Person physical registration does not support an unregistered boundary point or centroid.");
     const vertex = output.positions.length / 3;
     const weighted = (values: readonly number[], width: number): number[] =>
       Array.from({ length: width }, (_, axis) => vertices.reduce(
@@ -290,5 +318,7 @@ export function stitchHumanPersonBoundary(props: {
       }
     }
   }
+  if (output.physicalVertices !== undefined)
+    resolveAutoMovieMeshPhysicalVertices(output);
   return output;
 }

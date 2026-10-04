@@ -1,5 +1,6 @@
 export * from "./analysisOverlay";
 export * from "./geometry";
+export * from "./AutoMovieGeometryPhysicalVertices";
 export * from "./subsurfaceShading";
 export * from "./detailNormalShading";
 export * from "./materialOverlayShading";

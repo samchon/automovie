@@ -41,9 +41,11 @@ export function resolveHumanBodyBuildPose(input: {
   document: IAutoMovieHumanBodyBasisDocument;
   poseRows: IAutoMovieJointPose[];
   landmarks: Record<string, IAutoMovieVector3>;
+  /** Shared prepared rig for a source capability with pose-independent anchors. */
+  rig?: ReturnType<typeof resolveHumanBodySkeleton>;
 }) {
   const { basis, document, poseRows, landmarks } = input;
-  const rig = resolveHumanBodySkeleton(
+  const rig = input.rig ?? resolveHumanBodySkeleton(
     basis,
     landmarks,
   );
@@ -128,5 +130,5 @@ export function resolveHumanBodyBuildPose(input: {
         rotation: resolved.worldRotation,
       },
     });
-  return { skeleton, transforms, clinical };
+  return { skeleton, transforms, clinical, rig };
 }

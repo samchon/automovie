@@ -25,19 +25,27 @@ import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticu
  * joins candidate-only qualification before writing. The report supplies
  * reference provenance, never a clinical certificate or editable document.
  * Every actual source ID must match exactly one reported candidate. Omitting
- * the report preserves the existing one-argument output and metadata absence.
+ * the report leaves articular qualification absent. Source-part identity also
+ * stays absent unless requested separately; supplied physical correspondence
+ * is independently preserved by the standard writer, including this call.
+ * A separate exact third option can request source-part identity without an
+ * articular report, for a source-conditioned exterior. Only true opts in;
+ * omitted, undefined and false preserve source-part namespace absence. Legacy
+ * models without physical correspondence retain their default bytes. An articular report
+ * always requires its source mapping, regardless of that independent option.
  *
  * @evidence contracts/common.md#principled-implementation Common construction owns actual intervals and admission; this writer joins only exact candidate IDs and qualification in the same Document before the original serialization.
  * @evidence contracts/common.md#clear-and-simple-design Optional candidate qualification extends the existing body writer without a second container or a reconstructed merge.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection): Promise<{
+export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: { sourcePartIdentity?: boolean }): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
   const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
-  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined });
+  const admitted = options === undefined ? undefined : typia.assertEquals<{ sourcePartIdentity?: boolean }>(options);
+  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || admitted?.sourcePartIdentity === true });
   if (report !== undefined) {
     if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)
       throw new Error("Unsupported or empty articular inspection qualification.");

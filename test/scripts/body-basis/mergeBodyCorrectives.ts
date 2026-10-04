@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import { storeHumanBodyCorrectiveRows } from "@automovie/human/body/basis/storeHumanBodyCorrectiveRows";
 
 import {
   isSidedBodyCorrective,
@@ -30,15 +31,6 @@ export interface IBodyCorrectiveMerge {
   symmetrized: string[];
 }
 
-/** Rows are stored to this many decimals, 10 micrometres. */
-const STORED_DECIMALS = 5;
-
-const stored = (rows: number[]): number[] =>
-  rows.map((one) => {
-    const scale = 10 ** STORED_DECIMALS;
-    return Number((Math.round(one * scale) / scale).toFixed(STORED_DECIMALS));
-  });
-
 /**
  * Publish a solve shard onto a basis: remove the correctives the shard
  * dropped, append the correctives it solved, and make them bilaterally
@@ -53,6 +45,10 @@ const stored = (rows: number[]): number[] =>
  * is a dropped id the basis does not carry, so a merge can not silently
  * replace or miss a corrective. The revision id and the basis' other fields
  * are the caller's: this returns the basis under `id`.
+ * Source dependency markers retain their order for every remaining declared
+ * target. Removing a target removes its marker; replacing a corrective with
+ * the same target never certifies that target's source as complete. A legacy
+ * basis without dependency metadata keeps that absence.
  *
  * The neutral surface is the one `mirrorBodyVertices` pairs; a vertex without
  * a mirror in a corrective's rows throws. The input basis is not mutated.
@@ -93,10 +89,13 @@ export function mergeBodyCorrectives(
       claim(corrective, rows);
       added.push(corrective.id);
       const mirror = mirrorBodyCorrective(corrective, rows, partner, channels);
-      claim(mirror.corrective, stored(mirror.rows));
+      claim(mirror.corrective, storeHumanBodyCorrectiveRows(mirror.rows));
       mirrored.push(mirror.corrective.id);
     } else {
-      claim(corrective, stored(symmetrizeBodyRows(rows, partner)));
+      claim(
+        corrective,
+        storeHumanBodyCorrectiveRows(symmetrizeBodyRows(rows, partner)),
+      );
       added.push(corrective.id);
       symmetrized.push(corrective.id);
     }
@@ -110,9 +109,23 @@ export function mergeBodyCorrectives(
         kept.push(...rows.slice(at, at + 4));
     targets[name] = kept;
   }
+  const dependencies =
+    basis.unavailableTargets === undefined
+      ? {}
+      : {
+          unavailableTargets: basis.unavailableTargets.filter(
+            (target) =>
+              basis.channels.some(
+                (channel) =>
+                  channel.positive === target || channel.negative === target,
+              ) ||
+              correctives.some((corrective) => corrective.target === target),
+          ),
+        };
   return {
     basis: {
       ...basis,
+      ...dependencies,
       id,
       correctives,
       surfaces: [{ ...surface, targets }, ...basis.surfaces.slice(1)],

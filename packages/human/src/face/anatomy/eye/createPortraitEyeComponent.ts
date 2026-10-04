@@ -27,6 +27,7 @@ import { buildPortraitEyeContactBasis } from "./buildPortraitEyeContactBasis";
 import { createPortraitEyeSupport } from "./createPortraitEyeSupport";
 import { createPortraitEyeSurfaceContact } from "./createPortraitEyeSurfaceContact";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
+import { createHumanFaceCornealMaterial } from "./createHumanFaceCornealMaterial";
 import { portraitEyeLidRows } from "./portraitEyeLidRows";
 import { portraitEyeLoop } from "./portraitEyeLoop";
 import { posePortraitLidCurves } from "./posePortraitLidCurves";
@@ -56,20 +57,11 @@ export function createPortraitEyeComponent(
     // Each optical volume owns its material so changing one shell's thickness
     // cannot leave a shared global thickness behind on either eye.
     materials: [
-      {
-        id: socket.name + "-cornea",
-        name: socket.name + " corneal surface",
-        baseColor: { r: 1, g: 1, b: 1, a: 1, hex: null },
-        roughness: 0.035,
-        metallic: 0,
-        opacity: 1,
-        emissive: null,
-        baseColorTexture: null,
-        doubleSided: true,
-        transmission: 1,
-        ior: 1.376,
-        thickness: shape.cornealThickness / 1000,
-      },
+      createHumanFaceCornealMaterial(
+        socket.name + "-cornea",
+        socket.name + " corneal surface",
+        shape.cornealThickness / 1000,
+      ),
       // Preserve the optical material's established first slot; additive
       // pigment ownership appends materials without moving that existing entry.
       ...(shape.irisPigment === undefined

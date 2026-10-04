@@ -1,10 +1,12 @@
 import { validateModel } from "@automovie/engine";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
+import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
@@ -73,6 +75,10 @@ const skinSurfaceOf = <
  *    Each render part reads its vertices through its region's corner table, then
  *    both boundaries are subdivided onto one union of their samples
  *    (`stitchHumanPersonBoundary`) with shared interpolated unit normals.
+ *    Actual registered skins rebind their admitted canonical IDs into one
+ *    person-instance source domain. Partial correspondence and unregistered
+ *    new physical cut/subdivision points refuse; metadata cannot disappear
+ *    to recover a position-welded topology. Legacy absence stays absent.
  * 5. The current face producer's actual emitted hair parts are kept off the
  *    posed body at the clearance the hair document asked of the head
  *    (`clearHumanPersonHair`).
@@ -111,7 +117,6 @@ export function createHumanPersonBuilder(props: {
 }): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
   const { face: faceBasis, body: bodyBasis } = props;
   const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
-  const buildBody = createHumanBodyBasisBuilder(bodyBasis);
 
   const faceSkin = skinSurfaceOf(faceBasis.surfaces);
   const bodySkin = skinSurfaceOf(bodyBasis.surfaces);
@@ -119,6 +124,15 @@ export function createHumanPersonBuilder(props: {
     face: faceSkin.surface,
     body: bodySkin.surface,
   });
+  // The normal constructor has admitted the common geometric source packet.
+  // Capture its identities now; physical incidence never reads normal islands.
+  const physicalSource = sourceNormals === undefined ? undefined : {
+    generation: faceSkin.surface.sourcePartition!.generation,
+    face: faceSkin.surface.sourcePartition!.samples.slice(),
+    body: bodySkin.surface.sourcePartition!.samples.slice(),
+  };
+  const buildBody = createHumanBodyBasisBuilder(bodyBasis,
+    physicalSource === undefined ? undefined : { physicalSource: "source-partition" });
   // Source corner aliases separate shading incidence, not physical skin
   // topology. The seam reads one vertex per canonical sample; emitted parts
   // and the normal consumer retain every authored corner alias.
@@ -191,9 +205,8 @@ export function createHumanPersonBuilder(props: {
   });
 
   return (document) => {
-    const body = buildBody(
-      deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials }),
-    );
+    const bodyDocument = deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials });
+    const body = buildBody(bodyDocument);
     const faceDocument = deriveHumanPersonFace(document);
     const currentFace = buildFace(faceDocument);
     const face = currentFace.model;
@@ -235,6 +248,11 @@ export function createHumanPersonBuilder(props: {
             },
           });
 
+    const physicalDomain = physicalSource === undefined ? undefined :
+      humanPhysicalSourceDomain(document.id, physicalSource.generation);
+    const physicalBoundary = physicalSource === undefined ? undefined :
+      seam.faceLoop.map((source) => ({ domain: physicalDomain!, id: physicalSource.face[source] }));
+
     const read = (
       mesh: IAutoMovieMesh,
       sources: readonly number[],
@@ -246,6 +264,33 @@ export function createHumanPersonBuilder(props: {
         positions: mesh.positions.slice(),
         normals: [] as number[],
       };
+      if (physicalSource === undefined) {
+        if (mesh.physicalVertices !== undefined)
+          throw new Error("Person physical registration needs both compatible registered skin halves.");
+      } else {
+        if (mesh.physicalVertices === undefined)
+          throw new Error("Person physical registration needs both actual registered skin halves.");
+        resolveAutoMovieMeshPhysicalVertices(mesh);
+        const samples = offset === 0 ? physicalSource.face : physicalSource.body;
+        const origin = humanPhysicalSourceDomain(
+          offset === 0 ? faceDocument.id : bodyDocument.id,
+          physicalSource.generation,
+        );
+        sources.forEach((source, vertex) => {
+          const reference = mesh.physicalVertices!.vertices[vertex];
+          const actual = reference === null ? undefined : mesh.physicalVertices!.sources[reference];
+          if (samples[source] === undefined || actual === undefined ||
+              actual.domain !== origin || actual.id !== samples[source])
+            throw new Error("Person physical registration needs the actual admitted canonical skin samples.");
+        });
+        out.physicalVertices = {
+          sources: mesh.physicalVertices.sources.map((source) => ({
+            ...source,
+            domain: source.domain === origin ? physicalDomain! : source.domain,
+          })),
+          vertices: mesh.physicalVertices.vertices.slice(),
+        };
+      }
       sources.forEach((source, vertex) => {
         for (let axis = 0; axis < 3; axis++) {
           out.positions[vertex * 3 + axis] = positions[source * 3 + axis];
@@ -273,6 +318,7 @@ export function createHumanPersonBuilder(props: {
                   seam,
                   face: facePosed,
                   faceNormals: normals,
+                  physicalBoundary,
                 }),
         },
       };
@@ -315,6 +361,7 @@ export function createHumanPersonBuilder(props: {
               face: facePosed,
               faceNormals: normals,
               bodyBeforeCollar,
+              physicalBoundary,
             }),
             () => false,
           ),

@@ -37,6 +37,8 @@ export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBa
   let reference: ReturnType<typeof build> | undefined;
   return (inputDocument: IAutoMovieHumanBodyAnatomicalDocument): IAutoMovieHumanBodyAnatomicalInspection => {
     const document = admitHumanBodyAnatomicalDocument(inputDocument);
+    if (document.generatorRevision !== "articular-head-inspection/1")
+      throw new Error("Articular inspector requires articular-head-inspection/1, not " + document.generatorRevision);
     if (document.basis !== basis)
       throw new Error("Anatomical request basis must match the compiled reference: " + basis);
     const targets = document.tier === "simple"

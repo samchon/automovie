@@ -13,7 +13,7 @@
       <section><canvas id="request-canvas"></canvas><div class="views"><button data-view="0">Front</button><button data-view="45">Left oblique</button><button data-view="-45">Right oblique</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="request-fit">Fit candidates</button><label><input id="request-clay" type="checkbox" />Clay</label></div></section>
       <aside>
         <h1>Numerical request inspection</h1>
-        <p>Explicit target articular radii become spheres in a neutral reference rig. Requested stature, mass and tissue detail do not generate the displayed body. Skin and complete bones remain unavailable.</p>
+        <p>Explicit target articular radii become spheres in a neutral reference rig. The source-conditioned exterior revision builds a connected skin candidate for one fictional absolute bust target. Age, stature, mass and other supplied detail remain unfulfilled. Clinical skin and internal anatomy remain unavailable.</p>
         <p><a href="connected-body.html">Legacy connected body editor</a></p>
         <pre id="request-status" role="status">Loading reference source…</pre>
         <label for="request-json">Complete numerical request (JSON)</label>
@@ -21,6 +21,7 @@
         <div><button id="request-apply">Apply request</button><button id="request-load">Load request</button><input id="request-file" type="file" accept=".json,application/json" hidden /></div>
         <div><button id="request-undo" disabled>Undo</button><button id="request-redo" disabled>Redo</button><button id="request-save" disabled>Save numerical request</button><button id="request-export" disabled>Export inspection candidates</button></div>
         <p>Use generatorRevision <code>articular-head-inspection/1</code> with the reference basis shown above. Detailed requests require age, standing stature and mass. Humeral/femoral sphere-fitted-radius targets are millimetres. Omitted radii remain unknown. Unregistered imaging acquisitions are refused.</p>
+        <p>Use <code>source-conditioned-exterior/1</code> for a fictional <code>surface.trunk.bustGirth</code> target in metres, or simple <code>bustAtNippleLevelMetres</code>. The instrument reads the bare source-rest skin at its nipple-level plane. Observed tape or scan values require posture, plane and site registration and are refused here. Save preserves the full request; export writes the static exterior candidate.</p>
       </aside>
     </main>
     <script type="module" src="/src/connected-body-anatomical.ts"></script>

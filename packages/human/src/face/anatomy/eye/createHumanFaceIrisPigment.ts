@@ -56,6 +56,11 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * each eye's globe material with a new PNG data URI; the basis and the caller's
  * pigments are never modified. Lengths in the disc geometry are metres in the
  * basis frame, angles are radians, and texture coordinates are pixels.
+ * The connected builder may exclude source owners replaced by generated
+ * numerical optics. Exclusion changes only legacy painting: both pigment
+ * records remain admitted, while an unselected source eye still requires its
+ * textured globe. The selected owner population is part of the cache key and
+ * preparation is rebuilt when it changes; the caller's set is never retained.
  *
  * @evidence contracts/common.md#principled-implementation The locator supplies an absolute iris chord and conventional pupil on the fitted neutral sphere; identity deformation after painting is outside that size guarantee. Only the mapped iris texels are repainted from the document's eight bands. Excess painting outside that disc is covered with a mean sclera colour under the locator's declared painted-angle convention, which is not a measured texture boundary. Blending is in linear light and encoded through the exact sRGB transfer function; these optical conventions do not establish physiological iris anatomy.
  * @evidence contracts/common.md#clear-and-simple-design The function compiles the geometry once per basis, then paints per document from a cache keyed by the two pigments; disc location, rasterization and texel colour are three separate owners, and the private helpers only find the globe and decode the texture.
@@ -76,14 +81,16 @@ export function createHumanFaceIrisPigment(
 ): (
   iris: IAutoMovieHumanFaceIris | null | undefined,
   materials: IAutoMovieMaterial[],
+  excludedOwners?: ReadonlySet<string>,
 ) => void {
   const globes = (basis.articulation?.eyes ?? []).map((eye) => ({
     eye: eye.id,
     globe: findGlobe(basis, eye.id),
   }));
   let prepared: Map<string, IPreparedTexture> | undefined;
+  let preparedOwners: string | undefined;
   let cache: { key: string; textures: Map<string, string> } | undefined;
-  return (iris, materials) => {
+  return (iris, materials, excludedOwners) => {
     if (iris === undefined || iris === null) return;
     const bands: Record<string, [number, number, number][]> = {
       leftEye: createPortraitIrisMaterials("iris", iris.left).map(linear),
@@ -91,7 +98,8 @@ export function createHumanFaceIrisPigment(
     };
     if (globes.length === 0)
       throw new Error("Iris pigment needs a basis with articulated eyes.");
-    const paintable: IGlobe[] = globes.map(({ eye, globe }) => {
+    const selected = globes.filter(({ eye }) => !excludedOwners?.has(eye));
+    const paintable: IGlobe[] = selected.map(({ eye, globe }) => {
       if (bands[eye] === undefined)
         throw new Error(
           "Iris pigment names leftEye and rightEye only, not " + eye + ".",
@@ -100,11 +108,15 @@ export function createHumanFaceIrisPigment(
         throw new Error("Iris pigment needs a textured globe for " + eye + ".");
       return globe;
     });
-    const key = JSON.stringify([iris.left, iris.right]);
+    const owners = JSON.stringify(selected.map(({ eye }) => eye));
+    const key = JSON.stringify([owners, iris.left, iris.right]);
     if (cache?.key !== key) {
-      prepared ??= prepare(paintable);
+      if (preparedOwners !== owners) {
+        prepared = prepare(paintable);
+        preparedOwners = owners;
+      }
       const textures = new Map<string, string>();
-      for (const [material, texture] of prepared) {
+      for (const [material, texture] of prepared!) {
         const rgba = texture.rgba.slice();
         for (const { eye, disc, texels, sclera } of texture.eyes)
           texels.index.forEach((index, at) => {

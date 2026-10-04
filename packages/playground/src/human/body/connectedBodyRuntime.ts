@@ -20,6 +20,7 @@ import {
   projectHumanBodySimpleShape,
   stepHumanBodyArmsDown,
   assertTextSize,
+  type IAutoMovieHumanBodyExteriorReference,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
@@ -30,6 +31,7 @@ import type {
 } from "./connectedBodyProtocol";
 import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 import { createConnectedBodyAnatomicalRuntime } from "./createConnectedBodyAnatomicalRuntime";
+import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExteriorRuntime";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -56,10 +58,13 @@ export function createConnectedBodyRuntime(
     sliceMs?: number;
     /** Hand the thread back; a macrotask by default so queued messages run. */
     yieldThread?: () => Promise<unknown>;
+    /** Constructor-owned source instrument, never a numerical document field. */
+    exteriorReference?: IAutoMovieHumanBodyExteriorReference;
   } = {},
 ) {
   const evaluate = createHumanBodyBasisBuilder(basis);
   let anatomical: ReturnType<typeof createConnectedBodyAnatomicalRuntime> | undefined;
+  let exterior: ReturnType<typeof createConnectedBodyExteriorRuntime> | undefined;
   const segment = createHumanBodySegmenter(basis);
   const sliceMs = options.sliceMs ?? 25;
   const yieldThread =
@@ -114,8 +119,11 @@ export function createConnectedBodyRuntime(
     const mine = ++received;
     assertTextSize(request.document);
     const record: unknown = JSON.parse(request.document);
-    if (record !== null && typeof record === "object" && Object.hasOwn(record, "tier"))
+    if (record !== null && typeof record === "object" && Object.hasOwn(record, "tier")) {
+      if ("generatorRevision" in record && record.generatorRevision === "source-conditioned-exterior/1")
+        return (exterior ??= createConnectedBodyExteriorRuntime(basis, options.exteriorReference))(request);
       return (anatomical ??= createConnectedBodyAnatomicalRuntime(basis))(request);
+    }
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
     const document = parseHumanBodyBasisDocument(request.document);

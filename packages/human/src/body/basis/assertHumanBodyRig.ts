@@ -4,6 +4,7 @@ import { assertHumanBodyRigCorrectives } from "./admission/rig/assertHumanBodyRi
 import { assertHumanBodyRigCouplings } from "./admission/rig/assertHumanBodyRigCouplings";
 import { assertHumanBodyRigJoints } from "./admission/rig/assertHumanBodyRigJoints";
 import { assertHumanBodyRigSkin } from "./admission/rig/assertHumanBodyRigSkin";
+import { assertHumanBodySourceReferenceGoals } from "./admission/rig/assertHumanBodySourceReferenceGoals";
 
 /**
  * Admit the body's public rig after its skin and endpoint rows are valid.
@@ -19,5 +20,6 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
   const joints = assertHumanBodyRigCorrectives(basis);
   assertHumanBodyRigCouplings(basis, joints);
   assertHumanBodyPelvifemoral(basis);
+  assertHumanBodySourceReferenceGoals(basis);
   assertHumanBodyRigSkin(basis, declared);
 }

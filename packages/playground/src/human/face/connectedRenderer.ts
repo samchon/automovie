@@ -1,4 +1,4 @@
-import { validateMeshTopology } from "@automovie/engine";
+import { createMeshPhysicalPartitionMatcher, validateMeshTopology } from "@automovie/engine";
 import { float32MeshBuffers } from "@automovie/human";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import {
@@ -31,6 +31,7 @@ type MeshWitness = {
   indices: readonly number[] | null;
   uvs: readonly number[] | null;
   closed: boolean;
+  physical: ReturnType<typeof createMeshPhysicalPartitionMatcher>;
 };
 
 /** Exact source arrays certified by the Float32 and manifold gates. */
@@ -41,6 +42,7 @@ function witnessOf(mesh: IAutoMovieMesh, closed: boolean): MeshWitness {
     indices: mesh.indices?.slice() ?? null,
     uvs: mesh.uvs?.slice() ?? null,
     closed,
+    physical: createMeshPhysicalPartitionMatcher(mesh),
   };
 }
 
@@ -68,7 +70,7 @@ function matchesWitness(
     same(mesh.positions, witness.positions) &&
     same(mesh.normals, witness.normals) &&
     same(mesh.indices, witness.indices) &&
-    same(mesh.uvs, witness.uvs)
+    same(mesh.uvs, witness.uvs) && witness.physical(mesh)
   );
 }
 
