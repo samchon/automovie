@@ -84,6 +84,48 @@ export function test_human_viewer_preview_codec(): void {
   const encoder = new TextEncoder();
   TestValidator.equals("independent UTF8 chunks preserve Unicode",
     chunks.map((chunk) => decoder.decode(encoder.encode(chunk))).join(""), expected);
+  const lengthProxy = (length: unknown): number[] => new Proxy([10, 20, 30], {
+    get: (target, key, receiver) => key === "length" ? length : Reflect.get(target, key, receiver),
+  });
+  for (const length of [2, 2.5, "2.5", NaN, undefined, -Infinity, -2, 0, true, null]) {
+    const model = lengthProxy(length);
+    TestValidator.equals("native array ToLength", encodeHumanViewerPreview({ operation: "preview", model }),
+      JSON.stringify({ operation: "preview", model }));
+  }
+  const changingLength = () => {
+    let calls = 0;
+    return { model: lengthProxy({ valueOf: () => ++calls === 1 ? 2 : 1 }), count: () => calls };
+  };
+  const nativeLength = changingLength();
+  const expectedLength = JSON.stringify({ operation: "preview", model: nativeLength.model });
+  const streamedLength = changingLength();
+  TestValidator.equals("length coercion snapshot", encodeHumanViewerPreview({ operation: "preview", model: streamedLength.model }), expectedLength);
+  TestValidator.equals("length conversion exactly once", streamedLength.count(), nativeLength.count());
+  for (const length of [Infinity, Number.MAX_SAFE_INTEGER + 1]) {
+    const model = new Proxy([], { get: (target, key, receiver) => {
+      if (key === "length") return length;
+      if (key === "0") throw new Error("first element reached");
+      return Reflect.get(target, key, receiver);
+    } });
+    // A native full string may refuse its allocation before reading index 0.
+    // Observe language ToLength through one bounded stream step instead.
+    let message = "";
+    try { encodeHumanViewerPreviewChunks({ operation: "preview", model }).next(); }
+    catch (error) { message = (error as Error).message; }
+    TestValidator.equals("positive infinite/clamped stream length reaches element", message, "first element reached");
+  }
+  const coercionRefusals = [
+    Object.assign(Reflect.construct(Number, [2]), { valueOf: () => 1n }),
+    Object.assign(Reflect.construct(Number, [2]), { [Symbol.toPrimitive]: () => 1n }),
+    lengthProxy(2n), lengthProxy({ valueOf: () => 2n }), lengthProxy(Symbol("length")),
+  ];
+  for (const model of coercionRefusals)
+    for (const encode of [() => JSON.stringify({ operation: "preview", model }),
+      () => encodeHumanViewerPreview({ operation: "preview", model })]) {
+      let refused = false;
+      try { encode(); } catch (error) { refused = error instanceof TypeError; }
+      TestValidator.predicate("native strict numeric coercion refuses", refused);
+    }
   let visited = 0;
   class CountedFloat32 extends Float32Array {
     override *[Symbol.iterator](): ArrayIterator<number> {

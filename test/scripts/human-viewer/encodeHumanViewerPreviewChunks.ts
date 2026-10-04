@@ -61,7 +61,8 @@ export function* encodeHumanViewerPreviewChunks(value: {
       for (const read of readers) {
         let primitive: unknown;
         try { primitive = read.call(entry); } catch { continue; }
-        entry = typeof primitive === "number" ? Number(entry) :
+        // JSON's abstract ToNumber refuses BigInt; Number() would accept it.
+        entry = typeof primitive === "number" ? +(entry as unknown as number) :
           typeof primitive === "string" ? String(entry) : primitive;
         break;
       }
@@ -90,7 +91,10 @@ export function* encodeHumanViewerPreviewChunks(value: {
         yield "]}";
       } else if (Array.isArray(entry)) {
         yield "[";
-        const length = entry.length;
+        // Snapshot LengthOfArrayLike once, including Proxy/boxed coercion.
+        const numericLength = +entry.length;
+        const length = Number.isNaN(numericLength) || numericLength <= 0 ? 0 :
+          Math.min(Math.trunc(numericLength), Number.MAX_SAFE_INTEGER);
         for (let at = 0; at < length; ++at) {
           if (at !== 0) yield ",";
           const item = prepare(entry[at], String(at));
