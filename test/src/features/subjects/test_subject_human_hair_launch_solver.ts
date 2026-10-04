@@ -1,5 +1,6 @@
 import {
   Vector3,
+  adjacentAutoMovieFloat64,
   createAutoMovieMeshRayCaster,
   createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
@@ -7,8 +8,8 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import { humanFaceHairContact } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import { launchHumanFaceHairCurve } from "../../../../packages/human/src/face/anatomy/hair/launchHumanFaceHairCurve";
-import { createHumanFaceHairRootBoundary } from "../../../../packages/human/src/face/anatomy/hair/createHumanFaceHairRootBoundary";
+import { launchHumanFaceHairCurve } from "@automovie/human/face/anatomy/hair/launchHumanFaceHairCurve";
+import { createHumanFaceHairRootBoundary } from "@automovie/human/face/anatomy/hair/createHumanFaceHairRootBoundary";
 import { createSignedOctahedron, createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../internal/predicates";
 
@@ -110,6 +111,42 @@ export const test_subject_human_hair_launch_solver = (): void => {
   const quantizedExit = launchHumanFaceHairCurve({ ...quantized, length: 1, exitDirection: Vector3.create(1, 0, 0) });
   TestValidator.predicate("large-coordinate clearance selects the first actual coordinate beyond target",
     quantizedExit.point.x - quantized.root.x === Math.ceil(quantizedTarget / quantum) * quantum,
+  );
+  const precisionBox = createSignedVoxelUnion([[0, 0, 0]]);
+  const plane = 0.501;
+  for (let at = 1; at < precisionBox.positions.length; at += 3)
+    precisionBox.positions[at] += plane - 1;
+  const precision = prepare(precisionBox, Vector3.create(0.5, plane, 0.5), diagonalRoot);
+  const precisionTarget = precision.contact.clearance - precision.contact.epsilon;
+  const firstCoordinate = plane + precisionTarget;
+  // Independent binary64 plane arrangement: these two metre bounds lie in the
+  // same addition cell and at its first distinct travel, respectively. The
+  // previous representable travel independently proves the second boundary.
+  const sameCellBound = 0.002000000000014266;
+  const firstDistinctBound = 0.002000000000014268;
+  TestValidator.predicate("the normal ray's target lies above its rounded first coordinate",
+    firstCoordinate - plane < precisionTarget &&
+    plane + sameCellBound === firstCoordinate &&
+    plane + adjacentAutoMovieFloat64(firstDistinctBound, false) === firstCoordinate &&
+    plane + firstDistinctBound > firstCoordinate,
+  );
+  for (const [length, reason] of [
+    [sameCellBound, "leaves no distinct clearance point"],
+    [firstDistinctBound, "blocks its first distinct clearance point"],
+  ] as const)
+    TestValidator.predicate("the strict plane interval cannot spend its boundary as a clearance station",
+      throwsError(() => launchHumanFaceHairCurve({
+        ...precision, length, exitDirection: Vector3.create(0, 1, 0),
+        budget: { remaining: 1_000_000 },
+      }), reason),
+    );
+  const precisionSuccess = launchHumanFaceHairCurve({
+    ...precision, exitDirection: Vector3.create(0, 1, 0),
+    budget: { remaining: 1_000_000 },
+  });
+  TestValidator.predicate("the adjacent supported interval reaches the same plane clearance",
+    precisionSuccess.point.y - plane >= precisionTarget &&
+    precisionSuccess.distance === firstDistinctBound,
   );
   TestValidator.predicate("finite travel overflow remains the actual signed-query refusal",
     throwsError(() => launchHumanFaceHairCurve({ ...planar, length: Number.MAX_VALUE, exitDirection: Vector3.create(0, 1, 0) }), "arithmetic must remain finite"),

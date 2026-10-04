@@ -18,16 +18,17 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
 const TIGHTEST_RADIUS = 0.006;
 
 /**
- * Hold the direction a hair is asked to take to the tightest turn it may make
- * in one step. A wanted direction within the limit is returned as it is. A
+ * Hold a requested direction to the numerical construction turn per step. A wanted direction within the limit is returned as it is. A
  * sharper one is rotated from the previous direction toward the wanted one by
  * exactly the limit, in the plane the two span, so the path bends as far as it
  * may and no farther; a wanted direction exactly opposite the previous one
  * spans no plane and the hair keeps going straight.
  *
  * Directions are unit vectors and `step` is the integration step in metres.
- * A field that asks for more turn than the limit is asking for a kink, which
- * has no ribbon frame and no follicle. Inputs are unchanged.
+ * This regularizer avoids abrupt requested changes and antiparallel ribbon
+ * transport; it is not a maximum biological or clinical curvature. Contact
+ * projection and clipped chords may change the realised angular metric. Inputs
+ * are unchanged.
  *
  * @evidence contracts/common.md#principled-implementation The angle between two unit vectors is acos of their clamped dot product, and rotating the previous direction by the limit toward the wanted one is cos(limit) * before + sin(limit) * unit(wanted - (wanted . before) before), the unit vector at that angle in their common plane. The clamp keeps rounding from leaving acos's domain, and the opposite-direction case, whose plane is undefined, is answered by going straight.
  * @evidence contracts/common.md#clear-and-simple-design One pure function of the previous direction, the wanted one and the step, apart from the integrator that owns the walk.

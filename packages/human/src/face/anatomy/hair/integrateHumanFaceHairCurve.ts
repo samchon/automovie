@@ -1,30 +1,42 @@
 import {
   Vector3,
+  type createAutoMovieMeshRayCaster,
   type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
-import { createHumanFaceHairGatherStage } from "./createHumanFaceHairGatherStage";
+import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import type { IAutoMovieHumanFaceHairRootedTransition } from "./IAutoMovieHumanFaceHairRootedTransition";
+import { createHumanFaceHairCurveStart } from "./createHumanFaceHairCurveStart";
+import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairContact } from "./humanFaceHairContact";
-import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { humanFaceHairLength } from "./humanFaceHairLength";
+import type { launchHumanFaceHairCurve } from "./launchHumanFaceHairCurve";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 
 const requireDirection = humanFaceHairFrame.direction;
 
 /**
- * Integrate one rooted, metric lock against an admitted closed skin surface.
- * The numerical builder supplies a deformed barycentric root and outward normal;
- * regional length and phase remain tied to its neutral root/sequence identity.
- * The returned polyline is the geometry later meshed, without a spline refit.
- * It owns every point and includes emergence distance in the authored length.
- * The first step out of the root is not the surface normal but the exit angle
- * that place on the scalp carries, tilted toward the field the hair is combed
- * by (`humanFaceHairEmergence`), so hair lies against the head instead of
- * standing off it.
+ * Integrate one metric lock with an explicit curved surface-boundary stem.
+ * The initial discrete chord retains the root owner's desired tangent. Until
+ * the same full free clearance is reached, certified exterior chords turn toward
+ * actual outward geometry using the retained numerical turn regularizer. A
+ * bounded trial refines its metric step and recomputes that turn before moving.
+ * Every stem station remains in the emitted curve; freeFrom identifies the first
+ * full-clearance one. This surface proxy is not buried follicle anatomy.
+ *
+ * The one loop spends stem and free travel from the same target length/budget.
+ * Field phase, gathering observation and tie crossings use actual cumulative
+ * metric during the stem too. Length or budget exhaustion before free clearance
+ * refuses rather than returning an indefinitely skin-adjacent lock. A hierarchy
+ * placer is called once after stem completion: acceptance preserves that stem,
+ * while rejection continues this same walk/state/budget without relaunching.
+ * Gathered locks cannot substitute hierarchy placement for tie completion.
+ * Regional guide length and post-clump strand metric/contact retain their
+ * existing owners; no numerical document gains a personal curve control.
  *
  * Distance to a closed set is 1-Lipschitz. Free stations use clearance
  * step/2 + requested clearance, so their connecting segments retain the
@@ -57,7 +69,7 @@ const requireDirection = humanFaceHairFrame.direction;
  * near skin still take the original projection and bisection path.
  *
  * @evidence contracts/common.md#principled-implementation The lock is a
- *   fixed-step integral of a direction field: each station moves one sampling
+ *   ray-preserving initial chord and curved certified stem followed by a fixed-step integral of a direction field: each station moves one sampling
  *   step along the combed direction, projected by the contact rule to keep the
  *   skin clearance, so the polyline is the geometry that is meshed and no spline
  *   is refit. The step is bisected back if the projection moves farther than the
@@ -69,10 +81,10 @@ const requireDirection = humanFaceHairFrame.direction;
  *   shorter than the emergence and an exhausted budget refuse and never return a
  *   shorter lock. The premises are a closed, consistently oriented collider and
  *   a field that is finite; the root fan and hair-to-hair contact are not
- *   covered, as the comment says.
+ *   covered, as the comment says. A stem ends only at the same full free clearance, with intersection-free exterior intervals owned by createHumanFaceHairExteriorInterval.
  * @evidence contracts/common.md#clear-and-simple-design The function keeps the
  *   walk, the contact and the length. The gathering state lives in
- *   createHumanFaceHairGatherStage, the turn limit in limitHumanFaceHairTurn,
+ *   createHumanFaceHairGatherStage through createHumanFaceHairCurveStart, the turn limit in limitHumanFaceHairTurn,
  *   the contact rule in humanFaceHairContact and the field in
  *   evaluateHumanFaceHairDirection, so each formula has one owner and the walk
  *   reads as a sequence of named steps.
@@ -99,9 +111,7 @@ const requireDirection = humanFaceHairFrame.direction;
  *   the regional length, directions are unit vectors and the arc length in error
  *   messages is converted to millimetres for reading only.
  * @evidence contracts/modeling.md#shared-boundaries The lock meets the skin
- *   through the contact rule's clearance, half a step plus the requested
- *   clearance, from one definition that the projector for interpolated strands
- *   also uses, and it never enters the collider. The join can open only where
+ *   through an explicitly retained surface-boundary stem whose chords are exterior-certified on the same collider. freeFrom begins the unchanged half-step plus requested-clearance free-path rule, also consumed by the hierarchy placer. The join can open only where
  *   the collider is not embedded, which the builder's closure and the
  *   deformation own, and it then refuses.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function
@@ -124,69 +134,75 @@ export function integrateHumanFaceHairCurve(props: {
   normal: IAutoMovieVector3;
   sequence: number;
   query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+
+  /** Ray index over the same current closed collider as query. */
+  raycaster: Pick<
+    ReturnType<typeof createAutoMovieMeshRayCaster>,
+    "nearestHit"
+  >;
+
+  /** Original sampler support and triangle proximity on that collider. */
+  rootBoundary: Parameters<typeof launchHumanFaceHairCurve>[0]["rootBoundary"];
+
+  /** Caller-owned remaining lock iterations, shared by launch and later walking. */
+  budget: { remaining: number };
+
+  /** Derived post-interpolation metric/contact, when different from regional length. */
+  metric?: { length: number; contact: ReturnType<typeof humanFaceHairContact> };
+
+  /** Admit a hierarchy remainder once the canonical stem reaches free clearance. */
+  place?: (
+    stem: IAutoMovieHumanFaceHairRootedTransition,
+  ) => IAutoMovieHumanFaceHairCurve | undefined;
+
   gatherAnchor?: IAutoMovieVector3;
   gatherDirection?: (point: IAutoMovieVector3) => IAutoMovieVector3;
-}) {
-  const { layer, query } = props;
-  const stage = createHumanFaceHairGatherStage({
-    layer,
-    reference: props.reference,
-    root: props.root,
-    sequence: props.sequence,
-    anchor: props.gatherAnchor,
-    gatherDirection: props.gatherDirection,
-  });
-  const length = humanFaceHairLength(
-    layer,
-    props.origin,
-    props.reference,
-    props.sequence,
-  );
-  const h = layer.samplingStep;
+}): IAutoMovieHumanFaceHairCurve {
+  const { layer } = props;
+  const metricLength =
+    props.metric?.length ??
+    humanFaceHairLength(layer, props.origin, props.reference, props.sequence);
+  const metricContact =
+    props.metric?.contact ??
+    humanFaceHairContact({
+      layer,
+      root: props.root,
+      length: metricLength,
+      query: props.query,
+    });
   const {
-    clearance,
-    epsilon,
-    sample,
-    outward,
-    project: contact,
-  } = humanFaceHairContact({ layer, root: props.root, length, query });
-  // A follicle is not a pin: the hair leaves the scalp at its own exit angle,
-  // tilted toward the field it is combed by (`humanFaceHairEmergence`).
-  const launch = contact(
-    Vector3.add(
-      props.root,
-      Vector3.scale(
-        requireDirection(
-          humanFaceHairEmergence({
-            hairline: layer.hairline,
-            chart: Vector3.subtract(props.reference, props.origin),
-            normal: props.normal,
-            field: stage.direction(
-              props.root,
-              requireDirection(props.normal),
-              0,
-            ),
-          }),
-        ),
-        clearance,
-      ),
-    ),
-  );
-  const points = [{ ...props.root }, launch];
-  let cumulative = Vector3.length(Vector3.subtract(launch, props.root));
-  if (!Number.isFinite(length) || cumulative >= length)
-    throw new Error("Hair length cannot accommodate its emergence clearance.");
-  let p = launch;
-  for (
-    let iteration = 0;
-    cumulative < length && iteration < 1_000_000;
-    iteration++
-  ) {
+    stage,
+    length,
+    contact: rule,
+    budget,
+    direction: initialDirection,
+  } = createHumanFaceHairCurveStart(props, {
+    length: metricLength,
+    contact: metricContact,
+  });
+  const h = layer.samplingStep;
+  const { clearance, epsilon, sample, outward, project: contact } = rule;
+  const points = [{ ...props.root }];
+  let cumulative = 0;
+  let freeFrom: number | undefined;
+  let p = points[0];
+  while (cumulative < length && budget.remaining > 0) {
+    budget.remaining--;
     const hit = sample(p);
     stage.observe(p, cumulative);
-    const normal = outward(p, hit);
-    let direction = stage.direction(p, normal, cumulative);
+    const normal =
+      points.length === 1 ? requireDirection(props.normal) : outward(p, hit);
+    const rooted = freeFrom === undefined;
+    const first = points.length === 1;
+    // The root tangent applies to the initial discrete chord. Until full free
+    // clearance, the geometric outward direction grows the boundary stem; the
+    // authored field and gathering clock retain their real cumulative distance.
+    let direction = first
+      ? initialDirection
+      : stage.direction(p, normal, cumulative);
+    if (rooted && !first) direction = normal;
     if (
+      !rooted &&
       hit.signedDistance <= clearance + h &&
       Vector3.dot(direction, normal) < 0
     )
@@ -205,7 +221,7 @@ export function integrateHumanFaceHairCurve(props: {
           ),
         ),
         direction,
-        step: h,
+        step: rooted ? Math.min(h, length - cumulative) : h,
       });
     // One step along a direction: the contact's own projection of a full
     // step, bisected back when that projection lands farther than the step,
@@ -241,7 +257,52 @@ export function integrateHumanFaceHairCurve(props: {
       }
       return { point, distance };
     };
-    const taken = advance(direction);
+    let interval:
+      | ReturnType<typeof createHumanFaceHairExteriorInterval>
+      | undefined;
+    const taken = rooted
+      ? (() => {
+          let step = Math.min(h, length - cumulative);
+          const before = first
+            ? initialDirection
+            : requireDirection(Vector3.subtract(p, points[points.length - 2]));
+          while (true) {
+            const along = first
+              ? initialDirection
+              : limitHumanFaceHairTurn({ before, direction: normal, step });
+            interval = createHumanFaceHairExteriorInterval({
+              root: p,
+              direction: along,
+              maximum: step,
+              originOnSkin: first,
+              contact: rule,
+              raycaster: props.raycaster,
+              rootBoundary: props.rootBoundary,
+              budget,
+            });
+            const travel = interval.bounded
+              ? interval.low + (interval.bound - interval.low) / 2
+              : interval.bound;
+            // A clipped trial changes the admissible metric step, so recompute its
+            // turn on that shorter step before admitting another geometric trial.
+            // Step decreases monotonically; the same query budget bounds refinement.
+            if (interval.bounded && !first) {
+              step = travel;
+              continue;
+            }
+            const point = interval.pointAt(travel);
+            interval.spend();
+            if (!(sample(point).signedDistance > epsilon))
+              throw new Error(
+                "A rooted hair chord has no admitted exterior endpoint.",
+              );
+            return {
+              point,
+              distance: Vector3.length(Vector3.subtract(point, p)),
+            };
+          }
+        })()
+      : advance(direction);
     let q = taken.point;
     const distance = taken.distance;
     if (!(distance > epsilon) || !Number.isFinite(distance))
@@ -285,9 +346,35 @@ export function integrateHumanFaceHairCurve(props: {
       );
       cumulative = length;
     } else cumulative += distance;
+    if (interval !== undefined) {
+      interval.spend();
+      if (sample(q).signedDistance >= clearance - epsilon)
+        freeFrom = points.length;
+    }
     points.push(q);
     p = q;
+    if (
+      interval !== undefined &&
+      freeFrom !== undefined &&
+      props.place !== undefined
+    ) {
+      const placed = props.place({
+        points: points.map((point) => ({ ...point })),
+        freeFrom,
+        travelled: cumulative,
+        targetLength: length,
+        clearance: clearance - epsilon,
+        normal: { ...props.normal },
+      });
+      if (placed !== undefined) return placed;
+    }
   }
+  if (freeFrom === undefined)
+    throw new Error(
+      budget.remaining === 0
+        ? "Numerical hair exhausted its rooted transition budget before reaching free clearance."
+        : "Hair length exhausted before its rooted transition reached free clearance.",
+    );
   if (cumulative !== length)
     throw new Error("Numerical hair exhausted its metric integration budget.");
   stage.assertTied(p);
@@ -296,5 +383,6 @@ export function integrateHumanFaceHairCurve(props: {
     length,
     clearance: clearance - epsilon,
     normal: { ...props.normal },
+    freeFrom,
   };
 }

@@ -15,6 +15,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * 2. Empty/null/omitted hair stays bald; unknown domains and old keys refuse.
  * 3. Later mutation of the input basis cannot change its compiled correspondence.
  * 4. Renaming a document leaves every generated part and material unchanged.
+ * 5. Two identical layers on one surface share the current collider snapshot
+ *    while preserving independent generated part identity and equal geometry.
  */
 export const test_subject_human_numerical_hair_builder = (): void => {
   const { basis, document } = numericalHairBasisFixture();
@@ -44,6 +46,26 @@ export const test_subject_human_numerical_hair_builder = (): void => {
     model.materials,
   );
   TestValidator.equals("generated hair part", model.parts.length, 2);
+  const layered = build({
+    ...document,
+    hair: {
+      layers: [
+        document.hair!.layers[0],
+        { ...document.hair!.layers[0], id: "second-layer" },
+      ],
+    },
+  });
+  TestValidator.equals(
+    "shared collider retains both layer populations",
+    layered.parts.length,
+    3,
+  );
+  TestValidator.equals(
+    "same snapshot gives the same generated layer geometry",
+    layered.parts[2].geometry,
+    layered.parts[1].geometry,
+  );
+
   TestValidator.equals("document ownership", document, before);
   const skin = model.parts[0].geometry;
   if (skin.type !== "mesh") throw new Error("Expected resident skin mesh.");

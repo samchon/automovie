@@ -2,7 +2,7 @@ import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import { closeHumanFaceHairContact } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import { createHumanFaceHairRootBoundary } from "../../../../packages/human/src/face/anatomy/hair/createHumanFaceHairRootBoundary";
+import { createHumanFaceHairRootBoundary } from "@automovie/human/face/anatomy/hair/createHumanFaceHairRootBoundary";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**

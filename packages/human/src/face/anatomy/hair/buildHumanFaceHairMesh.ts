@@ -1,29 +1,43 @@
 import {
   Vector3,
+  type createAutoMovieMeshSeparationQuery,
   type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import { fitHumanFaceHairRibbonRows } from "./fitHumanFaceHairRibbonRows";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
-import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
 import { selectHumanFaceHairStations } from "./selectHumanFaceHairStations";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 
 /**
- * Mesh integrated metric curves with transported transverse ribbon frames.
- * The numerical hair builder passes the exact generated stations; this owner
- * never resamples or fits a second curve. It meshes the subset of them that
- * carries the curve (`selectHumanFaceHairStations`): a station within a tenth
- * of the ribbon's half width, and a quarter of the requested clearance, of the
- * straight run between its kept neighbours gets no row, so a straight lock is
- * one segment and a curl keeps the stations that bend it. A root vertex opens
- * into a triangular fan, followed by paired rows. UV v is measured cumulative
- * arc length divided by total measured length over every integrated station,
- * and taper uses that same coordinate.
+ * Mesh the actual stem and free stations with transported ribbon frames.
+ * All rooted transition stations through freeFrom are retained. Only the free
+ * remainder is simplified by the existing width/clearance chord tolerance.
+ * Root tangent and finite stem curvature therefore survive as actual rows.
+ * UV v and taper use cumulative metric over every original station.
+ *
+ * Width is the density owner's coverage proxy, not an authored shaft diameter.
+ * The old zero-width root fan is represented explicitly by positive stem rows:
+ * a stem row's half width is capped by its own positive signed skin gap. The
+ * 1-Lipschitz distance ball keeps that whole transverse row nonpenetrating.
+ * Free rows retain the existing requested-clearance corner fit. This is an
+ * explicit surface-boundary profile, not a buried follicle model or a reduction
+ * of the requested free-path clearance. Zero-width stem rows refuse.
+ *
+ * Preliminary corner fits do not qualify complete ribbon interiors. The shared
+ * fitHumanFaceHairRibbonRows owner subsequently verifies whole rows and swept
+ * convex cells against source and Float32 hosts under the remaining root budget.
+ * Root contact uses canonical original-support registration with bounded caps;
+ * non-root stem cells remain strictly separated and free cells keep requested
+ * clearance. Hair-to-hair and assembled neighbor observation remain the builder's
+ * responsibility;
+ * numerical input metadata is required and legacy omission refuses by name.
  *
  * The first nonparallel tangent fixes the binormal of the emergence/combing
  * plane. Starting from skin normal cross root tangent would be singular for
@@ -46,10 +60,9 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * since the nearest surface point is that far away; such a half width is taken
  * without a query. A wider one is measured, and where it would enter, the half
  * width is solved back by a safeguarded Newton step on the corner's own signed
- * distance, falling back on that provable bound. The bound is positive for
- * every station the integrator or the contact placed, which stand at least
- * half a sampling step beyond the requested clearance; a station that does not
- * refuses rather than meshing a pinched or inside-out ribbon.
+ * distance, falling back on that provable bound. This requested-gap fit applies
+ * to free rows. Earlier stem rows use their own positive signed-gap ball rather
+ * than a half-step/full-clearance premise; a nonpositive row width refuses.
  * Both sides take the tighter of the two half widths, so a ribbon stays
  * centred on the fibre it stands for instead of sliding off it. A ribbon
  * therefore narrows where the scalp is close and opens to its full covering
@@ -64,6 +77,8 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * kept station and every emitted triangle stays the same.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
+ * Original pairs/topology/centres remain; actual widths may decrease under whole
+ * geometry constraints and are reported separately from nominal coverage.
  *
  * @evidence contracts/common.md#principled-implementation Each curve becomes a
  *   ribbon centred on its own polyline: the transverse frame starts from the
@@ -75,7 +90,7 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  *   corner would enter the skin it is solved back by a safeguarded Newton step
  *   on the corner's own signed distance, falling back on the provable bound free
  *   distance minus clearance, and both sides take the tighter width so the
- *   ribbon stays centred. Skipping a query when the 1-Lipschitz bound already
+ *   ribbon stays centred. Stem rows retain a radius no larger than their measured skin gap, while free rows retain the existing requested gap. Skipping a query when the 1-Lipschitz bound already
  *   certifies the full width changes no vertex. Ribbon-to-ribbon contact and
  *   self-intersection are not established, as the comment says.
  * @evidence contracts/common.md#clear-and-simple-design One owner of the
@@ -96,25 +111,12 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * @evidenceExclude contracts/modeling.md#parameter-channels The function
  *   defines no channel and reads the hairstyle document's fields without varying
  *   a form; the document type owns their meaning.
- * @evidence contracts/modeling.md#emitted-geometry Each curve emits a root fan
- *   and one row of two vertices per kept station, so the population is ribbon
- *   count times the stations the curve needs to stay within a tenth of the
- *   ribbon's half width and a quarter of the clearance: a straight lock is one
- *   segment and a curl keeps its bends. Measured on the published faces with the
- *   face builder, the long gathered head produces 127,188 triangles and the
- *   tightly curled head 263,086. A card or a coarser fixed step would not keep
- *   the integrated stations exact, whereas selecting stations by tolerance does.
+ * @evidence contracts/modeling.md#emitted-geometry A curve with k retained stations emits 2k-1 vertices and 2k-3 triangles. All stem stations through freeFrom are retained; only the free remainder follows the existing tolerance. Source rows preserve the initial chord and finite stem curvature without resampling.
  * @evidence contracts/modeling.md#spatial-conventions Curve stations and query
  *   are metres in the head frame; tangents and frames are unit vectors; UV u is
  *   the ribbon side and v the cumulative arc length over the measured total,
  *   which the taper shares. No portrait millimetre conversion is applied.
- * @evidence contracts/modeling.md#shared-boundaries A ribbon meets the skin
- *   through the same signed-distance query and requested clearance the fibre
- *   path was integrated with, and its corners are fitted outside the skin at
- *   every kept station, so the ribbon does not enter the scalp. The ribbon
- *   narrows where the scalp is close and opens as it leaves. Where a station is
- *   not at least the clearance and half a step from the surface the function
- *   refuses, and nothing here keeps two ribbons apart.
+ * @evidence contracts/modeling.md#shared-boundaries The same current skin query defines each row's fit. Stem half widths are bounded by their own positive signed gap and free corners retain the requested gap. The root vertex remains the surface attachment. Those preliminary row/corner facts only bound the initial profile. fitHumanFaceHairRibbonRows then certifies the complete source and actual Float32 rows/convex cells under the remaining root budget, with bounded canonical root-support contact and strict separation from every other host face. Nominal density coverage stays fixed while actual fitted width may decrease. Hair-to-hair nonintersection remains unproved and the assembled builder owns observation.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
  *   no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
@@ -125,13 +127,36 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  *   document already names and admits.
  */
 export function buildHumanFaceHairMesh(
-  curves: ReturnType<typeof integrateHumanFaceHairCurve>[],
+  curves: IAutoMovieHumanFaceHairCurve[],
   layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance">,
   props: {
     widths: readonly number[];
     query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+    separation: {
+      source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
+      represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
+    };
+    budgets: readonly { remaining: number }[];
+    attachments: readonly {
+      triangle: number;
+      weights: readonly number[];
+      supports: readonly number[];
+    }[];
   },
 ): IAutoMovieMesh {
+  if (
+    props.separation === undefined ||
+    props.separation === null ||
+    typeof props.separation.source !== "function" ||
+    typeof props.separation.represented !== "function" ||
+    !Array.isArray(props.budgets) ||
+    !Array.isArray(props.attachments) ||
+    props.budgets.length !== curves.length ||
+    props.attachments.length !== curves.length
+  )
+    throw new Error(
+      "Numerical hair mesh requires same-source separation readers, remaining budgets and canonical attachments for every curve.",
+    );
   if (props.widths.length !== curves.length)
     throw new Error("Every numerical hair curve needs its own ribbon width.");
   const positions: number[] = [],
@@ -186,6 +211,14 @@ export function buildHumanFaceHairMesh(
       throw new Error("A numerical hair ribbon needs a positive width.");
     const offset = positions.length / 3;
     const points = curve.points;
+    if (
+      !Number.isInteger(curve.freeFrom) ||
+      curve.freeFrom < 1 ||
+      curve.freeFrom >= points.length
+    )
+      throw new Error(
+        "Hair curve requires valid freeFrom rooted boundary metadata.",
+      );
     const tangents = points.map((_, at) =>
       requireDirection(
         Vector3.subtract(
@@ -210,11 +243,19 @@ export function buildHumanFaceHairMesh(
     // A ribbon needs only the stations that carry its bends: a dropped one lies
     // within a tenth of the ribbon's half width there, and within a quarter of
     // the requested clearance, of the straight run that replaces it.
-    const kept = selectHumanFaceHairStations({
-      points,
-      tolerance: (_, to) =>
-        Math.min(0.1 * radiusAt(distances[to] / total), 0.25 * layer.clearance),
-    });
+    // Keep the canonical launch as the first free row. Simplification only
+    // starts there, so the emitted fan cannot replace the emergence chord.
+    const kept = [
+      ...Array.from({ length: curve.freeFrom }, (_, at) => at),
+      ...selectHumanFaceHairStations({
+        points: points.slice(curve.freeFrom),
+        tolerance: (_, to) =>
+          Math.min(
+            0.1 * radiusAt(distances[to + curve.freeFrom] / total),
+            0.25 * layer.clearance,
+          ),
+      }).map((at) => at + curve.freeFrom),
+    ];
     const reference =
       tangents.find(
         (tangent) =>
@@ -234,8 +275,16 @@ export function buildHumanFaceHairMesh(
       0,
     );
     if (facing < 0) frame = Vector3.scale(frame, -1);
-    positions.push(points[0].x, points[0].y, points[0].z);
-    uvs.push(0.5, 0);
+    const rows: Parameters<typeof fitHumanFaceHairRibbonRows>[0][number][] = [
+      {
+        point: points[0],
+        across: frame,
+        radius: 0,
+        nominal: radiusAt(0),
+        v: 0,
+        region: "root",
+      },
+    ];
     for (let order = 1; order < kept.length; order++) {
       const at = kept[order];
       const before = tangents[kept[order - 1]],
@@ -263,6 +312,7 @@ export function buildHumanFaceHairMesh(
       const radius = radiusAt(t);
       let fitted = radius;
       if (
+        at < curve.freeFrom ||
         sampled === undefined ||
         !humanFaceHairFreeDistanceBound({
           sampled: sampled.point,
@@ -278,19 +328,45 @@ export function buildHumanFaceHairMesh(
           points[at].z,
         ]).signedDistance;
         sampled = { point: points[at], free };
-        fitted = Math.min(
-          ...[-1, 1].map((side) =>
-            fit(points[at], Vector3.scale(frame, side), radius, free),
-          ),
-        );
+        fitted =
+          at < curve.freeFrom
+            ? Math.min(radius, free)
+            : Math.min(
+                ...[-1, 1].map((side) =>
+                  fit(points[at], Vector3.scale(frame, side), radius, free),
+                ),
+              );
       }
-      for (const side of [-1, 1]) {
-        const point = Vector3.add(
-          points[at],
-          Vector3.scale(frame, side * fitted),
+      if (!(fitted > 0))
+        throw new Error(
+          "A rooted hair ribbon needs a positive exterior row width.",
         );
-        positions.push(point.x, point.y, point.z);
-        uvs.push((side + 1) / 2, t);
+      rows.push({
+        point: points[at],
+        across: frame,
+        radius: fitted,
+        nominal: radius,
+        v: t,
+        region: at < curve.freeFrom ? "stem" : "free",
+      });
+    }
+    const fittedRows = fitHumanFaceHairRibbonRows(rows, {
+      clearance: layer.clearance,
+      ...props.separation,
+      budget: props.budgets[ordinal],
+      attachment: props.attachments[ordinal],
+    });
+    positions.push(points[0].x, points[0].y, points[0].z);
+    uvs.push(0.5, 0);
+    for (let order = 1; order < fittedRows.length; order++) {
+      const rowData = fittedRows[order];
+      for (const side of [-1, 1]) {
+        const p = Vector3.add(
+          rowData.point,
+          Vector3.scale(rowData.across, side * rowData.radius),
+        );
+        positions.push(p.x, p.y, p.z);
+        uvs.push((side + 1) / 2, rowData.v);
       }
       const row = offset + 2 * order - 1;
       if (order === 1) indices.push(offset, row, row + 1);

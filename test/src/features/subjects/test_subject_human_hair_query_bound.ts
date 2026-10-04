@@ -2,6 +2,7 @@ import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import { buildHumanFaceHairMesh } from "@automovie/human/face/anatomy/hair/buildHumanFaceHairMesh";
 import { TestValidator } from "@nestia/e2e";
 
+import { createNumericalHairMeshContext } from "../internal/createNumericalHairMeshContext";
 import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose } from "../internal/predicates";
 
@@ -13,12 +14,12 @@ import { nclose } from "../internal/predicates";
  *    need only the first centre query; all original rows and triangles remain.
  * 2. Three stations beside the surface exhaust that bound and each centre is
  *    queried, retaining the same source-surface clearance rule.
- * 3. Stations on one straight run collapse to the fan and one row at its end.
+ * 3. A straight run preserves its launch row and endpoint, deriving five
+ *    vertices and three triangles from those three retained stations.
  */
 export const test_subject_human_hair_query_bound = (): void => {
-  const skin = createAutoMovieSignedMeshQuery(
-    createSignedVoxelUnion([[0, 0, 0]]),
-  );
+  const host = createSignedVoxelUnion([[0, 0, 0]]);
+  const skin = createAutoMovieSignedMeshQuery(host);
   const layer = { taper: { start: 0.7, tipWidth: 1 }, clearance: 0.001 };
   // Each station steps aside by more than the mesher's chord tolerance, so
   // every one is a bend and keeps its row.
@@ -45,13 +46,22 @@ export const test_subject_human_hair_query_bound = (): void => {
       [
         {
           points,
+          freeFrom: 1,
           length: xs[xs.length - 1] - xs[0],
           clearance: layer.clearance,
           normal: Vector3.create(1, 0, 0),
         },
       ],
       layer,
-      { widths: [0.002], query },
+      {
+        widths: [0.002],
+        query,
+        ...createNumericalHairMeshContext(
+          host,
+          [{ triangle: 2, weights: [0.5, 0, 0.5] }],
+          [{ remaining: 1_000_000 }],
+        ),
+      },
     );
     return { mesh, centreQueries };
   };
@@ -105,13 +115,13 @@ export const test_subject_human_hair_query_bound = (): void => {
   );
   const straight = build([1, 1.02, 1.021, 1.022], 0);
   TestValidator.equals(
-    "a straight run keeps only its fan and end row",
+    "a straight run keeps root, launch and end rows",
     straight.mesh.positions.length / 3,
-    3,
+    5,
   );
   TestValidator.equals(
-    "and one triangle",
+    "one fan and one strip span remain",
     straight.mesh.indices!.length / 3,
-    1,
+    3,
   );
 };

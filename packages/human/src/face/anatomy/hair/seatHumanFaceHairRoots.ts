@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, interpolateAutoMovieTrianglePoint } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -40,13 +40,13 @@ export function seatHumanFaceHairRoots<
     const points = indices
       .slice(root.triangle * 3, root.triangle * 3 + 3)
       .map((id) =>
-        Vector3.create(current[id * 3], current[id * 3 + 1], current[id * 3 + 2]),
+        Vector3.create(
+          current[id * 3],
+          current[id * 3 + 1],
+          current[id * 3 + 2],
+        ),
       );
-    const seated = points.reduce(
-      (sum, point, at) =>
-        Vector3.add(sum, Vector3.scale(point, root.weights[at])),
-      Vector3.create(),
-    );
+    const seated = interpolateAutoMovieTrianglePoint(points, root.weights);
     const normal = Vector3.normalize(
       Vector3.cross(
         Vector3.subtract(points[1], points[0]),

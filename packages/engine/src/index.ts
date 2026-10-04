@@ -1,6 +1,8 @@
 /** Engine entry point; geometry and film retain their domain export owners. */
 export * from "./film";
 export * from "./geometry";
+export * from "./math/adjacentAutoMovieFloat64";
+export * from "./math/interpolateAutoMovieTrianglePoint";
 export * from "./AutoMovieSubject";
 export * from "./AutoMovieSubjectGroup";
 export * from "./IAutoMovieCurrentSubjectReviewObservation";

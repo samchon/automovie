@@ -1,13 +1,15 @@
-import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import {
   buildHumanFaceHairMesh,
   integrateHumanFaceHairCurve,
+  seatHumanFaceHairRoots,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
+import { createNumericalHairCollider } from "../internal/createNumericalHairCollider";
 import { createNumericalHairFixture } from "../internal/createNumericalHairFixture";
 import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
-import { nclose } from "../internal/predicates";
+import { nclose, vclose } from "../internal/predicates";
 
 /**
  * A concave solid supplies a real obstacle independently of the comb field.
@@ -24,13 +26,26 @@ export const test_subject_human_numerical_hair_contact = (): void => {
   const layer = createNumericalHairFixture().layers[0];
   layer.flow = [-1, 0.25, 0];
   layer.lift.strength = 0;
-  const query = createAutoMovieSignedMeshQuery(
-    createSignedVoxelUnion([
-      [0, 0, 0],
-      [1, 0, 0],
-      [0, 1, 0],
-    ]),
+  const mesh = createSignedVoxelUnion([
+    [0, 0, 0],
+    [1, 0, 0],
+    [0, 1, 0],
+  ]);
+  // The first upper triangle of voxel (1,0,0) has corners (1,1,0),
+  // (1,1,1), (2,1,1). These independent weights seat (1.03,1,0.5).
+  const metadata = { triangle: 12, weights: [0.5, 0.47, 0.03] };
+  const [seat] = seatHumanFaceHairRoots({
+    roots: [metadata],
+    indices: mesh.indices!,
+    current: mesh.positions,
+  });
+  TestValidator.predicate(
+    "obstacle root occupies its declared source triangle",
+    vclose(seat.seated, Vector3.create(1.03, 1, 0.5), 1e-12) &&
+      vclose(seat.normal, Vector3.create(0, 1, 0), 1e-12),
   );
+  const collider = createNumericalHairCollider(mesh, metadata);
+  const { query } = collider;
   const curve = integrateHumanFaceHairCurve({
     layer,
     origin: Vector3.create(),
@@ -38,7 +53,7 @@ export const test_subject_human_numerical_hair_contact = (): void => {
     root: Vector3.create(1.03, 1, 0.5),
     normal: Vector3.create(0, 1, 0),
     sequence: 1,
-    query,
+    ...collider,
   });
   const lengths = curve.points
     .slice(1)
@@ -60,16 +75,19 @@ export const test_subject_human_numerical_hair_contact = (): void => {
   );
   TestValidator.predicate(
     "bounded free steps",
-    lengths.slice(1).every((value) => value <= layer.samplingStep + 1e-12),
+    lengths
+      .slice(curve.freeFrom)
+      .every((value) => value <= layer.samplingStep + 1e-12),
   );
-  const mesh = buildHumanFaceHairMesh([curve], layer, {
+  const ribbon = buildHumanFaceHairMesh([curve], layer, {
     widths: [0.01],
+    ...collider.meshContext,
     query,
   });
-  for (let at = 3; at < mesh.positions.length; at += 3)
+  for (let at = 3; at < ribbon.positions.length; at += 3)
     TestValidator.predicate(
       "free strip retains requested clearance",
-      query(mesh.positions.slice(at, at + 3)).signedDistance >=
+      query(ribbon.positions.slice(at, at + 3)).signedDistance >=
         layer.clearance - 1e-12,
     );
 };

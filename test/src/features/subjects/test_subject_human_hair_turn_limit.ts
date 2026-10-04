@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
- * A hair turns at most step / 6 mm radians in one step: a wanted direction
+ * A requested construction direction turns at most step / 6 mm radians: a wanted direction
  * within that is kept as it is, a sharper one is rotated by exactly that much
  * toward it, and an exactly opposite one, which spans no plane, goes straight.
  * Scenarios:

@@ -23,7 +23,7 @@ export const triangleIndicesOf = (
   if (indices.length % 3 !== 0)
     throw new Error(`${label} needs triangle indices in threes`);
   if (
-    indices.some(
+    Array.from(indices).some(
       (index) =>
         Number.isSafeInteger(index) === false || index < 0 || index >= vertices,
     )

@@ -1,4 +1,9 @@
-import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import {
+  Vector3,
+  createAutoMovieMeshRayCaster,
+  createAutoMovieMeshSeparationQuery,
+  createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieModelPart,
@@ -10,6 +15,7 @@ import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { closeHumanFaceHairContact } from "./closeHumanFaceHairContact";
 import { createHumanFaceHairGatherField } from "./createHumanFaceHairGatherField";
+import { createHumanFaceHairRootBoundary } from "./createHumanFaceHairRootBoundary";
 import { createHumanFaceHairRoots } from "./createHumanFaceHairRoots";
 import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 import { growHumanFaceHairStrand } from "./growHumanFaceHairStrand";
@@ -80,9 +86,8 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
  * @evidence contracts/modeling.md#emitted-geometry Each layer emits one mesh
  *   whose ribbons are its requested count, at most 1024, and whose stations
  *   follow the curve and not the number of authored features; the assembled
- *   station total is capped at a million and refuses beyond it. Measured on
- *   published faces the long gathered head emits 127,188 triangles and the
- *   curled head 263,086.
+ *   station total is capped at a million and refuses beyond it. The mesher
+ *   retains root and launch and derives ribbon rows from the remaining bends.
  * @evidence contracts/modeling.md#spatial-conventions Basis positions, origins
  *   and current positions are metres in the head frame, roots move from neutral
  *   barycentric seats to current points, the closure cap is built on current
@@ -187,7 +192,15 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
       materials: IAutoMovieMaterial[] = [];
     const queries = new Map<
       string,
-      ReturnType<typeof createAutoMovieSignedMeshQuery>
+      {
+        query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+        raycaster: ReturnType<typeof createAutoMovieMeshRayCaster>;
+        separation: {
+          source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
+          represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
+        };
+        boundary: ReturnType<typeof createHumanFaceHairRootBoundary>;
+      }
     >();
     let stations = 0;
     const spend = (count: number): void => {
@@ -221,18 +234,28 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         indices: source.surface.indices,
         current,
       });
-      let query = queries.get(layer.surface);
-      if (query === undefined) {
+      let collider = queries.get(layer.surface);
+      if (collider === undefined) {
         const closed = source.close(current);
-        query = createAutoMovieSignedMeshQuery({
+        const mesh = {
           positions: closed.positions,
           indices: closed.indices,
           normals: null,
           uvs: null,
           skin: null,
-        });
-        queries.set(layer.surface, query);
+        };
+        collider = {
+          query: createAutoMovieSignedMeshQuery(mesh),
+          raycaster: createAutoMovieMeshRayCaster(mesh),
+          separation: {
+            source: createAutoMovieMeshSeparationQuery(mesh),
+            represented: createAutoMovieMeshSeparationQuery(mesh, "float32"),
+          },
+          boundary: createHumanFaceHairRootBoundary(closed),
+        };
+        queries.set(layer.surface, collider);
       }
+      const { query, raycaster, boundary, separation } = collider;
       const gatherAnchor =
         layer.gather === undefined
           ? undefined
@@ -263,6 +286,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         indices: source.surface.indices,
         current,
       });
+      const budgets = seats.map(() => ({ remaining: 1_000_000 }));
       const integrated = new Map<
         number,
         ReturnType<typeof integrateHumanFaceHairCurve>
@@ -277,6 +301,12 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           normal,
           sequence: root.sequence,
           query,
+          raycaster,
+          budget: budgets[at],
+          rootBoundary: {
+            triangles: boundary.resolve(root),
+            distance: boundary.distance,
+          },
           gatherAnchor: gatherAnchor?.point,
           gatherDirection,
         });
@@ -316,25 +346,36 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         const guide = integrated.get(at);
         if (guide !== undefined) return guide;
         const strand = strands[strandOrdinal.get(at)!];
-        const grown = growHumanFaceHairStrand({
-          strand,
-          contact: humanFaceHairContact({
-            layer,
-            root: strand.points[0],
-            length: strand.length,
-            query,
-          }),
-          integrate: () =>
-            integrateHumanFaceHairCurve({
-              layer,
-              origin: domain.origin,
-              reference: root.point,
-              root: seated,
-              normal,
-              sequence: root.sequence,
-              query,
-              gatherAnchor: gatherAnchor?.point,
-              gatherDirection,
+        const budget = budgets[at];
+        const contact = humanFaceHairContact({
+          layer,
+          root: strand.points[0],
+          length: strand.length,
+          query,
+        });
+        const grown = integrateHumanFaceHairCurve({
+          layer,
+          origin: domain.origin,
+          reference: root.point,
+          root: seated,
+          normal,
+          sequence: root.sequence,
+          query,
+          raycaster,
+          budget,
+          rootBoundary: {
+            triangles: boundary.resolve(root),
+            distance: boundary.distance,
+          },
+          gatherAnchor: gatherAnchor?.point,
+          gatherDirection,
+          metric: { length: strand.length, contact },
+          place: (rooted) =>
+            growHumanFaceHairStrand({
+              strand,
+              contact,
+              rooted,
+              integrate: () => undefined,
             }),
         });
         spend(grown.points.length - strand.points.length);
@@ -383,6 +424,13 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
               area,
             }),
             query,
+            separation,
+            budgets,
+            attachments: seats.map(({ root }) => ({
+              triangle: root.triangle,
+              weights: root.weights,
+              supports: boundary.resolve(root),
+            })),
           }),
         },
       });

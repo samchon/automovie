@@ -2,6 +2,7 @@ import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import { buildHumanFaceHairMesh } from "@automovie/human/face/anatomy/hair/buildHumanFaceHairMesh";
 import { TestValidator } from "@nestia/e2e";
 
+import { createNumericalHairMeshContext } from "../internal/createNumericalHairMeshContext";
 import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose, vclose } from "../internal/predicates";
 
@@ -9,7 +10,8 @@ import { nclose, vclose } from "../internal/predicates";
  * A ribbon emerging normally must obtain its width direction from the actual
  * bend into combing. A world-axis choice at the normal root puts some ribbons
  * edge-on to the skin and makes surface coverage depend on head orientation.
- * The analytic path rises 4 mm from z=0 and bends into +Y at fixed z=4 mm.
+ * The analytic path rises 4 mm above the attached cube face z=1, then bends
+ * into +Y at that height.
  * Its transverse direction is X, independently of the transport calculation.
  *
  * Scenarios:
@@ -22,22 +24,16 @@ import { nclose, vclose } from "../internal/predicates";
  *    bend into +Y and its mirror into -Y alike: a ribbon over the scalp faces
  *    away from it, whichever way the curve happens to turn.
  *
- * The transported frame is the subject here, so the surface stands ten metres
- * away and never narrows a ribbon against itself.
+ * The transported frame is the subject here. A registered cube-root and 4 mm
+ * exterior rows supply real attachment geometry without narrowing 2 mm coverage.
  */
 export const test_subject_human_numerical_hair_frame = (): void => {
   const union = createSignedVoxelUnion([[0, 0, 0]]);
-  const distant = createAutoMovieSignedMeshQuery({
-    ...union,
-    positions: union.positions.map((value, at) =>
-      at % 3 === 0 ? value + 10 : value,
-    ),
-  });
   const original = [
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, 0, 0.004),
-    Vector3.create(0, 0.001, 0.004),
-    Vector3.create(0, 0.002, 0.004),
+    Vector3.create(0.5, 0.5, 1),
+    Vector3.create(0.5, 0.5, 1.004),
+    Vector3.create(0.5, 0.501, 1.004),
+    Vector3.create(0.5, 0.502, 1.004),
   ];
   for (let rotation = 0; rotation < 3; rotation++) {
     const rotate = (p: ReturnType<typeof Vector3.create>) => {
@@ -48,13 +44,33 @@ export const test_subject_human_numerical_hair_frame = (): void => {
         axes[(rotation + 2) % 3],
       );
     };
+    const host = {
+      ...union,
+      positions: Array.from({ length: union.positions.length / 3 }, (_, at) =>
+        rotate(
+          Vector3.create(
+            ...(union.positions.slice(3 * at, 3 * at + 3) as [
+              number,
+              number,
+              number,
+            ]),
+          ),
+        ),
+      ).flatMap((p) => [p.x, p.y, p.z]),
+    };
+    const distant = createAutoMovieSignedMeshQuery(host);
+    const context = createNumericalHairMeshContext(
+      host,
+      [{ triangle: 10, weights: [0.5, 0, 0.5] }],
+      [{ remaining: 1_000_000 }],
+    );
     const points = original.map(rotate);
     const normal = rotate(Vector3.create(0, 0, 1));
     const across = rotate(Vector3.create(1, 0, 0));
     const mesh = buildHumanFaceHairMesh(
-      [{ points, normal, length: 0.006, clearance: 0.003 }],
+      [{ points, freeFrom: 1, normal, length: 0.006, clearance: 0.003 }],
       { clearance: 0, taper: { tipWidth: 1, start: 0 } },
-      { widths: [0.002], query: distant },
+      { widths: [0.002], query: distant, ...context },
     );
     const point = (id: number) =>
       Vector3.create(
@@ -89,12 +105,20 @@ export const test_subject_human_numerical_hair_frame = (): void => {
     }
     for (const mirror of [1, -1]) {
       const bent = original
-        .map((p) => Vector3.create(p.x, mirror * p.y, p.z))
+        .map((p) => Vector3.create(p.x, 0.5 + mirror * (p.y - 0.5), p.z))
         .map(rotate);
       const ribbon = buildHumanFaceHairMesh(
-        [{ points: bent, normal, length: 0.006, clearance: 0.003 }],
+        [
+          {
+            points: bent,
+            freeFrom: 1,
+            normal,
+            length: 0.006,
+            clearance: 0.003,
+          },
+        ],
         { clearance: 0, taper: { tipWidth: 1, start: 0 } },
-        { widths: [0.002], query: distant },
+        { widths: [0.002], query: distant, ...context },
       );
       const at = (id: number) =>
         Vector3.create(
@@ -109,7 +133,13 @@ export const test_subject_human_numerical_hair_frame = (): void => {
         const [p, q, r] = [0, 1, 2].map((k) => at(indices[t + k]!));
         // The rising segment stands edge-on to the scalp; the combed rows lie
         // in the plane 4 mm above it.
-        if ([p, q, r].some((v) => Vector3.dot(v!, normal) < 0.004 - 1e-9))
+        if (
+          [p, q, r].some(
+            (v) =>
+              Vector3.dot(v!, normal) <
+              Vector3.dot(points[0], normal) + 0.004 - 1e-9,
+          )
+        )
           continue;
         TestValidator.predicate(
           "faces away from the scalp",

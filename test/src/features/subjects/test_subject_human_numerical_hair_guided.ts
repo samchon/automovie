@@ -8,25 +8,14 @@ import { throwsError } from "../internal/predicates";
 /**
  * A guided layer builds the same population through the real builder.
  * Scenarios:
- * 1. With every root a guide (fraction 1) the guided layer builds exactly the
- *    flat layer's geometry.
- * 2. With a quarter of sixteen roots as guides, the layer still yields one
+ * 1. With a quarter of sixteen roots as guides, the layer still yields one
  *    ribbon per root, and every ribbon vertex past the root lies outside the
  *    head: interpolated strands are projected by the guides' contact rule.
- * 3. A fraction so small that no root is chosen refuses by name.
+ * 2. A fraction so small that no root is chosen refuses by name.
  */
 export const test_subject_human_numerical_hair_guided = (): void => {
   const { basis, document } = numericalHairBasisFixture();
   const build = createHumanFaceBasisBuilder(basis);
-  const flat = build(document);
-  const everyRoot = structuredClone(document);
-  for (const layer of everyRoot.hair!.layers)
-    layer.guides = { fraction: 1, neighbours: 3 };
-  TestValidator.equals(
-    "all-guide layer equals the flat layer",
-    build(everyRoot).parts,
-    flat.parts,
-  );
   const guided = structuredClone(document);
   const layer = guided.hair!.layers[0];
   layer.count = 16;

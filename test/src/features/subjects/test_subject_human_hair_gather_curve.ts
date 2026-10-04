@@ -1,7 +1,8 @@
-import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import { integrateHumanFaceHairCurve } from "@automovie/human/face/anatomy/hair/integrateHumanFaceHairCurve";
 import { TestValidator } from "@nestia/e2e";
 
+import { createNumericalHairCollider } from "../internal/createNumericalHairCollider";
 import { createNumericalHairFixture } from "../internal/createNumericalHairFixture";
 import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../internal/predicates";
@@ -34,7 +35,10 @@ export const test_subject_human_hair_gather_curve = (): void => {
     root,
     normal: Vector3.create(1, 0, 0),
     sequence: 1,
-    query: createAutoMovieSignedMeshQuery(createSignedVoxelUnion([[0, 0, 0]])),
+    ...createNumericalHairCollider(createSignedVoxelUnion([[0, 0, 0]]), {
+      triangle: 2,
+      weights: [1, 0, 1],
+    }),
     gatherAnchor: anchor,
     gatherDirection: () => Vector3.create(0, 1, 0),
   };

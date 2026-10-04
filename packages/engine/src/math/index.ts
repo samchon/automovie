@@ -23,3 +23,5 @@ export * from "./solveAutoMovieAbsoluteDisplacement";
 export * from "./solveAutoMovieBoundedDisplacement";
 export * from "./solveAutoMovieQuadraticProgram";
 export * from "./srgbHexToLinearColor";
+export * from "./adjacentAutoMovieFloat64";
+export * from "./interpolateAutoMovieTrianglePoint";

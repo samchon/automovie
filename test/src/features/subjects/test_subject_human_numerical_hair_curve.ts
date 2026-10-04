@@ -1,8 +1,9 @@
-import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import { buildHumanFaceHairMesh } from "@automovie/human/face/anatomy/hair/buildHumanFaceHairMesh";
 import { integrateHumanFaceHairCurve } from "@automovie/human/face/anatomy/hair/integrateHumanFaceHairCurve";
 import { TestValidator } from "@nestia/e2e";
 
+import { createNumericalHairCollider } from "../internal/createNumericalHairCollider";
 import { createNumericalHairFixture } from "../internal/createNumericalHairFixture";
 import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
 import { nclose, throwsError, vclose } from "../internal/predicates";
@@ -11,8 +12,8 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * Rendered ribbon stations preserve the integrator's actual metric curve.
  * Scenarios:
  * 1. A lock normal to a unit cube stays straight, rooted and exactly 50 mm long;
- *    its ribbon is a fan and one row at the tip, whose UV v measures that length.
- * 2. A field asking for a tighter turn than the tightest natural curl is held
+ *    its ribbon keeps the launch row and tip row, whose UV v measures length.
+ * 2. A field asking for a tighter turn than the retained construction convention is held
  *    to it, and short emergence and a singular length chart refuse instead of
  *    shortening.
  * 3. Empty curves remain empty; antiparallel transport, a subnormal width, a
@@ -30,7 +31,10 @@ export const test_subject_human_numerical_hair_curve = (): void => {
     root: Vector3.create(1, 0.5, 0.5),
     normal: Vector3.create(1, 0, 0),
     sequence: 1,
-    query: createAutoMovieSignedMeshQuery(createSignedVoxelUnion([[0, 0, 0]])),
+    ...createNumericalHairCollider(createSignedVoxelUnion([[0, 0, 0]]), {
+      triangle: 2,
+      weights: [1, 0, 1],
+    }),
   };
   const curve = integrateHumanFaceHairCurve(props);
   const measured = curve.points
@@ -59,18 +63,22 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   const mesh = buildHumanFaceHairMesh([curve], layer, {
     widths: [0.002],
     query: props.query,
+    ...props.meshContext,
   });
-  // A straight lock is one segment: the fan at the root and one paired row at
-  // the tip, whatever number of stations the integrator placed between.
+  // Even a straight lock preserves its canonical emergence row before the
+  // simplifier reduces the remaining straight path to its endpoint.
   TestValidator.equals(
-    "straight lock is a fan and one row",
+    "straight lock keeps launch and tip rows",
     mesh.positions.length / 3,
-    3,
+    2 * (curve.freeFrom + 2) - 1,
   );
   const tip = curve.points[curve.points.length - 1];
   const center = Vector3.create(
     ...([0, 1, 2].map(
-      (axis) => (mesh.positions[3 + axis] + mesh.positions[6 + axis]) / 2,
+      (axis) =>
+        (mesh.positions[mesh.positions.length - 6 + axis] +
+          mesh.positions[mesh.positions.length - 3 + axis]) /
+        2,
     ) as [number, number, number]),
   );
   TestValidator.predicate(
@@ -79,11 +87,10 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   );
   TestValidator.predicate(
     "metric UV",
-    nclose(mesh.uvs![3], (center.x - 1) / 0.05, 1e-12),
+    nclose(mesh.uvs![mesh.uvs!.length - 1], (center.x - 1) / 0.05, 1e-12),
   );
-  // A field asking for a tighter turn than the tightest curl a head grows is
-  // held to it: the eight-class survey puts that curve diameter below 1.2 cm,
-  // so one step turns at most h / 6 mm.
+  // The retained 6 mm construction scale bounds requested turns. The
+  // curl-classification diameter is not a biological local-radius bound.
   const tight = integrateHumanFaceHairCurve({
     ...props,
     layer: {
@@ -98,7 +105,7 @@ export const test_subject_human_numerical_hair_curve = (): void => {
     },
   });
   TestValidator.predicate(
-    "no hair turns tighter than the tightest natural curl",
+    "this unclipped curve retains the numerical turn convention",
     tight.points.slice(2).every((point, at) => {
       const before = Vector3.normalize(
         Vector3.subtract(tight.points[at + 1], tight.points[at]),
@@ -124,6 +131,33 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       }),
     ),
   );
+  const emittedLaunchLength = Math.hypot(
+    curve.points[1].x - props.root.x,
+    curve.points[1].y - props.root.y,
+    curve.points[1].z - props.root.z,
+  );
+  TestValidator.predicate(
+    "an exact emitted launch leaves no metric tail",
+    throwsError(
+      () =>
+        integrateHumanFaceHairCurve({
+          ...props,
+          budget: { remaining: 1_000_000 },
+          layer: {
+            ...layer,
+            lengthAxes: new Array<number>(6).fill(emittedLaunchLength) as [
+              number,
+              number,
+              number,
+              number,
+              number,
+              number,
+            ],
+          },
+        }),
+      "rooted transition",
+    ),
+  );
   TestValidator.predicate(
     "singular chart refuses",
     throwsError(() =>
@@ -132,8 +166,13 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   );
   TestValidator.equals(
     "empty mesh",
-    buildHumanFaceHairMesh([], layer, { widths: [], query: props.query })
-      .positions,
+    buildHumanFaceHairMesh([], layer, {
+      widths: [],
+      query: props.query,
+      ...props.meshContext,
+      budgets: [],
+      attachments: [],
+    }).positions,
     [],
   );
   TestValidator.predicate(
@@ -152,7 +191,7 @@ export const test_subject_human_numerical_hair_curve = (): void => {
           },
         ],
         layer,
-        { widths: [0.002], query: props.query },
+        { widths: [0.002], query: props.query, ...props.meshContext },
       ),
     ),
   );
@@ -162,6 +201,7 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       buildHumanFaceHairMesh([curve], layer, {
         widths: [Number.MIN_VALUE],
         query: props.query,
+        ...props.meshContext,
       }),
     ),
   );
@@ -170,9 +210,15 @@ export const test_subject_human_numerical_hair_curve = (): void => {
     throwsError(
       () =>
         buildHumanFaceHairMesh(
-          [{ ...curve, points: [props.root, Vector3.create(1, 0.6, 0.5)] }],
+          [
+            {
+              ...curve,
+              freeFrom: 1,
+              points: [props.root, Vector3.create(1, 0.6, 0.5)],
+            },
+          ],
           layer,
-          { widths: [0.002], query: props.query },
+          { widths: [0.002], query: props.query, ...props.meshContext },
         ),
       "too close to the surface",
     ),
@@ -183,6 +229,7 @@ export const test_subject_human_numerical_hair_curve = (): void => {
       buildHumanFaceHairMesh([curve], layer, {
         widths: [],
         query: props.query,
+        ...props.meshContext,
       }),
     ),
   );

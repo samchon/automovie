@@ -1,3 +1,5 @@
+export * from "./IAutoMovieHumanFaceHairCurve";
+export * from "./IAutoMovieHumanFaceHairRootedTransition";
 export * from "./IPortraitHairCard";
 export * from "./IPortraitHairLayer";
 export * from "./IPortraitHairShape";
