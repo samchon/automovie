@@ -13,7 +13,9 @@ type Shoulder = NonNullable<
  * Show a thorax-relative humeral goal as its plane, total elevation and axial
  * rotation. A render snapshot paints the inputs, while event handlers read the
  * latest draft so a second change made before the first build completes keeps
- * both values. An omitted arm retains the basis's measured A-pose goal.
+ * both values. An omitted arm retains its current shape's source-rig rest.
+ * Rest readouts come from the builder's shared shape evaluator; they do not
+ * establish anatomical bone frames or clinical motion capacity.
  *
  * The plane is periodic and the 180° endpoint belongs to -180°; the numeric
  * input can be typed exactly, while its half-degree slider ends at 179.5°.
@@ -28,32 +30,41 @@ type Shoulder = NonNullable<
  * rewrite an authored elevation whenever the plane moved.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the author edit each humerus by a named thorax-relative plane, total elevation and axial rotation while retaining newer draft edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the basis's shoulder rest, clinical ranges, the painted plane's joint-sinus reach, the plane period and the two pole ambiguities beside the controls.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's shoulder rest, admitted ranges, the painted plane's joint-sinus reach, the plane period and the two pole ambiguities beside the controls.
  */
 export function renderBodyShoulderControls(props: {
   dom: Document;
   container: HTMLElement;
   bone: IAutoMovieHumanBodyShoulderPose["bone"];
   shoulder: Shoulder;
+
+  /** Shape-only source-rig rest paired with the painted document. */
+  rest: IAutoMovieHumanBodyShoulderPose;
+
+  /** Latest draft rest, or unavailable after the transaction owner refused it. */
+  currentRest: () => IAutoMovieHumanBodyShoulderPose | undefined;
+
   shoulders: readonly IAutoMovieHumanBodyShoulderPose[];
   currentShoulders: () => readonly IAutoMovieHumanBodyShoulderPose[];
   onChange: (shoulders: IAutoMovieHumanBodyShoulderPose[]) => void;
 }): void {
-  const { dom, container, shoulder, bone } = props;
+  const { dom, container, shoulder, bone, rest: neutral } = props;
   container.replaceChildren();
   const rendered = props.shoulders.find((one) => one.bone === bone);
-  const plane = rendered?.plane ?? shoulder.neutral.plane;
-  const write = (axis: (typeof AXES)[number], value: number): void => {
+  const plane = rendered?.plane ?? neutral.plane;
+  const write = (axis: (typeof AXES)[number], value?: number): void => {
+    const rest = props.currentRest();
+    if (rest === undefined) return;
     const latest = props.currentShoulders();
     const current = latest.find((one) => one.bone === bone);
     const others = latest.filter((one) => one.bone !== bone);
     const next: IAutoMovieHumanBodyShoulderPose = {
-      bone,
-      ...shoulder.neutral,
+      ...rest,
       ...current,
-      [axis]: value,
+      bone,
+      [axis]: value ?? rest[axis],
     };
-    const moved = AXES.some((name) => next[name] !== shoulder.neutral[name]);
+    const moved = AXES.some((name) => next[name] !== rest[name]);
     props.onChange(moved ? [...others, next] : others);
   };
   for (const axis of AXES) {
@@ -74,7 +85,7 @@ export function renderBodyShoulderControls(props: {
     number.step = "any";
     number.min = String(range.min);
     number.max = String(range.max);
-    number.value = String(rendered?.[axis] ?? shoulder.neutral[axis]);
+    number.value = String(rendered?.[axis] ?? neutral[axis]);
     slider.type = "range";
     slider.id = number.id + "-slider";
     slider.setAttribute("aria-label", label.textContent + " slider");
@@ -91,13 +102,13 @@ export function renderBodyShoulderControls(props: {
     };
     rest.type = "button";
     rest.textContent = "Rest";
-    rest.onclick = () => write(axis, shoulder.neutral[axis]);
+    rest.onclick = () => write(axis);
     note.textContent =
       axis === "plane"
         ? "thorax plane [-180°, 180°): 0° lateral, +90° anterior, -90° posterior"
         : axis === "elevation"
-          ? `total humerothoracic elevation ${range.min}° to ${range.max}°, rest ${shoulder.neutral.elevation.toFixed(2)}°; reach in the ${plane}° plane ${humanBodyShoulderElevationLimit(shoulder.range, plane).toFixed(1)}° (overhead 180° is one direction for every plane)`
-          : `external (+) / internal (-) axial rotation ${range.min}° to ${range.max}°, rest ${shoulder.neutral.axialRotation.toFixed(2)}°`;
+          ? `total humerothoracic elevation ${range.min}° to ${range.max}°, rest ${neutral.elevation.toFixed(2)}°; reach in the ${plane}° plane ${humanBodyShoulderElevationLimit(shoulder.range, plane).toFixed(1)}° (overhead 180° is one direction for every plane)`
+          : `external (+) / internal (-) axial rotation ${range.min}° to ${range.max}°, rest ${neutral.axialRotation.toFixed(2)}°`;
     entry.append(slider, number, rest);
     row.append(label, entry, note);
     container.append(row);

@@ -10,12 +10,11 @@ import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearanc
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySurfaceParts } from "./createHumanBodySurfaceParts";
 import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
-import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
-import { resolveHumanBodyShapedShoulderRest } from "./resolveHumanBodyShapedShoulderRest";
+import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShoulderRest";
 
 /**
  * Compile a caller-owned connected body basis into a deterministic builder.
@@ -65,13 +64,7 @@ export function createHumanBodyBasisBuilder(
     // an omitted shoulder goal is the shaped body's own rest, which every
     // reader of the goal shares, so the arms are read before the pose weights
     const shoulderRestOf = (shape: Record<string, number>) =>
-      resolveHumanBodyShapedShoulderRest(
-        basis,
-        evaluateHumanBodyLandmarks(
-          basis,
-          humanBodyBasisWeights(basis, { shape, pose: undefined }),
-        ),
-      );
+      resolveHumanBodyShapeShoulderRest(basis, shape);
     const state = humanBodyBasisWeights(
       basis,
       document,

@@ -17,7 +17,6 @@ import {
   humanBodySimplePosture,
   measureHumanBodyBasisChannels,
   parseHumanBodyBasisDocument,
-  resolveHumanBodyCouplings,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
@@ -27,14 +26,13 @@ import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
 import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
-import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
-import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
 import type { ConnectedBodyResult } from "./connectedBodyProtocol";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
+import { mountBodyJointControls } from "./mountBodyJointControls";
 
 /**
  * Mount the body's shape, measurement and pose controls around an injected
@@ -218,66 +216,17 @@ export function mountConnectedBodyPanel<
     const container = element("basis-controls");
     container.replaceChildren();
     if (kind === "pose") {
-      const picker = dom.createElement("select");
-      picker.id = "pose-bone";
-      picker.setAttribute("aria-label", "Joint");
-      for (const joint of props.basis.joints)
-        if (joint.bone.toLowerCase().includes(query)) {
-          const option = dom.createElement("option");
-          option.value = joint.bone;
-          option.textContent =
-            joint.bone +
-            (draft.pose?.some((one) => one.bone === joint.bone) ||
-            draft.shoulders?.some((one) => one.bone === joint.bone)
-              ? " ●"
-              : "");
-          picker.append(option);
-        }
-      picker.value = bone;
-      if (picker.value !== bone && picker.options.length > 0) {
-        bone = picker.options[0].value as AutoMovieHumanoidBone;
-        picker.value = bone;
-      }
-      picker.onchange = () => {
-        bone = picker.value as AutoMovieHumanoidBone;
-        renderControls();
-      };
-      const rows = dom.createElement("div");
-      container.append(picker, rows);
-      if (bone === "leftUpperArm" || bone === "rightUpperArm") {
-        const joint = props.basis.joints.find((one) => one.bone === bone)!;
-        if (joint.shoulder === undefined)
-          throw new Error(
-            "An upper arm needs thorax-relative shoulder coordinates.",
-          );
-        renderBodyShoulderControls({
-          dom,
-          container: rows,
-          bone,
-          shoulder: joint.shoulder,
-          shoulders: draft.shoulders ?? [],
-          currentShoulders: () => draft.shoulders ?? [],
-          onChange: (shoulders) => {
-            void change({ ...structuredClone(draft), shoulders });
-          },
-        });
-        return;
-      }
-      renderBodyPoseControls({
+      mountBodyJointControls({
         dom,
-        container: rows,
+        container,
         basis: props.basis,
         bone,
-        pose: draft.pose ?? [],
-        currentPose: () => draft.pose ?? [],
-        coupled: resolveHumanBodyCouplings(
-          props.basis,
-          draft.pose ?? [],
-          draft.shoulders ?? [],
-        ).contributions,
-        onChange: (pose) => {
-          void change({ ...structuredClone(draft), pose });
-        },
+        query,
+        current: () => draft,
+        select: (selected) => { bone = selected; },
+        redraw: renderControls,
+        change: (next) => { void change(next); },
+        refuse,
       });
       return;
     }

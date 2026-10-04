@@ -1,0 +1,119 @@
+import {
+  type IAutoMovieHumanBodyBasis,
+  type IAutoMovieHumanBodyBasisDocument,
+  resolveHumanBodyCouplings,
+  resolveHumanBodyShapeShoulderRest,
+} from "@automovie/human";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
+import { renderBodyPoseControls } from "./bodyPoseControls";
+import { renderBodyShoulderControls } from "./bodyShoulderControls";
+
+/**
+ * Bind the body's joint picker and its current document's numerical controls.
+ *
+ * Shape-only rest comes from the builder's shared owner on every paint and
+ * shoulder event. An invalid pending shape withdraws that event through the
+ * panel's existing refusal owner; no stale rest or partially authored goal is
+ * substituted. The panel still owns draft, history and model publication.
+ * Ranges describe admission of this source rig and establish no clinical bone
+ * frame or measured personal motion capacity.
+ *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds named joint inputs to the latest body draft and returns unsupported pending shapes to the panel's transaction refusal.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's TT rest and the same coupling additions the builder consumes, while keeping bone selection outside the document.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves draft publication and last-valid recovery with the injected panel refusal and change owners.
+ */
+export function mountBodyJointControls(props: {
+  dom: Document;
+  container: HTMLElement;
+  basis: IAutoMovieHumanBodyBasis;
+  bone: AutoMovieHumanoidBone;
+  query: string;
+  current: () => IAutoMovieHumanBodyBasisDocument;
+  select: (bone: AutoMovieHumanoidBone) => void;
+  redraw: () => void;
+  change: (document: IAutoMovieHumanBodyBasisDocument) => void;
+  refuse: (error: unknown) => void;
+}): void {
+  const { dom, container, basis } = props;
+  const draft = props.current();
+  let bone = props.bone;
+  const rest = () => {
+    try {
+      return resolveHumanBodyShapeShoulderRest(basis, props.current().shape);
+    } catch (error) {
+      props.refuse(error);
+      return undefined;
+    }
+  };
+  const picker = dom.createElement("select");
+  picker.id = "pose-bone";
+  picker.setAttribute("aria-label", "Joint");
+  for (const joint of basis.joints)
+    if (joint.bone.toLowerCase().includes(props.query)) {
+      const option = dom.createElement("option");
+      option.value = joint.bone;
+      option.textContent =
+        joint.bone +
+        (draft.pose?.some((one) => one.bone === joint.bone) ||
+        draft.shoulders?.some((one) => one.bone === joint.bone)
+          ? " ●"
+          : "");
+      picker.append(option);
+    }
+  picker.value = bone;
+  if (picker.value !== bone && picker.options.length > 0) {
+    bone = picker.options[0].value as AutoMovieHumanoidBone;
+    picker.value = bone;
+    props.select(bone);
+  }
+  picker.onchange = () => {
+    props.select(picker.value as AutoMovieHumanoidBone);
+    props.redraw();
+  };
+  const rows = dom.createElement("div");
+  container.append(picker, rows);
+  const shapedRest = rest();
+  if (shapedRest === undefined) return;
+  if (bone === "leftUpperArm" || bone === "rightUpperArm") {
+    const shoulderBone = bone;
+    const joint = basis.joints.find((one) => one.bone === bone)!;
+    if (joint.shoulder === undefined) {
+      props.refuse(
+        new Error("An upper arm needs thorax-relative shoulder coordinates."),
+      );
+      return;
+    }
+    renderBodyShoulderControls({
+      dom,
+      container: rows,
+      bone,
+      shoulder: joint.shoulder,
+      rest: shapedRest.get(bone)!,
+      currentRest: () => rest()?.get(shoulderBone),
+      shoulders: draft.shoulders ?? [],
+      currentShoulders: () => props.current().shoulders ?? [],
+      onChange: (shoulders) => {
+        props.change({ ...structuredClone(props.current()), shoulders });
+      },
+    });
+    return;
+  }
+  renderBodyPoseControls({
+    dom,
+    container: rows,
+    basis,
+    bone,
+    pose: draft.pose ?? [],
+    currentPose: () => props.current().pose ?? [],
+    coupled: resolveHumanBodyCouplings(
+      basis,
+      draft.pose ?? [],
+      draft.shoulders ?? [],
+      shapedRest,
+    ).contributions,
+    onChange: (pose) => {
+      props.change({ ...structuredClone(props.current()), pose });
+    },
+  });
+}
