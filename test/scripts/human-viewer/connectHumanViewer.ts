@@ -1,5 +1,10 @@
 import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
 import type { IHumanViewerClient } from "./IHumanViewerClient";
+import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IConnectHumanViewerProps } from "./IConnectHumanViewerProps";
+import type { IHumanShotHealth } from "./IHumanShotHealth";
+import type { IHumanViewerErrorBody } from "./IHumanViewerErrorBody";
+import type { IHumanViewerPartEntry } from "./IHumanViewerPartEntry";
 import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
 /**
  * Connect to the resident development viewer and return a client over it.
@@ -11,12 +16,12 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
  * accepted and the files it rejected, so a document the numerical builder's
  * basis check refuses is reported here and not as a blank frame later. A frame
  * is the PNG the server drew on its real GPU; a refusal comes back as `ok:
- * false` with the server's reason. Pure over `io`.
+ * false` with the server's reason. A frame the server marks stale, drawn by
+ * the last good generation while the current source failed or is still
+ * rebuilding, is also `ok: false`: it is not an observation of the current
+ * source, so no record may count it as one. Pure over `io`.
  */
-export async function connectHumanViewer(props: {
-  io: IHumanViewerClientIo;
-  origin: string;
-}): Promise<IHumanViewerClient> {
+export async function connectHumanViewer(props: IConnectHumanViewerProps): Promise<IHumanViewerClient> {
   const { origin } = props;
   // A loaded server resets kept-alive sockets; every route is safe to ask again.
   const io: IHumanViewerClientIo = {
@@ -28,12 +33,7 @@ export async function connectHumanViewer(props: {
       }),
   };
   const health = await io.fetch(origin + "/health");
-  const status = (await health.json()) as {
-    service?: string;
-    ready?: boolean;
-    renderer?: string;
-    revision?: string;
-  };
+  const status = (await health.json()) as Partial<IHumanShotHealth>;
   if (status.service !== "automovie-human-viewer")
     throw new Error("The port belongs to another program");
   if (status.ready !== true)
@@ -49,9 +49,7 @@ export async function connectHumanViewer(props: {
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
-      const scan = (await (await io.fetch(origin + "/rescan")).json()) as {
-        rejected: { file: string; reason: string }[];
-      };
+      const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<HumanViewerCatalogue, "rejected">;
       const refused = scan.rejected.find((entry) => entry.file === label + ".json");
       if (refused !== undefined) throw new Error(refused.reason);
     },
@@ -60,8 +58,8 @@ export async function connectHumanViewer(props: {
         origin + "/parts?" + new URLSearchParams(fields).toString(),
       );
       if (!response.ok)
-        throw new Error(((await response.json()) as { error: string }).error);
-      return ((await response.json()) as { name: string }[]).map(
+        throw new Error(((await response.json()) as IHumanViewerErrorBody).error);
+      return ((await response.json()) as IHumanViewerPartEntry[]).map(
         (part) => part.name,
       );
     },
@@ -72,7 +70,12 @@ export async function connectHumanViewer(props: {
       if (!response.ok)
         return {
           ok: false,
-          error: ((await response.json()) as { error: string }).error,
+          error: ((await response.json()) as IHumanViewerErrorBody).error,
+        };
+      if (response.headers.get("x-human-stale") === "true")
+        return {
+          ok: false,
+          error: `Stale frame: drawn by revision ${response.headers.get("x-human-revision") ?? "unknown"}, not the current source`,
         };
       return {
         ok: true,

@@ -6,6 +6,7 @@
  * finish, so idle animation is unnecessary and never competes with requests.
  */
 import type {
+  ConnectedBodyPart,
   ConnectedBodyRequest,
   ConnectedBodyResult,
 } from "@automovie/playground/src/human/body/connectedBodyProtocol";
@@ -20,20 +21,17 @@ import type {
   ConnectedFaceResult,
 } from "@automovie/playground/src/human/common/connectedRuntime";
 import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene";
-import type { HumanResidentPort } from "@automovie/playground/src/human/common/residentWorker";
 import { createConnectedFaceViewport } from "@automovie/playground/src/human/face/connectedViewport";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
 import { faceShapeFitView } from "../face-review/faceShapeFitCamera";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import { assertHumanViewerFrame } from "./assertHumanViewerFrame";
 import { createHumanViewerCache } from "./createHumanViewerCache";
-import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
 import { drawHumanViewerFrame } from "./drawHumanViewerFrame";
-import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks";
+import { createHumanViewerNumericalPort } from "./createHumanViewerNumericalPort.mjs";
 import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerReference } from "./planHumanViewerReference";
@@ -43,6 +41,10 @@ import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue";
 import { assertHumanViewerSource } from "./assertHumanViewerSource";
 import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceError";
 import type { HumanViewerWork } from "./HumanViewerWork";
+import type { IHumanViewerComposition } from "./IHumanViewerComposition";
+import type { IHumanViewerReferenceInfo } from "./IHumanViewerReferenceInfo";
+import type { IHumanViewerResident } from "./IHumanViewerResident";
+import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentBytes";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
 import { addHumanViewerCalibration } from "./addHumanViewerCalibration";
 import { captureHumanViewerReference } from "./captureHumanViewerReference";
@@ -59,126 +61,62 @@ const renderer = new THREE.WebGLRenderer({
   preserveDrawingBuffer: true,
 });
 const loader = new THREE.TextureLoader();
-const worker = new Worker(new URL("./numerical-worker.mts", import.meta.url), {
-  type: "module",
-});
-type Result = ConnectedFaceResult | ConnectedBodyResult;
-const pending = new Map<
-  number,
-  { resolve: (value: Result) => void; reject: (error: Error) => void }
->();
-let sequence = 0;
 /** Where a capture spends its time inside the page, by named stage. */
 const spans = createHumanViewerSpans(() => performance.now());
-let builds = 0;
-let buildMs = 0;
 let workingDocument = "";
+/**
+ * Stages no `spans.measure` call encloses: model preparation after the
+ * numerical reply, drawing, and the stage setup before the first request.
+ * Their time is added when the page reports the next stage, so a capture's
+ * whole show time is attributed.
+ */
+const UNMEASURED: ReadonlySet<HumanViewerWork["phase"]> = new Set(["loading", "prepare", "draw"]);
+let stagePhase: HumanViewerWork["phase"] = "idle";
+let stageAt = 0;
 const work = (phase: HumanViewerWork["phase"]): void => {
+  const at = performance.now();
+  if (UNMEASURED.has(stagePhase)) spans.add(stagePhase + "Ms", at - stageAt);
+  stagePhase = phase;
+  stageAt = at;
   console.log("HUMAN_WORK " + JSON.stringify({ revision: catalogue?.revision ?? "bootstrap",
     frame: new URLSearchParams(location.search).get("generation") ?? "direct",
-    doc: workingDocument, phase, at: Date.now(), pending: pending.size,
+    doc: workingDocument, phase, at: Date.now(), pending: numerical.pending(),
     geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
+    residents: residents.keys().length, residentBytes: residents.total(),
   } satisfies HumanViewerWork));
 };
-worker.onmessage = ({ data }) => {
-  const request = pending.get(data.id);
-  pending.delete(data.id);
-  if (request === undefined) return;
-  work("numeric-reply");
-  if (data.success) {
-    ++builds;
-    buildMs = data.buildMs ?? 0;
-    request.resolve(data.value);
-  } else request.reject(new Error(data.error));
-};
-worker.onerror = (error) => {
-  for (const request of pending.values())
-    request.reject(new Error(error.message));
-  pending.clear();
-  work("failed");
-};
+/** The worker and digest-cache transport the product viewports build through. */
+const numerical = createHumanViewerNumericalPort({ work, spans });
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
 /** The photograph layer of the frame on screen, null while none is shown. */
-let composition: {
-  mode: "split" | "overlay" | "swipe";
-  opacity: number;
-  size: number;
-  landmarks: { x: number; y: number; group: string }[];
-} | null = null;
+let composition: IHumanViewerComposition | null = null;
 let active:
   | ReturnType<typeof createConnectedFaceViewport>
   | ReturnType<
       typeof createConnectedBodyViewport<IAutoMovieHumanBodyBasisDocument>
     >
   | ReturnType<typeof createConnectedBodyViewport<IAutoMovieHumanPersonDocument>>;
-type Resident = {
-  stage: typeof active;
-  group: THREE.Group;
-  resize: () => void;
-  release: () => void;
-};
-const residents = createHumanViewerCache<Resident>(32, (resident) =>
-  resident.release(),
-);
+type Resident = IHumanViewerResident<typeof active>;
+/**
+ * Bytes of resident arrays the page keeps drawn-ready. The renderer's V8 heap
+ * lives in a 4 GiB pointer cage, and a resident page that kept 32 documents
+ * by count died of a V8 out-of-memory error at about 2.4 GiB of heap while
+ * preparing one more. Counted arrays are the bulk of a resident; this budget
+ * leaves the rest of the cage for the next document's transient decode,
+ * build and preparation copies.
+ */
+const RESIDENT_BUDGET = 512 * 1024 * 1024;
+const residents = createHumanViewerCache<Resident>(RESIDENT_BUDGET,
+  (resident) => resident.bytes, (resident) => resident.release());
 
-/** Product worker transport backed by the server's digest cache. */
-function port<Input, Output>(
-  selected: HumanViewerCatalogue["documents"][number],
-  ao: boolean,
-): HumanResidentPort<Input, Output> {
-  const transport: HumanResidentPort<Input, Output> = {
-    onmessage: null,
-    onerror: null,
-    terminate: () => {},
-    postMessage: ({ id, input }) => {
-      const key = selected.key + (ao ? "-ao" : "-direct");
-      void (async () => {
-        work("cache-read");
-        const cached = await spans.measure("cacheReadMs", () => fetch(`/cache/${key}`));
-        let value: Result;
-        if (cached.ok)
-          value = await spans.measure("cacheDecodeMs", async () =>
-            decodeHumanViewerPreview(await cached.text()) as Result);
-        else {
-          work("build");
-          value = await spans.measure("workerMs", () => new Promise<Result>((resolve, reject) => {
-            const workerId = ++sequence;
-            pending.set(workerId, { resolve, reject });
-            worker.postMessage({
-              id: workerId,
-              domain: selected.domain,
-              basis: selected.basis,
-              input: { ...input, occlusion: ao },
-            });
-          }));
-          // Only numerical results enter disk persistence. Photos remain in a
-          // separate display layer, and are never serialized here.
-          work("cache-write");
-          await spans.measure("cacheWriteMs", () => fetch(`/cache/${key}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: new Blob([...encodeHumanViewerPreviewChunks(value)], { type: "application/json" }),
-          }));
-        }
-        work("prepare");
-        transport.onmessage?.({
-          data: { id, success: true, value: value as Output },
-        });
-      })().catch((error: unknown) => {
-        work("failed");
-        transport.onmessage?.({
-          data: {
-            id,
-            success: false,
-            error: error instanceof Error ? error.message : String(error),
-          },
-        });
-      });
-    },
-  };
-  return transport;
-}
+/** The numerical arrays a body or person resident keeps beside its group. */
+const bodyArrays = (parts: readonly ConnectedBodyPart[]): (ArrayLike<number | null> | null | undefined)[] =>
+  parts.flatMap((part) => {
+    const mesh = part.geometry.mesh;
+    return [mesh.positions, mesh.normals, mesh.indices, mesh.uvs, mesh.colors,
+      mesh.physicalVertices?.vertices];
+  });
 
 async function show(address: HumanViewerAddress): Promise<void> {
   spans.reset();
@@ -258,19 +196,24 @@ async function show(address: HumanViewerAddress): Promise<void> {
       const stage = createConnectedFaceViewport({
         ...props,
         worker: () =>
-          port<ConnectedFaceRequest, ConnectedFaceResult>(selected, address.ao),
+          numerical.port<ConnectedFaceRequest, ConnectedFaceResult>(selected, address.ao),
       });
       const model = await stage.build(selected.document, false, address.ao);
       stage.publish(model);
+      // Only the group is kept: holding the built model would keep a second
+      // copy of every numerical array alive for as long as the resident.
+      const group = model.frame.resident.group;
       resident = {
         stage,
         resize,
-        group: model.frame.resident.group,
+        group,
         release: () => {
           stage.cancel();
           controls.forEach((control) => control.dispose());
-          disposeHumanPreview(model.frame.resident.group);
+          disposeHumanPreview(group);
         },
+        bytes: measureHumanViewerResidentBytes(group, model.frame.witnesses.flatMap(
+          (witness) => [witness.positions, witness.normals, witness.indices, witness.uvs])),
       };
     } else if (selected.domain === "person") {
       // a whole person is drawn by the body stage: the worker answers its
@@ -279,37 +222,41 @@ async function show(address: HumanViewerAddress): Promise<void> {
         ...props,
         serialize: serializeHumanPersonDocument,
         worker: () =>
-          port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
+          numerical.port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
       });
       const model = await stage.build(selected.document);
       stage.publish(model);
+      const group = model.frame.resident.group;
       resident = {
         stage,
         resize,
-        group: model.frame.resident.group,
+        group,
         release: () => {
           stage.disposeWorker();
           controls.forEach((control) => control.dispose());
-          disposeHumanPreview(model.frame.resident.group);
+          disposeHumanPreview(group);
         },
+        bytes: measureHumanViewerResidentBytes(group, bodyArrays(model.frame.resident.parts)),
       };
     } else {
       const stage = createConnectedBodyViewport({
         ...props,
         worker: () =>
-          port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
+          numerical.port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
       });
       const model = await stage.build(selected.document);
       stage.publish(model);
+      const group = model.frame.resident.group;
       resident = {
         stage,
         resize,
-        group: model.frame.resident.group,
+        group,
         release: () => {
           stage.disposeWorker();
           controls.forEach((control) => control.dispose());
-          disposeHumanPreview(model.frame.resident.group);
+          disposeHumanPreview(group);
         },
+        bytes: measureHumanViewerResidentBytes(group, bodyArrays(model.frame.resident.parts)),
       };
     }
     residents.set(key, resident);
@@ -355,11 +302,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
   const info = (await (
     await fetch("/reference-info?" + new URLSearchParams({ doc: address.doc }))
-  ).json()) as {
-    available: boolean;
-    camera: IFaceLikenessCamera | null;
-    landmarks: { x: number; y: number; group: string }[];
-  };
+  ).json()) as IHumanViewerReferenceInfo;
   const comparison = planHumanViewerReference(
     info.available,
     address.ref,
@@ -454,8 +397,8 @@ async function main(): Promise<void> {
       parts: () => active.observe.parts(),
       renderer: () => String(active.renderer()),
       revision: () => catalogue.revision,
-      builds: () => builds,
-      buildMs: () => buildMs,
+      builds: numerical.builds,
+      buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
       address: () => current,
       png: () => {

@@ -1,3 +1,6 @@
+/** Target size of one piece, in UTF-16 code units. */
+const BLOCK = 65536;
+
 /**
  * Numerical cache JSON in bounded, Unicode-safe pieces. The scene can give
  * these pieces to Blob without retaining a full JSON string or copies of all
@@ -37,6 +40,8 @@ export function* encodeHumanViewerPreviewChunks(value: {
     anatomy: value.anatomy,
   };
   const ancestors = new Set<object>();
+  /** JSON's number text: finite numbers as `String` writes them, others as null. */
+  const number = (value: number): string => Number.isFinite(value) ? String(value) : "null";
   const omitted = (entry: unknown): boolean =>
     entry === undefined || typeof entry === "function" || typeof entry === "symbol";
   const prepare = (entry: unknown, key: string): unknown => {
@@ -82,25 +87,45 @@ export function* encodeHumanViewerPreviewChunks(value: {
     try {
       if (entry instanceof Float32Array || entry instanceof Uint32Array) {
         yield entry instanceof Float32Array ? '{"$array":"Float32","values":[' : '{"$array":"Uint32","values":[';
-        let first = true;
-        for (const item of entry) {
-          if (!first) yield ",";
-          first = false;
-          yield* write(item);
+        // Typed elements are always numbers: write them in blocks, without a
+        // generator step per element.
+        let text = "";
+        for (let at = 0; at < entry.length; ++at) {
+          text += (at === 0 ? "" : ",") + number(entry[at]);
+          if (text.length >= BLOCK) {
+            yield text;
+            text = "";
+          }
         }
-        yield "]}";
+        yield text + "]}";
       } else if (Array.isArray(entry)) {
         yield "[";
         // Snapshot LengthOfArrayLike once, including Proxy/boxed coercion.
         const numericLength = +entry.length;
         const length = Number.isNaN(numericLength) || numericLength <= 0 ? 0 :
           Math.min(Math.trunc(numericLength), Number.MAX_SAFE_INTEGER);
+        let text = "";
         for (let at = 0; at < length; ++at) {
-          if (at !== 0) yield ",";
-          const item = prepare(entry[at], String(at));
-          yield* write(omitted(item) ? null : item);
+          const item = entry[at];
+          // A primitive number, the bulk of a model, needs no toJSON or
+          // wrapper handling; anything else takes the general path.
+          if (typeof item === "number") {
+            text += (at === 0 ? "" : ",") + number(item);
+            if (text.length >= BLOCK) {
+              yield text;
+              text = "";
+            }
+            continue;
+          }
+          if (at !== 0) text += ",";
+          if (text !== "") {
+            yield text;
+            text = "";
+          }
+          const prepared = prepare(item, String(at));
+          yield* write(omitted(prepared) ? null : prepared);
         }
-        yield "]";
+        yield text + "]";
       } else {
         yield "{";
         let first = true;
@@ -121,11 +146,14 @@ export function* encodeHumanViewerPreviewChunks(value: {
   }
   let chunk = "";
   for (const token of write(projection)) {
-    if (chunk.length + token.length > 4096) {
-      yield chunk;
+    if (chunk.length + token.length > BLOCK) {
+      if (chunk !== "") yield chunk;
       chunk = "";
     }
-    chunk += token;
+    // A numeric block may exceed the piece size by one number; it is still a
+    // whole sequence of JSON tokens and is passed on as one piece.
+    if (token.length > BLOCK) yield token;
+    else chunk += token;
   }
   if (chunk !== "") yield chunk;
 }

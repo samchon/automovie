@@ -34,4 +34,10 @@ export interface HumanViewerWork {
 
   /** Textures retained by the shared WebGL renderer. */
   textures: number;
+
+  /** Documents the page keeps drawn-ready. */
+  residents: number;
+
+  /** Bytes of arrays those residents keep alive, the quantity their cache is bounded by. */
+  residentBytes: number;
 }

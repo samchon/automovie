@@ -9,6 +9,7 @@ import path from "node:path";
 
 import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo";
+import { createHumanViewerSidecarFacts } from "./createHumanViewerSidecarFacts";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
 
 /**
@@ -103,6 +104,17 @@ export function createHumanViewerSource(directory: string) {
     "playground",
   ].map((name) => path.join(root, "packages", name, "src"));
   watched.push(directory);
+  // Candidate sidecars are read off the request path; when one becomes known
+  // the host republishes its catalogue through the registered listener.
+  let sidecarListener = (): void => {};
+  const sidecars = createHumanViewerSidecarFacts({
+    stamp: (name) => {
+      const stat = fs.statSync(path.join(inputsDirectory, name));
+      return `${stat.mtimeMs}:${stat.size}`;
+    },
+    stream: (name) => fs.createReadStream(path.join(inputsDirectory, name)),
+    changed: () => sidecarListener(),
+  });
   const catalogue = () =>
     readHumanViewerCatalogue({
       basisFiles,
@@ -110,7 +122,10 @@ export function createHumanViewerSource(directory: string) {
       inputsDirectory,
       basisOf,
       revisions: revisions.current(),
+      sidecar: sidecars.facts,
     });
   return { root, storage, basisFiles, documentsFile, inputsDirectory, slash,
-    revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); } };
+    revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); },
+    /** Register the host's republication for sidecars whose facts became known. */
+    sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; } };
 }

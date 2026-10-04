@@ -14,7 +14,8 @@ const hash = (bytes: string): string =>
   createHash("sha256").update(bytes).digest("hex");
 
 /**
- * The disk file of a thumbnail: the address and the numerical key of its
+ * The disk file of a thumbnail inside one viewer's thumbnail `folder`: the
+ * address and the numerical key of its
  * document name it, so an edit that changes the document's build makes a new
  * file and a stale picture is never served for it. Null for an address that
  * does not parse or names no document.
@@ -26,7 +27,7 @@ const hash = (bytes: string): string =>
  */
 export function humanViewerThumbnailFile(
   search: string,
-  storage: string,
+  folder: string,
   inventory: { revision: string; documents: readonly Pick<HumanViewerCatalogue["documents"][number], "id" | "key">[] },
 ): string | null {
   try {
@@ -37,8 +38,7 @@ export function humanViewerThumbnailFile(
     // A frame carrying a reference photograph never reaches the disk cache.
     if (document === undefined || address.ref !== null) return null;
     return path.join(
-      storage,
-      "thumbnails",
+      folder,
       humanViewerThumbnailDirectory(inventory.revision),
       hash(serializeHumanViewerAddress(address) + document.key) + ".png",
     );

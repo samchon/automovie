@@ -2,44 +2,72 @@
  * Browser-root target events remain observable when a resident renderer dies
  * inside JavaScript before its page session can answer an outstanding call.
  */
-import type { Browser, Page } from "playwright";
+import type { Page } from "playwright";
+
+import type { IHumanViewerInspectorDetached } from "./IHumanViewerInspectorDetached";
+import type { IHumanViewerRendererTargetOptions } from "./IHumanViewerRendererTargetOptions";
+import type { IHumanViewerTargetEvent } from "./IHumanViewerTargetEvent";
+
+/**
+ * The detach reason Chromium gives when the renderer process behind a session
+ * has exited. Any other detach reason only means the session was taken away,
+ * which does not prove the renderer stopped.
+ */
+const RENDER_PROCESS_GONE = "Render process gone.";
 
 /**
  * Correlate terminal signals with the exact owned page, and detach only this
- * observer on disposal. A browser transport disconnect withdraws readiness
- * but is not evidence that its renderer has physically stopped.
+ * observer on disposal. A page-session detach whose reason says the render
+ * process is gone is a physical stop; any other detach of this observer's
+ * own session is not a failure. A closed page or browser connection is
+ * terminal for this page: every later capture is refused with the cause, so
+ * the capture it interrupted is released instead of holding the queue.
  *
  * @evidence contracts/common.md#principled-implementation Browser-root crash/destruction signals identify the owned target independently of its stalled renderer session.
  * @evidence contracts/common.md#clear-and-simple-design One observer owns the failure listeners and their removal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrelated targets, session detach and elapsed time do not release capture ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrelated targets, an observer-only session detach and elapsed time do not release capture ownership.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes renderer settlement from transport loss and defines observer disposal.
  */
-export async function observeHumanViewerRendererTarget(options: {
-  browser: Pick<Browser, "newBrowserCDPSession" | "on" | "off" | "isConnected">;
-  page: Pick<Page, "context" | "on" | "off">;
-  failed: (cause: string, physicalSettled: boolean) => void;
-}): Promise<() => Promise<void>> {
-  const probe = await options.page.context().newCDPSession(options.page as Page);
-  let targetId: string;
-  try {
-    const info = await probe.send("Target.getTargetInfo");
-    targetId = info.targetInfo.targetId;
-  } finally {
-    await probe.detach();
-  }
+export async function observeHumanViewerRendererTarget(
+  options: IHumanViewerRendererTargetOptions,
+): Promise<() => Promise<void>> {
+  // The page's own session stays open with the Inspector domain enabled.
+  // Chromium has two renderer-exit reports for a session: `targetCrashed`
+  // and `detached` with the reason "Render process gone.". Playwright reads
+  // only the first; a resident renderer that died of a V8 out-of-memory
+  // error was seen to produce no crash event at all, so both are observed.
+  const session = await options.page.context().newCDPSession(options.page as Page);
+  const info = await session.send("Target.getTargetInfo");
+  const targetId = info.targetInfo.targetId;
+  // Another detach reason only takes this observer's session away; the page
+  // and Playwright's own session may still be serving, so it is not a failure.
+  const inspectorDetached = (event: IHumanViewerInspectorDetached): void => {
+    if (event.reason === RENDER_PROCESS_GONE)
+      options.failed("Resident GPU renderer exited (" + event.reason + ")", true);
+  };
+  const inspectorCrashed = (): void => options.failed("Resident GPU renderer crashed", true);
+  session.on("Inspector.detached", inspectorDetached);
+  session.on("Inspector.targetCrashed", inspectorCrashed);
+  await session.send("Inspector.enable");
   const root = await options.browser.newBrowserCDPSession();
-  const crashed = (event: { targetId: string }): void => {
+  const crashed = (event: IHumanViewerTargetEvent): void => {
     if (event.targetId === targetId)
       options.failed("Resident GPU renderer crashed", true);
   };
-  const destroyed = (event: { targetId: string }): void => {
+  const destroyed = (event: IHumanViewerTargetEvent): void => {
     if (event.targetId === targetId)
       options.failed("Resident GPU renderer destroyed", true);
   };
   const pageCrash = (): void => options.failed("Resident GPU page crashed", true);
-  const pageClose = (): void => options.failed("Resident GPU page closed", options.browser.isConnected());
-  const disconnected = (): void => options.failed("Resident GPU browser disconnected", false);
+  const pageClose = (): void => options.failed("Resident GPU page closed", true);
+  // A launched browser whose connection closed can never answer this page
+  // again, and the failure is permanent, so no later capture can share the
+  // page with work the lost renderer might still be finishing: releasing the
+  // dispatched capture is safe, and holding it would block the queue forever.
+  const disconnected = (): void => options.failed("Resident GPU browser disconnected", true);
   const remove = (): void => {
+    session.off("Inspector.detached", inspectorDetached);
+    session.off("Inspector.targetCrashed", inspectorCrashed);
     root.off("Target.targetCrashed", crashed);
     root.off("Target.targetDestroyed", destroyed);
     options.page.off("crash", pageCrash);
@@ -56,10 +84,14 @@ export async function observeHumanViewerRendererTarget(options: {
   } catch (error) {
     remove();
     await root.detach();
+    await session.detach().catch(() => undefined);
     throw error;
   }
   return async () => {
     remove();
-    if (options.browser.isConnected()) await root.detach();
+    if (options.browser.isConnected()) {
+      await root.detach();
+      await session.detach().catch(() => undefined);
+    }
   };
 }

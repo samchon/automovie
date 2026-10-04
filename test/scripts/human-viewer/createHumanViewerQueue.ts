@@ -14,8 +14,11 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * request goes next. A request that finds `limit` others already waiting in
  * its lane is refused at once with the reason instead of joining a line no one
  * can see the end of. A `bulk` request is also held back until no `ui` or
- * `cli` request has arrived for `quietMs`, so background work never starts in
- * front of a person or script that is about to ask. The status names the running request and each lane's
+ * `cli` request has arrived or finished for `quietMs`, so background work
+ * never starts in front of a person or script that is about to ask: a script
+ * whose own capture ran longer than `quietMs` would otherwise find a bulk
+ * build started in the few milliseconds before its next request, and wait
+ * for that whole build. The status names the running request and each lane's
  * length so a stalled server can be told from a busy one.
  * A cancelled waiting entry is removed before its callback starts. Cancelling
  * a running requester rejects its result but retains the GPU slot until the
@@ -107,6 +110,7 @@ export function createHumanViewerQueue(props: {
               reject(error);
             } finally {
               signal?.removeEventListener("abort", abort);
+              if (lane !== "bulk") foregroundAt = props.now();
               last = { label, ms: props.now() - start, failed };
               running = null;
               drain();

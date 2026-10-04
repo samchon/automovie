@@ -9,33 +9,14 @@ import {
 import * as THREE from "three";
 
 import { prepareHumanPreview } from "../common/previewScene";
-
-type Resident = {
-  group: THREE.Group;
-  signature: string;
-  meshes: THREE.Mesh[];
-  witnesses: MeshWitness[];
-  textures: AutoMovieTextureCache;
-  released: boolean;
-};
-type Frame = {
-  resident: Resident;
-  model: IAutoMovieModel;
-  meshes: IAutoMovieMesh[];
-  witnesses: MeshWitness[];
-};
-
-type MeshWitness = {
-  positions: readonly number[];
-  normals: readonly number[] | null;
-  indices: readonly number[] | null;
-  uvs: readonly number[] | null;
-  closed: boolean;
-  physical: ReturnType<typeof createMeshPhysicalPartitionMatcher>;
-};
+import { sameHumanPreviewValue } from "../common/sameHumanPreviewValue";
+import type { IConnectedFaceFrame } from "./IConnectedFaceFrame";
+import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
+import type { IConnectedFaceRendererProps } from "./IConnectedFaceRendererProps";
+import type { IConnectedFaceResident } from "./IConnectedFaceResident";
 
 /** Exact source arrays certified by the Float32 and manifold gates. */
-function witnessOf(mesh: IAutoMovieMesh, closed: boolean): MeshWitness {
+function witnessOf(mesh: IAutoMovieMesh, closed: boolean): IConnectedFaceMeshWitness {
   return {
     positions: mesh.positions.slice(),
     normals: mesh.normals?.slice() ?? null,
@@ -55,7 +36,7 @@ function witnessOf(mesh: IAutoMovieMesh, closed: boolean): MeshWitness {
 function matchesWitness(
   mesh: IAutoMovieMesh,
   closed: boolean,
-  witness: MeshWitness | undefined,
+  witness: IConnectedFaceMeshWitness | undefined,
 ): boolean {
   if (witness === undefined || closed !== witness.closed) return false;
   const same = (
@@ -72,6 +53,44 @@ function matchesWitness(
     same(mesh.indices, witness.indices) &&
     same(mesh.uvs, witness.uvs) && witness.physical(mesh)
   );
+}
+
+/**
+ * The static structure that decides buffer reuse: materials and every part,
+ * with each mesh's position and normal arrays reduced to their lengths. With
+ * `own` the index and UV arrays are the witnesses' copies and every other
+ * member is cloned, so the record cannot change with its source model; without
+ * it the record only borrows the candidate's arrays for one comparison.
+ * Unlike a serialized signature, nothing is turned into text: the largest
+ * arrays are compared element by element and kept once, in the witnesses.
+ */
+function structureOf(
+  model: IAutoMovieModel,
+  meshes: readonly IAutoMovieMesh[],
+  witnesses: readonly IConnectedFaceMeshWitness[] | null,
+): unknown {
+  const parts = model.parts.map((part, index) => {
+    const mesh = meshes[index];
+    const { positions, normals, indices, uvs, ...rest } = mesh;
+    const witness = witnesses?.[index];
+    return {
+      ...(witnesses === null ? part : structuredClone({ ...part, geometry: undefined })),
+      geometry: {
+        type: part.geometry.type,
+        mesh: {
+          ...(witnesses === null ? rest : structuredClone(rest)),
+          positions: positions.length,
+          normals: normals?.length,
+          indices: witness === undefined ? indices : witness.indices,
+          uvs: witness === undefined ? uvs : witness.uvs,
+        },
+      },
+    };
+  });
+  return {
+    materials: witnesses === null ? model.materials : structuredClone(model.materials),
+    parts,
+  };
 }
 
 /** Material thickness determines whether an otherwise open surface must seal. */
@@ -114,27 +133,24 @@ function disposeGroup(group: THREE.Group): void {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Updates resident geometry while sharing the viewer's material and texture interpretation.
  */
-export function createConnectedFaceRenderer(props: {
-  loadTexture: (asset: string) => Promise<THREE.Texture>;
-  maxAnisotropy: number;
-}) {
-  let active: Resident | undefined;
-  const release = (resident: Resident): void => {
+export function createConnectedFaceRenderer(props: IConnectedFaceRendererProps) {
+  let active: IConnectedFaceResident | undefined;
+  const release = (resident: IConnectedFaceResident): void => {
     if (resident.released) return;
     resident.released = true;
     disposeGroup(resident.group);
     void resident.textures.dispose();
   };
-  const dispose = (frame: Frame): void => {
+  const dispose = (frame: IConnectedFaceFrame): void => {
     if (frame.resident !== active) release(frame.resident);
   };
   return {
-    prepare: async (model: IAutoMovieModel): Promise<Frame> => {
+    prepare: async (model: IAutoMovieModel): Promise<IConnectedFaceFrame> => {
       // The connected compiler emits static resident meshes. Refuse a different
       // model kind instead of accidentally updating a rig or primitive in place.
       if (model.skeleton !== null)
         throw new Error("Connected previews require static resident meshes.");
-      const witnesses: MeshWitness[] = [];
+      const witnesses: IConnectedFaceMeshWitness[] = [];
       const meshes = model.parts.map((part, index) => {
         if (
           part.geometry.type !== "mesh" ||
@@ -163,21 +179,10 @@ export function createConnectedFaceRenderer(props: {
         witnesses.push(witnessOf(mesh, closed));
         return mesh;
       });
-      const signature = JSON.stringify({
-        materials: model.materials,
-        parts: model.parts.map((part, index) => {
-          const mesh = meshes[index];
-          return {
-            ...part,
-            geometry: {
-              ...mesh,
-              positions: mesh.positions.length,
-              normals: mesh.normals?.length,
-            },
-          };
-        }),
-      });
-      if (active?.signature === signature)
+      if (
+        active !== undefined &&
+        sameHumanPreviewValue(active.structure, structureOf(model, meshes, null))
+      )
         return { resident: active, model, meshes, witnesses };
       const textures = new AutoMovieTextureCache(async (asset) => {
         const texture = await props.loadTexture(asset);
@@ -195,7 +200,7 @@ export function createConnectedFaceRenderer(props: {
         return {
           resident: {
             group,
-            signature,
+            structure: structureOf(model, meshes, witnesses),
             textures,
             released: false,
             witnesses,
@@ -213,7 +218,7 @@ export function createConnectedFaceRenderer(props: {
         throw error;
       }
     },
-    publish: (frame: Frame): THREE.Group => {
+    publish: (frame: IConnectedFaceFrame): THREE.Group => {
       if (frame.resident.released)
         throw new Error("This prepared face has been released.");
       if (
@@ -241,7 +246,7 @@ export function createConnectedFaceRenderer(props: {
               (part?.id ?? index),
           );
       }
-      // Every buffer has matching shape because the signature contains its
+      // Every buffer has matching shape because the reuse structure holds its
       // lengths and static topology. No asynchronous work occurs during commit.
       for (const [index, mesh] of frame.meshes.entries()) {
         const geometry = frame.resident.meshes[index].geometry;

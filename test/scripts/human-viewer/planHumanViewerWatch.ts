@@ -1,26 +1,21 @@
+import type { IHumanViewerWatchState } from "./IHumanViewerWatchState";
+
 /**
  * Decide what the watcher does on one probe of the resident viewer. A server
- * that answers is left alone. A silent one is only dead when its recorded
- * process is gone and the watcher owns no running child. A silent server whose
- * process is still alive is busy (a long rebuild or a heavy capture holds its
- * single event loop), so the watcher waits, and only after `limitMs` of
- * silence calls it hung and restarts it. A restart kills the recorded and owned
- * processes and must wait for the port to be released before starting another
- * server, so two servers never contend for the same port.
+ * that answers is left alone. A server starts only when the connection is
+ * refused and the watcher has no running child, the same rule `ensure`
+ * follows. Only the watcher's own child may be restarted, after `limitMs` of
+ * silence; a silent server the watcher did not start, another session's or
+ * one started by `ensure`, is waited for and never killed, because a session
+ * never restarts or stops a server it did not start.
  *
- * @evidence contracts/common.md#principled-implementation Liveness of the recorded process, not the speed of one HTTP answer, separates a busy server from a dead one.
+ * @evidence contracts/common.md#principled-implementation Ownership of the child process, not the record file or the speed of one answer, decides whether anything is killed.
  * @evidence contracts/common.md#clear-and-simple-design One pure decision owns the watcher's three outcomes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No process is chosen by name; only the recorded pid and the watcher's own child are considered.
- * @evidence contracts/common.md#meaningful-documentation States busy versus dead, the hang limit and the port-release requirement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No process is chosen by name or by record; only the watcher's own child is restarted.
+ * @evidence contracts/common.md#meaningful-documentation States the start rule, the ownership rule and the hang limit.
  */
-export function planHumanViewerWatch(state: {
-  answered: boolean;
-  recordedAlive: boolean;
-  ownedRunning: boolean;
-  silentMs: number;
-  limitMs: number;
-}): "wait" | "start" | "restart" {
+export function planHumanViewerWatch(state: IHumanViewerWatchState): "wait" | "start" | "restart" {
   if (state.answered) return "wait";
-  if (!state.recordedAlive && !state.ownedRunning) return "start";
-  return state.silentMs > state.limitMs ? "restart" : "wait";
+  if (state.refused && !state.ownedRunning) return "start";
+  return state.ownedRunning && state.silentMs > state.limitMs ? "restart" : "wait";
 }

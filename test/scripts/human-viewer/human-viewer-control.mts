@@ -15,7 +15,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describeHumanViewerSilence } from "./describeHumanViewerSilence.ts";
+import { humanViewerErrorCode } from "./humanViewerErrorCode.ts";
 import { humanViewerInstance } from "./humanViewerInstance.ts";
+import type { IHumanShotHealth } from "./IHumanShotHealth.ts";
+import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
 import { planHumanViewerControl } from "./planHumanViewerControl.ts";
 
 const command = process.argv[2];
@@ -28,25 +31,18 @@ const record = path.resolve(
   instance.record,
 );
 const PROBE_MS = 2000;
-let health: { pid: number; ready: boolean } | null | undefined;
+let health: IHumanShotHealth | null | undefined;
 try {
   const response = await fetch(instance.origin + "/health", {
     signal: AbortSignal.timeout(PROBE_MS),
   });
-  const body = (await response.json()) as {
-    service: string;
-    pid: number;
-    ready: boolean;
-  };
+  const body = (await response.json()) as IHumanShotHealth;
   health = body.service === "automovie-human-viewer" ? body : undefined;
 } catch (error) {
-  health =
-    (error as { cause?: { code?: string } }).cause?.code === "ECONNREFUSED"
-      ? null
-      : undefined;
+  health = humanViewerErrorCode(error) === "ECONNREFUSED" ? null : undefined;
 }
 const saved = fs.existsSync(record)
-  ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
+  ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
   : null;
 const plan = planHumanViewerControl(command, health, saved);
 if (plan.action === "report" && (health === null || health === undefined)) {

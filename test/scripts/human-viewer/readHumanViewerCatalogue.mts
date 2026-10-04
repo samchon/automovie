@@ -15,6 +15,7 @@ import path from "node:path";
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
+import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerInputs } from "./readHumanViewerInputs";
@@ -28,6 +29,8 @@ export function readHumanViewerCatalogue(props: {
   basisOf?: (file: string) => { id: string; digest: string };
   /** The digests the page reloads on and each domain's builds depend on. */
   revisions: IHumanViewerRevisions;
+  /** Digest and identity of an input sidecar, or null while it is being read. */
+  sidecar?: (name: string) => IHumanViewerSidecarFacts | null;
 }): HumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
@@ -92,6 +95,7 @@ export function readHumanViewerCatalogue(props: {
           },
           bases,
           sources,
+          sidecar: props.sidecar ?? (() => null),
         })
       : { documents: [], rejected: [] };
   return {

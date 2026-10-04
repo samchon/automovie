@@ -17,6 +17,8 @@ import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
 type Child = Window & { __humanViewer: HumanViewerHandle };
 let active: HTMLIFrameElement | undefined;
 let candidate: HTMLIFrameElement | undefined;
+/** A source change arrived while a candidate was still preparing. */
+let again = false;
 let committed: ReturnType<typeof createHumanViewerGeneration> | undefined;
 let generation = 0;
 const stage = document.querySelector<HTMLElement>("#stage")!;
@@ -100,11 +102,22 @@ function changedSource(): void {
   if (auto.checked) quiet = setTimeout(prepare, 20000);
 }
 banner.addEventListener("click", () => prepare());
+/**
+ * Start a candidate generation. A candidate already preparing is never
+ * discarded: it finishes, ready or failed, and one more candidate follows if
+ * the source changed meanwhile. Discarding it on every edit meant that edits
+ * arriving faster than one compile and build kept the page from ever drawing
+ * a generation; now each candidate completes, and one that is already behind
+ * the source is published as stale, which the server reports.
+ */
 function prepare(): void {
   clearTimeout(quiet);
   banner.hidden = true;
+  if (candidate !== undefined) {
+    again = true;
+    return;
+  }
   const ticket = ++generation;
-  candidate?.remove();
   const frame = document.createElement("iframe");
   frame.title = "Human GPU viewport";
   frame.style.visibility = "hidden";
@@ -119,6 +132,12 @@ function prepare(): void {
   begin("the page");
   candidate = frame;
   stage.append(frame);
+}
+/** Start the candidate a source change asked for while another was preparing. */
+function followUp(): void {
+  if (!again) return;
+  again = false;
+  prepare();
 }
 addEventListener(
   "message",
@@ -150,6 +169,7 @@ addEventListener(
       showError(event.data.error ?? "Source generation failed");
       candidate.remove();
       candidate = undefined;
+      followUp();
       return;
     }
     if (event.data.type !== "human:ready") return;
@@ -157,6 +177,7 @@ addEventListener(
     active?.remove();
     active = candidate;
     candidate = undefined;
+    followUp();
     active.style.visibility = "visible";
     goodAt = new Date().toLocaleTimeString();
     banner.hidden = true;

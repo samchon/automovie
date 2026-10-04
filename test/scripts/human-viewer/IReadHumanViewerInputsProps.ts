@@ -1,0 +1,25 @@
+import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
+import type { IHumanViewerInputsIo } from "./IHumanViewerInputsIo";
+import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
+
+/**
+ * What the input reader needs: the files and the published identities and
+ * source digests their keys are built from.
+ *
+ * @evidence contracts/common.md#clear-and-simple-design The host supplies bytes and digests; the reader owns admission and keys.
+ * @evidence contracts/common.md#meaningful-documentation Names every input of the reader.
+ * @author Samchon
+ */
+export interface IReadHumanViewerInputsProps {
+  /** Input directory access. */
+  io: IHumanViewerInputsIo;
+
+  /** Published face and body basis identities. */
+  bases: Record<"face" | "body", IHumanViewerBasisIdentity>;
+
+  /** Digest of the source each domain's build reads. */
+  sources: Record<"face" | "body" | "person", string>;
+
+  /** Digest and identity of a sidecar file, or null while it is still being read. */
+  sidecar: (name: string) => IHumanViewerSidecarFacts | null;
+}

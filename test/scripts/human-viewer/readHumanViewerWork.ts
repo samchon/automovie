@@ -16,11 +16,12 @@ export function readHumanViewerWork(text: string): HumanViewerWork | null {
     if (value === null || typeof value !== "object") return null;
     if (typeof value.revision !== "string" || typeof value.frame !== "string" || typeof value.doc !== "string") return null;
     if (!["loading", "cache-read", "build", "numeric-reply", "cache-write", "prepare", "draw", "idle", "failed"].includes(String(value.phase))) return null;
-    for (const field of ["at", "pending", "geometries", "textures"] as const)
+    for (const field of ["at", "pending", "geometries", "textures", "residents", "residentBytes"] as const)
       if (typeof value[field] !== "number" || !Number.isFinite(value[field]) || value[field] < 0) return null;
     return { revision: value.revision, frame: value.frame, doc: value.doc,
       phase: value.phase!, at: value.at!, pending: value.pending!,
-      geometries: value.geometries!, textures: value.textures! };
+      geometries: value.geometries!, textures: value.textures!,
+      residents: value.residents!, residentBytes: value.residentBytes! };
   } catch {
     return null;
   }

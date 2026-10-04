@@ -42,6 +42,10 @@ const compilation = createHumanViewerCompilation(
       `compile-${process.pid}-${randomUUID()}.json`,
     );
     fs.mkdirSync(path.dirname(output), { recursive: true });
+    // Each compile is logged with its duration, so a page load that waits on
+    // repeated compiles (source edited while it loads) is visible in the log.
+    const began = performance.now();
+    console.log(`COMPILE start ${new Date().toISOString()}`);
     await new Promise<undefined>((resolve, reject) => {
       const child = spawn(
         process.execPath,
@@ -61,8 +65,11 @@ const compilation = createHumanViewerCompilation(
       error?: string;
     };
     fs.rmSync(output, { force: true });
-    if (result.files === undefined)
+    if (result.files === undefined) {
+      console.log(`COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`);
       throw new Error(result.error ?? "The human compile failed");
+    }
+    console.log(`COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files`);
     const files = Object.fromEntries(
       Object.entries(result.files).map(([file, source]) => [
         path.resolve(human, file).replaceAll("\\", "/"),
