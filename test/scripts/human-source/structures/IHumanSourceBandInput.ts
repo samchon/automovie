@@ -1,15 +1,12 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
-import type { IHumanSourceBodyField } from "./IHumanSourceBodyField.ts";
-import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
-import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
-import type { IHumanSourceFaceReproduction } from "./IHumanSourceFaceReproduction.ts";
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
-import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
 
 /**
- * Inputs of the band extension: the assembled generation and the upstream it came from.
+ * Inputs of the body band stage: the macro-defined generation, the published
+ * face (for its jaw attachment) and body (for the anchor landmark rows), and
+ * the band reach convention in metres.
  *
  * @author Samchon
  */
@@ -17,9 +14,5 @@ export interface IHumanSourceBandInput {
   generation: IHumanSourceGeneration;
   face: IAutoMovieHumanFaceBasis;
   body: IAutoMovieHumanBodyBasis;
-  cut: IHumanSourceCut;
-  faceRows: IHumanSourceFaceReproduction;
-  reader: IHumanSourceDeltaReader;
-  field: IHumanSourceBodyField;
-  sample: IHumanSourceSample;
+  reachMetres: number;
 }

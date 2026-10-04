@@ -177,14 +177,12 @@ export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSo
   // Remove the face definitions that now alias body ones.
   const aliasedEndpoints = new Set(aliases.filter((a) => a.kind === "channel").flatMap((a) => Object.keys(a.endpoints)));
   for (const name of [...aliasedEndpoints, ...droppedFaceTargets]) delete targets[name];
-  const redefined = new Set([...macroTargets, ...aliasedEndpoints, ...droppedFaceTargets]);
   return {
     generation: {
       ...generation,
       channels: generation.channels.filter((c) => !(c.origin === "face" && channelAlias.has(c.id))),
       correctives,
       targets,
-      bandTargets: generation.bandTargets.filter((r) => !redefined.has(r.target)),
       anchor: { landmarks: ANCHOR_LANDMARKS, rule: "mean of the endpoint's rows on these body landmarks", targets: macroTargets },
       aliases,
       stamps: [

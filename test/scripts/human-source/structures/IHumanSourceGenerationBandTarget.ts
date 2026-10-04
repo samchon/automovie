@@ -1,20 +1,19 @@
 /**
- * How one endpoint was extended across the band. `upstream`: its upstream
- * recipe reproduces the stored cut-sample rows and supplies E on the band.
- * `derived`: E is the cut-sample row carried to each band vertex at its loop
- * parameter. `macro-owned-by-body`: a face macro row faded to zero at the cut,
- * the cut value belonging to the body macro of the same upstream axis so the
- * global dimension is counted once. `unavailable`: the
- * cut-sample rows themselves have no source value, so no extension exists.
+ * How one endpoint that only one partition defines crosses the cut.
+ *
+ * `body-band`: a body endpoint without head rows; on the band its row becomes
+ * `B(v) - w(v)·(B(c(v)) - Δanchor)`, its cut-sample rows become `Δanchor`, so
+ * the body value meets the rigid head carry at the cut and returns below the
+ * band. `face-band`: a face endpoint that moves the cut gains `w(v)·F(c(v))`
+ * on the band. `unavailable`: the endpoint's cut-sample rows have no source
+ * value, so no band row exists and the endpoint is refused by name. `rows`
+ * counts the band rows written.
  *
  * @author Samchon
  */
 export interface IHumanSourceGenerationBandTarget {
   target: string;
   origin: "face" | "body";
-  side: "head-band" | "body-band";
-  extension: "upstream" | "derived" | "macro-owned-by-body" | "unavailable";
+  rule: "body-band" | "face-band" | "unavailable";
   rows: number;
-  replacedRows: number;
-  note: string;
 }

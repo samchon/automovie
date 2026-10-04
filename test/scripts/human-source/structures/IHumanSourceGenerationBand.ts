@@ -1,33 +1,26 @@
 /**
- * The neck band of the one skin and its blend weights: where the source rig
- * spreads neck motion, so channels crossing the cut fade over the same support
- * the skinning blends over.
+ * The body band of the one skin: where a channel that only one partition
+ * defines is blended across the cut.
  *
- * `loopSamples` are the 184 cut-sample skin ids ordered by azimuth about the
- * vertical axis through their neutral centroid `axis` ([x, z], metres); a
- * vertex's loop parameter is its azimuth about that axis. The head band is the
- * head-partition vertices (cut samples excluded) whose head weight is below
- * one; the body band the body-partition vertices (cut samples excluded) with
- * any neck or head weight. `headHeights[b]` / `bodyDepths[b]` are the largest
- * height above / depth below the loop among band vertices in azimuth bin `b`
- * of `azimuthBins` equal bins, interpolated linearly between bin centres. With
- * `t` that height ratio clamped to [0, 1], a band vertex's weight is
- * `1 - (6t^5 - 15t^4 + 10t^3)`: exactly one on the cut, zero at the band end
- * and beyond, C2 and monotone. Everything is computed from the neutral
- * geometry and the one weight map; no value is authored.
+ * The face owns the head partition's shape and the body carries it rigidly
+ * with the head anchor, so no band lies on the head side. The band is the
+ * body-partition vertices (cut samples excluded) whose depth below the cut
+ * loop is in `[0, reachMetres)`. A vertex's loop parameter is its azimuth
+ * `atan2(x - axis[0], z - axis[1])` about the vertical axis through the cut
+ * samples' neutral centroid; the loop height and a cut row at that azimuth are
+ * linear interpolations between the two azimuth-adjacent `loopSamples`.
+ * `weights[i]` is `1 - smootherstep(depth / reachMetres)` for `vertices[i]`:
+ * one on the cut, zero at the band end, C2 and monotone. `reachMetres` is an
+ * authored rig convention (`convention` records how it was chosen), not an
+ * anatomical measurement.
  *
  * @author Samchon
  */
 export interface IHumanSourceGenerationBand {
-  method: string;
-  carryLandmark: string;
-  loopSamples: number[];
+  convention: string;
+  reachMetres: number;
   axis: number[];
-  azimuthBins: number;
-  headHeights: number[];
-  bodyDepths: number[];
-  headBand: number[];
-  headWeights: number[];
-  bodyBand: number[];
-  bodyWeights: number[];
+  loopSamples: number[];
+  vertices: number[];
+  weights: number[];
 }

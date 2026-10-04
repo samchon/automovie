@@ -14,8 +14,8 @@ import { buildHumanSourceCut } from "./buildHumanSourceCut.ts";
 import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
 import { createHumanSourceDeltaReader } from "./createHumanSourceDeltaReader.ts";
+import { defineHumanSourceBand } from "./defineHumanSourceBand.ts";
 import { defineHumanSourceMacros } from "./defineHumanSourceMacros.ts";
-import { extendHumanSourceBand } from "./extendHumanSourceBand.ts";
 import { measureHumanSourceCarry } from "./measureHumanSourceCarry.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
@@ -38,6 +38,12 @@ const RECIPE_TOLERANCE_METRES = 2e-6;
 const RIGID_FACE_REVISION = "bfbb0f885";
 const RIGID_FACE_SHA256 = "5201ba8edb6857e36e02aa62c6ccb2f22758211aa5a63b1e6d30a99e65bf728f";
 
+/**
+ * Body band reach, metres: the smallest reach without a band fold in the N2
+ * sweep of the one-skin evaluator (40 mm folded at neck height -1, 60 mm did
+ * not). An authored rig convention, recorded as such in the band.
+ */
+const BAND_REACH_METRES = 0.06;
 /** Historical body publications the replay is compared with: extraction stage, r3, r8, r9. */
 const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"];
 
@@ -51,9 +57,9 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * body rows and the body rig; compare the replay with historical body stages.
  * Every input is then read and the input record is frozen, so the generation
  * id assembled next covers all of them. Assemble the one-skin generation,
- * define every channel crossing the neck once on its band
- * (`extendHumanSourceBand`), define every MPFB macro once over the whole skin
- * (`defineHumanSourceMacros`, superseding the band for those endpoints), build
+ * define every MPFB macro once over the whole skin (`defineHumanSourceMacros`),
+ * define the remaining one-sided endpoints on the body band
+ * (`defineHumanSourceBand`), build
  * the P1 pair after binding the attached parts to the skin and regenerating
  * their body-control rows (`bindHumanSourceParts`), measure every row's carry on
  * those artifacts, classify provenance from the measured residuals, and write
@@ -187,11 +193,11 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     sample: sampleRecord,
     inputs,
   });
-  const extended = extendHumanSourceBand({ generation: assembled, face, body, cut, faceRows, reader, field, sample });
-  log("band", extended.checks);
-  const macros = defineHumanSourceMacros({ generation: extended.generation, face, body, cut, faceRows, reader, field });
+  const macros = defineHumanSourceMacros({ generation: assembled, face, body, cut, faceRows, reader, field });
   log("macros", macros.checks);
-  const parts = bindHumanSourceParts({ generation: macros.generation, face, body, cut, faceRows, sample, reader, offset: extraction.frame.offset });
+  const extended = defineHumanSourceBand({ generation: macros.generation, face, body, reachMetres: BAND_REACH_METRES });
+  log("band", extended.checks);
+  const parts = bindHumanSourceParts({ generation: extended.generation, face, body, cut, faceRows, sample, reader, offset: extraction.frame.offset });
   const generation = parts.generation;
   log("parts", parts.checks);
   const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });

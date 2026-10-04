@@ -9,8 +9,8 @@ import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceRepro
  *
  * P2 reads the one-skin generation as the evaluator will: a face row at its
  * face vertex's skin id; a body row at its body vertex's source id, plus the
- * row's head-carry landmark delta where that vertex is head-only and the band
- * has made body rows carry-relative. P1 reads the written P1 face and body:
+ * row's head anchor delta where that vertex is head-only (the evaluator
+ * carries the head rigidly with the anchor). P1 reads the written P1 face and body:
  * a body vertex the complement dropped reads as no motion for an endpoint and
  * is left out of neutral and weight comparisons, whose rows then say how many
  * vertices were not compared. Attached parts are referenced by the generation,
@@ -42,8 +42,6 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
         const g = generation.skin.triangles[3 * t + k];
         if (g < n) headOnly[g] = 0;
       }
-  const carryLandmark = generation.band?.carryLandmark ?? null;
-  const carryIndex = carryLandmark === null ? -1 : body.landmarks.ids.indexOf(carryLandmark);
   const anchorTargets = new Set(generation.anchor?.targets ?? []);
   const anchorIndex = (generation.anchor?.landmarks ?? []).map((id) => body.landmarks.ids.indexOf(id));
   const anchorOf = (name: string): number[] => {
@@ -54,11 +52,6 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
   };
   const aliasOf = new Map<string, string>();
   for (const alias of generation.aliases) for (const [from, to] of Object.entries(alias.endpoints)) aliasOf.set(from, to);
-  const carryOf = (name: string): number[] => {
-    const rows = body.landmarks.targets[name] ?? [];
-    for (let i = 0; i < rows.length; i += 4) if (rows[i] === carryIndex) return [rows[i + 1], rows[i + 2], rows[i + 3]];
-    return [0, 0, 0];
-  };
   const skinRows = (name: string): Map<number, number[]> => {
     const rows = generation.targets[name] ?? [];
     const out = new Map<number, number[]>();
@@ -183,8 +176,10 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
     } else if (row.basis === "body" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
       const d = denseHumanSourceRows(bodySurface.targets[row.row], bodyCount);
       const map = skinRows(row.row);
-      const anchored = anchorTargets.has(row.row);
-      const carry = anchored ? anchorOf(row.row) : carryIndex < 0 ? [0, 0, 0] : carryOf(row.row);
+      // The head is carried rigidly with the anchor once a band is defined; a
+      // macro also stores head-only rows relative to it.
+      const anchored = anchorTargets.has(row.row) || generation.band !== null;
+      const carry = anchored ? anchorOf(row.row) : [0, 0, 0];
       const p1Map = new Map<number, number[]>();
       const p1Rows = p1Body.targets[row.row] ?? [];
       for (let i = 0; i < p1Rows.length; i += 4) p1Map.set(p1Rows[i], [p1Rows[i + 1], p1Rows[i + 2], p1Rows[i + 3]]);
@@ -193,7 +188,7 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       for (let v = 0; v < bodyCount; v++) {
         const x = kept[v];
         const stored = map.get(x);
-        const relative = (anchored || carryIndex >= 0) && headOnly[x] === 1;
+        const relative = anchored && headOnly[x] === 1;
         const j = p1Of.get(x);
         for (let c = 0; c < 3; c++) {
           candidate[3 * v + c] = (stored?.[c] ?? 0) + (relative ? carry[c] : 0);

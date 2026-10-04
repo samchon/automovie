@@ -38,17 +38,20 @@ const RIGID_GAP_OWNERS: Readonly<Record<string, readonly string[]>> = {
  * geometry that no post-extraction skin row moves, so they cannot regenerate
  * rows for this generation's controls.
  *
- * Body rows are keyed by the body endpoint, indexed by part vertex, relative to
- * the head anchor like the skin's head-only rows. Face-channel rows stay on the
+ * Body rows exist for the head-shaping body endpoints only (the macros); they
+ * are keyed by the body endpoint, indexed by part vertex, relative to the head
+ * anchor like the skin's head-only rows. Face-channel rows stay on the
  * part; face endpoints that now alias a body macro are removed from parts and
- * the face landmark set. The face landmark set gains every body endpoint's
- * landmark rows relative to the anchor, so articulation pivots follow the
- * reshaped head.
+ * the face landmark set. The face landmark set gains each head-shaping body
+ * endpoint's landmark rows relative to the anchor, so articulation pivots
+ * follow the reshaped head. `drivers` collects every body endpoint whose state
+ * drives head-partition data.
  */
 export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSourcePartRekey {
   const { generation, body, sample, offset } = input;
   const skin = generation.skin;
   const n = skin.originalVertices;
+  const headShaping = new Set(generation.anchor?.targets ?? []);
   const aliased = new Set(generation.aliases.flatMap((alias) => Object.keys(alias.endpoints)));
   const anchorIds = (generation.anchor?.landmarks ?? []).map((id) => body.landmarks.ids.indexOf(id));
   const landmarkRow = (name: string, index: number): number[] => {
@@ -61,7 +64,17 @@ export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSource
     for (const index of anchorIds) landmarkRow(name, index).forEach((x, c) => (sum[c] += x / anchorIds.length));
     return sum;
   };
-  const bodyEndpoints = Object.keys(body.surfaces[0].targets);
+  // Only head-shaping body endpoints (the macros, defined once over the skin)
+  // have head rows; every other body endpoint moves the head as a rigid carry.
+  const bodyEndpoints = Object.keys(body.surfaces[0].targets).filter((name) => headShaping.has(name));
+  const bodyKeys = new Set(Object.keys(body.surfaces[0].targets));
+  const headOnly = new Uint8Array(n);
+  skin.labels.forEach((label, t) => {
+    if (label === 0) for (let k = 0; k < 3; k++) if (skin.triangles[3 * t + k] < n) headOnly[skin.triangles[3 * t + k]] = 1;
+  });
+  skin.labels.forEach((label, t) => {
+    if (label === 1) for (let k = 0; k < 3; k++) if (skin.triangles[3 * t + k] < n) headOnly[skin.triangles[3 * t + k]] = 0;
+  });
   const headTriangles: number[] = [];
   skin.labels.forEach((label, t) => {
     if (label === 0) headTriangles.push(t);
@@ -261,7 +274,7 @@ export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSource
     if (set.origin !== "face") return set;
     const targets: Record<string, number[]> = Object.fromEntries(Object.entries(set.targets).filter(([name]) => !aliased.has(name)));
     const indices = set.ids.map((id) => body.landmarks.ids.indexOf(id));
-    for (const name of Object.keys(body.landmarks.targets)) {
+    for (const name of Object.keys(body.landmarks.targets).filter((key) => headShaping.has(key))) {
       const anchor = anchorOf(name);
       const out: number[] = [];
       indices.forEach((index, i) => {
@@ -273,11 +286,32 @@ export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSource
     }
     return { ...set, targets };
   });
+  // Body endpoints whose state drives head-partition data.
+  function driversOf(boundParts: typeof parts, boundLandmarks: typeof landmarks): string[] {
+    const out = new Set<string>();
+    for (const name of headShaping) {
+      const rows = generation.targets[name] ?? [];
+      for (let i = 0; i < rows.length; i += 4) if (rows[i] < n && headOnly[rows[i]] === 1) out.add(name);
+    }
+    for (const part of boundParts) for (const name of Object.keys(part.bodyTargets)) out.add(name);
+    for (const set of boundLandmarks) if (set.origin === "face") for (const name of Object.keys(set.targets)) if (bodyKeys.has(name)) out.add(name);
+    const bodyChannel = new Map(generation.channels.filter((c) => c.origin === "body").map((c) => [c.id, c]));
+    for (const corrective of generation.correctives)
+      if (corrective.origin === "face")
+        for (const driver of corrective.inputs)
+          if ("channel" in driver && bodyChannel.has(driver.channel)) {
+            const channel = bodyChannel.get(driver.channel)!;
+            const endpoint = driver.side === "negative" ? channel.negative : channel.positive;
+            if (endpoint !== null) out.add(endpoint);
+          }
+    return [...out].sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
+  }
   return {
     generation: {
       ...generation,
       parts,
       landmarks,
+      drivers: driversOf(parts, landmarks),
       gaps: [...generation.gaps, ...gaps],
       stamps: [
         ...generation.stamps,

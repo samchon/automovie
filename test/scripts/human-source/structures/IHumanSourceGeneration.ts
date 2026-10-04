@@ -33,13 +33,14 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * `skin.faceVertexToSkin` and stamped accordingly. This is offline producer
  * data for the N2 comparison, not yet a runtime contract.
  *
- * `band` (null until extended) defines the neck band; body endpoint rows on
- * head-band vertices are relative to the rigid head carry of the
- * `band.carryLandmark` landmark row, face endpoint rows on body-band vertices
- * are absolute, and cut-sample rows stay absolute values of their partition
- * owner. `bandTargets` records each extended endpoint. Endpoints listed in
- * `anchor.targets` (every MPFB macro, defined once over the whole skin) are
- * stored relative to `anchor` on head-only vertices instead and need no band;
+ * The face owns the head partition's shape and the body carries the head
+ * rigidly with `anchor` (the eye joint-cube mean of each body endpoint's
+ * landmark rows). Endpoints in `anchor.targets` (every MPFB macro, defined
+ * once over the whole skin) also store head-only rows relative to that anchor
+ * and need no band; the others cross the cut only on `band` (null until
+ * defined), recorded per endpoint in `bandTargets`. `drivers` lists the body
+ * endpoints whose state drives head-partition data: macro head rows, part
+ * `bodyTargets`, face landmark body rows and face corrective inputs;
  * `aliases` records the face controls that named the same macros; `gaps`
  * names what is deliberately left unrepresented, with its size and owners.
  *
@@ -70,4 +71,5 @@ export interface IHumanSourceGeneration {
   anchor: IHumanSourceGenerationAnchor | null;
   aliases: IHumanSourceGenerationAlias[];
   gaps: IHumanSourceGenerationGap[];
+  drivers: string[];
 }

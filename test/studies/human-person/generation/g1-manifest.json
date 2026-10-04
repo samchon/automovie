@@ -1,5 +1,5 @@
 {
- "generation": "e4e4f67bad605ca96a5d8d42fa69e32c4aae18f204114dd659fa0d60c70fa351",
+ "generation": "e1a87d5bf0d51b5bec6247c560daace9890c25f4d1178ea655722512627cda35",
  "upstream": [
   {
    "name": "mpfb2",
@@ -74,8 +74,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/assembleHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 9578,
-   "sha256": "df1bce611c7025dfb11ae7b0d1c1d545f772593c839c88715c0f68c24f5c61b0"
+   "bytes": 9595,
+   "sha256": "f8bc7bd900d5a147e87128b4ec1b427ee354b38af0ba586e8573d27d27887dc0"
   },
   {
    "role": "producer",
@@ -88,8 +88,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/bindHumanSourceParts.ts",
    "revision": null,
-   "bytes": 14249,
-   "sha256": "a2318de2fd8778a8b0eb67ad7fde3653b964b4d55afd8f7d50b2f1914ad3b330"
+   "bytes": 16456,
+   "sha256": "e51f7a062b17906661ebfc47071d7dc436a2edb04931c36563cc1e5d14e99392"
   },
   {
    "role": "producer",
@@ -137,8 +137,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/compileHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 14103,
-   "sha256": "975e1722d10282b45fd4910e1a03259a332e9ce35766df74df0a0aa75e5c9d27"
+   "bytes": 14319,
+   "sha256": "249594cd8579c5233c818251c1845f3a1c01f0696cb4a4c2c0c5cf2ab36c22da"
   },
   {
    "role": "producer",
@@ -163,10 +163,17 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceBand.ts",
+   "revision": null,
+   "bytes": 8746,
+   "sha256": "9f47e22fa4f988773734f973c64339a82cb494b8bcea24e623d282a401950a4f"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/defineHumanSourceMacros.ts",
    "revision": null,
-   "bytes": 11700,
-   "sha256": "f422cec33c8989e82d4bb6a8a4e2b9ff1e43f3a35f8be092448e78d4d84daa96"
+   "bytes": 11525,
+   "sha256": "8590c8c9ce6fa125087d33a5363ead07ffc2ac5e952387e77cc3eaeab48fe3db"
   },
   {
    "role": "producer",
@@ -177,13 +184,6 @@
   },
   {
    "role": "producer",
-   "path": "test/scripts/human-source/extendHumanSourceBand.ts",
-   "revision": null,
-   "bytes": 11669,
-   "sha256": "be4e4a9a4236c6d35dd03cd03babcccc6472cc10e97e73d37f8cee6acd9d028d"
-  },
-  {
-   "role": "producer",
    "path": "test/scripts/human-source/humanSourceBodyBones.ts",
    "revision": null,
    "bytes": 1623,
@@ -191,17 +191,10 @@
   },
   {
    "role": "producer",
-   "path": "test/scripts/human-source/measureHumanSourceBand.ts",
-   "revision": null,
-   "bytes": 8295,
-   "sha256": "43f2cac27ad1ce151ca50719f03b3ab05f19dd9dbd5890e955b9c2a9ac1ad375"
-  },
-  {
-   "role": "producer",
    "path": "test/scripts/human-source/measureHumanSourceCarry.ts",
    "revision": null,
-   "bytes": 15808,
-   "sha256": "8962c828cf67f1443e1061c2afc5916dd3962882569f31406c6042b1ce22f49e"
+   "bytes": 15511,
+   "sha256": "3e7b9b04970bdec61ef8bb82e51204668c7e1733f8237e8a7dbf066ce5d2e2b6"
   },
   {
    "role": "producer",
@@ -366,17 +359,10 @@
   },
   {
    "role": "producer",
-   "path": "test/scripts/human-source/structures/IHumanSourceBandGeometry.ts",
-   "revision": null,
-   "bytes": 716,
-   "sha256": "ce84b69bc235b6138c5cd6ad593b36f9ebc79d843d8a79e0692debe02d81dd8b"
-  },
-  {
-   "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceBandInput.ts",
    "revision": null,
-   "bytes": 1087,
-   "sha256": "90fb1a372f0eaf4793c5f421b9d21380ecd0f0ed9cb6bc4e071f36a23847c03d"
+   "bytes": 689,
+   "sha256": "cdf5e9e887f36402a66e369128f0e74205dacdd06c673eec0e73b97d3e36151c"
   },
   {
    "role": "producer",
@@ -508,8 +494,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 4349,
-   "sha256": "3faeb6cf78b9efc82db68f81e570e0e982b123e59008b15e5af648b934c20156"
+   "bytes": 4438,
+   "sha256": "f771da432fe42873d1a0a97e4a3877904b5e08e138e5a96dc53855b3acd4dc25"
   },
   {
    "role": "producer",
@@ -536,15 +522,15 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGenerationBand.ts",
    "revision": null,
-   "bytes": 1422,
-   "sha256": "958e4934fc91f76c3b7796b33aa632864e05b6a01ebc33cfe5b64d0d4066aa09"
+   "bytes": 1115,
+   "sha256": "ee78e17ce8fe1b363fdd9c89dc6bac66e902f1377fcaca40059e9a4b537c3a6c"
   },
   {
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGenerationBandTarget.ts",
    "revision": null,
-   "bytes": 816,
-   "sha256": "a3042425aa21402d592db96ca84d85ec69c134d7b74d70ac29a9ea9d78c4ab44"
+   "bytes": 772,
+   "sha256": "b8686192bc7a200cea2526d4ca53900c03547fac9493dbf498823b2f448bdac2"
   },
   {
    "role": "producer",
@@ -953,24 +939,24 @@
  },
  "outputs": {
   "g1-generation.json.gz": {
-   "bytes": 58638621,
-   "sha256": "7322ba37f6100fcb6f0246202086234c761cfe87596daa86e3d333ea6d6779de"
+   "bytes": 57632253,
+   "sha256": "be2d7e140ec09b2ec95a14cc10675263b774ab92972970a6e76604347d430aea"
   },
   "p1-body-basis.json.gz": {
-   "bytes": 30371310,
-   "sha256": "8219619adb6bcb5969d3171aefea61140d7601c5a91bfe78d99532cef8d634a6"
+   "bytes": 30371304,
+   "sha256": "76604eef6a877ccf76bfd44907b9eda7771af45480e70ba0c58407a27032b9bb"
   },
   "p1-face-basis.json.gz": {
-   "bytes": 27868460,
-   "sha256": "a1521b8a02c0239dd7bf828533a23c4d4c4a2f41e34bc3fea298dfdba87a6f91"
+   "bytes": 27868478,
+   "sha256": "69a12f70d0fbe1e1dfb8652ee442557d97d55ba1d2a5dede4b38335ecb2829c3"
   },
   "reproduction-rows.tsv": {
-   "bytes": 587362,
-   "sha256": "c1ffd3a73244f6028624eacbcdcc9afa514d2af39631ce116266bd5e08ae7804"
+   "bytes": 587476,
+   "sha256": "a80c6bfcd917065cd856ef529b22c6db7cb7d3c874e73a7436cdeac2ab6b3d36"
   },
   "reproduction.json": {
-   "bytes": 2914130,
-   "sha256": "584b5ed84294dbd1e2c329a3cae770190b8021b24d3aa9720434ac68f1b2866a"
+   "bytes": 2913633,
+   "sha256": "879c599f18b7b2e9f2b34d999e40b4b7829fe31790f35d3ed96843bef028abad"
   }
  }
 }

@@ -174,5 +174,6 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
     anchor: null,
     aliases: [],
     gaps: [],
+    drivers: [],
   };
 }
