@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 
 /**
  * Compile immutable compact deformation fields into a mesh operation. Every
@@ -163,24 +164,17 @@ export function createAutoMovieMeshDeformer(
           }
         }
       }
-      const a = Vector3.create(jacobian[0], jacobian[3], jacobian[6]);
-      const b = Vector3.create(jacobian[1], jacobian[4], jacobian[7]);
-      const c = Vector3.create(jacobian[2], jacobian[5], jacobian[8]);
-      const bc = Vector3.cross(b, c),
-        ca = Vector3.cross(c, a),
-        ab = Vector3.cross(a, b);
-      const determinant = Vector3.dot(a, bc);
-      if (
-        !Number.isFinite(determinant) ||
-        determinant <= 0 ||
-        !target.every(Number.isFinite)
-      )
+      const { matrix } = cofactorAutoMovieJacobian(jacobian);
+      if (!target.every(Number.isFinite))
         throw new Error(
           "Mesh deformation must remain finite and preserve local surface orientation.",
         );
       positions.push(...target);
-      cofactors.push([bc.x, ca.x, ab.x, bc.y, ca.y, ab.y, bc.z, ca.z, ab.z]);
+      cofactors.push(matrix);
       if (normals !== null) {
+        const bc = Vector3.create(matrix[0], matrix[3], matrix[6]);
+        const ca = Vector3.create(matrix[1], matrix[4], matrix[7]);
+        const ab = Vector3.create(matrix[2], matrix[5], matrix[8]);
         const normal = Vector3.normalize(
           Vector3.add(
             Vector3.add(

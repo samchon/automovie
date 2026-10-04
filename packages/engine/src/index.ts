@@ -74,6 +74,7 @@ export { mixSeed } from "./math/mixSeed";
 export { seededValue } from "./math/seededValue";
 export { Quaternion } from "./math/Quaternion";
 export { Matrix4 } from "./math/Matrix4";
+export { cofactorAutoMovieJacobian } from "./math/cofactorAutoMovieJacobian";
 export { rotationBetween } from "./math/rotationBetween";
 export { pointSegmentDistance } from "./math/pointSegmentDistance";
 export { segmentSegmentDistance } from "./math/segmentSegmentDistance";
