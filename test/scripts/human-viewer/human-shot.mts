@@ -4,6 +4,12 @@
  * server starts one and remains attached after writing its PNG, so the session
  * continues to own that process. Shutdown kills only the verified owned PID
  * tree. Every child is hidden on Windows and no branch or worktree is created.
+ * `HUMAN_VIEWER_PORT` (default 5175) selects the viewer, its process record
+ * and, for a started server, its listening port, so a session can run its own
+ * viewer beside another session's. `status` exits 0 for a ready server, 3 for
+ * a not-ready or absent one (connection refused) and 4 when the port accepted
+ * the connection but `/health` did not answer within the probe: a listener is
+ * alive, and `ensure` never starts a second server on that port.
  */
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -11,14 +17,21 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { describeHumanViewerSilence } from "./describeHumanViewerSilence";
+import { humanViewerInstance } from "./humanViewerInstance";
 import { parseHumanShotRequest } from "./parseHumanShotRequest";
 import { planHumanViewerWatch } from "./planHumanViewerWatch";
 import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
+import type { IHumanViewerRecord } from "./IHumanViewerRecord";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
 const storage = path.join(root, ".shots/human-viewer");
-const origin = "http://127.0.0.1:5175";
+const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const origin = instance.origin;
+const record = path.join(storage, instance.record);
+/** How long one `/health` probe waits before it counts as unanswered. */
+const PROBE_MS = 8000;
 const request = parseHumanShotRequest(process.argv.slice(2));
 type Health = {
   service: string;
@@ -32,7 +45,7 @@ let owned: ChildProcess | undefined;
 const probe = async (): Promise<Health | null | undefined> => {
   try {
     const response = await fetch(origin + "/health", {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(PROBE_MS),
     });
     const health = (await response.json()) as Health;
     if (health.service !== "automovie-human-viewer")
@@ -80,10 +93,7 @@ async function watch(): Promise<void> {
     } catch {
       health = undefined;
     }
-    const record = path.join(storage, "server.json");
-    const saved = fs.existsSync(record)
-      ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
-      : null;
+    const saved = readRecord();
     const answered = health?.service !== undefined;
     silentSince = answered ? null : (silentSince ?? Date.now());
     const plan = planHumanViewerWatch({
@@ -111,6 +121,11 @@ async function watch(): Promise<void> {
     await pause(3000);
   }
 }
+/** This port's process record, or null when no viewer of this checkout recorded one. */
+const readRecord = (): IHumanViewerRecord | null =>
+  fs.existsSync(record)
+    ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
+    : null;
 const processAlive = (pid: number): boolean => {
   try {
     process.kill(pid, 0);
@@ -122,21 +137,33 @@ const processAlive = (pid: number): boolean => {
 async function main(): Promise<void> {
   const health = await probe();
   if (request.command === "status") {
-    console.log(JSON.stringify(health ?? { ready: false }));
-    process.exitCode = health?.ready ? 0 : 3;
+    if (health === null || health === undefined) {
+      // Refused and unanswered are different facts: an unanswered port has a
+      // live listener, and starting another server on it would contend.
+      const saved = readRecord();
+      const silence = describeHumanViewerSilence({
+        refused: health === null,
+        port: instance.port,
+        probeMs: PROBE_MS,
+        recordedPid: saved?.pid ?? null,
+        recordedAlive: saved !== null && processAlive(saved.pid),
+      });
+      console.log(JSON.stringify(silence));
+      process.exitCode = silence.answer === "absent" ? 3 : 4;
+      return;
+    }
+    console.log(JSON.stringify(health));
+    process.exitCode = health.ready ? 0 : 3;
     return;
   }
   if (request.command === "stop") {
-    const record = path.join(storage, "server.json");
     if (health === null) {
       console.log("human-viewer absent");
       return;
     }
     if (health === undefined)
       throw new Error("The port is busy; ownership cannot yet be verified");
-    const saved = fs.existsSync(record)
-      ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
-      : null;
+    const saved = readRecord();
     if (saved === null || saved.pid !== health.pid)
       throw new Error("The running server is not owned by this checkout");
     kill(saved.pid);

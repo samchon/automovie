@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 
 import { connectHumanViewer } from "./connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "./createNodeHumanViewerClientIo";
+import { humanViewerInstance } from "./humanViewerInstance";
 import { resolveHumanViewerPose } from "./resolveHumanViewerPose";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -35,7 +36,7 @@ async function main(): Promise<void> {
     throw new Error("Supply a study directory, an output directory and a pose file.");
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
-    origin: "http://127.0.0.1:5175",
+    origin: humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin,
   });
   const label = "study-" + path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
   const documents = JSON.parse(

@@ -2,7 +2,8 @@
  * Loopback-only resident GPU server, started as an attached session job:
  * `pnpm exec ttsx -P scripts/human-viewer/tsconfig.json scripts/human-viewer/server.mts`.
  * Vite transforms working-tree source; one real Chromium page serializes
- * capture requests. Numerical disk payloads and PID ownership live under the
+ * capture requests. `HUMAN_VIEWER_PORT` selects the port (default 5175) and
+ * the per-port process record, so viewers of several sessions can coexist. Numerical disk payloads and PID ownership live under the
  * ignored .shots tree. The host never edits documents or anatomical source.
  * Last-good PNGs retain their source identity; HTTP failures include a cause.
  */
@@ -47,8 +48,11 @@ import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailSto
 import { createNodeHumanViewerThumbnailDisk } from "./createNodeHumanViewerThumbnailDisk";
 import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
 import { retryAcrossHumanViewerGeneration } from "./retryAcrossHumanViewerGeneration";
+import { humanViewerInstance } from "./humanViewerInstance";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
+/** Port, origin and per-process files, chosen by `HUMAN_VIEWER_PORT` (default 5175). */
+const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const source = createHumanViewerSource(directory);
 const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } = source;
 let inventory = catalogue();
@@ -89,7 +93,7 @@ const warming = { revision: "", total: 0, done: 0, skipped: 0,
   failures: [] as { id: string; reason: string }[], current: null as string | null };
 /** What the compile process last reported, read from the file it writes. */
 const sourceStatus = () => readHumanViewerCompilationStatus(() =>
-  fs.readFileSync(path.join(storage, "source-status.json"), "utf8"));
+  fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"));
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
   if (renderer.trim() === "")
     throw new HumanViewerStartingError("The viewer is starting, retry");
@@ -146,8 +150,10 @@ const thumbnailFile = (search: string): string | null =>
  */
 async function writeThumbnail(file: string, png: Buffer): Promise<void> {
   await fs.promises.mkdir(path.dirname(file), { recursive: true });
-  await fs.promises.writeFile(file + ".tmp", png);
-  await fs.promises.rename(file + ".tmp", file);
+  // Viewers on other ports share the thumbnail directory: each writes its own temporary file.
+  const temporary = `${file}.${process.pid}.tmp`;
+  await fs.promises.writeFile(temporary, png);
+  await fs.promises.rename(temporary, file);
 }
 async function warm(revision: string): Promise<void> {
   const thumbnail = (id: string): string =>
@@ -177,7 +183,7 @@ async function main(): Promise<void> {
     response: ServerResponse,
     next: () => void,
   ): void => {
-    const url = new URL(request.url ?? "/", "http://127.0.0.1:5175");
+    const url = new URL(request.url ?? "/", instance.origin);
     const json = (value: unknown): void => {
       response.setHeader("Content-Type", "application/json");
       response.end(JSON.stringify(value));
@@ -186,6 +192,7 @@ async function main(): Promise<void> {
       return json({
         service: "automovie-human-viewer",
         pid: process.pid,
+        port: instance.port,
         revision: inventory.revision,
         renderer,
         // A ready server can draw. It may be drawing the last good build
@@ -430,7 +437,7 @@ async function main(): Promise<void> {
       warmReadiness.source(readyRevision);
     }
   });
-  await page.goto("http://127.0.0.1:5175/view?resident=1#ao=off", {
+  await page.goto(instance.origin + "/view?resident=1#ao=off", {
     timeout: 600000,
     waitUntil: "domcontentloaded",
   });
@@ -451,11 +458,11 @@ async function main(): Promise<void> {
   pruneThumbnails();
   warmReadiness.hardware();
   fs.writeFileSync(
-    path.join(storage, "server.json"),
+    path.join(storage, instance.record),
     JSON.stringify({
       pid: process.pid,
       startedAt: new Date().toISOString(),
-      port: 5175,
+      port: instance.port,
     }),
   );
   fs.mkdirSync(inputsDirectory, { recursive: true });
@@ -481,12 +488,12 @@ async function main(): Promise<void> {
     await browser.close();
     await stopRenderer();
     await vite.close();
-    fs.rmSync(path.join(storage, "server.json"), { force: true });
+    fs.rmSync(path.join(storage, instance.record), { force: true });
     process.exit(0);
   };
   process.once("SIGINT", () => void close());
   process.once("SIGTERM", () => void close());
-  console.log("human-viewer ready http://127.0.0.1:5175/view", process.pid);
+  console.log("human-viewer ready " + instance.origin + "/view", process.pid);
 }
 void main().catch((error: unknown) => {
   console.error(error);

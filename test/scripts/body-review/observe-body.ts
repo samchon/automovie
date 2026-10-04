@@ -24,6 +24,7 @@ import { gunzipSync } from "node:zlib";
 
 import { connectHumanViewer } from "../human-viewer/connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "../human-viewer/createNodeHumanViewerClientIo";
+import { humanViewerInstance } from "../human-viewer/humanViewerInstance";
 import { readSourceRevision } from "../review/readSourceRevision";
 import { buildObservationManifest } from "./buildObservationManifest";
 import { captureBodyFrames } from "./captureBodyFrames";
@@ -48,7 +49,7 @@ async function main(): Promise<void> {
   ) as IAutoMovieHumanBodyBasis;
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
-    origin: "http://127.0.0.1:5175",
+    origin: humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin,
   });
   console.log("RENDERER", viewer.renderer);
   const parts = await viewer.parts({ doc: "body:neutral" });

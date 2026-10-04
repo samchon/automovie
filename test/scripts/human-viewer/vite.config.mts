@@ -14,6 +14,7 @@ import { type ModuleNode, type ViteDevServer, defineConfig } from "vite";
 
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
+import { humanViewerInstance } from "./humanViewerInstance";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -27,12 +28,11 @@ interface IGraph {
   resolutionInputs?: string[];
 }
 let server: ViteDevServer;
+const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 // The transform runs in a child process: it is a synchronous call that takes
-// tens of seconds, and inside this process it froze every request.
-const status = path.resolve(
-  directory,
-  "../../../.shots/human-viewer/source-status.json",
-);
+// tens of seconds, and inside this process it froze every request. Each
+// viewer reports its own compilation, so a second viewer never overwrites it.
+const status = path.join(outputDirectory, served.sourceStatus);
 const compilation = createHumanViewerCompilation(
   async () => {
     // Invalidations and config reloads can overlap children in the same process.
@@ -152,7 +152,7 @@ export default defineConfig({
   },
   server: {
     host: "127.0.0.1",
-    port: 5175,
+    port: served.port,
     strictPort: true,
     fs: { allow: [path.resolve(directory, "../../..")] },
   },

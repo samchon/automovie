@@ -100,11 +100,14 @@ export function serveHumanViewerData(props: {
             if (payload.operation !== "preview" || payload.model === undefined)
               throw new Error("Expected numerical preview");
             // Compression runs off the event loop so /health keeps answering.
+            // Viewers on other ports share this directory, so the temporary
+            // file is this process's own.
+            const temporary = `${file}.${process.pid}.tmp`;
             await fs.promises.writeFile(
-              file + ".tmp",
+              temporary,
               await gzipAsync(encodeHumanViewerPreview(payload)),
             );
-            await fs.promises.rename(file + ".tmp", file);
+            await fs.promises.rename(temporary, file);
             response.statusCode = 204;
             response.end();
           })().catch(() => {

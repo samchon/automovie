@@ -24,6 +24,7 @@ import path from "node:path";
 
 import { connectHumanViewer } from "../human-viewer/connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "../human-viewer/createNodeHumanViewerClientIo";
+import { humanViewerInstance } from "../human-viewer/humanViewerInstance";
 import { readHumanViewerBasisIdentity } from "../human-viewer/readHumanViewerBasisIdentity";
 import { buildCaptureRecord } from "../review/buildCaptureRecord";
 import { readSourceRevision } from "../review/readSourceRevision";
@@ -53,7 +54,7 @@ async function main(): Promise<void> {
   const candidate = request.basis === null ? null : path.resolve(request.basis);
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
-    origin: "http://127.0.0.1:5175",
+    origin: humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin,
   });
   console.log("RENDERER", viewer.renderer);
   const { drawn } = await captureBodyFrames({
