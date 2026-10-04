@@ -1,4 +1,5 @@
 import type { IHumanViewerPersonBases } from "./IHumanViewerPersonBases";
+import type { IHumanViewerPersonParts } from "./IHumanViewerPersonParts";
 
 /**
  * Read the two basis names a person document declares: `face.basis` and
@@ -13,7 +14,7 @@ import type { IHumanViewerPersonBases } from "./IHumanViewerPersonBases";
  */
 export function readHumanViewerPersonBases(document: object): IHumanViewerPersonBases {
   const basisOf = (side: "face" | "body"): string => {
-    const part: unknown = (document as Partial<Record<"face" | "body", unknown>>)[side];
+    const part: unknown = (document as IHumanViewerPersonParts)[side];
     if (part === null || typeof part !== "object" || !("basis" in part) ||
         typeof part.basis !== "string" || part.basis === "")
       throw new Error(`A person document needs a ${side} document that names its basis`);

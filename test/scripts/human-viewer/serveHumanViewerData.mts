@@ -19,7 +19,7 @@ const CACHE_FIELDS = new Set(["operation", "model", "articulation", "contact", "
 /** Return whether a data route answered this request, leaving GPU routes to the host. */
 export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean {
   const { url, request, response, root, storage, basisFiles,
-    inputsDirectory, catalogue, publish, json } = props;
+    inputsDirectory, publish, json } = props;
   let { inventory } = props;
   const handled = (value: unknown): true => { json(value); return true; };
     if (url.pathname === "/docs") return handled(inventory);
@@ -79,13 +79,12 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
       return true;
     }
     if (url.pathname === "/rescan") {
-      // A rescan answers after the page owner has judged every new or changed
-      // input, so its rejected list already holds their admission reasons; a
-      // page that is not ready leaves them listed as pending, by name.
-      inventory = catalogue();
-      publish(inventory);
-      void props.admitted().then(() => {
-        inventory = catalogue();
+      // A rescan answers after every sidecar read and page admission it
+      // started has finished, so a new candidate is decided, not "still being
+      // read"; only a page that is not ready leaves inputs pending, and the
+      // response marks those `pending` apart from refusals.
+      void props.settleInputs().then((settled) => {
+        inventory = settled;
         publish(inventory);
         handled({
           documents: inventory.documents

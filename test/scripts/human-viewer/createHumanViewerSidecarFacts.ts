@@ -30,6 +30,7 @@ const gunzipAsync = promisify(gunzip);
 export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFactsProps) {
   const known = new Map<string, IHumanViewerSidecarFacts>();
   const reading = new Map<string, string>();
+  const inFlight = new Set<Promise<void>>();
   const read = async (file: string, stamp: string): Promise<IHumanViewerSidecarFacts> => {
     const hash = createHash("sha256");
     const chunks: Buffer[] = [];
@@ -57,7 +58,7 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
       if (kept !== undefined && kept.stamp === stamp) return kept;
       if (reading.get(file) !== stamp) {
         reading.set(file, stamp);
-        void read(file, stamp).catch((error: unknown): IHumanViewerSidecarFacts => ({ stamp,
+        const request: Promise<void> = read(file, stamp).catch((error: unknown): IHumanViewerSidecarFacts => ({ stamp,
           digest: "", basis: null, packet: null,
           failure: "Could not read: " + (error instanceof Error ? error.message : String(error)) }))
           .then((facts) => {
@@ -69,9 +70,18 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
           }).catch((error: unknown) => {
             console.error("Sidecar facts could not be published for " + file + ": " +
               (error instanceof Error ? error.message : String(error)));
-          });
+          }).finally(() => { inFlight.delete(request); });
+        inFlight.add(request);
       }
       return null;
+    },
+
+    /** Whether any sidecar read is still running. */
+    busy: (): boolean => inFlight.size !== 0,
+
+    /** Resolves when every sidecar read already started has stored its facts. */
+    settled: async (): Promise<void> => {
+      while (inFlight.size !== 0) await Promise.all([...inFlight]);
     },
   };
 }

@@ -59,6 +59,9 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
       return { state: "pending", reason: "awaiting admission by the viewer page" };
     },
 
+    /** Whether any admission asked of the page is still awaiting its verdict. */
+    busy: (): boolean => inFlight.size !== 0,
+
     /** Resolves when every admission already asked of the page has its verdict. */
     settled: async (): Promise<void> => {
       while (inFlight.size !== 0) await Promise.all([...inFlight]);

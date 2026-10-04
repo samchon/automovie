@@ -21,7 +21,7 @@ import { createServer } from "vite";
 import viewerConfig from "./vite.config.mjs";
 
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
-import type { HumanViewerHandle } from "./HumanViewerHandle";
+import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
@@ -65,11 +65,23 @@ const admission = createHumanViewerAdmission({
   // Through the capture lifetime, so a renderer failure refuses the request
   // instead of leaving the rescan waiting on a page that cannot answer.
   admit: (domain, text) => lifetime.run(() => page.evaluate((input) =>
-    (window as unknown as Record<"__humanViewer", HumanViewerHandle>).__humanViewer.admit(input.domain, input.text),
+    (window as unknown as IHumanViewerWindow).__humanViewer.admit(input.domain, input.text),
   { domain, text })),
   changed: () => { inventory = catalogue(); },
 });
 source.admitWith(admission.of);
+/**
+ * Read the catalogue until the sidecar reads and page admissions it starts
+ * have all finished: each finished read can start an admission, so the loop
+ * ends only when one reading starts nothing new.
+ */
+const settleInputs = async (): Promise<typeof inventory> => {
+  for (;;) {
+    inventory = catalogue();
+    if (!source.sidecars.busy() && !admission.busy()) return inventory;
+    await Promise.all([source.sidecars.settled(), admission.settled()]);
+  }
+};
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
@@ -204,7 +216,7 @@ async function main(): Promise<void> {
       return;
     }
     if (serveHumanViewerData({ url, request, response, root, storage,
-      basisFiles, inputsDirectory, inventory, catalogue, json, admitted: admission.settled,
+      basisFiles, inputsDirectory, inventory, catalogue, json, settleInputs,
       publish: (nextInventory) => { inventory = nextInventory; },
     })) return;
     if (serveHumanViewerCapture({ url, request, response, json, root, queue,
@@ -323,13 +335,13 @@ async function main(): Promise<void> {
   phase("waiting for the first source generation");
   await page.waitForFunction(
     () =>
-      Boolean((window as unknown as Partial<Record<"__humanViewer", unknown>>).__humanViewer),
+      Boolean((window as unknown as Partial<IHumanViewerWindow>).__humanViewer),
     undefined,
     { timeout: 0 },
   );
   renderer = await page.evaluate(() =>
     (
-      window as unknown as Record<"__humanViewer", HumanViewerHandle>
+      window as unknown as IHumanViewerWindow
     ).__humanViewer.renderer(),
   );
   console.log("RENDERER", renderer);

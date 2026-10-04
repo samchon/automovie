@@ -11,7 +11,7 @@ import path from "node:path";
 import { PNG } from "pngjs";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
-import type { HumanViewerHandle } from "./HumanViewerHandle";
+import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps";
 import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
@@ -144,7 +144,7 @@ export function serveHumanViewerCapture(props: IServeHumanViewerCaptureProps): b
       response.setHeader("X-Render-Ms", (performance.now() - start).toFixed(1));
       if (url.pathname === "/parts") {
         const parts = await request.run(() => props.lifetime.run(() => props.page().evaluate(() =>
-          (window as unknown as Record<"__humanViewer", HumanViewerHandle>).__humanViewer.parts())));
+          (window as unknown as IHumanViewerWindow).__humanViewer.parts())));
         return json(parts.map((name) => ({ name,
           limitation: "Displayed mesh/material region, not an anatomical partition" })));
       }

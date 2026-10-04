@@ -49,9 +49,17 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
-      const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<IHumanViewerCatalogue, "rejected">;
-      const refused = scan.rejected.find((entry) => entry.file === label + ".json");
-      if (refused !== undefined) throw new Error(refused.reason);
+      // A refusal fails the drop with its reason. A pending input (the
+      // server's page is not ready to admit it yet) is asked about again
+      // until it is decided; it is never taken as accepted or as refused.
+      for (;;) {
+        const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<IHumanViewerCatalogue, "rejected">;
+        const entries = scan.rejected.filter((entry) => entry.file === label + ".json");
+        const refused = entries.find((entry) => !entry.pending);
+        if (refused !== undefined) throw new Error(refused.reason);
+        if (entries.length === 0) return;
+        await new Promise<undefined>((resolve) => { setTimeout(resolve, 1000); });
+      }
     },
     parts: async (fields) => {
       const response = await io.fetch(

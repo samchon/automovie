@@ -1,3 +1,4 @@
+import type { IHumanViewerJsonConvertible } from "./IHumanViewerJsonConvertible";
 import type { IHumanViewerPreviewProjection } from "./IHumanViewerPreviewProjection";
 
 /** Target size of one piece, in UTF-16 code units. */
@@ -40,7 +41,7 @@ export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjec
     entry === undefined || typeof entry === "function" || typeof entry === "symbol";
   const prepare = (entry: unknown, key: string): unknown => {
     if (entry !== null && (typeof entry === "object" || typeof entry === "function" || typeof entry === "bigint")) {
-      const json = (entry as Partial<Record<"toJSON", (key: string) => unknown>>).toJSON;
+      const json = (entry as IHumanViewerJsonConvertible).toJSON;
       if (typeof json === "function") return json.call(entry, key);
     }
     return entry;

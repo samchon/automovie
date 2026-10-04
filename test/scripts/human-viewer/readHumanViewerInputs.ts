@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerInputs } from "./IHumanViewerInputs";
+import { HumanViewerPendingInputError } from "./HumanViewerPendingInputError";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
+import type { IHumanViewerInputDocument } from "./IHumanViewerInputDocument";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
@@ -50,7 +52,8 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
   const accept = (entry: IHumanViewerCatalogueEntry): void => {
     const admission = props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
-    else rejected.push({ file, reason: `${entry.id}: ${admission.reason ?? admission.state}` });
+    else rejected.push({ file, reason: `${entry.id}: ${admission.reason ?? admission.state}`,
+      pending: admission.state === "pending" });
   };
   for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
@@ -65,7 +68,8 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
       const sidecarOf = (sidecar: string): IHumanViewerSidecarFacts | null => {
         if (!available.has(sidecar)) return null;
         const facts = props.sidecar(sidecar);
-        if (facts === null) throw new Error(`${sidecar} is still being read; its documents appear when it is`);
+        if (facts === null)
+          throw new HumanViewerPendingInputError(`${sidecar} is still being read; its documents appear when it is`);
         return facts;
       };
       const candidate = sidecarOf(candidateFile);
@@ -75,7 +79,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
         const domain = classifyHumanViewerInput(document);
         if (domain !== "person" && packetFacts !== null)
           throw new Error(`${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`);
-        const named = document as Partial<Record<"id" | "basis", unknown>>;
+        const named = document as IHumanViewerInputDocument;
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
         if (domain === "person") {
@@ -139,6 +143,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
       rejected.push({
         file,
         reason: error instanceof Error ? error.message : String(error),
+        pending: error instanceof HumanViewerPendingInputError,
       });
     }
   }

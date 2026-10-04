@@ -44,6 +44,9 @@ export interface IServeHumanViewerDataProps {
   /** Answers with a JSON value. */
   json: (value: unknown) => void;
 
-  /** Resolves when the page has given its verdict on every input it was asked about. */
-  admitted: () => Promise<void>;
+  /**
+   * Re-reads the catalogue until every sidecar read and page admission it
+   * started has finished, and resolves with that catalogue.
+   */
+  settleInputs: () => Promise<IHumanViewerCatalogue>;
 }

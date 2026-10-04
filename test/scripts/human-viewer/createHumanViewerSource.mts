@@ -132,6 +132,8 @@ export function createHumanViewerSource(directory: string) {
     revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); },
     /** Register the host's republication for sidecars whose facts became known. */
     sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; },
+    /** The sidecar reader, whose reads a rescan waits for. */
+    sidecars,
     /** Bind the page owner's document admission. */
     admitWith: (judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>): void => { admission = judge; } };
 }
