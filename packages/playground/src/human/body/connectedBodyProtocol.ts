@@ -9,8 +9,12 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
+import type { IConnectedBodyArmsDownRequest } from "./IConnectedBodyArmsDownRequest";
 import type { IConnectedBodyArmsDownResult } from "./IConnectedBodyArmsDownResult";
+import type { IConnectedBodyExportRequest } from "./IConnectedBodyExportRequest";
 import type { IConnectedBodyExportResult } from "./IConnectedBodyExportResult";
+import type { IConnectedBodyMeshGeometry } from "./IConnectedBodyMeshGeometry";
+import type { IConnectedBodyPreviewRequest } from "./IConnectedBodyPreviewRequest";
 import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
 
 /**
@@ -59,18 +63,19 @@ export interface ConnectedBodyMesh {
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the committed body regions together.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps each resident region's geometry paired with its material binding.
  */
-export type ConnectedBodyPart = Omit<IAutoMovieModelPart, "geometry"> & {
+export interface ConnectedBodyPart
+  extends Omit<IAutoMovieModelPart, "geometry"> {
   /** Prepared static mesh. */
-  geometry: { type: "mesh"; mesh: ConnectedBodyMesh };
-};
+  geometry: IConnectedBodyMeshGeometry;
+}
 /** Portable model metadata paired with transferable part geometry.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the full body visible as one committed preview.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries all region buffers and finishes in one preview transaction.
  */
-export type ConnectedBodyModel = Omit<IAutoMovieModel, "parts"> & {
+export interface ConnectedBodyModel extends Omit<IAutoMovieModel, "parts"> {
   /** Draw-order parts, each with its own transfer ownership. */
   parts: ConnectedBodyPart[];
-};
+}
 /** A preview computes buffers; an export computes a file.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Requests the body's numerical preview independently of file encoding.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Requests a static file only on explicit export.
@@ -78,14 +83,9 @@ export type ConnectedBodyModel = Omit<IAutoMovieModel, "parts"> & {
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Sends the committed document to the static exporter.
  */
 export type ConnectedBodyRequest =
-  | {
-      operation: "preview";
-      document: string;
-      measure: boolean;
-      anatomy?: boolean;
-    }
-  | { operation: "export"; document: string }
-  | { operation: "armsDown"; document: string };
+  | IConnectedBodyPreviewRequest
+  | IConnectedBodyExportRequest
+  | IConnectedBodyArmsDownRequest;
 /** The matching result for one worker request.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Returns numerical preview buffers for publication.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Returns portable GLB bytes when requested.

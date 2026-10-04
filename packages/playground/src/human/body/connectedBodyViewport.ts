@@ -16,27 +16,9 @@ import * as THREE from "three";
 
 import { createHumanObservation } from "../common/observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
-import type { HumanResidentPort } from "../common/residentWorker";
-import type { createHumanViewport } from "../common/viewport";
+import type { IConnectedBodyViewportHost } from "./IConnectedBodyViewportHost";
 import { createConnectedBodyPreview } from "./connectedBodyPreview";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-
-type Host<Document> = Pick<
-  Parameters<typeof createHumanViewport>[0],
-  "canvas" | "pixelRatio" | "orbit" | "observeResize"
-> & {
-  renderer: Parameters<typeof createHumanViewport>[0]["renderer"] & {
-    shadowMap: Pick<THREE.WebGLShadowMap, "enabled" | "type" | "autoUpdate" | "needsUpdate">;
-  };
-  worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
-  loadTexture: (asset: string) => Promise<THREE.Texture>;
-  /** Text of a document for the worker; a body document unless the stage draws people. */
-  serialize?: (document: Document) => string;
-};
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
@@ -47,7 +29,7 @@ export function createConnectedBodyViewport<
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: Host<Document>) {
+>(props: IConnectedBodyViewportHost<Document>) {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;

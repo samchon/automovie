@@ -20,14 +20,14 @@ import type {
   ConnectedBodyPart,
 } from "./connectedBodyProtocol";
 
-type Resident = {
+interface Resident {
   group: THREE.Group;
   parts: ConnectedBodyPart[];
   meshes: THREE.Mesh[];
   materials: string;
   textures: AutoMovieTextureCache;
   released: boolean;
-};
+}
 interface Frame {
   resident: Resident;
   model: ConnectedBodyModel;

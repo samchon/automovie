@@ -54,14 +54,18 @@ export const appendMeshTopology = (
   // Coordinate-collapsed triangles remain redundant independently of identity.
   const coordinate = weldMeshVertices(mesh.positions);
   const { labels, vertices } = physical ?? coordinate;
-  type Direction = { from: number; to: number; count: number };
-  type Edge = {
+  interface Direction {
+    from: number;
+    to: number;
+    count: number;
+  }
+  interface Edge {
     low: number;
     high: number;
     count: number;
     forward?: Direction;
     reverse?: Direction;
-  };
+  }
   const edgeKey = createMeshEdgeKey(labels.length);
   const undirected = new Map<number | string, Edge>();
   const directed: Direction[] = [];
