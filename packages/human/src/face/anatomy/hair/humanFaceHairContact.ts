@@ -1,11 +1,11 @@
 import {
   Vector3,
+  type IAutoMovieMeshQueryBudget,
   type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
-import type { IHumanFaceHairQueryBudget } from "./IHumanFaceHairQueryBudget";
 import type { IHumanFaceHairRetraction } from "./IHumanFaceHairRetraction";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
@@ -111,7 +111,7 @@ export function humanFaceHairContact(props: {
   retract: (
     point: IAutoMovieVector3,
     offset: number,
-    budget: IHumanFaceHairQueryBudget,
+    budget: IAutoMovieMeshQueryBudget,
   ) => IHumanFaceHairRetraction;
 } {
   const { layer, query } = props;
@@ -191,7 +191,7 @@ export function humanFaceHairContact(props: {
   const retract = (
     input: IAutoMovieVector3,
     offset: number,
-    budget: IHumanFaceHairQueryBudget,
+    budget: IAutoMovieMeshQueryBudget,
   ): IHumanFaceHairRetraction => {
     if (!Number.isFinite(offset) || offset < clearance - epsilon)
       throw new Error("Hair offset retraction requires the unchanged free clearance.");

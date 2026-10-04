@@ -26,6 +26,7 @@
 export interface IHumanPhysicalSampleRegistration {
   /** Nonblank instance-and-generation domain of every sample. */
   domain: string;
+
   /** Non-negative safe-integer sample ID per connected-surface vertex. */
   samples: readonly number[];
 }

@@ -24,10 +24,13 @@
 export interface IAutoMovieHumanFaceOpticalSupportGaze {
   /** Existing gaze channel name. */
   channel: string;
+
   /** Unit rotation axis in the head frame. */
   axis: [number, number, number];
+
   /** Rotation at weight one, in degrees. */
   degrees: number;
+
   /** Globe translation at weight one, in head-frame metres. */
   translation: [number, number, number];
 }

@@ -1,4 +1,4 @@
-import { type createAutoMovieMeshRayCaster } from "@automovie/engine";
+import { type IAutoMovieMeshQueryBudget, type createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { humanFaceHairContact } from "./humanFaceHairContact";
@@ -61,7 +61,7 @@ export function launchHumanFaceHairCurve(props: {
     distance: ReturnType<typeof createHumanFaceHairRootBoundary>["distance"];
   };
   /** Caller-owned lock budget, also consumed by the subsequent metric walk. */
-  budget: { remaining: number };
+  budget: IAutoMovieMeshQueryBudget;
 }): { point: IAutoMovieVector3; distance: number } {
   const direction = humanFaceHairFrame.direction(props.exitDirection);
   const { clearance, epsilon, sample } = props.contact;

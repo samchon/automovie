@@ -1,6 +1,6 @@
+import type { IAutoMovieMeshQueryBudget } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanFaceHairQueryBudget } from "./IHumanFaceHairQueryBudget";
 import type { humanFaceHairContact } from "./humanFaceHairContact";
 
 /**
@@ -28,18 +28,25 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
 export interface IHumanFaceHairGatherTransportState {
   /** Current station, in head-frame metres. */
   point: IAutoMovieVector3;
+
   /** Requested unit travel direction from the gather blend. */
   direction: IAutoMovieVector3;
+
   /** Unit outward skin normal at the current station. */
   normal: IAutoMovieVector3;
+
   /** Non-negative travel along `direction`, in metres. */
   parameter: number;
+
   /** Gather strength in [0, 1]; zero keeps the ordinary path. */
   strength: number;
+
   /** Current free offset from the skin, at least clearance minus epsilon. */
   offset: number;
+
   /** Same-collider contact readers of this lock. */
   contact: ReturnType<typeof humanFaceHairContact>;
+
   /** Shared lock budget spent by retraction and the closing skin query. */
-  budget: IHumanFaceHairQueryBudget;
+  budget: IAutoMovieMeshQueryBudget;
 }

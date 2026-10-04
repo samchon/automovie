@@ -14,6 +14,8 @@ export * from "./IAutoMovieConeShape";
 export * from "./IAutoMovieCylinderShape";
 export * from "./IAutoMovieMeshGeometry";
 export * from "./IAutoMovieMeshSkin";
+export * from "./IAutoMovieMeshPhysicalSource";
+export * from "./IAutoMovieMeshPhysicalVertices";
 export * from "./IAutoMoviePlaneShape";
 export * from "./IAutoMoviePrimitiveGeometry";
 export * from "./IAutoMovieSphereShape";

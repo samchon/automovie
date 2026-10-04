@@ -17,6 +17,7 @@ import {
 
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
+import type { IAutoMovieHumanExportOptions } from "./IAutoMovieHumanExportOptions";
 import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanStaticPartCorrespondence";
 import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
 import { readHumanMeshPhysicalVertices } from "./readHumanMeshPhysicalVertices";
@@ -54,11 +55,8 @@ const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional metadata changes neither source geometry nor the legacy default and conveys no anatomical certification.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes optional source identity and the existing static exporter limitations.
  */
-export function createGltfDocument(model: IAutoMovieModel, options?: {
-  /** True opts into source part IDs and prepared intervals; absent or false omits this namespace independently of physical correspondence. */
-  sourcePartIdentity?: boolean;
-}): Document {
-  const identity = typia.assertEquals<{ sourcePartIdentity?: boolean }>(options === undefined ? {} : options).sourcePartIdentity === true;
+export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieHumanExportOptions): Document {
+  const identity = typia.assertEquals<IAutoMovieHumanExportOptions>(options === undefined ? {} : options).sourcePartIdentity === true;
   if (
     model.skeleton !== null ||
     model.materials.some((m) =>

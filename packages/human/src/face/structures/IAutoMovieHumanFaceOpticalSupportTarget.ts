@@ -23,8 +23,10 @@
 export interface IAutoMovieHumanFaceOpticalSupportTarget {
   /** Existing endpoint identity from the basis target domain. */
   id: string;
+
   /** Exact native sparse (vertex, dx, dy, dz) rows for this component. */
   surfaceRows: number[];
+
   /** Exact sparse landmark rows for the named eye's rigid centre landmark. */
   pivotRows: number[];
 }

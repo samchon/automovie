@@ -4,6 +4,7 @@ import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieT
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
+import type { IAutoMovieMeshQueryBudget } from "./IAutoMovieMeshQueryBudget";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -75,7 +76,7 @@ export function createAutoMovieMeshSeparationQuery(
   vertices: readonly IAutoMovieVector3[],
   options: {
     clearance: number;
-    budget: { remaining: number };
+    budget: IAutoMovieMeshQueryBudget;
     attachment?: {
       triangle: number;
       weights: readonly number[];

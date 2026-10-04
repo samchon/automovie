@@ -24,6 +24,7 @@
 export interface IHumanBodyShapeTargetGain {
   /** Basis row-target name: a channel endpoint or a corrective target. */
   target: string;
+
   /** Non-negative multiplier applied to every offset of `target`. */
   gain: number;
 }

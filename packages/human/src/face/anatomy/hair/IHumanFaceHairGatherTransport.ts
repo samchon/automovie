@@ -25,8 +25,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export interface IHumanFaceHairGatherTransport {
   /** Proposed station, in current head-frame metres. */
   point: IAutoMovieVector3;
+
   /** Free offset from the skin carried to the next step, in metres. */
   offset: number;
+
   /** Dot product of the requested direction and the outward normal. */
   normalIntent: number;
 }

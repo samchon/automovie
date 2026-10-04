@@ -2,12 +2,12 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
 import typia from "typia";
 
+import type { IAutoMovieHumanExportOptions } from "../../common/export/IAutoMovieHumanExportOptions";
 import { createGltfDocument } from "../../common/export/createGltfDocument";
 import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
 import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import type { IAutoMovieHumanBodyArticularAssetCorrespondence } from "./IAutoMovieHumanBodyArticularAssetCorrespondence";
-import type { IAutoMovieHumanBodyExportOptions } from "./IAutoMovieHumanBodyExportOptions";
 import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
 
 /**
@@ -40,12 +40,12 @@ import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticu
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanBodyExportOptions): Promise<{
+export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanExportOptions): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
   const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
-  const admitted = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyExportOptions>(options);
+  const admitted = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanExportOptions>(options);
   const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || admitted?.sourcePartIdentity === true });
   if (report !== undefined) {
     if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)

@@ -1,5 +1,6 @@
 import {
   Vector3,
+  type IAutoMovieMeshQueryBudget,
   type createAutoMovieMeshSeparationQuery,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -64,7 +65,7 @@ export function fitHumanFaceHairRibbonRows(
     clearance: number;
     source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
     represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-    budget: { remaining: number };
+    budget: IAutoMovieMeshQueryBudget;
     attachment:
       | {
           triangle: number;

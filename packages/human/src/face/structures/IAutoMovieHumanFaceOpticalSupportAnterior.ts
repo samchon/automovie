@@ -23,8 +23,10 @@
 export interface IAutoMovieHumanFaceOpticalSupportAnterior {
   /** Native vertex IDs of the hit triangle's corners. */
   triangle: [number, number, number];
+
   /** Barycentric weight of the second corner. */
   u: number;
+
   /** Barycentric weight of the third corner. */
   v: number;
 }

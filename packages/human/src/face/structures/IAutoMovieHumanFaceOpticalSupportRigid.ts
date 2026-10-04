@@ -25,6 +25,7 @@ import type { IAutoMovieHumanFaceOpticalSupportGaze } from "./IAutoMovieHumanFac
 export interface IAutoMovieHumanFaceOpticalSupportRigid {
   /** Existing eye centre landmark identity. */
   center: string;
+
   /** Existing gaze list in composition order, with its authored units unchanged. */
   gaze: IAutoMovieHumanFaceOpticalSupportGaze[];
 }

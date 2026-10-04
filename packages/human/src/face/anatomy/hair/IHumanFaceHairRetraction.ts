@@ -27,6 +27,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export interface IHumanFaceHairRetraction {
   /** Retracted position at the requested offset, in current head-frame metres. */
   point: IAutoMovieVector3;
+
   /** Unit outward skin normal at the hit that placed `point`. */
   normal: IAutoMovieVector3;
 }

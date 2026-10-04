@@ -1,5 +1,6 @@
 import {
   Vector3,
+  type IAutoMovieMeshQueryBudget,
   type createAutoMovieMeshSeparationQuery,
   type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
@@ -136,7 +137,7 @@ export function buildHumanFaceHairMesh(
       source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
       represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
     };
-    budgets: readonly { remaining: number }[];
+    budgets: readonly IAutoMovieMeshQueryBudget[];
     attachments: readonly {
       triangle: number;
       weights: readonly number[];

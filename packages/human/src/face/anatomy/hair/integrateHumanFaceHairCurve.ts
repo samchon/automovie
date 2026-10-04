@@ -1,5 +1,6 @@
 import {
   Vector3,
+  type IAutoMovieMeshQueryBudget,
   type createAutoMovieMeshRayCaster,
   type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
@@ -147,7 +148,7 @@ export function integrateHumanFaceHairCurve(props: {
   rootBoundary: Parameters<typeof launchHumanFaceHairCurve>[0]["rootBoundary"];
 
   /** Caller-owned remaining lock iterations, shared by launch and later walking. */
-  budget: { remaining: number };
+  budget: IAutoMovieMeshQueryBudget;
 
   /** Derived post-interpolation metric/contact, when different from regional length. */
   metric?: { length: number; contact: ReturnType<typeof humanFaceHairContact> };

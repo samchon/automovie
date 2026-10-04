@@ -30,10 +30,13 @@ import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 export interface IHumanBodySourceReferenceGoalContext {
   /** Compiled basis whose joints declare each goal's source reference. */
   basis: IAutoMovieHumanBodyBasis;
+
   /** Admitted document carrying the thigh goals to convert. */
   document: IAutoMovieHumanBodyBasisDocument;
+
   /** Shaped rig of `document`: skeleton, rest rotations, axes and frames. */
   rig: ReturnType<typeof resolveHumanBodySkeleton>;
+
   /** Pre-pelvis forward-kinematics result of `rig` for the same document. */
   baseline: readonly IAutoMovieResolvedBone[];
 }

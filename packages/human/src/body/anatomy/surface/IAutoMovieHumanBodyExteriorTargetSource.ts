@@ -27,6 +27,7 @@ import type { IAutoMovieHumanBodyExteriorReference } from "./IAutoMovieHumanBody
 export interface IAutoMovieHumanBodyExteriorTargetSource {
   /** Connected body basis whose builder and channel the instrument drives. */
   basis: IAutoMovieHumanBodyBasis;
+
   /** Exterior instrument bound to `basis` by its exact id. */
   reference: IAutoMovieHumanBodyExteriorReference;
 }

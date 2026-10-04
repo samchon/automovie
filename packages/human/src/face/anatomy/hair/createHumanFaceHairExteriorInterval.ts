@@ -1,5 +1,6 @@
 import {
   Vector3,
+  type IAutoMovieMeshQueryBudget,
   adjacentAutoMovieFloat64,
   type createAutoMovieMeshRayCaster,
 } from "@automovie/engine";
@@ -53,7 +54,7 @@ export function createHumanFaceHairExteriorInterval(props: {
     triangles: readonly number[];
     distance: ReturnType<typeof createHumanFaceHairRootBoundary>["distance"];
   };
-  budget: { remaining: number };
+  budget: IAutoMovieMeshQueryBudget;
 }) {
   const direction = humanFaceHairFrame.direction(props.direction);
   const { epsilon, sample } = props.contact;

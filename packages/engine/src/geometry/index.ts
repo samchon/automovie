@@ -2,6 +2,7 @@
 export * from "./IAutoMovieLoftSection";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
+export * from "./IAutoMovieMeshQueryBudget";
 export * from "./IAutoMovieMeshCrossing";
 export * from "./IAutoMovieMeshGroup";
 export * from "./IAutoMovieMeshPart";

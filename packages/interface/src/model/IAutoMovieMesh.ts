@@ -1,3 +1,4 @@
+import { IAutoMovieMeshPhysicalVertices } from "./IAutoMovieMeshPhysicalVertices";
 import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
 
 /**
@@ -47,10 +48,7 @@ export interface IAutoMovieMesh {
    * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Distinguishes actual source-point aliases from coordinate contact while retaining position-derived vertices.
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Carries source domain/ID lineage and nullable current-position correspondence per render vertex.
    */
-  physicalVertices?: {
-    sources: { domain: string; id: number }[];
-    vertices: (number | null)[];
-  };
+  physicalVertices?: IAutoMovieMeshPhysicalVertices;
 
   /**
    * Flat vertex normals `[x,y,z,...]`, aligned to `positions`. `null` if

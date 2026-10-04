@@ -30,8 +30,10 @@ export interface IAutoMovieHumanBodyMeasurementSection {
    * where the plane through the shaped witness vertex meets that segment.
    */
   point: IAutoMovieVector3;
+
   /** Unit plane normal: `+Y` for a horizontal rule, else the segment direction. */
   normal: IAutoMovieVector3;
+
   /** Position whose nearest closed loop by centroid is the measured component. */
   seed: IAutoMovieVector3;
 }

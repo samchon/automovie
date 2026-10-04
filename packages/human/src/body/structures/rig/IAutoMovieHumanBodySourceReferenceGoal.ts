@@ -28,10 +28,13 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 export interface IAutoMovieHumanBodySourceReferenceGoal {
   /** Existing source bone whose rest/current orientation defines travel. */
   reference: AutoMovieHumanoidBone;
+
   /** Source articulation in the reference-transported thigh rest frame. */
   coordinates: "reference-rest-euler";
+
   /** No personal anatomical frame or clinical capacity is certified. */
   qualification: "source-rig-only";
+
   /** Preserves the published corrective and coordination input convention. */
   rhythmDriver: "converted-source-pose";
 }
