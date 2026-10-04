@@ -22,6 +22,8 @@ import { nclose } from "../internal/predicates";
  * 4. A raised station changes the card normal by the independently calculated
  *    root-to-station slope; an unused vertex retains its old direction.
  * 5. A card that stays clear retains its original normal buffer.
+ * 6. An additional generated non-hair part is excluded by the actual emitted
+ *    hair membership, even with no layers and zero clearance.
  */
 export const test_human_person_hair_part = (): void => {
   const body = {
@@ -119,4 +121,22 @@ export const test_human_person_hair_part = (): void => {
   const sameNormals = free.geometry.mesh.normals;
   clearHumanPersonHair({ parts: [free], isGenerated: () => true, layers: [{ clearance: 0.009, samplingStep: 0.002 }], ...body });
   TestValidator.predicate("a clear card retains its exact normal buffer", free.geometry.mesh.normals === sameNormals);
+
+  const nonHair = part("generated-optical-surrogate", {
+    ...mesh(-0.02, -0.02),
+    normals: [...oldNormal, ...oldNormal, ...oldNormal],
+  });
+  const nonHairPositions = nonHair.geometry.mesh.positions;
+  const nonHairNormals = nonHair.geometry.mesh.normals;
+  const actualHair = part("actual-hair", mesh(-0.02, -0.02));
+  const emittedHairIds = new Set([actualHair.id]);
+  clearHumanPersonHair({
+    parts: [nonHair, actualHair],
+    isGenerated: (id) => emittedHairIds.has(id),
+    layers: [],
+    ...body,
+  });
+  TestValidator.predicate("non-hair generated positions keep their buffer", nonHair.geometry.mesh.positions === nonHairPositions);
+  TestValidator.predicate("non-hair generated normals keep their buffer", nonHair.geometry.mesh.normals === nonHairNormals);
+  TestValidator.predicate("selected hair is still cleared at zero clearance", nclose(actualHair.geometry.mesh.positions[4], 0, 1e-9) && nclose(actualHair.geometry.mesh.positions[7], 0, 1e-9));
 };

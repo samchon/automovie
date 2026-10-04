@@ -6,7 +6,7 @@ import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
-import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
+import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
@@ -73,7 +73,7 @@ const skinSurfaceOf = <
  *    Each render part reads its vertices through its region's corner table, then
  *    both boundaries are subdivided onto one union of their samples
  *    (`stitchHumanPersonBoundary`) with shared interpolated unit normals.
- * 5. Generated hair (the face parts no basis region draws) is kept off the
+ * 5. The current face producer's actual emitted hair parts are kept off the
  *    posed body at the clearance the hair document asked of the head
  *    (`clearHumanPersonHair`).
  *
@@ -110,9 +110,7 @@ export function createHumanPersonBuilder(props: {
   occlusion?: { rays: number; size: number };
 }): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
   const { face: faceBasis, body: bodyBasis } = props;
-  const buildFace = createHumanFaceBasisBuilder(faceBasis, {
-    occlusion: props.occlusion,
-  });
+  const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
   const buildBody = createHumanBodyBasisBuilder(bodyBasis);
 
   const faceSkin = skinSurfaceOf(faceBasis.surfaces);
@@ -162,11 +160,6 @@ export function createHumanPersonBuilder(props: {
     ...bodyKept.map((vertex) => vertex + faceCount),
     ...ribbonGlobal,
   ];
-  const faceRegionIds = new Set(
-    faceBasis.surfaces.flatMap((surface) =>
-      surface.regions.map((region) => region.id),
-    ),
-  );
   const faceRegions = new Map(
     faceSkin.surface.regions.map((region) => [
       region.id,
@@ -202,7 +195,8 @@ export function createHumanPersonBuilder(props: {
       deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials }),
     );
     const faceDocument = deriveHumanPersonFace(document);
-    const face = buildFace(faceDocument);
+    const currentFace = buildFace(faceDocument);
+    const face = currentFace.model;
     const skin = evaluateSkin({ face, body });
     const { face: facePosed, body: bodyPosed, bodyBeforeCollar, head } = skin;
     // Omission is zero at the face document owner. A source without this
@@ -215,7 +209,7 @@ export function createHumanPersonBuilder(props: {
           face: buildFace({
             ...faceDocument,
             expression: referenceExpression,
-          }),
+          }).model,
           body,
         });
     const normals =
@@ -286,7 +280,7 @@ export function createHumanPersonBuilder(props: {
     // generated hair: kept off the shoulders once the body has been posed
     clearHumanPersonHair({
       parts: placed,
-      isGenerated: (id) => !faceRegionIds.has(id),
+      isGenerated: (id) => currentFace.hairPartIds.has(id),
       layers: faceDocument.hair?.layers ?? [],
       positions: bodyPosed,
       indices: bodyKept,

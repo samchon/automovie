@@ -109,6 +109,12 @@ export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
   options?: {
     observe?: (contact: IAutoMovieHumanFaceContactSummary | null) => void;
+    /**
+     * Receive copied IDs of the hair parts actually emitted by each admitted
+     * model, including an empty array for the constructor's neutral check.
+     * Failed admission publishes no IDs; certified cache hits still publish.
+     */
+    observeHairParts?: (ids: readonly string[]) => void;
     occlusion?: { rays: number; size: number };
   },
 ): (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieModel {
@@ -266,10 +272,12 @@ export function createHumanFaceBasisBuilder(
     if (bakeOcclusion !== undefined)
       for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
+    let hairPartIds: string[] = [];
     if (document.hair !== undefined && document.hair !== null) {
       assertHumanFaceHair(document.hair);
       const generated = buildHair(document.hair, evaluated, pose);
       const hair = generated.value;
+      hairPartIds = hair.parts.map((part) => part.id);
       if (
         hair.parts.some((part) =>
           model.parts.some((resident) => resident.id === part.id),
@@ -306,6 +314,7 @@ export function createHumanFaceBasisBuilder(
       }
     }
     options?.observe?.(summary === null ? null : structuredClone(summary));
+    options?.observeHairParts?.(hairPartIds.slice());
     return model;
   };
   build({
