@@ -1,0 +1,99 @@
+{
+  "schema": "automovie-human-source-upstream/1",
+  "sources": [
+    {
+      "name": "mpfb2",
+      "consumed": true,
+      "locator": "https://github.com/makehumancommunity/mpfb2/archive/817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5.zip",
+      "revision": "817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5",
+      "archive": "mpfb2-817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5.zip",
+      "archiveBytes": 44866682,
+      "archiveSha256": "4cff096cde30087d91abdbabd7aa084b557039e083587cd94b5a2b49e0c16e4d",
+      "contentFiles": 2819,
+      "contentSha256": "9406299e22f3e0600d2e0b838522064f1e01dc856ec2cce77caadbea0ab524d9",
+      "rights": {
+        "data": "CC0-1.0 (bundled graphical assets, LICENSE.ASSETS.md)",
+        "code": "GPL-3.0-or-later (LICENSE.CODE.md); executed offline inside Blender only, never copied into this repository"
+      },
+      "licenses": {
+        "LICENSE.md": "5cefb60680cb9efd4550a2e65d719021cfbec9dad3658481d11d48ae863ce04d",
+        "LICENSE.ASSETS.md": "f6089cba01cb570a24712b41ab8a586ccd3cc5ef53dc266ca50b95c288956d2c",
+        "LICENSE.CODE.md": "26c03bc049c15fc5b9e52d791a06f1a6bc32f89edc8f8c701ab0aadf66e85b82"
+      }
+    },
+    {
+      "name": "mpfb-extra-targets",
+      "consumed": true,
+      "locator": "https://github.com/makehumancommunity/extra-targets/archive/7eaba3453134385bb5ea9811ef0b33b85b4b556d.zip",
+      "revision": "7eaba3453134385bb5ea9811ef0b33b85b4b556d",
+      "archive": "extra-targets-7eaba3453134385bb5ea9811ef0b33b85b4b556d.zip",
+      "archiveBytes": 594715,
+      "archiveSha256": "913d104d2e80e7f15c3284c8ad83fc0c3e10e37aa3bc5bc4a7620326645afe01",
+      "contentFiles": 97,
+      "contentSha256": "36bb45c884db878df04fa2d31340df5a53a8657f22a441377d89da8ce811d556",
+      "rights": {
+        "data": "CC0-1.0 (LICENSE)"
+      },
+      "licenses": {
+        "LICENSE": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+      }
+    },
+    {
+      "name": "makehuman",
+      "consumed": false,
+      "locator": "https://github.com/makehumancommunity/makehuman/archive/a8bc2d54ff0ac92e78ff71431b1023eda42bf482.zip",
+      "revision": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+      "archive": "makehuman-a8bc2d54ff0ac92e78ff71431b1023eda42bf482.zip",
+      "archiveBytes": 45251153,
+      "archiveSha256": "1604d6b35925c8b1c0a7a5e8be8d1f01a53ca8dd80e07dea95c1ba84b192e9b5",
+      "contentFiles": 2081,
+      "contentSha256": "6ed6c1d2b14a033ce7d16cd081791937dcb26e5cc5436f10b5f6c9c145dab0c6",
+      "rights": {
+        "data": "CC0-1.0 (bundled graphics, LICENSE.ASSETS.md)",
+        "code": "AGPL-3.0-or-later (LICENSE.CODE.md); not executed by this producer"
+      },
+      "licenses": {
+        "LICENSE.md": "edd99571ca62698f78c943fd4fffb159a413c315fa0d4819d3cec5cadaf8b4f1",
+        "LICENSE.ASSETS.md": "f6089cba01cb570a24712b41ab8a586ccd3cc5ef53dc266ca50b95c288956d2c",
+        "LICENSE.CODE.md": "32a0a7381bbcb97b043b34595a1f440557d5cfe904f4d91770b0abb465e8db25"
+      }
+    },
+    {
+      "name": "makehuman-system-assets",
+      "consumed": false,
+      "locator": "https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
+      "revision": "archive identity by container digest; no upstream revision id",
+      "archive": "makehuman_system_assets_cc0.zip",
+      "archiveBytes": 280737770,
+      "archiveSha256": "b542127a8e25547c7c29c19f2d1d2adb9a664c80396ecd694095dbc8028a0107",
+      "contentFiles": 20,
+      "contentSha256": "67613e4d3313046d55402e231be2c60e9e5ce2111cfb16adb915c675893e8617",
+      "rights": {
+        "data": "CC0-1.0 per asset header (2020-09 release, Data Collection AB / Joel Palmius / Jonas Hauquier attribution in each MHCLO/MHMAT)"
+      },
+      "entries": [
+        "teeth/teeth_base/teeth_base.obj",
+        "teeth/teeth_base/teeth_base.mhclo",
+        "teeth/teeth_base/teeth.mhmat",
+        "teeth/teeth_base/teeth.png",
+        "teeth/teeth_base/teeth_base.thumb",
+        "eyelashes/eyelashes01/eyelashes01.obj",
+        "eyelashes/eyelashes01/eyelashes01.mhclo",
+        "eyelashes/eyelashes01/eyelashes01.png",
+        "eyelashes/eyelashes01/eyelashes01.mhmat",
+        "eyelashes/eyelashes01/eyelashes01.thumb",
+        "tongue/tongue01/tongue01.thumb",
+        "tongue/tongue01/tongue01.obj",
+        "tongue/tongue01/tongue01.mhmat",
+        "tongue/tongue01/tongue01_diffuse.png",
+        "tongue/tongue01/tongue01.mhclo",
+        "eyebrows/eyebrow001/eyebrow001.obj",
+        "eyebrows/eyebrow001/eyebrow001.png",
+        "eyebrows/eyebrow001/eyebrow001.mhclo",
+        "eyebrows/eyebrow001/eyebrow001.thumb",
+        "eyebrows/eyebrow001/eyebrow001.mhmat"
+      ],
+      "licenses": {}
+    }
+  ]
+}
