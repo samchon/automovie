@@ -11,15 +11,8 @@ import {
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
 
-import {
-  type HumanResidentPort,
-  createHumanResidentWorker,
-} from "../common/residentWorker";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
-import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+import { createHumanResidentWorker } from "../common/residentWorker";
+import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps";
 
 /** Keep one worker alive across edits and separate exported bytes from frames.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Withdraws stale edits and prepares only the latest numerical body for publication.
@@ -32,12 +25,7 @@ export function createConnectedBodyPreview<
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: {
-  worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
-  renderer: ReturnType<typeof createConnectedBodyRenderer>;
-  /** Text of a document for the worker; a body document unless the stage draws people. */
-  serialize?: (document: Document) => string;
-}) {
+>(props: IConnectedBodyPreviewProps<Document>) {
   const serialize =
     props.serialize ??
     ((document: Document) =>

@@ -1,3 +1,7 @@
+import type { IAutoMovieHumanBasisNormalCellBinding } from "./IAutoMovieHumanBasisNormalCellBinding";
+import type { IAutoMovieHumanBasisNormalParentBinding } from "./IAutoMovieHumanBasisNormalParentBinding";
+import type { IAutoMovieHumanBasisNormalSubdivision } from "./IAutoMovieHumanBasisNormalSubdivision";
+
 /**
  * Compiled source-cell incidence for transporting an ancestral smooth normal
  * field through genuine deformation. Geometry retains the enclosing source
@@ -41,14 +45,7 @@
  */
 export interface IAutoMovieHumanBasisNormalTransport {
   /** Shared unique ascending raw-parent subdivisions over canonical sample IDs. */
-  readonly subdivisions: readonly {
-    /** Ordinal in the enclosing partition's original parent triangle tree. */
-    readonly parent: number;
-    /** Flat oriented canonical original/cut/refinement sample triples. */
-    readonly triangles: readonly number[];
-    /** One nonnegative deformation-side domain per normal-cell corner. */
-    readonly domains: readonly number[];
-  }[];
+  readonly subdivisions: readonly IAutoMovieHumanBasisNormalSubdivision[];
 
   /** Local normal-cell ordinal per emitted triangle under its geometric parent. */
   readonly cells: readonly number[];
@@ -62,11 +59,7 @@ export interface IAutoMovieHumanBasisNormalTransport {
    */
   readonly bindings: readonly (
     | null
-    | { readonly parent: number }
-    | {
-        readonly parent: number;
-        readonly cell: number;
-        readonly coordinates: readonly [number, number];
-      }
+    | IAutoMovieHumanBasisNormalParentBinding
+    | IAutoMovieHumanBasisNormalCellBinding
   )[];
 }

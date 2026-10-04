@@ -2,6 +2,8 @@ import type * as Human from "@automovie/human";
 import type { createHumanBodySurfaceParts } from "@automovie/human/body/basis/createHumanBodySurfaceParts";
 import type { createHumanBodySurfaceRegionParts } from "@automovie/human/body/basis/createHumanBodySurfaceRegionParts";
 
+import type { IHumanBodyStudyProvenance } from "./IHumanBodyStudyProvenance";
+
 /**
  * Public carrier for inspected physical candidates and static interchange.
  * It records no anatomical or clinical acceptance of the complete body.
@@ -23,6 +25,39 @@ export interface humanBodyStudyReview {
    * @evidence {@link Human.IAutoMovieHumanBodyArticularAssetCorrespondence.geometry} Read the common constructor's actual prepared populations and the reader's accessor/index partition admission; source IDs are not material-derived anatomy.
    * @evidence {@link Human.IAutoMovieHumanBodyArticularAssetCorrespondence.qualification} Read supported revision/reference, target/reference-rig-only and unavailable whole skin/parts, with no clinical certificate or editable document inferred.
    * @evidence {@link Human.readHumanBodyArticularAssetCorrespondence} Read legacy absence, malformed/unsupported namespace refusal, common interval delegation and exact candidate-ID join, with owned output and recovery scenarios.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification} Read the named qualification record the exporter writes beside the common source partition, adding no interval formula of its own.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification.version} Read the literal body metadata version 1, kept distinct from the common partition's version.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification.generatorRevision} Read the literal "articular-head-inspection/1" inspector revision, never a clinical validation revision.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification.reference} Read the neutral reference basis copied from the inspection report, not a registered personal centre.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification.skin} Read the unavailable whole skin the export repeats rather than certifies.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularQualification.parts} Read one qualification per carrying primitive source member, in that member order.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularPartQualification} Read the per-member qualification joined to exactly one source part by candidate ID.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularPartQualification.id} Read the `${part}/head-candidate` template that names the candidate, distinct from its complete bone.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularPartQualification.source} Read the literal "target" source copied from the candidate, never an imaging acquisition.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularPartQualification.registration} Read the literal "reference-rig-only" placement copied from the candidate, certifying no personal registration.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularPartQualification.partResolution} Read the exported unavailable complete-part resolution of each candidate sphere.
+   * @evidence {@link Human.IAutoMovieHumanBodyUnvalidatedGeometry} Read the shared unavailable-geometry status that inspection skin, candidate parts and exported qualification all carry instead of a resolved surface.
+   * @evidence {@link Human.IAutoMovieHumanBodyUnvalidatedGeometry.status} Read the literal "unavailable" status that keeps a candidate from standing in for generated anatomy.
+   * @evidence {@link Human.IAutoMovieHumanBodyUnvalidatedGeometry.reason} Read the literal "geometry-not-validated" reason, one member of the anatomical resolution reason union.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalReference} Read the inspection's reference provenance, copied verbatim into exported qualification.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalReference.basis} Read the reference basis identity the exporter refuses when blank.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalReference.evaluation} Read the literal "neutral-reference" evaluation, which is not the requested person's skin.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate} Read the explicit target-radius sphere record: one per explicit target, at the carrying joint's reference rig centre.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.part} Read the humerus/femur name the candidate concerns and the export ID is built from.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.bone} Read the upper-arm/upper-leg rig joint whose reference centre carries the sphere.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.center} Read the sphere centre in reference-frame metres that the candidate model places once with null part transforms.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.radiusMetres} Read the requested sphere-fitted radius in metres that sets the tessellated sphere size.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.source} Read the literal "target" source the exporter copies into each part qualification.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.registration} Read the literal "reference-rig-only" registration the exporter copies into each part qualification.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidate.partResolution} Read the candidate's unavailable complete-bone resolution, copied rather than shared by the exporter.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps} Read the candidate model adapter's inputs: model labels plus the generated inspection report, with no skin or personal mesh accepted.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.id} Read the static model identity the adapter writes to the produced model.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.name} Read the static model display name the adapter writes to the produced model.
+   * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.inspection} Read the report whose candidates the adapter tessellates as spheres, one mesh per candidate.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity} Read the request identity and reference selection the anatomical document intersects with the complete parametric request.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.id} Read the stable request identity carried through parse and serialize.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.name} Read the display label, independent of generator selection.
+   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.basis} Read the neutral reference rig identity the inspector evaluates, not a skin generated from the targets.
    * @evidence {@link Human.exportHumanBody} Read optional same-Document qualification before the existing writer and metadata-free face/body/person defaults through actual byte and geometry comparisons.
    * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Inspects static candidate identity at the actual exporter while preserving the numerical document and anatomical limitations.
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Inspects primitive source correspondence at Float32 output without claiming a rig or clinical edit roundtrip.
@@ -153,6 +188,21 @@ export interface humanBodyStudyReview {
  * @evidence {@link Human.stepHumanBodyArmsDown} Read the chain walk, the rest baseline, the bottom check and the one-degree bisection with a pause after each build and crossing read, and the solved joints it returns.
  * @evidence {@link Human.resolveHumanBodyShoulders} Read the coupled girdle frame, measured A-pose subtraction, thorax-relative world goal and rigid transport of each humeral descendant about the moved joint centre.
  * @evidence {@link Human.measureHumanBodySection} Read the plane cut, edge-keyed crossings, closed-loop chaining, open-chain discard and seed-nearest selection against the analytic box.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionPlane} Read the caller-chosen point-normal cutting plane whose positive side includes on-plane vertices.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionPlane.point} Read the metre point the signed vertex distance is measured from.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionPlane.normal} Read the direction that signs vertex distance and seeds the orthonormal hull frame.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading} Read the seed-nearest closed loop's readings, or null when no closed loop exists.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading.perimeter} Read the contour length summed through every concavity of the loop.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading.girth} Read the convex-hull perimeter in the plane, the tape girth that bridges concavities.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading.breadth} Read the loop's X extent, maximum minus minimum crossing X.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading.back} Read the loop's minimum crossing Z, rearmost because the body faces +Z.
+ * @evidence {@link Human.IAutoMovieHumanBodySectionReading.centroid} Read the mean crossing point that ranks loops by distance to the seed.
+ * @evidence {@link Human.IAutoMovieHumanBodyShapeRowState} Read the admitted weights and corrective activations the row sum reads in channel order, then activation order.
+ * @evidence {@link Human.IAutoMovieHumanBodyShapeRowState.weights} Read the signed channel weight map whose sign selects the endpoint and whose magnitude is the gain.
+ * @evidence {@link Human.IAutoMovieHumanBodyShapeRowState.activations} Read the ordered corrective list applied after every channel endpoint.
+ * @evidence {@link Human.IAutoMovieHumanBodyCorrectiveActivation} Read the corrective target and activation pair produced by the weight owner and skipped at zero.
+ * @evidence {@link Human.IAutoMovieHumanBodyCorrectiveActivation.target} Read the corrective row-target name looked up among the evaluated row targets.
+ * @evidence {@link Human.IAutoMovieHumanBodyCorrectiveActivation.activation} Read the multiplier applied to every offset of the target when positive.
  * @evidence {@link Human.createHumanBodyUnderwear} Read the coverage field on the body at rest: the waistband height, the leg line from the crotch within the gusset out to the outer hip's depth blended from back to front, the bra band blended from back to front by depth with the straps, and the uncovered arm skin at a metre per unit of weight; the clip at the field's zero with crossings held 5% inside an edge and shared by its two triangles, the lift along the posed normals, the refusals, and the part and material it emits after the skin.
  * @evidence {@link Human.closeHumanBodyUnderwearCreases} Read the closing of the skin by a ball of half the span against two blocks with a slit: the wall points of a narrow slit reach the ball's arc, a wider slit keeps its walls, a mid slit stays within the arc's sag, and a flat top, a hollow cell, an empty garment and an oversized grid behave as stated.
  * @evidence {@link Human.measureHumanBodyDistanceField} Read the exact squared distance and nearest site against a brute-force minimum on a scattered grid, the corner case, and the empty-site convention.
@@ -210,7 +260,7 @@ export interface humanBodyStudyReview {
  * @evidence {@link Human.parseHumanBodyBasisDocument} Read the shared UTF-16 envelope, JSON parsing and the admission hand-off.
  * @evidence {@link Human.serializeHumanBodyBasisDocument} Read admission before serialization and the envelope check on the escaped, formatted text.
  */
-export const humanBodyStudyReview: humanBodyStudyReview & { basis: string; receipt: string; likeness: "unaccepted" } = {
+export const humanBodyStudyReview: humanBodyStudyReview & IHumanBodyStudyProvenance = {
   basis: "connected-basis/README.md",
   receipt: "connected-basis/extraction-receipt.json",
   likeness: "unaccepted",

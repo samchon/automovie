@@ -1,6 +1,9 @@
 import { validateMeshTopology } from "@automovie/engine";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
@@ -28,7 +31,7 @@ export const test_geometry_physical_refusals = (): void => {
   add((mesh) => { mesh.positions = new Array<number>(9); });
   add((mesh) => { mesh.physicalVertices!.vertices.pop(); });
   add((mesh) => { mesh.physicalVertices!.vertices = new Array<number | null>(3); });
-  add((mesh) => { mesh.physicalVertices!.sources = new Array<{ domain: string; id: number }>(3); });
+  add((mesh) => { mesh.physicalVertices!.sources = new Array<IAutoMovieMeshPhysicalSource>(3); });
   for (const id of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, NaN])
     add((mesh) => { mesh.physicalVertices!.sources[0].id = id; });
   for (const domain of ["", " \t"])
@@ -39,7 +42,7 @@ export const test_geometry_physical_refusals = (): void => {
   for (const metadata of [null, {}, { sources: null, vertices: [] }, { sources: [], vertices: null }])
     add((mesh) => { mesh.physicalVertices = metadata as unknown as IAutoMovieMesh["physicalVertices"]; });
   for (const source of [null, { domain: 1, id: 0 }])
-    add((mesh) => { mesh.physicalVertices!.sources[0] = source as unknown as { domain: string; id: number }; });
+    add((mesh) => { mesh.physicalVertices!.sources[0] = source as unknown as IAutoMovieMeshPhysicalSource; });
   for (const mesh of invalid) {
     TestValidator.predicate("named refusal", refuses(mesh));
     const result = validateMeshTopology({ mesh, path: "$model.parts[0].mesh" });

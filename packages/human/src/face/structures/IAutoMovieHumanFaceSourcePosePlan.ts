@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanBasisSourceChartPoint } from "../../common/basis/IAutoMovieHumanBasisSourceChartPoint";
+
 /**
  * Compiled replay of facial refinement points after their native source poses.
  * The native prefix is the original face surface, including any already-frozen
@@ -46,8 +48,5 @@ export interface IAutoMovieHumanFaceSourcePosePlan {
    * is a nativeTriangles ordinal and coordinates [u,v] use that triangle's
    * ordered corners. Exact corners and edges also represent source aliases.
    */
-  readonly samples: readonly {
-    readonly parent: number;
-    readonly coordinates: readonly [number, number];
-  }[];
+  readonly samples: readonly IAutoMovieHumanBasisSourceChartPoint[];
 }

@@ -2,6 +2,7 @@
 export * from "./film";
 export * from "./math/createMeshPhysicalPartitionMatcher";
 export * from "./math/resolveAutoMovieMeshPhysicalVertices";
+export type { IAutoMovieResolvedPhysicalVertices } from "./math/IAutoMovieResolvedPhysicalVertices";
 export * from "./geometry";
 export * from "./math/adjacentAutoMovieFloat64";
 export * from "./math/interpolateAutoMovieTrianglePoint";
@@ -79,6 +80,7 @@ export { seededValue } from "./math/seededValue";
 export { Quaternion } from "./math/Quaternion";
 export { Matrix4 } from "./math/Matrix4";
 export { cofactorAutoMovieJacobian } from "./math/cofactorAutoMovieJacobian";
+export type { IAutoMovieJacobianCofactor } from "./math/IAutoMovieJacobianCofactor";
 export { rotationBetween } from "./math/rotationBetween";
 export { pointSegmentDistance } from "./math/pointSegmentDistance";
 export { segmentSegmentDistance } from "./math/segmentSegmentDistance";

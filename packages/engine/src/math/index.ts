@@ -1,5 +1,7 @@
 export * from "./IAutoMovieClosestSegmentPoints";
 export * from "./IAutoMovieHullEdge";
+export * from "./IAutoMovieJacobianCofactor";
+export * from "./IAutoMovieResolvedPhysicalVertices";
 export * from "./IAutoMovieQuadraticRow";
 export * from "./Matrix4";
 export * from "./Quaternion";

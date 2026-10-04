@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanBodyAnatomicalInspection } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
-import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import { parseHumanBodyAnatomicalDocument } from "@automovie/human/body/document/parseHumanBodyAnatomicalDocument";
 import { serializeHumanBodyAnatomicalDocument } from "@automovie/human/body/document/serializeHumanBodyAnatomicalDocument";
 import type { IAutoMovieHumanBodyAnatomicalDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyAnatomicalDocument";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 
+import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
+import type { IBodyAnatomicalRequestPanelProps } from "./IBodyAnatomicalRequestPanelProps";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 
 /**
@@ -18,23 +18,9 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Names the static output as inspection candidates independently of the canonical numerical document.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Uses explicit committed-document export and leaves GLB encoding to the worker.
  */
-export function mountBodyAnatomicalRequestPanel<Model extends {
-  anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;
-  exteriorCandidate?: IAutoMovieHumanBodyExteriorCandidateBuild["exterior"];
-}>(app: HTMLElement, props: {
-  basis: string;
-  viewport: {
-    build: (document: IAutoMovieHumanBodyAnatomicalDocument) => Promise<Model>;
-    publish: (model: Model) => void;
-    dispose: (model: Model) => void;
-    cancel: () => void;
-    export: (document: IAutoMovieHumanBodyAnatomicalDocument) => Promise<Uint8Array<ArrayBuffer>>;
-    fitView: () => void;
-    cameraView: (degrees: number) => void;
-    setClay: (enabled: boolean) => void;
-  };
-  download: (name: string, bytes: BlobPart, mime: string) => void;
-}) {
+export function mountBodyAnatomicalRequestPanel<
+  Model extends IBodyAnatomicalRequestModel,
+>(app: HTMLElement, props: IBodyAnatomicalRequestPanelProps<Model>) {
   let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyAnatomicalDocument>> | undefined;
   const intents = createBodyIntentGate();
   const element = <T extends HTMLElement>(id: string) => app.querySelector<T>("#" + id)!;

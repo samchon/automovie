@@ -1,12 +1,11 @@
 import {
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanBodyBasisDocument,
   resolveHumanBodyCouplings,
   resolveHumanBodyDocumentPose,
   resolveHumanBodyShapeShoulderRest,
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 
@@ -27,18 +26,7 @@ import { renderBodyShoulderControls } from "./bodyShoulderControls";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's TT rest and the same coupling additions the builder consumes, while keeping bone selection outside the document.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves draft publication and last-valid recovery with the injected panel refusal and change owners.
  */
-export function mountBodyJointControls(props: {
-  dom: Document;
-  container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  bone: AutoMovieHumanoidBone;
-  query: string;
-  current: () => IAutoMovieHumanBodyBasisDocument;
-  select: (bone: AutoMovieHumanoidBone) => void;
-  redraw: () => void;
-  change: (document: IAutoMovieHumanBodyBasisDocument) => void;
-  refuse: (error: unknown) => void;
-}): void {
+export function mountBodyJointControls(props: IBodyJointControlsProps): void {
   const { dom, container, basis } = props;
   const draft = props.current();
   let bone = props.bone;

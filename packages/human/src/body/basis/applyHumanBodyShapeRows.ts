@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyShapeRowState } from "../structures/IAutoMovieHumanBodyShapeRowState";
 import type { IHumanBodyShapeTargetGain } from "./IHumanBodyShapeTargetGain";
 
 /**
@@ -35,10 +36,7 @@ import type { IHumanBodyShapeTargetGain } from "./IHumanBodyShapeTargetGain";
  */
 export function applyHumanBodyShapeRows(
   basis: Pick<IAutoMovieHumanBodyBasis, "channels" | "unavailableTargets">,
-  state: {
-    weights: ReadonlyMap<string, number>;
-    activations: readonly { target: string; activation: number }[];
-  },
+  state: IAutoMovieHumanBodyShapeRowState,
   positions: number[],
   targets: Record<string, number[]>,
 ): void {

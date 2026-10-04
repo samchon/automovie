@@ -1,21 +1,8 @@
 import type { HumanObservationPass } from "./HumanObservationPass";
+import type { IHumanObservationPassDefinition } from "./IHumanObservationPassDefinition";
 
 /** The material and reading belong together so display clients cannot rename a diagnostic. */
-const DEFINITIONS: Record<
-  HumanObservationPass,
-  {
-    reading: string;
-    lightScope: "authored" | "none";
-    parameters: {
-      color?: number;
-      roughness?: number;
-      flatShading?: boolean;
-      wireframe?: boolean;
-      side?: 0 | 1 | 2;
-      toneMapped?: boolean;
-    };
-  }
-> = {
+const DEFINITIONS: Record<HumanObservationPass, IHumanObservationPassDefinition> = {
   beauty: {
     reading:
       "lit product frame: judges shape and material under the authored lights",
@@ -79,7 +66,9 @@ const DEFINITIONS: Record<
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Distinguishes material readings from geometric observations in face review.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps the material parameters and their observation limits on one current-source owner.
  */
-export function getHumanObservationPassDefinition(pass: HumanObservationPass) {
+export function getHumanObservationPassDefinition(
+  pass: HumanObservationPass,
+): IHumanObservationPassDefinition {
   if (!Object.hasOwn(DEFINITIONS, pass))
     throw new Error(`Unknown observation pass "${String(pass)}".`);
   const definition = DEFINITIONS[pass];

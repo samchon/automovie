@@ -1,13 +1,11 @@
 import {
-  type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyShoulderPose,
   humanBodyShoulderElevationLimit,
 } from "@automovie/human";
 
+import type { IBodyShoulderControlsProps } from "./IBodyShoulderControlsProps";
+
 const AXES = ["plane", "elevation", "axialRotation"] as const;
-type Shoulder = NonNullable<
-  IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]
->;
 
 /**
  * Show a thorax-relative humeral goal as its plane, total elevation and axial
@@ -32,22 +30,9 @@ type Shoulder = NonNullable<
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the author edit each humerus by a named thorax-relative plane, total elevation and axial rotation while retaining newer draft edits.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's shoulder rest, admitted ranges, the painted plane's joint-sinus reach, the plane period and the two pole ambiguities beside the controls.
  */
-export function renderBodyShoulderControls(props: {
-  dom: Document;
-  container: HTMLElement;
-  bone: IAutoMovieHumanBodyShoulderPose["bone"];
-  shoulder: Shoulder;
-
-  /** Shape-only source-rig rest paired with the painted document. */
-  rest: IAutoMovieHumanBodyShoulderPose;
-
-  /** Latest draft rest, or unavailable after the transaction owner refused it. */
-  currentRest: () => IAutoMovieHumanBodyShoulderPose | undefined;
-
-  shoulders: readonly IAutoMovieHumanBodyShoulderPose[];
-  currentShoulders: () => readonly IAutoMovieHumanBodyShoulderPose[];
-  onChange: (shoulders: IAutoMovieHumanBodyShoulderPose[]) => void;
-}): void {
+export function renderBodyShoulderControls(
+  props: IBodyShoulderControlsProps,
+): void {
   const { dom, container, shoulder, bone, rest: neutral } = props;
   container.replaceChildren();
   const rendered = props.shoulders.find((one) => one.bone === bone);

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceSourceClosureRow } from "./IAutoMovieHumanFaceSourceClosureRow";
+
 /**
  * Compiled source correspondence for a performed closed facial span.
  * All vertex identities address the replayed face surface, not the raw full
@@ -40,10 +42,7 @@ export interface IAutoMovieHumanFaceSourceClosurePlan {
   readonly contactPairs: readonly (readonly [number, number])[];
 
   /** Sparse anchored displacement rows over performed source identities. */
-  readonly rows: readonly {
-    readonly vertex: number;
-    readonly coefficients: readonly (readonly [number, number])[];
-  }[];
+  readonly rows: readonly IAutoMovieHumanFaceSourceClosureRow[];
 
   /** A registered upper/lower pair with producer-owned source-chart provenance. */
   readonly representativePair: readonly [number, number];

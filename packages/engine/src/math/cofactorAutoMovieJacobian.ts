@@ -1,3 +1,4 @@
+import type { IAutoMovieJacobianCofactor } from "./IAutoMovieJacobianCofactor";
 import { Vector3 } from "./Vector3";
 
 /**
@@ -19,10 +20,9 @@ import { Vector3 } from "./Vector3";
  * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses malformed, nonfinite, singular and orientation-reversing deformation Jacobians without an absolute determinant cutoff.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Names an unsupported local deformation orientation while leaving used-vector and actual-cell checks with their consumer.
  */
-export function cofactorAutoMovieJacobian(jacobian: readonly number[]): {
-  determinant: number;
-  matrix: number[];
-} {
+export function cofactorAutoMovieJacobian(
+  jacobian: readonly number[],
+): IAutoMovieJacobianCofactor {
   if (jacobian.length !== 9)
     throw new Error("Mesh Jacobian needs nine row-major entries.");
   for (let index = 0; index < 9; index++)

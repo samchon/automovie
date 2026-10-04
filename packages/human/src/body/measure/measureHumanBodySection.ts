@@ -1,6 +1,9 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 
+import type { IAutoMovieHumanBodySectionPlane } from "../structures/IAutoMovieHumanBodySectionPlane";
+import type { IAutoMovieHumanBodySectionReading } from "../structures/IAutoMovieHumanBodySectionReading";
+
 /**
  * Cut a triangle surface with a plane and return the closed section loop
  * nearest a seed point, with its perimeter, its tape girth, X extent and
@@ -54,17 +57,11 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/res
 export function measureHumanBodySection(
   positions: number[],
   indices: number[],
-  plane: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  plane: IAutoMovieHumanBodySectionPlane,
   seed: IAutoMovieVector3,
   triangles?: readonly number[],
   physicalVertices?: IAutoMovieMesh["physicalVertices"],
-): {
-  perimeter: number;
-  girth: number;
-  breadth: number;
-  back: number;
-  centroid: IAutoMovieVector3;
-} | null {
+): IAutoMovieHumanBodySectionReading | null {
   const count = positions.length / 3;
   const physical = physicalVertices === undefined ? undefined : resolveAutoMovieMeshPhysicalVertices({ positions, physicalVertices });
   const distance = new Float64Array(count);
@@ -124,13 +121,7 @@ export function measureHumanBodySection(
     Math.abs(n.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
   const u = normalize(cross(n, helper));
   const w = cross(n, u);
-  let best: {
-    perimeter: number;
-    girth: number;
-    breadth: number;
-    back: number;
-    centroid: IAutoMovieVector3;
-  } | null = null;
+  let best: IAutoMovieHumanBodySectionReading | null = null;
   let bestDistance = Infinity;
   for (const start of adjacency.keys()) {
     if (visited.has(start)) continue;

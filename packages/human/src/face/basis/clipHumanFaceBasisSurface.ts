@@ -1,7 +1,6 @@
-import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-
-type Surface = IAutoMovieHumanFaceBasis["surfaces"][number];
-type Stencil = { a: number; b: number; t: number };
+import type { IAutoMovieHumanFaceBasisClip } from "../structures/IAutoMovieHumanFaceBasisClip";
+import type { IAutoMovieHumanFaceBasisSurface as Surface } from "../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceClipStencil as Stencil } from "../structures/IAutoMovieHumanFaceClipStencil";
 
 /**
  * Clip an admitted facial basis surface above a neutral Y plane, in metres.
@@ -47,11 +46,7 @@ type Stencil = { a: number; b: number; t: number };
 export function clipHumanFaceBasisSurface(
   source: Surface,
   minimumY: number,
-): {
-  surface: Surface;
-  retainedTriangles: Map<string, Map<number, number>>;
-  correspondence: readonly Readonly<Stencil>[];
-} {
+): IAutoMovieHumanFaceBasisClip {
   if (!Number.isFinite(minimumY))
     throw new Error("Facial clipping needs a finite Y plane.");
   if (

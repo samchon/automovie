@@ -1,9 +1,7 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 import { getConstraint } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import type { IAutoMovieJointPose } from "@automovie/interface";
+
+import type { IBodyPoseControlsProps } from "./IBodyPoseControlsProps";
 
 const AXES = ["flexion", "abduction", "twist"] as const;
 
@@ -39,25 +37,7 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each joint's clinical flexion, abduction and twist to bounded inputs that state the rest angle and refuse nothing the range admits.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads effective override/default ranges through the engine's constraint owner and neutral angles from the admitted basis, writes only moved joints into the sparse pose, and displays declared coordination separately from the current draft's resolved source-rig coordinates.
  */
-export const renderBodyPoseControls = (props: {
-  dom: Document;
-  container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  bone: AutoMovieHumanoidBone;
-  pose: readonly IAutoMovieJointPose[];
-  /** Current-draft coordinates returned by the body's shared rig resolver. */
-  clinical?: readonly IAutoMovieJointPose[];
-  /** Read the latest draft at event time, including edits still building. */
-  currentPose?: () => readonly IAutoMovieJointPose[];
-  /** The package's coupled additions for this draft; absent when the caller evaluated none. */
-  coupled?: readonly {
-    coupling: string;
-    bone: AutoMovieHumanoidBone;
-    axis: "flexion" | "abduction" | "twist";
-    degrees: number;
-  }[];
-  onChange: (pose: IAutoMovieJointPose[]) => void;
-}): void => {
+export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
   const { dom, container, basis } = props;
   container.replaceChildren();
   const joint = basis.joints.find((one) => one.bone === props.bone);

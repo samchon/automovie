@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanStaticPartCorrespondence } from "../../common/export/IAutoMovieHumanStaticPartCorrespondence";
-import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
+import type { IAutoMovieHumanBodyArticularQualification } from "./IAutoMovieHumanBodyArticularQualification";
 
 /**
  * A source-ID partition with mathematical candidate qualification.
@@ -18,32 +18,5 @@ export interface IAutoMovieHumanBodyArticularAssetCorrespondence {
   geometry: IAutoMovieHumanStaticPartCorrespondence;
 
   /** Body-specific metadata, with no duplicate interval formula. */
-  qualification: {
-    /** Supported body metadata version, distinct from the common partition. */
-    version: 1;
-
-    /** Concrete numerical inspector, never a clinical validation revision. */
-    generatorRevision: "articular-head-inspection/1";
-
-    /** Reported neutral reference basis, not a registered personal centre. */
-    reference: IAutoMovieHumanBodyAnatomicalInspection["reference"];
-
-    /** No whole skin is generated or certified by this export. */
-    skin: IAutoMovieHumanBodyAnatomicalInspection["skin"];
-
-    /** Qualification records in the carrying primitive's source-member order. */
-    parts: {
-      /** Exact source candidate ID, distinct from its complete bone. */
-      id: `${IAutoMovieHumanBodyAnatomicalInspection["candidates"][number]["part"]}/head-candidate`;
-
-      /** A fictional target rather than an imaging acquisition. */
-      source: "target";
-
-      /** Placement uses the reference rig and certifies no personal registration. */
-      registration: "reference-rig-only";
-
-      /** The sphere does not resolve a complete anatomical part. */
-      partResolution: { status: "unavailable"; reason: "geometry-not-validated" };
-    }[];
-  };
+  qualification: IAutoMovieHumanBodyArticularQualification;
 }

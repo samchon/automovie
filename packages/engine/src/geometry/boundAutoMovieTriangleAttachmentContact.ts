@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
+import type { IAutoMovieTriangleAttachmentContactBound } from "./IAutoMovieTriangleAttachmentContactBound";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
 
 /**
@@ -33,7 +34,7 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
 export function boundAutoMovieTriangleAttachmentContact(
   fan: readonly IAutoMovieVector3[],
   support: readonly IAutoMovieVector3[],
-): { proved: boolean; cap: number; cornerGap: number; rootDeficit: number } {
+): IAutoMovieTriangleAttachmentContactBound {
   if (
     fan.length !== 3 ||
     support.length !== 3 ||

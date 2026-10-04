@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
+import type { IHumanPhysicalSampleRegistration } from "../structures/IHumanPhysicalSampleRegistration";
 import { humanBasisRegionCorners } from "./humanBasisRegionCorners";
 
 /**
@@ -31,7 +32,7 @@ export function createHumanBasisRegion(
   positions: readonly number[],
   normals: readonly number[],
   colors?: readonly number[],
-  physical?: { domain: string; samples: readonly number[] },
+  physical?: IHumanPhysicalSampleRegistration,
 ) => IAutoMovieMesh {
   const { sources, indices, uvs } = humanBasisRegionCorners(region);
   return (positions, normals, colors, physical) => {

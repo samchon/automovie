@@ -2,7 +2,7 @@ import { tessellateToMesh, validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { placeMeshPreservingFaces } from "../../../common/mesh/placeMeshPreservingFaces";
-import type { IAutoMovieHumanBodyAnatomicalInspection } from "../generated/IAutoMovieHumanBodyAnatomicalInspection";
+import type { IAutoMovieHumanBodyArticularCandidateModelProps } from "./IAutoMovieHumanBodyArticularCandidateModelProps";
 
 /**
  * Draw the inspected target spheres, without substituting a whole body skin.
@@ -27,11 +27,9 @@ import type { IAutoMovieHumanBodyAnatomicalInspection } from "../generated/IAuto
  * @evidenceExclude contracts/anatomy.md#permitted-range The inspection owner admits targets; this adapter validates emitted model structure rather than anatomical ranges.
  * @evidenceExclude contracts/anatomy.md#parametric-authority It consumes generated inspection records, not personal authored meshes.
  */
-export function createHumanBodyArticularCandidateModel(props: {
-  id: string;
-  name: string;
-  inspection: IAutoMovieHumanBodyAnatomicalInspection;
-}): IAutoMovieModel {
+export function createHumanBodyArticularCandidateModel(
+  props: IAutoMovieHumanBodyArticularCandidateModelProps,
+): IAutoMovieModel {
   // Neutral linear-RGB diagnostic finish, not measured articular reflectance.
   const material = {
     id: "articular-inspection",

@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieMeshQueryBudget,
   boundAutoMovieConvexSeparation,
   boundAutoMovieProjectionSeparation,
   createAutoMovieMeshSeparationQuery,
@@ -172,7 +173,7 @@ export const test_geometry_separation_refusals = (): void => {
       () =>
         query([p(0, 0, 1)], {
           clearance: 0.5,
-          budget: absent as unknown as { remaining: number },
+          budget: absent as unknown as IAutoMovieMeshQueryBudget,
         }),
       "safe-integer",
     );

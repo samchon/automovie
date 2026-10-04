@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanBodyDyadicValue } from "./IHumanBodyDyadicValue";
+
 /**
  * Prove whether two finite source-double directions share one line.
  *
@@ -30,7 +32,7 @@ export function humanBodyFlexionAxesCollinear(a: IAutoMovieVector3, b: IAutoMovi
     throw new Error("Body flexion-axis identity requires finite source directions.");
   if ([a, b].some((vector) => vector.x === 0 && vector.y === 0 && vector.z === 0)) return false;
   const bits = new DataView(new ArrayBuffer(8));
-  const part = (value: number): { mantissa: bigint; exponent: number } => {
+  const part = (value: number): IHumanBodyDyadicValue => {
     bits.setFloat64(0, value);
     const word = bits.getBigUint64(0);
     const exponent = Number((word >> 52n) & 2047n);
@@ -38,7 +40,7 @@ export function humanBodyFlexionAxesCollinear(a: IAutoMovieVector3, b: IAutoMovi
     const mantissa = exponent === 0 ? fraction : fraction + (1n << 52n);
     return { mantissa: (word >> 63n) === 0n ? mantissa : -mantissa, exponent: exponent === 0 ? -1074 : exponent - 1075 };
   };
-  const product = (left: number, right: number) => {
+  const product = (left: number, right: number): IHumanBodyDyadicValue => {
     const l = part(left), r = part(right);
     return { mantissa: l.mantissa * r.mantissa, exponent: l.exponent + r.exponent };
   };

@@ -1,4 +1,6 @@
 import type { IAutoMovieHumanBasisNormalTransport } from "./IAutoMovieHumanBasisNormalTransport";
+import type { IAutoMovieHumanBasisSourceChartPoint } from "./IAutoMovieHumanBasisSourceChartPoint";
+import type { IAutoMovieHumanBasisSourceIntersection } from "./IAutoMovieHumanBasisSourceIntersection";
 
 /**
  * Immutable provenance of one surface's cells in a shared source triangle tree.
@@ -48,11 +50,7 @@ export interface IAutoMovieHumanBasisSourcePartition {
    * originalVertices+i = (1-t)*a+t*b, with distinct original IDs and 0<t<1.
    * Both partitions reuse the same ordered endpoints and t without reordering.
    */
-  readonly intersections: readonly {
-    readonly a: number;
-    readonly b: number;
-    readonly t: number;
-  }[];
+  readonly intersections: readonly IAutoMovieHumanBasisSourceIntersection[];
 
   /**
    * Additional source samples inside an oriented parent triangle. Entry i owns
@@ -64,10 +62,7 @@ export interface IAutoMovieHumanBasisSourcePartition {
    * Omission retains the edge-only source plan. The former experimental
    * barycentric triple property is not this two-coordinate input.
    */
-  readonly refinements?: readonly {
-    readonly parent: number;
-    readonly coordinates: readonly [number, number];
-  }[];
+  readonly refinements?: readonly IAutoMovieHumanBasisSourceChartPoint[];
 
   /**
    * One dimensionless normal-island ID per original parent corner, in the same

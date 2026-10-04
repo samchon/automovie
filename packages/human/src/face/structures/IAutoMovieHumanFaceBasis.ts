@@ -1,8 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
-import type { IAutoMovieHumanFaceSourceClosurePlan } from "./IAutoMovieHumanFaceSourceClosurePlan";
-import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
+import type { IAutoMovieHumanFaceBasisContact } from "./IAutoMovieHumanFaceBasisContact";
+import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
 
 /**
@@ -286,108 +285,10 @@ export interface IAutoMovieHumanFaceBasis {
    * refusal here. Omission keeps the articulated basis without contact
    * evaluation.
    */
-  contact?: {
-    /** Vermilion seam midline vertices on one surface, upper then lower. */
-    lips: { surface: string; upper: number; lower: number };
-
-    /** Incisal edge midline vertices on one surface, upper then lower. */
-    incisors: { surface: string; upper: number; lower: number };
-
-    /** Native companion channel/reference, with optional post-replay source closure. */
-    closure: {
-      channel: string;
-      reference: string;
-      /** Fixed native-zero/one endpoints feed one requested source-span blend before rigid contact. */
-      sourceSpan?: IAutoMovieHumanFaceSourceClosurePlan;
-    };
-
-    /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
-    passage: { surface: string; channel: string; slabMetres: number };
-
-    /** Rigid colliders (dental arches, globes): closure triangles over resident vertices, the sheet reach and the covering tissue's least thickness, in metres. */
-    colliders: {
-      surface: string;
-      closure: number[];
-      reachMetres: number;
-      coverMetres?: number;
-    }[];
-
-    /** Soft surfaces held outside the colliders, each with the metres it may be pushed before refusal. */
-    soft: { surface: string; budgetMetres: number }[];
-
-    /** Metres of new penetration tolerated before a push or refusal, absorbing row rounding. */
-    toleranceMetres: number;
-  };
+  contact?: IAutoMovieHumanFaceBasisContact;
 
   /** Connected skin and separately attached components, in the same head frame. */
-  surfaces: {
-    id: string;
-
-    /** Shared flat XYZ positions, before material or UV seam splitting. */
-    positions: number[];
-
-    /** Optional shared-source cell lineage, prepared after the final neutral crop. */
-    sourcePartition?: IAutoMovieHumanBasisSourcePartition;
-
-    /** Optional native-after-posing replay of appended shared oral refinement samples. */
-    sourcePosePlan?: IAutoMovieHumanFaceSourcePosePlan;
-
-    /** Oriented triangles over those shared vertex identities. */
-    indices: number[];
-
-    /** Sparse [vertex, dx, dy, dz] rows, strictly increasing by vertex per endpoint. */
-    targets: Record<string, number[]>;
-
-    /**
-     * Optional shared anatomical hair-growth domains. Triangle ordinals refer
-     * to this surface's complete indices, before material or UV separation.
-     * Each nonempty domain has unique ascending ordinals and a finite neutral
-     * chart origin in metres. These regions are common to every identity.
-     */
-    hairDomains?: {
-      id: string;
-      origin: [number, number, number];
-      triangles: number[];
-    }[];
-
-    /**
-     * Optional oriented triangles over resident vertices closing an otherwise
-     * open contact surface. They participate only in numerical hair collision
-     * queries, never visible geometry. The completed surface must be embedded,
-     * closed and outward oriented; deformation must preserve those premises.
-     * This is shared collision topology, not personal offsets or a fitted mesh.
-     */
-    hairContactClosure?: number[];
-
-    /**
-     * Optional sparse attachment of this surface's vertices to the articulated
-     * owners of `articulation` (`jaw`, `leftEye`, `rightEye`). Rows are
-     * `[vertex, weight]` pairs, strictly increasing by vertex, with each weight
-     * in (0, 1] and the weights of one vertex over all owners summing to at
-     * most one; the remainder is the cranium, which the head frame holds
-     * still. A vertex bound to one owner with weight one moves as that bone,
-     * which is what makes a tooth or a globe rigid without a post-hoc fit, and
-     * a blended vertex takes the weighted mean of its owners' rigid images.
-     * Weights are shared basis data measured from the source, never a
-     * person's sculpt. Omission or an empty list attaches the whole surface to
-     * the cranium.
-     */
-    attachments?: {
-      /** An owner `articulation` declares: `jaw`, or an eye's `id`. */
-      owner: string;
-      rows: number[];
-    }[];
-
-    /** An exact partition of the surface triangles, preserving oriented triples. */
-    regions: {
-      id: string;
-      material: string;
-      indices: number[];
-
-      /** Flat UV pairs per triangle corner, or null for untextured geometry. */
-      uvs: number[] | null;
-    }[];
-  }[];
+  surfaces: IAutoMovieHumanFaceBasisSurface[];
 
   /** Resident finishes; the existing static face exporter owns texture admission. */
   materials: IAutoMovieMaterial[];

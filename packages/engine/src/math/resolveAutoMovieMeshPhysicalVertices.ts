@@ -1,5 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import type { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { weldMeshVertices } from "./weldMeshVertices";
 
 /**
@@ -24,7 +25,7 @@ import { weldMeshVertices } from "./weldMeshVertices";
  */
 export function resolveAutoMovieMeshPhysicalVertices(
   mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">,
-): { labels: string[]; vertices: number[] } {
+): IAutoMovieResolvedPhysicalVertices {
   const metadata = mesh.physicalVertices;
   if (metadata === undefined) return weldMeshVertices(mesh.positions);
   const refuse = (reason: string): never => {

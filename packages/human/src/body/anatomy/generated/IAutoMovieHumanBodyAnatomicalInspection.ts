@@ -1,6 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalReference } from "./IAutoMovieHumanBodyAnatomicalReference";
+import type { IAutoMovieHumanBodyArticularCandidate } from "./IAutoMovieHumanBodyArticularCandidate";
+import type { IAutoMovieHumanBodyUnvalidatedGeometry } from "./IAutoMovieHumanBodyUnvalidatedGeometry";
 
 /**
  * Explicit target-radius candidates in a neutral reference rig, not resolved anatomy.
@@ -29,23 +30,14 @@ export interface IAutoMovieHumanBodyAnatomicalInspection {
   generatorRevision: string;
 
   /** Exact source reference; its neutral is not the requested person's skin. */
-  reference: { basis: string; evaluation: "neutral-reference" };
+  reference: IAutoMovieHumanBodyAnatomicalReference;
 
   /** Owned complete request after the simple tier's deterministic lift. */
   requested: IAutoMovieHumanBodyCompleteAnatomicalMeasurements;
 
   /** This inspector does not generate or validate a whole exterior. */
-  skin: { status: "unavailable"; reason: "geometry-not-validated" };
+  skin: IAutoMovieHumanBodyUnvalidatedGeometry;
 
   /** Only explicit targets produce a candidate; omitted sides remain unknown. */
-  candidates: {
-    part: "leftHumerus" | "rightHumerus" | "leftFemur" | "rightFemur";
-    bone: "leftUpperArm" | "rightUpperArm" | "leftUpperLeg" | "rightUpperLeg";
-    center: IAutoMovieVector3;
-    radiusMetres: number;
-    source: "target";
-    registration: "reference-rig-only";
-    /** The candidate supplies no validated complete bone surface. */
-    partResolution: { status: "unavailable"; reason: "geometry-not-validated" };
-  }[];
+  candidates: IAutoMovieHumanBodyArticularCandidate[];
 }

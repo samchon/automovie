@@ -14,14 +14,12 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IHumanBodyBuildPoseInput } from "./IHumanBodyBuildPoseInput";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { readHumanBodyResolvedClinicalPose } from "./readHumanBodyResolvedClinicalPose";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
@@ -36,14 +34,7 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  * the basis and authored pose untouched. The caller has already checked the
  * named TT shoulder goal against its basis range.
  */
-export function resolveHumanBodyBuildPose(input: {
-  basis: IAutoMovieHumanBodyBasis;
-  document: IAutoMovieHumanBodyBasisDocument;
-  poseRows: IAutoMovieJointPose[];
-  landmarks: Record<string, IAutoMovieVector3>;
-  /** Shared prepared rig for a source capability with pose-independent anchors. */
-  rig?: ReturnType<typeof resolveHumanBodySkeleton>;
-}) {
+export function resolveHumanBodyBuildPose(input: IHumanBodyBuildPoseInput) {
   const { basis, document, poseRows, landmarks } = input;
   const rig = input.rig ?? resolveHumanBodySkeleton(
     basis,

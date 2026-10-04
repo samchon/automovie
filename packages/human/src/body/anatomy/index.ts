@@ -6,6 +6,10 @@ export type { IAutoMovieHumanBodyExteriorTargetSource } from "./surface/IAutoMov
 export type { IAutoMovieHumanBodyExteriorCandidateBuild } from "./generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 export * from "./articulation/createHumanBodyArticularCandidateModel";
 export type { IAutoMovieHumanBodyAnatomicalInspection } from "./generated/IAutoMovieHumanBodyAnatomicalInspection";
+export type { IAutoMovieHumanBodyAnatomicalReference } from "./generated/IAutoMovieHumanBodyAnatomicalReference";
+export type { IAutoMovieHumanBodyArticularCandidate } from "./generated/IAutoMovieHumanBodyArticularCandidate";
+export type { IAutoMovieHumanBodyUnvalidatedGeometry } from "./generated/IAutoMovieHumanBodyUnvalidatedGeometry";
+export type { IAutoMovieHumanBodyArticularCandidateModelProps } from "./articulation/IAutoMovieHumanBodyArticularCandidateModelProps";
 export * from "./shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
 export * from "./lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
 export type { IAutoMovieHumanBodyFemoralHead } from "./lower-limb/IAutoMovieHumanBodyFemoralHead";

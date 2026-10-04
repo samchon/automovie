@@ -3,26 +3,22 @@
  * GLB export. The worker owns the compiled basis and source model; transferred
  * arrays belong to one reply and the page may retain only the displayed frame.
  */
-import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type {
-  IAutoMovieHumanBodyHumeralHead,
-  IAutoMovieHumanBodyShoulderPose,
-  IAutoMovieHumanBodyAnatomicalInspection,
-  IAutoMovieHumanBodyExteriorCandidateBuild,
-} from "@automovie/human";
-import type {
-  IAutoMovieJointPose,
   IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
+
+import type { IConnectedBodyArmsDownResult } from "./IConnectedBodyArmsDownResult";
+import type { IConnectedBodyExportResult } from "./IConnectedBodyExportResult";
+import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
 
 /**
  * Mesh attributes at the preview and GLB Float32 precision boundary.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the numerical surface shown by the connected body editor.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies directly drawable Float32 body geometry to the preview.
  */
-export type ConnectedBodyMesh = {
+export interface ConnectedBodyMesh {
   /** Metre positions, three scalars per vertex.
    * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the admitted body shape.
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Transfers the body positions at display precision.
@@ -58,7 +54,7 @@ export type ConnectedBodyMesh = {
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prevents the display layer from skinning an already posed surface.
    */
   skin: null;
-};
+}
 /** Static model part whose geometry travels in transferable buffers.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the committed body regions together.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps each resident region's geometry paired with its material binding.
@@ -97,49 +93,9 @@ export type ConnectedBodyRequest =
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Carries encoded output separately from display geometry.
  */
 export type ConnectedBodyResult =
-  | {
-      operation: "preview";
-      model: ConnectedBodyModel;
-      crossings: IAutoMovieModelCrossing[] | null;
-      anatomy:
-        | {
-            status: "measured";
-            heads: ({
-              bone: IAutoMovieHumanBodyHumeralHead["bone"];
-              radiusMetres: number;
-              centerInside: boolean;
-              nearestMetres: number;
-              clearanceMetres: number;
-            } & (
-              | Pick<
-                  Extract<
-                    IAutoMovieHumanBodyHumeralHead,
-                    { source: "observed" }
-                  >,
-                  "source" | "observation"
-                >
-              | {
-                  source: Exclude<
-                    IAutoMovieHumanBodyHumeralHead["source"],
-                    "observed"
-                  >;
-                }
-            ))[];
-          }
-        | { status: "unavailable"; reason: "skin-crossing" | "ct-domain" }
-        | null;
-      extras: Record<string, unknown>;
-      /** Candidate-only numerical inspection; legacy body previews omit it. */
-      anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;
-      /** Actual source-conditioned exterior; never a resolved clinical skin. */
-      exteriorCandidate?: IAutoMovieHumanBodyExteriorCandidateBuild["exterior"];
-    }
-  | { operation: "export"; glb: Uint8Array<ArrayBuffer> }
-  | {
-      operation: "armsDown";
-      pose: IAutoMovieJointPose[];
-      shoulders: IAutoMovieHumanBodyShoulderPose[];
-    };
+  | IConnectedBodyPreviewResult
+  | IConnectedBodyExportResult
+  | IConnectedBodyArmsDownResult;
 
 /** Transfer exactly the buffers owned by this reply, never basis memory.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Delivers preview geometry without copying the compiled basis.

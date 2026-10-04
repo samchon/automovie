@@ -1,8 +1,7 @@
-import { type IAutoMovieResolvedBone, DEFAULT_JOINT_AXES, Quaternion, Vector3, decomposeJointRotation } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, Quaternion, Vector3, decomposeJointRotation } from "@automovie/engine";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IHumanBodyResolvedClinicalPoseInput } from "./IHumanBodyResolvedClinicalPoseInput";
 import { humanBodyFlexionAxesCollinear } from "./humanBodyFlexionAxesCollinear";
 
 /**
@@ -39,13 +38,9 @@ import { humanBodyFlexionAxesCollinear } from "./humanBodyFlexionAxesCollinear";
  * @evidenceExclude contracts/anatomy.md#permitted-range Range admission belongs to the caller.
  * @evidence contracts/anatomy.md#parametric-authority Returns the existing named clinical motion coordinates through the engine's inverse, without a personal surface input.
  */
-export function readHumanBodyResolvedClinicalPose(input: {
-  rig: ReturnType<typeof resolveHumanBodySkeleton>;
-  resolved: readonly IAutoMovieResolvedBone[];
-  basis: IAutoMovieHumanBodyBasis;
-  pose: readonly IAutoMovieJointPose[];
-  tilt: number;
-}): IAutoMovieJointPose[] {
+export function readHumanBodyResolvedClinicalPose(
+  input: IHumanBodyResolvedClinicalPoseInput,
+): IAutoMovieJointPose[] {
   const { rig } = input;
   const resolved = new Map(input.resolved.map((bone) => [bone.bone, bone]));
   const root = rig.skeleton.bones.find((bone) => bone.parent === null)!;

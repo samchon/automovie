@@ -58,10 +58,10 @@ function materialOf(source: THREE.Material): THREE.MeshBasicMaterial {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Restores source materials and names unsupported shader observations.
  */
 export function createHumanObservationAlbedoPass() {
-  type Entry = {
+  interface Entry {
     source: THREE.Material | THREE.Material[];
     display: THREE.MeshBasicMaterial | THREE.MeshBasicMaterial[];
-  };
+  }
   const entries = new Map<THREE.Mesh, Entry>();
   const release = (mesh: THREE.Mesh, entry: Entry): void => {
     mesh.material = entry.source;

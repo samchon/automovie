@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
+import type { IAutoMovieProjectionIntervals } from "./IAutoMovieProjectionIntervals";
 
 /**
  * Outward-enclosed projections of represented points along a stored direction.
@@ -21,7 +22,7 @@ export function measureAutoMovieProjectionIntervals(
   points: readonly IAutoMovieVector3[],
   raw: IAutoMovieVector3,
   origin: IAutoMovieVector3 = points[0],
-): { intervals: [number, number][]; normUpper: number } {
+): IAutoMovieProjectionIntervals {
   if (
     points.length === 0 ||
     ![...points, raw, origin].every(

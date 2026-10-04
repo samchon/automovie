@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyParametricParameters } from "../anatomy/measurements/IAutoMovieHumanBodyParametricParameters";
+import type { IAutoMovieHumanBodyAnatomicalRequestIdentity } from "./IAutoMovieHumanBodyAnatomicalRequestIdentity";
 
 /**
  * One complete numerical request, independent of legacy replay weights.
@@ -24,13 +25,5 @@ import type { IAutoMovieHumanBodyParametricParameters } from "../anatomy/measure
  * @author Samchon
  */
 export type IAutoMovieHumanBodyAnatomicalDocument =
-  IAutoMovieHumanBodyParametricParameters & {
-    /** Stable identity of this numerical request. */
-    readonly id: string;
-
-    /** Display label, independent of generator selection. */
-    readonly name: string;
-
-    /** Exact basis identity of the neutral reference rig used for inspection. */
-    readonly basis: string;
-  };
+  IAutoMovieHumanBodyParametricParameters &
+    IAutoMovieHumanBodyAnatomicalRequestIdentity;

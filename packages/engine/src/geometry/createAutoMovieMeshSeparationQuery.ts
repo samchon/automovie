@@ -4,7 +4,9 @@ import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieT
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
-import type { IAutoMovieMeshQueryBudget } from "./IAutoMovieMeshQueryBudget";
+import type { IAutoMovieMeshAttachmentCap } from "./IAutoMovieMeshAttachmentCap";
+import type { IAutoMovieMeshSeparationOptions } from "./IAutoMovieMeshSeparationOptions";
+import type { IAutoMovieMeshSeparationResult } from "./IAutoMovieMeshSeparationResult";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -74,22 +76,8 @@ export function createAutoMovieMeshSeparationQuery(
   representation: "source" | "float32" = "source",
 ): (
   vertices: readonly IAutoMovieVector3[],
-  options: {
-    clearance: number;
-    budget: IAutoMovieMeshQueryBudget;
-    attachment?: {
-      triangle: number;
-      weights: readonly number[];
-      supports: readonly number[];
-    };
-  },
-) => {
-  certified: boolean;
-  lowerBound: number;
-  triangle: number;
-  examined: number;
-  attachmentCaps: { triangle: number; cap: number }[];
-} {
+  options: IAutoMovieMeshSeparationOptions,
+) => IAutoMovieMeshSeparationResult {
   if (representation !== "source" && representation !== "float32")
     throw new Error("Mesh separation needs source or float32 representation.");
   const indices = triangleIndicesOf(mesh, "Mesh separation");
@@ -188,7 +176,7 @@ export function createAutoMovieMeshSeparationQuery(
       examined++;
     };
     const allowed = new Set<number>();
-    const attachmentCaps: { triangle: number; cap: number }[] = [];
+    const attachmentCaps: IAutoMovieMeshAttachmentCap[] = [];
     if (options.attachment !== undefined) {
       const metadata = options.attachment;
       if (

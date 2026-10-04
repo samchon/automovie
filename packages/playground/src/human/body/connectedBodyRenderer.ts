@@ -28,11 +28,11 @@ type Resident = {
   textures: AutoMovieTextureCache;
   released: boolean;
 };
-type Frame = {
+interface Frame {
   resident: Resident;
   model: ConnectedBodyModel;
   physical: ConnectedBodyPart["geometry"]["mesh"]["physicalVertices"][];
-};
+}
 
 const sameArray = (
   a: ArrayLike<number> | null,

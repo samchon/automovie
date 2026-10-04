@@ -20,10 +20,10 @@ import {
   projectHumanBodySimpleShape,
   stepHumanBodyArmsDown,
   assertTextSize,
-  type IAutoMovieHumanBodyExteriorReference,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
+import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
 import type {
   ConnectedBodyRequest,
@@ -53,14 +53,7 @@ import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExterio
  */
 export function createConnectedBodyRuntime(
   basis: IAutoMovieHumanBodyBasis,
-  options: {
-    /** Longest stretch a contact reading holds the thread, milliseconds. */
-    sliceMs?: number;
-    /** Hand the thread back; a macrotask by default so queued messages run. */
-    yieldThread?: () => Promise<unknown>;
-    /** Constructor-owned source instrument, never a numerical document field. */
-    exteriorReference?: IAutoMovieHumanBodyExteriorReference;
-  } = {},
+  options: IConnectedBodyRuntimeOptions = {},
 ) {
   const evaluate = createHumanBodyBasisBuilder(basis);
   let anatomical: ReturnType<typeof createConnectedBodyAnatomicalRuntime> | undefined;

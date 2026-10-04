@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanStaticPartInterval } from "./IAutoMovieHumanStaticPartInterval";
+
 /**
  * Source-model identity carried by one material-merged static primitive.
  * Element intervals address its final POSITION and index accessors, not bytes
@@ -18,20 +20,5 @@ export interface IAutoMovieHumanStaticPartCorrespondence {
   sourceModel: string;
 
   /** Prepared source members in this primitive's declared merge order. */
-  parts: {
-    /** Source model part ID, never a material-derived anatomical identity. */
-    id: string;
-
-    /** Zero-based POSITION vertex ordinal. */
-    vertexOffset: number;
-
-    /** Number of POSITION vertices belonging to this member. */
-    vertexCount: number;
-
-    /** Zero-based scalar index ordinal, not a triangle or byte ordinal. */
-    indexOffset: number;
-
-    /** Number of triangle index scalars belonging to this member. */
-    indexCount: number;
-  }[];
+  parts: IAutoMovieHumanStaticPartInterval[];
 }

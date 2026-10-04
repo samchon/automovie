@@ -13,7 +13,7 @@ import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTi
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
+import type { IAutoMovieHumanFaceBasisBuilderOptions } from "../structures/IAutoMovieHumanFaceBasisBuilderOptions";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
@@ -115,16 +115,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
-  options?: {
-    observe?: (contact: IAutoMovieHumanFaceContactSummary | null) => void;
-    /**
-     * Receive copied IDs of the hair parts actually emitted by each admitted
-     * model, including an empty array for the constructor's neutral check.
-     * Failed admission publishes no IDs; certified cache hits still publish.
-     */
-    observeHairParts?: (ids: readonly string[]) => void;
-    occlusion?: { rays: number; size: number };
-  },
+  options?: IAutoMovieHumanFaceBasisBuilderOptions,
 ): (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieModel {
   const basis = structuredClone(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
