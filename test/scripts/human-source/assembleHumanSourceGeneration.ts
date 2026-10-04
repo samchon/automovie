@@ -165,5 +165,8 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
         provenance: "carried from the published face; part fitting must be reimplemented to regenerate",
       })),
     stamps,
+    band: null,
+    bandTargets: [],
+    attachments: [],
   };
 }

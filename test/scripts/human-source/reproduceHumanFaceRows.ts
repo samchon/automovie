@@ -287,6 +287,7 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
     losses,
     g1Targets,
     recipes,
+    shifts: Object.fromEntries(shifts),
     checks: {
       faceSkinVertices: count,
       faceToG1Injective: true,

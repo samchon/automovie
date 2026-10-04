@@ -2,6 +2,9 @@ import type { IAutoMovieHumanBodyBasisCoupling } from "@automovie/human/body/str
 import type { IAutoMovieHumanBodyBasisJoint } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyBasisJoint";
 import type { IAutoMovieHumanBodyBasisPelvifemoral } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyBasisPelvifemoral";
 
+import type { IHumanSourceGenerationAttachment } from "./IHumanSourceGenerationAttachment.ts";
+import type { IHumanSourceGenerationBand } from "./IHumanSourceGenerationBand.ts";
+import type { IHumanSourceGenerationBandTarget } from "./IHumanSourceGenerationBandTarget.ts";
 import type { IHumanSourceGenerationChannel } from "./IHumanSourceGenerationChannel.ts";
 import type { IHumanSourceGenerationCorrective } from "./IHumanSourceGenerationCorrective.ts";
 import type { IHumanSourceGenerationInput } from "./IHumanSourceGenerationInput.ts";
@@ -26,6 +29,12 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * Face articulation and contact are carried in face-vertex terms through
  * `skin.faceVertexToSkin` and stamped accordingly. This is offline producer
  * data for the N2 comparison, not yet a runtime contract.
+ *
+ * `band` (null until extended) defines the neck band; body endpoint rows on
+ * head-band vertices are relative to the rigid head carry of the
+ * `band.carryLandmark` landmark row, face endpoint rows on body-band vertices
+ * are absolute, and cut-sample rows stay absolute values of their partition
+ * owner. `bandTargets` records each extended endpoint.
  */
 export interface IHumanSourceGeneration {
   schema: string;
@@ -46,4 +55,7 @@ export interface IHumanSourceGeneration {
   weights: IHumanSourceGenerationWeights;
   parts: IHumanSourceGenerationPart[];
   stamps: IHumanSourceGenerationStamp[];
+  band: IHumanSourceGenerationBand | null;
+  bandTargets: IHumanSourceGenerationBandTarget[];
+  attachments: IHumanSourceGenerationAttachment[];
 }

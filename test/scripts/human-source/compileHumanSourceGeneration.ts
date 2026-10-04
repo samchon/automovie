@@ -13,6 +13,7 @@ import { buildHumanSourceCut } from "./buildHumanSourceCut.ts";
 import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
 import { createHumanSourceDeltaReader } from "./createHumanSourceDeltaReader.ts";
+import { extendHumanSourceBand } from "./extendHumanSourceBand.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
 import { reproduceHumanBodyRig } from "./reproduceHumanBodyRig.ts";
@@ -46,7 +47,8 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * digest; freeze the neck cut (`buildHumanSourceCut`); reproduce face rows,
  * body rows and the body rig; classify provenance from measured residuals;
  * compare the replay with historical body stages; assemble the one-skin
- * generation and the P1 pair; write them with the reproduction record.
+ * generation, define every channel crossing the neck once on its band
+ * (`extendHumanSourceBand`), and build the P1 pair; write them with the reproduction record.
  * Tracked published bases are read only.
  */
 export function compileHumanSourceGeneration(work: string, output: string, repository: string): string {
@@ -160,13 +162,16 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     // Content digests only: the sample manifest itself carries the run clock.
     ...Object.fromEntries(Object.entries(sample.manifest.files).map(([name, file]) => [name, file.sha256])),
   };
-  const generation = assembleHumanSourceGeneration({
+  const assembled = assembleHumanSourceGeneration({
     face, body, faceSha256, cut, topology, reader,
     chinFactor: lowerFace.factor,
     faceRows, bodyRows, rig: rigRows, upstream,
     sample: sampleRecord,
     inputs,
   });
+  const extended = extendHumanSourceBand({ generation: assembled, face, body, cut, faceRows, reader, field, sample });
+  const generation = extended.generation;
+  log("band", extended.checks);
   const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });
   log("generation", generation.id, "p1", p1.checks);
   const classified = classifyHumanSourceRows([...faceRows.rows, ...bodyRows.rows, ...rigRows.rows]);
@@ -180,7 +185,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     generation: generation.id,
     rows: classified.rows,
     losses: [...faceRows.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],
-    checks: { cut: cut.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
+    checks: { cut: cut.checks, band: extended.checks, face: faceRows.checks, body: bodyRows.checks, rig: rigRows.checks, p1: p1.checks, ...Object.fromEntries(Object.entries(stages).map(([r, c]) => ["stage " + r, c])) },
   });
   // The manifest names content only: no clock, host or absolute path, and the
   // acquisition records drop whether an archive came from cache or download,
