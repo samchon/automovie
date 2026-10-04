@@ -1,8 +1,7 @@
-import { type IAutoMovieMeshQueryBudget, type createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { humanFaceHairContact } from "./humanFaceHairContact";
-import type { createHumanFaceHairRootBoundary } from "./createHumanFaceHairRootBoundary";
+import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
+import type { IHumanFaceHairLaunch } from "./IHumanFaceHairLaunch";
 import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
@@ -50,19 +49,9 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits numerical surface and metric premises, not an anatomical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority It adds no caller authoring input; root, direction and collider are derived by their existing owners.
  */
-export function launchHumanFaceHairCurve(props: {
-  root: IAutoMovieVector3;
-  exitDirection: IAutoMovieVector3;
-  length: number;
-  contact: Pick<ReturnType<typeof humanFaceHairContact>, "sample" | "clearance" | "epsilon">;
-  raycaster: Pick<ReturnType<typeof createAutoMovieMeshRayCaster>, "nearestHit">;
-  rootBoundary: {
-    triangles: readonly number[];
-    distance: ReturnType<typeof createHumanFaceHairRootBoundary>["distance"];
-  };
-  /** Caller-owned lock budget, also consumed by the subsequent metric walk. */
-  budget: IAutoMovieMeshQueryBudget;
-}): { point: IAutoMovieVector3; distance: number } {
+export function launchHumanFaceHairCurve(
+  props: IHumanFaceHairLaunch,
+): IHumanFaceHairStationStep {
   const direction = humanFaceHairFrame.direction(props.exitDirection);
   const { clearance, epsilon, sample } = props.contact;
   const { low, bound, rootHit, pointAt, spend } = createHumanFaceHairExteriorInterval({

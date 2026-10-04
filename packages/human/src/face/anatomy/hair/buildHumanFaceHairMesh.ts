@@ -1,13 +1,10 @@
-import {
-  Vector3,
-  type IAutoMovieMeshQueryBudget,
-  type createAutoMovieMeshSeparationQuery,
-  type createAutoMovieSignedMeshQuery,
-} from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
+import type { IHumanFaceHairMeshContext } from "./IHumanFaceHairMeshContext";
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import { fitHumanFaceHairRibbonRows } from "./fitHumanFaceHairRibbonRows";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
@@ -130,20 +127,7 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 export function buildHumanFaceHairMesh(
   curves: IAutoMovieHumanFaceHairCurve[],
   layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance">,
-  props: {
-    widths: readonly number[];
-    query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
-    separation: {
-      source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-      represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-    };
-    budgets: readonly IAutoMovieMeshQueryBudget[];
-    attachments: readonly {
-      triangle: number;
-      weights: readonly number[];
-      supports: readonly number[];
-    }[];
-  },
+  props: IHumanFaceHairMeshContext,
 ): IAutoMovieMesh {
   if (
     props.separation === undefined ||
@@ -229,7 +213,7 @@ export function buildHumanFaceHairMesh(
       ),
     );
     const distances = [0];
-    let sampled: { point: IAutoMovieVector3; free: number } | undefined;
+    let sampled: IHumanFaceHairFreeWitness | undefined;
     for (let at = 1; at < points.length; at++)
       distances.push(
         distances[at - 1] +

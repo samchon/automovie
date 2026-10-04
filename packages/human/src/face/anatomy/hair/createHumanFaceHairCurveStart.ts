@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
+import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
+import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
 import { createHumanFaceHairGatherStage } from "./createHumanFaceHairGatherStage";
-import type { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
-import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
 
 /**
  * Prepare the same rooted emergence for an integrated guide or a placed strand.
@@ -38,8 +38,8 @@ import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve"
  * @evidenceExclude contracts/anatomy.md#parametric-authority It transports an admitted layer and derived seat rather than adding an authoring input.
  */
 export function createHumanFaceHairCurveStart(
-  props: Parameters<typeof integrateHumanFaceHairCurve>[0],
-  metric: { length: number; contact: ReturnType<typeof humanFaceHairContact> },
+  props: IHumanFaceHairIntegration,
+  metric: IHumanFaceHairMetric,
 ) {
   assertHumanFaceHairIntegrationContext(props);
   const { layer } = props;

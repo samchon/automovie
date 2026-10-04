@@ -1,9 +1,7 @@
-import {
-  Vector3,
-  type IAutoMovieMeshQueryBudget,
-  type createAutoMovieMeshSeparationQuery,
-} from "@automovie/engine";
+import { type IAutoMovieMeshSeparationAttachment, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import type { IHumanFaceHairRibbonFitContext } from "./IHumanFaceHairRibbonFitContext";
 
 interface Row {
   point: IAutoMovieVector3;
@@ -41,6 +39,19 @@ interface Row {
  * real-arithmetic hull nesting never bypasses Float32 revalidation. Registered
  * root contact is bounded separately, stem cells stay strictly separated, and
  * free cells keep requested clearance.
+ *
+ * Both readers are deterministic over immutable snapshots, so one exact query
+ * (bit-identical vertex run, clearance and registration) always has one
+ * verdict. Each frame's verdicts are therefore recorded by exact coordinates
+ * and reused, never re-spending budget on a query already answered. Signed
+ * zeros stay distinct in the key. The bisection still visits the same
+ * brackets: late width steps below Float32 resolution repeat the represented
+ * run while the binary64 source run keeps moving, and the cell recheck after a
+ * successful bisection repeats its last certified query exactly. Reuse changes
+ * neither a verdict nor the bracket sequence; only repeated work is removed.
+ * Only certification is consumed here, so each new query uses the readers'
+ * decision-only `separated` operation, which ends at the first refuting host
+ * triangle and returns the same verdict as a complete measurement.
  * The mutable returned array, records and vectors are owned copies. The shared
  * work budget alone is intentionally caller-owned mutable state.
  * Nothing here establishes hair-to-hair intersection freedom.
@@ -61,19 +72,7 @@ interface Row {
  */
 export function fitHumanFaceHairRibbonRows(
   rows: readonly Row[],
-  props: {
-    clearance: number;
-    source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-    represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-    budget: IAutoMovieMeshQueryBudget;
-    attachment:
-      | {
-          triangle: number;
-          weights: readonly number[];
-          supports: readonly number[];
-        }
-      | undefined;
-  },
+  props: IHumanFaceHairRibbonFitContext,
 ): Row[] {
   if (
     props === undefined ||
@@ -91,16 +90,40 @@ export function fitHumanFaceHairRibbonRows(
     y: Math.fround(p.y),
     z: Math.fround(p.z),
   });
+  // Exact query identity: every coordinate's shortest round-trip text, with
+  // negative zero kept apart. Within one call the registration is either the
+  // curve's attachment or absent, so its presence completes the identity.
+  const identity = (
+    run: readonly IAutoMovieVector3[],
+    clearance: number,
+    attachment: IAutoMovieMeshSeparationAttachment | undefined,
+  ): string =>
+    [clearance, attachment === undefined ? 0 : 1, ...run.flatMap((p) => [p.x, p.y, p.z])]
+      .map((value) => (Object.is(value, -0) ? "-0" : String(value)))
+      .join(",");
+  const sourceVerdicts = new Map<string, boolean>();
+  const representedVerdicts = new Map<string, boolean>();
   const certified = (
     vertices: readonly IAutoMovieVector3[],
     clearance: number,
-    attachment?: NonNullable<typeof props.attachment>,
+    attachment?: IAutoMovieMeshSeparationAttachment,
   ): boolean => {
     const options = { clearance, budget: props.budget, attachment };
-    return (
-      props.source(vertices, options).certified &&
-      props.represented(vertices.map(represented), options).certified
-    );
+    const exact = identity(vertices, clearance, attachment);
+    let proved = sourceVerdicts.get(exact);
+    if (proved === undefined) {
+      proved = props.source.separated(vertices, options).certified;
+      sourceVerdicts.set(exact, proved);
+    }
+    if (!proved) return false;
+    const run = vertices.map(represented);
+    const rounded = identity(run, clearance, attachment);
+    let kept = representedVerdicts.get(rounded);
+    if (kept === undefined) {
+      kept = props.represented.separated(run, options).certified;
+      representedVerdicts.set(rounded, kept);
+    }
+    return kept;
   };
   const fit = (row: Row): Row => {
     if (row.region === "root") return row;

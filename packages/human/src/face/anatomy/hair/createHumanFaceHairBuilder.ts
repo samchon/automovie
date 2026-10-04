@@ -11,6 +11,7 @@ import type {
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairHostQueries } from "./IHumanFaceHairHostQueries";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { closeHumanFaceHairContact } from "./closeHumanFaceHairContact";
@@ -190,18 +191,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
     assertHumanFaceHair(hair);
     const parts: IAutoMovieModelPart[] = [],
       materials: IAutoMovieMaterial[] = [];
-    const queries = new Map<
-      string,
-      {
-        query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
-        raycaster: ReturnType<typeof createAutoMovieMeshRayCaster>;
-        separation: {
-          source: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-          represented: ReturnType<typeof createAutoMovieMeshSeparationQuery>;
-        };
-        boundary: ReturnType<typeof createHumanFaceHairRootBoundary>;
-      }
-    >();
+    const queries = new Map<string, IHumanFaceHairHostQueries>();
     let stations = 0;
     const spend = (count: number): void => {
       stations += count;

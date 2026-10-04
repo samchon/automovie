@@ -1,9 +1,7 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairStrandPlacement } from "./IHumanFaceHairStrandPlacement";
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
-import type { IAutoMovieHumanFaceHairRootedTransition } from "./IAutoMovieHumanFaceHairRootedTransition";
-import type { humanFaceHairContact } from "./humanFaceHairContact";
 
 /**
  * Admit a hierarchy remainder after the walk's completed canonical stem.
@@ -33,18 +31,9 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  * @evidenceExclude contracts/anatomy.md#permitted-range Its bounds are numerical admission rather than clinical ranges.
  * @evidenceExclude contracts/anatomy.md#parametric-authority It transports compiled geometry and never adds a personal authoring control.
  */
-export function growHumanFaceHairStrand(props: {
-  strand: {
-    points: readonly IAutoMovieVector3[];
-    length: number;
-    normal: IAutoMovieVector3;
-  };
-  contact: ReturnType<typeof humanFaceHairContact>;
-  /** Canonical stem, already admitted by the owning metric walk. */
-  rooted: IAutoMovieHumanFaceHairRootedTransition;
-  /** Placement rejection resumes the same walk; standalone callers may grow it. */
-  integrate: () => IAutoMovieHumanFaceHairCurve | undefined;
-}): IAutoMovieHumanFaceHairCurve | undefined {
+export function growHumanFaceHairStrand(
+  props: IHumanFaceHairStrandPlacement,
+): IAutoMovieHumanFaceHairCurve | undefined {
   const { strand, contact, rooted } = props;
   if (
     rooted === undefined ||

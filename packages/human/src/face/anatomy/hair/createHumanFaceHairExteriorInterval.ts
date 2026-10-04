@@ -1,14 +1,11 @@
 import {
   Vector3,
-  type IAutoMovieMeshQueryBudget,
   adjacentAutoMovieFloat64,
-  type createAutoMovieMeshRayCaster,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairExteriorRay } from "./IHumanFaceHairExteriorRay";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
-import type { createHumanFaceHairRootBoundary } from "./createHumanFaceHairRootBoundary";
-import type { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
@@ -40,22 +37,7 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits computational premises, not clinical bounds.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Its inputs are producer-derived rays rather than personal curve controls.
  */
-export function createHumanFaceHairExteriorInterval(props: {
-  root: IAutoMovieVector3;
-  direction: IAutoMovieVector3;
-  maximum: number;
-  originOnSkin: boolean;
-  contact: Pick<ReturnType<typeof humanFaceHairContact>, "sample" | "epsilon">;
-  raycaster: Pick<
-    ReturnType<typeof createAutoMovieMeshRayCaster>,
-    "nearestHit"
-  >;
-  rootBoundary: {
-    triangles: readonly number[];
-    distance: ReturnType<typeof createHumanFaceHairRootBoundary>["distance"];
-  };
-  budget: IAutoMovieMeshQueryBudget;
-}) {
+export function createHumanFaceHairExteriorInterval(props: IHumanFaceHairExteriorRay) {
   const direction = humanFaceHairFrame.direction(props.direction);
   const { epsilon, sample } = props.contact;
   assertHumanFaceHairIntegrationContext(props);

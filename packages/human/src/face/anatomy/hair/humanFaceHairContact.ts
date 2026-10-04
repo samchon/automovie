@@ -1,11 +1,13 @@
 import {
   Vector3,
   type IAutoMovieMeshQueryBudget,
-  type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
+import type { IHumanFaceHairContactSample } from "./IHumanFaceHairContactSample";
+import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
+import type { IHumanFaceHairContactSource } from "./IHumanFaceHairContactSource";
 import type { IHumanFaceHairRetraction } from "./IHumanFaceHairRetraction";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
@@ -92,28 +94,9 @@ const requireDirection = humanFaceHairFrame.direction;
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function humanFaceHairContact(props: {
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;
-  root: IAutoMovieVector3;
-  length: number;
-  query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
-}): {
-  clearance: number;
-  step: number;
-  epsilon: number;
-  sample: (p: IAutoMovieVector3) => ReturnType<typeof props.query>;
-  outward: (
-    p: IAutoMovieVector3,
-    hit: ReturnType<typeof props.query>,
-  ) => IAutoMovieVector3;
-  project: (p: IAutoMovieVector3) => IAutoMovieVector3;
-  /** Same-collider offset proposal; every query spends the caller's lock budget. */
-  retract: (
-    point: IAutoMovieVector3,
-    offset: number,
-    budget: IAutoMovieMeshQueryBudget,
-  ) => IHumanFaceHairRetraction;
-} {
+export function humanFaceHairContact(
+  props: IHumanFaceHairContactSource,
+): IHumanFaceHairContact {
   const { layer, query } = props;
   const h = layer.samplingStep;
   const epsilon =
@@ -132,9 +115,7 @@ export function humanFaceHairContact(props: {
   // next, so the last query is kept: the same coordinates give the same hit,
   // because the query is deterministic in its point. The hit is shared and
   // read only.
-  let sampled:
-    | { point: IAutoMovieVector3; hit: ReturnType<typeof query> }
-    | undefined;
+  let sampled: IHumanFaceHairContactSample | undefined;
   const sample = (p: IAutoMovieVector3): ReturnType<typeof query> => {
     if (
       sampled !== undefined &&
@@ -159,7 +140,7 @@ export function humanFaceHairContact(props: {
             hit.signedDistance < 0 ? -1 : 1,
           ),
         );
-  let witness: { point: IAutoMovieVector3; free: number } | undefined;
+  let witness: IHumanFaceHairFreeWitness | undefined;
   const project = (input: IAutoMovieVector3): IAutoMovieVector3 => {
     if (
       witness !== undefined &&

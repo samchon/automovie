@@ -1,21 +1,17 @@
 import {
   Vector3,
-  type IAutoMovieMeshQueryBudget,
-  type createAutoMovieMeshRayCaster,
-  type createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
+import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
-import type { IAutoMovieHumanFaceHairRootedTransition } from "./IAutoMovieHumanFaceHairRootedTransition";
 import { createHumanFaceHairCurveStart } from "./createHumanFaceHairCurveStart";
 import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { humanFaceHairLength } from "./humanFaceHairLength";
-import type { launchHumanFaceHairCurve } from "./launchHumanFaceHairCurve";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
 import { transportHumanFaceHairGatherStep } from "./transportHumanFaceHairGatherStep";
@@ -129,38 +125,9 @@ const requireDirection = humanFaceHairFrame.direction;
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function integrateHumanFaceHairCurve(props: {
-  layer: IAutoMovieHumanFaceHair.Layer;
-  origin: IAutoMovieVector3;
-  reference: IAutoMovieVector3;
-  root: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  sequence: number;
-  query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
-
-  /** Ray index over the same current closed collider as query. */
-  raycaster: Pick<
-    ReturnType<typeof createAutoMovieMeshRayCaster>,
-    "nearestHit"
-  >;
-
-  /** Original sampler support and triangle proximity on that collider. */
-  rootBoundary: Parameters<typeof launchHumanFaceHairCurve>[0]["rootBoundary"];
-
-  /** Caller-owned remaining lock iterations, shared by launch and later walking. */
-  budget: IAutoMovieMeshQueryBudget;
-
-  /** Derived post-interpolation metric/contact, when different from regional length. */
-  metric?: { length: number; contact: ReturnType<typeof humanFaceHairContact> };
-
-  /** Admit a hierarchy remainder once the canonical stem reaches free clearance. */
-  place?: (
-    stem: IAutoMovieHumanFaceHairRootedTransition,
-  ) => IAutoMovieHumanFaceHairCurve | undefined;
-
-  gatherAnchor?: IAutoMovieVector3;
-  gatherDirection?: (point: IAutoMovieVector3) => IAutoMovieVector3;
-}): IAutoMovieHumanFaceHairCurve {
+export function integrateHumanFaceHairCurve(
+  props: IHumanFaceHairIntegration,
+): IAutoMovieHumanFaceHairCurve {
   const { layer } = props;
   const metricLength =
     props.metric?.length ??
@@ -232,7 +199,7 @@ export function integrateHumanFaceHairCurve(props: {
     // which is the chord bound the clearance argument rests on.
     const advance = (
       along: IAutoMovieVector3,
-    ): { point: IAutoMovieVector3; distance: number } => {
+    ): IHumanFaceHairStationStep => {
       // A pending free lock acquired its datum at its only rooted-to-free
       // transition. Tie state never returns from the tail to pending.
       const transported = stage.pending() && layer.gather!.strength > 0;

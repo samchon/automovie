@@ -6,6 +6,7 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
 import type { IAutoMovieMeshAttachmentCap } from "./IAutoMovieMeshAttachmentCap";
 import type { IAutoMovieMeshSeparationOptions } from "./IAutoMovieMeshSeparationOptions";
+import type { IAutoMovieMeshSeparationQuery } from "./IAutoMovieMeshSeparationQuery";
 import type { IAutoMovieMeshSeparationResult } from "./IAutoMovieMeshSeparationResult";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -67,6 +68,13 @@ type Node = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<Triangle>>;
  * expose the compiled snapshot. Whole-row and free-span fitting can consume
  * this operation in the same current collider frame.
  *
+ * The returned query's `separated` operation decides only certification. It
+ * runs the same walk, admission and per-triangle bounds, and ends at the first
+ * triangle whose bound falls below the target. lowerBound starts at the target
+ * and only decreases, so once it is below the target no later triangle can
+ * restore certification: the decision equals the full measurement's. Work it
+ * skips is simply never spent from the budget.
+ *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies budgeted conservative whole-feature separation for composable resident geometry without a catalogue or sampled-corner substitute.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Snapshots original triangle identity and represented coordinates and qualifies complete-feature clearance without inventing a volume for open sheets.
  * @author Samchon
@@ -74,10 +82,7 @@ type Node = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<Triangle>>;
 export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,
   representation: "source" | "float32" = "source",
-): (
-  vertices: readonly IAutoMovieVector3[],
-  options: IAutoMovieMeshSeparationOptions,
-) => IAutoMovieMeshSeparationResult {
+): IAutoMovieMeshSeparationQuery {
   if (representation !== "source" && representation !== "float32")
     throw new Error("Mesh separation needs source or float32 representation.");
   const indices = triangleIndicesOf(mesh, "Mesh separation");
@@ -128,7 +133,13 @@ export function createAutoMovieMeshSeparationQuery(
   }
   const byId = new Map(triangles.map((t) => [t.id, t]));
   const root = buildAutoMovieMeshQueryHierarchy(triangles);
-  return (vertices, options) => {
+  // One walk serves both operations; `refute` only ends it once the decision
+  // is settled, so the two never compute certification differently.
+  const walk = (
+    vertices: readonly IAutoMovieVector3[],
+    options: IAutoMovieMeshSeparationOptions,
+    refute: boolean,
+  ): IAutoMovieMeshSeparationResult => {
     if (
       vertices.length < 1 ||
       !Array.from(vertices).every(
@@ -253,6 +264,7 @@ export function createAutoMovieMeshSeparationQuery(
       }
     }
     const visit = (node: Node): void => {
+      if (refute && lowerBound < sufficient) return;
       spend();
       const corners = [node.low, node.high].map((p) => ({
         x: p[0],
@@ -289,6 +301,7 @@ export function createAutoMovieMeshSeparationQuery(
           ) {
             lowerBound = bound;
             triangle = t.id;
+            if (refute && lowerBound < sufficient) return;
           }
         }
       } else {
@@ -305,4 +318,22 @@ export function createAutoMovieMeshSeparationQuery(
       attachmentCaps,
     };
   };
+  return Object.assign(
+    (
+      vertices: readonly IAutoMovieVector3[],
+      options: IAutoMovieMeshSeparationOptions,
+    ): IAutoMovieMeshSeparationResult => walk(vertices, options, false),
+    {
+      separated: (
+        vertices: readonly IAutoMovieVector3[],
+        options: IAutoMovieMeshSeparationOptions,
+      ) => {
+        const result = walk(vertices, options, true);
+        return {
+          certified: result.certified,
+          witness: result.certified ? -1 : result.triangle,
+        };
+      },
+    },
+  );
 }
