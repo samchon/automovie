@@ -55,7 +55,7 @@ export const test_human_person_normal_alias_builder = (): void => {
   TestValidator.equals("caller source and input stay unchanged", JSON.stringify(fixture), before);
   const mismatched: typeof fixture = JSON.parse(before);
   mismatched.face.surfaces[0].positions[alias * 3] += 0.001;
-  TestValidator.predicate("performed physical aliases cannot disagree", throwsError(() => createHumanPersonBuilder(mismatched)(mismatched.document), "shared identity"));
+  TestValidator.predicate("performed physical aliases cannot disagree", throwsError(() => createHumanPersonBuilder(mismatched)(mismatched.document), ["physicalVertices", "aliases disagree on the coordinate grid"]));
   const distinct: typeof fixture = JSON.parse(before);
   const rawParent = face.sourcePartition.parents[Math.floor(at / 3)];
   const tree = [...face.sourcePartition.parentTriangles];
