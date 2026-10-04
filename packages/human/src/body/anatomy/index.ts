@@ -2,6 +2,7 @@ export * from "./shoulder/createHumanBodyHumeralHeads";
 export * from "./articulation/createHumanBodyAnatomicalInspection";
 export * from "./surface/createHumanBodyExteriorTargetBuilder";
 export type { IAutoMovieHumanBodyExteriorReference } from "./surface/IAutoMovieHumanBodyExteriorReference";
+export type { IAutoMovieHumanBodyExteriorTargetSource } from "./surface/IAutoMovieHumanBodyExteriorTargetSource";
 export type { IAutoMovieHumanBodyExteriorCandidateBuild } from "./generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 export * from "./articulation/createHumanBodyArticularCandidateModel";
 export type { IAutoMovieHumanBodyAnatomicalInspection } from "./generated/IAutoMovieHumanBodyAnatomicalInspection";

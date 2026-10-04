@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { humanFaceHairContact } from "./humanFaceHairContact";
+import type { IHumanFaceHairGatherTransport } from "./IHumanFaceHairGatherTransport";
+import type { IHumanFaceHairGatherTransportState } from "./IHumanFaceHairGatherTransportState";
 
 /**
  * Transport a pre-tie candidate without changing its requested direction blend.
@@ -26,16 +26,7 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes derived state and the existing admitted strength, never a personal corrective.
  */
-export function transportHumanFaceHairGatherStep(props: {
-  point: IAutoMovieVector3;
-  direction: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  parameter: number;
-  strength: number;
-  offset: number;
-  contact: ReturnType<typeof humanFaceHairContact>;
-  budget: { remaining: number };
-}): { point: IAutoMovieVector3; offset: number; normalIntent: number } {
+export function transportHumanFaceHairGatherStep(props: IHumanFaceHairGatherTransportState): IHumanFaceHairGatherTransport {
   if (![props.point, props.direction, props.normal].every(p => p !== undefined &&
       p !== null && [p.x, p.y, p.z].every(Number.isFinite)))
     throw new Error("Gather transport requires finite current point and directions.");

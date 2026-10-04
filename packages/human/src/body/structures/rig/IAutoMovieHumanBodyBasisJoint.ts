@@ -3,6 +3,8 @@ import type {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBodySourceReferenceGoal";
+
 /**
  * One rig joint defined by two shape-dependent landmarks and a parent bone.
  *
@@ -106,16 +108,7 @@ export interface IAutoMovieHumanBodyBasisJoint {
    * landmarks. This registration is a source rig, not individual clinical
    * anatomy. Correctives and pelvic coordination keep converted raw degrees.
    */
-  sourceReferenceGoal?: {
-    /** Existing source bone whose rest/current orientation defines travel. */
-    reference: AutoMovieHumanoidBone;
-    /** Source articulation in the reference-transported thigh rest frame. */
-    coordinates: "reference-rest-euler";
-    /** No personal anatomical frame or clinical capacity is certified. */
-    qualification: "source-rig-only";
-    /** Preserves the published corrective and coordination input convention. */
-    rhythmDriver: "converted-source-pose";
-  };
+  sourceReferenceGoal?: IAutoMovieHumanBodySourceReferenceGoal;
 
   /**
    * Humerothoracic authoring coordinates for an upper arm. Only the two

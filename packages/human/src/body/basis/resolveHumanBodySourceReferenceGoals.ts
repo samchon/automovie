@@ -1,9 +1,8 @@
-import { type IAutoMovieResolvedBone, Quaternion, decomposeJointRotation, jointToQuaternion, validatePose } from "@automovie/engine";
+import { Quaternion, decomposeJointRotation, jointToQuaternion, validatePose } from "@automovie/engine";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IHumanBodySourceReferenceGoalContext } from "./IHumanBodySourceReferenceGoalContext";
 
 /**
  * Convert explicit source-reference goals into the existing source pose.
@@ -37,12 +36,7 @@ import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  * @evidence contracts/anatomy.md#permitted-range Requested goals retain the existing source envelope owner; the shared caller additionally enforces converted and post-pelvis actual ranges.
  * @evidence contracts/anatomy.md#parametric-authority Named source motion degrees are converted without asking for editable vertices, axes or geometry.
  */
-export function resolveHumanBodySourceReferenceGoals(input: {
-  basis: IAutoMovieHumanBodyBasis;
-  document: IAutoMovieHumanBodyBasisDocument;
-  rig: ReturnType<typeof resolveHumanBodySkeleton>;
-  baseline: readonly IAutoMovieResolvedBone[];
-}): IAutoMovieHumanBodyBasisDocument {
+export function resolveHumanBodySourceReferenceGoals(input: IHumanBodySourceReferenceGoalContext): IAutoMovieHumanBodyBasisDocument {
   const { basis, document, rig } = input;
   if ((document.thighGoals ?? []).length === 0) return document;
   const goals = document.thighGoals!;

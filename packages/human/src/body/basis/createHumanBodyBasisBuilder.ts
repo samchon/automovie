@@ -4,6 +4,7 @@ import typia from "typia";
 
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisBuilderOptions } from "../structures/IAutoMovieHumanBodyBasisBuilderOptions";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearance";
@@ -47,13 +48,13 @@ import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShould
  */
 export function createHumanBodyBasisBuilder(
   input: IAutoMovieHumanBodyBasis,
-  options?: { physicalSource?: "native-indexed" | "source-partition" },
+  options?: IAutoMovieHumanBodyBasisBuilderOptions,
 ): (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyBuild {
   const basis = structuredClone(
     typia.assertEquals<IAutoMovieHumanBodyBasis>(input),
   );
   assertHumanBodyBasis(basis);
-  const physicalSource = options === undefined ? undefined : typia.assertEquals<{ physicalSource?: "native-indexed" | "source-partition" }>(options).physicalSource;
+  const physicalSource = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyBasisBuilderOptions>(options).physicalSource;
   const appearance = createHumanBodyAppearance(basis);
   // the underwear's per-vertex arm weights, on the first document wearing it
   let dress: ReturnType<typeof createHumanBodyUnderwear> | null = null;

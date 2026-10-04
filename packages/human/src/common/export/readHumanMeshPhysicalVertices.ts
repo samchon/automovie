@@ -3,6 +3,8 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import type { Primitive } from "@gltf-transform/core";
 import typia from "typia";
 
+import type { IHumanMeshPhysicalSourceTable } from "./IHumanMeshPhysicalSourceTable";
+
 /**
  * Restore declared physical source pairs from an actual static primitive.
  * The unnormalized Uint16 VEC2 attribute stores low/high words of 32-bit table
@@ -29,11 +31,7 @@ export function readHumanMeshPhysicalVertices(primitive: Primitive): IAutoMovieM
   const input: unknown = extras.automoviePhysicalVertices;
   if (input !== null && typeof input === "object" && "version" in input && input.version !== 1)
     throw new Error("Unsupported physical source namespace version.");
-  const record = typia.assertEquals<{
-    version: 1;
-    attribute: "_AUTOMOVIE_PHYSICAL_SOURCE";
-    sources: { domain: string; id: number }[];
-  }>(input);
+  const record = typia.assertEquals<IHumanMeshPhysicalSourceTable>(input);
   const positions = primitive.getAttribute("POSITION");
   const indices = primitive.getIndices();
   const xyz = positions?.getArray();

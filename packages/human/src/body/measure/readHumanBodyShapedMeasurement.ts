@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
 import { humanBodyClipRing } from "../simple/humanBodyClipRing";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
+import type { IAutoMovieHumanBodyMeasurementSection } from "../structures/IAutoMovieHumanBodyMeasurementSection";
 import { indexHumanBodySectionTriangles } from "./indexHumanBodySectionTriangles";
 import { measureHumanBodySection } from "./measureHumanBodySection";
 
@@ -49,7 +49,7 @@ export function readHumanBodyShapedMeasurement(
   basis: IAutoMovieHumanBodyBasis,
   shaped: ReturnType<typeof evaluateHumanBodyShape>,
   rule: IAutoMovieHumanBodyMeasurement,
-  observeSection?: (section: { point: IAutoMovieVector3; normal: IAutoMovieVector3; seed: IAutoMovieVector3 }) => void,
+  observeSection?: (section: IAutoMovieHumanBodyMeasurementSection) => void,
 ): number | null {
   if (rule.kind === "height") {
     let lowest = Infinity;

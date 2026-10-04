@@ -7,6 +7,7 @@ import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensio
 import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import type { IAutoMovieHumanBodyArticularAssetCorrespondence } from "./IAutoMovieHumanBodyArticularAssetCorrespondence";
+import type { IAutoMovieHumanBodyExportOptions } from "./IAutoMovieHumanBodyExportOptions";
 import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
 
 /**
@@ -39,12 +40,12 @@ import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticu
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: { sourcePartIdentity?: boolean }): Promise<{
+export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanBodyExportOptions): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
   const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
-  const admitted = options === undefined ? undefined : typia.assertEquals<{ sourcePartIdentity?: boolean }>(options);
+  const admitted = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyExportOptions>(options);
   const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || admitted?.sourcePartIdentity === true });
   if (report !== undefined) {
     if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)

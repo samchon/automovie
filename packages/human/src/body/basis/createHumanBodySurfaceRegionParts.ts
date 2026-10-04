@@ -1,6 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
+import type { IHumanPhysicalSampleRegistration } from "../../common/structures/IHumanPhysicalSampleRegistration";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 
@@ -33,7 +34,7 @@ export function createHumanBodySurfaceRegionParts(
   skinMaterial: string;
   colors: number[] | null;
   reliefWeights: number[] | null;
-  physical?: { domain: string; samples: readonly number[] };
+  physical?: IHumanPhysicalSampleRegistration;
 }) => IAutoMovieModel["parts"] {
   const regions = surface.regions.map((source) => {
     const region = humanBodyGpuRegion(source);

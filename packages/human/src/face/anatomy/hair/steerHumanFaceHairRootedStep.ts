@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { humanFaceHairContact } from "./humanFaceHairContact";
+import type { IHumanFaceHairRootedSteering } from "./IHumanFaceHairRootedSteering";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 
@@ -27,14 +27,7 @@ import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal control.
  */
-export function steerHumanFaceHairRootedStep(props: {
-  point: IAutoMovieVector3;
-  before: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  step: number;
-  contact: ReturnType<typeof humanFaceHairContact>;
-  budget: { remaining: number };
-}): IAutoMovieVector3 {
+export function steerHumanFaceHairRootedStep(props: IHumanFaceHairRootedSteering): IAutoMovieVector3 {
   if (![props.point, props.before, props.normal].every(p => p !== undefined &&
       p !== null && [p.x, p.y, p.z].every(Number.isFinite)) ||
       !Number.isFinite(props.step) || props.step <= props.contact.epsilon)

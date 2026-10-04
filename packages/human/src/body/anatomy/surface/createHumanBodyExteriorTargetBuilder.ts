@@ -6,12 +6,12 @@ import { admitHumanBodyAnatomicalDocument } from "../../document/admitHumanBodyA
 import { invertHumanBodyMeasurement } from "../../measure/invertHumanBodyMeasurement";
 import { readHumanBodyShapedMeasurement } from "../../measure/readHumanBodyShapedMeasurement";
 import type { IAutoMovieHumanBodyAnatomicalDocument } from "../../structures/IAutoMovieHumanBodyAnatomicalDocument";
-import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "../generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import type { IAutoMovieHumanBodyGeneratedAnatomy } from "../generated/IAutoMovieHumanBodyGeneratedAnatomy";
 import type { AutoMovieHumanBodyPartId } from "../identity/AutoMovieHumanBodyPartId";
 import { liftHumanBodySimpleAnatomicalTargets } from "../measurements/liftHumanBodySimpleAnatomicalTargets";
 import type { IAutoMovieHumanBodyExteriorReference } from "./IAutoMovieHumanBodyExteriorReference";
+import type { IAutoMovieHumanBodyExteriorTargetSource } from "./IAutoMovieHumanBodyExteriorTargetSource";
 
 /**
  * Compile one source-rest skin response into an absolute fictional bust target.
@@ -35,10 +35,7 @@ import type { IAutoMovieHumanBodyExteriorReference } from "./IAutoMovieHumanBody
  * @evidence contracts/anatomy.md#permitted-range Existing actual source endpoint readings and inverse tolerance refuse unsupported targets without extrapolation.
  * @evidence contracts/anatomy.md#parametric-authority The complete numerical document supplies only named physical targets, never vertex or morph edits.
  */
-export function createHumanBodyExteriorTargetBuilder(input: {
-  basis: IAutoMovieHumanBodyBasis;
-  reference: IAutoMovieHumanBodyExteriorReference;
-}) {
+export function createHumanBodyExteriorTargetBuilder(input: IAutoMovieHumanBodyExteriorTargetSource) {
   const basis = structuredClone(input.basis);
   const reference = structuredClone(typia.assertEquals<IAutoMovieHumanBodyExteriorReference>(input.reference));
   const build = createHumanBodyBasisBuilder(basis, { physicalSource: reference.incidence });

@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IHumanBodyShapeTargetGain } from "./IHumanBodyShapeTargetGain";
 
 /**
  * Add a document's channel and corrective rows to one position buffer.
@@ -48,7 +49,7 @@ export function applyHumanBodyShapeRows(
       for (let axis = 0; axis < 3; axis++)
         positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
   };
-  const active: { target: string; gain: number }[] = [];
+  const active: IHumanBodyShapeTargetGain[] = [];
   for (const channel of basis.channels) {
     const weight = state.weights.get(channel.id) ?? 0;
     if (weight === 0) continue;

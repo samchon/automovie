@@ -71,7 +71,7 @@ export function stitchHumanPersonBoundary(props: {
   /** Body source positions after rig posing, before collar alignment; failure provenance only. */
   bodyBeforeCollar?: readonly number[];
   /** Canonical physical pairs aligned with the registered face loop. */
-  physicalBoundary?: readonly { domain: string; id: number }[];
+  physicalBoundary?: readonly NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number][];
 }): IAutoMovieMesh {
   const { mesh, sources, side, seam, face, faceNormals, bodyBeforeCollar } = props;
   if (mesh.skin !== null)

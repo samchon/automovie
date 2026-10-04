@@ -1,3 +1,7 @@
+import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "./IAutoMovieHumanFaceOpticalSupportAnterior";
+import type { IAutoMovieHumanFaceOpticalSupportRigid } from "./IAutoMovieHumanFaceOpticalSupportRigid";
+import type { IAutoMovieHumanFaceOpticalSupportTarget } from "./IAutoMovieHumanFaceOpticalSupportTarget";
+
 /**
  * Producer-qualified authoring support for one native connected-basis eye.
  *
@@ -38,17 +42,7 @@ export interface IAutoMovieHumanFaceOpticalSupport {
   /** SHA-256 identities of the licensed source inputs and qualification receipt. */
   sourceSha256: string[];
   /** Exact witness of the existing rigid owner configuration, not a second motion law. */
-  rigid: {
-    /** Existing eye centre landmark identity. */
-    center: string;
-    /** Existing gaze list in composition order, with its authored units unchanged. */
-    gaze: {
-      channel: string;
-      axis: [number, number, number];
-      degrees: number;
-      translation: [number, number, number];
-    }[];
-  };
+  rigid: IAutoMovieHumanFaceOpticalSupportRigid;
   /** Native vertex IDs of this whole eye component, in witness row order. */
   vertices: number[];
   /** Exact neutral XYZ triples aligned with vertices, in head-frame metres. */
@@ -58,7 +52,7 @@ export interface IAutoMovieHumanFaceOpticalSupport {
   /** Actual oriented native source triangles of this component, before collider caps. */
   triangles: number[];
   /** Source-axis hit chart; triangle corners use native IDs and weights are (1-u-v,u,v). */
-  anterior: { triangle: [number, number, number]; u: number; v: number };
+  anterior: IAutoMovieHumanFaceOpticalSupportAnterior;
   /** Chosen neutral geometric anterior axis, not a clinical optical axis. */
   axis: [number, number, number];
   /** Point on the chosen neutral source axis, in metres; neither pivot nor fitted globe centre. */
@@ -66,12 +60,5 @@ export interface IAutoMovieHumanFaceOpticalSupport {
   /** Source reference direction projected perpendicular to axis to fix roll. */
   reference: [number, number, number];
   /** Regenerated nonzero source endpoint witnesses; zero-effect endpoints are checked directly. */
-  targets: {
-    /** Existing endpoint identity from the basis target domain. */
-    id: string;
-    /** Exact native sparse (vertex, dx, dy, dz) rows for this component. */
-    surfaceRows: number[];
-    /** Exact sparse landmark rows for the named eye's rigid centre landmark. */
-    pivotRows: number[];
-  }[];
+  targets: IAutoMovieHumanFaceOpticalSupportTarget[];
 }
