@@ -19,8 +19,14 @@ export interface IHumanViewerCatalogueEntry {
   /** Content digest of document, basis and builder source; the numerical cache key. */
   key: string;
 
-  /** `<name>@<digest12>` of the candidate basis or packet it is built on, absent for published bases. */
-  basis?: string;
+  /**
+   * The exact basis bytes the document is built on, which the worker requests
+   * and the server verifies: `published@<digest12>` (published face or body),
+   * `published@<face12>.<body12>` (a person on both published bases),
+   * `published-generation@<head12>.<body12>` (the published one-skin person
+   * generation) or `<name>@<digest12>` (a candidate basis or person packet).
+   */
+  basis: string;
 
   /** Numerical domain that builds the document. */
   domain: "face" | "body" | "person";

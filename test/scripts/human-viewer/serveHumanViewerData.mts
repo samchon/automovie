@@ -23,13 +23,21 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
   let { inventory } = props;
   const handled = (value: unknown): true => { json(value); return true; };
   /**
-   * Stream a file only when its SHA-256 starts with the requested digest;
-   * otherwise 409 with both digests. Hashing streams off the event loop.
+   * Send a file's bytes only when their SHA-256 starts with the requested
+   * digest; otherwise 409 with both digests. The file is read once: the bytes
+   * that were hashed are the bytes sent, so a file replaced while it is read
+   * can never go out under the digest of its predecessor. Reading and hashing
+   * stream in chunks off the event loop; the verified bytes are held for the
+   * one response (tens of megabytes, released when it is written).
    */
   const streamVerified = (file: string, digest: string, label: string): void => {
     void (async () => {
       const hasher = createHash("sha256");
-      for await (const chunk of fs.createReadStream(file)) hasher.update(chunk as Buffer);
+      const chunks: Buffer[] = [];
+      for await (const chunk of fs.createReadStream(file)) {
+        hasher.update(chunk as Buffer);
+        chunks.push(chunk as Buffer);
+      }
       const actual = hasher.digest("hex");
       if (!actual.startsWith(digest)) {
         response.statusCode = 409;
@@ -37,7 +45,7 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
         return;
       }
       response.setHeader("Content-Type", "application/gzip");
-      fs.createReadStream(file).pipe(response);
+      response.end(Buffer.concat(chunks));
     })().catch((error: unknown) => {
       response.statusCode = 500;
       json({ error: `${label} could not be read: ` + (error instanceof Error ? error.message : String(error)) });
