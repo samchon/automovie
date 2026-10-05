@@ -6,7 +6,7 @@ import {
   validateModel,
 } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { Document, TextureInfo } from "@gltf-transform/core";
+import { Document } from "@gltf-transform/core";
 import typia from "typia";
 import {
   KHRMaterialsClearcoat,
@@ -17,19 +17,22 @@ import {
 
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
+import { applyHumanGltfTextureSampling } from "./applyHumanGltfTextureSampling";
 import type { IAutoMovieHumanExportOptions } from "./IAutoMovieHumanExportOptions";
 import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanStaticPartCorrespondence";
 import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
 import { readHumanMeshPhysicalVertices } from "./readHumanMeshPhysicalVertices";
-
-/** glTF sampler wrap mode 33071: a face texture never tiles past its UV0 square. */
-const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
+import { resolveHumanGltfTextureReference } from "./resolveHumanGltfTextureReference";
 
 /**
  * Convert a static AutoMovie model into portable glTF buffers and materials.
  * Metallic/roughness colour, emission, alpha modes and scalar optical material
- * fields and resident PNG base-colour, normal and occlusion textures are
- * preserved.
+ * fields and resident PNG or JPEG base-colour, normal and occlusion textures
+ * are preserved, either as a legacy data-URI string (clamped, untransformed) or
+ * as a structured reference on UV0 whose sampler and UV transform are encoded
+ * (`resolveHumanGltfTextureReference`, `applyHumanGltfTextureSampling`).
+ * Detail normals and overlays have no ratified glTF form and are omitted, as
+ * the material contract states.
  * External images, other texture slots and rigs are refused. PNG headers and positive extents
  * are inspected here; the receiving image decoder owns payload decoding.
  * Positive volume
@@ -155,16 +158,9 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
       // exploit and is several megabytes as PNG against a few hundred
       // kilobytes as JPEG, which is the difference between an appearance that
       // can ship with a face and one that cannot.
-      const prefix = (["png", "jpeg"] as const)
-        .map((kind) => `data:image/${kind};base64,`)
-        .find((candidate) =>
-          typeof binding === "string" ? binding.startsWith(candidate) : false,
-        );
-      if (typeof binding !== "string" || prefix === undefined)
-        throw new Error(
-          "Model textures must be resident PNG or JPEG data URIs with default UV0 sampling.",
-        );
-      const mediaType = prefix.slice("data:".length, -";base64,".length);
+      const reference = resolveHumanGltfTextureReference(binding, slot);
+      const mediaType = reference.mediaType;
+      const prefix = `data:${mediaType};base64,`;
       if (
         mesh.uvs === null ||
         mesh.uvs.length !== (mesh.positions.length / 3) * 2 ||
@@ -173,9 +169,9 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
         throw new Error(
           "Textured model groups require complete finite UV0 coordinates.",
         );
-      let texture = textures.get(binding);
+      let texture = textures.get(reference.uri);
       if (texture === undefined) {
-        const bytes = Uint8Array.from(atob(binding.slice(prefix.length)), (c) =>
+        const bytes = Uint8Array.from(atob(reference.uri.slice(prefix.length)), (c) =>
           c.charCodeAt(0),
         );
         // The header is read rather than trusted: the declared type has to be
@@ -194,21 +190,21 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
           .createTexture()
           .setImage(bytes)
           .setMimeType(mediaType);
-        textures.set(binding, texture);
+        textures.set(reference.uri, texture);
       }
       if (slot === "baseColorTexture") {
         material.setBaseColorTexture(texture);
-        material.getBaseColorTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
+        applyHumanGltfTextureSampling(document, material.getBaseColorTextureInfo()!, reference);
       } else if (slot === "normalTexture") {
         material
           .setNormalTexture(texture)
           .setNormalScale(finish.normalScale ?? 1);
-        material.getNormalTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
+        applyHumanGltfTextureSampling(document, material.getNormalTextureInfo()!, reference);
       } else {
         material
           .setOcclusionTexture(texture)
           .setOcclusionStrength(finish.occlusionStrength ?? 1);
-        material.getOcclusionTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
+        applyHumanGltfTextureSampling(document, material.getOcclusionTextureInfo()!, reference);
       }
     }
     if (finish.transmission !== undefined || finish.thickness !== undefined)
