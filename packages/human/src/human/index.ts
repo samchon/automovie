@@ -6,5 +6,6 @@ export * from "./build";
 export * from "./constants";
 export * from "./document";
 export * from "./export";
+export * from "./measure";
 export * from "./seam";
 export * from "./structures";
