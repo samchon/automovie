@@ -1,11 +1,10 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
-import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
-import type { IAutoMovieHumanPersonSourceChart } from "../structures/IAutoMovieHumanPersonSourceChart";
 import type { IAutoMovieHumanPersonSourcePartitionPlan } from "../structures/IAutoMovieHumanPersonSourcePartitionPlan";
 import type { IAutoMovieHumanPersonSourcePartitionsProps } from "../structures/IAutoMovieHumanPersonSourcePartitionsProps";
-import type { IAutoMovieHumanPersonSourceSurface } from "../structures/IAutoMovieHumanPersonSourceSurface";
-import type { IAutoMovieHumanPersonSourceWeight } from "../structures/IAutoMovieHumanPersonSourceWeight";
+import { createHumanPersonSourceChart } from "./createHumanPersonSourceChart";
+import { createHumanPersonSourcePreimage } from "./createHumanPersonSourcePreimage";
 import { validateHumanPersonSourceCoverage } from "./validateHumanPersonSourceCoverage";
+import { validateHumanPersonSourceDomain } from "./validateHumanPersonSourceDomain";
 
 /**
  * Admit the two complementary cell charts of a compiled shared skin source.
@@ -53,112 +52,8 @@ export function validateHumanPersonSourcePartitions(
   if (face === undefined && body === undefined) return undefined;
   if (face === undefined || body === undefined)
     throw new Error("Person source partitions need both compiled halves.");
-  const integer = (value: number, count: number): boolean =>
-    Number.isSafeInteger(value) && value >= 0 && value < count;
-  const domain = (
-    record: IAutoMovieHumanBasisSourcePartition,
-    surface: IAutoMovieHumanPersonSourceSurface,
-  ): void => {
-    if (
-      record.generation.trim() === "" ||
-      !Number.isSafeInteger(record.originalVertices) ||
-      record.originalVertices < 3 ||
-      !Number.isSafeInteger(
-        record.originalVertices +
-          record.intersections.length +
-          (record.refinements?.length ?? 0),
-      ) ||
-      record.parentTriangles.length === 0 ||
-      record.parentTriangles.length % 3 !== 0
-    )
-      throw new Error(
-        "Person source partition needs a finite source domain and generation.",
-      );
-    for (let at = 0; at < record.parentTriangles.length; at += 3) {
-      const ids = [
-        record.parentTriangles[at],
-        record.parentTriangles[at + 1],
-        record.parentTriangles[at + 2],
-      ];
-      if (
-        ids.some((id) => !integer(id, record.originalVertices)) ||
-        new Set(ids).size !== 3
-      )
-        throw new Error(
-          "Person source parent triangles need three distinct original IDs.",
-        );
-    }
-    for (const point of record.intersections)
-      if (
-        point === undefined ||
-        !integer(point.a, record.originalVertices) ||
-        !integer(point.b, record.originalVertices) ||
-        point.a === point.b ||
-        !Number.isFinite(point.t) ||
-        !(point.t > 0 && point.t < 1)
-      )
-        throw new Error(
-          "Person source cut samples need strict finite original-edge stencils.",
-        );
-    for (const point of record.refinements ?? []) {
-      if (point === undefined || "barycentric" in point)
-        throw new Error(
-          "Person source refinements require explicit affine coordinates; barycentric payloads are unsupported.",
-        );
-      if (
-        !integer(point.parent, record.parentTriangles.length / 3) ||
-        point.coordinates?.length !== 2
-      )
-        throw new Error(
-          "Person source refinements need parent-bound affine coordinates.",
-        );
-      interpolateHumanBasisSourceTriangle([0, 0, 0], point.coordinates);
-    }
-    if (
-      record.parentNormalDomains !== undefined &&
-      (record.parentNormalDomains.length !== record.parentTriangles.length ||
-        [...record.parentNormalDomains].some(
-          (id) => !Number.isSafeInteger(id) || id < 0,
-        ))
-    )
-      throw new Error(
-        "Person source normal domains must name every parent corner.",
-      );
-    if (
-      record.normalParents !== undefined &&
-      (record.normalParents.length !== record.samples.length ||
-        [...record.normalParents].some(
-          (id) => !integer(id, record.parentTriangles.length / 3),
-        ))
-    )
-      throw new Error(
-        "Person source normal parents must match the vertex population.",
-      );
-    if (
-      surface.positions.length % 3 !== 0 ||
-      surface.indices.length % 3 !== 0 ||
-      record.samples.length !== surface.positions.length / 3 ||
-      record.parents.length !== surface.indices.length / 3 ||
-      [...record.samples].some(
-        (id) =>
-          !integer(
-            id,
-            record.originalVertices +
-              record.intersections.length +
-              (record.refinements?.length ?? 0),
-          ),
-      ) ||
-      [...record.parents].some(
-        (id) => !integer(id, record.parentTriangles.length / 3),
-      ) ||
-      [...surface.indices].some((id) => !integer(id, record.samples.length))
-    )
-      throw new Error(
-        "Person source cell maps must match surface vertex and triangle domains.",
-      );
-  };
-  domain(face, props.face);
-  domain(body, props.body);
+  validateHumanPersonSourceDomain(face, props.face);
+  validateHumanPersonSourceDomain(body, props.body);
   if (
     face.generation !== body.generation ||
     face.originalVertices !== body.originalVertices ||
@@ -208,50 +103,8 @@ export function validateHumanPersonSourcePartitions(
   const captured = [copy(face), copy(body)];
   const source = captured[0];
   const sampleCount = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
-  const chartCache = new Map<number, IAutoMovieHumanPersonSourceChart>();
-  const chart = (sample: number): IAutoMovieHumanPersonSourceChart => {
-      if (!integer(sample, sampleCount))
-        throw new Error("Person source sample leaves its captured canonical domain.");
-      const cached = chartCache.get(sample);
-      if (cached !== undefined) return cached;
-      let result: IAutoMovieHumanPersonSourceChart;
-      if (sample < source.originalVertices)
-        result = { originals: [sample, sample, sample], coordinates: [0, 0] };
-      else {
-        const virtual = sample - source.originalVertices;
-        if (virtual < source.intersections.length) {
-          const point = source.intersections[virtual];
-          result = {
-          originals: [point.a, point.b, point.a],
-          coordinates: [point.t, 0],
-          };
-        } else {
-          const point = source.refinements![virtual - source.intersections.length];
-          result = {
-            originals: source.parentTriangles.slice(point.parent * 3, point.parent * 3 + 3) as [number, number, number],
-            coordinates: [...point.coordinates],
-          };
-        }
-      }
-      chartCache.set(sample, result);
-      return result;
-    };
-  const preimageCache = new Map<number, readonly IAutoMovieHumanPersonSourceWeight[]>();
-  const preimage = (sample: number): readonly IAutoMovieHumanPersonSourceWeight[] => {
-    const cached = preimageCache.get(sample);
-    if (cached !== undefined) return cached;
-    const one = chart(sample);
-    const weights =
-    [0, 1, 2].flatMap((corner) => {
-      const weight = interpolateHumanBasisSourceTriangle(
-        [corner === 0 ? 1 : 0, corner === 1 ? 1 : 0, corner === 2 ? 1 : 0],
-        one.coordinates,
-      );
-      return weight > 0 ? [{ id: one.originals[corner], weight }] : [];
-    });
-    preimageCache.set(sample, weights);
-    return weights;
-  };
+  const chart = createHumanPersonSourceChart(source);
+  const preimage = createHumanPersonSourcePreimage(chart);
   validateHumanPersonSourceCoverage({
     parentTriangles: face.parentTriangles,
     cells: (

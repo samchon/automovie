@@ -10,11 +10,11 @@ import type {
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
 
-import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
+import type { IConnectedPersonWorkerMessage } from "./human/person/IConnectedPersonWorkerMessage";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 // Literal asset URLs, which the bundler resolves relative to this module.
@@ -36,11 +36,3 @@ scope.onmessage = (
   void handle(event.data);
 };
 
-/** One request the editor posts to this worker. */
-interface IConnectedPersonWorkerMessage {
-  /** Correlates the reply. */
-  id: number;
-
-  /** The body-protocol request carrying a person document. */
-  input: ConnectedBodyRequest;
-}

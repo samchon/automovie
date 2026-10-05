@@ -3,21 +3,20 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanPersonDocument,
   createHumanFaceEditor,
-  measureHumanBodyBasisChannels,
   parseHumanPersonDocument,
   serializeHumanPersonDocument,
 } from "@automovie/human";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { renderBodyMeasuredControls } from "../body/bodyMeasuredControls";
-import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { renderBodyPosePresets } from "../body/bodyPosePresets";
 import { createBodyIntentGate } from "../body/createBodyIntentGate";
-import { mountBodyJointControls } from "../body/mountBodyJointControls";
 import { mountConnectedFaceControls } from "../face/connectedControls";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
+import { mountConnectedPersonMeasuredControls } from "./connectedPersonMeasuredControls";
+import { mountConnectedPersonBodyControls } from "./mountConnectedPersonBodyControls";
 import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
+import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAliasedChannels";
+import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
 
 /**
  * Mount the connected person editor: one person document, one transaction
@@ -31,10 +30,13 @@ import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
  * a refused build keeps the last valid person drawn and its document
  * committed, and only the latest request may publish (`createBodyIntentGate`
  * plus the editor's own generation). The face controls list the head view's
- * channels without its driver channels, which the body owns; the body
- * controls offer the body view's channels within the domain the generation
- * can evaluate (no channel with an unavailable endpoint, and none beyond the
- * onset of an unavailable envelope corrective). Save writes the
+ * channels without its driver channels, which the body owns. The body
+ * controls show every body view channel: one with an unavailable endpoint is
+ * listed disabled with the missing target named, and an envelope-limited
+ * channel's row states where its reach ends and why; a measured target past
+ * the reach, or a document asking for a missing target, is refused by name
+ * and the committed person stays. The standard document asks for none of
+ * them. Save writes the
  * committed document; Export GLB exports it and is discarded if the committed
  * model changed meanwhile. The panel evaluates nothing itself.
  *
@@ -45,37 +47,7 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   props: IConnectedPersonPanelProps<Model>,
 ) {
   const dom = app.ownerDocument;
-  // The body controls offer only the domain the generation can evaluate. A
-  // channel whose own endpoint is unavailable is not offered; a channel whose
-  // envelope corrective is unavailable is offered up to that corrective's
-  // onset, beyond which the runtime refuses it by name (the document text can
-  // still ask for it).
-  const unavailable = new Set(props.body.unavailableTargets ?? []);
-  const onset = (channel: string, side: "positive" | "negative"): number => {
-    let limit = Infinity;
-    for (const corrective of props.body.correctives ?? [])
-      if (unavailable.has(corrective.target))
-        for (const input of corrective.inputs)
-          if ("channel" in input && input.channel === channel && input.side === side)
-            limit = Math.min(limit, input.onset ?? 0);
-    return limit;
-  };
-  const bodyControlsBasis = {
-    ...props.body,
-    channels: props.body.channels
-      .filter((channel) => !unavailable.has(channel.positive) && (channel.negative === null || !unavailable.has(channel.negative)))
-      .map((channel) => ({
-        ...channel,
-        maximum: Math.min(channel.maximum, onset(channel.id, "positive")),
-        minimum: Math.max(channel.minimum, -onset(channel.id, "negative")),
-      })),
-  };
-  const scales = new Map(
-    measureHumanBodyBasisChannels(bodyControlsBasis, { measuredOnly: true }).map(
-      (scale) => [scale.id, scale],
-    ),
-  );
-  app.innerHTML = connectedPersonPanelMarkup(bodyMeasuredGroups(bodyControlsBasis.channels, scales));
+  app.innerHTML = connectedPersonPanelMarkup();
   const element = <T extends HTMLElement>(id: string): T => app.querySelector<T>("#" + id)!;
   const bodySection = element("body-section");
   const faceSection = element("face-section");
@@ -83,8 +55,6 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined;
   let draft = structuredClone(props.initial);
   const intents = createBodyIntentGate();
-  const measurementDrafts = new Map<string, string>();
-  let bone: AutoMovieHumanoidBone = "neck";
   const status = (text: string, state: string): void => {
     element("person-status").textContent = text;
     element("person-status").dataset.state = state;
@@ -115,6 +85,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     element<HTMLButtonElement>("person-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value = serializeHumanPersonDocument(state.document);
     renderAll();
+    if (measured !== state.document) {
+      measured = state.document;
+      personMeasurements.refresh();
+    }
   };
   const change = async (
     next: IAutoMovieHumanPersonDocument,
@@ -144,67 +118,56 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  const bodyControls = (): void => {
-    const kind = bodySection.querySelector<HTMLSelectElement>("#control-kind")!.value;
-    const query = bodySearch.value.toLowerCase().replace(/\s/g, "");
-    const container = bodySection.querySelector<HTMLElement>("#basis-controls")!;
-    container.replaceChildren();
-    if (kind === "pose") {
-      mountBodyJointControls({
-        dom,
-        container,
-        basis: props.body,
-        bone,
-        query,
-        current: () => draft.body,
-        select: (selected) => { bone = selected; },
-        redraw: bodyControls,
-        change: (next) => { void change(withBody(next)); },
-        refuse,
-      });
-      return;
-    }
-    renderBodyMeasuredControls({
-      dom,
-      container,
-      basis: bodyControlsBasis,
-      scales,
-      kind,
-      query,
-      drafts: measurementDrafts,
-      current: () => draft.body,
-      reserve: withdraw,
-      isCurrent: intents.isCurrent,
-      solve: props.solveMeasurement,
-      change: (next, ticket) => change(withBody(next), ticket),
-      busy: (text) => status(text, "building"),
-      report,
-      refuse,
-    });
-  };
-  const bodySearch = dom.createElement("input");
-  bodySearch.type = "search";
-  bodySearch.placeholder = "Find a body control: neck, waist, shoulder, knee…";
-  bodySearch.setAttribute("aria-label", "Find a body control");
-  bodySearch.style.width = "100%";
-  bodySearch.oninput = bodyControls;
-  bodySection.querySelector("#basis-controls")!.before(bodySearch);
-  bodySection.querySelector<HTMLSelectElement>("#control-kind")!.onchange = bodyControls;
-  // The face controls list the head view's own channels; the driver channels
-  // carry the body's gains and are never edited from the face.
+  const personMeasurements = mountConnectedPersonMeasuredControls({
+    dom,
+    container: bodySection.querySelector<HTMLElement>('[data-role="person-measurements"]')!,
+    current: () => draft,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    read: props.readPersonMeasurement,
+    solve: props.solvePersonMeasurement,
+    change: (next, ticket) => change(next, ticket),
+    busy: (text) => status(text, "building"),
+    report,
+    refuse,
+  });
+  const bodyControls = mountConnectedPersonBodyControls({
+    dom,
+    section: bodySection,
+    body: props.body,
+    current: () => draft.body,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    solve: props.solveMeasurement,
+    change: (next, ticket) => change(withBody(next), ticket),
+    busy: (text) => status(text, "building"),
+    report,
+    refuse,
+  });
+  // The face controls list the head view's own channels. Driver channels carry
+  // the body's gains and are never edited from the face. An aliased face
+  // channel is defined once by its body channel: it is listed disabled with
+  // that owner named, and a document stating it is refused by name.
   const drivers = new Set(
     props.face.channels.filter((channel) => channel.id.startsWith("driver:")).map((channel) => channel.id),
   );
+  const aliased = new Set(props.aliases.map((alias) => alias.face));
   const faceControls = mountConnectedFaceControls(faceSection, {
-    basis: { ...props.face, channels: props.face.channels.filter((channel) => !drivers.has(channel.id)) },
+    basis: {
+      ...props.face,
+      channels: props.face.channels.filter((channel) => !drivers.has(channel.id) && !aliased.has(channel.id)),
+    },
     document: () => draft.face,
     change: async (face) => { await change(withFace(face)); },
     refuse,
   });
+  renderConnectedPersonAliasedChannels(dom, faceSection, props.aliases);
   const renderAll = (): void => {
-    bodyControls();
+    bodyControls.render();
     faceControls.refresh();
   };
+  // a committed person changes its measurements; a refusal does not
+  let measured: IAutoMovieHumanPersonDocument | undefined;
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = () => viewport.fitView();
@@ -232,13 +195,9 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     refuse,
     busy: (text) => status(text, "building"),
   });
-  for (const preset of props.expressions) {
-    const button = dom.createElement("button");
-    button.textContent = preset.name;
-    button.onclick = () =>
-      void change(withFace({ ...structuredClone(draft.face), expression: structuredClone(preset.expression) }));
-    element("expression-presets").append(button);
-  }
+  renderConnectedPersonExpressionPresets(dom, element("expression-presets"), props.expressions, (expression) =>
+    void change(withFace({ ...structuredClone(draft.face), expression })),
+  );
   element("document-apply").onclick = () => {
     const ticket = withdraw();
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);

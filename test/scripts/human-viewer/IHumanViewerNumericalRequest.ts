@@ -6,7 +6,9 @@ import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput";
  * `basis` names the file the runtime is built from, always with its digest:
  * `published@<d12>` is the domain's published basis (`published@<face12>.<body12>`
  * for a person on the two published bases), `published-generation@<head12>.<body12>`
- * the published one-skin generation's head and body files, and any other
+ * the published one-skin generation's head and body files,
+ * `published-generation-body@<body12>` a body document on that generation's
+ * body view file, and any other
  * `<name>@<digest12>` a candidate dropped beside a hand-written document (for a
  * person, one packet: a face/body basis pair or a one-skin source generation).
  *

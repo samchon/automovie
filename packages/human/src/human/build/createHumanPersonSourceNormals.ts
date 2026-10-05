@@ -1,9 +1,10 @@
-import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
 import type { IAutoMovieHumanPersonPerformedSkin } from "../structures/IAutoMovieHumanPersonPerformedSkin";
+import type { IAutoMovieHumanPersonSourceStarBinding } from "../structures/IAutoMovieHumanPersonSourceStarBinding";
 import type { IAutoMovieHumanPersonSourceNormalInput } from "../structures/IAutoMovieHumanPersonSourceNormalInput";
 import type { IAutoMovieHumanPersonSourcePartitionsProps } from "../structures/IAutoMovieHumanPersonSourcePartitionsProps";
 import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells";
 import { createHumanPersonNormalTransport } from "./createHumanPersonNormalTransport";
+import { createHumanPersonReferenceField } from "./createHumanPersonReferenceField";
 import { validateHumanPersonNormalTransport } from "./validateHumanPersonNormalTransport";
 import { validateHumanPersonSourcePartitions } from "./validateHumanPersonSourcePartitions";
 
@@ -74,7 +75,7 @@ export function createHumanPersonSourceNormals(
     body: { indices: bodyIndices, transport: props.body.sourcePartition?.normalTransport },
   });
   const used = [faceIndices, bodyIndices].map((indices) => new Set(indices));
-  const bindingAt = (sample: number, parent: number) => {
+  const bindingAt = (sample: number, parent: number): IAutoMovieHumanPersonSourceStarBinding => {
     const record = plan.face;
     const corners = record.parentTriangles.slice(parent * 3, parent * 3 + 3);
     const weights = plan.preimage(sample).map((point) => ({
@@ -116,59 +117,8 @@ export function createHumanPersonSourceNormals(
       return result;
     });
   });
-  const unit = (vector: number[]): number[] => {
-    const length = Math.hypot(...vector);
-    if (!(length > 0))
-      throw new Error("Person source shading needs a nonzero used normal.");
-    return vector.map((value) => value / length);
-  };
-  const referenceField = (parentAreas: readonly number[]) => {
-    const original = new Map<string, number[]>();
-    for (let at = 0; at < plan.face.parentTriangles.length; at += 3)
-      for (let k = 0; k < 3; k++) {
-        const key = `${plan.face.parentTriangles[at + k]}:${plan.face.parentNormalDomains?.[at + k] ?? 0}`;
-        const vector = original.get(key) ?? [0, 0, 0];
-        for (let axis = 0; axis < 3; axis++)
-          vector[axis] += parentAreas[at + axis];
-        original.set(key, vector);
-      }
-    const normalized = new Map<string, number[]>();
-    const star = (key: string): number[] => {
-      let vector = normalized.get(key);
-      if (vector === undefined) {
-        vector = unit(original.get(key)!);
-        normalized.set(key, vector);
-      }
-      return vector;
-    };
-    const normalAt = (binding: ReturnType<typeof bindingAt>): number[] => {
-      const required = new Set(binding.weights.map((weight) => weight.key));
-      return unit(
-        [0, 1, 2].map((axis) =>
-          interpolateHumanBasisSourceTriangle(
-            binding.keys.map((key) =>
-              required.has(key) ? star(key)[axis] : 0,
-            ) as [number, number, number],
-            binding.coordinates,
-          ),
-        ),
-      );
-    };
-    const points = new Map<string, number[]>();
-    return {
-      normals: bindings.flatMap((side) => side.flatMap((binding) => binding === undefined ? [0, 0, 0] : normalAt(binding))),
-      at: (sample: number, parent: number): number[] => {
-        const binding = bindingAt(sample, parent);
-        const key = `${sample}:${binding.identity}`;
-        let normal = points.get(key);
-        if (normal === undefined) {
-          normal = normalAt(binding);
-          points.set(key, normal);
-        }
-        return normal;
-      },
-    };
-  };
+  const referenceField = (parentAreas: readonly number[]) =>
+    createHumanPersonReferenceField({ plan, bindings, bindingAt, parentAreas });
   const legacy = (input: IAutoMovieHumanPersonPerformedSkin): number[] => {
     const { parentAreas } = evaluateHumanPersonSourceCells({ plan, faceIndices, bodyIndices, input });
     return referenceField(parentAreas).normals;

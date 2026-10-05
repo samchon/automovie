@@ -1,11 +1,11 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { assertDirection } from "../../common/mesh/assertDirection";
 import { triangleAreaVector } from "../../common/mesh/triangleAreaVector";
 import type { IAutoMovieHumanPersonBoundarySample } from "../structures/IAutoMovieHumanPersonBoundarySample";
 import type { IAutoMovieHumanPersonBoundaryStitchProps } from "../structures/IAutoMovieHumanPersonBoundaryStitchProps";
 import type { IAutoMovieHumanPersonEdgeSplit } from "../structures/IAutoMovieHumanPersonEdgeSplit";
+import { assertHumanPersonSubdivision } from "./assertHumanPersonSubdivision";
 
 /**
  * Subdivide one posed skin region onto the common face/body neck polyline.
@@ -66,7 +66,7 @@ import type { IAutoMovieHumanPersonEdgeSplit } from "../structures/IAutoMovieHum
 export function stitchHumanPersonBoundary(
   props: IAutoMovieHumanPersonBoundaryStitchProps,
 ): IAutoMovieMesh {
-  const { mesh, sources, side, seam, face, faceNormals, bodyBeforeCollar } = props;
+  const { mesh, sources, side, seam, face, faceNormals } = props;
   if (mesh.skin !== null)
     throw new Error("Person boundary subdivision requires an already posed mesh.");
   const count = seam.faceLoop.length;
@@ -191,71 +191,6 @@ export function stitchHumanPersonBoundary(
     return added;
   };
   const indices = mesh.indices ?? sources.map((_, vertex) => vertex);
-  const assertSubdivision = (
-    before: ReturnType<typeof triangleAreaVector>,
-    original: number[],
-    corners: number[],
-    triangle: number,
-    perimeter: number[],
-  ): void => {
-    try {
-      assertDirection(before, triangleAreaVector(output.positions, corners, 0), triangle, "person boundary subdivision");
-    } catch (error) {
-      const points = (vertices: number[]): number[][] => vertices.map(
-        (vertex) => output.positions.slice(vertex * 3, vertex * 3 + 3),
-      );
-      const input = original.map((vertex) => mesh.positions.slice(vertex * 3, vertex * 3 + 3));
-      const sourceIds = original.map((vertex) => sources[vertex]);
-      const attributes = (values: readonly number[] | null | undefined, width: number, vertices: number[]): number[][] | null =>
-        values === undefined || values === null ? null : vertices.map(
-          (vertex) => values.slice(vertex * width, vertex * width + width),
-        );
-      const neighbours = [];
-      for (let start = 0; start < indices.length; start += 3) {
-        if (start / 3 === triangle) continue;
-        const vertices = indices.slice(start, start + 3);
-        if (vertices.filter((vertex) => sourceIds.includes(sources[vertex])).length < 2) continue;
-        neighbours.push({
-          triangle: start / 3,
-          corners: vertices,
-          sources: vertices.map((vertex) => sources[vertex]),
-          positions: attributes(mesh.positions, 3, vertices),
-          normals: attributes(mesh.normals, 3, vertices),
-          uvs: attributes(mesh.uvs, 2, vertices),
-          colors: attributes(mesh.colors, 3, vertices),
-          reliefWeights: attributes(mesh.reliefWeights, 1, vertices),
-        });
-      }
-      const target = (loop: number): number[] => {
-        const follow = seam.collar.follow[loop];
-        return pointAt((follow.edge + follow.fraction) % count);
-      };
-      const lineage = bodyBeforeCollar === undefined ? null : [
-        ...new Set([...original, ...neighbours.flatMap((one) => one.corners)]),
-      ].map((vertex) => {
-        const source = sources[vertex];
-        const loop = seam.bodyLoop.indexOf(source);
-        const band = seam.collar.band.find((one) => one.vertex === source);
-        const before = (id: number): number[] => bodyBeforeCollar.slice(id * 3, id * 3 + 3);
-        return {
-          source,
-          nativePosed: before(source),
-          collarInput: mesh.positions.slice(vertex * 3, vertex * 3 + 3),
-          loop: loop < 0 ? null : { index: loop, follow: seam.collar.follow[loop], target: target(loop) },
-          band: band === undefined ? null : {
-            ...band,
-            lowSource: seam.bodyLoop[band.low],
-            highSource: seam.bodyLoop[band.high],
-            lowNative: before(seam.bodyLoop[band.low]),
-            highNative: before(seam.bodyLoop[band.high]),
-            lowTarget: target(band.low),
-            highTarget: target(band.high),
-          },
-        };
-      });
-      throw new Error(`${String(error)} Side=${side}; original=${JSON.stringify(points(original))}; emitted=${JSON.stringify(points(corners))}; input=${JSON.stringify(input)}; perimeter=${JSON.stringify(points(perimeter))}; sources=${JSON.stringify(sourceIds)}; neighbours=${JSON.stringify(neighbours)}; lineage=${JSON.stringify(lineage)}.`);
-    }
-  };
   for (let at = 0; at < indices.length; at += 3) {
     const triangle = indices.slice(at, at + 3);
     const perimeter: number[] = [];
@@ -298,7 +233,7 @@ export function stitchHumanPersonBoundary(
           }
         }
         for (const corners of pieces) {
-          assertSubdivision(before, triangle, corners, at / 3, perimeter);
+          assertHumanPersonSubdivision({ stitch: props, emitted: output.positions, indices, before, original: triangle, corners, triangle: at / 3, perimeter });
           output.indices!.push(...corners);
         }
         continue;
@@ -306,7 +241,7 @@ export function stitchHumanPersonBoundary(
       const centre = append(triangle, [1 / 3, 1 / 3, 1 / 3]);
       for (let k = 0; k < perimeter.length; k++) {
         const corners = [centre, perimeter[k], perimeter[(k + 1) % perimeter.length]];
-        assertSubdivision(before, triangle, corners, at / 3, perimeter);
+        assertHumanPersonSubdivision({ stitch: props, emitted: output.positions, indices, before, original: triangle, corners, triangle: at / 3, perimeter });
         output.indices!.push(...corners);
       }
     }

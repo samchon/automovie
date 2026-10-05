@@ -8,8 +8,6 @@ import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorn
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
-import type { IAutoMovieHumanPersonSkinCandidate } from "../structures/IAutoMovieHumanPersonSkinCandidate";
-import type { IAutoMovieHumanPersonSkinSurface } from "../structures/IAutoMovieHumanPersonSkinSurface";
 import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
@@ -24,29 +22,13 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
 import { createHumanPersonSourceNormals } from "./createHumanPersonSourceNormals";
 import { createHumanPersonSourceSkin } from "./createHumanPersonSourceSkin";
+import { findHumanPersonSkinSurface } from "./findHumanPersonSkinSurface";
 import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
+import { prefixHumanPersonPart } from "./prefixHumanPersonPart";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
-
-/** The one connected skin surface of a basis: the surface that draws the skin material. */
-const skinSurfaceOf = <T extends IAutoMovieHumanPersonSkinCandidate>(
-  surfaces: T[],
-): IAutoMovieHumanPersonSkinSurface<T> => {
-  const index = surfaces.findIndex((surface) =>
-    surface.regions.some(
-      (region) => region.material === HUMAN_PERSON_SEAM.skinMaterial,
-    ),
-  );
-  if (index < 0)
-    throw new Error(
-      "A basis needs a surface that draws the '" +
-        HUMAN_PERSON_SEAM.skinMaterial +
-        "' material.",
-    );
-  return { index, surface: surfaces[index] };
-};
 
 /**
  * Compile a face basis and a body basis into a builder of whole people.
@@ -116,8 +98,8 @@ export function createHumanPersonBuilder(
   const { face: faceBasis, body: bodyBasis } = props;
   const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
 
-  const faceSkin = skinSurfaceOf(faceBasis.surfaces);
-  const bodySkin = skinSurfaceOf(bodyBasis.surfaces);
+  const faceSkin = findHumanPersonSkinSurface(faceBasis.surfaces);
+  const bodySkin = findHumanPersonSkinSurface(bodyBasis.surfaces);
   const sourceNormals = createHumanPersonSourceNormals({
     face: faceSkin.surface,
     body: bodySkin.surface,
@@ -331,13 +313,13 @@ export function createHumanPersonBuilder(
       indices: bodyKept,
     });
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
-      prefixed("face", part, meshOfHumanPart(part)),
+      prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
     for (const part of body.model.parts) {
       const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
       if (sources === undefined) {
-        parts.push(prefixed("body", part, mesh));
+        parts.push(prefixHumanPersonPart("body", part, mesh));
         continue;
       }
       const clipped = clipHumanPersonMesh(mesh, sources, cut);
@@ -348,7 +330,7 @@ export function createHumanPersonBuilder(
         faceCount,
       );
       parts.push(
-        prefixed(
+        prefixHumanPersonPart(
           "body",
           part,
           dropHumanMeshTriangles(
@@ -424,20 +406,5 @@ export function createHumanPersonBuilder(
         collarShiftMetres: collarShift,
       },
     };
-  };
-}
-
-/** A part under its owner's prefix, on its own material's prefixed id. */
-function prefixed(
-  owner: "face" | "body",
-  part: IAutoMovieModel["parts"][number],
-  mesh: IAutoMovieMesh,
-): IAutoMovieModel["parts"][number] {
-  return {
-    ...part,
-    id: owner + ":" + part.id,
-    name: owner + ":" + part.name,
-    material: owner + ":" + part.material,
-    geometry: { type: "mesh", mesh },
   };
 }

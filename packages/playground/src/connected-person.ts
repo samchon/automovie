@@ -7,13 +7,11 @@
  * in the workers through the product person runtime.
  */
 import {
-  type IAutoMovieHumanBodyShoulderPose,
   type IAutoMovieHumanPersonBodyView,
   type IAutoMovieHumanPersonDocument,
   type IAutoMovieHumanPersonHeadView,
   serializeHumanPersonDocument,
 } from "@automovie/human";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/interface";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -21,21 +19,12 @@ import { createBodySimpleWorkerTransport } from "./human/body/bodySimpleWorkerTr
 import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
 import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
 import { readConnectedFaceAsset } from "./human/common/connectedAsset";
-import type { IConnectedPersonMeasurement } from "./human/person/IConnectedPersonMeasurement";
+import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
+import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
 import { mountConnectedPersonPanel } from "./human/person/connectedPersonPanel";
-
-const joint = (
-  bone: AutoMovieHumanoidBone,
-  flexion: number | null,
-  abduction: number | null = null,
-  twist: number | null = null,
-): IAutoMovieJointPose => ({ bone, flexion, abduction, twist });
-
-const shoulder = (
-  bone: IAutoMovieHumanBodyShoulderPose["bone"],
-  plane: number,
-  elevation: number,
-): IAutoMovieHumanBodyShoulderPose => ({ bone, plane, elevation, axialRotation: 0 });
+import { connectedPersonExpressionPresets } from "./human/person/connectedPersonExpressionPresets";
+import { connectedPersonPosePresets } from "./human/person/connectedPersonPosePresets";
+import { connectedPersonStandardDocument } from "./human/person/connectedPersonStandardDocument";
 
 async function main(): Promise<void> {
   // Literal asset URLs, which the bundler resolves relative to this module.
@@ -44,42 +33,17 @@ async function main(): Promise<void> {
     asset<IAutoMovieHumanPersonHeadView>(new URL("../../../test/studies/human-person/generation/head.json.gz", import.meta.url)),
     asset<IAutoMovieHumanPersonBodyView>(new URL("../../../test/studies/human-person/generation/body.json.gz", import.meta.url)),
   ]);
-  const initial: IAutoMovieHumanPersonDocument = {
-    id: "connected-person",
-    name: "CC0 connected person",
-    population: "linked",
-    face: { id: "connected-person-face", name: "reference face", basis: head.face.id, shape: {}, expression: {} },
-    body: { id: "connected-person-body", name: "neutral body", basis: body.body.id, shape: {} },
-  };
+  const initial = connectedPersonStandardDocument(head.face.id, body.body.id);
   const { ask } = createBodySimpleWorkerTransport(
     () => new Worker(new URL("./connected-person-measure-worker.ts", import.meta.url), { type: "module" }),
   );
   const panel = mountConnectedPersonPanel(document.querySelector<HTMLDivElement>("#app")!, {
     face: head.face,
+    aliases: head.aliases ?? [],
     body: body.body,
     initial,
-    poses: [
-      { name: "A-pose", pose: [] },
-      {
-        name: "T-pose",
-        pose: [joint("leftLowerArm", 0), joint("rightLowerArm", 0)],
-        shoulders: [shoulder("leftUpperArm", 0, 90), shoulder("rightUpperArm", 0, 90)],
-      },
-      { name: "Head turn", pose: [joint("neck", null, null, 30), joint("head", 10, null, 20)] },
-      { name: "Head flexion", pose: [joint("neck", 20), joint("head", 15)] },
-      { name: "Head extension", pose: [joint("neck", -20), joint("head", -15)] },
-      { name: "Arms overhead", shoulders: [shoulder("leftUpperArm", 0, 180), shoulder("rightUpperArm", 0, 180)] },
-      {
-        name: "Sitting",
-        pose: [joint("leftUpperLeg", 90), joint("rightUpperLeg", 90), joint("leftLowerLeg", 90), joint("rightLowerLeg", 90)],
-      },
-    ],
-    expressions: [
-      { name: "Neutral", expression: {} },
-      { name: "Smile", expression: { mouthSmileLeft: 0.5, mouthSmileRight: 0.5 } },
-      { name: "Open jaw", expression: { jawOpen: 0.5 } },
-      { name: "Wink", expression: { eyeBlinkRight: 1 } },
-    ],
+    poses: connectedPersonPosePresets,
+    expressions: connectedPersonExpressionPresets,
     viewport: (canvas) =>
       createConnectedBodyViewport<IAutoMovieHumanPersonDocument>({
         canvas,
@@ -95,7 +59,16 @@ async function main(): Promise<void> {
         serialize: serializeHumanPersonDocument,
       }),
     solveMeasurement: (shape, channel, targetMetres) =>
-      ask<IConnectedPersonMeasurement>({ kind: "solveMeasurement", shape, channel, targetMetres }),
+      ask<IConnectedBodyMeasurement>({ kind: "solveMeasurement", shape, channel, targetMetres }),
+    readPersonMeasurement: (person, channel) =>
+      ask<number>({ kind: "readPersonMeasurement", document: serializeHumanPersonDocument(person), channel }),
+    solvePersonMeasurement: (person, channel, targetMetres) =>
+      ask<IConnectedPersonMeasuredSolution>({
+        kind: "solvePersonMeasurement",
+        document: serializeHumanPersonDocument(person),
+        channel,
+        targetMetres,
+      }),
     download: (filename, bytes, mime) => {
       const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
       const anchor = document.createElement("a");
