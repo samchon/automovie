@@ -25,6 +25,9 @@ export interface IHumanViewerWatchedSource {
   /** Published face subjects. */
   documentsFile: string;
 
+  /** The generation's subject people; an edit rereads the catalogue. */
+  subjectPeopleFile: string;
+
   /** Normalizes a path to forward slashes. */
   slash: (file: string) => string;
 

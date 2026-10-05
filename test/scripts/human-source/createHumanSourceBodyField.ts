@@ -1,3 +1,4 @@
+import { fillHumanSourceNippleRegion } from "./fillHumanSourceNippleRegion.ts";
 import type { IHumanSourceBodyField } from "./structures/IHumanSourceBodyField.ts";
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 
@@ -5,24 +6,13 @@ import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
  * Replay the deleted body extractor's per-state arithmetic
  * (`44dec918c:extract-body-basis.py`, `sample_state`): fill the nipple region
  * on the absolute Blender sample, map to the shared frame, subtract the
- * equally treated neutral. The fill is the sampled operator; its matrix
- * product is summed here in index order, which may differ from NumPy's BLAS
- * order in the last bits inside the fill region only.
+ * equally treated neutral. The fill is the sampled operator
+ * (`fillHumanSourceNippleRegion`), summed in index order, which may differ
+ * from NumPy's BLAS order in the last bits inside the fill region only.
  */
 export function createHumanSourceBodyField(sample: IHumanSourceSample, offset: number): IHumanSourceBodyField {
   const n = sample.manifest.vertices;
-  const interior = sample.flattenInterior;
-  const boundary = sample.flattenBoundary;
-  const operator = sample.flattenOperator;
-  const k = boundary.length;
-  const fill = (absolute: Float64Array): void => {
-    for (let i = 0; i < interior.length; i++)
-      for (let c = 0; c < 3; c++) {
-        let sum = 0;
-        for (let j = 0; j < k; j++) sum += operator[i * k + j] * absolute[3 * boundary[j] + c];
-        absolute[3 * interior[i] + c] = sum;
-      }
-  };
+  const fill = (absolute: Float64Array): void => fillHumanSourceNippleRegion(sample, absolute);
   const frame = (blender: Float64Array): Float64Array => {
     const out = new Float64Array(3 * n);
     for (let v = 0; v < n; v++) {

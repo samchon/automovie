@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>automovie: numerical body request inspection</title>
+    <title>automovie: body anatomy inspection</title>
     <style>
       body{margin:0;background:#161c23;color:#e4eaf0;font:14px/1.5 system-ui}main{display:grid;grid-template-columns:1fr 440px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}textarea{box-sizing:border-box;width:100%;height:300px}button{margin:3px;padding:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a7d1f0}.views{position:absolute;top:12px;left:12px}#request-status[data-state=error]{color:#ffb5b5}@media(max-width:800px){main{display:block;height:auto}section{height:60vh}}
     </style>
@@ -12,16 +12,15 @@
     <main id="app">
       <section><canvas id="request-canvas"></canvas><div class="views"><button data-view="0">Front</button><button data-view="45">Left oblique</button><button data-view="-45">Right oblique</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="request-fit">Fit candidates</button><label><input id="request-clay" type="checkbox" />Clay</label></div></section>
       <aside>
-        <h1>Numerical request inspection</h1>
-        <p>Explicit target articular radii become spheres in a neutral reference rig. The source-conditioned exterior revision builds a connected skin candidate for one fictional absolute bust target. Age, stature, mass and other supplied detail remain unfulfilled. Clinical skin and internal anatomy remain unavailable.</p>
+        <h1>Body anatomy inspection</h1>
+        <p>A body document's <code>anatomy</code> is inspected in one of two ways. Bound surface targets build the source-conditioned exterior candidate and report each target read again on the emitted skin. Humeral or femoral sphere-fitted head radii alone become spheres in a neutral reference rig. Clinical skin and internal anatomy remain unavailable.</p>
         <p><a href="connected-body.html">Legacy connected body editor</a></p>
-        <pre id="request-status" role="status">Loading reference source…</pre>
-        <label for="request-json">Complete numerical request (JSON)</label>
+        <pre id="request-status" role="status">Loading body source…</pre>
+        <label for="request-json">Body document (JSON)</label>
         <textarea id="request-json" spellcheck="false"></textarea>
-        <div><button id="request-apply">Apply request</button><button id="request-load">Load request</button><input id="request-file" type="file" accept=".json,application/json" hidden /></div>
-        <div><button id="request-undo" disabled>Undo</button><button id="request-redo" disabled>Redo</button><button id="request-save" disabled>Save numerical request</button><button id="request-export" disabled>Export inspection candidates</button></div>
-        <p>Use generatorRevision <code>articular-head-inspection/1</code> with the reference basis shown above. Detailed requests require age, standing stature and mass. Humeral/femoral sphere-fitted-radius targets are millimetres. Omitted radii remain unknown. Unregistered imaging acquisitions are refused.</p>
-        <p>Use <code>source-conditioned-exterior/1</code> for a fictional <code>surface.trunk.bustGirth</code> target in metres, or simple <code>bustAtNippleLevelMetres</code>. The instrument reads the bare source-rest skin at its nipple-level plane. Observed tape or scan values require posture, plane and site registration and are refused here. Save preserves the full request; export writes the static exterior candidate.</p>
+        <div><button id="request-apply">Apply document</button><button id="request-load">Load document</button><input id="request-file" type="file" accept=".json,application/json" hidden /></div>
+        <div><button id="request-undo" disabled>Undo</button><button id="request-redo" disabled>Redo</button><button id="request-save" disabled>Save body document</button><button id="request-export" disabled>Export inspection candidates</button></div>
+        <p>Write a body document on the basis shown above with <code>anatomy</code>. Surface targets are metres: every path the package's exterior target table binds (for example <code>surface.leftLowerLimb.foot.length</code>) is solved on one shared exterior, and each result states its instrument's departure from the survey definition. Head radii (<code>leftLowerLimb.thigh.femur.sphereFittedHeadRadius</code> and the humeral counterpart) are millimetres. One document is one inspection, so targets and radii are inspected separately. Observed values, gap paths, measurements no product path consumes and a bound channel also written in <code>shape</code> are refused by name. Save preserves the document; export writes the static candidate.</p>
       </aside>
     </main>
     <script type="module" src="/src/connected-body-anatomical.ts"></script>

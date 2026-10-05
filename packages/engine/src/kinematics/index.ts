@@ -2,6 +2,7 @@ export * from "./AutoMovieSkeletonParentKey";
 export * from "./IAutoMovieArmChainFault";
 export * from "./IAutoMovieChainBone";
 export * from "./IAutoMovieHingedArticulation";
+export * from "./AutoMovieJointTwistPlacement";
 export * from "./IAutoMovieJointAxes";
 export * from "./IAutoMovieJointAxesIssue";
 export * from "./IAutoMovieResolvedBone";

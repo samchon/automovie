@@ -1,4 +1,8 @@
 import type { IConnectedPersonBodySolveMessage } from "./IConnectedPersonBodySolveMessage";
+import type { IConnectedPersonFaceReadMessage } from "./IConnectedPersonFaceReadMessage";
+import type { IConnectedPersonFaceSolveMessage } from "./IConnectedPersonFaceSolveMessage";
+import type { IConnectedPersonHeadReadMessage } from "./IConnectedPersonHeadReadMessage";
+import type { IConnectedPersonHeadSolveMessage } from "./IConnectedPersonHeadSolveMessage";
 import type { IConnectedPersonReadMessage } from "./IConnectedPersonReadMessage";
 import type { IConnectedPersonSolveMessage } from "./IConnectedPersonSolveMessage";
 
@@ -13,4 +17,8 @@ import type { IConnectedPersonSolveMessage } from "./IConnectedPersonSolveMessag
 export type IConnectedPersonMeasureMessage =
   | IConnectedPersonBodySolveMessage
   | IConnectedPersonReadMessage
-  | IConnectedPersonSolveMessage;
+  | IConnectedPersonSolveMessage
+  | IConnectedPersonHeadReadMessage
+  | IConnectedPersonHeadSolveMessage
+  | IConnectedPersonFaceReadMessage
+  | IConnectedPersonFaceSolveMessage;

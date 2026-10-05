@@ -6,6 +6,11 @@ import typia from "typia";
 import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
+import { admitHumanFaceAnatomicalRequest } from "../anatomy/resolution/admitHumanFaceAnatomicalRequest";
+import { assertHumanFaceJawCapacity } from "../anatomy/resolution/assertHumanFaceJawCapacity";
+import { assertHumanFaceMeasurementTargets } from "../anatomy/resolution/assertHumanFaceMeasurementTargets";
+import { createHumanFaceMeasurementContext } from "../anatomy/resolution/createHumanFaceMeasurementContext";
+import { readHumanFaceMeasurements } from "../anatomy/resolution/readHumanFaceMeasurements";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
 import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
@@ -17,6 +22,7 @@ import type { IAutoMovieHumanFaceBasisBuilderOptions } from "../structures/IAuto
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
+import { assertHumanFacePeriocularAvailable } from "./assertHumanFacePeriocularAvailable";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
@@ -178,6 +184,9 @@ export function createHumanFaceBasisBuilder(
     for (const id of Object.keys(document.skin ?? {}))
       if (!surfaceIds.has(id))
         throw new Error("Pigmentation needs a resident basis surface: " + id);
+    assertHumanFacePeriocularAvailable(basis, document);
+    if (document.anatomical !== undefined)
+      admitHumanFaceAnatomicalRequest(document.anatomical);
     const state = humanFaceBasisWeights(basis, document);
     const materials = structuredClone(basis.materials);
     const materialMap = new Map(
@@ -211,6 +220,18 @@ export function createHumanFaceBasisBuilder(
     irisPigment(document.iris, materials);
     const pose = evaluatePose(state, document.shape);
     const { positions: posed, normals, summary } = pose;
+    const readings =
+      options?.observeMeasurements !== undefined || document.anatomical !== undefined
+        ? readHumanFaceMeasurements(
+            createHumanFaceMeasurementContext(basis, posed),
+            document.anatomical,
+          )
+        : [];
+    assertHumanFaceMeasurementTargets(
+      readings,
+      (document.anatomical?.targets ?? []).map((target) => target.measurement),
+    );
+    assertHumanFaceJawCapacity(readings, document.anatomical);
     const evaluated = new Map<string, readonly number[]>();
     const tints = scalpTint(document.hair, materials);
     const parts = surfaces.flatMap(({ surface, regions }) => {
@@ -331,6 +352,7 @@ export function createHumanFaceBasisBuilder(
     }
     options?.observe?.(summary === null ? null : structuredClone(summary));
     options?.observeHairParts?.(hairPartIds.slice());
+    options?.observeMeasurements?.(readings);
     return model;
   };
   build({

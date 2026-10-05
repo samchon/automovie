@@ -1,18 +1,17 @@
 import {
+  DEFAULT_JOINT_AXES,
   type IAutoMovieJointAxes,
   type IAutoMovieRestFrame,
   Quaternion,
   Vector3,
 } from "@automovie/engine";
 import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
+import { HUMAN_BODY_DISTAL_TWIST_BONES } from "../constants/HUMAN_BODY_DISTAL_TWIST_BONES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBoneWorldRest } from "../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
+import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovieHumanBodySkeletonRig";
 
 /**
  * Project the basis joints onto a rest skeleton from the shaped landmarks.
@@ -30,6 +29,10 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * in its rest frame instead of the frame's X, with the abduction axis the
  * frame's Z made perpendicular to it and the twist axis completing the
  * right-handed basis, and those joints' axes are returned for `resolvePose`.
+ * A bone whose twist is distal (`HUMAN_BODY_DISTAL_TWIST_BONES`, the
+ * forearms) returns its axes with that placement, so the forearm pronates
+ * about its own long axis at any elbow flexion; its swing-and-twist split in
+ * the skin (`distributeTwist`) is the same composition.
  *
  * The rest transform of a bone is its world frame expressed in its parent's:
  * the root keeps its world frame and head as translation. Because the
@@ -48,19 +51,8 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 export function resolveHumanBodySkeleton(
   basis: IAutoMovieHumanBodyBasis,
   landmarks: Record<string, IAutoMovieVector3>,
-): {
-  skeleton: IAutoMovieSkeleton;
-  rest: Map<
-    AutoMovieHumanoidBone,
-    { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
-  >;
-  frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-} {
-  const rest = new Map<
-    AutoMovieHumanoidBone,
-    { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
-  >();
+): IAutoMovieHumanBodySkeletonRig {
+  const rest = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneWorldRest>();
   const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
     {};
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
@@ -104,6 +96,8 @@ export function resolveHumanBodySkeleton(
         twist,
       };
     }
+    if (HUMAN_BODY_DISTAL_TWIST_BONES.includes(joint.bone))
+      axes[joint.bone] = { ...(axes[joint.bone] ?? DEFAULT_JOINT_AXES), twistPlacement: "distal" };
     // The engine reads a document's clinical angle and turns the rig by
     // `(clinical - neutral) / sign`, so the measured rest angle travels here
     // and the empty pose is exactly the rest.

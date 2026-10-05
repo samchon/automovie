@@ -1,6 +1,9 @@
 import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
+import type { IAutoMovieHumanFaceAnatomicalRequest } from "./IAutoMovieHumanFaceAnatomicalRequest";
 import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
 import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
+import type { IAutoMovieHumanFaceEyes } from "./IAutoMovieHumanFaceEyes";
+import type { IAutoMovieHumanFaceLashes } from "./IAutoMovieHumanFaceLashes";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.
@@ -60,6 +63,20 @@ export interface IAutoMovieHumanFaceBasisDocument {
   iris?: IAutoMovieHumanFaceIris | null;
 
   /**
+   * Optional independent optical dimensions of each eye. They need the basis's
+   * optical support; without it the document refuses by name. Omission keeps
+   * the basis's authored globes byte for byte.
+   */
+  eyes?: IAutoMovieHumanFaceEyes;
+
+  /**
+   * Optional independent upper and lower lash profiles. A present row needs the
+   * basis's periocular registration; without it the document refuses by name.
+   * An omitted row keeps the basis's lash cards byte for byte.
+   */
+  lashes?: IAutoMovieHumanFaceLashes;
+
+  /**
    * Optional overrides by existing material ID: linear RGB `color` and
    * `roughness`, each in [0,1]. A material whose base-colour texture carries
    * fibre coverage in its alpha (a brow or lash card cut by a mask or
@@ -76,4 +93,12 @@ export interface IAutoMovieHumanFaceBasisDocument {
       density?: number;
     }
   >;
+
+  /**
+   * Optional anatomical record: measurement targets the editor solves onto
+   * existing channels, and clinical observations kept unchanged or refused by
+   * name. Admitted before evaluation; a posed jaw beyond the record's own
+   * observed motion capacity refuses. Omission changes nothing.
+   */
+  anatomical?: IAutoMovieHumanFaceAnatomicalRequest;
 }

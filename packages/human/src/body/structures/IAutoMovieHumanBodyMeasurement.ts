@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyLandmarkDistance } from "./IAutoMovieHumanBodyLandmarkDistance";
 import type { IAutoMovieHumanBodyLevelSection } from "./IAutoMovieHumanBodyLevelSection";
+import type { IAutoMovieHumanBodySkinExtent } from "./IAutoMovieHumanBodySkinExtent";
 import type { IAutoMovieHumanBodyStationSection } from "./IAutoMovieHumanBodyStationSection";
 
 /**
@@ -19,11 +20,15 @@ import type { IAutoMovieHumanBodyStationSection } from "./IAutoMovieHumanBodySta
  * follows the landmark wherever the shape moves it. A `distance` is the straight distance between two
  * landmarks. A `breadth` is the X extent of the
  * section loop found by a girth rule, which is how a front-chest width is read
- * on a mesh that has no chest-corner landmarks.
+ * on a mesh that has no chest-corner landmarks. An `extent` is the caliper
+ * reading between the extreme skin points of a region of dominantly weighted
+ * bones, along or across a horizontal landmark axis, such as a foot's length
+ * or breadth, whose extremes move with the shape.
  *
  * @author Samchon
  */
 export type IAutoMovieHumanBodyMeasurement =
   | IAutoMovieHumanBodyStationSection
   | IAutoMovieHumanBodyLevelSection
-  | IAutoMovieHumanBodyLandmarkDistance;
+  | IAutoMovieHumanBodyLandmarkDistance
+  | IAutoMovieHumanBodySkinExtent;

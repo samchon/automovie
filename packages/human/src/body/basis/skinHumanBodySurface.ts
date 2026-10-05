@@ -1,11 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IAutoMovieHumanBodyToeSplit } from "../structures/surface/IAutoMovieHumanBodyToeSplit";
+import type { IHumanBodyDualQuaternion } from "./IHumanBodyDualQuaternion";
 
 /**
  * Dual quaternion skinning of one shaped surface from rest to posed bone
@@ -67,6 +66,12 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * elbow instead of wrenching the armpit round at the joint. A unit-weight
  * vertex of such a bone is rigid in the swing only.
  *
+ * A surface's toe split (`IAutoMovieHumanBodyToeSplit`) divides a listed
+ * vertex's whole toes weight (both sides' toes slots together) among the toe
+ * ray phalanges by its shares when the
+ * rays carry transforms (`resolveHumanBodyToeRays`); otherwise the toes bone
+ * skins the toes as before, to the bit.
+ *
  * Every bone the skin names must have a rest and a posed transform; the basis
  * admission guarantees the skin only names declared joints and the pose
  * resolver visits every declared joint, so a missing entry here is a
@@ -82,18 +87,11 @@ export function skinHumanBodySurface(
     IAutoMovieHumanBodyBasis["joints"][number],
     "bone" | "parent" | "distributeTwist"
   >[],
-  transforms: Map<
-    AutoMovieHumanoidBone,
-    {
-      rest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-      posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-    }
-  >,
+  transforms: ReadonlyMap<string, IAutoMovieHumanBodyBoneTransform>,
+  /** The surface's toe ray split; used only when the rays carry transforms. */
+  toeSplit?: IAutoMovieHumanBodyToeSplit,
 ): number[] {
-  const aligned = new Map<
-    AutoMovieHumanoidBone,
-    { real: IAutoMovieQuaternion; dual: IAutoMovieQuaternion }
-  >();
+  const aligned = new Map<string, IHumanBodyDualQuaternion>();
   for (const joint of joints) {
     const transform = transforms.get(joint.bone);
     if (transform === undefined)
@@ -142,7 +140,7 @@ export function skinHumanBodySurface(
     );
     const length = Vector3.length(along);
     const axis = Vector3.scale(along, 1 / length);
-    const delta = (b: AutoMovieHumanoidBone): IAutoMovieQuaternion => {
+    const delta = (b: string): IAutoMovieQuaternion => {
       const t = transforms.get(b)!;
       return Quaternion.multiply(
         t.posed.rotation,
@@ -183,7 +181,7 @@ export function skinHumanBodySurface(
   const spreadAt = (
     one: NonNullable<(typeof spread)[number]>,
     p: IAutoMovieVector3,
-  ): { real: IAutoMovieQuaternion; dual: IAutoMovieQuaternion } => {
+  ): IHumanBodyDualQuaternion => {
     const fraction = Math.min(
       1,
       Math.max(
@@ -204,6 +202,22 @@ export function skinHumanBodySurface(
     const sign = dot(one.reference, real) < 0 ? -1 : 1;
     return { real: scale(real, sign), dual: scale(dual, sign) };
   };
+  // Toe rays split a vertex's toes weight among phalanges by their shares;
+  // each phalanx joins the hemisphere of its side's toes bone. Rays without
+  // transforms (no posed phalanx) leave the toes bone to skin alone.
+  const rays =
+    toeSplit === undefined || !toeSplit.bones.every((bone) => transforms.has(bone))
+      ? null
+      : toeSplit.bones.map((bone) => {
+          const transform = transforms.get(bone)!;
+          const real = Quaternion.multiply(transform.posed.rotation, Quaternion.inverse(transform.rest.rotation));
+          const translation = Vector3.subtract(transform.posed.position, Quaternion.rotateVector(real, transform.rest.position));
+          const dual = scale(Quaternion.multiply({ ...translation, w: 0 }, real), 0.5);
+          const toes = aligned.get(bone.startsWith("left") ? "leftToes" : "rightToes");
+          const sign = toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
+          return { real: scale(real, sign), dual: scale(dual, sign) };
+        });
+  const rowOf = new Map<number, number>((rays === null ? [] : toeSplit!.vertices).map((vertex, row) => [vertex, row]));
   const output = new Array<number>(positions.length);
   for (let v = 0; v < positions.length / 3; v++) {
     const real = { x: 0, y: 0, z: 0, w: 0 };
@@ -212,6 +226,27 @@ export function skinHumanBodySurface(
       const weight = skin.weights[v * 4 + k];
       if (weight === 0) continue;
       const index = skin.boneIndices[v * 4 + k];
+      const row = rays === null ? undefined : rowOf.get(v);
+      if (row !== undefined && (skin.joints[index] === "leftToes" || skin.joints[index] === "rightToes")) {
+        // shares divide the vertex's whole toes weight (both sides' toes slots
+        // together, as at the midline of a few source vertices), so the rows
+        // are applied once, at the first toes slot, and later toes slots skip
+        let first = true;
+        let total = 0;
+        for (let j = 0; j < 4; j++) {
+          const toes = skin.joints[skin.boneIndices[v * 4 + j]];
+          if (skin.weights[v * 4 + j] === 0 || (toes !== "leftToes" && toes !== "rightToes")) continue;
+          if (j < k) first = false;
+          total += skin.weights[v * 4 + j];
+        }
+        if (first)
+          for (let r = toeSplit!.offsets[row]; r < toeSplit!.offsets[row + 1]; r++) {
+            const ray = rays![toeSplit!.bonesIndex[r]];
+            accumulate(real, ray.real, total * toeSplit!.shares[r]);
+            accumulate(dual, ray.dual, total * toeSplit!.shares[r]);
+          }
+        continue;
+      }
       const spreading = spread[index];
       const bone =
         spreading === null

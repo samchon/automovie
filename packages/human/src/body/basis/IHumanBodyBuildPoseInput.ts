@@ -2,7 +2,7 @@ import type { IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interfac
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovieHumanBodySkeletonRig";
 
 /**
  * Inputs of `resolveHumanBodyBuildPose`.
@@ -41,5 +41,5 @@ export interface IHumanBodyBuildPoseInput {
   landmarks: Record<string, IAutoMovieVector3>;
 
   /** Shared prepared rig for a source capability with pose-independent anchors. */
-  rig?: ReturnType<typeof resolveHumanBodySkeleton>;
+  rig?: IAutoMovieHumanBodySkeletonRig;
 }

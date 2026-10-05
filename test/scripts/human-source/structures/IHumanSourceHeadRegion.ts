@@ -38,4 +38,13 @@ export interface IHumanSourceHeadRegion {
 
   /** Local frames the reading was made on (never published). */
   frames: string;
+
+  /** Where the definition and the reading come from. */
+  citation: string;
+
+  /** What the reading leaves open. */
+  ambiguity: string;
+
+  /** Index space, frame and side convention of the rows. */
+  convention: string;
 }

@@ -1,6 +1,6 @@
 import { createHumanBodyAnatomicalInspection } from "@automovie/human/body/anatomy/articulation/createHumanBodyAnatomicalInspection";
 import { createHumanBodyArticularCandidateModel } from "@automovie/human/body/anatomy/articulation/createHumanBodyArticularCandidateModel";
-import { parseHumanBodyAnatomicalDocument } from "@automovie/human/body/document/parseHumanBodyAnatomicalDocument";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
 import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
@@ -22,7 +22,7 @@ import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 export function createConnectedBodyAnatomicalRuntime(basis: IAutoMovieHumanBodyBasis) {
   const inspect = createHumanBodyAnatomicalInspection(basis);
   return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
-    const document = parseHumanBodyAnatomicalDocument(request.document);
+    const document = parseHumanBodyBasisDocument(request.document);
     if (request.operation === "armsDown")
       throw new Error("Articular inspection does not resolve a body arms-down pose.");
     const inspection = inspect(document);

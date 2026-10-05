@@ -1,5 +1,7 @@
 import typia from "typia";
 
+import { admitHumanBodyDocumentAnatomy } from "../anatomy/admitHumanBodyDocumentAnatomy";
+import { admitHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/admitHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 
 /**
@@ -17,6 +19,8 @@ import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieH
  * for the right reason. Exact schema admission refuses legacy per-vertex
  * identity rows and generic upper-arm Euler poses instead of dropping or
  * reinterpreting them. Duplicate shoulder and generic pose bones refuse here.
+ * Anatomical measurements pass the shared physical-scalar admission and then
+ * `admitHumanBodyDocumentAnatomy`, which refuses any value without a consumer.
  */
 export function admitHumanBodyBasisDocument(
   input: unknown,
@@ -67,5 +71,9 @@ export function admitHumanBodyBasisDocument(
     throw new Error(
       "Body edits need finite numbers, positive anatomical radii, nonempty identities, unique bones, distinct pose and thigh-goal authorities, shoulder goals in thorax-tt coordinates and canonical planes.",
     );
+  if (document.anatomy !== undefined) {
+    admitHumanBodyAnatomicalMeasurements(document.anatomy);
+    admitHumanBodyDocumentAnatomy(document.anatomy, document.shape);
+  }
   return document;
 }

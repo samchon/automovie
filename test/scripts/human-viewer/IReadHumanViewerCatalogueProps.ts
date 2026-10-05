@@ -23,6 +23,9 @@ export interface IReadHumanViewerCatalogueProps {
   /** Published face subjects. */
   documentsFile: string;
 
+  /** The generation's subject people file; absent or missing means the legacy subject people. */
+  subjectPeopleFile?: string;
+
   /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
   inputsDirectory?: string;
 

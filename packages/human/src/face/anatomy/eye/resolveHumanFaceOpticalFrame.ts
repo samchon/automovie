@@ -62,7 +62,7 @@ export function resolveHumanFaceOpticalFrame(
   const vertices = new Set(support.vertices);
   if (vertices.size === 0 || vertices.size !== support.vertices.length ||
     support.vertices.some((v) => !Number.isSafeInteger(v) || v < 0 || v >= surface.positions.length / 3) ||
-    support.neutralPositions.length !== vertices.size * 3 || support.neutralUvs.length !== vertices.size * 2)
+    support.neutralPositions.length !== vertices.size * 3 || support.neutralUvs.length !== support.triangles.length * 2)
     refuse("invalid native component witness rows");
   const actualXYZ = support.vertices.flatMap((v) => surface.positions.slice(v * 3, v * 3 + 3));
   if (!equal(actualXYZ, support.neutralPositions)) refuse("stale neutral XYZ");
@@ -82,19 +82,27 @@ export function resolveHumanFaceOpticalFrame(
         weights.set(attachment.rows[at], attachment.rows[at + 1]);
       }
   if (support.vertices.some((v) => weights.get(v) !== 1)) refuse("attachment is not weight one");
-  const uv = new Map<number, number[]>();
+  const cornerUvs = new Map<string, number[]>();
   for (const region of surface.regions) {
     const corners = humanBasisRegionCorners(region);
     if (corners.uvs === null) continue;
-    corners.sources.forEach((v, at) => {
-      if (!vertices.has(v)) return;
-      const pair = corners.uvs!.slice(at * 2, at * 2 + 2);
-      if (uv.has(v) && !equal(uv.get(v)!, pair)) refuse("ambiguous native UV chart");
-      uv.set(v, pair);
-    });
+    for (let at = 0; at < corners.indices.length; at += 3) {
+      const render = corners.indices.slice(at, at + 3);
+      const shared = render.map((r) => corners.sources[r]);
+      if (!shared.every((v) => vertices.has(v))) continue;
+      const key = shared.join(",");
+      if (cornerUvs.has(key)) refuse("ambiguous native UV chart");
+      cornerUvs.set(key, render.flatMap((r) => corners.uvs!.slice(r * 2, r * 2 + 2)));
+    }
   }
-  if (!equal(support.vertices.flatMap((v) => uv.get(v) ?? []), support.neutralUvs))
-    refuse("stale or missing native UV correspondence");
+  const actualUvs: number[] = [];
+  for (let at = 0; at < actualTriangles.length; at += 3) {
+    const pairs = cornerUvs.get(actualTriangles.slice(at, at + 3).join(","));
+    if (pairs === undefined) refuse("missing native UV correspondence");
+    actualUvs.push(...pairs!);
+  }
+  if (!equal(actualUvs, support.neutralUvs))
+    refuse("stale native UV correspondence");
   const triangle = support.anterior.triangle;
   const { u, v } = support.anterior;
   if (triangle.some((id) => !vertices.has(id)) || !Number.isFinite(u) || !Number.isFinite(v) || u < 0 || v < 0 || u + v > 1)

@@ -28,6 +28,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { connectedBodyReach } from "../common/connectedBodyReach";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
+import { bodyFemoralReading } from "./bodyFemoralReading";
+import { bodyGroundReading } from "./bodyGroundReading";
+import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
 import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
 import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
@@ -135,7 +138,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       serializeHumanBodyBasisDocument(state.document);
     underwear.value = state.document.underwear?.style ?? "";
     humeral.controls?.refresh(state.document.humeralHeads);
-    void simple.refresh(state.document.shape);
+    void simple.refresh({ shape: state.document.shape, ...(state.document.anatomy === undefined ? {} : { anatomy: state.document.anatomy }) });
     renderControls();
   };
   const change = async (
@@ -239,7 +242,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     expand: props.simple.expand,
     project: props.simple.project,
     wholeSource: props.simple.wholeSource,
-    current: () => draft.shape,
+    current: () => ({ shape: draft.shape, ...(draft.anatomy === undefined ? {} : { anatomy: draft.anatomy }) }),
     reserveIntent: withdraw,
     currentIntent: intents.currentTicket,
     isCurrentIntent: intents.isCurrent,
@@ -261,6 +264,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
+    onPreparing: (active) => setConnectedBodyPreparing(dom, "the simple-tier reader (whole person with the standard head)", active),
     onDraftChanged: () =>
       status("Simple body draft changed; apply again.", "ready"),
   });
@@ -321,11 +325,13 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       );
       const reading = posed.crossings;
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
+      const femoral = bodyFemoralReading(posed.femoralHeads);
+      const ground = bodyGroundReading(posed.groundSupport);
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
       const text = contacts.describe(reading);
       status(
-        [text ?? "This build does not supply a crossing reading.", anatomy]
+        [text ?? "This build does not supply a crossing reading.", anatomy, femoral, ground]
           .filter((line) => line !== null)
           .join("\n"),
         text === null ? "error" : "ready",

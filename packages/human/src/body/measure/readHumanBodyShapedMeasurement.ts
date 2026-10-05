@@ -6,7 +6,8 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import type { IAutoMovieHumanBodyMeasurementSection } from "../structures/IAutoMovieHumanBodyMeasurementSection";
 import { indexHumanBodySectionTriangles } from "./indexHumanBodySectionTriangles";
-import { measureHumanBodySection } from "./measureHumanBodySection";
+import { measureHumanSection } from "../../common/measure/measureHumanSection";
+import { readHumanBodySkinExtent } from "./readHumanBodySkinExtent";
 
 /**
  * Read one rule from an already shaped body, in metres, or null when the
@@ -15,11 +16,12 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  * `createHumanBodyMeasurementReader` evaluates the shape through the same
  * weights and evaluator the builder uses, without a pose. This owner reads
  * its result repeatedly without re-evaluating that unchanged skin. A `distance` is the straight
- * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
+ * landmark-to-landmark length; an `extent` is the caliper reading between a
+ * dominant-bone skin region's extreme points (`readHumanBodySkinExtent`); a `girth` or `breadth` walks the rule's
  * stations, cuts every surface at each and selects the closed loop nearest
  * the station seed before keeping the largest or smallest value, or the one
  * whose loop reaches furthest back, a girth read as a tape reads it (the
- * section's convex hull perimeter, `measureHumanBodySection`). A girth at a
+ * section's convex hull perimeter, `measureHumanSection`). A girth at a
  * skin landmark has one station, where the plane through that shaped vertex
  * meets the segment. A landmark the basis lacks, a named skin point the
  * basis does not declare (`skinLandmarks`), a plane parallel to the segment, or a station set on which no
@@ -55,6 +57,7 @@ export function readHumanBodyShapedMeasurement(
   if (from === undefined || to === undefined) return null;
   if (rule.kind === "distance")
     return Vector3.length(Vector3.subtract(to, from));
+  if (rule.kind === "extent") return readHumanBodySkinExtent(basis, shaped.surfaces, from, to, rule);
   const axis = Vector3.subtract(to, from);
   const normal = rule.horizontal
     ? Vector3.create(0, 1, 0)
@@ -106,7 +109,7 @@ export function readHumanBodyShapedMeasurement(
   for (const [station, point] of points.entries()) {
     const section = shaped.surfaces
       .map((positions, index) =>
-        measureHumanBodySection(
+        measureHumanSection(
           positions,
           basis.surfaces[index].indices,
           { point, normal },

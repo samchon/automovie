@@ -23,13 +23,16 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShape
       ],
     },
     {
+      // MakeHuman's age nodes (apps/human.py, setAgeYears and the A8 node
+      // table): the child node, macro 0.1875, is 10 years, the macro being
+      // (years - 1) / 48 below 25 and linear in years between nodes
       channel: "macroAge",
       gain: 1,
       curves: [
         {
           parameter: "ageYears",
           points: [
-            [11, -1],
+            [10, -1],
             [25, 0],
             [90, 1],
           ],

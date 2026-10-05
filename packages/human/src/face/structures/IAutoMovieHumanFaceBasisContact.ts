@@ -2,6 +2,7 @@ import type { IAutoMovieHumanFaceContactClosure } from "./IAutoMovieHumanFaceCon
 import type { IAutoMovieHumanFaceContactCollider } from "./IAutoMovieHumanFaceContactCollider";
 import type { IAutoMovieHumanFaceContactPassage } from "./IAutoMovieHumanFaceContactPassage";
 import type { IAutoMovieHumanFaceContactSoftSurface } from "./IAutoMovieHumanFaceContactSoftSurface";
+import type { IAutoMovieHumanFaceLipMarginPair } from "./IAutoMovieHumanFaceLipMarginPair";
 import type { IAutoMovieHumanFaceMidlinePair } from "./IAutoMovieHumanFaceMidlinePair";
 
 /**
@@ -32,6 +33,13 @@ import type { IAutoMovieHumanFaceMidlinePair } from "./IAutoMovieHumanFaceMidlin
 export interface IAutoMovieHumanFaceBasisContact {
   /** Vermilion seam midline vertices on one surface, upper then lower. */
   lips: IAutoMovieHumanFaceMidlinePair;
+
+  /**
+   * Vermilion margin pairs on the same surface toward each commissure.
+   * Closure weight one seals every pair together with the central one;
+   * omission seals the central pair alone.
+   */
+  margin?: IAutoMovieHumanFaceLipMarginPair[];
 
   /** Incisal edge midline vertices on one surface, upper then lower. */
   incisors: IAutoMovieHumanFaceMidlinePair;

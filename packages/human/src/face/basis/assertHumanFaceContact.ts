@@ -63,6 +63,9 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
       );
   };
   pair("lips", contact.lips);
+  (contact.margin ?? []).forEach((entry, index) =>
+    pair("lip margin " + index, { surface: contact.lips.surface, ...entry }),
+  );
   pair("incisors", contact.incisors);
   const expression = (channel: string): void => {
     if (channels.get(channel) !== "expression")

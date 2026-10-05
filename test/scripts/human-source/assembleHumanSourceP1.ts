@@ -1,6 +1,9 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/common/basis/IAutoMovieHumanBasisSourcePartition";
 
 import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
+import { findHumanSourceLipMarginPairs } from "./findHumanSourceLipMarginPairs.ts";
+import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
+import { splitHumanSourceToes } from "./splitHumanSourceToes.ts";
 import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
 import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
 
@@ -8,12 +11,18 @@ import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
  * Build the P1 pair from the generation. The face keeps its published
  * topology, rows and metadata, gains a source partition and declares the head
  * skin landmarks and regions chosen on the generation
- * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`).
+ * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`), and its
+ * contact gains the vermilion margin pairs beside the central pair
+ * (`findHumanSourceLipMarginPairs`), and it carries the periocular
+ * registration (`defineHumanSourcePeriocular`).
  * The body becomes the source complement of the same cut, with the
  * generation's neutral and weights, its endpoints re-addressed
  * (`unavailableTargets` names the ones without a value on the new support),
  * its vein overlay vertices re-addressed, and its named skin points declared
- * on the new vertices (`defineHumanSourceSkinLandmarks`). Both partitions
+ * on the new vertices (`defineHumanSourceSkinLandmarks`). When the sample
+ * carries the default rig's toe phalanx weights, the body also declares the
+ * per-ray toe bones and splits each vertex's toes weight between them
+ * (`splitHumanSourceToes`). Both partitions
  * share one parent tree and one ordered intersection table, as
  * `IAutoMovieHumanBasisSourcePartition` requires.
  */
@@ -29,11 +38,19 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
     parents,
   });
   const short = generation.id.slice(0, 12);
+  const contact = face.contact;
+  if (contact === undefined) throw new Error("The published face has no contact to add lip margin pairs to.");
+  const lipsSurface = face.surfaces.find((s) => s.id === contact.lips.surface);
+  const lipsRegion = lipsSurface?.regions.find((r) => r.id.endsWith("/lips"));
+  if (lipsSurface === undefined || lipsRegion === undefined) throw new Error("The published face has no lips region on its contact surface.");
+  const margin = findHumanSourceLipMarginPairs(lipsSurface.positions, lipsRegion.indices, face.articulation!.jaw.axis);
   const p1Face = {
     ...face,
     id: `human-source-g1-${short}-p1-face`,
     skinLandmarks: input.headLandmarks,
-    skinRegions: input.headRegions,
+    skinRegions: { ...input.headRegions, ...registerHumanSourceTeeth(face).regions },
+    contact: { ...contact, margin: margin.pairs },
+    periocular: input.periocular,
     surfaces: face.surfaces.map((s) =>
       s.id === "Human" ? { ...s, sourcePartition: partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)) } : s,
     ),
@@ -66,11 +83,16 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
   });
   const indices = Array.from(cut.p1BodyIndices);
   const unavailableTargets = Object.keys(input.bodyRows.unavailable);
+  const toes =
+    input.toeRays === null || input.sampleRays === null
+      ? null
+      : splitHumanSourceToes(input.toeRays, { joints: bodySurface.skin.joints, boneIndices, weights }, (j) => cut.p1BodyToG1[j], input.sampleRays);
   const p1Body = {
     ...body,
     id: `human-source-g1-${short}-p1-body`,
     ...(unavailableTargets.length === 0 ? {} : { unavailableTargets }),
-    skinLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut),
+    skinLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut).skinLandmarks,
+    ...(input.toeRays === null ? {} : { toeRays: input.toeRays }),
     surfaces: [
       {
         id: bodySurface.id,
@@ -80,6 +102,7 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
         targets: input.bodyRows.p1Targets,
         regions: [{ id: bodySurface.regions[0].id, material: bodySurface.regions[0].material, indices, uvs: Array.from(cut.p1BodyUv) }],
         skin: { joints: bodySurface.skin.joints, boneIndices, weights },
+        ...(toes === null ? {} : { toeSplit: toes.split }),
         ...(bodySurface.sag === undefined ? {} : { sag: bodySurface.sag }),
         ...(bodySurface.relief === undefined ? {} : { relief: bodySurface.relief }),
         ...(overlays === undefined ? {} : { overlays }),
@@ -94,6 +117,7 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
       p1BodyTriangles: indices.length / 3,
       unavailableTargets: unavailableTargets.length,
       droppedOverlayVertices,
+      ...(toes === null ? { toeSplit: "not sampled" } : Object.fromEntries(Object.entries(toes.record).map(([key, value]) => [`toeSplit ${key}`, value as number | string]))),
       mushCarried: bodySurface.mush !== undefined ? "dropped (vertex-addressed, not re-derived)" : "absent",
     },
   };

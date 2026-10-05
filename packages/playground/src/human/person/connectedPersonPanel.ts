@@ -10,10 +10,17 @@ import {
 import { renderBodyPosePresets } from "../body/bodyPosePresets";
 import { createBodyIntentGate } from "../body/createBodyIntentGate";
 import { mountConnectedFaceControls } from "../face/connectedControls";
+import { connectedFaceComponents } from "../face/anatomy/connectedFaceComponents";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
+import { createConnectedPersonFaceComponents } from "./createConnectedPersonFaceComponents";
 import { mountConnectedPersonMeasuredControls } from "./connectedPersonMeasuredControls";
+import { mountConnectedPersonEyeControls } from "./mountConnectedPersonEyeControls";
+import { mountConnectedPersonFaceAnatomy } from "./mountConnectedPersonFaceAnatomy";
+import { mountConnectedPersonHeadControls } from "./mountConnectedPersonHeadControls";
 import { mountConnectedPersonBodyControls } from "./mountConnectedPersonBodyControls";
+import { bodyAnatomyReading } from "../body/bodyAnatomyReading";
+import { renderBodyHumeralHeadControls } from "../body/bodyHumeralHeadControls";
 import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
 import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAliasedChannels";
 import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
@@ -112,6 +119,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     if (measured !== state.document) {
       measured = state.document;
       personMeasurements.refresh();
+      headMeasurements.refresh();
+      humeralHeads.refresh(state.document.body.humeralHeads);
+      eyeControls.refresh();
+      faceAnatomy.refresh();
     }
   };
   const change = async (
@@ -155,6 +166,43 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     report,
     refuse,
   });
+  const headMeasurements = mountConnectedPersonHeadControls({
+    dom,
+    container: faceSection.querySelector<HTMLElement>('[data-role="head-measurements"]')!,
+    current: () => draft,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    read: props.readPersonHead,
+    solve: props.solvePersonHead,
+    change: (next, ticket) => change(next, ticket),
+    busy: (text) => status(text, "building"),
+    report,
+    refuse,
+  });
+  const eyeControls = mountConnectedPersonEyeControls({
+    dom,
+    container: faceSection.querySelector<HTMLElement>('[data-role="eye-controls"]')!,
+    current: () => draft,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    change: (next, ticket) => change(next, ticket),
+    busy: (text) => status(text, "building"),
+    report,
+    refuse,
+  });
+  const faceAnatomy = mountConnectedPersonFaceAnatomy({
+    dom,
+    container: faceSection.querySelector<HTMLElement>('[data-role="face-anatomy"]')!,
+    current: () => draft,
+    reserve: withdraw,
+    isCurrent: intents.isCurrent,
+    read: props.readFaceMeasurements,
+    solve: props.solveFaceMeasurement,
+    change: (next, ticket) => change(next, ticket),
+    busy: (text) => status(text, "building"),
+    report,
+    refuse,
+  });
   const bodyControls = mountConnectedPersonBodyControls({
     dom,
     section: bodySection,
@@ -167,6 +215,14 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     busy: (text) => status(text, "building"),
     report,
     refuse,
+  });
+  // the body editor's humeral-head radii, written into the person's body
+  const humeralHeads = renderBodyHumeralHeadControls({
+    dom,
+    container: bodySection.querySelector<HTMLElement>('[data-role="humeral-heads"]')!,
+    current: () => draft.body,
+    onChange: (body) => void change(withBody(body)),
+    onRefuse: refuse,
   });
   // The face controls list the head view's own channels. Driver channels carry
   // the body's gains and are never edited from the face. An aliased face
@@ -181,6 +237,8 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       ...props.face,
       channels: props.face.channels.filter((channel) => !drivers.has(channel.id) && !aliased.has(channel.id)),
     },
+    // the face editor's anatomical groups, bound to the head view
+    components: createConnectedPersonFaceComponents({ tree: connectedFaceComponents, basis: props.face.id, excluded: [...aliased] }),
     document: () => draft.face,
     change: async (face) => { await change(withFace(face)); },
     refuse,
@@ -237,6 +295,34 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       const bytes = await viewport.export(state.document);
       if (intents.isCurrent(ticket) && editor!.snapshot().model === state.model)
         props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+    }
+  };
+  // the same contact and humeral-head reading the body editor runs, on the
+  // person's body build (`createConnectedPersonRuntime`)
+  element("person-anatomy").onclick = async () => {
+    const ticket = withdraw();
+    status("Measuring skin contacts and humeral heads…", "building");
+    try {
+      const posed = await viewport.build(editor!.snapshot().document, true, true);
+      const crossings = posed.crossings ?? null;
+      const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
+      viewport.dispose(posed);
+      if (!intents.isCurrent(ticket)) return;
+      status(
+        [
+          crossings === null
+            ? "This build does not supply a crossing reading."
+            : crossings.length === 0
+              ? "The posed body skin crosses nowhere."
+              : `The posed body skin crosses in ${crossings.length} places.`,
+          anatomy,
+        ]
+          .filter((line) => line !== null)
+          .join(String.fromCharCode(10)),
+        crossings === null ? "error" : "ready",
+      );
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }

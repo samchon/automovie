@@ -1,4 +1,5 @@
 import { getConstraint } from "@automovie/engine";
+import { HUMAN_BODY_MOTION_GAPS } from "@automovie/human/body/constants/HUMAN_BODY_MOTION_GAPS";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IBodyPoseControlsProps } from "./IBodyPoseControlsProps";
@@ -87,7 +88,7 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
       slider.max = number.max;
       number.disabled = true;
       slider.disabled = number.disabled;
-      note.textContent = "held: this joint does not move on this axis";
+      note.textContent = "held: this joint does not move on this axis" + motionGap(props.bone, axis);
     } else if (range !== null) {
       number.min = String(range.min);
       slider.min = number.min;
@@ -99,7 +100,8 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
         constraint?.swingDeg !== null &&
         axis !== "twist"
           ? `, combined swing within ${constraint.swingDeg}°`
-          : "");
+          : "") +
+        motionGap(props.bone, axis);
     } else {
       number.min = "-180";
       slider.min = number.min;
@@ -149,4 +151,10 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
     }
     container.append(row);
   }
+};
+
+/** The named anatomical gap of a lower-limb axis, as a sentence suffix, or empty. */
+const motionGap = (bone: string, axis: string): string => {
+  const gap = HUMAN_BODY_MOTION_GAPS[`${bone.replace(/^(left|right)/u, "")}.${axis}`];
+  return gap === undefined ? "" : ". " + gap;
 };

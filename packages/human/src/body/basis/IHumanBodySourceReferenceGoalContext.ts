@@ -2,7 +2,7 @@ import type { IAutoMovieResolvedBone } from "@automovie/engine";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovieHumanBodySkeletonRig";
 
 /**
  * The prepared document-rig state `resolveHumanBodySourceReferenceGoals` reads.
@@ -35,7 +35,7 @@ export interface IHumanBodySourceReferenceGoalContext {
   document: IAutoMovieHumanBodyBasisDocument;
 
   /** Shaped rig of `document`: skeleton, rest rotations, axes and frames. */
-  rig: ReturnType<typeof resolveHumanBodySkeleton>;
+  rig: IAutoMovieHumanBodySkeletonRig;
 
   /** Pre-pelvis forward-kinematics result of `rig` for the same document. */
   baseline: readonly IAutoMovieResolvedBone[];

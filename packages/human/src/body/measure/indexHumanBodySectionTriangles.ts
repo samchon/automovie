@@ -21,7 +21,7 @@ const MARGIN_METRES = 1e-9;
  * that level lies between the lowest and highest projections of its corners,
  * so one pass over the triangles, projecting each corner once and finding by
  * bisection the stations its span covers, lists for every station the few
- * hundred triangles it can cut. `measureHumanBodySection` then walks only
+ * hundred triangles it can cut. `measureHumanSection` then walks only
  * those. A listed triangle need not straddle: the exact sign test of the
  * cut decides that, on the same arithmetic as a full walk, so the section is
  * the one a full walk gives. A triangle that straddles is always listed,
@@ -33,7 +33,7 @@ const MARGIN_METRES = 1e-9;
  * count plus the listed triangles, once per stack.
  *
  * @evidence contracts/common.md#principled-implementation A triangle can change sign across a plane only when the plane's level lies between its lowest and highest corner projections, so listing every triangle whose span holds the level, widened by a margin far above the rounding of the two arrangements of the same products, is a superset of the straddlers; the exact sign test stays in the cut. The bisection over the sorted levels is the ordinary lower-bound search.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: which triangles a stack of parallel planes can reach. The cut, the loops and the tape stay in `measureHumanBodySection`, which takes the list as an optional argument and otherwise walks everything.
+ * @evidence contracts/common.md#clear-and-simple-design One responsibility: which triangles a stack of parallel planes can reach. The cut, the loops and the tape stay in `measureHumanSection`, which takes the list as an optional argument and otherwise walks everything.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No surface, landmark, rule or expected girth is named; the list depends on the triangles, the normal and the levels alone, and the cut still decides every crossing.
  * @evidence contracts/common.md#meaningful-documentation The comment states the reason for the index, the superset guarantee and its margin, the ordering the cut relies on, the units and the cost.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is an index over triangles and defines no part or group.

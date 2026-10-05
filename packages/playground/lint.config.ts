@@ -24,6 +24,14 @@ const personSources = [
   "src/human/common/annotateConnectedBodyReach.ts",
   "src/human/common/renderConnectedBodyUnavailableChannels.ts",
   "src/human/common/createConnectedDisabledRow.ts",
+  "src/human/common/IConnectedBodyExteriorTargetsProps.ts",
+  "src/human/common/renderConnectedBodyExteriorTargets.ts",
+  "src/human/common/renderConnectedBodyExteriorGaps.ts",
+  "src/human/common/renderConnectedBodyUnavailableParts.ts",
+  "src/human/common/renderConnectedBodyUnmeasuredChannels.ts",
+  "src/human/common/renderConnectedBodyHeldMotions.ts",
+  "src/human/common/readConnectedBodyAnatomyTarget.ts",
+  "src/human/common/writeConnectedBodyAnatomyTarget.ts",
 ];
 const faceSources = [
   "src/human/**/*.ts",

@@ -1,7 +1,7 @@
 import type { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
-import { measureHumanBodySection } from "../../body/measure/measureHumanBodySection";
+import { measureHumanSection } from "../../common/measure/measureHumanSection";
 import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanPersonGirthMeasurement } from "../structures/IAutoMovieHumanPersonGirthMeasurement";
 import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAutoMovieHumanPersonMeasurementReading";
@@ -17,7 +17,7 @@ import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
  * closes. A body view that does not declare the point, or does not place it
  * on a source sample, refuses by name. The plane passes through that sample perpendicular to the landmark
  * segment. The closed loop nearest the segment is kept and its tape girth
- * reported (`measureHumanBodySection`). A missing landmark, a missing sample,
+ * reported (`measureHumanSection`). A missing landmark, a missing sample,
  * a degenerate segment or a plane that closes no loop answers null.
  *
  * @evidence contracts/common.md#principled-implementation The girth is read on the one joined skin with the body section instrument, so person and body girths share one instrument.
@@ -59,6 +59,6 @@ export function readHumanPersonGirth(
     (anchor.x - from.x) * normal.x + (anchor.y - from.y) * normal.y + (anchor.z - from.z) * normal.z;
   const seed = { x: from.x + normal.x * along, y: from.y + normal.y * along, z: from.z + normal.z * along };
   const plane = { point: anchor, normal };
-  const section = measureHumanBodySection(skin.positions, skin.indices, plane, seed, undefined, skin.physicalVertices);
+  const section = measureHumanSection(skin.positions, skin.indices, plane, seed, undefined, skin.physicalVertices);
   return section === null ? null : { metres: section.girth, section, plane };
 }

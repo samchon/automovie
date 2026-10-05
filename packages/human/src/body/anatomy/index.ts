@@ -16,11 +16,7 @@ export type { IAutoMovieHumanBodyFemoralHead } from "./lower-limb/IAutoMovieHuma
 export * from "./shoulder/IAutoMovieHumanBodyHumeralHead";
 export * from "./contact/measureHumanBodySpheresSkinClearance";
 export * from "./measurements/admitHumanBodyAnatomicalMeasurements";
-export * from "./measurements/liftHumanBodySimpleAnatomicalTargets";
 export type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
-export type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./measurements/IAutoMovieHumanBodySimpleAnatomicalTargets";
-export type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "./measurements/IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
-export type { IAutoMovieHumanBodyParametricParameters } from "./measurements/IAutoMovieHumanBodyParametricParameters";
 export type { IAutoMovieHumanBodyCompositionMeasurements } from "./measurements/IAutoMovieHumanBodyCompositionMeasurements";
 export type { IAutoMovieHumanBodyAnatomicalResolution } from "./generated/IAutoMovieHumanBodyAnatomicalResolution";
 export type { IAutoMovieHumanBodyGeneratedSolid } from "./generated/IAutoMovieHumanBodyGeneratedSolid";
@@ -40,3 +36,11 @@ export type { IAutoMovieHumanBodyGluteusMediusAttachments } from "./pelvis/IAuto
 export type { IAutoMovieHumanBodyGluteusMinimusAttachments } from "./pelvis/IAutoMovieHumanBodyGluteusMinimusAttachments";
 export type { IAutoMovieHumanBodyDeltoidAttachments } from "./shoulder/IAutoMovieHumanBodyDeltoidAttachments";
 export type { IAutoMovieHumanBodyPectoralisMajorAttachments } from "./thorax/IAutoMovieHumanBodyPectoralisMajorAttachments";
+export * from "./surface/HUMAN_BODY_EXTERIOR_TARGETS";
+export type { IAutoMovieHumanBodyExteriorTarget } from "./surface/IAutoMovieHumanBodyExteriorTarget";
+export * from "./generated/assembleHumanBodyGeneratedAnatomy";
+export * from "./surface/HUMAN_BODY_EXTERIOR_GAPS";
+export type { IAutoMovieHumanBodyExteriorGap } from "./surface/IAutoMovieHumanBodyExteriorGap";
+export type { AutoMovieHumanBodyExteriorGapReason } from "./surface/AutoMovieHumanBodyExteriorGapReason";
+export * from "./resolveHumanBodyAnatomy";
+export * from "./admitHumanBodyDocumentAnatomy";

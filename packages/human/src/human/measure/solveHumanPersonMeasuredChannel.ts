@@ -1,5 +1,5 @@
 import { humanBodyMeasurementRule } from "../../body/measure/humanBodyMeasurementRule";
-import { invertHumanBodyMeasurement } from "../../body/measure/invertHumanBodyMeasurement";
+import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
 import { HUMAN_PERSON_MEASUREMENTS } from "../constants/HUMAN_PERSON_MEASUREMENTS";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonMeasuredChannelProps } from "../structures/IAutoMovieHumanPersonMeasuredChannelProps";
@@ -16,7 +16,7 @@ import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
  * the actual person built at rest on the one-skin evaluator, its final
  * Float32 skin measured. The returned document
  * keeps the caller's pose and expression and changes only that channel.
- * `invertHumanBodyMeasurement` owns the bracket, the 0.1 mm readout precision
+ * `invertHumanMeasurement` owns the bracket, the 0.1 mm readout precision
  * and the refusals: a target outside the channel's reach, a reversing
  * response, or a skin that cannot be measured. No second channel moves to
  * hide a miss.
@@ -66,7 +66,7 @@ export function solveHumanPersonMeasuredChannel(
   };
   const read = (weight: number): IAutoMovieHumanPersonMeasurementReading =>
     measureHumanPersonDocument({ compiled, build: props.build, document: worn(weight), channel: id });
-  const solved = invertHumanBodyMeasurement({
+  const solved = invertHumanMeasurement({
     range: [channel.minimum, channel.maximum],
     current: document.body.shape[id] ?? 0,
     targetMetres,

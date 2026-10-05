@@ -1,7 +1,9 @@
+import type { IAutoMovieHumanBodyToeSplit } from "./IAutoMovieHumanBodyToeSplit";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanBasisSourcePartition } from "../../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
+import type { IAutoMovieHumanBodyBasisSurfaceSag } from "./IAutoMovieHumanBodyBasisSurfaceSag";
 
 /**
  * One connected skin surface in the common right-handed Y-up, Z-forward
@@ -65,6 +67,13 @@ export interface IAutoMovieHumanBodyBasisSurface {
     weights: number[];
   };
 
+  /**
+   * Optional division of this surface's toes weight among the toe ray
+   * phalanges (`IAutoMovieHumanBodyToeSplit`); requires the basis's
+   * `toeRays`. Omission skins the toes with the one toes bone.
+   */
+  toeSplit?: IAutoMovieHumanBodyToeSplit;
+
   /** Optional numerical rest-detail filter after skinning, before sag. */
   mush?: IAutoMovieHumanBodyBasisSurfaceMush;
 
@@ -80,16 +89,7 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * the change of gravity's direction (-Y) in its skin's frame, smoothed
    * over `sweeps` half-steps with the open boundary held.
    */
-  sag?: {
-    lean: Record<string, number>;
-    gain: number;
-    sweeps: number;
-    softness: {
-      base: number;
-      channels: Record<string, number>;
-      range: [number, number];
-    };
-  };
+  sag?: IAutoMovieHumanBodyBasisSurfaceSag;
 
   /**
    * The skin's anatomical relief, or absent for none: a tangent-space

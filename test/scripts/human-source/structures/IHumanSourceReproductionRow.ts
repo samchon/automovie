@@ -5,7 +5,9 @@ import type { IHumanSourceReproductionError } from "./IHumanSourceReproductionEr
  *
  * `regeneration` compares the published field with the value freshly derived
  * from the pinned upstream through `recipe`; it is null when no upstream state
- * reproduces the row (`provenance` then names where the value comes from).
+ * reproduces the row (`provenance` then names where the value comes from;
+ * `regenerated-producer` is a whole field a rebuilt producer wrote anew, whose
+ * difference from the published field `p2` and `p1` then measure).
  * `p2` compares the published field with what the written one-skin generation
  * evaluates to on the published vertices (a body row on a head-only vertex
  * counts as head carry plus row), `p1` with the written P1 pair; both are
@@ -23,7 +25,7 @@ export interface IHumanSourceReproductionRow {
   surface: string;
   row: string;
   role: "channel-endpoint" | "corrective" | "landmark" | "neutral" | "weights" | "joint" | "attachment" | "part-endpoint";
-  provenance: "upstream-recipe" | "carried-published" | "carried-part";
+  provenance: "upstream-recipe" | "carried-published" | "carried-part" | "regenerated-producer";
   recipe: string | null;
   regeneration: IHumanSourceReproductionError | null;
   p2: IHumanSourceReproductionError | null;

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanFaceMeasurementReading,
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanPersonChannelAlias,
@@ -8,6 +9,8 @@ import type {
 import type { BodyPosePreset } from "../body/bodyPosePresets";
 import type { IConnectedFaceExpressionPreset } from "../face/IConnectedFaceExpressionPreset";
 import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
+import type { IConnectedPersonFaceSolution } from "./IConnectedPersonFaceSolution";
+import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
@@ -21,7 +24,10 @@ import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
  * builds and draws people in a worker; `solveMeasurement` solves a measured
  * body channel against the body view in its own worker, where
  * `readPersonMeasurement` and `solvePersonMeasurement` read and solve the
- * measurements whose site crosses the head/body cut; `download` saves a
+ * measurements whose site crosses the head/body cut, and `readPersonHead`
+ * and `solvePersonHead` read and solve the head measurements,
+ * `readFaceMeasurements` and `solveFaceMeasurement` read and solve the face
+ * measurements; `download` saves a
  * file the user asked for.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Mounts the person editor with the body view whose controls it lists.
@@ -68,6 +74,18 @@ export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel>
     channel: string,
     targetMetres: number,
   ): Promise<IConnectedPersonMeasuredSolution>;
+
+  /** Read every head measurement on a person's skin at rest, metres by name. */
+  readPersonHead(document: IAutoMovieHumanPersonDocument): Promise<Record<string, number>>;
+
+  /** Solve the person's head channels for head measurement targets in metres. */
+  solvePersonHead(document: IAutoMovieHumanPersonDocument, targets: Record<string, number>): Promise<IConnectedPersonHeadSolution>;
+
+  /** Read every registered face measurement on a person's face. */
+  readFaceMeasurements(document: IAutoMovieHumanPersonDocument): Promise<AutoMovieHumanFaceMeasurementReading[]>;
+
+  /** Solve one face measurement target, in the measurement's unit, onto the channels it lists. */
+  solveFaceMeasurement(document: IAutoMovieHumanPersonDocument, measurement: string, target: number): Promise<IConnectedPersonFaceSolution>;
 
   /** Save bytes the user asked for under a file name. */
   download(filename: string, bytes: BlobPart, mime: string): void;

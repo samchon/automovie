@@ -4,7 +4,7 @@
  * A girth cuts the final skin with the plane through one named skin point of
  * the body view, perpendicular to the segment between two landmarks, keeps the closed
  * section loop nearest the segment, and reports its tape girth (the
- * perimeter of the loop's convex hull, as `measureHumanBodySection` reads a
+ * perimeter of the loop's convex hull, as `measureHumanSection` reads a
  * body girth). The point is read through its sample of the generation's
  * shared source tree, so a site that crosses the head/body cut is read on
  * both halves together. A body view that does not declare the point refuses

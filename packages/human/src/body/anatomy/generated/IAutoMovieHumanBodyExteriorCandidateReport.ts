@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalDocument } from "../../structures/IAutoMovieHumanBodyAnatomicalDocument";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyExteriorCandidateMeasurement } from "./IAutoMovieHumanBodyExteriorCandidateMeasurement";
 import type { IAutoMovieHumanBodyExteriorCandidateReference } from "./IAutoMovieHumanBodyExteriorCandidateReference";
 import type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyGeneratedAnatomy";
@@ -14,10 +14,10 @@ import type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyG
  */
 export interface IAutoMovieHumanBodyExteriorCandidateReport {
   /**
-   * The concrete generator that produced the surface; the request document
-   * must name the same revision before the builder evaluates it.
+   * The concrete generator that produced the surface: every bound target of
+   * the document's anatomy, met on one exterior.
    */
-  readonly generatorRevision: "source-conditioned-exterior/1";
+  readonly generatorRevision: "source-conditioned-exterior/2";
 
   /**
    * Qualification of the emitted surface: a physical candidate whose skin and
@@ -28,14 +28,11 @@ export interface IAutoMovieHumanBodyExteriorCandidateReport {
   /** Basis, frame and protocol under which `fulfilled` was read. */
   readonly reference: IAutoMovieHumanBodyExteriorCandidateReference;
 
-  /** Original complete request, including unsupported context. */
-  readonly requested: IAutoMovieHumanBodyAnatomicalDocument;
+  /** The body document the report was built from, as admitted. */
+  readonly requested: IAutoMovieHumanBodyBasisDocument;
 
-  /** The single target the emitted skin was solved to satisfy, with its readings. */
-  readonly fulfilled: IAutoMovieHumanBodyExteriorCandidateMeasurement;
-
-  /** Original supplied measurement paths not geometrically consumed. */
-  readonly unfulfilledContext: readonly string[];
+  /** Every bound target the emitted skin was solved to satisfy, in solve order. */
+  readonly fulfilled: readonly IAutoMovieHumanBodyExteriorCandidateMeasurement[];
 
   /** Clinical resolution semantics remain independent of the rendered skin. */
   readonly anatomy: IAutoMovieHumanBodyGeneratedAnatomy;

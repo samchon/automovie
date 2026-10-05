@@ -19,7 +19,7 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonHeadSolveTable {
-  /** Names of `HUMAN_PERSON_HEAD_MEASUREMENTS` rules the solve meets. */
+  /** Names of `HUMAN_HEAD_MEASUREMENTS` rules the solve meets. */
   measurements: string[];
 
   /**

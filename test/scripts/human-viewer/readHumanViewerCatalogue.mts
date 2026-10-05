@@ -27,6 +27,7 @@ import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogue
 import { admitHumanViewerAuthoredEntries } from "./admitHumanViewerAuthoredEntries";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerFaceDocuments } from "./readHumanViewerFaceDocuments";
+import { readHumanViewerGenerationSubjects } from "./readHumanViewerGenerationSubjects";
 import { readHumanViewerInputs } from "./readHumanViewerInputs";
 import { readHumanViewerStandardBodies } from "./readHumanViewerStandardBodies";
 import { readHumanViewerStandardPeople } from "./readHumanViewerStandardPeople";
@@ -53,16 +54,28 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
     props.faceMemo.signature = faceSignature;
     props.faceMemo.value = faces;
   }
-  const subjectPeople = readHumanViewerSubjectPeople({ subjects: faces.subjects, bases, sources });
   const generation = (props.generation ?? ((): IHumanViewerRejectedInput => ({
     file: "test/studies/human-person/generation", pending: false,
     reason: "person generation files are not published yet" })))();
+  // Subject people come from the source owner's generation subject file when
+  // it exists (drawn on the one-skin generation); otherwise from the legacy
+  // published face and body pair.
+  const generationSubjects = "reason" in generation || props.subjectPeopleFile === undefined ||
+    !fs.existsSync(props.subjectPeopleFile)
+    ? null
+    : readHumanViewerGenerationSubjects({ text: fs.readFileSync(props.subjectPeopleFile, "utf8"),
+      file: path.relative(path.resolve(props.subjectPeopleFile, "../../../.."), props.subjectPeopleFile).replaceAll("\\", "/"),
+      generation, sources });
+  const subjectPeople = generationSubjects === null
+    ? readHumanViewerSubjectPeople({ subjects: faces.subjects, bases, sources }) : [];
   const authored = "reason" in generation
     ? { documents: [], rejected: [generation] }
     : admitHumanViewerAuthoredEntries([
       ...readHumanViewerStandardBodies({ generation, sources }),
       ...readHumanViewerStandardPeople({ reference: faces.reference, generation, sources }),
+      ...(generationSubjects?.documents ?? []),
     ], admit);
+  if (generationSubjects !== null) authored.rejected.push(...generationSubjects.rejected);
   const inputs =
     props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
       ? readHumanViewerInputs({

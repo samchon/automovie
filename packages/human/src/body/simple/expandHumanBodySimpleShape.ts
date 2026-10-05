@@ -1,6 +1,6 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
-import { invertHumanBodyMeasurement } from "../measure/invertHumanBodyMeasurement";
+import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
 import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
@@ -153,7 +153,7 @@ export function expandHumanBodySimpleShape(
       else trial[stature] = weight;
       return trial;
     };
-    shape[stature] = invertHumanBodyMeasurement({
+    shape[stature] = invertHumanMeasurement({
       range: [statureChannel.minimum, statureChannel.maximum],
       current: shape[stature] ?? 0,
       targetMetres: simple.statureMetres,

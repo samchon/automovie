@@ -1,5 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
+
 /**
  * The bone-local axes the three clinical angles rotate about. Lets a rig whose
  * bone frames are not aligned to the default clinical planes (e.g. a T-pose arm
@@ -32,4 +34,12 @@ export interface IAutoMovieJointAxes {
    * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Binds twist input to its bone-local rotation axis.
    */
   twist: IAutoMovieVector3;
+  /**
+   * Where the axial rotation sits relative to the swing, which fixes the
+   * composition order; omitted, `"proximal"`.
+   *
+   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Declares the order the joint's named controls compose in.
+   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Selects the composition the semantic controls enter the rotation graph with.
+   */
+  twistPlacement?: AutoMovieJointTwistPlacement;
 }

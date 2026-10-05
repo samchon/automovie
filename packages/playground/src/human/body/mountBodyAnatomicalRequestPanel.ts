@@ -1,6 +1,6 @@
-import { parseHumanBodyAnatomicalDocument } from "@automovie/human/body/document/parseHumanBodyAnatomicalDocument";
-import { serializeHumanBodyAnatomicalDocument } from "@automovie/human/body/document/serializeHumanBodyAnatomicalDocument";
-import type { IAutoMovieHumanBodyAnatomicalDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyAnatomicalDocument";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 
 import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
@@ -21,7 +21,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
 export function mountBodyAnatomicalRequestPanel<
   Model extends IBodyAnatomicalRequestModel,
 >(app: HTMLElement, props: IBodyAnatomicalRequestPanelProps<Model>) {
-  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyAnatomicalDocument>> | undefined;
+  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>> | undefined;
   const intents = createBodyIntentGate();
   const element = <T extends HTMLElement>(id: string) => app.querySelector<T>("#" + id)!;
   const text = element<HTMLTextAreaElement>("request-json");
@@ -41,19 +41,19 @@ export function mountBodyAnatomicalRequestPanel<
     element<HTMLButtonElement>("request-undo").disabled = !snapshot?.canUndo;
     element<HTMLButtonElement>("request-redo").disabled = !snapshot?.canRedo;
     if (snapshot === undefined) return;
-    if (replaceText) text.value = serializeHumanBodyAnatomicalDocument(snapshot.document);
+    if (replaceText) text.value = serializeHumanBodyBasisDocument(snapshot.document);
     if (snapshot.error !== null) {
       status(snapshot.error, "error");
       return;
     }
     const exterior = snapshot.model.exteriorCandidate;
     if (exterior !== undefined) {
-      const metric = exterior.fulfilled;
       status([
         "Source-conditioned exterior candidate. Reference: " + exterior.reference.basis,
-        "Bare source-rest nipple-level protocol; clinical skin and internal anatomy remain unavailable.",
-        `Bust target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${metric.residualMetres * 1000} mm.`,
-        "Unfulfilled supplied context: " + exterior.unfulfilledContext.join(", "),
+        "Bare source-rest protocols; clinical skin and internal anatomy remain unavailable.",
+        ...exterior.fulfilled.map((metric) =>
+          `${metric.path}: target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${(metric.residualMetres * 1000).toFixed(3)} mm. ${metric.protocol}`),
+        "Anatomical parts unavailable: " + Object.values(exterior.anatomy.parts).filter((part) => part.status === "unavailable").length + ".",
       ].join("\n"), "ready");
       return;
     }
@@ -64,7 +64,7 @@ export function mountBodyAnatomicalRequestPanel<
       ...report.candidates.map((head) => `${head.part}: ${head.radiusMetres * 1000} mm target radius, reference-rig-only centre (${head.center.x}, ${head.center.y}, ${head.center.z}) m`),
     ].join("\n"), "ready");
   };
-  const build = async (document: IAutoMovieHumanBodyAnatomicalDocument) => {
+  const build = async (document: IAutoMovieHumanBodyBasisDocument) => {
     const ticket = intents.currentTicket();
     const model = await props.viewport.build(document);
     // The history owner withdraws publication, but only this viewport adapter
@@ -76,9 +76,10 @@ export function mountBodyAnatomicalRequestPanel<
     const articular = model.anatomicalRequest;
     const exterior = model.exteriorCandidate;
     try {
-      const qualified = document.generatorRevision === "source-conditioned-exterior/1"
-        ? exterior !== undefined && articular === undefined && exterior.generatorRevision === document.generatorRevision && exterior.reference.basis === document.basis && serializeHumanBodyAnatomicalDocument(exterior.requested) === serializeHumanBodyAnatomicalDocument(document)
-        : articular !== undefined && exterior === undefined && articular.generatorRevision === document.generatorRevision && articular.reference.basis === document.basis;
+      // exactly one report, bound to this document and source
+      const qualified = exterior !== undefined
+        ? articular === undefined && exterior.reference.basis === document.basis && serializeHumanBodyBasisDocument(exterior.requested) === serializeHumanBodyBasisDocument(document)
+        : articular !== undefined && articular.reference.basis === document.basis;
       if (!qualified)
         throw new Error("The worker supplied no matching unique numerical candidate qualification.");
     } catch (error) {
@@ -89,9 +90,9 @@ export function mountBodyAnatomicalRequestPanel<
   };
   const apply = async (value: string, ticket = withdraw()) => {
     try {
-      const document = parseHumanBodyAnatomicalDocument(value);
+      const document = parseHumanBodyBasisDocument(value);
       if (!intents.isCurrent(ticket)) return false;
-      status(document.generatorRevision === "source-conditioned-exterior/1" ? "Building source-conditioned exterior…" : "Building target-sphere candidates…", "building");
+      status("Building the anatomy inspection…", "building");
       if (editor === undefined) {
         const model = await build(document);
         if (!intents.isCurrent(ticket)) {
@@ -121,7 +122,7 @@ export function mountBodyAnatomicalRequestPanel<
   element<HTMLButtonElement>("request-save").onclick = () => {
     if (editor === undefined) return;
     const document = editor.snapshot().document;
-    props.download(document.id + ".json", serializeHumanBodyAnatomicalDocument(document), "application/json");
+    props.download(document.id + ".json", serializeHumanBodyBasisDocument(document), "application/json");
   };
   element<HTMLButtonElement>("request-export").onclick = async () => {
     if (editor === undefined) return;

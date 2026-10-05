@@ -1,18 +1,18 @@
 import { createHumanBodyBasisBuilder } from "../../basis/createHumanBodyBasisBuilder";
-import { admitHumanBodyAnatomicalDocument } from "../../document/admitHumanBodyAnatomicalDocument";
-import type { IAutoMovieHumanBodyAnatomicalDocument } from "../../structures/IAutoMovieHumanBodyAnatomicalDocument";
+import { admitHumanBodyBasisDocument } from "../../document/admitHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../generated/IAutoMovieHumanBodyAnatomicalInspection";
 import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "../lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
-import { liftHumanBodySimpleAnatomicalTargets } from "../measurements/liftHumanBodySimpleAnatomicalTargets";
 import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
 
 /**
- * Compile explicit articular targets against one neutral reference body rig.
+ * Compile explicit articular targets of a body document's anatomy against one
+ * neutral reference body rig.
  *
- * The real body builder supplies the reference transforms once. Requested
- * stature, mass and tissue measurements are preserved but do not generate
- * that reference. Imaging radii cannot be placed as individual anatomy until
+ * The real body builder supplies the reference transforms once. The
+ * document's humeral and femoral sphere-fitted head radii are the inputs;
+ * its shape and other measurements do not generate that reference. Imaging radii cannot be placed as individual anatomy until
  * the acquisition and centre have been registered. Even standing imaging has
  * no such registration in this inspector. Target spheres remain mathematical
  * candidates and certify neither complete bones nor exterior skin.
@@ -35,26 +35,15 @@ export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBa
   const basis = input.id;
   const build = createHumanBodyBasisBuilder(input);
   let reference: ReturnType<typeof build> | undefined;
-  return (inputDocument: IAutoMovieHumanBodyAnatomicalDocument): IAutoMovieHumanBodyAnatomicalInspection => {
-    const document = admitHumanBodyAnatomicalDocument(inputDocument);
-    if (document.generatorRevision !== "articular-head-inspection/1")
-      throw new Error("Articular inspector requires articular-head-inspection/1, not " + document.generatorRevision);
+  return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyAnatomicalInspection => {
+    const document = admitHumanBodyBasisDocument(inputDocument);
     if (document.basis !== basis)
-      throw new Error("Anatomical request basis must match the compiled reference: " + basis);
-    const targets = document.tier === "simple"
-      ? liftHumanBodySimpleAnatomicalTargets(document.targets)
-      : document.targets;
-    for (const side of ["left", "right"] as const) {
-      for (const [path, radius] of [
-        [`targets.${side}UpperLimb.upperArm.humerus.sphereFittedHeadRadius`, targets[`${side}UpperLimb`]?.upperArm?.humerus?.sphereFittedHeadRadius],
-        [`targets.${side}LowerLimb.thigh.femur.sphereFittedHeadRadius`, targets[`${side}LowerLimb`]?.thigh?.femur?.sphereFittedHeadRadius],
-      ] as const) {
-        if (radius?.kind === "observed")
-          throw new Error((radius.acquisitionPosture === "standing"
-            ? "acquisition-not-registered:"
-            : "posture-unregistered:") + path);
-      }
-    }
+      throw new Error("Body document basis must match the compiled reference: " + basis);
+    // admission has refused observed radii: no acquisition centre or posture
+    // is registered for an imaged head
+    const targets = document.anatomy;
+    if (targets === undefined)
+      throw new Error("missing-anatomical-input:articular-head-radius");
     reference ??= build({ id: basis + "/articular-reference", name: "Neutral reference rig", basis, shape: {} });
     const heads = [
       ...createHumanBodyHumeralHeadsFromAnatomicalMeasurements({ measurements: targets, bones: reference.bones }),
@@ -63,7 +52,7 @@ export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBa
     if (heads.length === 0)
       throw new Error("missing-anatomical-input:articular-head-radius");
     return {
-      generatorRevision: document.generatorRevision,
+      generatorRevision: "articular-head-inspection/1",
       reference: { basis, evaluation: "neutral-reference" },
       requested: structuredClone(targets),
       skin: { status: "unavailable", reason: "geometry-not-validated" },

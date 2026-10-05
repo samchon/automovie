@@ -20,6 +20,12 @@ export interface IConnectedBodyPanelModel {
   /** The anatomy reading, when requested. */
   anatomy?: IConnectedBodyPreviewResult["anatomy"];
 
+  /** The femoral head target reading, when requested. */
+  femoralHeads?: IConnectedBodyPreviewResult["femoralHeads"];
+
+  /** Each foot's ground gap, when requested. */
+  groundSupport?: IConnectedBodyPreviewResult["groundSupport"];
+
   /** Runtime extras (bones, landmarks). */
   extras?: Record<string, unknown>;
 }

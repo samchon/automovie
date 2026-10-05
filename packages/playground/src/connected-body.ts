@@ -17,6 +17,7 @@ import { createConnectedBodyInitialDocument } from "./human/body/createConnected
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
 import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBodySimpleSolvers";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 
 async function main(): Promise<void> {
@@ -33,6 +34,7 @@ async function main(): Promise<void> {
       status: (text) => {
         document.querySelector<HTMLDivElement>("#body-status")!.textContent += "\n" + text;
       },
+      preparing: (active) => setConnectedBodyPreparing(document, "the head view on this body", active),
     }),
     download: downloadConnectedFile,
   });

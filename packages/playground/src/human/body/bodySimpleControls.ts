@@ -5,6 +5,10 @@ import {
 
 import type { IBodySimpleControlsProps } from "./IBodySimpleControlsProps";
 import type { IBodySimpleField } from "./IBodySimpleField";
+import type { IBodySimpleBody } from "./IBodySimpleBody";
+import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
+import type { IBodySimpleMeasured } from "./IBodySimpleMeasured";
+import type { IBodySimplePending } from "./IBodySimplePending";
 
 /** The simple parameters as inputs: label, unit, display scale and step; the optional ones may be left blank. */
 const FIELDS: IBodySimpleField[] = [
@@ -158,7 +162,7 @@ const FIELDS: IBodySimpleField[] = [
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
  */
-export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { refresh: (shape: Record<string, number>) => Promise<void> } => {
+export const renderBodySimpleControls = (props: IBodySimpleControlsProps): IBodySimpleControlsHandle => {
   const { dom, container } = props;
   container.replaceChildren();
   // Projection and user input have different invalidation keys: a projection
@@ -171,13 +175,9 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
   // sex or mass would pin a girth the new body no longer has
   const edited = new Set<keyof IAutoMovieHumanBodySimpleShape>();
   // the last projection, unrounded and paired with its exact rest shape
-  let measured: {
-    shape: Record<string, number>;
-    values: IAutoMovieHumanBodySimpleShape;
-  } | null = null;
-  let requestedShape: Record<string, number> | null = null;
-  let pending: { shape: Record<string, number>; result: Promise<void> } | null =
-    null;
+  let measured: IBodySimpleMeasured | null = null;
+  let requestedShape: IBodySimpleBody | null = null;
+  let pending: IBodySimplePending | null = null;
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -271,7 +271,7 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
     props.onBusy("Solving the simple body against the basis…");
     try {
       const simple = read();
-      const shape = await props.expand(simple, over);
+      const shape = await props.expand(simple, over.shape);
       if (
         props.isCurrentIntent(ticket) &&
         sameShape(props.current(), over) &&
@@ -294,11 +294,11 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
     "Read off the current body; applying expands through the package's table and measured inversions into the detailed channels below, keeping the detailed edits it does not name.";
   container.append(apply, note);
   return {
-    refresh: (shape) => {
+    refresh: (shape: IBodySimpleBody) => {
       const changed =
         requestedShape !== null && !sameShape(requestedShape, shape);
       if (changed) edited.clear();
-      requestedShape = { ...shape };
+      requestedShape = structuredClone(shape);
       if (measured !== null && sameShape(measured.shape, shape)) {
         if (changed) {
           ++generation;
@@ -309,15 +309,19 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
       }
       if (pending !== null && sameShape(pending.shape, shape))
         return pending.result;
-      const target = { ...shape };
+      const target = structuredClone(shape);
       const ticket = ++generation;
       const intent = props.currentIntent();
       const draft = editGeneration;
+      // the first projection waits for the whole-person reader to load
+      const first = measured === null;
+      if (first) props.onPreparing(true);
       const result = (async (): Promise<void> => {
         let projected: IAutoMovieHumanBodySimpleShape;
         try {
           projected = await props.project(target);
         } catch (error) {
+          if (first) props.onPreparing(false);
           if (
             ticket === generation &&
             sameShape(props.current(), target) &&
@@ -329,6 +333,7 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
         }
         if (ticket !== generation || !sameShape(props.current(), target))
           return;
+        if (first) props.onPreparing(false);
         measured = { shape: target, values: projected };
         display(projected);
       })();
@@ -341,10 +346,8 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { ref
   };
 };
 
-/** Whether two detailed shapes name the same channels at the same weights. */
-const sameShape = (
-  a: Record<string, number>,
-  b: Record<string, number>,
-): boolean =>
-  Object.keys(a).length === Object.keys(b).length &&
-  Object.entries(a).every(([channel, weight]) => b[channel] === weight);
+/** Whether two bodies name the same channels at the same weights and the same anatomy. */
+const sameShape = (a: IBodySimpleBody, b: IBodySimpleBody): boolean =>
+  Object.keys(a.shape).length === Object.keys(b.shape).length &&
+  Object.entries(a.shape).every(([channel, weight]) => b.shape[channel] === weight) &&
+  JSON.stringify(a.anatomy ?? null) === JSON.stringify(b.anatomy ?? null);

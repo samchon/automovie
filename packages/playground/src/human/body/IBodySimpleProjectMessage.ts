@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "@automovie/human";
+
 /**
  * Project a detailed shape onto the simple tier.
  *
@@ -14,4 +16,7 @@ export interface IBodySimpleProjectMessage {
 
   /** The detailed channel weights to project. */
   shape: Record<string, number>;
+
+  /** Anatomical measurements the builder solves into the weights, if any. */
+  anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements;
 }

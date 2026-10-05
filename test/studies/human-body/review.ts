@@ -55,10 +55,6 @@ export interface humanBodyStudyReview {
    * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.id} Read the static model identity the adapter writes to the produced model.
    * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.name} Read the static model display name the adapter writes to the produced model.
    * @evidence {@link Human.IAutoMovieHumanBodyArticularCandidateModelProps.inspection} Read the report whose candidates the adapter tessellates as spheres, one mesh per candidate.
-   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity} Read the request identity and reference selection the anatomical document intersects with the complete parametric request.
-   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.id} Read the stable request identity carried through parse and serialize.
-   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.name} Read the display label, independent of generator selection.
-   * @evidence {@link Human.IAutoMovieHumanBodyAnatomicalRequestIdentity.basis} Read the neutral reference rig identity the inspector evaluates, not a skin generated from the targets.
    * @evidence {@link Human.exportHumanBody} Read optional same-Document qualification before the existing writer and metadata-free face/body/person defaults through actual byte and geometry comparisons.
    * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Inspects static candidate identity at the actual exporter while preserving the numerical document and anatomical limitations.
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Inspects primitive source correspondence at Float32 output without claiming a rig or clinical edit roundtrip.
@@ -71,22 +67,19 @@ export interface humanBodyStudyReview {
    * survives; unregistered observed girths refuse and every clinical part
    * remains unavailable. This records a physical candidate, not GeneratedSkin.
    *
-   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference} Read one constructor-owned source binding without adding morph controls to the numerical document.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference} Read one constructor-owned source registration without adding morph controls to the body document.
    * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.basis} Read exact source identity and mismatch refusal against immutable compiled geometry.
-   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.channel} Read the source response and its existing envelope through the same final-surface inverse.
    * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.incidence} Read explicit native indexed or actual canonical source registration while the ordinary body constructor retains absent metadata.
    * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.evaluation} Read the explicit source-rest recipe rather than registered personal posture.
-   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.protocol} Read bare source nipple-level convention and the distinct observed posture/plane/site refusal.
-   * @evidence {@link Human.IAutoMovieHumanBodyExteriorReference.measurement} Read the source-owned witness rule through the single extracted instrument and unavailable sections.
    * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild} Read the actual static exterior beside clinical unavailable output and preserved complete context.
    * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild.model} Read real resident admission, source partition and original writer/readback at Float32 precision.
-   * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild.exterior} Read fulfilled girth/residual/source section, exact unfulfilled paths and candidate-only anatomical availability.
-   * @evidence {@link Human.createHumanBodyExteriorTargetBuilder} Read actual compiled final-surface inversion, source endpoints, refusal/recovery and default-neutral preservation.
+   * @evidence {@link Human.IAutoMovieHumanBodyExteriorCandidateBuild.exterior} Read every fulfilled target's readings, residual and section with candidate-only anatomical availability.
+   * @evidence {@link Human.createHumanBodyExteriorTargetBuilder} Read the body document's anatomy met on the actual compiled exterior and re-read on its Float32 skin, with refusal and recovery.
    * @evidence {@link Human.readHumanBodyShapedMeasurement} Read the cohesive legacy instrument extraction and its observed final Float32 plane/seed without a duplicated formula.
    * @evidence {@link Human.createHumanBodyBasisBuilder} Read explicit physicalSource compilation from actual native content or canonical samples, preserving default body output and independent geometry admission.
    * @evidence {@link createHumanBodySurfaceParts} Read preUV source identity and actual document instance through the sole domain helper without changing posed coordinates or normals.
    * @evidence {@link createHumanBodySurfaceRegionParts} Read the same authoritative UV gather for XYZ and physical samples, preserving source incidence across material/UV aliases.
-   * @evidence {@link Human.measureHumanBodySection} Read optional engine-resolved source-pair/null edge incidence in the existing cut, retaining omitted-argument raw-index behavior and unchanged plane/hull/seed calculations.
+   * @evidence {@link Human.measureHumanSection} Read optional engine-resolved source-pair/null edge incidence in the existing cut, retaining omitted-argument raw-index behavior and unchanged plane/hull/seed calculations.
    * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Inspects the first physical exterior request consumer while preserving unsupported context and unavailable anatomy.
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Inspects exactly one candidate report with transactional request/frame history.
    */
@@ -188,7 +181,7 @@ export interface humanBodyStudyReview {
  * @evidence {@link Human.solveHumanBodyArmsDown} Read the per-arm lateral-plane bisection against the chain-versus-body crossing reading charged only beyond the rest reading, with straight elbows and the document's other joints kept.
  * @evidence {@link Human.stepHumanBodyArmsDown} Read the chain walk, the rest baseline, the bottom check and the one-degree bisection with a pause after each build and crossing read, and the solved joints it returns.
  * @evidence {@link Human.resolveHumanBodyShoulders} Read the coupled girdle frame, measured A-pose subtraction, thorax-relative world goal and rigid transport of each humeral descendant about the moved joint centre.
- * @evidence {@link Human.measureHumanBodySection} Read the plane cut, edge-keyed crossings, closed-loop chaining, open-chain discard and seed-nearest selection against the analytic box.
+ * @evidence {@link Human.measureHumanSection} Read the plane cut, edge-keyed crossings, closed-loop chaining, open-chain discard and seed-nearest selection against the analytic box.
  * @evidence {@link Human.IAutoMovieHumanBodySectionPlane} Read the caller-chosen point-normal cutting plane whose positive side includes on-plane vertices.
  * @evidence {@link Human.IAutoMovieHumanBodySectionPlane.point} Read the metre point the signed vertex distance is measured from.
  * @evidence {@link Human.IAutoMovieHumanBodySectionPlane.normal} Read the direction that signs vertex distance and seeds the orthonormal hull frame.

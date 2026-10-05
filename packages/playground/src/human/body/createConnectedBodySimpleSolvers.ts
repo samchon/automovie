@@ -22,7 +22,7 @@ export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers 
   return {
     expand: (simple, over) => ask<Record<string, number>>({ kind: "expand", simple, over }),
     wholeSource: CONNECTED_BODY_WHOLE_SOURCE,
-    project: (shape) => ask<IAutoMovieHumanBodySimpleShape>({ kind: "project", shape }),
+    project: (body) => ask<IAutoMovieHumanBodySimpleShape>({ kind: "project", shape: body.shape, ...(body.anatomy === undefined ? {} : { anatomy: body.anatomy }) }),
     solveMeasurement: (shape, channel, targetMetres) =>
       ask<IConnectedBodyMeasurement>({ kind: "solveMeasurement", shape, channel, targetMetres }),
   };

@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 
 import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
+import type { IBodySimpleBody } from "./IBodySimpleBody";
 
 /**
  * The simple tier and the detailed measurement inverse, solved off the page's
@@ -17,10 +18,8 @@ export interface IConnectedBodySimpleSolvers {
     over: Record<string, number>,
   ) => Promise<Record<string, number>>;
 
-  /** Read the simple values of a detailed shape. */
-  project: (
-    shape: Record<string, number>,
-  ) => Promise<IAutoMovieHumanBodySimpleShape>;
+  /** Read the simple values of a body's weights with its anatomy solved in. */
+  project: (body: IBodySimpleBody) => Promise<IAutoMovieHumanBodySimpleShape>;
 
   /**
    * Where stature and mass are read (the whole person and the head it is read

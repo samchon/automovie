@@ -1,15 +1,16 @@
 /**
- * Immutable source identity and acquisition convention for an exterior report.
- * This source-rest convention carries no population or clinical certificate.
+ * Immutable source identity and evaluation frame for an exterior report.
+ * This source-rest convention carries no population or clinical certificate;
+ * each fulfilled measurement states its own protocol.
  *
  * @evidence contracts/common.md#clear-and-simple-design Gives the report reference one named structural owner.
- * @evidence contracts/common.md#meaningful-documentation Names the basis, evaluation frame and measurement protocol.
+ * @evidence contracts/common.md#meaningful-documentation Names the basis and evaluation frame, leaving protocols to each measurement.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateReference {
   /**
-   * Id of the exact compiled body basis whose channel and skin witness the
-   * instrument used; the builder refuses a reference bound to another basis.
+   * Id of the exact compiled body basis whose channels and skin the
+   * instruments used; the builder refuses a reference bound to another basis.
    */
   readonly basis: string;
 
@@ -18,11 +19,4 @@ export interface IAutoMovieHumanBodyExteriorCandidateReference {
    * prescribed by the request or the reference.
    */
   readonly evaluation: "source-rest";
-
-  /**
-   * Horizontal girth on the bare source skin through the source's own
-   * nipple-level witness vertex. It is a source convention, distinct from a
-   * registered standing tape acquisition, which the builder refuses as observed.
-   */
-  readonly protocol: "bare-source-rest-nipple-level";
 }

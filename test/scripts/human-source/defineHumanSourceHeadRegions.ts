@@ -1,3 +1,4 @@
+import { HUMAN_SOURCE_HEAD_CONVENTION } from "./HUMAN_SOURCE_HEAD_CONVENTION.ts";
 import { addressHumanSourceRegion } from "./addressHumanSourceRegion.ts";
 import { assertHumanSourceMirroredFill } from "./assertHumanSourceMirroredFill.ts";
 import { fillHumanSourceReadRegion } from "./fillHumanSourceReadRegion.ts";
@@ -45,6 +46,9 @@ export function defineHumanSourceHeadRegions(input: IHumanSourceHeadRegionInput)
       baseVertices: fill.vertices.length,
       viewVertices: vertices.length,
       frames: read.frames,
+      citation: "the head-region owner's frame reading of the CC0 MakeHuman base mesh (hm08); no published definition is cited",
+      ambiguity: "Not quantified: the loop is the owner's reading of the attachment on the recorded frames, and no alternative loop was recorded.",
+      convention: HUMAN_SOURCE_HEAD_CONVENTION,
     });
   }
   return { skinRegions, records };

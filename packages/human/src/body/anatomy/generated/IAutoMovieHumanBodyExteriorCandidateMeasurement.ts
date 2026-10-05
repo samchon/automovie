@@ -1,44 +1,54 @@
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 import type { IAutoMovieHumanBodyExteriorCandidateSection } from "./IAutoMovieHumanBodyExteriorCandidateSection";
 
 /**
- * Requested and achieved readings of the candidate's source-defined girth.
+ * Requested and achieved readings of one bound surface target.
  * All lengths are metres; final and Float32 output share the same instrument.
  *
  * @evidence contracts/common.md#clear-and-simple-design Names the fulfilled measurement instead of embedding an anonymous object type.
- * @evidence contracts/common.md#meaningful-documentation Records target, output, precision boundary and signed residual.
+ * @evidence contracts/common.md#meaningful-documentation Records path, instrument, protocol, target, output, precision boundary and signed residual.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateMeasurement {
   /**
-   * Caller-visible request path of the consumed target: the detailed tier's
-   * `targets.surface.trunk.bustGirth`, or the simple tier's
-   * `targets.bustAtNippleLevelMetres` before it was lifted. The report
-   * excludes exactly this path from its unfulfilled context.
+   * Detailed request path of the consumed target, such as
+   * `targets.surface.leftLowerLimb.foot.length`. A simple-tier request is
+   * reported by the detailed path its value was lifted to. The report
+   * excludes exactly these paths from its unfulfilled context.
    */
-  readonly path: "targets.surface.trunk.bustGirth" | "targets.bustAtNippleLevelMetres";
+  readonly path: string;
 
-  /** Absolute girth the request asked for, copied from its non-observed target. */
+  /** Key of the instrument in `HUMAN_BODY_MEASUREMENTS`. */
+  readonly rule: string;
+
+  /** Side the rule was oriented to; omitted for a midline or bilateral rule. */
+  readonly side?: AutoMovieHumanBodySide;
+
+  /** How the source-rest instrument departs from the cited survey definition. */
+  readonly protocol: string;
+
+  /** Absolute value the request asked for, copied from its non-observed target. */
   readonly targetMetres: number;
 
-  /**
-   * Tape-style convex-hull girth of the final double-precision skin at the
-   * solved source weight, before Float32 quantization.
-   */
+  /** The instrument on the final double-precision skin, before Float32 quantization. */
   readonly finalMetres: number;
 
   /**
    * The same instrument on the skin after the Float32 mesh-buffer boundary
-   * that export and preview consume. The inverse solves against this value.
+   * that export and preview consume.
    */
   readonly float32Metres: number;
 
   /**
-   * `float32Metres - targetMetres`: positive when the emitted girth exceeds
-   * the request. The inverse refuses a solve whose magnitude would exceed
-   * half its 0.1 mm readout (0.05 mm).
+   * `float32Metres - targetMetres`: positive when the emitted value exceeds
+   * the request. The builder refuses a result whose magnitude exceeds half
+   * the inverse's 0.1 mm readout (0.05 mm).
    */
   readonly residualMetres: number;
 
-  /** The cut the Float32 reading actually measured, for readback by consumers. */
-  readonly section: IAutoMovieHumanBodyExteriorCandidateSection;
+  /**
+   * The cut the Float32 reading measured, for readback by consumers, or null
+   * for an instrument that reads no section (a distance or a skin extent).
+   */
+  readonly section: IAutoMovieHumanBodyExteriorCandidateSection | null;
 }

@@ -18,12 +18,19 @@ import { defineHumanSourceBand } from "./defineHumanSourceBand.ts";
 import { defineHumanSourceHeadLandmarks } from "./defineHumanSourceHeadLandmarks.ts";
 import { defineHumanSourceHeadRegions } from "./defineHumanSourceHeadRegions.ts";
 import { defineHumanSourceMacros } from "./defineHumanSourceMacros.ts";
+import { defineHumanSourceOpticalSupport } from "./defineHumanSourceOpticalSupport.ts";
+import { defineHumanSourcePeriocular } from "./defineHumanSourcePeriocular.ts";
+import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
+import { defineHumanSourceToeRays } from "./defineHumanSourceToeRays.ts";
 import { mapHumanSourceSampleFaces } from "./mapHumanSourceSampleFaces.ts";
 import { measureHumanSourceCarry } from "./measureHumanSourceCarry.ts";
 import { readHumanSourceBaseFaces } from "./readHumanSourceBaseFaces.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
 import { readHumanSourceMirror } from "./readHumanSourceMirror.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
+import { regenerateHumanSourceBodyFields } from "./regenerateHumanSourceBodyFields.ts";
+import { regenerateHumanSourcePose } from "./regenerateHumanSourcePose.ts";
+import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
 import { reproduceHumanBodyRig } from "./reproduceHumanBodyRig.ts";
 import { reproduceHumanBodyRows } from "./reproduceHumanBodyRows.ts";
 import { reproduceHumanFaceRows } from "./reproduceHumanFaceRows.ts";
@@ -172,8 +179,8 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     tolerance: RECIPE_TOLERANCE_METRES,
   });
   log("face rows", faceRows.rows.length, "recipes", Object.keys(faceRows.recipes).length);
-  const bodyRows = reproduceHumanBodyRows({ body, cut, reader, field, sample });
-  log("body rows", bodyRows.rows.length, "unavailable", Object.keys(bodyRows.unavailable).length);
+  const bodyRowsRaw = reproduceHumanBodyRows({ body, cut, reader, field, sample });
+  log("body rows", bodyRowsRaw.rows.length, "unavailable", Object.keys(bodyRowsRaw.unavailable).length);
   const rigRows = reproduceHumanBodyRig({ body, cut, reader, field, sample, gameEngineRig: rig });
   log("rig rows", rigRows.rows.length);
   const stages: Record<string, Record<string, number | boolean | string>> = {};
@@ -193,32 +200,45 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     // Content digests only: the sample manifest itself carries the run clock.
     ...Object.fromEntries(Object.entries(sample.manifest.files).map(([name, file]) => [name, file.sha256])),
   };
-  const assembled = assembleHumanSourceGeneration({
+  const assembledRaw = assembleHumanSourceGeneration({
     face, body, faceSha256, cut, topology, reader,
     chinFactor: lowerFace.factor,
-    faceRows, bodyRows, rig: rigRows, upstream,
+    faceRows, bodyRows: bodyRowsRaw, rig: rigRows, upstream,
     sample: sampleRecord,
     inputs,
   });
+  const fields = regenerateHumanSourceBodyFields({ body, generation: assembledRaw, cut, bodyRows: bodyRowsRaw, sample });
+  const assembled = fields.generation;
+  const bodyRows = fields.bodyRows;
+  log("fields", fields.receipts.map((r) => r.revision));
   const macros = defineHumanSourceMacros({ generation: assembled, face, body, cut, faceRows, reader, field });
   log("macros", macros.checks);
   const extended = defineHumanSourceBand({ generation: macros.generation, face, body, reachMetres: BAND_REACH_METRES });
   log("band", extended.checks);
   const parts = bindHumanSourceParts({ generation: extended.generation, face, body, cut, faceRows, sample, reader, offset: extraction.frame.offset });
-  const generation = parts.generation;
+  const bound = parts.generation;
   log("parts", parts.checks);
   const baseFaces = readHumanSourceBaseFaces(work);
   const mirror = readHumanSourceMirror(work);
   const head = defineHumanSourceHeadLandmarks({
-    generation,
+    generation: bound,
     mirror,
     faces: baseFaces,
+    face,
     faceToG1: cut.faceToG1,
   });
   log("head landmarks", Object.fromEntries(head.records.map((r) => [r.name, r.vertex])));
   const regions = defineHumanSourceHeadRegions({ faces: baseFaces, mirror, sampleFaces: mapHumanSourceSampleFaces(sample, baseFaces, mirror.twin.length), faceToG1: cut.faceToG1 });
   log("head regions", Object.fromEntries(regions.records.map((r) => [r.name, `${r.baseVertices} base, ${r.viewVertices} view`])));
-  const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows, headLandmarks: head.skinLandmarks, headRegions: regions.skinRegions });
+  // The eye registrations name the generation by its id (the SHA-256 of every
+  // input digest) beside the consumed CC0 upstream content digests.
+  const eyeSources = [...new Set([...bound.upstream.filter((u) => u.consumed).map((u) => u.contentSha256), bound.id])].sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
+  const periocular = defineHumanSourcePeriocular({ face, faceToG1: cut.faceToG1, mirror, generation: bound.id, sourceSha256: eyeSources });
+  const assembledP1 = assembleHumanSourceP1({ face, body, generation: bound, cut, topology, bodyRows, headLandmarks: head.skinLandmarks, headRegions: regions.skinRegions, periocular: periocular.periocular, toeRays: sample.weights.rays === undefined ? null : defineHumanSourceToeRays(work), sampleRays: sample.weights.rays ?? null });
+  const pose = regenerateHumanSourcePose(assembledP1.body, bound, cut);
+  log("pose", pose.receipt.created);
+  const generation = pose.generation;
+  const p1 = { ...assembledP1, body: pose.body, checks: { ...assembledP1.checks, unavailableTargets: (pose.body.unavailableTargets ?? []).length } };
   log("generation", generation.id, "p1", p1.checks);
   // A part macro row regenerated from the refit is no longer a carried loss.
   const aliasedEndpoints = new Set(generation.aliases.flatMap((a) => Object.keys(a.endpoints)));
@@ -226,7 +246,11 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     kind === "part-not-regenerated" && aliasedEndpoints.has(row) && generation.parts.some((p) => p.id === surface);
   const measured = measureHumanSourceCarry({ rows: [...faceRows.rows, ...bodyRows.rows, ...rigRows.rows], face, body, cut, generation, p1 });
   const classified = classifyHumanSourceRows(measured);
-  const views = splitHumanSourcePersonViews({ generation, p1 });
+  const split = splitHumanSourcePersonViews({ generation, p1 });
+  // Optical support witnesses the head view's eye surface, landmarks and
+  // endpoint rows exactly as consumers load them, so it is read after the split.
+  const optical = defineHumanSourceOpticalSupport({ face: split.head.face, generation: bound.id, sourceSha256: eyeSources });
+  const views = { ...split, head: { ...split.head, face: { ...split.head.face, opticalSupport: optical.supports } } };
   const files = writeHumanSourceArtifacts(output, generation, p1, views, {
     generation: generation.id,
     rows: classified.rows,
@@ -243,7 +267,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   fs.writeFileSync(
     path.join(output, "generation-manifest.json"),
     JSON.stringify(
-      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, headLandmarks: head.records, headRegions: regions.records, outputs: files },
+      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, headLandmarks: head.records, headRegions: regions.records, teeth: registerHumanSourceTeeth(face).record, periocular: periocular.record, opticalSupport: optical.records, bodyLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut).records, fieldProducers: [...fields.receipts, pose.receipt], outputs: files },
       null,
       1,
     ) + "\n",

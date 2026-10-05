@@ -14,6 +14,7 @@
 import {
   expandHumanBodySimpleShape,
   projectHumanBodySimpleShape,
+  resolveHumanBodyAnatomy,
   solveHumanBodyMeasuredChannel,
 } from "@automovie/human";
 
@@ -37,7 +38,7 @@ scope.onmessage = async (
       request.kind === "expand"
         ? expandHumanBodySimpleShape(basis, whole, request.simple, request.over)
         : request.kind === "project"
-          ? projectHumanBodySimpleShape(basis, whole, request.shape)
+          ? projectHumanBodySimpleShape(basis, whole, resolveHumanBodyAnatomy(basis, request.shape, request.anatomy))
           : solveHumanBodyMeasuredChannel({
               basis,
               shape: request.shape,

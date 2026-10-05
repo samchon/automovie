@@ -1,6 +1,8 @@
 import type { IAutoMovieHumanSkinLandmark, IAutoMovieHumanSkinRegion } from "@automovie/human";
+import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFacePeriocular } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocular";
 
 import type { IHumanSourceBodyReproduction } from "./IHumanSourceBodyReproduction.ts";
 import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
@@ -25,4 +27,13 @@ export interface IHumanSourceP1Input {
 
   /** Skin regions of the face skin surface (the head view's surface 0). */
   headRegions: Record<string, IAutoMovieHumanSkinRegion>;
+
+  /** Periocular registration of the face (`defineHumanSourcePeriocular`). */
+  periocular: IAutoMovieHumanFacePeriocular;
+
+  /** Per-ray toe bones from the default rig, or null when the sample carries no toe ray weights. */
+  toeRays: IAutoMovieHumanBodyToeRay[] | null;
+
+  /** Default-rig toe phalanx weights per generation sample, or null when not sampled. */
+  sampleRays: [string, number][][] | null;
 }

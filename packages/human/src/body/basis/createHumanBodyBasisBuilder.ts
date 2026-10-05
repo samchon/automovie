@@ -2,6 +2,7 @@ import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisBuilderOptions } from "../structures/IAutoMovieHumanBodyBasisBuilderOptions";
@@ -16,6 +17,9 @@ import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
 import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShoulderRest";
+import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IHumanBodyAnatomySolve } from "./IHumanBodyAnatomySolve";
 
 /**
  * Compile a caller-owned connected body basis into a deterministic builder.
@@ -24,10 +28,14 @@ import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShould
  * modelling tools supply licensed geometry; replay needs this basis and one
  * admitted document, never a source image. The builder owns revision and
  * document admission, the order of the domain stages and final model
- * validation. It evaluates channels and correctives first, checks authored
+ * validation. A document carrying `anatomy` first has its bound measurements
+ * solved into channel weights (`resolveHumanBodyAnatomy`), remembered for
+ * the last authored weights and measurements, so the shape it evaluates
+ * meets them. It evaluates channels and correctives first, checks authored
  * shoulder reach, and evaluates the shaped landmarks. The shaped landmarks
  * feed `resolveHumanBodyBuildPose`; the shared rest and lean evaluations feed
- * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`. Underwear is
+ * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`; posed toe
+ * ray phalanges (`resolveHumanBodyToeRays`) join those transforms for skinning. Underwear is
  * cut from the resulting unsplit posed skin after every material region.
  * The pose resolver owns clinical angles and pelvic rhythm, the appearance
  * stage owns material caches, and the surface stage owns skinning and sag.
@@ -59,15 +67,25 @@ export function createHumanBodyBasisBuilder(
   // the underwear's per-vertex arm weights, on the first document wearing it
   let dress: ReturnType<typeof createHumanBodyUnderwear> | null = null;
   const surfaces = createHumanBodySurfaceParts(basis, physicalSource);
+  // the last anatomy solve, keyed by the authored weights and measurements it
+  // read, so pose, material and history edits do not repeat it
+  let solved: IHumanBodyAnatomySolve | undefined;
   return (inputDocument) => {
-    const document = admitHumanBodyBasisDocument(inputDocument);
+    const admitted = admitHumanBodyBasisDocument(inputDocument);
     if (
-      document.basis !== basis.id ||
-      [document.id, document.name].some((id) => id.trim() === "")
+      admitted.basis !== basis.id ||
+      [admitted.id, admitted.name].some((id) => id.trim() === "")
     )
       throw new Error(
         "Body edits need nonempty identities and the exact compiled basis revision.",
       );
+    let document = admitted;
+    if (admitted.anatomy !== undefined) {
+      const key = JSON.stringify([admitted.shape, admitted.anatomy]);
+      if (solved?.key !== key)
+        solved = { key, shape: resolveHumanBodyAnatomy(basis, admitted.shape, admitted.anatomy) };
+      document = { ...admitted, shape: { ...solved.shape } };
+    }
     // an omitted shoulder goal is the shaped body's own rest, which every
     // reader of the goal shares, so the arms are read before the pose weights
     const shoulderRestOf = (shape: Record<string, number>) =>
@@ -138,11 +156,13 @@ export function createHumanBodyBasisBuilder(
       restAll,
       leanOf,
     });
+    // toe ray phalanges join the humanoid transforms only when one is posed
+    const rays = resolveHumanBodyToeRays({ basis, toes: document.toes, landmarks: shaped.landmarks, transforms });
     const { parts, posedSurfaces } = surfaces({
       document,
       shaped,
-      posed,
-      transforms,
+      posed: posed || rays.size > 0,
+      transforms: rays.size === 0 ? transforms : new Map<string, IAutoMovieHumanBodyBoneTransform>([...transforms, ...rays]),
       restAll,
       leanOf,
       coloured,

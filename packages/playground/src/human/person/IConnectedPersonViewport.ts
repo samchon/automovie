@@ -14,7 +14,7 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
  */
 export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
   /** Build a person document; rejects with the runtime's refusal. */
-  build(document: IAutoMovieHumanPersonDocument): Promise<Model>;
+  build(document: IAutoMovieHumanPersonDocument, measure?: boolean, anatomy?: boolean): Promise<Model>;
 
   /** Withdraw the pending build. */
   cancel(): void;

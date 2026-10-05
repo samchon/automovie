@@ -11,22 +11,28 @@ The human is MPFB's default (every macro 0.5, equal ethnic mixture) with one
 Catmull-Clark subdivision level, limit surface on, quality 3: the setting under
 which both published bases' skin vertices are exact twins of this mesh.
 
-Two weight bindings are interpolated by Blender through the subdivision:
+Three weight bindings are interpolated by Blender through the subdivision:
 
 - `bone:<name>` groups from `weights.game_engine.json`, the body skinning.
 - `attach:<owner>` groups summing `weights.default.json` over the jaw subtree
   and each eye bone, the face attachment weights.
+- `ray:<bone>` groups from the toe phalanx bones of `weights.default.json`
+  (`toe1-1` to `toe5-3` per side), which partition the game-engine toe
+  bone's weight vertex for vertex, the per-ray split of the toes.
 
 Coordinates are Blender metres, Z up, facing -Y. The compiler converts them to
 the shared Y-up, Z-forward frame.
 """
 import json
 import os
+import re
 
 import bpy
 import numpy as np
 
 EXTENSION = "bl_ext.user_default.mpfb"
+# Toe phalanx bones of the MPFB default rig: toe<ray>-<phalanx>.<side>.
+TOE_PHALANX = re.compile(r"^toe[1-5]-[1-3]\.[LR]$")
 
 MACRO_DEFAULTS = {
     "gender": 0.5, "age": 0.5, "muscle": 0.5, "weight": 0.5,
@@ -83,6 +89,7 @@ class Session:
         bpy.context.view_layer.objects.active = self.human
         self.bone_groups = self._bind_bones()
         self.attachment_groups = self._bind_attachments()
+        self.ray_groups = self._bind_toe_rays()
         subsurf = self.human.modifiers.new("subdivision", "SUBSURF")
         subsurf.levels = 1
         subsurf.render_levels = 1
@@ -99,6 +106,18 @@ class Session:
                 continue
             group = self.human.vertex_groups.new(name="bone:" + bone)
             for vertex, weight in rows:
+                group.add([int(vertex)], float(weight), "REPLACE")
+            groups[bone] = group.index
+        return groups
+
+    def _bind_toe_rays(self):
+        weights = _read_json(os.path.join(self.data, "rigs", "standard", "weights.default.json"))["weights"]
+        groups = {}
+        for bone in sorted(weights):
+            if not TOE_PHALANX.match(bone) or not weights[bone]:
+                continue
+            group = self.human.vertex_groups.new(name="ray:" + bone)
+            for vertex, weight in weights[bone]:
                 group.add([int(vertex)], float(weight), "REPLACE")
             groups[bone] = group.index
         return groups
@@ -138,10 +157,12 @@ class Session:
         mesh.uv_layers.active.data.foreach_get("uv", loop_uv)
         bones = {index: name for name, index in self.bone_groups.items()}
         owners = {index: name for name, index in self.attachment_groups.items()}
-        bone_rows, attachment_rows = [], []
+        rays = {index: name for name, index in self.ray_groups.items()}
+        bone_rows, attachment_rows, ray_rows = [], [], []
         for vertex in mesh.vertices:
             bone_rows.append([(bones[g.group], float(g.weight)) for g in vertex.groups if g.group in bones])
             attachment_rows.append([(owners[g.group], float(g.weight)) for g in vertex.groups if g.group in owners])
+            ray_rows.append([(rays[g.group], float(g.weight)) for g in vertex.groups if g.group in rays])
         evaluated.to_mesh_clear()
         return {
             "loop_start": loop_start,
@@ -150,6 +171,7 @@ class Session:
             "loop_uv": loop_uv.reshape(-1, 2),
             "bones": bone_rows,
             "attachments": attachment_rows,
+            "rays": ray_rows,
         }
 
     def sample_helpers(self):

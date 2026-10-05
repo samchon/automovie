@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalReference } from "./IAutoMovieHumanBodyAnatomicalReference";
 import type { IAutoMovieHumanBodyArticularCandidate } from "./IAutoMovieHumanBodyArticularCandidate";
 import type { IAutoMovieHumanBodyUnvalidatedGeometry } from "./IAutoMovieHumanBodyUnvalidatedGeometry";
@@ -32,8 +32,8 @@ export interface IAutoMovieHumanBodyAnatomicalInspection {
   /** Exact source reference; its neutral is not the requested person's skin. */
   reference: IAutoMovieHumanBodyAnatomicalReference;
 
-  /** Owned complete request after the simple tier's deterministic lift. */
-  requested: IAutoMovieHumanBodyCompleteAnatomicalMeasurements;
+  /** Owned copy of the body document's anatomical measurements. */
+  requested: IAutoMovieHumanBodyAnatomicalMeasurements;
 
   /** This inspector does not generate or validate a whole exterior. */
   skin: IAutoMovieHumanBodyUnvalidatedGeometry;

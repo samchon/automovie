@@ -1,14 +1,15 @@
 import { solveHumanBodySimpleOffsets } from "../../body/simple/solveHumanBodySimpleOffsets";
 import { measureHumanFaceBasisChannels } from "../../face/channels/measureHumanFaceBasisChannels";
-import { HUMAN_PERSON_HEAD_MEASUREMENTS } from "../constants/HUMAN_PERSON_HEAD_MEASUREMENTS";
+import { HUMAN_HEAD_MEASUREMENTS } from "../../common/measure/HUMAN_HEAD_MEASUREMENTS";
 import { HUMAN_PERSON_HEAD_SOLVE } from "../constants/HUMAN_PERSON_HEAD_SOLVE";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonHeadSolution } from "../structures/IAutoMovieHumanPersonHeadSolution";
 import type { IAutoMovieHumanPersonHeadSolveProps } from "../structures/IAutoMovieHumanPersonHeadSolveProps";
 import { humanPersonHeadDeparture } from "./humanPersonHeadDeparture";
 import { measureHumanPersonHead } from "./measureHumanPersonHead";
-import { readHumanPersonHeadMeasurement } from "./readHumanPersonHeadMeasurement";
+import { readHumanHeadMeasurement } from "../../common/measure/readHumanHeadMeasurement";
 import { readHumanPersonRestHead } from "./readHumanPersonRestHead";
+import type { IHumanPersonHeadCandidate } from "./IHumanPersonHeadCandidate";
 
 /** Half the 1 mm resolution ANSUR II records its head measurements at. */
 const RESOLUTION_METRES = 0.0005;
@@ -77,10 +78,10 @@ export function solveHumanPersonHead(props: IAutoMovieHumanPersonHeadSolveProps)
     });
     return next;
   };
-  let closest: { merit: number; weights: number[]; readings: number[] } | undefined;
+  let closest: IHumanPersonHeadCandidate | undefined;
   const evaluate = (weights: readonly number[]): number[] | null => {
     const head = readHumanPersonRestHead(compiled, worn(weights));
-    const readings = read.map((name) => readHumanPersonHeadMeasurement(head, HUMAN_PERSON_HEAD_MEASUREMENTS[name]).metres);
+    const readings = read.map((name) => readHumanHeadMeasurement(head, HUMAN_HEAD_MEASUREMENTS[name]).metres);
     const residual = readings.map((value, i) => (value - targets[read[i]]) / targets[read[i]]);
     const merit = residual.slice(0, measurements.length).reduce((sum, value) => sum + value * value, 0);
     if (closest === undefined || merit < closest.merit) closest = { merit, weights: [...weights], readings };

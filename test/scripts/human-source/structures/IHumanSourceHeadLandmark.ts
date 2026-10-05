@@ -37,4 +37,10 @@ export interface IHumanSourceHeadLandmark {
 
   /** What a fixed vertex cannot follow. */
   limit: string;
+
+  /** The named ambiguity of a frame reading (within what distance and against which neighbours the reading cannot separate its choice, on which frames), or null for a rule-defined point, whose ties refuse by name. */
+  ambiguity: string | null;
+
+  /** Index space, frame and side convention of `vertex`, `viewVertex` and `position`. */
+  convention: string;
 }

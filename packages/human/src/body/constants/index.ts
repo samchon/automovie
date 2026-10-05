@@ -1,4 +1,6 @@
 export * from "./HUMAN_BODY_MEASUREMENTS";
+export * from "./HUMAN_BODY_TOE_RANGE";
+export * from "./HUMAN_BODY_MOTION_GAPS";
 export * from "./HUMAN_BODY_SIMPLE_SHAPE";
 export * from "./HUMAN_BODY_SIMPLE_POSTURE";
 export * from "./HUMAN_BODY_SKIN_SITES";
@@ -8,3 +10,4 @@ export * from "./HUMAN_BODY_SKIN_RELIEF_POSE";
 export * from "./HUMAN_BODY_SKIN_SCATTERING";
 export * from "./HUMAN_BODY_UNDERWEAR";
 export * from "./HUMAN_BODY_ANSUR_II_REFERENCE";
+export * from "./HUMAN_BODY_DISTAL_TWIST_BONES";

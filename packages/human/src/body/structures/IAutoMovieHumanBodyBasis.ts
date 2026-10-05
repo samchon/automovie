@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanBodyToeRay } from "./rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasisCoupling } from "./rig/IAutoMovieHumanBodyBasisCoupling";
@@ -107,6 +108,13 @@ export interface IAutoMovieHumanBodyBasis {
    * onto `IAutoMovieSkeleton` after the shape has moved the landmarks.
    */
   joints: IAutoMovieHumanBodyBasisJoint[];
+
+  /**
+   * Optional toe ray phalanges beyond the humanoid set, parent before child
+   * (`IAutoMovieHumanBodyToeRay`). Omission keeps one toes bone per foot, and
+   * documents posing rays refuse by name.
+   */
+  toeRays?: IAutoMovieHumanBodyToeRay[];
 
   /** Declared clinical joint coupling. */
   couplings?: IAutoMovieHumanBodyBasisCoupling[];

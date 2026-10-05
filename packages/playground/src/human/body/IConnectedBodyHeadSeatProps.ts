@@ -13,4 +13,7 @@ export interface IConnectedBodyHeadSeatProps {
 
   /** Append one line to the body status. */
   status: (text: string) => void;
+
+  /** Name the head as preparing until its first build answers. */
+  preparing?: (active: boolean) => void;
 }

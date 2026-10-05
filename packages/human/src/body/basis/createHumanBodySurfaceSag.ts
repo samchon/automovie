@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisSurfaceSag } from "../structures/surface/IAutoMovieHumanBodyBasisSurfaceSag";
 
 type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
 
@@ -34,7 +35,7 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  */
 export function createHumanBodySurfaceSag(
   surface: Surface,
-  sag: NonNullable<Surface["sag"]>,
+  sag: IAutoMovieHumanBodyBasisSurfaceSag,
 ): (props: {
   /** The document's shape at the rest pose, the lean shape, and the skinned positions. */
   rest: number[];

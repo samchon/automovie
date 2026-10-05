@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
-import type { IAutoMovieHumanPersonHeadReading } from "./IAutoMovieHumanPersonHeadReading";
+import type { IAutoMovieHumanHeadReading } from "../../common/measure/IAutoMovieHumanHeadReading";
 
 /**
  * A solved head: the person with its head channels set, every head rule read
@@ -27,7 +27,7 @@ export interface IAutoMovieHumanPersonHeadSolution {
   document: IAutoMovieHumanPersonDocument;
 
   /** Every head rule read on the solved person at rest, by rule name. */
-  readings: Record<string, IAutoMovieHumanPersonHeadReading>;
+  readings: Record<string, IAutoMovieHumanHeadReading>;
 
   /**
    * The solved channels' departure from the standard head: the root of the

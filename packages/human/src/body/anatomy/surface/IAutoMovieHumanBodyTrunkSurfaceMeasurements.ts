@@ -4,7 +4,8 @@ import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMo
 import type { IAutoMovieHumanBodySurfaceGirth } from "../measurements/IAutoMovieHumanBodySurfaceGirth";
 
 /**
- * Target or observed exterior chest, waist and buttock dimensions.
+ * Target or observed exterior chest, waist and buttock dimensions, with hip
+ * breadth (ANSUR II 6.4.51) and buttock depth (6.4.18) at the pelvis.
  *
  * Each landmark must be reproduced by the same named measurement on the
  * generated standing skin. A bust girth includes overlying breast tissue;
@@ -23,6 +24,8 @@ export type IAutoMovieHumanBodyTrunkSurfaceMeasurements =
     ribIliacMidpointWaistGirth?: IAutoMovieHumanBodySurfaceGirth;
     /** Horizontal girth at the maximal posterior buttock projection. */
     buttockGirth?: IAutoMovieHumanBodySurfaceGirth;
+    hipBreadth?: IAutoMovieHumanBodySurfaceDistance;
+    buttockDepth?: IAutoMovieHumanBodySurfaceDistance;
     /** Acromion-to-acromion skeletal landmark breadth through the skin. */
     biacromialBreadth?: IAutoMovieHumanBodySurfaceDistance;
     /** Left fold inferior to scapular angle, separate from muscle volume. */

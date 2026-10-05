@@ -55,7 +55,11 @@ export interface IAutoMovieHumanFaceOpticalSupport {
   /** Exact neutral XYZ triples aligned with vertices, in head-frame metres. */
   neutralPositions: number[];
 
-  /** Exact resident UV pairs aligned with vertices. */
+  /**
+   * Exact resident UV pairs per triangle corner, aligned with `triangles`
+   * (two numbers per corner, six per triangle). Per corner because a UV seam
+   * gives one native vertex several UV pairs, so a per-vertex row cannot be exact.
+   */
   neutralUvs: number[];
 
   /** Actual oriented native source triangles of this component, before collider caps. */

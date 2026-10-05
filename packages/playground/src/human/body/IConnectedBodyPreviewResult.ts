@@ -2,9 +2,11 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyAnatomicalInspection,
   IAutoMovieHumanBodyExteriorCandidateBuild,
+  IAutoMovieHumanBodyFootSupport,
 } from "@automovie/human";
 
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";
+import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
 
@@ -32,6 +34,12 @@ export interface IConnectedBodyPreviewResult {
 
   /** Humeral head reading, its refusal, or null when not requested. */
   anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null;
+
+  /** Femoral head target reading, or null when not requested or not asked for. */
+  femoralHeads?: IConnectedBodyFemoralHeads | null;
+
+  /** Each foot's ground gap, or null when not requested or the basis has no ground. */
+  groundSupport?: IAutoMovieHumanBodyFootSupport[] | null;
 
   /** Additional build readings keyed by name. */
   extras: Record<string, unknown>;

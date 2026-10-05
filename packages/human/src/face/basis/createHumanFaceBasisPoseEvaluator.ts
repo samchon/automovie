@@ -4,12 +4,14 @@ import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
+import type { IHumanFaceApertureFrame } from "./IHumanFaceApertureFrame";
 import { applyHumanFaceSourceClosure } from "./applyHumanFaceSourceClosure";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
+import { createHumanFaceClosureGain } from "./createHumanFaceClosureGain";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
@@ -21,10 +23,11 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * and owns native rest deformation, shaped joints, companion scaling, attached
  * posing and source refinement replay. A compiled source span reads fixed
  * closure-zero/one native stages with the same other inputs, forms its endpoint
- * after replay and applies the request once. Legacy bases retain their original
- * aperture-scaled closure. Rigid contact, final aperture/passage and normals
- * then read the resulting performed geometry. Native scaling reads the earlier
- * authored aperture, while the
+ * after replay and applies the request once. Native closure scales its rows by
+ * `measureHumanFaceClosureRatio`, so closure weight one brings the central lip
+ * pair to margin contact and a fraction closes that fraction of the current
+ * aperture. Rigid contact, final aperture/passage and normals then read the
+ * resulting performed geometry. Native scaling reads the pre-closure aperture, while the
  * admission and summary read the corrected geometry the renderer receives.
  * All positions remain basis metres in the Y-up, +Z-anterior head frame.
  * The returned arrays are owned by the caller and must not be modified by a
@@ -38,13 +41,19 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * contact stage is also a deterministic authored constraint rather than
  * measured tissue mechanics; resolveHumanFaceContact owns that distinction.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the native companion/pose/replay stage at fixed source closure zero and one, with the weights owner rebuilding all other identical inputs, before one requested source-span blend. Legacy bases retain their native aperture scaling. Original rigid floors read the same shape-only rest, and final registered/native aperture diagnostics and tongue passage read the actual corrected geometry.
+ * @evidence contracts/common.md#principled-implementation Reuses the native companion/pose/replay stage at fixed source closure zero and one, with the weights owner rebuilding all other identical inputs, before one requested source-span blend. Native closure scales so weight one seals the measured central lip aperture. Original rigid floors read the same shape-only rest, and final registered/native aperture diagnostics and tongue passage read the actual corrected geometry.
  * @evidence contracts/common.md#clear-and-simple-design One native stage feeds the legacy path or the compiled source endpoint owner; contact, final measurements and normals remain their named downstream responsibilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No second requested gain, source index clamp or forced zero gap enters the source path. Contact still owns its rest-clearance rule and budget, while source registration selects the actual final representative and retains the authored native diagnostic.
  * @evidence contracts/common.md#meaningful-documentation States the order, the frame and units, who owns the returned arrays and cites the jaw source with the limits of endpoint interpolation.
  * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseEvaluator is a computation over existing data and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseEvaluator emits no primitive.
+ * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning: weight one brings the central and every registered margin lip pair to contact, scaled per vertex by createHumanFaceClosureGain.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries resolveHumanFaceContact owns the boundary between soft and rigid surfaces; the evaluator sequences it.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The face builder observes the emitted model; the evaluator returns positions, normals and the contact summary it reports.
+ * @evidence contracts/anatomy.md#anatomical-source Jaw motion is source-authored endpoint interpolation with coupled translation (Lindauer et al.), and closure follows the requirement that weight one seals the lips.
+ * @evidence contracts/anatomy.md#permitted-range A closure that cannot seal a pair, or would exceed the lips' tissue budget, refuses through createHumanFaceClosureGain; contact refusals come from resolveHumanFaceContact.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority Channel weights are admitted upstream by humanFaceBasisWeights; the evaluator adds no input.
  */
 export function createHumanFaceBasisPoseEvaluator(
   basis: IAutoMovieHumanFaceBasis,
@@ -83,10 +92,7 @@ export function createHumanFaceBasisPoseEvaluator(
       .some(generation => generation !== undefined && generation !== sourceSpan.generation))
       throw new Error("Face source closure needs the same compiler generation.");
   }
-  const poseNative = (
-    state: ReturnType<typeof humanFaceBasisWeights>,
-    shape: IAutoMovieHumanFaceBasisDocument["shape"],
-  ) => {
+  const poseNative = (state: ReturnType<typeof humanFaceBasisWeights>) => {
     const rest = evaluateHumanFaceRest(basis, state, closure);
     const motions =
       basis.articulation === undefined
@@ -97,7 +103,8 @@ export function createHumanFaceBasisPoseEvaluator(
             rest.landmarks,
           ).motions;
     let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
-    let frame: ReturnType<typeof measureHumanFaceAperture> | undefined;
+    let frame: IHumanFaceApertureFrame | undefined;
+    let closureRatio = 0;
     if (contact !== undefined) {
       shaped = evaluateHumanFaceRest(basis, {
         weights: new Map(
@@ -105,34 +112,30 @@ export function createHumanFaceBasisPoseEvaluator(
         ),
         activations: state.activations.filter((one) => one.shapeOnly),
       });
-      const referenced = evaluateHumanFaceRest(
-        basis,
-        humanFaceBasisWeights(basis, {
-          shape,
-          expression: { [contact.closure.reference]: 1 },
-        }),
-      );
-      frame = measureHumanFaceAperture(
+      frame = measureHumanFaceAperture(basis, contact, rest.surfaces, motions!);
+      const gains = createHumanFaceClosureGain(
         basis,
         contact,
-        shaped,
-        referenced,
-        rest,
+        rest.surfaces,
         motions!,
+        frame.up,
       );
+      closureRatio = gains.ratio;
       const weight = state.weights.get(contact.closure.channel) ?? 0;
-      const gain = weight * frame.closureRatio;
       const endpoint = basis.channels.find(
         (channel) => channel.id === contact.closure.channel,
       )!.positive;
-      if (gain !== 0)
+      if (weight !== 0)
         basis.surfaces.forEach((surface, index) => {
           const rows = surface.targets[endpoint];
           if (rows === undefined) return;
           const positions = rest.surfaces[index];
-          for (let i = 0; i < rows.length; i += 4)
+          const lips = surface.id === contact.lips.surface;
+          for (let i = 0; i < rows.length; i += 4) {
+            const gain = weight * (lips ? gains.lips[rows[i]] : gains.ratio);
             for (let axis = 0; axis < 3; axis++)
               positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+          }
         });
     }
     const posed = new Map<string, number[]>();
@@ -151,7 +154,7 @@ export function createHumanFaceBasisPoseEvaluator(
         ),
       );
     });
-    return { posed, shaped, frame };
+    return { posed, shaped, frame, closureRatio };
   };
   return (state, shape) => {
     const fixed = (weight: number) => humanFaceBasisWeights(basis, {
@@ -161,9 +164,9 @@ export function createHumanFaceBasisPoseEvaluator(
         .map(channel => [channel.id, channel.id === contact!.closure.channel
           ? weight : state.weights.get(channel.id) ?? 0])),
     });
-    const native = poseNative(sourceSpan === undefined ? state : fixed(0), shape);
+    const native = poseNative(sourceSpan === undefined ? state : fixed(0));
     const posed = sourceSpan === undefined ? native.posed : applyHumanFaceSourceClosure(
-      sourceSpan, native.posed, poseNative(fixed(1), shape).posed,
+      sourceSpan, native.posed, poseNative(fixed(1)).posed,
       state.weights.get(contact!.closure.channel) ?? 0,
     );
     const shaped = native.shaped;
@@ -208,9 +211,14 @@ export function createHumanFaceBasisPoseEvaluator(
       summary = {
         interlabialMetres: frame!.lips.gap,
         interincisalMetres: frame!.incisors.gap,
-        closureRatio: frame!.closureRatio,
+        closureRatio: native.closureRatio,
         passage,
         resolved,
+        ...(contact.margin === undefined ? {} : {
+          marginInterlabialMetres: contact.margin.map(
+            (entry) => pair({ surface: contact.lips.surface, ...entry }).gap,
+          ),
+        }),
         ...(sourceSpan === undefined ? {} : {
           sourceNativeInterlabialMetres: authoredLips.gap,
         }),

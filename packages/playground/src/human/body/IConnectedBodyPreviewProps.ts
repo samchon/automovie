@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieHumanBodyAnatomicalDocument,
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
@@ -23,7 +22,6 @@ import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
 export interface IConnectedBodyPreviewProps<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
-    | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
 > {
   /** Start the resident worker port. */

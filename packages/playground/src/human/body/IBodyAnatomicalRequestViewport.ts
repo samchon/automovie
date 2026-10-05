@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyAnatomicalDocument";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 
 import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
 
@@ -18,7 +18,7 @@ export interface IBodyAnatomicalRequestViewport<
   Model extends IBodyAnatomicalRequestModel,
 > {
   /** Build one request into a frame. */
-  build: (document: IAutoMovieHumanBodyAnatomicalDocument) => Promise<Model>;
+  build: (document: IAutoMovieHumanBodyBasisDocument) => Promise<Model>;
 
   /** Show an admitted frame. */
   publish: (model: Model) => void;
@@ -30,7 +30,7 @@ export interface IBodyAnatomicalRequestViewport<
   cancel: () => void;
 
   /** Encode the request's candidate-only model as GLB bytes. */
-  export: (document: IAutoMovieHumanBodyAnatomicalDocument) => Promise<Uint8Array<ArrayBuffer>>;
+  export: (document: IAutoMovieHumanBodyBasisDocument) => Promise<Uint8Array<ArrayBuffer>>;
 
   /** Frame the subject in view. */
   fitView: () => void;

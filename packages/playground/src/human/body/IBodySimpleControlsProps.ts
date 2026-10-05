@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 
+import type { IBodySimpleBody } from "./IBodySimpleBody";
+
 /**
  * Inputs of `renderBodySimpleControls`: where the simple tier is drawn, its
  * off-thread solvers, the panel's intent hooks, and where its whole-person
@@ -20,7 +22,7 @@ export interface IBodySimpleControlsProps {
   expand: (simple: IAutoMovieHumanBodySimpleShape, over: Record<string, number>) => Promise<Record<string, number>>;
 
   /** The projection of a detailed shape, solved off the page's thread. */
-  project: (shape: Record<string, number>) => Promise<IAutoMovieHumanBodySimpleShape>;
+  project: (body: IBodySimpleBody) => Promise<IAutoMovieHumanBodySimpleShape>;
 
   /**
    * Where stature and mass are read: the whole person and the head it was
@@ -30,7 +32,7 @@ export interface IBodySimpleControlsProps {
   wholeSource: string;
 
   /** The current detailed shape the expansion applies over. */
-  current: () => Record<string, number>;
+  current: () => IBodySimpleBody;
 
   /** Reserve the panel's intent generation synchronously at Apply click. */
   reserveIntent: () => number;
@@ -52,4 +54,7 @@ export interface IBodySimpleControlsProps {
 
   /** Restore a ready status when a typed draft retires its in-flight solve. */
   onDraftChanged: () => void;
+
+  /** Name the simple tier as preparing until its first projection answers. */
+  onPreparing: (active: boolean) => void;
 }

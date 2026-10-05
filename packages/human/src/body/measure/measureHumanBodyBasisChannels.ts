@@ -4,13 +4,17 @@ import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHu
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import { createHumanBodyMeasurementReader } from "./createHumanBodyMeasurementReader";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
+import type { IAutoMovieHumanBodyChannelScaleOptions } from "../structures/IAutoMovieHumanBodyChannelScaleOptions";
+import { humanBodyChannelReading } from "./humanBodyChannelReading";
 import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
+import { orientHumanBodyMeasurement } from "./orientHumanBodyMeasurement";
 
 /**
  * Measure every channel's metric effect on an admitted body basis, in metres.
  *
  * The body editor calls this once per loaded basis for channels with a public
- * measurement rule; diagnostic callers may omit `measuredOnly` to inspect
+ * measurement rule, either their own or the rule and side the exterior target
+ * table binds a one-sided channel to (`humanBodyChannelReading`); diagnostic callers may omit `measuredOnly` to inspect
  * every legacy channel's geometric displacement. For an authored rule, the
  * result includes the shaped surface measurement at neutral and at each
  * endpoint's full weight. The editor uses these measured endpoints to state
@@ -45,7 +49,7 @@ import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
  */
 export function measureHumanBodyBasisChannels(
   basis: IAutoMovieHumanBodyBasis,
-  options: { measuredOnly?: boolean } = {},
+  options: IAutoMovieHumanBodyChannelScaleOptions = {},
 ): IAutoMovieHumanBodyChannelScale[] {
   const resident = basis.surfaces.reduce(
     (total, surface) => total + surface.positions.length / 3,
@@ -89,20 +93,28 @@ export function measureHumanBodyBasisChannels(
     .filter(
       (channel) =>
         options.measuredOnly !== true ||
-        humanBodyMeasurementRule(channel.id) !== undefined,
+        humanBodyChannelReading(channel.id) !== undefined,
     )
     .map((channel) => {
-      const rule = humanBodyMeasurementRule(channel.id);
+      const reading = humanBodyChannelReading(channel.id);
+      const authored = reading === undefined ? undefined : humanBodyMeasurementRule(reading.rule);
+      const rule =
+        reading === undefined || authored === undefined
+          ? undefined
+          : reading.side === undefined
+            ? authored
+            : orientHumanBodyMeasurement(reading.rule, authored, reading.side);
       return {
         id: channel.id,
         group: channel.group,
         positive: scale(channel.positive),
         negative: channel.negative === null ? null : scale(channel.negative),
         measurement:
-          rule === undefined
+          rule === undefined || reading === undefined
             ? null
             : {
-                id: channel.id,
+                id: reading.rule,
+                ...(reading.side === undefined ? {} : { side: reading.side }),
                 kind: rule.kind,
                 neutral: neutralRule(rule),
                 positive: evaluateRule(rule, { [channel.id]: channel.maximum }),

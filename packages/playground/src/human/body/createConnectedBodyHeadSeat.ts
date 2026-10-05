@@ -34,6 +34,8 @@ export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps):
     maxAnisotropy: 8,
   });
   let sequence = 0;
+  // the head view loads in its worker before the first head can be shown
+  let shown = false;
   return (model, body) => {
     const mine = ++sequence;
     if (model === null) {
@@ -41,6 +43,7 @@ export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps):
       props.status("Head hidden: the top of the neck still follows the default head's carried position.");
       return;
     }
+    if (!shown) props.preparing?.(true);
     // This runs after the panel has written this body's status, so a head
     // failure is appended to that line rather than overwritten by it.
     void worker
@@ -55,9 +58,12 @@ export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps):
         }
         props.viewport().companion.show(renderer.publish(frame));
         props.viewport().companion.place(new THREE.Matrix4());
+        shown = true;
+        props.preparing?.(false);
       })
       .catch((error: unknown) => {
         if (mine !== sequence) return;
+        props.preparing?.(false);
         props.status("Head unavailable: " + (error instanceof Error ? error.message : String(error)));
       });
   };

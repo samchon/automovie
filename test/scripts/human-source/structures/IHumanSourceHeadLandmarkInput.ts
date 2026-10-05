@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
+
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
 import type { IHumanSourceMirror } from "./IHumanSourceMirror.ts";
 
@@ -18,6 +20,8 @@ export interface IHumanSourceHeadLandmarkInput {
   /** Base-mesh faces, whose edges trace the midline profile. */
   faces: number[][];
 
+  /** The published face, whose lips, skin and contact the mouth rules read at rest. */
+  face: IAutoMovieHumanFaceBasis;
 
   /** Published face vertex to generation skin sample, for the head view index. */
   faceToG1: Int32Array;

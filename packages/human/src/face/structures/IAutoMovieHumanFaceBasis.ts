@@ -9,6 +9,7 @@ import type { IAutoMovieHumanFaceBasisCorrective } from "./IAutoMovieHumanFaceBa
 import type { IAutoMovieHumanFaceBasisLandmarks } from "./IAutoMovieHumanFaceBasisLandmarks";
 import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocular";
 
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
@@ -34,6 +35,13 @@ export interface IAutoMovieHumanFaceBasis {
    * or an observed eyelid margin.
    */
   opticalSupport?: IAutoMovieHumanFaceOpticalSupport[];
+
+  /**
+   * Optional producer-qualified periocular registration: the brows, lashes,
+   * globes, lid margins and canthi of each eye. Eye-region consumers read roles
+   * from it; without it they refuse by name rather than match asset names.
+   */
+  periocular?: IAutoMovieHumanFacePeriocular;
 
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
   channels: IAutoMovieHumanFaceBasisChannel[];
@@ -74,7 +82,7 @@ export interface IAutoMovieHumanFaceBasis {
   /**
    * Named points of the skin, each a vertex of one surface, for measurement
    * rules that read a drawn landmark. The person head rules
-   * (`HUMAN_PERSON_HEAD_MEASUREMENTS`) read `glabella`, `sellion`, `menton`
+   * (`HUMAN_HEAD_MEASUREMENTS`) read `glabella`, `sellion`, `menton`
    * and `tragion-right` on the head view. Rules name a point instead of
    * numbering a vertex, which belongs to one basis's topology; a rule naming
    * a point this basis does not declare refuses by that name. Omission
@@ -87,7 +95,7 @@ export interface IAutoMovieHumanFaceBasis {
    * measurement rules that keep a feature out of a search. The person head
    * rules keep `ear-right` and `ear-left` out of the head breadth's euryon
    * search and out of the head circumference's plane
-   * (`HUMAN_PERSON_HEAD_MEASUREMENTS`). Rules name an area instead of listing
+   * (`HUMAN_HEAD_MEASUREMENTS`). Rules name an area instead of listing
    * vertices, which belong to one basis's topology; a rule naming an area
    * this basis does not declare refuses by that name. Omission declares none.
    */

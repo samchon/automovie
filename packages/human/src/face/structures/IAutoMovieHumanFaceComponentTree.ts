@@ -43,6 +43,10 @@ export namespace IAutoMovieHumanFaceComponentTree {
     children: Node[];
   }
 
-  /** Appearance data that is authored outside the flat basis channels. */
-  export type DocumentField = "hair" | "iris" | "skin" | "materials";
+  /**
+   * Data authored outside the flat basis channels: appearance (hair, iris,
+   * skin, materials), independent shape inputs (eye optics, lash profiles) and
+   * the anatomical record of measurement targets and observations.
+   */
+  export type DocumentField = "hair" | "iris" | "skin" | "materials" | "eyes" | "lashes" | "anatomical";
 }

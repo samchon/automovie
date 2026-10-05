@@ -6,7 +6,6 @@
  */
 import {
   type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanBodyAnatomicalDocument,
   type IAutoMovieHumanPersonDocument,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
@@ -23,7 +22,6 @@ import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps";
 export function createConnectedBodyPreview<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
-    | IAutoMovieHumanBodyAnatomicalDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
 >(props: IConnectedBodyPreviewProps<Document>) {
   const serialize =
@@ -70,6 +68,8 @@ export function createConnectedBodyPreview<
         parts: result.model.parts.length,
         crossings: result.crossings,
         anatomy: result.anatomy,
+        femoralHeads: result.femoralHeads,
+        groundSupport: result.groundSupport,
         extras: result.extras,
         anatomicalRequest: result.anatomicalRequest,
         exteriorCandidate: result.exteriorCandidate,

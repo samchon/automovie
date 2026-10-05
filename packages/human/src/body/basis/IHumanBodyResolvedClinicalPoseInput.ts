@@ -2,7 +2,7 @@ import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovieHumanBodySkeletonRig";
 
 /**
  * Inputs of `readHumanBodyResolvedClinicalPose`.
@@ -29,7 +29,7 @@ import type { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  */
 export interface IHumanBodyResolvedClinicalPoseInput {
   /** Shaped rig of the pose: skeleton, rest frames and clinical axes. */
-  rig: ReturnType<typeof resolveHumanBodySkeleton>;
+  rig: IAutoMovieHumanBodySkeletonRig;
 
   /** Final resolved bones after the shoulder resolution and pelvis turn. */
   resolved: readonly IAutoMovieResolvedBone[];

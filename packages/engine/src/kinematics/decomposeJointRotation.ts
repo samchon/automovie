@@ -28,14 +28,17 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * reach a goal as quaternions, then lowers them back into the
  * flexion/abduction/twist a pose carries.
  *
- * The extraction diagonalises the fixed composition `q = qTwist · qAbduction ·
- * qFlexion`. Changing basis by `M = [flexAxis | abdAxis | twistAxis]` turns it
- * into the standard `Rz(twist)·Ry(abduction)·Rx(flexion)` sequence, whose
- * closed-form ZYX extraction is well known, computed here as dot products of
- * the axes with the rotated axes, so no matrix is built. Gimbal lock (abduction
- * ≈ ±90°, the arm straight up or down) collapses flexion into twist; the
- * extraction pins flexion to 0 and folds the freedom into twist, which still
- * reconstructs the same rotation.
+ * The extraction diagonalises the composition the axes declare
+ * ({@link IAutoMovieJointAxes.twistPlacement}). Changing basis by `M =
+ * [flexAxis | abdAxis | twistAxis]` turns a proximal twist's `q = qTwist ·
+ * qAbduction · qFlexion` into the standard `Rz(twist)·Ry(abduction)·Rx(flexion)`
+ * sequence (a ZYX extraction) and a distal twist's `q = qAbduction · qFlexion ·
+ * qTwist` into `Ry(abduction)·Rx(flexion)·Rz(twist)` (a YXZ extraction). Both
+ * closed forms are computed as dot products of the axes with the rotated axes,
+ * so no matrix is built. Gimbal lock collapses two angles into one: for a
+ * proximal twist at abduction ≈ ±90° the extraction pins flexion to 0, and for
+ * a distal twist at flexion ≈ ±90° it pins abduction to 0, folding the freedom
+ * into twist; either still reconstructs the same rotation.
  *
  * A **left-handed** axis triple (the default clinical basis is one: `flexAxis ×
  * abdAxis = −twistAxis`) would flip the twist sense; the extraction detects the
@@ -85,6 +88,24 @@ export const decomposeJointRotation = (
   const Rt = Quaternion.rotateVector(q, twistAxis);
 
   // Entries of R' = Mᵀ R M (M = [flex|abd|twist]): R'[i][j] = axisᵢ · (R axisⱼ).
+  if (basis.twistPlacement === "distal") {
+    // R = Ry(a)·Rx(f)·Rz(t): R12 = −sin f, R02 = sin a cos f, R22 = cos a cos f,
+    // R10 = cos f sin t, R11 = cos f cos t (row i: basis axis i, column j:
+    // basis axis j rotated)
+    const r12 = Vector3.dot(basis.abduction, Rt);
+    if (r12 < -0.999999 || r12 > 0.999999) {
+      // with abduction pinned to 0, R = Rx(±90°)·Rz(t): R00 = cos t, R01 = −sin t
+      const r00 = Vector3.dot(basis.flexion, Rf);
+      const r01 = Vector3.dot(basis.flexion, Ra);
+      return lift({ flexion: r12 < 0 ? 90 : -90, abduction: 0, twist: handed * Math.atan2(-r01, r00) * RAD2DEG });
+    }
+    return lift({
+      flexion: Math.asin(Math.max(-1, Math.min(1, -r12))) * RAD2DEG,
+      abduction: Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) * RAD2DEG,
+      twist: handed * Math.atan2(Vector3.dot(basis.abduction, Rf), Vector3.dot(basis.abduction, Ra)) * RAD2DEG,
+    });
+  }
+
   const m00 = Vector3.dot(basis.flexion, Rf);
   const m10 = Vector3.dot(basis.abduction, Rf);
   const m20 = Vector3.dot(twistAxis, Rf);

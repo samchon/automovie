@@ -80,7 +80,7 @@ def main():
     store.array("loop-vertex.i32", topology["loop_vertex"], "<i4")
     store.array("loop-uv.f64", topology["loop_uv"], "<f8")
     with open(os.path.join(output, "weights.json"), "w", encoding="utf-8", newline="\n") as file:
-        json.dump({"bones": topology["bones"], "attachments": topology["attachments"]}, file, separators=(",", ":"))
+        json.dump({"bones": topology["bones"], "attachments": topology["attachments"], "rays": topology["rays"]}, file, separators=(",", ":"))
 
     def sample():
         skin = session.sample_skin() - neutral

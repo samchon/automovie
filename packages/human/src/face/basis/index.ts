@@ -24,3 +24,5 @@ export * from "./replayHumanFaceSourceRefinements";
 export * from "./applyHumanFaceSourceClosure";
 export * from "./summarizeHumanFaceArticulation";
 export * from "./unposeHumanFaceSurface";
+export * from "./IHumanFaceApertureFrame";
+export * from "./IHumanFaceAperturePair";

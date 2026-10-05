@@ -1,5 +1,7 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyToePose } from "./IAutoMovieHumanBodyToePose";
 import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanBodyThighGoal } from "./IAutoMovieHumanBodyThighGoal";
 import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
@@ -38,6 +40,17 @@ export interface IAutoMovieHumanBodyBasisDocument {
   shape: Record<string, number>;
 
   /**
+   * Optional named anatomical measurements, the only saved place of each
+   * anatomical value. Before shaping, the builder solves every path that
+   * `HUMAN_BODY_EXTERIOR_TARGETS` binds along its channel over `shape`
+   * (`resolveHumanBodyAnatomy`), so the measurement holds however the other
+   * weights change. Admission (`admitHumanBodyDocumentAnatomy`) refuses an
+   * observed value, a bound channel also authored in `shape`, a gap path and
+   * a path with no consumer, rather than keeping an unfulfilled value.
+   */
+  anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements;
+
+  /**
    * Optional measured spherical humeral-head radii in millimetres. These
    * named articular dimensions override the adult CT population prior on
    * their respective sides. Omission permits that prior only within its
@@ -72,6 +85,13 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * ground/contact support are not supplied by these source-rig goals.
    */
   thighGoals?: IAutoMovieHumanBodyThighGoal[];
+
+  /**
+   * Optional toe ray phalanx poses relative to the bone each hangs from,
+   * applied on top of the humanoid toes bone's pose; only on a basis that
+   * declares `toeRays`. Ranges are `HUMAN_BODY_TOE_RANGE` (a convention).
+   */
+  toes?: IAutoMovieHumanBodyToePose[];
 
   /**
    * Optional skin colour by anatomical site: the cheek albedo the face wears,

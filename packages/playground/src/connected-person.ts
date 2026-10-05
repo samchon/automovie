@@ -7,6 +7,7 @@
  * in the workers through the product person runtime.
  */
 import {
+  type AutoMovieHumanFaceMeasurementReading,
   type IAutoMovieHumanPersonBodyView,
   type IAutoMovieHumanPersonDocument,
   type IAutoMovieHumanPersonHeadView,
@@ -22,6 +23,8 @@ import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
+import type { IConnectedPersonFaceSolution } from "./human/person/IConnectedPersonFaceSolution";
+import type { IConnectedPersonHeadSolution } from "./human/person/IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
 import { mountConnectedPersonPanel } from "./human/person/connectedPersonPanel";
 import { connectedPersonExpressionPresets } from "./human/person/connectedPersonExpressionPresets";
@@ -65,6 +68,19 @@ async function main(): Promise<void> {
         document: serializeHumanPersonDocument(person),
         channel,
         targetMetres,
+      }),
+    readPersonHead: (person) =>
+      ask<Record<string, number>>({ kind: "readPersonHead", document: serializeHumanPersonDocument(person) }),
+    solvePersonHead: (person, targets) =>
+      ask<IConnectedPersonHeadSolution>({ kind: "solvePersonHead", document: serializeHumanPersonDocument(person), targets }),
+    readFaceMeasurements: (person) =>
+      ask<AutoMovieHumanFaceMeasurementReading[]>({ kind: "readFaceMeasurements", document: serializeHumanPersonDocument(person) }),
+    solveFaceMeasurement: (person, measurement, target) =>
+      ask<IConnectedPersonFaceSolution>({
+        kind: "solveFaceMeasurement",
+        document: serializeHumanPersonDocument(person),
+        measurement,
+        target,
       }),
     download: downloadConnectedFile,
   });

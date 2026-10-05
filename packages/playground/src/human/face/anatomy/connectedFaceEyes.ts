@@ -16,10 +16,10 @@ export const connectedFaceEyes: IAutoMovieHumanFaceComponentTree.Node = {
   id: "orbits",
   label: "Eyes and orbits",
   description:
-    "Paired optical organs with shared skin lids and separate fibre meshes.",
+    "Paired optical organs with shared skin lids and separate fibre meshes. Independent optical dimensions need the basis's optical support and are otherwise refused by name.",
   channels: [],
   surfaces: ["Human.low-poly"],
-  documentFields: ["iris"],
+  documentFields: ["iris", "eyes"],
   children: [
     {
       id: "brows",
@@ -112,10 +112,10 @@ export const connectedFaceEyes: IAutoMovieHumanFaceComponentTree.Node = {
     {
       id: "lashes",
       label: "Eyelashes",
-      description: "One fibre mesh attached to both eyelid margins.",
+      description: "One fibre mesh attached to both eyelid margins. Independent upper and lower lash profiles need the basis's periocular registration and are otherwise refused by name.",
       channels: [],
       surfaces: ["Human.eyelashes01"],
-      documentFields: [],
+      documentFields: ["lashes"],
       children: [],
     },
   ],

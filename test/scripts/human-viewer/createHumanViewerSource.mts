@@ -42,6 +42,8 @@ export function createHumanViewerSource(directory: string) {
     ),
   };
   /** The published one-skin person generation views, read off the request path. */
+  /** The source owner's subject people on the published generation. */
+  const subjectPeopleFile = path.join(root, "test/studies/human-person/subjects.json");
   const generationFiles: IHumanViewerGenerationFiles = {
     head: path.join(root, "test/studies/human-person/generation/head.json.gz"),
     body: path.join(root, "test/studies/human-person/generation/body.json.gz"),
@@ -143,6 +145,7 @@ export function createHumanViewerSource(directory: string) {
     readHumanViewerCatalogue({
       basisFiles,
       documentsFile,
+      subjectPeopleFile,
       inputsDirectory,
       inputsMemo,
       faceMemo,
@@ -152,7 +155,7 @@ export function createHumanViewerSource(directory: string) {
       generation,
       admission,
     });
-  return { root, storage, basisFiles, generationFiles, documentsFile, inputsDirectory, slash,
+  return { root, storage, basisFiles, generationFiles, documentsFile, subjectPeopleFile, inputsDirectory, slash,
     revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); },
     /** Register the host's republication for sidecars whose facts became known. */
     sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; },

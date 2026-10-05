@@ -48,6 +48,7 @@ import {
 
 import { denseRows, sparseRows } from "./articulatedResiduals";
 import type { IContactBasisInput } from "./IContactBasisInput";
+import { findLipMarginPairs } from "./findLipMarginPairs";
 import { findSeamPair } from "./findSeamPair";
 import { roundedMillimetres } from "./roundedMillimetres";
 import { sealCrownRings } from "./sealCrownRings";
@@ -98,6 +99,12 @@ export function prepareContactBasis(input: IContactBasisInput) {
     axis: jaw.axis,
     pivot,
     bandMetres: input.midlineBandMetres,
+  });
+  const margin = findLipMarginPairs({
+    surface: lipSurface,
+    region: lipRegion.indices,
+    axis: jaw.axis,
+    stationMetres: input.marginStationMetres,
   });
   const incisorSurface = surface(input.incisors.surface);
   const incisors = findSeamPair({
@@ -221,6 +228,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
     budgets: Map<string, number>,
   ): NonNullable<IAutoMovieHumanFaceBasis["contact"]> => ({
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
+    margin: margin.pairs,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -246,12 +254,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const openingFrame = measureHumanFaceAperture(
     basis,
     contactWith(new Map(input.soft.map((entry) => [entry.surface, 1]))),
-    neutral,
-    evaluateHumanFaceRest(basis, {
-      weights: new Map([[referenceChannel.id, 1]]),
-      activations: [],
-    }),
-    neutral,
+    neutral.surfaces,
     resolveHumanFaceArticulation(
       basis.articulation,
       new Map(),
@@ -339,6 +342,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   }));
   basis.contact = {
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
+    margin: margin.pairs,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -381,9 +385,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const apertures = measureHumanFaceAperture(
     basis,
     basis.contact,
-    neutral,
-    referenced,
-    neutral,
+    neutral.surfaces,
     resolveHumanFaceArticulation(
       basis.articulation,
       new Map(),
@@ -393,9 +395,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const reference = measureHumanFaceAperture(
     basis,
     basis.contact,
-    neutral,
-    referenced,
-    referenced,
+    referenced.surfaces,
     referenceMotions,
   );
   return {
@@ -408,6 +408,11 @@ export function prepareContactBasis(input: IContactBasisInput) {
       lips: { ...lips, gapMm: roundedMillimetres(lips.gapMetres) },
       incisors: { ...incisors, gapMm: roundedMillimetres(incisors.gapMetres) },
       midlineBandMm: roundedMillimetres(input.midlineBandMetres),
+      margin: {
+        stationMm: roundedMillimetres(input.marginStationMetres),
+        commissureLimitMm: roundedMillimetres(margin.limitMetres),
+        pairs: margin.pairs,
+      },
       colliders: colliders.map((collider) => ({
         surface: collider.surface,
         sealedRings: collider.sealedRings.length,

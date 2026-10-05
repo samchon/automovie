@@ -1,3 +1,4 @@
+import type { AutoMovieHumanFaceMeasurementReading } from "./AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceContactSummary } from "./IAutoMovieHumanFaceContactSummary";
 import type { IAutoMovieHumanFaceOcclusionOptions } from "./IAutoMovieHumanFaceOcclusionOptions";
 
@@ -63,6 +64,27 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#parametric-authority observeHairParts does not shape a person.
    */
   observeHairParts?: (ids: readonly string[]) => void;
+
+  /**
+   * Receive every registered face measurement read on each admitted model's
+   * final surface, with the document's target beside each, including the
+   * constructor's neutral check. Failed admission publishes nothing.
+   *
+   * @evidence contracts/common.md#principled-implementation The readings are taken on the same final surface the admitted model carries.
+   * @evidence contracts/common.md#clear-and-simple-design One read-only callback per observed result.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts observeMeasurements receives fresh records and cannot change admission or the emitted model.
+   * @evidence contracts/common.md#meaningful-documentation States when observeMeasurements fires and what it receives.
+   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping observeMeasurements is a callback and defines no part.
+   * @evidenceExclude contracts/modeling.md#parameter-channels observeMeasurements is not a shaping channel.
+   * @evidenceExclude contracts/modeling.md#emitted-geometry observeMeasurements emits no geometry; the builder does.
+   * @evidenceExclude contracts/modeling.md#spatial-conventions Each reading states its own unit.
+   * @evidenceExclude contracts/modeling.md#shared-boundaries observeMeasurements builds no boundary.
+   * @evidenceExclude contracts/modeling.md#rendered-observation The face builder owns observation of the emitted model; observeMeasurements only reports it.
+   * @evidenceExclude contracts/anatomy.md#anatomical-source Each registered measurement states its protocol.
+   * @evidenceExclude contracts/anatomy.md#permitted-range observeMeasurements admits no anatomical value.
+   * @evidenceExclude contracts/anatomy.md#parametric-authority observeMeasurements does not shape a person.
+   */
+  observeMeasurements?: (readings: AutoMovieHumanFaceMeasurementReading[]) => void;
 
   /** Ambient-occlusion sampling; omission bakes no occlusion texture. */
   occlusion?: IAutoMovieHumanFaceOcclusionOptions;

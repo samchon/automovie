@@ -19,7 +19,7 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
   // exist yet, and their creation must reread the catalogue too.
   const generationDirectory = path.dirname(source.generationFiles.head);
   props.add([source.inputsDirectory, ...source.watched, generationDirectory,
-    ...Object.values(source.basisFiles), source.documentsFile]);
+    ...Object.values(source.basisFiles), source.documentsFile, source.subjectPeopleFile]);
   const changes = new Set<string>();
   let cancel: (() => void) | undefined;
   /** Batches whose digests are being computed. */
@@ -48,7 +48,7 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
   props.watch((_event, input) => {
     const file = path.resolve(input);
     if (file.startsWith(source.inputsDirectory + path.sep) ||
-        Object.values(source.generationFiles).includes(file)) {
+        Object.values(source.generationFiles).includes(file) || file === source.subjectPeopleFile) {
       try {
         props.inputs();
       } catch (error) {
