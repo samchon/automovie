@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanSkinLandmark, IAutoMovieHumanSkinRegion } from "@automovie/human";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
@@ -18,4 +19,10 @@ export interface IHumanSourceP1Input {
   cut: IHumanSourceCut;
   topology: IHumanSourceTopology;
   bodyRows: IHumanSourceBodyReproduction;
+
+  /** Skin landmarks of the face skin surface (the head view's surface 0). */
+  headLandmarks: Record<string, IAutoMovieHumanSkinLandmark>;
+
+  /** Skin regions of the face skin surface (the head view's surface 0). */
+  headRegions: Record<string, IAutoMovieHumanSkinRegion>;
 }

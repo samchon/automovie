@@ -1,7 +1,12 @@
 import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanFaceBasisArticulation } from "./IAutoMovieHumanFaceBasisArticulation";
+import type { IAutoMovieHumanFaceBasisChannel } from "./IAutoMovieHumanFaceBasisChannel";
 import type { IAutoMovieHumanFaceBasisContact } from "./IAutoMovieHumanFaceBasisContact";
+import type { IAutoMovieHumanFaceBasisCorrective } from "./IAutoMovieHumanFaceBasisCorrective";
+import type { IAutoMovieHumanFaceBasisLandmarks } from "./IAutoMovieHumanFaceBasisLandmarks";
 import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
 
@@ -31,31 +36,7 @@ export interface IAutoMovieHumanFaceBasis {
   opticalSupport?: IAutoMovieHumanFaceOpticalSupport[];
 
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
-  channels: {
-    /** Anatomical or performance name unique within this basis. */
-    id: string;
-
-    /** Optional authored sign/shape meaning; it does not certify a biological range. */
-    description?: string;
-
-    /** Identity edits and transient performance remain separate in saved documents. */
-    kind: "shape" | "expression";
-
-    /**
-     * Finite source-authoring envelope, including zero; weights are refused
-     * rather than clamped. This bounds interpolation of authored endpoints,
-     * not population anatomy. A measured parameter needs a landmark mapping
-     * and population-appropriate norms before such a claim is possible.
-     */
-    minimum: number;
-    maximum: number;
-
-    /** Endpoint applied with abs(weight) on the positive side. */
-    positive: string;
-
-    /** Negative-side endpoint, or null for a nonnegative control. */
-    negative: string | null;
-  }[];
+  channels: IAutoMovieHumanFaceBasisChannel[];
 
   /**
    * Combination correctives, evaluated after the channels that drive them.
@@ -88,47 +69,7 @@ export interface IAutoMovieHumanFaceBasis {
    * linear prior is. Nothing here infers a corrective; the endpoint it applies
    * has to be authored like any other.
    */
-  correctives?: {
-    /** Name unique within this basis, distinct from every channel id. */
-    id: string;
-
-    /**
-     * The driving sides. Each names a channel and which of its two endpoints
-     * this corrective answers for, because a signed channel reaches two
-     * different faces and a combination of one is not a combination of the
-     * other.
-     */
-    inputs: {
-      channel: string;
-      side: "positive" | "negative";
-
-      /**
-       * The driver weight this input is fully present at, in (0,1]; omitted
-       * is 1. Below it the factor rises linearly from zero at `between[0]`;
-       * above it, when the peak is under one, it falls linearly to zero at
-       * `between[1]`, so an in-between corrective is absent from the full
-       * pose it was not solved for.
-       */
-      peak?: number;
-
-      /**
-       * The driver weights on either side of the peak at which this input
-       * fades to nothing, `[below, above]` with `below < peak <= above`;
-       * omitted is `[0, 1]`. Two in-betweens on one driver whose tents both
-       * span the whole envelope fire into each other's poses, and a tongue
-       * solved at three quarters was measured to re-cross at a half that had
-       * been clear; naming the neighbouring peaks as the span is what makes
-       * each in-between whole at its own weight and absent at its neighbours'.
-       */
-      between?: [number, number];
-    }[];
-
-    /** Authored gain in (0,1]; the product of a rig row's authored weights. */
-    weight: number;
-
-    /** Endpoint name, resolved in each surface's targets like any other. */
-    target: string;
-  }[];
+  correctives?: IAutoMovieHumanFaceBasisCorrective[];
 
   /**
    * Named points of the skin, each a vertex of one surface, for measurement
@@ -140,6 +81,16 @@ export interface IAutoMovieHumanFaceBasis {
   skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
 
   /**
+   * Named areas of the skin, each a set of vertices of one surface, for
+   * measurement rules that keep a feature out of a search (`ear-right` and `ear-left`, kept out of the euryon search for head
+   * breadth).
+   * Rules name an area instead of listing vertices, which belong to one
+   * basis's topology; a rule naming an area this basis does not declare
+   * refuses by that name. Omission declares none.
+   */
+  skinRegions?: Record<string, IAutoMovieHumanSkinRegion>;
+
+  /**
    * Named points that move with the shape and define the joints: the
    * centroids of the source's joint cubes, in the head frame. Their endpoint
    * rows use the same sparse `[landmark, dx, dy, dz]` format as a surface,
@@ -149,15 +100,7 @@ export interface IAutoMovieHumanFaceBasis {
    * position is identity, its motion is articulation. Required whenever
    * `articulation` is declared.
    */
-  landmarks?: {
-    ids: string[];
-
-    /** Flat XYZ per landmark, in the basis frame. */
-    positions: number[];
-
-    /** Sparse rows per endpoint name, strictly increasing by landmark. */
-    targets: Record<string, number[]>;
-  };
+  landmarks?: IAutoMovieHumanFaceBasisLandmarks;
 
   /**
    * The articulated performance the basis evaluates before tissue detail:
@@ -198,62 +141,7 @@ export interface IAutoMovieHumanFaceBasis {
    * whatever the source authored in the residual rows. Omission of the whole
    * field keeps a purely linear basis.
    */
-  articulation?: {
-    jaw: {
-      /** Landmark id of the source jaw pivot. */
-      pivot: string;
-
-      /** Metre offset from that landmark to the condylar axis point. */
-      axisOffset: [number, number, number];
-
-      /** Unit rotation axis; a positive angle opens the mouth. */
-      axis: [number, number, number];
-
-      opening: {
-        channel: string;
-        /** Rotation at weight one, in degrees. */
-        degrees: number;
-        /** Mandibular translation at weight one, in metres, coupled linearly with the angle. */
-        translation: [number, number, number];
-      };
-
-      protrusion: {
-        channel: string;
-        /** Mandibular translation at weight one, in metres. */
-        translation: [number, number, number];
-      };
-
-      laterotrusion: {
-        left: { channel: string; translation: [number, number, number] };
-        right: { channel: string; translation: [number, number, number] };
-      };
-
-      /** Supported magnitude of the summed opening and protrusion translation, in metres. */
-      translationLimitMetres: number;
-    };
-
-    eyes: {
-      /** Attachment owner name, `leftEye` or `rightEye`. */
-      id: string;
-
-      /** Landmark id of the globe's rotation centre. */
-      center: string;
-
-      /**
-       * Gaze channels; each rotates about `axis` by `degrees * weight` and
-       * translates the globe by `translation * weight`, the small eccentric
-       * shift the source authored with its lids (the ocular literature
-       * reports a varying, eccentric centre of rotation; the preparation
-       * records each channel's figure and bounds it).
-       */
-      gaze: {
-        channel: string;
-        axis: [number, number, number];
-        degrees: number;
-        translation: [number, number, number];
-      }[];
-    }[];
-  };
+  articulation?: IAutoMovieHumanFaceBasisArticulation;
 
   /**
    * The coupled oral contact the basis evaluates after articulation: lip

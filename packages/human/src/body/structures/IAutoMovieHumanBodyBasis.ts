@@ -8,6 +8,7 @@ import type { IAutoMovieHumanBodyBasisChannel } from "./shape/IAutoMovieHumanBod
 import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHumanBodyBasisCorrective";
 import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
 import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
 
 /**
  * An immutable, externally authored connected body below the neck, with the
@@ -89,6 +90,16 @@ export interface IAutoMovieHumanBodyBasis {
    * declare refuses by that name. Omission declares none.
    */
   skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
+
+  /**
+   * Named areas of the skin, each a set of vertices of one surface, for
+   * measurement rules that keep a feature out of a search (none on the
+   * shipped body yet).
+   * Rules name an area instead of listing vertices, which belong to one
+   * basis's topology; a rule naming an area this basis does not declare
+   * refuses by that name. Omission declares none.
+   */
+  skinRegions?: Record<string, IAutoMovieHumanSkinRegion>;
 
   /**
    * The skeleton as data: one entry per humanoid slot the body carries, in an

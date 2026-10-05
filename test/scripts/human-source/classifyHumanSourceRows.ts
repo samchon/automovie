@@ -1,9 +1,7 @@
 import { humanSourcePositionTolerance } from "./humanSourcePositionTolerance.ts";
+import { humanSourceWeightTolerance } from "./humanSourceWeightTolerance.ts";
 import type { IHumanSourceClassification } from "./structures/IHumanSourceClassification.ts";
 import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceReproductionRow.ts";
-
-/** One storage unit of weights stored at seven decimals. */
-const WEIGHT_TOLERANCE = 1e-7;
 
 /**
  * Decide each row's provenance from its measured regeneration error. A row is
@@ -20,7 +18,7 @@ export function classifyHumanSourceRows(rows: readonly IHumanSourceReproductionR
       out.push(row);
       continue;
     }
-    const tolerance = row.role === "weights" || row.role === "attachment" ? WEIGHT_TOLERANCE : humanSourcePositionTolerance;
+    const tolerance = row.role === "weights" || row.role === "attachment" ? humanSourceWeightTolerance : humanSourcePositionTolerance;
     if (row.regeneration.maximumMetres <= tolerance) {
       out.push(row);
       continue;

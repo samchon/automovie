@@ -1,5 +1,5 @@
 {
- "generation": "fe6dc740937b15d9ec12db377858ef7dc78ddb2bfe3b83f4ef5a29ac88f40284",
+ "generation": "2ff29d505c62083ce2a84b5471818ca43ec6156d0d7ed1a2bfae94903a6a6811",
  "upstream": [
   {
    "name": "mpfb2",
@@ -65,10 +65,31 @@
  "inputs": [
   {
    "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_HEAD_LANDMARK_TEXTS.ts",
+   "revision": null,
+   "bytes": 2639,
+   "sha256": "c0981fa94d96483c08e7c41613e77de95b509e3cf70e5d7c18dc0ff57e963466"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_READ_LANDMARKS.ts",
+   "revision": null,
+   "bytes": 1151,
+   "sha256": "407359fff70bbdebe6a934e18a7164c3d2499cf11177f44e9b6d40f1af116987"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_READ_REGIONS.ts",
+   "revision": null,
+   "bytes": 1549,
+   "sha256": "dd8ce15702ab6b55ee35f14b3c37fd1b2f5e45ea21118515b93ec319153dfafb"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/HUMAN_SOURCE_REPORTED_ENDPOINTS.ts",
    "revision": null,
-   "bytes": 315,
-   "sha256": "e23b6ea468b9cf0f494e4c623b052ca8abb4f7648369872c807489856c7758fa"
+   "bytes": 284,
+   "sha256": "48187600ba06606002f4bcd3db70935402a5cacebab7ad4e28599006b3b87987"
   },
   {
    "role": "producer",
@@ -76,6 +97,13 @@
    "revision": null,
    "bytes": 942,
    "sha256": "aab03cbdfe89b96ff3c1d41ed52e6ced296895928c40da17acba325ae63b5a96"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/addressHumanSourceRegion.ts",
+   "revision": null,
+   "bytes": 1216,
+   "sha256": "72516cdd221dfe6cb077d797899cb1ed6eace03e946e876c4fef5ba6e1ca9bc2"
   },
   {
    "role": "producer",
@@ -109,8 +137,15 @@
    "role": "producer",
    "path": "test/scripts/human-source/assembleHumanSourceP1.ts",
    "revision": null,
-   "bytes": 4103,
-   "sha256": "07f541b82d7a5757e012a47484b15ee6dd2e5ac3fc0d5fe30b7d80362f7991ef"
+   "bytes": 4320,
+   "sha256": "fa5ba718251b6b9bf15f3baf7b5ecfe367758f4c282cc8910ed636ce5193bc0f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/assertHumanSourceMirroredFill.ts",
+   "revision": null,
+   "bytes": 739,
+   "sha256": "038aa323d78b39288d920740fe0ef4a9e3fb7b5ba9fa093b73b86758b819a5bb"
   },
   {
    "role": "producer",
@@ -151,8 +186,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/classifyHumanSourceRows.ts",
    "revision": null,
-   "bytes": 2020,
-   "sha256": "f8c664e71a4dd90e78e98d9c4d3b37122bddc70db43ee6f7c00a1ba998565810"
+   "bytes": 2015,
+   "sha256": "161f28a3091193c22ad48e3681c01925c7d97cb0c56e85bb15526e05605d3097"
   },
   {
    "role": "producer",
@@ -179,15 +214,15 @@
    "role": "producer",
    "path": "test/scripts/human-source/compile-source-generation.ts",
    "revision": null,
-   "bytes": 964,
-   "sha256": "d34615565741d5c157ea68f0db9d1312db73b7878f7d5654e5db25c3e2c57f91"
+   "bytes": 961,
+   "sha256": "43898cf62a03c12f346ed95a1d3b3b7da33b391d21c770b03ed25abee6e67220"
   },
   {
    "role": "producer",
    "path": "test/scripts/human-source/compileHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 14564,
-   "sha256": "96d702e239235ef71b1783e6f47f8ba35de9449ee7ab87400ad2506248c7e413"
+   "bytes": 15739,
+   "sha256": "e924dffa298d22781c1c53937f9b92c49b3e67153bc2f60383259a565780b4a8"
   },
   {
    "role": "producer",
@@ -249,8 +284,22 @@
    "role": "producer",
    "path": "test/scripts/human-source/defineHumanSourceBand.ts",
    "revision": null,
-   "bytes": 8417,
-   "sha256": "4bfa9ef9d8dc22671800b1c8c5d91db9185abd07f89722db99d3066347c35a60"
+   "bytes": 8419,
+   "sha256": "98a9d91c16eba1630675d6c40be95aaf51a3c31efe4306894b9ab2d23fb78055"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceHeadLandmarks.ts",
+   "revision": null,
+   "bytes": 3944,
+   "sha256": "355522cb94ae7d538ac5cd415bc65cf4ae69cb50204dcdde3c9be3d3e83910fa"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceHeadRegions.ts",
+   "revision": null,
+   "bytes": 2778,
+   "sha256": "0ebd12410e336f064b1c10f742a882a91f971f81a052a4b178daa9cc7ec7d471"
   },
   {
    "role": "producer",
@@ -263,8 +312,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/defineHumanSourceSkinLandmarks.ts",
    "revision": null,
-   "bytes": 2416,
-   "sha256": "c1b713d6d8051bdfc98f9873cd786a08ff42564bbe3e1bea080ee6f29164a50a"
+   "bytes": 2348,
+   "sha256": "67bf6305d2463523cfa506c3b109d5bad091e6b69b14c62a062efed0f585f4e0"
   },
   {
    "role": "producer",
@@ -272,6 +321,13 @@
    "revision": null,
    "bytes": 631,
    "sha256": "3a002ec0fb8852e482f176ef6086015d9e708a37156506acb51968c54d42faa4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/fillHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 2518,
+   "sha256": "9650e9dbcefef3ff1aeb842d437b7660f517f5f3ae0528071f4d6a1347028f0a"
   },
   {
    "role": "producer",
@@ -286,6 +342,20 @@
    "revision": null,
    "bytes": 288,
    "sha256": "51f3a796efc535ad4b6ef61fe8c632e27f815fa22fc02dc4db0ec48f1fe4572c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/humanSourceWeightTolerance.ts",
+   "revision": null,
+   "bytes": 335,
+   "sha256": "784cc2508d931ccf26cd247ea5a48898b2ec750e08736e47d01de09b4afbf05d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mapHumanSourceSampleFaces.ts",
+   "revision": null,
+   "bytes": 2489,
+   "sha256": "0088f893ddcda03d892b0cce7e5557e373f0a4baa32f2d9fd118e028e1b893de"
   },
   {
    "role": "producer",
@@ -321,6 +391,20 @@
    "revision": null,
    "bytes": 1074,
    "sha256": "08c3a552874a538581f91231042aac3d9d2874a61a75981a25cb619f52d01cb9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mirrorHumanSourceLandmark.ts",
+   "revision": null,
+   "bytes": 939,
+   "sha256": "c9bae5d0f94be8e17100818c51fa7784bd16f6aeb16078e487ea1c4f8a728102"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mirrorHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 634,
+   "sha256": "37ce621b5dbe2c4e7dca342f4e8c56729ecc4f7ac9ca0854f323cb691abff013"
   },
   {
    "role": "producer",
@@ -373,6 +457,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/pickHumanSourceExtremum.ts",
+   "revision": null,
+   "bytes": 1349,
+   "sha256": "2c5cb853216539b87ff9af893765ce43ed9ea8546bdeab01a5074d6a4dc78713"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/prepare-mpfb-profile.py",
    "revision": null,
    "bytes": 6706,
@@ -387,6 +478,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceBaseFaces.ts",
+   "revision": null,
+   "bytes": 625,
+   "sha256": "234844a30d3e0d436ea007e4e705ee28b194c36f61a681b42897ac44b5259682"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/readHumanSourceInput.ts",
    "revision": null,
    "bytes": 1457,
@@ -398,6 +496,13 @@
    "revision": null,
    "bytes": 516,
    "sha256": "572a56b83c90bb153a4e527d3dc160c2cc2e82f28d7645f3cdd1f32a58235ee5"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceMirror.ts",
+   "revision": null,
+   "bytes": 1213,
+   "sha256": "c7b5089099f75efab4f4993106e703f0c52b803cd4da4d186145b7cd6ae0755e"
   },
   {
    "role": "producer",
@@ -417,8 +522,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/regenerate-source-generation.ts",
    "revision": null,
-   "bytes": 2888,
-   "sha256": "944c2b420cb8eceb7def24d433a48e2c1d4adc6caf010114f79865b2ba90331e"
+   "bytes": 2885,
+   "sha256": "2c96d44b337ed1b7deddb06fb62980482418965c1ee7b8df093c453f6e9b1721"
   },
   {
    "role": "producer",
@@ -459,8 +564,43 @@
    "role": "producer",
    "path": "test/scripts/human-source/sample-mpfb-generation.py",
    "revision": null,
-   "bytes": 8969,
-   "sha256": "a30bd9012b6cd0a69c8fd1509dde5f3dc3fe6481577a42b56c93402b233daa12"
+   "bytes": 8965,
+   "sha256": "2bfbc26211e45f38812bad787e754f02cdf6bcfbcfd67de7a00133d1ec2e2a43"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceGlabella.ts",
+   "revision": null,
+   "bytes": 1263,
+   "sha256": "68ec9ebdbe45136253dd0fa9c565dcda64f1b82910d1ee16fcca6992b5fe087c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceMenton.ts",
+   "revision": null,
+   "bytes": 1371,
+   "sha256": "8c17e805b7fe1bcfd4268ae341a05660471fb258c6cecf25e431fe6ee4a987c9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourcePronasale.ts",
+   "revision": null,
+   "bytes": 650,
+   "sha256": "f08eee83bbf47fcba127ed55c94a427e33e3c23fb7278c22fbf499fcbbeacf66"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceReadLandmark.ts",
+   "revision": null,
+   "bytes": 976,
+   "sha256": "004a7c13ccc6d8d9f1ab92846b801e3089b7791abda2158e31c91f682a1f2fa2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceSellion.ts",
+   "revision": null,
+   "bytes": 896,
+   "sha256": "fbb36413817dba235d074e01b37142a2be9547731b8998264c1563b0e412e4ff"
   },
   {
    "role": "producer",
@@ -669,8 +809,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 4438,
-   "sha256": "f771da432fe42873d1a0a97e4a3877904b5e08e138e5a96dc53855b3acd4dc25"
+   "bytes": 4441,
+   "sha256": "448881f88956f39673d8b07017f1c83933333c46d90707d19ced39e032b87a9e"
   },
   {
    "role": "producer",
@@ -800,6 +940,69 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmark.ts",
+   "revision": null,
+   "bytes": 1312,
+   "sha256": "f228bf58a5bbe127c4e339f39ee74ab9bc776b410ad76cec6490df0bc5a9c095"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarkInput.ts",
+   "revision": null,
+   "bytes": 806,
+   "sha256": "8c2e189e2d5787977e79b1e7679a79b0fef024b2386dde0e889959a205bc6442"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarkText.ts",
+   "revision": null,
+   "bytes": 587,
+   "sha256": "68ab753461223246aad60b937e2fe921da2407a7d7d4d16e34b9ab81919caa24"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarks.ts",
+   "revision": null,
+   "bytes": 527,
+   "sha256": "4af846de38ed7784e6dd6ce820ebe3554d2f7be9b02bd2ee47cb2efc15a7505b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegion.ts",
+   "revision": null,
+   "bytes": 1095,
+   "sha256": "7ebf0128409155611165c2007972802a010b6b5567ae4a6fb9018a8964362d18"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegionInput.ts",
+   "revision": null,
+   "bytes": 636,
+   "sha256": "75f22a6c9872821d95e2944634ba82ca5d3d2ee58e1a0725a1f1d8b0768f6078"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegions.ts",
+   "revision": null,
+   "bytes": 513,
+   "sha256": "fe0cb65d88c3d1f5469fc6d8801fcb7d6a82cbc226b2fdd1c76bc70549d0f0cd"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLandmarkCandidate.ts",
+   "revision": null,
+   "bytes": 429,
+   "sha256": "3eab1acd110bef7a162021ae7f04c5c5b9ad2fd096a1d8afbc29b05c68c6b16d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLandmarkPick.ts",
+   "revision": null,
+   "bytes": 436,
+   "sha256": "14d305eb6504dd33a964d2e20d91d3e91a26d8a7a1bee555a0f4c4d459187b14"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceLoss.ts",
    "revision": null,
    "bytes": 662,
@@ -821,6 +1024,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMirror.ts",
+   "revision": null,
+   "bytes": 399,
+   "sha256": "0553f1ab23dd5fd981cbfa746d948e54dac0dfc20f6c659ea689c578c2ec77a6"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceP1.ts",
    "revision": null,
    "bytes": 621,
@@ -830,8 +1040,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceP1Input.ts",
    "revision": null,
-   "bytes": 871,
-   "sha256": "6365516617eacef99e425e4fb0e734b03c80fd5d0a4f0b90b0c1edcd5c2bf7b8"
+   "bytes": 1243,
+   "sha256": "2aa4fe88191bd39f866437fad2254530b82e74df0d3d0d3951cb374f67964195"
   },
   {
    "role": "producer",
@@ -870,6 +1080,20 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReadLandmark.ts",
+   "revision": null,
+   "bytes": 586,
+   "sha256": "4ea89cbfd1b6dc6383dc44f50771a28ba1f44ad7fd0c31f7d8aaa2ca53065d64"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 595,
+   "sha256": "f614e6bafd854d2dd7744abf511b8570c0fa96d52596fdb1e904818787df9383"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceRecropReceipt.ts",
    "revision": null,
    "bytes": 201,
@@ -881,6 +1105,13 @@
    "revision": null,
    "bytes": 902,
    "sha256": "fe28db287bd1508afb9ff543801eb04781a903b7611c0e41be7e351a6e48bda9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRegionFill.ts",
+   "revision": null,
+   "bytes": 478,
+   "sha256": "e70de9fcddd6887ee345e7f49b49b7af297056e1f82f5c5e887f4f90906bce5d"
   },
   {
    "role": "producer",
@@ -1031,6 +1262,13 @@
   },
   {
    "role": "producer",
+   "path": "test/scripts/human-source/traceHumanSourceMidlineProfile.ts",
+   "revision": null,
+   "bytes": 2117,
+   "sha256": "af70044f7cc1cfac96cc89b6c87458c574a1eeb5fe9b2058537bdc2df6a30e40"
+  },
+  {
+   "role": "producer",
    "path": "test/scripts/human-source/upstream-lock.json",
    "revision": null,
    "bytes": 4715,
@@ -1161,26 +1399,333 @@
   "rows.i32": "7da06e5aeb09a5c4975500526591184bf2532dbf834c2109a3dbabcbe484af04",
   "weights.json": "aacdef9676ce6253120630865959c9d04f7fa2ba5033a0716e4b5018dc3faefb"
  },
+ "headLandmarks": [
+  {
+   "name": "glabella",
+   "definition": "The most anterior point on the frontal bone midway between the bony browridges.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.14, p. 36",
+   "status": "named approximation",
+   "rule": "largest z among head midline vertices (hm08.mirror 'm') whose neutral height lies within the eyebrow card's neutral vertical extent; the card's extent stands in for the browridge height",
+   "vertex": 227,
+   "viewVertex": 751,
+   "position": [
+    2.9103830456733704e-11,
+    0.051012277603149414,
+    0.14389370381832123
+   ],
+   "candidates": [
+    {
+     "vertex": 227,
+     "position": [
+      2.9103830456733704e-11,
+      0.051012277603149414,
+      0.14389370381832123
+     ],
+     "value": 0.14389370381832123
+    },
+    {
+     "vertex": 220,
+     "position": [
+      0,
+      0.045362234115600586,
+      0.14325261116027832
+     ],
+     "value": 0.14325261116027832
+    },
+    {
+     "vertex": 5389,
+     "position": [
+      1.0913936421275139e-11,
+      0.050726890563964844,
+      -0.04649440199136734
+     ],
+     "value": -0.04649440199136734
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move."
+  },
+  {
+   "name": "sellion",
+   "definition": "The point of the deepest depression of the nasal bones at the top of the nose.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.35, p. 59",
+   "status": "definition",
+   "rule": "smallest z on the outer midline profile from glabella to pronasale, end points excluded; the profile is the shortest path over base-mesh midline edges (hm08.mirror 'm'), and pronasale is the most anterior midline vertex above the mouth joint",
+   "vertex": 132,
+   "viewVertex": 463,
+   "position": [
+    0,
+    0.03416299819946289,
+    0.14131557941436768
+   ],
+   "candidates": [
+    {
+     "vertex": 132,
+     "position": [
+      0,
+      0.03416299819946289,
+      0.14131557941436768
+     ],
+     "value": 0.14131557941436768
+    },
+    {
+     "vertex": 136,
+     "position": [
+      0,
+      0.03713536262512207,
+      0.1415538191795349
+     ],
+     "value": 0.1415538191795349
+    },
+    {
+     "vertex": 133,
+     "position": [
+      0,
+      0.031153321266174316,
+      0.1415787935256958
+     ],
+     "value": 0.1415787935256958
+    },
+    {
+     "vertex": 169,
+     "position": [
+      0,
+      0.040705204010009766,
+      0.14226695895195007
+     ],
+     "value": 0.14226695895195007
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move."
+  },
+  {
+   "name": "menton",
+   "definition": "The inferior point of the mandible in the midsagittal plane (bottom of the chin).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.23, p. 45",
+   "status": "named approximation",
+   "rule": "lowest head midline vertex whose jaw attachment weight is one within storage, with the jaw closed; skin that moves entirely with the mandible stands in for the mandible, because the midline profile keeps descending from the chin into the neck",
+   "vertex": 5296,
+   "viewVertex": 5568,
+   "position": [
+    0,
+    -0.08520004698671714,
+    0.13083842396736145
+   ],
+   "candidates": [
+    {
+     "vertex": 5296,
+     "position": [
+      0,
+      -0.08520004698671714,
+      0.13083842396736145
+     ],
+     "value": -0.08520004698671714
+    },
+    {
+     "vertex": 5225,
+     "position": [
+      0,
+      -0.08350162147028739,
+      0.1340332329273224
+     ],
+     "value": -0.08350162147028739
+    },
+    {
+     "vertex": 5171,
+     "position": [
+      0,
+      -0.08104998089427606,
+      0.1368430107831955
+     ],
+     "value": -0.08104998089427606
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move."
+  },
+  {
+   "name": "tragion-right",
+   "definition": "The superior point on the juncture of the cartilaginous flap (tragus) of the ear with the head.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.42, p. 66",
+   "status": "definition, read from renders",
+   "rule": "uppermost vertex of the anterior tragus–head juncture, chosen by reading rendered frames of the neutral right ear (frame path); the compared neighbours and the reading ambiguity of about 0.4 mm are listed with the candidates",
+   "vertex": 5477,
+   "viewVertex": 6604,
+   "position": [
+    -0.07033476233482361,
+    0.012275934219360352,
+    0.05597802251577377
+   ],
+   "candidates": [
+    {
+     "vertex": 5477,
+     "position": [
+      -0.07033476233482361,
+      0.012275934219360352,
+      0.05597802251577377
+     ],
+     "value": 0.012275934219360352
+    },
+    {
+     "vertex": 5699,
+     "position": [
+      -0.06944955140352249,
+      0.01194000244140625,
+      0.053164854645729065
+     ],
+     "value": 0.01194000244140625
+    },
+    {
+     "vertex": 5610,
+     "position": [
+      -0.07026863843202591,
+      0.01192331314086914,
+      0.054477039724588394
+     ],
+     "value": 0.01192331314086914
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move."
+  },
+  {
+   "name": "tragion-left",
+   "definition": "The superior point on the juncture of the cartilaginous flap (tragus) of the ear with the head.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.42, p. 66",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of tragion-right",
+   "vertex": 12076,
+   "viewVertex": 14260,
+   "position": [
+    0.07033476233482361,
+    0.012275934219360352,
+    0.05597802251577377
+   ],
+   "candidates": [
+    {
+     "vertex": 12076,
+     "position": [
+      0.07033476233482361,
+      0.012275934219360352,
+      0.05597802251577377
+     ],
+     "value": 0.012275934219360352
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move."
+  }
+ ],
+ "headRegions": [
+  {
+   "name": "ear-right",
+   "definition": "The right external ear, bounded by its attachment to the head.",
+   "status": "definition, read from renders",
+   "rule": "base faces reached from the seed without crossing the read attachment loop, proved not to reach the outside vertex; region vertices are those faces' corners less the loop (the loop is scalp), and a subdivided sample belongs when every base face it lies on is on the ear side",
+   "loop": [
+    5755,
+    5767,
+    5756,
+    5758,
+    5748,
+    5760,
+    5751,
+    5766,
+    5747,
+    5749,
+    5757,
+    5770,
+    5764,
+    5762,
+    5753,
+    5768,
+    5761,
+    5752,
+    5731,
+    5414,
+    5436,
+    5458,
+    5465,
+    5456,
+    5477,
+    5468,
+    5570,
+    5471,
+    5470,
+    5448,
+    5426,
+    5738
+   ],
+   "closed": true,
+   "seed": 5413,
+   "outside": 860,
+   "baseVertices": 281,
+   "viewVertices": 1153,
+   "frames": "right ear of the neutral generation person: side, back, front, below and above, clay and normal, loop marked"
+  },
+  {
+   "name": "ear-left",
+   "definition": "The left external ear, bounded by its attachment to the head.",
+   "status": "definition, read from renders",
+   "rule": "base faces reached from the seed without crossing the read attachment loop, proved not to reach the outside vertex; region vertices are those faces' corners less the loop (the loop is scalp), and a subdivided sample belongs when every base face it lies on is on the ear side",
+   "loop": [
+    12352,
+    12364,
+    12353,
+    12355,
+    12345,
+    12357,
+    12348,
+    12363,
+    12344,
+    12346,
+    12354,
+    12367,
+    12361,
+    12359,
+    12350,
+    12365,
+    12358,
+    12349,
+    12328,
+    12013,
+    12035,
+    12057,
+    12064,
+    12055,
+    12076,
+    12067,
+    12167,
+    12070,
+    12069,
+    12047,
+    12025,
+    12335
+   ],
+   "closed": true,
+   "seed": 12012,
+   "outside": 7565,
+   "baseVertices": 281,
+   "viewVertices": 1153,
+   "frames": "right ear of the neutral generation person: side, back, front, below and above, clay and normal, loop marked (left: mirror twins of the right reading)"
+  }
+ ],
  "outputs": {
   "body.json.gz": {
-   "bytes": 31675544,
-   "sha256": "2a9c29326bfa282a1e2f26b198d275ecc3f3ecff26a634e28e4885dd5aab2627"
+   "bytes": 31675538,
+   "sha256": "829f577b2eba7ff7784f360fecb8571fa253369e9a8e8b8c49d9da4175510b34"
   },
   "g1-generation.json.gz": {
-   "bytes": 57403008,
-   "sha256": "05b9df4691bda862e0cde53ed625dbdc93d60090d3dcef4cb78ce8959b7fe6c0"
+   "bytes": 57400394,
+   "sha256": "b36bd9568039c9c1706b661e7ac41d60e5cc0cc57709f80b17eab0aa47d8fcea"
   },
   "head.json.gz": {
-   "bytes": 30045812,
-   "sha256": "c17bbf82cbd258638f9ba47eddbe06cb0eda80e9e7c6dc065345fc39f91dc247"
+   "bytes": 30051691,
+   "sha256": "e00a9891268c2cf8692d1b007434948a33a620d27819fbd4de00b1dd0303b147"
   },
   "p1-body-basis.json.gz": {
-   "bytes": 30371390,
-   "sha256": "d3d2e3f93fc45370b0e011457487c48ed3d61adfb37f061cd68b3f68abcbf55a"
+   "bytes": 30371377,
+   "sha256": "7898fca062bb8ff5c3c73a0f63557bf2f5a98d363a92fbcfc2c94125192d0b49"
   },
   "p1-face-basis.json.gz": {
-   "bytes": 27868475,
-   "sha256": "71506fa5b4a929867c95b3d5ba2b8f1fb94018c6dca3ab8e685eabe2b504d0a5"
+   "bytes": 27874672,
+   "sha256": "ead9f01a8e06bf15ff10527c90414cc24ea1844bbe548ba1abbaa8decaec933d"
   },
   "reproduction-rows.tsv": {
    "bytes": 587580,
@@ -1188,7 +1733,7 @@
   },
   "reproduction.json": {
    "bytes": 2914440,
-   "sha256": "333b3d5ce3185346d2d05f8e883684edd97745d9197edef41f9d822858e72508"
+   "sha256": "aac7aa91270daf9ad2662448afd05913cb7daa2b1ee71fa9c617275b02fbfffb"
   }
  }
 }

@@ -15,9 +15,14 @@ import { buildHumanSourceTopology } from "./buildHumanSourceTopology.ts";
 import { createHumanSourceBodyField } from "./createHumanSourceBodyField.ts";
 import { createHumanSourceDeltaReader } from "./createHumanSourceDeltaReader.ts";
 import { defineHumanSourceBand } from "./defineHumanSourceBand.ts";
+import { defineHumanSourceHeadLandmarks } from "./defineHumanSourceHeadLandmarks.ts";
+import { defineHumanSourceHeadRegions } from "./defineHumanSourceHeadRegions.ts";
 import { defineHumanSourceMacros } from "./defineHumanSourceMacros.ts";
+import { mapHumanSourceSampleFaces } from "./mapHumanSourceSampleFaces.ts";
 import { measureHumanSourceCarry } from "./measureHumanSourceCarry.ts";
+import { readHumanSourceBaseFaces } from "./readHumanSourceBaseFaces.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
+import { readHumanSourceMirror } from "./readHumanSourceMirror.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
 import { reproduceHumanBodyRig } from "./reproduceHumanBodyRig.ts";
 import { reproduceHumanBodyRows } from "./reproduceHumanBodyRows.ts";
@@ -202,7 +207,18 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   const parts = bindHumanSourceParts({ generation: extended.generation, face, body, cut, faceRows, sample, reader, offset: extraction.frame.offset });
   const generation = parts.generation;
   log("parts", parts.checks);
-  const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows });
+  const baseFaces = readHumanSourceBaseFaces(work);
+  const mirror = readHumanSourceMirror(work);
+  const head = defineHumanSourceHeadLandmarks({
+    generation,
+    mirror,
+    faces: baseFaces,
+    faceToG1: cut.faceToG1,
+  });
+  log("head landmarks", Object.fromEntries(head.records.map((r) => [r.name, r.vertex])));
+  const regions = defineHumanSourceHeadRegions({ faces: baseFaces, mirror, sampleFaces: mapHumanSourceSampleFaces(sample, baseFaces, mirror.twin.length), faceToG1: cut.faceToG1 });
+  log("head regions", Object.fromEntries(regions.records.map((r) => [r.name, `${r.baseVertices} base, ${r.viewVertices} view`])));
+  const p1 = assembleHumanSourceP1({ face, body, generation, cut, topology, bodyRows, headLandmarks: head.skinLandmarks, headRegions: regions.skinRegions });
   log("generation", generation.id, "p1", p1.checks);
   // A part macro row regenerated from the refit is no longer a carried loss.
   const aliasedEndpoints = new Set(generation.aliases.flatMap((a) => Object.keys(a.endpoints)));
@@ -227,7 +243,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   fs.writeFileSync(
     path.join(output, "generation-manifest.json"),
     JSON.stringify(
-      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, outputs: files },
+      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, headLandmarks: head.records, headRegions: regions.records, outputs: files },
       null,
       1,
     ) + "\n",

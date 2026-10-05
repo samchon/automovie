@@ -6,13 +6,16 @@ import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
 
 /**
  * Build the P1 pair from the generation. The face keeps its published
- * topology, rows and metadata and gains a source partition; the body becomes
- * the source complement of the same cut, with the generation's neutral and
- * weights, its endpoints re-addressed (`unavailableTargets` names the ones
- * without a value on the new support) and its vein overlay vertices
- * re-addressed, and it declares its named skin points on the new vertices
- * (`defineHumanSourceSkinLandmarks`). Both partitions share one parent tree and one ordered
- * intersection table, as `IAutoMovieHumanBasisSourcePartition` requires.
+ * topology, rows and metadata, gains a source partition and declares the head
+ * skin landmarks and regions chosen on the generation
+ * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`).
+ * The body becomes the source complement of the same cut, with the
+ * generation's neutral and weights, its endpoints re-addressed
+ * (`unavailableTargets` names the ones without a value on the new support),
+ * its vein overlay vertices re-addressed, and its named skin points declared
+ * on the new vertices (`defineHumanSourceSkinLandmarks`). Both partitions
+ * share one parent tree and one ordered intersection table, as
+ * `IAutoMovieHumanBasisSourcePartition` requires.
  */
 export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP1 {
   const { face, body, generation, cut, topology } = input;
@@ -29,6 +32,8 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
   const p1Face = {
     ...face,
     id: `human-source-g1-${short}-p1-face`,
+    skinLandmarks: input.headLandmarks,
+    skinRegions: input.headRegions,
     surfaces: face.surfaces.map((s) =>
       s.id === "Human" ? { ...s, sourcePartition: partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)) } : s,
     ),
