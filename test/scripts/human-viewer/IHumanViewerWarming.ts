@@ -1,4 +1,5 @@
 import type { IHumanViewerWarmFailure } from "./IHumanViewerWarmFailure";
+import type { IHumanViewerWarmLastFailure } from "./IHumanViewerWarmLastFailure";
 
 /**
  * Progress of the current background warm pass, as `/health` reports it.
@@ -25,4 +26,7 @@ export interface IHumanViewerWarming {
 
   /** Document being warmed, or null between documents. */
   current: string | null;
+
+  /** The latest failure of any pass, kept when a new pass resets the counters; null before the first. */
+  lastFailure: IHumanViewerWarmLastFailure | null;
 }

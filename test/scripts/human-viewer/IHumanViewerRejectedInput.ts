@@ -22,4 +22,7 @@ export interface IHumanViewerRejectedInput {
    * file changes.
    */
   pending: boolean;
+
+  /** The document id when the entry is one document of a file (or one viewer-authored document). */
+  id?: string;
 }

@@ -58,6 +58,15 @@ export function serveHumanViewerCapture(props: IServeHumanViewerCaptureProps): b
     const wanted = url.searchParams.get(name);
     if (wanted !== null && url.searchParams.get("axes") === null &&
         !inventory.documents.some((entry) => entry.id === wanted)) {
+      // A document awaiting admission (its key moved with the source) is
+      // not unknown: it comes back once a page on the current code judges it.
+      const pending = inventory.rejected.find((entry) => entry.pending && entry.id === wanted);
+      if (pending !== undefined) {
+        response.statusCode = 503;
+        response.setHeader("Retry-After", "3");
+        json({ error: `${wanted} is awaiting admission (${pending.reason}), retry` });
+        return true;
+      }
       response.statusCode = 422;
       json({ error: `Unknown document ${wanted}; ${inventory.documents.length} are published, see /docs` });
       return true;

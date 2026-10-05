@@ -23,7 +23,7 @@ export function admitHumanViewerAuthoredEntries(
     if (admission.state === "admitted") result.documents.push(entry);
     else result.rejected.push({ file: `viewer-authored ${entry.id}`,
       reason: `${entry.id}: ${admission.reason ?? admission.state}`,
-      pending: admission.state === "pending" });
+      pending: admission.state === "pending", id: entry.id });
   }
   return result;
 }

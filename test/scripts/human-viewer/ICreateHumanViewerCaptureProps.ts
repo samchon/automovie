@@ -2,6 +2,7 @@ import type { Page } from "playwright";
 
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
+import type { createHumanViewerStageWatch } from "./createHumanViewerStageWatch";
 
 /**
  * The host state one capture reads. Each member is read at capture time
@@ -42,4 +43,7 @@ export interface ICreateHumanViewerCaptureProps {
 
   /** Learn the room a capture of this domain took. */
   learnRoom: (domain: "face" | "body" | "person") => void;
+
+  /** The stage watch that bounds every stage of a capture by its progress. */
+  stages: ReturnType<typeof createHumanViewerStageWatch>;
 }

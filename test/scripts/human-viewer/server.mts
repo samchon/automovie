@@ -38,6 +38,7 @@ import { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge";
 import { createHumanViewerGenerationWindows } from "./createHumanViewerGenerationWindows";
 import { createHumanViewerQueue } from "./createHumanViewerQueue";
 import { createHumanViewerResidentTrim } from "./createHumanViewerResidentTrim";
+import { createHumanViewerStageWatch } from "./createHumanViewerStageWatch";
 import { createHumanViewerStartupPhase } from "./createHumanViewerStartupPhase";
 import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailStore";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
@@ -155,7 +156,16 @@ const { startup, phase } = createHumanViewerStartupPhase("starting the developme
 /** The last edit that reached a build. */
 let lastEdit: IHumanViewerEdit | null = null;
 const warming: IHumanViewerWarming = { revision: "", total: 0, done: 0, skipped: 0,
-  failures: [], current: null };
+  failures: [], current: null, lastFailure: null };
+/**
+ * Capture stages bounded by their progress. A page stage that stalls means the
+ * page stopped: it is replaced like a page whose renderer exited.
+ */
+const stages = createHumanViewerStageWatch((stage) => {
+  console.error(`CAPTURE STALLED ${new Date().toISOString()} ${stage.doc} in ${stage.name} since ${stage.progress}`);
+  if (stage.name === "page" && resident !== null)
+    recoverResidentPage(resident, `the page made no progress capturing ${stage.doc} since ${stage.progress}`, true);
+});
 /** What the compile process last reported, read from the file it writes. */
 const sourceStatus = () => readHumanViewerCompilationStatus(() =>
   fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"));
@@ -189,7 +199,7 @@ const capturer = createHumanViewerCapture({ page: () => page, renderer: () => re
   startup: () => (pageWait ?? startup.phase + " since " + startup.since) +
     (errors.length === 0 ? "" : "; last error: " + errors[errors.length - 1]),
   readyRevision: () => readyRevision, pageRevision: () => pageRevision, inventory: () => inventory, lifetime,
-  trim: residentTrim.trim, makeRoom: residentTrim.before, learnRoom: residentTrim.learn });
+  trim: residentTrim.trim, makeRoom: residentTrim.before, learnRoom: residentTrim.learn, stages });
 /** Candidate loading windows: they hold compile withdrawal and label each candidate's code. */
 const windows = createHumanViewerGenerationWindows({ gate: humanViewerCompileGate,
   revision: () => inventory.revision, updating: () => sourceUpdating,
@@ -259,6 +269,7 @@ async function openResidentPage(first: boolean, freshBrowser: boolean): Promise<
   opened.page.on("console", (message) => routeHumanViewerConsole(message.text(), {
     work: (text) => {
       work = readHumanViewerWork(text);
+      stages.progress();
       if (work !== null) heap.sample(work);
     },
     error: (cause) => { errors = [cause]; },
@@ -379,7 +390,7 @@ async function main(): Promise<void> {
         errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap, owner,
         revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
         capture: capturer, warming, startup, admission: admission.status, relaunches: () => relaunches,
-        trim: residentTrim.status, holding: windows.holding }));
+        trim: residentTrim.status, holding: windows.holding, stage: stages.current }));
     if (serveHumanViewerGeneration({ url, response, json, windows })) return;
     if (url.pathname === "/heap")
       return serveHumanViewerHeap({ response, json, readLiveHeap: () => readLiveHeap(),

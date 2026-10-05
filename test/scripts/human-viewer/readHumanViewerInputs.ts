@@ -61,7 +61,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
   const accept = (entry: IHumanViewerCatalogueEntry): void => {
     const admission = props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
-    else rejected.push({ file, reason: `${entry.id}: ${admission.reason ?? admission.state}`,
+    else rejected.push({ file, id: entry.id, reason: `${entry.id}: ${admission.reason ?? admission.state}`,
       pending: admission.state === "pending" });
   };
   /** What every file's result depends on besides its own bytes and sidecars. */

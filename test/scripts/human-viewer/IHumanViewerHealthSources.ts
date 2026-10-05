@@ -1,6 +1,7 @@
 import type { HumanViewerWork } from "./HumanViewerWork";
 import type { IHumanViewerAdmissionStatus } from "./IHumanViewerAdmissionStatus";
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
+import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrimReading";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
@@ -81,4 +82,7 @@ export interface IHumanViewerHealthSources {
 
   /** Candidate loading windows open now, each holding compile withdrawal. */
   holding: () => number;
+
+  /** The running capture's stage, or null between captures. */
+  stage: () => IHumanViewerCaptureStage | null;
 }

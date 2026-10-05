@@ -19,4 +19,7 @@ export interface IHumanViewerResidentTrimReading {
 
   /** Residents the page released in this trim. */
   evicted: number;
+
+  /** The page heap room each domain's capture is known to need, in bytes. */
+  room: Record<"face" | "body" | "person", number>;
 }

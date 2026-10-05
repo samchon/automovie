@@ -62,9 +62,13 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
       if (reading.page + reading.workers + room[domain] > props.limit) {
         const made = await release(room[domain], props.limit);
         started = made.page;
-        console.log(`RESIDENT ROOM ${new Date().toISOString()} ${domain} needs ${Math.round(room[domain] / 1e6)} MB; released ` +
-          `${made.evicted}; page ${Math.round(made.page / 1e6)} MB + workers ${Math.round(made.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB` +
-          (made.page + made.workers + room[domain] > props.limit ? " (the worker's runtimes leave less room than the capture needs)" : ""));
+        // The cheap reading includes garbage; a collection alone usually
+        // makes the room, which is not worth a line.
+        const short = made.page + made.workers + room[domain] > props.limit;
+        if (made.evicted !== 0 || short)
+          console.log(`RESIDENT ROOM ${new Date().toISOString()} ${domain} needs ${Math.round(room[domain] / 1e6)} MB; released ` +
+            `${made.evicted}; page ${Math.round(made.page / 1e6)} MB + workers ${Math.round(made.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB` +
+            (short ? " (the worker's runtimes leave less room than the capture needs)" : ""));
       }
       props.mark();
     },
@@ -72,7 +76,10 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
     /** Learn the capture's transient for its domain. */
     learn: (domain: "face" | "body" | "person"): void => {
       const peak = props.windowPeak();
-      if (peak !== null && peak - started > room[domain]) room[domain] = peak - started;
+      if (peak !== null && peak - started > room[domain]) {
+        room[domain] = peak - started;
+        console.log(`RESIDENT ROOM ${new Date().toISOString()} learned: a ${domain} capture took ${Math.round(room[domain] / 1e6)} MB above its start`);
+      }
     },
 
     /** The room each domain is known to need. */
@@ -90,7 +97,7 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
         }
       }
       last = { at: new Date().toISOString(), page: reading.page, workers: reading.workers,
-        limit: props.limit, evicted };
+        limit: props.limit, evicted, room: { ...room } };
       if (evicted !== 0 || reading.page + reading.workers > props.limit)
         console.log(`RESIDENT TRIM ${last.at} released ${evicted}; page ${Math.round(reading.page / 1e6)} MB + workers ` +
           `${Math.round(reading.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB`);

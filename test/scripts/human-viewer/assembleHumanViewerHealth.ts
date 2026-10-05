@@ -38,7 +38,7 @@ export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
     work: sources.work(),
     heap: sources.heap.status(),
     revisions: sources.revisions.current(),
-    queue: { limit: sources.queueLimit, ...sources.queue.status() },
+    queue: { limit: sources.queueLimit, ...sources.queue.status(), stage: sources.stage() },
     lastEdit: sources.lastEdit(),
     ...sources.capture.status(),
     warm: sources.warming,

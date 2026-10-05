@@ -36,6 +36,8 @@ export async function warmHumanViewerDocuments(props: IWarmHumanViewerDocumentsP
     if (failed !== null) {
       ++props.status.skipped;
       props.status.failures.push({ id: entry.id, reason: failed });
+      // Kept across passes: a new pass resets the counters, not this.
+      props.status.lastFailure = { id: entry.id, reason: failed, at: new Date().toISOString(), revision: props.revision };
     } else ++props.status.done;
   }
   props.status.current = null;

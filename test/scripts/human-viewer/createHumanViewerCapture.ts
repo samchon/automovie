@@ -7,6 +7,7 @@ import type { IHumanViewerDomainBuild } from "./IHumanViewerDomainBuild";
 import type { IHumanViewerLastRender } from "./IHumanViewerLastRender";
 import type { IHumanViewerPhases } from "./IHumanViewerPhases";
 import { describeHumanViewerCapture } from "./describeHumanViewerCapture";
+import { humanViewerStageBounds } from "./humanViewerStageBounds";
 import { judgeViewerRenderer } from "./judgeViewerRenderer";
 import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
 
@@ -47,14 +48,19 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
       const started = performance.now();
       const shownDomain = inventory.documents.find((entry) => entry.id === address.doc)?.domain;
       // Room for the build's transient copies is made before it starts.
-      if (shownDomain !== undefined) await props.lifetime.run(() => props.makeRoom(shownDomain));
-      const result = await props.lifetime.run(() =>
-        readHumanViewerCapture(props.page(), address, props.pageRevision()));
+      // Every stage is bounded by its progress, so no wait, known or not,
+      // holds the shared queue for good.
+      const stages = props.stages;
+      if (shownDomain !== undefined)
+        await stages.run("room", address.doc, humanViewerStageBounds.serverMs,
+          () => props.lifetime.run(() => props.makeRoom(shownDomain)));
+      const result = await stages.run("page", address.doc, humanViewerStageBounds.pageMs,
+        () => props.lifetime.run(() => readHumanViewerCapture(props.page(), address, props.pageRevision())));
       if (shownDomain !== undefined) props.learnRoom(shownDomain);
       if (props.readyRevision() !== selectedRevision)
         throw new Error("Source changed during capture; the mixed revision was discarded");
       // Inside the queue slot, so no capture shows a resident while it is released.
-      await props.lifetime.run(() => props.trim());
+      await stages.run("trim", address.doc, humanViewerStageBounds.serverMs, () => props.lifetime.run(() => props.trim()));
       const decoded = performance.now();
       const bytes = Buffer.from(result.png.split(",")[1], "base64");
       const reading = describeHumanViewerCapture({
