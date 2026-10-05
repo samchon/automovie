@@ -2,10 +2,8 @@ import type * as THREE from "three";
 
 import type { HumanResidentPort } from "../common/residentWorker";
 import type { createHumanViewport } from "../common/viewport";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { IConnectedBodyShadowRenderer } from "./IConnectedBodyShadowRenderer";
 
 /**

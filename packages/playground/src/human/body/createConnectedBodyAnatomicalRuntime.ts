@@ -5,7 +5,8 @@ import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
-import type { ConnectedBodyRequest, ConnectedBodyResult } from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 /**
  * Consume complete numerical requests as visible target-sphere inspections.

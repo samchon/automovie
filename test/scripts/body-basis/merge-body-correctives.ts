@@ -9,10 +9,8 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import { assertBodyCorrectiveBasis } from "./assertBodyCorrectiveBasis";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { createBodyCorrectiveMergeReceipt } from "./createBodyCorrectiveMergeReceipt";
-import {
-  type IBodyCorrectiveShard,
-  mergeBodyCorrectives,
-} from "./mergeBodyCorrectives";
+import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
+import { mergeBodyCorrectives } from "./mergeBodyCorrectives";
 
 /**
  * Publish solve shards onto a body basis under a new revision id and admit the

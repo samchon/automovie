@@ -1,24 +1,9 @@
 import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieJointPose } from "@automovie/interface";
+import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
+import { createHumanBodyShoulderPose } from "@automovie/human/body/document/createHumanBodyShoulderPose";
 
-import { createJointPoseRow } from "./createJointPoseRow";
-
-/** A review state: the shape channels and pose a document is built from. */
-export interface IBodyReviewState {
-  shape: Record<string, number>;
-  pose: IAutoMovieJointPose[];
-
-  /** Thorax-relative upper arm goals; an arm is raised through these, not through its joint row. */
-  shoulders?: IAutoMovieHumanBodyShoulderPose[];
-}
-
-const joint = (
-  bone: string,
-  flexion: number | null,
-  abduction: number | null = null,
-  twist: number | null = null,
-): IAutoMovieJointPose =>
-  createJointPoseRow(bone, { flexion, abduction, twist });
+import type { IBodyReviewState } from "./IBodyReviewState";
 
 /**
  * The review states a body change is looked at in by default: the macro axes
@@ -48,12 +33,9 @@ export function standardBodyReviewStates(): Record<string, IBodyReviewState> {
     plane: number,
     elevation: number,
   ): IAutoMovieHumanBodyShoulderPose[] =>
-    (["leftUpperArm", "rightUpperArm"] as const).map((bone) => ({
-      bone,
-      plane,
-      elevation,
-      axialRotation: 0,
-    }));
+    (["leftUpperArm", "rightUpperArm"] as const).map((bone) =>
+      createHumanBodyShoulderPose(bone, plane, elevation),
+    );
   return {
     neutral: state({}),
     female: state({ macroGender: -1 }),

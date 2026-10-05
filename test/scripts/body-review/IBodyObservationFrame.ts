@@ -1,7 +1,7 @@
 import type { HumanObservationPass } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
 import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
-import type { IBodyReviewState } from "./standardBodyReviewDocuments";
+import type { IBodyReviewState } from "./IBodyReviewState";
 
 /**
  * One frame a review asks for: which document state to draw, from which view,

@@ -2,12 +2,10 @@ import {
   closestPointsBetweenSegments,
   segmentSegmentDistance,
 } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createVector3 as v } from "../internal/createVector3";
 import { nclose, vclose } from "../internal/predicates";
-
-const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
 
 /**
  * Independently constructed segment minima exercise both scalar and witness

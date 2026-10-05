@@ -1,4 +1,4 @@
-import type { ConnectedBodyResult } from "./connectedBodyProtocol";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 type Reading = Extract<
   ConnectedBodyResult,

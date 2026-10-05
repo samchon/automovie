@@ -6,7 +6,8 @@ import { humanBodyMeasurementRule } from "@automovie/human/body/measure/humanBod
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
-import type { ConnectedBodyRequest, ConnectedBodyResult } from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 /**
  * Wire the pinned source's instrument to the actual numerical exterior page.

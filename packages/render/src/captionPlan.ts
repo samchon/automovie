@@ -9,7 +9,7 @@ import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
 } from "./captionSidecar";
-import { beatCaptions } from "./screenplay";
+import { beatCaptions } from "./caption/beatCaptions";
 
 /**
  * Plan the caption sidecar: lay the cut onto the output clock

@@ -5,11 +5,9 @@
  * Each resident owns a viewport and its GPU buffers. Captures always call
  * finish, so idle animation is unnecessary and never competes with requests.
  */
-import type {
-  ConnectedBodyPart,
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import type { ConnectedBodyPart } from "@automovie/playground/src/human/body/ConnectedBodyPart";
+import type { ConnectedBodyRequest } from "@automovie/playground/src/human/body/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
 import {
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanPersonDocument,

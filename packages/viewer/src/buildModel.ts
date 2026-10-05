@@ -7,12 +7,10 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import {
-  IAutoMovieTextureResolver,
-  buildGeometry,
-  buildMaterial,
-  defaultMaterial,
-} from "./geometry";
+import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
+import { buildGeometry } from "./buildGeometry";
+import { buildMaterial } from "./buildMaterial";
+import { defaultMaterial } from "./defaultMaterial";
 import { applyReliefWeights } from "./reliefWeightShading";
 
 /**

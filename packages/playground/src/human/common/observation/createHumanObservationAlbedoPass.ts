@@ -1,48 +1,6 @@
 import * as THREE from "three";
 
-import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefinition";
-
-/** Create an unlit base-colour projection without borrowing shader modifications. */
-function materialOf(source: THREE.Material): THREE.MeshBasicMaterial {
-  if (
-    !(
-      source instanceof THREE.MeshBasicMaterial ||
-      source instanceof THREE.MeshLambertMaterial ||
-      source instanceof THREE.MeshPhongMaterial ||
-      source instanceof THREE.MeshToonMaterial ||
-      source instanceof THREE.MeshStandardMaterial
-    )
-  )
-    throw new Error(
-      `Albedo observation refuses material family "${source.type}".`,
-    );
-  if (
-    source.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile ||
-    source.onBeforeRender !== THREE.Material.prototype.onBeforeRender
-  )
-    throw new Error(
-      `Albedo observation refuses custom shader hooks on "${source.name || source.type}".`,
-    );
-  if (
-    "displacementMap" in source &&
-    source.displacementMap !== null &&
-    source.displacementScale !== 0
-  )
-    throw new Error(
-      `Albedo observation refuses mapped displacement on "${source.name || source.type}".`,
-    );
-  const result = new THREE.MeshBasicMaterial();
-  // Borrow the supported base-state copy, not a source override or patched shader.
-  THREE.Material.prototype.copy.call(result, source);
-  result.color.copy(source.color);
-  result.map = source.map;
-  result.alphaMap = source.alphaMap;
-  result.wireframe = source.wireframe;
-  result.fog = false;
-  result.toneMapped =
-    getHumanObservationPassDefinition("albedo").parameters.toneMapped!;
-  return result;
-}
+import { createHumanObservationAlbedoMaterial } from "./createHumanObservationAlbedoMaterial";
 
 /**
  * Own temporary per-mesh base-colour materials and restore their borrowed
@@ -86,7 +44,7 @@ export function createHumanObservationAlbedoPass() {
           const source = mesh.material;
           const materials = Array.isArray(source) ? source : [source];
           const display = materials.map((one) => {
-            const made = materialOf(one);
+            const made = createHumanObservationAlbedoMaterial(one);
             allocated.push(made);
             return made;
           });

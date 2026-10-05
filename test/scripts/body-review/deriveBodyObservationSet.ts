@@ -5,7 +5,7 @@ import type { HumanObservationView } from "@automovie/playground/src/human/commo
 import { createJointPoseRow } from "./createJointPoseRow";
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 import type { IBodyObservationUnit } from "./IBodyObservationUnit";
-import type { IBodyReviewState } from "./standardBodyReviewDocuments";
+import type { IBodyReviewState } from "./IBodyReviewState";
 
 /** The six horizon views a unit is observed from, and the poles added to whole-body frames. */
 const HORIZON: HumanObservationView[] = [

@@ -1,17 +1,19 @@
+import { clampAutoMovieUnitInterval } from "@automovie/engine/math/clampAutoMovieUnitInterval";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { decodePng } from "../../../common/mesh/decodePng";
 import { linearToSrgbByte } from "../../../common/colour/linearToSrgbByte";
+import { materialBaseColourRgb } from "../../../common/colour/materialBaseColourRgb";
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
 import { humanFaceIrisTexelColour } from "./humanFaceIrisTexelColour";
-import { locateHumanFaceIrisDisc } from "./locateHumanFaceIrisDisc";
-import { rasterizeHumanFaceIrisTexels } from "./rasterizeHumanFaceIrisTexels";
-import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
-import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
+import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
+import { findHumanFaceIrisGlobe } from "./findHumanFaceIrisGlobe";
+import { prepareHumanFaceIrisTextures } from "./prepareHumanFaceIrisTextures";
+import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
+import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisPreparedTexture";
 
 /**
  * Compile the shared iris pigment rule of a connected basis.
@@ -85,21 +87,21 @@ export function createHumanFaceIrisPigment(
 ) => void {
   const globes = (basis.articulation?.eyes ?? []).map((eye) => ({
     eye: eye.id,
-    globe: findGlobe(basis, eye.id),
+    globe: findHumanFaceIrisGlobe(basis, eye.id),
   }));
-  let prepared: Map<string, IPreparedTexture> | undefined;
+  let prepared: Map<string, IHumanFaceIrisPreparedTexture> | undefined;
   let preparedOwners: string | undefined;
   let cache: { key: string; textures: Map<string, string> } | undefined;
   return (iris, materials, excludedOwners) => {
     if (iris === undefined || iris === null) return;
     const bands: Record<string, [number, number, number][]> = {
-      leftEye: createPortraitIrisMaterials("iris", iris.left).map(linear),
-      rightEye: createPortraitIrisMaterials("iris", iris.right).map(linear),
+      leftEye: createPortraitIrisMaterials("iris", iris.left).map(materialBaseColourRgb),
+      rightEye: createPortraitIrisMaterials("iris", iris.right).map(materialBaseColourRgb),
     };
     if (globes.length === 0)
       throw new Error("Iris pigment needs a basis with articulated eyes.");
     const selected = globes.filter(({ eye }) => !excludedOwners?.has(eye));
-    const paintable: IGlobe[] = selected.map(({ eye, globe }) => {
+    const paintable: IHumanFaceIrisGlobe[] = selected.map(({ eye, globe }) => {
       if (bands[eye] === undefined)
         throw new Error(
           "Iris pigment names leftEye and rightEye only, not " + eye + ".",
@@ -112,7 +114,7 @@ export function createHumanFaceIrisPigment(
     const key = JSON.stringify([owners, iris.left, iris.right]);
     if (cache?.key !== key) {
       if (preparedOwners !== owners) {
-        prepared = prepare(paintable);
+        prepared = prepareHumanFaceIrisTextures(paintable);
         preparedOwners = owners;
       }
       const textures = new Map<string, string>();
@@ -129,7 +131,7 @@ export function createHumanFaceIrisPigment(
             // painting across its edge.
             const cover =
               disc.painted > disc.limbus
-                ? clamp01((disc.painted + EDGE - theta) / (2 * EDGE))
+                ? clampAutoMovieUnitInterval((disc.painted + HUMAN_FACE_IRIS_EDGE - theta) / (2 * HUMAN_FACE_IRIS_EDGE))
                 : 0;
             const original = painted.map(
               (value, c) => value + (sclera[c] - value) * cover,
@@ -140,7 +142,7 @@ export function createHumanFaceIrisPigment(
               limbus: disc.limbus,
               pupil: disc.pupil,
               bands: bands[eye],
-              edge: EDGE,
+              edge: HUMAN_FACE_IRIS_EDGE,
               original: original as [number, number, number],
             });
             for (let c = 0; c < 3; ++c) rgba[4 * index + c] = linearToSrgbByte(colour[c]);
@@ -159,141 +161,4 @@ export function createHumanFaceIrisPigment(
     for (const [id, uri] of cache.textures)
       materials.find((one) => one.id === id)!.baseColorTexture = uri;
   };
-}
-
-/**
- * The globe of one eye: the first textured, UV-bearing region whose triangles
- * are fully bound to that eye owner (weight one on all three vertices), with
- * the neutral positions of those vertices. Null when no surface has one.
- */
-function findGlobe(
-  basis: IAutoMovieHumanFaceBasis,
-  eye: string,
-): IGlobe | null {
-  for (const surface of basis.surfaces) {
-    const rows =
-      surface.attachments?.find((one) => one.owner === eye)?.rows ?? [];
-    const bound = new Set<number>();
-    for (let i = 0; i < rows.length; i += 2)
-      if (rows[i + 1] === 1) bound.add(rows[i]);
-    const point = (vertex: number): [number, number, number] => [
-      surface.positions[3 * vertex],
-      surface.positions[3 * vertex + 1],
-      surface.positions[3 * vertex + 2],
-    ];
-    for (const region of surface.regions) {
-      const texture = basis.materials.find(
-        (one) => one.id === region.material,
-      )?.baseColorTexture;
-      // Only an embedded PNG can be repainted; a texture reference names an
-      // image this builder cannot read, and untextured geometry has no iris.
-      if (region.uvs === null || typeof texture !== "string") continue;
-      const uvs = region.uvs;
-      const triangles: IGlobe["triangles"] = [];
-      for (let t = 0; t < region.indices.length; t += 3) {
-        const corners = region.indices.slice(t, t + 3);
-        if (corners.every((vertex) => bound.has(vertex)))
-          triangles.push({
-            positions: corners.map(point),
-            uvs: [0, 1, 2].map((k) => [uvs[2 * (t + k)], uvs[2 * (t + k) + 1]]),
-          });
-      }
-      if (triangles.length === 0) continue;
-      const vertices = [
-        ...new Set(region.indices.filter((vertex) => bound.has(vertex))),
-      ];
-      return {
-        eye,
-        material: region.material,
-        texture,
-        triangles,
-        positions: vertices.map(point),
-      };
-    }
-  }
-  return null;
-}
-
-/** Decode each globe texture once and rasterize every eye painted on it. */
-function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
-  const byMaterial = new Map<string, IPreparedTexture>();
-  for (const globe of globes) {
-    let texture = byMaterial.get(globe.material);
-    if (texture === undefined) {
-      texture = { ...decodePng(globe.texture), eyes: [] };
-      byMaterial.set(globe.material, texture);
-    }
-    const disc = locateHumanFaceIrisDisc(globe.positions);
-    const reach = Math.max(disc.limbus, disc.painted);
-    const texels = rasterizeHumanFaceIrisTexels({
-      width: texture.width,
-      height: texture.height,
-      triangles: globe.triangles,
-      disc,
-      margin: reach - disc.limbus + EDGE + SCLERA_BAND,
-    });
-    // The sclera just outside the painted iris, averaged in linear colour.
-    const sum = [0, 0, 0];
-    let count = 0;
-    texels.index.forEach((index, at) => {
-      if (texels.theta[at] <= disc.painted + EDGE) return;
-      for (let c = 0; c < 3; ++c)
-        sum[c] += srgbByteToLinear(texture!.rgba[4 * index + c]);
-      ++count;
-    });
-    texture.eyes.push({
-      eye: globe.eye,
-      disc,
-      texels,
-      sclera: (count === 0 ? [1, 1, 1] : sum.map((value) => value / count)) as [
-        number,
-        number,
-        number,
-      ],
-    });
-  }
-  return byMaterial;
-}
-
-/** One eye's textured globe on the neutral basis. */
-interface IGlobe {
-  eye: string;
-  material: string;
-  texture: string;
-  triangles: {
-    positions: [number, number, number][];
-    uvs: [number, number][];
-  }[];
-  positions: [number, number, number][];
-}
-
-/**
- * Half-width of the anti-aliased limbal and pupillary edges, radians of polar
- * angle (0.3 degrees, about one texel of a 1024 texture's iris).
- */
-const EDGE = (0.3 * Math.PI) / 180;
-
-/** Width of the sclera ring averaged outside the painted iris, radians. */
-const SCLERA_BAND = (2 * Math.PI) / 180;
-
-/** A decoded eye texture and the iris texels of each eye painted on it. */
-interface IPreparedTexture {
-  width: number;
-  height: number;
-  rgba: Uint8Array;
-  eyes: {
-    eye: string;
-    disc: IHumanFaceIrisDisc;
-    texels: IHumanFaceIrisTexels;
-    /** Mean linear sclera colour just outside the painted iris. */
-    sclera: [number, number, number];
-  }[];
-}
-
-function linear(material: IAutoMovieMaterial): [number, number, number] {
-  return [material.baseColor.r, material.baseColor.g, material.baseColor.b];
-}
-
-function clamp01(value: number): number {
-  return Math.min(1, Math.max(0, value));
 }

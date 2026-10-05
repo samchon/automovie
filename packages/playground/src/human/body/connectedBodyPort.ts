@@ -5,10 +5,8 @@
  * one body-specific transport error and replaces the failed worker next time.
  */
 import type { HumanResidentPort } from "../common/residentWorker";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 /** Keep native event callbacks and termination inside the browser adapter.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Settles failed and unreadable body worker requests so the last valid edit remains visible.

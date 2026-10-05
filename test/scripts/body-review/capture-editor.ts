@@ -29,11 +29,9 @@ import { readHumanViewerBasisIdentity } from "../human-viewer/readHumanViewerBas
 import { buildCaptureRecord } from "../review/buildCaptureRecord";
 import { readSourceRevision } from "../review/readSourceRevision";
 import { captureBodyFrames } from "./captureBodyFrames";
+import type { IBodyReviewState } from "./IBodyReviewState";
 import { parseBodyCaptureArguments } from "./parseBodyCaptureArguments";
-import {
-  type IBodyReviewState,
-  standardBodyReviewStates,
-} from "./standardBodyReviewDocuments";
+import { standardBodyReviewStates } from "./standardBodyReviewDocuments";
 import { writeBodyFrames } from "./writeBodyFrames";
 
 async function main(): Promise<void> {

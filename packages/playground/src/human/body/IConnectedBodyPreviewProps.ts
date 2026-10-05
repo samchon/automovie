@@ -5,10 +5,8 @@ import type {
 } from "@automovie/human";
 
 import type { HumanResidentPort } from "../common/residentWorker";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
 
 /**

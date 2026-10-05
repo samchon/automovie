@@ -10,10 +10,8 @@ import {
 } from "@automovie/human";
 
 import { packConnectedBodyModel } from "../body/connectedBodyGeometry";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "../body/connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "../body/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "../body/ConnectedBodyResult";
 
 /**
  * Keep one compiled face basis and body basis, or one source generation read

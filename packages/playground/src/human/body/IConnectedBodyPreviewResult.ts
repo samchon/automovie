@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanBodyExteriorCandidateBuild,
 } from "@automovie/human";
 
-import type { ConnectedBodyModel } from "./connectedBodyProtocol";
+import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
 

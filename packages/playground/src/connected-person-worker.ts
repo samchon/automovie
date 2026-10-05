@@ -10,10 +10,8 @@ import type {
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
 
-import {
-  type ConnectedBodyRequest,
-  connectedBodyTransfers,
-} from "./human/body/connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
+import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";

@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 
-import type { IBodyReviewState } from "../body-review/standardBodyReviewDocuments";
+import type { IBodyReviewState } from "../body-review/IBodyReviewState";
 import { assertBodyPoseCensusIdentity } from "./assertBodyPoseCensusIdentity";
 import { bodyPoseCensusRefusalMessage } from "./bodyPoseCensusRefusalMessage";
 import type { BodyPoseDefectZone } from "./bodyPoseDefectZone";

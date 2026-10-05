@@ -25,10 +25,8 @@ import type { IAutoMovieModel } from "@automovie/interface";
 
 import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 import { createConnectedBodyAnatomicalRuntime } from "./createConnectedBodyAnatomicalRuntime";
 import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExteriorRuntime";

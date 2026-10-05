@@ -2,11 +2,9 @@ import { resolveAutoMovieMaterial } from "@automovie/engine";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
-import {
-  AutoMovieTextureCache,
-  buildMaterial,
-  materialTextureBindings,
-} from "./geometry";
+import { AutoMovieTextureCache } from "./AutoMovieTextureCache";
+import { buildMaterial } from "./buildMaterial";
+import { materialTextureBindings } from "./materialTextureBindings";
 
 /**
  * A shot-owned table of model-declared materials lent to non-model drawables.

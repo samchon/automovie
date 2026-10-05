@@ -1,4 +1,4 @@
-import type { ConnectedBodyMesh } from "./connectedBodyProtocol";
+import type { ConnectedBodyMesh } from "./ConnectedBodyMesh";
 
 /**
  * Static mesh geometry of one transferable body part.

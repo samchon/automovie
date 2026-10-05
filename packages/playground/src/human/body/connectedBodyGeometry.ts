@@ -11,10 +11,8 @@ import { validateMeshTopology } from "@automovie/engine";
 import { float32MeshBuffers } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type {
-  ConnectedBodyModel,
-  ConnectedBodyPart,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyModel } from "./ConnectedBodyModel";
+import type { ConnectedBodyPart } from "./ConnectedBodyPart";
 
 /** Validate and pack the local meshes before ownership moves to the page.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the exact posed surface shown by the body editor.

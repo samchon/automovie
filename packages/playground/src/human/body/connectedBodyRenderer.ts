@@ -15,71 +15,11 @@ import {
 import * as THREE from "three";
 
 import { prepareHumanPreview } from "../common/previewScene";
-import type {
-  ConnectedBodyModel,
-  ConnectedBodyPart,
-} from "./connectedBodyProtocol";
-
-interface Resident {
-  group: THREE.Group;
-  parts: ConnectedBodyPart[];
-  meshes: THREE.Mesh[];
-  materials: string;
-  textures: AutoMovieTextureCache;
-  released: boolean;
-}
-interface Frame {
-  resident: Resident;
-  model: ConnectedBodyModel;
-  physical: ConnectedBodyPart["geometry"]["mesh"]["physicalVertices"][];
-}
-
-const sameArray = (
-  a: ArrayLike<number> | null,
-  b: ArrayLike<number> | null,
-): boolean => {
-  if (a === null || b === null) return a === b;
-  if (a.length !== b.length) return false;
-  for (let index = 0; index < a.length; ++index)
-    if (a[index] !== b[index]) return false;
-  return true;
-};
-
-function sameStructure(resident: Resident, model: ConnectedBodyModel): boolean {
-  if (resident.materials !== JSON.stringify(model.materials)) return false;
-  if (resident.parts.length !== model.parts.length) return false;
-  return model.parts.every((part, index) => {
-    const previous = resident.parts[index];
-    if (
-      JSON.stringify({ ...part, geometry: undefined }) !==
-      JSON.stringify({ ...previous, geometry: undefined })
-    )
-      return false;
-    const mesh = part.geometry.mesh;
-    const old = previous.geometry.mesh;
-    return (
-      mesh.positions.length === old.positions.length &&
-      (mesh.normals?.length ?? null) === (old.normals?.length ?? null) &&
-      sameArray(mesh.uvs, old.uvs) &&
-      sameArray(mesh.colors ?? null, old.colors ?? null) &&
-      sameArray(mesh.indices, old.indices)
-    );
-  });
-}
-
-function releaseGroup(group: THREE.Group): void {
-  const materials = new Set<THREE.Material>();
-  group.traverse((object) => {
-    const mesh = object as THREE.Mesh;
-    if (mesh.isMesh !== true) return;
-    mesh.geometry.dispose();
-    for (const material of Array.isArray(mesh.material)
-      ? mesh.material
-      : [mesh.material])
-      materials.add(material);
-  });
-  for (const material of materials) material.dispose();
-}
+import { releaseHumanPreviewGroup } from "../common/releaseHumanPreviewGroup";
+import type { ConnectedBodyModel } from "./ConnectedBodyModel";
+import type { IConnectedBodyFrame } from "./IConnectedBodyFrame";
+import type { IConnectedBodyResident } from "./IConnectedBodyResident";
+import { sameConnectedBodyStructure } from "./sameConnectedBodyStructure";
 
 /** Own and publish the Three.js buffers used by one body editor viewport.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the committed posed body and its material regions without changing its document.
@@ -89,15 +29,15 @@ export function createConnectedBodyRenderer(props: {
   loadTexture: (asset: string) => Promise<THREE.Texture>;
   maxAnisotropy: number;
 }) {
-  let active: Resident | undefined;
-  const release = (resident: Resident): void => {
+  let active: IConnectedBodyResident | undefined;
+  const release = (resident: IConnectedBodyResident): void => {
     if (resident.released) return;
     resident.released = true;
-    releaseGroup(resident.group);
+    releaseHumanPreviewGroup(resident.group);
     void resident.textures.dispose();
   };
   return {
-    prepare: async (model: ConnectedBodyModel): Promise<Frame> => {
+    prepare: async (model: ConnectedBodyModel): Promise<IConnectedBodyFrame> => {
       const physical = model.parts.map((part) => {
         const metadata = structuredClone(part.geometry.mesh.physicalVertices);
         if (metadata !== undefined)
@@ -107,7 +47,7 @@ export function createConnectedBodyRenderer(props: {
           });
         return metadata;
       });
-      if (active !== undefined && sameStructure(active, model))
+      if (active !== undefined && sameConnectedBodyStructure(active, model))
         return { resident: active, model, physical };
       const textures = new AutoMovieTextureCache(async (asset) => {
         const texture = await props.loadTexture(asset);
@@ -155,12 +95,12 @@ export function createConnectedBodyRenderer(props: {
           physical,
         };
       } catch (error) {
-        if (group !== undefined) releaseGroup(group);
+        if (group !== undefined) releaseHumanPreviewGroup(group);
         await textures.dispose();
         throw error;
       }
     },
-    publish: (frame: Frame): THREE.Group => {
+    publish: (frame: IConnectedBodyFrame): THREE.Group => {
       const resident = frame.resident;
       if (resident.released)
         throw new Error("This prepared body has been released.");
@@ -203,7 +143,7 @@ export function createConnectedBodyRenderer(props: {
       active = resident;
       return resident.group;
     },
-    dispose: (frame: Frame): void => {
+    dispose: (frame: IConnectedBodyFrame): void => {
       if (frame.resident !== active) release(frame.resident);
     },
   };

@@ -1,4 +1,4 @@
-import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
 import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/connectedRuntime";
 
 /**

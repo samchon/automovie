@@ -29,7 +29,7 @@ import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
-import type { ConnectedBodyResult } from "./connectedBodyProtocol";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
 import { mountBodyJointControls } from "./mountBodyJointControls";
