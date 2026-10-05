@@ -1,9 +1,6 @@
-import {
-  HUMAN_BODY_ANSUR_II_REFERENCE,
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanBodyChannelScale,
-} from "@automovie/human";
+import { HUMAN_BODY_ANSUR_II_REFERENCE } from "@automovie/human";
+
+import type { IBodyMeasuredControlsProps } from "./IBodyMeasuredControlsProps";
 
 /**
  * Edit only detailed controls with a defined body measurement in millimetres.
@@ -25,30 +22,7 @@ import {
  * cannot erase a measurement the user is still entering. Only a successful
  * solve changes the body document; this draft map is never serialized.
  */
-export function renderBodyMeasuredControls(props: {
-  dom: Document;
-  container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  scales: Map<string, IAutoMovieHumanBodyChannelScale>;
-  kind: string;
-  query: string;
-  drafts: Map<string, string>;
-  current: () => IAutoMovieHumanBodyBasisDocument;
-  reserve: () => number;
-  isCurrent: (ticket: number) => boolean;
-  solve: (
-    shape: Record<string, number>,
-    channel: string,
-    targetMetres: number,
-  ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
-  change: (
-    document: IAutoMovieHumanBodyBasisDocument,
-    ticket: number,
-  ) => Promise<boolean>;
-  busy: (text: string) => void;
-  report: (text: string) => void;
-  refuse: (error: unknown) => void;
-}): void {
+export function renderBodyMeasuredControls(props: IBodyMeasuredControlsProps): void {
   const mm = (metres: number | null): string =>
     metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
   const interval = (band: readonly [number, number]): string =>
@@ -76,7 +50,7 @@ export function renderBodyMeasuredControls(props: {
     label.textContent =
       channel.id.replace(/([a-z])([A-Z])/gu, "$1 $2") +
       ` (${measurement.kind}, mm)`;
-    number.id = "control-" + channel.id;
+    number.id = "body-control-" + channel.id;
     number.type = "number";
     number.step = "0.1";
     number.placeholder = "Target mm";
@@ -115,7 +89,7 @@ export function renderBodyMeasuredControls(props: {
       }
     };
     entry.append(number, apply);
-    note.id = "scale-" + channel.id;
+    note.id = "body-scale-" + channel.id;
     const reference = HUMAN_BODY_ANSUR_II_REFERENCE.get(channel.id);
     const population =
       reference === undefined
