@@ -8,6 +8,7 @@ import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
  * IDs nor evaluation order.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Groups fine controls by facial component for navigation.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Groups channels by component-tree node and drops groups the search leaves empty.
  */
 export function appendConnectedFaceComponentGroups(
   node: IAutoMovieHumanFaceComponentTree.Node,

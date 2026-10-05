@@ -7,6 +7,8 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
  * One allocated face group on the GPU and what decides whether a later
  * frame may write into its buffers instead of allocating a new group.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps one GPU face group and the structure that decides whether a later frame reuses it.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Releases or reuses buffers by structure so obsolete resources do not accumulate across transactions.
  * @author Samchon
  */
 export interface IConnectedFaceResident {

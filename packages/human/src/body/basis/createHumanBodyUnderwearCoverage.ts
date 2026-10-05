@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyUnderwearCoverageProps } from "../structures/IAutoMovieHumanBodyUnderwearCoverageProps";
-import { humanBodySkinLandmark } from "./humanBodySkinLandmark";
+import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
 
 /**
  * The coverage field of a garment style on the body at rest: a signed
@@ -100,7 +100,7 @@ export function createHumanBodyUnderwearCoverage(props: IAutoMovieHumanBodyUnder
       ? (() => {
           const rule = table.bra;
           // admitted with the basis, so the named point is a vertex of its surface
-          const { surface, vertex } = humanBodySkinLandmark(basis, rule.nipple);
+          const { surface, vertex } = humanSkinLandmark(basis, rule.nipple);
           const nipple = rest.surfaces[surface].slice(vertex * 3, vertex * 3 + 3);
           const clavicle = landmark(names.clavicle);
           const shoulder = landmark(names.shoulder);

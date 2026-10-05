@@ -13,6 +13,7 @@ import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/c
 import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
 
+import { createHumanViewerHeadlessWhole } from "./createHumanViewerHeadlessWhole";
 import { fetchHumanViewerPublishedGeneration } from "./fetchHumanViewerPublishedGeneration";
 import { fetchHumanViewerPublishedGenerationBody } from "./fetchHumanViewerPublishedGenerationBody";
 import { fetchHumanViewerPublishedPair } from "./fetchHumanViewerPublishedPair";
@@ -56,7 +57,7 @@ scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
               : readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
                   read: () => fetch(humanViewerBasisUrl(domain, basis)),
                 })
-            ).then(createConnectedBodyRuntime),
+            ).then((asset) => createConnectedBodyRuntime(asset, createHumanViewerHeadlessWhole(asset.id))),
           );
     const start = performance.now();
     const value = await runtime({

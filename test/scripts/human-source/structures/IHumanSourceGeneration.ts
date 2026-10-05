@@ -20,7 +20,7 @@ import type { IHumanSourceGenerationUpstream } from "./IHumanSourceGenerationUps
 import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeights.ts";
 
 /**
- * Source generation bundle G1 (#2689 N1): one person as one connected skin
+ * Source generation bundle G1 (#2689): one person as one connected skin
  * with a head/body partition, the published face and body controls
  * re-addressed onto it, one weight map, the carried rig and parts, and the
  * dependency stamp of every derivative.
@@ -31,7 +31,7 @@ import type { IHumanSourceGenerationWeights } from "./IHumanSourceGenerationWeig
  * on vertices the published body never had has no producer, with the reason.
  * Face articulation and contact are carried in face-vertex terms through
  * `skin.faceVertexToSkin` and stamped accordingly. This is offline producer
- * data for the N2 comparison, not yet a runtime contract.
+ * data the person views are split from, not a runtime contract.
  *
  * The face owns the head partition's shape and the body carries the head
  * rigidly with `anchor` (the eye joint-cube mean of each body endpoint's

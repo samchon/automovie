@@ -73,31 +73,9 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     channel: string;
   }[];
 
-  /** The head's height above the basis's clip ring, metres. */
-  stature: { headAboveRingMetres: number };
-
-  /** Siri's density model, age-dependent head-and-neck share and the trusted fat band. */
+  /** Siri's density model and the trusted fat band. */
   mass: {
     siri: { numerator: number; offset: number };
-    headAndNeck: {
-      /** Jensen's male 4–20-year regression, used only through age 15 here. */
-      pediatric: {
-        intercept: number;
-        ageYearsCoefficient: number;
-        ageYearsSquaredCoefficient: number;
-      };
-      /** Dempster/Winter adult approximation. */
-      adultFraction: number;
-      /** Authored interpolation interval between the two study domains. */
-      transitionAgeYears: [number, number];
-      /**
-       * The neck the skin keeps below its clip ring, which both head-and-neck
-       * segments above count: its share of body mass at a body mass index,
-       * taken out of theirs and falling inversely with the index, as the
-       * neck's volume holds while the body grows.
-       */
-      keptNeck: { fraction: number; bodyMassIndex: number };
-    };
     fatFraction: [number, number];
   };
 

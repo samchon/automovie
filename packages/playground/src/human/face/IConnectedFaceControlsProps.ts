@@ -10,6 +10,8 @@ import type {
  * optional simple map and component tree, the current draft, and the panel's
  * transaction and refusal owners.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Carries the basis, control map, component tree and draft the face controls edit.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Names the transaction and refusal owners face control edits go through.
  * @author Samchon
  */
 export interface IConnectedFaceControlsProps {

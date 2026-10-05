@@ -1,5 +1,5 @@
 /**
- * Compile source generation G1 from one sampling run (#2689 N1), from the
+ * Compile source generation G1 from one sampling run (#2689), from the
  * test CWD:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/human-source/compile-source-generation.ts WORK OUTPUT

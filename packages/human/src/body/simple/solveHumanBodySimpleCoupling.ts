@@ -52,10 +52,11 @@ export function solveHumanBodySimpleCoupling(
     return trial;
   };
   const evaluate = (t: readonly number[]): number[] | null => {
-    const reader = createHumanBodyMeasurementReader(basis, wear(t));
+    const trial = wear(t);
+    const reader = createHumanBodyMeasurementReader(basis, trial);
     const residual: number[] = [];
     for (const unknown of unknowns) {
-      const value = unknown.read(reader);
+      const value = unknown.read(reader, trial);
       if (value === null || !Number.isFinite(value)) return null;
       residual.push((value - unknown.target) / unknown.target);
     }

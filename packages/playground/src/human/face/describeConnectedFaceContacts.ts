@@ -8,6 +8,7 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
  * anatomical validity, and the text says so.
  *
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reports crossing changes relative to the neutral without claiming depth or validity.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reports how the edited face's crossings differ from the source neutral.
  */
 export function describeConnectedFaceContacts(
   before: readonly IAutoMovieModelCrossing[],

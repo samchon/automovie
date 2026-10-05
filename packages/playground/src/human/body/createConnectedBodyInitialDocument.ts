@@ -9,6 +9,8 @@ import {
  * it meets the face at the neck), and micro-relief, uneven tone and
  * superficial veins at their measured strengths.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Gives the editor its starting document, which reset returns to: neutral shape, site-coloured skin and measured micro-relief, tone and veins.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Fixes the initial inputs the editor's controls display before the first edit.
  * @author Samchon
  */
 export function createConnectedBodyInitialDocument(basis: string): IAutoMovieHumanBodyBasisDocument {

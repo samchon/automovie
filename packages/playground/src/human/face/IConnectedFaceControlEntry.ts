@@ -4,6 +4,8 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
  * One row of the connected face controls: what it shows and how an entered
  * value becomes a candidate document.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Describes one face control row and how an entered value becomes a candidate document.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps the row's display separate from the candidate document it produces.
  * @author Samchon
  */
 export interface IConnectedFaceControlEntry {

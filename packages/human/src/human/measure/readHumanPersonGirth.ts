@@ -1,14 +1,14 @@
 import type { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
-import { humanBodySkinLandmark } from "../../body/basis/humanBodySkinLandmark";
+import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
 import { measureHumanBodySection } from "../../body/measure/measureHumanBodySection";
 import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanPersonMeasurement } from "../structures/IAutoMovieHumanPersonMeasurement";
+import type { IAutoMovieHumanPersonGirthMeasurement } from "../structures/IAutoMovieHumanPersonGirthMeasurement";
 import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAutoMovieHumanPersonMeasurementReading";
 import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
 
 /**
- * Read one person measurement on a person's final skin, in metres, or null
+ * Read one person girth on a person's final skin, in metres, or null
  * when the skin cannot answer it.
  *
  * The rule's skin point is read on the body view (`skinLandmarks`) and its
@@ -34,16 +34,16 @@ import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
  * @evidenceExclude contracts/anatomy.md#permitted-range The reader admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The reader converts no input.
  */
-export function readHumanPersonMeasurement(
+export function readHumanPersonGirth(
   model: IAutoMovieModel,
   landmarks: Readonly<Record<string, IAutoMovieVector3>>,
-  rule: IAutoMovieHumanPersonMeasurement,
+  rule: IAutoMovieHumanPersonGirthMeasurement,
   body: IAutoMovieHumanBodyBasis,
 ): IAutoMovieHumanPersonMeasurementReading | null {
   const from = landmarks[rule.from];
   const to = landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
-  const point = humanBodySkinLandmark(body, rule.landmark);
+  const point = humanSkinLandmark(body, rule.landmark);
   const sample = body.surfaces[point.surface].sourcePartition?.samples[point.vertex];
   if (sample === undefined)
     throw new Error(`The body view ${body.id} places ${rule.landmark} on no source sample of the generation.`);

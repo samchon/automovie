@@ -2,7 +2,7 @@ import typia from "typia";
 
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
 import { createHumanBodyBasisBuilder } from "../../basis/createHumanBodyBasisBuilder";
-import { humanBodySkinLandmark } from "../../basis/humanBodySkinLandmark";
+import { humanSkinLandmark } from "../../../common/basis/humanSkinLandmark";
 import { admitHumanBodyAnatomicalDocument } from "../../document/admitHumanBodyAnatomicalDocument";
 import { invertHumanBodyMeasurement } from "../../measure/invertHumanBodyMeasurement";
 import { readHumanBodyShapedMeasurement } from "../../measure/readHumanBodyShapedMeasurement";
@@ -45,7 +45,7 @@ export function createHumanBodyExteriorTargetBuilder(input: IAutoMovieHumanBodyE
   if (reference.measurement.kind !== "girth" || !("level" in reference.measurement) || !reference.measurement.horizontal)
     throw new Error("Exterior instrument requires a horizontal source-witness girth rule.");
   // the witness girth is placed at a named skin point; a basis without it refuses by that name
-  humanBodySkinLandmark(basis, reference.measurement.level);
+  humanSkinLandmark(basis, reference.measurement.level);
   const channel = basis.channels.find((entry) => entry.id === reference.channel);
   if (channel === undefined)
     throw new Error("Exterior instrument needs an existing source shape response.");

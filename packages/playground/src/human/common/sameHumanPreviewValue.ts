@@ -6,6 +6,7 @@
  * string of the whole value, so comparing two large models allocates nothing.
  *
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Decides resident buffer reuse from the actual static model structure.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Decides whether a preview value is unchanged so an edit reuses its displayed buffers.
  */
 export function sameHumanPreviewValue(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;

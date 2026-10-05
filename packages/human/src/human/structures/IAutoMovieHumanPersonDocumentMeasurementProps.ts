@@ -1,10 +1,11 @@
-import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanPersonCompiledGeneration } from "./IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPersonGenerationBuild";
 
 /**
- * Inputs of `measureHumanPersonDocument`: the one-skin evaluator, the person
- * and the body channel that names the measurement.
+ * Inputs of `measureHumanPersonDocument`: the compiled generation, its
+ * one-skin evaluator, the person and the body channel that names the
+ * measurement.
  *
  * @evidence contracts/common.md#principled-implementation The caller owns the evaluator, so a reading reuses one compiled generation.
  * @evidence contracts/common.md#clear-and-simple-design Four fields.
@@ -22,6 +23,9 @@ import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPers
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonDocumentMeasurementProps {
+  /** The person's compiled generation, whose body view declares the rules' skin points. */
+  compiled: IAutoMovieHumanPersonCompiledGeneration;
+
   /**
    * The one-skin evaluator of the person's generation.
    *
@@ -40,9 +44,6 @@ export interface IAutoMovieHumanPersonDocumentMeasurementProps {
    * @evidenceExclude contracts/anatomy.md#parametric-authority The member converts no input.
    */
   build: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild;
-
-  /** The body view of the person's generation, which declares the rule's skin point. */
-  body: IAutoMovieHumanBodyBasis;
 
   /** The person to measure. */
   document: IAutoMovieHumanPersonDocument;

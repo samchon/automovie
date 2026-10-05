@@ -18,7 +18,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createBodySimpleWorkerTransport } from "./human/body/bodySimpleWorkerTransport";
 import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
 import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
 import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
 import { mountConnectedPersonPanel } from "./human/person/connectedPersonPanel";
@@ -27,12 +29,7 @@ import { connectedPersonPosePresets } from "./human/person/connectedPersonPosePr
 import { connectedPersonStandardDocument } from "./human/person/connectedPersonStandardDocument";
 
 async function main(): Promise<void> {
-  // Literal asset URLs, which the bundler resolves relative to this module.
-  const asset = <T,>(url: URL): Promise<T> => readConnectedFaceAsset<T>({ read: () => fetch(url) });
-  const [head, body] = await Promise.all([
-    asset<IAutoMovieHumanPersonHeadView>(new URL("../../../test/studies/human-person/generation/head.json.gz", import.meta.url)),
-    asset<IAutoMovieHumanPersonBodyView>(new URL("../../../test/studies/human-person/generation/body.json.gz", import.meta.url)),
-  ]);
+  const [head, body] = await Promise.all([readConnectedHeadView(), readConnectedBodyView()]);
   const initial = connectedPersonStandardDocument(head.face.id, body.body.id);
   const { ask } = createBodySimpleWorkerTransport(
     () => new Worker(new URL("./connected-person-measure-worker.ts", import.meta.url), { type: "module" }),
@@ -69,14 +66,7 @@ async function main(): Promise<void> {
         channel,
         targetMetres,
       }),
-    download: (filename, bytes, mime) => {
-      const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = filename;
-      anchor.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    },
+    download: downloadConnectedFile,
   });
   await panel.ready;
 }

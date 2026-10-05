@@ -11,6 +11,8 @@ import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasuremen
  * intent tickets, the off-thread measured solve and the panel's transaction,
  * status and refusal owners.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the body view, current body and solver the person's body section edits with.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the section root, intent tickets and transaction owners of the body controls.
  * @author Samchon
  */
 export interface IConnectedPersonBodyControlsProps {

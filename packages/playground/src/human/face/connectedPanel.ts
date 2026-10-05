@@ -29,6 +29,31 @@ import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Publishes and downloads only the latest committed document/model while refusing invalid or obsolete requests.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Binds scalar controls to numerical edits, states each control's envelope and measured metric effect, and keeps camera and display state outside replay data.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares transactional history and cancels stale file reads and builds by generation.
+ * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The panel is the face editing screen alone; the face domain index also spans the package builder, provenance and review.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The panel lists component controls and composes no component; the package builder does.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The panel displays articulation readings and evaluates no jaw, lid or attachment; the package builder does.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact The panel reports contact readings and evaluates no lip, tooth or tongue contact; the package builder does.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The panel binds controls to the document; the package resolves controls and replacements.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The panel parses and serializes through the package and defines no document rule.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The panel applies expression presets; the package separates identity from expression.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-provenance The panel records no photograph provenance.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-review The panel produces no review evidence or likeness judgement.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The panel colours no skin; the package builder does.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition The panel shapes no skin condition or wrinkle.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps The panel builds no surface map.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The panel owns the face editing screen boundary only.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation The panel evaluates no articulation.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments The panel builds no shared joint or internal structure.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The panel builds no component or surface composition.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The panel evaluates no contact.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The panel resolves no control or replacement.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The panel holds no replay basis of its own.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression The panel defines no expression or optical reference.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair The panel generates no hair.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance The panel executes no photograph source.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The panel records no review state or source.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour The panel colours no skin.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition The panel divides no skin into local regions.
  */
 export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
   app: HTMLElement,

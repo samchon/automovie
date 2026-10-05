@@ -1,14 +1,14 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
-import { solveHumanBodyMeasuredChannel } from "../measure/solveHumanBodyMeasuredChannel";
+import type { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
+import { invertHumanBodyMeasurement } from "../measure/invertHumanBodyMeasurement";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
 import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
 import type { IHumanBodySimpleUnknown } from "./IHumanBodySimpleUnknown";
 import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
-import { humanBodySimpleStature } from "./humanBodySimpleStature";
-import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "./projectHumanBodySimpleShape";
 import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
@@ -21,7 +21,7 @@ import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
 const TAPE_TOLERANCE_METRES = 1e-3;
 const STATURE_TOLERANCE_METRES = 1e-4;
 const MASS_TOLERANCE_KILOGRAMS = 0.05;
-type Reader = Parameters<typeof humanBodySimpleStature>[0];
+type Reader = ReturnType<typeof createHumanBodyMeasurementReader>;
 /** Warm-up passes before simultaneous inversion; failure resumes the original eight-pass budget. */
 const ROUNDS = 2;
 const PASSES = 8;
@@ -42,14 +42,13 @@ const CONVERGENCE = 1e-5;
  * identity back as the first row's inverse of the weight less the other rows,
  * which is only the sum's inverse.
  * The measured values are then solved in turn, each with the weights so far
- * worn: the height channel is inverted against the actual shaped-skin height
- * through the same bounded metric solver the detailed editor uses, with the
- * head allowance added to the ring height. Because stature, girth and mass
+ * worn: the height channel is inverted against the whole person's actual
+ * stature (`whole.stature`, floor to the top of the head) through the same
+ * bounded inverse the detailed editor uses. Because stature, girth and mass
  * change one another, their weights are then solved in rounds until none
  * moves: each requested girth or rig distance uses its channel's rule, and the
- * weight channel reads the mass the skin volume
- * encloses at the fat fraction's density over the age-dependent head-and-neck
- * share. A value outside measured reach is refused with that reach, never clamped;
+ * weight channel reads the mass the whole person's closed skin
+ * (`whole.volume`) encloses at the fat fraction's density. A value outside measured reach is refused with that reach, never clamped;
  * a basis without the solved channels, or a measurement its surface cannot
  * answer, is refused before geometry is kept.
  *
@@ -84,6 +83,7 @@ const CONVERGENCE = 1e-5;
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
+  whole: IAutoMovieHumanBodySimpleWhole,
   simple: IAutoMovieHumanBodySimpleShape,
   over?: Record<string, number>,
 ): Record<string, number> {
@@ -142,14 +142,25 @@ export function expandHumanBodySimpleShape(
     );
   };
   const stature = table.solved.stature;
+  const statureChannel = channels.get(stature);
+  if (statureChannel === undefined)
+    throw new Error("A simple body needs the stature channel " + stature + ".");
+  // the stature channel inverted against the whole person's actual stature
   const matchStature = (): void => {
-    shape[stature] =
-      solveHumanBodyMeasuredChannel({
-        basis,
-        shape,
-        channel: stature,
-        targetMetres: simple.statureMetres - table.stature.headAboveRingMetres,
-      }).shape[stature] ?? 0;
+    const worn = (weight: number): Record<string, number> => {
+      const trial = { ...shape };
+      if (weight === 0) delete trial[stature];
+      else trial[stature] = weight;
+      return trial;
+    };
+    shape[stature] = invertHumanBodyMeasurement({
+      range: [statureChannel.minimum, statureChannel.maximum],
+      current: shape[stature] ?? 0,
+      targetMetres: simple.statureMetres,
+      read: (weight) => whole.stature(worn(weight)),
+      label: "stature",
+    }).weight;
+    if (shape[stature] === 0) delete shape[stature];
   };
   matchStature();
   const density = math.density(
@@ -176,20 +187,14 @@ export function expandHumanBodySimpleShape(
     solve(
       direction.mass(basis, parameters),
       simple.massKilograms,
-      (trial) =>
-        measure.mass(
-          measure.volume(basis, trial),
-          density,
-          simple.ageYears,
-          parameters.bodyMassIndex,
-        ),
+      (trial) => measure.mass(whole.volume(trial), density),
       "mass",
       saturate,
     );
     solve(
       statureAlong,
       simple.statureMetres,
-      (trial) => measure.stature(basis, trial),
+      (trial) => whole.stature(trial),
       "stature",
       saturate,
     );
@@ -222,20 +227,14 @@ export function expandHumanBodySimpleShape(
       tolerance: MASS_TOLERANCE_KILOGRAMS,
       along: direction.mass(basis, parameters),
       target: simple.massKilograms,
-      read: (reader: Reader) =>
-        measure.mass(
-          humanBodySimpleVolume(basis, reader.shaped),
-          density,
-          simple.ageYears,
-          parameters.bodyMassIndex,
-        ),
+      read: (_reader: Reader, trial: Record<string, number>) => measure.mass(whole.volume(trial), density),
     },
     {
       name: "statureMetres",
       tolerance: STATURE_TOLERANCE_METRES,
       along: statureAlong,
       target: simple.statureMetres,
-      read: humanBodySimpleStature,
+      read: (_reader: Reader, trial: Record<string, number>) => whole.stature(trial),
     },
   ];
   const together = solveHumanBodySimpleCoupling(basis, shape, unknowns);
@@ -250,8 +249,10 @@ export function expandHumanBodySimpleShape(
   // one leaves its channel exactly as the shape had it
   const origin = expandHumanBodySimpleShape(
     basis,
+    whole,
     projectHumanBodySimpleShape(
       basis,
+      whole,
       over,
       table.measurements
         .map((entry) => entry.parameter)

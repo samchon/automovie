@@ -1,16 +1,20 @@
 import { HUMAN_PERSON_MEASUREMENTS } from "../constants/HUMAN_PERSON_MEASUREMENTS";
 import type { IAutoMovieHumanPersonDocumentMeasurementProps } from "../structures/IAutoMovieHumanPersonDocumentMeasurementProps";
 import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAutoMovieHumanPersonMeasurementReading";
-import { readHumanPersonMeasurement } from "./readHumanPersonMeasurement";
+import { readHumanPersonGirth } from "./readHumanPersonGirth";
+import { readHumanPersonRest } from "./readHumanPersonRest";
 import { restHumanPersonDocument } from "./restHumanPersonDocument";
 
 /**
  * Measure a person document with the person measurement named by a body
  * channel, at rest.
  *
- * The protocol measures a standing person, so the document is built in that
- * posture (`restHumanPersonDocument`) on the caller's one-skin evaluator, and
- * the final Float32 skin is read by `readHumanPersonMeasurement`.
+ * The protocols measure a standing person, so the person is read at rest. A
+ * girth builds the document in that posture (`restHumanPersonDocument`) on
+ * the caller's one-skin evaluator and reads the final Float32 skin
+ * (`readHumanPersonGirth`). Stature reads the closed rest skin
+ * (`readHumanPersonRest`), whose Float32 positions equal the full
+ * evaluator's at every source sample.
  * The editor's current reading and every trial of
  * `solveHumanPersonMeasuredChannel` take this same reading. An unknown
  * measurement, or a skin the instrument cannot close, refuses by name.
@@ -37,8 +41,10 @@ export function measureHumanPersonDocument(
     : undefined;
   if (rule === undefined)
     throw new Error("No person measurement is named by the body channel " + props.channel + ".");
+  if (rule.kind === "stature")
+    return { metres: readHumanPersonRest(props.compiled, props.document).statureMetres };
   const built = props.build(restHumanPersonDocument(props.document));
-  const reading = readHumanPersonMeasurement(built.model, built.body.landmarks, rule, props.body);
+  const reading = readHumanPersonGirth(built.model, built.body.landmarks, rule, props.compiled.generation.body);
   if (reading === null) throw new Error("The current person cannot measure " + props.channel + ".");
   return reading;
 }

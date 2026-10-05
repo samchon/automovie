@@ -40,6 +40,30 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * committed document; Export GLB exports it and is discarded if the committed
  * model changed meanwhile. The panel evaluates nothing itself.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Edits the person's body subtree with the body editor's measured, joint and pose controls.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Edits the person's face subtree with the face editor's shape and expression controls.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Runs body edits through one transaction history and worker, keeping the last valid person on a failure.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Runs face edits through the same transaction owner so a refused edit keeps the last valid state.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps the last valid person document and model when a face or body edit is refused or superseded.
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The person panel is one editing screen; the body domain index also spans extraction, evaluation and review owned elsewhere.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The panel evaluates no body endpoint or corrective; the person builder in the worker does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The panel writes joint rows and articulates nothing; the person builder resolves and skins the pose.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The person editor offers no simple-tier inputs; the body editor owns that tier.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The person editor offers no underwear selection.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The person editor exports a whole-person file, not the body file this unit defines.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The panel evaluates no face endpoint; the person builder replays the head view.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-export The person editor exports a whole-person file, not the face file this unit defines.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The person panel owns its editing screen boundary only.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no body basis evaluation.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The person editor runs no simple-tier expansion or inversion.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The person editor evaluates no underwear region.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The person editor serializes no body file.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The panel compiles no face basis; the person generation does.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris The person editor offers no iris pigment control.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre The person editor offers no fibre-card pigment or density control.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion The person editor bakes no ambient occlusion.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export The person editor serializes no face file.
  * @author Samchon
  */
 export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(

@@ -11,18 +11,14 @@ import type {
 } from "@automovie/human";
 
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
 import type { IConnectedPersonWorkerMessage } from "./human/person/IConnectedPersonWorkerMessage";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-// Literal asset URLs, which the bundler resolves relative to this module.
-const asset = <T,>(url: URL): Promise<T> => readConnectedFaceAsset<T>({ read: () => fetch(url) });
-const prepared = Promise.all([
-  asset<IAutoMovieHumanPersonHeadView>(new URL("../../../test/studies/human-person/generation/head.json.gz", import.meta.url)),
-  asset<IAutoMovieHumanPersonBodyView>(new URL("../../../test/studies/human-person/generation/body.json.gz", import.meta.url)),
-]).then(([head, body]) => createConnectedPersonRuntime([head, body]));
+const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, body]) => createConnectedPersonRuntime([head, body]));
 const handle = createHumanResidentHandler({
   prepare: prepared,
   send: (reply) =>

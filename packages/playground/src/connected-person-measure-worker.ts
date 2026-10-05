@@ -24,34 +24,31 @@ import {
   solveHumanPersonMeasuredChannel,
 } from "@automovie/human";
 
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
-import { connectedPersonBodyReach } from "./human/person/connectedPersonBodyReach";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
+import { connectedBodyReach } from "./human/common/connectedBodyReach";
 import type { IConnectedPersonEvaluator } from "./human/person/IConnectedPersonEvaluator";
 import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonMeasureMessage } from "./human/person/IConnectedPersonMeasureMessage";
 import { prepareConnectedPersonEvaluator } from "./human/person/prepareConnectedPersonEvaluator";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const body = readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
-  read: () =>
-    fetch(new URL("../../../test/studies/human-person/generation/body.json.gz", import.meta.url)),
-});
+const body = readConnectedBodyView();
 // The solve brackets within the reach the body view can evaluate, the same
-// reach the panel shows (`connectedPersonBodyReach`).
-const reach = body.then((view) => connectedPersonBodyReach(view.body).basis);
+// reach the panel shows (`connectedBodyReach`).
+const reach = body.then((view) => connectedBodyReach(view.body).basis);
 let person: Promise<IConnectedPersonEvaluator> | undefined;
 // compiled the first time a person kind arrives
 const evaluator = (): Promise<IConnectedPersonEvaluator> =>
   (person ??= prepareConnectedPersonEvaluator(
-    readConnectedFaceAsset<IAutoMovieHumanPersonHeadView>({
-      read: () =>
-        fetch(new URL("../../../test/studies/human-person/generation/head.json.gz", import.meta.url)),
-    }),
+    readConnectedHeadView(),
     body,
   ));
 
 scope.onmessage = async (event: MessageEvent<IConnectedPersonMeasureMessage>) => {
   const request = event.data;
+  // kept before narrowing, for the refusal of a kind outside the union
+  const kind: string = request.kind;
   try {
     if (request.kind === "solveMeasurement") {
       const result = solveHumanBodyMeasuredChannel({
@@ -64,10 +61,10 @@ scope.onmessage = async (event: MessageEvent<IConnectedPersonMeasureMessage>) =>
       return;
     }
     if (request.kind === "readPersonMeasurement") {
-      const { generation, build } = await evaluator();
+      const { compiled, build } = await evaluator();
       const reading = measureHumanPersonDocument({
+        compiled,
         build,
-        body: generation.body,
         document: parseHumanPersonDocument(request.document),
         channel: request.channel,
       });
@@ -75,9 +72,9 @@ scope.onmessage = async (event: MessageEvent<IConnectedPersonMeasureMessage>) =>
       return;
     }
     if (request.kind === "solvePersonMeasurement") {
-      const { generation, build } = await evaluator();
+      const { compiled, build } = await evaluator();
       const solved = solveHumanPersonMeasuredChannel({
-        generation,
+        compiled,
         build,
         document: parseHumanPersonDocument(request.document),
         channel: request.channel,
@@ -91,7 +88,7 @@ scope.onmessage = async (event: MessageEvent<IConnectedPersonMeasureMessage>) =>
       scope.postMessage({ id: request.id, result });
       return;
     }
-    throw new Error("The person editor's measurement worker does not answer " + request.kind + ".");
+    throw new Error("The person editor's measurement worker does not answer " + kind + ".");
   } catch (error) {
     scope.postMessage({
       id: request.id,

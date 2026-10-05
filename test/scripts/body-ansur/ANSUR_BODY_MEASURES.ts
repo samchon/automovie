@@ -69,13 +69,6 @@ export const ANSUR_BODY_MEASURES: readonly IAnsurBodyMeasure[] = [
     reason: "the body reads the maximum tape at 25 to 60 percent of the thigh, ANSUR at the gluteal furrow",
   },
   {
-    name: "neck-base height",
-    read: { kind: "channel", id: "macroHeight" },
-    column: "cervicaleheight",
-    sameDefinition: false,
-    reason: "the body ends at the clip ring of its neck, ANSUR at the seventh cervical spine",
-  },
-  {
     name: "upper arm length",
     read: { kind: "channel", id: "measureUpperarmLength" },
     column: "acromionradialelength",

@@ -1,4 +1,4 @@
-"""Sample the pinned MPFB human for the human source generation (#2689, N1).
+"""Sample the pinned MPFB human for the human source generation (#2689).
 
 Run headless in Blender with the isolated profile prepared by
 `prepare-mpfb-profile.py` (the orchestrator `regenerate-source-generation.ts`

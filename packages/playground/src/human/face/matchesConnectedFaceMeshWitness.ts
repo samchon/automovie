@@ -10,6 +10,7 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
  * GPU material preparation still do.
  *
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Reuses a gate verdict only for exactly the certified arrays.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Decides whether a mesh is exactly the certified one so its verdict may be reused.
  */
 export function matchesConnectedFaceMeshWitness(
   mesh: IAutoMovieMesh,

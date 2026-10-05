@@ -1,5 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
 
+import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
 import { assertHumanFaceContact } from "./assertHumanFaceContact";
@@ -19,6 +20,7 @@ import { assertHumanFaceContact } from "./assertHumanFaceContact";
  * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceBasis carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceBasis admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceBasis defines no input through which a caller shapes a human form.
+ * @evidence contracts/modeling.md#spatial-conventions Named skin points are admitted as indices into the basis's own surfaces (`assertHumanSkinLandmarks`).
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertHumanFaceBasis is a computation over existing data and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#parameter-channels assertHumanFaceBasis defines and consumes no parameter channel of a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry assertHumanFaceBasis emits no primitive.
@@ -26,6 +28,7 @@ import { assertHumanFaceContact } from "./assertHumanFaceContact";
  * @evidenceExclude contracts/modeling.md#rendered-observation assertHumanFaceBasis owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
+  assertHumanSkinLandmarks(basis);
   const unique = (ids: string[]): void => {
     if (ids.some((id) => id.trim() === "") || new Set(ids).size !== ids.length)
       throw new Error("Facial basis identities must be nonempty and unique.");

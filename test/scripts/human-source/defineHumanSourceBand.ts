@@ -148,7 +148,7 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
       targets,
       attachments,
       band: {
-        convention: "smallest reach without a band fold in the N2 sweep of the one-skin evaluator (40/60/80/112.5 mm): an authored rig convention, not a measurement",
+        convention: "smallest reach without a band fold in a sweep of the one-skin person evaluator (40/60/80/112.5 mm): an authored rig convention, not a measurement",
         reachMetres,
         axis,
         loopSamples: loop,

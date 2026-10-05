@@ -24,6 +24,10 @@ import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
  * measurements whose site crosses the head/body cut; `download` saves a
  * file the user asked for.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Mounts the person editor with the body view whose controls it lists.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Mounts the person editor with the head view whose face controls it lists.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Supplies the viewport and download sink the transactional editor drives.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Supplies the standard person the editor screen opens with.
  * @author Samchon
  */
 export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel> {

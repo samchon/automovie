@@ -46,7 +46,8 @@ import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
 export function solveHumanPersonMeasuredChannel(
   props: IAutoMovieHumanPersonMeasuredChannelProps,
 ): IAutoMovieHumanPersonMeasuredChannelSolution {
-  const { generation, document, channel: id, targetMetres } = props;
+  const { compiled, document, channel: id, targetMetres } = props;
+  const generation = compiled.generation;
   const rule = Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, id) ? HUMAN_PERSON_MEASUREMENTS[id] : undefined;
   const channel = generation.body.channels.find((one) => one.id === id);
   // one instrument per channel: a channel the body rule table measures is the body's
@@ -64,7 +65,7 @@ export function solveHumanPersonMeasuredChannel(
     return next;
   };
   const read = (weight: number): IAutoMovieHumanPersonMeasurementReading =>
-    measureHumanPersonDocument({ build: props.build, body: generation.body, document: worn(weight), channel: id });
+    measureHumanPersonDocument({ compiled, build: props.build, document: worn(weight), channel: id });
   const solved = invertHumanBodyMeasurement({
     range: [channel.minimum, channel.maximum],
     current: document.body.shape[id] ?? 0,

@@ -2,8 +2,8 @@ import type { IAutoMovieHumanBodySectionPlane } from "../../body/structures/IAut
 import type { IAutoMovieHumanBodySectionReading } from "../../body/structures/IAutoMovieHumanBodySectionReading";
 
 /**
- * One person measurement read on a final skin: the value, the closed section
- * it was read from and the plane that cut it.
+ * One person measurement read on a final skin: the value and, for a girth,
+ * the closed section it was read from and the plane that cut it.
  *
  * @evidence contracts/common.md#principled-implementation The value, its section and its plane travel together so an observer reads the same cut.
  * @evidence contracts/common.md#clear-and-simple-design Three fields.
@@ -24,9 +24,9 @@ export interface IAutoMovieHumanPersonMeasurementReading {
   /** The measured value, metres. */
   metres: number;
 
-  /** The closed section loop the value was read from. */
-  section: IAutoMovieHumanBodySectionReading;
+  /** The closed section loop a girth was read from; absent for stature. */
+  section?: IAutoMovieHumanBodySectionReading;
 
-  /** The plane that cut the skin. */
-  plane: IAutoMovieHumanBodySectionPlane;
+  /** The plane that cut the skin for a girth; absent for stature. */
+  plane?: IAutoMovieHumanBodySectionPlane;
 }

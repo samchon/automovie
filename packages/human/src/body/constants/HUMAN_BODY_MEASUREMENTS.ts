@@ -17,10 +17,10 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
  *
  * Distances are straight landmark-to-landmark lengths; `napeToWaist` and
  * `waistToHip` are stated on the spine cubes rather than on the section
- * heights so the same rule evaluates on any shape. Neck girth and neck height
- * have no rule: the neck lies above the clip and belongs to the face basis.
- * `macroHeight` reads the ring height above the ground as the body's stand-in
- * for stature.
+ * heights so the same rule evaluates on any shape. Neck girth, neck height
+ * and stature have no rule here: the neck crosses the head/body cut and
+ * stature reaches the top of the head, which a body basis lacks. They are
+ * person measurements (`HUMAN_PERSON_MEASUREMENTS`).
  */
 export const HUMAN_BODY_MEASUREMENTS: Record<
   string,
@@ -173,5 +173,4 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     from: "joint-l-knee",
     to: "joint-l-ankle",
   },
-  macroHeight: { kind: "height" },
 };

@@ -7,6 +7,8 @@ import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasure
  * the current person, the panel's intent tickets, the off-thread reader and
  * solver, and the panel's transaction, status and refusal owners.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Carries the off-thread reader and solver the person measurement rows call.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the container, current person and transaction owners of the measurement rows.
  * @author Samchon
  */
 export interface IConnectedPersonMeasuredControlsProps {

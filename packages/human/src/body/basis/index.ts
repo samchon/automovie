@@ -35,4 +35,3 @@ export * from "./skinHumanBodySurface";
 export * from "./appearance/createHumanBodySkinDetailTexture";
 export * from "./appearance/createHumanBodySkinToneTexture";
 export * from "./appearance/humanBodySkinMetresPerUv";
-export * from "./humanBodySkinLandmark";

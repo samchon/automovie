@@ -35,10 +35,6 @@ import type { ConnectedBodyResult } from "../body/ConnectedBodyResult";
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The runtime names no face component; the person builder composes the face and body parts.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The runtime evaluates no jaw, lid or attachment articulation; the person builder does.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact The runtime evaluates no lip, tooth or tongue contact; the face builder inside the person builder does.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The runtime offers no control or component replacement; it only answers requests for an admitted document.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The runtime parses a person document and defines no independent face document.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-export The runtime exports the composed whole person on request, not the static face asset this unit names.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The runtime separates no identity from expression; the person document carries them to the builder.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-provenance The runtime records no photograph provenance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-review The runtime produces no review evidence or likeness judgement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The runtime colours no skin; the person builder does.
@@ -49,10 +45,6 @@ import type { ConnectedBodyResult } from "../body/ConnectedBodyResult";
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments The runtime builds no shared joint or internal structure; the person builder owns the seam.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The runtime builds no component or surface composition of its own.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The runtime evaluates no contact.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The runtime resolves no control or replacement.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The runtime holds no replay basis of its own; the bases are the builder's inputs.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export The runtime exports a composed whole person, not the static face exchange this unit names.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression The runtime defines no expression or optical reference.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair The runtime generates no hair.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance The runtime executes no photograph source.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The runtime records no review state or source.

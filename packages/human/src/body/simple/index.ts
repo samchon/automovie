@@ -1,7 +1,6 @@
 export * from "./assertHumanBodySimpleValues";
 export * from "./IHumanBodySimpleUnknown";
 export * from "./expandHumanBodySimpleShape";
-export * from "./humanBodyClipRing";
 export * from "./humanBodySimplePosture";
 export * from "./humanBodySimpleShapeDirection";
 export * from "./humanBodySimpleShapeMath";

@@ -1,15 +1,15 @@
 import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
-import type { IAutoMovieHumanPersonGeneration } from "./IAutoMovieHumanPersonGeneration";
+import type { IAutoMovieHumanPersonCompiledGeneration } from "./IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPersonGenerationBuild";
 
 /**
- * Inputs of `solveHumanPersonMeasuredChannel`: the generation and the one-skin
+ * Inputs of `solveHumanPersonMeasuredChannel`: the compiled generation and the one-skin
  * evaluator built from it, the person, the body channel to solve and the
  * target.
  *
  * @evidence contracts/common.md#principled-implementation The caller owns the evaluator, so repeated solves reuse one compiled generation.
  * @evidence contracts/common.md#clear-and-simple-design Five fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The generation is passed so the solver can refuse a channel the head view does not carry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The compiled generation is passed so the solver can refuse a channel the head view does not carry.
  * @evidence contracts/common.md#meaningful-documentation States what each field is.
  * @evidence contracts/modeling.md#parameter-channels Names the one body channel the solve changes.
  * @evidence contracts/modeling.md#spatial-conventions The target is metres.
@@ -23,8 +23,8 @@ import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPers
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonMeasuredChannelProps {
-  /** The joined generation the evaluator was built from. */
-  generation: IAutoMovieHumanPersonGeneration;
+  /** The compiled generation the evaluator was built from. */
+  compiled: IAutoMovieHumanPersonCompiledGeneration;
 
   /**
    * The one-skin evaluator of that generation.

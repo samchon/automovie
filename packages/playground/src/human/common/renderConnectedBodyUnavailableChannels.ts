@@ -1,15 +1,17 @@
 import type { IAutoMovieHumanBodyBasisChannel } from "@automovie/human";
 
-import { createConnectedPersonDisabledRow } from "./createConnectedPersonDisabledRow";
+import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
 
 /**
  * Append the body channels the generation cannot evaluate, as disabled rows
  * naming each missing source target, under a collapsed group. Only channels
  * matching the search query are listed; nothing is appended when none match.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the body channels the generation cannot evaluate, naming each missing source target.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Appends the matching unavailable channels as disabled rows under a collapsed group.
  * @author Samchon
  */
-export function renderConnectedPersonUnavailableChannels(
+export function renderConnectedBodyUnavailableChannels(
   dom: Document,
   container: HTMLElement,
   missing: readonly IAutoMovieHumanBodyBasisChannel[],
@@ -24,7 +26,7 @@ export function renderConnectedPersonUnavailableChannels(
   group.append(summary);
   for (const channel of listed)
     group.append(
-      createConnectedPersonDisabledRow(
+      createConnectedDisabledRow(
         dom,
         channel.id,
         [channel.positive, channel.negative]

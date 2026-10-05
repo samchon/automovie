@@ -11,6 +11,8 @@ import { createConnectedBodyViewport } from "./connectedBodyViewport";
  * texture loading and resize observation. `serialize` is given for a
  * document other than the body basis document.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Assembles the canvas, orbit, numerical body worker and textures the editor's whole-figure view runs on.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Wires the persistent body worker that compiles the basis once and evaluates each document for the viewport.
  * @author Samchon
  */
 export function createConnectedBodyPageViewport<

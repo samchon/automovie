@@ -21,6 +21,8 @@ import type { IConnectedBodyHeadSeatProps } from "./IConnectedBodyHeadSeatProps"
  * head that cannot be built is appended to the status line and body editing
  * continues without it.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Seats the companion head on the edited body in its own worker and keeps body editing alive when the head cannot be built.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows or hides the companion head as display state outside the document and reports a head failure on the status line.
  * @author Samchon
  */
 export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps): (model: unknown, body: IAutoMovieHumanBodyBasisDocument) => void {

@@ -1,13 +1,14 @@
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodySkinLandmark } from "../structures/surface/IAutoMovieHumanBodySkinLandmark";
+import { findHumanSkinLandmark } from "./findHumanSkinLandmark";
+import type { IAutoMovieHumanSkinLandmark } from "./IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinLandmarkHolder } from "./IAutoMovieHumanSkinLandmarkHolder";
 
 /**
- * A body basis's named skin point, or a refusal naming the point and the
- * basis when the basis does not declare it. There is no fallback: another
- * basis's vertex number names a different place.
+ * A basis's named skin point, or a refusal naming the point and the basis
+ * when the basis does not declare it. There is no fallback: another basis's
+ * vertex number names a different place.
  *
- * @evidence contracts/common.md#principled-implementation Every consumer resolves a named point through this one lookup, so all refuse the same way.
- * @evidence contracts/common.md#clear-and-simple-design One own-property lookup and one refusal.
+ * @evidence contracts/common.md#principled-implementation Every refusing consumer resolves through the shared lookup, so all refuse the same way.
+ * @evidence contracts/common.md#clear-and-simple-design One lookup and one refusal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing point refuses by name; no default index is supplied.
  * @evidence contracts/common.md#meaningful-documentation States the result and the refusal.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
@@ -20,14 +21,12 @@ import type { IAutoMovieHumanBodySkinLandmark } from "../structures/surface/IAut
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function humanBodySkinLandmark(
-  basis: Pick<IAutoMovieHumanBodyBasis, "id" | "skinLandmarks">,
+export function humanSkinLandmark(
+  basis: Pick<IAutoMovieHumanSkinLandmarkHolder, "id" | "skinLandmarks">,
   name: string,
-): IAutoMovieHumanBodySkinLandmark {
-  const point = basis.skinLandmarks !== undefined && Object.hasOwn(basis.skinLandmarks, name)
-    ? basis.skinLandmarks[name]
-    : undefined;
+): IAutoMovieHumanSkinLandmark {
+  const point = findHumanSkinLandmark(basis, name);
   if (point === undefined)
-    throw new Error(`The body basis ${basis.id} declares no skin landmark ${name}.`);
+    throw new Error(`The basis ${basis.id} declares no skin landmark ${name}.`);
   return point;
 }

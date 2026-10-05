@@ -3,16 +3,11 @@ import {
   type IAutoMovieHumanBodySimpleShape,
 } from "@automovie/human";
 
+import type { IBodySimpleControlsProps } from "./IBodySimpleControlsProps";
+import type { IBodySimpleField } from "./IBodySimpleField";
+
 /** The simple parameters as inputs: label, unit, display scale and step; the optional ones may be left blank. */
-const FIELDS: {
-  key: keyof IAutoMovieHumanBodySimpleShape;
-  label: string;
-  unit: string;
-  /** Display units per metre or per unit of the parameter (cm shown for metres). */
-  scale: number;
-  step: number;
-  optional: boolean;
-}[] = [
+const FIELDS: IBodySimpleField[] = [
   {
     key: "sex",
     label: "Sex (feminine -1 … masculine +1)",
@@ -20,6 +15,7 @@ const FIELDS: {
     scale: 1,
     step: 0.05,
     optional: false,
+    whole: false,
   },
   {
     key: "ageYears",
@@ -28,6 +24,7 @@ const FIELDS: {
     scale: 1,
     step: 1,
     optional: false,
+    whole: false,
   },
   {
     key: "statureMetres",
@@ -36,6 +33,7 @@ const FIELDS: {
     scale: 100,
     step: 1,
     optional: false,
+    whole: true,
   },
   {
     key: "massKilograms",
@@ -44,6 +42,7 @@ const FIELDS: {
     scale: 1,
     step: 0.5,
     optional: false,
+    whole: true,
   },
   {
     key: "muscle",
@@ -52,6 +51,7 @@ const FIELDS: {
     scale: 1,
     step: 0.05,
     optional: false,
+    whole: false,
   },
   {
     key: "waistMetres",
@@ -60,6 +60,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "hipsMetres",
@@ -68,6 +69,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "bustMetres",
@@ -76,6 +78,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "shoulderMetres",
@@ -84,6 +87,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "thighMetres",
@@ -92,6 +96,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "upperArmMetres",
@@ -100,6 +105,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
   {
     key: "calfMetres",
@@ -108,6 +114,7 @@ const FIELDS: {
     scale: 100,
     step: 0.5,
     optional: true,
+    whole: false,
   },
 ];
 
@@ -151,36 +158,7 @@ const FIELDS: {
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
  */
-export const renderBodySimpleControls = (props: {
-  dom: Document;
-  container: HTMLElement;
-  /** The expansion over the current shape, solved off the page's thread. */
-  expand: (
-    simple: IAutoMovieHumanBodySimpleShape,
-    over: Record<string, number>,
-  ) => Promise<Record<string, number>>;
-  /** The projection of a detailed shape, solved off the page's thread. */
-  project: (
-    shape: Record<string, number>,
-  ) => Promise<IAutoMovieHumanBodySimpleShape>;
-  /** The current detailed shape the expansion applies over. */
-  current: () => Record<string, number>;
-  /** Reserve the panel's intent generation synchronously at Apply click. */
-  reserveIntent: () => number;
-  /** Read or check the panel generation when asynchronous work settles. */
-  currentIntent: () => number;
-  isCurrentIntent: (ticket: number) => boolean;
-  /** The expanded shape, with the values it was expanded from. */
-  onApply: (
-    shape: Record<string, number>,
-    ticket: number,
-    simple: IAutoMovieHumanBodySimpleShape,
-  ) => void;
-  onRefuse: (error: unknown) => void;
-  onBusy: (text: string) => void;
-  /** Restore a ready status when a typed draft retires its in-flight solve. */
-  onDraftChanged: () => void;
-}): { refresh: (shape: Record<string, number>) => Promise<void> } => {
+export const renderBodySimpleControls = (props: IBodySimpleControlsProps): { refresh: (shape: Record<string, number>) => Promise<void> } => {
   const { dom, container } = props;
   container.replaceChildren();
   // Projection and user input have different invalidation keys: a projection
@@ -237,7 +215,8 @@ export const renderBodySimpleControls = (props: {
     number.addEventListener("change", touch);
     note.textContent =
       `${low} to ${high}${field.unit === "" ? "" : " " + field.unit}` +
-      (field.optional ? " · optional, measured on the current body" : "");
+      (field.optional ? " · optional, measured on the current body" : "") +
+      (field.whole ? " · " + props.wholeSource : "");
     entry.append(number);
     row.append(label, entry, note);
     container.append(row);

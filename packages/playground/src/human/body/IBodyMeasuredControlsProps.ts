@@ -12,6 +12,8 @@ import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
  * parent's drafts and intent tickets, the off-thread solver and the panel's
  * transaction, status and refusal owners.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the measured scales and the off-thread solver behind the editor's millimetre targets.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the group, search, drafts and transaction the detailed measured rows are rendered with.
  * @author Samchon
  */
 export interface IBodyMeasuredControlsProps {

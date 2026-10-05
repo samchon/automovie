@@ -11,6 +11,7 @@ import {
 } from "@automovie/engine";
 import {
   type IAutoMovieHumanBodyBasis,
+  type IAutoMovieHumanBodySimpleWhole,
   createHumanBodyBasisBuilder,
   createHumanBodyHumeralHeads,
   createHumanBodySegmenter,
@@ -42,7 +43,8 @@ import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExterio
  * abandoned at its next slice and answers with no reading. An arms-down
  * solve is driven the same way, a build and crossing read at a time
  * (`stepHumanBodyArmsDown`), and refuses as superseded when a later request
- * arrives.
+ * arrives. The humeral-head estimate reads age, sex and stature through the
+ * simple projection, whose stature is the whole person's (`whole`).
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reuses one admitted body prior for preview edits and on-demand contact checks.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Encodes the committed static body only when export is requested.
@@ -51,6 +53,7 @@ import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExterio
  */
 export function createConnectedBodyRuntime(
   basis: IAutoMovieHumanBodyBasis,
+  whole: IAutoMovieHumanBodySimpleWhole,
   options: IConnectedBodyRuntimeOptions = {},
 ) {
   const evaluate = createHumanBodyBasisBuilder(basis);
@@ -162,7 +165,7 @@ export function createConnectedBodyRuntime(
       if (crossings.length !== 0)
         anatomy = { status: "unavailable", reason: "skin-crossing" };
       else {
-        const simple = projectHumanBodySimpleShape(basis, document.shape, []);
+        const simple = projectHumanBodySimpleShape(basis, whole, document.shape, []);
         const heads = createHumanBodyHumeralHeads({
           ageYears: simple.ageYears,
           sex: simple.sex,

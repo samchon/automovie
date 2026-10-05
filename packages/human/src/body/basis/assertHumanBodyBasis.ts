@@ -3,7 +3,7 @@ import { assertHumanBodyBasisEndpoints } from "./admission/assertHumanBodyBasisE
 import { assertHumanBodyBasisIdentity } from "./admission/assertHumanBodyBasisIdentity";
 import { assertHumanBodyBasisShape } from "./admission/assertHumanBodyBasisShape";
 import { assertHumanBodyBasisSurface } from "./admission/assertHumanBodyBasisSurface";
-import { assertHumanBodySkinLandmarks } from "./admission/assertHumanBodySkinLandmarks";
+import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
 import { assertHumanBodyRig } from "./assertHumanBodyRig";
 
 /**
@@ -22,6 +22,6 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
   const endpoints = assertHumanBodyBasisShape(basis);
   const resident = assertHumanBodyBasisSurface(basis, endpoints);
   assertHumanBodyBasisEndpoints(basis, endpoints, resident);
-  assertHumanBodySkinLandmarks(basis);
+  assertHumanSkinLandmarks(basis);
   assertHumanBodyRig(basis);
 }

@@ -4,9 +4,10 @@ import type { IAutoMovieHumanPersonMeasurement } from "../structures/IAutoMovieH
  * Measurement rules read on a person's whole connected skin, keyed by the body
  * channel a solve moves to reach a target.
  *
- * These are the measurements whose site crosses the head/body cut, so neither
- * partition view can read them alone. The body rule table leaves neck girth
- * out for that reason (`HUMAN_BODY_MEASUREMENTS`).
+ * These are the measurements whose site crosses the head/body cut, or that
+ * need the whole closed skin, so neither partition view can read them alone.
+ * The body rule table leaves neck girth and stature out for that reason
+ * (`HUMAN_BODY_MEASUREMENTS`).
  *
  * Measurements named but not defined here, with the reason each stays a gap:
  *
@@ -57,5 +58,29 @@ export const HUMAN_PERSON_MEASUREMENTS: Record<string, IAutoMovieHumanPersonMeas
     landmark: "neck-anterior-midline",
     sampleMinimumMetres: 0.275,
     sampleMaximumMetres: 0.514,
+  },
+  /**
+   * Stature: ANSUR II 6.4.76 (Hotzman et al., NATICK/TR-11/017, p. 152), the
+   * vertical distance from the standing surface to the top of the head, in
+   * the anthropometric standing position with the head in the Frankfurt
+   * plane, the anthropometer blade compressing the hair.
+   * https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf
+   *
+   * The public ANSUR II release observed 1409–1829 mm in 1,986 women and
+   * 1491–1993 mm in 4,082 men. The recorded range spans both sexes.
+   *
+   * The instrument reads the highest minus the lowest Float32 skin height of
+   * the closed person skin at rest (`readHumanPersonRest`). Two named
+   * approximations remain:
+   * - The source's rest head orientation stands in for the Frankfurt plane.
+   * - The skin's highest point stands in for the vertex under compressed
+   *   hair; the skin carries no hair volume.
+   *
+   * The solving channel is the body's stature macro.
+   */
+  macroHeight: {
+    kind: "stature",
+    sampleMinimumMetres: 1.409,
+    sampleMaximumMetres: 1.993,
   },
 };

@@ -7,6 +7,8 @@ import type {
 /**
  * What a fine channel control is built from.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Carries what one fine face channel control is built from.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Names the channel, its scale and the transaction the control edits through.
  * @author Samchon
  */
 export interface ICreateConnectedFaceChannelControlProps {

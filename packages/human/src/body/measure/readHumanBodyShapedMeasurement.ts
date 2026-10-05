@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
-import { humanBodyClipRing } from "../simple/humanBodyClipRing";
+import { findHumanSkinLandmark } from "../../common/basis/findHumanSkinLandmark";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import type { IAutoMovieHumanBodyMeasurementSection } from "../structures/IAutoMovieHumanBodyMeasurementSection";
@@ -14,8 +14,7 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  *
  * `createHumanBodyMeasurementReader` evaluates the shape through the same
  * weights and evaluator the builder uses, without a pose. This owner reads
- * its result repeatedly without re-evaluating that unchanged skin. A `height` reads from the lowest
- * surface point to the highest clip-ring mean across surfaces; a `distance` is the straight
+ * its result repeatedly without re-evaluating that unchanged skin. A `distance` is the straight
  * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
  * stations, cuts every surface at each and selects the closed loop nearest
  * the station seed before keeping the largest or smallest value, or the one
@@ -51,20 +50,6 @@ export function readHumanBodyShapedMeasurement(
   rule: IAutoMovieHumanBodyMeasurement,
   observeSection?: (section: IAutoMovieHumanBodyMeasurementSection) => void,
 ): number | null {
-  if (rule.kind === "height") {
-    let lowest = Infinity;
-    let top = -Infinity;
-    shaped.surfaces.forEach((positions, index) => {
-      const ring = humanBodyClipRing(basis.surfaces[index], positions);
-      for (let v = 1; v < positions.length; v += 3)
-        lowest = Math.min(lowest, positions[v]);
-      top = Math.max(
-        top,
-        ring.reduce((sum, v) => sum + positions[v * 3 + 1], 0) / ring.length,
-      );
-    });
-    return top - lowest;
-  }
   const from = shaped.landmarks[rule.from];
   const to = shaped.landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
@@ -76,9 +61,7 @@ export function readHumanBodyShapedMeasurement(
     : Vector3.normalize(axis);
   let fractions: number[];
   if ("level" in rule) {
-    const point = basis.skinLandmarks !== undefined && Object.hasOwn(basis.skinLandmarks, rule.level)
-      ? basis.skinLandmarks[rule.level]
-      : undefined;
+    const point = findHumanSkinLandmark(basis, rule.level);
     const positions = point === undefined ? undefined : shaped.surfaces[point.surface];
     if (point === undefined || positions === undefined || point.vertex * 3 + 2 >= positions.length)
       return null;

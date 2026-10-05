@@ -14,6 +14,7 @@ import { describeConnectedFaceControlScale } from "./describeConnectedFaceContro
  * description names the channel's own note and each endpoint's displacement.
  *
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement in the channel's display unit.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Builds the control row of one fine face channel in its physical unit.
  */
 export function createConnectedFaceChannelControl(props: ICreateConnectedFaceChannelControlProps): IConnectedFaceControlEntry {
   const { channel, scale, document } = props;

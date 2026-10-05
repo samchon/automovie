@@ -7,6 +7,8 @@ import type { BodyPosePreset } from "../body/bodyPosePresets";
  * editor offers, and the head-and-neck poses the person's one skin is checked
  * against. Joint angles are clinical degrees.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Offers rest, the body editor's arm poses and head-and-neck poses as document edits.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies each preset's joint rows in clinical degrees.
  * @author Samchon
  */
 export const connectedPersonPosePresets: BodyPosePreset[] = [

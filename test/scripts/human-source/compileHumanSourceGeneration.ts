@@ -40,9 +40,9 @@ const RIGID_FACE_REVISION = "bfbb0f885";
 const RIGID_FACE_SHA256 = "5201ba8edb6857e36e02aa62c6ccb2f22758211aa5a63b1e6d30a99e65bf728f";
 
 /**
- * Body band reach, metres: the smallest reach without a band fold in the N2
- * sweep of the one-skin evaluator (40 mm folded at neck height -1, 60 mm did
- * not). An authored rig convention, recorded as such in the band.
+ * Body band reach, metres: the smallest reach without a band fold when the
+ * one-skin person evaluator was swept over 40, 60, 80 and 112.5 mm (40 mm
+ * folded at neck height -1, 60 mm did not). An authored rig convention, recorded as such in the band.
  */
 const BAND_REACH_METRES = 0.06;
 /** Historical body publications the replay is compared with: extraction stage, r3, r8, r9. */
@@ -50,7 +50,7 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
 
 /**
  * Compile source generation G1 from one prepared and sampled work directory
- * (#2689 N1) into a new OUTPUT directory and return the generation id.
+ * (#2689) into a new OUTPUT directory and return the generation id.
  *
  * Order: verify the acquisition against the lock and the sample against its
  * manifest; read the published face and body and the two historical faces by

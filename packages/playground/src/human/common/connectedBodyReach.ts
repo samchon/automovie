@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
-import type { IConnectedPersonBodyReach } from "./IConnectedPersonBodyReach";
+import type { IConnectedBodyReach } from "./IConnectedBodyReach";
 
 /**
  * Read which body channels a person generation's body view can evaluate.
@@ -15,9 +15,11 @@ import type { IConnectedPersonBodyReach } from "./IConnectedPersonBodyReach";
  * it is refused by the runtime with the missing target named. Nothing is
  * hidden or silently clamped in the document.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Determines which body channels the editor can offer on a generation's body view.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists channels whose endpoint is unavailable as missing and limits the rest to the reach the view evaluates.
  * @author Samchon
  */
-export function connectedPersonBodyReach(body: IAutoMovieHumanBodyBasis): IConnectedPersonBodyReach {
+export function connectedBodyReach(body: IAutoMovieHumanBodyBasis): IConnectedBodyReach {
   const unavailable = new Set(body.unavailableTargets ?? []);
   const limits = new Map<string, string[]>();
   const onset = (channel: string, side: "positive" | "negative"): number => {

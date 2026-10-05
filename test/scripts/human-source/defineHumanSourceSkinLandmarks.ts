@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodySkinLandmark } from "@automovie/human/body/structures/surface/IAutoMovieHumanBodySkinLandmark";
+import type { IAutoMovieHumanSkinLandmark } from "@automovie/human";
 
 import { HUMAN_SOURCE_SKIN_LANDMARKS } from "./HUMAN_SOURCE_SKIN_LANDMARKS.ts";
 import { humanSourcePositionTolerance } from "./humanSourcePositionTolerance.ts";
@@ -18,8 +18,8 @@ export function defineHumanSourceSkinLandmarks(
   published: IAutoMovieHumanBodyBasis,
   generation: IHumanSourceGeneration,
   cut: IHumanSourceCut,
-): Record<string, IAutoMovieHumanBodySkinLandmark> {
-  const out: Record<string, IAutoMovieHumanBodySkinLandmark> = {};
+): Record<string, IAutoMovieHumanSkinLandmark> {
+  const out: Record<string, IAutoMovieHumanSkinLandmark> = {};
   for (const landmark of HUMAN_SOURCE_SKIN_LANDMARKS) {
     const sample = landmark.from.kind === "source-sample" ? landmark.from.sample : cut.r16ToSource[landmark.from.vertex];
     if (sample === undefined || sample < 0) throw new Error(`Skin landmark ${landmark.name} has no source sample.`);

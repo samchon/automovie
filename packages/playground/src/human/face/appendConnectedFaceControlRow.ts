@@ -9,6 +9,7 @@ import type { IConnectedFaceControlEntry } from "./IConnectedFaceControlEntry";
  * redrawn with the committed values.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes each editable control with its current value and limits.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows a matching row's label, slider, number and endpoint note and routes an entered value to the transaction.
  */
 export function appendConnectedFaceControlRow(
   control: IConnectedFaceControlEntry,

@@ -8,6 +8,8 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
  * pending work, and frame the camera. `createConnectedBodyViewport` over a
  * person worker supplies it.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Builds, publishes and exports person documents and frames the camera outside the document.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates building from publishing so a failed build keeps the previous model.
  * @author Samchon
  */
 export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {

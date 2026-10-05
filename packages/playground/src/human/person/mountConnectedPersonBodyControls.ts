@@ -4,17 +4,17 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { renderBodyMeasuredControls } from "../body/bodyMeasuredControls";
 import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { mountBodyJointControls } from "../body/mountBodyJointControls";
-import { annotateConnectedPersonReach } from "./annotateConnectedPersonReach";
-import { connectedPersonBodyReach } from "./connectedPersonBodyReach";
+import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
+import { connectedBodyReach } from "../common/connectedBodyReach";
 import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyControlsProps";
-import { renderConnectedPersonUnavailableChannels } from "./renderConnectedPersonUnavailableChannels";
+import { renderConnectedBodyUnavailableChannels } from "../common/renderConnectedBodyUnavailableChannels";
 
 /**
  * Mount the person panel's body control section: the body editor's measured
  * controls by group and its joint controls, over the body partition view.
  *
  * Unavailable source targets are shown, never hidden
- * (`connectedPersonBodyReach`). A channel with a missing endpoint is listed
+ * (`connectedBodyReach`). A channel with a missing endpoint is listed
  * disabled with the target named. An envelope-limited channel's row states
  * where its reach ends and why, and its scale is read within that reach. The
  * measured solve brackets in the same reach, so a target past it is refused
@@ -22,11 +22,13 @@ import { renderConnectedPersonUnavailableChannels } from "./renderConnectedPerso
  * selected bone and the uncommitted measurement drafts, and `render` redraws
  * it from the current body.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Mounts the body editor's measured and joint controls over the person's body view.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows unavailable source targets and missing endpoints as named rows instead of hiding them.
  * @author Samchon
  */
 export function mountConnectedPersonBodyControls(props: IConnectedPersonBodyControlsProps) {
   const { dom } = props;
-  const reach = connectedPersonBodyReach(props.body);
+  const reach = connectedBodyReach(props.body);
   const unavailable = new Set(props.body.unavailableTargets ?? []);
   const scales = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map((scale) => [scale.id, scale]),
@@ -87,8 +89,8 @@ export function mountConnectedPersonBodyControls(props: IConnectedPersonBodyCont
       report: props.report,
       refuse: props.refuse,
     });
-    annotateConnectedPersonReach(container, reach.limits);
-    renderConnectedPersonUnavailableChannels(dom, container, reach.missing, unavailable, query);
+    annotateConnectedBodyReach(container, reach.limits);
+    renderConnectedBodyUnavailableChannels(dom, container, reach.missing, unavailable, query);
   };
   search.oninput = render;
   kind.onchange = render;

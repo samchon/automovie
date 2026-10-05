@@ -9,7 +9,7 @@
  *
  * The body is a person generation's body view, which may declare unavailable
  * source targets. The panel reads what it can evaluate once through
- * `connectedPersonBodyReach`: measurements, groups and controls use that
+ * `connectedBodyReach`: measurements, groups and controls use that
  * reach, a channel limited by an unavailable corrective states where its
  * reach ends and why, and a channel with an unavailable endpoint is listed
  * disabled with the target named. A request past the reach is refused by
@@ -26,7 +26,7 @@ import {
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { connectedPersonBodyReach } from "../person/connectedPersonBodyReach";
+import { connectedBodyReach } from "../common/connectedBodyReach";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
 import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
@@ -67,8 +67,8 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   props: IConnectedBodyPanelProps<Model>,
 ) {
   const dom = app.ownerDocument;
-  // Unavailable source targets are shown, never hidden (renderBodyReachNotes).
-  const reach = connectedPersonBodyReach(props.basis);
+  // Unavailable source targets are shown, never hidden (renderConnectedBodyControls).
+  const reach = connectedBodyReach(props.basis);
   const scales = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
       (scale) => [scale.id, scale],
@@ -238,6 +238,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     container: element("simple-controls"),
     expand: props.simple.expand,
     project: props.simple.project,
+    wholeSource: props.simple.wholeSource,
     current: () => draft.shape,
     reserveIntent: withdraw,
     currentIntent: intents.currentTicket,

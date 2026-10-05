@@ -1,6 +1,7 @@
 import {
   type IAutoMovieHumanPersonBodyView,
   type IAutoMovieHumanPersonHeadView,
+  compileHumanPersonGeneration,
   createHumanPersonGenerationBuilder,
   joinHumanPersonGeneration,
 } from "@automovie/human";
@@ -8,9 +9,11 @@ import {
 import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
 
 /**
- * Join a person generation's head and body views and compile its one-skin
- * evaluator once both views have arrived.
+ * Join a person generation's head and body views, compile it and build its
+ * one-skin evaluator once both views have arrived.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Compiles the evaluator person measurements are read and solved on.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Joins the head and body views once both arrive and builds the one-skin evaluator.
  * @author Samchon
  */
 export async function prepareConnectedPersonEvaluator(
@@ -18,5 +21,5 @@ export async function prepareConnectedPersonEvaluator(
   body: Promise<IAutoMovieHumanPersonBodyView>,
 ): Promise<IConnectedPersonEvaluator> {
   const generation = joinHumanPersonGeneration(await head, await body);
-  return { generation, build: createHumanPersonGenerationBuilder({ generation }) };
+  return { compiled: compileHumanPersonGeneration(generation), build: createHumanPersonGenerationBuilder({ generation }) };
 }

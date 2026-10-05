@@ -13,6 +13,8 @@ import type { IConnectedFaceViewport } from "./IConnectedFaceViewport";
  * optional control map and component tree, the initial document, studies and
  * presets, the viewport factory and the download sink.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Mounts the face editor with its basis, control map, tree, starting document, studies and presets.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Supplies the controls' basis, map and tree and the presets the editor screen shows.
  * @author Samchon
  */
 export interface IConnectedFacePanelProps<Model> {

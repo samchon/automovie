@@ -1,4 +1,4 @@
-/** Body endpoints the part checks report, as the N2 evaluator measured them: stature, age and sex extremes. */
+/** Body endpoints the part checks report: the stature, age and sex extremes. */
 export const HUMAN_SOURCE_REPORTED_ENDPOINTS: readonly string[] = [
   "macro/height-max",
   "macro/height-min",

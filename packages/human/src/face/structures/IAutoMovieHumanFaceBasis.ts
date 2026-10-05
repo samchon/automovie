@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasisContact } from "./IAutoMovieHumanFaceBasisContact";
@@ -128,6 +129,15 @@ export interface IAutoMovieHumanFaceBasis {
     /** Endpoint name, resolved in each surface's targets like any other. */
     target: string;
   }[];
+
+  /**
+   * Named points of the skin, each a vertex of one surface, for measurement
+   * rules that read a drawn landmark (`glabella`, `sellion`, `menton`,
+   * `tragion-right`). Rules name a point instead of numbering a vertex, which
+   * belongs to one basis's topology; a rule naming a point this basis does
+   * not declare refuses by that name. Omission declares none.
+   */
+  skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
 
   /**
    * Named points that move with the shape and define the joints: the

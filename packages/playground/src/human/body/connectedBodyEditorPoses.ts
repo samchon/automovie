@@ -7,6 +7,8 @@ import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/d
  * degrees; "Arms down" is solved on the current body, each arm hanging as low
  * as its skin lets it.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the A/T-pose, arms-down, elbow, overhead, squat, sit and twist presets the editor offers as document edits.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies each preset's replacement joint rows in clinical degrees, with arms down left to the body's own solve.
  * @author Samchon
  */
 export const connectedBodyEditorPoses: readonly BodyPosePreset[] = [

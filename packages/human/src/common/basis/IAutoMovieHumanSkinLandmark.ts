@@ -1,7 +1,7 @@
 /**
- * A named point of a body basis's skin: one vertex of one surface.
+ * A named point of a basis's skin, face or body: one vertex of one surface.
  *
- * Measurement rules and the underwear refer to skin points by name, never by
+ * Measurement rules and garments refer to skin points by name, never by
  * vertex number, because vertex numbers belong to one basis's topology: the
  * same index names a different place on another basis. Each basis states
  * where its own named points are. A rule naming a point the basis does not
@@ -22,7 +22,7 @@
  * @evidenceExclude contracts/anatomy.md#parametric-authority The point is no input a document sets.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodySkinLandmark {
+export interface IAutoMovieHumanSkinLandmark {
   /** Index into the basis's surfaces. */
   surface: number;
 

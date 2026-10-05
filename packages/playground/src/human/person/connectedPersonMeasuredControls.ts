@@ -18,6 +18,8 @@ import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMe
  * `refresh` re-reads the current values after a commit; only the latest read
  * is shown.
  *
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Lets the user read and target measurements that cross the head/body cut in millimetres.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reads each person measurement on the final skin at rest and solves it along its body channel.
  * @author Samchon
  */
 export function mountConnectedPersonMeasuredControls(props: IConnectedPersonMeasuredControlsProps) {

@@ -1,6 +1,6 @@
 /**
  * Regenerate source generation G1 from the pinned upstream in one run
- * (#2689 N1), from the test CWD:
+ * (#2689), from the test CWD:
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/human-source/regenerate-source-generation.ts BLENDER ARCHIVES WORK OUTPUT
  *

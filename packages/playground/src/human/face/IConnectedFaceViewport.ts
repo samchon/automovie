@@ -4,6 +4,8 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
  * The numerical viewport the connected face panel drives: builds, publishes
  * and exports face documents, and owns camera and display state.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Builds, publishes and exports face documents, keeping the last valid model on a failed build.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates building from publishing so a failed build keeps the previous model.
  * @author Samchon
  */
 export interface IConnectedFaceViewport<Model> {
