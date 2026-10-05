@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanFaceLipMarginPair } from "@automovie/human";
+import type { IHumanSourceLipMarginPair } from "./IHumanSourceLipMarginPair.ts";
 
 /**
  * The lip margin pairs found on one face, with the commissure limit and the
@@ -8,7 +8,7 @@ import type { IAutoMovieHumanFaceLipMarginPair } from "@automovie/human";
  */
 export interface IHumanSourceLipMargin {
   /** Margin pairs, the negative side's stations first. */
-  pairs: IAutoMovieHumanFaceLipMarginPair[];
+  pairs: IHumanSourceLipMarginPair[];
 
   /** The commissure limit along the jaw axis, metres. */
   limitMetres: number;

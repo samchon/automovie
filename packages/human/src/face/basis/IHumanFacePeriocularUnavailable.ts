@@ -1,10 +1,14 @@
 /**
  * Why a periocular document field cannot be built on a basis.
  *
- * `field` is the document field that asked for it and `missing` the basis
- * registration that it needs and the basis lacks. `basis` is that basis's ID.
+ * `field` is the document field that asked for it and `missing` what is
+ * absent: a basis registration the field needs (`opticalSupport`,
+ * `periocular`), or, on a basis that carries the registration, the shape
+ * producer that would turn the field into geometry and does not exist yet
+ * (`opticalBuilder` for `eyes`, `lashGenerator` for the lash rows). `basis` is
+ * that basis's ID.
  *
- * @evidence contracts/common.md#principled-implementation Names the exact missing registration instead of approximating the part.
+ * @evidence contracts/common.md#principled-implementation Names the exact missing registration or shape producer instead of approximating the part or ignoring the field.
  * @evidence contracts/common.md#clear-and-simple-design Three named members.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports state; it changes no admission.
  * @evidence contracts/common.md#meaningful-documentation States each member's meaning.
@@ -21,12 +25,12 @@
  * @author Samchon
  */
 export interface IHumanFacePeriocularUnavailable {
-  /** The document field that needs the registration. */
+  /** The document field that cannot be built. */
   field: "eyes" | "lashes.upper" | "lashes.lower";
 
-  /** The basis registration the field needs. */
-  missing: "opticalSupport" | "periocular";
+  /** The absent registration, or the absent shape producer. */
+  missing: "opticalSupport" | "periocular" | "opticalBuilder" | "lashGenerator";
 
-  /** ID of the basis that lacks it. */
+  /** ID of the basis the document was built on. */
   basis: string;
 }

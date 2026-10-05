@@ -1,6 +1,5 @@
-import type { IAutoMovieHumanFaceLipMarginPair } from "@automovie/human";
-
 import type { IHumanSourceLipMargin } from "./structures/IHumanSourceLipMargin.ts";
+import type { IHumanSourceLipMarginPair } from "./structures/IHumanSourceLipMarginPair.ts";
 
 /** Station spacing along the jaw axis, metres: the face contact owner's sampling convention. */
 const STATION_METRES = 0.002;
@@ -63,7 +62,7 @@ export function findHumanSourceLipMarginPairs(positions: readonly number[], regi
   if (parts.length < 2) throw new Error("The lips region never separates into upper and lower vermilion.");
   const mean = (component: number[]): number => component.reduce((total, v) => total + height(v), 0) / component.length;
   const [upper, lower] = mean(parts[0]) > mean(parts[1]) ? [parts[0], parts[1]] : [parts[1], parts[0]];
-  const pairs: IAutoMovieHumanFaceLipMarginPair[] = [];
+  const pairs: IHumanSourceLipMarginPair[] = [];
   for (const sign of [-1, 1])
     for (let k = 1; k * STATION_METRES < limit - STATION_METRES / 2; k++) {
       const station = sign * k * STATION_METRES;

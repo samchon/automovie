@@ -16,7 +16,7 @@ export interface IContactBasisInput {
   incisors: { surface: string };
   /** Transverse half-width about the jaw axis within which seam candidates lie, metres. */
   midlineBandMetres: number;
-  /** Spacing of the lip margin stations along the jaw axis, metres; a stated sampling convention (`findLipMarginPairs`). */
+  /** Spacing of the lip margin stations along the jaw axis, metres; a stated sampling convention fixing only the chain anchors (`findLipMargin`). */
   marginStationMetres: number;
   closure: { channel: string; reference: string };
   passage: { surface: string; channel: string; slabMetres: number };

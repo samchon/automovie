@@ -19,9 +19,12 @@ import type { IConnectedPersonEyeControlsProps } from "./IConnectedPersonEyeCont
  * transaction under a fresh intent ticket, so admission, last-valid state,
  * undo and save/reload are the editor's. Every value is entered explicitly;
  * nothing is pre-filled with an assumed population value. "Remove" deletes the
- * field, which restores the basis's cards or globes byte for byte. A basis
- * without the producer's periocular registration or optical support refuses a
- * present field by name, and the committed person stays.
+ * field, which restores the basis's cards or globes byte for byte. A present
+ * field refuses by name, and the committed person stays: on a basis without
+ * the producer's periocular registration or optical support the refusal names
+ * the registration, and on a basis that carries it the refusal names the
+ * optical builder or lash generator that does not exist yet, so a value is
+ * never accepted and left without effect.
  *
  * @author Samchon
  */

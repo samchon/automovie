@@ -11,6 +11,7 @@ import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
+import { measureHumanFaceMarginGaps } from "./measureHumanFaceMarginGaps";
 import { createHumanFaceClosureGain } from "./createHumanFaceClosureGain";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
@@ -48,7 +49,7 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseEvaluator is a computation over existing data and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseEvaluator emits no primitive.
- * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning: weight one brings the central and every registered margin lip pair to contact, scaled per vertex by createHumanFaceClosureGain.
+ * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning: weight one brings the central pair and the whole registered lip margin to contact, scaled per vertex by createHumanFaceClosureGain.
  * @evidenceExclude contracts/modeling.md#shared-boundaries resolveHumanFaceContact owns the boundary between soft and rigid surfaces; the evaluator sequences it.
  * @evidenceExclude contracts/modeling.md#rendered-observation The face builder observes the emitted model; the evaluator returns positions, normals and the contact summary it reports.
  * @evidence contracts/anatomy.md#anatomical-source Jaw motion is source-authored endpoint interpolation with coupled translation (Lindauer et al.), and closure follows the requirement that weight one seals the lips.
@@ -215,8 +216,11 @@ export function createHumanFaceBasisPoseEvaluator(
         passage,
         resolved,
         ...(contact.margin === undefined ? {} : {
-          marginInterlabialMetres: contact.margin.map(
-            (entry) => pair({ surface: contact.lips.surface, ...entry }).gap,
+          marginInterlabialMetres: measureHumanFaceMarginGaps(
+            posed.get(contact.lips.surface)!,
+            contact.margin,
+            basis.articulation!.jaw.axis,
+            frame!.up,
           ),
         }),
         ...(sourceSpan === undefined ? {} : {

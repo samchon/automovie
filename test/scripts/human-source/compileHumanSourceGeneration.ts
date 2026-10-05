@@ -267,7 +267,7 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
   fs.writeFileSync(
     path.join(output, "generation-manifest.json"),
     JSON.stringify(
-      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, headLandmarks: head.records, headRegions: regions.records, teeth: registerHumanSourceTeeth(face).record, periocular: periocular.record, opticalSupport: optical.records, bodyLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut).records, fieldProducers: [...fields.receipts, pose.receipt], outputs: files },
+      { generation: generation.id, upstream: generation.upstream, inputs, sample: sampleRecord, headLandmarks: head.records, headRegions: regions.records, teeth: registerHumanSourceTeeth(face).record, marginChain: p1.marginChain, periocular: periocular.record, opticalSupport: optical.records, bodyLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut).records, fieldProducers: [...fields.receipts, pose.receipt], outputs: files },
       null,
       1,
     ) + "\n",

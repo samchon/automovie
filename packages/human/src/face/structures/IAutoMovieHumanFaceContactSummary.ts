@@ -1,7 +1,7 @@
 /**
  * What the coupled oral contact evaluation measured and did for one document,
  * in the units a reader checks: apertures in metres along the opening
- * direction (central and margin lip pairs), the central closure gain, the
+ * direction (the central lip pair and the margin chains), the central closure gain, the
  * tongue's protrusion and passage thickness when it crossed the incisal
  * plane, and per soft surface how many vertices were moved back to their
  * rest clearance and how deep the deepest one had gone.
@@ -31,7 +31,7 @@ export interface IAutoMovieHumanFaceContactSummary {
   /** Final signed interlabial gap, metres: registered source-span representative or the legacy authored pair. */
   interlabialMetres: number;
 
-  /** Final signed gap of each registered lip margin pair, metres, in `contact.margin` order; absent without margin pairs. */
+  /** Final signed gap of each lip margin chain vertex against the opposite chain, metres, upper chain then lower; absent without a margin. */
   marginInterlabialMetres?: number[];
 
   /**

@@ -3,10 +3,10 @@
  *
  * `ratio` is the central pair's gain, applied to every closure row off the
  * lips surface and away from the fissure. `lips` holds one gain per vertex of
- * the lips surface: exactly each registered pair's own gain at that pair's
- * vertices, blending to `ratio` away from the fissure.
+ * the lips surface: each margin chain vertex's solved contact gain, blending to
+ * `ratio` away from the fissure.
  *
- * @evidence contracts/common.md#principled-implementation The per-vertex field is exact at every registered pair, so each pair seals at weight one.
+ * @evidence contracts/common.md#principled-implementation The per-vertex field is exact at every margin chain vertex, so the margin closes at weight one.
  * @evidence contracts/common.md#clear-and-simple-design The central gain and one array for the lips surface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The field is computed per state, never stored per person.
  * @evidence contracts/common.md#meaningful-documentation States where each gain applies.

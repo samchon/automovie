@@ -4,42 +4,52 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
 import type { IAutoMovieHumanFaceBasisContact } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 import type { IHumanFaceClosureGain } from "./IHumanFaceClosureGain";
-import type { IHumanFaceClosureNode } from "./IHumanFaceClosureNode";
-import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
 
+/** Fixed-point passes re-reading a chain vertex's place along the axis after its gain changes. */
+const PASSES = 4;
+
+/** Opening-direction motion per unit gain below which a chain vertex counts as unmoved, metres (0.1 micrometre). */
+const MOVABLE_METRES = 1e-7;
+
 /**
- * The closure gains that bring the central lip pair and every registered
- * margin pair to contact together at closure weight one.
+ * The closure gains that bring the whole vermilion margin to contact at
+ * closure weight one.
  *
- * Each pair has its own exact gain (`measureHumanFaceClosureRatio`). On the
- * lips surface the gain is a field: along the mandibular axis it interpolates
- * linearly between the pair vertices' own gains (constant beyond the outermost
- * ones), and it blends from that value at the fissure to the central gain at
- * the surface's declared soft-tissue budget distance from the nearest pair
- * vertex, a stated convention reusing the tissue extent the contact stage may
- * push. Every pair vertex therefore takes exactly its pair's gain, so each pair
- * seals at weight one and a fraction closes that fraction of its aperture,
- * while the mandible and every other surface keep the central gain and move
- * rigidly together. Vertices between pairs take interpolated gains and are not
- * guaranteed contact. A pair whose gain moves a vertex farther from the central
- * closure than that budget refuses, naming the pair, where it lies and the
- * aperture it would leave. Without margin pairs the field is the central gain.
+ * Without registered margin chains the gain is the central pair's
+ * (`measureHumanFaceClosureRatio`) everywhere. With them, the upper chain
+ * follows the central closure and is the contact line: each lower chain vertex
+ * takes the gain that puts it on the upper chain's polyline (its height along
+ * the opening direction equals the upper polyline's height at its own position
+ * along the mandibular axis, the nearest end beyond the chain), then each upper
+ * vertex still above the lower chain's polyline takes the gain that brings it
+ * down onto it. Lowering an upper vertex only turns contact at the lower
+ * vertices into overlap, so after both steps no point of either chain is left
+ * open. Posing is affine in rest position, so a vertex's height is affine in
+ * its gain and each gain is exact; its position along the axis is re-read for
+ * a few fixed-point passes. Every other vertex of the lips surface takes the
+ * inverse-square-distance mean of the chain gains, blending to the central
+ * gain at the surface's declared soft-tissue budget distance from the nearest
+ * chain vertex (a stated convention reusing the tissue extent the contact
+ * stage may push), and every other surface keeps the central gain, so the
+ * mandible moves rigidly. A chain vertex the closure rows do not move along
+ * the opening direction, or one moved farther from the central closure than
+ * that budget, refuses by name with where it lies.
  *
- * @evidence contracts/common.md#principled-implementation Posing is affine per vertex, so a vertex scaled by its pair's exact gain reaches contact; the field only interpolates between exact values.
- * @evidence contracts/common.md#clear-and-simple-design One field over the lips surface from the registered pairs, the central gain elsewhere.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is raised; a pair beyond the tissue budget refuses with its residual.
- * @evidence contracts/common.md#meaningful-documentation States the interpolation, the blend and its stated distance convention, the exactness, its limit between pairs and the refusal.
+ * @evidence contracts/common.md#principled-implementation A vertex's posed height is affine in its gain because posing is affine in rest position, so each gain puts its vertex exactly on the other chain; taking the upper chain as the contact line removes the free shift two mutually referenced chains would leave, and lowering upper vertices afterwards can only add overlap, never a gap.
+ * @evidence contracts/common.md#clear-and-simple-design Two per-vertex passes over the registered chains, a smooth blend elsewhere on the lips surface, the central gain on every other surface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is raised; an unmoved or over-budget chain vertex refuses by name.
+ * @evidence contracts/common.md#meaningful-documentation States the contact line, the two passes, why no gap remains, the fixed-point re-read, the blend and its stated distance convention, and the refusals.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The field names no part.
- * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning at every pair: weight one is margin contact.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator applies the field.
- * @evidence contracts/modeling.md#spatial-conventions Positions along the mandibular axis and distances in basis metres.
- * @evidence contracts/modeling.md#shared-boundaries The upper and lower vermilion meet along the registered margin.
+ * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning along the whole margin: weight one is contact.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator applies the gains.
+ * @evidence contracts/modeling.md#spatial-conventions Positions along the mandibular axis and heights along the opening direction, in basis metres.
+ * @evidence contracts/modeling.md#shared-boundaries The upper and lower vermilion meet along the registered margin chains.
  * @evidenceExclude contracts/modeling.md#rendered-observation The summary reports the final apertures.
- * @evidence contracts/anatomy.md#anatomical-source Lip seal is contact along the vermilion margin; the requirement defines weight one as seal.
- * @evidence contracts/anatomy.md#permitted-range The extra displacement at a pair is bounded by the lips surface's declared soft-tissue budget, beyond which the state refuses.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The field is derived, not an input.
+ * @evidence contracts/anatomy.md#anatomical-source Lip seal is contact along the whole vermilion margin; the requirement defines weight one as seal.
+ * @evidence contracts/anatomy.md#permitted-range The extra displacement at a chain vertex is bounded by the lips surface's declared soft-tissue budget, beyond which the state refuses.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The gains are derived, not an input.
  * @author Samchon
  */
 export function createHumanFaceClosureGain(
@@ -55,74 +65,132 @@ export function createHumanFaceClosureGain(
   const count = positions.length / 3;
   const ratio = measureHumanFaceClosureRatio(basis, contact, rest, motions, up, contact.lips);
   const lips = new Float64Array(count).fill(ratio);
-  const margin = contact.margin ?? [];
-  if (margin.length === 0) return { ratio, lips };
+  if (contact.margin === undefined) return { ratio, lips };
 
   const axis = basis.articulation!.jaw.axis;
-  const along = (vertex: number) =>
-    positions[3 * vertex] * axis[0] +
-    positions[3 * vertex + 1] * axis[1] +
-    positions[3 * vertex + 2] * axis[2];
   const endpoint = basis.channels.find(
     (channel) => channel.id === contact.closure.channel,
   )!.positive;
   const rows = surface.targets[endpoint] ?? [];
-  const delta = new Float64Array(count);
+  const delta = new Float64Array(3 * count);
   for (let i = 0; i < rows.length; i += 4)
-    delta[rows[i]] = Math.hypot(rows[i + 1], rows[i + 2], rows[i + 3]);
+    for (let k = 0; k < 3; k++) delta[3 * rows[i] + k] = rows[i + 1 + k];
   const budget =
     contact.soft.find((entry) => entry.surface === contact.lips.surface)?.budgetMetres ?? 0;
 
-  const nodes: IHumanFaceClosureNode[] = [];
-  for (const pair of [{ upper: contact.lips.upper, lower: contact.lips.lower }, ...margin]) {
-    const gain = measureHumanFaceClosureRatio(basis, contact, rest, motions, up, {
-      surface: contact.lips.surface,
-      ...pair,
-    });
-    const reach = Math.max(delta[pair.upper], delta[pair.lower]);
-    const extra = Math.abs(gain - ratio) * reach;
-    if (extra > budget) {
-      const capped = ratio + (Math.sign(gain - ratio) * budget) / reach;
-      const local = (vertex: number) =>
-        poseHumanFaceVertex(surface, vertex, positions.slice(3 * vertex, 3 * vertex + 3), motions);
-      const aperture = measureHumanFaceApertureGap(local(pair.upper), local(pair.lower), up);
-      throw new Error(
-        `The lip margin pair ${pair.upper}/${pair.lower} at ${(along(pair.upper) * 1000).toFixed(1)} mm along the mandibular axis needs ${(extra * 1000).toFixed(2)} mm beyond the central closure, more than the ${(budget * 1000).toFixed(2)} mm tissue budget of ${contact.lips.surface}; within it the pair stays ${(aperture * (1 - capped / gain) * 1000).toFixed(2)} mm open.`,
-      );
-    }
-    nodes.push({ vertex: pair.upper, at: along(pair.upper), gain });
-    nodes.push({ vertex: pair.lower, at: along(pair.lower), gain });
+  // posed position at gains 0 and 1 of every chain vertex: along and height
+  // the central pair belongs to the margin: each chain takes its vertex, in order along the axis
+  const restAlong = (vertex: number) =>
+    positions[3 * vertex] * axis[0] + positions[3 * vertex + 1] * axis[1] + positions[3 * vertex + 2] * axis[2];
+  const withCentre = (chain: readonly number[], vertex: number) =>
+    (chain.includes(vertex) ? [...chain] : [...chain, vertex]).sort((a, b) => restAlong(a) - restAlong(b));
+  const upperChain = withCentre(contact.margin.upper, contact.lips.upper);
+  const lowerChain = withCentre(contact.margin.lower, contact.lips.lower);
+  const chains = [upperChain, lowerChain];
+  const nodes = chains.flat();
+  const column = new Map(nodes.map((vertex, at) => [vertex, at]));
+  const along0: number[] = [];
+  const alongD: number[] = [];
+  const height0: number[] = [];
+  const heightD: number[] = [];
+  for (const vertex of nodes) {
+    const local = positions.slice(3 * vertex, 3 * vertex + 3);
+    const p0 = poseHumanFaceVertex(surface, vertex, local, motions);
+    const p1 = poseHumanFaceVertex(
+      surface,
+      vertex,
+      local.map((value, k) => value + delta[3 * vertex + k]),
+      motions,
+    );
+    const a0 = p0.x * axis[0] + p0.y * axis[1] + p0.z * axis[2];
+    const a1 = p1.x * axis[0] + p1.y * axis[1] + p1.z * axis[2];
+    const h0 = p0.x * up.x + p0.y * up.y + p0.z * up.z;
+    const h1 = p1.x * up.x + p1.y * up.y + p1.z * up.z;
+    along0.push(a0);
+    alongD.push(a1 - a0);
+    height0.push(h0);
+    heightD.push(h1 - h0);
   }
-  nodes.sort((a, b) => a.at - b.at);
-  const interpolate = (at: number): number => {
-    if (at <= nodes[0].at) return nodes[0].gain;
-    if (at >= nodes[nodes.length - 1].at) return nodes[nodes.length - 1].gain;
-    let hi = 1;
-    while (nodes[hi].at < at) hi++;
-    const a = nodes[hi - 1];
-    const b = nodes[hi];
-    return b.at === a.at ? b.gain : a.gain + ((at - a.at) * (b.gain - a.gain)) / (b.at - a.at);
+  const size = nodes.length;
+  const gains = new Float64Array(size).fill(ratio);
+  const along = (at: number) => along0[at] + gains[at] * alongD[at];
+  const height = (at: number) => height0[at] + gains[at] * heightD[at];
+  // height of a chain's polyline at a position along the axis (nearest end beyond it)
+  const across = (chain: readonly number[], at: number): number => {
+    const ends = [column.get(chain[0])!, column.get(chain[chain.length - 1])!];
+    const ascending = along(ends[1]) >= along(ends[0]);
+    const before = (a: number, b: number) => (ascending ? a <= b : a >= b);
+    if (before(at, along(ends[0]))) return height(ends[0]);
+    if (before(along(ends[1]), at)) return height(ends[1]);
+    for (let j = 0; j + 1 < chain.length; j++) {
+      const a = column.get(chain[j])!;
+      const b = column.get(chain[j + 1])!;
+      if (before(along(a), at) && before(at, along(b)))
+        return along(b) === along(a)
+          ? height(a)
+          : height(a) + ((at - along(a)) * (height(b) - height(a))) / (along(b) - along(a));
+    }
+    return height(ends[1]);
   };
-  const exact = new Map(nodes.map((node) => [node.vertex, node.gain]));
+  // the gain that puts one chain vertex at a target height read at its own place along the axis
+  const reach = (at: number, target: (position: number) => number): number => {
+    let gain = gains[at];
+    for (let pass = 0; pass < PASSES; pass++) {
+      const want = target(along0[at] + gain * alongD[at]);
+      if (!(Math.abs(heightD[at]) > MOVABLE_METRES))
+        throw new Error(
+          `The closure channel ${contact.closure.channel} does not move lip margin vertex ${nodes[at]} along the opening direction, so it cannot bring it to contact.`,
+        );
+      gain = (want - height0[at]) / heightD[at];
+    }
+    return gain;
+  };
+  // 1. the lower chain meets the upper chain, which follows the central closure
+  for (const vertex of lowerChain) {
+    const at = column.get(vertex)!;
+    gains[at] = reach(at, (position) => across(upperChain, position));
+  }
+  // 2. an upper vertex left above the lower chain comes down onto it; lowering
+  // the upper chain only turns contact at the lower vertices into overlap
+  for (const vertex of upperChain) {
+    const at = column.get(vertex)!;
+    if (height(at) > across(lowerChain, along(at)))
+      gains[at] = reach(at, (position) => across(lowerChain, position));
+  }
+  nodes.forEach((vertex, at) => {
+    const reach = Math.hypot(delta[3 * vertex], delta[3 * vertex + 1], delta[3 * vertex + 2]);
+    const extra = Math.abs(gains[at] - ratio) * reach;
+    if (extra > budget)
+      throw new Error(
+        `The lip margin vertex ${vertex} at ${(along0[at] * 1000).toFixed(1)} mm along the mandibular axis needs ${(extra * 1000).toFixed(2)} mm beyond the central closure, more than the ${(budget * 1000).toFixed(2)} mm tissue budget of ${contact.lips.surface}.`,
+      );
+  });
+
   for (let vertex = 0; vertex < count; vertex++) {
-    if (delta[vertex] === 0) continue;
-    const fixed = exact.get(vertex);
-    if (fixed !== undefined) {
-      lips[vertex] = fixed;
+    if (delta[3 * vertex] === 0 && delta[3 * vertex + 1] === 0 && delta[3 * vertex + 2] === 0)
+      continue;
+    const own = column.get(vertex);
+    if (own !== undefined) {
+      lips[vertex] = gains[own];
       continue;
     }
     let nearest = Infinity;
-    for (const node of nodes)
-      nearest = Math.min(
-        nearest,
-        Math.hypot(
-          positions[3 * vertex] - positions[3 * node.vertex],
-          positions[3 * vertex + 1] - positions[3 * node.vertex + 1],
-          positions[3 * vertex + 2] - positions[3 * node.vertex + 2],
-        ),
+    let weights = 0;
+    let sum = 0;
+    nodes.forEach((node, at) => {
+      const distance = Math.hypot(
+        positions[3 * vertex] - positions[3 * node],
+        positions[3 * vertex + 1] - positions[3 * node + 1],
+        positions[3 * vertex + 2] - positions[3 * node + 2],
       );
-    const weight = budget > 0 ? Math.max(0, 1 - nearest / budget) : 0;
-    lips[vertex] = ratio + weight * (interpolate(along(vertex)) - ratio);
+      nearest = Math.min(nearest, distance);
+      const weight = 1 / (distance * distance);
+      weights += weight;
+      sum += weight * gains[at];
+    });
+    const blend = budget > 0 ? Math.max(0, 1 - nearest / budget) : 0;
+    lips[vertex] = ratio + blend * (sum / weights - ratio);
   }
   return { ratio, lips };
 }
+

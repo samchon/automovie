@@ -61,4 +61,4 @@ export * from "./IAutoMovieHumanFaceAnatomicalRequest";
 export * from "./IAutoMovieHumanFaceMeasurementMeasured";
 export * from "./IAutoMovieHumanFaceMeasurementTarget";
 export * from "./IAutoMovieHumanFaceMeasurementUnavailable";
-export * from "./IAutoMovieHumanFaceLipMarginPair";
+export * from "./IAutoMovieHumanFaceLipMargin";

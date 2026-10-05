@@ -114,7 +114,7 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "brows",
     outcome: "observed",
-    reason: "compared with the face's brow measurements (brow.<side>.*); the medial and lateral brow-to-lid verticals and the arch apex read as named gaps",
+    reason: "compared with the face's brow measurements (brow.<side>.*); the medial and lateral brow-to-lid distances and the arch apex, referenced to a limbus the CC0 eye proxy lacks, read as named gaps",
   },
   {
     path: "brows.*.hairCoverageFraction",

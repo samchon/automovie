@@ -63,9 +63,19 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
       );
   };
   pair("lips", contact.lips);
-  (contact.margin ?? []).forEach((entry, index) =>
-    pair("lip margin " + index, { surface: contact.lips.surface, ...entry }),
-  );
+  if (contact.margin !== undefined) {
+    const count = (surfaces.get(contact.lips.surface)?.positions.length ?? 0) / 3;
+    const chains = [contact.margin.upper, contact.margin.lower];
+    const all = chains.flat();
+    if (
+      chains.some((chain) => chain.length < 2) ||
+      all.some((vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count) ||
+      new Set(all).size !== all.length
+    )
+      throw new Error(
+        "Facial contact lip margin needs two chains of at least two distinct resident vertices of the lips surface.",
+      );
+  }
   pair("incisors", contact.incisors);
   const expression = (channel: string): void => {
     if (channels.get(channel) !== "expression")

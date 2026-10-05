@@ -1,11 +1,10 @@
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceLipMarginPair,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
+
+import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
 
 /**
- * The vermilion margin pairs of a lips region, from the midline toward each
- * commissure.
+ * The station anchors of a lips region's vermilion margin chains, from the
+ * midline toward each commissure (`findLipMargin` joins them into chains).
  *
  * Rule: away from the commissures the oral fissure separates the lips region
  * into two connected components, upper and lower vermilion, which join only at
@@ -24,7 +23,7 @@ export function findLipMarginPairs(props: {
   region: readonly number[];
   axis: readonly [number, number, number];
   stationMetres: number;
-}): { pairs: IAutoMovieHumanFaceLipMarginPair[]; limitMetres: number } {
+}): { pairs: IFaceLipMarginAnchor[]; limitMetres: number } {
   const { surface, region, axis, stationMetres } = props;
   const p = surface.positions;
   const raisedLength = Math.hypot(-axis[0] * axis[1], 1 - axis[1] * axis[1], -axis[2] * axis[1]);
@@ -74,7 +73,7 @@ export function findLipMarginPairs(props: {
     component.reduce((total, v) => total + height(v), 0) / component.length;
   const [upper, lower] =
     mean(parts[0]) > mean(parts[1]) ? [parts[0], parts[1]] : [parts[1], parts[0]];
-  const pairs: IAutoMovieHumanFaceLipMarginPair[] = [];
+  const pairs: IFaceLipMarginAnchor[] = [];
   for (const sign of [-1, 1])
     for (let k = 1; k * stationMetres < limit - stationMetres / 2; k++) {
       const station = sign * k * stationMetres;

@@ -2,7 +2,7 @@ import type { IAutoMovieHumanFaceContactClosure } from "./IAutoMovieHumanFaceCon
 import type { IAutoMovieHumanFaceContactCollider } from "./IAutoMovieHumanFaceContactCollider";
 import type { IAutoMovieHumanFaceContactPassage } from "./IAutoMovieHumanFaceContactPassage";
 import type { IAutoMovieHumanFaceContactSoftSurface } from "./IAutoMovieHumanFaceContactSoftSurface";
-import type { IAutoMovieHumanFaceLipMarginPair } from "./IAutoMovieHumanFaceLipMarginPair";
+import type { IAutoMovieHumanFaceLipMargin } from "./IAutoMovieHumanFaceLipMargin";
 import type { IAutoMovieHumanFaceMidlinePair } from "./IAutoMovieHumanFaceMidlinePair";
 
 /**
@@ -35,11 +35,11 @@ export interface IAutoMovieHumanFaceBasisContact {
   lips: IAutoMovieHumanFaceMidlinePair;
 
   /**
-   * Vermilion margin pairs on the same surface toward each commissure.
-   * Closure weight one seals every pair together with the central one;
+   * The fissure's vermilion margin chains on the same surface, commissure to
+   * commissure. Closure weight one leaves no point of either chain open;
    * omission seals the central pair alone.
    */
-  margin?: IAutoMovieHumanFaceLipMarginPair[];
+  margin?: IAutoMovieHumanFaceLipMargin;
 
   /** Incisal edge midline vertices on one surface, upper then lower. */
   incisors: IAutoMovieHumanFaceMidlinePair;

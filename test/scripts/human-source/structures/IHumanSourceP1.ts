@@ -12,4 +12,7 @@ export interface IHumanSourceP1 {
   face: IAutoMovieHumanFaceBasis;
   body: IAutoMovieHumanBodyBasis;
   checks: Record<string, number | boolean | string>;
+
+  /** How the face contact lip margin chains were joined (`buildHumanSourceLipMarginChain`), for the generation manifest. */
+  marginChain: Record<string, unknown>;
 }

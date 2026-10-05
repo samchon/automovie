@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/common/basis/IAutoMovieHumanBasisSourcePartition";
 
 import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
+import { buildHumanSourceLipMarginChain } from "./buildHumanSourceLipMarginChain.ts";
 import { findHumanSourceLipMarginPairs } from "./findHumanSourceLipMarginPairs.ts";
 import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
 import { splitHumanSourceToes } from "./splitHumanSourceToes.ts";
@@ -12,8 +13,8 @@ import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
  * topology, rows and metadata, gains a source partition and declares the head
  * skin landmarks and regions chosen on the generation
  * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`), and its
- * contact gains the vermilion margin pairs beside the central pair
- * (`findHumanSourceLipMarginPairs`), and it carries the periocular
+ * contact gains the vermilion margin chains beside the central pair
+ * (`buildHumanSourceLipMarginChain`), and it carries the periocular
  * registration (`defineHumanSourcePeriocular`).
  * The body becomes the source complement of the same cut, with the
  * generation's neutral and weights, its endpoints re-addressed
@@ -39,17 +40,18 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
   });
   const short = generation.id.slice(0, 12);
   const contact = face.contact;
-  if (contact === undefined) throw new Error("The published face has no contact to add lip margin pairs to.");
+  if (contact === undefined) throw new Error("The published face has no contact to add lip margin chains to.");
   const lipsSurface = face.surfaces.find((s) => s.id === contact.lips.surface);
   const lipsRegion = lipsSurface?.regions.find((r) => r.id.endsWith("/lips"));
   if (lipsSurface === undefined || lipsRegion === undefined) throw new Error("The published face has no lips region on its contact surface.");
   const margin = findHumanSourceLipMarginPairs(lipsSurface.positions, lipsRegion.indices, face.articulation!.jaw.axis);
+  const chain = buildHumanSourceLipMarginChain(lipsSurface.positions, lipsRegion.indices, face.articulation!.jaw.axis, margin, contact.lips);
   const p1Face = {
     ...face,
     id: `human-source-g1-${short}-p1-face`,
     skinLandmarks: input.headLandmarks,
     skinRegions: { ...input.headRegions, ...registerHumanSourceTeeth(face).regions },
-    contact: { ...contact, margin: margin.pairs },
+    contact: { ...contact, margin: { upper: chain.upper, lower: chain.lower } },
     periocular: input.periocular,
     surfaces: face.surfaces.map((s) =>
       s.id === "Human" ? { ...s, sourcePartition: partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)) } : s,
@@ -112,6 +114,7 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
   return {
     face: p1Face,
     body: p1Body,
+    marginChain: chain.record,
     checks: {
       p1BodyVertices: count,
       p1BodyTriangles: indices.length / 3,

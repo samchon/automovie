@@ -20,18 +20,20 @@ import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
  * `readHumanFacePupilCentre`), palpebrale superius and inferius from the
  * margin rows on the pupil vertical (`readHumanFaceMarginAtVertical`), and the
  * brow borders from the brow card on a vertical (`readHumanFaceBrowAtVertical`).
- * Canthal, interpupillary and fissure lengths and the fissure height are
- * straight 3D distances; the lateral canthus rise, pupil-to-brow, central
- * brow breadth and central brow-to-lid distances are head-frame vertical (+Y)
- * differences on the pupil vertical; brow length is the card's head-frame X
- * extent. A basis without the registration reads every one as a registration
+ * Canthal, interpupillary and fissure lengths, the fissure height and the
+ * central brow-to-lid distance are straight 3D distances (the brow-to-lid
+ * distance is the linear distance from the inferior brow margin to palpebrale
+ * superius on the pupil vertical, Gao et al. 2024, Quant Imaging Med Surg
+ * 15(1):882-897); the lateral canthus rise, pupil-to-brow and central brow
+ * breadth are head-frame vertical (+Y) differences on the pupil vertical;
+ * brow length is the card's head-frame X extent. A basis without the registration reads every one as a registration
  * gap.
  *
  * Still gaps: the upper-lid crease (no crease is registered); limbus, pupil
  * aperture, axial length and cornea (the CC0 eye proxy has no cornea, limbus,
- * aperture or posterior pole); the medial and lateral brow-to-lid verticals
- * (the study's vertical definitions are not yet read from its text); the brow
- * arch apex (it is referenced to the medial limbus); and the lash lengths (the
+ * aperture or posterior pole); the medial and lateral brow-to-lid distances
+ * (the study measures them on the medial and lateral limbus verticals); the
+ * brow arch apex (it is referenced to the medial limbus); and the lash lengths (the
  * lashes are cards, not shafts). Central corneal thickness reads in
  * millimetres, the registry's unit, against the observation's micrometres. The
  * shaft count, brow hair coverage, lash form and lower-lid tissue grades have
@@ -346,7 +348,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     channels: ["browElevation"],
     read: () => {
       return {
-        reason: "missing rule: the medial vertical of the brow-to-lid study",
+        reason:
+          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
       };
     },
   },
@@ -366,7 +369,7 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
         pupil.x,
       );
       if ("reason" in lid) return lid;
-      return (brow.inferior.y - lid.y) * 1000;
+      return Vector3.length(Vector3.subtract(brow.inferior, lid)) * 1000;
     },
   },
   {
@@ -375,7 +378,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     channels: ["browElevation"],
     read: () => {
       return {
-        reason: "missing rule: the lateral vertical of the brow-to-lid study",
+        reason:
+          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
       };
     },
   },
@@ -414,7 +418,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     channels: ["browElevation"],
     read: () => {
       return {
-        reason: "missing rule: the medial vertical of the brow-to-lid study",
+        reason:
+          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
       };
     },
   },
@@ -434,7 +439,7 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
         pupil.x,
       );
       if ("reason" in lid) return lid;
-      return (brow.inferior.y - lid.y) * 1000;
+      return Vector3.length(Vector3.subtract(brow.inferior, lid)) * 1000;
     },
   },
   {
@@ -443,7 +448,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     channels: ["browElevation"],
     read: () => {
       return {
-        reason: "missing rule: the lateral vertical of the brow-to-lid study",
+        reason:
+          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
       };
     },
   },

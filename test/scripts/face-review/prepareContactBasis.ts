@@ -48,7 +48,7 @@ import {
 
 import { denseRows, sparseRows } from "./articulatedResiduals";
 import type { IContactBasisInput } from "./IContactBasisInput";
-import { findLipMarginPairs } from "./findLipMarginPairs";
+import { findLipMargin } from "./findLipMargin";
 import { findSeamPair } from "./findSeamPair";
 import { roundedMillimetres } from "./roundedMillimetres";
 import { sealCrownRings } from "./sealCrownRings";
@@ -100,11 +100,12 @@ export function prepareContactBasis(input: IContactBasisInput) {
     pivot,
     bandMetres: input.midlineBandMetres,
   });
-  const margin = findLipMarginPairs({
+  const margin = findLipMargin({
     surface: lipSurface,
     region: lipRegion.indices,
     axis: jaw.axis,
     stationMetres: input.marginStationMetres,
+    central: { upper: lips.upper, lower: lips.lower },
   });
   const incisorSurface = surface(input.incisors.surface);
   const incisors = findSeamPair({
@@ -228,7 +229,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
     budgets: Map<string, number>,
   ): NonNullable<IAutoMovieHumanFaceBasis["contact"]> => ({
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
-    margin: margin.pairs,
+    margin: margin.margin,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -342,7 +343,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   }));
   basis.contact = {
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
-    margin: margin.pairs,
+    margin: margin.margin,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -411,7 +412,8 @@ export function prepareContactBasis(input: IContactBasisInput) {
       margin: {
         stationMm: roundedMillimetres(input.marginStationMetres),
         commissureLimitMm: roundedMillimetres(margin.limitMetres),
-        pairs: margin.pairs,
+        upper: margin.margin.upper,
+        lower: margin.margin.lower,
       },
       colliders: colliders.map((collider) => ({
         surface: collider.surface,

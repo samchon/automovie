@@ -130,7 +130,8 @@ export const HUMAN_FACE_CRANIOFACIAL_MEASUREMENTS: readonly IHumanFaceMeasuremen
     read: (context) => {
       const a = readHumanFaceMeasurementLandmark(context, "subnasale");
       if ("reason" in a) return a;
-      return { reason: "missing rule: pogonion (the most anterior midline point of the chin, found per shape)" };
+      // pogonion has an instrument (findHumanPogonion); the angle's vertex nasion has none
+      return { reason: "missing rule: nasion (the meeting of the brow ridge curves with the superior extension of the midline nasal profile, Katina 2016, found per shape)" };
     },
   },
   {
