@@ -22,7 +22,7 @@ export interface IHumanViewerNumericalRequest {
   domain: "face" | "body" | "person";
 
   /** The basis token naming the file and its digest. */
-  basis?: string;
+  basis: string;
 
   /** The product runtime input. */
   input: IHumanViewerNumericalInput;

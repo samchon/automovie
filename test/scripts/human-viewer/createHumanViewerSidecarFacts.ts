@@ -14,16 +14,18 @@ const gunzipAsync = promisify(gunzip);
  * Learn the digest and identity of each candidate sidecar off the request
  * path. Sidecars are tens of megabytes compressed and a person packet a few
  * hundred inflated; hashing and reading them inside a catalogue read stalled
- * `/health` and every request for seconds. Here the bytes stream through the
- * hash in chunks, a person packet inflates on the zlib thread pool, and only
- * its structural scan runs on the event loop. Until a file's facts are known
+ * `/health` and every request for seconds. Here the file is read
+ * asynchronously (the reads run outside the JavaScript thread), each chunk is
+ * hashed on the event loop as it arrives, a packet or view inflates on the
+ * zlib thread pool, and its structural scan runs on the event loop; no step
+ * blocks for a whole file the way a synchronous read, hash and parse did. Until a file's facts are known
  * `facts` answers null and the catalogue lists the file as being read; when
  * they are stored, `changed` lets the host publish a catalogue that includes
  * it. Facts stay valid while the file's stamp is unchanged, so a rescan never
  * reads an unchanged sidecar again. A read failure is kept as the file's
  * failure reason, never hidden.
  *
- * @evidence contracts/common.md#principled-implementation Moves sidecar hashing and inflation off the event loop and reports a file still being read instead of blocking for it.
+ * @evidence contracts/common.md#principled-implementation Reads asynchronously, hashes chunk by chunk, inflates on the zlib pool, and reports a file still being read instead of blocking for it.
  * @evidence contracts/common.md#clear-and-simple-design One owner holds sidecar facts, their stamps and the reads in flight.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A file is never admitted before its digest and identity are actually known.
  * @evidence contracts/common.md#meaningful-documentation States the pending state, the republication signal, stamp validity and failure reporting.

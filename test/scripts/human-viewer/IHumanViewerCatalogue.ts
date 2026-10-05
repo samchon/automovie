@@ -7,7 +7,7 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
  * through its typed view, `HumanViewerCatalogue`.
  *
  * @evidence contracts/common.md#principled-implementation Content digests carry cache authority; documents stay unexamined JSON until their owner builds them.
- * @evidence contracts/common.md#meaningful-documentation Names the revision, the documents and the refused inputs.
+ * @evidence contracts/common.md#meaningful-documentation Names the revision, the documents and the refused or pending entries.
  * @author Samchon
  */
 export interface IHumanViewerCatalogue {
@@ -17,6 +17,10 @@ export interface IHumanViewerCatalogue {
   /** Displayable documents with their cache keys. */
   documents: IHumanViewerCatalogueEntry[];
 
-  /** Input files that were refused, with the reason, so one bad file hides no other. */
+  /**
+   * Documents refused or not yet decided, with the reason and whether they are
+   * pending: input files, the published person generation views and the
+   * documents the viewer itself authors, so one bad entry hides no other.
+   */
   rejected: IHumanViewerRejectedInput[];
 }

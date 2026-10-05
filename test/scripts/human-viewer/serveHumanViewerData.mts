@@ -26,9 +26,11 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
    * Send a file's bytes only when their SHA-256 starts with the requested
    * digest; otherwise 409 with both digests. The file is read once: the bytes
    * that were hashed are the bytes sent, so a file replaced while it is read
-   * can never go out under the digest of its predecessor. Reading and hashing
-   * stream in chunks off the event loop; the verified bytes are held for the
-   * one response (tens of megabytes, released when it is written).
+   * can never go out under the digest of its predecessor. The file is read
+   * asynchronously (the reads run outside the JavaScript thread) and each
+   * chunk is hashed on the event loop as it arrives, so no single step blocks
+   * for the whole file; the verified bytes are held for the one response
+   * (tens of megabytes, released when it is written).
    */
   const streamVerified = (file: string, digest: string, label: string): void => {
     void (async () => {
@@ -62,7 +64,7 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
       })) return true;
     // The published one-skin person generation views. A request names the
     // digest prefix its document was keyed with (`?digest=<12 hex>`); the
-    // bytes are hashed off the event loop and a replaced view is refused
+    // bytes are read asynchronously and hashed chunk by chunk, and a replaced view is refused
     // with 409, so no build runs on views its key does not name. A missing
     // view is 404; the catalogue already lists the standard people as
     // rejected by name until both exist.

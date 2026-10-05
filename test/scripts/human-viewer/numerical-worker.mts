@@ -62,13 +62,10 @@ const digestsOf = (token: string, prefix: string, count: number): string[] => {
  * dropped beside (`<name>@<digest12>`). A person candidate is one packet at
  * `/basis/person`: a face/body basis pair or a one-skin source generation.
  */
-const basisUrl = (domain: string, token: string | undefined): string => {
-  if (token === undefined)
-    throw new Error("A " + domain + " request needs a basis token naming its file digest.");
-  return token.startsWith(PUBLISHED + "@")
+const basisUrl = (domain: string, token: string): string =>
+  token.startsWith(PUBLISHED + "@")
     ? `/basis/${domain}?digest=${digestsOf(token, PUBLISHED, 1)[0]}`
     : `/basis/${domain}?candidate=${encodeURIComponent(token)}`;
-};
 /**
  * One resident runtime per domain: a candidate basis replaces the last one
  * instead of accumulating tens of megabytes per candidate.
@@ -105,15 +102,15 @@ const publishedPair = async (
 };
 scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
   const { id, domain, basis, input } = event.data;
-  const identity = domain + ":" + (basis ?? "");
+  const identity = domain + ":" + basis;
   try {
     const runtime =
       domain === "person"
         ? await runtimeOf(person, identity, async () =>
             createConnectedPersonRuntime(
-              basis !== undefined && basis.startsWith(PUBLISHED_GENERATION + "@")
+              basis.startsWith(PUBLISHED_GENERATION + "@")
                 ? await publishedGeneration(basis)
-                : basis !== undefined && basis.startsWith(PUBLISHED + "@")
+                : basis.startsWith(PUBLISHED + "@")
                 ? await publishedPair(basis)
                 : await readConnectedFaceAsset<
                     | IAutoMovieHumanPersonGeneration
