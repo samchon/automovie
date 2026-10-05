@@ -7,6 +7,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import type { IHumanViewerFaceDocumentsMemo } from "./IHumanViewerFaceDocumentsMemo";
+import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
 import { createHumanViewerRevisionsWorker } from "./createHumanViewerRevisionsWorker";
 import { createNodeHumanViewerResolveIo } from "./createNodeHumanViewerResolveIo";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo";
@@ -58,6 +60,10 @@ export function createHumanViewerSource(directory: string) {
     stamp: (file) => { const stat = fs.statSync(file); return `${stat.mtimeMs}:${stat.size}`; },
     read: (file) => fs.readFileSync(file),
   });
+  /** Each input file's entries, kept while the file and what it depends on are unchanged. */
+  const inputsMemo = new Map<string, IHumanViewerInputFileRead>();
+  /** The face documents, kept while the subject list, face basis and face source are unchanged. */
+  const faceMemo: IHumanViewerFaceDocumentsMemo = { signature: null, value: null };
   /** The published bases and subject list: inputs no import graph names. */
   const basisDigest = (): string =>
     [...Object.values(basisFiles), documentsFile]
@@ -138,6 +144,8 @@ export function createHumanViewerSource(directory: string) {
       basisFiles,
       documentsFile,
       inputsDirectory,
+      inputsMemo,
+      faceMemo,
       basisOf,
       revisions: revisions.current(),
       sidecar: sidecars.facts,

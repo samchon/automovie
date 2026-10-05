@@ -1,3 +1,5 @@
+import type { IHumanViewerFaceDocumentsMemo } from "./IHumanViewerFaceDocumentsMemo";
+import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
 import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
@@ -23,6 +25,12 @@ export interface IReadHumanViewerCatalogueProps {
 
   /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
   inputsDirectory?: string;
+
+  /** Per-input-file results the caller keeps between readings, so an unchanged file is not read again. */
+  inputsMemo?: Map<string, IHumanViewerInputFileRead>;
+
+  /** The face documents the caller keeps between readings. */
+  faceMemo?: IHumanViewerFaceDocumentsMemo;
 
   /** Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once. */
   basisOf?: (file: string) => IHumanViewerBasisIdentity;

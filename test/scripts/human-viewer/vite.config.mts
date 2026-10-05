@@ -13,6 +13,7 @@ import { type ModuleNode, type ViteDevServer, defineConfig } from "vite";
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
 import { createHumanViewerCompileGate } from "./createHumanViewerCompileGate";
 import { createHumanViewerCompileInputs } from "./createHumanViewerCompileInputs";
+import { createHumanViewerSourceResolver } from "./createHumanViewerSourceResolver";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
 import { humanViewerInstance } from "./humanViewerInstance";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
@@ -33,6 +34,11 @@ const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 // tens of seconds, and inside this process it froze every request. Each
 // viewer reports its own compilation, so a second viewer never overwrites it.
 const status = path.join(outputDirectory, served.sourceStatus);
+/** Workspace source imports resolved from cached listings instead of a realpath per import. */
+const sourceResolver = createHumanViewerSourceResolver([
+  path.resolve(directory, "../../../packages"),
+  path.resolve(directory, "../.."),
+]);
 /** Paths the compile inputs already added to the watcher. */
 const watching = new Set<string>();
 const inputs = createHumanViewerCompileInputs(human, [
@@ -62,6 +68,7 @@ const compilation = createHumanViewerCompilation(
 export default defineConfig({
   root: directory,
   plugins: [
+    { name: sourceResolver.name, enforce: sourceResolver.enforce, resolveId: sourceResolver.resolveId },
     {
       // An edit never reloads or hot-replaces a page a person is using: the
       // host page shows a banner and redraws when asked, keeping its state.
@@ -88,6 +95,8 @@ export default defineConfig({
       ),
       configureServer: (instance) => {
         server = instance;
+        for (const event of ["add", "unlink", "addDir", "unlinkDir"] as const)
+          server.watcher.on(event, sourceResolver.changed);
         server.watcher.add([
           path.join(human, "src"),
           path.join(human, "tsconfig.json"),

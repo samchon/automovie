@@ -45,8 +45,12 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
       const ready = props.readyRevision();
       const selectedRevision = ready;
       const started = performance.now();
+      const shownDomain = inventory.documents.find((entry) => entry.id === address.doc)?.domain;
+      // Room for the build's transient copies is made before it starts.
+      if (shownDomain !== undefined) await props.lifetime.run(() => props.makeRoom(shownDomain));
       const result = await props.lifetime.run(() =>
         readHumanViewerCapture(props.page(), address, props.pageRevision()));
+      if (shownDomain !== undefined) props.learnRoom(shownDomain);
       if (props.readyRevision() !== selectedRevision)
         throw new Error("Source changed during capture; the mixed revision was discarded");
       // Inside the queue slot, so no capture shows a resident while it is released.

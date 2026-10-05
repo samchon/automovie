@@ -15,4 +15,7 @@ export interface ICreateHumanViewerGenerationWindowsProps {
 
   /** Whether an edit batch is still being digested. */
   updating: () => boolean;
+
+  /** Told after a window closed, so documents waiting on its frame are asked again. */
+  closed: () => void;
 }

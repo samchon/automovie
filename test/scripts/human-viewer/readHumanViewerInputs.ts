@@ -5,6 +5,7 @@ import type { IHumanViewerInputs } from "./IHumanViewerInputs";
 import { HumanViewerPendingInputError } from "./HumanViewerPendingInputError";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerInputDocument } from "./IHumanViewerInputDocument";
+import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
@@ -43,6 +44,10 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
  * hashes the packet's digest in place of both published bases. A Person
  * that names the published one-skin generation's view bases (both of them)
  * is drawn on that generation, with the standard people's token and key.
+ * With `props.memo` and a stamping `io`, a file's entries are reused while
+ * its bytes, its sidecars, the bases, the generation and the source digests
+ * are unchanged, so republishing the catalogue for an admission verdict does
+ * not re-read and re-hash every input; only admission is applied again.
  */
 export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHumanViewerInputs {
   const hash = (bytes: string | Uint8Array): string =>
@@ -59,12 +64,23 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
     else rejected.push({ file, reason: `${entry.id}: ${admission.reason ?? admission.state}`,
       pending: admission.state === "pending" });
   };
-  for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
-    if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
-    const name = file.slice(0, -".json".length);
+  /** What every file's result depends on besides its own bytes and sidecars. */
+  const shared = JSON.stringify([props.bases, props.generation, props.sources]);
+  /** One file's entries and refusal, reused while nothing it depends on changed. */
+  const readFile = (input: string): IHumanViewerInputFileRead => {
+    const name = input.slice(0, -".json".length);
+    const facts = (sidecar: string): string =>
+      available.has(sidecar) ? JSON.stringify(props.sidecar(sidecar)) : "absent";
+    const signature = [props.io.stamp?.(input) ?? "", facts(`${name}.basis.json.gz`), facts(`${name}.person.json.gz`),
+      shared].join("|");
+    const kept = props.memo?.get(input);
+    if (kept !== undefined && kept.signature === signature && props.io.stamp !== undefined) return kept;
+    const entries: IHumanViewerCatalogueEntry[] = [];
+    let refusal: string | null = null;
+    const offer = (entry: IHumanViewerCatalogueEntry): void => { entries.push(entry); };
     try {
       if (!/^[A-Za-z0-9._-]+$/.test(name)) throw new Error("Unsupported file name");
-      const parsed = JSON.parse(props.io.read(file).toString("utf8")) as unknown;
+      const parsed = JSON.parse(props.io.read(input).toString("utf8")) as unknown;
       const candidateFile = `${name}.basis.json.gz`;
       const packetFile = `${name}.person.json.gz`;
       // A sidecar still being read off the request path holds its documents
@@ -99,7 +115,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
               throw new Error(`The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`);
             if (person.body !== packet.body)
               throw new Error(`The person names body basis ${person.body} but its packet ${packetFile} carries body basis ${packet.body}`);
-            accept({
+            offer({
               id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
               document,
@@ -111,7 +127,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
           }
           const generation = props.generation;
           if (generation !== null && person.face === generation.face && person.body === generation.body) {
-            accept({
+            offer({
               id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
               document,
@@ -127,7 +143,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
               (generation === null ? "" : ` (or, on the published person generation, ${generation.face} with body ${generation.body})`));
           if (person.body !== props.bases.body.id)
             throw new Error(`The person names body basis ${person.body} but is built on ${props.bases.body.id}`);
-          accept({
+          offer({
             id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain: "person",
             document,
@@ -148,7 +164,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
           );
         const digest = candidate === null ? props.bases[domain].digest : candidate.digest;
         const id = many ? `file:${name}/${named.id}` : `file:${name}`;
-        accept({
+        offer({
           id,
           domain,
           document,
@@ -157,11 +173,21 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
         });
       }
     } catch (error) {
-      rejected.push({
-        file,
-        reason: error instanceof Error ? error.message : String(error),
-        pending: error instanceof HumanViewerPendingInputError,
-      });
+      if (error instanceof HumanViewerPendingInputError) throw error;
+      refusal = error instanceof Error ? error.message : String(error);
+    }
+    const result: IHumanViewerInputFileRead = { signature, entries, refusal };
+    props.memo?.set(input, result);
+    return result;
+  };
+  for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
+    if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
+    try {
+      const read = readFile(file);
+      for (const entry of read.entries) accept(entry);
+      if (read.refusal !== null) rejected.push({ file, reason: read.refusal, pending: false });
+    } catch (error) {
+      rejected.push({ file, reason: error instanceof Error ? error.message : String(error), pending: true });
     }
   }
   return { documents, rejected };

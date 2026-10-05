@@ -36,4 +36,10 @@ export interface ICreateHumanViewerCaptureProps {
 
   /** Keep the renderer's heap under its limit after a capture. */
   trim: () => Promise<void>;
+
+  /** Make room for a capture of this domain before it runs. */
+  makeRoom: (domain: "face" | "body" | "person") => Promise<void>;
+
+  /** Learn the room a capture of this domain took. */
+  learnRoom: (domain: "face" | "body" | "person") => void;
 }

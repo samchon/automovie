@@ -57,8 +57,11 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
       request.resolve(data.value);
     } else request.reject(new Error(data.error));
   };
+  /** Why the worker can no longer answer, or null while it can. */
+  let workerFailure: Error | null = null;
   worker.onerror = (error) => {
-    rejectCompiles(new Error("The numerical worker failed to load: " + error.message));
+    workerFailure = new Error("The numerical worker failed: " + (error.message || "it could not load its modules"));
+    rejectCompiles(workerFailure);
     for (const request of pending.values()) request.reject(new Error(error.message));
     pending.clear();
     work("failed");
@@ -85,6 +88,11 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
             else {
               work("build");
               value = await spans.measure("workerMs", () => new Promise<Result>((resolve, reject) => {
+                // A failed worker answers nothing: refuse at once instead of waiting forever.
+                if (workerFailure !== null) {
+                  reject(workerFailure);
+                  return;
+                }
                 const workerId = ++sequence;
                 pending.set(workerId, { resolve, reject });
                 worker.postMessage({ id: workerId, domain: selected.domain, basis: selected.basis,

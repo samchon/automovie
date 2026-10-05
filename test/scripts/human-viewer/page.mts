@@ -164,13 +164,15 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
 async function main(): Promise<void> {
   // The host's hold ends when this page and its worker have loaded their
   // modules; the build and drawing that follow no longer read source.
-  void numerical.compiles()
-    .then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
-    // A worker that failed to load fails `main` below, which posts the error.
+  const loaded = numerical.compiles();
+  void loaded.then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
     .catch(() => undefined);
   await checkHumanViewerCandidateSource();
   catalogue = await (await fetch("/docs")).json();
-  await apply(parseHumanViewerAddress(location.hash));
+  // A worker that cannot load (a module it imports is missing or broken)
+  // fails this candidate at once; the first show would otherwise wait on it
+  // forever and never release the host's hold.
+  await Promise.all([apply(parseHumanViewerAddress(location.hash)), loaded]);
   // Publish only a generation whose page and worker ran one compile.
   assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.compiles());
   await checkHumanViewerCandidateSource();

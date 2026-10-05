@@ -54,6 +54,7 @@ export function createHumanViewerGenerationWindows(props: ICreateHumanViewerGene
       }
       props.gate.release();
       window.close(label);
+      props.closed();
     },
 
     /** A file some build reads was edited: every open window's code may be behind. */

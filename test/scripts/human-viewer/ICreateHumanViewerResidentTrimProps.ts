@@ -22,4 +22,13 @@ export interface ICreateHumanViewerResidentTrimProps {
 
   /** Ask the page to release its least recently used resident other than the one on screen; false when none is left. */
   evict: () => Promise<boolean>;
+
+  /** Start a window of page heap samples taken during one capture. */
+  mark: () => void;
+
+  /** The largest page heap sample since `mark`, or null when none arrived. */
+  windowPeak: () => number | null;
+
+  /** The transient page heap each document domain was measured to need above its starting heap while it builds and draws. */
+  seeds: Record<"face" | "body" | "person", number>;
 }

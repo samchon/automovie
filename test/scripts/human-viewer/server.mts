@@ -32,6 +32,7 @@ import type { IHumanViewerWarming } from "./IHumanViewerWarming";
 import { assembleHumanViewerHealth } from "./assembleHumanViewerHealth";
 import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
 import { createHumanViewerCapture } from "./createHumanViewerCapture";
+import { createHumanViewerCatalogueRepublish } from "./createHumanViewerCatalogueRepublish";
 import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 import { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge";
 import { createHumanViewerGenerationWindows } from "./createHumanViewerGenerationWindows";
@@ -69,7 +70,9 @@ const source = createHumanViewerSource(directory);
 const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } = source;
 let inventory = catalogue();
 // A candidate sidecar read off the request path finished: publish its documents.
-source.sidecarsChanged(() => { inventory = catalogue(); });
+/** Republish the catalogue once per burst of requests (admission verdicts arrive by the hundred). */
+const republish = createHumanViewerCatalogueRepublish(() => { inventory = catalogue(); });
+source.sidecarsChanged(republish);
 // Input documents are admitted by their owners in the page, which carries the
 // human runtime the server does not load; a verdict republishes the catalogue.
 const admission = createHumanViewerAdmission({
@@ -88,16 +91,18 @@ const admission = createHumanViewerAdmission({
       return bridge === undefined ? { available: false, reason: null, token: null } : bridge.admit(input.domain, input.text);
     }, { domain, text }));
     if (!reply.available) return reply;
-    return (await windows.label(reply.token)) === inventory.revision ? reply : { available: false, reason: null, token: null };
+    // Only a closed window has a label; a frame still loading cannot vouch
+    // for its code yet, so the document waits until that window closes.
+    return windows.current(reply.token) ? reply : { available: false, reason: null, token: null };
   },
-  changed: () => { inventory = catalogue(); },
+  changed: republish,
 });
 source.admitWith(admission.of);
 /** Ask the waiting admissions again on a trigger event, logging how many waited. */
 const retryAdmissions = (trigger: string): void => {
   const released = admission.retry();
   if (released !== 0) console.log(`ADMISSION RETRY ${new Date().toISOString()} ${released} waiting; ${trigger}`);
-  inventory = catalogue();
+  republish();
 };
 /**
  * Ask waiting admissions again, then publish the catalogue once every read and
@@ -170,15 +175,22 @@ const residentTrim = createHumanViewerResidentTrim({
   page: (collect) => collect ? readLiveHeap() : readHeap(),
   workers: (collect) => resident === null ? Promise.resolve([]) : readHumanViewerWorkerHeaps(resident.browser, collect),
   evict: () => page.evaluate(() => (window as unknown as IHumanViewerWindow).__humanViewer.evict()),
+  mark: heap.mark,
+  windowPeak: heap.windowPeak,
+  // Measured: a person build and draw took the page from 296 MB to 1560 MB
+  // (upper-arm, pid 13952, 08:34Z). Faces and bodies start at zero and learn
+  // their room from their first capture, which runs while the heap is small.
+  seeds: { face: 0, body: 0, person: 1.26e9 },
 });
 const capturer = createHumanViewerCapture({ page: () => page, renderer: () => renderer,
   startup: () => (pageWait ?? startup.phase + " since " + startup.since) +
     (errors.length === 0 ? "" : "; last error: " + errors[errors.length - 1]),
   readyRevision: () => readyRevision, pageRevision: () => pageRevision, inventory: () => inventory, lifetime,
-  trim: residentTrim.trim });
+  trim: residentTrim.trim, makeRoom: residentTrim.before, learnRoom: residentTrim.learn });
 /** Candidate loading windows: they hold compile withdrawal and label each candidate's code. */
 const windows = createHumanViewerGenerationWindows({ gate: humanViewerCompileGate,
-  revision: () => inventory.revision, updating: () => sourceUpdating });
+  revision: () => inventory.revision, updating: () => sourceUpdating,
+  closed: () => retryAdmissions("a candidate window closed") });
 /**
  * Wait, at most thirty seconds, until the source settles: a generation of the
  * current revision is ready, or the current revision's candidate failed and
@@ -202,14 +214,23 @@ let relaunches = 0;
 /** The failed page being replaced, so repeated reports of one exit recover once. */
 let recovering: IHumanViewerResidentPage | null = null;
 
+/** Resolves once the first page of this server is ready, whichever opening made it so. */
+let announceFirstReady: () => void = () => {};
+const firstReady = new Promise<undefined>((resolve) => { announceFirstReady = () => resolve(undefined); });
+
 /**
- * Open the resident page (reusing a connected browser) and wait for its first
- * source generation. The first opening reports startup phases; a replacement
- * reports through `pageWait`. Every page gets the same observers, so a
- * replacement fails, reloads and reports exactly as the first one did.
+ * Open the resident page and wait for its first source generation. A fresh
+ * browser is launched when asked or when the current one is gone; otherwise
+ * the connected browser is reused. The first opening reports startup phases;
+ * a replacement reports through `pageWait`. Every page gets the same
+ * observers, so a replacement fails, reloads and reports exactly as the first
+ * one did. A page that fails while it waits is left to the recovery that
+ * replaces it: its opening returns without error, since it is no longer the
+ * page the server serves.
  */
-async function openResidentPage(first: boolean): Promise<void> {
-  const opened = await launchHumanViewerPage(resident?.browser);
+async function openResidentPage(first: boolean, freshBrowser: boolean): Promise<void> {
+  if (freshBrowser) await resident?.browser.close().catch(() => undefined);
+  const opened = await launchHumanViewerPage(freshBrowser ? undefined : resident?.browser);
   resident = opened;
   page = opened.page;
   readHeap = opened.readHeap;
@@ -265,28 +286,36 @@ async function openResidentPage(first: boolean): Promise<void> {
   // states are reported (phase, compiles in server.log, errors in /health),
   // so the wait is observable rather than bounded by an arbitrary deadline.
   if (first) phase("waiting for the first source generation");
-  await opened.page.waitForFunction(
-    () =>
-      Boolean((window as unknown as Partial<IHumanViewerWindow>).__humanViewer),
-    undefined,
-    { timeout: 0 },
-  );
-  renderer = await opened.page.evaluate(() =>
-    (
-      window as unknown as IHumanViewerWindow
-    ).__humanViewer.renderer(),
-  );
+  try {
+    await opened.page.waitForFunction(
+      () =>
+        Boolean((window as unknown as Partial<IHumanViewerWindow>).__humanViewer),
+      undefined,
+      { timeout: 0 },
+    );
+    renderer = await opened.page.evaluate(() =>
+      (
+        window as unknown as IHumanViewerWindow
+      ).__humanViewer.renderer(),
+    );
+  } catch (error) {
+    // Replaced while it waited: the recovery that replaced it owns readiness.
+    if (resident !== opened || recovering === opened) return;
+    throw error;
+  }
   console.log("RENDERER", renderer);
+  announceFirstReady();
 }
 
 /**
  * The page's renderer exited (a V8 out-of-memory error, a GPU process loss or
- * a kill). Captures and admissions are refused as starting while the page is
- * replaced in this process: the failed page is closed, which releases every
- * capture it held, the capture lifetime is renewed and a new page opens on
- * the same browser. Only a replacement that cannot open makes the failure
- * permanent, with that cause. A report about a page already replaced is
- * ignored.
+ * a kill) or its whole browser went away. Captures and admissions are refused
+ * as starting while the page is replaced in this process: the failed page is
+ * closed, which releases every capture it held, the capture lifetime is
+ * renewed and a new page opens on the same browser, or, when that browser
+ * cannot open one, in a newly launched browser. Only a replacement that
+ * cannot open even in a new browser makes the failure permanent, with that
+ * cause. A report about a page already replaced is ignored.
  */
 function recoverResidentPage(failed: IHumanViewerResidentPage, cause: string, physicalSettled: boolean): void {
   // One exit raises several reports (crash, detach, destroy): the first one
@@ -310,10 +339,18 @@ function recoverResidentPage(failed: IHumanViewerResidentPage, cause: string, ph
     lifetime.fail(new Error(cause), true);
     lifetime.renew();
     ++relaunches;
-    await openResidentPage(false);
+    try {
+      await openResidentPage(false, false);
+    } catch (error) {
+      // The browser itself is gone or going (a killed browser process closes
+      // every page before it reports the disconnect): launch a new one.
+      console.error(`BROWSER RELAUNCH ${new Date().toISOString()} the page could not open on the old browser: ` +
+        (error instanceof Error ? error.message : String(error)));
+      await openResidentPage(false, true);
+    }
     console.log(`PAGE RELAUNCHED ${new Date().toISOString()} (${relaunches} since start)`);
   })().catch((error: unknown) => {
-    pageFailure = "the page could not be opened again after its renderer exited: " +
+    pageFailure = "the page could not be opened again after its renderer exited, even in a new browser: " +
       (error instanceof Error ? error.message : String(error));
     console.error(`PAGE FAILED ${new Date().toISOString()} ${pageFailure}`);
     inventory = catalogue();
@@ -383,7 +420,13 @@ async function main(): Promise<void> {
     reached: () => windows.edited(),
   });
   phase("launching the browser");
-  await openResidentPage(true);
+  // A first page that fails while it starts is replaced by the recovery, which
+  // then makes the server ready; only a failure nothing recovers is fatal.
+  void openResidentPage(true, false).catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
+  await firstReady;
   phase("ready");
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("Software renderer refused");

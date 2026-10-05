@@ -42,7 +42,17 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
   const bases = { face: readBasis(props.basisFiles.face), body: readBasis(props.basisFiles.body) };
   const admit = props.admission ?? ((): IHumanViewerAdmission =>
     ({ state: "pending", reason: "awaiting admission: no viewer page admits documents" }));
-  const faces = readHumanViewerFaceDocuments({ face: bases.face, documentsFile: props.documentsFile, sources });
+  // The subject list is re-read and re-keyed only when it, the face basis or
+  // the face source changed: an admission verdict republishes the catalogue.
+  const subjectsStat = fs.statSync(props.documentsFile);
+  const faceSignature = `${subjectsStat.mtimeMs}:${subjectsStat.size}|${bases.face.digest}|${sources.face}`;
+  const faces = props.faceMemo !== undefined && props.faceMemo.signature === faceSignature && props.faceMemo.value !== null
+    ? props.faceMemo.value
+    : readHumanViewerFaceDocuments({ face: bases.face, documentsFile: props.documentsFile, sources });
+  if (props.faceMemo !== undefined) {
+    props.faceMemo.signature = faceSignature;
+    props.faceMemo.value = faces;
+  }
   const subjectPeople = readHumanViewerSubjectPeople({ subjects: faces.subjects, bases, sources });
   const generation = (props.generation ?? ((): IHumanViewerRejectedInput => ({
     file: "test/studies/human-person/generation", pending: false,
@@ -59,7 +69,12 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
           io: {
             names: () => fs.readdirSync(props.inputsDirectory!),
             read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
+            stamp: (name) => {
+              const stat = fs.statSync(path.join(props.inputsDirectory!, name));
+              return `${stat.mtimeMs}:${stat.size}`;
+            },
           },
+          memo: props.inputsMemo,
           bases,
           generation: "reason" in generation ? null : generation,
           sources,

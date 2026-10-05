@@ -19,6 +19,15 @@ import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrim
  * loaded runtimes, which the page cannot release; it is counted so the page
  * gives up the room the worker needs.
  *
+ * Before a capture it also makes room for the capture itself: a build and
+ * its first draw hold transient copies far above the resident they leave
+ * (a person on pid 13952 took the page from 296 MB to 1560 MB while drawing),
+ * and a capture-only trim cannot see them coming. `before` releases page
+ * residents until the sum plus the room the capture's domain needs fits the
+ * limit; `after` measures the capture's own transient from the page heap
+ * samples taken during it and keeps the largest per domain, so the reserved
+ * room follows what the documents actually take.
+ *
  * @evidence contracts/common.md#principled-implementation Eviction follows the isolates' own heap accounting of the quantity that ran out, not an estimate of another one.
  * @evidence contracts/common.md#clear-and-simple-design One owner reads, decides and asks the page to release; the page owns its residents.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No document-specific sizes; the limit is checked against measured heaps.
@@ -27,11 +36,48 @@ import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrim
 export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentTrimProps) {
   if (!(props.target < props.limit)) throw new Error("A trim target must be below its limit");
   let last: IHumanViewerResidentTrimReading | null = null;
+  /** The room each domain needs above its starting heap, learned from its captures. */
+  const room = { ...props.seeds };
+  /** The page heap when the current capture started. */
+  let started = 0;
+  /** Release page residents while the sum plus `extra` exceeds `bound`; returns how many were released. */
+  const release = async (extra: number, bound: number): Promise<{ evicted: number; page: number; workers: number }> => {
+    let reading = await sum(true);
+    let evicted = 0;
+    while (reading.page + reading.workers + extra > bound && await props.evict()) {
+      ++evicted;
+      reading = { ...reading, page: (await props.page(true)).usedSize };
+    }
+    return { evicted, ...reading };
+  };
   const sum = async (collect: boolean): Promise<{ page: number; workers: number }> => {
     const [page, workers] = await Promise.all([props.page(collect), props.workers(collect)]);
     return { page: page.usedSize, workers: workers.reduce((total, worker) => total + worker.usage.usedSize, 0) };
   };
   return {
+    /** Make room for a capture of this domain before it builds and draws. */
+    before: async (domain: "face" | "body" | "person"): Promise<void> => {
+      const reading = await sum(false);
+      started = reading.page;
+      if (reading.page + reading.workers + room[domain] > props.limit) {
+        const made = await release(room[domain], props.limit);
+        started = made.page;
+        console.log(`RESIDENT ROOM ${new Date().toISOString()} ${domain} needs ${Math.round(room[domain] / 1e6)} MB; released ` +
+          `${made.evicted}; page ${Math.round(made.page / 1e6)} MB + workers ${Math.round(made.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB` +
+          (made.page + made.workers + room[domain] > props.limit ? " (the worker's runtimes leave less room than the capture needs)" : ""));
+      }
+      props.mark();
+    },
+
+    /** Learn the capture's transient for its domain. */
+    learn: (domain: "face" | "body" | "person"): void => {
+      const peak = props.windowPeak();
+      if (peak !== null && peak - started > room[domain]) room[domain] = peak - started;
+    },
+
+    /** The room each domain is known to need. */
+    room: (): Record<"face" | "body" | "person", number> => ({ ...room }),
+
     /** Read the heaps and release page residents while over the limit. */
     trim: async (): Promise<void> => {
       let reading = await sum(false);
