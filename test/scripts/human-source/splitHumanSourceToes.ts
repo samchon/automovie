@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanBodyBasisSurface } from "@automovie/human/body/structures/surface/IAutoMovieHumanBodyBasisSurface";
 import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
 
 import { humanSourceWeightTolerance } from "./humanSourceWeightTolerance.ts";
@@ -32,7 +33,7 @@ const PARTITION_TOLERANCE = 1e-4 + 4 * humanSourceWeightTolerance;
  */
 export function splitHumanSourceToes(
   rays: readonly IAutoMovieHumanBodyToeRay[],
-  toes: { joints: readonly string[]; boneIndices: readonly number[]; weights: readonly number[] },
+  toes: IAutoMovieHumanBodyBasisSurface["skin"],
   sampleOf: (vertex: number) => number,
   sampleRays: readonly [string, number][][],
 ): IHumanSourceToeSplit {

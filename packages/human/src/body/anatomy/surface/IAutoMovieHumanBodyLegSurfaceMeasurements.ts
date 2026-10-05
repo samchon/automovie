@@ -9,12 +9,14 @@ import type { IAutoMovieHumanBodySurfaceGirth } from "../measurements/IAutoMovie
  * Calf size includes gastrocnemius, soleus and overlying tissues; the
  * knee-to-ankle skin distance cannot stand in for tibia or fibula length.
  * The knee and ankle girths delimit distinct joints and remain independent.
+ * Knee height (ANSUR II 6.4.57) is the midpatella's height above the floor.
  * @author Samchon
  */
 export type IAutoMovieHumanBodyLegSurfaceMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
     /** Horizontal girth across the middle of the patella. */
     kneeGirth?: IAutoMovieHumanBodySurfaceGirth;
+    kneeHeight?: IAutoMovieHumanBodySurfaceDistance;
     /** Greatest relaxed calf girth perpendicular to the leg axis. */
     maximumCalfGirth?: IAutoMovieHumanBodySurfaceGirth;
     /** Medial calf skinfold at its greatest girth station. */

@@ -76,5 +76,5 @@ export function findHumanSourceLipMarginPairs(positions: readonly number[], regi
         lower: bottom.reduce((best, v) => (height(v) > height(best) ? v : best)),
       });
     }
-  return { pairs, limitMetres: limit, stationMetres: STATION_METRES };
+  return { pairs, limitMetres: limit, stationMetres: STATION_METRES, upper, lower };
 }

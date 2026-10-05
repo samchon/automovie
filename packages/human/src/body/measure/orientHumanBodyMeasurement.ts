@@ -53,22 +53,25 @@ export function orientHumanBodyMeasurement(
           : name.endsWith("-right")
             ? name.slice(0, -"-right".length) + "-left"
             : name;
+  // humanoid bones pair by a left/right prefix (leftFoot, rightFoot)
+  const mirrorBone = <Bone extends string>(bone: Bone): Bone =>
+    (bone.startsWith("left")
+      ? "right" + bone.slice("left".length)
+      : bone.startsWith("right")
+        ? "left" + bone.slice("right".length)
+        : bone) as Bone;
   if (rule.kind === "distance")
     return { ...rule, from: mirror(rule.from), to: mirror(rule.to) };
-  // humanoid bones pair by a left/right prefix (leftFoot, rightFoot), so the
-  // prefixed exchange names the other side's bone of the same humanoid set
+  if (rule.kind === "skin-distance" || rule.kind === "skin-height")
+    return { ...rule, from: mirror(rule.from), to: mirror(rule.to) };
+  if (rule.kind === "skin-reach")
+    return { ...rule, from: mirror(rule.from), to: mirror(rule.to), origin: mirror(rule.origin), bones: rule.bones.map(mirrorBone) };
   if (rule.kind === "extent")
     return {
       ...rule,
       from: mirror(rule.from),
       to: mirror(rule.to),
-      bones: rule.bones.map((bone) =>
-        bone.startsWith("left")
-          ? (("right" + bone.slice("left".length)) as typeof bone)
-          : bone.startsWith("right")
-            ? (("left" + bone.slice("right".length)) as typeof bone)
-            : bone,
-      ),
+      bones: rule.bones.map(mirrorBone),
     };
   if ("level" in rule)
     return { ...rule, from: mirror(rule.from), to: mirror(rule.to), level: mirror(rule.level) };

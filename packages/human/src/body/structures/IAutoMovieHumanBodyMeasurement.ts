@@ -1,6 +1,9 @@
 import type { IAutoMovieHumanBodyLandmarkDistance } from "./IAutoMovieHumanBodyLandmarkDistance";
 import type { IAutoMovieHumanBodyLevelSection } from "./IAutoMovieHumanBodyLevelSection";
 import type { IAutoMovieHumanBodySkinExtent } from "./IAutoMovieHumanBodySkinExtent";
+import type { IAutoMovieHumanBodySkinLandmarkHeight } from "./IAutoMovieHumanBodySkinLandmarkHeight";
+import type { IAutoMovieHumanBodySkinLandmarkDistance } from "./IAutoMovieHumanBodySkinLandmarkDistance";
+import type { IAutoMovieHumanBodySkinReach } from "./IAutoMovieHumanBodySkinReach";
 import type { IAutoMovieHumanBodyStationSection } from "./IAutoMovieHumanBodyStationSection";
 
 /**
@@ -31,4 +34,7 @@ export type IAutoMovieHumanBodyMeasurement =
   | IAutoMovieHumanBodyStationSection
   | IAutoMovieHumanBodyLevelSection
   | IAutoMovieHumanBodyLandmarkDistance
-  | IAutoMovieHumanBodySkinExtent;
+  | IAutoMovieHumanBodySkinExtent
+  | IAutoMovieHumanBodySkinLandmarkDistance
+  | IAutoMovieHumanBodySkinReach
+  | IAutoMovieHumanBodySkinLandmarkHeight;

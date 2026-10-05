@@ -35,9 +35,13 @@ export function readHumanFacePupilCentre(
   side: "left" | "right",
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
   const owner = side === "left" ? "leftEye" : "rightEye";
-  const support = context.basis.opticalSupport?.find((entry) => entry.owner === owner);
+  const support = context.basis.opticalSupport?.find(
+    (entry) => entry.owner === owner,
+  );
   if (support === undefined)
-    return { reason: `missing registration: the basis's ${owner} optical support` };
+    return {
+      reason: `missing registration: the basis's ${owner} optical support`,
+    };
   const [a, b, c] = support.anterior.triangle.map((vertex) =>
     context.point(support.surface, vertex),
   );

@@ -55,6 +55,28 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
       },
     ];
   }),
+  // hand (#2719); one authored left rule, read on each side
+  ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorTarget[] => {
+    const suffix = side === "left" ? "Left" : "Right";
+    return [
+      {
+        path: `surface.${side}UpperLimb.hand.length`,
+        rule: "handLength",
+        side,
+        channel: "handFingersLength" + suffix,
+        protocol:
+          "From the registered stylion skin point on the wrist joint's plane, the farthest middle-finger skin point along the wrist-to-middle-MCP joint axis stands in for stylion to dactylion III with the caliper beam along the arm; the rest hand keeps its source finger flexion instead of lying flat. The one-sided source finger-length response is the solving channel; it moves hand breadth by about 1 mm on the standard body.",
+      },
+      {
+        path: `surface.${side}UpperLimb.hand.breadth`,
+        rule: "handBreadth",
+        side,
+        channel: "handFingersDistance" + suffix,
+        protocol:
+          "The straight distance between the registered metacarpale II and V skin points stands in for the caliper breadth of the hand pressed flat. The one-sided source finger-spacing response is the solving channel; its reach is narrow (about 77 to 86 mm on the standard body) and it leaves hand length unchanged.",
+      },
+    ];
+  }),
   // forearm (#2710); one authored left rule, read on each side
   ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorTarget[] => {
     const suffix = side === "left" ? "Left" : "Right";
@@ -148,6 +170,14 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
         channel: "lowerlegScaleDepth" + suffix,
         protocol:
           "The smallest perpendicular rest-skin girth in the last 10% of the hip-to-knee joint segment stands in for a knee girth at the patella, which the source does not register. The one-sided source depth response is the solving channel; it also moves the calf and ankle, which their own channels then correct.",
+      },
+      {
+        path: `surface.${side}LowerLimb.leg.kneeHeight`,
+        rule: "kneeHeightMidpatella",
+        side,
+        channel: "upperlegScaleVert" + suffix,
+        protocol:
+          "The registered midpatella skin point's height above the source ground plane on the unloaded rest skin stands in for ANSUR II knee height, midpatella, measured standing with the weight on both feet; the point carries about +-10 mm vertical ambiguity. The one-sided source thigh-height response is the solving channel: it moves the knee between a fixed hip and foot (about 437-531 mm on the standard body) and leaves the other leg unchanged.",
       },
       {
         path: `surface.${side}LowerLimb.leg.maximumCalfGirth`,

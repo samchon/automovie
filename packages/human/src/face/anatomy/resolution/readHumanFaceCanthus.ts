@@ -38,10 +38,13 @@ export function readHumanFaceCanthus(
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
   const periocular = context.basis.periocular;
   if (periocular === undefined)
-    return { reason: "missing registration: the basis's periocular registration" };
+    return {
+      reason: "missing registration: the basis's periocular registration",
+    };
   const { margins, canthi } = periocular[side];
   const definition = canthi[corner];
-  if (definition.kind === "vertex") return context.point(margins.surface, definition.vertex);
+  if (definition.kind === "vertex")
+    return context.point(margins.surface, definition.vertex);
   const [ax, ay, az] = definition.axis;
   let best: IAutoMovieVector3 | null = null;
   let bestValue = 0;
@@ -56,5 +59,9 @@ export function readHumanFaceCanthus(
       bestValue = value;
     }
   }
-  return best ?? { reason: `missing registration: the ${side} margin rows are empty` };
+  return (
+    best ?? {
+      reason: `missing registration: the ${side} margin rows are empty`,
+    }
+  );
 }

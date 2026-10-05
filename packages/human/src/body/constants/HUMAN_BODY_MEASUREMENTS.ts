@@ -159,6 +159,23 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     across: false,
   },
   /**
+   * Knee height, midpatella, ANSUR II 6.4.57 (Hotzman et al. 2011,
+   * NATICK/TR-11/017): the vertical distance between a standing surface and
+   * the midpatella landmark (5.2.26, the anterior point halfway between the
+   * top and bottom of the patella), with the knee relaxed and the weight on
+   * both feet. This rule reads the registered `midpatella-right` skin point's
+   * height above the plane through the source's `joint-ground` cube. Named
+   * approximations: the skin point is fixed on the neutral body with about
+   * +-10 mm vertical ambiguity (the source records it), and the rest feet are
+   * unloaded and stand about 1 mm clear of that plane. Authored on the right,
+   * as the survey measures; the left knee is the same rule oriented.
+   */
+  kneeHeightMidpatella: {
+    kind: "skin-height",
+    from: "joint-ground",
+    to: "midpatella-right",
+  },
+  /**
    * Hip breadth, ANSUR II 6.4.51: the horizontal distance between the lateral
    * buttock landmarks, measured in anthropometric standing with a beam
    * caliper. This rule reads the extent along the hip-joint line of the skin
@@ -231,6 +248,48 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     kind: "distance",
     from: "joint-l-elbow",
     to: "joint-l-hand",
+  },
+  /**
+   * Hand length, ANSUR II 6.4.45 (Hotzman et al. 2011, NATICK/TR-11/017,
+   * p. 121): the length of the right hand between the stylion landmark on the
+   * wrist and the tip of the middle finger (dactylion III), with a Poech
+   * sliding caliper whose beam is parallel to the long axis of the arm, the
+   * palm on a table, the fingers together and the middle finger parallel to
+   * the forearm. Stylion (5.2.36) is "the inferior point of the bottom of the
+   * radius". This rule reads, from the registered `stylion-left` skin point,
+   * how far the skin dominantly weighted to the middle finger's three bones
+   * reaches along the wrist-to-middle-MCP joint axis, so dactylion III is the
+   * farthest point found on each shape. Named approximations: the stylion
+   * point stands on the wrist joint's plane because the source skin has no
+   * styloid prominence; the hand-to-middle-MCP axis stands in for the arm's
+   * long axis; and the rest A-pose hand keeps its source finger flexion
+   * instead of lying flat. Authored on the left; the right hand is the same
+   * rule oriented (`orientHumanBodyMeasurement`).
+   * https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf
+   */
+  handLength: {
+    kind: "skin-reach",
+    from: "joint-l-hand",
+    to: "joint-l-finger-3-1",
+    origin: "stylion-left",
+    bones: ["leftMiddleProximal", "leftMiddleIntermediate", "leftMiddleDistal"],
+  },
+  /**
+   * Hand breadth, ANSUR II 6.4.43 (Hotzman et al. 2011, p. 119): the breadth
+   * of the right hand between the drawn landmarks at metacarpale II (5.2.24,
+   * the most lateral point of metacarpophalangeal joint II) and metacarpale V
+   * (5.2.25, the most medial point of metacarpophalangeal joint V), with a
+   * sliding caliper, the palm on a table and the fingers together. This rule
+   * reads the straight distance between the registered `metacarpale-ii-left`
+   * and `metacarpale-v-left` skin points. Named approximation: the rest
+   * A-pose hand is not pressed flat. Authored on the left; the right hand is
+   * the same rule oriented.
+   * https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf
+   */
+  handBreadth: {
+    kind: "skin-distance",
+    from: "metacarpale-ii-left",
+    to: "metacarpale-v-left",
   },
   /**
    * Maximum forearm girth: the largest tape girth of the relaxed forearm

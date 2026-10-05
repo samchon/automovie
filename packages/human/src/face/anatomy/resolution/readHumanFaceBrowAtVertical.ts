@@ -34,7 +34,9 @@ export function readHumanFaceBrowAtVertical(
 ): IHumanFaceBrowSection | IHumanFaceMeasurementGap {
   const periocular = context.basis.periocular;
   if (periocular === undefined)
-    return { reason: "missing registration: the basis's periocular registration" };
+    return {
+      reason: "missing registration: the basis's periocular registration",
+    };
   const brow = periocular[side].brow;
   const own = new Set(brow.vertices);
   const surface = context.surface(brow.surface);
@@ -46,7 +48,11 @@ export function readHumanFaceBrowAtVertical(
   let inferior: IHumanFaceBrowSection["inferior"] | null = null;
   let superior: IHumanFaceBrowSection["superior"] | null = null;
   for (let at = 0; at < surface.indices.length; at += 3) {
-    const corners = [surface.indices[at], surface.indices[at + 1], surface.indices[at + 2]];
+    const corners = [
+      surface.indices[at],
+      surface.indices[at + 1],
+      surface.indices[at + 2],
+    ];
     if (!corners.every((vertex) => own.has(vertex))) continue;
     for (let edge = 0; edge < 3; edge++) {
       const a = point(corners[edge]);
@@ -59,6 +65,8 @@ export function readHumanFaceBrowAtVertical(
     }
   }
   if (inferior === null || superior === null)
-    return { reason: `missing rule: the vertical does not cross the ${side} brow` };
+    return {
+      reason: `missing rule: the vertical does not cross the ${side} brow`,
+    };
   return { inferior, superior };
 }

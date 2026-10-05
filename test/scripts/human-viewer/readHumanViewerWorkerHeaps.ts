@@ -28,8 +28,23 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
     const { targetInfos } = await root.send("Target.getTargets");
     const heaps: IHumanViewerWorkerHeap[] = [];
     for (const target of targetInfos.filter((info) => info.type === "worker")) {
+      // The whole read of one worker, attach included, ends when the worker
+      // is destroyed: a worker torn down at a generation swap was seen to
+      // leave even its attach unanswered (source's 5191, 11:56:05).
+      let cancel: () => void = () => {};
+      const lost = new Promise<never>((_resolve, reject) => {
+        const gone = (event: IHumanViewerTargetEvent): void => {
+          if (event.targetId !== target.targetId) return;
+          root.off("Target.targetDestroyed", gone);
+          reject(new Error("The worker ended while it was read"));
+        };
+        root.on("Target.targetDestroyed", gone);
+        cancel = () => root.off("Target.targetDestroyed", gone);
+      });
+      lost.catch(() => undefined);
       try {
-        const { sessionId } = await root.send("Target.attachToTarget", { targetId: target.targetId, flatten: false });
+        const { sessionId } = await Promise.race([
+          root.send("Target.attachToTarget", { targetId: target.targetId, flatten: false }), lost]);
         let next = 0;
         const ask = <T>(method: string): Promise<T> => {
           const id = ++next;
@@ -72,9 +87,11 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
         };
         if (collect) await ask<object>("HeapProfiler.collectGarbage");
         heaps.push({ url: target.url, usage: await ask<IHumanViewerHeapUsage>("Runtime.getHeapUsage") });
-        await root.send("Target.detachFromTarget", { sessionId }).catch(() => undefined);
+        void root.send("Target.detachFromTarget", { sessionId }).catch(() => undefined);
       } catch {
         // The worker ended while it was read.
+      } finally {
+        cancel();
       }
     }
     return heaps;

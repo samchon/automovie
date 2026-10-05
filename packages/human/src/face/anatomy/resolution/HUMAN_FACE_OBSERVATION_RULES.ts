@@ -104,7 +104,7 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "eyes",
     outcome: "observed",
-    reason: "compared with the face's eye measurements (eye.* and eye.<side>.*), which name the missing periocular and optical-support registrations",
+    reason: "compared with the face's eye measurements (eye.* and eye.<side>.*); the crease, limbus, pupil aperture, axial length and cornea read as named gaps",
   },
   {
     path: "eyes.*.lowerEyelid",
@@ -114,7 +114,7 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "brows",
     outcome: "observed",
-    reason: "compared with the face's brow measurements (brow.<side>.*), which name the missing periocular registration",
+    reason: "compared with the face's brow measurements (brow.<side>.*); the medial and lateral brow-to-lid verticals and the arch apex read as named gaps",
   },
   {
     path: "brows.*.hairCoverageFraction",
@@ -124,7 +124,7 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "eyelashes",
     outcome: "observed",
-    reason: "compared with the face's lash measurements (eyelash.<side>.<row>.*), which name the missing periocular registration",
+    reason: "compared with the face's lash measurements (eyelash.<side>.<row>.*), which read as named gaps because the lashes are cards",
   },
   {
     path: "eyelashes.*.*.centralTwoMmShaftCount",

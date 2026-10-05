@@ -43,22 +43,12 @@ export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[]
       detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
     },
   ]),
-  // upper limb (#2718, #2710, #2719)
+  // upper limb (#2718, #2710)
   ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorGap[] => [
     {
       path: `surface.${side}UpperLimb.upperArm.tricepsSkinfold`,
       reason: "missing-tissue-boundary",
       detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-    {
-      path: `surface.${side}UpperLimb.hand.length`,
-      reason: "missing-landmark",
-      detail: `Missing landmark: stylion-${side}, the radial styloid point ANSUR II hand length starts at (Hotzman et al. 2011, 5.2.36 and 6.4.45); the end, dactylion III, is an extreme a rule finds on each shape.`,
-    },
-    {
-      path: `surface.${side}UpperLimb.hand.breadth`,
-      reason: "missing-landmark",
-      detail: `Missing landmarks: metacarpale-ii-${side} and metacarpale-v-${side}, the most lateral point of metacarpophalangeal joint II and the most medial of joint V, the ends of ANSUR II hand breadth (Hotzman et al. 2011, 5.2.24, 5.2.25 and 6.4.43).`,
     },
   ]),
   // lower limb (#2716, #2714)

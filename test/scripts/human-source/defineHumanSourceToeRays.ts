@@ -5,6 +5,7 @@ import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures
 import type { AutoMovieHumanBodyToeBone } from "@automovie/human/body/structures/rig/AutoMovieHumanBodyToeBone";
 
 import { HUMAN_SOURCE_TOE_BONES } from "./HUMAN_SOURCE_TOE_BONES.ts";
+import type { IHumanSourceRigBone } from "./structures/IHumanSourceRigBone.ts";
 
 /**
  * The per-ray toe bones of the body basis, read from the pinned MPFB default
@@ -16,10 +17,7 @@ import { HUMAN_SOURCE_TOE_BONES } from "./HUMAN_SOURCE_TOE_BONES.ts";
  * missing from the rig, or a parent the rig names otherwise, refuses.
  */
 export function defineHumanSourceToeRays(work: string): IAutoMovieHumanBodyToeRay[] {
-  const rig = JSON.parse(fs.readFileSync(path.join(work, "upstream/mpfb2/src/mpfb/data/rigs/standard/rig.default.json"), "utf8")) as Record<
-    string,
-    { head: { cube_name: string }; tail: { cube_name: string }; parent: string; roll: number }
-  >;
+  const rig = JSON.parse(fs.readFileSync(path.join(work, "upstream/mpfb2/src/mpfb/data/rigs/standard/rig.default.json"), "utf8")) as Record<string, IHumanSourceRigBone>;
   const rays: IAutoMovieHumanBodyToeRay[] = [];
   for (const [suffix, side] of [
     [".L", "left"],
@@ -33,14 +31,19 @@ export function defineHumanSourceToeRays(work: string): IAutoMovieHumanBodyToeRa
       const ray = source.split("-")[0];
       const expectedParent = phalanx === 1 ? `foot${suffix}` : `${ray}-${phalanx - 1}${suffix}`;
       if (bone.parent !== expectedParent) throw new Error(`Toe bone ${source + suffix} hangs from ${bone.parent}, not ${expectedParent}.`);
+      const { roll } = bone;
+      const head = bone.head.cube_name;
+      const tail = bone.tail.cube_name;
+      if (roll === undefined || head === undefined || tail === undefined)
+        throw new Error(`Toe bone ${source + suffix} lacks a roll or a joint-cube head or tail.`);
       const previous = rays[rays.length - 1];
       rays.push({
         bone: name,
         parent: phalanx === 1 ? (side === "left" ? "leftToes" : "rightToes") : previous.bone,
-        head: bone.head.cube_name,
-        tail: bone.tail.cube_name,
+        head,
+        tail,
         source: source + suffix,
-        roll: (bone.roll * 180) / Math.PI,
+        roll: (roll * 180) / Math.PI,
       });
     }
   }

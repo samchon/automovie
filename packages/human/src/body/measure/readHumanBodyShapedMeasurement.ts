@@ -8,6 +8,8 @@ import type { IAutoMovieHumanBodyMeasurementSection } from "../structures/IAutoM
 import { indexHumanBodySectionTriangles } from "./indexHumanBodySectionTriangles";
 import { measureHumanSection } from "../../common/measure/measureHumanSection";
 import { readHumanBodySkinExtent } from "./readHumanBodySkinExtent";
+import { readHumanBodySkinPoint } from "./readHumanBodySkinPoint";
+import { readHumanBodySkinReach } from "./readHumanBodySkinReach";
 
 /**
  * Read one rule from an already shaped body, in metres, or null when the
@@ -52,12 +54,25 @@ export function readHumanBodyShapedMeasurement(
   rule: IAutoMovieHumanBodyMeasurement,
   observeSection?: (section: IAutoMovieHumanBodyMeasurementSection) => void,
 ): number | null {
+  // two registered skin points, read before the joint landmarks the other kinds name
+  if (rule.kind === "skin-distance") {
+    const a = readHumanBodySkinPoint(basis, shaped.surfaces, rule.from);
+    const b = readHumanBodySkinPoint(basis, shaped.surfaces, rule.to);
+    return a === null || b === null ? null : Vector3.length(Vector3.subtract(b, a));
+  }
+  // a registered skin point's height above the ground landmark's plane
+  if (rule.kind === "skin-height") {
+    const ground = shaped.landmarks[rule.from];
+    const point = readHumanBodySkinPoint(basis, shaped.surfaces, rule.to);
+    return ground === undefined || point === null ? null : point.y - ground.y;
+  }
   const from = shaped.landmarks[rule.from];
   const to = shaped.landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
   if (rule.kind === "distance")
     return Vector3.length(Vector3.subtract(to, from));
   if (rule.kind === "extent") return readHumanBodySkinExtent(basis, shaped.surfaces, from, to, rule);
+  if (rule.kind === "skin-reach") return readHumanBodySkinReach(basis, shaped.surfaces, from, to, rule);
   const axis = Vector3.subtract(to, from);
   const normal = rule.horizontal
     ? Vector3.create(0, 1, 0)

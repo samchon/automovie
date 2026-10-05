@@ -1,5 +1,11 @@
+import { Vector3 } from "@automovie/engine";
+
 import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
-import { readHumanFaceEyeRegionGap } from "./readHumanFaceEyeRegionGap";
+import { readHumanFaceBrowAtVertical } from "./readHumanFaceBrowAtVertical";
+import { readHumanFaceBrowLength } from "./readHumanFaceBrowLength";
+import { readHumanFaceCanthus } from "./readHumanFaceCanthus";
+import { readHumanFaceMarginAtVertical } from "./readHumanFaceMarginAtVertical";
+import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
 
 /**
  * The eye-region measurements of the face resolver: one per numeric field of
@@ -8,16 +14,28 @@ import { readHumanFaceEyeRegionGap } from "./readHumanFaceEyeRegionGap";
  * `IAutoMovieHumanFaceEyelashParameters`
  * (`eyelash.<side>.<row>.<field>`), each without its unit suffix.
  *
- * Every reader needs the producer's periocular registration (lid margins,
- * canthi, brow and lash regions) or its optical support (globe, cornea,
- * pupil), which no published basis carries yet, so each reads as a named gap
- * (`readHumanFaceEyeRegionGap`). Central corneal thickness reads in
- * millimetres, the registry's unit, against the observation's micrometres.
- * The shaft count, the brow hair coverage, the lash form and the lower-lid
- * tissue grades have no measurement: the lashes and brows are cards and the
- * lid has no tissue layer. Channels name the existing identity channels a
- * target may move once the reading exists; until then the builder refuses a
- * target for an unavailable reading.
+ * Readers use the producer's periocular registration and optical support.
+ * Canthi come from the registered definitions (`readHumanFaceCanthus`), the
+ * pupil centre from each eye's anterior chart point (a named approximation,
+ * `readHumanFacePupilCentre`), palpebrale superius and inferius from the
+ * margin rows on the pupil vertical (`readHumanFaceMarginAtVertical`), and the
+ * brow borders from the brow card on a vertical (`readHumanFaceBrowAtVertical`).
+ * Canthal, interpupillary and fissure lengths and the fissure height are
+ * straight 3D distances; the lateral canthus rise, pupil-to-brow, central
+ * brow breadth and central brow-to-lid distances are head-frame vertical (+Y)
+ * differences on the pupil vertical; brow length is the card's head-frame X
+ * extent. A basis without the registration reads every one as a registration
+ * gap.
+ *
+ * Still gaps: the upper-lid crease (no crease is registered); limbus, pupil
+ * aperture, axial length and cornea (the CC0 eye proxy has no cornea, limbus,
+ * aperture or posterior pole); the medial and lateral brow-to-lid verticals
+ * (the study's vertical definitions are not yet read from its text); the brow
+ * arch apex (it is referenced to the medial limbus); and the lash lengths (the
+ * lashes are cards, not shafts). Central corneal thickness reads in
+ * millimetres, the registry's unit, against the observation's micrometres. The
+ * shaft count, brow hair coverage, lash form and lower-lid tissue grades have
+ * no measurement. Channels name the identity channels a target may move.
  *
  * @author Samchon
  */
@@ -26,429 +44,462 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.innerCanthalDistance",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "endocanthion-to-endocanthion distance from the periocular medial canthi",
-      ),
+    read: (context) => {
+      const a = readHumanFaceCanthus(context, "left", "medial");
+      if ("reason" in a) return a;
+      const b = readHumanFaceCanthus(context, "right", "medial");
+      if ("reason" in b) return b;
+      return Vector3.length(Vector3.subtract(a, b)) * 1000;
+    },
   },
   {
     id: "eye.outerCanthalDistance",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "exocanthion-to-exocanthion distance from the periocular lateral canthi",
-      ),
+    read: (context) => {
+      const a = readHumanFaceCanthus(context, "left", "lateral");
+      if ("reason" in a) return a;
+      const b = readHumanFaceCanthus(context, "right", "lateral");
+      if ("reason" in b) return b;
+      return Vector3.length(Vector3.subtract(a, b)) * 1000;
+    },
   },
   {
     id: "eye.interpupillaryDistance",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "pupil-centre distance in forward gaze from the optical support",
-      ),
+    read: (context) => {
+      const a = readHumanFacePupilCentre(context, "left");
+      if ("reason" in a) return a;
+      const b = readHumanFacePupilCentre(context, "right");
+      if ("reason" in b) return b;
+      return Vector3.length(Vector3.subtract(a, b)) * 1000;
+    },
   },
   {
     id: "eye.left.fissureLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left endocanthion-to-exocanthion distance",
-      ),
+    read: (context) => {
+      const a = readHumanFaceCanthus(context, "left", "medial");
+      if ("reason" in a) return a;
+      const b = readHumanFaceCanthus(context, "left", "lateral");
+      if ("reason" in b) return b;
+      return Vector3.length(Vector3.subtract(a, b)) * 1000;
+    },
   },
   {
     id: "eye.left.fissureHeight",
     unit: "millimetres",
     channels: ["leftEyeHeight"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "left");
+      if ("reason" in pupil) return pupil;
+      const upper = readHumanFaceMarginAtVertical(
         context,
-        "periocular",
-        "left upper-to-lower lid margin distance on the pupil vertical",
-      ),
+        "left",
+        "upper",
+        pupil.x,
+      );
+      if ("reason" in upper) return upper;
+      const lower = readHumanFaceMarginAtVertical(
+        context,
+        "left",
+        "lower",
+        pupil.x,
+      );
+      if ("reason" in lower) return lower;
+      return Vector3.length(Vector3.subtract(upper, lower)) * 1000;
+    },
   },
   {
     id: "eye.left.lateralCanthusRise",
     unit: "millimetres",
     channels: ["leftLateralCanthusElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left exocanthion height minus endocanthion height",
-      ),
+    read: (context) => {
+      const medial = readHumanFaceCanthus(context, "left", "medial");
+      if ("reason" in medial) return medial;
+      const lateral = readHumanFaceCanthus(context, "left", "lateral");
+      if ("reason" in lateral) return lateral;
+      return (lateral.y - medial.y) * 1000;
+    },
   },
   {
     id: "eye.left.upperCreaseHeight",
     unit: "millimetres",
     channels: ["leftEyeFoldHeight"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left upper-lid crease above the margin on the pupil vertical; the registration carries no crease",
-      ),
+    read: () => {
+      return { reason: "missing registration: the left upper-lid crease" };
+    },
   },
   {
     id: "eye.left.pupilToBrow",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left pupil centre to the lower brow margin; also needs the optical support's pupil",
-      ),
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "left");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "left", pupil.x);
+      if ("reason" in brow) return brow;
+      return (brow.inferior.y - pupil.y) * 1000;
+    },
   },
   {
     id: "eye.left.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "left nasal-to-temporal limbus diameter",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.left.pupilDiameterAt250Lux",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "left pupil diameter; no light-dependent pupil exists",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.left.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "left cornea-to-retina axial length",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.left.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "left central anterior corneal radius",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.left.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "left central corneal thickness",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.right.fissureLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right endocanthion-to-exocanthion distance",
-      ),
+    read: (context) => {
+      const a = readHumanFaceCanthus(context, "right", "medial");
+      if ("reason" in a) return a;
+      const b = readHumanFaceCanthus(context, "right", "lateral");
+      if ("reason" in b) return b;
+      return Vector3.length(Vector3.subtract(a, b)) * 1000;
+    },
   },
   {
     id: "eye.right.fissureHeight",
     unit: "millimetres",
     channels: ["rightEyeHeight"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "right");
+      if ("reason" in pupil) return pupil;
+      const upper = readHumanFaceMarginAtVertical(
         context,
-        "periocular",
-        "right upper-to-lower lid margin distance on the pupil vertical",
-      ),
+        "right",
+        "upper",
+        pupil.x,
+      );
+      if ("reason" in upper) return upper;
+      const lower = readHumanFaceMarginAtVertical(
+        context,
+        "right",
+        "lower",
+        pupil.x,
+      );
+      if ("reason" in lower) return lower;
+      return Vector3.length(Vector3.subtract(upper, lower)) * 1000;
+    },
   },
   {
     id: "eye.right.lateralCanthusRise",
     unit: "millimetres",
     channels: ["rightLateralCanthusElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right exocanthion height minus endocanthion height",
-      ),
+    read: (context) => {
+      const medial = readHumanFaceCanthus(context, "right", "medial");
+      if ("reason" in medial) return medial;
+      const lateral = readHumanFaceCanthus(context, "right", "lateral");
+      if ("reason" in lateral) return lateral;
+      return (lateral.y - medial.y) * 1000;
+    },
   },
   {
     id: "eye.right.upperCreaseHeight",
     unit: "millimetres",
     channels: ["rightEyeFoldHeight"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right upper-lid crease above the margin on the pupil vertical; the registration carries no crease",
-      ),
+    read: () => {
+      return { reason: "missing registration: the right upper-lid crease" };
+    },
   },
   {
     id: "eye.right.pupilToBrow",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right pupil centre to the lower brow margin; also needs the optical support's pupil",
-      ),
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "right");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "right", pupil.x);
+      if ("reason" in brow) return brow;
+      return (brow.inferior.y - pupil.y) * 1000;
+    },
   },
   {
     id: "eye.right.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "right nasal-to-temporal limbus diameter",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.right.pupilDiameterAt250Lux",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "right pupil diameter; no light-dependent pupil exists",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.right.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "right cornea-to-retina axial length",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.right.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "right central anterior corneal radius",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "eye.right.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "opticalSupport",
-        "right central corneal thickness",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+      };
+    },
   },
   {
     id: "brow.left.length",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "medial-to-lateral extent of the left brow hair",
-      ),
+    read: (context) => readHumanFaceBrowLength(context, "left"),
   },
   {
     id: "brow.left.centralBreadth",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left brow envelope breadth on the pupil vertical",
-      ),
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "left");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "left", pupil.x);
+      if ("reason" in brow) return brow;
+      return (brow.superior.y - brow.inferior.y) * 1000;
+    },
   },
   {
     id: "brow.left.medialBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left medial inferior brow margin to the upper lid margin",
-      ),
+    read: () => {
+      return {
+        reason: "missing rule: the medial vertical of the brow-to-lid study",
+      };
+    },
   },
   {
     id: "brow.left.centralBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "left");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "left", pupil.x);
+      if ("reason" in brow) return brow;
+      const lid = readHumanFaceMarginAtVertical(
         context,
-        "periocular",
-        "left central inferior brow margin to the upper lid margin",
-      ),
+        "left",
+        "upper",
+        pupil.x,
+      );
+      if ("reason" in lid) return lid;
+      return (brow.inferior.y - lid.y) * 1000;
+    },
   },
   {
     id: "brow.left.lateralBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left lateral inferior brow margin to the upper lid margin",
-      ),
+    read: () => {
+      return {
+        reason: "missing rule: the lateral vertical of the brow-to-lid study",
+      };
+    },
   },
   {
     id: "brow.left.upperArchApexRise",
     unit: "millimetres",
     channels: ["browAngle"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "left superior brow border apex above its medial-limbus level",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the left medial limbus; the CC0 eye proxy carries no limbus",
+      };
+    },
   },
   {
     id: "brow.right.length",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "medial-to-lateral extent of the right brow hair",
-      ),
+    read: (context) => readHumanFaceBrowLength(context, "right"),
   },
   {
     id: "brow.right.centralBreadth",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right brow envelope breadth on the pupil vertical",
-      ),
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "right");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "right", pupil.x);
+      if ("reason" in brow) return brow;
+      return (brow.superior.y - brow.inferior.y) * 1000;
+    },
   },
   {
     id: "brow.right.medialBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right medial inferior brow margin to the upper lid margin",
-      ),
+    read: () => {
+      return {
+        reason: "missing rule: the medial vertical of the brow-to-lid study",
+      };
+    },
   },
   {
     id: "brow.right.centralBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
+    read: (context) => {
+      const pupil = readHumanFacePupilCentre(context, "right");
+      if ("reason" in pupil) return pupil;
+      const brow = readHumanFaceBrowAtVertical(context, "right", pupil.x);
+      if ("reason" in brow) return brow;
+      const lid = readHumanFaceMarginAtVertical(
         context,
-        "periocular",
-        "right central inferior brow margin to the upper lid margin",
-      ),
+        "right",
+        "upper",
+        pupil.x,
+      );
+      if ("reason" in lid) return lid;
+      return (brow.inferior.y - lid.y) * 1000;
+    },
   },
   {
     id: "brow.right.lateralBrowToLid",
     unit: "millimetres",
     channels: ["browElevation"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right lateral inferior brow margin to the upper lid margin",
-      ),
+    read: () => {
+      return {
+        reason: "missing rule: the lateral vertical of the brow-to-lid study",
+      };
+    },
   },
   {
     id: "brow.right.upperArchApexRise",
     unit: "millimetres",
     channels: ["browAngle"],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "right superior brow border apex above its medial-limbus level",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the right medial limbus; the CC0 eye proxy carries no limbus",
+      };
+    },
   },
   {
     id: "eyelash.left.upper.longestCentralLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "longest left upper lash rooted in the central 2 mm of the margin; the lashes are cards, not shafts",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the left upper lashes are cards with no shaft population",
+      };
+    },
   },
   {
     id: "eyelash.left.lower.longestCentralLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "longest left lower lash rooted in the central 2 mm of the margin; the lashes are cards, not shafts",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the left lower lashes are cards with no shaft population",
+      };
+    },
   },
   {
     id: "eyelash.right.upper.longestCentralLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "longest right upper lash rooted in the central 2 mm of the margin; the lashes are cards, not shafts",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the right upper lashes are cards with no shaft population",
+      };
+    },
   },
   {
     id: "eyelash.right.lower.longestCentralLength",
     unit: "millimetres",
     channels: [],
-    read: (context) =>
-      readHumanFaceEyeRegionGap(
-        context,
-        "periocular",
-        "longest right lower lash rooted in the central 2 mm of the margin; the lashes are cards, not shafts",
-      ),
+    read: () => {
+      return {
+        reason:
+          "missing registration: the right lower lashes are cards with no shaft population",
+      };
+    },
   },
 ];

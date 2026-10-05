@@ -30,9 +30,14 @@ export function readHumanFaceBrowLength(
 ): number | IHumanFaceMeasurementGap {
   const periocular = context.basis.periocular;
   if (periocular === undefined)
-    return { reason: "missing registration: the basis's periocular registration" };
+    return {
+      reason: "missing registration: the basis's periocular registration",
+    };
   const brow = periocular[side].brow;
-  const xs = brow.vertices.map((vertex) => context.point(brow.surface, vertex).x);
-  if (xs.length === 0) return { reason: `missing registration: the ${side} brow has no vertices` };
+  const xs = brow.vertices.map(
+    (vertex) => context.point(brow.surface, vertex).x,
+  );
+  if (xs.length === 0)
+    return { reason: `missing registration: the ${side} brow has no vertices` };
   return (Math.max(...xs) - Math.min(...xs)) * 1000;
 }

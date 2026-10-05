@@ -15,4 +15,10 @@ export interface IHumanSourceLipMargin {
 
   /** Station spacing, metres. */
   stationMetres: number;
+
+  /** Upper vermilion component within the limit, in discovery order. */
+  upper: number[];
+
+  /** Lower vermilion component within the limit, in discovery order. */
+  lower: number[];
 }

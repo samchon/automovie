@@ -5,9 +5,11 @@ import type { AutoMovieHumanBodyToeBone } from "./rig/AutoMovieHumanBodyToeBone"
  *
  * Flexion turns the phalanx toward the sole about the foot's mediolateral
  * axis; abduction (splay) turns it about the sole's normal and exists only
- * at a proximal phalanx, positive toward the foot's lateral side. A proximal
- * phalanx's pose adds to the humanoid toes bone's flexion, which stays the
- * common metatarsophalangeal motion.
+ * at a proximal phalanx, positive toward the foot's lateral side. Positive
+ * flexion is the clinical sign; the humanoid toes bone keeps the source rig's
+ * opposite sign (its positive flexion lifts the toes). A proximal phalanx's
+ * rotation composes on top of the toes bone's, which stays the common
+ * metatarsophalangeal motion.
  *
  * @evidence contracts/common.md#principled-implementation A relative pose on top of the toes bone keeps existing documents' meaning.
  * @evidence contracts/common.md#clear-and-simple-design Bone, flexion and an optional splay.

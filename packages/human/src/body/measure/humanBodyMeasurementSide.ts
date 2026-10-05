@@ -32,8 +32,9 @@ export function humanBodyMeasurementSide(
 ): "left" | "right" | "bilateral" | "midline" {
   const names: string[] = [rule.from, rule.to];
   if (rule.kind !== "distance" && "level" in rule) names.push(rule.level);
+  if (rule.kind === "skin-reach") names.push(rule.origin);
   // a skin extent's region bones pair by a left/right prefix (leftFoot)
-  const bones = rule.kind === "extent" ? rule.bones : [];
+  const bones = rule.kind === "extent" || rule.kind === "skin-reach" ? rule.bones : [];
   const left =
     names.some((name) => name.startsWith("joint-l-") || name.endsWith("-left")) ||
     bones.some((bone) => bone.startsWith("left"));

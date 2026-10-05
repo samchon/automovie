@@ -8,6 +8,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
+import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
 
 /**
  * Bind the body's joint picker and its current document's numerical controls.
@@ -116,4 +117,19 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
       props.change({ ...structuredClone(props.current()), pose });
     },
   });
+  // the toe rays hang from the toes bone, so they are posed under it
+  if (bone === "leftToes" || bone === "rightToes")
+    renderBodyToeRayControls({
+      dom,
+      container: rows,
+      basis,
+      side: bone === "leftToes" ? "left" : "right",
+      toes: () => props.current().toes ?? [],
+      onChange: (toes) => {
+        const next = { ...structuredClone(props.current()) };
+        if (toes.length === 0) delete next.toes;
+        else next.toes = toes;
+        props.change(next);
+      },
+    });
 }

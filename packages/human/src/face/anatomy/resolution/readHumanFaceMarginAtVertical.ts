@@ -37,9 +37,13 @@ export function readHumanFaceMarginAtVertical(
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
   const periocular = context.basis.periocular;
   if (periocular === undefined)
-    return { reason: "missing registration: the basis's periocular registration" };
+    return {
+      reason: "missing registration: the basis's periocular registration",
+    };
   const margins = periocular[side].margins;
-  const row = margins[lid].map((vertex) => context.point(margins.surface, vertex));
+  const row = margins[lid].map((vertex) =>
+    context.point(margins.surface, vertex),
+  );
   for (let at = 1; at < row.length; at++) {
     const a = row[at - 1];
     const b = row[at];
@@ -47,5 +51,7 @@ export function readHumanFaceMarginAtVertical(
     const t = (x - a.x) / (b.x - a.x);
     return { x, y: a.y + t * (b.y - a.y), z: a.z + t * (b.z - a.z) };
   }
-  return { reason: `missing rule: the vertical does not cross the ${side} ${lid} margin row` };
+  return {
+    reason: `missing rule: the vertical does not cross the ${side} ${lid} margin row`,
+  };
 }
