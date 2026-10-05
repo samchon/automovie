@@ -6,6 +6,7 @@ import type { ICreateHumanViewerSidecarFactsProps } from "./ICreateHumanViewerSi
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerPersonSidecar } from "./readHumanViewerPersonSidecar";
+import { scanHumanViewerPacketIdentities } from "./scanHumanViewerPacketIdentities";
 
 const gunzipAsync = promisify(gunzip);
 
@@ -40,10 +41,11 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
     }
     const bytes = Buffer.concat(chunks);
     const facts: IHumanViewerSidecarFacts = { stamp, digest: hash.digest("hex"),
-      basis: null, packet: null, failure: null };
+      basis: null, packet: null, view: null, failure: null };
     try {
-      if (file.endsWith(".person.json.gz"))
-        facts.packet = readHumanViewerPersonSidecar(await gunzipAsync(bytes));
+      const kind = props.kind(file);
+      if (kind === "person") facts.packet = readHumanViewerPersonSidecar(await gunzipAsync(bytes));
+      else if (kind === "view") facts.view = scanHumanViewerPacketIdentities(await gunzipAsync(bytes));
       else facts.basis = readHumanViewerBasisIdentity(bytes);
     } catch (error) {
       facts.failure = error instanceof Error ? error.message : String(error);
@@ -59,7 +61,7 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
       if (reading.get(file) !== stamp) {
         reading.set(file, stamp);
         const request: Promise<void> = read(file, stamp).catch((error: unknown): IHumanViewerSidecarFacts => ({ stamp,
-          digest: "", basis: null, packet: null,
+          digest: "", basis: null, packet: null, view: null,
           failure: "Could not read: " + (error instanceof Error ? error.message : String(error)) }))
           .then((facts) => {
             // A newer stamp started its own read; this result is outdated.

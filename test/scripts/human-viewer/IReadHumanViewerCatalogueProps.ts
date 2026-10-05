@@ -1,3 +1,5 @@
+import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration";
+import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerBasisFiles } from "./IHumanViewerBasisFiles";
@@ -30,6 +32,12 @@ export interface IReadHumanViewerCatalogueProps {
 
   /** Digest and identity of an input sidecar, or null while it is being read. */
   sidecar?: (name: string) => IHumanViewerSidecarFacts | null;
+
+  /**
+   * The published one-skin person generation the standard people are built
+   * on, or the named reason they cannot be; absent lists them as not published.
+   */
+  generation?: () => IHumanViewerPublishedGeneration | IHumanViewerRejectedInput;
 
   /** The page owner's admission verdict for one input document; absent means none can be given yet. */
   admission?: (entry: IHumanViewerCatalogueEntry) => IHumanViewerAdmission;

@@ -1,21 +1,5 @@
-/** The refusals a request gets when the page generation it ran on was replaced. */
-const CHANGE_MESSAGES = [
-  "Source changed during capture",
-  "Source changed during request",
-  "Source changed during sheet capture",
-  "The source generation was replaced during display",
-  "The source revision has not finished loading",
-];
-
-/**
- * Whether an error only says that the source generation changed while a
- * request ran. The page raises these messages across a process boundary, so
- * they are recognised by their text, kept here as the single list.
- */
-export const isHumanViewerGenerationChange = (error: unknown): boolean => {
-  const text = error instanceof Error ? error.message : String(error);
-  return CHANGE_MESSAGES.some((message) => text.includes(message));
-};
+import type { IRetryAcrossHumanViewerGenerationProps } from "./IRetryAcrossHumanViewerGenerationProps";
+import { isHumanViewerGenerationChange } from "./isHumanViewerGenerationChange";
 
 /**
  * Run a capture again on the generation that replaced the one it started on.
@@ -34,7 +18,7 @@ export const isHumanViewerGenerationChange = (error: unknown): boolean => {
  */
 export async function retryAcrossHumanViewerGeneration<T>(
   run: () => Promise<T>,
-  props: { settle: () => Promise<void>; attempts: number },
+  props: IRetryAcrossHumanViewerGenerationProps,
 ): Promise<T> {
   for (let attempt = 1; ; ++attempt) {
     try {

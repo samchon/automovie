@@ -24,6 +24,7 @@ import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
+import type { IHumanViewerPageState } from "./IHumanViewerPageState";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
 import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
@@ -61,7 +62,11 @@ source.sidecarsChanged(() => { inventory = catalogue(); });
 // Input documents are admitted by their owners in the page, which carries the
 // human runtime the server does not load; a verdict republishes the catalogue.
 const admission = createHumanViewerAdmission({
-  ready: () => readyRevision !== "",
+  page: (): IHumanViewerPageState => pageFailure !== null
+    ? { state: "failed", reason: pageFailure }
+    : readyRevision === ""
+      ? { state: "starting", reason: startup.phase }
+      : { state: "ready", reason: null },
   // Through the capture lifetime, so a renderer failure refuses the request
   // instead of leaving the rescan waiting on a page that cannot answer.
   admit: (domain, text) => lifetime.run(() => page.evaluate((input) =>
@@ -78,14 +83,16 @@ source.admitWith(admission.of);
 const settleInputs = async (): Promise<typeof inventory> => {
   for (;;) {
     inventory = catalogue();
-    if (!source.sidecars.busy() && !admission.busy()) return inventory;
-    await Promise.all([source.sidecars.settled(), admission.settled()]);
+    if (!source.sidecars.busy() && !source.views.busy() && !admission.busy()) return inventory;
+    await Promise.all([source.sidecars.settled(), source.views.settled(), admission.settled()]);
   }
 };
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
 let readyRevision = "";
+/** Why the page failed for good, or null while it can still draw. */
+let pageFailure: string | null = null;
 let sourceUpdating = false;
 let work: ReturnType<typeof readHumanViewerWork> = null;
 /** Heap readings of the resident page; the reader is bound once the page exists. */
@@ -216,7 +223,7 @@ async function main(): Promise<void> {
       return;
     }
     if (serveHumanViewerData({ url, request, response, root, storage,
-      basisFiles, inputsDirectory, inventory, catalogue, json, settleInputs,
+      basisFiles, generationFiles: source.generationFiles, inputsDirectory, inventory, json, settleInputs,
       publish: (nextInventory) => { inventory = nextInventory; },
     })) return;
     if (serveHumanViewerCapture({ url, request, response, json, root, queue,
@@ -298,7 +305,14 @@ async function main(): Promise<void> {
     failed: (cause, physicalSettled) => {
     errors = [cause];
     readyRevision = "";
+    pageFailure = cause;
+    // The failure is permanent for this server; it is logged so server.log
+    // records why every later capture and admission is refused.
+    console.error(`PAGE FAILED ${new Date().toISOString()} ${cause}` +
+      (physicalSettled ? "" : " (renderer may still be running)"));
     lifetime.fail(new Error(cause), physicalSettled);
+    // Inputs awaiting admission are now refused by name; publish that.
+    inventory = catalogue();
   } });
   page.on("pageerror", (error) => {
     errors.push(error.message);

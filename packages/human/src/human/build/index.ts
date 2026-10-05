@@ -8,3 +8,4 @@ export * from "./moveHumanMeshRigidly";
 export * from "./stitchHumanPersonBoundary";
 export * from "./createHumanPersonGenerationBuilder";
 export * from "./humanPersonEyeCentre";
+export * from "./joinHumanPersonGeneration";

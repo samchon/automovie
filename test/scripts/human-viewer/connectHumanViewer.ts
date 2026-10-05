@@ -49,15 +49,21 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
-      // A refusal fails the drop with its reason. A pending input (the
-      // server's page is not ready to admit it yet) is asked about again
-      // until it is decided; it is never taken as accepted or as refused.
+      // A refusal fails the drop with its reason. A pending input is one the
+      // server says will be decided (its page is still starting): it is asked
+      // about again, and what it waits for is reported whenever that changes.
+      // A page that failed for good refuses instead, so this never waits on
+      // a page that cannot answer.
+      let waiting = "";
       for (;;) {
         const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<IHumanViewerCatalogue, "rejected">;
         const entries = scan.rejected.filter((entry) => entry.file === label + ".json");
         const refused = entries.find((entry) => !entry.pending);
         if (refused !== undefined) throw new Error(refused.reason);
         if (entries.length === 0) return;
+        const reason = entries.map((entry) => entry.reason).join("; ");
+        if (reason !== waiting) io.report(`waiting for ${label}: ${reason}`);
+        waiting = reason;
         await new Promise<undefined>((resolve) => { setTimeout(resolve, 1000); });
       }
     },

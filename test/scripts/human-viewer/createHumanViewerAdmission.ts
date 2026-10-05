@@ -15,8 +15,9 @@ interface IVerdict {
  * pending and stays out of the drawable catalogue, listed among the rejected
  * inputs with that state. A request goes to the page once per key while a
  * generation is ready; a page that is not ready leaves the document pending
- * and the host asks again when one becomes ready. A failed request is kept as
- * the refusal reason, never as admission. One verdict is kept per document id,
+ * and the host asks again when one becomes ready. A page that failed for good
+ * refuses with its cause, so no client waits on it. A failed request is kept
+ * as the refusal reason, never as admission. One verdict is kept per document id,
  * so the record grows only with the inputs.
  *
  * @evidence contracts/common.md#principled-implementation A document is drawable only after its owner admitted it at its exact cache key; unknown is never treated as valid.
@@ -33,8 +34,14 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
     of: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
       const kept = verdicts.get(entry.id);
       if (kept !== undefined && kept.key === entry.key) return kept.admission;
-      if (!props.ready())
-        return { state: "pending", reason: "awaiting admission: the viewer page is not ready yet" };
+      const page = props.page();
+      // A failed page never admits anything: the document is refused with the
+      // cause until the viewer is restarted, instead of pending forever.
+      if (page.state === "failed")
+        return { state: "refused",
+          reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.mts ensure` };
+      if (page.state === "starting")
+        return { state: "pending", reason: `awaiting admission: the viewer page is starting (${page.reason})` };
       if (asking.get(entry.id) !== entry.key) {
         asking.set(entry.id, entry.key);
         const request: Promise<void> = props.admit(entry.domain, JSON.stringify(entry.document))

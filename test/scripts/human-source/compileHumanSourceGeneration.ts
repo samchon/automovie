@@ -22,6 +22,7 @@ import { readHumanSourceSample } from "./readHumanSourceSample.ts";
 import { reproduceHumanBodyRig } from "./reproduceHumanBodyRig.ts";
 import { reproduceHumanBodyRows } from "./reproduceHumanBodyRows.ts";
 import { reproduceHumanFaceRows } from "./reproduceHumanFaceRows.ts";
+import { splitHumanSourcePersonViews } from "./splitHumanSourcePersonViews.ts";
 import type { IHumanSourceAcquisition } from "./structures/IHumanSourceAcquisition.ts";
 import type { IHumanSourceChinReceipt } from "./structures/IHumanSourceChinReceipt.ts";
 import type { IHumanSourceExtractionReceipt } from "./structures/IHumanSourceExtractionReceipt.ts";
@@ -62,8 +63,9 @@ const BODY_STAGE_REVISIONS = ["a457f3715", "0fd0878d5", "bf045a5a4", "4fedb6b96"
  * (`defineHumanSourceBand`), build
  * the P1 pair after binding the attached parts to the skin and regenerating
  * their body-control rows (`bindHumanSourceParts`), measure every row's carry on
- * those artifacts, classify provenance from the measured residuals, and write
- * them with the reproduction record and a content-only manifest.
+ * those artifacts, classify provenance from the measured residuals, split the
+ * generation into the person head and body views (`splitHumanSourcePersonViews`),
+ * and write them with the reproduction record and a content-only manifest.
  * Tracked published bases are read only.
  */
 export function compileHumanSourceGeneration(work: string, output: string, repository: string): string {
@@ -208,7 +210,8 @@ export function compileHumanSourceGeneration(work: string, output: string, repos
     kind === "part-not-regenerated" && aliasedEndpoints.has(row) && generation.parts.some((p) => p.id === surface);
   const measured = measureHumanSourceCarry({ rows: [...faceRows.rows, ...bodyRows.rows, ...rigRows.rows], face, body, cut, generation, p1 });
   const classified = classifyHumanSourceRows(measured);
-  const files = writeHumanSourceArtifacts(output, generation, p1, {
+  const views = splitHumanSourcePersonViews({ generation, p1 });
+  const files = writeHumanSourceArtifacts(output, generation, p1, views, {
     generation: generation.id,
     rows: classified.rows,
     losses: [...faceRows.losses.filter((l) => !regeneratedPartRow(l.surface, l.row, l.kind)), ...parts.losses, ...bodyRows.losses, ...rigRows.losses, ...classified.losses],

@@ -7,7 +7,9 @@
 import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanPersonBodyView,
   IAutoMovieHumanPersonGeneration,
+  IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
 import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
 import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
@@ -17,13 +19,17 @@ import { createConnectedPersonRuntime } from "@automovie/playground/src/human/pe
 import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
+/** The person basis token for the published one-skin generation's head and body files. */
+const PUBLISHED_GENERATION = "published-generation";
 const face = new Map<string, Promise<ReturnType<typeof createConnectedFaceRuntime>>>();
 const body = new Map<string, Promise<ReturnType<typeof createConnectedBodyRuntime>>>();
 const person = new Map<string, Promise<ReturnType<typeof createConnectedPersonRuntime>>>();
 /**
  * The published basis, or the candidate a hand-written document was dropped
  * beside. A person candidate is one packet at `/basis/person`: a face/body
- * basis pair or a one-skin source generation.
+ * basis pair or a one-skin source generation. The person basis
+ * `published-generation` reads the published head and body files at
+ * `/basis/person/head` and `/basis/person/body`.
  */
 const basisUrl = (domain: string, candidate: string | undefined): string =>
   `/basis/${domain}` +
@@ -53,7 +59,16 @@ scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
       domain === "person"
         ? await runtimeOf(person, identity, async () =>
             createConnectedPersonRuntime(
-              basis === undefined
+              basis === PUBLISHED_GENERATION
+                ? [
+                    await readConnectedFaceAsset<IAutoMovieHumanPersonHeadView>({
+                      read: () => fetch("/basis/person/head"),
+                    }),
+                    await readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
+                      read: () => fetch("/basis/person/body"),
+                    }),
+                  ]
+                : basis === undefined
                 ? {
                     face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
                       read: () => fetch(basisUrl("face", undefined)),

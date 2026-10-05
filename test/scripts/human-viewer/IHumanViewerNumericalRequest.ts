@@ -6,7 +6,8 @@ import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput";
  * `basis` names a candidate dropped beside a hand-written document
  * (`<name>@<digest>`); omission selects the published basis of the domain. A
  * person candidate is one packet: either a face/body basis pair or a one-skin
- * source generation.
+ * source generation. For a person, `published-generation` selects the
+ * published head and body files of the one-skin generation.
  *
  * @evidence contracts/common.md#principled-implementation The worker needs the request id, the domain runtime, the candidate source and the runtime input, nothing else.
  * @evidence contracts/common.md#meaningful-documentation States the candidate naming and what a person candidate holds.

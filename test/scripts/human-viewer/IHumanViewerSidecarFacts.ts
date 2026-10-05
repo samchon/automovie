@@ -1,3 +1,4 @@
+import type { IHumanViewerPacketIdentities } from "./IHumanViewerPacketIdentities";
 import type { IHumanViewerPersonSidecar } from "./IHumanViewerPersonSidecar";
 
 /**
@@ -18,8 +19,11 @@ export interface IHumanViewerSidecarFacts {
   /** The basis identity of a `.basis.json.gz`, or null for a person packet. */
   basis: string | null;
 
-  /** The identities of a `.person.json.gz`, or null for a basis. */
+  /** The identities of a `.person.json.gz`, or null for any other kind. */
   packet: IHumanViewerPersonSidecar | null;
+
+  /** The identities of a published generation view, or null for any other kind. */
+  view: IHumanViewerPacketIdentities | null;
 
   /** Why the bytes could not be read as their kind, or null when they could. */
   failure: string | null;

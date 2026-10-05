@@ -1,6 +1,7 @@
 import { validateModel } from "@automovie/engine";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import typia from "typia";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
@@ -14,7 +15,11 @@ import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanPersonChannelAlias } from "../structures/IAutoMovieHumanPersonChannelAlias";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
+import type { IAutoMovieHumanPersonEndpointDriver } from "../structures/IAutoMovieHumanPersonEndpointDriver";
+import type { IAutoMovieHumanPersonGenerationBand } from "../structures/IAutoMovieHumanPersonGenerationBand";
+import type { IAutoMovieHumanPersonHeadSkin } from "../structures/IAutoMovieHumanPersonHeadSkin";
 import type { IAutoMovieHumanPersonGenerationBuild } from "../structures/IAutoMovieHumanPersonGenerationBuild";
 import type { IAutoMovieHumanPersonGenerationBuilderProps } from "../structures/IAutoMovieHumanPersonGenerationBuilderProps";
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
@@ -95,7 +100,16 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 export function createHumanPersonGenerationBuilder(
   props: IAutoMovieHumanPersonGenerationBuilderProps,
 ): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild {
-  const { face: faceBasis, body: bodyBasis, headSkin } = props.generation;
+  // the generation-level records the face and body builders do not admit;
+  // each partition view is admitted by its own builder below
+  const headSkin = typia.assertEquals<IAutoMovieHumanPersonHeadSkin>(props.generation.headSkin);
+  if (props.generation.band !== undefined)
+    typia.assertEquals<IAutoMovieHumanPersonGenerationBand>(props.generation.band);
+  if (props.generation.aliases !== undefined)
+    typia.assertEquals<IAutoMovieHumanPersonChannelAlias[]>(props.generation.aliases);
+  if (props.generation.drivers !== undefined)
+    typia.assertEquals<IAutoMovieHumanPersonEndpointDriver[]>(props.generation.drivers);
+  const { face: faceBasis, body: bodyBasis } = props.generation;
   const faceIndex = faceBasis.surfaces.findIndex((surface) =>
     surface.regions.some((region) => region.material === HUMAN_PERSON_SEAM.skinMaterial));
   const bodyIndex = bodyBasis.surfaces.findIndex((surface) =>

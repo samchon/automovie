@@ -1,3 +1,5 @@
+import type { IHumanViewerPageState } from "./IHumanViewerPageState";
+
 /**
  * How the server reaches the page's document admission and whom it tells
  * when a verdict arrives.
@@ -7,8 +9,8 @@
  * @author Samchon
  */
 export interface ICreateHumanViewerAdmissionProps {
-  /** Whether a page generation is ready to admit documents. */
-  ready: () => boolean;
+  /** Whether the page can admit documents now, will be able to, or never can. */
+  page: () => IHumanViewerPageState;
 
   /** Asks the page to admit one document JSON; resolves to null or the owner's reason. */
   admit: (domain: string, text: string) => Promise<string | null>;

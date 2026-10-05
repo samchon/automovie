@@ -1,5 +1,7 @@
 import path from "node:path";
 
+import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerSourcesProps";
+
 /**
  * Coalesce reached source edits before replacing catalogue authority. Local
  * input rescans do not replace loaded modules; basis and imported source edits
@@ -9,30 +11,14 @@ import path from "node:path";
  * @evidence contracts/common.md#principled-implementation Basis authority refresh precedes source digest computation and catalogue publication, and only a moved browser generation emits its redraw notification.
  * @evidence contracts/common.md#clear-and-simple-design One subscription owns reached-edit admission, batching and cancellation while callers own storage and catalogue state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Edits are admitted by the actual import graph and input boundaries without matching subjects or fixtures.
- * @evidence contracts/common.md#meaningful-documentation Defines local-input rescans, publication ordering and watcher ownership.
+ * @evidence contracts/common.md#meaningful-documentation Defines local-input and generation-view rescans, publication ordering and watcher ownership.
  */
-export function subscribeHumanViewerSources(props: {
-  source: {
-    inputsDirectory: string;
-    watched: readonly string[];
-    basisFiles: { face: string; body: string };
-    documentsFile: string;
-    slash: (file: string) => string;
-    refreshBases: () => void;
-    revisions: { reaches: (file: string) => boolean;
-      changed: (files: string[]) => { moved: string[] } };
-  };
-  add: (files: string[]) => void;
-  watch: (changed: (event: string, input: string) => void) => void;
-  inputs: () => void;
-  publish: (files: string[], moved: string[]) => void;
-  updating: (value: boolean) => void;
-  browser: () => void;
-  error: (error: unknown) => void;
-  schedule?: (run: () => void) => () => void;
-}) {
+export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesProps) {
   const { source } = props;
-  props.add([source.inputsDirectory, ...source.watched,
+  // The generation directory is watched, not its files: the views may not
+  // exist yet, and their creation must reread the catalogue too.
+  const generationDirectory = path.dirname(source.generationFiles.head);
+  props.add([source.inputsDirectory, ...source.watched, generationDirectory,
     ...Object.values(source.basisFiles), source.documentsFile]);
   const changes = new Set<string>();
   let cancel: (() => void) | undefined;
@@ -42,7 +28,8 @@ export function subscribeHumanViewerSources(props: {
   });
   props.watch((_event, input) => {
     const file = path.resolve(input);
-    if (file.startsWith(source.inputsDirectory + path.sep)) {
+    if (file.startsWith(source.inputsDirectory + path.sep) ||
+        Object.values(source.generationFiles).includes(file)) {
       try {
         props.inputs();
       } catch (error) {

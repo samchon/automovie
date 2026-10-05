@@ -1,5 +1,5 @@
 {
- "generation": "e1a87d5bf0d51b5bec6247c560daace9890c25f4d1178ea655722512627cda35",
+ "generation": "24b20049760865e0be62f937c7cd88eefaa426763d3583b518e512478c1d87f7",
  "upstream": [
   {
    "name": "mpfb2",
@@ -67,8 +67,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/admit-source-generation.ts",
    "revision": null,
-   "bytes": 4026,
-   "sha256": "ec8befeda20930a22719cb0cdb6b6d3ce2d992bad6269a117728593514d08461"
+   "bytes": 5785,
+   "sha256": "f043c68630f70613d26cab46574a39833071b2debd402028258dc72e4819abe1"
   },
   {
    "role": "producer",
@@ -137,8 +137,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/compileHumanSourceGeneration.ts",
    "revision": null,
-   "bytes": 14319,
-   "sha256": "249594cd8579c5233c818251c1845f3a1c01f0696cb4a4c2c0c5cf2ab36c22da"
+   "bytes": 14564,
+   "sha256": "96d702e239235ef71b1783e6f47f8ba35de9449ee7ab87400ad2506248c7e413"
   },
   {
    "role": "producer",
@@ -321,6 +321,13 @@
    "revision": null,
    "bytes": 8969,
    "sha256": "a30bd9012b6cd0a69c8fd1509dde5f3dc3fe6481577a42b56c93402b233daa12"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/splitHumanSourcePersonViews.ts",
+   "revision": null,
+   "bytes": 8577,
+   "sha256": "40575764a6ed19d04c33e2b1561b081b3ac58daa71b929c1bbf6c02466d4649e"
   },
   {
    "role": "producer",
@@ -578,8 +585,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/structures/IHumanSourceGenerationPart.ts",
    "revision": null,
-   "bytes": 1195,
-   "sha256": "18ebbb84df47a16f6a9d15636abbd439f2390550a6c821507296495247026c10"
+   "bytes": 1418,
+   "sha256": "2c9bcf3f34e1286491186fd3d9aa3acc2369203451ff5c456e7febd75dedcb8b"
   },
   {
    "role": "producer",
@@ -671,6 +678,20 @@
    "revision": null,
    "bytes": 532,
    "sha256": "24a2ae10fc302aaa8370968c604fef935524b5a94bb1fca26fc902078b85288d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePersonViews.ts",
+   "revision": null,
+   "bytes": 536,
+   "sha256": "79b4382554c3117144988d226cb74a8ffbba11e30f0d1119e7f41bf64a80d0ab"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePersonViewsInput.ts",
+   "revision": null,
+   "bytes": 544,
+   "sha256": "becdccee6d897c44994fc1a23b074c0ca32889b51a163864c7d5a0c7b34b5823"
   },
   {
    "role": "producer",
@@ -816,8 +837,8 @@
    "role": "producer",
    "path": "test/scripts/human-source/writeHumanSourceArtifacts.ts",
    "revision": null,
-   "bytes": 2919,
-   "sha256": "8f934eea242fdf0a83259ee0d25954dbf84f053edf349dab1ed99d8318864f09"
+   "bytes": 3194,
+   "sha256": "fb820b11f4c742e8600904dfae13f0e26f4cab241733099e5100dc4dd3911c36"
   },
   {
    "role": "published face basis",
@@ -938,17 +959,25 @@
   "weights.json": "aacdef9676ce6253120630865959c9d04f7fa2ba5033a0716e4b5018dc3faefb"
  },
  "outputs": {
+  "body.json.gz": {
+   "bytes": 31980448,
+   "sha256": "5c8da3ba99e535cb51e4fa1e8ce620b84e6289f840afb6e075f64db5e0e3651e"
+  },
   "g1-generation.json.gz": {
-   "bytes": 57632253,
-   "sha256": "be2d7e140ec09b2ec95a14cc10675263b774ab92972970a6e76604347d430aea"
+   "bytes": 57632671,
+   "sha256": "6e271214ff79940054a96efcbb7ae0e26990bb4a6f55fdf0cc5f0fde40c36e28"
+  },
+  "head.json.gz": {
+   "bytes": 29979305,
+   "sha256": "354d64f04b402cf12f012ada8637ea6775b3453ea14bf81759b36ee4e84b2013"
   },
   "p1-body-basis.json.gz": {
-   "bytes": 30371304,
-   "sha256": "76604eef6a877ccf76bfd44907b9eda7771af45480e70ba0c58407a27032b9bb"
+   "bytes": 30371298,
+   "sha256": "7a893701beeaef3123d8b5e6e72161659e093b970ced170a83a0414c3fd2b3ac"
   },
   "p1-face-basis.json.gz": {
-   "bytes": 27868478,
-   "sha256": "69a12f70d0fbe1e1dfb8652ee442557d97d55ba1d2a5dede4b38335ecb2829c3"
+   "bytes": 27868469,
+   "sha256": "5d1538459373814211f6ca6338549e49c64db6f03ad4ca9945dd9deafdc69edf"
   },
   "reproduction-rows.tsv": {
    "bytes": 587476,
@@ -956,7 +985,7 @@
   },
   "reproduction.json": {
    "bytes": 2913633,
-   "sha256": "879c599f18b7b2e9f2b34d999e40b4b7829fe31790f35d3ed96843bef028abad"
+   "sha256": "0a94f4ea230cfb86fcc694eeca72415100a95f030cdcd985021a1fd1129b5437"
   }
  }
 }

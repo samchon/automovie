@@ -123,9 +123,13 @@ async function show(address: HumanViewerAddress): Promise<void> {
   spans.reset();
   workingDocument = address.doc;
   work("loading");
-  // A hand-written document can appear or change after the page loaded.
-  if (address.doc.startsWith("file:"))
-    catalogue = admitHumanViewerCatalogue(catalogue, await (await fetch("/docs")).json());
+  // The server's catalogue changes without a source revision: hand-written
+  // inputs, candidate sidecars and the published person generation views are
+  // read off the request path and republished, which can add a document or
+  // change its cache key. Every show therefore reads the current catalogue
+  // (about 0.7 MB, milliseconds) instead of trusting the copy the page loaded
+  // with; a catalogue of a newer source revision is refused by name.
+  catalogue = admitHumanViewerCatalogue(catalogue, await (await fetch("/docs")).json());
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );

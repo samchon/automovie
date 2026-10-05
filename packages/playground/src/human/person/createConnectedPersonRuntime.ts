@@ -1,7 +1,10 @@
 import {
+  type IAutoMovieHumanPersonBodyView,
   type IAutoMovieHumanPersonGeneration,
+  type IAutoMovieHumanPersonHeadView,
   createHumanPersonBuilder,
   createHumanPersonGenerationBuilder,
+  joinHumanPersonGeneration,
   exportHumanPerson,
   parseHumanPersonDocument,
 } from "@automovie/human";
@@ -15,8 +18,9 @@ import type {
 /**
  * Keep one compiled face basis and body basis, or one source generation read
  * as one skin with a head/body partition (`createHumanPersonGenerationBuilder`,
- * selected by the presence of its head weight map), in a worker and evaluate
- * whole people against them. It answers the body editor's request protocol, so the
+ * selected by the presence of its head weight map, or by the published head
+ * and body files joined with `joinHumanPersonGeneration`), in a worker and
+ * evaluate whole people against them. It answers the body editor's request protocol, so the
  * body stage draws a person exactly as it draws a body: a preview packs the
  * composed model's Float32 buffers (the composed model is one static resident
  * model, its face parts, body parts and seam ribbon together) and an export
@@ -60,10 +64,12 @@ import type {
 export function createConnectedPersonRuntime(
   source:
     | IAutoMovieHumanPersonGeneration
-    | Pick<IAutoMovieHumanPersonGeneration, "face" | "body">,
+    | Pick<IAutoMovieHumanPersonGeneration, "face" | "body">
+    | [IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView],
 ) {
-  const evaluate =
-    "headSkin" in source
+  const evaluate = Array.isArray(source)
+    ? createHumanPersonGenerationBuilder({ generation: joinHumanPersonGeneration(source[0], source[1]) })
+    : "headSkin" in source
       ? createHumanPersonGenerationBuilder({ generation: source })
       : createHumanPersonBuilder(source);
   let lastDocument: string | undefined;

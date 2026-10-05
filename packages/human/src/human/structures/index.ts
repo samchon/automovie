@@ -53,3 +53,5 @@ export * from "./IAutoMovieHumanPersonSkinCandidate";
 export * from "./IAutoMovieHumanPersonBuilderProps";
 export * from "./IAutoMovieHumanPersonChannelAlias";
 export * from "./IAutoMovieHumanPersonEndpointDriver";
+export * from "./IAutoMovieHumanPersonBodyView";
+export * from "./IAutoMovieHumanPersonHeadView";

@@ -21,5 +21,6 @@ export function createNodeHumanViewerClientIo(root: string): IHumanViewerClientI
       fs.mkdirSync(inputs, { recursive: true });
       fs.copyFileSync(source, path.join(inputs, name));
     },
+    report: (message) => { process.stderr.write(message + "\n"); },
   };
 }

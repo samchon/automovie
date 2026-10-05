@@ -12,8 +12,7 @@ import type { IAutoMovieHumanPersonHeadTransformProps } from "../structures/IAut
  * two bases share. That frame is centred on the eyes (the face basis rows are
  * the upstream state minus the eye centre's shift), so the shape carry is the
  * displacement of the same anchor, the body's eye centre, from
- * `anchor.neutral` to `anchor.shaped`; carrying by the head joint instead
- * left a uniform 5–6 mm offset at the neck for the age and sex macros. A pose
+ * `anchor.neutral` to `anchor.shaped`. A pose
  * turns the bone to `posed`, so a point `p` of the face lands at
  * `R (p + (anchor.shaped - anchor.neutral)) + t`, with `R = posed.rotation *
  * rest.rotation⁻¹` and `t = posed.position - R rest.position`. This is what

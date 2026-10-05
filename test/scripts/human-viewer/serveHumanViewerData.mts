@@ -31,6 +31,20 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
         documents: inventory.documents.map((entry) => entry.id),
         json,
       })) return true;
+    // The published one-skin person generation views, streamed as stored.
+    // A missing view is 404; the catalogue already lists the standard people
+    // as rejected by name until both exist.
+    if (url.pathname === "/basis/person/head" || url.pathname === "/basis/person/body") {
+      const file = props.generationFiles[url.pathname.endsWith("head") ? "head" : "body"];
+      if (!fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end();
+        return true;
+      }
+      response.setHeader("Content-Type", "application/gzip");
+      fs.createReadStream(file).pipe(response);
+      return true;
+    }
     if (url.pathname.startsWith("/basis/")) {
       const domain = url.pathname.slice(7);
       const candidate = url.searchParams.get("candidate");
