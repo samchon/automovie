@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRootedSteering } from "./IHumanFaceHairRootedSteering";
-import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { aimHumanFaceHairRootedStem } from "./aimHumanFaceHairRootedStem";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 
 /**
@@ -43,7 +43,10 @@ export function steerHumanFaceHairRootedStep(props: IHumanFaceHairRootedSteering
   const hit = props.contact.sample(trial);
   if (hit.signedDistance >= props.contact.clearance - props.contact.epsilon)
     return direction;
-  const other = props.contact.outward(trial, hit);
-  const goal = humanFaceHairFrame.direction(Vector3.add(props.normal, other));
-  return limitHumanFaceHairTurn({ before: props.before, direction: goal, step: props.step });
+  return aimHumanFaceHairRootedStem({
+    before: props.before,
+    normal: props.normal,
+    blocking: props.contact.outward(trial, hit),
+    step: props.step,
+  });
 }

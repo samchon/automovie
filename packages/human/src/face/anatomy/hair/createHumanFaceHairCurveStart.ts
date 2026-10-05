@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
@@ -14,7 +13,8 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * owner reads the combed field from the neutral chart; the current
  * barycentric seat, signed query, ray caster and root-star distance reader must
  * share one closed collider snapshot. The emergence owner supplies the desired
- * unit root tangent; the integrator grows its curved boundary transition
+ * unit root tangent at the caller's exit elevation `degrees`, chosen from the
+ * root's cited range; the integrator grows its curved boundary transition
  * before starting the free walk. All positions and lengths are head-frame metres.
  *
  * The returned stage and contact belong to this lock; the supplied remaining
@@ -40,6 +40,7 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
 export function createHumanFaceHairCurveStart(
   props: IHumanFaceHairIntegration,
   metric: IHumanFaceHairMetric,
+  degrees: number,
 ) {
   assertHumanFaceHairIntegrationContext(props);
   const { layer } = props;
@@ -60,9 +61,8 @@ export function createHumanFaceHairCurveStart(
     throw new Error("Hair length cannot accommodate its rooted transition.");
   const budget = props.budget;
   const direction = humanFaceHairEmergence({
-    hairline: layer.hairline,
-    chart: Vector3.subtract(props.reference, props.origin),
     normal: props.normal,
+    degrees,
     field: stage.direction(
       props.root,
       humanFaceHairFrame.direction(props.normal),

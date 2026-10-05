@@ -1,26 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { humanFaceHairConstructionTurn } from "./humanFaceHairConstructionTurn";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
-
-/**
- * Construction scale for limiting the requested direction change to h / 0.006
- * radians at a nominal metre step h. This keeps the requested tangents away
- * from antiparallel; contact projection and shortened steps may give the
- * realised polyline a different local curvature.
- *
- * Loussouarn et al. (2007, Int J Dermatol 46 Suppl.1, 2-6) classify washed,
- * dried 6 cm hairs by two-dimensional curve diameter and other descriptors.
- * Their 1.2 cm diameter cutoff is a classification boundary, not a lower bound
- * on three-dimensional local curvature radius. This construction scale is
- * therefore a numerical convention and carries no biological-radius claim.
- */
-const TIGHTEST_RADIUS = 0.006;
 
 /**
  * Hold a requested direction to the numerical construction turn per step. A wanted direction within the limit is returned as it is. A
  * sharper one is rotated from the previous direction toward the wanted one by
- * exactly the limit, in the plane the two span, so the path bends as far as it
+ * exactly the limit (`humanFaceHairConstructionTurn`), in the plane the two span, so the path bends as far as it
  * may and no farther; a wanted direction exactly opposite the previous one
  * spans no plane and the hair keeps going straight.
  *
@@ -51,7 +38,7 @@ export function limitHumanFaceHairTurn(props: {
   const turn = Math.acos(
     Math.max(-1, Math.min(1, Vector3.dot(before, direction))),
   );
-  const limit = props.step / TIGHTEST_RADIUS;
+  const limit = humanFaceHairConstructionTurn(props.step);
   if (turn <= limit) return direction;
   const across = Vector3.subtract(
     direction,
