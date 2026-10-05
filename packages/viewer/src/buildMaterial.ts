@@ -95,9 +95,8 @@ export const buildMaterial = (
   // is none, and the material shows alone
   applyMaterialOverlays(
     std,
-    overlays.filter(
-      (overlay): overlay is typeof overlay & { color: THREE.Texture } =>
-        overlay.color !== null,
+    overlays.flatMap((overlay) =>
+      overlay.color === null ? [] : [{ ...overlay, color: overlay.color }],
     ),
   );
   std.aoMap = resolveAutoMovieMaterialTexture(

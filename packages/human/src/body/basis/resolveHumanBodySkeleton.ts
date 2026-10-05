@@ -153,4 +153,3 @@ function assertFrameDirection(vector: IAutoMovieVector3, role: string, bone: Aut
   if (![vector.x, vector.y, vector.z].every(Number.isFinite) || (vector.x === 0 && vector.y === 0 && vector.z === 0))
     throw new Error(`Body shaped joint needs a finite nonzero ${role}: ${bone}`);
 }
-

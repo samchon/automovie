@@ -1,13 +1,8 @@
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IReadHumanViewerStandardPeopleProps } from "./IReadHumanViewerStandardPeopleProps";
+import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
-
-/**
- * The person basis token prefix the numerical worker reads as the published
- * generation views; the full token is `published-generation@<head12>.<body12>`.
- */
-const PUBLISHED_GENERATION = "published-generation";
 
 /**
  * The standard people, drawn on the published one-skin generation:
@@ -46,7 +41,7 @@ export function readHumanViewerStandardPeople(props: IReadHumanViewerStandardPeo
     id: document.id,
     domain: "person" as const,
     document,
-    basis: `${PUBLISHED_GENERATION}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
+    basis: `${humanViewerBasisTokens.publishedGeneration}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
     key: humanViewerPersonKey({ document,
       bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
       sources: props.sources }),

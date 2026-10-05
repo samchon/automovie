@@ -2,14 +2,8 @@ import { createHash } from "node:crypto";
 
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
+import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import type { IReadHumanViewerStandardBodiesProps } from "./IReadHumanViewerStandardBodiesProps";
-
-/**
- * The body basis token prefix the numerical worker reads as the published
- * generation's body view, using its `body` basis; the full token is
- * `published-generation-body@<body12>`.
- */
-const PUBLISHED_GENERATION_BODY = "published-generation-body";
 
 /**
  * The standard body states, `body:<state>`, built on the published
@@ -31,7 +25,7 @@ export function readHumanViewerStandardBodies(props: IReadHumanViewerStandardBod
       id: document.id,
       domain: "body" as const,
       document,
-      basis: `${PUBLISHED_GENERATION_BODY}@${generation.bodyDigest.slice(0, 12)}`,
+      basis: `${humanViewerBasisTokens.publishedGenerationBody}@${generation.bodyDigest.slice(0, 12)}`,
       key: createHash("sha256").update(JSON.stringify(document) + generation.bodyDigest + props.sources.body).digest("hex"),
     };
   });

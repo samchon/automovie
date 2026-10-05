@@ -1,3 +1,5 @@
+import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
+
 /**
  * The basis token of a document built on the published face and/or body
  * basis: `published@<digest12>` for one basis, `published@<face12>.<body12>`
@@ -12,5 +14,5 @@
 export function humanViewerPublishedBasis(...digests: readonly string[]): string {
   if (digests.length === 0 || digests.some((digest) => !/^[0-9a-f]{12,}$/.test(digest)))
     throw new Error("A published basis token needs one or two hex digests");
-  return "published@" + digests.map((digest) => digest.slice(0, 12)).join(".");
+  return humanViewerBasisTokens.published + "@" + digests.map((digest) => digest.slice(0, 12)).join(".");
 }

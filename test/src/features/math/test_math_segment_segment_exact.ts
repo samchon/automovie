@@ -2,26 +2,34 @@ import {
   closestPointsBetweenSegments,
   segmentSegmentDistance,
 } from "@automovie/engine";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createVector3 as v } from "../internal/createVector3";
 import { nclose, vclose } from "../internal/predicates";
 
+const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+
 /**
- * Independently constructed segment minima exercise both scalar and witness
- * consumers. Interior crossings distinguish a whole-segment minimum from an
- * approximation that only compares the four endpoints.
+ * The exact clamped segment-segment solver (Ericson §5.1.9) replaces the old
+ * four-endpoint approximation, which reported the true distance only when a
+ * closest point happened to be an endpoint. The headline gain is the
+ * interior-to-interior crossing: two segments passing through each other as an
+ * X measured a full segment-width apart under the approximation while the real
+ * distance is zero: the commonest self-intersection (a limb sweeping through a
+ * torso), silently missed by a check that forces it as an error.
  *
- * Scenarios:
+ * Every hand-computed case below also pins one branch of the solver so the
+ * clamp/degeneracy paths stay covered:
  *
- * 1. Two exact points retain their known point-to-point separation.
- * 2. A first point projects onto the second segment's near endpoint.
- * 3. A second point projects onto the first segment's near endpoint.
- * 4. An interior X-crossing has zero gap and origin witnesses.
- * 5. Parallel offset segments retain their known gap and deterministic witnesses.
- * 6. Separated collinear intervals select their facing endpoints.
- * 7. A skew pair selects an interior point and the second segment's far endpoint.
- * 8. Reversed separated intervals retain the same facing-endpoint minimum.
+ * 1. Both segments collapsed to points (`A ≤ ε && E ≤ ε`).
+ * 2. First segment a point, projected onto the second (`A ≤ ε`).
+ * 3. Second segment a point, projected onto the first (`E ≤ ε`).
+ * 4. Interior X-crossing (non-parallel, `t` in range) → distance 0, both closest
+ *    points at the origin, the case the approximation missed.
+ * 5. Parallel offset (`denom = 0`) → `s` pinned to 0, exact gap.
+ * 6. Colinear separated → `t < 0` clamped, `s` re-solved to 1 (clamp01 upper).
+ * 7. Skew far end → `t > 1` clamped to the near end.
+ * 8. Reversed colinear → `t > 1` with `s` re-solved below 0 (clamp01 lower).
  */
 export const test_math_segment_segment_exact = (): void => {
   // 1. both points: the only pair is the two points themselves.
@@ -98,7 +106,8 @@ export const test_math_segment_segment_exact = (): void => {
     );
   }
 
-  // 5. Parallel offset: two unit x-segments 1 apart in y have gap 1.
+  // 5. parallel offset: two unit x-segments 1 apart in y. denom = 0 → s = 0,
+  // t = 0, distance 1.
   {
     const r = closestPointsBetweenSegments(
       v(0, 0, 0),
@@ -111,7 +120,8 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("parallel B", vclose(r.pointB, v(0, 1, 0)));
   }
 
-  // 6. Separated intervals have facing-endpoint witnesses and gap 1.
+  // 6. colinear separated [(0,0,0)-(1,0,0)] and [(2,0,0)-(3,0,0)]: t = -2
+  // clamps to 0, s re-solves to 1 (clamp01 upper bound). Facing ends, gap 1.
   {
     const r = closestPointsBetweenSegments(
       v(0, 0, 0),
@@ -124,8 +134,9 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("colinear B", vclose(r.pointB, v(2, 0, 0)));
   }
 
-  // 7. The second segment's infinite line meets z=0 beyond its far endpoint;
-  // bounded witnesses are (0.5,0,0) and (0.5,1,-1), at distance sqrt(2).
+  // 7. skew far end: x-segment [(0,0,0)-(1,0,0)] and z-segment
+  // [(0.5,1,-2)-(0.5,1,-1)] whose infinite line is closest at z=0, past its far
+  // end. t = 2 clamps to 1, s = 0.5. Points (0.5,0,0)-(0.5,1,-1), distance √2.
   {
     const r = closestPointsBetweenSegments(
       v(0, 0, 0),
@@ -138,7 +149,9 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("skew B", vclose(r.pointB, v(0.5, 1, -1)));
   }
 
-  // 8. Reversing the intervals still selects their facing endpoints, gap 1.
+  // 8. reversed colinear [(2,0,0)-(3,0,0)] and [(0,0,0)-(1,0,0)]: t = 2 clamps
+  // to 1, s = (B−C)/A = -1 clamps to 0 (clamp01 lower bound). Facing ends,
+  // gap 1.
   {
     const r = closestPointsBetweenSegments(
       v(2, 0, 0),

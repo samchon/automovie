@@ -78,4 +78,3 @@ export function resolveHumanBodyPelvifemoralRhythm(
   for (const leg of LEGS) add(leg, -tilt);
   return { joints: result, contributions };
 }
-
