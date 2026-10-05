@@ -6,7 +6,6 @@
  * generation change interrupted it.
  */
 import fs from "node:fs";
-import type { ServerResponse } from "node:http";
 import path from "node:path";
 import { PNG } from "pngjs";
 
@@ -24,16 +23,10 @@ import { queueHumanViewerRequest } from "./queueHumanViewerRequest";
 import { renderHumanViewerSheet } from "./renderHumanViewerSheet.mjs";
 import { retryAcrossHumanViewerGeneration } from "./retryAcrossHumanViewerGeneration";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { sendHumanViewerPng } from "./sendHumanViewerPng";
 import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail";
 
 const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm"];
-
-/** Stream a stored PNG with its provenance headers. */
-function sendPng(response: ServerResponse, file: string, headers: Record<string, string>): void {
-  response.setHeader("Content-Type", "image/png");
-  for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
-  fs.createReadStream(file).pipe(response);
-}
 
 /**
  * Answer one GPU route, or return false when the path is not one. A bulk
@@ -73,14 +66,14 @@ export function serveHumanViewerCapture(props: IServeHumanViewerCaptureProps): b
   if (url.pathname === "/render" && lane === "bulk") {
     const file = props.thumbnailFile(url.search);
     if (file !== null && fs.existsSync(file)) {
-      sendPng(response, file, { "X-Human-Build": "thumbnail-cache",
+      sendHumanViewerPng(response, file, { "X-Human-Build": "thumbnail-cache",
         "X-Human-Revision": inventory.revision, "X-Human-Stale": "false" });
       return true;
     }
     // The new revision has not drawn it yet: show the last good picture, dimmed.
     const older = file === null ? null : props.thumbnails.stale(file, inventory.revision);
     if (older !== null) {
-      sendPng(response, older, { "X-Human-Build": "thumbnail-stale", "X-Human-Stale": "true" });
+      sendHumanViewerPng(response, older, { "X-Human-Build": "thumbnail-stale", "X-Human-Stale": "true" });
       return true;
     }
   }

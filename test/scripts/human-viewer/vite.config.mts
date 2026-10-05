@@ -5,8 +5,6 @@
  * and workspace builds separately enforce all lint and type populations.
  * The production playground configuration is untouched.
  */
-import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,30 +12,14 @@ import { type ModuleNode, type ViteDevServer, defineConfig } from "vite";
 
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
+import { humanViewerCompileWatchList } from "./humanViewerCompileWatchList";
 import { humanViewerInstance } from "./humanViewerInstance";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
+import { runHumanViewerCompile } from "./runHumanViewerCompile";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
 const outputDirectory = path.resolve(directory, "../../../.shots/human-viewer");
-interface IGraph {
-  edges: Record<string, string[]>;
-  globals: string[];
-  configs: string[];
-  candidates?: Record<string, string[]>;
-  resolutionInputs?: string[];
-}
-/** What the compile process writes: the transformed files and graph, or the error. */
-interface ICompileOutput {
-  /** Transformed TypeScript by package-relative path, on success. */
-  files?: Record<string, string>;
-
-  /** Import graph and compiler inputs to watch, on success. */
-  graph?: IGraph;
-
-  /** The compiler's failure, when no files were produced. */
-  error?: string;
-}
 let server: ViteDevServer;
 const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 // The transform runs in a child process: it is a synchronous call that takes
@@ -46,57 +28,8 @@ const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const status = path.join(outputDirectory, served.sourceStatus);
 const compilation = createHumanViewerCompilation(
   async () => {
-    // Invalidations and config reloads can overlap children in the same process.
-    // Artifact identity is independent of deterministic transformed source.
-    const output = path.join(
-      outputDirectory,
-      `compile-${process.pid}-${randomUUID()}.json`,
-    );
-    fs.mkdirSync(path.dirname(output), { recursive: true });
-    // Each compile is logged with its duration, so a page load that waits on
-    // repeated compiles (source edited while it loads) is visible in the log.
-    const began = performance.now();
-    console.log(`COMPILE start ${new Date().toISOString()}`);
-    await new Promise<undefined>((resolve, reject) => {
-      const child = spawn(
-        process.execPath,
-        [path.join(directory, "compile-human.mts"), human, output],
-        { windowsHide: true, stdio: "ignore" },
-      );
-      child.once("error", reject);
-      child.once("exit", (code) =>
-        code === 0
-          ? resolve(undefined)
-          : reject(new Error(`The human compile exited with ${code}`)),
-      );
-    });
-    const result = JSON.parse(fs.readFileSync(output, "utf8")) as ICompileOutput;
-    fs.rmSync(output, { force: true });
-    if (result.files === undefined) {
-      console.log(`COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`);
-      throw new Error(result.error ?? "The human compile failed");
-    }
-    console.log(`COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files`);
-    const files = Object.fromEntries(
-      Object.entries(result.files).map(([file, source]) => [
-        path.resolve(human, file).replaceAll("\\", "/"),
-        source,
-      ]),
-    );
-    const graph = result.graph;
-    server.watcher.add([
-      ...Object.keys(files),
-      ...(graph === undefined
-        ? []
-        : [
-            ...Object.keys(graph.edges),
-            ...Object.values(graph.edges).flat(),
-            ...graph.globals,
-            ...graph.configs,
-            ...Object.values(graph.candidates ?? {}).flat(),
-            ...(graph.resolutionInputs ?? []),
-          ].map((file) => path.resolve(human, file))),
-    ]);
+    const { files, graph } = await runHumanViewerCompile({ directory, human, outputDirectory });
+    server.watcher.add(humanViewerCompileWatchList(files, graph, human));
     return files;
   },
   (report) => {

@@ -3,53 +3,56 @@
  * `pnpm exec ttsx -P scripts/human-viewer/tsconfig.json scripts/human-viewer/server.mts`.
  * Vite transforms working-tree source; one real Chromium page serializes
  * capture requests. `HUMAN_VIEWER_PORT` selects the port (default 5175) and
- * the per-port process record, so viewers of several sessions can coexist. Numerical disk payloads and PID ownership live under the
- * ignored .shots tree. The host never edits documents or anatomical source.
- * Last-good PNGs retain their source identity; HTTP failures include a cause.
+ * the per-port process record, so viewers of several sessions can coexist.
+ * Numerical disk payloads and PID ownership live under the ignored .shots
+ * tree. The host never edits documents or anatomical source. Last-good PNGs
+ * retain their source identity; HTTP failures include a cause.
  * This file owns process state and its order: source watching, the page and
- * its failure observers, health and warming. A capture and its telemetry
- * belong to `createHumanViewerCapture`, the GPU routes to
- * `serveHumanViewerCapture` and the data routes to `serveHumanViewerData`.
+ * its failure observers, and the request routing. Each step it orders lives
+ * in its own module: the page launch, the console protocol, health, heap,
+ * warming, captures (`createHumanViewerCapture`, `serveHumanViewerCapture`)
+ * and the data routes (`serveHumanViewerData`).
  */
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { type Page, chromium } from "playwright";
-import { createServer } from "vite";
-
-import viewerConfig from "./vite.config.mjs";
+import type { Page } from "playwright";
 
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import { createHumanViewerViteServer } from "./createHumanViewerViteServer.mjs";
+import type { HumanViewerWork } from "./HumanViewerWork";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
 import type { IHumanViewerPageState } from "./IHumanViewerPageState";
-import type { IHumanViewerStartup } from "./IHumanViewerStartup";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
+import { assembleHumanViewerHealth } from "./assembleHumanViewerHealth";
 import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
 import { createHumanViewerCapture } from "./createHumanViewerCapture";
 import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 import { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge";
 import { createHumanViewerQueue } from "./createHumanViewerQueue";
+import { createHumanViewerStartupPhase } from "./createHumanViewerStartupPhase";
 import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailStore";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
 import { createNodeHumanViewerThumbnailDisk } from "./createNodeHumanViewerThumbnailDisk";
 import { humanViewerInstance } from "./humanViewerInstance";
 import { humanViewerThumbnailFile } from "./humanViewerThumbnailFile";
 import { judgeViewerRenderer } from "./judgeViewerRenderer";
+import { launchHumanViewerPage } from "./launchHumanViewerPage";
 import { observeHumanViewerRendererTarget } from "./observeHumanViewerRendererTarget";
-import { openHumanViewerHref } from "./openHumanViewerHref";
-import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
-import { publishedHumanViewerWarmDocuments } from "./publishedHumanViewerWarmDocuments";
 import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationStatus";
 import { readHumanViewerWork } from "./readHumanViewerWork";
+import { routeHumanViewerConsole } from "./routeHumanViewerConsole";
 import { serveHumanViewerCapture } from "./serveHumanViewerCapture.mjs";
 import { serveHumanViewerData } from "./serveHumanViewerData.mjs";
+import { serveHumanViewerHeap } from "./serveHumanViewerHeap";
+import { settleHumanViewerInputs } from "./settleHumanViewerInputs";
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
 import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
-import { warmHumanViewerDocuments } from "./warmHumanViewerDocuments";
-import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail";
+import { warmHumanViewerRevision } from "./warmHumanViewerRevision";
+import { writeHumanViewerRecord } from "./writeHumanViewerRecord";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 /** Port, origin and per-process files, chosen by `HUMAN_VIEWER_PORT` (default 5175). */
@@ -75,18 +78,9 @@ const admission = createHumanViewerAdmission({
   changed: () => { inventory = catalogue(); },
 });
 source.admitWith(admission.of);
-/**
- * Read the catalogue until the sidecar reads and page admissions it starts
- * have all finished: each finished read can start an admission, so the loop
- * ends only when one reading starts nothing new.
- */
-const settleInputs = async (): Promise<typeof inventory> => {
-  for (;;) {
-    inventory = catalogue();
-    if (!source.sidecars.busy() && !source.views.busy() && !admission.busy()) return inventory;
-    await Promise.all([source.sidecars.settled(), source.views.settled(), admission.settled()]);
-  }
-};
+/** Publish the catalogue once every read and admission it starts has finished. */
+const settleInputs = () => settleHumanViewerInputs(() => (inventory = catalogue()),
+  [source.sidecars, source.views, admission]);
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
@@ -94,16 +88,17 @@ let readyRevision = "";
 /** Why the page failed for good, or null while it can still draw. */
 let pageFailure: string | null = null;
 let sourceUpdating = false;
-let work: ReturnType<typeof readHumanViewerWork> = null;
-/** Heap readings of the resident page; the reader is bound once the page exists. */
+let work: HumanViewerWork | null = null;
+/** Heap readings of the resident page; the readers are bound once the page exists. */
 let readHeap: () => Promise<IHumanViewerHeapUsage> = () => Promise.reject(new Error("No page yet"));
-/** Collect the page's garbage, then read its heap: the live size, not live plus garbage. */
 let readLiveHeap: () => Promise<IHumanViewerHeapUsage> = () => Promise.reject(new Error("No page yet"));
 const heap = createHumanViewerHeapGauge(() => readHeap());
 const lifetime = createHumanViewerCaptureLifetime();
 // Edits arrive in bursts, so a revision warms only after sixty quiet seconds.
-const warmReadiness = createHumanViewerWarmReadiness((revision) => { void warm(revision); },
-  { stableMs: 60000 });
+const warmReadiness = createHumanViewerWarmReadiness((revision) => {
+  void warmHumanViewerRevision({ revision, inventory: () => inventory,
+    readyRevision: () => readyRevision, thumbnailFile, capture: capturer.capture, queue, warming });
+}, { stableMs: 60000 });
 /** Requests allowed to wait behind the running one before a new one is refused. */
 const QUEUE_LIMIT = 12;
 const queue = createHumanViewerQueue({
@@ -113,14 +108,7 @@ const queue = createHumanViewerQueue({
   // Background warming starts only when no modeler has asked for a minute.
   quietMs: 60000,
 });
-/** What the server is doing while it starts, logged at each change. */
-const startup: IHumanViewerStartup = { phase: "starting the development server",
-  since: new Date().toISOString() };
-const phase = (name: string): void => {
-  startup.phase = name;
-  startup.since = new Date().toISOString();
-  console.log(`STARTUP ${startup.since} ${name}`);
-};
+const { startup, phase } = createHumanViewerStartupPhase("starting the development server");
 /** The last edit that reached a build. */
 let lastEdit: IHumanViewerEdit | null = null;
 const warming: IHumanViewerWarming = { revision: "", total: 0, done: 0, skipped: 0,
@@ -141,34 +129,6 @@ const thumbnails = createHumanViewerThumbnailStore(createNodeHumanViewerThumbnai
 const pruneThumbnails = (): void => thumbnails.prune(inventory.revision);
 const thumbnailFile = (search: string): string | null =>
   humanViewerThumbnailFile(search, path.join(storage, instance.thumbnails), inventory);
-/**
- * Build every published document that has no numerical result on disk yet, at
- * the lowest priority, so the first person or script to ask for one finds it
- * built. Each document is its own queue entry: a request in a higher lane
- * starts as soon as the one running finishes. A new source revision ends the
- * pass, which the page reload restarts.
- */
-async function warm(revision: string): Promise<void> {
-  const thumbnail = (id: string): string =>
-    openHumanViewerHref(id).thumbnail.slice("/render?".length);
-  await warmHumanViewerDocuments({
-    revision,
-    documents: publishedHumanViewerWarmDocuments(inventory.documents),
-    currentRevision: () => readyRevision,
-    cached: (id) => {
-      const file = thumbnailFile(thumbnail(id));
-      return file === null || fs.existsSync(file);
-    },
-    capture: async (id) => {
-      const search = thumbnail(id);
-      const png = await capturer.capture(parseHumanViewerAddress(search));
-      const file = thumbnailFile(search);
-      if (file !== null) await writeHumanViewerThumbnail(file, png);
-    },
-    queue: (id, run) => queue.run("warm " + id, run, "bulk"),
-    status: warming,
-  });
-}
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
   const middleware = (
@@ -182,46 +142,14 @@ async function main(): Promise<void> {
       response.end(JSON.stringify(value));
     };
     if (url.pathname === "/health")
-      return json({
-        service: "automovie-human-viewer",
-        pid: process.pid,
-        port: instance.port,
-        revision: inventory.revision,
-        renderer,
-        // A ready server can draw. It may be drawing the last good build
-        // while the newest source fails: `serving` and `sourceError` say so.
-        ready: readyRevision !== "" && renderer !== "",
-        serving: {
-          revision: readyRevision,
-          current: inventory.revision,
-          stale: readyRevision !== inventory.revision,
-          goodAt: sourceStatus().goodAt,
-        },
-        sourceError: sourceStatus().error ?? errors[errors.length - 1] ?? null,
-        compilation: sourceStatus(),
-        errors,
-        sourceUpdating,
-        work,
-        heap: heap.status(),
-        revisions: revisions.current(),
-        queue: { limit: QUEUE_LIMIT, ...queue.status() },
-        lastEdit,
-        ...capturer.status(),
-        warm: warming,
-        startup,
-        uptimeMs: Math.round(process.uptime() * 1000),
-      });
-    // A heap reading after a full collection, outside the GPU queue: the
-    // sampled readings in /health include garbage not yet collected.
-    if (url.pathname === "/heap") {
-      void readLiveHeap().then((live) => json({ live, residents: work?.residents ?? null,
-        residentBytes: work?.residentBytes ?? null, revision: readyRevision }))
-        .catch((error: unknown) => {
-          response.statusCode = 503;
-          json({ error: "Heap reading unavailable: " + (error instanceof Error ? error.message : String(error)) });
-        });
-      return;
-    }
+      return json(assembleHumanViewerHealth({ port: instance.port, inventory: () => inventory,
+        renderer: () => renderer, readyRevision: () => readyRevision, sourceStatus,
+        errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap,
+        revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
+        capture: capturer, warming, startup }));
+    if (url.pathname === "/heap")
+      return serveHumanViewerHeap({ response, json, readLiveHeap: () => readLiveHeap(),
+        work: () => work, readyRevision: () => readyRevision });
     if (serveHumanViewerData({ url, request, response, root, storage,
       basisFiles, generationFiles: source.generationFiles, inputsDirectory, inventory, json, settleInputs,
       publish: (nextInventory) => { inventory = nextInventory; },
@@ -233,35 +161,9 @@ async function main(): Promise<void> {
     if (url.pathname === "/view") request.url = "/view.html" + url.search;
     next();
   };
-  // The configuration is passed as a value, not as a config file: Vite
-  // restarts a server whose config file or any module it imports changes,
-  // and a restart replaces the file watcher this host subscribed to, so every
-  // later source edit would be silently lost while health still read current.
-  // Server-side viewer code takes effect when the server is started again.
-  const vite = await createServer({
-    ...viewerConfig,
-    configFile: false,
-    plugins: [
-      ...(viewerConfig.plugins ?? []),
-      {
-        name: "human-viewer-http",
-        configureServer: (server) => {
-          server.middlewares.use(middleware);
-        },
-      },
-    ],
-  });
+  const vite = await createHumanViewerViteServer(middleware);
   await vite.listen();
-  // The record names this process from the moment it owns the port, so
-  // status and stop can verify ownership of a server that is still starting.
-  fs.writeFileSync(
-    path.join(storage, instance.record),
-    JSON.stringify({
-      pid: process.pid,
-      startedAt: new Date().toISOString(),
-      port: instance.port,
-    }),
-  );
+  writeHumanViewerRecord(path.join(storage, instance.record), instance.port);
 
   // Sources are watched from the start: an edit made while the page loads
   // reaches it, and its progress is reported, instead of being missed until
@@ -285,57 +187,42 @@ async function main(): Promise<void> {
     error: (error) => errors.push(error instanceof Error ? error.message : String(error)),
   });
   phase("launching the browser");
-  const browser = await chromium.launch({
-    channel: "chromium",
-    headless: true,
-    args: ["--use-gl=angle", "--ignore-gpu-blocklist"],
-  });
-  page = await browser.newPage({
-    viewport: { width: 1160, height: 930 },
-    deviceScaleFactor: 1,
-  });
-  // A session of its own, so heap readings never wait behind capture calls.
-  const heapSession = await page.context().newCDPSession(page);
-  readHeap = () => heapSession.send("Runtime.getHeapUsage");
-  readLiveHeap = async () => {
-    await heapSession.send("HeapProfiler.collectGarbage");
-    return heapSession.send("Runtime.getHeapUsage");
-  };
+  const resident = await launchHumanViewerPage();
+  const browser = resident.browser;
+  page = resident.page;
+  readHeap = resident.readHeap;
+  readLiveHeap = resident.readLiveHeap;
   const stopRenderer = await observeHumanViewerRendererTarget({ browser, page,
     failed: (cause, physicalSettled) => {
-    errors = [cause];
-    readyRevision = "";
-    pageFailure = cause;
-    // The failure is permanent for this server; it is logged so server.log
-    // records why every later capture and admission is refused.
-    console.error(`PAGE FAILED ${new Date().toISOString()} ${cause}` +
-      (physicalSettled ? "" : " (renderer may still be running)"));
-    lifetime.fail(new Error(cause), physicalSettled);
-    // Inputs awaiting admission are now refused by name; publish that.
-    inventory = catalogue();
-  } });
+      errors = [cause];
+      readyRevision = "";
+      pageFailure = cause;
+      // The failure is permanent for this server; it is logged so server.log
+      // records why every later capture and admission is refused.
+      console.error(`PAGE FAILED ${new Date().toISOString()} ${cause}` +
+        (physicalSettled ? "" : " (renderer may still be running)"));
+      lifetime.fail(new Error(cause), physicalSettled);
+      // Inputs awaiting admission are now refused by name; publish that.
+      inventory = catalogue();
+    } });
   page.on("pageerror", (error) => {
     errors.push(error.message);
     console.error(error.message);
   });
-  page.on("console", (message) => {
-    if (message.text().startsWith("HUMAN_WORK ")) {
-      work = readHumanViewerWork(message.text().slice(11));
+  page.on("console", (message) => routeHumanViewerConsole(message.text(), {
+    work: (text) => {
+      work = readHumanViewerWork(text);
       if (work !== null) heap.sample(work);
-      return;
-    }
-    if (message.text().startsWith("HUMAN_ERROR ")) {
-      errors = [message.text().slice(12)];
-      return;
-    }
-    if (message.text().startsWith("HUMAN_READY ")) {
+    },
+    error: (cause) => { errors = [cause]; },
+    ready: (revision) => {
       errors = [];
-      readyRevision = message.text().slice(12);
+      readyRevision = revision;
       warmReadiness.source(readyRevision);
       // A ready generation can admit the inputs still pending.
       inventory = catalogue();
-    }
-  });
+    },
+  }));
   phase("loading the page");
   await page.goto(instance.origin + "/view?resident=1#ao=off", {
     timeout: 600000,

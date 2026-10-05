@@ -9,25 +9,10 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies the same cache and generation rules to every document with no fixture-specific warm path.
  * @evidence contracts/common.md#meaningful-documentation Defines queue ownership, yielding and withdrawal when either source or pass authority changes.
  */
+import type { IWarmHumanViewerDocumentsProps } from "./IWarmHumanViewerDocumentsProps";
 import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
-export async function warmHumanViewerDocuments(props: {
-  revision: string;
-  documents: readonly { id: string }[];
-  currentRevision: () => string;
-  cached: (id: string) => boolean;
-  capture: (id: string) => Promise<void>;
-  queue: (id: string, capture: () => Promise<void>) => Promise<unknown>;
-  status: {
-    revision: string;
-    total: number;
-    done: number;
-    skipped: number;
-    /** Why each skipped document failed, by document, for the current pass. */
-    failures: { id: string; reason: string }[];
-    current: string | null;
-  };
-}): Promise<void> {
+export async function warmHumanViewerDocuments(props: IWarmHumanViewerDocumentsProps): Promise<void> {
   const pending = props.documents.filter((entry) => !props.cached(entry.id));
   Object.assign(props.status, {
     revision: props.revision,

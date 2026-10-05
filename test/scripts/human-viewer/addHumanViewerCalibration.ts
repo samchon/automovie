@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { humanViewerCalibrationRig } from "./humanViewerCalibrationRig";
 
 /** The name that identifies the rig inside a displayed model group. */
-export const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
+const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
 
 /**
  * Put the hand-typed calibration spheres into a displayed model group, or

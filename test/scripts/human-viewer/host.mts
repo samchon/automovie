@@ -8,14 +8,15 @@
  */
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
-import type { HumanViewerHandle } from "./HumanViewerHandle";
 import type { IHumanViewerFrameMessage } from "./IHumanViewerFrameMessage";
-import type { IHumanViewerHealthQueue } from "./IHumanViewerHealthQueue";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import { mountHumanViewerControls } from "./mountHumanViewerControls";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
+import { createHumanViewerHostHandle } from "./createHumanViewerHostHandle";
+import { createHumanViewerHostProgress } from "./createHumanViewerHostProgress";
+import { loadHumanViewerReferenceInfo } from "./loadHumanViewerReferenceInfo";
 
 type Child = Window & IHumanViewerWindow;
 let active: HTMLIFrameElement | undefined;
@@ -27,30 +28,7 @@ let generation = 0;
 const stage = document.querySelector<HTMLElement>("#stage")!;
 const error = document.querySelector<HTMLDivElement>("#error")!;
 const progress = document.querySelector<HTMLElement>("#progress")!;
-let waiting: ReturnType<typeof setInterval> | undefined;
-/** Say what is being built, for how long, and how busy the server is. */
-const begin = (what: string): void => {
-  const started = Date.now();
-  clearInterval(waiting);
-  const draw = async (): Promise<void> => {
-    const seconds = Math.round((Date.now() - started) / 1000);
-    let busy = "";
-    try {
-      const health = (await (await fetch("/health")).json()) as IHumanViewerHealthQueue;
-      const count = Object.values(health.queue.waiting).reduce((a, b) => a + b, 0);
-      busy = count === 0 ? "" : `, server queue ${count}`;
-    } catch {
-      busy = ", server not answering";
-    }
-    progress.textContent = `building ${what}... ${seconds} s${busy}`;
-  };
-  void draw();
-  waiting = setInterval(() => void draw(), 1000);
-};
-const settle = (): void => {
-  clearInterval(waiting);
-  progress.textContent = "";
-};
+const { begin, settle } = createHumanViewerHostProgress(progress);
 let goodAt = "";
 const showError = (message: string): void => {
   settle();
@@ -71,15 +49,7 @@ const controls = mountHumanViewerControls({
 });
 /** Ask whether a local photograph exists for the displayed document. */
 const loadPhoto = async (doc: string): Promise<void> => {
-  try {
-    controls.photo(
-      (await (
-        await fetch("/reference-info?" + new URLSearchParams({ doc }))
-      ).json()) as Parameters<typeof controls.photo>[0],
-    );
-  } catch {
-    controls.photo({ available: false, camera: null });
-  }
+  controls.photo(await loadHumanViewerReferenceInfo(doc));
 };
 const refreshCatalogue = async (): Promise<void> => {
   controls.catalogue(
@@ -181,26 +151,7 @@ addEventListener(
     settle();
     error.style.display = "none";
     committed = createHumanViewerGeneration((active.contentWindow as Child).__humanViewer);
-    const viewer = committed.handle;
-    const handle: HumanViewerHandle = {
-      show: async (address) => {
-        await viewer.show(address);
-        history.replaceState(
-          null,
-          "",
-          "#" + serializeHumanViewerAddress(address),
-        );
-      },
-      parts: () => viewer.parts(),
-      renderer: () => viewer.renderer(),
-      revision: () => viewer.revision(),
-      builds: () => viewer.builds(),
-      buildMs: () => viewer.buildMs(),
-      spans: () => viewer.spans(),
-      address: () => viewer.address(),
-      png: () => viewer.png(),
-      admit: (domain, text) => viewer.admit(domain, text),
-    };
+    const handle = createHumanViewerHostHandle(committed.handle);
     Object.assign(window, { __humanViewer: handle });
     console.log("HUMAN_READY " + handle.revision());
     void refreshCatalogue()
