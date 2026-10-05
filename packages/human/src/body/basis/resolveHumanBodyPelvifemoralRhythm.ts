@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 
 const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
 
@@ -19,9 +20,10 @@ const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
  * flexion, the lumbar joint `+T` and each upper leg `flexion - T` (the
  * sagittal coordination increments), and the list of those
  * additions. `T` is the declared curve at the larger of the two legs'
- * trunk-relative flexions: zero at and below the first knot, linear between
- * knots, the last ordinate held past the last knot, so the rest and every
- * extension add nothing.
+ * trunk-relative flexions, read by `evaluateHumanBodyRhythmCurve`: zero at and
+ * below the first knot (within its nanodegree first-knot tolerance), linear
+ * between knots, the last ordinate held past the last knot, so the rest and
+ * every extension add nothing.
  *
  * The rhythm runs after the couplings, none of which may drive the legs' or
  * the lumbar joint's flexion (admission), so the input angles are the
@@ -54,7 +56,7 @@ export function resolveHumanBodyPelvifemoralRhythm(
     // every chain bone is a declared joint (admission), so the rest exists
     (result.find((joint) => joint.bone === bone)?.flexion ??
       neutral.get(bone)) as number;
-  const tilt = evaluate(rhythm.curve, Math.max(...LEGS.map(flexion)));
+  const tilt = evaluateHumanBodyRhythmCurve(rhythm.curve, Math.max(...LEGS.map(flexion)));
   if (tilt === 0) return { joints: result, contributions: [] };
   const contributions: ReturnType<
     typeof resolveHumanBodyPelvifemoralRhythm
@@ -77,13 +79,3 @@ export function resolveHumanBodyPelvifemoralRhythm(
   return { joints: result, contributions };
 }
 
-/** The curve at one flexion: zero at and below the first knot, linear between, the last ordinate held. */
-function evaluate(curve: [number, number][], flexion: number): number {
-  if (!(flexion > curve[0][0])) return 0;
-  for (let i = 1; i < curve.length; i++) {
-    const [x0, y0] = curve[i - 1];
-    const [x1, y1] = curve[i];
-    if (flexion < x1) return y0 + ((y1 - y0) * (flexion - x0)) / (x1 - x0);
-  }
-  return curve[curve.length - 1][1];
-}

@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, convexHull2D } from "@automovie/engine";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 
 import type { IAutoMovieHumanBodySectionPlane } from "../structures/IAutoMovieHumanBodySectionPlane";
@@ -119,8 +120,8 @@ export function measureHumanBodySection(
   const n = plane.normal;
   const helper =
     Math.abs(n.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
-  const u = normalize(cross(n, helper));
-  const w = cross(n, u);
+  const u = normalize(Vector3.cross(n, helper));
+  const w = Vector3.cross(n, u);
   let best: IAutoMovieHumanBodySectionReading | null = null;
   let bestDistance = Infinity;
   for (const start of adjacency.keys()) {
@@ -170,17 +171,27 @@ export function measureHumanBodySection(
     );
     if (gap < bestDistance) {
       bestDistance = gap;
+      // The tape girth is the perimeter of the loop's convex hull in the
+      // plane frame (u, w), carried in the hull owner's x and z.
+      const hull = convexHull2D(
+        loop.map((key) => {
+          const p = points.get(key)!;
+          return {
+            x: p[0] * u.x + p[1] * u.y + p[2] * u.z,
+            y: 0,
+            z: p[0] * w.x + p[1] * w.y + p[2] * w.z,
+          };
+        }),
+      );
+      let girth = 0;
+      for (let i = 0; i < hull.length; i++) {
+        const p = hull[i];
+        const q = hull[(i + 1) % hull.length];
+        girth += Math.hypot(q.x - p.x, q.z - p.z);
+      }
       best = {
         perimeter,
-        girth: hullPerimeter(
-          loop.map((key) => {
-            const p = points.get(key)!;
-            return [
-              p[0] * u.x + p[1] * u.y + p[2] * u.z,
-              p[0] * w.x + p[1] * w.y + p[2] * w.z,
-            ];
-          }),
-        ),
+        girth,
         breadth: maxX - minX,
         back: minZ,
         centroid,
@@ -190,44 +201,7 @@ export function measureHumanBodySection(
   return best;
 }
 
-/** Perimeter of the convex hull of planar points, Andrew's monotone chain. */
-function hullPerimeter(points: number[][]): number {
-  const sorted = points
-    .slice()
-    .sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
-  const turn = (o: number[], a: number[], b: number[]): number =>
-    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const half = (list: number[][]): number[][] => {
-    const chain: number[][] = [];
-    for (const p of list) {
-      while (
-        chain.length >= 2 &&
-        turn(chain[chain.length - 2], chain[chain.length - 1], p) <= 0
-      )
-        chain.pop();
-      chain.push(p);
-    }
-    chain.pop();
-    return chain;
-  };
-  const hull = [...half(sorted), ...half(sorted.slice().reverse())];
-  let perimeter = 0;
-  for (let i = 0; i < hull.length; i++) {
-    const p = hull[i];
-    const q = hull[(i + 1) % hull.length];
-    perimeter += Math.hypot(q[0] - p[0], q[1] - p[1]);
-  }
-  return perimeter;
-}
-
-function cross(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
-  return {
-    x: a.y * b.z - a.z * b.y,
-    y: a.z * b.x - a.x * b.z,
-    z: a.x * b.y - a.y * b.x,
-  };
-}
-
+/** Unit copy by one hypot division, the arithmetic the section's plane frame was measured with. */
 function normalize(a: IAutoMovieVector3): IAutoMovieVector3 {
   const size = Math.hypot(a.x, a.y, a.z);
   return { x: a.x / size, y: a.y / size, z: a.z / size };

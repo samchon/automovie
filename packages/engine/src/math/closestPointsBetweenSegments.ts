@@ -2,8 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "./Vector3";
-
-const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 
 /**
  * Closest witnesses on bounded segments in one metre coordinate frame.
@@ -98,23 +97,23 @@ export const closestPointsBetweenSegments = (
     }
   };
   if (E > 0) {
-    offer(0, clamp01(F / E));
-    offer(1, clamp01((F + B) / E));
+    offer(0, clampAutoMovieUnitInterval(F / E));
+    offer(1, clampAutoMovieUnitInterval((F + B) / E));
   }
   if (A > 0) {
-    offer(clamp01(-C / A), 0);
-    offer(clamp01((B - C) / A), 1);
+    offer(clampAutoMovieUnitInterval(-C / A), 0);
+    offer(clampAutoMovieUnitInterval((B - C) / A), 1);
   }
   if (A > 0 && E > 0) {
-    if (B === 0) offer(clamp01(-C / A), clamp01(F / E));
+    if (B === 0) offer(clampAutoMovieUnitInterval(-C / A), clampAutoMovieUnitInterval(F / E));
     else {
       const first = C / B,
         last = (C + A) / B;
       const low = Math.max(0, Math.min(first, last));
       const high = Math.min(1, Math.max(first, last));
       if (low <= high) {
-        const s0 = clamp01((B * low - C) / A);
-        const s1 = clamp01((B * high - C) / A);
+        const s0 = clampAutoMovieUnitInterval((B * low - C) / A);
+        const s1 = clampAutoMovieUnitInterval((B * high - C) / A);
         const residual = Vector3.subtract(
           Vector3.add(r, Vector3.scale(u, s0)),
           Vector3.scale(v, low),
@@ -130,7 +129,7 @@ export const closestPointsBetweenSegments = (
             y: delta.y / length,
             z: delta.z / length,
           };
-          const fraction = clamp01(-Vector3.dot(residual, unit) / length);
+          const fraction = clampAutoMovieUnitInterval(-Vector3.dot(residual, unit) / length);
           offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
         }
       }
