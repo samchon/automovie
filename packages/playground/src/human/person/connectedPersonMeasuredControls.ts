@@ -4,9 +4,9 @@ import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMe
 
 /**
  * Render one row per person measurement (`HUMAN_PERSON_MEASUREMENTS`): a
- * measurement whose site crosses the head/body cut, read on the whole
- * person's final skin at rest and solved along its body channel in the
- * measurement worker.
+ * girth whose site crosses the head/body cut, or the stature of the closed
+ * skin, read on the whole person at rest and solved along its body channel in
+ * the measurement worker. Each row's label names its kind.
  *
  * Each row shows the committed person's current reading, takes a target in
  * millimetres, and commits the solved person through the panel's transaction
@@ -18,7 +18,7 @@ import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMe
  * `refresh` re-reads the current values after a commit; only the latest read
  * is shown.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Lets the user read and target measurements that cross the head/body cut in millimetres.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Lets the user read and target the whole-person measurements (neck girth across the cut, stature) in millimetres.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reads each person measurement on the final skin at rest and solves it along its body channel.
  * @author Samchon
  */
@@ -35,7 +35,8 @@ export function mountConnectedPersonMeasuredControls(props: IConnectedPersonMeas
     const reading = props.dom.createElement("small");
     const note = props.dom.createElement("small");
     row.className = "row";
-    label.textContent = channel.replace(/([a-z])([A-Z])/gu, "$1 $2") + " (girth across the neck cut, mm)";
+    const site = rule.kind === "girth" ? "girth across the neck cut" : "stature, floor to the top of the head";
+    label.textContent = channel.replace(/([a-z])([A-Z])/gu, "$1 $2") + " (" + site + ", mm)";
     number.id = "person-control-" + channel;
     number.type = "number";
     number.step = "0.1";

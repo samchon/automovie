@@ -364,6 +364,39 @@ Each rule records the observed range of its cited source sample. A target outsid
 
 Body bases name skin points instead of numbering vertices: `IAutoMovieHumanBodyBasis.skinLandmarks` maps a name to one surface vertex. The bust girth and the bra read `nipple-left`, and the person neck girth reads `neck-anterior-midline`. A basis that does not declare a name cannot answer a rule that uses it (the rule leaves the measured list), and solves and garments that need it refuse by name. The published body study (r16) declares none.
 
+Head measurements follow ANSUR II and are read on the head view of the skin at rest. `HUMAN_PERSON_HEAD_MEASUREMENTS` names them by measurement, and `measureHumanPersonHead(compiled, document)` reads all five on one rest evaluation, each with the points its instrument touched:
+
+- `tragionTopOfHead` (6.4.83): the highest head view vertex above `tragion-right`.
+- `headLength` (6.4.48): glabella to the farthest midsagittal point at or above the tragion height.
+- `headBreadth` (6.4.46): the X extent above the ears, with the `ear-right` and `ear-left` areas left out and each side bounded by its ear's top.
+- `mentonSellionLength` (6.4.62): the straight distance from `menton` to `sellion`.
+- `headCircumference` (6.4.47): the tape girth on the plane through glabella and the opisthocranion, level from side to side. It is held level where it would rise behind the glabella, and raised at the back to touch the highest ear point where it would cut an ear.
+
+`solveHumanPersonHead({ compiled, document, targets })` meets the four measurements of `HUMAN_PERSON_HEAD_SOLVE` (tragion–top of head, head length, head breadth, menton–sellion) with eight face channels, each a distinct effect: `headHeight`, `foreheadHeight`, `chinHeight`, `headDepth`, `posteriorHeadDepth`, `headWidth`, `cranialBreadth` and `templeWidth`.
+
+- Head circumference, when given a target, is pursued second: by least squares within the freedom the four measurements leave. Its miss is reported, never refused.
+- The rest of the choice is the least departure from the standard head. Each weight is priced by the skin its endpoint moves (RMS displacement per unit weight), and the result reports that departure in metres.
+- A measurement is met within 0.5 mm, half the 1 mm resolution of ANSUR II's records.
+- A solve that ends unmet refuses with the closest readings and the channels it left at a limit.
+
+Gap: head circumference at a given head length and breadth. ANSUR II subjects' circumference exceeds the ellipse of their own length and breadth by 1.3 % to 7.3 % (5th to 95th percentile); this head's shape space holds 0.7 % to 1.3 %. With length and breadth held, the solve's channels move circumference by about +12 / −22 mm, so fuller heads keep a miss. The hair the ANSUR tape compresses cannot be separated from the data. A cranial fullness channel is an open authoring item.
+
+Gap: the cranial channels' far ends. The solve, like an editor user, may set any value in a channel's envelope, and two endpoints show shape faults near their ends on the renderer:
+
+- `posteriorHeadDepth` at 1: the back of the head balloons backward and overhangs the neck with a deep crease. Observed on solved ANSUR II heads of head length 214–215 mm (`.shots/n2-person-editor/head-solve/female-25995-on-female-left-clay.png`, local).
+- `cranialBreadth` near its maximum: bosses rise over the temples and a ridge runs down the back. Observed clearly at 2.5 and faintly at 1.17 (`male-16179-on-female-{front,top,back}-clay.png`, `female-25995-on-female-front-clay.png`, same folder).
+
+The envelopes are not narrowed. Every solution returns all its channel values in its document, so a reader can see when a far end was used. Authoring the cranial shape (fullness, occipital length, parietal breadth) without these faults is an open item.
+
+Named approximations:
+
+- The source's rest head orientation stands in for the Frankfurt plane.
+- The skin carries no hair, so the skin top stands in for the vertex under a compressing blade.
+- `glabella`, `sellion`, `menton` and `tragion-right` are fixed vertices chosen on the neutral generation. A shape that moves a definition's extreme to another vertex is not followed.
+- The tragion height stands in for the Frankfurt plane at the back of the head when the opisthocranion is searched.
+- The circumference plane passes through glabella itself, not just above the brow ridges, and is the admissible plane nearest the longest front-to-back line rather than a search for the maximum girth.
+- The ear areas are bounded by an attachment loop read from renders.
+
 Bases also name areas of the skin: `skinRegions` on the face and body bases maps a name to a set of vertices of one surface. Admission refuses an area off its surface, an empty or unsorted vertex list, and a feature whose `-right` and `-left` areas on one surface share a vertex. A rule that keeps a feature out of a search names its area (`ear-right`, `ear-left`) instead of listing vertices.
 
 Gaps:

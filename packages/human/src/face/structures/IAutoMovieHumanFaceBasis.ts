@@ -73,20 +73,23 @@ export interface IAutoMovieHumanFaceBasis {
 
   /**
    * Named points of the skin, each a vertex of one surface, for measurement
-   * rules that read a drawn landmark (`glabella`, `sellion`, `menton`,
-   * `tragion-right`). Rules name a point instead of numbering a vertex, which
-   * belongs to one basis's topology; a rule naming a point this basis does
-   * not declare refuses by that name. Omission declares none.
+   * rules that read a drawn landmark. The person head rules
+   * (`HUMAN_PERSON_HEAD_MEASUREMENTS`) read `glabella`, `sellion`, `menton`
+   * and `tragion-right` on the head view. Rules name a point instead of
+   * numbering a vertex, which belongs to one basis's topology; a rule naming
+   * a point this basis does not declare refuses by that name. Omission
+   * declares none.
    */
   skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
 
   /**
    * Named areas of the skin, each a set of vertices of one surface, for
-   * measurement rules that keep a feature out of a search (`ear-right` and `ear-left`, kept out of the euryon search for head
-   * breadth).
-   * Rules name an area instead of listing vertices, which belong to one
-   * basis's topology; a rule naming an area this basis does not declare
-   * refuses by that name. Omission declares none.
+   * measurement rules that keep a feature out of a search. The person head
+   * rules keep `ear-right` and `ear-left` out of the head breadth's euryon
+   * search and out of the head circumference's plane
+   * (`HUMAN_PERSON_HEAD_MEASUREMENTS`). Rules name an area instead of listing
+   * vertices, which belong to one basis's topology; a rule naming an area
+   * this basis does not declare refuses by that name. Omission declares none.
    */
   skinRegions?: Record<string, IAutoMovieHumanSkinRegion>;
 
