@@ -1,3 +1,5 @@
+import { createHumanSourceAnchorCarry } from "./createHumanSourceAnchorCarry.ts";
+import { markHumanSourceSide } from "./markHumanSourceSide.ts";
 import type { IHumanSourceBandExtension } from "./structures/IHumanSourceBandExtension.ts";
 import type { IHumanSourceBandInput } from "./structures/IHumanSourceBandInput.ts";
 import type { IHumanSourceGenerationAttachment } from "./structures/IHumanSourceGenerationAttachment.ts";
@@ -32,14 +34,8 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
   const skin = generation.skin;
   const n = skin.originalVertices;
   const total = skin.positions.length / 3;
-  const head = new Uint8Array(n);
-  const bodySide = new Uint8Array(n);
-  skin.labels.forEach((label, t) => {
-    for (let k = 0; k < 3; k++) {
-      const g = skin.triangles[3 * t + k];
-      if (g < n) (label === 0 ? head : bodySide)[g] = 1;
-    }
-  });
+  const head = markHumanSourceSide(skin, 0);
+  const bodySide = markHumanSourceSide(skin, 1);
   const samples = Array.from({ length: total - n }, (_, i) => n + i);
   const axis = [0, 2].map((c) => samples.reduce((sum, g) => sum + skin.positions[3 * g + c], 0) / samples.length);
   const azimuth = (g: number): number => Math.atan2(skin.positions[3 * g] - axis[0], skin.positions[3 * g + 2] - axis[1]);
@@ -81,13 +77,7 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
   };
   const toRows = (map: Map<number, number[]>): number[] =>
     [...map].filter(([, v]) => v.some((x) => x !== 0)).sort((x, y) => x[0] - y[0]).flatMap(([g, v]) => [g, ...v]);
-  const anchorIds = (generation.anchor?.landmarks ?? []).map((id) => body.landmarks.ids.indexOf(id));
-  const anchorOf = (name: string): number[] => {
-    const rows = body.landmarks.targets[name] ?? [];
-    const sum = [0, 0, 0];
-    for (let i = 0; i < rows.length; i += 4) if (anchorIds.includes(rows[i])) for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c] / anchorIds.length;
-    return sum;
-  };
+  const anchorOf = createHumanSourceAnchorCarry(body, generation.anchor?.landmarks ?? []);
   const origin = new Map<string, "face" | "body">();
   for (const channel of generation.channels) {
     origin.set(channel.positive, channel.origin);

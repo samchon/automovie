@@ -1,8 +1,7 @@
+import { humanSourcePositionTolerance } from "./humanSourcePositionTolerance.ts";
 import type { IHumanSourceClassification } from "./structures/IHumanSourceClassification.ts";
 import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceReproductionRow.ts";
 
-/** Two micrometre storage units: positions and displacements were stored at 1e-6 m or finer. */
-const POSITION_TOLERANCE_METRES = 2e-6;
 /** One storage unit of weights stored at seven decimals. */
 const WEIGHT_TOLERANCE = 1e-7;
 
@@ -21,7 +20,7 @@ export function classifyHumanSourceRows(rows: readonly IHumanSourceReproductionR
       out.push(row);
       continue;
     }
-    const tolerance = row.role === "weights" || row.role === "attachment" ? WEIGHT_TOLERANCE : POSITION_TOLERANCE_METRES;
+    const tolerance = row.role === "weights" || row.role === "attachment" ? WEIGHT_TOLERANCE : humanSourcePositionTolerance;
     if (row.regeneration.maximumMetres <= tolerance) {
       out.push(row);
       continue;

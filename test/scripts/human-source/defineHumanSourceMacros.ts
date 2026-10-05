@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanBodyBasisChannel } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisChannel";
 import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisCorrective";
 
+import { createHumanSourceAnchorCarry } from "./createHumanSourceAnchorCarry.ts";
 import { createHumanSourceBodyRecipes } from "./createHumanSourceBodyRecipes.ts";
+import { humanSourcePositionTolerance } from "./humanSourcePositionTolerance.ts";
+import { markHumanSourceHeadOnly } from "./markHumanSourceHeadOnly.ts";
+import { markHumanSourceSide } from "./markHumanSourceSide.ts";
 import { roundHalfEven } from "./roundHalfEven.ts";
 import type { IHumanSourceChannelSide } from "./structures/IHumanSourceChannelSide.ts";
 import type { IHumanSourceGenerationAlias } from "./structures/IHumanSourceGenerationAlias.ts";
@@ -12,7 +16,7 @@ import type { IHumanSourceMacroInput } from "./structures/IHumanSourceMacroInput
 const ANCHOR_LANDMARKS = ["joint-l-eye", "joint-r-eye"];
 
 /**
- * Define every MPFB macro once over the whole skin.
+ * Define every head-shaping body endpoint once over the whole skin.
  *
  * A macro endpoint is one MPFB macro state (or a pair residual of two). Its
  * field is one upstream row over the entire source mesh, so splitting it into a
@@ -22,7 +26,10 @@ const ANCHOR_LANDMARKS = ["joint-l-eye", "joint-r-eye"];
  * takes the same upstream recipe relative to the head anchor (mean of the two
  * eye joint cubes, the frame the published face subtracted). Head carry plus
  * row then equals the absolute upstream row on the head, so the field is
- * continuous at the cut without any band row.
+ * continuous at the cut without any band row. The same holds for a regional
+ * body target whose upstream row, minus the anchor carry, still deforms a
+ * head-only vertex (a neck or upper-torso target): it is head-shaping too and
+ * gets the same one definition instead of a band.
  *
  * Face controls that sample the same macro axis are not defined again: a face
  * channel becomes an alias of the body channel of that axis, at the body's
@@ -30,7 +37,10 @@ const ANCHOR_LANDMARKS = ["joint-l-eye", "joint-r-eye"];
  * corrective whose drivers are all such channels is an alias of the body pair
  * corrective with the same drivers. A face corrective that also has another
  * driver keeps its rows with its macro drivers renamed to the body channel,
- * and records the face node it was authored at when that differs.
+ * and records the face node it was authored at when that differs. A face
+ * channel whose two endpoints are exactly a body channel's upstream targets
+ * (for example a face neck width sampled from the body's neck scale target)
+ * is the same quantity and becomes an alias of that body channel likewise.
  */
 export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSourceMacroDefinition {
   const { generation, face, body, cut, faceRows, reader, field } = input;
@@ -52,9 +62,19 @@ export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSo
   }
   const aliases: IHumanSourceGenerationAlias[] = [];
   const channelAlias = new Map<string, string>();
+  // A face channel whose endpoints are exactly a body channel's upstream
+  // targets, side for side, samples the same quantity as that body channel.
+  const sameTargetOwner = (channel: (typeof face.channels)[number]): IAutoMovieHumanBodyBasisChannel | undefined => {
+    const positive = faceRows.recipes[channel.positive];
+    if (positive === undefined) return undefined;
+    const owner = body.channels.find((candidate) => candidate.positive === positive);
+    if (owner === undefined) return undefined;
+    if (channel.negative === null) return owner.negative === null ? owner : undefined;
+    return faceRows.recipes[channel.negative] === owner.negative ? owner : undefined;
+  };
   for (const channel of face.channels) {
     const axis = axisOf(faceRows.recipes[channel.positive]);
-    const owner = axis === null ? undefined : bodyByAxis.get(axis);
+    const owner = axis === null ? sameTargetOwner(channel) : bodyByAxis.get(axis);
     if (owner === undefined) continue;
     const endpoints: Record<string, string> = { [channel.positive]: owner.positive };
     const notes: string[] = [];
@@ -65,6 +85,7 @@ export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSo
       endpoints[faceEndpoint] = bodyEndpoint;
       const faceState = faceRows.recipes[faceEndpoint];
       if (faceState === undefined) notes.push(`${side}: face endpoint had no upstream recipe`);
+      else if (axis === null) notes.push(`${side}: same upstream target ${faceState}`);
       else if (nodeOf(faceState) !== nodeOf(bodyEndpoint))
         notes.push(`${side}: face node ${axis} ${nodeOf(faceState)} replaced by body node ${nodeOf(bodyEndpoint)}`);
     }
@@ -102,43 +123,41 @@ export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSo
 
   // Body macro endpoints: one upstream row, head part relative to the anchor.
   const recipeOf = createHumanSourceBodyRecipes(reader, field);
-  const anchorIndex = ANCHOR_LANDMARKS.map((id) => body.landmarks.ids.indexOf(id));
-  if (anchorIndex.some((i) => i < 0)) throw new Error("The body has no eye joint landmarks.");
-  const anchorOf = (name: string): number[] => {
-    const rows = body.landmarks.targets[name] ?? [];
-    const sum = [0, 0, 0];
-    for (let i = 0; i < rows.length; i += 4)
-      if (anchorIndex.includes(rows[i])) for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c];
-    return sum.map((x) => x / anchorIndex.length);
-  };
-  const headOnly = new Uint8Array(n);
-  const bodySide = new Uint8Array(n);
-  generation.skin.labels.forEach((label, t) => {
-    for (let k = 0; k < 3; k++) {
-      const g = generation.skin.triangles[3 * t + k];
-      if (g < n) (label === 0 ? headOnly : bodySide)[g] = 1;
-    }
-  });
+  const anchorOf = createHumanSourceAnchorCarry(body, ANCHOR_LANDMARKS);
+  const headOnly = markHumanSourceHeadOnly(generation.skin);
+  const bodySide = markHumanSourceSide(generation.skin, 1);
   const targets = { ...generation.targets };
+  // Head-shaping body endpoints: every macro, and every body endpoint whose
+  // upstream target, minus the rigid anchor carry, still moves a head-only
+  // vertex by more than the storage resolution (a residual within it is the
+  // rounding of a rigid move, not a deformation). Both get one definition over the whole skin; the others move the
+  // head only as the rigid carry and cross the cut on the body band.
+  const headRows = (name: string): number[][] => {
+    const recipe = recipeOf(name)!;
+    const anchor = anchorOf(name);
+    const out: number[][] = [];
+    for (let x = 0; x < n; x++) {
+      if (headOnly[x] === 0) continue;
+      const row = [0, 1, 2].map((c) => roundHalfEven(recipe.skin[3 * x + c], 6) - anchor[c]);
+      if (row.some((v) => v !== 0)) out.push([x, ...row]);
+    }
+    return out;
+  };
   const macroTargets = Object.keys(body.surfaces[0].targets).filter((name) => {
     if (!reader.has(name)) return false;
     const kind = reader.state(name).kind;
-    return kind === "body-macro" || kind === "body-macro-pair";
+    if (kind === "body-macro" || kind === "body-macro-pair") return true;
+    return kind === "body-target" && headRows(name).some((row) => Math.hypot(row[1], row[2], row[3]) > humanSourcePositionTolerance);
   });
   const before: string[] = [];
   let worstAfter = 0;
   let worstBefore = 0;
   for (const name of macroTargets) {
-    const recipe = recipeOf(name)!;
     const anchor = anchorOf(name);
     const rows = targets[name] ?? [];
     const kept: number[][] = [];
     for (let i = 0; i < rows.length; i += 4) if (rows[i] >= n || bodySide[rows[i]] === 1) kept.push(rows.slice(i, i + 4));
-    for (let x = 0; x < n; x++) {
-      if (headOnly[x] === 0) continue;
-      const row = [0, 1, 2].map((c) => roundHalfEven(recipe.skin[3 * x + c], 6) - anchor[c]);
-      if (row.some((v) => v !== 0)) kept.push([x, ...row]);
-    }
+    kept.push(...headRows(name));
     kept.sort((a, b) => a[0] - b[0]);
     targets[name] = kept.flat();
     // Cut mismatch: each cut sample against the stencil of the two evaluated ends.
@@ -187,11 +206,12 @@ export function defineHumanSourceMacros(input: IHumanSourceMacroInput): IHumanSo
       aliases,
       stamps: [
         ...generation.stamps,
-        { derivative: "macro definition", authoredOn: generation.id, status: "regenerated", note: `${macroTargets.length} body macro endpoints over the whole skin relative to the eye anchor; ${aliases.length} face aliases` },
+        { derivative: "macro definition", authoredOn: generation.id, status: "regenerated", note: `${macroTargets.length} head-shaping body endpoints (macros and regional targets that deform the head) over the whole skin relative to the eye anchor; ${aliases.length} face aliases` },
       ],
     },
     checks: {
       macroTargets: macroTargets.length,
+      headShapingRegionalTargets: macroTargets.filter((name) => reader.state(name).kind === "body-target").join(", "),
       faceChannelAliases: aliases.filter((a) => a.kind === "channel").map((a) => `${a.from}->${a.to} (${a.note})`).join("; "),
       faceCorrectiveAliases: aliases.filter((a) => a.kind === "corrective" && a.to !== a.from).length,
       faceCorrectivesKeptWithBodyDrivers: aliases.filter((a) => a.kind === "corrective" && a.to === a.from).length,

@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/common/basis/IAutoMovieHumanBasisSourcePartition";
 
+import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
 import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
 import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
 
@@ -9,7 +10,8 @@ import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
  * the source complement of the same cut, with the generation's neutral and
  * weights, its endpoints re-addressed (`unavailableTargets` names the ones
  * without a value on the new support) and its vein overlay vertices
- * re-addressed. Both partitions share one parent tree and one ordered
+ * re-addressed, and it declares its named skin points on the new vertices
+ * (`defineHumanSourceSkinLandmarks`). Both partitions share one parent tree and one ordered
  * intersection table, as `IAutoMovieHumanBasisSourcePartition` requires.
  */
 export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP1 {
@@ -63,6 +65,7 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
     ...body,
     id: `human-source-g1-${short}-p1-body`,
     ...(unavailableTargets.length === 0 ? {} : { unavailableTargets }),
+    skinLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut),
     surfaces: [
       {
         id: bodySurface.id,

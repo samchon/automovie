@@ -1,4 +1,6 @@
+import { createHumanSourceAnchorCarry } from "./createHumanSourceAnchorCarry.ts";
 import { denseHumanSourceRows } from "./denseHumanSourceRows.ts";
+import { markHumanSourceHeadOnly } from "./markHumanSourceHeadOnly.ts";
 import { measureHumanSourceError } from "./measureHumanSourceError.ts";
 import type { IHumanSourceCarryInput } from "./structures/IHumanSourceCarryInput.ts";
 import type { IHumanSourceReproductionError } from "./structures/IHumanSourceReproductionError.ts";
@@ -29,27 +31,9 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
   const kept = cut.r16ToSource;
   const p1Of = new Map<number, number>();
   cut.p1BodyToG1.forEach((g, j) => p1Of.set(g, j));
-  const headOnly = new Uint8Array(n);
-  for (let t = 0; t < generation.skin.labels.length; t++)
-    if (generation.skin.labels[t] === 0)
-      for (let k = 0; k < 3; k++) {
-        const g = generation.skin.triangles[3 * t + k];
-        if (g < n) headOnly[g] = 1;
-      }
-  for (let t = 0; t < generation.skin.labels.length; t++)
-    if (generation.skin.labels[t] === 1)
-      for (let k = 0; k < 3; k++) {
-        const g = generation.skin.triangles[3 * t + k];
-        if (g < n) headOnly[g] = 0;
-      }
+  const headOnly = markHumanSourceHeadOnly(generation.skin);
   const anchorTargets = new Set(generation.anchor?.targets ?? []);
-  const anchorIndex = (generation.anchor?.landmarks ?? []).map((id) => body.landmarks.ids.indexOf(id));
-  const anchorOf = (name: string): number[] => {
-    const rows = body.landmarks.targets[name] ?? [];
-    const sum = [0, 0, 0];
-    for (let i = 0; i < rows.length; i += 4) if (anchorIndex.includes(rows[i])) for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c];
-    return sum.map((x) => x / Math.max(1, anchorIndex.length));
-  };
+  const anchorOf = createHumanSourceAnchorCarry(body, generation.anchor?.landmarks ?? []);
   const aliasOf = new Map<string, string>();
   for (const alias of generation.aliases) for (const [from, to] of Object.entries(alias.endpoints)) aliasOf.set(from, to);
   const skinRows = (name: string): Map<number, number[]> => {

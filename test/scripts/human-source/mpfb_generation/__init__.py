@@ -15,5 +15,6 @@ Modules:
   convention each name follows.
 - `landmarks`: joint-cube centroids of the helper base mesh.
 - `flatten`: the product exclusion of nipple geometry as a linear fill operator.
+- `parts`: the five attached face parts refitted by MPFB under each macro state.
 - `store`: the deterministic binary layout the TypeScript compiler reads.
 """
