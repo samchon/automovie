@@ -3,11 +3,12 @@ import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput";
 /**
  * One preview request from the resident page to the numerical worker.
  *
- * `basis` names a candidate dropped beside a hand-written document
- * (`<name>@<digest>`); omission selects the published basis of the domain. A
- * person candidate is one packet: either a face/body basis pair or a one-skin
- * source generation. For a person, `published-generation` selects the
- * published head and body files of the one-skin generation.
+ * `basis` names the file the runtime is built from, always with its digest:
+ * `published@<d12>` is the domain's published basis (`published@<face12>.<body12>`
+ * for a person on the two published bases), `published-generation@<head12>.<body12>`
+ * the published one-skin generation's head and body files, and any other
+ * `<name>@<digest12>` a candidate dropped beside a hand-written document (for a
+ * person, one packet: a face/body basis pair or a one-skin source generation).
  *
  * @evidence contracts/common.md#principled-implementation The worker needs the request id, the domain runtime, the candidate source and the runtime input, nothing else.
  * @evidence contracts/common.md#meaningful-documentation States the candidate naming and what a person candidate holds.
@@ -20,7 +21,7 @@ export interface IHumanViewerNumericalRequest {
   /** Which product runtime evaluates the document. */
   domain: "face" | "body" | "person";
 
-  /** Candidate source name, or omitted for the published basis. */
+  /** The basis token naming the file and its digest. */
   basis?: string;
 
   /** The product runtime input. */

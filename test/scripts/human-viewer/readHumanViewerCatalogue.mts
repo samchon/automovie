@@ -21,10 +21,14 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
 import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerInputs } from "./readHumanViewerInputs";
 
-/** The person basis token the numerical worker reads as the published generation views. */
+/**
+ * The person basis token prefix the numerical worker reads as the published
+ * generation views; the full token is `published-generation@<head12>.<body12>`.
+ */
 const PUBLISHED_GENERATION = "published-generation";
 
 export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps): IHumanViewerCatalogue {
@@ -104,8 +108,11 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
       id: document.id,
       domain: "person" as const,
       document,
-      // The worker reads this token as the published generation views.
-      basis: PUBLISHED_GENERATION,
+      // The worker reads this token as the published generation views and
+      // asks for exactly these bytes: the digests travel with the document,
+      // so a view replaced on disk is refused (409), never built under a key
+      // or a worker memo that names the old views.
+      basis: `${PUBLISHED_GENERATION}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
       key: humanViewerPersonKey({ document,
         bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
         sources }),
@@ -137,6 +144,7 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
         id: document.id,
         domain: "face" as const,
         document,
+        basis: humanViewerPublishedBasis(bases.face.digest),
         key: hash(JSON.stringify(document) + bases.face.digest + sources.face),
       })),
       ...Object.entries(standardBodyReviewStates()).map(([name, state]) => {
@@ -150,6 +158,7 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
           id: document.id,
           domain: "body" as const,
           document,
+          basis: humanViewerPublishedBasis(bases.body.digest),
           key: hash(JSON.stringify(document) + bases.body.digest + sources.body),
         };
       }),
@@ -157,6 +166,7 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
         id: document.id,
         domain: "person" as const,
         document,
+        basis: humanViewerPublishedBasis(bases.face.digest, bases.body.digest),
         key: humanViewerPersonKey({ document, bases, sources }),
       })),
       ...standardEntries.filter((entry) => judged.get(entry.id)?.state === "admitted"),

@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanPersonBodyView } from "../structures/IAutoMovieHumanPersonBodyView";
 import type { IAutoMovieHumanPersonGeneration } from "../structures/IAutoMovieHumanPersonGeneration";
 import type { IAutoMovieHumanPersonHeadView } from "../structures/IAutoMovieHumanPersonHeadView";
+import type { IAutoMovieHumanPersonSourceSurface } from "../structures/IAutoMovieHumanPersonSourceSurface";
 
 /**
  * Join the head and body files of one published person generation into the
@@ -30,7 +31,7 @@ export function joinHumanPersonGeneration(
 ): IAutoMovieHumanPersonGeneration {
   if (head.id !== body.id)
     throw new Error("The person head file (" + head.id + ") and body file (" + body.id + ") are different generations.");
-  const registered = (surfaces: readonly { sourcePartition?: { generation: string } }[]): boolean =>
+  const registered = (surfaces: readonly IAutoMovieHumanPersonSourceSurface[]): boolean =>
     surfaces.some((surface) => surface.sourcePartition?.generation === head.id);
   if (!registered(head.face.surfaces))
     throw new Error("The person head file's face view is not registered on generation " + head.id + ".");

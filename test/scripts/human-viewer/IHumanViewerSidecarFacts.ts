@@ -16,7 +16,7 @@ export interface IHumanViewerSidecarFacts {
   /** Hex SHA-256 of the bytes. */
   digest: string;
 
-  /** The basis identity of a `.basis.json.gz`, or null for a person packet. */
+  /** The basis identity of a `.basis.json.gz`, or null for a person packet or a generation view. */
   basis: string | null;
 
   /** The identities of a `.person.json.gz`, or null for any other kind. */

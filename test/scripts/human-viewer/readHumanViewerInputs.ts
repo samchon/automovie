@@ -10,6 +10,7 @@ import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
 import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
 
 /**
@@ -113,6 +114,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
             id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain: "person",
             document,
+            basis: humanViewerPublishedBasis(props.bases.face.digest, props.bases.body.digest),
             key: humanViewerPersonKey({ document, bases: props.bases, sources: props.sources }),
           });
           continue;
@@ -134,9 +136,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
           domain,
           document,
           key: hash(JSON.stringify(document) + digest + props.sources[domain]),
-          ...(candidate === null
-            ? {}
-            : { basis: `${name}@${digest.slice(0, 12)}` }),
+          basis: candidate === null ? humanViewerPublishedBasis(digest) : `${name}@${digest.slice(0, 12)}`,
         });
       }
     } catch (error) {

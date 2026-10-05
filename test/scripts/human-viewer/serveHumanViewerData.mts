@@ -22,6 +22,27 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
     inputsDirectory, publish, json } = props;
   let { inventory } = props;
   const handled = (value: unknown): true => { json(value); return true; };
+  /**
+   * Stream a file only when its SHA-256 starts with the requested digest;
+   * otherwise 409 with both digests. Hashing streams off the event loop.
+   */
+  const streamVerified = (file: string, digest: string, label: string): void => {
+    void (async () => {
+      const hasher = createHash("sha256");
+      for await (const chunk of fs.createReadStream(file)) hasher.update(chunk as Buffer);
+      const actual = hasher.digest("hex");
+      if (!actual.startsWith(digest)) {
+        response.statusCode = 409;
+        json({ error: `${label} changed: digest ${actual.slice(0, 12)}, requested ${digest}` });
+        return;
+      }
+      response.setHeader("Content-Type", "application/gzip");
+      fs.createReadStream(file).pipe(response);
+    })().catch((error: unknown) => {
+      response.statusCode = 500;
+      json({ error: `${label} could not be read: ` + (error instanceof Error ? error.message : String(error)) });
+    });
+  };
     if (url.pathname === "/docs") return handled(inventory);
     if (serveHumanViewerReference({
         url,
@@ -31,18 +52,26 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
         documents: inventory.documents.map((entry) => entry.id),
         json,
       })) return true;
-    // The published one-skin person generation views, streamed as stored.
-    // A missing view is 404; the catalogue already lists the standard people
-    // as rejected by name until both exist.
+    // The published one-skin person generation views. A request names the
+    // digest prefix its document was keyed with (`?digest=<12 hex>`); the
+    // bytes are hashed off the event loop and a replaced view is refused
+    // with 409, so no build runs on views its key does not name. A missing
+    // view is 404; the catalogue already lists the standard people as
+    // rejected by name until both exist.
     if (url.pathname === "/basis/person/head" || url.pathname === "/basis/person/body") {
-      const file = props.generationFiles[url.pathname.endsWith("head") ? "head" : "body"];
+      const view = url.pathname.endsWith("head") ? "head" : "body";
+      const file = props.generationFiles[view];
+      const digest = url.searchParams.get("digest");
+      if (digest === null || !/^[0-9a-f]{12,64}$/.test(digest)) {
+        response.statusCode = 400;
+        return handled({ error: `The ${view} view request must name the digest its document was built for (?digest=<hex>)` });
+      }
       if (!fs.existsSync(file)) {
         response.statusCode = 404;
         response.end();
         return true;
       }
-      response.setHeader("Content-Type", "application/gzip");
-      fs.createReadStream(file).pipe(response);
+      streamVerified(file, digest, `The published ${view} view`);
       return true;
     }
     if (url.pathname.startsWith("/basis/")) {
@@ -67,29 +96,16 @@ export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean
         response.end();
         return true;
       }
-      if (digest === undefined) {
-        response.setHeader("Content-Type", "application/gzip");
-        fs.createReadStream(file).pipe(response);
-        return true;
+      // Every basis request names the bytes its document was keyed with: a
+      // published basis by `?digest=`, a candidate by `<name>@<digest>`.
+      const expected = candidate === null ? url.searchParams.get("digest") ?? undefined : digest;
+      if (expected === undefined || !/^[0-9a-f]{12,64}$/.test(expected)) {
+        response.statusCode = 400;
+        return handled({ error: `A ${domain} basis request must name the digest its document was built for` });
       }
-      // A candidate named with a digest must still be those bytes: a worker
-      // that asks for a replaced file is refused instead of building the new
-      // bytes under the old document key. Hashing streams off the event loop.
-      void (async () => {
-        const hasher = createHash("sha256");
-        for await (const chunk of fs.createReadStream(file)) hasher.update(chunk as Buffer);
-        const actual = hasher.digest("hex");
-        if (!actual.startsWith(digest)) {
-          response.statusCode = 409;
-          json({ error: `Candidate ${name} changed: digest ${actual.slice(0, 12)}, requested ${digest}` });
-          return;
-        }
-        response.setHeader("Content-Type", "application/gzip");
-        fs.createReadStream(file).pipe(response);
-      })().catch((error: unknown) => {
-        response.statusCode = 500;
-        json({ error: "Candidate read failed: " + (error instanceof Error ? error.message : String(error)) });
-      });
+      // The file must still be those bytes: a worker that asks for a replaced
+      // file is refused instead of building the new bytes under the old key.
+      streamVerified(file, expected, candidate === null ? `The published ${domain} basis` : `Candidate ${name}`);
       return true;
     }
     if (url.pathname === "/rescan") {
