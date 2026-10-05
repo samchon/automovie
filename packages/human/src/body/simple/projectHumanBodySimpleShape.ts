@@ -25,7 +25,8 @@ const MASS_ITERATIONS = 4;
  * after the other rows on the channel (the age loss on the muscle) are
  * removed with the parameters read so far. An identity channel the basis
  * lacks reads as its neutral, and `measurements` names which tape
- * measurements to read (all by default). This is the projection the editor shows and
+ * measurements to read (all by default). A named tape the basis cannot read
+ * (a missing skin landmark or no closed section) refuses by name. This is the projection the editor shows and
  * the expansion subtracts, so a simple edit keeps whatever the detailed
  * shape carried that the simple tier does not name.
  * The physical readings share one evaluated rest skin and landmark set;
@@ -112,8 +113,14 @@ export function projectHumanBodySimpleShape(
   for (const entry of table.measurements) {
     if (!measurements.includes(entry.parameter) || !channels.has(entry.channel))
       continue;
+    // an asked tape the body cannot read is refused by name, never left out
+    // of the result as if it had been read
     const value = humanBodySimpleChannel(reader, entry.channel);
-    if (value !== null) simple[entry.parameter] = value;
+    if (value === null)
+      throw new Error(
+        `The body basis ${basis.id} cannot measure ${entry.channel} for the simple ${entry.parameter}.`,
+      );
+    simple[entry.parameter] = value;
   }
   return simple;
 }

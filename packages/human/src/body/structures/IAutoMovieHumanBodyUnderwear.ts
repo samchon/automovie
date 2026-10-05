@@ -1,13 +1,18 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyLinearRgb } from "./IAutoMovieHumanBodyLinearRgb";
+import type { IAutoMovieHumanBodyUnderwearBra } from "./IAutoMovieHumanBodyUnderwearBra";
+import type { IAutoMovieHumanBodyUnderwearBriefs } from "./IAutoMovieHumanBodyUnderwearBriefs";
+import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBodyUnderwearLandmarks";
+
 /**
  * The plain default underwear a body document may wear.
  *
  * It is not cloth: the builder cuts the posed skin's own triangles inside
  * the garment's regions and lifts them a few millimetres along the posed
  * normals, so the underwear follows every shape and pose the skin does. The
- * regions are rules on the body's landmarks, never vertex lists for one
- * person (`HUMAN_BODY_UNDERWEAR`).
+ * regions are rules on the body's joint landmarks and named skin points,
+ * never vertex lists for one person or one basis (`HUMAN_BODY_UNDERWEAR`).
  *
  * @author Samchon
  */
@@ -20,7 +25,7 @@ export interface IAutoMovieHumanBodyUnderwear {
   style: "boxer-briefs" | "bra-and-briefs";
 
   /** Optional linear RGB, each channel in [0,1]; omission is the table's colour. */
-  color?: { r: number; g: number; b: number };
+  color?: IAutoMovieHumanBodyLinearRgb;
 }
 export namespace IAutoMovieHumanBodyUnderwear {
   /**
@@ -34,7 +39,7 @@ export namespace IAutoMovieHumanBodyUnderwear {
     material: string;
 
     /** Default linear RGB of the fabric. */
-    color: { r: number; g: number; b: number };
+    color: IAutoMovieHumanBodyLinearRgb;
 
     /** Fabric roughness in [0,1]. */
     roughness: number;
@@ -58,52 +63,12 @@ export namespace IAutoMovieHumanBodyUnderwear {
     uncovered: AutoMovieHumanoidBone[];
 
     /** Landmark ids the rules are measured on. */
-    landmarks: {
-      pelvis: string;
-      lumbar: string;
-      lowerChest: string;
-      clavicle: string;
-      shoulder: string;
-      hips: { left: string; right: string };
-      knees: { left: string; right: string };
-    };
+    landmarks: IAutoMovieHumanBodyUnderwearLandmarks;
 
     /** The briefs of each style. */
-    briefs: Record<
-      IAutoMovieHumanBodyUnderwear["style"],
-      {
-        /** Waistband height, a fraction from the pelvis up to the lumbar landmark. */
-        waist: number;
-        /**
-         * Leg line at the crotch, a fraction of the thigh's hip-to-knee
-         * length below the hip joints' mean height.
-         */
-        crotch: number;
-        /** Leg line at the outer hip in front, the same fraction (negative is above the hip joints). */
-        front: number;
-        /** Leg line at the outer hip behind, the same fraction. */
-        back: number;
-        /** Half width of the gusset, where the line leaves the crotch, a fraction of the hip joints' half distance from the midline. */
-        gusset: number;
-        /** Distance from the midline where the line reaches the outer hip, the same fraction. */
-        outer: number;
-      }
-    >;
+    briefs: Record<IAutoMovieHumanBodyUnderwear["style"], IAutoMovieHumanBodyUnderwearBriefs>;
 
     /** The sports bra of `bra-and-briefs`. */
-    bra: {
-      /** The nipple, a vertex of one surface: the skin landmark the band is placed on. */
-      nipple: { surface: number; vertex: number };
-      /** Lower edge, a fraction from the nipple down to the lower-chest landmark. */
-      bottom: number;
-      /** Upper edge in front, a fraction from the nipple up to the clavicle landmark. */
-      front: number;
-      /** Upper edge at the back, the same fraction; the edge blends to it over the chest's depth. */
-      back: number;
-      /** Strap centre, a fraction from the clavicle out to the shoulder landmark. */
-      strap: number;
-      /** Strap half width, the same fraction. */
-      strapHalfWidth: number;
-    };
+    bra: IAutoMovieHumanBodyUnderwearBra;
   }
 }

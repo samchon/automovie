@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { humanBodySkinLandmark } from "../basis/humanBodySkinLandmark";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
 import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
 import { invertHumanBodyMeasurement } from "./invertHumanBodyMeasurement";
@@ -50,6 +51,10 @@ export function solveHumanBodyMeasuredChannel(input: {
     throw new Error(
       "A detailed body measurement needs a named measured channel: " + id,
     );
+  // a rule placed at a named skin point refuses by that name on a basis
+  // that does not declare it, rather than as an unmeasurable body
+  if (rule.kind !== "height" && rule.kind !== "distance" && "level" in rule)
+    humanBodySkinLandmark(basis, rule.level);
   const worn = (weight: number): Record<string, number> => {
     const trial = { ...shape };
     if (weight === 0) delete trial[id];

@@ -22,8 +22,8 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  * whose loop reaches furthest back, a girth read as a tape reads it (the
  * section's convex hull perimeter, `measureHumanBodySection`). A girth at a
  * skin landmark has one station, where the plane through that shaped vertex
- * meets the segment. A landmark the basis lacks, a skin landmark outside its
- * surface, a plane parallel to the segment, or a station set on which no
+ * meets the segment. A landmark the basis lacks, a named skin point the
+ * basis does not declare (`skinLandmarks`), a plane parallel to the segment, or a station set on which no
  * closed loop exists, answers null. This is the instrument the channel measurement report and the simple
  * tier's inversions share.
  * An optional observer receives owned copies of each answered station's
@@ -76,18 +76,16 @@ export function readHumanBodyShapedMeasurement(
     : Vector3.normalize(axis);
   let fractions: number[];
   if ("level" in rule) {
-    const positions = shaped.surfaces[rule.level.surface];
-    if (
-      positions === undefined ||
-      !Number.isInteger(rule.level.vertex) ||
-      rule.level.vertex < 0 ||
-      rule.level.vertex * 3 + 2 >= positions.length
-    )
+    const point = basis.skinLandmarks !== undefined && Object.hasOwn(basis.skinLandmarks, rule.level)
+      ? basis.skinLandmarks[rule.level]
+      : undefined;
+    const positions = point === undefined ? undefined : shaped.surfaces[point.surface];
+    if (point === undefined || positions === undefined || point.vertex * 3 + 2 >= positions.length)
       return null;
     const vertex = Vector3.create(
-      positions[rule.level.vertex * 3],
-      positions[rule.level.vertex * 3 + 1],
-      positions[rule.level.vertex * 3 + 2],
+      positions[point.vertex * 3],
+      positions[point.vertex * 3 + 1],
+      positions[point.vertex * 3 + 2],
     );
     // the one plane through the vertex meets the segment at this fraction
     const across = Vector3.dot(axis, normal);

@@ -7,6 +7,7 @@ import type { IAutoMovieHumanBodyBasisPelvifemoral } from "./rig/IAutoMovieHuman
 import type { IAutoMovieHumanBodyBasisChannel } from "./shape/IAutoMovieHumanBodyBasisChannel";
 import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHumanBodyBasisCorrective";
 import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
+import type { IAutoMovieHumanBodySkinLandmark } from "./surface/IAutoMovieHumanBodySkinLandmark";
 
 /**
  * An immutable, externally authored connected body below the neck, with the
@@ -79,6 +80,15 @@ export interface IAutoMovieHumanBodyBasis {
 
   /** Shape-dependent joint landmarks in metres. */
   landmarks: IAutoMovieHumanBodyBasisLandmarks;
+
+  /**
+   * Named points of the skin, each a vertex of one surface. Measurement
+   * rules and the underwear name a skin point (`nipple-left`,
+   * `neck-anterior-midline`) instead of a vertex number, which belongs to
+   * one basis's topology; a consumer naming a point this basis does not
+   * declare refuses by that name. Omission declares none.
+   */
+  skinLandmarks?: Record<string, IAutoMovieHumanBodySkinLandmark>;
 
   /**
    * The skeleton as data: one entry per humanoid slot the body carries, in an

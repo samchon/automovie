@@ -44,8 +44,12 @@ export type IAutoMovieHumanBodyMeasurement =
       /** Landmark ids of the segment; the loop nearest its point on the plane is kept. */
       from: string;
       to: string;
-      /** The skin landmark the one plane passes through: a vertex of one basis surface. */
-      level: { surface: number; vertex: number };
+      /**
+       * The basis skin landmark (`IAutoMovieHumanBodyBasis.skinLandmarks`) the
+       * one plane passes through, by name. A basis that does not declare it
+       * cannot answer the rule.
+       */
+      level: string;
       /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
       horizontal: boolean;
     }

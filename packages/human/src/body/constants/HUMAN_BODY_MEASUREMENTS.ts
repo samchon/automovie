@@ -38,7 +38,7 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     kind: "girth",
     from: "joint-spine-2",
     to: "joint-spine-1",
-    level: { surface: 0, vertex: 21898 },
+    level: "nipple-left",
     horizontal: true,
   },
   measureFrontchestDist: {
