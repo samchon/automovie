@@ -23,5 +23,6 @@ export function createHumanViewerHostHandle(viewer: HumanViewerHandle): HumanVie
     spans: () => viewer.spans(),
     address: () => viewer.address(),
     png: () => viewer.png(),
+    evict: () => viewer.evict(),
   };
 }

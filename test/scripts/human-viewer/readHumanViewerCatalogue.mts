@@ -61,6 +61,7 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
             read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
           },
           bases,
+          generation: "reason" in generation ? null : generation,
           sources,
           sidecar: props.sidecar ?? (() => null),
           admission: admit,

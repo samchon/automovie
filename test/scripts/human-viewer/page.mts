@@ -18,6 +18,7 @@ import * as THREE from "three";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import { HumanViewerMixedCompileError } from "./HumanViewerMixedCompileError";
 import type { HumanViewerStage } from "./HumanViewerStage";
 import type { IHumanViewerComposition } from "./IHumanViewerComposition";
 import type { IHumanViewerResident } from "./IHumanViewerResident";
@@ -26,6 +27,7 @@ import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue";
 import { admitHumanViewerDocument } from "./admitHumanViewerDocument";
 import { announceHumanViewerAddress } from "./announceHumanViewerAddress";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
+import { assertHumanViewerSingleCompile } from "./assertHumanViewerSingleCompile";
 import { buildHumanViewerBodyResident } from "./buildHumanViewerBodyResident";
 import { buildHumanViewerFaceResident } from "./buildHumanViewerFaceResident";
 import { checkHumanViewerCandidateSource } from "./checkHumanViewerCandidateSource";
@@ -36,6 +38,7 @@ import { createHumanViewerViewportHost } from "./createHumanViewerViewportHost";
 import { createHumanViewerWorkReporter } from "./createHumanViewerWorkReporter";
 import { frameHumanViewerAddress } from "./frameHumanViewerAddress";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
+import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 import { readHumanViewerPng } from "./readHumanViewerPng";
 import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
@@ -70,6 +73,8 @@ const work = createHumanViewerWorkReporter(spans, (phase) => ({
 const numerical = createHumanViewerNumericalPort({ work, spans });
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
+/** Resident key of the frame on screen, which a trim never releases. */
+let shownKey = "";
 /** The photograph layer of the frame on screen, null while none is shown. */
 let composition: IHumanViewerComposition | null = null;
 let active: HumanViewerStage;
@@ -130,6 +135,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
     residents.set(key, resident);
   }
   active = resident.stage;
+  shownKey = key;
   // A rig left from an earlier show must not enter this show's framing.
   addHumanViewerCalibration(resident.group, false);
   work("draw");
@@ -156,9 +162,17 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
   return next;
 };
 async function main(): Promise<void> {
+  // The host's hold ends when this page and its worker have loaded their
+  // modules; the build and drawing that follow no longer read source.
+  void numerical.compiles()
+    .then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
+    // A worker that failed to load fails `main` below, which posts the error.
+    .catch(() => undefined);
   await checkHumanViewerCandidateSource();
   catalogue = await (await fetch("/docs")).json();
   await apply(parseHumanViewerAddress(location.hash));
+  // Publish only a generation whose page and worker ran one compile.
+  assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.compiles());
   await checkHumanViewerCandidateSource();
   addEventListener("hashchange", () => {
     void apply(parseHumanViewerAddress(location.hash));
@@ -174,6 +188,7 @@ async function main(): Promise<void> {
       spans: () => spans.snapshot(),
       address: () => current,
       png: () => readHumanViewerPng({ stage: active, renderer, canvas, composition, photo: reference }),
+      evict: () => residents.evictOldest(shownKey),
     },
   });
   parent.postMessage({ type: "human:ready" }, location.origin);
@@ -186,8 +201,9 @@ async function main(): Promise<void> {
 if (import.meta.hot) import.meta.hot.accept();
 void main().catch((error: unknown) => {
   status.textContent = error instanceof Error ? error.message : String(error);
+  // A candidate that mixed compiles is started again by the host at once.
   parent.postMessage(
-    { type: "human:error", error: status.textContent },
+    { type: "human:error", error: status.textContent, restart: error instanceof HumanViewerMixedCompileError },
     location.origin,
   );
 });

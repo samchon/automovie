@@ -10,6 +10,6 @@ export interface IHumanViewerSourceRevisions {
   /** Whether a file is reached by any domain's import graph. */
   reaches: (file: string) => boolean;
 
-  /** Record changed files and name the revision domains they moved. */
-  changed: (files: string[]) => IHumanViewerMovedDomains;
+  /** Record changed files and name the revision domains they moved, computed off the request thread. */
+  changed: (files: string[]) => Promise<IHumanViewerMovedDomains>;
 }

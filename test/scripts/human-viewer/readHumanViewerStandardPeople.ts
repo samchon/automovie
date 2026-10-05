@@ -1,7 +1,7 @@
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IReadHumanViewerStandardPeopleProps } from "./IReadHumanViewerStandardPeopleProps";
-import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
+import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
 
 /**
@@ -41,7 +41,7 @@ export function readHumanViewerStandardPeople(props: IReadHumanViewerStandardPeo
     id: document.id,
     domain: "person" as const,
     document,
-    basis: `${humanViewerBasisTokens.publishedGeneration}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
+    basis: humanViewerPublishedGenerationBasis(generation),
     key: humanViewerPersonKey({ document,
       bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
       sources: props.sources }),

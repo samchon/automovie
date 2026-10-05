@@ -32,14 +32,14 @@ export async function runHumanViewerCompile(props: IRunHumanViewerCompileProps):
     child.once("exit", (code) =>
       code === 0 ? resolve(undefined) : reject(new Error(`The human compile exited with ${code}`)));
   });
-  const result = JSON.parse(fs.readFileSync(output, "utf8")) as IHumanViewerCompileOutput;
+  const read = performance.now();
+  const result = JSON.parse(await fs.promises.readFile(output, "utf8")) as IHumanViewerCompileOutput;
+  const parseMs = performance.now() - read;
   fs.rmSync(output, { force: true });
   if (result.files === undefined) {
     console.log(`COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`);
     throw new Error(result.error ?? "The human compile failed");
   }
-  console.log(`COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files`);
-  const files = Object.fromEntries(Object.entries(result.files).map(([file, source]) =>
-    [path.resolve(props.human, file).replaceAll("\\", "/"), source]));
-  return { files, graph: result.graph };
+  console.log(`COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files (output read ${Math.round(parseMs)} ms)`);
+  return { files: result.files, watch: result.watch ?? [], inputs: result.inputs ?? [] };
 }

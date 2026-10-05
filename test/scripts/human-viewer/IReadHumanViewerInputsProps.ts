@@ -2,6 +2,7 @@ import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
 import type { IHumanViewerInputsIo } from "./IHumanViewerInputsIo";
+import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 
 /**
@@ -18,6 +19,9 @@ export interface IReadHumanViewerInputsProps {
 
   /** Published face and body basis identities. */
   bases: Record<"face" | "body", IHumanViewerBasisIdentity>;
+
+  /** The published one-skin person generation, or null while it is not valid. */
+  generation: IHumanViewerPublishedGeneration | null;
 
   /** Digest of the source each domain's build reads. */
   sources: Record<"face" | "body" | "person", string>;

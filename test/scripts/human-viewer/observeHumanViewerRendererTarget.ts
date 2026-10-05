@@ -39,32 +39,38 @@ export async function observeHumanViewerRendererTarget(
   const session = await options.page.context().newCDPSession(options.page as Page);
   const info = await session.send("Target.getTargetInfo");
   const targetId = info.targetInfo.targetId;
+  /** Whether the page's renderer was reported gone; its session then never answers a detach. */
+  let gone = false;
+  const failed = (cause: string, physicalSettled: boolean): void => {
+    gone = true;
+    options.failed(cause, physicalSettled);
+  };
   // Another detach reason only takes this observer's session away; the page
   // and Playwright's own session may still be serving, so it is not a failure.
   const inspectorDetached = (event: IHumanViewerInspectorDetached): void => {
     if (event.reason === RENDER_PROCESS_GONE)
-      options.failed("Resident GPU renderer exited (" + event.reason + ")", true);
+      failed("Resident GPU renderer exited (" + event.reason + ")", true);
   };
-  const inspectorCrashed = (): void => options.failed("Resident GPU renderer crashed", true);
+  const inspectorCrashed = (): void => failed("Resident GPU renderer crashed", true);
   session.on("Inspector.detached", inspectorDetached);
   session.on("Inspector.targetCrashed", inspectorCrashed);
   await session.send("Inspector.enable");
   const root = await options.browser.newBrowserCDPSession();
   const crashed = (event: IHumanViewerTargetEvent): void => {
     if (event.targetId === targetId)
-      options.failed("Resident GPU renderer crashed", true);
+      failed("Resident GPU renderer crashed", true);
   };
   const destroyed = (event: IHumanViewerTargetEvent): void => {
     if (event.targetId === targetId)
-      options.failed("Resident GPU renderer destroyed", true);
+      failed("Resident GPU renderer destroyed", true);
   };
-  const pageCrash = (): void => options.failed("Resident GPU page crashed", true);
-  const pageClose = (): void => options.failed("Resident GPU page closed", true);
+  const pageCrash = (): void => failed("Resident GPU page crashed", true);
+  const pageClose = (): void => failed("Resident GPU page closed", true);
   // A launched browser whose connection closed can never answer this page
   // again, and the failure is permanent, so no later capture can share the
   // page with work the lost renderer might still be finishing: releasing the
   // dispatched capture is safe, and holding it would block the queue forever.
-  const disconnected = (): void => options.failed("Resident GPU browser disconnected", true);
+  const disconnected = (): void => failed("Resident GPU browser disconnected", true);
   const remove = (): void => {
     session.off("Inspector.detached", inspectorDetached);
     session.off("Inspector.targetCrashed", inspectorCrashed);
@@ -89,9 +95,11 @@ export async function observeHumanViewerRendererTarget(
   }
   return async () => {
     remove();
-    if (options.browser.isConnected()) {
-      await root.detach();
-      await session.detach().catch(() => undefined);
-    }
+    if (!options.browser.isConnected()) return;
+    await root.detach();
+    // A session whose renderer is gone never answers `detach` (measured: still
+    // pending after 20 s, while the browser session detached in 1 ms), so it
+    // is left to close with its page.
+    if (!gone) await session.detach().catch(() => undefined);
   };
 }

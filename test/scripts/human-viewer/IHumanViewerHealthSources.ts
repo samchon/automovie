@@ -2,6 +2,7 @@ import type { HumanViewerWork } from "./HumanViewerWork";
 import type { IHumanViewerAdmissionStatus } from "./IHumanViewerAdmissionStatus";
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
+import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrimReading";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
 import type { createHumanViewerCapture } from "./createHumanViewerCapture";
@@ -68,4 +69,13 @@ export interface IHumanViewerHealthSources {
 
   /** Admissions in flight and documents waiting for a viewer frame. */
   admission: () => IHumanViewerAdmissionStatus;
+
+  /** Pages opened again after their renderer exited, since the server started. */
+  relaunches: () => number;
+
+  /** The last resident trim decision. */
+  trim: () => IHumanViewerResidentTrimReading | null;
+
+  /** Candidate loading windows open now, each holding compile withdrawal. */
+  holding: () => number;
 }

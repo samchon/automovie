@@ -27,13 +27,16 @@ import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
 import type { IHumanViewerPageState } from "./IHumanViewerPageState";
+import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
 import { assembleHumanViewerHealth } from "./assembleHumanViewerHealth";
 import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
 import { createHumanViewerCapture } from "./createHumanViewerCapture";
 import { createHumanViewerCaptureLifetime } from "./createHumanViewerCaptureLifetime";
 import { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge";
+import { createHumanViewerGenerationWindows } from "./createHumanViewerGenerationWindows";
 import { createHumanViewerQueue } from "./createHumanViewerQueue";
+import { createHumanViewerResidentTrim } from "./createHumanViewerResidentTrim";
 import { createHumanViewerStartupPhase } from "./createHumanViewerStartupPhase";
 import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailStore";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
@@ -45,9 +48,12 @@ import { launchHumanViewerPage } from "./launchHumanViewerPage";
 import { observeHumanViewerRendererTarget } from "./observeHumanViewerRendererTarget";
 import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationStatus";
 import { readHumanViewerWork } from "./readHumanViewerWork";
+import { readHumanViewerWorkerHeaps } from "./readHumanViewerWorkerHeaps";
 import { routeHumanViewerConsole } from "./routeHumanViewerConsole";
 import { serveHumanViewerCapture } from "./serveHumanViewerCapture.mjs";
 import { serveHumanViewerData } from "./serveHumanViewerData.mjs";
+import { serveHumanViewerGeneration } from "./serveHumanViewerGeneration";
+import { humanViewerCompileGate } from "./vite.config.mjs";
 import { serveHumanViewerHeap } from "./serveHumanViewerHeap";
 import { settleHumanViewerInputs } from "./settleHumanViewerInputs";
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
@@ -73,24 +79,30 @@ const admission = createHumanViewerAdmission({
       ? { state: "starting", reason: pageWait ?? startup.phase }
       : { state: "ready", reason: null },
   // Through the capture lifetime, so a renderer failure refuses the request
-  // instead of leaving the rescan waiting on a page that cannot answer.
-  admit: (domain, text) => lifetime.run(() => page.evaluate((input) => {
-    const bridge = (window as unknown as IHumanViewerAdmissionWindow).__humanViewerAdmission;
-    return bridge === undefined ? { available: false, reason: null } : bridge.admit(input.domain, input.text);
-  }, { domain, text })),
+  // instead of leaving the rescan waiting on a page that cannot answer. A
+  // verdict counts only from a frame whose code is the current revision: a
+  // frame on a held or older compile judges with other code than the key names.
+  admit: async (domain, text) => {
+    const reply = await lifetime.run(() => page.evaluate((input) => {
+      const bridge = (window as unknown as IHumanViewerAdmissionWindow).__humanViewerAdmission;
+      return bridge === undefined ? { available: false, reason: null, token: null } : bridge.admit(input.domain, input.text);
+    }, { domain, text }));
+    if (!reply.available) return reply;
+    return (await windows.label(reply.token)) === inventory.revision ? reply : { available: false, reason: null, token: null };
+  },
   changed: () => { inventory = catalogue(); },
 });
 source.admitWith(admission.of);
-/**
- * Ask waiting admissions again, then publish the catalogue once every read and
- * admission it starts has finished. Only an explicit settle request calls it.
- */
 /** Ask the waiting admissions again on a trigger event, logging how many waited. */
 const retryAdmissions = (trigger: string): void => {
   const released = admission.retry();
   if (released !== 0) console.log(`ADMISSION RETRY ${new Date().toISOString()} ${released} waiting; ${trigger}`);
   inventory = catalogue();
 };
+/**
+ * Ask waiting admissions again, then publish the catalogue once every read and
+ * admission it starts has finished. Only an explicit settle request calls it.
+ */
 const settleInputs = () => {
   admission.retry();
   return settleHumanViewerInputs(() => (inventory = catalogue()), [source.sidecars, source.views, admission]);
@@ -98,7 +110,14 @@ const settleInputs = () => {
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
+/**
+ * The revision the ready generation's code is: its window's proven label, or
+ * `unproven <page revision>` when the code could not be proven to be any
+ * revision, which never equals a current revision, so its frames are stale.
+ */
 let readyRevision = "";
+/** The catalogue revision the ready page reports, for the capture identity check. */
+let pageRevision = "";
 /** Why the page failed for good, or null while it can still draw. */
 let pageFailure: string | null = null;
 /** What a reloaded page waits for, or null when it never reloaded since its last generation. */
@@ -132,19 +151,175 @@ const warming: IHumanViewerWarming = { revision: "", total: 0, done: 0, skipped:
 /** What the compile process last reported, read from the file it writes. */
 const sourceStatus = () => readHumanViewerCompilationStatus(() =>
   fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"));
+/**
+ * The renderer's JS heap limit, page and worker isolates together. They share
+ * one 4 GiB pointer cage; the page died at 1766 MB page plus 1840–1881 MB
+ * worker (about 3.6 GB). Measured on pid 35436: the worker holds 440 MB with
+ * the face runtime, 810 MB with face and body, about 1.5–1.6 GB with all three
+ * domains; a person build adds about 140 MB to it and a person resident
+ * 25–27 MB to the page. 2.8 GB keeps 0.8 GB below the observed failure for a
+ * build's transient copies, and still leaves the page about 1.2 GB (some
+ * forty-five people) beside a fully loaded worker.
+ */
+const RENDERER_HEAP_LIMIT = 2.8e9;
+const residentTrim = createHumanViewerResidentTrim({
+  limit: RENDERER_HEAP_LIMIT,
+  // 300 MB below the limit, about twelve people: a trim then pays for its
+  // collection once instead of on every following capture.
+  target: RENDERER_HEAP_LIMIT - 3e8,
+  page: (collect) => collect ? readLiveHeap() : readHeap(),
+  workers: (collect) => resident === null ? Promise.resolve([]) : readHumanViewerWorkerHeaps(resident.browser, collect),
+  evict: () => page.evaluate(() => (window as unknown as IHumanViewerWindow).__humanViewer.evict()),
+});
 const capturer = createHumanViewerCapture({ page: () => page, renderer: () => renderer,
   startup: () => (pageWait ?? startup.phase + " since " + startup.since) +
     (errors.length === 0 ? "" : "; last error: " + errors[errors.length - 1]),
-  readyRevision: () => readyRevision, inventory: () => inventory, lifetime });
-/** Wait until the page has a ready generation again, at most thirty seconds. */
+  readyRevision: () => readyRevision, pageRevision: () => pageRevision, inventory: () => inventory, lifetime,
+  trim: residentTrim.trim });
+/** Candidate loading windows: they hold compile withdrawal and label each candidate's code. */
+const windows = createHumanViewerGenerationWindows({ gate: humanViewerCompileGate,
+  revision: () => inventory.revision, updating: () => sourceUpdating });
+/**
+ * Wait, at most thirty seconds, until the source settles: a generation of the
+ * current revision is ready, or the current revision's candidate failed and
+ * the last good generation is what can draw.
+ */
 const settleGeneration = (): Promise<void> => waitForHumanViewerGeneration(
-  () => readyRevision !== "" && !sourceUpdating,
+  () => readyRevision !== "" && !sourceUpdating &&
+    (readyRevision === inventory.revision || errors.length !== 0),
   (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }));
 const thumbnails = createHumanViewerThumbnailStore(createNodeHumanViewerThumbnailDisk(fs, path.join),
   path.join(storage, instance.thumbnails), path.join);
 const pruneThumbnails = (): void => thumbnails.prune(inventory.revision);
 const thumbnailFile = (search: string): string | null =>
   humanViewerThumbnailFile(search, path.join(storage, instance.thumbnails), inventory);
+/** The open page, its browser and heap readers; null before the first one opens. */
+let resident: IHumanViewerResidentPage | null = null;
+/** Detach the current page's renderer observer. */
+let stopRenderer = async (): Promise<void> => {};
+/** Pages opened again after their renderer exited, for /health. */
+let relaunches = 0;
+/** The failed page being replaced, so repeated reports of one exit recover once. */
+let recovering: IHumanViewerResidentPage | null = null;
+
+/**
+ * Open the resident page (reusing a connected browser) and wait for its first
+ * source generation. The first opening reports startup phases; a replacement
+ * reports through `pageWait`. Every page gets the same observers, so a
+ * replacement fails, reloads and reports exactly as the first one did.
+ */
+async function openResidentPage(first: boolean): Promise<void> {
+  const opened = await launchHumanViewerPage(resident?.browser);
+  resident = opened;
+  page = opened.page;
+  readHeap = opened.readHeap;
+  readLiveHeap = opened.readLiveHeap;
+  stopRenderer = await observeHumanViewerRendererTarget({ browser: opened.browser, page: opened.page,
+    failed: (cause, physicalSettled) => recoverResidentPage(opened, cause, physicalSettled) });
+  // A Vite full reload replaces the host page and its committed generation:
+  // until a new generation is ready nothing can draw, which captures and
+  // admissions report instead of waiting on a page that lost its handle.
+  watchHumanViewerMainFrame(opened.page, () => {
+    if (readyRevision === "") return;
+    readyRevision = "";
+    // The reloaded page's candidates opened their holds over requests the
+    // reload ended; the windows close with them, never proven.
+    pageWait = `the page reloaded at ${new Date().toISOString()}; waiting for a source generation`;
+    console.log("PAGE RELOADED " + pageWait);
+    inventory = catalogue();
+  });
+  opened.page.on("pageerror", (error) => {
+    errors.push(error.message);
+    console.error(error.message);
+  });
+  opened.page.on("console", (message) => routeHumanViewerConsole(message.text(), {
+    work: (text) => {
+      work = readHumanViewerWork(text);
+      if (work !== null) heap.sample(work);
+    },
+    error: (cause) => { errors = [cause]; },
+    ready: (line) => {
+      const [revision, label] = line.split(" ");
+      errors = [];
+      pageRevision = revision;
+      readyRevision = label === undefined || label === "-" ? "unproven " + revision : label;
+      pageWait = null;
+      console.log(`GENERATION READY ${new Date().toISOString()} ${readyRevision.slice(0, 21)}` +
+        (readyRevision === inventory.revision ? " (current)" : " (stale)"));
+      // Only code proven to be the current revision warms thumbnails.
+      if (readyRevision === inventory.revision) warmReadiness.source(readyRevision);
+      // A ready generation can admit the inputs still pending.
+      retryAdmissions("generation " + revision.slice(0, 12) + " ready");
+    },
+    admission: () => retryAdmissions("a viewer frame loaded"),
+    restart: (reason) => console.log(`CANDIDATE RESTART ${new Date().toISOString()} ${reason}`),
+  }));
+  if (first) phase("loading the page");
+  await opened.page.goto(instance.origin + "/view?resident=1#ao=off", {
+    timeout: 600000,
+    waitUntil: "domcontentloaded",
+  });
+  // The first generation needs the whole human package compiled and the
+  // standard document drawn; while source edits keep invalidating compiles
+  // it cannot finish, and a failed candidate waits for the next edit. Both
+  // states are reported (phase, compiles in server.log, errors in /health),
+  // so the wait is observable rather than bounded by an arbitrary deadline.
+  if (first) phase("waiting for the first source generation");
+  await opened.page.waitForFunction(
+    () =>
+      Boolean((window as unknown as Partial<IHumanViewerWindow>).__humanViewer),
+    undefined,
+    { timeout: 0 },
+  );
+  renderer = await opened.page.evaluate(() =>
+    (
+      window as unknown as IHumanViewerWindow
+    ).__humanViewer.renderer(),
+  );
+  console.log("RENDERER", renderer);
+}
+
+/**
+ * The page's renderer exited (a V8 out-of-memory error, a GPU process loss or
+ * a kill). Captures and admissions are refused as starting while the page is
+ * replaced in this process: the failed page is closed, which releases every
+ * capture it held, the capture lifetime is renewed and a new page opens on
+ * the same browser. Only a replacement that cannot open makes the failure
+ * permanent, with that cause. A report about a page already replaced is
+ * ignored.
+ */
+function recoverResidentPage(failed: IHumanViewerResidentPage, cause: string, physicalSettled: boolean): void {
+  // One exit raises several reports (crash, detach, destroy): the first one
+  // recovers, the rest are ignored.
+  if (failed !== resident || recovering === failed) return;
+  recovering = failed;
+  errors = [cause];
+  readyRevision = "";
+  pageWait = `the renderer exited at ${new Date().toISOString()} (${cause}); the page is being opened again`;
+  console.error(`PAGE FAILED ${new Date().toISOString()} ${cause}` +
+    (physicalSettled ? "" : " (renderer may still be running)") + "; opening the page again");
+  lifetime.fail(new Error(cause), physicalSettled);
+  inventory = catalogue();
+  const stopFailed = stopRenderer;
+  void (async () => {
+    // The dead page's observer and page are cleaned up beside the recovery,
+    // never before it: detaching from a crashed target was seen to never
+    // settle, which left the server refusing every capture for good.
+    void Promise.allSettled([stopFailed(), failed.page.close()]);
+    // The dead renderer cannot finish any capture: release them all.
+    lifetime.fail(new Error(cause), true);
+    lifetime.renew();
+    ++relaunches;
+    await openResidentPage(false);
+    console.log(`PAGE RELAUNCHED ${new Date().toISOString()} (${relaunches} since start)`);
+  })().catch((error: unknown) => {
+    pageFailure = "the page could not be opened again after its renderer exited: " +
+      (error instanceof Error ? error.message : String(error));
+    console.error(`PAGE FAILED ${new Date().toISOString()} ${pageFailure}`);
+    inventory = catalogue();
+  });
+}
+
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
   const middleware = (
@@ -162,12 +337,16 @@ async function main(): Promise<void> {
         renderer: () => renderer, readyRevision: () => readyRevision, sourceStatus,
         errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap,
         revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
-        capture: capturer, warming, startup, admission: admission.status }));
+        capture: capturer, warming, startup, admission: admission.status, relaunches: () => relaunches,
+        trim: residentTrim.status, holding: windows.holding }));
+    if (serveHumanViewerGeneration({ url, response, json, windows })) return;
     if (url.pathname === "/heap")
       return serveHumanViewerHeap({ response, json, readLiveHeap: () => readLiveHeap(),
+        readWorkerHeaps: () => resident === null ? Promise.resolve([]) : readHumanViewerWorkerHeaps(resident.browser, true),
         work: () => work, readyRevision: () => readyRevision });
     if (serveHumanViewerData({ url, request, response, root, storage,
       basisFiles, generationFiles: source.generationFiles, inputsDirectory, inventory, json, settleInputs,
+      currentCode: windows.current,
       publish: (nextInventory) => { inventory = nextInventory; },
     })) return;
     if (serveHumanViewerCapture({ url, request, response, json, root, queue,
@@ -201,79 +380,10 @@ async function main(): Promise<void> {
     browser: () => vite.ws.send({ type: "custom", event: "human:revision",
       data: { revision: inventory.revision } }),
     error: (error) => errors.push(error instanceof Error ? error.message : String(error)),
+    reached: () => windows.edited(),
   });
   phase("launching the browser");
-  const resident = await launchHumanViewerPage();
-  const browser = resident.browser;
-  page = resident.page;
-  readHeap = resident.readHeap;
-  readLiveHeap = resident.readLiveHeap;
-  const stopRenderer = await observeHumanViewerRendererTarget({ browser, page,
-    failed: (cause, physicalSettled) => {
-      errors = [cause];
-      readyRevision = "";
-      pageFailure = cause;
-      // The failure is permanent for this server; it is logged so server.log
-      // records why every later capture and admission is refused.
-      console.error(`PAGE FAILED ${new Date().toISOString()} ${cause}` +
-        (physicalSettled ? "" : " (renderer may still be running)"));
-      lifetime.fail(new Error(cause), physicalSettled);
-      // Inputs awaiting admission are now refused by name; publish that.
-      inventory = catalogue();
-    } });
-  // A Vite full reload replaces the host page and its committed generation:
-  // until a new generation is ready nothing can draw, which captures and
-  // admissions now report instead of waiting on a page that lost its handle.
-  watchHumanViewerMainFrame(page, () => {
-    if (readyRevision === "") return;
-    readyRevision = "";
-    pageWait = `the page reloaded at ${new Date().toISOString()}; waiting for a source generation`;
-    console.log("PAGE RELOADED " + pageWait);
-    inventory = catalogue();
-  });
-  page.on("pageerror", (error) => {
-    errors.push(error.message);
-    console.error(error.message);
-  });
-  page.on("console", (message) => routeHumanViewerConsole(message.text(), {
-    work: (text) => {
-      work = readHumanViewerWork(text);
-      if (work !== null) heap.sample(work);
-    },
-    error: (cause) => { errors = [cause]; },
-    ready: (revision) => {
-      errors = [];
-      readyRevision = revision;
-      pageWait = null;
-      warmReadiness.source(readyRevision);
-      // A ready generation can admit the inputs still pending.
-      retryAdmissions("generation " + revision.slice(0, 12) + " ready");
-    },
-    admission: () => retryAdmissions("a viewer frame loaded"),
-  }));
-  phase("loading the page");
-  await page.goto(instance.origin + "/view?resident=1#ao=off", {
-    timeout: 600000,
-    waitUntil: "domcontentloaded",
-  });
-  // The first generation needs the whole human package compiled and the
-  // standard document drawn; while source edits keep invalidating compiles
-  // it cannot finish, and a failed candidate waits for the next edit. Both
-  // states are reported (phase, compiles in server.log, errors in /health),
-  // so the wait is observable rather than bounded by an arbitrary deadline.
-  phase("waiting for the first source generation");
-  await page.waitForFunction(
-    () =>
-      Boolean((window as unknown as Partial<IHumanViewerWindow>).__humanViewer),
-    undefined,
-    { timeout: 0 },
-  );
-  renderer = await page.evaluate(() =>
-    (
-      window as unknown as IHumanViewerWindow
-    ).__humanViewer.renderer(),
-  );
-  console.log("RENDERER", renderer);
+  await openResidentPage(true);
   phase("ready");
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("Software renderer refused");
@@ -281,7 +391,7 @@ async function main(): Promise<void> {
   warmReadiness.hardware();
   const close = async (): Promise<void> => {
     stopSources();
-    await browser.close();
+    await resident?.browser.close();
     await stopRenderer();
     await vite.close();
     fs.rmSync(path.join(storage, instance.record), { force: true });

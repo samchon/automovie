@@ -84,6 +84,16 @@ export function serveHumanViewerCapture(props: IServeHumanViewerCaptureProps): b
     task: (request) => retryAcrossHumanViewerGeneration(async () => {
       const requestCapture = (address: HumanViewerAddress) => request.run(() => props.capture.capture(address));
       const queued = performance.now() - received;
+      // A request that meets a rebuild waits for the settled generation
+      // instead of drawing on the one being replaced. With no generation
+      // ready at all (starting, reloading, relaunching) it is refused as
+      // starting at once instead.
+      const serving = props.readyRevision();
+      if (serving !== "" && serving !== props.inventory().revision) {
+        const began = performance.now();
+        await request.run(() => props.settle());
+        settledMs += performance.now() - began;
+      }
       const current = props.inventory();
       const fields = new URLSearchParams(url.search);
       fields.delete("lane");

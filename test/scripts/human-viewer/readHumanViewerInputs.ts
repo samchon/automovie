@@ -10,6 +10,7 @@ import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
 import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
 
@@ -39,7 +40,9 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
  * `id` and carries whole `face` and `body` bases; the document's face basis must be the
  * packet's face `id` and its body basis the packet's body `id`, the entry's
  * `basis` is `<name>@<digest12>` like a face or body candidate, and the key
- * hashes the packet's digest in place of both published bases.
+ * hashes the packet's digest in place of both published bases. A Person
+ * that names the published one-skin generation's view bases (both of them)
+ * is drawn on that generation, with the standard people's token and key.
  */
 export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHumanViewerInputs {
   const hash = (bytes: string | Uint8Array): string =>
@@ -106,8 +109,22 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
             });
             continue;
           }
+          const generation = props.generation;
+          if (generation !== null && person.face === generation.face && person.body === generation.body) {
+            accept({
+              id: many ? `file:${name}/${named.id}` : `file:${name}`,
+              domain: "person",
+              document,
+              basis: humanViewerPublishedGenerationBasis(generation),
+              key: humanViewerPersonKey({ document,
+                bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
+                sources: props.sources }),
+            });
+            continue;
+          }
           if (person.face !== props.bases.face.id)
-            throw new Error(`The person names face basis ${person.face} but is built on ${props.bases.face.id}`);
+            throw new Error(`The person names face basis ${person.face} but is built on ${props.bases.face.id}` +
+              (generation === null ? "" : ` (or, on the published person generation, ${generation.face} with body ${generation.body})`));
           if (person.body !== props.bases.body.id)
             throw new Error(`The person names body basis ${person.body} but is built on ${props.bases.body.id}`);
           accept({

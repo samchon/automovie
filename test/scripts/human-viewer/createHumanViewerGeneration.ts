@@ -25,6 +25,7 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
     spans: () => viewer.spans(),
     address: () => viewer.address(),
     png: () => viewer.png(),
+    evict: () => viewer.evict(),
     show: (address) => {
       if (retired) return Promise.reject(failure());
       return new Promise<undefined>((resolve, reject) => {

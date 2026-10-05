@@ -22,6 +22,25 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
     ...Object.values(source.basisFiles), source.documentsFile]);
   const changes = new Set<string>();
   let cancel: (() => void) | undefined;
+  /** Batches whose digests are being computed. */
+  let applying = 0;
+  /**
+   * Publish one batch once its digests are computed off the request thread.
+   * Still updating while another batch waits or computes.
+   */
+  const apply = async (files: string[]): Promise<void> => {
+    try {
+      source.refreshBases();
+      const { moved } = await source.revisions.changed(files.map(source.slash));
+      if (moved.length !== 0) props.publish(files, moved);
+      if (moved.includes("browser")) props.browser();
+    } catch (error) {
+      props.error(error);
+    } finally {
+      --applying;
+      if (applying === 0 && cancel === undefined && changes.size === 0) props.updating(false);
+    }
+  };
   const schedule = props.schedule ?? ((run: () => void) => {
     const timer = setTimeout(run, 100);
     return () => clearTimeout(timer);
@@ -39,22 +58,16 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
     }
     const basis = Object.values(source.basisFiles).includes(file) || file === source.documentsFile;
     if (!basis && !source.revisions.reaches(source.slash(file))) return;
+    props.reached?.();
     props.updating(true);
     changes.add(file);
     cancel?.();
     cancel = schedule(() => {
-      try {
-        source.refreshBases();
-        const files = [...changes];
-        changes.clear();
-        const { moved } = source.revisions.changed(files.map(source.slash));
-        if (moved.length !== 0) props.publish(files, moved);
-        props.updating(false);
-        if (moved.includes("browser")) props.browser();
-      } catch (error) {
-        props.updating(false);
-        props.error(error);
-      }
+      cancel = undefined;
+      const files = [...changes];
+      changes.clear();
+      ++applying;
+      void apply(files);
     });
   });
   return () => cancel?.();

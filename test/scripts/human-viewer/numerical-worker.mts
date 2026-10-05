@@ -21,12 +21,18 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import { humanViewerBasisUrl } from "./humanViewerBasisUrl";
 import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime";
 import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
+import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
+// announce the compile generations this worker's human modules ran, so the page can refuse a mixed-compile candidate
+scope.postMessage({ type: "compiles", compiles: readHumanViewerCompiles() });
 const face = new Map<string, Promise<ReturnType<typeof createConnectedFaceRuntime>>>();
 const body = new Map<string, Promise<ReturnType<typeof createConnectedBodyRuntime>>>();
 const person = new Map<string, Promise<ReturnType<typeof createConnectedPersonRuntime>>>();
 const tokens = humanViewerBasisTokens;
+// identities whose resident runtime has produced at least one model; a runtime that has not is released on failure
+const productive = new Set<string>();
+const residents = { person, face, body } as const;
 scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
   const { id, domain, basis, input } = event.data;
   const identity = domain + ":" + basis;
@@ -65,6 +71,7 @@ scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
       operation: "preview",
       measure: false,
     });
+    productive.add(identity);
     scope.postMessage({
       id,
       success: true,
@@ -72,6 +79,8 @@ scope.onmessage = async (event: MessageEvent<IHumanViewerNumericalRequest>) => {
       buildMs: performance.now() - start,
     });
   } catch (error) {
+    // a runtime that has never built a model cannot be reused, so its memory is released
+    if (!productive.has(identity)) residents[domain].delete(identity);
     scope.postMessage({
       id,
       success: false,

@@ -66,6 +66,15 @@ export function createHumanViewerCache<Value>(
       sizes.clear();
       total = 0;
     },
+    /** Release the least recently used entry other than `keep`; false when no other entry is left. */
+    evictOldest: (keep: string): boolean => {
+      for (const oldest of entries.keys()) {
+        if (oldest === keep) continue;
+        remove(oldest);
+        return true;
+      }
+      return false;
+    },
     keys: (): string[] => [...entries.keys()],
     /** Sum of the stored entries' sizes. */
     total: (): number => total,

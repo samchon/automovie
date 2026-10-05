@@ -32,6 +32,9 @@ export interface ISubscribeHumanViewerSourcesProps {
   /** Reports a failure while processing edits. */
   error: (error: unknown) => void;
 
+  /** Told, at once, of every edit to a file some build reads or a published basis. */
+  reached?: () => void;
+
   /** Schedules the batch; defaults to a 100 ms timer. */
   schedule?: (run: () => void) => () => void;
 }

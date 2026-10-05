@@ -7,6 +7,7 @@ import type { ICreateHumanViewerNumericalPortProps } from "./ICreateHumanViewerN
 import type { IHumanViewerPendingBuild } from "./IHumanViewerPendingBuild";
 import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
 import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks";
+import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 
 type Result = ConnectedFaceResult | ConnectedBodyResult;
 
@@ -32,7 +33,20 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
   let sequence = 0;
   let builds = 0;
   let buildMs = 0;
+  /** The compiles the worker ran, announced once its modules have loaded. */
+  let announceCompiles: (compiles: string[]) => void = () => {};
+  let rejectCompiles: (error: Error) => void = () => {};
+  const workerCompiles = new Promise<string[]>((resolve, reject) => {
+    announceCompiles = resolve;
+    rejectCompiles = reject;
+  });
+  // Observed so an early worker failure is not an unhandled rejection.
+  workerCompiles.catch(() => undefined);
   worker.onmessage = ({ data }) => {
+    if (data.type === "compiles") {
+      announceCompiles(data.compiles);
+      return;
+    }
     const request = pending.get(data.id);
     pending.delete(data.id);
     if (request === undefined) return;
@@ -44,6 +58,7 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
     } else request.reject(new Error(data.error));
   };
   worker.onerror = (error) => {
+    rejectCompiles(new Error("The numerical worker failed to load: " + error.message));
     for (const request of pending.values()) request.reject(new Error(error.message));
     pending.clear();
     work("failed");
@@ -78,7 +93,8 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
               work("cache-write");
               await spans.measure("cacheWriteMs", () => fetch(`/cache/${key}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",
+                  "X-Human-Generation": readHumanViewerFrameToken(location.search) ?? "" },
                 body: new Blob([...encodeHumanViewerPreviewChunks(value)], { type: "application/json" }),
               }));
             }
@@ -102,5 +118,8 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
 
     /** Duration of the most recent worker build, in milliseconds. */
     buildMs: (): number => buildMs,
+
+    /** The compile generations whose human modules the worker ran, once it announced them. */
+    compiles: (): Promise<string[]> => workerCompiles,
   };
 }

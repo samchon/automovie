@@ -1,5 +1,6 @@
 import type { IHumanViewerAdmissionBridge } from "./IHumanViewerAdmissionBridge";
 import type { IHumanViewerAdmissionWindow } from "./IHumanViewerAdmissionWindow";
+import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 
 /**
  * The host page's admission bridge over its viewer frames. The frames are
@@ -21,9 +22,11 @@ export function createHumanViewerHostAdmission(
       for (const frame of frames()) {
         const admit = (frame?.contentWindow as (Window & IHumanViewerAdmissionWindow) | null | undefined)
           ?.__humanViewerAdmit;
-        if (admit !== undefined) return { available: true, reason: admit(domain, text) };
+        if (admit !== undefined)
+          return { available: true, reason: admit(domain, text),
+            token: readHumanViewerFrameToken(frame!.contentWindow!.location.search) };
       }
-      return { available: false, reason: null };
+      return { available: false, reason: null, token: null };
     },
   };
 }

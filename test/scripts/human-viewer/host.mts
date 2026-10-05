@@ -16,6 +16,8 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
 import { createHumanViewerHostAdmission } from "./createHumanViewerHostAdmission";
 import { createHumanViewerHostHandle } from "./createHumanViewerHostHandle";
+import type { IHumanViewerCandidateHold } from "./IHumanViewerCandidateHold";
+import { openHumanViewerCandidateHold } from "./openHumanViewerCandidateHold";
 import { createHumanViewerHostProgress } from "./createHumanViewerHostProgress";
 import { loadHumanViewerReferenceInfo } from "./loadHumanViewerReferenceInfo";
 
@@ -103,11 +105,30 @@ function prepare(): void {
     showError(String(failure));
     return;
   }
-  frame.src = "/scene.html?generation=" + ticket + "#" + address;
   begin("the page");
   candidate = frame;
-  stage.append(frame);
+  // The page is opened only once its hold is open, so compile withdrawal is
+  // held for every module it and its worker request.
+  void openHumanViewerCandidateHold().then((hold) => {
+    if (candidate !== frame) {
+      void hold.release();
+      return;
+    }
+    holds.set(frame, hold);
+    frame.src = "/scene.html?" + new URLSearchParams({ generation: String(ticket), token: hold.token }) + "#" + address;
+    stage.append(frame);
+  }).catch((failure: unknown) => {
+    if (candidate === frame) candidate = undefined;
+    showError("The generation hold could not be opened: " + String(failure));
+  });
 }
+/** The hold of each candidate frame, released once it loaded or ended. */
+const holds = new Map<HTMLIFrameElement, IHumanViewerCandidateHold>();
+/** Release a frame's hold and resolve with the label its window received. */
+const releaseHold = (frame: HTMLIFrameElement): Promise<string | null> => {
+  const hold = holds.get(frame);
+  return hold === undefined ? Promise.resolve(null) : hold.release();
+};
 /** Start the candidate a source change asked for while another was preparing. */
 function followUp(): void {
   if (!again) return;
@@ -141,14 +162,28 @@ addEventListener(
     }
     if (candidate === undefined || event.source !== candidate.contentWindow)
       return;
+    if (event.data.type === "human:loaded") {
+      void releaseHold(candidate);
+      return;
+    }
     if (event.data.type === "human:error") {
-      showError(event.data.error ?? "Source generation failed");
+      void releaseHold(candidate);
+      holds.delete(candidate);
       candidate.remove();
       candidate = undefined;
+      if (event.data.restart === true) {
+        // Its modules came from two compiles; every module served now comes
+        // from the newest one, so a fresh candidate loads a single compile.
+        console.log("HUMAN_RESTART " + (event.data.error ?? "").slice(0, 300));
+        again = true;
+      } else showError(event.data.error ?? "Source generation failed");
       followUp();
       return;
     }
     if (event.data.type !== "human:ready") return;
+    const ready = candidate;
+    const label = releaseHold(ready);
+    if (active !== undefined) holds.delete(active);
     committed?.retire();
     active?.remove();
     active = candidate;
@@ -163,7 +198,9 @@ addEventListener(
     committed = createHumanViewerGeneration((active.contentWindow as Child).__humanViewer);
     const handle = createHumanViewerHostHandle(committed.handle);
     Object.assign(window, { __humanViewer: handle });
-    console.log("HUMAN_READY " + handle.revision());
+    // The revision this generation's code is, as its window proved it, or
+    // "-" when it is not proven (the server then reports its frames stale).
+    void label.then((proven) => console.log("HUMAN_READY " + handle.revision() + " " + (proven ?? "-")));
     void refreshCatalogue()
       .then(() => {
         controls.show(handle.address(), handle.parts());

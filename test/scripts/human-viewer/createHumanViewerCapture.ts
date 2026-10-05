@@ -46,9 +46,11 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
       const selectedRevision = ready;
       const started = performance.now();
       const result = await props.lifetime.run(() =>
-        readHumanViewerCapture(props.page(), address, selectedRevision));
+        readHumanViewerCapture(props.page(), address, props.pageRevision()));
       if (props.readyRevision() !== selectedRevision)
         throw new Error("Source changed during capture; the mixed revision was discarded");
+      // Inside the queue slot, so no capture shows a resident while it is released.
+      await props.lifetime.run(() => props.trim());
       const decoded = performance.now();
       const bytes = Buffer.from(result.png.split(",")[1], "base64");
       const reading = describeHumanViewerCapture({

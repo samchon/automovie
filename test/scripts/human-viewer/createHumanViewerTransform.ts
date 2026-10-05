@@ -3,7 +3,8 @@
  * typia. The numerical library is still compiled as a complete package by the
  * injected compiler API; unrelated modules retain Vite's normal TypeScript
  * lowering. Path boundaries, queries and declarations are handled before
- * invoking the compiler. A watcher invalidates provenance on any source edit.
+ * invoking the compiler. A watcher event invalidates provenance when
+ * `affects` says it can change the compile.
  *
  * @evidence contracts/common.md#principled-implementation A path-segment boundary selects one complete source owner without treating sibling prefixes as members.
  * @evidence contracts/common.md#clear-and-simple-design Selection and lifecycle are pure adapters; the public compiler API owns transformation and proof.
@@ -14,6 +15,7 @@ export function createHumanViewerTransform<Result>(
   sourceRoot: string,
   transform: (id: string, source: string) => Promise<Result | undefined>,
   reset: () => void,
+  affects: (file: string, event: string) => boolean = () => true,
 ) {
   const prefix = sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
   return {
@@ -32,7 +34,9 @@ export function createHumanViewerTransform<Result>(
         return undefined;
       return transform(file, source);
     },
-    watchChange: reset,
+    watchChange: (id: string, change: { event: string }): void => {
+      if (affects(id, change.event)) reset();
+    },
     closeBundle: reset,
   };
 }

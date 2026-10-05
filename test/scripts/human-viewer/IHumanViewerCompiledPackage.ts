@@ -1,5 +1,3 @@
-import type { IHumanViewerCompileGraph } from "./IHumanViewerCompileGraph";
-
 /**
  * A completed human-package compile: transformed files by absolute path and
  * the graph of inputs to watch.
@@ -11,6 +9,9 @@ export interface IHumanViewerCompiledPackage {
   /** Transformed TypeScript by absolute, forward-slash path. */
   files: Record<string, string>;
 
-  /** Import graph and compiler inputs, when the compiler reported one. */
-  graph: IHumanViewerCompileGraph | undefined;
+  /** Every file the compile depends on, as absolute paths to watch. */
+  watch: string[];
+
+  /** `watch` normalized for comparison (forward slashes, lower case). */
+  inputs: string[];
 }

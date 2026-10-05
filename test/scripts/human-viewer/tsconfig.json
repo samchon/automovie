@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.scripts.json",
   "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"] },
-  "include": ["server.mts", "human-shot.mts", "vite.config.mts", "compile-human.mts", "capture-face-references.mts"]
+  "include": ["server.mts", "human-shot.mts", "vite.config.mts", "compile-human.mts", "capture-face-references.mts", "revisions-worker.mts"]
 }

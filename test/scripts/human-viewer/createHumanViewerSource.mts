@@ -7,7 +7,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
+import { createHumanViewerRevisionsWorker } from "./createHumanViewerRevisionsWorker";
+import { createNodeHumanViewerResolveIo } from "./createNodeHumanViewerResolveIo";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo";
 import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps";
 import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles";
@@ -52,13 +53,6 @@ export function createHumanViewerSource(directory: string) {
   const rootPath = slash(root);
   const playground = (file: string): string =>
     `${rootPath}/packages/playground/src/human/${file}`;
-  const readText = (file: string): string | undefined => {
-    try {
-      return fs.readFileSync(file, "utf8");
-    } catch {
-      return undefined;
-    }
-  };
   /** Digest and identity of a large input file, recomputed only when it changes on disk. */
   const basisOf = createHumanViewerBasisMemo({
     stamp: (file) => { const stat = fs.statSync(file); return `${stat.mtimeMs}:${stat.size}`; },
@@ -72,7 +66,7 @@ export function createHumanViewerSource(directory: string) {
   let bases = basisDigest();
   // Each digest covers only what its build imports, so an edit to the eye never
   // invalidates a body document and a test or screen invalidates nothing.
-  const revisions = createHumanViewerRevisions({
+  const revisions = createHumanViewerRevisionsWorker({
     root: rootPath,
     entries: {
       browser: ["page.mts", "host.mts", "scene.html", "view.html"].map(
@@ -99,10 +93,8 @@ export function createHumanViewerSource(directory: string) {
       "test/package.json",
     ].map((file) => `${rootPath}/${file}`),
     bases: () => bases,
-    io: {
-      exists: (file) => fs.existsSync(file) && fs.statSync(file).isFile(),
-      read: readText,
-    },
+    io: createNodeHumanViewerResolveIo(),
+    worker: path.join(directory, "revisions-worker.mts"),
   });
   const watched = [
     "human",

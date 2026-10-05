@@ -1,4 +1,5 @@
 import type { IHumanViewerCompilationStatus } from "./IHumanViewerCompilationStatus";
+import type { IHumanViewerCompiledSource } from "./IHumanViewerCompiledSource";
 /**
  * Own one whole-project source transformation between filesystem invalidations.
  * The compiler adapter supplies a complete path-to-TypeScript map or rejects;
@@ -23,6 +24,10 @@ import type { IHumanViewerCompilationStatus } from "./IHumanViewerCompilationSta
  * replaces it and clears the report. Before any generation has compiled there
  * is nothing to fall back to and the failure is thrown.
  *
+ * Each module is returned with the identity of the compile that produced it
+ * (its completion time and sequence), so the served code can say which
+ * compile a page or worker loaded.
+ *
  * @evidence contracts/common.md#principled-implementation Every module in a generation comes from one completed project transformation and any invalidation withdraws that authority.
  * @evidence contracts/common.md#clear-and-simple-design One compiler callback owns generation and a map owns module lookup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stores actual transformed source rather than generated validators or expected outputs.
@@ -36,6 +41,9 @@ export function createHumanViewerCompilation(
   let generation: Promise<Record<string, string>> | undefined;
   let epoch = 0;
   let good: Record<string, string> | undefined;
+  /** Identity of each compiled generation, by its file map. */
+  const names = new WeakMap<Record<string, string>, string>();
+  let sequence = 0;
   let goodAt: string | null = null;
   // The compile process that is running or queued last. A new compile waits
   // for it instead of running beside it: overlapping compiles of a source
@@ -54,6 +62,7 @@ export function createHumanViewerCompilation(
         if (generation === started) generation = undefined;
         return current();
       }
+      names.set(files, now() + "#" + ++sequence);
       if (selectedEpoch === epoch) {
         good = files;
         goodAt = now();
@@ -65,11 +74,13 @@ export function createHumanViewerCompilation(
     return started;
   };
   return {
-    source: async (file: string): Promise<string | undefined> => {
+    source: async (file: string): Promise<IHumanViewerCompiledSource | undefined> => {
       const selectedEpoch = epoch;
       const started = current();
+      const named = (files: Record<string, string>): IHumanViewerCompiledSource | undefined =>
+        files[file] === undefined ? undefined : { code: files[file], compile: names.get(files) ?? "unnamed" };
       try {
-        return (await started)[file];
+        return named(await started);
       } catch (error) {
         if (generation === started) generation = undefined;
         if (selectedEpoch === epoch)
@@ -78,7 +89,7 @@ export function createHumanViewerCompilation(
             goodAt,
           });
         if (good === undefined) throw error;
-        return good[file];
+        return named(good);
       }
     },
     invalidate: (): void => {

@@ -12,4 +12,5 @@ export function routeHumanViewerConsole(text: string, props: IRouteHumanViewerCo
   else if (text.startsWith("HUMAN_ERROR ")) props.error(text.slice("HUMAN_ERROR ".length));
   else if (text.startsWith("HUMAN_READY ")) props.ready(text.slice("HUMAN_READY ".length));
   else if (text === "HUMAN_ADMISSION") props.admission();
+  else if (text.startsWith("HUMAN_RESTART ")) props.restart(text.slice("HUMAN_RESTART ".length));
 }

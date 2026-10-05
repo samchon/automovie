@@ -51,4 +51,7 @@ export interface IServeHumanViewerDataProps {
    * with that catalogue.
    */
   settleInputs: () => Promise<IHumanViewerCatalogue>;
+
+  /** Whether the frame with this generation token runs the current revision's code. */
+  currentCode: (token: string | null) => boolean;
 }

@@ -9,7 +9,8 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
  * physical settlement before an aborted result is discarded, so client loss
  * never releases shared-page ownership through an abort race. The queue owns
  * removal of waiting work and active-slot settlement. This adapter owns
- * response refusal, listener cleanup and admission of subsequent operations.
+ * response refusal (logged as `REFUSED` with its cause), listener cleanup
+ * and admission of subsequent operations.
  *
  * @evidence contracts/common.md#principled-implementation Uses unfinished response closure for client loss and awaits actual operations before discarding their results.
  * @evidence contracts/common.md#clear-and-simple-design One request adapter owns HTTP cancellation and refusal while the queue retains GPU serialization.
@@ -44,18 +45,22 @@ export function queueHumanViewerRequest<Value>(
   return props.queue
     .run(props.label, () => props.task(request), props.lane, controller.signal)
     .catch((error: unknown): undefined => {
-      if (controller.signal.aborted || props.response.destroyed)
+      const message = error instanceof Error ? error.message : String(error);
+      if (controller.signal.aborted || props.response.destroyed) {
+        console.log(`REFUSED ${new Date().toISOString()} ${props.label} client gone: ${message.slice(0, 300)}`);
         return undefined;
+      }
       const refusal = classifyHumanViewerRefusal(error);
+      // Every refusal is logged with its cause, so a failed request can be
+      // traced afterwards like a served one.
+      console.log(`REFUSED ${new Date().toISOString()} ${props.label} ${refusal.status}: ${message.slice(0, 500)}`);
       props.response.statusCode = refusal.status;
       if (refusal.retryAfter !== null)
         props.response.setHeader("Retry-After", String(refusal.retryAfter));
       props.response.setHeader("Content-Type", "application/json");
       props.response.end(
         JSON.stringify({
-          error: describeHumanViewerFailure(
-            error instanceof Error ? error.message : String(error),
-          ),
+          error: describeHumanViewerFailure(message),
         }),
       );
       return undefined;

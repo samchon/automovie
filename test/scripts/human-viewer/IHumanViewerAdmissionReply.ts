@@ -12,4 +12,7 @@ export interface IHumanViewerAdmissionReply {
 
   /** Null when admitted or unavailable, else the owner's refusal reason. */
   reason: string | null;
+
+  /** The generation token of the frame that judged it, null when unavailable or opened without one. */
+  token: string | null;
 }

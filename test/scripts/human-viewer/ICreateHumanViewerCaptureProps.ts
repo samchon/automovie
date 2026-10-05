@@ -25,9 +25,15 @@ export interface ICreateHumanViewerCaptureProps {
   /** Source generation the page has ready, empty while none is. */
   readyRevision: () => string;
 
+  /** The catalogue revision the ready page itself reports, which a capture checks it is still showing. */
+  pageRevision: () => string;
+
   /** Current catalogue. */
   inventory: () => IHumanViewerCatalogue;
 
   /** Dispatch ownership against renderer failure. */
   lifetime: ReturnType<typeof createHumanViewerCaptureLifetime>;
+
+  /** Keep the renderer's heap under its limit after a capture. */
+  trim: () => Promise<void>;
 }

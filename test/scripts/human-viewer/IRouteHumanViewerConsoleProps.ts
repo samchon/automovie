@@ -16,4 +16,7 @@ export interface IRouteHumanViewerConsoleProps {
 
   /** A `HUMAN_ADMISSION` line: a viewer frame loaded its module and can judge documents. */
   admission: () => void;
+
+  /** A `HUMAN_RESTART` line: a candidate mixed compiles and the host started a fresh one. */
+  restart: (reason: string) => void;
 }

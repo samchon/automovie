@@ -11,7 +11,9 @@ const gzipAsync = promisify(gzip);
 /**
  * Answer `/cache/<key>-direct` and `/cache/<key>-ao`: read (GET) or store
  * (PUT) the numerical preview of a current catalogue key. A key no current
- * document names is refused with 409, so no stale model is read or written.
+ * document names is refused with 409, so no stale model is read or written;
+ * a PUT from a page whose code is not proven to be the current revision
+ * (its `X-Human-Generation` token) is refused with 409 too.
  * A PUT is admitted by `admitHumanViewerCachePayload` and stored as received,
  * gzip-compressed on the zlib thread pool so `/health` keeps answering, under
  * a per-process temporary name and renamed into place (viewers on other
@@ -34,6 +36,14 @@ export function serveHumanViewerCache(props: IServeHumanViewerDataProps): boolea
   }
   const file = path.join(props.storage, "cache", key + ".json.gz");
   if (request.method === "PUT") {
+    // A result is stored only from code proven to be the current revision: a
+    // candidate that loaded a held compile names current keys but ran older code.
+    const token = request.headers["x-human-generation"];
+    if (!props.currentCode(typeof token === "string" ? token : null)) {
+      response.statusCode = 409;
+      props.json({ error: "The writing page does not run the current source; its result is not cached" });
+      return true;
+    }
     const chunks: Buffer[] = [];
     request.on("data", (chunk: Buffer) => chunks.push(chunk));
     request.on("end", () => {

@@ -11,25 +11,46 @@ import { fileURLToPath } from "node:url";
 import { type ModuleNode, type ViteDevServer, defineConfig } from "vite";
 
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
+import { createHumanViewerCompileGate } from "./createHumanViewerCompileGate";
+import { createHumanViewerCompileInputs } from "./createHumanViewerCompileInputs";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
-import { humanViewerCompileWatchList } from "./humanViewerCompileWatchList";
 import { humanViewerInstance } from "./humanViewerInstance";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 import { runHumanViewerCompile } from "./runHumanViewerCompile";
+import { stampHumanViewerCompile } from "./stampHumanViewerCompile";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
 const outputDirectory = path.resolve(directory, "../../../.shots/human-viewer");
 let server: ViteDevServer;
+/**
+ * The compile withdrawal gate, shared with the server process that opens
+ * candidate holds (it imports this module's configuration as a value).
+ */
+export const humanViewerCompileGate = createHumanViewerCompileGate();
 const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 // The transform runs in a child process: it is a synchronous call that takes
 // tens of seconds, and inside this process it froze every request. Each
 // viewer reports its own compilation, so a second viewer never overwrites it.
 const status = path.join(outputDirectory, served.sourceStatus);
+/** Paths the compile inputs already added to the watcher. */
+const watching = new Set<string>();
+const inputs = createHumanViewerCompileInputs(human, [
+  path.join(human, "tsconfig.json"),
+  path.join(human, "package.json"),
+  path.resolve(human, "../../pnpm-lock.yaml"),
+]);
 const compilation = createHumanViewerCompilation(
   async () => {
-    const { files, graph } = await runHumanViewerCompile({ directory, human, outputDirectory });
-    server.watcher.add(humanViewerCompileWatchList(files, graph, human));
+    const { files, watch, inputs: keys } = await runHumanViewerCompile({ directory, human, outputDirectory });
+    const began = performance.now();
+    inputs.compiled(keys);
+    // Only paths not yet watched are added: re-adding a thousand watched
+    // files after every compile held the event loop for most of a second.
+    const fresh = watch.filter((file) => !watching.has(file));
+    for (const file of fresh) watching.add(file);
+    if (fresh.length !== 0) server.watcher.add(fresh);
+    console.log(`COMPILE applied in ${Math.round(performance.now() - began)} ms, ${fresh.length} newly watched`);
     return files;
   },
   (report) => {
@@ -51,10 +72,10 @@ export default defineConfig({
       ...createHumanViewerTransform(
         path.join(human, "src"),
         async (id) => {
-          const code = await compilation.source(id);
-          return code === undefined ? undefined : { code };
+          const compiled = await compilation.source(id);
+          return compiled === undefined ? undefined : { code: stampHumanViewerCompile(compiled.code, compiled.compile) };
         },
-        () => {
+        () => humanViewerCompileGate.withdraw(() => {
           const seen = new Set<ModuleNode>();
           invalidateHumanViewerGeneration(
             path.join(human, "src"),
@@ -62,7 +83,8 @@ export default defineConfig({
             compilation.invalidate,
             (module) => server.moduleGraph.invalidateModule(module, seen),
           );
-        },
+        }),
+        inputs.affects,
       ),
       configureServer: (instance) => {
         server = instance;

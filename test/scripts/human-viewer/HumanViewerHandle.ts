@@ -39,4 +39,7 @@ export interface HumanViewerHandle {
 
   /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
   png(): string;
+
+  /** Release the least recently used resident other than the one shown; false when none is left. */
+  evict(): boolean;
 }

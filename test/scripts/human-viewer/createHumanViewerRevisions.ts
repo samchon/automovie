@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
+import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevisionsProps";
 import { collectHumanViewerImports } from "./collectHumanViewerImports";
-import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
 
 /**
@@ -24,13 +24,7 @@ import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
  * reports whether each digest moved, so a caller reloads the page or drops a
  * cache only for a change that reaches it.
  */
-export function createHumanViewerRevisions(props: {
-  root: string;
-  entries: Record<keyof IHumanViewerRevisions, readonly string[]>;
-  extra: readonly string[];
-  bases: () => string;
-  io: IHumanViewerResolveIo & { read(file: string): string | undefined };
-}) {
+export function createHumanViewerRevisions(props: ICreateHumanViewerRevisionsProps) {
   const texts = new Map<string, string | undefined>();
   const present = new Map<string, boolean>();
   const io = {
@@ -83,6 +77,8 @@ export function createHumanViewerRevisions(props: {
     current: (): IHumanViewerRevisions => current,
     /** Whether an edit to this file can move any digest; a file no build reads cannot. */
     reaches: (file: string): boolean => reached.has(file),
+    /** Every file any graph reaches, as of the last computation. */
+    reached: (): string[] => [...reached],
     changed: (files: readonly string[]): { moved: (keyof IHumanViewerRevisions)[] } => {
       for (const file of files) texts.delete(file);
       present.clear();

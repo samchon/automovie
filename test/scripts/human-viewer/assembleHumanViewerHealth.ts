@@ -41,6 +41,9 @@ export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
     warm: sources.warming,
     startup: sources.startup,
     admission: sources.admission(),
+    relaunches: sources.relaunches(),
+    trim: sources.trim(),
+    holding: sources.holding(),
     uptimeMs: Math.round(process.uptime() * 1000),
   };
 }
