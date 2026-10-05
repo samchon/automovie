@@ -46,8 +46,9 @@ export interface IServeHumanViewerDataProps {
   json: (value: unknown) => void;
 
   /**
-   * Re-reads the catalogue until every sidecar read and page admission it
-   * started has finished, and resolves with that catalogue.
+   * Asks waiting admissions again, then re-reads the catalogue until every
+   * sidecar read and page admission it started has finished, and resolves
+   * with that catalogue.
    */
   settleInputs: () => Promise<IHumanViewerCatalogue>;
 }

@@ -1,34 +1,47 @@
 import type { ICreateHumanViewerAdmissionProps } from "./ICreateHumanViewerAdmissionProps";
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
+import type { IHumanViewerAdmissionOutcome } from "./IHumanViewerAdmissionOutcome";
+import type { IHumanViewerAdmissionStatus } from "./IHumanViewerAdmissionStatus";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
-
-interface IVerdict {
-  key: string;
-  admission: IHumanViewerAdmission;
-}
+import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission";
 
 /**
- * Keep the page's admission verdict for each hand-written document. The
- * server does not load the human runtime, so a document's schema is judged by
- * its owner in the page; until that verdict exists for the document's current
- * cache key (document, basis and builder source together) the document is
- * pending and stays out of the drawable catalogue, listed among the rejected
- * inputs with that state. A request goes to the page once per key while a
- * generation is ready; a page that is not ready leaves the document pending
- * and the host asks again when one becomes ready. A page that failed for good
- * refuses with its cause, so no client waits on it. A failed request is kept
- * as the refusal reason, never as admission. One verdict is kept per document id,
- * so the record grows only with the inputs.
+ * Keep the page's admission verdict for each document. The server does not
+ * load the human runtime, so a document's schema is judged by its owner in a
+ * viewer frame through the host page's bridge; until a verdict exists for the
+ * document's current cache key (document, basis and builder source together)
+ * the document is pending and stays out of the drawable catalogue, listed
+ * among the rejected inputs with that state.
  *
- * @evidence contracts/common.md#principled-implementation A document is drawable only after its owner admitted it at its exact cache key; unknown is never treated as valid.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds verdicts and requests in flight; page access and republication are injected.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no schema of its own and refuses with the owner's reason.
- * @evidence contracts/common.md#meaningful-documentation States the pending state, request policy, failure handling and growth bound.
+ * A request goes to the page once per key. Only an owner's answer is a
+ * verdict. A bridge with no loaded frame, or a request that could not run
+ * (the page navigating, its context replaced), stores no verdict: the
+ * document waits, pending with that reason, and is asked again only when
+ * `retry` is called, which the host does on its trigger events (a frame
+ * announcing its admission, a generation becoming ready, an explicit settle
+ * request). Nothing re-asks on its own, so a bridge that never arrives
+ * leaves named pending entries and no loop. A page that failed for good
+ * refuses with its cause, so no client waits on it. One verdict and at most
+ * one waiting reason are kept per document id, so the records grow only with
+ * the documents.
+ *
+ * @evidence contracts/common.md#principled-implementation A document is drawable only after its owner admitted it at its exact cache key; a transport failure is never stored as the owner's verdict.
+ * @evidence contracts/common.md#clear-and-simple-design One owner holds verdicts, waiting documents and requests in flight; page access, republication and retry triggers are injected.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no schema of its own, refuses with the owner's reason, and never polls.
+ * @evidence contracts/common.md#meaningful-documentation States the pending states, the request and retry policy, failure handling and growth bound.
  */
 export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionProps) {
-  const verdicts = new Map<string, IVerdict>();
+  const verdicts = new Map<string, IHumanViewerKeyedAdmission>();
+  const waiting = new Map<string, IHumanViewerKeyedAdmission>();
   const asking = new Map<string, string>();
   const inFlight = new Set<Promise<void>>();
+  /** Why a document whose admission could not be judged now waits. */
+  const unavailable = (): string => {
+    const page = props.page();
+    return page.state === "starting"
+      ? `awaiting admission: the viewer page is starting (${page.reason}); asked again when a viewer frame loads`
+      : "awaiting admission: no viewer frame has loaded the current source; asked again when one loads";
+  };
   return {
     /** The verdict for this entry at its key, starting the page's admission when none exists. */
     of: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
@@ -40,24 +53,28 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
       if (page.state === "failed")
         return { state: "refused",
           reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.mts ensure` };
-      if (page.state === "starting")
-        return { state: "pending", reason: `awaiting admission: the viewer page is starting (${page.reason})` };
+      const held = waiting.get(entry.id);
+      if (held !== undefined && held.key === entry.key) return held.admission;
       if (asking.get(entry.id) !== entry.key) {
         asking.set(entry.id, entry.key);
+        waiting.delete(entry.id);
         const request: Promise<void> = props.admit(entry.domain, JSON.stringify(entry.document))
-          .then((reason): IHumanViewerAdmission => reason === null
-            ? { state: "admitted", reason: null } : { state: "refused", reason })
-          .catch((error: unknown): IHumanViewerAdmission => ({ state: "refused",
-            reason: "Admission could not run: " + (error instanceof Error ? error.message : String(error)) }))
-          .then((admission) => {
-            // A newer key started its own request; this verdict is outdated.
+          .then((reply): IHumanViewerAdmissionOutcome => !reply.available
+            ? { verdict: false, admission: { state: "pending", reason: unavailable() } }
+            : { verdict: true, admission: reply.reason === null
+              ? { state: "admitted", reason: null } : { state: "refused", reason: reply.reason } })
+          .catch((error: unknown): IHumanViewerAdmissionOutcome => ({ verdict: false, admission: { state: "pending",
+            reason: "awaiting admission: the request could not run (" +
+              (error instanceof Error ? error.message : String(error)) + "); asked again when a viewer frame loads" } }))
+          .then((outcome) => {
+            // A newer key started its own request; this answer is outdated.
             if (asking.get(entry.id) !== entry.key) return;
             asking.delete(entry.id);
-            verdicts.set(entry.id, { key: entry.key, admission });
+            (outcome.verdict ? verdicts : waiting).set(entry.id, { key: entry.key, admission: outcome.admission });
             props.changed();
           })
           .catch((error: unknown) => {
-            console.error("Admission verdict could not be published for " + entry.id + ": " +
+            console.error("Admission result could not be published for " + entry.id + ": " +
               (error instanceof Error ? error.message : String(error)));
           })
           .finally(() => { inFlight.delete(request); });
@@ -66,12 +83,26 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
       return { state: "pending", reason: "awaiting admission by the viewer page" };
     },
 
-    /** Whether any admission asked of the page is still awaiting its verdict. */
+    /** Forget why documents wait, so the next catalogue reading asks the page again; returns how many waited. */
+    retry: (): number => {
+      const released = waiting.size;
+      waiting.clear();
+      return released;
+    },
+
+    /** Whether any admission asked of the page is still awaiting its answer. */
     busy: (): boolean => inFlight.size !== 0,
 
-    /** Resolves when every admission already asked of the page has its verdict. */
+    /** Resolves when every admission already asked of the page has its answer. */
     settled: async (): Promise<void> => {
       while (inFlight.size !== 0) await Promise.all([...inFlight]);
     },
+
+    /** Requests in flight and documents waiting, for `/health`. */
+    status: (): IHumanViewerAdmissionStatus => ({
+      asking: inFlight.size,
+      waiting: waiting.size,
+      reasons: [...new Set([...waiting.values()].map((held) => held.admission.reason ?? ""))],
+    }),
   };
 }

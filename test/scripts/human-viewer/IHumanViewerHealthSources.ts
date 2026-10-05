@@ -1,4 +1,5 @@
 import type { HumanViewerWork } from "./HumanViewerWork";
+import type { IHumanViewerAdmissionStatus } from "./IHumanViewerAdmissionStatus";
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";
@@ -64,4 +65,7 @@ export interface IHumanViewerHealthSources {
 
   /** What the server is doing while it starts. */
   startup: IHumanViewerStartup;
+
+  /** Admissions in flight and documents waiting for a viewer frame. */
+  admission: () => IHumanViewerAdmissionStatus;
 }

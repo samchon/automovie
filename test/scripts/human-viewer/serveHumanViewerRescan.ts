@@ -3,8 +3,9 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps";
 /**
  * Answer `/rescan` once every sidecar read, generation view read and page
  * admission it starts has finished, so a new candidate is decided rather than
- * "still being read"; only a page that is still starting leaves inputs
- * pending, and the answer marks those `pending` apart from refusals. The
+ * "still being read"; waiting admissions are asked again first, only
+ * documents no viewer frame could judge stay pending, and the answer marks
+ * those `pending`, with the reason, apart from refusals. The
  * settled catalogue is published to the host before the answer. Returns
  * whether the path was `/rescan`.
  *

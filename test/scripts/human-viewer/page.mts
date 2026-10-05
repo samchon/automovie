@@ -37,9 +37,15 @@ import { createHumanViewerWorkReporter } from "./createHumanViewerWorkReporter";
 import { frameHumanViewerAddress } from "./frameHumanViewerAddress";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { readHumanViewerPng } from "./readHumanViewerPng";
+import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
 import { showHumanViewerReference } from "./showHumanViewerReference";
 
+// Admission is offered as soon as this module has loaded, before any show:
+// the host routes the server's admissions here even while this frame is a
+// candidate whose first show needs those very documents.
+Object.assign(window, { __humanViewerAdmit: admitHumanViewerDocument });
+parent.postMessage({ type: "human:admission" }, location.origin);
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
 const status = document.querySelector<HTMLDivElement>("#status")!;
@@ -105,8 +111,9 @@ async function show(address: HumanViewerAddress): Promise<void> {
   // change its cache key. Every show therefore reads the current catalogue
   // (about 0.7 MB, milliseconds) instead of trusting the copy the page loaded
   // with; across a newer source revision the page keeps its own catalogue
-  // (see `admitHumanViewerCatalogue`).
-  catalogue = admitHumanViewerCatalogue(catalogue, await (await fetch("/docs")).json(), address.doc);
+  // (see `admitHumanViewerCatalogue`). A document still awaiting admission is
+  // awaited, not refused (see `readHumanViewerShowCatalogue`).
+  catalogue = admitHumanViewerCatalogue(catalogue, await readHumanViewerShowCatalogue(address.doc), address.doc);
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
@@ -166,7 +173,6 @@ async function main(): Promise<void> {
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
       address: () => current,
-      admit: admitHumanViewerDocument,
       png: () => readHumanViewerPng({ stage: active, renderer, canvas, composition, photo: reference }),
     },
   });

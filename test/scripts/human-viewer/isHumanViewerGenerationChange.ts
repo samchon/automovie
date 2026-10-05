@@ -7,6 +7,8 @@ const CHANGE_MESSAGES = [
   "The source revision has not finished loading",
   // The page read a catalogue of a newer source generation than it loaded.
   "The document inventory belongs to a newer source generation",
+  // The page reloaded while a call ran in it (Playwright's own wording).
+  "Execution context was destroyed",
 ];
 
 /**

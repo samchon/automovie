@@ -22,6 +22,7 @@ import type { Page } from "playwright";
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
 import { createHumanViewerViteServer } from "./createHumanViewerViteServer.mjs";
 import type { HumanViewerWork } from "./HumanViewerWork";
+import type { IHumanViewerAdmissionWindow } from "./IHumanViewerAdmissionWindow";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
@@ -52,6 +53,7 @@ import { settleHumanViewerInputs } from "./settleHumanViewerInputs";
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
 import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
 import { warmHumanViewerRevision } from "./warmHumanViewerRevision";
+import { watchHumanViewerMainFrame } from "./watchHumanViewerMainFrame";
 import { writeHumanViewerRecord } from "./writeHumanViewerRecord";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -68,25 +70,39 @@ const admission = createHumanViewerAdmission({
   page: (): IHumanViewerPageState => pageFailure !== null
     ? { state: "failed", reason: pageFailure }
     : readyRevision === ""
-      ? { state: "starting", reason: startup.phase }
+      ? { state: "starting", reason: pageWait ?? startup.phase }
       : { state: "ready", reason: null },
   // Through the capture lifetime, so a renderer failure refuses the request
   // instead of leaving the rescan waiting on a page that cannot answer.
-  admit: (domain, text) => lifetime.run(() => page.evaluate((input) =>
-    (window as unknown as IHumanViewerWindow).__humanViewer.admit(input.domain, input.text),
-  { domain, text })),
+  admit: (domain, text) => lifetime.run(() => page.evaluate((input) => {
+    const bridge = (window as unknown as IHumanViewerAdmissionWindow).__humanViewerAdmission;
+    return bridge === undefined ? { available: false, reason: null } : bridge.admit(input.domain, input.text);
+  }, { domain, text })),
   changed: () => { inventory = catalogue(); },
 });
 source.admitWith(admission.of);
-/** Publish the catalogue once every read and admission it starts has finished. */
-const settleInputs = () => settleHumanViewerInputs(() => (inventory = catalogue()),
-  [source.sidecars, source.views, admission]);
+/**
+ * Ask waiting admissions again, then publish the catalogue once every read and
+ * admission it starts has finished. Only an explicit settle request calls it.
+ */
+/** Ask the waiting admissions again on a trigger event, logging how many waited. */
+const retryAdmissions = (trigger: string): void => {
+  const released = admission.retry();
+  if (released !== 0) console.log(`ADMISSION RETRY ${new Date().toISOString()} ${released} waiting; ${trigger}`);
+  inventory = catalogue();
+};
+const settleInputs = () => {
+  admission.retry();
+  return settleHumanViewerInputs(() => (inventory = catalogue()), [source.sidecars, source.views, admission]);
+};
 let page: Page;
 let renderer = "";
 let errors: string[] = [];
 let readyRevision = "";
 /** Why the page failed for good, or null while it can still draw. */
 let pageFailure: string | null = null;
+/** What a reloaded page waits for, or null when it never reloaded since its last generation. */
+let pageWait: string | null = null;
 let sourceUpdating = false;
 let work: HumanViewerWork | null = null;
 /** Heap readings of the resident page; the readers are bound once the page exists. */
@@ -117,7 +133,7 @@ const warming: IHumanViewerWarming = { revision: "", total: 0, done: 0, skipped:
 const sourceStatus = () => readHumanViewerCompilationStatus(() =>
   fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"));
 const capturer = createHumanViewerCapture({ page: () => page, renderer: () => renderer,
-  startup: () => startup.phase + " since " + startup.since +
+  startup: () => (pageWait ?? startup.phase + " since " + startup.since) +
     (errors.length === 0 ? "" : "; last error: " + errors[errors.length - 1]),
   readyRevision: () => readyRevision, inventory: () => inventory, lifetime });
 /** Wait until the page has a ready generation again, at most thirty seconds. */
@@ -146,7 +162,7 @@ async function main(): Promise<void> {
         renderer: () => renderer, readyRevision: () => readyRevision, sourceStatus,
         errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap,
         revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
-        capture: capturer, warming, startup }));
+        capture: capturer, warming, startup, admission: admission.status }));
     if (url.pathname === "/heap")
       return serveHumanViewerHeap({ response, json, readLiveHeap: () => readLiveHeap(),
         work: () => work, readyRevision: () => readyRevision });
@@ -205,6 +221,16 @@ async function main(): Promise<void> {
       // Inputs awaiting admission are now refused by name; publish that.
       inventory = catalogue();
     } });
+  // A Vite full reload replaces the host page and its committed generation:
+  // until a new generation is ready nothing can draw, which captures and
+  // admissions now report instead of waiting on a page that lost its handle.
+  watchHumanViewerMainFrame(page, () => {
+    if (readyRevision === "") return;
+    readyRevision = "";
+    pageWait = `the page reloaded at ${new Date().toISOString()}; waiting for a source generation`;
+    console.log("PAGE RELOADED " + pageWait);
+    inventory = catalogue();
+  });
   page.on("pageerror", (error) => {
     errors.push(error.message);
     console.error(error.message);
@@ -218,10 +244,12 @@ async function main(): Promise<void> {
     ready: (revision) => {
       errors = [];
       readyRevision = revision;
+      pageWait = null;
       warmReadiness.source(readyRevision);
       // A ready generation can admit the inputs still pending.
-      inventory = catalogue();
+      retryAdmissions("generation " + revision.slice(0, 12) + " ready");
     },
+    admission: () => retryAdmissions("a viewer frame loaded"),
   }));
   phase("loading the page");
   await page.goto(instance.origin + "/view?resident=1#ao=off", {

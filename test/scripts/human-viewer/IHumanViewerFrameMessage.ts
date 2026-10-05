@@ -5,7 +5,7 @@
  * @author Samchon
  */
 export interface IHumanViewerFrameMessage {
-  /** `human:ready`, `human:error` or `human:address`. */
+  /** `human:admission` (the frame's module loaded), `human:ready`, `human:error` or `human:address`. */
   type?: string;
 
   /** Why the candidate failed, for `human:error`. */

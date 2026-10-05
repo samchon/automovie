@@ -39,10 +39,4 @@ export interface HumanViewerHandle {
 
   /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
   png(): string;
-
-  /**
-   * Admit one document JSON with its domain owner's admission; null when
-   * admitted, else the owner's reason. Pure: draws and caches nothing.
-   */
-  admit(domain: string, text: string): string | null;
 }

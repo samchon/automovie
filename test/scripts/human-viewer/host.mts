@@ -14,6 +14,7 @@ import { mountHumanViewerControls } from "./mountHumanViewerControls";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
+import { createHumanViewerHostAdmission } from "./createHumanViewerHostAdmission";
 import { createHumanViewerHostHandle } from "./createHumanViewerHostHandle";
 import { createHumanViewerHostProgress } from "./createHumanViewerHostProgress";
 import { loadHumanViewerReferenceInfo } from "./loadHumanViewerReferenceInfo";
@@ -25,6 +26,9 @@ let candidate: HTMLIFrameElement | undefined;
 let again = false;
 let committed: ReturnType<typeof createHumanViewerGeneration> | undefined;
 let generation = 0;
+// The server's admissions reach the newest loaded viewer frame through this
+// bridge, which exists from now on, with or without a committed generation.
+Object.assign(window, { __humanViewerAdmission: createHumanViewerHostAdmission(() => [candidate, active]) });
 const stage = document.querySelector<HTMLElement>("#stage")!;
 const error = document.querySelector<HTMLDivElement>("#error")!;
 const progress = document.querySelector<HTMLElement>("#progress")!;
@@ -116,6 +120,12 @@ addEventListener(
     event: MessageEvent<IHumanViewerFrameMessage>,
   ) => {
     if (event.origin !== location.origin) return;
+    if (event.data.type === "human:admission" &&
+        (event.source === candidate?.contentWindow || event.source === active?.contentWindow)) {
+      // A frame can now judge documents: the server asks again for those waiting.
+      console.log("HUMAN_ADMISSION");
+      return;
+    }
     if (
       event.source === active?.contentWindow &&
       event.data.type === "human:address" &&

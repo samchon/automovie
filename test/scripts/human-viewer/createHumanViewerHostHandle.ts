@@ -23,6 +23,5 @@ export function createHumanViewerHostHandle(viewer: HumanViewerHandle): HumanVie
     spans: () => viewer.spans(),
     address: () => viewer.address(),
     png: () => viewer.png(),
-    admit: (domain, text) => viewer.admit(domain, text),
   };
 }

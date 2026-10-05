@@ -37,9 +37,13 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
         throw new HumanViewerStartingError("The viewer is starting (" + props.startup() + "), retry");
       if (!judgeViewerRenderer(renderer).real)
         throw new Error("A real GPU is required: " + renderer);
+      // The page reloaded and has no drawable generation yet: say so at once
+      // instead of waiting on a bridge the page does not have.
+      if (props.readyRevision() === "")
+        throw new HumanViewerStartingError("No source generation is ready (" + props.startup() + "), retry");
       const inventory = props.inventory();
       const ready = props.readyRevision();
-      const selectedRevision = ready === "" ? inventory.revision : ready;
+      const selectedRevision = ready;
       const started = performance.now();
       const result = await props.lifetime.run(() =>
         readHumanViewerCapture(props.page(), address, selectedRevision));

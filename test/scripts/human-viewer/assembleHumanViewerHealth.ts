@@ -40,6 +40,7 @@ export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
     ...sources.capture.status(),
     warm: sources.warming,
     startup: sources.startup,
+    admission: sources.admission(),
     uptimeMs: Math.round(process.uptime() * 1000),
   };
 }

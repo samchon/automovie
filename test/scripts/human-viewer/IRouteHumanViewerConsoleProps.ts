@@ -13,4 +13,7 @@ export interface IRouteHumanViewerConsoleProps {
 
   /** A `HUMAN_READY` line: the named generation can draw. */
   ready: (revision: string) => void;
+
+  /** A `HUMAN_ADMISSION` line: a viewer frame loaded its module and can judge documents. */
+  admission: () => void;
 }
