@@ -32,6 +32,7 @@ export default defineConfig({
         connectedFace: resolve(__dirname, "connected-face.html"),
         connectedBody: resolve(__dirname, "connected-body.html"),
         connectedBodyAnatomical: resolve(__dirname, "connected-body-anatomical.html"),
+        connectedPerson: resolve(__dirname, "connected-person.html"),
       },
     },
   },
