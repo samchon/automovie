@@ -1,14 +1,14 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import fs from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 
 import type { IHumanShotContext } from "./IHumanShotContext";
 import { killHumanViewerProcess } from "./killHumanViewerProcess";
 
 /**
- * Start the server as a hidden child of this process through the viewer's
- * ttsx project. Everything the server prints, its fatal error included,
+ * Start the viewer as a hidden child of this process: the plain-Node launcher,
+ * which holds the port at once and builds the server under the viewer's ttsx
+ * project as its own child. Everything the server prints, its fatal error included,
  * reaches both this client's stderr and the port's log file, with a start
  * line and the exit code, so a dead server always leaves its cause on disk.
  * Stopping this client (SIGINT, SIGTERM) stops the child it owns.
@@ -17,11 +17,9 @@ import { killHumanViewerProcess } from "./killHumanViewerProcess";
  * @evidence contracts/common.md#meaningful-documentation States the logging and the ownership on stop.
  */
 export function startHumanViewerServer(context: IHumanShotContext): ChildProcess {
-  // Resolved from the viewer's own directory, where its server entry lives.
-  const require = createRequire(path.join(context.directory, "server.mts"));
-  const launcher = path.join(path.dirname(require.resolve("ttsc/package.json")), "lib/launcher/ttsx.js");
-  const owned = spawn(process.execPath,
-    [launcher, "-P", path.join(context.directory, "tsconfig.json"), path.join(context.directory, "server.mts")],
+  // The plain-Node launcher holds the port at once and builds the server as
+  // its child, so the viewer answers "starting" from its first moment.
+  const owned = spawn(process.execPath, [path.join(context.directory, "human-viewer-launcher.mts")],
     { cwd: path.join(context.root, "test"), windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
   fs.mkdirSync(context.storage, { recursive: true });
   const log = fs.createWriteStream(context.logFile, { flags: "a" });

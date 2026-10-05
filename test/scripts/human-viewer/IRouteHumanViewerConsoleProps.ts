@@ -19,4 +19,7 @@ export interface IRouteHumanViewerConsoleProps {
 
   /** A `HUMAN_RESTART` line: a candidate mixed compiles and the host started a fresh one. */
   restart: (reason: string) => void;
+
+  /** A `HUMAN_FIRST_ADDRESS` line: a candidate could not show its first address and opened on the standard document. */
+  firstAddress: (reason: string) => void;
 }

@@ -62,8 +62,11 @@ import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
 import { warmHumanViewerRevision } from "./warmHumanViewerRevision";
 import { watchHumanViewerMainFrame } from "./watchHumanViewerMainFrame";
 import { writeHumanViewerRecord } from "./writeHumanViewerRecord";
+import { humanViewerLaunch } from "./humanViewerLaunch";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
+/** The launcher that owns this server's port and record, or null when it was started directly. */
+const owner = process.env[humanViewerLaunch.ownerVariable] === undefined ? null : Number(process.env[humanViewerLaunch.ownerVariable]);
 /** Port, origin and per-process files, chosen by `HUMAN_VIEWER_PORT` (default 5175). */
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const source = createHumanViewerSource(directory);
@@ -274,6 +277,7 @@ async function openResidentPage(first: boolean, freshBrowser: boolean): Promise<
     },
     admission: () => retryAdmissions("a viewer frame loaded"),
     restart: (reason) => console.log(`CANDIDATE RESTART ${new Date().toISOString()} ${reason}`),
+    firstAddress: (reason) => console.log(`CANDIDATE FIRST ADDRESS ${new Date().toISOString()} ${reason}`),
   }));
   if (first) phase("loading the page");
   await opened.page.goto(instance.origin + "/view?resident=1#ao=off", {
@@ -372,7 +376,7 @@ async function main(): Promise<void> {
     if (url.pathname === "/health")
       return json(assembleHumanViewerHealth({ port: instance.port, inventory: () => inventory,
         renderer: () => renderer, readyRevision: () => readyRevision, sourceStatus,
-        errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap,
+        errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap, owner,
         revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
         capture: capturer, warming, startup, admission: admission.status, relaunches: () => relaunches,
         trim: residentTrim.status, holding: windows.holding }));
@@ -395,7 +399,15 @@ async function main(): Promise<void> {
   };
   const vite = await createHumanViewerViteServer(middleware);
   await vite.listen();
-  writeHumanViewerRecord(path.join(storage, instance.record), instance.port);
+  // A launcher owns the public port and the record; this server listens on a
+  // free internal port and announces it. Started directly, it owns both.
+  if (owner === null) writeHumanViewerRecord(path.join(storage, instance.record), instance.port);
+  else {
+    const address = vite.httpServer?.address();
+    if (address === null || address === undefined || typeof address === "string")
+      throw new Error("The development server did not report its internal port");
+    console.log(humanViewerLaunch.upstreamPrefix + address.port);
+  }
 
   // Sources are watched from the start: an edit made while the page loads
   // reaches it, and its progress is reported, instead of being missed until
@@ -437,7 +449,7 @@ async function main(): Promise<void> {
     await resident?.browser.close();
     await stopRenderer();
     await vite.close();
-    fs.rmSync(path.join(storage, instance.record), { force: true });
+    if (owner === null) fs.rmSync(path.join(storage, instance.record), { force: true });
     process.exit(0);
   };
   process.once("SIGINT", () => void close());

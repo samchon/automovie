@@ -22,6 +22,9 @@ export interface IHumanViewerHealthSources {
   /** Port the server listens on. */
   port: number;
 
+  /** The launcher that owns the port and record, or null for a server started directly. */
+  owner: number | null;
+
   /** The current catalogue. */
   inventory: () => IHumanViewerCatalogue;
 

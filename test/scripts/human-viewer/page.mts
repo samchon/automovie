@@ -42,6 +42,7 @@ import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 import { readHumanViewerPng } from "./readHumanViewerPng";
 import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
+import { showHumanViewerFirstAddress } from "./showHumanViewerFirstAddress";
 import { showHumanViewerReference } from "./showHumanViewerReference";
 
 // Admission is offered as soon as this module has loaded, before any show:
@@ -172,7 +173,10 @@ async function main(): Promise<void> {
   // A worker that cannot load (a module it imports is missing or broken)
   // fails this candidate at once; the first show would otherwise wait on it
   // forever and never release the host's hold.
-  await Promise.all([apply(parseHumanViewerAddress(location.hash)), loaded]);
+  // The first address is the host's last one; a document that cannot be
+  // shown there does not keep this generation from becoming ready.
+  await showHumanViewerFirstAddress(parseHumanViewerAddress(location.hash), apply, loaded,
+    (message) => console.warn("HUMAN_FIRST_ADDRESS " + message));
   // Publish only a generation whose page and worker ran one compile.
   assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.compiles());
   await checkHumanViewerCandidateSource();

@@ -17,7 +17,10 @@ export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
   const errors = sources.errors();
   return {
     service: "automovie-human-viewer",
-    pid: process.pid,
+    // Ownership is judged by the pid in the process record: the launcher's
+    // when one started this server.
+    pid: sources.owner ?? process.pid,
+    serverPid: process.pid,
     port: sources.port,
     revision: inventory.revision,
     renderer,

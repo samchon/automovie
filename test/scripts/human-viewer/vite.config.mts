@@ -16,6 +16,7 @@ import { createHumanViewerCompileInputs } from "./createHumanViewerCompileInputs
 import { createHumanViewerSourceResolver } from "./createHumanViewerSourceResolver";
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
 import { humanViewerInstance } from "./humanViewerInstance";
+import { humanViewerLaunch } from "./humanViewerLaunch";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 import { runHumanViewerCompile } from "./runHumanViewerCompile";
 import { stampHumanViewerCompile } from "./stampHumanViewerCompile";
@@ -30,6 +31,8 @@ let server: ViteDevServer;
  */
 export const humanViewerCompileGate = createHumanViewerCompileGate();
 const served = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+/** Whether a launcher owns the public port. */
+const launched = process.env[humanViewerLaunch.ownerVariable] !== undefined;
 // The transform runs in a child process: it is a synchronous call that takes
 // tens of seconds, and inside this process it froze every request. Each
 // viewer reports its own compilation, so a second viewer never overwrites it.
@@ -130,8 +133,12 @@ export default defineConfig({
   },
   server: {
     host: "127.0.0.1",
-    port: served.port,
+    // Under a launcher the public port is the launcher's: this server takes a
+    // free internal port, and the page's update socket goes through the
+    // launcher on the public one.
+    port: launched ? Number(process.env[humanViewerLaunch.internalVariable]) : served.port,
     strictPort: true,
+    hmr: launched ? { clientPort: served.port } : undefined,
     fs: { allow: [path.resolve(directory, "../../..")] },
   },
 });
