@@ -184,7 +184,7 @@ export function createAutoMovieSignedMeshQuery(
     const determinant = aa * bb - abac * abac;
     if (!(determinant > 0) || !Number.isFinite(determinant))
       throw new Error(
-        "Signed mesh triangle arithmetic must have finite positive rank.",
+        "Signed mesh triangle arithmetic must have finite positive rank: triangle " + at / 3 + ", vertices " + source.join(",") + ", determinant " + determinant + ", points " + JSON.stringify(points) + ".",
       );
     const segments: Triangle["segments"] = [];
     for (let corner = 0; corner < 3; corner++) {
