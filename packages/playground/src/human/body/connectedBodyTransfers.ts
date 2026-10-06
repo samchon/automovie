@@ -14,7 +14,7 @@ import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 export function connectedBodyTransfers(
   result: ConnectedBodyResult,
 ): ArrayBuffer[] {
-  if (result.operation === "export") return [result.glb.buffer];
+  if (result.operation === "export" || result.operation === "exportConstruction") return [result.glb.buffer];
   if (result.operation === "armsDown") return [];
   const buffers: ArrayBuffer[] = [];
   for (const part of result.model.parts) {
