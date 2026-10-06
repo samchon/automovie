@@ -1,9 +1,7 @@
-import {
-  createHumanBodyHumeralHeads,
-  measureHumanBodySpheresSkinClearance,
-  projectHumanBodySimpleShape,
-  resolveHumanBodyAnatomy,
-} from "@automovie/human";
+import { createHumanBodyHumeralHeads } from "@automovie/human/body/anatomy/shoulder/createHumanBodyHumeralHeads";
+import { measureHumanBodySpheresSkinClearance } from "@automovie/human/body/anatomy/contact/measureHumanBodySpheresSkinClearance";
+import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
+import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
 
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";

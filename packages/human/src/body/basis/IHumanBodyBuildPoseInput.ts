@@ -42,4 +42,7 @@ export interface IHumanBodyBuildPoseInput {
 
   /** Shared prepared rig for a source capability with pose-independent anchors. */
   rig?: IAutoMovieHumanBodySkeletonRig;
+
+  /** Internal reference preparation omits the pelvis turn; final performance omits this field. */
+  phase?: "pre-pelvis";
 }

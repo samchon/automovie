@@ -15,15 +15,17 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBodyBuildPoseInput } from "./IHumanBodyBuildPoseInput";
+import type { IHumanBodyBuildPose } from "./IHumanBodyBuildPose";
+import { resolveHumanBodyAnatomicalBuildPose } from "./resolveHumanBodyAnatomicalBuildPose";
+import { resolveHumanBodyNeutralAssemblyPose } from "./resolveHumanBodyNeutralAssemblyPose";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { readHumanBodyResolvedClinicalPose } from "./readHumanBodyResolvedClinicalPose";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 
 /**
  * Give skinning its rest-to-posed transforms only after every clinical reading
@@ -34,7 +36,7 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  * the basis and authored pose untouched. The caller has already checked the
  * named TT shoulder goal against its basis range.
  */
-export function resolveHumanBodyBuildPose(input: IHumanBodyBuildPoseInput) {
+export function resolveHumanBodyBuildPose(input: IHumanBodyBuildPoseInput): IHumanBodyBuildPose {
   const { basis, document, poseRows, landmarks } = input;
   const rig = input.rig ?? resolveHumanBodySkeleton(
     basis,
@@ -56,19 +58,22 @@ export function resolveHumanBodyBuildPose(input: IHumanBodyBuildPoseInput) {
       "Body pose violates the skeleton or its clinical ranges: " +
         JSON.stringify(violations),
     );
+  if (basis.anatomicalAssembly?.mode === "neutral-only")
+    return resolveHumanBodyNeutralAssemblyPose(input, rig);
+  if (basis.anatomicalAssembly !== undefined)
+    return resolveHumanBodyAnatomicalBuildPose(input, rig);
+  if (document.anatomicalMotion !== undefined)
+    throw new Error("Anatomical motion needs a registered source assembly on this body basis.");
   const transforms = new Map<
     AutoMovieHumanoidBone,
-    {
-      rest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-      posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-    }
+    IAutoMovieHumanBodyBoneTransform
   >();
   // The rhythm leaves the trunk and both thighs where the document put
   // them relative to the trunk and turns only the pelvis, posteriorly by
   // the tilt about the line through both hip centres, which leaves the hip
   // centres, the lifted thigh's authored direction and the other foot in
   // place while the pelvis-to-thigh and pelvis-to-lumbar angles change.
-  const tilt = -(
+  const tilt = input.phase === "pre-pelvis" ? 0 : -(
     rhythm.contributions.find((one) => one.bone === "hips")?.degrees ?? 0
   );
   const resolvedBones = resolveHumanBodyShoulders(

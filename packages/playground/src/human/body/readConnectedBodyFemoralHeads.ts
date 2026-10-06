@@ -1,7 +1,5 @@
-import {
-  createHumanBodyFemoralHeadsFromAnatomicalMeasurements,
-  measureHumanBodySpheresSkinClearance,
-} from "@automovie/human";
+import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "@automovie/human/body/anatomy/lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
+import { measureHumanBodySpheresSkinClearance } from "@automovie/human/body/anatomy/contact/measureHumanBodySpheresSkinClearance";
 
 import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IReadConnectedBodyHumeralHeadsProps } from "./IReadConnectedBodyHumeralHeadsProps";

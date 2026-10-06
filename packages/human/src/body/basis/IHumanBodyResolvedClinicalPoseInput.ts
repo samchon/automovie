@@ -42,4 +42,11 @@ export interface IHumanBodyResolvedClinicalPoseInput {
 
   /** Posterior pelvifemoral tilt the pelvis turn applied, in degrees; zero for none. */
   tilt: number;
+
+  /**
+   * Read every actual frame through the engine inverse when a source graph
+   * can add independent articulation. Omission retains the legacy resolver's
+   * exact authored-coordinate and proved sagittal composition shortcuts.
+   */
+  actualFrames?: true;
 }

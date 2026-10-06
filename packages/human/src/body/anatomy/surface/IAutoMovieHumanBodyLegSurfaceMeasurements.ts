@@ -1,7 +1,5 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodySkinfoldThickness } from "../measurements/IAutoMovieHumanBodySkinfoldThickness";
-import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMovieHumanBodySurfaceDistance";
-import type { IAutoMovieHumanBodySurfaceGirth } from "../measurements/IAutoMovieHumanBodySurfaceGirth";
+import type { IAutoMovieHumanBodyLegSurfaceMeasurementFields } from "./IAutoMovieHumanBodyLegSurfaceMeasurementFields";
 
 /**
  * Exterior dimensions of one anatomical leg between knee and ankle.
@@ -13,16 +11,4 @@ import type { IAutoMovieHumanBodySurfaceGirth } from "../measurements/IAutoMovie
  * @author Samchon
  */
 export type IAutoMovieHumanBodyLegSurfaceMeasurements =
-  AutoMovieHumanBodyNonemptyMeasurements<{
-    /** Horizontal girth across the middle of the patella. */
-    kneeGirth?: IAutoMovieHumanBodySurfaceGirth;
-    kneeHeight?: IAutoMovieHumanBodySurfaceDistance;
-    /** Greatest relaxed calf girth perpendicular to the leg axis. */
-    maximumCalfGirth?: IAutoMovieHumanBodySurfaceGirth;
-    /** Medial calf skinfold at its greatest girth station. */
-    medialCalfSkinfold?: IAutoMovieHumanBodySkinfoldThickness;
-    /** Smallest girth above the medial and lateral malleoli. */
-    ankleGirth?: IAutoMovieHumanBodySurfaceGirth;
-    /** Lateral femoral epicondyle to the lateral malleolus. */
-    kneeToAnkleLength?: IAutoMovieHumanBodySurfaceDistance;
-  }>;
+  AutoMovieHumanBodyNonemptyMeasurements<IAutoMovieHumanBodyLegSurfaceMeasurementFields>;

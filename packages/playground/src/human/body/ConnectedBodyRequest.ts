@@ -1,6 +1,8 @@
 import type { IConnectedBodyArmsDownRequest } from "./IConnectedBodyArmsDownRequest";
 import type { IConnectedBodyExportRequest } from "./IConnectedBodyExportRequest";
 import type { IConnectedBodyPreviewRequest } from "./IConnectedBodyPreviewRequest";
+import type { IConnectedBodyConstructionRequest } from "./IConnectedBodyConstructionRequest";
+import type { IConnectedBodyConstructionExportRequest } from "./IConnectedBodyConstructionExportRequest";
 
 /** A preview computes buffers; an export computes a file.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Requests the body's numerical preview independently of file encoding.
@@ -11,4 +13,6 @@ import type { IConnectedBodyPreviewRequest } from "./IConnectedBodyPreviewReques
 export type ConnectedBodyRequest =
   | IConnectedBodyPreviewRequest
   | IConnectedBodyExportRequest
-  | IConnectedBodyArmsDownRequest;
+  | IConnectedBodyArmsDownRequest
+  | IConnectedBodyConstructionRequest
+  | IConnectedBodyConstructionExportRequest;

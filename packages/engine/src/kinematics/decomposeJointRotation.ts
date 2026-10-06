@@ -7,6 +7,7 @@ import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "./normalizeJointAxes";
+import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 
 const RAD2DEG = 180 / Math.PI;
 const QUATERNION_AXES = ["x", "y", "z", "w"] as const;
@@ -58,17 +59,13 @@ export const decomposeJointRotation = (
   q: IAutoMovieQuaternion,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
-): { flexion: number; abduction: number; twist: number } => {
+): IAutoMovieResolvedJointAngles => {
   assertFiniteQuaternion(q);
   const basis = normalizeJointAxes(axes, "decomposeJointRotation axes");
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const lift = (rig: {
-    flexion: number;
-    abduction: number;
-    twist: number;
-  }): { flexion: number; abduction: number; twist: number } => ({
+  const lift = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,

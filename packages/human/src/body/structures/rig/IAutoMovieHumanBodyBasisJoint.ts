@@ -4,6 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBodySourceReferenceGoal";
+import type { IAutoMovieHumanBodyJointSigns } from "./IAutoMovieHumanBodyJointSigns";
+import type { IAutoMovieHumanBodyJointNeutral } from "./IAutoMovieHumanBodyJointNeutral";
+import type { IAutoMovieHumanBodyShoulderContract } from "./IAutoMovieHumanBodyShoulderContract";
 
 /**
  * One rig joint defined by two shape-dependent landmarks and a parent bone.
@@ -67,11 +70,7 @@ export interface IAutoMovieHumanBodyBasisJoint {
    * the sign of external rotation. Null marks an axis the constraint holds
    * immobile. These become the bone's `IAutoMovieRestFrame` at pose time.
    */
-  signs: {
-    flexion: 1;
-    abduction: 1 | -1 | null;
-    twist: 1 | -1 | null;
-  };
+  signs: IAutoMovieHumanBodyJointSigns;
 
   /**
    * Clinical rest angle of each non-humeral axis in degrees, measured from
@@ -79,11 +78,7 @@ export interface IAutoMovieHumanBodyBasisJoint {
    * their separate `shoulder.neutral` records the A-pose direction and
    * axial zero in the thorax's anatomical frame.
    */
-  neutral: {
-    flexion: number;
-    abduction: number;
-    twist: number;
-  };
+  neutral: IAutoMovieHumanBodyJointNeutral;
 
   /** Generic clinical range, or null for the root; all upper-arm generic axes are held. */
   constraint: IAutoMovieJointConstraint | null;
@@ -115,30 +110,5 @@ export interface IAutoMovieHumanBodyBasisJoint {
    * upper arms carry this field. Their generic Euler axes are held at zero;
    * the shoulder goal is resolved from the thorax after girdle coupling.
    */
-  shoulder?: {
-    coordinates: "thorax-tt";
-    /** Anatomical A-pose direction and axial zero in thorax coordinates. */
-    neutral: {
-      plane: number;
-      elevation: number;
-      axialRotation: number;
-    };
-    /**
-     * Total humerothoracic elevation and axial rotation in degrees, and the
-     * plane-dependent reach (`humanBodyShoulderReaches`).
-     */
-    range: {
-      elevation: { min: number; max: number };
-      axialRotation: { min: number; max: number };
-      /**
-       * The humeral joint sinus as `[plane, maximum total elevation]` knots:
-       * at least three, planes strictly increasing inside [-180, 180),
-       * maxima in (0, `elevation.max`], linear between neighbours and
-       * periodic across the -180/180 seam. A goal is admitted when its
-       * elevation is at most the envelope at its plane; the overhead pole
-       * is admitted when any knot reaches 180.
-       */
-      envelope: [number, number][];
-    };
-  };
+  shoulder?: IAutoMovieHumanBodyShoulderContract;
 }

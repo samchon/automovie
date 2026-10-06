@@ -1,4 +1,6 @@
 import type { IAutoMovieHumanBodyToeRay } from "./rig/IAutoMovieHumanBodyToeRay";
+import type { IAutoMovieHumanBodyAtlasPartResource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasPartResource";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasisCoupling } from "./rig/IAutoMovieHumanBodyBasisCoupling";
@@ -35,8 +37,11 @@ import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHum
  * (`createHumanBodyBasisBuilder`).
  *
  * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
- * must move at least one resident skin vertex or landmark. A surface or the
- * landmark set may omit rows for an endpoint it does not move. The current r16
+ * must move at least one resident skin vertex or landmark in a standalone
+ * body. A person may supply the exact same-generation head source with actual
+ * endpoint driver contributions; its constructor verifies those external rows
+ * separately. A surface or the landmark set omits rows for an endpoint it does
+ * not move. The current r16
  * study has 1,859 declared endpoints on skin and 183 with landmark rows;
  * only those 183 also reposition rig points. Changes to geometry, endpoints,
  * landmarks, joints or weights require a new basis identity.
@@ -62,6 +67,22 @@ import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHum
 export interface IAutoMovieHumanBodyBasis {
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
+
+  /**
+   * Offline acquired bone surfaces with rights and exact reference placement.
+   * Default builds omit them; document `anatomicalInspection` selects their
+   * named IDs. These reference atlas surfaces certify no clinical resolution
+   * or personal skin/tissue registration and cannot be scaled to another shape.
+   */
+  anatomicalCandidates?: IAutoMovieHumanBodyAtlasPartResource[];
+
+  /**
+   * One registered anatomical rest graph and acquired/authored tissue surfaces.
+   * Every source part consumes that graph's actual posed result; this source
+   * does not change independently validated clinical resolution. Registration
+   * names this exact basis/shape and is not inferred from a part's bbox.
+   */
+  anatomicalAssembly?: IAutoMovieHumanBodyAnatomicalAssembly;
 
   /** Ordered dimensionless shape controls. */
   channels: IAutoMovieHumanBodyBasisChannel[];

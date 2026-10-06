@@ -1,5 +1,6 @@
-import { IAutoMovieMesh, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieValidation } from "@automovie/interface";
 
+import type { IAutoMovieMeshTopologyValidationProps } from "./IAutoMovieMeshTopologyValidationProps";
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
@@ -35,16 +36,9 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateMeshTopology` preserves each welded edge identity and observed incidence count or orientation beside the topology constraint.
  * @author Samchon
  */
-export const validateMeshTopology = (props: {
-  /** Mesh to check. */
-  mesh: IAutoMovieMesh;
-
-  /** JSON path of the mesh being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** When set, a boundary (open) edge is also an error: the mesh must close. */
-  expectClosed?: boolean;
-}): IAutoMovieValidation => {
+export const validateMeshTopology = (
+  props: IAutoMovieMeshTopologyValidationProps,
+): IAutoMovieValidation => {
   const collector = new ViolationCollector();
   appendMeshTopology(
     props.mesh,

@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import { HUMAN_BODY_EXTERIOR_GAPS } from "./surface/HUMAN_BODY_EXTERIOR_GAPS";
 import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGETS";
 
@@ -8,8 +9,11 @@ import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGE
  *
  * Every supplied measurement must be fulfilled, never silently kept:
  *
- * - an observed value refuses as `acquisition-not-registered`, since no
- *   acquisition posture, plane or site is registered on the source skin;
+ * - an exact loaded-source quantity binding admits its actual compartment,
+ *   unit, protocol and target field. A registered observed record reaches
+ *   raw/acquisition-availability reporting without changing geometry;
+ * - an unregistered observed value refuses as `acquisition-not-registered`,
+ *   since no acquisition posture, plane or site is registered on the source;
  * - a path `HUMAN_BODY_EXTERIOR_TARGETS` binds is admitted, but its solving
  *   channel must not also appear in `shape`, because one value would then
  *   have two authorities;
@@ -22,7 +26,7 @@ import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGE
  *
  * The caller's document is not changed.
  *
- * @evidence contracts/common.md#principled-implementation The target and gap tables are the only authorities for what a supplied path means.
+ * @evidence contracts/common.md#principled-implementation Existing exterior/gap tables and exact loaded-source quantity bindings own supported paths; member, unit, protocol and field authority are required before new internal records reach their actual consumer.
  * @evidence contracts/common.md#clear-and-simple-design One walk of the supplied tree with four outcomes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is kept without a consumer and no channel has two authorities.
  * @evidence contracts/common.md#meaningful-documentation States each refusal and its reason.
@@ -40,6 +44,7 @@ import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGE
 export function admitHumanBodyDocumentAnatomy(
   anatomy: IAutoMovieHumanBodyAnatomicalMeasurements,
   shape: Readonly<Record<string, number>>,
+  source?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): void {
   const walk = (node: unknown, at: string): void => {
     // a scalar choice such as a phalangeal pattern describes an
@@ -49,6 +54,18 @@ export function admitHumanBodyDocumentAnatomy(
     if (!Object.hasOwn(node, "kind")) {
       for (const [key, child] of Object.entries(node))
         if (child !== undefined) walk(child, at === "" ? key : at + "." + key);
+      return;
+    }
+    const registered = source?.parts.flatMap(part => (part.quantityBindings ?? []).map(binding => ({ part, binding }))).filter(one => one.binding.path === at) ?? [];
+    if (registered.length > 1) throw new Error(`anatomy.${at} has ambiguous source quantity ownership.`);
+    if (registered.length === 1) {
+      const { part, binding } = registered[0];
+      if (!("millilitres" in node) || typeof node.millilitres !== "number" || !Number.isFinite(node.millilitres) || node.millilitres <= 0 ||
+        binding.sourceProtocol.trim() === "" || binding.targetCondition.trim() === "" || binding.members.length === 0 ||
+        new Set(binding.members).size !== binding.members.length || binding.members.some(member => !part.surfaces.some(surface => surface.id === member)))
+        throw new Error(`source-volume-binding-unavailable:anatomy.${at}`);
+      if ((node as Record<string, unknown>).kind === "target" && !part.shapeFields?.some(field => field.id === binding.field))
+        throw new Error(`source-shape-field-unavailable:anatomy.${at}`);
       return;
     }
     if ((node as Record<string, unknown>).kind === "observed")

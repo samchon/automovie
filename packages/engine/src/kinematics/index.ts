@@ -15,6 +15,7 @@ export * from "./armChainFault";
 export * from "./clinicalDeviation";
 export * from "./constants";
 export * from "./decomposeJointRotation";
+export type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
 export * from "./indexSkeletonTopology";

@@ -10,6 +10,10 @@ import { readHumanStaticPartCorrespondence } from "../../common/export/readHuman
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import type { IAutoMovieHumanBodyArticularQualification } from "./IAutoMovieHumanBodyArticularQualification";
 import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
+import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBodyAtlasQualification";
+import { writeHumanBodyAtlasQualification } from "./writeHumanBodyAtlasQualification";
+import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHumanBodyAssemblyQualification";
+import { writeHumanBodyAssemblyQualification } from "./writeHumanBodyAssemblyQualification";
 
 /**
  * Serialize a built body to GLB and glTF with resident resources.
@@ -35,16 +39,27 @@ import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticu
  * omitted, undefined and false preserve source-part namespace absence. Legacy
  * models without physical correspondence retain their default bytes. An articular report
  * always requires its source mapping, regardless of that independent option.
+ * A separate fourth atlas report retains acquired source rights, exact
+ * reference registration and unavailable personal anatomy in the
+ * `automovieAtlasInspection` namespace. Its selected source IDs must join
+ * actual primitive members; ordinary skin receives no atlas qualification.
+ * A fifth coarse-assembly report carries acquired or authored tissue member
+ * rights and shared registration under `automovieAnatomicalAssembly` through
+ * those same actual intervals. Its clinical state remains unavailable.
  *
  * @evidence contracts/common.md#principled-implementation Common construction owns actual intervals and admission; this writer joins only exact candidate IDs and qualification in the same Document before the original serialization.
  * @evidence contracts/common.md#clear-and-simple-design Optional candidate qualification extends the existing body writer without a second container or a reconstructed merge.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanExportOptions): Promise<IAutoMovieHumanGltfExport> {
+export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanExportOptions, atlas?: IAutoMovieHumanBodyAtlasQualification, assembly?: IAutoMovieHumanBodyAssemblyQualification): Promise<IAutoMovieHumanGltfExport> {
+  if (atlas === undefined && model.parts.some((part) => /^anatomical-atlas:/.test(part.id)))
+    throw new Error("Atlas inspection export needs its source rights and reference qualification.");
+  if (assembly === undefined && model.parts.some((part) => /^anatomical-source:/.test(part.id)))
+    throw new Error("Coarse anatomical export needs its source rights and shared registration qualification.");
   const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
   const admitted = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanExportOptions>(options);
-  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || admitted?.sourcePartIdentity === true });
+  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || atlas !== undefined || assembly !== undefined || admitted?.sourcePartIdentity === true });
   if (report !== undefined) {
     if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)
       throw new Error("Unsupported or empty articular inspection qualification.");
@@ -69,6 +84,8 @@ export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAuto
       readHumanBodyArticularAssetCorrespondence(primitive);
     }
   }
+  if (atlas !== undefined) writeHumanBodyAtlasQualification(document, atlas);
+  if (assembly !== undefined) writeHumanBodyAssemblyQualification(document, assembly);
   const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);

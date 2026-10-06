@@ -1,6 +1,7 @@
 import type { AutoMovieHumanBodyBoneId } from "../identity/AutoMovieHumanBodyBoneId";
 import type { AutoMovieHumanBodyConnectiveTissueId } from "../identity/AutoMovieHumanBodyConnectiveTissueId";
 import type { AutoMovieHumanBodyMuscleId } from "../identity/AutoMovieHumanBodyMuscleId";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 import type { IAutoMovieHumanBodyGeneratedMaterialPart } from "./IAutoMovieHumanBodyGeneratedMaterialPart";
 
 type GeneratedMaterialPart<
@@ -17,9 +18,11 @@ type GeneratedMaterialPart<
  * Connective tissue is not mislabeled bone or muscle. A continuous outer
  * subcutaneous depot is one material region; breast and abdominal readings
  * constrain subregions without double-counting them as duplicate solids.
+ * Each breast's fibroglandular region is a separate tissue owner, excluding
+ * its adipose subregion and underlying pectoralis muscle.
  * The shared exterior skin is a separate connected output, not an input mesh.
  * @evidence contracts/common.md#principled-implementation Distributing one named record over each id binds id and tissue at the type level.
- * @evidence contracts/common.md#clear-and-simple-design One record type distributed over the five tissue families.
+ * @evidence contracts/common.md#clear-and-simple-design One record type distributed over the six tissue families, including the paired breast glandular owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Connective tissue cannot be labelled bone or muscle.
  * @evidence contracts/common.md#meaningful-documentation States solids, groups and the separate skin.
  * @evidence contracts/modeling.md#part-identity-and-grouping Every named part has one owner and one tissue; groups are not duplicate solids.
@@ -50,6 +53,7 @@ export type IAutoMovieHumanBodyGeneratedPart =
       >,
       "cartilage"
     >
+  | GeneratedMaterialPart<`${AutoMovieHumanBodySide}BreastFibroglandular`, "fibroglandular">
   | GeneratedMaterialPart<
       "subcutaneousAdipose" | "abdominalVisceralAdipose",
       "adipose"

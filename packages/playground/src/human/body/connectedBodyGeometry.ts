@@ -8,7 +8,7 @@
  * them to GPU precision. Omission keeps the original preview payload.
  */
 import { validateMeshTopology } from "@automovie/engine";
-import { float32MeshBuffers } from "@automovie/human";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";

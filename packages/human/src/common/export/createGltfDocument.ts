@@ -102,7 +102,7 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
       );
     });
     const mesh = mergeAutoMovieMeshes(meshes);
-    const packed = float32MeshBuffers(mesh);
+    const packed = float32MeshBuffers(mesh, "material:" + finish.id + " parts:" + members.map((part) => part.id).join(","));
     // Quantization can merge separate edges even while every individual face
     // retains its area. Check all final material groups for manifold/winding
     // agreement; only a positive optical thickness additionally requires closure.

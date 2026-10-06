@@ -7,7 +7,7 @@ import type { IAutoMovieHumanBodyBoneWorldRest } from "./IAutoMovieHumanBodyBone
  *
  * @evidence contracts/common.md#principled-implementation Both placements travel together so skinning reads one consistent pair.
  * @evidence contracts/common.md#clear-and-simple-design A named pair replacing the inline transform objects.
- * @evidenceExclude contracts/common.md#prohibited-implementation-shortcuts A carrier; it substitutes nothing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rest and posed world placements remain a pair from one evaluation; the rest reference is not overwritten by the performed frame or replaced by a clinical bone surface.
  * @evidence contracts/common.md#meaningful-documentation States how skinning uses the pair.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The map key names the bone.
  * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.

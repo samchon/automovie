@@ -1,6 +1,5 @@
 import { swingConeAngle } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieJointPose,
 } from "@automovie/interface";
 
@@ -8,6 +7,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
 import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
+import type { IHumanBodyCouplingResult } from "./IHumanBodyCouplingResult";
 
 /**
  * Add the basis's declared couplings to a document's clinical pose.
@@ -75,18 +75,7 @@ export function resolveHumanBodyCouplings(
     IAutoMovieHumanBodyShoulderPose["bone"],
     IAutoMovieHumanBodyShoulderPose
   > = new Map(),
-): {
-  /** The document's joints with every nonzero coupled ordinate added; the document's own entries when nothing is coupled. */
-  joints: IAutoMovieJointPose[];
-
-  /** Each nonzero addition, in coupling order, for the editor to show beside the joint row. */
-  contributions: {
-    coupling: string;
-    bone: AutoMovieHumanoidBone;
-    axis: "flexion" | "abduction" | "twist";
-    degrees: number;
-  }[];
-} {
+): IHumanBodyCouplingResult {
   const neutral = new Map(
     basis.joints.map((joint) => [joint.bone, joint.neutral]),
   );

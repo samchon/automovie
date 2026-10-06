@@ -5,6 +5,7 @@ import type {
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
+import type { IHumanBodyPelvifemoralResult } from "./IHumanBodyPelvifemoralResult";
 
 const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
 
@@ -37,15 +38,7 @@ const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
 export function resolveHumanBodyPelvifemoralRhythm(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "pelvifemoral">,
   joints: readonly IAutoMovieJointPose[],
-): {
-  joints: IAutoMovieJointPose[];
-  contributions: {
-    coupling: string;
-    bone: AutoMovieHumanoidBone;
-    axis: "flexion";
-    degrees: number;
-  }[];
-} {
+): IHumanBodyPelvifemoralResult {
   const result = joints.map((joint) => ({ ...joint }));
   const rhythm = basis.pelvifemoral;
   if (rhythm === undefined) return { joints: result, contributions: [] };

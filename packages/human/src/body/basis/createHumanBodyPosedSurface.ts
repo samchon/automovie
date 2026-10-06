@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IHumanBodyPosedSurfaceInput } from "./IHumanBodyPosedSurfaceInput";
 import { createHumanBodySurfaceMush } from "./createHumanBodySurfaceMush";
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { humanBodySkinDownDirection } from "./humanBodySkinDownDirection";
@@ -29,13 +29,7 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
 export function createHumanBodyPosedSurface(
   surface: Surface,
   joints: IAutoMovieHumanBodyBasis["joints"],
-): (input: {
-  shaped: number[];
-  transforms: Parameters<typeof skinHumanBodySurface>[3];
-  rest: number[] | null;
-  lean: () => number[];
-  document: IAutoMovieHumanBodyBasisDocument;
-}) => number[] {
+): (input: IHumanBodyPosedSurfaceInput) => number[] {
   const sag =
     surface.sag === undefined
       ? null

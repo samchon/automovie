@@ -20,6 +20,7 @@ export interface IAutoMovieJointAxes {
    * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Binds flexion input to its bone-local rotation axis.
    */
   flexion: IAutoMovieVector3;
+
   /**
    * Axis `abduction` rotates about (frontal).
    *
@@ -27,6 +28,7 @@ export interface IAutoMovieJointAxes {
    * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Binds abduction input to its bone-local rotation axis.
    */
   abduction: IAutoMovieVector3;
+
   /**
    * Axis `twist` rotates about (the bone's long axis).
    *
@@ -34,6 +36,7 @@ export interface IAutoMovieJointAxes {
    * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Binds twist input to its bone-local rotation axis.
    */
   twist: IAutoMovieVector3;
+
   /**
    * Where the axial rotation sits relative to the swing, which fixes the
    * composition order; omitted, `"proximal"`.

@@ -17,13 +17,11 @@ import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourc
 import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearance";
+import type { IHumanBodySurfacePartsInput } from "./IHumanBodySurfacePartsInput";
+import type { IAutoMovieHumanBodyPosedSurface } from "../structures/IAutoMovieHumanBodyPosedSurface";
 import { createHumanBodyPosedSurface } from "./createHumanBodyPosedSurface";
 import { createHumanBodySurfaceRegionParts } from "./createHumanBodySurfaceRegionParts";
-import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
-import type { skinHumanBodySurface } from "./skinHumanBodySurface";
 
 /**
  * Form each posed skin surface once, then project it into its authored material
@@ -72,17 +70,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, phy
     createHumanBodyPosedSurface(surface, basis.joints),
   );
   const regionParts = basis.surfaces.map(createHumanBodySurfaceRegionParts);
-  return (input: {
-    document: IAutoMovieHumanBodyBasisDocument;
-    shaped: ReturnType<typeof evaluateHumanBodyShape>;
-    posed: boolean;
-    transforms: Parameters<typeof skinHumanBodySurface>[3];
-    restAll: () => ReturnType<typeof evaluateHumanBodyShape>;
-    leanOf: (index: number) => number[];
-    coloured: ReturnType<
-      ReturnType<typeof createHumanBodyAppearance>
-    >["coloured"];
-  }) => {
+  return (input: IHumanBodySurfacePartsInput) => {
     const { document, shaped, posed, transforms, restAll, leanOf, coloured } =
       input;
     const skin = HUMAN_BODY_SKIN_SITES.material;
@@ -94,7 +82,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, phy
       )
         ? restAll()
         : null;
-    const posedSurfaces: { positions: number[]; normals: number[] }[] = [];
+    const posedSurfaces: IAutoMovieHumanBodyPosedSurface[] = [];
     const parts: IAutoMovieModel["parts"] = basis.surfaces.flatMap(
       (surface, index) => {
         const positions = posedSurface[index]({

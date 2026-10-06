@@ -1,10 +1,16 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
+import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
+import type { IAutoMovieHumanBodySourceJointGoal } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceJointGoal";
 
 import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyToePose } from "./IAutoMovieHumanBodyToePose";
 import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanBodyThighGoal } from "./IAutoMovieHumanBodyThighGoal";
 import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
+import type { IAutoMovieHumanBodyHumeralHeadRadii } from "./IAutoMovieHumanBodyHumeralHeadRadii";
+import type { IAutoMovieHumanBodySkinColour } from "./IAutoMovieHumanBodySkinColour";
+import type { IAutoMovieHumanBodySkinLayerStrength } from "./IAutoMovieHumanBodySkinLayerStrength";
+import type { IAutoMovieHumanBodyMaterialOverride } from "./IAutoMovieHumanBodyMaterialOverride";
 
 /**
  * Compact edits against a separately supplied immutable body basis.
@@ -45,10 +51,30 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * `HUMAN_BODY_EXTERIOR_TARGETS` binds along its channel over `shape`
    * (`resolveHumanBodyAnatomy`), so the measurement holds however the other
    * weights change. Admission (`admitHumanBodyDocumentAnatomy`) refuses an
-   * observed value, a bound channel also authored in `shape`, a gap path and
-   * a path with no consumer, rather than keeping an unfulfilled value.
+   * unregistered observed value, an exterior target's bound channel also
+   * authored in `shape`, a gap path and a path with no consumer. Observed
+   * volumes registered by the exact loaded source are retained as raw
+   * acquisition records; `dataSourceShapes` reports unavailable acquisition
+   * comparison without changing geometry.
    */
   anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements;
+
+  /**
+   * Explicit reference-atlas bone inspection, never a request for personal
+   * tissue inference. Each selected ID needs a source resource registered to
+   * the exact solved shape; unsupported shape or missing source refuses by
+   * part. Omission displays no atlas bones. The selected static meshes also
+   * enter person export with separate material identities.
+   */
+  anatomicalInspection?: AutoMovieHumanBodyBoneId[];
+
+  /**
+   * Named anatomical joint coordinates of the registered source assembly.
+   * Each coordinate must be supported by the owning source joint/profile;
+   * absent assembly or conflicting public pose authority refuses. These are
+   * performance requests, not source frames or clinical range observations.
+   */
+  anatomicalMotion?: IAutoMovieHumanBodySourceJointGoal[];
 
   /**
    * Optional measured spherical humeral-head radii in millimetres. These
@@ -57,10 +83,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * observed age and stature domain; a radius is not a shaft contour or a
    * request for the user to place vertices in 3D.
    */
-  humeralHeads?: {
-    leftRadiusMillimetres?: number;
-    rightRadiusMillimetres?: number;
-  };
+  humeralHeads?: IAutoMovieHumanBodyHumeralHeadRadii;
 
   /**
    * Optional non-humeral joint articulation in clinical degrees, sparse and
@@ -94,13 +117,22 @@ export interface IAutoMovieHumanBodyBasisDocument {
   toes?: IAutoMovieHumanBodyToePose[];
 
   /**
+   * Optional vertical placement of the lowest performed foot on the fixed
+   * source ground plane. Every part and posed bone receives one translation;
+   * joint angles remain authored and a higher foot remains airborne. This is
+   * geometric placement, not balance, foot orientation or bilateral IK.
+   * Omission preserves the source-root pose, including intentional flight.
+   */
+  groundPlacement?: "lowest-foot";
+
+  /**
    * Optional skin colour by anatomical site: the cheek albedo the face wears,
    * linear RGB, each channel in (0,1]. The skin material's regions are then
    * coloured by site from it (`HUMAN_BODY_SKIN_SITES`), meeting the face in
    * that colour at the neck; omission keeps the one material colour. A colour
    * override of that material in `materials` is refused beside it.
    */
-  skinColour?: { cheek: { r: number; g: number; b: number } };
+  skinColour?: IAutoMovieHumanBodySkinColour;
 
   /**
    * Optional micro-relief of the skin: the skin material takes a tiled
@@ -108,7 +140,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * `strength` in [0,1], deepening with the document's age; omission keeps
    * the skin smooth.
    */
-  skinDetail?: { strength: number };
+  skinDetail?: IAutoMovieHumanBodySkinLayerStrength;
 
   /**
    * Optional uneven tone of the skin: the skin material takes a tiled
@@ -118,7 +150,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * so the skin's mean colour stays the site albedo. Omission keeps the tone
    * even.
    */
-  skinTone?: { strength: number };
+  skinTone?: IAutoMovieHumanBodySkinLayerStrength;
 
   /**
    * Optional superficial veins of the skin, where the basis draws them:
@@ -127,7 +159,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * hides them further, as a vein deeper under the skin takes less light.
    * A request without any declared vein layer is refused. Omission shows none.
    */
-  skinVeins?: { strength: number };
+  skinVeins?: IAutoMovieHumanBodySkinLayerStrength;
 
   /**
    * Optional plain default underwear: boxer briefs, or a sports bra and
@@ -138,8 +170,5 @@ export interface IAutoMovieHumanBodyBasisDocument {
   underwear?: IAutoMovieHumanBodyUnderwear;
 
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
-  materials?: Record<
-    string,
-    { color?: { r: number; g: number; b: number }; roughness?: number }
-  >;
+  materials?: Record<string, IAutoMovieHumanBodyMaterialOverride>;
 }
