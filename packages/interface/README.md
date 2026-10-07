@@ -86,3 +86,7 @@ automovie는 **glTF / VRM 규약**을 따른다.
 > 코드 저작의 정본은 `authoring/`이며 `@automovie/engine`의 `defineShot`이 이를 실행한다. `harness/`에서 엔진이 계속 소비하는 것은 action/target/beat-end 같은 저수준 어휘뿐이며, 외부 에이전트는 이를 tracked TypeScript 안에서 사용한다.
 
 타입 하나하나의 의미·단위·범위는 필드 JSDoc이 정본이다. 왜 그렇게 나뉘었는지는 위의 네이밍 컨벤션과 도메인 폴더 표가 담고 있다.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

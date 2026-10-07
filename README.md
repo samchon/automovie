@@ -43,6 +43,7 @@ npx create-automovie <dir> --language korean
 cd <dir>
 npm install --package-lock=false
 npm run lint
+npm run evidence
 ```
 
 Choose `chinese`, `english`, `japanese`, or `korean` explicitly. The scaffold starts without a production kind or authored content. Follow its installed `AGENTS.md` to select a kind and author the required documents and source. Installation is one-way; the project's tracked files remain its own after package upgrades.
@@ -72,6 +73,7 @@ The [scaffold README](./packages/template/scaffold/README.md#canonical-command-r
 ```bash
 pnpm install
 pnpm run build
+pnpm run evidence
 pnpm run test
 ```
 

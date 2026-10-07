@@ -54,7 +54,7 @@ The [root package map](../../../README.md#packages) and each package README own 
 
 The [root README](../../../README.md#repository-development) lists the install, build and test entry points, and each package README owns its own scripts. Facts the tree does not show:
 
-- `pnpm run build` also runs the docs evidence lint, so a contract or citation defect fails the build.
+- `pnpm run build` compiles packages with ordinary correctness lint. `pnpm run evidence` independently checks the repository graph with `@wrtnlabs/evidence`, followed by the existing native documentation, singular-identity, and todo guards. Contract or citation defects fail the evidence gate.
 - The [development skill](../development/SKILL.md#testing) owns the test commands, and `pnpm run format` runs once before merge under the [pull-request skill](../pull-request/SKILL.md).
 - The workspace runs Node 22.23.2 (`useNodeVersion` in `pnpm-workspace.yaml`), and `human` and generated projects declare Node 22.23.2 or later because older Node 22 loaders can expose an unevaluated ES-module dependency in a mixed CommonJS and ES-module import graph.
-- `.github/workflows/{build,test,website}.yml` own the CI commands; `website.yml` also deploys `website/dist` on a `master` push.
+- `.github/workflows/{build,evidence,test,website}.yml` own the CI commands; `website.yml` also deploys `website/dist` on a `master` push.

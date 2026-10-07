@@ -18,7 +18,7 @@ const FINGERPRINT_TOKEN = /(?:^|\s)#[0-9a-f]{7}(?=\s|$)/gu;
 /**
  * Refuses deterministic contradictions in native evidence declarations.
  *
- * Graph resolution remains `@ttsc/evidence`'s authority. This preflight owns
+ * Graph resolution remains `@wrtnlabs/evidence`'s authority. This preflight owns
  * only syntax facts that can otherwise produce a false carrier, a conflicting
  * acknowledgement, or a review with no declaration to review.
  *

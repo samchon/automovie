@@ -19,6 +19,7 @@ Use ordinary coding-agent tools for authoring. Scaffold creation does not regist
 ```bash
 npm install --package-lock=false
 npm run lint
+npm run evidence
 ```
 
 The blank scaffold is intentionally incomplete. Select the production kind through the routed lifecycle procedure, author its prerequisites, then use the commands below at the stages their linked procedures name.
@@ -29,7 +30,8 @@ Use the commands declared in `package.json`:
 
 | Command | Purpose |
 | --- | --- |
-| `npm run lint` | Check the complete TypeScript program and active authored evidence. |
+| `npm run lint` | Check the complete TypeScript program with source correctness lint. |
+| `npm run evidence` | Check the sole production declaration through the standalone graph CLI and source todo guard. |
 | `npm run format` | Format source with the configured compiler formatter. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
@@ -42,10 +44,10 @@ When the task needs a model view, building walkthrough, or film playback, follow
 
 ## Ownership
 
-- All source code belongs under `src`, including command entry points, viewer code, review declarations, and any test source. The typed production declaration is the one exception: `lint.config.ts` sits at the project root, where the compiler plugin and the production resolver both read it. Source location does not make tooling a production design owner; the typed evidence declaration selects the authored populations.
+- All source code belongs under `src`, including command entry points, viewer code, review declarations, and any test source. Root TypeScript configuration is limited to the production declaration `lint.config.ts` and the compiler settings `source.lint.config.ts` and `evidence.guard.config.ts`. The standalone evidence CLI and production resolver both read the sole production declaration. Source location does not make tooling a production design owner; the typed evidence declaration selects the authored populations.
 - `public` holds HTML and static assets. Keep executable code in imported `src` modules rather than inline HTML scripts or asset directories.
 - `docs` holds authored decisions, contracts, and review observations. Git holds change history. Neither is replaced by a generated state ledger.
-- `package.json` is the only project JSON file. Keep package and compiler settings there; do not create another JSON configuration, design store, registry, migration journal, receipt, or cache file in the project.
+- `package.json` owns package and source-compiler settings. `tsconfig.evidence.json` only selects the independent source-guard check over that same program; do not create another JSON configuration, design store, registry, migration journal, receipt, or cache file in the project.
 - Execute production and measurement functions over typed values. Images, media, and reader-facing documents are outputs; serialized project state is not an authoring product.
 
 Run the applicable [Author process Self-Review](.agents/skills/review-verification/self-review.md) before handing off a completed authoring, evidence, review, or stage-transition boundary.
