@@ -4,6 +4,7 @@ import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieH
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
 import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterialCourse";
+import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 
 /**
  * Shape forehead, glabellar, marionette, philtral and perioral relief on the
@@ -18,10 +19,10 @@ import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterial
  * skin and a negative one presses it in, whichever way the skin faces.
  * Every region samples the same immutable input and adds to one owned copy.
  * A registered material chart compiles a continuous native course independent
- * of width. Its first registered guide landmark's first incident native facet
- * defines the chart frame. Forehead and glabellar use registered glabella
- * support and project their unchanged off-surface dimension guides there.
- * Unsupported chart folds refuse. This representation
+ * of width. Its source-owned positive disk retains every native guide anchor.
+ * Forehead and glabellar use registered glabella support and convert their
+ * dimensioned displacements through its reference facet differential.
+ * Unsupported source coverage and continuation refuse. This representation
  * replaces a width-dependent sampled curve, so affected identity references,
  * source derivatives and assembled observations require regeneration.
  * Endpoint fade holds all source landmarks and the complete lip margin, and
@@ -191,16 +192,28 @@ export function applyHumanFaceRegionalRelief(
         "Regional skin width exceeds its current source-course length: " + name,
       );
     if (offset === 0) continue;
+    const anchors = [...supportVertices];
+    const materialGuide: IHumanFaceSkinMaterialGuidePoint[] =
+      name === "forehead" || name === "glabellar"
+        ? (name === "forehead"
+            ? [[-settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
+               [settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0]]
+            : [[0, 0, 0], [0, settings.lengthMm! / 1000, 0]])
+          .map((displacement) => ({
+            vertex: glabella.vertex,
+            displacement,
+          }))
+        : anchors.map((vertex) => ({ vertex }));
     const supported = applyHumanFaceSkinCourseRelief({
       host,
       source,
       changed,
       course: createHumanFaceSkinMaterialCourse({
         host,
-        positions: source,
-        indices: surface.indices,
+        surface,
+        domain: name,
         supportVertices: [...supportVertices],
-        guide,
+        guide: materialGuide,
       }),
       widthMetres: width,
       offsetMetres: offset,

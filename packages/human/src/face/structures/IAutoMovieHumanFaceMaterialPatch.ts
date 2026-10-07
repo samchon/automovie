@@ -53,6 +53,6 @@ export interface IAutoMovieHumanFaceMaterialPatch {
   /** Actual lower posterior-margin endpoint of the authored bed. */
   lowerEndpoint: number;
 
-  /** The projected-region definition is authored, not observed histology. */
+  /** The source-authored material-region definition is not observed histology. */
   qualification: "authoredConvention";
 }

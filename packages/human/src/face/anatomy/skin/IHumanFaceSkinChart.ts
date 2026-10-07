@@ -2,17 +2,17 @@ import type { IHumanFaceSkinChartCoordinate } from "./IHumanFaceSkinChartCoordin
 import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 
 /**
- * One source-facet chart and topologically continued inverse on the skin.
- * Projection defines the chart coordinates; compilation lifts the ordered
- * internal guide through actual adjacent triangles. It is neither global
- * nearest projection nor a geodesic. A fold, boundary or ambiguous lift
- * refuses instead of choosing a preferred nearby face.
+ * One source-registered material disk and its native continued inverse.
+ * Registered vertices supply fixed dimensionless coordinates; reference-metre
+ * offsets use the source facet differential. Compilation transports the same
+ * native incidence through the current host. It is neither global nearest
+ * projection nor a geodesic. Missing coverage or ambiguous continuation refuses.
  *
  * @evidence contracts/common.md#principled-implementation A locally nonsingular piecewise affine chart lifts an ordered path through its native triangle adjacency.
  * @evidence contracts/common.md#clear-and-simple-design Separates chart coordinate reading from one native-supported course compiler.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No nearest-face preference, anatomical axis or artificial bridge defines a lift.
  * @evidence contracts/common.md#meaningful-documentation States chart authority, inverse-path meaning and unsupported conditions.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metre points map to dimensionless source-basis coefficients.
+ * @evidence contracts/modeling.md#spatial-conventions Native material coordinates are dimensionless, while reference offsets and current host geometry retain head-frame metres.
  * @evidence contracts/modeling.md#shared-boundaries Lifted intervals follow the host's actual shared topology.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Builds no new anatomical part.
  * @evidenceExclude contracts/modeling.md#parameter-channels Adds no public numerical trait.
@@ -24,8 +24,19 @@ import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
  * @author Samchon
  */
 export interface IHumanFaceSkinChart {
-  /** Read this chart's coordinates of a finite head-frame metre point. */
-  project(point: readonly number[]): IHumanFaceSkinChartCoordinate;
+  /** Read one registered native vertex's fixed material coordinates. */
+  coordinate(vertex: number): IHumanFaceSkinChartCoordinate;
+
+  /**
+   * Convert a head-frame metre displacement using the source-reference facet
+   * differential at this material point. The normal component is orthogonally
+   * discarded. The affine local conversion is an authored guide convention,
+   * not finite geodesic length; resulting domain coverage is checked by compile.
+   */
+  offset(
+    point: IHumanFaceSkinChartCoordinate,
+    displacement: readonly number[],
+  ): IHumanFaceSkinChartCoordinate;
 
   /** Lift ordered chart chords to native pieces or report unsupported source. */
   compile(

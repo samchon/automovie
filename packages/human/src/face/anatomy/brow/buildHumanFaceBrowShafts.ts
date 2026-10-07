@@ -1,4 +1,6 @@
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import { HumanExactFraction as F } from "../../../common/measure/HumanExactFraction";
+import type { IHumanFaceSkinChartCoordinate } from "../skin/IHumanFaceSkinChartCoordinate";
 
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
@@ -10,24 +12,25 @@ import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlaceme
 /**
  * Build one eyebrow's shafts on the skin they grow from.
  *
- * Every quantity of a shaft is defined on the skin host:
+ * Attachment follows fixed source material coordinates; physical arc and normal
+ * readings belong to the current skin host:
  *
  * - **Root.** The band between the registered lower and upper boundary is
- *   parameterized in space: `u` along the brow (uniform Catmull-Rom through
- *   each boundary's vertices) and a fraction across it (straight between the
- *   two boundary points at `u`). Shaft `i` of `n` takes `u = (i + 0.5) / n`
+ *   parameterized in its registered material disk: `u` along the brow (uniform
+ *   Catmull-Rom through each boundary's coordinates) and a fraction across it.
+ *   Shaft `i` of `n` takes `u = (i + 0.5) / n`
  *   and a root fraction from the golden-ratio sequence inside `rootBand`.
- *   The registered source-facet chart lifts that point to its actual skin.
+ *   The registered source material chart lifts that point to the current skin.
  * - **Growth direction.** The shaft's course runs from its root fraction to
  *   its tip fraction across the band (`span`, or the flow profile's `tip`),
  *   displaced toward the lateral end of the brow by `outwardBend * t^2`. The
- *   lateral direction is the band's own tangent along `u`, so on the tail,
- *   where the brow turns toward the temple, "lateral" follows the skin. The
- *   requested shaft resolution supplies free-guide chords. The registered
- *   chart lifts their projections by actual native triangle adjacency.
- *   These millimetre bend values describe the authored free guide; a warped
+ *   lateral direction is the source-reference band's tangent along `u`.
+ *   Its metre displacement converts through the source facet differential;
+ *   requested resolution supplies material-guide chords lifted by actual
+ *   native triangle adjacency. No performed-state projection selects support.
+ *   These millimetre bend values describe the reference guide; a deformed
  *   chart's final surface-tip displacement is a separate measured quantity.
- * - **Course length.** `L` is that projected course's accumulated length,
+ * - **Course length.** `L` is that native course's current accumulated length,
  *   derived from the band and bend. It is not an authored shaft length or
  *   the final offset centreline's total arc length.
  * - **Emergence.** With `emergenceDegrees = e`, ring fraction `t` reads actual
@@ -99,9 +102,9 @@ export function buildHumanFaceBrowShafts(
     endFade: ends,
   } = resolvePortraitEyebrowPlacement(shape);
   const landmark = (id: number) => ({
-    x: positions[3 * id],
-    y: positions[3 * id + 1],
-    z: positions[3 * id + 2],
+    x: props.referencePositions[3 * id],
+    y: props.referencePositions[3 * id + 1],
+    z: props.referencePositions[3 * id + 2],
   });
   const top = binding.upper.map(landmark),
     bottom = binding.lower.map(landmark);
@@ -113,6 +116,20 @@ export function buildHumanFaceBrowShafts(
       a.y + (b.y - a.y) * across,
       a.z + (b.z - a.z) * across,
     ];
+  };
+  const materialPoint = (vertex: number) => {
+    const point = chart.coordinate(vertex);
+    return { x: F.number(point.x), y: F.number(point.y), z: 0 };
+  };
+  const materialTop = binding.upper.map(materialPoint),
+    materialBottom = binding.lower.map(materialPoint);
+  const materialBand = (u: number, across: number): IHumanFaceSkinChartCoordinate => {
+    const a = catmullRomPoint(materialBottom, u),
+      b = catmullRomPoint(materialTop, u);
+    return {
+      x: F.from(a.x + (b.x - a.x) * across),
+      y: F.from(a.y + (b.y - a.y) * across),
+    };
   };
   // The medial end is the one nearer the midsagittal plane.
   const lateralSign =
@@ -157,16 +174,17 @@ export function buildHumanFaceBrowShafts(
     const alongLength = Math.hypot(...along);
     if (!(alongLength > 0))
       throw new Error("An eyebrow band needs a nonzero course along the brow.");
-    const course = (t: number): number[] => {
-      const base = band(u, start + (end - start) * t);
-      return base.map(
-        (value, axis) => value + (along[axis] / alongLength) * bend * t * t,
+    const course = (t: number): IHumanFaceSkinChartCoordinate => {
+      const base = materialBand(u, start + (end - start) * t);
+      return bend === 0 || t === 0 ? base : chart.offset(
+        base,
+        along.map((value) => (value / alongLength) * bend * t * t),
       );
     };
     const metric = createHumanFaceBrowCourse(
       chart.compile(
         Array.from({ length: rings }, (_, ring) =>
-          chart.project(course(ring / shape.segments)),
+          course(ring / shape.segments),
         ),
       ),
     );

@@ -31,9 +31,9 @@ import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterial
  * Both sides sample the same immutable input sheet and accumulate into one
  * owned copy, so one side never changes the other's reference. Both consume
  * a registered material-chart course independently of width; the alar
- * registration's first native incident facet defines its chart frame and
- * both endpoints retain their native identities. Unsupported chart folds
- * refuse. A changed course
+ * registration's published material disk retains both endpoints' native
+ * identities through the current host. Missing source coverage and unsupported
+ * continuation refuse. A changed course
  * representation invalidates affected relief and contact-reference derivatives.
  * The pose owner must also call this on its shape-only contact reference with neutral smile,
  * so resting relief belongs to identity while performed relief takes the same
@@ -157,10 +157,10 @@ export function applyHumanFaceNasolabialRelief(
         changed,
         course: createHumanFaceSkinMaterialCourse({
           host,
-          positions: source,
-          indices: surface.indices,
+          surface,
+          domain: row.side === "left" ? "nasolabialLeft" : "nasolabialRight",
           supportVertices: [row.ala.vertex, row.corner.vertex],
-          guide: [a, b],
+          guide: [{ vertex: row.ala.vertex }, { vertex: row.corner.vertex }],
         }),
         widthMetres: row.width,
         offsetMetres: -row.depth,

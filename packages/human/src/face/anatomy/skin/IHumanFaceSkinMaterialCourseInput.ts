@@ -1,17 +1,19 @@
 import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 
 /**
- * Immutable source geometry, registered support and an internal relief guide.
- * The first registered support vertex selects its first native incident facet
- * as an authored chart-frame convention. Every support identity must survive
- * the chart inverse; dimensions may place guide points off the source skin.
+ * Registered source-reference geometry, current host and native relief guide.
+ * Every station names its native vertex; optional reference-metre offsets are
+ * converted by the source chart differential. Material identity stays fixed
+ * while the current host supplies physical lengths, positions and normals.
  *
  * @evidence contracts/common.md#principled-implementation Native support identities define the chart branch independently of guide width and distance queries.
  * @evidence contracts/common.md#clear-and-simple-design Carries the material-course compiler's geometry and source registration together.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Internal registered vertices and authored guide dimensions introduce no personal sculpt resource.
- * @evidence contracts/common.md#meaningful-documentation States immutable ownership, seed convention and off-surface guide meaning.
- * @evidence contracts/modeling.md#spatial-conventions Positions and guide points are head-frame metres; indices retain native winding.
- * @evidence contracts/modeling.md#shared-boundaries The host, positions and indices describe the same source state.
+ * @evidence contracts/common.md#meaningful-documentation States source-reference offset and current-host metric ownership.
+ * @evidence contracts/modeling.md#spatial-conventions Reference offsets and current positions are head-frame metres; material coordinates are dimensionless.
+ * @evidence contracts/modeling.md#shared-boundaries The source chart and current host retain the same registered native incidence.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Carries an existing skin course input.
  * @evidenceExclude contracts/modeling.md#parameter-channels The relief owner defines numerical traits.
  * @evidenceExclude contracts/modeling.md#emitted-geometry Defines no primitive.
@@ -22,11 +24,11 @@ import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
  * @author Samchon
  */
 export interface IHumanFaceSkinMaterialCourseInput {
-  /** Immutable current native XYZ positions in metres. */
-  positions: readonly number[];
+  /** Native source reference and its producer-registered material disks. */
+  surface: IAutoMovieHumanFaceBasisSurface;
 
-  /** Native triangle winding over these positions. */
-  indices: readonly number[];
+  /** Exact source-registered course domain, independent of current geometry. */
+  domain: string;
 
   /** Current-state position and normal owner. */
   host: IHumanFaceSkinHost;
@@ -34,6 +36,6 @@ export interface IHumanFaceSkinMaterialCourseInput {
   /** Ordered anatomical registration vertices, with the seed identity first. */
   supportVertices: readonly number[];
 
-  /** Internal source-relative guide, including authored off-surface dimensions. */
-  guide: readonly (readonly number[])[];
+  /** Ordered registered material stations and explicit source-reference offsets. */
+  guide: readonly IHumanFaceSkinMaterialGuidePoint[];
 }

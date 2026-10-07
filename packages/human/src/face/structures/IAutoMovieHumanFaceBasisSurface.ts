@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanFaceBasisRegion } from "./IAutoMovieHumanFaceBasisRegion";
+import type { IAutoMovieHumanFaceAttachmentChart } from "./IAutoMovieHumanFaceAttachmentChart";
 import type { IAutoMovieHumanFaceHairDomain } from "./IAutoMovieHumanFaceHairDomain";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
 import type { IAutoMovieHumanFaceSurfaceAttachment } from "./IAutoMovieHumanFaceSurfaceAttachment";
@@ -36,6 +37,14 @@ export interface IAutoMovieHumanFaceBasisSurface {
 
   /** Optional shared-source cell lineage, prepared after the final neutral crop. */
   sourcePartition?: IAutoMovieHumanBasisSourcePartition;
+
+  /**
+   * Source-owned material disks for continuous skin courses. Each disk keeps
+   * its exact native incidence and generation through identity and performance;
+   * its dimensionless coordinates are not texture UVs or physical lengths.
+   * Omission leaves source-supported regional courses unavailable.
+   */
+  materialCharts?: Record<string, IAutoMovieHumanFaceAttachmentChart>;
 
   /** Optional native-after-posing replay of appended shared oral refinement samples. */
   sourcePosePlan?: IAutoMovieHumanFaceSourcePosePlan;

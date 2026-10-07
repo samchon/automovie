@@ -20,6 +20,9 @@ export interface IHumanFaceBrowShaftsProps {
   /** Flat head-frame metre positions of the host surface in the state being built. */
   positions: readonly number[];
 
+  /** Source-reference head-frame metres supplying band orientation and guide-bend directions. */
+  referencePositions: readonly number[];
+
   /** Side and ordered band boundaries as host-surface vertex identities. */
   binding: IPortraitEyebrowBinding;
 

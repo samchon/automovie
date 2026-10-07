@@ -19,8 +19,8 @@ import { readHumanFaceBrowClearance } from "./readHumanFaceBrowClearance";
  * Each side compiles a skin host on the positions it is given and hands it to
  * the shaft builder, so roots, courses and lifts are read from the skin's own
  * triangles and normals. Named source boundaries supply the implantation
- * band, rather than old card vertices. Its central upper native anchor's
- * first incident facet in source winding defines an authored tangent chart.
+ * band, rather than old card vertices. A published positive material disk
+ * retains every band's native identity independently of skin performance.
  * Actual native walks verify every upper/lower anchor before shaft lifting;
  * a fold or disconnected band refuses rather than projecting to another sheet.
  * The builder calls this once on the
@@ -90,22 +90,16 @@ export function buildHumanFaceBrowAssembly(
     band.replaceVertices.forEach((vertex) => owned.add(vertex));
     replacements.set(band.replaceSurface, owned);
     const host = createHumanFaceSkinHost(surface.indices, points);
-    const anchor = band.upper[Math.floor(band.upper.length / 2)];
-    const seedCorner = surface.indices.indexOf(anchor);
-    if (seedCorner < 0)
-      throw new Error(
-        "Brow source-chart anchor has no native support facet: " + side,
-      );
     const chart = createHumanFaceSkinChart({
-      positions: points,
-      indices: surface.indices,
+      surface,
+      domain: side === "left" ? "browLeft" : "browRight",
       host,
-      seedTriangle: Math.floor(seedCorner / 3),
       supportVertices: [...band.upper, ...band.lower],
     });
     const parts = buildHumanFaceBrowShafts({
       chart,
       positions: points,
+      referencePositions: surface.positions,
       binding: { side, upper: band.upper, lower: band.lower },
       count: input.strandCount,
       profile: input,

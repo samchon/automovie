@@ -2,8 +2,8 @@ import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFra
 import type { IHumanFaceSkinChartCoordinate } from "./IHumanFaceSkinChartCoordinate";
 
 /**
- * One current native triangle in a fixed source-facet chart.
- * Exact projected corners and determinant define its affine inverse; the
+ * One native triangle in a publisher-registered source material disk.
+ * Exact material coordinates and determinant define its affine inverse; the
  * three neighbor lists follow the edges opposite its barycentric corners.
  * A zero or reversed determinant is unsupported by this local chart.
  *
@@ -29,14 +29,14 @@ export interface IHumanFaceSkinChartTriangle {
   /** Actual native vertices in that triangle's winding order. */
   vertices: readonly [number, number, number];
 
-  /** The three vertices in the one source-facet chart. */
+  /** The three native vertices' fixed material coordinates. */
   corners: readonly [
     IHumanFaceSkinChartCoordinate,
     IHumanFaceSkinChartCoordinate,
     IHumanFaceSkinChartCoordinate,
   ];
 
-  /** Oriented projected determinant; the seed orientation is positive. */
+  /** Oriented material-coordinate determinant, positive on an admitted disk. */
   determinant: IHumanExactFraction;
 
   /** Native neighboring triangles across each opposite edge. */
