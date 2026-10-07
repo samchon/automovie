@@ -1,5 +1,3 @@
-import { compileAutoMovieLibrary } from "./compileAutoMovieLibrary";
-import { publishAutoMovieGeneratedCompilation } from "./publishAutoMovieGeneratedCompilation";
 import {
   materializeCompiledFormationInventory,
   materializeCompiledInstanceSetInventory,
@@ -39,6 +37,8 @@ import {
   IAutoMovieProductionContentInput,
 } from "./AutoMovieProductionProject";
 import type { IAutoMovieProductionSourceGateTrace } from "./IAutoMovieProductionSourceGateTrace";
+import { compileAutoMovieLibrary } from "./compileAutoMovieLibrary";
+import { confirmAutoMovieBuildInputSnapshot } from "./confirmAutoMovieBuildInputSnapshot";
 import {
   IAutoMovieFingerprintField,
   canonicalAutoMovieJsonBytes,
@@ -48,7 +48,6 @@ import {
   normalizeAutoMovieSource,
 } from "./contentIdentity";
 import { inspectAutoMovieDerivedArtifacts } from "./derivedArtifacts";
-import { confirmAutoMovieBuildInputSnapshot } from "./confirmAutoMovieBuildInputSnapshot";
 import { designReferenceDiagnostics } from "./designReferenceDiagnostics";
 import { parseAutoMovieStructuredJson } from "./duplicateAwareJson";
 import { inspectAutoMovieGeneratedOwnership } from "./inspectAutoMovieGeneratedOwnership";
@@ -115,6 +114,7 @@ import {
   buildLibrarySource,
 } from "./productionSourceBuild";
 import { productionTextureClosureDiagnostics } from "./productionTextureClosure";
+import { publishAutoMovieGeneratedCompilation } from "./publishAutoMovieGeneratedCompilation";
 import { readAutoMovieLibraryDerivedInputs } from "./readAutoMovieLibraryDerivedInputs";
 import { recordAutoMovieProductionClearanceRevision } from "./recordAutoMovieProductionClearanceRevision";
 import { recordAutoMovieProductionDocumentRead } from "./recordAutoMovieProductionDocumentRead";
@@ -238,7 +238,11 @@ export class AutoMovieProductionBuilder {
         authoringEvidence: this.authoringEvidence,
         currentAuthoringEvidence: this.currentAuthoringEvidence,
         runtime: {
-          readDerived: (enabled) => readAutoMovieLibraryDerivedInputs({ project: this.project, enabled }),
+          readDerived: (enabled) =>
+            readAutoMovieLibraryDerivedInputs({
+              project: this.project,
+              enabled,
+            }),
           evaluateSource: buildLibrarySource,
           listGenerated: listFiles,
           validators: {
@@ -1005,11 +1009,15 @@ export class AutoMovieProductionBuilder {
       );
     return publishAutoMovieGeneratedCompilation({
       authority: this.project,
-      publication: { files: sourceFiles, manifest: sourceManifest, inputCurrent, inputRevision },
+      publication: {
+        files: sourceFiles,
+        manifest: sourceManifest,
+        inputCurrent,
+        inputRevision,
+      },
       inputFingerprint,
       diagnostics,
       materialized,
     });
   }
-
 }

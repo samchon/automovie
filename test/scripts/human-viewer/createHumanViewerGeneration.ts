@@ -15,7 +15,8 @@ import type { HumanViewerHandle } from "./HumanViewerHandle";
 export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
   let retired = false;
   const pending = new Set<() => void>();
-  const failure = (): Error => new Error("The source generation was replaced during display");
+  const failure = (): Error =>
+    new Error("The source generation was replaced during display");
   const handle: HumanViewerHandle = {
     parts: () => viewer.parts(),
     renderer: () => viewer.renderer(),
@@ -24,20 +25,26 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
     buildMs: () => viewer.buildMs(),
     spans: () => viewer.spans(),
     address: () => viewer.address(),
+    admission: () => viewer.admission(),
+    periocularMappings: () => viewer.periocularMappings?.(),
     png: () => viewer.png(),
+    evict: () => viewer.evict(),
     show: (address) => {
       if (retired) return Promise.reject(failure());
       return new Promise<undefined>((resolve, reject) => {
         const cancel = (): void => reject(failure());
         pending.add(cancel);
         try {
-          void viewer.show(address).then(() => {
-            pending.delete(cancel);
-            resolve(undefined);
-          }).catch((error: unknown) => {
-            pending.delete(cancel);
-            reject(error);
-          });
+          void viewer
+            .show(address)
+            .then(() => {
+              pending.delete(cancel);
+              resolve(undefined);
+            })
+            .catch((error: unknown) => {
+              pending.delete(cancel);
+              reject(error);
+            });
         } catch (error) {
           pending.delete(cancel);
           reject(error);

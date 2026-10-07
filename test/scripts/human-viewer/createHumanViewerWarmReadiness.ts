@@ -30,7 +30,8 @@ export function createHumanViewerWarmReadiness(
   };
   return {
     source: (revision: string): void => {
-      if (revision === "") throw new Error("A warm generation needs a source identity");
+      if (revision === "")
+        throw new Error("A warm generation needs a source identity");
       source = revision;
       const stable = options.stableMs ?? 0;
       if (stable <= 0) {

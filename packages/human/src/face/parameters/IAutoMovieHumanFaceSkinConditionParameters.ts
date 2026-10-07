@@ -6,9 +6,16 @@
  * an arbitrary in-between expression cannot be inferred by interpolating
  * grades. Acquisition pose, view, lighting and rater protocol matter.
  *
- * A validated four-grade family measures forehead, glabellar and lateral
+ * Lorenc et al. (2025, Aesthetic Surgery Journal Open Forum) validated a
+ * four-grade family measuring forehead, glabellar and lateral
  * canthal lines at rest and at the appropriate maximum expression
- * (https://pmc.ncbi.nlm.nih.gov/articles/PMC12617410/). Separate validated
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC12617410/). Its published labels
+ * are 1 (none/minimal), 2 (mild), 3 (moderate) and 4 (severe); these fields
+ * retain those raw labels, with omission meaning unobserved. The study used
+ * standardized photographs of approximately 200 adults with healthy skin
+ * and live validation in 92 participants at one site, predominantly White
+ * women. Those reliability findings do not validate a 3D geometry mapping.
+ * Separate validated
  * instruments measure nasolabial folds on grades 0–5
  * (https://pubmed.ncbi.nlm.nih.gov/20679841/), marionette lines on grades 0–4
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC10833177/), superficial midface
@@ -63,9 +70,16 @@ export namespace IAutoMovieHumanFaceSkinConditionParameters {
    * @author Samchon
    */
   export interface UpperLine {
-    /** Resting line severity, grade 0–3. */
-    restGrade?: 0 | 1 | 2 | 3;
-    /** Site-specific maximum-expression severity, grade 0–3. */
-    maximumContractionGrade?: 0 | 1 | 2 | 3;
+    /**
+     * Required source identity so an older zero-based record cannot silently
+     * acquire the published raw-label meaning. No automatic migration occurs.
+     */
+    protocol: "medytox-upper-face-2025";
+
+    /** Published resting severity: 1 none/minimal, 2 mild, 3 moderate, 4 severe. */
+    restGrade?: 1 | 2 | 3 | 4;
+
+    /** Same raw labels at the site's prescribed maximum expression. */
+    maximumContractionGrade?: 1 | 2 | 3 | 4;
   }
 }

@@ -2,20 +2,31 @@ import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanBodyAnatomicalAssemblyParts } from "../anatomy/assembly/createHumanBodyAnatomicalAssemblyParts";
+import { createHumanBodyAtlasParts } from "../anatomy/atlas/createHumanBodyAtlasParts";
+import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisBuilderOptions } from "../structures/IAutoMovieHumanBodyBasisBuilderOptions";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
+import type { IHumanBodyBasisBuilder } from "../structures/IHumanBodyBasisBuilder";
+import type { IHumanBodyConstructionProgress } from "../structures/IHumanBodyConstructionProgress";
+import type { IHumanBodyPreparedBuild } from "../structures/IHumanBodyPreparedBuild";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IHumanBodyAnatomySolve } from "./IHumanBodyAnatomySolve";
 import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearance";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySurfaceParts } from "./createHumanBodySurfaceParts";
 import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
-import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
+import { placeHumanBodyOnGround } from "./placeHumanBodyOnGround";
+import { prepareHumanBodyReferenceGoalDocument } from "./prepareHumanBodyReferenceGoalDocument";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
-import { resolveHumanBodyShapedShoulderRest } from "./resolveHumanBodyShapedShoulderRest";
+import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShoulderRest";
+import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
 
 /**
  * Compile a caller-owned connected body basis into a deterministic builder.
@@ -24,54 +35,128 @@ import { resolveHumanBodyShapedShoulderRest } from "./resolveHumanBodyShapedShou
  * modelling tools supply licensed geometry; replay needs this basis and one
  * admitted document, never a source image. The builder owns revision and
  * document admission, the order of the domain stages and final model
- * validation. It evaluates channels and correctives first, checks authored
+ * validation. A document carrying `anatomy` first has its bound measurements
+ * solved into channel weights (`resolveHumanBodyAnatomy`), remembered for
+ * the last authored weights and measurements, so the shape it evaluates
+ * meets them. It evaluates channels and correctives first, checks authored
  * shoulder reach, and evaluates the shaped landmarks. The shaped landmarks
  * feed `resolveHumanBodyBuildPose`; the shared rest and lean evaluations feed
- * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`. Underwear is
+ * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`; posed toe
+ * ray phalanges (`resolveHumanBodyToeRays`) join those transforms for skinning. Underwear is
  * cut from the resulting unsplit posed skin after every material region.
  * The pose resolver owns clinical angles and pelvic rhythm, the appearance
  * stage owns material caches, and the surface stage owns skinning and sag.
  * Keeping their results in this order makes colour, relief, gravity and cloth
  * refer to the same body revision and document state.
+ * Explicit `groundPlacement` then places every performed surface, static
+ * part and posed bone together against the fixed source floor. Its rest
+ * landmarks remain fixed and the person's head follows the placed bones.
+ * It is a vertical placement, not joint IK or balance.
  *
  * A new model owns its arrays and materials; neither basis nor document is
- * mutated. The returned model is static (no skeleton, no skin binding) so the
+ * mutated. An explicit neutral-only anatomical source supplies its actual
+ * held bone/site graph and boundaries beside the same native rest skin;
+ * performance requests refuse before geometry rather than implying missing
+ * public joint registration. This remains the normal editor/person builder,
+ * not a separately appended inspection model. The returned model is static
+ * (no skeleton, no skin binding) so the
  * existing Float32 exporter admits it unchanged. The rest skeleton and
  * per-bone transforms travel beside it for rig inspection. The builder still
  * does not establish collision-free or physiological movement.
  * Recompiling for a different basis revision creates new appearance and sag
  * caches; no cached result is shared across independent basis builders.
+ * The `prepare` entry lets a composition owner obtain skin and pose before
+ * choosing its complete exterior. Completing that prepared build constructs
+ * internal source parts and solves their targets once against the supplied
+ * exterior. Ordinary calls prepare and complete against the body's own rest
+ * skin. Preparation owns one admitted document snapshot, so later caller edits
+ * cannot combine already evaluated skin with different anatomy or placement.
+ * The optional physicalSource constructor mode registers actual native
+ * indexed incidence or declared canonical source samples before UV gathering.
+ * Omission preserves the existing model and metadata absence. Registration
+ * changes no coordinates and supplies no clinical tissue certification.
  */
 export function createHumanBodyBasisBuilder(
   input: IAutoMovieHumanBodyBasis,
-): (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyBuild {
-  const basis = structuredClone(
-    typia.assertEquals<IAutoMovieHumanBodyBasis>(input),
-  );
-  assertHumanBodyBasis(basis);
+  options?: IAutoMovieHumanBodyBasisBuilderOptions,
+): IHumanBodyBasisBuilder {
+  const admittedOptions =
+    options === undefined
+      ? undefined
+      : typia.assertEquals<IAutoMovieHumanBodyBasisBuilderOptions>(options);
+  const source = typia.assertEquals<IAutoMovieHumanBodyBasis>(input);
+  admittedOptions?.observeProgress?.({
+    basis: source.id,
+    stage: "basis-schema-admitted",
+  });
+  const basis = structuredClone(source);
+  admittedOptions?.observeProgress?.({
+    basis: basis.id,
+    stage: "basis-copied",
+  });
+  assertHumanBodyBasis(basis, admittedOptions?.endpointSource);
+  admittedOptions?.observeProgress?.({
+    basis: basis.id,
+    stage: "basis-admitted",
+  });
+  const physicalSource = admittedOptions?.physicalSource;
   const appearance = createHumanBodyAppearance(basis);
   // the underwear's per-vertex arm weights, on the first document wearing it
   let dress: ReturnType<typeof createHumanBodyUnderwear> | null = null;
-  const surfaces = createHumanBodySurfaceParts(basis);
-  return (inputDocument) => {
-    const document = admitHumanBodyBasisDocument(inputDocument);
+  const surfaces = createHumanBodySurfaceParts(basis, physicalSource);
+  // the last anatomy solve, keyed by the authored weights and measurements it
+  // read, so pose, material and history edits do not repeat it
+  let solved: IHumanBodyAnatomySolve | undefined;
+  const prepare = (
+    inputDocument: IAutoMovieHumanBodyBasisDocument,
+  ): IHumanBodyPreparedBuild => {
+    const admitted = structuredClone(
+      admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly),
+    );
+    const progress = (
+      stage: IHumanBodyConstructionProgress["stage"],
+      details?: Pick<
+        IHumanBodyConstructionProgress,
+        "part" | "path" | "completed" | "total"
+      >,
+    ): void =>
+      admittedOptions?.observeProgress?.({
+        basis: basis.id,
+        document: admitted.id,
+        stage,
+        ...details,
+      });
     if (
-      document.basis !== basis.id ||
-      [document.id, document.name].some((id) => id.trim() === "")
+      admitted.basis !== basis.id ||
+      [admitted.id, admitted.name].some((id) => id.trim() === "")
     )
       throw new Error(
         "Body edits need nonempty identities and the exact compiled basis revision.",
       );
+    progress("document-admitted");
+    let document = admitted;
+    if (admitted.anatomy !== undefined) {
+      const key = JSON.stringify([admitted.shape, admitted.anatomy]);
+      if (solved?.key !== key)
+        solved = {
+          key,
+          shape: resolveHumanBodyAnatomy(
+            basis,
+            admitted.shape,
+            admitted.anatomy,
+          ),
+        };
+      document = { ...admitted, shape: { ...solved.shape } };
+    }
+    const referenceGoals = prepareHumanBodyReferenceGoalDocument(
+      basis,
+      document,
+    );
+    document = referenceGoals.document;
     // an omitted shoulder goal is the shaped body's own rest, which every
     // reader of the goal shares, so the arms are read before the pose weights
     const shoulderRestOf = (shape: Record<string, number>) =>
-      resolveHumanBodyShapedShoulderRest(
-        basis,
-        evaluateHumanBodyLandmarks(
-          basis,
-          humanBodyBasisWeights(basis, { shape, pose: undefined }),
-        ),
-      );
+      resolveHumanBodyShapeShoulderRest(basis, shape);
     const state = humanBodyBasisWeights(
       basis,
       document,
@@ -91,17 +176,20 @@ export function createHumanBodyBasisBuilder(
         );
     }
     const shaped = evaluateHumanBodyShape(basis, state);
+    progress("shape-evaluated");
     // whether the document leaves the rest pose the basis was authored in,
     // and its shape at that rest pose
     const posed =
-      (document.pose ?? []).length > 0 || (document.shoulders ?? []).length > 0;
+      (document.pose ?? []).length > 0 ||
+      (document.shoulders ?? []).length > 0 ||
+      (document.anatomicalMotion ?? []).length > 0 ||
+      (document.toes ?? []).length > 0;
     const atRest = (shape: Record<string, number>) =>
       evaluateHumanBodyShape(
         basis,
         humanBodyBasisWeights(
           basis,
           {
-            ...document,
             shape,
             pose: undefined,
             shoulders: undefined,
@@ -126,27 +214,55 @@ export function createHumanBodyBasisBuilder(
       }
       return lean;
     };
-    const { skeleton, transforms } = resolveHumanBodyBuildPose({
+    const {
+      skeleton,
+      transforms,
+      anatomicalRig: sourceRigResult,
+    } = resolveHumanBodyBuildPose({
       basis,
       document,
       poseRows: state.pose,
       landmarks: shaped.landmarks,
+      rig: referenceGoals.rig,
     });
+    progress("pose-evaluated");
     const { materials, coloured } = appearance({
       document,
       pose: state.pose,
       restAll,
       leanOf,
     });
+    // toe ray phalanges join the humanoid transforms only when one is posed
+    const rays =
+      sourceRigResult === undefined
+        ? resolveHumanBodyToeRays({
+            basis,
+            toes: document.toes,
+            landmarks: shaped.landmarks,
+            transforms,
+          })
+        : sourceRigResult.toeProjections;
     const { parts, posedSurfaces } = surfaces({
       document,
       shaped,
       posed,
-      transforms,
+      transforms:
+        rays.size === 0
+          ? transforms
+          : new Map<string, IAutoMovieHumanBodyBoneTransform>([
+              ...transforms,
+              ...rays,
+            ]),
       restAll,
       leanOf,
       coloured,
     });
+    const atlas = createHumanBodyAtlasParts({ basis, document, transforms });
+    progress("skin-evaluated");
+    parts.push(...atlas.parts);
+    materials.push(...atlas.materials);
+    const sourcePartOffset = parts.length;
+    const sourceMaterialOffset = materials.length;
     // the underwear, cut from the posed skin after every skin region
     if (document.underwear !== undefined) {
       const dressed = (dress ??= createHumanBodyUnderwear(basis))({
@@ -173,7 +289,11 @@ export function createHumanBodyBasisBuilder(
         "The evaluated body basis is not a valid resident model: " +
           JSON.stringify(validation),
       );
-    return {
+    const skinBuild: IAutoMovieHumanBodyBuild = {
+      evaluatedDocument: structuredClone(document),
+      ...(sourceRigResult === undefined
+        ? {}
+        : { anatomicalRig: sourceRigResult }),
       model,
       posedSurfaces,
       skeleton,
@@ -186,5 +306,64 @@ export function createHumanBodyBasisBuilder(
         })),
       landmarks: shaped.landmarks,
     };
+    const placedSkin =
+      document.groundPlacement === undefined
+        ? skinBuild
+        : placeHumanBodyOnGround({ basis, build: skinBuild });
+    const { model: skinModel, ...skin } = placedSkin;
+    return {
+      skin: { ...skin, skinModel },
+      finish: (exteriorRestReference) => {
+        const assembly =
+          sourceRigResult === undefined
+            ? undefined
+            : createHumanBodyAnatomicalAssemblyParts({
+                basis,
+                document,
+                rig: sourceRigResult,
+                restSkin: restAll().surfaces[0],
+                exteriorRestReference,
+                observePartComplete: (part, completed, total) =>
+                  progress("source-part-completed", { part, completed, total }),
+                observeQuantityComplete: (part, path) =>
+                  progress("source-quantity-read", { part, path }),
+              });
+        progress("assembly-evaluated");
+        const completeModel: IAutoMovieModel = {
+          ...model,
+          parts: [
+            ...parts.slice(0, sourcePartOffset),
+            ...(assembly?.parts ?? []),
+            ...parts.slice(sourcePartOffset),
+          ],
+          materials: [
+            ...materials.slice(0, sourceMaterialOffset),
+            ...(assembly?.materials ?? []),
+            ...materials.slice(sourceMaterialOffset),
+          ],
+        };
+        const completeValidation = validateModel({ model: completeModel });
+        if (!completeValidation.success)
+          throw new Error(
+            "The completed body basis is not a valid resident model: " +
+              JSON.stringify(completeValidation),
+          );
+        progress("model-validated");
+        const build: IAutoMovieHumanBodyBuild = {
+          ...skinBuild,
+          model: completeModel,
+          ...(assembly === undefined
+            ? {}
+            : { anatomicalQuantities: assembly.quantities }),
+        };
+        return document.groundPlacement === undefined
+          ? build
+          : placeHumanBodyOnGround({ basis, build });
+      },
+    };
   };
+  return Object.assign(
+    (document: IAutoMovieHumanBodyBasisDocument) => prepare(document).finish(),
+    { prepare },
+  );
 }

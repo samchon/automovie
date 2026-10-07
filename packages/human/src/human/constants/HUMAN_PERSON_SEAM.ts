@@ -1,3 +1,5 @@
+import { HUMAN_SKIN_FINISH } from "../../common/skin/HUMAN_SKIN_FINISH";
+
 /**
  * The conventions by which a face basis and a body basis are joined at the
  * neck. Every length the seam uses is measured from the two bases; what is
@@ -28,10 +30,6 @@
  *   normals are blended over (five, about a centimetre and a half at the
  *   skins' sampling), so the step between the face's slope and the body's
  *   becomes a gradient (`fairHumanSeamNormals`). It changes shading only.
- * - `hairCullMetres` is the distance beyond which a hair vertex is taken to
- *   be clear of the body without asking the signed query (five centimetres,
- *   about a hand's thickness). It bounds the cost of the hair contact and
- *   changes an answer only for a vertex buried deeper than it.
  * - `radialGuard` bounds, as a multiple of the body loop's greatest distance
  *   from the neck axis, which vertices the covered band may take: only skin
  *   close to the neck can lie in the band both anatomies describe, so an arm
@@ -40,11 +38,10 @@
  * @author Samchon
  */
 export const HUMAN_PERSON_SEAM = {
-  skinMaterial: "skin",
+  skinMaterial: HUMAN_SKIN_FINISH.material,
   neckShare: 0.5,
   headShare: 0.95,
   jawShare: 0.5,
   fairRings: 5,
-  hairCullMetres: 0.05,
   radialGuard: 1.5,
 } as const;

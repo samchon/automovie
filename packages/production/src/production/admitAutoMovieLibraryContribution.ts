@@ -1,7 +1,20 @@
-import type { validateAutoMovieEnvironmentContext, validateBuiltEnvironment, validateModel } from "@automovie/engine";
-import type { IAutoMovieConstraintViolation, IAutoMovieDiagnostic, IAutoMovieModel } from "@automovie/interface";
+import type {
+  validateAutoMovieEnvironmentContext,
+  validateBuiltEnvironment,
+  validateModel,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieDiagnostic,
+  IAutoMovieModel,
+} from "@automovie/interface";
+
 import type { ICompiledLibraryOwnerRegistration } from "./productionSourceBuild";
-import { autoMovieSourceContentDiagnostic, autoMovieSourceContentFinding, autoMovieValidationFindings } from "./sourceContentDiagnostics";
+import {
+  autoMovieSourceContentDiagnostic,
+  autoMovieSourceContentFinding,
+  autoMovieValidationFindings,
+} from "./sourceContentDiagnostics";
 
 /**
  * Validate an admitted library contribution and claim its published identities.
@@ -24,21 +37,21 @@ import { autoMovieSourceContentDiagnostic, autoMovieSourceContentFinding, autoMo
  * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Keeps an invalid or multiply owned contribution out of the complete success closure while retaining structured findings for its source target.
  */
 export const admitAutoMovieLibraryContribution = (props: {
-    contextOwner: Map<string, string>;
-    diagnostics: IAutoMovieDiagnostic[];
-    environmentOwner: Map<string, string>;
-    modelOwner: Map<string, string>;
-    models: Map<string, IAutoMovieModel>;
-    registration: ICompiledLibraryOwnerRegistration;
-    source: string;
-    target: string;
-    /** Domain validators composed by the compilation host for these carriers. */
-    validators: {
-      environment: typeof validateBuiltEnvironment;
-      model: typeof validateModel;
-      context: typeof validateAutoMovieEnvironmentContext;
-    };
-  }): boolean => {
+  contextOwner: Map<string, string>;
+  diagnostics: IAutoMovieDiagnostic[];
+  environmentOwner: Map<string, string>;
+  modelOwner: Map<string, string>;
+  models: Map<string, IAutoMovieModel>;
+  registration: ICompiledLibraryOwnerRegistration;
+  source: string;
+  target: string;
+  /** Domain validators composed by the compilation host for these carriers. */
+  validators: {
+    environment: typeof validateBuiltEnvironment;
+    model: typeof validateModel;
+    context: typeof validateAutoMovieEnvironmentContext;
+  };
+}): boolean => {
   const before = props.diagnostics.length;
   // The path is sliced and printed without a fallback because the three
   // validators below build every violation path from `$input.` and none

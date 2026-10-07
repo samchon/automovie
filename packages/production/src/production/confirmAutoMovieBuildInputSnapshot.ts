@@ -1,4 +1,8 @@
-import type { AutoMovieContentDigest, IAutoMovieBuildProjectOutput, IAutoMovieDiagnostic } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieBuildProjectOutput,
+  IAutoMovieDiagnostic,
+} from "@automovie/interface";
 
 import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 import { createAutoMovieBuildInputRaceFailure } from "./createAutoMovieBuildInputRaceFailure";
@@ -23,17 +27,26 @@ export const confirmAutoMovieBuildInputSnapshot = (props: {
 
   /** Shared project authority; this boundary neither reads nor writes files. */
   authority: {
-    confirmCurrentSnapshot: (current: () => boolean, revision: number) => number;
+    confirmCurrentSnapshot: (
+      current: () => boolean,
+      revision: number,
+    ) => number;
     revision: () => number;
   };
 }): IAutoMovieBuildProjectOutput | null => {
   try {
-    props.authority.confirmCurrentSnapshot(props.inputCurrent, props.inputRevision);
+    props.authority.confirmCurrentSnapshot(
+      props.inputCurrent,
+      props.inputRevision,
+    );
     return null;
   } catch (error) {
-    if (error instanceof AutoMovieProductionInputRaceError === false) throw error;
+    if (error instanceof AutoMovieProductionInputRaceError === false)
+      throw error;
     return createAutoMovieBuildInputRaceFailure({
-      ...props, failure: error, currentRevision: () => props.authority.revision(),
+      ...props,
+      failure: error,
+      currentRevision: () => props.authority.revision(),
     });
   }
 };

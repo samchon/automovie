@@ -2,6 +2,8 @@ import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { encodePng } from "../../common/mesh/encodePng";
+import type { IHumanFaceOcclusionBakeOptions } from "./IHumanFaceOcclusionBakeOptions";
+import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
 
 /** How far a ray starts off its surface along the normal, metres. */
 const LIFT = 0.00005;
@@ -40,7 +42,7 @@ const LIFT = 0.00005;
  */
 export function bakeHumanFaceOcclusion(
   model: IAutoMovieModel,
-  options: { rays: number; size: number },
+  options: IHumanFaceOcclusionBakeOptions,
 ): Map<string, string> {
   const { rays, size } = options;
   if (
@@ -50,14 +52,7 @@ export function bakeHumanFaceOcclusion(
     size <= 0
   )
     throw new Error("Occlusion needs positive integer ray counts and sizes.");
-  const opaque = new Set(
-    model.materials
-      .filter(
-        (material) =>
-          material.alphaMode !== "mask" && material.alphaMode !== "blend",
-      )
-      .map((material) => material.id),
-  );
+  const opaque = humanFaceOcclusionOpaqueMaterials(model);
   const meshes = model.parts.flatMap((part) =>
     part.geometry.type === "mesh" &&
     part.material !== null &&

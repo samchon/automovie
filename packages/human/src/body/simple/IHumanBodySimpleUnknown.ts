@@ -38,6 +38,9 @@ export interface IHumanBodySimpleUnknown {
   /** Positive requested reading, metres or kilograms as the callback defines. */
   target: number;
 
-  /** Reading on this shared trial body, or null when the surface cannot answer. */
-  read: (reader: ReturnType<typeof createHumanBodyMeasurementReader>) => number | null;
+  /** Reading on this shared trial body (its reader and its shape), or null when the surface cannot answer. */
+  read: (
+    reader: ReturnType<typeof createHumanBodyMeasurementReader>,
+    shape: Record<string, number>,
+  ) => number | null;
 }

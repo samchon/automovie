@@ -61,9 +61,15 @@ export function parseHumanShotRequest(args: readonly string[]): {
       fields.set(key, token.slice(separator + 1));
     }
   }
-  if (["ensure", "status", "stop", "watch", "warm"].includes(command) && output !== null)
+  if (
+    ["ensure", "status", "stop", "watch", "warm"].includes(command) &&
+    output !== null
+  )
     throw new Error("This command returns JSON, not a PNG file");
-  if (["ensure", "status", "stop", "watch"].includes(command) && fields.size !== 0)
+  if (
+    ["ensure", "status", "stop", "watch"].includes(command) &&
+    fields.size !== 0
+  )
     throw new Error("Lifecycle commands take no display fields");
   return {
     command: command as ReturnType<typeof parseHumanShotRequest>["command"],

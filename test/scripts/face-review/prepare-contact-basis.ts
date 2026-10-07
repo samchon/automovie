@@ -54,6 +54,7 @@ const prepared = prepareContactBasis({
   lips: { surface: "Human", region: "Human/lips" },
   incisors: { surface: "Human.teeth_base" },
   midlineBandMetres: 0.006,
+  marginStationMetres: 0.002,
   closure: { channel: "mouthClose", reference: "jawOpen" },
   passage: {
     surface: "Human.tongue01",

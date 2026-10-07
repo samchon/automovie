@@ -5,29 +5,31 @@
  * export, while a different committed document is evaluated independently
  * of an in-flight draft.
  */
-import {
-  type IAutoMovieModelCrossing,
-  measureAutoMovieModelCrossings,
-} from "@automovie/engine";
-import {
-  type IAutoMovieHumanBodyBasis,
-  createHumanBodyBasisBuilder,
-  createHumanBodyHumeralHeads,
-  createHumanBodySegmenter,
-  exportHumanBody,
-  measureHumanBodySpheresSkinClearance,
-  parseHumanBodyBasisDocument,
-  projectHumanBodySimpleShape,
-  stepHumanBodyArmsDown,
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodySimpleWhole,
 } from "@automovie/human";
+import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { createHumanBodyAssemblyExportQualification } from "@automovie/human/body/export/createHumanBodyAssemblyExportQualification";
+import { createHumanBodyAtlasExportQualification } from "@automovie/human/body/export/createHumanBodyAtlasExportQualification";
+import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
+import { createHumanBodySegmenter } from "@automovie/human/body/measure/createHumanBodySegmenter";
+import { measureHumanBodyGroundSupport } from "@automovie/human/body/measure/measureHumanBodyGroundSupport";
+import { stepHumanBodyArmsDown } from "@automovie/human/body/measure/stepHumanBodyArmsDown";
+import { assertTextSize } from "@automovie/human/common/document/assertTextSize";
 import type { IAutoMovieModel } from "@automovie/interface";
 
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
+import type { IConnectedBodyRuntimeCachedBuild } from "./IConnectedBodyRuntimeCachedBuild";
+import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
-import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
+import { describeConnectedBodyConstructionProgress } from "./describeConnectedBodyConstructionProgress";
+import { readConnectedBodyContacts } from "./readConnectedBodyContacts";
+import { readConnectedBodyFemoralHeads } from "./readConnectedBodyFemoralHeads";
+import { readConnectedBodyHumeralHeads } from "./readConnectedBodyHumeralHeads";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -40,7 +42,8 @@ import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReadi
  * abandoned at its next slice and answers with no reading. An arms-down
  * solve is driven the same way, a build and crossing read at a time
  * (`stepHumanBodyArmsDown`), and refuses as superseded when a later request
- * arrives.
+ * arrives. The humeral-head estimate reads age, sex and stature through the
+ * simple projection, whose stature is the whole person's (`whole`).
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reuses one admitted body prior for preview edits and on-demand contact checks.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Encodes the committed static body only when export is requested.
@@ -49,14 +52,23 @@ import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReadi
  */
 export function createConnectedBodyRuntime(
   basis: IAutoMovieHumanBodyBasis,
-  options: {
-    /** Longest stretch a contact reading holds the thread, milliseconds. */
-    sliceMs?: number;
-    /** Hand the thread back; a macrotask by default so queued messages run. */
-    yieldThread?: () => Promise<unknown>;
-  } = {},
+  whole: IAutoMovieHumanBodySimpleWhole,
+  options: IConnectedBodyRuntimeOptions = {},
 ) {
-  const evaluate = createHumanBodyBasisBuilder(basis);
+  const evaluate = createHumanBodyBasisBuilder(
+    basis,
+    options.progress === undefined
+      ? options.builderOptions
+      : {
+          ...options.builderOptions,
+          observeProgress: (progress) => {
+            options.builderOptions?.observeProgress?.(progress);
+            options.progress!(
+              describeConnectedBodyConstructionProgress(progress),
+            );
+          },
+        },
+  );
   const segment = createHumanBodySegmenter(basis);
   const sliceMs = options.sliceMs ?? 25;
   const yieldThread =
@@ -67,51 +79,27 @@ export function createConnectedBodyRuntime(
       }));
   /** Requests received so far; a reading is superseded by any later one. */
   let received = 0;
-  const readContacts = async (
-    model: IAutoMovieModel,
-    superseded: () => boolean,
-  ): Promise<IAutoMovieModelCrossing[] | null> => {
-    const parts = model.parts;
-    const found: IAutoMovieModelCrossing[] = [];
-    let since = Date.now();
-    const pause = async (): Promise<boolean> => {
-      if (Date.now() - since < sliceMs) return superseded();
-      await yieldThread();
-      since = Date.now();
-      return superseded();
-    };
-    for (let first = 0; first < parts.length; first++) {
-      // one continuous skin partitioned by bone: a segment passing through
-      // itself is penetration the pairwise count cannot see
-      found.push(
-        ...measureAutoMovieModelCrossings(
-          { ...model, parts: [parts[first]] },
-          { withinParts: true },
-        ),
-      );
-      if (await pause()) return null;
-      for (let second = first + 1; second < parts.length; second++) {
-        found.push(
-          ...measureAutoMovieModelCrossings({
-            ...model,
-            parts: [parts[first], parts[second]],
-          }),
-        );
-        if (await pause()) return null;
-      }
-    }
-    return found;
-  };
-  let last:
-    | { document: string; built: ReturnType<typeof evaluate> }
-    | undefined;
+  const readContacts = (model: IAutoMovieModel, superseded: () => boolean) =>
+    readConnectedBodyContacts({ model, sliceMs, yieldThread, superseded });
+  let last: IConnectedBodyRuntimeCachedBuild | undefined;
   return async (
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
     const mine = ++received;
+    if (
+      request.operation === "construct" ||
+      request.operation === "exportConstruction"
+    )
+      throw new Error(
+        "Whole-person construction drafts belong to the person generation runtime.",
+      );
+    assertTextSize(request.document);
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
-    const document = parseHumanBodyBasisDocument(request.document);
+    const document = parseHumanBodyBasisDocument(
+      request.document,
+      basis.anatomicalAssembly,
+    );
     if (request.operation === "armsDown") {
       // the same slicing as a contact reading: a step at a time, abandoned
       // when a later request supersedes it
@@ -140,7 +128,19 @@ export function createConnectedBodyRuntime(
       last?.document === request.document ? last.built : evaluate(document);
     last = { document: request.document, built };
     if (request.operation === "export") {
-      const { glb } = await exportHumanBody(built.model);
+      const { glb } = await exportHumanBody(
+        built.model,
+        undefined,
+        undefined,
+        await createHumanBodyAtlasExportQualification(
+          basis,
+          built.evaluatedDocument,
+        ),
+        await createHumanBodyAssemblyExportQualification(
+          basis,
+          built.evaluatedDocument,
+        ),
+      );
       return { operation: "export", glb };
     }
     const model = packConnectedBodyModel(built.model);
@@ -148,46 +148,40 @@ export function createConnectedBodyRuntime(
       request.measure || request.anatomy
         ? await readContacts(segment(built).model, () => received !== mine)
         : null;
-    let anatomy: Extract<
-      ConnectedBodyResult,
-      { operation: "preview" }
-    >["anatomy"] = null;
-    if (request.anatomy && crossings !== null) {
-      if (crossings.length !== 0)
-        anatomy = { status: "unavailable", reason: "skin-crossing" };
-      else {
-        const simple = projectHumanBodySimpleShape(basis, document.shape, []);
-        const heads = createHumanBodyHumeralHeads({
-          ageYears: simple.ageYears,
-          sex: simple.sex,
-          statureMetres: simple.statureMetres,
-          bones: built.bones,
-          radii: document.humeralHeads,
-        });
-        anatomy =
-          heads.length === 0
-            ? { status: "unavailable", reason: "ct-domain" }
-            : (() => {
-                const measured = measureHumanBodySpheresSkinClearance({
-                  skins: basis.surfaces.map((surface, index) => ({
-                    indices: surface.indices,
-                    positions: built.posedSurfaces[index].positions,
-                  })),
-                  spheres: heads.map(({ bone, center, radiusMetres }) => ({
-                    id: bone,
-                    center,
-                    radiusMetres,
-                  })),
-                });
-                return packHumanBodyHumeralHeadReading(heads, measured);
-              })();
-      }
-    }
+    let anatomy: IConnectedBodyPreviewResult["anatomy"] = null;
+    if (request.anatomy && crossings !== null)
+      anatomy = readConnectedBodyHumeralHeads({
+        basis,
+        whole,
+        document,
+        built,
+        crossings,
+      });
+    const femoralHeads =
+      request.anatomy && crossings !== null
+        ? readConnectedBodyFemoralHeads({
+            basis,
+            whole,
+            document,
+            built,
+            crossings,
+          })
+        : null;
+    const groundSupport = request.anatomy
+      ? measureHumanBodyGroundSupport(
+          basis,
+          built.posedSurfaces.map((surface) => surface.positions),
+          built.landmarks,
+          built.groundPlaneHeightMetres,
+        )
+      : null;
     return {
       operation: "preview",
       model,
       crossings: request.measure ? crossings : null,
       anatomy,
+      femoralHeads,
+      groundSupport,
       extras: { bones: built.bones, landmarks: built.landmarks },
     };
   };

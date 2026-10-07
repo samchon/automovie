@@ -8,7 +8,7 @@ Settle the complete delivery partition before writing any script body. Writing t
 
 Author a partition map that lists every delivery-group directory and H1 title, every script filename and H1 title beneath it, the ordered H2/H3/H4 identities inside each file, and every treatment H2 each script unit realizes. A treatment event may run across several script units and one script unit may braid several treatment events.
 
-After adding, removing, renaming, or reordering a numbered unit, run `npx --no-install automovie toc` to regenerate the managed links in every script, construction-screenplay, and existing final-screenplay index. Run `npx --no-install automovie toc --check` before advancing evidence; it compares the same canonical bytes without writing and refuses missing, extra, duplicate, mistargeted, or misordered links.
+After changing the numbered inventory, run `npx --no-install automovie toc` for script, construction-screenplay, and existing final-screenplay indexes, then `npx --no-install automovie toc --check` before advancing evidence. The CLI's local help owns managed-link behavior.
 
 The map must satisfy four conditions before drafting begins:
 
@@ -37,10 +37,8 @@ Apply the narrative addressability obligation across the partition and the scrip
 
 Treat every script and caption boundary as an integer frame boundary on the one authored rational production clock. Destination audio samples, WebVTT milliseconds, and MP4 ticks use the shared nearest-half-up boundary mapping; do not calculate each carrier independently from decimal `fps`.
 
-Start at `scripts: "draft"` after treatment completion under [Evidence staging](../evidence-graph/staging.md#transitions). Before `evidence`, enact every H4 in order and test physical possibility, timing, resources, settings capabilities, entry and exit continuity, proportional expansion beyond its actual treatment parents, and every consequential action, exchange, knowledge change, or silence. A summary that merely says these occur is not a script.
+Before `evidence`, enact every H4 in order and test physical possibility, timing, resources, settings capabilities, entry and exit continuity, proportional expansion beyond its actual treatment parents, and every consequential action, exchange, knowledge change, or silence. A summary that merely says these occur is not a script.
 
 For the execution-handoff check, hand only the script to a cold reader and require a followable account of every unit as a physical event, including actor, affected part, relation, path, contact order, response, and result wherever applicable. Repair every essential story-level execution question that reader would have to invent without pulling camera or source implementation into the script.
 
-Run [Author process Self-Review](../review-verification/self-review.md) to its clean round before every stage transition and again after any repair.
-
-In its pre-H1 file comment, every script file cites every treatment H2 realized anywhere among its descendants. Every H2, H3, and H4 answers the complete common, narrative, and script principle checklists, cites every treatment H2 it actually realizes, and cites only settings it uses. The file-host union and the host union at each governed script depth each cover the complete treatment H2 population without exclusion. The H2 population supplies every common, narrative, and script-obligation owner. Applicable discovery results belong to the separate contract-file population under [Production-specific contract](../evidence-graph/work-specific.md#discovery-evidence). Follow [Evidence staging](../evidence-graph/staging.md). A discovered settings or treatment defect is repaired at that earlier owner, and every script unit realizing the changed treatment is reread before work resumes.
+In its pre-H1 file comment, every script file cites every treatment H2 realized anywhere among its descendants. Every H2, H3, and H4 cites every treatment H2 it actually realizes and only settings it uses. The file-host union and the host union at each governed script depth each cover the complete treatment H2 population without exclusion. Applicable discovery results use the separate [contract-file population](../evidence-graph/work-specific.md#discovery-evidence). Complete the layer through the [lifecycle handoff](index.md#handoff).

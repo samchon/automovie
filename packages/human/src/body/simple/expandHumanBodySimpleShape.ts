@@ -1,14 +1,18 @@
+import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
+import { admitHumanBodyDocumentAnatomy } from "../anatomy/admitHumanBodyDocumentAnatomy";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
+import { collectHumanBodyExteriorRequests } from "../anatomy/surface/collectHumanBodyExteriorRequests";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
-import { solveHumanBodyMeasuredChannel } from "../measure/solveHumanBodyMeasuredChannel";
+import type { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
-import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
+import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
 import type { IHumanBodySimpleUnknown } from "./IHumanBodySimpleUnknown";
+import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
 import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
-import { humanBodySimpleStature } from "./humanBodySimpleStature";
-import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "./projectHumanBodySimpleShape";
 import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
@@ -21,7 +25,7 @@ import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
 const TAPE_TOLERANCE_METRES = 1e-3;
 const STATURE_TOLERANCE_METRES = 1e-4;
 const MASS_TOLERANCE_KILOGRAMS = 0.05;
-type Reader = Parameters<typeof humanBodySimpleStature>[0];
+type Reader = ReturnType<typeof createHumanBodyMeasurementReader>;
 /** Warm-up passes before simultaneous inversion; failure resumes the original eight-pass budget. */
 const ROUNDS = 2;
 const PASSES = 8;
@@ -42,14 +46,13 @@ const CONVERGENCE = 1e-5;
  * identity back as the first row's inverse of the weight less the other rows,
  * which is only the sum's inverse.
  * The measured values are then solved in turn, each with the weights so far
- * worn: the height channel is inverted against the actual shaped-skin height
- * through the same bounded metric solver the detailed editor uses, with the
- * head allowance added to the ring height. Because stature, girth and mass
+ * worn: the height channel is inverted against the whole person's actual
+ * stature (`whole.stature`, floor to the top of the head) through the same
+ * bounded inverse the detailed editor uses. Because stature, girth and mass
  * change one another, their weights are then solved in rounds until none
  * moves: each requested girth or rig distance uses its channel's rule, and the
- * weight channel reads the mass the skin volume
- * encloses at the fat fraction's density over the age-dependent head-and-neck
- * share. A value outside measured reach is refused with that reach, never clamped;
+ * weight channel reads the mass the whole person's closed skin
+ * (`whole.volume`) encloses at the fat fraction's density. A value outside measured reach is refused with that reach, never clamped;
  * a basis without the solved channels, or a measurement its surface cannot
  * answer, is refused before geometry is kept.
  *
@@ -68,6 +71,14 @@ const CONVERGENCE = 1e-5;
  * those directions keeps its residue, and a request the residue makes
  * unreachable is refused like any other.
  *
+ * With anatomical targets, `over` remains the canonical raw shape: duplicate
+ * channel authority is refused before solving. Its effective baseline is
+ * resolved privately. The final candidate omits target-owned channels from
+ * the saved record, then resolves the unchanged targets and checks every
+ * requested simple value again with the same numerical budgets. A simple
+ * request incompatible with those targets refuses rather than deleting the
+ * targets or storing their derived channels as personal authoring.
+ *
  * @evidence contracts/common.md#principled-implementation Table terms are summed before envelope projection so the inverse reads the same combined channel map. Sequential measured-reach inversions warm up a simultaneous shared-body solve; unresolved systems retain complete strict reach sampling. A final shared-body assertion checks every canonical requested reading after stature reconciliation. The optional detailed-residue result is the difference of two expansions, which is exact only where readings add over channels, so it is solved again from where it stands and passes the same assertion.
  * @evidence contracts/common.md#clear-and-simple-design One compiler orders table expansion, measured inversion, canonical verification and optional residue transfer; numerical iteration and measurement definitions have separate owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No person or photograph is selected. The numerical budgets and pass counts are stated policies, not anatomical limits; measured-reach refusal remains separate from transient warm-up saturation.
@@ -80,13 +91,37 @@ const CONVERGENCE = 1e-5;
  * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the emitted form.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The simple table and measurement owners define the anatomical formulas and constants; this compiler introduces only explicitly numerical acceptance budgets.
  * @evidenceExclude contracts/anatomy.md#permitted-range The table and basis own admitted parameter envelopes; this compiler enforces those existing envelopes without defining a new physiological interval.
- * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to the detailed tier, which remains canonical. The optional detailed residue preserves that existing detailed authority on every channel outside the solved named directions, and the body it yields is held to the requested readings.
+ * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to canonical raw weights. Existing anatomical targets retain authority over their registered channels: private effective weights are removed from storage and their unchanged targets are re-resolved before all requested simple readings are checked again.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
+  whole: IAutoMovieHumanBodySimpleWhole,
   simple: IAutoMovieHumanBodySimpleShape,
   over?: Record<string, number>,
+  anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements,
 ): Record<string, number> {
+  if (anatomy !== undefined) {
+    admitHumanBodyDocumentAnatomy(
+      anatomy,
+      over ?? {},
+      basis.anatomicalAssembly,
+    );
+    if (over !== undefined)
+      over = resolveHumanBodyAnatomy(basis, over, anatomy);
+  }
+  const targetChannels = new Set(
+    collectHumanBodyExteriorRequests(anatomy).map(
+      (request) => request.binding.channel,
+    ),
+  );
+  const effectiveTrial = (
+    trial: Record<string, number>,
+  ): Record<string, number> => {
+    if (anatomy === undefined) return trial;
+    const raw = { ...trial };
+    for (const channel of targetChannels) delete raw[channel];
+    return resolveHumanBodyAnatomy(basis, raw, anatomy);
+  };
   const table = HUMAN_BODY_SIMPLE_SHAPE;
   for (const name of Object.keys(
     table.limits,
@@ -142,14 +177,25 @@ export function expandHumanBodySimpleShape(
     );
   };
   const stature = table.solved.stature;
+  const statureChannel = channels.get(stature);
+  if (statureChannel === undefined)
+    throw new Error("A simple body needs the stature channel " + stature + ".");
+  // the stature channel inverted against the whole person's actual stature
   const matchStature = (): void => {
-    shape[stature] =
-      solveHumanBodyMeasuredChannel({
-        basis,
-        shape,
-        channel: stature,
-        targetMetres: simple.statureMetres - table.stature.headAboveRingMetres,
-      }).shape[stature] ?? 0;
+    const worn = (weight: number): Record<string, number> => {
+      const trial = { ...shape };
+      if (weight === 0) delete trial[stature];
+      else trial[stature] = weight;
+      return trial;
+    };
+    shape[stature] = invertHumanMeasurement({
+      range: [statureChannel.minimum, statureChannel.maximum],
+      current: shape[stature] ?? 0,
+      targetMetres: simple.statureMetres,
+      read: (weight) => whole.stature(effectiveTrial(worn(weight))),
+      label: "stature",
+    }).weight;
+    if (shape[stature] === 0) delete shape[stature];
   };
   matchStature();
   const density = math.density(
@@ -168,7 +214,7 @@ export function expandHumanBodySimpleShape(
       solve(
         direction.alone(basis, entry.channel),
         target,
-        (trial) => measure.channel(basis, trial, entry.channel),
+        (trial) => measure.channel(basis, effectiveTrial(trial), entry.channel),
         entry.parameter,
         saturate,
       );
@@ -176,20 +222,14 @@ export function expandHumanBodySimpleShape(
     solve(
       direction.mass(basis, parameters),
       simple.massKilograms,
-      (trial) =>
-        measure.mass(
-          measure.volume(basis, trial),
-          density,
-          simple.ageYears,
-          parameters.bodyMassIndex,
-        ),
+      (trial) => measure.mass(whole.volume(effectiveTrial(trial)), density),
       "mass",
       saturate,
     );
     solve(
       statureAlong,
       simple.statureMetres,
-      (trial) => measure.stature(basis, trial),
+      (trial) => whole.stature(effectiveTrial(trial)),
       "stature",
       saturate,
     );
@@ -212,8 +252,14 @@ export function expandHumanBodySimpleShape(
               tolerance: TAPE_TOLERANCE_METRES,
               along: direction.alone(basis, entry.channel),
               target,
-              read: (reader: Reader) =>
-                humanBodySimpleChannel(reader, entry.channel),
+              read: (reader: Reader, trial: Record<string, number>) =>
+                anatomy === undefined
+                  ? humanBodySimpleChannel(reader, entry.channel)
+                  : measure.channel(
+                      basis,
+                      effectiveTrial(trial),
+                      entry.channel,
+                    ),
             },
           ];
     }),
@@ -222,20 +268,16 @@ export function expandHumanBodySimpleShape(
       tolerance: MASS_TOLERANCE_KILOGRAMS,
       along: direction.mass(basis, parameters),
       target: simple.massKilograms,
-      read: (reader: Reader) =>
-        measure.mass(
-          humanBodySimpleVolume(basis, reader.shaped),
-          density,
-          simple.ageYears,
-          parameters.bodyMassIndex,
-        ),
+      read: (_reader: Reader, trial: Record<string, number>) =>
+        measure.mass(whole.volume(effectiveTrial(trial)), density),
     },
     {
       name: "statureMetres",
       tolerance: STATURE_TOLERANCE_METRES,
       along: statureAlong,
       target: simple.statureMetres,
-      read: humanBodySimpleStature,
+      read: (_reader: Reader, trial: Record<string, number>) =>
+        whole.stature(effectiveTrial(trial)),
     },
   ];
   const together = solveHumanBodySimpleCoupling(basis, shape, unknowns);
@@ -245,13 +287,25 @@ export function expandHumanBodySimpleShape(
   } else Object.assign(shape, together);
   matchStature();
   assertHumanBodySimpleValues(basis, shape, unknowns);
-  if (over === undefined) return shape;
+  const canonical = (
+    effective: Record<string, number>,
+  ): Record<string, number> => {
+    if (anatomy === undefined) return effective;
+    const raw = { ...effective };
+    for (const channel of targetChannels) delete raw[channel];
+    const resolved = effectiveTrial(raw);
+    assertHumanBodySimpleValues(basis, resolved, unknowns);
+    return raw;
+  };
+  if (over === undefined) return canonical(shape);
   // only the measurements this request names are read back, so an omitted
   // one leaves its channel exactly as the shape had it
   const origin = expandHumanBodySimpleShape(
     basis,
+    whole,
     projectHumanBodySimpleShape(
       basis,
+      whole,
       over,
       table.measurements
         .map((entry) => entry.parameter)
@@ -280,5 +334,5 @@ export function expandHumanBodySimpleShape(
   // with a compromise.
   const final = solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
   assertHumanBodySimpleValues(basis, final, unknowns);
-  return final;
+  return canonical(final);
 }

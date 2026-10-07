@@ -9,6 +9,6 @@ Use this procedure when authoring a child exposes a false, missing, contradictor
 5. Re-author stale semantic evidence from literal rereading under [Semantic evidence inspection](../review-verification/semantic-review.md), then renew every affected actual-output observation. [Evidence staging](../evidence-graph/staging.md) owns any retained legacy metadata.
 6. Resume the child only after its direct parents are complete again and its inherited state is coherent. A disabled child enters draft through [Evidence staging](../evidence-graph/staging.md#transitions); an active child keeps its identity and continues from the earliest invalidated work.
 
-When the child exposes nothing, its upstream exclusion names the exact parent units and the concrete dimension, interface, fact, capability, progression, or acceptance condition tested. "No change needed" is not a tested negative.
+For the child's unit-local positive or negative answer, follow [upstream coverage and exclusion](../evidence-graph/upstream.md#coverage-and-exclusion). This differs from a population-level exclusion and from parent differentiation.
 
 This procedure owns repair, preservation, propagation, and resumption. The shared upstream contract item owns the narrower question each child answers about the parents it actually exercised.

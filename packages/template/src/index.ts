@@ -1,4 +1,8 @@
+export * from "./IAutoMovieScaffoldProps";
+export * from "./IAutoMovieScaffoldSourceEntry";
 export * from "./renderScaffold";
+export * from "./renderScaffoldEntries";
+export * from "./scaffoldAssetDirectory";
 export * from "./authoringReachability";
 export * from "./renderAutoMovieLanguageContracts";
 export {

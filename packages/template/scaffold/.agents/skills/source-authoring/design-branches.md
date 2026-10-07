@@ -38,7 +38,7 @@ After discovery is settled and before drafting a branch, read its principle and 
 
 ## Gates
 
-Start an applicable design layer at its `<branch>: "draft"` key after settings completion under [Evidence staging](../evidence-graph/staging.md#transitions) and settlement of its contract-hosted discovery result. Before `evidence`, require a complete first version, stable H2 owners, no placeholders, inherited settings and completed-foundation citations, every matching principle answered by every H2, every matching obligation allocated across the H2 population, and the branch's finite review set and verification addresses. Run [Author process Self-Review](../review-verification/self-review.md) to a clean round before each stage transition and after every repair.
+Start an applicable design layer at its `<branch>: "draft"` key after settings completion under [Evidence staging](../evidence-graph/staging.md#transitions) and settlement of its contract-hosted discovery result. Record the branch's finite review set and verification addresses. [Evidence staging](../evidence-graph/staging.md#transitions) owns common completion and parent admission; [Author process Self-Review](../review-verification/self-review.md) closes the coherent change.
 
 | Branch gate | Specialist contracts before `evidence` | Matching source starts only after |
 | --- | --- | --- |

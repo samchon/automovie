@@ -11,13 +11,7 @@ export interface IHumanViewerReferenceContext {
   clip(): void;
   arc(x: number, y: number, r: number, from: number, to: number): void;
   fill(): void;
-  drawImage(
-    image: unknown,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-  ): void;
+  drawImage(image: unknown, x: number, y: number, w: number, h: number): void;
 }
 
 /**

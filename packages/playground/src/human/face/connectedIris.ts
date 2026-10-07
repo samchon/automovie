@@ -3,6 +3,8 @@ import type {
   IPortraitIrisPigment,
 } from "@automovie/human";
 
+import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
+
 /**
  * The iris pigment of both eyes, shown as the default when a document adds
  * pigment: the constructed portrait eye's shared dark-brown palette, not any
@@ -32,11 +34,7 @@ const DEFAULT_PIGMENT: IPortraitIrisPigment = {
  */
 export function mountConnectedFaceIris(
   app: HTMLElement,
-  props: {
-    document: () => IAutoMovieHumanFaceBasisDocument;
-    change: (document: IAutoMovieHumanFaceBasisDocument) => Promise<void>;
-    refuse: (error: unknown) => void;
-  },
+  props: IConnectedFaceAppearanceProps,
 ) {
   const dom = app.ownerDocument;
   const section = dom.createElement("details");

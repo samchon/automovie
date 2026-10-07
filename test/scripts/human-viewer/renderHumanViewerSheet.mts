@@ -10,6 +10,7 @@
  * @evidence contracts/common.md#meaningful-documentation Defines GPU admission ownership, matrix ordering and the no-file-write boundary.
  */
 import type { Page } from "playwright";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { planHumanViewerSheet } from "./planHumanViewerSheet";
 

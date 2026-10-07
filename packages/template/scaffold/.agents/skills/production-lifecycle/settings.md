@@ -44,14 +44,14 @@ After every downstream draft or revision, backcast its literal cast against that
 
 ## Research and revision
 
-Research every externally checkable precision rather than writing it from memory. Search results and collection portals are discovery routes; open the direct evidence and apply `docs/principles/core/settings.md#source-support` before accepting a claim. Use [research.md](research.md) when source identity and uncertainty need a separate production-consumed ledger.
+Research every externally checkable precision through [External retrieval](index.md#external-retrieval) and apply `docs/principles/core/settings.md#source-support`. Use [Research](research.md) when source identity and uncertainty need a separate production-consumed ledger.
 
 Before leaving `draft`, audit every unresolved statement, every externally checkable precision, and every discovered requirement recorded in the current coverage map against the questions research raised. Settle anything a downstream layer would otherwise have to invent; passing an unresolved value forward is an unstated invention task rather than a recorded uncertainty.
 
 Keep only current canon and unresolved state in settings. Superseded decisions, migration notes, commit identifiers, and process history belong in `.wiki` or in Git, because a settings H2 that narrates its own history makes a downstream reader decide which version is in force.
 
-Settings are authoritative, not frozen. When later work exposes a contradiction, implausible constraint, missing capability, or stronger decision, fix settings first, locate every citation and factual occurrence, reread adjacent consequences, repair descendants, and renew stale reviews. Do not rewrite canon merely to excuse a downstream mistake; compare research, delivery purpose, and total consequences first.
+For a contradiction, implausible constraint, missing capability, or stronger decision exposed downstream, use [Upstream revision](upstream-revision.md). Compare research, delivery purpose, and total consequences before changing canon to accommodate that finding.
 
 ## Gate
 
-For a settings stage transition, follow [Evidence staging](../evidence-graph/staging.md) for the transition conditions and evidence passes, and [Author process Self-Review](../review-verification/self-review.md) for the required review.
+Complete settings through the [lifecycle handoff](index.md#handoff).

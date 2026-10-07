@@ -1,7 +1,9 @@
 import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "@automovie/interface";
 
 const requestedLocale = "en";
-const segmenter = new Intl.Segmenter(requestedLocale, { granularity: "grapheme" });
+const segmenter = new Intl.Segmenter(requestedLocale, {
+  granularity: "grapheme",
+});
 const options = segmenter.resolvedOptions();
 
 /**

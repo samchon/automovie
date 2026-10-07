@@ -47,7 +47,8 @@ writeFaceBasisRevision({
     citations: {
       target:
         "Cole EA, Winn BJ, Putterman AM. Measurement of eyebrow position from inferior corneal limbus to brow: a new technique. Ophthalmic Plast Reconstr Surg 2010;26(6):443-447 (PMID 20724865): central inferior corneal limbus to the first row of mature brow hairs, primary gaze, 213 subjects; mean 19.4 mm (men), 19.7 mm (women).",
-      limbus: "Horizontal visible iris diameter 11.7 mm, the basis's iris rule.",
+      limbus:
+        "Horizontal visible iris diameter 11.7 mm, the basis's iris rule.",
       seat: "The brow overlies the supraorbital rim; on the source the card sat on the upper lid sulcus, 7 to 9 mm above the pupil, below the skin's brow prominence at 16 to 18 mm.",
     },
   },

@@ -20,53 +20,127 @@ export function certifyFaceBrowShaftClearance(props: {
   stations: readonly { point: readonly number[]; radius: number }[];
   query: (point: readonly number[]) => { distance: number };
   maxQueries: number;
-}): { status: "separated" | "overlapping-envelope" | "unresolved";
-  queries: number; lowerBoundMetres: number; measuredGapMetres: number } {
-  const stations = props.stations.map((station) => ({ point: [...station.point], radius: station.radius }));
-  if (stations.length < 2 || stations.some((station) => station.point.length !== 3 ||
-      !station.point.every(Number.isFinite) || !Number.isFinite(station.radius) || station.radius < 0))
-    throw new Error("Brow shaft clearance needs finite metre stations and nonnegative radii.");
-  if (!Number.isSafeInteger(props.maxQueries) || props.maxQueries < stations.length)
-    throw new Error("Brow shaft clearance needs a query budget covering its stations.");
+}): {
+  status: "separated" | "overlapping-envelope" | "unresolved";
+  queries: number;
+  lowerBoundMetres: number;
+  measuredGapMetres: number;
+} {
+  const stations = props.stations.map((station) => ({
+    point: [...station.point],
+    radius: station.radius,
+  }));
+  if (
+    stations.length < 2 ||
+    stations.some(
+      (station) =>
+        station.point.length !== 3 ||
+        !station.point.every(Number.isFinite) ||
+        !Number.isFinite(station.radius) ||
+        station.radius < 0,
+    )
+  )
+    throw new Error(
+      "Brow shaft clearance needs finite metre stations and nonnegative radii.",
+    );
+  if (
+    !Number.isSafeInteger(props.maxQueries) ||
+    props.maxQueries < stations.length
+  )
+    throw new Error(
+      "Brow shaft clearance needs a query budget covering its stations.",
+    );
   let queries = 0;
   let measuredGap = Infinity;
-  const sample = (station: typeof stations[number]) => {
+  const sample = (station: (typeof stations)[number]) => {
     const { distance } = props.query([...station.point]);
     if (!Number.isFinite(distance) || distance < 0)
-      throw new Error("Brow shaft clearance needs a finite unsigned metric distance.");
+      throw new Error(
+        "Brow shaft clearance needs a finite unsigned metric distance.",
+      );
     queries++;
     const gap = distance - station.radius;
     measuredGap = Math.min(measuredGap, gap);
-    const scale = Math.max(distance, station.radius, ...station.point.map(Math.abs));
+    const scale = Math.max(
+      distance,
+      station.radius,
+      ...station.point.map(Math.abs),
+    );
     return { ...station, gap, rounding: 64 * Number.EPSILON * scale };
   };
   const samples = stations.map(sample);
   if (samples.some((station) => station.gap < -station.rounding))
-    return { status: "overlapping-envelope", queries, lowerBoundMetres: -Infinity, measuredGapMetres: measuredGap };
-  const intervals = samples.slice(1).map((right, index) => ({ left: samples[index], right }));
+    return {
+      status: "overlapping-envelope",
+      queries,
+      lowerBoundMetres: -Infinity,
+      measuredGapMetres: measuredGap,
+    };
+  const intervals = samples
+    .slice(1)
+    .map((right, index) => ({ left: samples[index], right }));
   let lowerBound = Infinity;
   while (intervals.length > 0) {
     const { left, right } = intervals.pop()!;
-    const chord = Math.hypot(...left.point.map((value, axis) => value - right.point[axis]));
-    const bound = Math.min(left.gap, right.gap) -
+    const chord = Math.hypot(
+      ...left.point.map((value, axis) => value - right.point[axis]),
+    );
+    const bound =
+      Math.min(left.gap, right.gap) -
       (chord === 0 ? 0 : (chord + Math.abs(left.radius - right.radius)) / 2);
-    const rounding = Math.max(left.rounding, right.rounding, 64 * Number.EPSILON * chord);
+    const rounding = Math.max(
+      left.rounding,
+      right.rounding,
+      64 * Number.EPSILON * chord,
+    );
     if (bound > rounding) {
       lowerBound = Math.min(lowerBound, bound);
       continue;
     }
     if (queries === props.maxQueries)
-      return { status: "unresolved", queries, lowerBoundMetres: Math.min(lowerBound, bound), measuredGapMetres: measuredGap };
-    const point = left.point.map((value, axis) => value / 2 + right.point[axis] / 2);
-    if (point.every((value, axis) => value === left.point[axis]) ||
-        point.every((value, axis) => value === right.point[axis]))
-      return { status: "unresolved", queries, lowerBoundMetres: Math.min(lowerBound, bound), measuredGapMetres: measuredGap };
-    const middle = sample({ point, radius: left.radius / 2 + right.radius / 2 });
+      return {
+        status: "unresolved",
+        queries,
+        lowerBoundMetres: Math.min(lowerBound, bound),
+        measuredGapMetres: measuredGap,
+      };
+    const point = left.point.map(
+      (value, axis) => value / 2 + right.point[axis] / 2,
+    );
+    if (
+      point.every((value, axis) => value === left.point[axis]) ||
+      point.every((value, axis) => value === right.point[axis])
+    )
+      return {
+        status: "unresolved",
+        queries,
+        lowerBoundMetres: Math.min(lowerBound, bound),
+        measuredGapMetres: measuredGap,
+      };
+    const middle = sample({
+      point,
+      radius: left.radius / 2 + right.radius / 2,
+    });
     if (middle.gap < -middle.rounding)
-      return { status: "overlapping-envelope", queries, lowerBoundMetres: Math.min(lowerBound, bound), measuredGapMetres: measuredGap };
+      return {
+        status: "overlapping-envelope",
+        queries,
+        lowerBoundMetres: Math.min(lowerBound, bound),
+        measuredGapMetres: measuredGap,
+      };
     if (Math.abs(middle.gap) <= middle.rounding)
-      return { status: "unresolved", queries, lowerBoundMetres: Math.min(lowerBound, bound), measuredGapMetres: measuredGap };
+      return {
+        status: "unresolved",
+        queries,
+        lowerBoundMetres: Math.min(lowerBound, bound),
+        measuredGapMetres: measuredGap,
+      };
     intervals.push({ left, right: middle }, { left: middle, right });
   }
-  return { status: "separated", queries, lowerBoundMetres: lowerBound, measuredGapMetres: measuredGap };
+  return {
+    status: "separated",
+    queries,
+    lowerBoundMetres: lowerBound,
+    measuredGapMetres: measuredGap,
+  };
 }

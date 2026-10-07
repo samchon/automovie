@@ -1,35 +1,22 @@
+import { getHumanObservationPassDefinition } from "@automovie/playground/src/human/common/observation/getHumanObservationPassDefinition.ts";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
- * What a display pass can and cannot be read for, answered with every frame so
- * a card or a wire mesh is never mistaken for tissue. Beauty and clay carry
- * directional light and are the passes that judge shape and material. Normal,
- * depth and flat isolate geometry from material and lighting and judge no
- * colour. Wire draws every triangle edge of the selected meshes without
- * hidden-surface removal, so edges of the far side show through the near side:
- * it reads mesh density and topology, never silhouette or surface order, and a
- * whole-figure frame fills in to a solid grey. Outline reads silhouette only.
+ * Return the product observation owner's actual reading limit for every frame.
+ * `flat` is lit grey faceted geometry. `albedo` is unlit authored base colour
+ * and alpha, with a named refusal for unsupported shaders. Structural passes
+ * may turn alpha cards into opaque surfaces and cannot identify them as tissue.
+ * The same definition constructs the display material and supplies its label,
+ * so HTTP metadata cannot describe a different rendering method.
  *
- * @evidence contracts/common.md#principled-implementation Each statement follows from what the pass draws: lighting, material, depth testing and edge drawing.
- * @evidence contracts/common.md#clear-and-simple-design One table owns the reading limit of every pass for headers and tests.
+ * @evidence contracts/common.md#principled-implementation Delegates to the material construction owner's current meaning rather than restating pass names.
+ * @evidence contracts/common.md#clear-and-simple-design The product owns material parameters and reading limits; this adapter exposes that same result over HTTP.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No document or part is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the single limit that misleads most, the wire pass's see-through edges.
+ * @evidence contracts/common.md#meaningful-documentation States the legacy flat meaning, the authored albedo scope and the structural alpha-card limit.
  */
-export function describeHumanViewerPass(pass: HumanViewerAddress["pass"]): string {
-  switch (pass) {
-    case "beauty":
-      return "lit product frame: judges shape and material under directional light";
-    case "clay":
-      return "lit single-material frame: judges shape without material colour";
-    case "normal":
-      return "surface normals as colour: judges orientation and smoothness, not light or material";
-    case "depth":
-      return "depth as grey: judges relief order only, low contrast on flat regions";
-    case "flat":
-      return "unlit material colour: judges material regions, not shape";
-    case "wire":
-      return "all triangle edges with far-side edges showing through: judges mesh density and topology only, never silhouette or surface order, and a whole figure fills to solid grey";
-    case "outline":
-      return "silhouette edges only: judges outline, not interior shape";
-  }
+export function describeHumanViewerPass(
+  pass: HumanViewerAddress["pass"],
+): string {
+  return getHumanObservationPassDefinition(pass).reading;
 }

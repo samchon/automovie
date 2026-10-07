@@ -15,27 +15,11 @@ import * as THREE from "three";
 
 import { createHumanObservation } from "../common/observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
-import type { HumanResidentPort } from "../common/residentWorker";
-import type { createHumanViewport } from "../common/viewport";
+import type { IConnectedBodyInspectionLight } from "./IConnectedBodyInspectionLight";
+import type { IConnectedBodyInspectionLightDirection } from "./IConnectedBodyInspectionLightDirection";
+import type { IConnectedBodyViewportHost } from "./IConnectedBodyViewportHost";
 import { createConnectedBodyPreview } from "./connectedBodyPreview";
-import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-
-type Host<Document> = Pick<
-  Parameters<typeof createHumanViewport>[0],
-  "canvas" | "pixelRatio" | "orbit" | "observeResize"
-> & {
-  renderer: Parameters<typeof createHumanViewport>[0]["renderer"] & {
-    shadowMap: Pick<THREE.WebGLShadowMap, "enabled" | "type" | "autoUpdate" | "needsUpdate">;
-  };
-  worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
-  loadTexture: (asset: string) => Promise<THREE.Texture>;
-  /** Text of a document for the worker; a body document unless the stage draws people. */
-  serialize?: (document: Document) => string;
-};
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
@@ -45,7 +29,7 @@ export function createConnectedBodyViewport<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: Host<Document>) {
+>(props: IConnectedBodyViewportHost<Document>) {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -59,10 +43,7 @@ export function createConnectedBodyViewport<
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   const shadowLights: THREE.DirectionalLight[] = [];
-  const directional = new Map<string, {
-    light: THREE.DirectionalLight;
-    rest: THREE.Vector3;
-  }>();
+  const directional = new Map<string, IConnectedBodyInspectionLight>();
   for (const [name, x, y, z, power, color] of [
     ["key", -1.5, 1.75, 2.25, 2.3, 0xffe9d8],
     ["fill", 1.75, 0.5, 1.5, 0.85, 0xdaeaff],
@@ -111,7 +92,9 @@ export function createConnectedBodyViewport<
     roots: () => (active === undefined ? [] : [active]),
     clay,
     height: () => canvas.getBoundingClientRect().height,
-    invalidateShadows: () => { renderer.shadowMap.needsUpdate = true; },
+    invalidateShadows: () => {
+      renderer.shadowMap.needsUpdate = true;
+    },
   });
   const numerical = createConnectedBodyRenderer({
     loadTexture: props.loadTexture,
@@ -121,6 +104,7 @@ export function createConnectedBodyViewport<
     worker: props.worker,
     renderer: numerical,
     serialize: props.serialize,
+    source: props.source,
   });
   type Model = Awaited<ReturnType<typeof preview.build>>;
   const {
@@ -150,6 +134,7 @@ export function createConnectedBodyViewport<
   return {
     ...preview,
     publish: (model: Model): void => {
+      observation.restore();
       const group = numerical.publish(model.frame);
       renderer.shadowMap.needsUpdate = true;
       if (active !== group) {
@@ -158,7 +143,10 @@ export function createConnectedBodyViewport<
         scene.add(group);
       }
     },
-    dispose: (model: Model): void => numerical.dispose(model.frame),
+    dispose: (model: Model): void => {
+      observation.restore();
+      numerical.dispose(model.frame);
+    },
     fitView,
     cameraView,
     observe: observation.hooks,
@@ -181,16 +169,17 @@ export function createConnectedBodyViewport<
      * finite subnormal and very large directions representable. This affects
      * display only, never the numerical model, document or exported bytes.
      */
-    setLightDirection: (input: {
-      name: string;
-      direction: readonly [number, number, number];
-    } | null): void => {
+    setLightDirection: (
+      input: IConnectedBodyInspectionLightDirection | null,
+    ): void => {
       const selected = input === null ? null : directional.get(input.name);
       if (selected === undefined)
         throw new Error("Unknown inspection light: " + input!.name);
       const magnitude = input === null ? 1 : Math.hypot(...input.direction);
       if (!Number.isFinite(magnitude) || magnitude === 0)
-        throw new Error("An inspection light needs a finite nonzero direction.");
+        throw new Error(
+          "An inspection light needs a finite nonzero direction.",
+        );
       let changed = false;
       for (const one of directional.values()) {
         const goal = one.rest.clone();

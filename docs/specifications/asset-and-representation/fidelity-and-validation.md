@@ -16,6 +16,8 @@
 
 ### 수치와 구조 검증 {#asset-spec-validation-numeric-structure}
 
+Physical correspondence가 있으면 shared resolver가 dense table·정점 참조·유한 XYZ와 기존 grid의 alias 일치를 먼저 검증한다. 오류는 `physicalVertices` 위치의 named refusal이며 legacy welding fallback은 없다. 원본 source pair와 현재 좌표 legacy label은 서로 다른 equivalence 집합이다. 모델 검증, standalone 위상 검증과 inspector가 이 incidence를 공유하며, coordinate-collapsed triangle의 기존 redundancy 의미와 실제 면적·방향·교차·Float32 검사는 독립적으로 유지한다. Physical partition cache는 connectivity, 원본 pair 의미와 legacy equivalence를 owned snapshot으로 캡처하고, candidate를 다시 resolve하여 identity 변경·alias 분리·legacy split/merge·잘못된 buffer에서 재사용을 거부한다.
+
 <!-- @evidence requirements/asset-authoring/validation.md#asset-geometry-validation 기하 수치, 치수, topology와 교차를 사용 전에 검증해야 한다. -->
 <!-- @evidence requirements/actors/validation.md#actor-input-binding-validation 선택된 모델, rig, morph, motion과 attachment 결합을 검증해야 한다. -->
 

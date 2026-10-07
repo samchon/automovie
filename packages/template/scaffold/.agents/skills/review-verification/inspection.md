@@ -1,10 +1,6 @@
 # Inspecting compiled subjects
 
-Use subject inspection after compilation to ask what one authored thing is and what it looks like, on its own, without staging a shot around it. Routes answer different halves of that. The numbers come from ordinary `@automovie/engine` queries over an `IAutoMovieSubjectArtifact`, which is one `IAutoMovieCompiledShotSource` paired with the revision you read it at. Pictures require a current source view under the observation conditions this document identifies.
-
-Run inspection queries on the artifact or source result that you want to examine. Import them directly from `@automovie/engine`. Source functions and command modules inspect their explicit input and output values. Section planes are viewer inspection controls.
-
-This ground is divided, and no document on it substitutes for another. This one answers what a compiled subject is, how two compiled artifacts differ, and what one subject looks like from an eye the inspection chose. The visual change report answers which already-rendered views moved between two revisions, as digests. A verdict is produced in the evidence citation on the source that claims the unit is realized, and no question answered here produces one.
+Use public `@automovie/engine` queries on the current `IAutoMovieSubjectArtifact`, a typed compiled shot result paired with its source revision. They describe structure and differences; [Capture](capture.md) and [Production review](review.md) own appearance and acceptance. Run queries in production-owned source over explicit inputs.
 
 ## Choose the artifact and revision
 
@@ -12,16 +8,15 @@ Pass the exact typed source result and its revision to `describeAutoMovieSubject
 
 ## Enumerate, then address
 
-`describeAutoMovieSubjects`, called with `{ revision, compiled }`, lists the directly stored subjects in stable order: prototypes, prototype parts, building elements, instance sets, and logical spaces. Building elements include the transform-only groups the builder stages no scene node for, because a group is an authored element and a list that skipped it would be a list of the scene rather than of the work. `describeAutoMovieSubject`, called with the same pair and an id, resolves any of those and additionally regenerates a placed part or one compact instance on demand. The stable id namespaces are:
+`describeAutoMovieSubjects`, called with `{ revision, compiled }`, lists the directly stored subjects in stable order: prototypes, prototype parts, building elements, instance sets, logical spaces, and authored building units. Building elements include the transform-only groups the builder stages no scene node for, because a group is an authored element and a list that skipped it would be a list of the scene rather than of the work. `describeAutoMovieSubject`, called with the same pair and an id, resolves any of those and additionally regenerates a placed part or one compact instance on demand. The stable id namespaces are:
 
 - `prototype:<model>` and `prototype-part:<model>/<part>` for reusable geometry;
 - `element:<node>` and `element-part:<node>/<part>` for scene placements, where a built-environment element's node id reads `<environment>/<element>`;
 - `instance-set:<set>` and `instance:<set>:slot:<six-digit-index>` for compact repetition, with an explicit transform id replacing `slot:<index>` when authored;
-- `space:<environment>/<space>` for logical volumes.
+- `space:<environment>/<space>` for logical volumes;
+- `building:<environment>/<building>` for an authored building unit.
 
-The enumeration is not a census. No `element-part:` or `instance:` id ever appears in it, because a placed part and an individual instance are regenerated only when addressed by id. Absence from that list is therefore a fact about the list and not about the scene, which is exactly the mistake `#1902` repeated across round after round of survey while scanning ids for things that were present the whole time. Ask the owner instead: an element's `/members` names its placed parts, and an instance set's `/members` names its instances.
-
-Addressing a slot by its documented namespace is not the same thing as guessing. `describeAutoMovieSubject` parses `instance:<set>:slot:<six-digit-index>` for any index below a generated set's `count`, and an explicitly laid-out set is addressed by its authored transform id instead, so a population larger than one membership sample stays fully reachable either way. What is forbidden is rebuilding an id from a display name or by matching a prefix: the id is the identity, and a prefix match is a guess wearing the shape of an answer.
+Enumeration omits placed parts and individual instances. Read the owner's `/members` or address the exact id with `describeAutoMovieSubject`. Generated slots use `instance:<set>:slot:<six-digit-index>` below the set's `count`; explicit layouts use their authored transform ids. Display names and prefix matches do not establish identity.
 
 Do not merge prototype and placement. A prototype answers what geometry and materials exist; an element, placed part, or instance answers where one use of that geometry stands, and `/prototype` on the placement links the two.
 
@@ -29,7 +24,7 @@ Do not merge prototype and placement. A prototype answers what geometry and mate
 
 Describe the space; do not search for its contents. A `space:<environment>/<space>` subject carries in `/members` the child spaces under it, every element assigned to it, and every instance set placed in it, each as an id `describeAutoMovieSubject` opens directly. One read answers "what is in this room", from declared containment rather than from name similarity.
 
-Every `/members` is a bounded summary rather than a list. `total` is exact, `items` holds a sample of ids in stable order capped at `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT`, and `omitted` states how many were left out. Count `total`. Reading the length of `items` as the population is how every rack larger than the sample reports as a rack of exactly the sample size.
+Every `/members` is a bounded summary: `total` is exact, `offset` is the page's starting rank, `items` is the stable sample capped at `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT`, and `omitted` counts members outside it. Read `total` for population size. Page a subject with `describeAutoMovieSubject(artifact, id, { memberOffset })`; offsets must be nonnegative safe integers. Follow the returned member ids and reconcile the complete visited population before claiming coverage.
 
 ## Walk the building, not only its rooms
 
@@ -37,7 +32,7 @@ A room-by-room survey is not a survey of a building. An element's assignment to 
 
 The space tree is an index over a building. What covers a building is its element hierarchy, and the record says so: `IAutoMovieBuiltEnvironment.buildings` states that ownership is total, every element descending from exactly one unit's roots. So walk the hierarchy, and use the spaces to ask what occupies a room.
 
-The walk needs no key you invented, and it starts wherever the index already names something. `builtEnvironmentUnclaimedElements`, given one environment record, names the elements nothing else lists, meaning a root of the hierarchy that carries no space of its own; the spaces no other space parents name everything under them; and each element's `/members` carries its child elements beside its placed parts, so one step down is always available. Like the rest of this document it runs in a `src` module, not in shot source. A transform-only group opens like anything else and reports null for its transform, its content bounds, its materials and its prototype, because it stages nothing itself: what it carries is the structure, which is the reason to open it. Compare the visited identities with the current environment's complete element population before claiming full coverage.
+Start at each exact `building:<environment>/<building>` identity and follow its element and space roots. `builtEnvironmentUnclaimedElements` identifies hierarchy roots not listed through spaces; element `/members` includes child elements and placed parts. A transform-only group remains addressable even though it stages no scene node and reports null transform, content bounds, materials, and prototype. Compare visited identities with the current environment's complete element population.
 
 ## Read bounds honestly
 
@@ -55,19 +50,15 @@ The description does not guess provenance. Join its revision and stable subject 
 
 Movement covers transform, owner, space, and referenced-prototype placement state. Reshaping covers reusable geometry and compact instance-set population laws. One subject may appear in both categories. A prototype change stays one change record carrying aggregate element, instance, and instance-set fan-out, and instance-set prototype reassignment reports a changed-slot count instead of thousands of member records.
 
-`unchanged` is the same bounded summary shape as `/members`, so read its `total` there too. This diff answers whether the compiled model moved and says nothing about whether any picture moved; that second question belongs to this document, and a progress claim worth accepting can show both.
+`unchanged` is the same bounded summary shape as `/members`, so read its `total` there too. This diff answers whether the compiled model moved and says nothing about whether any picture moved; that question needs current observations under [Capture](capture.md).
 
 ## Ask the host for pictures
 
-A structural description cannot establish appearance. Define the complete viewpoint population from the subject's measured bounds and the design's review condition before drawing, then inspect every planned view. Record the exact source revision, subject id, viewpoint, camera pose, raster, browser and graphics runtime, and observed result in the authored review.
-
-Keep missing, failed, unsupported, and stale views in the denominator. A partial sweep does not become complete by dropping an unavailable view. Repeating source generation or changing its inputs invalidates every dependent observation.
-
-Inspection pictures do not discharge delivery-frame obligations. A sectioned, isolated, or freely framed subject is a different observation from the shot and camera the audience receives. [Capture](capture.md) owns delivery observation conditions; [Production review](review.md) owns the resulting judgment.
+Follow [Capture](capture.md) for the complete subject-view population, current source and viewpoint basis, missing or stale outcomes, and delivery-frame distinction. [Production review](review.md) owns the resulting judgment.
 
 ## Look inside a building: section planes
 
-A building cannot be judged from outside, because the outside is what hides the inside, and a camera moved into a room shows that room only. Cut the resolved scene instead. `IAutoMovieSectionPlane` declares one half-space to REMOVE, as a coplanar `point` and a `normal` pointing at the removed side.
+When the review needs interior structure across rooms, section the resolved scene. `IAutoMovieSectionPlane` declares one half-space to REMOVE, as a coplanar `point` and a `normal` pointing at the removed side.
 
 Keep the execution environments distinct. `classifyAutoMovieSectionPlaneBox` is an `@automovie/engine` calculation over `{ planes, min, max }` that answers `kept`, `cut`, or `crossed` for a subject's bound. `applyAutoMovieSectionPlanes` is an `@automovie/viewer` call over `{ renderer, root, planes }` that clips the materials of an already-built scene and requires a live browser renderer. Both are authored under `src`; only the pure calculation can run in a Node measurement module.
 
@@ -79,6 +70,6 @@ A viewpoint identity belongs to its complete camera and framing rule, not to the
 
 Derive the plane from geometry you already measured rather than from a guessed offset: a floor level plus `{ x: 0, y: 1, z: 0 }` reads that storey as a plan, and a wall face plus its outward normal opens the elevation behind it. Several planes intersect, so each one added removes more.
 
-These rules are fixed. Geometry lying exactly on the plane is KEPT, so a section taken at a floor's own level still shows that floor. Nothing fills the exposed cut, so walls read as open shells, which is the normal result of a section and not a modelling defect to report. And `crossed` states only that no single plane removed the whole body, which is not a promise that any of it survived, because two planes can between them remove what neither removes alone; writing `crossed` up as "partly visible" is the error the name is chosen to prevent.
+Geometry exactly on the plane is kept. Cuts remain uncapped, so walls appear as open shells. `crossed` means no single plane removed the whole bound; several planes may jointly remove it, so the status does not establish partial visibility.
 
 A section is an inspection viewpoint and never a delivery camera. `IAutoMovieCamera` carries no clipping plane, a cut frame is not evidence about the image a shot delivers, and shot acceptance is unchanged by any section you take.

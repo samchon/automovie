@@ -2,7 +2,7 @@
  * Resolve one shaped body's retargetable humanoid pose and its skin transforms.
  * The caller has already admitted shoulder goals before shape evaluation.
  * This owner builds the shaped rest skeleton, validates both document clinical
- * angles and pelvic-relative rhythm angles, resolves TT humeral goals after
+ * angles and actual pelvic-relative angles, resolves TT humeral goals after
  * the girdle, and turns the pelvis about the two hip centres. The transforms
  * share the builder's Y-up, Z-forward metre frame; no mesh is moved here.
  */
@@ -14,14 +14,15 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IHumanBodyBuildPose } from "./IHumanBodyBuildPose";
+import type { IHumanBodyBuildPoseInput } from "./IHumanBodyBuildPoseInput";
+import { readHumanBodyResolvedClinicalPose } from "./readHumanBodyResolvedClinicalPose";
+import { resolveHumanBodyAnatomicalBuildPose } from "./resolveHumanBodyAnatomicalBuildPose";
+import { resolveHumanBodyNeutralAssemblyPose } from "./resolveHumanBodyNeutralAssemblyPose";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
@@ -35,55 +36,50 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  * the basis and authored pose untouched. The caller has already checked the
  * named TT shoulder goal against its basis range.
  */
-export function resolveHumanBodyBuildPose(input: {
-  basis: IAutoMovieHumanBodyBasis;
-  document: IAutoMovieHumanBodyBasisDocument;
-  poseRows: IAutoMovieJointPose[];
-  landmarks: Record<string, IAutoMovieVector3>;
-}) {
+export function resolveHumanBodyBuildPose(
+  input: IHumanBodyBuildPoseInput,
+): IHumanBodyBuildPose {
   const { basis, document, poseRows, landmarks } = input;
-  const { skeleton, rest, frames, axes } = resolveHumanBodySkeleton(
-    basis,
-    landmarks,
-  );
-  // The coupled document pose is what forward kinematics turns, and its
-  // angles are judged against the clinical ranges. With a pelvifemoral
-  // rhythm the legs' document flexion is trunk-relative, so the rig's
-  // pelvic-relative hips and lumbar joint (the rhythm's additions applied)
-  // are judged too: a request must hold under both readings.
+  const rig = input.rig ?? resolveHumanBodySkeleton(basis, landmarks);
+  const { skeleton, rest, frames, axes } = rig;
+  // Admit authored coordinates before FK, then admit actual changed local
+  // frames after the final pelvis transform. Combined coordinates are not
+  // the scalar rhythm additions.
   const pose: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: null,
     joints: poseRows,
   };
   const rhythm = resolveHumanBodyPelvifemoralRhythm(basis, poseRows);
-  const violations = [
-    ...validatePose({ pose, skeleton }).items,
-    ...(rhythm.contributions.length === 0
-      ? []
-      : validatePose({ pose: { ...pose, joints: rhythm.joints }, skeleton })
-          .items),
-  ];
+  const violations = validatePose({ pose, skeleton }).items;
   if (violations.length > 0)
     throw new Error(
       "Body pose violates the skeleton or its clinical ranges: " +
         JSON.stringify(violations),
     );
+  if (basis.anatomicalAssembly?.mode === "neutral-only")
+    return resolveHumanBodyNeutralAssemblyPose(input, rig);
+  if (basis.anatomicalAssembly !== undefined)
+    return resolveHumanBodyAnatomicalBuildPose(input, rig);
+  if (document.anatomicalMotion !== undefined)
+    throw new Error(
+      "Anatomical motion needs a registered source assembly on this body basis.",
+    );
   const transforms = new Map<
     AutoMovieHumanoidBone,
-    {
-      rest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-      posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-    }
+    IAutoMovieHumanBodyBoneTransform
   >();
   // The rhythm leaves the trunk and both thighs where the document put
   // them relative to the trunk and turns only the pelvis, posteriorly by
   // the tilt about the line through both hip centres, which leaves the hip
   // centres, the lifted thigh's authored direction and the other foot in
   // place while the pelvis-to-thigh and pelvis-to-lumbar angles change.
-  const tilt = -(
-    rhythm.contributions.find((one) => one.bone === "hips")?.degrees ?? 0
-  );
+  const tilt =
+    input.phase === "pre-pelvis"
+      ? 0
+      : -(
+          rhythm.contributions.find((one) => one.bone === "hips")?.degrees ?? 0
+        );
   const resolvedBones = resolveHumanBodyShoulders(
     basis,
     document.shoulders ?? [],
@@ -94,9 +90,15 @@ export function resolveHumanBodyBuildPose(input: {
     const at = (bone: AutoMovieHumanoidBone) =>
       resolvedBones.find((one) => one.bone === bone)!;
     const left = at("leftUpperLeg").worldPosition;
-    const axis = Vector3.normalize(
-      Vector3.subtract(left, at("rightUpperLeg").worldPosition),
-    );
+    const line = Vector3.subtract(left, at("rightUpperLeg").worldPosition);
+    if (
+      ![line.x, line.y, line.z].every(Number.isFinite) ||
+      (line.x === 0 && line.y === 0 && line.z === 0)
+    )
+      throw new Error(
+        "Body pelvifemoral tilt needs a finite nonzero line through both hip centres.",
+      );
+    const axis = Vector3.normalize(line);
     // about +X (the subject's left) a positive angle carries the top of
     // the pelvis forward; a posterior tilt is the negative one
     const turn = Quaternion.fromAxisAngle(axis, -tilt);
@@ -112,6 +114,33 @@ export function resolveHumanBodyBuildPose(input: {
       Quaternion.multiply(turn, pelvis.worldRotation),
     );
   }
+  const clinical = readHumanBodyResolvedClinicalPose({
+    rig,
+    resolved: resolvedBones,
+    basis,
+    pose: poseRows,
+    tilt,
+  });
+  if (tilt !== 0) {
+    const root = skeleton.bones.find((bone) => bone.parent === null)!.bone;
+    const changed = new Set(
+      skeleton.bones
+        .filter((bone) => bone.bone === root || bone.parent === root)
+        .map((bone) => bone.bone),
+    );
+    const actualViolations = validatePose({
+      pose: {
+        ...pose,
+        joints: clinical.filter((joint) => changed.has(joint.bone)),
+      },
+      skeleton,
+    }).items;
+    if (actualViolations.length > 0)
+      throw new Error(
+        "Body resolved pelvic-relative pose violates the skeleton or its clinical ranges: " +
+          JSON.stringify(actualViolations),
+      );
+  }
   for (const resolved of resolvedBones)
     transforms.set(resolved.bone, {
       rest: rest.get(resolved.bone)!,
@@ -120,5 +149,5 @@ export function resolveHumanBodyBuildPose(input: {
         rotation: resolved.worldRotation,
       },
     });
-  return { skeleton, transforms };
+  return { skeleton, transforms, clinical, rig };
 }

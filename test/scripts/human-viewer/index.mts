@@ -37,7 +37,10 @@ function draw(): void {
   list.replaceChildren();
   const sections = new Map<string, typeof shown>();
   for (const entry of shown)
-    sections.set(entry.section, [...(sections.get(entry.section) ?? []), entry]);
+    sections.set(entry.section, [
+      ...(sections.get(entry.section) ?? []),
+      entry,
+    ]);
   for (const [name, members] of sections) {
     const section = document.createElement("section");
     const heading = document.createElement("h2");
@@ -90,8 +93,11 @@ async function load(): Promise<void> {
     .join("\n");
   try {
     photographed = new Set(
-      ((await (await fetch("/reference-index")).json()) as { documents: string[] })
-        .documents,
+      (
+        (await (await fetch("/reference-index")).json()) as {
+          documents: string[];
+        }
+      ).documents,
     );
   } catch {
     photographed = new Set();
@@ -107,5 +113,6 @@ for (const button of buttons)
     draw();
   });
 void load().catch((failure: unknown) => {
-  status.textContent = failure instanceof Error ? failure.message : String(failure);
+  status.textContent =
+    failure instanceof Error ? failure.message : String(failure);
 });

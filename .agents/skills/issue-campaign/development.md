@@ -6,7 +6,7 @@ Read this document in full when the user authorizes implementation pull requests
 
 - Put every accepted, implementation-ready issue of the cycle into one pull request. The issue DAG orders the implementation inside that pull request and never sets the pull-request count, and packages, invariants and validation lanes never split the cycle.
 - Use the current checkout and one topic branch, as the [pull-request skill](../pull-request/SKILL.md#branch-from-the-target) requires, with no per-issue branch or pull request.
-- Review each issue's surface when it lands, then run one integration Self-Review over the whole base-to-head diff. The integration round inherits nothing from the earlier rounds.
+- Review each coherent issue result when it lands, then run one fresh integration Self-Review over the whole base-to-head diff under the [review skill](../review/SKILL.md). Earlier issue reviews do not establish integration acceptance.
 - The pull request's ordinary CI and a clean integration Self-Review are the acceptance gates, and both must hold on the same immutable head; the merge-time formatting commit follows that head and needs neither a new CI run nor a new review round. Repair every red CI lane in that pull request, including a failure that predates the campaign or has nothing to do with its issues.
 
 ## Plan one cycle pull request
@@ -39,17 +39,12 @@ For each issue, in order:
 
 1. Implement it across every layer its **Scope** section names, tracing the full consequence surface. A capability the authoring agent has to call is not done until it is on the sandbox engine surface, and one that exists without a surface entry, a barrel export or a guide sentence has the "capability exists and cannot be reached" defect the vertical contract prevents.
 2. Meet the [development skill's coverage obligation](../development/SKILL.md#coverage-is-100-on-what-you-write) for every position you wrote.
-3. Run a complete Self-Review over the issue's surface under the [review skill's law](../review/SKILL.md#non-negotiable-review-law), repeating full rounds until one finds nothing.
+3. Submit the coherent issue result and its consequence surface to the [review skill](../review/SKILL.md). Record any observations a correction invalidates.
 4. Commit and push. End the message body with `Refs #n` while the issue is in flight, and use `Close #n: <issue title>` only in the commit that completes the acceptance, as its own paragraph before the `Co-Authored-By` trailer. Do not format during implementation, because the [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) places the single formatting pass immediately before an authorized merge.
 
-### Pitfalls
+### Local validation
 
-- **One unresolved import anywhere in the working tree refuses every scenario.** The root `pnpm test` and the package `start` command type-check the whole test project before the runner starts, and an uncommitted or untracked file breaks it just as a tracked one does. Keep the tree type-clean between edits.
-- **Never narrow the type-check to your own files to hide a failure.** A `tsconfig` that includes only one fold can pass while the change breaks an excluded consumer. Use the repository's canonical command for acceptance. A scratch configuration is a diagnostic and no acceptance result.
-- **A local build is not proof for a commit.** Wiring that references a file you have not committed compiles locally and fails in CI, so verify the target is tracked.
-- **Emitted artifacts are not source, and a stale one can disarm a transform.** Running the type-checker without `--noEmit` drops output beside every `.ts`, the loader prefers it, and an emission path that omits the configured typia transform turns every validator into a "no transform configured" stub that throws or accepts everything. Type-check with the repository's own command and run no entry from outside a project root. When a scenario fails in a package you did not touch, look for emitted output beside its sources before you look at its logic.
-- **Write escapes and not control characters.** A literal NUL makes a file binary to `grep` and diff, and a literal BOM renders identically to its `\ufeff` escape, so an edit tool reads old and new as equal and refuses the fix. Write the character as `String.fromCharCode(0xfeff)`, which is greppable, reviewable and repairable.
-- **Match the shell.** A here-string spelling from one shell passed to another is taken literally and lands as the commit subject.
+The [development skill's validation procedure](../development/SKILL.md#validation) owns canonical acceptance configurations, tracked consumer files and source-loader diagnosis. A local environment failure remains an observed limitation until the actual cause is verified; it neither establishes product correctness nor excuses a failed final gate.
 
 ### Honest reporting
 
@@ -59,7 +54,7 @@ Report what you proved and not what you built. A type existing is not a feature,
 
 Read CI once per settled head. It gates the cycle and not each commit, so an intermediate commit's result never justifies pausing implementation, and a red result on a head the cycle has moved past is information and not the gate. CI also arbitrates anything that fails only locally, since a clean environment settles whether a failure is a defect or an artifact of one machine.
 
-When every issue is implemented, run one integration Self-Review over the whole base-to-head diff, as a fresh complete round under the [review skill's law](../review/SKILL.md#non-negotiable-review-law). It reads what only appears between issues: a helper written twice, a validator whose new branch leaves a mirrored DTO stale, a document claiming a verification nothing performs, a limit recorded for one issue and silently relied on by another.
+When every issue is implemented, submit the whole base-to-head diff to a fresh integration Self-Review under the [review skill](../review/SKILL.md). Include coupled results and assumptions shared between issues.
 
 The two gates stay independent. CI proves every configured build, type-check, test, packaging and platform lane. The integration Self-Review proves requirement fidelity, consequence coverage, issue-by-issue acceptance, test quality, documentation, generated output and the risks CI does not encode.
 

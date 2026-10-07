@@ -11,8 +11,8 @@ import type {
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
-import { humanBodyShoulderTtRotation } from "./humanBodyShoulderTtRotation";
 import { humanBodyShoulderPoseFromDirection } from "./humanBodyShoulderPoseFromDirection";
+import { humanBodyShoulderTtRotation } from "./humanBodyShoulderTtRotation";
 
 /**
  * Resolve a thorax-relative total shoulder goal after the declared girdle
@@ -56,7 +56,10 @@ export function resolveHumanBodyShoulders(
       armRest.rotation,
       Vector3.create(0, 1, 0),
     );
-    const aPose = humanBodyShoulderPoseFromDirection({ bone: joint.bone, direction: restDirection });
+    const aPose = humanBodyShoulderPoseFromDirection({
+      bone: joint.bone,
+      direction: restDirection,
+    });
     const target = shoulders.find((pose) => pose.bone === joint.bone) ?? aPose;
     const relative = Quaternion.multiply(
       humanBodyShoulderTtRotation(target),

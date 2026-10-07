@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
+import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
+import type { IAutoMovieHumanBodyUnderwearCoverageProps } from "../structures/IAutoMovieHumanBodyUnderwearCoverageProps";
 
 /**
  * The coverage field of a garment style on the body at rest: a signed
@@ -42,7 +43,7 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  *
  * @evidence contracts/common.md#principled-implementation Every edge is an explicit rule on shaped landmarks, so the field scales with the body it is read on; each piece is a signed distance-like value whose zero is the edge and whose sign is inside, so the minimum of the pieces is the intersection and the maximum the union, and the arm term is steep enough never to bind away from the arm. The rules are convention (a blocking-pass costume), stated as such in the table, not a garment standard.
  * @evidence contracts/common.md#clear-and-simple-design One responsibility: turn the landmark rules into a field over a point and its arm weight. The clipping of triangles by the field and the lift belong to their own files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the table's rules and the document's landmarks enter; no vertex list, body or fixture is named, and the nipple vertex is a table landmark read from the rest skin.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the table's rules and the document's landmarks enter; no vertex list, body or fixture is named, and the nipple is the basis's named skin point read from the rest skin.
  * @evidence contracts/common.md#meaningful-documentation The comment states every piece of the field, its frame and its sign, what the nipple is and is not, the arm term and the refusals.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is a field and defines no part or group.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
@@ -51,12 +52,10 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the style is a closed choice.
  */
-export function createHumanBodyUnderwearCoverage(props: {
-  table: IAutoMovieHumanBodyUnderwear.ITable;
-  style: IAutoMovieHumanBodyUnderwear["style"];
-  rest: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> };
-}): (x: number, y: number, z: number, arm: number) => number {
-  const { table, style, rest } = props;
+export function createHumanBodyUnderwearCoverage(
+  props: IAutoMovieHumanBodyUnderwearCoverageProps,
+): (x: number, y: number, z: number, arm: number) => number {
+  const { table, style, basis, rest } = props;
   const landmark = (id: string): IAutoMovieVector3 => {
     const found = rest.landmarks[id];
     if (found === undefined)
@@ -77,11 +76,7 @@ export function createHumanBodyUnderwearCoverage(props: {
   const thigh =
     hips
       .map((hip, k) =>
-        Math.hypot(
-          knees[k].x - hip.x,
-          knees[k].y - hip.y,
-          knees[k].z - hip.z,
-        ),
+        Math.hypot(knees[k].x - hip.x, knees[k].y - hip.y, knees[k].z - hip.z),
       )
       .reduce((sum, length) => sum + length, 0) / 2;
   const clamp = (value: number) => Math.min(1, Math.max(0, value));
@@ -102,16 +97,12 @@ export function createHumanBodyUnderwearCoverage(props: {
     style === "bra-and-briefs"
       ? (() => {
           const rule = table.bra;
-          const { surface, vertex } = rule.nipple;
-          const on = rest.surfaces[surface];
-          if (
-            on === undefined ||
-            !Number.isInteger(vertex) ||
-            vertex < 0 ||
-            vertex * 3 + 2 >= on.length
-          )
-            throw new Error("Body underwear needs its nipple vertex.");
-          const nipple = on.slice(vertex * 3, vertex * 3 + 3);
+          // admitted with the basis, so the named point is a vertex of its surface
+          const { surface, vertex } = humanSkinLandmark(basis, rule.nipple);
+          const nipple = rest.surfaces[surface].slice(
+            vertex * 3,
+            vertex * 3 + 3,
+          );
           const clavicle = landmark(names.clavicle);
           const shoulder = landmark(names.shoulder);
           const chest = landmark(names.lowerChest);

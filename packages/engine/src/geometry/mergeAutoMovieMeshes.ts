@@ -1,13 +1,15 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
+
 /**
  * Merge rigid meshes, rebasing their indices in declared order.
  *
  * This concatenates; it is not a boolean union, and no solid-solid union,
  * intersection, or difference exists in this kernel. Two members that overlap
  * come back with both their surfaces, including the parts now inside the other,
- * and an edge where they touch belongs to four triangles rather than two, which
- * `validateMeshTopology` reads as non-manifold. What replaces a boolean here is
+ * and a legacy coordinate-welded contact edge belongs to four triangles rather
+ * than two, which `validateMeshTopology` reads as non-manifold. What replaces a boolean here is
  * the region: [extrudeAutoMovieRegion](./proceduralRegionExtrusion.ts) takes the outline and its voids
  * together, so a wall less its openings, a hollow section, and a plate less its
  * cut-outs are each one solid built from one description rather than two solids
@@ -35,6 +37,13 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * thousand vertices. Merging a building's members past that size is the whole
  * reason this function exists, so the limit is not one worth inheriting.
  *
+ * Explicit physical source pairs survive every merge and remerge. Equal pairs
+ * across members assert one actual point and must agree on the current grid.
+ * Different pairs stay distinct through contact. Bare members become nullable
+ * legacy correspondence and continue welding by current position, including
+ * across other legacy members and after deformation. Neither a new namespace
+ * nor fixed legacy IDs replace that meaning. The result owns its metadata.
+ *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Combines authored mesh operands without an argument-list size ceiling.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reindexes each input topology into one deterministic mesh.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Decides what a composition does to the coordinate sets its members carry.
@@ -44,6 +53,14 @@ export const mergeAutoMovieMeshes = (
 ): IAutoMovieMesh => {
   if (meshes.some((mesh) => mesh.skin !== null))
     throw new Error("procedural rigid-mesh merge does not accept skinning");
+  const keepPhysical = meshes.some(
+    (mesh) => mesh.physicalVertices !== undefined,
+  );
+  const physicalVertices: NonNullable<IAutoMovieMesh["physicalVertices"]> = {
+    sources: [],
+    vertices: [],
+  };
+  const sourceTable = new Map<string, number>();
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];
@@ -55,6 +72,24 @@ export const mergeAutoMovieMeshes = (
   const keepRelief = meshes.some((mesh) => mesh.reliefWeights !== undefined);
   const reliefWeights: number[] = [];
   for (const mesh of meshes) {
+    if (keepPhysical) {
+      resolveAutoMovieMeshPhysicalVertices(mesh);
+      for (let vertex = 0; vertex < mesh.positions.length / 3; vertex++) {
+        const reference = mesh.physicalVertices?.vertices[vertex] ?? null;
+        if (reference === null) physicalVertices.vertices.push(null);
+        else {
+          const source = mesh.physicalVertices!.sources[reference];
+          const key = JSON.stringify([source.domain, source.id]);
+          let target = sourceTable.get(key);
+          if (target === undefined) {
+            target = physicalVertices.sources.length;
+            sourceTable.set(key, target);
+            physicalVertices.sources.push({ ...source });
+          }
+          physicalVertices.vertices.push(target);
+        }
+      }
+    }
     const base = positions.length / 3;
     const count = mesh.positions.length / 3;
     for (const value of mesh.positions) positions.push(value);
@@ -72,7 +107,7 @@ export const mergeAutoMovieMeshes = (
       for (let index = 0; index < count; ++index) indices.push(index + base);
     else for (const index of mesh.indices) indices.push(index + base);
   }
-  return {
+  const result: IAutoMovieMesh = {
     positions,
     normals: keepNormals ? normals : null,
     uvs: keepUvs ? uvs : null,
@@ -80,5 +115,8 @@ export const mergeAutoMovieMeshes = (
     ...(keepRelief ? { reliefWeights } : {}),
     indices,
     skin: null,
+    ...(keepPhysical ? { physicalVertices } : {}),
   };
+  if (keepPhysical) resolveAutoMovieMeshPhysicalVertices(result);
+  return result;
 };

@@ -1,4 +1,6 @@
-import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMaterial } from "@automovie/interface";
+
+import type { IHumanFaceColourPart } from "./IHumanFaceColourPart";
 
 /**
  * Fold vertex colours above one into their materials' base colours.
@@ -29,7 +31,7 @@ import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
  * @evidenceExclude contracts/anatomy.md#parametric-authority liftHumanFaceColours defines no input through which a caller shapes a human form.
  */
 export function liftHumanFaceColours(
-  parts: readonly { material: string; geometry: { mesh: IAutoMovieMesh } }[],
+  parts: readonly IHumanFaceColourPart[],
   materials: ReadonlyMap<string, IAutoMovieMaterial>,
 ): void {
   const lifts = new Map<string, number[]>();

@@ -61,7 +61,9 @@ export function evaluateHumanFacePassage(
   const protruding = section.protrudingMetres;
   if (protruding <= contact.toleranceMetres) return null;
   if (section.thicknessMetres === null)
-    throw new Error("The protruding tongue has no incisal slab section to measure.");
+    throw new Error(
+      "The protruding tongue has no incisal slab section to measure.",
+    );
   const thickness = section.thicknessMetres;
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const [name, gap, channel] of [

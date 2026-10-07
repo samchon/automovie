@@ -79,7 +79,9 @@ export function createPortraitNoseComponent(
       const clearance = (point: number[]): number =>
         free.length === 0
           ? Infinity
-          : Math.min(...free.map((q) => Math.hypot(...point.map((v, i) => v - q[i]))));
+          : Math.min(
+              ...free.map((q) => Math.hypot(...point.map((v, i) => v - q[i]))),
+            );
       const widening = (id: number): number => {
         const t =
           shape.blendReach > 0
@@ -142,11 +144,15 @@ export function createPortraitNoseComponent(
           // What this opening's edit moved the rim by, relative to the rim
           // as the volume edits alone leave it.
           const unedited = [
-            socket.midline + (fitted[vertex][0] - socket.midline) * shape.widthScale,
+            socket.midline +
+              (fitted[vertex][0] - socket.midline) * shape.widthScale,
             fitted[vertex][1],
             fitted[vertex][2],
           ];
-          rimDelta.set(id, edited.map((v, axis) => v - unedited[axis]));
+          rimDelta.set(
+            id,
+            edited.map((v, axis) => v - unedited[axis]),
+          );
           targets.set(id, edited);
         }
       }

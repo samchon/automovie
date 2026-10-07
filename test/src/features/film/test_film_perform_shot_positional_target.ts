@@ -1,92 +1,13 @@
-import {
-  IAutoMoviePerformedShot,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
-import { createSkeleton } from "../internal/fixtures";
+import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
+import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
 import { namedFacts } from "../internal/predicates";
-
-const script = makeScriptWrite();
-
-/**
- * The duel, plus the two things the old lookup could not see: a set piece and a
- * second camera. `cam-main` frames, `cam-side` stands in as a thing to point
- * at.
- */
-const staging = makeStagingWrite({
-  set: [
-    { node: "altar", model: "box", position: { x: 1, y: 0, z: 1 } },
-    { node: "pebble", model: "sphere", position: { x: 0, y: 1.2, z: 0 } },
-  ],
-  cameras: [
-    {
-      node: "cam-main",
-      position: { x: 2, y: 1.5, z: 0.35 },
-      lookAt: { kind: "node", node: "knightA" },
-      fovDeg: 40,
-      near: 0.1,
-      far: 1000,
-      depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-    },
-    {
-      node: "cam-side",
-      position: { x: -2, y: 1.5, z: 0.35 },
-      lookAt: { kind: "node", node: "knightB" },
-      fovDeg: 40,
-      near: 0.1,
-      far: 1000,
-      depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-    },
-  ],
-});
-
-/** One perform per probe, differing only in the draft under test. */
-const performing = (
-  targetAt?: Parameters<typeof performShot>[0]["targetAt"],
-  previous?: Parameters<typeof performShot>[0]["previous"],
-  actorPosition?: IAutoMovieVector3,
-): ((draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot) => {
-  const staged = stageScene(
-    script,
-    actorPosition === undefined
-      ? staging
-      : {
-          ...staging,
-          actors: staging.actors.map((actor) =>
-            actor.node === "knightA"
-              ? { ...actor, position: actorPosition }
-              : actor,
-          ),
-        },
-  );
-  if (staged.success !== true) throw new Error("staging fixture must succeed");
-  return (draft) =>
-    performShot({
-      script,
-      staged,
-      performance: makePerformanceWrite({
-        draft,
-        revise: { review: "unchanged.", final: null },
-      }),
-      synthesize: validSynthesizer,
-      skeleton: () => createSkeleton(),
-      targetAt,
-      previous,
-    });
-};
 
 /** True when the refusal at `path` states every fragment. */
 const says = (
@@ -341,7 +262,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
  *    in-place fallback.
  */
 export const test_film_perform_shot_positional_target = (): void => {
-  const perform = performing();
+  const perform = createFilmPositionalTargetPerformer();
 
   // 1. every positional verb accepts a staged camera.
   for (const [label, action] of CAMERA_BY_VERB) {
@@ -390,208 +311,7 @@ export const test_film_perform_shot_positional_target = (): void => {
     );
   }
 
-  // 3. the counter-cases one property away: a valid node target of either
-  // placed flavour is not over-rejected.
-  TestValidator.equals(
-    "an actor target still performs",
-    perform([
-      {
-        verb: "lookAt",
-        actor: "knightA",
-        start: 0,
-        duration: 1,
-        to: { kind: "node", node: "knightB" },
-      },
-    ]).success,
-    true,
-  );
-  TestValidator.equals(
-    "a set piece target still performs",
-    perform([
-      {
-        verb: "lookAt",
-        actor: "knightA",
-        start: 0,
-        duration: 1,
-        to: { kind: "node", node: "altar" },
-      },
-    ]).success,
-    true,
-  );
-
-  // 4. groups: every unplaced member is named; an empty one says so.
-  const unplacedGroup = perform([
-    {
-      verb: "lookAt",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
-      to: { kind: "group", nodes: ["ghost", "wraith"] },
-    },
-  ]);
-  TestValidator.predicate(
-    "an all-unplaced group names every member",
-    says(
-      unplacedGroup,
-      "$input.draft[0].to",
-      "none of its group members are placed",
-      '"ghost"',
-      '"wraith"',
-    ),
-  );
-  TestValidator.predicate(
-    "a group mixing a placed member with an unplaced one still resolves",
-    perform([
-      {
-        verb: "lookAt",
-        actor: "knightA",
-        start: 0,
-        duration: 1,
-        to: { kind: "group", nodes: ["knightB", "ghost"] },
-      },
-    ]).success === true,
-  );
-  TestValidator.predicate(
-    "an empty group says it names no members",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "group", nodes: [] },
-        },
-      ]),
-      "$input.draft[0].to",
-      "its group names no members",
-    ),
-  );
-
-  // 5. the kinds that genuinely have no place: a point target whose point is
-  // absent, relative, unknown, malformed.
-  TestValidator.predicate(
-    "a point target with no point says so",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "point" } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      "a point target carries no point to resolve",
-    ),
-  );
-  TestValidator.predicate(
-    "a direction target is refused as relative",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "direction", headingDeg: 90 },
-        },
-      ]),
-      "$input.draft[0].to",
-      'a target of kind "direction" is relative',
-    ),
-  );
-  TestValidator.predicate(
-    "an offscreen target is refused as relative",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "offscreen", edge: "left" },
-        },
-      ]),
-      "$input.draft[0].to",
-      'a target of kind "offscreen" is relative',
-    ),
-  );
-  TestValidator.predicate(
-    "an unknown kind is refused by that kind",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "elsewhere" } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      '"elsewhere" is not a positional target kind',
-    ),
-  );
-  TestValidator.predicate(
-    "a malformed kind is refused as malformed",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: 7 } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      '"malformed" is not a positional target kind',
-    ),
-  );
-
-  // 6. a point gesture with no target at all teaches the same vocabulary.
-  TestValidator.predicate(
-    "an untargeted point gesture states the target vocabulary",
-    says(
-      perform([
-        {
-          verb: "gesture",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          kind: "point",
-        },
-      ]),
-      "$input.draft[0].at",
-      "whose ids name placed actors, set pieces, or cameras",
-      "but none was given",
-    ),
-  );
-
-  // 7. a camera is a place to point at, never a performer: the actor rule the
-  // wider target table must not have loosened.
-  const cameraActor = perform([
-    {
-      verb: "gesture",
-      actor: "cam-main",
-      start: 0,
-      duration: 1,
-      kind: "wave",
-    },
-  ]);
-  TestValidator.equals(
-    "a camera still cannot act outside frame",
-    namedFacts([
-      [
-        "refused",
-        () => says(cameraActor, "$input.draft[0].actor", "is a camera"),
-      ],
-      ["violated", () => silentAt(cameraActor, "$input.draft[0].at")],
-    ]),
-    { refused: true, violated: true },
-  );
+  assertFilmPositionalTargetKinds({ perform, says, silentAt });
 
   // 8. Locomote's in-place fallback belongs only to intentionally relative
   // targets. Broken absolute destinations are authored mistakes, not steps in
@@ -674,7 +394,7 @@ export const test_film_perform_shot_positional_target = (): void => {
     ]).success,
     true,
   );
-  const resumedPerform = performing(
+  const resumedPerform = createFilmPositionalTargetPerformer(
     undefined,
     {
       beat: "beat-0",
@@ -737,10 +457,12 @@ export const test_film_perform_shot_positional_target = (): void => {
     );
 
   const sampledAt: number[] = [];
-  const livePerform = performing((_target, seconds) => {
-    sampledAt.push(seconds);
-    return { x: 1, y: 1.4, z: 1 };
-  });
+  const livePerform = createFilmPositionalTargetPerformer(
+    (_target, seconds) => {
+      sampledAt.push(seconds);
+      return { x: 1, y: 1.4, z: 1 };
+    },
+  );
   TestValidator.equals(
     "a live bone locomote target resolves at the action start",
     livePerform([

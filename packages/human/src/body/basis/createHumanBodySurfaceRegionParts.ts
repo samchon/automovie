@@ -2,6 +2,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IHumanBodySurfaceRegionInput } from "./IHumanBodySurfaceRegionInput";
 import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 
 /**
@@ -18,26 +19,33 @@ import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
  * before correspondence is compiled, merging only values the renderer could
  * never distinguish and retaining genuine atlas seams.
  * No compiled output array is shared between document evaluations.
+ * Supplied physical samples use that same corner table; absent registration
+ * preserves legacy output. The caller owns source and actual instance binding.
+ * @evidence contracts/common.md#principled-implementation One authoritative source-to-UV gather copies physical sample identity with performed XYZ instead of reconstructing it from coordinates.
+ * @evidence contracts/common.md#clear-and-simple-design The region projection consumes explicit correspondence and delegates its admission to the existing gatherer and engine.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts UV ordinals, normal islands and coordinate contact never become source identity.
+ * @evidence contracts/common.md#meaningful-documentation States shared incidence, default absence and output ownership.
  */
 export function createHumanBodySurfaceRegionParts(
   surface: IAutoMovieHumanBodyBasis["surfaces"][number],
-): (input: {
-  positions: number[];
-  normals: number[];
-  skinMaterial: string;
-  colors: number[] | null;
-  reliefWeights: number[] | null;
-}) => IAutoMovieModel["parts"] {
+): (input: IHumanBodySurfaceRegionInput) => IAutoMovieModel["parts"] {
   const regions = surface.regions.map((source) => {
     const region = humanBodyGpuRegion(source);
     return { region, gather: createHumanBasisRegion(region) };
   });
-  return ({ positions, normals, skinMaterial, colors, reliefWeights }) =>
+  return ({
+    positions,
+    normals,
+    skinMaterial,
+    colors,
+    reliefWeights,
+    physical,
+  }) =>
     regions.map(({ region, gather }) => {
       const mesh =
         colors === null || region.material !== skinMaterial
-          ? gather(positions, normals)
-          : gather(positions, normals, colors);
+          ? gather(positions, normals, undefined, physical)
+          : gather(positions, normals, colors, physical);
       if (reliefWeights !== null && region.material === skinMaterial) {
         const triples = reliefWeights.flatMap((weight) => [
           weight,

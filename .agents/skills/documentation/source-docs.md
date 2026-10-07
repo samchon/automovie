@@ -14,13 +14,11 @@ A public export in the committed contract graph keeps its citations under the [e
 
 ## Source-file context
 
-Every authored source file explains within itself enough for a reader to understand its purpose without the conversation or a private worklog. State:
+Every authored source file explains its responsibility without relying on the conversation or a private worklog. Put the explanation at the owning declaration or calculation, using only the facts its responsibility needs:
 
-- the module's responsibility, its entry points and consumers, inputs and outputs, ownership and mutation rules, and processing order with the reason for that order;
-- for a declaration or data owner, its role, provenance, interpretation and consumers;
-- units, coordinate frames, sign conventions, formula assumptions and degeneracies where they apply, and for other domains the corresponding state, protocol or execution assumptions;
-- the non-obvious calculation with its derivation or source, beside the code that owns it;
-- the invariants this module establishes, the preconditions its callers supply, and the limitations it does not solve;
-- the downstream consequences of changing a shared result, including which derived data becomes stale.
+- public input meaning, ownership, mutations, failure effects and nonobvious processing order;
+- units, frames, signs, state or protocol assumptions, and numerical degeneracies where applicable;
+- the derivation or source of a nonobvious value or calculation, its supported conditions and limitations;
+- shared-result ownership and the downstream derivatives or observations a change invalidates.
 
 A test or an external link adds evidence and never replaces this explanation. Keep shared contracts at their canonical owner: a caller states its role in that contract and links to the owner instead of copying it. The file explains its own responsibility and not every dependency's internals. The development skill's [Source file structure](../development/SKILL.md#source-file-structure) owns file size and decomposition, and when both obligations cannot fit, reduce responsibility and keep the explanation.

@@ -1,6 +1,7 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { AutoMovieHumanBodySimpleParameter } from "../structures/AutoMovieHumanBodySimpleParameter";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import type { IHumanBodySimpleShapeFatReading } from "./IHumanBodySimpleShapeFatReading";
 
 /**
  * The arithmetic the simple tier's expansion and projection share: the
@@ -55,7 +56,7 @@ export const humanBodySimpleShapeMath = {
   fat(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
     bodyMassIndex: number,
-  ): { percent: number; excess: number } {
+  ): IHumanBodySimpleShapeFatReading {
     const table = HUMAN_BODY_SIMPLE_SHAPE.fat;
     const estimate = (model: typeof table.pediatric): number =>
       model.bodyMassIndex * bodyMassIndex +
@@ -80,8 +81,9 @@ export const humanBodySimpleShapeMath = {
   },
 
   /**
-   * How far a body has matured to build muscle, 0 before the sex's
-   * adolescent muscle spurt and 1 after it, linear between the table's ages.
+   * The table owner's authored training factor, zero before its start age,
+   * one after its end age and linear between. This numerical ramp measures
+   * neither an individual's maturity nor a physiological zero response.
    */
   maturity(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
@@ -121,30 +123,6 @@ export const humanBodySimpleShapeMath = {
         simple.sex,
       );
     return Math.max(1, excess - (100 * added) / bodyMassIndex);
-  },
-
-  /**
-   * Fraction of total mass above the body clip ring: the head-and-neck
-   * segment's share, with a stated study-domain bridge, less the neck the
-   * skin keeps below the ring, which the segment counts.
-   */
-  headAndNeckFraction(ageYears: number, bodyMassIndex: number): number {
-    const table = HUMAN_BODY_SIMPLE_SHAPE.mass.headAndNeck;
-    const kept =
-      (table.keptNeck.fraction * table.keptNeck.bodyMassIndex) / bodyMassIndex;
-    const pediatric = (age: number): number =>
-      table.pediatric.intercept +
-      table.pediatric.ageYearsCoefficient * age +
-      table.pediatric.ageYearsSquaredCoefficient * age * age;
-    const [childEnd, adultStart] = table.transitionAgeYears;
-    if (ageYears <= childEnd) return pediatric(ageYears) - kept;
-    if (ageYears >= adultStart) return table.adultFraction - kept;
-    return (
-      pediatric(childEnd) +
-      ((ageYears - childEnd) / (adultStart - childEnd)) *
-        (table.adultFraction - pediatric(childEnd)) -
-      kept
-    );
   },
 
   /** The parameter record the term curves are read over. */

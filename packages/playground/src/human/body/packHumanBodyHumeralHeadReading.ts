@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyHumeralHead } from "@automovie/human";
 
-import type { ConnectedBodyResult } from "./connectedBodyProtocol";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 type Reading = Extract<
   NonNullable<

@@ -1,9 +1,6 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
-/** One driver of a corrective: a joint ramp or a channel side. */
-export type BodyCorrectiveDriver = NonNullable<
-  IAutoMovieHumanBodyBasis["correctives"]
->[number]["inputs"][number];
+import type { BodyCorrectiveDriver } from "./BodyCorrectiveDriver";
 
 /** Rest rows are stored to this many decimals, 10 micrometres. */
 const STORED_DECIMALS = 5;

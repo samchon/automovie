@@ -18,26 +18,43 @@ export function evaluateDentalSurfaceAnchor(
   positions: readonly number[],
   anchor: IDentalSurfaceAnchor,
 ): number[] {
-  if (anchor.vertices.length === 0 || anchor.vertices.length !== anchor.weights.length ||
-      anchor.weights.some((weight) => !Number.isFinite(weight) || weight < 0) ||
-      anchor.weights.reduce((sum, weight) => sum + weight, 0) !== 1 ||
-      anchor.vertices.some((vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex * 3 + 2 >= positions.length))
-    throw new Error("A dental landmark needs resident vertices and nonnegative weights summing to one.");
+  if (
+    anchor.vertices.length === 0 ||
+    anchor.vertices.length !== anchor.weights.length ||
+    anchor.weights.some((weight) => !Number.isFinite(weight) || weight < 0) ||
+    anchor.weights.reduce((sum, weight) => sum + weight, 0) !== 1 ||
+    anchor.vertices.some(
+      (vertex) =>
+        !Number.isInteger(vertex) ||
+        vertex < 0 ||
+        vertex * 3 + 2 >= positions.length,
+    )
+  )
+    throw new Error(
+      "A dental landmark needs resident vertices and nonnegative weights summing to one.",
+    );
   // A partition of unity preserves a constant field exactly. Accumulating
   // offsets from one reference keeps equal subnormal coordinates from being
   // erased by multiplying each one by a fractional weight first.
-  const reference = positions.slice(anchor.vertices[0] * 3, anchor.vertices[0] * 3 + 3);
+  const reference = positions.slice(
+    anchor.vertices[0] * 3,
+    anchor.vertices[0] * 3 + 3,
+  );
   const point = [0, 0, 0];
   anchor.vertices.forEach((vertex, at) => {
     for (let axis = 0; axis < 3; axis++) {
       const delta = positions[vertex * 3 + axis] - reference[axis];
       if (!Number.isFinite(delta))
-        throw new Error("A dental landmark needs finite source coordinates and representable interpolation differences.");
+        throw new Error(
+          "A dental landmark needs finite source coordinates and representable interpolation differences.",
+        );
       point[axis] += delta * anchor.weights[at];
     }
   });
   for (let axis = 0; axis < 3; axis++) point[axis] += reference[axis];
   if (!point.every(Number.isFinite))
-    throw new Error("Dental landmark interpolation arithmetic must remain finite.");
+    throw new Error(
+      "Dental landmark interpolation arithmetic must remain finite.",
+    );
   return point;
 }

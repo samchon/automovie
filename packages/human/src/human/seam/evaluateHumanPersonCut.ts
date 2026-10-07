@@ -26,9 +26,13 @@ export function evaluateHumanPersonCut(
   positions: readonly number[],
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
 ): number[] {
-  return [...positions, ...cut.intersections.flatMap(({ a, b, t }) =>
-    [0, 1, 2].map((axis) =>
-      (1 - t) * positions[a * 3 + axis] + t * positions[b * 3 + axis],
+  return [
+    ...positions,
+    ...cut.intersections.flatMap(({ a, b, t }) =>
+      [0, 1, 2].map(
+        (axis) =>
+          (1 - t) * positions[a * 3 + axis] + t * positions[b * 3 + axis],
+      ),
     ),
-  )];
+  ];
 }

@@ -1,4 +1,8 @@
-import { validateAutoMovieEnvironmentContext, validateBuiltEnvironment, validateModel } from "@automovie/engine";
+import {
+  validateAutoMovieEnvironmentContext,
+  validateBuiltEnvironment,
+  validateModel,
+} from "@automovie/engine";
 import type { IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
 import type { IAutoMovieLibraryBuildContext } from "@automovie/interface";
 import type { buildLibrarySource } from "@automovie/production";
@@ -19,9 +23,14 @@ export const createLibraryEvaluationInput = (props: {
 }) => ({
   ...props,
   root: "library-runtime",
-  sourceBranches: new Map([...props.contexts].map(([owner, context]) => [
-    owner, context.branch === "productionSources" ? "productionSources" : "modelSources",
-  ])),
+  sourceBranches: new Map(
+    [...props.contexts].map(([owner, context]) => [
+      owner,
+      context.branch === "productionSources"
+        ? "productionSources"
+        : "modelSources",
+    ]),
+  ),
   requireReviewed: true,
   validators: {
     environment: validateBuiltEnvironment,

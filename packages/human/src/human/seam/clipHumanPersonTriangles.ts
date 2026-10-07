@@ -28,9 +28,12 @@ export function clipHumanPersonTriangles(
   sources: readonly number[],
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
 ): { vertex: number; a: number; b: number; t: number }[] {
-  const edges = new Map(cut.intersections.map(({ a, b, t }, index) => [
-    `${a}/${b}`, { vertex: cut.margins.length + index, t },
-  ]));
+  const edges = new Map(
+    cut.intersections.map(({ a, b, t }, index) => [
+      `${a}/${b}`,
+      { vertex: cut.margins.length + index, t },
+    ]),
+  );
   const result: { vertex: number; a: number; b: number; t: number }[] = [];
   for (let offset = 0; offset < sources.length; offset += 3) {
     const polygon: typeof result = [];
@@ -44,9 +47,10 @@ export function clipHumanPersonTriangles(
         const low = Math.min(a, b);
         const high = Math.max(a, b);
         const endpoint = cut.margins[low] === 0 ? low : high;
-        const hit = cut.margins[endpoint] === 0
-          ? { vertex: endpoint, t: endpoint === low ? 0 : 1 }
-          : edges.get(`${low}/${high}`)!;
+        const hit =
+          cut.margins[endpoint] === 0
+            ? { vertex: endpoint, t: endpoint === low ? 0 : 1 }
+            : edges.get(`${low}/${high}`)!;
         polygon.push({
           vertex: hit.vertex,
           a: offset + (a === low ? previous : corner),
@@ -54,10 +58,17 @@ export function clipHumanPersonTriangles(
           t: hit.t,
         });
       }
-      if (insideB) polygon.push({ vertex: b, a: offset + corner, b: offset + corner, t: 0 });
+      if (insideB)
+        polygon.push({
+          vertex: b,
+          a: offset + corner,
+          b: offset + corner,
+          t: 0,
+        });
     }
-    const unique = polygon.filter((one, at) =>
-      polygon.findIndex((other) => other.vertex === one.vertex) === at,
+    const unique = polygon.filter(
+      (one, at) =>
+        polygon.findIndex((other) => other.vertex === one.vertex) === at,
     );
     for (let corner = 1; corner + 1 < unique.length; corner++)
       result.push(unique[0], unique[corner], unique[corner + 1]);

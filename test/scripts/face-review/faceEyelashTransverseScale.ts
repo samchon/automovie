@@ -36,10 +36,15 @@ export function faceEyelashTransverseScale(
   direction: readonly [number, number],
 ): number {
   const patch = locateFaceEyelashTriangle(card, point);
-  if (patch === null) throw new Error("A lash diameter needs a point on its UV card.");
+  if (patch === null)
+    throw new Error("A lash diameter needs a point on its UV card.");
   const magnitude = Math.hypot(...direction);
-  if (magnitude === 0) throw new Error("A lash diameter needs a nonzero UV direction.");
-  const tangent: [number, number] = [direction[0] / magnitude, direction[1] / magnitude];
+  if (magnitude === 0)
+    throw new Error("A lash diameter needs a nonzero UV direction.");
+  const tangent: [number, number] = [
+    direction[0] / magnitude,
+    direction[1] / magnitude,
+  ];
   const normal: [number, number] = [-tangent[1], tangent[0]];
   const { uv, xyz } = patch.triangle;
   const du = [uv[1][0] - uv[0][0], uv[2][0] - uv[0][0]];
@@ -48,13 +53,19 @@ export function faceEyelashTransverseScale(
   const map = ([u, v]: [number, number]): number[] => {
     const first = (dv[1] * u - du[1] * v) / determinant;
     const second = (du[0] * v - dv[0] * u) / determinant;
-    return [0, 1, 2].map((axis) => first * (xyz[1][axis] - xyz[0][axis]) +
-      second * (xyz[2][axis] - xyz[0][axis]));
+    return [0, 1, 2].map(
+      (axis) =>
+        first * (xyz[1][axis] - xyz[0][axis]) +
+        second * (xyz[2][axis] - xyz[0][axis]),
+    );
   };
   const t = map(tangent);
   const n = map(normal);
-  const area = Math.hypot(t[1] * n[2] - t[2] * n[1],
-    t[2] * n[0] - t[0] * n[2], t[0] * n[1] - t[1] * n[0]);
+  const area = Math.hypot(
+    t[1] * n[2] - t[2] * n[1],
+    t[2] * n[0] - t[0] * n[2],
+    t[0] * n[1] - t[1] * n[0],
+  );
   const length = Math.hypot(...t);
   if (area === 0)
     throw new Error("A lash diameter needs a nondegenerate physical card.");

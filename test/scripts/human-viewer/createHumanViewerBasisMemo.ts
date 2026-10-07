@@ -17,14 +17,20 @@ export function createHumanViewerBasisMemo(io: {
   stamp: (file: string) => string;
   read: (file: string) => Buffer;
 }) {
-  const memoized = new Map<string, { stamp: string; digest: string; id: string }>();
+  const memoized = new Map<
+    string,
+    { stamp: string; digest: string; id: string }
+  >();
   return (file: string): { id: string; digest: string } => {
     const stamp = io.stamp(file);
     let kept = memoized.get(file);
     if (kept?.stamp !== stamp) {
       const bytes = io.read(file);
-      kept = { stamp, digest: createHash("sha256").update(bytes).digest("hex"),
-        id: file.endsWith(".gz") ? readHumanViewerBasisIdentity(bytes) : "" };
+      kept = {
+        stamp,
+        digest: createHash("sha256").update(bytes).digest("hex"),
+        id: file.endsWith(".gz") ? readHumanViewerBasisIdentity(bytes) : "",
+      };
       memoized.set(file, kept);
     }
     return kept;

@@ -1,5 +1,5 @@
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
+import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
 /**
  * Refuse invalid fibre dimensions before fitting an eye or allocating brow meshes.
@@ -33,7 +33,7 @@ export function assertPortraitEyebrowProfile(
     throw new Error(
       "Eyebrow representation must be ribbon or omitted for tubes.",
     );
-  if (shape.flow !== undefined) createPortraitEyebrowFlow(shape.flow);
+  const placement = resolvePortraitEyebrowPlacement(shape);
   if (
     shape.densitySeed !== undefined &&
     (!Number.isInteger(shape.densitySeed) ||
@@ -41,9 +41,16 @@ export function assertPortraitEyebrowProfile(
       shape.densitySeed > 0xffffffff)
   )
     throw new Error("Eyebrow density seed must be an unsigned 32-bit integer.");
-  const roots = shape.rootBand ?? [0.1, 0.22];
+  if (
+    shape.emergenceDegrees !== undefined &&
+    (!Number.isFinite(shape.emergenceDegrees) ||
+      shape.emergenceDegrees < 0 ||
+      shape.emergenceDegrees >= 90)
+  )
+    throw new Error("Eyebrow emergence must be an angle in [0,90) degrees.");
+  const roots = placement.rootBand;
   const maximumSpan = shape.span ?? 0.34;
-  const ends = shape.endFade ?? [0, 0];
+  const ends = placement.endFade;
   if (
     ends.length !== 2 ||
     ends.some((value) => !Number.isFinite(value) || value < 0 || value > 0.5)
@@ -58,7 +65,7 @@ export function assertPortraitEyebrowProfile(
     !Number.isFinite(maximumSpan) ||
     maximumSpan < 0 ||
     maximumSpan > 1 ||
-    (shape.flow === undefined && roots[1] + maximumSpan > 1)
+    (placement.flow === undefined && roots[1] + maximumSpan > 1)
   )
     throw new Error(
       "Eyebrow root band and fibre span must remain inside the supporting brow.",

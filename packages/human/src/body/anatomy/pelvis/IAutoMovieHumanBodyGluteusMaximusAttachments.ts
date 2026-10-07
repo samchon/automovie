@@ -10,7 +10,9 @@ type GluteusMaximusInsertion<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}IliotibialTract`; site: "proximalTract" };
 
 /** One anatomical side's whole record: its origins and insertions never name the other side. */
-interface IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side extends AutoMovieHumanBodySide> {
+interface IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<
+  Side extends AutoMovieHumanBodySide,
+> {
   /** At least one named pelvic origin in the same anatomical side. */
   readonly origins: readonly [
     GluteusMaximusOrigin<Side>,
@@ -49,4 +51,6 @@ interface IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side extends AutoMo
  */
 export type IAutoMovieHumanBodyGluteusMaximusAttachments<
   Side extends AutoMovieHumanBodySide,
-> = Side extends AutoMovieHumanBodySide ? IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side> : never;
+> = Side extends AutoMovieHumanBodySide
+  ? IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side>
+  : never;

@@ -19,15 +19,12 @@ import {
   selectFormationLod,
 } from "@automovie/engine";
 import {
-  IAutoMovieCompiledFormation,
   IAutoMovieCompiledFormationLod,
-  IAutoMovieFormationMotion,
   IAutoMovieFormationSlot,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieModel,
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps";
 import { readAutoMovieDeliveryCrop } from "./deliveryCrop";
 import {
   applyFormationCycleCadence,
@@ -66,30 +63,14 @@ import type {
  * instance buffers are the same size they were, and a frame advances the whole
  * unit by writing two floats.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-group-motion-model-selection Displays this surface from the selected formation motion model.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes the same group-motion and reform state in the viewer.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-group-motion-model-selection Samples group placement, sparse member exceptions and shared cadence on the same shot time before projecting them into tier batches.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Samples group placement, sparse member exceptions and shared cadence on the same shot time before projecting them into tier batches.
  * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-transition Carries the prior tier into each camera-driven LOD selection.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Implements stable logical-to-display tier transitions.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Carries the previous selected tier into the existing hysteretic camera policy without changing member identity.
  */
-export const buildInstancedFormation = (input: {
-  formation: IAutoMovieCompiledFormation;
-  models: ReadonlyMap<string, IAutoMovieModel>;
-  motions?: readonly IAutoMovieFormationMotion[];
-  /**
-   * Sparse per-member cues, so one member of a crowd can do what its neighbours
-   * do not: leave, stop, step out, or stop being drawn at all.
-   *
-   * Read once, here. Which members the cues single out is settled while the
-   * batches are built, so a caller that swapped this list afterwards would be
-   * sampling cues against a set of exceptions that no longer answers to them;
-   * rebuild the unit instead.
-   */
-  slotMotions?: readonly IAutoMovieFormationSlotMotion[];
-  /** Explicit scene wrappers keyed by promoted hero actor id. */
-  heroObjects?: ReadonlyMap<string, THREE.Object3D>;
-  /** Pose-root objects whose actual world positions drive hero culling. */
-  heroVisualObjects?: ReadonlyMap<string, THREE.Object3D>;
-}): IAutoMovieFormationViewerObject => {
+export const buildInstancedFormation = (
+  input: IBuildInstancedFormationProps,
+): IAutoMovieFormationViewerObject => {
   const root = new THREE.Group();
   root.name = `formation:${input.formation.id}`;
   root.position.copy(vector(input.formation.anchor));

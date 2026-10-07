@@ -15,21 +15,27 @@ export function readBodyPoseCensusArguments(argv: readonly string[]) {
   for (let i = 0; i < argv.length; ++i) {
     const arg = argv[i];
     if (arg === "--basis") {
-      if (basis !== undefined) throw new Error("Give the census basis only once.");
+      if (basis !== undefined)
+        throw new Error("Give the census basis only once.");
       const value = argv[++i];
       if (value === undefined || value.length === 0 || value.startsWith("--"))
         throw new Error("Give --basis <input.gz> for the census.");
       basis = value;
     } else {
-      if (arg.startsWith("--")) throw new Error("Unknown census option: " + arg);
+      if (arg.startsWith("--"))
+        throw new Error("Unknown census option: " + arg);
       positional.push(arg);
     }
   }
   const label = positional[0];
   if (label === undefined || label.length === 0 || positional.length > 3)
-    throw new Error("Give a census label and optional shape and pose populations.");
+    throw new Error(
+      "Give a census label and optional shape and pose populations.",
+    );
   return {
-    label, basis,
-    shapes: positional[1], poses: positional[2],
+    label,
+    basis,
+    shapes: positional[1],
+    poses: positional[2],
   };
 }

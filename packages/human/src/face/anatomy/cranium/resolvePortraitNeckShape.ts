@@ -1,7 +1,5 @@
-import {
-  portraitNeckReferenceChin,
-  portraitNeckShape,
-} from "./portraitNeckShape";
+import { portraitNeckReferenceChin } from "./portraitNeckReferenceChin";
+import { portraitNeckShape } from "./portraitNeckShape";
 import type { IPortraitNeckShape } from "./structures/IPortraitNeckShape";
 
 /**

@@ -25,6 +25,7 @@ export function serializeHumanViewerAddress(
     opacity: String(address.opacity),
   });
   if (address.parts.length !== 0) fields.set("parts", address.parts.join(","));
+  if (address.operation === "construct") fields.set("operation", "construct");
   if (address.hide.length !== 0) fields.set("hide", address.hide.join(","));
   if (address.zoom !== 1) fields.set("zoom", String(address.zoom));
   if (address.pitch !== 0) fields.set("pitch", String(address.pitch));

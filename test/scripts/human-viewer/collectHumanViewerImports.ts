@@ -1,8 +1,9 @@
-import { createHumanViewerExportOwners } from "./createHumanViewerExportOwners";
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
+import { createHumanViewerExportOwners } from "./createHumanViewerExportOwners";
 import { resolveHumanViewerImport } from "./resolveHumanViewerImport";
 
-const FROM = /\b(?:import|export)\s+(?:type\s+)?([^;'"()]*?)\s*from\s*["']([^"']+)["']/g;
+const FROM =
+  /\b(?:import|export)\s+(?:type\s+)?([^;'"()]*?)\s*from\s*["']([^"']+)["']/g;
 const OTHER = new RegExp(
   [
     String.raw`\bimport\s*["']([^"']+)["']`,
@@ -77,8 +78,7 @@ export function collectHumanViewerImports(props: {
               .filter((name) => name !== "");
       if (names === null || names.length === 0) pending.push(target);
       else
-        for (const name of names)
-          pending.push(owner(target, name) ?? target);
+        for (const name of names) pending.push(owner(target, name) ?? target);
     }
     for (const match of text.matchAll(OTHER)) {
       const specifier = match[1] ?? match[2] ?? match[3] ?? match[4];

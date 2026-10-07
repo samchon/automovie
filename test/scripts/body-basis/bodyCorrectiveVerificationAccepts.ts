@@ -17,6 +17,12 @@ export function bodyCorrectiveVerificationAccepts(input: {
   lighter: IBodyCorrectiveVerification;
 }): boolean {
   const clear = (sample: IBodyCorrectiveVerification): boolean =>
-    sample.kind === "not-sampled" || (sample.kind === "measured" && sample.pairs.length === 0);
-  return input.full.kind === "measured" && input.full.pairs.length === 0 && clear(input.midpoint) && clear(input.lighter);
+    sample.kind === "not-sampled" ||
+    (sample.kind === "measured" && sample.pairs.length === 0);
+  return (
+    input.full.kind === "measured" &&
+    input.full.pairs.length === 0 &&
+    clear(input.midpoint) &&
+    clear(input.lighter)
+  );
 }

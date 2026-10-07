@@ -69,7 +69,8 @@ export function createHumanLoopAzimuth(
       "The loop does not wind once around its axis in one direction.",
     );
   // loop indices in increasing angle, from the smallest angle
-  const walk = total > 0 ? loop.map((_, k) => k) : loop.map((_, k) => count - 1 - k);
+  const walk =
+    total > 0 ? loop.map((_, k) => k) : loop.map((_, k) => count - 1 - k);
   let first = 0;
   for (let k = 1; k < count; k++)
     if (angle[walk[k]] < angle[walk[first]]) first = k;

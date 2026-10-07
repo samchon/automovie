@@ -19,9 +19,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
+import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
+import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
 import {
   makePerformanceWrite,
-  makeScriptWrite,
   makeStagingWrite,
   validSynthesizer,
 } from "../internal/filmFixtures";
@@ -34,29 +36,6 @@ import {
   makePose,
 } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
-
-/** The horse walks +x by 2 m over the 2 s shot (root translation only). */
-const horseWalk: IAutoMovieMotion = makeMotion(
-  [
-    keyframe(
-      0,
-      makePose([], {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-    keyframe(
-      2,
-      makePose([], {
-        translation: { x: 2, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-  ],
-  2,
-);
 
 /** The horse animates its own walk; every other actor uses the shared clip. */
 const synth: IAutoMovieActionSynthesizer = (action, actor) =>
@@ -95,52 +74,6 @@ const clinicalHorseWalk: IAutoMovieMotion = makeMotion(
 );
 const clinicalSynth: IAutoMovieActionSynthesizer = (action, actor) =>
   actor === "horse" ? clinicalHorseWalk : validSynthesizer(action, actor);
-
-const scriptOf = () =>
-  makeScriptWrite({
-    cast: [
-      { node: "horse", character: "the steed", modelRef: "stickman" },
-      { node: "rider", character: "the knight", modelRef: "stickman" },
-    ],
-    beats: [
-      {
-        id: "beat-1",
-        name: "the ride",
-        summary: "the knight rides the steed",
-        durationHint: 2,
-      },
-    ],
-  });
-
-/**
- * The rider is placed far away and airborne (5, 5, 5) ON PURPOSE: a coordinate
- * it must never end at. Its `attach` mounts it to the horse's `spine`, so the
- * mount, not the staged placement, owns its world root.
- */
-const stagingOf = () =>
-  makeStagingWrite({
-    scene: { id: "scene-ride", name: "the ride" },
-    actors: [
-      { node: "horse", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
-      {
-        node: "rider",
-        position: { x: 5, y: 5, z: 5 },
-        facingDeg: 0,
-        attach: { parent: "horse", bone: "spine" },
-      },
-    ],
-    cameras: [
-      {
-        node: "cam",
-        position: { x: 3, y: 2, z: 3 },
-        lookAt: { kind: "node", node: "horse" },
-        fovDeg: 45,
-        near: 0.1,
-        far: 1000,
-        depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-      },
-    ],
-  });
 
 const riderPosAt = (clip: IAutoMovieClip, t: number): IAutoMovieVector3 => {
   const v = sampleClip(clip, t).get("node:rider:translation")!.value;

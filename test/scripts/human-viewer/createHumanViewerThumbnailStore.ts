@@ -38,7 +38,10 @@ export function createHumanViewerThumbnailStore(
   return {
     /** Remove every revision directory except the current one and the newest older one. */
     prune: (revision: string): void => {
-      for (const stale of planHumanViewerThumbnailPrune(disk.directories(folder), revision))
+      for (const stale of planHumanViewerThumbnailPrune(
+        disk.directories(folder),
+        revision,
+      ))
         disk.remove(join(folder, stale));
     },
 

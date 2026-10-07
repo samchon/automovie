@@ -10,8 +10,8 @@ import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { weldLatticeSeamNormals } from "../../mesh/weldLatticeSeamNormals";
 import { IPortraitEarShape } from "../ear/IPortraitEarShape";
-import { portraitEarShape } from "../ear/portraitEarShape";
 import { pinnaHelixRimWeight } from "../ear/pinnaHelixRimWeight";
+import { portraitEarShape } from "../ear/portraitEarShape";
 import { resolvePortraitEarSampling } from "../ear/resolvePortraitEarSampling";
 
 /**
@@ -183,38 +183,46 @@ export function buildPortraitEars(
         shape.embedding
       );
     };
-    const front = weldLatticeSeamNormals(triangulateSurfaceLattice(
-      (u, v) => {
-        const edge = outline(u),
-          r = 0.0001 + 0.9999 * v,
-          y = edge.y * r,
-          z = edge.z * r;
-        return p(
-          attachmentX(y, z) - 1.3 * (1 - r * r) + relief(y, z),
-          shape.centerY + y * shape.heightScale,
-          shape.centerZ + z * shape.depthScale,
-        );
-      },
+    const front = weldLatticeSeamNormals(
+      triangulateSurfaceLattice(
+        (u, v) => {
+          const edge = outline(u),
+            r = 0.0001 + 0.9999 * v,
+            y = edge.y * r,
+            z = edge.z * r;
+          return p(
+            attachmentX(y, z) - 1.3 * (1 - r * r) + relief(y, z),
+            shape.centerY + y * shape.heightScale,
+            shape.centerZ + z * shape.depthScale,
+          );
+        },
+        sampling.columns,
+        sampling.frontRows,
+      ),
       sampling.columns,
       sampling.frontRows,
-    ), sampling.columns, sampling.frontRows);
-    const back = weldLatticeSeamNormals(triangulateSurfaceLattice(
-      (u, v) => {
-        const edge = outline(1 - u),
-          r = 0.0001 + 0.9999 * v,
-          y = edge.y * r,
-          z = edge.z * r;
-        return p(
-          attachmentX(y, z) -
-            4.5 * (1 - r * r) +
-            r * r * relief(edge.y, edge.z),
-          shape.centerY + y * shape.heightScale,
-          shape.centerZ + z * shape.depthScale,
-        );
-      },
+    );
+    const back = weldLatticeSeamNormals(
+      triangulateSurfaceLattice(
+        (u, v) => {
+          const edge = outline(1 - u),
+            r = 0.0001 + 0.9999 * v,
+            y = edge.y * r,
+            z = edge.z * r;
+          return p(
+            attachmentX(y, z) -
+              4.5 * (1 - r * r) +
+              r * r * relief(edge.y, edge.z),
+            shape.centerY + y * shape.heightScale,
+            shape.centerZ + z * shape.depthScale,
+          );
+        },
+        sampling.columns,
+        sampling.backRows,
+      ),
       sampling.columns,
       sampling.backRows,
-    ), sampling.columns, sampling.backRows);
+    );
     for (const [name, mesh] of [
       ["pinna", front],
       ["ear-back", back],

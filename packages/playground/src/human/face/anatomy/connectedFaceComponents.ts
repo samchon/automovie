@@ -19,6 +19,8 @@ import { connectedFaceNose } from "./connectedFaceNose";
  * A new basis revision must supply a new or reverified tree rather than borrow
  * this application's labels. No grouping changes the flat stored document or
  * the numerical builder's original channel order.
+ * The root owns the document's anatomical record, whose measurements and
+ * observations span every child scope.
  *
  */
 export const connectedFaceComponents: IAutoMovieHumanFaceComponentTree = {
@@ -30,7 +32,7 @@ export const connectedFaceComponents: IAutoMovieHumanFaceComponentTree = {
       "Whole connected face; skin is shared by nested anatomical forms.",
     channels: [],
     surfaces: ["Human"],
-    documentFields: [],
+    documentFields: ["anatomical"],
     children: [
       connectedFaceFrame,
       connectedFaceEyes,

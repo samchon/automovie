@@ -44,10 +44,17 @@ export function captureHumanViewerReference(props: {
   out.width = layout.width;
   out.height = layout.height;
   const context = out.getContext("2d");
-  if (context === null) throw new Error("A 2D surface is required to compose the reference");
-  drawHumanViewerReference(context, layout.layers, {
-    render: props.render,
-    photo: props.photo,
-  }, layout.markers, layout.markerRadius);
+  if (context === null)
+    throw new Error("A 2D surface is required to compose the reference");
+  drawHumanViewerReference(
+    context,
+    layout.layers,
+    {
+      render: props.render,
+      photo: props.photo,
+    },
+    layout.markers,
+    layout.markerRadius,
+  );
   return out.toDataURL("image/png");
 }

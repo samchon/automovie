@@ -31,12 +31,16 @@ export function mountHumanViewerLightControls(props: {
   }
   props.form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const source = [props.name.value, ...props.components.map((input) => input.value)].join(",");
+    const source = [
+      props.name.value,
+      ...props.components.map((input) => input.value),
+    ].join(",");
     let light: HumanViewerAddress["light"];
     try {
       light = parseHumanViewerLight(source);
     } catch {
-      props.error.textContent = "Choose a light and enter a finite nonzero X/Y/Z direction.";
+      props.error.textContent =
+        "Choose a light and enter a finite nonzero X/Y/Z direction.";
       return;
     }
     props.error.textContent = "";

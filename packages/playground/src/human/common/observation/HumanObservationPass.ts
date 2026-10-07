@@ -1,8 +1,8 @@
 /**
  * What the review viewport draws the figure as.
  *
- * Each pass answers one question about the shape and none answers about
- * material or light:
+ * The shared definition owns each pass's actual material parameters and
+ * reading limits; structural passes do not establish material appearance.
  *
  * - `beauty` draws the authored materials and lights, the product frame.
  * - `clay` draws one grey material under the same lights, so shape reads
@@ -19,6 +19,8 @@
  * - `flat` draws each triangle with its own face normal under the same
  *   lights: it shows the tessellation and faceted shading that smooth normals
  *   hide.
+ * - `albedo` draws authored base colour, texture and vertex colour with source
+ *   alpha, without lights, fog or tone mapping. Custom shaders refuse.
  * - `wire` draws the triangle edges: it shows mesh density and topology and
  *   nothing of the lit surface.
  * - `outline` draws a white surface with a dark rim two screen pixels wide
@@ -32,6 +34,7 @@ export const HUMAN_OBSERVATION_PASSES = [
   "normal",
   "depth",
   "flat",
+  "albedo",
   "wire",
   "outline",
 ] as const;

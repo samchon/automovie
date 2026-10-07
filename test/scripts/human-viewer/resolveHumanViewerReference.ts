@@ -1,6 +1,6 @@
-import type { IHumanViewerReferenceIo } from "./IHumanViewerReferenceIo";
-import type { IHumanViewerReference } from "./IHumanViewerReference";
 import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
+import type { IHumanViewerReference } from "./IHumanViewerReference";
+import type { IHumanViewerReferenceIo } from "./IHumanViewerReferenceIo";
 
 const IMAGE = /^[A-Za-z0-9._-]+\.(png|jpe?g|webp)$/i;
 
@@ -19,7 +19,8 @@ const cameraOf = (value: unknown): IFaceLikenessCamera | null => {
     camera.target.length !== 3 ||
     !camera.target.every(finite) ||
     camera.distance <= 0 ||
-    (camera.fov !== undefined && !(finite(camera.fov) && camera.fov > 0 && camera.fov < 180))
+    (camera.fov !== undefined &&
+      !(finite(camera.fov) && camera.fov > 0 && camera.fov < 180))
   )
     return null;
   return camera as IFaceLikenessCamera;
@@ -66,10 +67,9 @@ export function resolveHumanViewerReference(
   }
   if (doc.startsWith("body:") || doc.startsWith("file:")) return null;
   const id = doc.replace(/-connected$/, "");
-  const file = io.list("").find(
-    (name) =>
-      name.replace(/\.[^.]+$/, "") === id && IMAGE.test(name),
-  );
+  const file = io
+    .list("")
+    .find((name) => name.replace(/\.[^.]+$/, "") === id && IMAGE.test(name));
   if (file === undefined) return null;
   const poses = io.readJson("poses") as Record<string, unknown> | undefined;
   const landmarks = io.readJson("landmarks") as

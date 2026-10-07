@@ -24,7 +24,7 @@ Use counts or diagnostics only to locate passages after a literal reading has es
 4. After the complete final population exists, apply every selected shared, language, and work-specific naturalness target to all instances it governs in context. This is the time to judge the finished expression, not a prohibition on reading the contracts before authoring.
 5. Compare construction and final lineages. Verify every protected content decision, mechanical clause, and numeric selector. The author rereads eligible language as an audience and the complete final population from the downstream shot implementer's perspective.
 6. After final bodies and fidelity checks are complete, move to `evidence` and write the final lineage and naturalness batch under [Evidence staging](../evidence-graph/staging.md#tags).
-7. Complete [Evidence staging](../evidence-graph/staging.md) and [Author process Self-Review](../review-verification/self-review.md) before handing off the final population.
+7. Complete the final population through the [lifecycle handoff](index.md#handoff).
 
 ## Work-specific naturalness
 

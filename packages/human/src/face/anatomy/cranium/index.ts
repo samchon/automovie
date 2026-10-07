@@ -9,6 +9,7 @@ export * from "./portraitFacialOvalVertices";
 export * from "./portraitCranialChinHeight";
 export * from "./portraitFacialFrameWidthLimit";
 export * from "./portraitNeckShape";
+export * from "./portraitNeckReferenceChin";
 export * from "./resolvePortraitNeckShape";
 export * from "./preparePortraitHead";
 export * from "./resolvePortraitCraniumShape";

@@ -1,4 +1,7 @@
-import type { AutoMovieContentDigest, IAutoMovieRepaintReceipt } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieRepaintReceipt,
+} from "@automovie/interface";
 
 /**
  * Current repaint candidate joined to the immutable selection that activated it.

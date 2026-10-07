@@ -52,7 +52,11 @@ const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
   fs.existsSync,
 );
 const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
-const attachments = readFaceStudyFile<unknown>(fs, studyDirectory, "face-attachments.json.gz");
+const attachments = readFaceStudyFile<unknown>(
+  fs,
+  studyDirectory,
+  "face-attachments.json.gz",
+);
 const CHEN_2021 = { degrees: 27.4, forwardMetres: 0.0143, downMetres: 0.0035 };
 const input: IArticulatedBasisInput = {
   basis: basis.json as IArticulatedBasisInput["basis"],
@@ -128,7 +132,8 @@ const { receipt } = writeFaceBasisRevision({
       carriers: input.carriers,
     },
     coupling: {
-      source: "Chen et al. 2021, Dentomaxillofac Radiol 50:20190464, PMC7860955",
+      source:
+        "Chen et al. 2021, Dentomaxillofac Radiol 50:20190464, PMC7860955",
       ...CHEN_2021,
     },
   },

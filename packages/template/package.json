@@ -30,7 +30,7 @@
     "README.md",
     "language-contracts",
     "scaffold",
-    "scaffold/.gitignore",
+    "scaffold/_gitignore",
     "src",
     "package.json",
     "LICENSE"

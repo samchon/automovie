@@ -1,33 +1,22 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairTurnProps } from "./IHumanFaceHairTurnProps";
+import { humanFaceHairConstructionTurn } from "./humanFaceHairConstructionTurn";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
- * Construction scale for limiting the requested direction change to h / 0.006
- * radians at a nominal metre step h. This keeps the requested tangents away
- * from antiparallel; contact projection and shortened steps may give the
- * realised polyline a different local curvature.
- *
- * Loussouarn et al. (2007, Int J Dermatol 46 Suppl.1, 2-6) classify washed,
- * dried 6 cm hairs by two-dimensional curve diameter and other descriptors.
- * Their 1.2 cm diameter cutoff is a classification boundary, not a lower bound
- * on three-dimensional local curvature radius. This construction scale is
- * therefore a numerical convention and carries no biological-radius claim.
- */
-const TIGHTEST_RADIUS = 0.006;
-
-/**
- * Hold the direction a hair is asked to take to the tightest turn it may make
- * in one step. A wanted direction within the limit is returned as it is. A
+ * Hold a requested direction to the numerical construction turn per step. A wanted direction within the limit is returned as it is. A
  * sharper one is rotated from the previous direction toward the wanted one by
- * exactly the limit, in the plane the two span, so the path bends as far as it
+ * exactly the limit (`humanFaceHairConstructionTurn`), in the plane the two span, so the path bends as far as it
  * may and no farther; a wanted direction exactly opposite the previous one
  * spans no plane and the hair keeps going straight.
  *
  * Directions are unit vectors and `step` is the integration step in metres.
- * A field that asks for more turn than the limit is asking for a kink, which
- * has no ribbon frame and no follicle. Inputs are unchanged.
+ * This regularizer avoids abrupt requested changes and antiparallel ribbon
+ * transport; it is not a maximum biological or clinical curvature. Contact
+ * projection and clipped chords may change the realised angular metric. Inputs
+ * are unchanged.
  *
  * @evidence contracts/common.md#principled-implementation The angle between two unit vectors is acos of their clamped dot product, and rotating the previous direction by the limit toward the wanted one is cos(limit) * before + sin(limit) * unit(wanted - (wanted . before) before), the unit vector at that angle in their common plane. The clamp keeps rounding from leaving acos's domain, and the opposite-direction case, whose plane is undefined, is answered by going straight.
  * @evidence contracts/common.md#clear-and-simple-design One pure function of the previous direction, the wanted one and the step, apart from the integrator that owns the walk.
@@ -41,16 +30,14 @@ const TIGHTEST_RADIUS = 0.006;
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint and displays nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the limit is a constant and the directions come from the integrator.
  */
-export function limitHumanFaceHairTurn(props: {
-  before: IAutoMovieVector3;
-  direction: IAutoMovieVector3;
-  step: number;
-}): IAutoMovieVector3 {
+export function limitHumanFaceHairTurn(
+  props: IHumanFaceHairTurnProps,
+): IAutoMovieVector3 {
   const { before, direction } = props;
   const turn = Math.acos(
     Math.max(-1, Math.min(1, Vector3.dot(before, direction))),
   );
-  const limit = props.step / TIGHTEST_RADIUS;
+  const limit = humanFaceHairConstructionTurn(props.step);
   if (turn <= limit) return direction;
   const across = Vector3.subtract(
     direction,

@@ -23,9 +23,9 @@
 import { createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
 
-import { faceSupportFaults } from "./faceSupportFaults";
 import { faceMidsagittalLandmarks } from "./faceMidsagittal";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
+import { faceSupportFaults } from "./faceSupportFaults";
 import { faceMidlineTriangles } from "./faceUnseenNorms";
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareJawTaperBasis } from "./prepareJawTaperBasis";

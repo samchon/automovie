@@ -16,10 +16,13 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * 2002 (Spine 27:E432) measured lumbar flexion concurrent with it. The curve
  * maps the larger of the two legs' trunk-relative flexions to the tilt `T`;
  * the pelvis turns posteriorly by `T` about the line through both hip
- * centres (the root's flexion gains `-T` and the body is translated so the
- * hip centres do not move), the lumbar joint's flexion gains `+T` so the
- * trunk keeps its orientation, and each hip's pelvic-relative flexion is its
- * document flexion minus `T`, so the lifted thigh reaches the authored
+ * centres so the hip centres do not move and the trunk and thighs keep their
+ * authored world orientations. The curve publishes scalar coordination
+ * increments (root `-T`, lumbar `+T`, hips `-T`), not the actual combined
+ * clinical coordinates. In a shared sagittal child frame these increments
+ * combine with flexion; oblique or noncommuting frames require the actual
+ * parent-relative inverse, and root coordinates always use that inverse.
+ * The lifted thigh reaches the authored
  * direction and the other thigh stays where the author put it. One tilt for
  * both legs is what a pelvis can do; the bilateral lift shares the larger
  * side's tilt, which the declared curve must justify for the tasks it is
@@ -33,9 +36,14 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * The connected study's `couplings-receipt.json` records its authored knots.
  *
  * A trunk-relative flexion past the leg's clinical range is refused, and so
- * is a resulting pelvic-relative or lumbar angle past its own range; nothing
- * is clamped. Correctives driven by a hip or the lumbar joint read the
- * document's coupled angles (the hips trunk-relative): the tilt is a
+ * is a resulting pelvic-relative or lumbar coordinate past its own range; nothing
+ * is clamped. Admission reads the actual post-turn source-rig clinical
+ * coordinates. A shaped
+ * oblique frame or combined abduction/twist requires quaternion composition
+ * and the engine's inverse instead of scalar addition. Every changed direct
+ * child of the root is checked under its supported clinical owner.
+ * Corrective drivers retain the document's coupled angles (the hips
+ * trunk-relative): the tilt is a
  * function of those, so a ramp on them is a ramp on the whole
  * configuration, and the thigh's contact with the belly and chest follows
  * the trunk-relative angle rather than the pelvic-relative one. A basis
