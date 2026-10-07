@@ -1,13 +1,18 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
+import type { IAutoMovieMeshCrossingOptions } from "./IAutoMovieMeshCrossingOptions";
+import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
+import { triangleIndicesOf } from "./triangleIndicesOf";
+import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
+import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";
 
-/** Local triangle record: three corners and the bounds used to index them. */
-interface Indexed {
-  ordinal: number;
+/**
+ * Local triangle record: three corners and the bounds used to index them.
+ * @author Samchon
+ */
+interface Indexed extends IAutoMovieSpatialQueryEntry {
   corners: number[][];
-  low: number[];
-  high: number[];
 }
 
 /**
@@ -18,18 +23,8 @@ interface Indexed {
  * producing a report about triangles that do not exist.
  */
 const index = (mesh: IAutoMovieMesh): Indexed[] => {
-  const indices =
-    mesh.indices ??
-    Array.from({ length: mesh.positions.length / 3 }, (_, at) => at);
-  if (
-    mesh.positions.length % 3 !== 0 ||
-    !mesh.positions.every(Number.isFinite) ||
-    indices.length % 3 !== 0 ||
-    indices.some(
-      (at) =>
-        !Number.isInteger(at) || at < 0 || at >= mesh.positions.length / 3,
-    )
-  )
+  const indices = triangleIndicesOf(mesh, "Mesh crossings (complete triangle buffers)");
+  if (!mesh.positions.every(Number.isFinite))
     throw new Error("Mesh crossings need finite complete triangle buffers.");
   const out: Indexed[] = [];
   const at = (vertex: number): number[] => [
@@ -54,6 +49,13 @@ const index = (mesh: IAutoMovieMesh): Indexed[] => {
         Math.max(a[1], b[1], c[1]),
         Math.max(a[2], b[2], c[2]),
       ],
+      // Half-sums keep finite endpoints finite, even when high - low overflows.
+      // Centres choose the partition only; exact corner extrema bound it.
+      centre: [0, 1, 2].map(
+        (axis) =>
+          Math.min(a[axis], b[axis], c[axis]) / 2 +
+          Math.max(a[axis], b[axis], c[axis]) / 2,
+      ),
     });
   }
   return out;
@@ -68,21 +70,24 @@ const index = (mesh: IAutoMovieMesh): Indexed[] => {
  * useless exactly where surfaces are supposed to meet. A segment that ends on
  * the surface, or shares a corner with it, passes through nothing. Real
  * penetration puts the crossing strictly inside both the segment and the
- * triangle, so nothing a caller would want reported is lost.
+ * triangle. This is the instrument's contact classification, not a proof
+ * that every geometric intersection has such a witness.
  *
  * A parallel segment returns false and is left to the coplanar report. A
  * caller may set a dimensionless interior tolerance for its own near-contact
- * classification. Zero keeps the exact strict predicate used by topology
- * admission, including cases whose only witness lies very near an edge.
+ * classification. Zero retains the existing strict barycentric bounds. The
+ * absolute determinant cutoff of 1e-15 still excludes nearly parallel or tiny
+ * configurations; the instrument does not certify those as disjoint.
  */
 const segmentPierces = (
   origin: number[],
   target: number[],
   triangle: number[][],
   tolerance: number,
+  acceptPoint?: (point: readonly number[]) => boolean,
 ): boolean => {
-  // vector differences, cross and dot products written out as scalars,
-  // allocating nothing: this runs for every candidate pair of every mesh
+  // Scalar arithmetic allocates no witness unless the strict predicate passes
+  // and a caller actually requests point classification.
   const [t0, t1, t2] = triangle;
   const e1x = t1[0] - t0[0],
     e1y = t1[1] - t0[1],
@@ -110,7 +115,15 @@ const segmentPierces = (
   const v = (dx * ax + dy * ay + dz * az) * inverse;
   if (v <= tolerance || u + v >= 1 - tolerance) return false;
   const distance = (e2x * ax + e2y * ay + e2z * az) * inverse;
-  return distance > tolerance && distance < 1 - tolerance;
+  if (!(distance > tolerance && distance < 1 - tolerance)) return false;
+  return (
+    acceptPoint === undefined ||
+    acceptPoint([
+      origin[0] + distance * dx,
+      origin[1] + distance * dy,
+      origin[2] + distance * dz,
+    ])
+  );
 };
 
 const coincide = (a: number[], b: number[]): boolean =>
@@ -140,18 +153,19 @@ const pierces = (
   first: number[][],
   second: number[][],
   tolerance: number,
+  acceptPoint?: (point: readonly number[]) => boolean,
 ): boolean => {
   for (const [from, to] of EDGES) {
     if (
       !touchesCorner(first[from], second) &&
       !touchesCorner(first[to], second) &&
-      segmentPierces(first[from], first[to], second, tolerance)
+      segmentPierces(first[from], first[to], second, tolerance, acceptPoint)
     )
       return true;
     if (
       !touchesCorner(second[from], first) &&
       !touchesCorner(second[to], first) &&
-      segmentPierces(second[from], second[to], first, tolerance)
+      segmentPierces(second[from], second[to], first, tolerance, acceptPoint)
     )
       return true;
   }
@@ -199,6 +213,9 @@ const segmentsMeet = (
  * tests are strict for the same reason the piercing test is: two coplanar
  * triangles meeting at a shared corner or along a shared edge are touching,
  * not overlapping, and a seam must not read as a collision.
+ * The inherited numerical classification excludes normal magnitudes below
+ * 1e-15 and treats plane distances below 1e-9 coordinate units as coplanar.
+ * These numerical cutoffs are not an exact coplanarity or disjointness proof.
  */
 const sharePlaneAndOverlap = (
   first: number[][],
@@ -256,8 +273,21 @@ const sharePlaneAndOverlap = (
  * are exempt. Both modes use the same spatial index and triangle predicate.
  * `interiorTolerance` is a dimensionless distance from segment and triangle
  * boundaries in their own interpolation coordinates. Omission is zero, so a
- * topology validator retains its strict legacy predicate; a face census may
+ * topology validator retains its legacy numerical predicate; a face census may
  * explicitly classify sub-resolution seam residues as contact.
+ * `acceptTransversePoint` classifies each strict intersection in the shared
+ * frame. A rejected point does not suppress another edge or triangle witness.
+ * A triangle intersection segment is straight: if both endpoint witnesses
+ * belong to a convex insertion region, its whole segment belongs there.
+ * Classification retains the existing strict predicate's contact exclusions;
+ * it does not certify crossings that predicate does not report.
+ * A resident bounding-box hierarchy visits a finite population of nodes and
+ * triangles even when absolute coordinates cannot be incremented by one.
+ * Candidate ordering matches the former XYZ cell walk and original second
+ * ordinal wherever that walk terminated without cell-key aliasing. Overflowing
+ * cell coordinates are used only for ordering, with original ordinal ties;
+ * no coordinate or empty-cell range is enumerated. The narrow phase retains
+ * its determinant and coplanarity cutoffs described above.
  *
  * This answers containment-free overlap only. It does not say how deep the
  * crossing is or which surface should move; the first is what
@@ -278,7 +308,7 @@ const sharePlaneAndOverlap = (
 export function measureAutoMovieMeshCrossings(
   first: IAutoMovieMesh,
   second: IAutoMovieMesh,
-  options?: { allPairs?: boolean; interiorTolerance?: number },
+  options?: IAutoMovieMeshCrossingOptions,
 ): IAutoMovieMeshCrossing[] {
   const allPairs = options?.allPairs === true;
   const tolerance = options?.interiorTolerance ?? 0;
@@ -289,8 +319,13 @@ export function measureAutoMovieMeshCrossings(
   const ours = index(first);
   const theirs = index(second);
   if (ours.length === 0 || theirs.length === 0) return [];
-  // One cell a little larger than the mean second-mesh triangle keeps the
-  // candidate list short without letting a long triangle span many cells.
+  // A median hierarchy bounds candidate work by resident triangle count,
+  // rather than by absolute cell coordinates or the number of empty cells.
+  // Every descendant is enclosed, so pruning loses no overlapping AABB.
+  const hierarchy = buildAutoMovieMeshQueryHierarchy([...theirs]);
+  // Preserve the previous grid's ordering wherever its cell walks terminated:
+  // candidates first shared a cell in XYZ order, then original second ordinal.
+  // Read that cell directly; never increment an absolute floating-point index.
   const span =
     theirs.reduce(
       (total, triangle) =>
@@ -303,80 +338,28 @@ export function measureAutoMovieMeshCrossings(
       0,
     ) / theirs.length;
   const cell = span > 0 ? span : 1;
-  // Cells are numbered exactly inside the second mesh's cell box, so the
-  // walk visits the same cells in the same order as a textual key would and
-  // a first-mesh cell outside that box simply holds nothing; the candidate
-  // list keeps first-seen order through a per-query stamp.
-  const cellOf = (value: number): number => Math.floor(value / cell);
-  let lowX = Infinity,
-    lowY = Infinity,
-    lowZ = Infinity,
-    highX = -Infinity,
-    highY = -Infinity,
-    highZ = -Infinity;
-  for (const triangle of theirs) {
-    lowX = Math.min(lowX, cellOf(triangle.low[0]));
-    lowY = Math.min(lowY, cellOf(triangle.low[1]));
-    lowZ = Math.min(lowZ, cellOf(triangle.low[2]));
-    highX = Math.max(highX, cellOf(triangle.high[0]));
-    highY = Math.max(highY, cellOf(triangle.high[1]));
-    highZ = Math.max(highZ, cellOf(triangle.high[2]));
-  }
-  const spanY = highY - lowY + 1;
-  const spanZ = highZ - lowZ + 1;
-  // an exact number while the box's cell count is a safe integer, text past
-  // it, so two cells never share a bucket
-  const exact = (highX - lowX + 1) * spanY * spanZ <= Number.MAX_SAFE_INTEGER;
-  const key = (x: number, y: number, z: number): number | string =>
-    exact
-      ? ((x - lowX) * spanY + (y - lowY)) * spanZ + (z - lowZ)
-      : `${x},${y},${z}`;
-  const grid = new Map<number | string, Indexed[]>();
-  const walk = (
-    low: number[],
-    high: number[],
-    visit: (at: number | string) => void,
-  ): void => {
-    const x1 = Math.min(cellOf(high[0]), highX);
-    const y1 = Math.min(cellOf(high[1]), highY);
-    const z1 = Math.min(cellOf(high[2]), highZ);
-    for (let x = Math.max(cellOf(low[0]), lowX); x <= x1; x++)
-      for (let y = Math.max(cellOf(low[1]), lowY); y <= y1; y++)
-        for (let z = Math.max(cellOf(low[2]), lowZ); z <= z1; z++)
-          visit(key(x, y, z));
-  };
-  for (const triangle of theirs)
-    walk(triangle.low, triangle.high, (at) => {
-      const bucket = grid.get(at);
-      if (bucket === undefined) grid.set(at, [triangle]);
-      else bucket.push(triangle);
-    });
   const crossings: IAutoMovieMeshCrossing[] = [];
-  const stamp = new Int32Array(theirs.length).fill(-1);
   for (const triangle of ours) {
-    const candidates: Indexed[] = [];
-    walk(triangle.low, triangle.high, (at) => {
-      const bucket = grid.get(at);
-      if (bucket === undefined) return;
-      for (const candidate of bucket)
-        if (stamp[candidate.ordinal] !== triangle.ordinal) {
-          stamp[candidate.ordinal] = triangle.ordinal;
-          candidates.push(candidate);
-        }
-    });
+    const candidates = collectAutoMovieSpatialQueryCandidates(
+      hierarchy,
+      triangle,
+      cell,
+      "overlap",
+    );
     let pierced: Indexed | undefined;
     let flat: Indexed | undefined;
     for (const candidate of candidates) {
+      const acceptPoint = options?.acceptTransversePoint;
       if (
-        candidate.high[0] < triangle.low[0] ||
-        candidate.low[0] > triangle.high[0] ||
-        candidate.high[1] < triangle.low[1] ||
-        candidate.low[1] > triangle.high[1] ||
-        candidate.high[2] < triangle.low[2] ||
-        candidate.low[2] > triangle.high[2]
-      )
-        continue;
-      if (pierces(triangle.corners, candidate.corners, tolerance)) {
+        pierces(
+          triangle.corners,
+          candidate.corners,
+          tolerance,
+          acceptPoint === undefined
+            ? undefined
+            : (point) => acceptPoint(point, triangle.ordinal, candidate.ordinal),
+        )
+      ) {
         if (allPairs) {
           crossings.push({
             triangle: triangle.ordinal,
