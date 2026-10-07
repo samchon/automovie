@@ -17,19 +17,18 @@ import { fileURLToPath } from "node:url";
 import { describeHumanViewerSilence } from "./describeHumanViewerSilence.ts";
 import { humanViewerErrorCode } from "./humanViewerErrorCode.ts";
 import { humanViewerInstance } from "./humanViewerInstance.ts";
+import { humanViewerStorage } from "./humanViewerStorage.ts";
 import type { IHumanShotHealth } from "./IHumanShotHealth.ts";
 import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
 import { planHumanViewerControl } from "./planHumanViewerControl.ts";
+import { humanViewerProtocol } from "./humanViewerProtocol.ts";
 
 const command = process.argv[2];
 if (command !== "status" && command !== "stop")
   throw new Error("usage: human-viewer-control.mts <status|stop>");
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const record = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../.shots/human-viewer",
-  instance.record,
-);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const record = path.join(humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT), instance.record);
 const PROBE_MS = 2000;
 let health: IHumanShotHealth | null | undefined;
 try {
@@ -41,6 +40,9 @@ try {
 } catch (error) {
   health = humanViewerErrorCode(error) === "ECONNREFUSED" ? null : undefined;
 }
+if (health !== null && health !== undefined && process.env.HUMAN_VIEWER_STORAGE_ROOT &&
+  health.storage !== humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT))
+  throw new Error(`Port ${instance.port} does not serve the selected viewer storage; it reports ${health.storage ?? "no storage identity"}`);
 const saved = fs.existsSync(record)
   ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
   : null;
@@ -60,7 +62,7 @@ if (plan.action === "report" && (health === null || health === undefined)) {
   process.exitCode = silence.answer === "absent" ? 3 : 4;
 } else if (plan.action === "report") {
   console.log(JSON.stringify(health ?? { ready: false }));
-  process.exitCode = plan.exitCode;
+  process.exitCode = health?.protocol === humanViewerProtocol ? plan.exitCode : 3;
 } else if (plan.action === "absent") console.log("human-viewer absent");
 else if (plan.action === "refuse") {
   console.error(plan.reason);

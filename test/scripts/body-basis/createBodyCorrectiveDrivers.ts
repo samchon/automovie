@@ -1,10 +1,8 @@
-import { humanBodyShoulderOrientationDistance } from "@automovie/human";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { humanBodyShoulderOrientationDistance } from "@automovie/human/body/basis/humanBodyShoulderOrientationDistance";
 
-import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
+import type { IBodyCorrectiveDriversInput } from "./IBodyCorrectiveDriversInput";
 import { interpolateBodyShoulderPose } from "./interpolateBodyShoulderPose";
-import type { readBodyCorrectiveShoulderMotion } from "./readBodyCorrectiveShoulderMotion";
-import type { BodyCorrectiveDriver } from "./withBodyCorrective";
+import type { BodyCorrectiveDriver } from "./BodyCorrectiveDriver";
 
 /**
  * Construct the actual solver's conditional inputs, retaining complete TT pose.
@@ -19,16 +17,7 @@ import type { BodyCorrectiveDriver } from "./withBodyCorrective";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing rest and unconditional publication are refused; no invented support radius substitutes for absent motion.
  * @evidence contracts/common.md#meaningful-documentation States real session consumer, endpoint/onset authority and separate admission/geometry obligations.
  */
-export function createBodyCorrectiveDrivers(input: {
-  state: IBodyCorrectiveState;
-  macros: ReadonlySet<string>;
-  axes: readonly { bone: AutoMovieHumanoidBone; axis: "flexion" | "abduction" | "twist"; angle: number; rest: number }[];
-  shoulderMotion: ReturnType<typeof readBodyCorrectiveShoulderMotion>;
-  onset: number;
-  full: number;
-  from: number;
-  to: number;
-}): BodyCorrectiveDriver[] {
+export function createBodyCorrectiveDrivers(input: IBodyCorrectiveDriversInput): BodyCorrectiveDriver[] {
   const drivers: BodyCorrectiveDriver[] = [
     ...Object.entries(input.state.shape)
       .filter(([channel, weight]) => weight !== 0 && ((input.state.set !== "bodies" && input.state.set !== "bodyposes") || input.macros.has(channel)))

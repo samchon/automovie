@@ -16,6 +16,13 @@ export interface IHumanSourcePeriocularInput {
   /** Face skin vertex to generation skin sample; base mesh vertices keep their index as samples. */
   faceToG1: Int32Array;
 
+  /**
+   * Authoring native ordinal to canonical root sample after active-tree
+   * compaction. A negative entry is retired and cannot register a host point.
+   * Omission retains the original identity map; coordinates are never fitted.
+   */
+  nativeToSource?: Int32Array;
+
   /** Base mesh mirror table. */
   mirror: IHumanSourceMirror;
 

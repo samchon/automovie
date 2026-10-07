@@ -1,9 +1,7 @@
 import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
-import type {
-  ConnectedFaceRequest,
-  ConnectedFaceResult,
-} from "@automovie/playground/src/human/common/connectedRuntime";
-import type { HumanResidentPort } from "@automovie/playground/src/human/common/residentWorker";
+import type { ConnectedFaceRequest } from "@automovie/playground/src/human/common/ConnectedFaceRequest";
+import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/ConnectedFaceResult";
+import type { HumanResidentPort } from "@automovie/playground/src/human/common/HumanResidentPort";
 
 import type { createHumanViewerViewportHost } from "./createHumanViewerViewportHost";
 
@@ -22,6 +20,9 @@ export interface IBuildHumanViewerFaceResidentProps {
 
   /** Whether ambient occlusion is evaluated. */
   ao: boolean;
+
+  /** Explicit owner construction inspection; omission retains admitted preview. */
+  operation?: "preview" | "construct";
 
   /** Open the numerical port for this document. */
   worker: () => HumanResidentPort<ConnectedFaceRequest, ConnectedFaceResult>;

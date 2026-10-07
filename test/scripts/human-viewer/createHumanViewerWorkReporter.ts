@@ -1,5 +1,6 @@
 import type { HumanViewerWork } from "./HumanViewerWork";
 import type { createHumanViewerSpans } from "./createHumanViewerSpans";
+import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgress";
 
 /**
  * Stages no `spans.measure` call encloses: model preparation after the
@@ -19,14 +20,20 @@ const UNMEASURED: ReadonlySet<HumanViewerWork["phase"]> = new Set(["loading", "p
 export function createHumanViewerWorkReporter(
   spans: ReturnType<typeof createHumanViewerSpans>,
   snapshot: (phase: HumanViewerWork["phase"]) => HumanViewerWork,
-): (phase: HumanViewerWork["phase"]) => void {
+): (phase: HumanViewerWork["phase"], completed?: IHumanViewerNumericalProgress) => void {
   let stagePhase: HumanViewerWork["phase"] = "idle";
   let stageAt = 0;
-  return (phase) => {
+  return (phase, completed) => {
     const at = performance.now();
     if (UNMEASURED.has(stagePhase)) spans.add(stagePhase + "Ms", at - stageAt);
     stagePhase = phase;
     stageAt = at;
-    console.log("HUMAN_WORK " + JSON.stringify(snapshot(phase)));
+    const work = snapshot(phase);
+    if (completed !== undefined) {
+      work.completed = completed.stage;
+      work.completionElapsedMs = completed.elapsedMs;
+      work.completionStageMs = completed.stageMs;
+    }
+    console.log("HUMAN_WORK " + JSON.stringify(work));
   };
 }

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasisDocument";
 
 import { deriveHumanSourceSubjectAge } from "./deriveHumanSourceSubjectAge.ts";
 import type { IHumanSourceSubjectBases } from "./structures/IHumanSourceSubjectBases.ts";

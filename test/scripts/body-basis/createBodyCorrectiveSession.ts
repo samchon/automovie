@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieHumanBodyBasis,
-  createHumanBodyBasisBuilder,
-  createHumanBodySegmenter,
-} from "@automovie/human";
+import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
+import { createHumanBodySegmenter } from "@automovie/human/body/measure/createHumanBodySegmenter";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 import { buildBodyCorrectiveSample } from "./buildBodyCorrectiveSample";
@@ -11,10 +9,8 @@ import { readBodyCorrectiveVerification } from "./readBodyCorrectiveVerification
 import { readBodyCorrectiveShoulderRest } from "./readBodyCorrectiveShoulderRest";
 import { readBodyCorrectiveShoulderMotion } from "./readBodyCorrectiveShoulderMotion";
 import { createBodyCorrectiveDrivers } from "./createBodyCorrectiveDrivers";
-import {
-  type IBodyCorrectiveWorld,
-  createBodyCorrectiveWorld,
-} from "./bodyCorrectiveWorld";
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
+import { createBodyCorrectiveWorld } from "./createBodyCorrectiveWorld";
 import { isBodyLimbContact } from "./classifyBodyContact";
 import { pushBodyContacts } from "./pushBodyContacts";
 import {
@@ -25,6 +21,9 @@ import {
   summarizeBodyContacts,
 } from "./readBodyContacts";
 import { withBodyCorrective } from "./withBodyCorrective";
+import type { IBodyCorrectiveRecord } from "./IBodyCorrectiveRecord";
+import type { IBodyCorrectiveSession } from "./IBodyCorrectiveSession";
+import type { IBodyCorrectiveVisit } from "./IBodyCorrectiveVisit";
 
 /** Bisection resolution of a joint onset, degrees, and of a channel onset, weight. */
 const RESOLUTION = 2.5;
@@ -35,43 +34,6 @@ const PASSES = 3;
 
 /** Visits per state, counting queued midpoints. */
 const VISITS = 10;
-
-/** What one visit of a state found and did, for the receipt. */
-export interface IBodyCorrectiveRecord {
-  group: string;
-  state: string;
-  angle: number;
-  weight: number;
-  outcome: string;
-  crossing: {
-    id: string;
-    onset: number;
-    full: number;
-    weight: number;
-    pairs: IBodyContactPair[];
-    vertices: number;
-    mostPosed: number;
-    log: string[];
-    verification: object[];
-  } | null;
-  ms: number;
-}
-
-/** The corrective solver over one working basis. */
-export interface IBodyCorrectiveSession {
-  /** Solve one state: the visits of its ramp, appending correctives and records. */
-  solve(state: IBodyCorrectiveState): void;
-
-  /** The correctives published so far and their rest rows by id. */
-  published(): {
-    correctives: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>;
-    rows: Record<string, number[]>;
-    records: IBodyCorrectiveRecord[];
-  };
-
-  /** The working basis: the input plus every corrective accepted so far. */
-  working(): IAutoMovieHumanBodyBasis;
-}
 
 /**
  * Solve crossing states into pose correctives on the dual quaternion skin.
@@ -168,7 +130,7 @@ export function createBodyCorrectiveSession(
     );
     const heaviest = Math.max(0, ...Object.values(state.shape).map(Math.abs));
     let clean = 0;
-    const queue: { t: number; u: number }[] = [{ t: 1, u: 1 }];
+    const queue: IBodyCorrectiveVisit[] = [{ t: 1, u: 1 }];
     let visits = 0;
     while (queue.length > 0 && visits++ < VISITS) {
       const { t, u } = queue.shift()!;

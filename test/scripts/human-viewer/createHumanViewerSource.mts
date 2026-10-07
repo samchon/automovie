@@ -17,6 +17,7 @@ import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles"
 import { createHumanViewerSidecarFacts } from "./createHumanViewerSidecarFacts";
 import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
+import { humanViewerStorage } from "./humanViewerStorage";
 
 /**
  * Open the published input and source revision owners for one server directory.
@@ -30,7 +31,8 @@ import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
  */
 export function createHumanViewerSource(directory: string) {
   const root = path.resolve(directory, "../../..");
-  const storage = path.join(root, ".shots/human-viewer");
+  const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
+  const referenceDirectory = path.join(humanViewerStorage(root, undefined), "references");
   const basisFiles = {
     face: path.join(
       root,
@@ -87,6 +89,7 @@ export function createHumanViewerSource(directory: string) {
       body: [
         playground("common/connectedAsset.ts"),
         playground("body/connectedBodyRuntime.ts"),
+        playground("body/createConnectedBodyGenerationRuntime.ts"),
       ],
       person: [
         playground("common/connectedAsset.ts"),
@@ -124,7 +127,8 @@ export function createHumanViewerSource(directory: string) {
     },
     stream: (name) => fs.createReadStream(path.join(inputsDirectory, name)),
     changed: () => sidecarListener(),
-    kind: (name) => name.endsWith(".person.json.gz") ? "person" : "basis",
+    kind: (name) => name.endsWith(".person.json.gz") ? "person"
+      : name.endsWith(".head.json.gz") || name.endsWith(".body.json.gz") ? "view" : "basis",
   });
   const views = createHumanViewerSidecarFacts({
     stamp: (file) => {
@@ -155,7 +159,7 @@ export function createHumanViewerSource(directory: string) {
       generation,
       admission,
     });
-  return { root, storage, basisFiles, generationFiles, documentsFile, subjectPeopleFile, inputsDirectory, slash,
+  return { root, storage, referenceDirectory, basisFiles, generationFiles, documentsFile, subjectPeopleFile, inputsDirectory, slash,
     revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); },
     /** Register the host's republication for sidecars whose facts became known. */
     sidecarsChanged: (listener: () => void): void => { sidecarListener = listener; },

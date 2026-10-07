@@ -12,6 +12,7 @@ import { PNG } from "pngjs";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps";
+import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstructionPartsResponse";
 import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
 import { describeHumanViewerPass } from "./describeHumanViewerPass";
@@ -153,6 +154,21 @@ export function serveHumanViewerCapture(props: IServeHumanViewerCaptureProps): b
       response.setHeader("X-Human-Waited-Ms", String(Math.round(queued + settledMs)));
       response.setHeader("X-Pass-Reading", describeHumanViewerPass(address.pass));
       response.setHeader("X-Human-Build", props.capture.build());
+      if (address.operation === "construct") {
+        const admission = await request.run(() => props.lifetime.run(() => props.page().evaluate(() =>
+          (window as unknown as IHumanViewerWindow).__humanViewer.admission())));
+        if (admission === null) throw new Error("Construction observation is missing its admission report.");
+        response.setHeader("X-Human-Construction-Accepted", String(admission.accepted));
+        response.setHeader("X-Human-Construction-Failures", String(admission.failures.length));
+        if (url.pathname === "/parts") {
+          const readings = await request.run(() => props.lifetime.run(() => props.page().evaluate(() => {
+            const viewer = (window as unknown as IHumanViewerWindow).__humanViewer;
+            return { parts: viewer.parts(), periocularMappings: viewer.periocularMappings?.() };
+          })));
+          const parts: IHumanViewerConstructionPartsResponse = { admission, ...readings };
+          return json(parts);
+        }
+      }
       response.setHeader("X-Render-Ms", (performance.now() - start).toFixed(1));
       if (url.pathname === "/parts") {
         const parts = await request.run(() => props.lifetime.run(() => props.page().evaluate(() =>

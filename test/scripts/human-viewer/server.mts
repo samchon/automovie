@@ -4,9 +4,12 @@
  * Vite transforms working-tree source; one real Chromium page serializes
  * capture requests. `HUMAN_VIEWER_PORT` selects the port (default 5175) and
  * the per-port process record, so viewers of several sessions can coexist.
- * Numerical disk payloads and PID ownership live under the ignored .shots
- * tree. The host never edits documents or anatomical source. Last-good PNGs
+ * Numerical disk payloads and PID ownership use the resolved mutable storage.
+ * Local photographs remain read-only at their existing location. Last-good PNGs
  * retain their source identity; HTTP failures include a cause.
+ * `HUMAN_VIEWER_AUTO_WARM=off` disables automatic thumbnail warming only;
+ * unset, empty or `on` retains it. Explicit document requests still perform
+ * their normal admission, numerical build and hardware capture checks.
  * This file owns process state and its order: source watching, the page and
  * its failure observers, and the request routing. Each step it orders lives
  * in its own module: the page launch, the console protocol, health, heap,
@@ -30,6 +33,7 @@ import type { IHumanViewerPageState } from "./IHumanViewerPageState";
 import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage";
 import type { IHumanViewerWarming } from "./IHumanViewerWarming";
 import { assembleHumanViewerHealth } from "./assembleHumanViewerHealth";
+import { humanViewerProtocol } from "./humanViewerProtocol";
 import { createHumanViewerAdmission } from "./createHumanViewerAdmission";
 import { createHumanViewerCapture } from "./createHumanViewerCapture";
 import { createHumanViewerCatalogueRepublish } from "./createHumanViewerCatalogueRepublish";
@@ -70,6 +74,12 @@ const directory = path.dirname(fileURLToPath(import.meta.url));
 const owner = process.env[humanViewerLaunch.ownerVariable] === undefined ? null : Number(process.env[humanViewerLaunch.ownerVariable]);
 /** Port, origin and per-process files, chosen by `HUMAN_VIEWER_PORT` (default 5175). */
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const automaticWarmSetting = process.env.HUMAN_VIEWER_AUTO_WARM;
+if (automaticWarmSetting !== undefined && automaticWarmSetting !== "" &&
+    automaticWarmSetting !== "on" && automaticWarmSetting !== "off")
+  throw new Error("HUMAN_VIEWER_AUTO_WARM must be on or off when set.");
+const automaticWarm = automaticWarmSetting !== "off";
+console.log("human-viewer automatic warm: " + (automaticWarm ? "on" : "off"));
 const source = createHumanViewerSource(directory);
 const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } = source;
 let inventory = catalogue();
@@ -89,11 +99,13 @@ const admission = createHumanViewerAdmission({
   // instead of leaving the rescan waiting on a page that cannot answer. A
   // verdict counts only from a frame whose code is the current revision: a
   // frame on a held or older compile judges with other code than the key names.
-  admit: async (domain, text) => {
+  admit: async (domain, text, basis) => {
     const reply = await lifetime.run(() => page.evaluate((input) => {
       const bridge = (window as unknown as IHumanViewerAdmissionWindow).__humanViewerAdmission;
-      return bridge === undefined ? { available: false, reason: null, token: null } : bridge.admit(input.domain, input.text);
-    }, { domain, text }));
+      if (bridge !== undefined && bridge.protocol !== input.protocol)
+        throw new Error("The host page runs an incompatible viewer protocol; its backend must be started from the same source");
+      return bridge === undefined ? { available: false, reason: null, token: null } : bridge.admit(input.domain, input.text, input.basis);
+    }, { domain, text, basis, protocol: humanViewerProtocol }));
     if (!reply.available) return reply;
     // Only a closed window has a label; a frame still loading cannot vouch
     // for its code yet, so the document waits until that window closes.
@@ -140,7 +152,7 @@ const heap = createHumanViewerHeapGauge(() => readHeap());
 const lifetime = createHumanViewerCaptureLifetime();
 // Edits arrive in bursts, so a revision warms only after sixty quiet seconds.
 const warmReadiness = createHumanViewerWarmReadiness((revision) => {
-  void warmHumanViewerRevision({ revision, inventory: () => inventory,
+  if (automaticWarm) void warmHumanViewerRevision({ revision, inventory: () => inventory,
     readyRevision: () => readyRevision, thumbnailFile, capture: capturer.capture, queue, warming });
 }, { stableMs: 60000 });
 /** Requests allowed to wait behind the running one before a new one is refused. */
@@ -269,6 +281,8 @@ async function openResidentPage(first: boolean, freshBrowser: boolean): Promise<
   opened.page.on("console", (message) => routeHumanViewerConsole(message.text(), {
     work: (text) => {
       work = readHumanViewerWork(text);
+      if (work?.completed !== undefined)
+        console.log("NUMERICAL STAGE " + JSON.stringify(work));
       stages.progress();
       if (work !== null) heap.sample(work);
     },
@@ -289,6 +303,7 @@ async function openResidentPage(first: boolean, freshBrowser: boolean): Promise<
     admission: () => retryAdmissions("a viewer frame loaded"),
     restart: (reason) => console.log(`CANDIDATE RESTART ${new Date().toISOString()} ${reason}`),
     firstAddress: (reason) => console.log(`CANDIDATE FIRST ADDRESS ${new Date().toISOString()} ${reason}`),
+    cache: (text) => console.log(`NUMERICAL CACHE ${new Date().toISOString()} ${text}`),
   }));
   if (first) phase("loading the page");
   await opened.page.goto(instance.origin + "/view?resident=1#ao=off", {
@@ -385,7 +400,7 @@ async function main(): Promise<void> {
       response.end(JSON.stringify(value));
     };
     if (url.pathname === "/health")
-      return json(assembleHumanViewerHealth({ port: instance.port, inventory: () => inventory,
+      return json(assembleHumanViewerHealth({ port: instance.port, storage, inventory: () => inventory,
         renderer: () => renderer, readyRevision: () => readyRevision, sourceStatus,
         errors: () => errors, sourceUpdating: () => sourceUpdating, work: () => work, heap, owner,
         revisions, queue, queueLimit: QUEUE_LIMIT, lastEdit: () => lastEdit,
@@ -396,7 +411,7 @@ async function main(): Promise<void> {
       return serveHumanViewerHeap({ response, json, readLiveHeap: () => readLiveHeap(),
         readWorkerHeaps: () => resident === null ? Promise.resolve([]) : readHumanViewerWorkerHeaps(resident.browser, true),
         work: () => work, readyRevision: () => readyRevision });
-    if (serveHumanViewerData({ url, request, response, root, storage,
+    if (serveHumanViewerData({ url, request, response, root, storage, referenceDirectory: source.referenceDirectory,
       basisFiles, generationFiles: source.generationFiles, inputsDirectory, inventory, json, settleInputs,
       currentCode: windows.current,
       publish: (nextInventory) => { inventory = nextInventory; },

@@ -1,0 +1,11 @@
+{
+  "qualification": "Explicit prototype source-authoring dimensions, not clinical measurements, physiological ranges or reconstructed person anatomy.",
+  "right": {
+    "liningDepthMillimetres": 4,
+    "rimSupportDepthMillimetres": 0.6
+  },
+  "left": {
+    "liningDepthMillimetres": 4,
+    "rimSupportDepthMillimetres": 0.6
+  }
+}

@@ -1,16 +1,19 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/common/basis/IAutoMovieHumanBasisSourcePartition";
 
 import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
-import { buildHumanSourceLipMarginChain } from "./buildHumanSourceLipMarginChain.ts";
-import { findHumanSourceLipMarginPairs } from "./findHumanSourceLipMarginPairs.ts";
+import { registerHumanSourceLipMargin } from "./registerHumanSourceLipMargin.ts";
 import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
 import { splitHumanSourceToes } from "./splitHumanSourceToes.ts";
 import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
 import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
+import type { IHumanSourceEndpointDomain } from "./structures/IHumanSourceEndpointDomain.ts";
 
 /**
- * Build the P1 pair from the generation. The face keeps its published
- * topology, rows and metadata, gains a source partition and declares the head
+ * Build both P1 skin surfaces from the generation's current root and cut.
+ * The supplied face owns already-addressed anatomical metadata and regions,
+ * while the root owns skin coordinates, cells, UVs and endpoint rows. A face
+ * still naming an older topology refuses instead of replacing the new skin.
+ * The face gains a source partition and declares the head
  * skin landmarks and regions chosen on the generation
  * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`), and its
  * contact gains the vermilion margin chains beside the central pair
@@ -39,13 +42,76 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
     parents,
   });
   const short = generation.id.slice(0, 12);
+  const skin = face.surfaces.find((surface) => surface.id === "Human");
+  if (skin === undefined) throw new Error("The source face has no Human skin metadata.");
+  const headOf = new Map<number, number>();
+  cut.faceToG1.forEach((sample, vertex) => headOf.set(sample, vertex));
+  const headPositions = Array.from(cut.faceToG1).flatMap((sample) => generation.skin.positions.slice(3 * sample, 3 * sample + 3));
+  const headIndices: number[] = [];
+  const headUv: number[] = [];
+  for (let cell = 0; cell < cut.labels.length; cell++) {
+    if (cut.labels[cell] !== 0) continue;
+    for (let corner = 0; corner < 3; corner++) {
+      const sample = cut.triangles[3 * cell + corner];
+      const vertex = headOf.get(sample);
+      if (vertex === undefined) throw new Error(`Head cell ${cell} has a sample absent from its view.`);
+      headIndices.push(vertex);
+      headUv.push(cut.cornerUv[6 * cell + 2 * corner], cut.cornerUv[6 * cell + 2 * corner + 1]);
+    }
+  }
+  if (skin.positions.length !== headPositions.length || skin.indices.length !== headIndices.length ||
+      skin.indices.some((vertex, index) => vertex !== headIndices[index]))
+    throw new Error("P1 head metadata still names a different source topology; reauthor its registrations first.");
+  const headCellOf = new Map<string, number>();
+  for (let at = 0; at < headIndices.length; at += 3) headCellOf.set(headIndices.slice(at, at + 3).join("/"), at / 3);
+  const headRegions = skin.regions.map((region) => {
+    const uvs: number[] = [];
+    for (let at = 0; at < region.indices.length; at += 3) {
+      const cell = headCellOf.get(region.indices.slice(at, at + 3).join("/"));
+      if (cell === undefined) throw new Error(`Head region ${region.id} names an absent oriented source cell.`);
+      uvs.push(...headUv.slice(6 * cell, 6 * cell + 6));
+    }
+    return { ...region, uvs: region.uvs === null ? null : uvs };
+  });
+  const endpoints = new Set(face.channels.flatMap((channel) => channel.negative === null ? [channel.positive] : [channel.positive, channel.negative]));
+  for (const corrective of face.correctives ?? []) endpoints.add(corrective.target);
+  const aliasOf = new Map<string, string>();
+  for (const alias of generation.aliases) for (const [from, to] of Object.entries(alias.endpoints)) {
+    const prior = aliasOf.get(from);
+    if (prior !== undefined && prior !== to) throw new Error(`P1 endpoint ${from} has two current root owners.`);
+    aliasOf.set(from, to);
+  }
+  const endpointDomains: IHumanSourceEndpointDomain[] = [];
+  const missing: string[] = [];
+  for (const endpoint of endpoints) {
+    const skinContribution: boolean = skin.targets[endpoint] !== undefined;
+    const rootEndpoint: string | null = skinContribution ? aliasOf.get(endpoint) ?? endpoint : null;
+    const partSurfaces = generation.parts.filter((part) => part.surface.targets[endpoint] !== undefined).map((part) => part.id);
+    const landmarkContribution = generation.landmarks.some((set) => set.origin === "face" && set.targets[endpoint] !== undefined);
+    endpointDomains.push({ endpoint, skinContribution, rootEndpoint, partSurfaces, landmarkContribution });
+    if (rootEndpoint !== null && generation.targets[rootEndpoint] === undefined)
+      missing.push(`${endpoint}: declared skin population has no current root owner ${rootEndpoint}`);
+    else if (!skinContribution && partSurfaces.length === 0 && !landmarkContribution)
+      missing.push(`${endpoint}: no declared skin, part or landmark population`);
+  }
+  if (missing.length !== 0) throw new Error(`P1 endpoint ownership is incomplete: ${missing.join("; ")}.`);
+  const headTargets: Record<string, number[]> = {};
+  for (const domain of endpointDomains) {
+    if (domain.rootEndpoint === null) continue;
+    const rows = generation.targets[domain.rootEndpoint];
+    const output: number[][] = [];
+    for (let at = 0; at < rows.length; at += 4) {
+      const vertex = headOf.get(rows[at]);
+      if (vertex !== undefined) output.push([vertex, rows[at + 1], rows[at + 2], rows[at + 3]]);
+    }
+    headTargets[domain.endpoint] = output.sort((left, right) => left[0] - right[0]).flat();
+  }
   const contact = face.contact;
   if (contact === undefined) throw new Error("The published face has no contact to add lip margin chains to.");
-  const lipsSurface = face.surfaces.find((s) => s.id === contact.lips.surface);
-  const lipsRegion = lipsSurface?.regions.find((r) => r.id.endsWith("/lips"));
-  if (lipsSurface === undefined || lipsRegion === undefined) throw new Error("The published face has no lips region on its contact surface.");
-  const margin = findHumanSourceLipMarginPairs(lipsSurface.positions, lipsRegion.indices, face.articulation!.jaw.axis);
-  const chain = buildHumanSourceLipMarginChain(lipsSurface.positions, lipsRegion.indices, face.articulation!.jaw.axis, margin, contact.lips);
+  const lipsSource = face.surfaces.find((s) => s.id === contact.lips.surface);
+  const lipsSurface = lipsSource?.id === "Human" ? { ...lipsSource, positions: headPositions } : lipsSource;
+  if (lipsSurface === undefined) throw new Error("The published face has no lips contact surface.");
+  const chain = registerHumanSourceLipMargin(face, lipsSurface.positions);
   const p1Face = {
     ...face,
     id: `human-source-g1-${short}-p1-face`,
@@ -54,7 +120,8 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
     contact: { ...contact, margin: { upper: chain.upper, lower: chain.lower } },
     periocular: input.periocular,
     surfaces: face.surfaces.map((s) =>
-      s.id === "Human" ? { ...s, sourcePartition: partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)) } : s,
+      s.id === "Human" ? { ...s, positions: headPositions, indices: headIndices, targets: headTargets, regions: headRegions,
+        sourcePartition: partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)) } : s,
     ),
   };
 
@@ -88,7 +155,13 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
   const toes =
     input.toeRays === null || input.sampleRays === null
       ? null
-      : splitHumanSourceToes(input.toeRays, { joints: bodySurface.skin.joints, boneIndices, weights }, (j) => cut.p1BodyToG1[j], input.sampleRays);
+      : splitHumanSourceToes(input.toeRays, { joints: bodySurface.skin.joints, boneIndices, weights }, (j) => {
+        const source = cut.p1BodyToG1[j];
+        if (input.sourceToNative === undefined) return source;
+        const native = input.sourceToNative[source];
+        if (!Number.isSafeInteger(native) || native < 0) throw new Error(`Toe support ${j} lacks its original native weight witness.`);
+        return native;
+      }, input.sampleRays);
   const p1Body = {
     ...body,
     id: `human-source-g1-${short}-p1-body`,
@@ -115,8 +188,11 @@ export function assembleHumanSourceP1(input: IHumanSourceP1Input): IHumanSourceP
     face: p1Face,
     body: p1Body,
     marginChain: chain.record,
+    endpointDomains,
     checks: {
       p1BodyVertices: count,
+      skinEndpointDomains: endpointDomains.filter((domain) => domain.skinContribution).length,
+      noSkinEndpointDomains: endpointDomains.filter((domain) => !domain.skinContribution).length,
       p1BodyTriangles: indices.length / 3,
       unavailableTargets: unavailableTargets.length,
       droppedOverlayVertices,

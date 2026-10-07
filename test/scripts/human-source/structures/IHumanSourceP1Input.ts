@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanSkinLandmark, IAutoMovieHumanSkinRegion } from "@automovie/human";
+import type { IAutoMovieHumanSkinLandmark } from "@automovie/human/common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "@automovie/human/common/basis/IAutoMovieHumanSkinRegion";
 import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
@@ -36,4 +37,7 @@ export interface IHumanSourceP1Input {
 
   /** Default-rig toe phalanx weights per generation sample, or null when not sampled. */
   sampleRays: [string, number][][] | null;
+
+  /** Canonical root to native sampling ordinal; toe weights remain native. */
+  sourceToNative?: Int32Array;
 }

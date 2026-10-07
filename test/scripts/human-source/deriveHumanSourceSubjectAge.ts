@@ -1,4 +1,6 @@
-import { HUMAN_BODY_SIMPLE_SHAPE, HUMAN_PERSON_POPULATION, humanBodySimpleShapeMath } from "@automovie/human";
+import { HUMAN_BODY_SIMPLE_SHAPE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_SHAPE";
+import { humanBodySimpleShapeMath } from "@automovie/human/body/simple/humanBodySimpleShapeMath";
+import { HUMAN_PERSON_POPULATION } from "@automovie/human/human/constants/HUMAN_PERSON_POPULATION";
 
 import type { IHumanSourceSubjectAge } from "./structures/IHumanSourceSubjectAge.ts";
 

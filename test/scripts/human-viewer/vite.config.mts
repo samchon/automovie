@@ -20,10 +20,11 @@ import { humanViewerLaunch } from "./humanViewerLaunch";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 import { runHumanViewerCompile } from "./runHumanViewerCompile";
 import { stampHumanViewerCompile } from "./stampHumanViewerCompile";
+import { humanViewerStorage } from "./humanViewerStorage";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
-const outputDirectory = path.resolve(directory, "../../../.shots/human-viewer");
+const outputDirectory = humanViewerStorage(path.resolve(directory, "../../.."), process.env.HUMAN_VIEWER_STORAGE_ROOT);
 let server: ViteDevServer;
 /**
  * The compile withdrawal gate, shared with the server process that opens

@@ -2,7 +2,8 @@ import {
   crossedCorners,
   surfaceOfSegment,
 } from "./bodyContactGeometry";
-import { type IBodyContactPlane, depthOfPlane } from "./bodyContactPlanes";
+import { type IBodyContactPlane } from "./IBodyContactPlane";
+import { depthOfPlane } from "./depthOfPlane";
 
 /**
  * The contact solver for two skin segments that cross in a pose.

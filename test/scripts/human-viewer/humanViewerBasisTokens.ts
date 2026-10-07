@@ -10,6 +10,8 @@
  *   body view files, `published-generation@<head12>.<body12>`.
  * - `published-generation-body`: a body document on that generation's body
  *   view file, `published-generation-body@<body12>`.
+ * - `candidate-generation:<name>`: an input's typed head and body view
+ *   sidecars, `candidate-generation:<name>@<head12>.<body12>`.
  *
  * Any other token is a candidate dropped beside a hand-written document.
  *
@@ -19,4 +21,7 @@ export const humanViewerBasisTokens = {
   published: "published",
   publishedGeneration: "published-generation",
   publishedGenerationBody: "published-generation-body",
+
+  /** Separates split candidate view tokens from published prefixes and single-file stems. */
+  candidateGeneration: "candidate-generation",
 } as const;

@@ -1,14 +1,4 @@
-/** What one observation run was asked to cover. */
-export interface IBodyObservationRequest {
-  /** Run name; output lands in `.shots/body-review/observe-<name>/`. */
-  name: string;
-
-  /** Which kind of unit to observe. */
-  unit: "part" | "joint" | "whole";
-
-  /** The unit's id (a part name or a `parent>child` pair), or null for every unit of the kind. */
-  id: string | null;
-}
+import type { IBodyObservationRequest } from "./IBodyObservationRequest";
 
 /**
  * Read the command line of the observation runner:

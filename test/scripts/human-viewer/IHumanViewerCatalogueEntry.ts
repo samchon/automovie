@@ -3,9 +3,9 @@
  * reads only what the catalogue needs (identity, domain, basis names and the
  * cache key) and keeps the document itself as unexamined JSON: its schema is
  * admitted where it is built, by the face, body or person owner in the page's
- * numerical worker, whose refusal reaches the render. Keeping the human
- * package's types out of the server also keeps its type check out of every
- * server start.
+ * numerical worker, whose refusal reaches the render. Shared human types
+ * participate in the owning server and browser check without moving domain
+ * schema admission into the server's catalogue projection.
  *
  * @evidence contracts/common.md#principled-implementation Leaves schema admission with the domain owner and keeps only catalogue identity on the server.
  * @evidence contracts/common.md#clear-and-simple-design One wire record serves server publication; the page's typed view narrows it.
@@ -24,7 +24,8 @@ export interface IHumanViewerCatalogueEntry {
    * and the server verifies: `published@<digest12>` (published face or body),
    * `published@<face12>.<body12>` (a person on both published bases),
    * `published-generation@<head12>.<body12>` (the published one-skin person
-   * generation) or `<name>@<digest12>` (a candidate basis or person packet).
+   * generation), `<name>@<digest12>` (a candidate basis or person packet),
+   * or `candidate-generation:<name>@<head12>.<body12>` (candidate typed views).
    */
   basis: string;
 

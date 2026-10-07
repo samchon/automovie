@@ -8,8 +8,11 @@ import type { IHumanViewerAdmissionBridge } from "./IHumanViewerAdmissionBridge"
  * @author Samchon
  */
 export interface IHumanViewerAdmissionWindow {
+  /** Frame's loaded wire generation, independent of its geometry source digest. */
+  __humanViewerProtocol?: string;
+
   /** A viewer frame's admission; null when admitted, else the owner's reason. Set when the frame module loads. */
-  __humanViewerAdmit?: (domain: string, text: string) => string | null;
+  __humanViewerAdmit?: (domain: string, text: string, basis: string) => Promise<string | null>;
 
   /** The host page's bridge, set when the host module runs. */
   __humanViewerAdmission?: IHumanViewerAdmissionBridge;

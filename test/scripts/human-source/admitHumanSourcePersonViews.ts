@@ -1,11 +1,9 @@
-import {
-  createHumanPersonGenerationBuilder,
-  joinHumanPersonGeneration,
-  type IAutoMovieHumanPersonBodyView,
-  type IAutoMovieHumanPersonDocument,
-  type IAutoMovieHumanPersonGenerationBuild,
-  type IAutoMovieHumanPersonHeadView,
-} from "@automovie/human";
+import { createHumanPersonGenerationBuilder } from "@automovie/human/human/build/createHumanPersonGenerationBuilder";
+import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
+import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
+import type { IAutoMovieHumanPersonDocument } from "@automovie/human/human/structures/IAutoMovieHumanPersonDocument";
+import type { IAutoMovieHumanPersonGenerationBuild } from "@automovie/human/human/structures/IAutoMovieHumanPersonGenerationBuild";
+import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
 
 import { createHumanSourceAdmissionDocument } from "./createHumanSourceAdmissionDocument.ts";
 import type { IHumanSourceAdmissionLog } from "./structures/IHumanSourceAdmissionLog.ts";

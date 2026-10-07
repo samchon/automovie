@@ -5,6 +5,7 @@ import path from "node:path";
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 import type { IHumanSourceSampleManifest } from "./structures/IHumanSourceSampleManifest.ts";
 import type { IHumanSourceSampleWeights } from "./structures/IHumanSourceSampleWeights.ts";
+import { assertHumanSourceSampleBuffers } from "./assertHumanSourceSampleBuffers.ts";
 
 /**
  * Load one sampling run and verify every file against the run's own manifest
@@ -12,9 +13,8 @@ import type { IHumanSourceSampleWeights } from "./structures/IHumanSourceSampleW
  * than compiled.
  */
 export function readHumanSourceSample(directory: string): IHumanSourceSample {
-  const manifest: IHumanSourceSampleManifest = JSON.parse(
-    fs.readFileSync(path.join(directory, "manifest.json"), "utf8"),
-  );
+  const manifestBytes = fs.readFileSync(path.join(directory, "manifest.json"));
+  const manifest: IHumanSourceSampleManifest = JSON.parse(manifestBytes.toString("utf8"));
   const bytes = (name: string): Buffer => {
     const data = fs.readFileSync(path.join(directory, name));
     const expected = manifest.files[name];
@@ -33,8 +33,9 @@ export function readHumanSourceSample(directory: string): IHumanSourceSample {
     return new Int32Array(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
   };
   const weights: IHumanSourceSampleWeights = JSON.parse(bytes("weights.json").toString("utf8"));
-  return {
+  const sample: IHumanSourceSample = {
     directory,
+    manifestBytes,
     manifest,
     neutral: f64("neutral.f64"),
     landmarksNeutral: f64("landmarks-neutral.f64"),
@@ -46,6 +47,9 @@ export function readHumanSourceSample(directory: string): IHumanSourceSample {
     flattenInterior: i32("flatten-interior.i32"),
     flattenBoundary: i32("flatten-boundary.i32"),
     flattenOperator: f64("flatten-operator.f64"),
+    genitalInterior: i32("genital-fill-interior.i32"),
+    genitalBoundary: i32("genital-fill-boundary.i32"),
+    genitalOperator: f64("genital-fill-operator.f64"),
     rowsVertex: i32("rows.i32"),
     rowsDelta: f64("rows.f64"),
     landmarkDelta: f64("landmarks.f64"),
@@ -54,4 +58,6 @@ export function readHumanSourceSample(directory: string): IHumanSourceSample {
       manifest.parts.map((part) => [part.id, new Map(Object.entries(part.files).map(([level, file]) => [level, f64(file)]))]),
     ),
   };
+  assertHumanSourceSampleBuffers(sample);
+  return sample;
 }

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanSkinLandmark } from "@automovie/human";
+import type { IAutoMovieHumanSkinLandmark } from "@automovie/human/common/basis/IAutoMovieHumanSkinLandmark";
 
 import type { IHumanSourceBodyLandmark } from "./IHumanSourceBodyLandmark.ts";
 

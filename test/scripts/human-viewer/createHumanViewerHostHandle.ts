@@ -22,6 +22,8 @@ export function createHumanViewerHostHandle(viewer: HumanViewerHandle): HumanVie
     buildMs: () => viewer.buildMs(),
     spans: () => viewer.spans(),
     address: () => viewer.address(),
+    admission: () => viewer.admission(),
+    periocularMappings: () => viewer.periocularMappings?.(),
     png: () => viewer.png(),
     evict: () => viewer.evict(),
   };

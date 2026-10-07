@@ -10,10 +10,12 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
+import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
 import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
 import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
+import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration";
 
 /**
  * The hand-written documents and candidate bases dropped into the viewer's
@@ -42,8 +44,24 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
  * packet's face `id` and its body basis the packet's body `id`, the entry's
  * `basis` is `<name>@<digest12>` like a face or body candidate, and the key
  * hashes the packet's digest in place of both published bases. A Person
+ * may instead provide `<name>.head.json.gz` and `<name>.body.json.gz`, the
+ * existing typed partition views of one generation. Their generation ids
+ * must agree and their basis ids must match the document. Both byte digests
+ * enter the key and `candidate-generation:<name>@<head12>.<body12>` token;
+ * the numerical worker
+ * joins the exact views through the Person owner's normal consumer. A single
+ * packet and split views cannot author the same input together. This split
+ * avoids constructing one JSON string for the whole generation without
+ * changing personal document admission or reducing the source geometry.
+ * A Person
  * that names the published one-skin generation's view bases (both of them)
  * is drawn on that generation, with the standard people's token and key.
+ * A Body can also select the same split views: its numerical document names
+ * only the body basis, while the constructor consumes the exact companion
+ * head endpoint source. Both digests and source owners enter its token/key.
+ * A Body without a candidate sidecar that names that generation's body view
+ * uses the same paired token and key inputs as a standard body state; legacy
+ * body documents still name and consume their separate published basis.
  * With `props.memo` and a stamping `io`, a file's entries are reused while
  * its bytes, its sidecars, the bases, the generation and the source digests
  * are unchanged, so republishing the catalogue for an admission verdict does
@@ -72,6 +90,7 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
     const facts = (sidecar: string): string =>
       available.has(sidecar) ? JSON.stringify(props.sidecar(sidecar)) : "absent";
     const signature = [props.io.stamp?.(input) ?? "", facts(`${name}.basis.json.gz`), facts(`${name}.person.json.gz`),
+      facts(`${name}.head.json.gz`), facts(`${name}.body.json.gz`),
       shared].join("|");
     const kept = props.memo?.get(input);
     if (kept !== undefined && kept.signature === signature && props.io.stamp !== undefined) return kept;
@@ -83,6 +102,8 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
       const parsed = JSON.parse(props.io.read(input).toString("utf8")) as unknown;
       const candidateFile = `${name}.basis.json.gz`;
       const packetFile = `${name}.person.json.gz`;
+      const headFile = `${name}.head.json.gz`;
+      const bodyFile = `${name}.body.json.gz`;
       // A sidecar still being read off the request path holds its documents
       // back; the catalogue is published again when its facts are known.
       const sidecarOf = (sidecar: string): IHumanViewerSidecarFacts | null => {
@@ -94,18 +115,72 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
       };
       const candidate = sidecarOf(candidateFile);
       const packetFacts = sidecarOf(packetFile);
+      const split = available.has(headFile) || available.has(bodyFile);
       const many = Array.isArray(parsed);
       for (const document of many ? (parsed as unknown[]) : [parsed]) {
         const domain = classifyHumanViewerInput(document);
         if (domain !== "person" && packetFacts !== null)
           throw new Error(`${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`);
+        if (domain !== "person" && domain !== "body" && split)
+          throw new Error("Split generation views belong to a person or body document, not a " + domain + " document.");
         const named = document as IHumanViewerInputDocument;
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
+        if (domain === "body" && split) {
+          if (candidate !== null || packetFacts !== null)
+            throw new Error("A paired body input selects split generation views alone.");
+          if (!available.has(headFile) || !available.has(bodyFile))
+            throw new Error("A paired body candidate requires both " + headFile + " and " + bodyFile + ".");
+          const headFacts = sidecarOf(headFile);
+          const bodyFacts = sidecarOf(bodyFile);
+          const generation = readHumanViewerPublishedGeneration({
+            files: { head: headFile, body: bodyFile },
+            exists: (view) => available.has(view === "head" ? headFile : bodyFile),
+            facts: (view) => view === "head" ? headFacts : bodyFacts,
+          });
+          if ("reason" in generation) throw new Error("Paired body candidate: " + generation.reason);
+          if (named.basis !== generation.body)
+            throw new Error("The body must name the exact body basis in its split generation views.");
+          offer({
+            id: many ? `file:${name}/${named.id}` : `file:${name}`,
+            domain,
+            document,
+            basis: `${humanViewerBasisTokens.candidateGeneration}:${name}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
+            key: hash(JSON.stringify(document) + generation.headDigest + generation.bodyDigest + props.sources.body + props.sources.person),
+          });
+          continue;
+        }
         if (domain === "person") {
           if (candidate !== null)
             throw new Error("Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.");
           const person = readHumanViewerPersonBases(document as object);
+          if (split) {
+            if (packetFacts !== null)
+              throw new Error("A person input must select one packet or split generation views, not both.");
+            if (!available.has(headFile) || !available.has(bodyFile))
+              throw new Error("A split person candidate requires both " + headFile + " and " + bodyFile + ".");
+            const headFacts = sidecarOf(headFile);
+            const bodyFacts = sidecarOf(bodyFile);
+            const generation = readHumanViewerPublishedGeneration({
+              files: { head: headFile, body: bodyFile },
+              exists: (view) => available.has(view === "head" ? headFile : bodyFile),
+              facts: (view) => view === "head" ? headFacts : bodyFacts,
+            });
+            if ("reason" in generation)
+              throw new Error("Split person candidate: " + generation.reason);
+            if (person.face !== generation.face || person.body !== generation.body)
+              throw new Error("The person must name the exact face and body bases in its split generation views.");
+            offer({
+              id: many ? `file:${name}/${named.id}` : `file:${name}`,
+              domain: "person",
+              document,
+              basis: `${humanViewerBasisTokens.candidateGeneration}:${name}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
+              key: humanViewerPersonKey({ document,
+                bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
+                sources: props.sources }),
+            });
+            continue;
+          }
           if (packetFacts !== null) {
             if (packetFacts.packet === null)
               throw new Error(`${packetFile}: ${packetFacts.failure ?? "not a person packet"}`);
@@ -154,6 +229,17 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
         }
         if (candidate !== null && candidate.basis === null)
           throw new Error(`${candidateFile}: ${candidate.failure ?? "not a basis"}`);
+        const generation = props.generation;
+        if (domain === "body" && candidate === null && generation !== null && named.basis === generation.body) {
+          offer({
+            id: many ? `file:${name}/${named.id}` : `file:${name}`,
+            domain,
+            document,
+            key: hash(JSON.stringify(document) + generation.headDigest + generation.bodyDigest + props.sources.body + props.sources.person),
+            basis: humanViewerPublishedGenerationBasis(generation),
+          });
+          continue;
+        }
         const identity =
           candidate === null
             ? props.bases[domain].id

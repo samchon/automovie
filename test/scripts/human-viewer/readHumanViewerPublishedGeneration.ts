@@ -3,10 +3,11 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IReadHumanViewerPublishedGenerationProps } from "./IReadHumanViewerPublishedGenerationProps";
 
 /**
- * Decide whether the standard people can be built on the published one-skin
- * generation, and on which view bases. Both view files must exist; a missing
- * one refuses by name instead of falling back to the published face and body
- * bases, which would draw the standard people on a different path. A view
+ * Read the identities and byte digests of an explicitly selected one-skin
+ * generation view pair, published or candidate, and its view bases. Both view
+ * files must exist. The published caller refuses a missing view instead of
+ * falling back to the separate face/body bases; the candidate caller requires
+ * both sidecars before selecting this pair. A view
  * still being read is pending. Each view must open with the same generation
  * id, the head view must carry a `face` basis id and the body view a `body`
  * basis id; those ids are what the standard people's documents name. The

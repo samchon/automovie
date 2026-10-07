@@ -14,7 +14,9 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * Build and publish a body, or a whole person, through the product body
  * viewport: the worker answers the body protocol with the composed model, and
  * only the document text differs. Only the group and its parts' arrays stay
- * alive with the resident.
+ * alive with the resident. A refused build releases the numerical connection
+ * and controls before propagating its cause, so an undisplayed projection
+ * cannot remain staged for a later capture's optional cache flush.
  *
  * @evidence contracts/common.md#principled-implementation A person is drawn by the same body stage, not a viewer-only path.
  * @evidence contracts/common.md#meaningful-documentation States the shared path and what is kept.
@@ -29,18 +31,29 @@ export async function buildHumanViewerBodyResident<
     serialize: props.serialize,
     worker: props.worker,
   });
-  const model = await stage.build(props.document);
-  stage.publish(model);
-  const group = model.frame.resident.group;
-  return {
-    stage,
-    resize: props.host.resize,
-    group,
-    release: () => {
-      stage.disposeWorker();
-      props.host.release();
-      disposeHumanPreview(group);
-    },
-    bytes: measureHumanViewerResidentBytes(group, collectHumanViewerBodyArrays(model.frame.resident.parts)),
+  const releaseConnection = (): void => {
+    stage.disposeWorker();
+    props.host.release();
   };
+  try {
+    const construction = props.operation === "construct" ? await stage.construct(props.document) : undefined;
+    const model = construction === undefined ? await stage.build(props.document) : construction.model;
+    try { stage.publish(model); }
+    catch (error) { stage.dispose(model); throw error; }
+    const group = model.frame.resident.group;
+    return {
+      stage,
+      admission: construction?.admission,
+      resize: props.host.resize,
+      group,
+      release: () => {
+        releaseConnection();
+        disposeHumanPreview(group);
+      },
+      bytes: measureHumanViewerResidentBytes(group, collectHumanViewerBodyArrays(model.frame.resident.parts)),
+    };
+  } catch (error) {
+    releaseConnection();
+    throw error;
+  }
 }

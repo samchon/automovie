@@ -4,7 +4,7 @@ import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IConnectHumanViewerProps } from "./IConnectHumanViewerProps";
 import type { IHumanShotHealth } from "./IHumanShotHealth";
 import type { IHumanViewerErrorBody } from "./IHumanViewerErrorBody";
-import type { IHumanViewerPartEntry } from "./IHumanViewerPartEntry";
+import type { HumanViewerPartsResponse } from "./HumanViewerPartsResponse";
 import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
 /**
  * Connect to the resident development viewer and return a client over it.
@@ -36,6 +36,8 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
   const status = (await health.json()) as Partial<IHumanShotHealth>;
   if (status.service !== "automovie-human-viewer")
     throw new Error("The port belongs to another program");
+  if (io.storage !== undefined && status.storage !== io.storage)
+    throw new Error(`The resident viewer does not serve the selected storage ${io.storage}; it reports ${status.storage ?? "no storage identity"}`);
   if (status.ready !== true)
     throw new Error(
       "The resident viewer is not ready; start it with human-shot.mts ensure.",
@@ -73,9 +75,8 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
       );
       if (!response.ok)
         throw new Error(((await response.json()) as IHumanViewerErrorBody).error);
-      return ((await response.json()) as IHumanViewerPartEntry[]).map(
-        (part) => part.name,
-      );
+      const parts = await response.json() as HumanViewerPartsResponse;
+      return Array.isArray(parts) ? parts.map((part) => part.name) : parts.parts;
     },
     render: async (fields) => {
       const response = await io.fetch(
@@ -91,10 +92,15 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
           ok: false,
           error: `Stale frame: drawn by revision ${response.headers.get("x-human-revision") ?? "unknown"}, not the current source`,
         };
+      const revision = response.headers.get("x-human-revision");
+      const renderer = response.headers.get("x-renderer");
+      if (!revision || !renderer || response.headers.get("x-human-stale") !== "false")
+        return { ok: false, error: "The render response does not identify a current source revision and renderer" };
       return {
         ok: true,
         bytes: Buffer.from(await response.arrayBuffer()),
-        renderer: response.headers.get("x-renderer") ?? status.renderer ?? "",
+        renderer,
+        revision,
       };
     },
   };

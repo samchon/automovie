@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieHumanBodyBasis,
-  createHumanBodyBasisBuilder,
-} from "@automovie/human";
+import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";

@@ -19,4 +19,7 @@ export interface IHumanSourceHeadRegionInput {
 
   /** Published face vertex to generation skin sample. */
   faceToG1: Int32Array;
+
+  /** Native sample to canonical root; retired samples remain negative. */
+  nativeToSource?: Int32Array;
 }

@@ -11,6 +11,8 @@ import type { IHumanSourceSampleWeights } from "./IHumanSourceSampleWeights.ts";
  */
 export interface IHumanSourceSample {
   directory: string;
+  /** Exact content manifest bytes decoded by this load; host run clocks are separate. */
+  manifestBytes: Buffer;
   manifest: IHumanSourceSampleManifest;
   neutral: Float64Array;
   landmarksNeutral: Float64Array;
@@ -22,6 +24,10 @@ export interface IHumanSourceSample {
   flattenInterior: Int32Array;
   flattenBoundary: Int32Array;
   flattenOperator: Float64Array;
+  /** Genital crease fill: region, its two surrounding rings, and the row-major operator. */
+  genitalInterior: Int32Array;
+  genitalBoundary: Int32Array;
+  genitalOperator: Float64Array;
   rowsVertex: Int32Array;
   rowsDelta: Float64Array;
   landmarkDelta: Float64Array;

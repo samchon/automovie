@@ -18,7 +18,7 @@ import { serveHumanViewerRescan } from "./serveHumanViewerRescan";
 export function serveHumanViewerData(props: IServeHumanViewerDataProps): boolean {
   return serveHumanViewerDocs(props) ||
     serveHumanViewerReference({ url: props.url, response: props.response, root: props.root,
-      storage: props.storage, documents: props.inventory.documents.map((entry) => entry.id),
+      referenceDirectory: props.referenceDirectory, documents: props.inventory.documents.map((entry) => entry.id),
       json: props.json }) ||
     serveHumanViewerGenerationView(props) ||
     serveHumanViewerBasis(props) ||

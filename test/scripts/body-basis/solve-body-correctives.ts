@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
@@ -6,11 +6,9 @@ import { gunzipSync } from "node:zlib";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { createBodyCorrectiveShardMetadata } from "./createBodyCorrectiveShardMetadata";
 import { createBodyCorrectiveSession } from "./createBodyCorrectiveSession";
-import {
-  type BodyCensusSets,
-  listCensusStates,
-  listSingleAxisStates,
-} from "./listBodyCorrectiveStates";
+import { type BodyCensusSets } from "./BodyCensusSets";
+import { listCensusStates } from "./listCensusStates";
+import { listSingleAxisStates } from "./listSingleAxisStates";
 
 /**
  * Solve crossing states of the connected body basis into pose correctives and

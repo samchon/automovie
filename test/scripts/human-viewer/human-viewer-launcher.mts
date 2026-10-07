@@ -14,7 +14,10 @@
  * connections the launcher answered itself are closed. A server that fails to
  * build (a type error) or to start is reported in `/health` and the log, the
  * record is removed and the launcher exits with the server's code, so a
- * viewer with a type error never serves. `HUMAN_VIEWER_PORT` selects the
+ * viewer with a type error never serves. Starting health advertises the same
+ * wire protocol as ready health, so a current client can wait for its own
+ * launcher while continuing to refuse incompatible resident servers.
+ * `HUMAN_VIEWER_PORT` selects the
  * viewer as everywhere else.
  */
 import { spawn, spawnSync } from "node:child_process";
@@ -26,12 +29,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { humanViewerInstance } from "./humanViewerInstance.ts";
+import { humanViewerStorage } from "./humanViewerStorage.ts";
 import { humanViewerLaunch } from "./humanViewerLaunch.ts";
+import { humanViewerProtocol } from "./humanViewerProtocol.ts";
 import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
-const storage = path.join(root, ".shots/human-viewer");
+const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const record = path.join(storage, instance.record);
 /** Output lines kept for the starting `/health`, enough for a type error report. */
@@ -55,8 +60,10 @@ const starting = http.createServer((request, response) => {
   if (route === "/health") {
     response.end(JSON.stringify({
       service: "automovie-human-viewer",
+      protocol: humanViewerProtocol,
       pid: process.pid,
       port: instance.port,
+      storage,
       revision: "",
       renderer: "",
       ready: false,

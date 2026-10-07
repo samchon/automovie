@@ -1,4 +1,5 @@
 import { createHumanSourceFieldContext } from "./createHumanSourceFieldContext.ts";
+import { fillHumanSourceExcludedRegions } from "./fillHumanSourceExcludedRegions.ts";
 import { fillHumanSourceNippleRegion } from "./fillHumanSourceNippleRegion.ts";
 import { produceHumanSourceDefinition } from "./produceHumanSourceDefinition.ts";
 import { produceHumanSourceEnvelope } from "./produceHumanSourceEnvelope.ts";
@@ -35,7 +36,10 @@ export function regenerateHumanSourceBodyFields(input: IHumanSourceFieldInput): 
       cut.p1BodyToG1.forEach((g, j) => {
         for (let c = 0; c < 3; c++) onSamples[3 * g + c] = dense[3 * j + c];
       });
-      fillHumanSourceNippleRegion(sample, onSamples);
+      // The authored root excludes both regions; the native replay keeps the
+      // published body's nipple-only arithmetic.
+      if (input.nativeToSource === undefined) fillHumanSourceNippleRegion(sample, onSamples);
+      else fillHumanSourceExcludedRegions(sample, onSamples, input.nativeToSource);
       const p1: number[] = [];
       const g1: [number, number, number, number][] = [];
       cut.p1BodyToG1.forEach((g, j) => {
@@ -82,5 +86,6 @@ export function regenerateHumanSourceBodyFields(input: IHumanSourceFieldInput): 
     },
     bodyRows,
     receipts: results.map((r) => r.receipt),
+    endpoints: [...revisionOf.keys()],
   };
 }

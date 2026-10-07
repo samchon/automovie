@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import { readHumanSourceWorkBytes } from "./readHumanSourceWorkBytes.ts";
+import type { IHumanSourceGenerationInput } from "./structures/IHumanSourceGenerationInput.ts";
 
 import type { IHumanSourceMirror } from "./structures/IHumanSourceMirror.ts";
 
@@ -12,8 +12,8 @@ const BODY_VERTICES = 13380;
  * keeps each base vertex at its own index as a source sample, so the table
  * addresses the generation's skin directly.
  */
-export function readHumanSourceMirror(work: string): IHumanSourceMirror {
-  const text = fs.readFileSync(path.join(work, "upstream/mpfb2/src/mpfb/data/mesh_metadata/hm08.mirror"), "utf8");
+export function readHumanSourceMirror(work: string, inputs: IHumanSourceGenerationInput[]): IHumanSourceMirror {
+  const text = readHumanSourceWorkBytes(inputs, work, "upstream/mpfb2/src/mpfb/data/mesh_metadata/hm08.mirror", "native mirror correspondence").toString("utf8");
   const twin = new Int32Array(BODY_VERTICES).fill(-1);
   const midline: number[] = [];
   for (const line of text.split("\n")) {

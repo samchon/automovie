@@ -23,6 +23,13 @@ export interface IHumanSourceBodyLandmark {
   /** Generation skin sample. */
   sample: number;
 
+  /** Native provider identity, or null for a frozen edge-intersection point. */
+  nativeSample: number | null;
+
+  /** Current versus historical published neutral, metres; a comparison,
+   * never an equality requirement on the newly authored source geometry. */
+  publishedNeutralDifferenceMetres: number | null;
+
   /** Body view vertex. */
   viewVertex: number;
 

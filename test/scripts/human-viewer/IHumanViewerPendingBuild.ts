@@ -1,5 +1,5 @@
 import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
-import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/connectedRuntime";
+import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/ConnectedFaceResult";
 
 /**
  * One numerical build the page asked its worker for and still awaits.

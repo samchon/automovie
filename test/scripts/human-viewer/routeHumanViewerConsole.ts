@@ -14,4 +14,5 @@ export function routeHumanViewerConsole(text: string, props: IRouteHumanViewerCo
   else if (text === "HUMAN_ADMISSION") props.admission();
   else if (text.startsWith("HUMAN_RESTART ")) props.restart(text.slice("HUMAN_RESTART ".length));
   else if (text.startsWith("HUMAN_FIRST_ADDRESS ")) props.firstAddress(text.slice("HUMAN_FIRST_ADDRESS ".length));
+  else if (text.startsWith("HUMAN_CACHE ")) props.cache?.(text.slice("HUMAN_CACHE ".length));
 }

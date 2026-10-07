@@ -32,7 +32,7 @@ export function defineHumanSourceHeadRegions(input: IHumanSourceHeadRegionInput)
     ["ear-left", leftRead, left],
   ];
   for (const [name, read, fill] of sides) {
-    const vertices = addressHumanSourceRegion(name, fill, sampleFaces, faceToG1);
+    const vertices = addressHumanSourceRegion(name, fill, sampleFaces, faceToG1, input.nativeToSource);
     skinRegions[name] = { surface: 0, vertices };
     records.push({
       name,

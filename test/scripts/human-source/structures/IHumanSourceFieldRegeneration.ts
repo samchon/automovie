@@ -16,4 +16,7 @@ export interface IHumanSourceFieldRegeneration {
 
   /** Producer receipts, written to the generation manifest. */
   receipts: Record<string, unknown>[];
+
+  /** Names of the endpoints the producers wrote. */
+  endpoints: string[];
 }

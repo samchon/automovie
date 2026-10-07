@@ -14,8 +14,9 @@
  * pose, 900 pixels square; `OCCLUSION=off` bakes no ambient occlusion. The
  * record lists the renderer the server reported, the pose file's SHA-256, each
  * capture with its camera, and the documents the numerical builder refused,
- * and holds no image bytes. Frames stay under the given directory (use a path
- * inside `.shots`), and a software renderer refuses on the server before any
+ * and holds no image bytes. Frames stay under the caller's explicit OUTPUT
+ * directory in an ignored local tree, independently of mutable viewer storage,
+ * and a software renderer refuses on the server before any
  * frame is drawn.
  */
 import { createHash } from "node:crypto";
@@ -78,6 +79,9 @@ async function main(): Promise<void> {
       model: subject,
       view: "reference-yaw",
       file,
+      revision: frame.revision,
+      renderer: frame.renderer,
+      sha256: createHash("sha256").update(frame.bytes).digest("hex"),
       camera: { yaw, pitch, distance, target: [x, y, z], fov },
     });
     console.log(subject, "captured");

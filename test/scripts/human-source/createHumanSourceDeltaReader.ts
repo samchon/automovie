@@ -1,6 +1,7 @@
 import type { IHumanSourceDeltaReader } from "./structures/IHumanSourceDeltaReader.ts";
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 import type { IHumanSourceSampleState } from "./structures/IHumanSourceSampleState.ts";
+import { decodeHumanSourceSparseState } from "./decodeHumanSourceSparseState.ts";
 
 /**
  * Read sampled states in the shared frame. The conversion of a delta is the
@@ -15,31 +16,21 @@ export function createHumanSourceDeltaReader(sample: IHumanSourceSample): IHuman
     if (found === undefined) throw new Error(`No sampled state ${name}.`);
     return found;
   };
+  const decode = (name: string) => {
+    const current = state(name);
+    return decodeHumanSourceSparseState({ name, vertices, rowsVertex: sample.rowsVertex,
+      rowsDelta: sample.rowsDelta, rowOffset: current.rowOffset, rowCount: current.rowCount,
+      landmarkDelta: sample.landmarkDelta, landmarkOffset: current.landmarkOffset, landmarkCount });
+  };
   return {
     has: (name) => sample.states.has(name),
     state,
     skin: (name) => {
-      const s = state(name);
+      const s = decode(name);
       const out = new Float64Array(3 * vertices);
-      for (let i = 0; i < s.rowCount; i++) {
-        const row = s.rowOffset + i;
-        const v = sample.rowsVertex[row];
-        out[3 * v] = sample.rowsDelta[3 * row];
-        out[3 * v + 1] = sample.rowsDelta[3 * row + 2];
-        out[3 * v + 2] = -sample.rowsDelta[3 * row + 1];
-      }
+      s.vertices.forEach((vertex, row) => out.set(s.deltas.slice(3 * row, 3 * row + 3), 3 * vertex));
       return out;
     },
-    landmarks: (name) => {
-      const s = state(name);
-      const out = new Float64Array(3 * landmarkCount);
-      for (let l = 0; l < landmarkCount; l++) {
-        const at = 3 * (s.landmarkOffset + l);
-        out[3 * l] = sample.landmarkDelta[at];
-        out[3 * l + 1] = sample.landmarkDelta[at + 2];
-        out[3 * l + 2] = -sample.landmarkDelta[at + 1];
-      }
-      return out;
-    },
+    landmarks: (name) => decode(name).landmarks,
   };
 }

@@ -1,13 +1,16 @@
-import { OBSERVATION_MANIFEST_SCHEMA } from "./buildObservationManifest";
+import { OBSERVATION_MANIFEST_SCHEMA } from "./OBSERVATION_MANIFEST_SCHEMA";
+import type { IBodyObservationManifestIdentity } from "./IBodyObservationManifestIdentity";
+import type { IBodyObservationSource } from "./IBodyObservationSource";
+import type { IBodyObservationJudgment } from "./IBodyObservationJudgment";
 
 /**
  * Whether an observation manifest still describes the current source.
  *
  * A change to a shared basis reaches every part built on it, so an answer
  * written from an old observation no longer describes the result. A manifest
- * is stale when its revision is not the current one (any commit, and any local
- * change marker, differs), when it names another basis, when its build was not
- * fresh when it was drawn, or when its schema is one this reader does not
+ * is stale when its response source digest is not the current viewer digest,
+ * when it names another basis, when its build was not fresh when it was drawn,
+ * or when its schema is one this reader does not
  * know. The first reason found is returned, in that order of severity: an
  * unknown schema cannot be read at all, so it wins.
  *
@@ -15,14 +18,9 @@ import { OBSERVATION_MANIFEST_SCHEMA } from "./buildObservationManifest";
  * @param current The current revision and basis id.
  */
 export function judgeObservationManifest(
-  manifest: {
-    schema: number;
-    revision: string;
-    basisId: string;
-    humanBuildFresh: boolean;
-  },
-  current: { revision: string; basisId: string },
-): { stale: boolean; reason: string } {
+  manifest: IBodyObservationManifestIdentity,
+  current: IBodyObservationSource,
+): IBodyObservationJudgment {
   if (manifest.schema !== OBSERVATION_MANIFEST_SCHEMA)
     return {
       stale: true,

@@ -8,7 +8,8 @@ import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput";
  * for a person on the two published bases), `published-generation@<head12>.<body12>`
  * the published one-skin generation's head and body files,
  * `published-generation-body@<body12>` a body document on that generation's
- * body view file, and any other
+ * body view file, `candidate-generation:<name>@<head12>.<body12>` an input's
+ * separate typed head/body views, and any other
  * `<name>@<digest12>` a candidate dropped beside a hand-written document (for a
  * person, one packet: a face/body basis pair or a one-skin source generation).
  *
@@ -28,4 +29,7 @@ export interface IHumanViewerNumericalRequest {
 
   /** The product runtime input. */
   input: IHumanViewerNumericalInput;
+
+  /** Optional preview persistence authority, captured from the current catalogue and frame. */
+  cache?: Pick<import("./IHumanViewerPersistenceJob").IHumanViewerPersistenceJob, "key" | "token">;
 }

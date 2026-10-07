@@ -1,6 +1,3 @@
-import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
 import zlib from "node:zlib";
 
 import type { IHumanSourceGeneration } from "./structures/IHumanSourceGeneration.ts";
@@ -8,6 +5,7 @@ import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
 import type { IHumanSourcePersonViews } from "./structures/IHumanSourcePersonViews.ts";
 import type { IHumanSourceReproductionReport } from "./structures/IHumanSourceReproductionReport.ts";
 import type { IHumanSourceSampleFile } from "./structures/IHumanSourceSampleFile.ts";
+import type { IHumanSourcePublication } from "./structures/IHumanSourcePublication.ts";
 
 /**
  * Write one compiled generation into a new directory: the one-skin bundle,
@@ -15,25 +13,25 @@ import type { IHumanSourceSampleFile } from "./structures/IHumanSourceSampleFile
  * the product consumes), the reproduction record and its per-row TSV, then a
  * manifest of every written file's bytes and SHA-256. Gzip uses level 9 with
  * no timestamp so equal content yields equal bytes. An existing directory is
- * refused so outputs of different runs never mix.
+ * refused by the publication owner so outputs of different runs never mix.
+ * This stage writes content only; its caller completes publication after all
+ * portable receipts and final input verification succeed.
  */
 export function writeHumanSourceArtifacts(
-  output: string,
+  publication: IHumanSourcePublication,
   generation: IHumanSourceGeneration,
   p1: IHumanSourceP1,
   views: IHumanSourcePersonViews,
   report: IHumanSourceReproductionReport,
 ): Record<string, IHumanSourceSampleFile> {
-  if (fs.existsSync(output)) throw new Error(`Compile output already exists: ${output}`);
-  fs.mkdirSync(output, { recursive: true });
   const gzip = (name: string, value: unknown): void =>
-    fs.writeFileSync(path.join(output, name), zlib.gzipSync(JSON.stringify(value) + "\n", { level: 9 }));
+    publication.write(name, zlib.gzipSync(JSON.stringify(value) + "\n", { level: 9 }));
   gzip("g1-generation.json.gz", generation);
   gzip("p1-face-basis.json.gz", p1.face);
   gzip("p1-body-basis.json.gz", p1.body);
   gzip("head.json.gz", views.head);
   gzip("body.json.gz", views.body);
-  fs.writeFileSync(path.join(output, "reproduction.json"), JSON.stringify(report, null, 1) + "\n");
+  publication.write("reproduction.json", JSON.stringify(report, null, 1) + "\n");
   const number = (x: number | undefined): string => (x === undefined ? "" : x === 0 ? "0" : x.toExponential(3));
   const lines = [
     [
@@ -53,11 +51,6 @@ export function writeHumanSourceArtifacts(
       ].join("\t"),
     ),
   ];
-  fs.writeFileSync(path.join(output, "reproduction-rows.tsv"), lines.join("\n") + "\n");
-  const files: Record<string, IHumanSourceSampleFile> = {};
-  for (const name of fs.readdirSync(output).sort((x, y) => (x < y ? -1 : x > y ? 1 : 0))) {
-    const data = fs.readFileSync(path.join(output, name));
-    files[name] = { bytes: data.length, sha256: crypto.createHash("sha256").update(data).digest("hex") };
-  }
-  return files;
+  publication.write("reproduction-rows.tsv", lines.join("\n") + "\n");
+  return publication.files();
 }

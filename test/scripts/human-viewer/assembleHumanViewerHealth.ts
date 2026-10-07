@@ -1,4 +1,5 @@
 import type { IHumanViewerHealthSources } from "./IHumanViewerHealthSources";
+import { humanViewerProtocol } from "./humanViewerProtocol";
 
 /**
  * The `/health` answer. A ready server can draw; it may be drawing the last
@@ -17,11 +18,13 @@ export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
   const errors = sources.errors();
   return {
     service: "automovie-human-viewer",
+    protocol: humanViewerProtocol,
     // Ownership is judged by the pid in the process record: the launcher's
     // when one started this server.
     pid: sources.owner ?? process.pid,
     serverPid: process.pid,
     port: sources.port,
+    storage: sources.storage,
     revision: inventory.revision,
     renderer,
     ready: readyRevision !== "" && renderer !== "",

@@ -11,6 +11,6 @@ export interface IReadHumanViewerStandardBodiesProps {
   /** The usable published person generation. */
   generation: IHumanViewerPublishedGeneration;
 
-  /** Source digests; the body digest enters the keys. */
+  /** Source digests; body and companion-source consumers enter the paired body's keys. */
   sources: IHumanViewerRevisions;
 }

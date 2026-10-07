@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 
 import type { IBodyReviewState } from "../body-review/IBodyReviewState";
 import { assertBodyPoseCensusIdentity } from "./assertBodyPoseCensusIdentity";

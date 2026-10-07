@@ -17,6 +17,9 @@ export interface HumanViewerAddress {
   /** Published document identity, including the `body:` prefix for body states. */
   doc: string;
 
+  /** Explicit product construction inspection; omission keeps admitted preview. */
+  operation?: "preview" | "construct";
+
   /** Exact mesh names; empty means the assembled subject. */
   parts: string[];
 

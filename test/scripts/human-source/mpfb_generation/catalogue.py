@@ -28,6 +28,14 @@ EXCLUDED_CATEGORIES = {"bulge-decr-incr", "nipple-point-decr-incr", "nipple-size
 # The nipple targets whose footprint defines the excluded region.
 NIPPLE_TARGETS = ["breast/nipple-size-incr", "breast/nipple-point-incr"]
 
+# The excluded genital target whose footprint on the skin defines the genital
+# crease region. `bulge-decr` moves only skin vertices, a narrow midline patch
+# at the front of the crotch; `bulge-incr` also covers the mons and the groin
+# folds, whose convexity is body shape and stays. That this footprint is the
+# sculpted crease is an authoring reading of the target, to be confirmed on a
+# render of the filled skin.
+GENITAL_TARGETS = ["pelvis/bulge-decr"]
+
 # Macro axis -> (negative node, value, positive node, value); the neutral is 0.5.
 BODY_MACRO_AXES = {
     "gender": ("female", 0.0, "male", 1.0),

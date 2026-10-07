@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
-import type { IBodyCorrectiveWorld } from "./bodyCorrectiveWorld";
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 import { interpolateBodyShoulderPose } from "./interpolateBodyShoulderPose";
 
 /**

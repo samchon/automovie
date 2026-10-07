@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanSkinRegion } from "@automovie/human";
+import type { IAutoMovieHumanSkinRegion } from "@automovie/human/common/basis/IAutoMovieHumanSkinRegion";
 
 /**
  * The per-tooth regions of the dentition and the record of how each was

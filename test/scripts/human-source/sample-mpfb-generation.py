@@ -1,7 +1,7 @@
 """Sample the pinned MPFB human for the human source generation (#2689).
 
 Run headless in Blender with the isolated profile prepared by
-`prepare-mpfb-profile.py` (the orchestrator `regenerate-source-generation.ts`
+`prepare-mpfb-profile.py` (the orchestrator `sample-source-generation.ts`
 does both):
 
     BLENDER_USER_RESOURCES=<work>/blender-profile \
@@ -90,17 +90,20 @@ def main():
     def target_path(name):
         return os.path.join(data, "targets", name + ".target.gz")
 
-    region = set()
-    for name in catalogue.NIPPLE_TARGETS:
-        session.set_target_file(name, target_path(name), 1.0)
-        skin, _ = sample()
-        session.set_target_file(name, target_path(name), 0.0)
-        region |= set(np.nonzero(np.linalg.norm(skin, axis=1) > 1e-9)[0].tolist())
-    interior, boundary, operator = fill_operator(topology, sorted(region))
-    store.array("flatten-interior.i32", interior, "<i4")
-    store.array("flatten-boundary.i32", boundary, "<i4")
-    store.array("flatten-operator.f64", operator, "<f8")
-    log("nipple fill", len(interior), "interior", len(boundary), "boundary")
+    # One fill operator per excluded region. The nipple files keep the names
+    # the published body's extractor gave them.
+    for label, names, prefix in (("nipple", catalogue.NIPPLE_TARGETS, "flatten"), ("genital", catalogue.GENITAL_TARGETS, "genital-fill")):
+        region = set()
+        for name in names:
+            session.set_target_file(name, target_path(name), 1.0)
+            skin, _ = sample()
+            session.set_target_file(name, target_path(name), 0.0)
+            region |= set(np.nonzero(np.linalg.norm(skin, axis=1) > 1e-9)[0].tolist())
+        interior, boundary, operator = fill_operator(topology, sorted(region))
+        store.array(prefix + "-interior.i32", interior, "<i4")
+        store.array(prefix + "-boundary.i32", boundary, "<i4")
+        store.array(prefix + "-operator.f64", operator, "<f8")
+        log(label, "fill", len(interior), "interior", len(boundary), "boundary")
 
     sampled = set()
 
@@ -188,9 +191,13 @@ def main():
         "regionalChannels": regional,
         "neutralRecoveryMetres": recovery,
         "landmarkRecoveryMetres": landmark_recovery,
-        "elapsedSeconds": round(time.time() - started, 1),
         "coordinates": "Blender metres, Z up, facing -Y; no rounding, clipping, flattening or frame conversion",
     })
+    # The manifest is content: a rerun that samples the same bytes writes the
+    # same manifest. The run clock is a fact about this run, kept beside it.
+    with open(os.path.join(output, "run-environment.json"), "w", encoding="utf-8", newline="\n") as file:
+        json.dump({"elapsedSeconds": round(time.time() - started, 1)}, file, indent=1)
+        file.write("\n")
     log("written", output)
 
 

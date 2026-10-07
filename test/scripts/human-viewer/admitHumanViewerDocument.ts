@@ -3,6 +3,7 @@ import {
   admitHumanFaceBasisDocument,
   admitHumanPersonDocument,
 } from "@automovie/human";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Admit one hand-written document with its domain owner's own admission, in
@@ -16,12 +17,12 @@ import {
  * @evidence contracts/common.md#clear-and-simple-design One function maps a domain to its owner's admission.
  * @evidence contracts/common.md#meaningful-documentation States where admission runs, why, and the result's meaning.
  */
-export function admitHumanViewerDocument(domain: string, text: string): string | null {
+export function admitHumanViewerDocument(domain: string, text: string, source?: IAutoMovieHumanBodyAnatomicalAssembly): string | null {
   try {
     const document: unknown = JSON.parse(text);
     if (domain === "face") admitHumanFaceBasisDocument(document);
-    else if (domain === "body") admitHumanBodyBasisDocument(document);
-    else if (domain === "person") admitHumanPersonDocument(document);
+    else if (domain === "body") admitHumanBodyBasisDocument(document, source);
+    else if (domain === "person") admitHumanPersonDocument(document, source);
     else return `Unknown document domain ${domain}`;
     return null;
   } catch (error) {

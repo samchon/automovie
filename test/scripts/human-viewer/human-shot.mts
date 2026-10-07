@@ -25,6 +25,7 @@ import { captureHumanViewerShot } from "./captureHumanViewerShot";
 import { describeHumanShotSilence } from "./describeHumanShotSilence";
 import { describeHumanViewerError } from "./describeHumanViewerError";
 import { humanViewerInstance } from "./humanViewerInstance";
+import { humanViewerStorage } from "./humanViewerStorage";
 import { killHumanViewerProcess } from "./killHumanViewerProcess";
 import { parseHumanShotRequest } from "./parseHumanShotRequest";
 import { probeHumanViewer } from "./probeHumanViewer";
@@ -34,7 +35,7 @@ import { watchHumanViewer } from "./watchHumanViewer";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
-const storage = path.join(root, ".shots/human-viewer");
+const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const request = parseHumanShotRequest(process.argv.slice(2));
 const context: IHumanShotContext = {

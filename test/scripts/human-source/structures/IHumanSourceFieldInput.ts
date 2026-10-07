@@ -26,4 +26,7 @@ export interface IHumanSourceFieldInput {
 
   /** The upstream sample, whose fill operator refills the nipple region. */
   sample: IHumanSourceSample;
+
+  /** Native fill-operator support to current compacted root, when changed. */
+  nativeToSource?: Int32Array;
 }

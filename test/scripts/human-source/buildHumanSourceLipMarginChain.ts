@@ -15,8 +15,11 @@ import type { IHumanSourceLipMarginChain } from "./structures/IHumanSourceLipMar
  * by 3D edge length. Each chain's stops are its component's minimum-along
  * vertex (the negative join), its anchors sorted along the axis, and its
  * maximum-along vertex (the positive join); consecutive stops are joined by
- * the shortest path over the component's edges, the joints' repeats dropped
- * and later repeats removed keeping the first occurrence. A missing path, an
+ * the shortest path over the component's edges. Chronological loop erasure
+ * removes only a closed native walk, preserving the following actual edge.
+ * Every ordered stop must remain present; a lost stop refuses. Native walking
+ * does not by itself qualify a clinical fissure or a multivalued depth branch.
+ * A missing path, an
  * anchor outside its component, a chain under two vertices or a vertex in both
  * chains refuses by name.
  */
@@ -55,7 +58,26 @@ export function buildHumanSourceLipMarginChain(
       if (path === null) throw new Error(`Lip margin chain: no ${name} path from ${stops[i - 1]} to ${stops[i]}.`);
       out.push(...path.slice(1));
     }
-    const vertices = [...new Set(out)];
+    const vertices: number[] = [];
+    const at = new Map<number, number>();
+    for (const vertex of out) {
+      const previous = at.get(vertex);
+      if (previous !== undefined) {
+        for (const removed of vertices.splice(previous + 1)) at.delete(removed);
+      } else {
+        at.set(vertex, vertices.length);
+        vertices.push(vertex);
+      }
+    }
+    let previousStop = -1;
+    for (const stop of stops) {
+      const ordinal = at.get(stop);
+      if (ordinal === undefined || ordinal < previousStop)
+        throw new Error(`Lip margin chain: native loop erasure lost or reordered the ${name} stop ${stop}.`);
+      previousStop = ordinal;
+    }
+    if (vertices.slice(1).some((vertex, index) => !local.get(vertices[index])?.has(vertex)))
+      throw new Error(`Lip margin chain: ${name} consecutive samples are not a native edge.`);
     if (vertices.length < 2) throw new Error(`Lip margin chain: the ${name} chain has fewer than two vertices.`);
     return vertices;
   };
@@ -67,7 +89,7 @@ export function buildHumanSourceLipMarginChain(
     upper,
     lower,
     record: {
-      rule: "anchors = 2 mm station pairs and the central contact pair; stops = negative join, anchors by along, positive join; consecutive stops joined by the shortest 3D path over the component's lips triangles within the limit; first occurrences kept",
+      rule: "anchors = original 2 mm station pairs and central source contact ports; stops = negative join, anchors by along, positive join; shortest native-edge walks with chronological closed-loop erasure; every ordered stop and each remaining native edge verified. Authored path convention; clinical fissure and projected depth branch remain separately qualified.",
       limitMetres: margin.limitMetres,
       stationMetres: margin.stationMetres,
       anchors: margin.pairs.length + 1,

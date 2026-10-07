@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";

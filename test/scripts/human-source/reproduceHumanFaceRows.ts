@@ -1,5 +1,7 @@
 import { denseHumanSourceRows } from "./denseHumanSourceRows.ts";
 import { measureHumanSourceError } from "./measureHumanSourceError.ts";
+import { createHumanSourceFaceRecipeCandidates } from "./createHumanSourceFaceRecipeCandidates.ts";
+import { recoverHumanSourceFaceRecipe } from "./recoverHumanSourceFaceRecipe.ts";
 import type { IHumanSourceFaceInput } from "./structures/IHumanSourceFaceInput.ts";
 import type { IHumanSourceFaceReproduction } from "./structures/IHumanSourceFaceReproduction.ts";
 import type { IHumanSourceLoss } from "./structures/IHumanSourceLoss.ts";
@@ -40,18 +42,8 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
     }
     return out;
   };
-  const sum = (field: Float64Array): number[] => {
-    const s = [0, 0, 0];
-    for (let i = 0; i < field.length; i++) s[i % 3] += field[i];
-    return s;
-  };
 
-  const candidates = input.sample.manifest.states
-    .filter((s) => s.kind !== "body-macro-pair")
-    .map((s) => {
-      const field = atFace(reader.skin(s.name));
-      return { name: s.name, field, sum: sum(field) };
-    });
+  const candidates = createHumanSourceFaceRecipeCandidates(cut, reader, sample);
   const correctiveTargets = new Set((face.correctives ?? []).map((c) => c.target));
   const rows: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceLoss[] = [];
@@ -61,37 +53,11 @@ export function reproduceHumanFaceRows(input: IHumanSourceFaceInput): IHumanSour
 
   for (const [name, published] of Object.entries(human.targets)) {
     const d = denseHumanSourceRows(published, count);
-    const sd = sum(d);
     const order: number[] = [];
     for (let v = 0; v < count; v++) if (d[3 * v] !== 0 || d[3 * v + 1] !== 0 || d[3 * v + 2] !== 0) order.push(v);
     const support = order.length;
-    order.sort((x, y) => Math.hypot(d[3 * y], d[3 * y + 1], d[3 * y + 2]) - Math.hypot(d[3 * x], d[3 * x + 1], d[3 * x + 2]));
-    const inSupport = new Uint8Array(count);
-    for (const v of order) inSupport[v] = 1;
-    for (let v = 0; v < count; v++) if (inSupport[v] === 0) order.push(v);
-    let best = Infinity;
-    let bestName = "";
-    let bestShift = [0, 0, 0];
-    for (const candidate of candidates) {
-      const shift = [0, 1, 2].map((c) => (candidate.sum[c] - sd[c]) / count);
-      let worst = 0;
-      for (const v of order) {
-        const r = Math.hypot(
-          candidate.field[3 * v] - d[3 * v] - shift[0],
-          candidate.field[3 * v + 1] - d[3 * v + 1] - shift[1],
-          candidate.field[3 * v + 2] - d[3 * v + 2] - shift[2],
-        );
-        if (r > worst) {
-          worst = r;
-          if (worst >= best) break;
-        }
-      }
-      if (worst < best) {
-        best = worst;
-        bestName = candidate.name;
-        bestShift = shift;
-      }
-    }
+    const match = recoverHumanSourceFaceRecipe(d, candidates);
+    const best = match.maximumMetres, bestName = match.state, bestShift = match.shiftMetres;
     const matched = best <= input.tolerance;
     const role = correctiveTargets.has(name) ? "corrective" : "channel-endpoint";
     let regeneration: IHumanSourceReproductionError | null = null;

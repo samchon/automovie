@@ -1,0 +1,320 @@
+{
+ "schema": "automovie-canonical-head-authoring-inputs/1",
+ "sourceId": "automovie-hybrid-head-20261006-source-authoring",
+ "frame": "Blender metres; +X left, +Z up, -Y anterior",
+ "recipe": {
+  "head": {
+   "path": "head-source-neutral-recipe.json",
+   "sha256": "53c682874e59f250da1c0738b99620018554dc098863c8c0c527cf9cbe305eaf"
+  },
+  "ears": {
+   "path": "ear-source-recipe.json",
+   "sha256": "c0b894775a99a2e221ee45192cc16852dbfc076dbcdafacee8c93ecc2ca100b7"
+  },
+  "nose": {
+   "path": "nasal-source-recipe.json",
+   "sha256": "0e4c6e6d40d6bd4f703a266ede9d0777542afb08571c68ef9f70180a7ae3291d"
+  },
+  "nasalExterior": {
+   "path": "nasal-envelope-neutral-recipe.json",
+   "sha256": "8e545a95a65511ccdff85c1bfa6fe86ff818f2a4644d6fe3e381f6b5876944b6"
+  }
+ },
+ "profiles": {
+  "sourceGuide": {
+   "path": "head-source-guide.json",
+   "sha256": "1eddf933cfadd3da99785aa7d0703cc2f40724e5a0f963977cfac55ca7c3bb23"
+  },
+  "earGuide": {
+   "path": "ear-source-guide.json",
+   "sha256": "13d97951597d6d238de061f15fffa600329502ea1e0fddffe99133eab19a4d3e"
+  },
+  "nasalSocket": {
+   "path": "nasal-socket-ports.json",
+   "sha256": "acae87acc05a9deb77ea8823d3492afd033b67c7647fe1ffd5c6082c9dfa9454"
+  },
+  "nasalAxis": {
+   "path": "nasal-source-axis.json",
+   "sha256": "034a45188795a59d764120bbbaafa633e0f0e3f3f1fb369da5a27d1e9a6efb7a"
+  },
+  "nasalExteriorGuide": {
+   "path": "head-source-guide-nasal.json",
+   "sha256": "6a1928c3d73e52e56a978f6d683b0503f4b9fa943b41a5cc9c0486a28172b174"
+  }
+ },
+ "files": [
+  {
+   "path": "author_ear_sections.py",
+   "bytes": 1959,
+   "sha256": "8430bed00d207fa887f5b63e24f2cd5c964f7a463a931c6b26a83fe3f56c3805"
+  },
+  {
+   "path": "author_head_envelope.py",
+   "bytes": 1539,
+   "sha256": "1071238145990ed68dd9d776167012f8eb09185fca9c38bd681e3d1a5d5b7ef7"
+  },
+  {
+   "path": "author_nasal_provider.py",
+   "bytes": 3123,
+   "sha256": "2d7989ea7bcfd9c2777e83361b676b23d174e66d06574d076c22d546c30e4468"
+  },
+  {
+   "path": "author_whole_head_provider.py",
+   "bytes": 3482,
+   "sha256": "67c1623f848474b9d27bff1887ace8f9865be7b1bc3ecbbd3db626c31f2a443b"
+  },
+  {
+   "path": "CervicalEnvelope.py",
+   "bytes": 718,
+   "sha256": "6aa3eac3bd3b161e47ac3e0d0b55558fae27c747cd98eeb78f44528f9df3b1e7"
+  },
+  {
+   "path": "CranialEnvelope.py",
+   "bytes": 770,
+   "sha256": "3c81bf45330129c0ba5cbde0a131cf1a11f1828e695631a3e5170a9886115186"
+  },
+  {
+   "path": "ear-source-guide.json",
+   "bytes": 80053,
+   "sha256": "13d97951597d6d238de061f15fffa600329502ea1e0fddffe99133eab19a4d3e"
+  },
+  {
+   "path": "ear-source-recipe.json",
+   "bytes": 1479,
+   "sha256": "c0b894775a99a2e221ee45192cc16852dbfc076dbcdafacee8c93ecc2ca100b7"
+  },
+  {
+   "path": "EarSection.py",
+   "bytes": 1219,
+   "sha256": "686b790bb3832d21150f2f4e370ce437cb85939c824863ed55487374d4e80285"
+  },
+  {
+   "path": "evaluate_ear_sections.py",
+   "bytes": 8977,
+   "sha256": "0ee71a6675522eea9079546c4e775455c130f66dc19abd54a1a95467652bec7a"
+  },
+  {
+   "path": "evaluate_head_envelope.py",
+   "bytes": 8327,
+   "sha256": "0958cb9486f165aa587ed6986ae1429d2ee8db3fd6c21ca949f570233c3c6998"
+  },
+  {
+   "path": "evaluate_nasal_envelope.py",
+   "bytes": 4158,
+   "sha256": "2a66212f3c21cf0b4d99fd36c664916fb8c7074991fa1a6900858e734cbb0dc2"
+  },
+  {
+   "path": "evaluate_nasal_provider.py",
+   "bytes": 5280,
+   "sha256": "74da7241ce22ae1d59bc614eaae15467e4fb570eb89609931f29ca36d3cc927f"
+  },
+  {
+   "path": "FacialEnvelope.py",
+   "bytes": 845,
+   "sha256": "0c6d6de4794433c2e8917f405fc75c389b01af71c2aa92cc97ba97a41ffe1f7f"
+  },
+  {
+   "path": "head-source-guide-nasal.json",
+   "bytes": 197647,
+   "sha256": "6a1928c3d73e52e56a978f6d683b0503f4b9fa943b41a5cc9c0486a28172b174"
+  },
+  {
+   "path": "head-source-guide.json",
+   "bytes": 197410,
+   "sha256": "1eddf933cfadd3da99785aa7d0703cc2f40724e5a0f963977cfac55ca7c3bb23"
+  },
+  {
+   "path": "head-source-neutral-recipe.json",
+   "bytes": 1022,
+   "sha256": "53c682874e59f250da1c0738b99620018554dc098863c8c0c527cf9cbe305eaf"
+  },
+  {
+   "path": "HeadSourceEvaluation.py",
+   "bytes": 547,
+   "sha256": "b0739145c0017b24de90a635fad59b08f0f1ee5eea9f891790f75b3527b0ff77"
+  },
+  {
+   "path": "HeadSourceProvider.py",
+   "bytes": 4513,
+   "sha256": "233feec132e2f8adedaaabe4f77361203680ae60af15c1dd418a87ef7d1c5e5c"
+  },
+  {
+   "path": "nasal-envelope-recipe.json",
+   "bytes": 468,
+   "sha256": "8079a4411cadeb765da8b17233ddac18789c394bb78d7e5853dcfb787b87a2a2"
+  },
+  {
+   "path": "nasal-socket-ports.json",
+   "bytes": 10168,
+   "sha256": "acae87acc05a9deb77ea8823d3492afd033b67c7647fe1ffd5c6082c9dfa9454"
+  },
+  {
+   "path": "nasal-source-recipe.json",
+   "bytes": 342,
+   "sha256": "0e4c6e6d40d6bd4f703a266ede9d0777542afb08571c68ef9f70180a7ae3291d"
+  },
+  {
+   "path": "NasalEnvelope.py",
+   "bytes": 1090,
+   "sha256": "754f7ad91092ec69d57c82e44973e4283e0a0c56d6bbd29b773b79dd9d12a1f6"
+  },
+  {
+   "path": "native_patch_boundary.py",
+   "bytes": 1961,
+   "sha256": "53b7ac607836d3326811f60d4349f63d0efa65b1135eaaa7c6168bce435963bf"
+  },
+  {
+   "path": "prepare_hybrid_head_source.py",
+   "bytes": 8400,
+   "sha256": "cbc0ffd41b3982db6fe9e166ad9c33d373207282ecc0115d64a14b1ac60099e4"
+  },
+  {
+   "path": "prepare_provider_packet.py",
+   "bytes": 10394,
+   "sha256": "332cff0fd4e03b5e2344808a2f0f5f2f4fab8acdffd08b6fcaddc4aa23ac8a54"
+  },
+  {
+   "path": "triangulate_source_polygon.py",
+   "bytes": 2739,
+   "sha256": "997013125ad5ad43bdcd0fa3b1482abe04826afc03d948e9a79e4be16ab9efa6"
+  },
+  {
+   "path": "fit_nasal_source_axis.py",
+   "bytes": 4779,
+   "sha256": "ea5e2aa8b53eecdf081e807be1589a468962c08c83571a57a8d40fdbdb2ba8bf"
+  },
+  {
+   "path": "nasal-source-axis.json",
+   "bytes": 1977,
+   "sha256": "034a45188795a59d764120bbbaafa633e0f0e3f3f1fb369da5a27d1e9a6efb7a"
+  },
+  {
+   "path": "nasal-envelope-neutral-recipe.json",
+   "bytes": 448,
+   "sha256": "8e545a95a65511ccdff85c1bfa6fe86ff818f2a4644d6fe3e381f6b5876944b6"
+  }
+ ],
+ "sampleInputs": {
+  "flatten-boundary.i32": {
+   "bytes": 512,
+   "sha256": "a73ca2241413fe79b86cb08d01faa44027faa1bf6d173f2d570c515f290b4955"
+  },
+  "flatten-interior.i32": {
+   "bytes": 2152,
+   "sha256": "9d391648fc9d878e7a6aae06cc80140a86436fbce17f8d24939935dea0ff7552"
+  },
+  "flatten-operator.f64": {
+   "bytes": 550912,
+   "sha256": "47bb0093808e304af7b7d9011547d2f4fc77268178bf3f90d9d52660341af057"
+  },
+  "landmarks-neutral.f64": {
+   "bytes": 3000,
+   "sha256": "e3e3d1ef824b43980e8bd6255b01c4c1f086b899dbebbe11c6d468771f76f714"
+  },
+  "landmarks.f64": {
+   "bytes": 2229000,
+   "sha256": "1d0b174c6f1ee7a55db472320e63685f9e62d00374b614a86365bce32f1fca54"
+  },
+  "loop-start.i32": {
+   "bytes": 214048,
+   "sha256": "ea80fb86071ebad534623aecd00b42735cbe5a345a41754e9fd1bae1df1e8dee"
+  },
+  "loop-total.i32": {
+   "bytes": 214048,
+   "sha256": "f40462074d94b0375ae11cf02cf3fc07e6b46bbbccda29655917c2599d988c97"
+  },
+  "loop-uv.f64": {
+   "bytes": 3424768,
+   "sha256": "087e2eb979b1fec8a4532b2ebe6603b70ef83a6c52d8162f75af5f4d10365541"
+  },
+  "loop-vertex.i32": {
+   "bytes": 856192,
+   "sha256": "2c1f14d8321e23ea0dc2fec3cde85a69fe401c336dd31b35e210a9b7542fcc0c"
+  },
+  "neutral.f64": {
+   "bytes": 1284336,
+   "sha256": "121bd78349d8c14a40260f9acecdd5636b5e0619065a87df879c635d0271e2ed"
+  },
+  "part-0-level-0.f64": {
+   "bytes": 407712,
+   "sha256": "2891d11c3440887218ab3592179daddddbcf0024daf532ce31a9f7da67487e06"
+  },
+  "part-0-level-1.f64": {
+   "bytes": 1440144,
+   "sha256": "84a751d59d0ebdd10f44d8c3a43e01ce00a8b71ae451c8ad045cf4a225d53cfc"
+  },
+  "part-0-level-2.f64": {
+   "bytes": 5398896,
+   "sha256": "6bcc952979546fcf148cb44ca42bd3ec2d017b1ac18a1730db6889cc95d614b5"
+  },
+  "part-1-level-0.f64": {
+   "bytes": 822000,
+   "sha256": "cbd205d8ee803845d2aeda539a19a4764f4e3f63234f5174617766bd48bbcc93"
+  },
+  "part-1-level-1.f64": {
+   "bytes": 2840832,
+   "sha256": "ee7ecdb025addabfc061e7338fb7a0a725dfac71e99cf417cbee3c1e79d33aff"
+  },
+  "part-1-level-2.f64": {
+   "bytes": 10508448,
+   "sha256": "3d9b24cf715445b236fbb3c9f4be09aad0d9d0356d832d22267882f1954054bd"
+  },
+  "part-2-level-0.f64": {
+   "bytes": 12717984,
+   "sha256": "f6db53720dc1fa5200d915f8a693b6cd13148486c374e6d34c7d7b91cf47be2d"
+  },
+  "part-2-level-1.f64": {
+   "bytes": 48741312,
+   "sha256": "93b8f3d81e2e58113ebee1d7a9f2348b57efddc73bb41f69334bf4f2ee4cf254"
+  },
+  "part-2-level-2.f64": {
+   "bytes": 191019648,
+   "sha256": "6beb74742cff9a6ce4e68d58583323a3fbf029dee28299c7fc6e49f03f1eaa0b"
+  },
+  "part-3-level-0.f64": {
+   "bytes": 743088,
+   "sha256": "e76bc805cdeb99a0f9387395acc13660c6f638920e5fa72e38c3d2cbc164d98d"
+  },
+  "part-3-level-1.f64": {
+   "bytes": 2952624,
+   "sha256": "4b4a2ba6545cc52cf18631863e63dbfb3a7a87e5b8d6e76d258f7c9da1505933"
+  },
+  "part-3-level-2.f64": {
+   "bytes": 11790768,
+   "sha256": "8f8d52b43ad9577c2094153df3f132fd155aec773b8b7509f98d5afd4bcc5817"
+  },
+  "part-4-level-0.f64": {
+   "bytes": 315648,
+   "sha256": "57ecc46f861ee41cd3b672777cc3a75ab99b84470da2ae288875e7140a379065"
+  },
+  "part-4-level-1.f64": {
+   "bytes": 1190256,
+   "sha256": "21d9d5bcff5ca1d0c5bb4e593e9ce7e1d723c920f689489c35492c4b0b0a1a48"
+  },
+  "part-4-level-2.f64": {
+   "bytes": 4636080,
+   "sha256": "331eeef106498f2a15d64805e99e2208fca4843072550a956cd9ee37c2e102db"
+  },
+  "rows.f64": {
+   "bytes": 205767480,
+   "sha256": "ffa87c4d3c3eafb04b213e29c62c92e133a628c29ba0c6bf4c9032cbd359a819"
+  },
+  "rows.i32": {
+   "bytes": 34294580,
+   "sha256": "7da06e5aeb09a5c4975500526591184bf2532dbf834c2109a3dbabcbe484af04"
+  },
+  "weights.json": {
+   "bytes": 4120838,
+   "sha256": "a8fbb012f0aa84a7ad0e6f0682926990e03cf15d1cb877172d8ffb00dbf06214"
+  }
+ },
+ "rights": {
+  "nativeMesh": "CC0 MakeHuman asset; exact pinned sample and license authority",
+  "nativeLicense": {
+   "path": "upstream/makehuman/LICENSE.ASSETS.md",
+   "sha256": "f6089cba01cb570a24712b41ab8a586ccd3cc5ef53dc266ca50b95c288956d2c"
+  },
+  "authoredCode": "automovie source-authoring code under repository MIT license; no third-party implementation text copied"
+ },
+ "qualification": "Source-owned coarse geometry formula and profile inputs; source output locators and runtime facts excluded. Generated profiles derive from fixed tracked historical head source, not an ignored candidate."
+}

@@ -1,10 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
 
 import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
 import type { AutoMovieHumanBodyToeBone } from "@automovie/human/body/structures/rig/AutoMovieHumanBodyToeBone";
 
 import { HUMAN_SOURCE_TOE_BONES } from "./HUMAN_SOURCE_TOE_BONES.ts";
+import { readHumanSourceWorkBytes } from "./readHumanSourceWorkBytes.ts";
+import type { IHumanSourceGenerationInput } from "./structures/IHumanSourceGenerationInput.ts";
 import type { IHumanSourceRigBone } from "./structures/IHumanSourceRigBone.ts";
 
 /**
@@ -16,8 +16,8 @@ import type { IHumanSourceRigBone } from "./structures/IHumanSourceRigBone.ts";
  * it in the ray; the list is ordered so a parent precedes its child. A bone
  * missing from the rig, or a parent the rig names otherwise, refuses.
  */
-export function defineHumanSourceToeRays(work: string): IAutoMovieHumanBodyToeRay[] {
-  const rig = JSON.parse(fs.readFileSync(path.join(work, "upstream/mpfb2/src/mpfb/data/rigs/standard/rig.default.json"), "utf8")) as Record<string, IHumanSourceRigBone>;
+export function defineHumanSourceToeRays(work: string, inputs: IHumanSourceGenerationInput[]): IAutoMovieHumanBodyToeRay[] {
+  const rig = JSON.parse(readHumanSourceWorkBytes(inputs, work, "upstream/mpfb2/src/mpfb/data/rigs/standard/rig.default.json", "native toe rig").toString("utf8")) as Record<string, IHumanSourceRigBone>;
   const rays: IAutoMovieHumanBodyToeRay[] = [];
   for (const [suffix, side] of [
     [".L", "left"],

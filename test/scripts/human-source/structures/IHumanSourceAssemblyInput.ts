@@ -3,7 +3,6 @@ import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/
 
 import type { IHumanSourceBodyReproduction } from "./IHumanSourceBodyReproduction.ts";
 import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
-import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
 import type { IHumanSourceFaceReproduction } from "./IHumanSourceFaceReproduction.ts";
 import type { IHumanSourceGenerationInput } from "./IHumanSourceGenerationInput.ts";
 import type { IHumanSourceGenerationUpstream } from "./IHumanSourceGenerationUpstream.ts";
@@ -21,12 +20,13 @@ export interface IHumanSourceAssemblyInput {
   faceSha256: string;
   cut: IHumanSourceCut;
   topology: IHumanSourceTopology;
-  reader: IHumanSourceDeltaReader;
-  chinFactor: number;
   faceRows: IHumanSourceFaceReproduction;
   bodyRows: IHumanSourceBodyReproduction;
   rig: IHumanSourceRigReproduction;
   upstream: IHumanSourceGenerationUpstream[];
   sample: Record<string, string | number>;
   inputs: IHumanSourceGenerationInput[];
+  /** Explicit provider addressing after active compaction, when used. */
+  nativeToSource?: Int32Array;
+  sourceToNative?: Int32Array;
 }

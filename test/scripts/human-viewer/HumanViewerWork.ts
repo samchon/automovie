@@ -23,6 +23,15 @@ export interface HumanViewerWork {
   /** The outstanding operation, or idle after a completed frame. */
   phase: "loading" | "cache-read" | "build" | "numeric-reply" | "cache-write" | "prepare" | "draw" | "idle" | "failed";
 
+  /** Latest actual numerical owner completion, when this transition reports one. */
+  completed?: string;
+
+  /** Worker monotonic milliseconds from request start; not added to page spans. */
+  completionElapsedMs?: number;
+
+  /** Worker monotonic milliseconds since its preceding completion. */
+  completionStageMs?: number;
+
   /** Wall-clock milliseconds at this transition. */
   at: number;
 

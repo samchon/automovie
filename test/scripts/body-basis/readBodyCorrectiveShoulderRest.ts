@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieHumanBodyBuild,
-  type IAutoMovieHumanBodyShoulderPose,
-  humanBodyShoulderPoseFromDirection,
-} from "@automovie/human";
+import { humanBodyShoulderPoseFromDirection } from "@automovie/human/body/basis/humanBodyShoulderPoseFromDirection";
+import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 /**

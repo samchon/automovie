@@ -1,6 +1,6 @@
 import type { ConnectedBodyRequest } from "@automovie/playground/src/human/body/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
-import type { HumanResidentPort } from "@automovie/playground/src/human/common/residentWorker";
+import type { HumanResidentPort } from "@automovie/playground/src/human/common/HumanResidentPort";
 
 import type { createHumanViewerViewportHost } from "./createHumanViewerViewportHost";
 
@@ -16,6 +16,9 @@ export interface IBuildHumanViewerBodyResidentProps<Document> {
 
   /** The body or person document. */
   document: Document;
+
+  /** Use the existing product construct entry and retain its admission report. */
+  operation?: "preview" | "construct";
 
   /** The document's text form, when it is not a body basis document. */
   serialize?: (document: Document) => string;

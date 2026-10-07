@@ -8,9 +8,18 @@ import type { IHumanSourceLandmarkPick } from "./structures/IHumanSourceLandmark
  * skin's midline profile keeps descending from the chin into the neck, so its
  * lowest point is not the chin. The mandible is read through the face's jaw
  * attachment instead: midline skin that moves entirely with the jaw (weight
- * one within storage) lies on the mandible, and the pick is its lowest point.
+ * one within storage) was the legacy rigid-mandible proxy. A current provider
+ * instead supplies the exact retained chin anchor its anatomical chart owns.
+ * That fixed surface anchor is a named source approximation, not a bony
+ * reacquisition; partial native rig weights do not remove its identity.
  */
-export function selectHumanSourceMenton(generation: IHumanSourceGeneration, midline: readonly number[]): IHumanSourceLandmarkPick {
+export function selectHumanSourceMenton(generation: IHumanSourceGeneration, midline: readonly number[], sourceChinSample?: number): IHumanSourceLandmarkPick {
+  if (sourceChinSample !== undefined) {
+    if (!midline.includes(sourceChinSample)) throw new Error("Head landmark menton: the source chin anchor is not on the current midsagittal head profile.");
+    const position = generation.skin.positions.slice(3 * sourceChinSample, 3 * sourceChinSample + 3);
+    if (position.length !== 3 || position.some((value) => !Number.isFinite(value))) throw new Error("Head landmark menton: the current source chin anchor is nonfinite.");
+    return { vertex: sourceChinSample, candidates: [{ vertex: sourceChinSample, position, value: position[1] }] };
+  }
   const jaw = generation.attachments.find((attachment) => attachment.owner === "jaw");
   if (jaw === undefined) throw new Error("Head landmark menton: the generation has no jaw attachment.");
   const weight = new Map<number, number>();

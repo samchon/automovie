@@ -1,4 +1,6 @@
 import type * as THREE from "three";
+import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
+import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
 
 /**
  * One document kept drawn-ready in the page: its stage, its group and what it
@@ -11,6 +13,12 @@ import type * as THREE from "three";
 export interface IHumanViewerResident<Stage> {
   /** The product viewport that draws the document. */
   stage: Stage;
+
+  /** Actual construction admission, never inferred from drawing success. */
+  admission?: IAutoMovieHumanConstructionAdmission;
+
+  /** Independent constructed-face mapping readings, forwarded unchanged from their owner. */
+  periocularMappings?: IAutoMovieHumanFacePeriocularMappingReport[];
 
   /** The displayed group. */
   group: THREE.Group;

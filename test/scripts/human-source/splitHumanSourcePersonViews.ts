@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { findHumanSourceDriverMaximum } from "./findHumanSourceDriverMaximum.ts";
 import type { IHumanSourcePersonViews } from "./structures/IHumanSourcePersonViews.ts";
 import type { IHumanSourcePersonViewsInput } from "./structures/IHumanSourcePersonViewsInput.ts";
 
@@ -104,6 +105,7 @@ export function splitHumanSourcePersonViews(input: IHumanSourcePersonViewsInput)
   for (const name of Object.keys(faceLandmarks.targets)) if (origin.get(name) === "body") requireDriver(name, "Landmark row");
 
   const bodyChannels = new Map(generation.channels.filter((c) => c.origin === "body").map((c) => [c.id, c]));
+  const bodyCorrectives = generation.correctives.filter((c) => c.origin === "body");
   const driverChannel = (endpoint: string): string => `driver:${endpoint}`;
   const faceCorrectives = generation.correctives
     .filter((c) => c.origin === "face")
@@ -134,10 +136,10 @@ export function splitHumanSourcePersonViews(input: IHumanSourcePersonViewsInput)
       id: d.channel,
       kind: "shape" as const,
       minimum: 0,
-      maximum: 1,
+      maximum: findHumanSourceDriverMaximum(d.endpoint, [...bodyChannels.values()], bodyCorrectives),
       positive: d.endpoint,
       negative: null,
-      description: "Driver-only: the body's own gain of this body endpoint.",
+      description: "Driver-only: the body's own gain of this body endpoint, bounded by its channel side envelope plus every targeting corrective's unit activation; beyond one the endpoint row is extrapolated linearly (convention).",
     })),
   ];
   const boneIndices: number[] = [];

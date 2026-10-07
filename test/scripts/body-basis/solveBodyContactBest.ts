@@ -1,5 +1,5 @@
 import { crossedCorners } from "./bodyContactGeometry";
-import type { IBodyContactPlane } from "./bodyContactPlanes";
+import type { IBodyContactPlane } from "./IBodyContactPlane";
 import { type IBodyStanding, solveBodyContact } from "./solveBodyContact";
 
 /**

@@ -58,11 +58,15 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
       if (asking.get(entry.id) !== entry.key) {
         asking.set(entry.id, entry.key);
         waiting.delete(entry.id);
-        const request: Promise<void> = props.admit(entry.domain, JSON.stringify(entry.document))
-          .then((reply): IHumanViewerAdmissionOutcome => !reply.available
+        const request: Promise<void> = props.admit(entry.domain, JSON.stringify(entry.document), entry.basis)
+          .then((reply): IHumanViewerAdmissionOutcome => {
+            if (typeof reply.available !== "boolean" || (reply.reason !== null && typeof reply.reason !== "string"))
+              throw new Error("The viewer returned an incompatible admission envelope");
+            return !reply.available
             ? { verdict: false, admission: { state: "pending", reason: unavailable() } }
             : { verdict: true, admission: reply.reason === null
-              ? { state: "admitted", reason: null } : { state: "refused", reason: reply.reason } })
+              ? { state: "admitted", reason: null } : { state: "refused", reason: reply.reason } };
+          })
           .catch((error: unknown): IHumanViewerAdmissionOutcome => ({ verdict: false, admission: { state: "pending",
             reason: "awaiting admission: the request could not run (" +
               (error instanceof Error ? error.message : String(error)) + "); asked again when a viewer frame loads" } }))

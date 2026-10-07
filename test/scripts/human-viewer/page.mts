@@ -10,10 +10,8 @@
 import type { ConnectedBodyRequest } from "@automovie/playground/src/human/body/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
 import { serializeHumanPersonDocument } from "@automovie/human";
-import type {
-  ConnectedFaceRequest,
-  ConnectedFaceResult,
-} from "@automovie/playground/src/human/common/connectedRuntime";
+import type { ConnectedFaceRequest } from "@automovie/playground/src/human/common/ConnectedFaceRequest";
+import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/ConnectedFaceResult";
 import * as THREE from "three";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
@@ -24,7 +22,6 @@ import type { IHumanViewerComposition } from "./IHumanViewerComposition";
 import type { IHumanViewerResident } from "./IHumanViewerResident";
 import { addHumanViewerCalibration } from "./addHumanViewerCalibration";
 import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue";
-import { admitHumanViewerDocument } from "./admitHumanViewerDocument";
 import { announceHumanViewerAddress } from "./announceHumanViewerAddress";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
 import { assertHumanViewerSingleCompile } from "./assertHumanViewerSingleCompile";
@@ -44,12 +41,11 @@ import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
 import { showHumanViewerFirstAddress } from "./showHumanViewerFirstAddress";
 import { showHumanViewerReference } from "./showHumanViewerReference";
+import { humanViewerProtocol } from "./humanViewerProtocol";
 
 // Admission is offered as soon as this module has loaded, before any show:
 // the host routes the server's admissions here even while this frame is a
 // candidate whose first show needs those very documents.
-Object.assign(window, { __humanViewerAdmit: admitHumanViewerDocument });
-parent.postMessage({ type: "human:admission" }, location.origin);
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
 const status = document.querySelector<HTMLDivElement>("#status")!;
@@ -72,6 +68,13 @@ const work = createHumanViewerWorkReporter(spans, (phase) => ({
 }));
 /** The worker and digest-cache transport the product viewports build through. */
 const numerical = createHumanViewerNumericalPort({ work, spans });
+// Resident captures read their PNG before starting optional disk work.
+// Interactive pages flush after drawing, without awaiting persistence.
+const residentCapture = new URLSearchParams(parent.location.search).has("resident");
+addEventListener("pagehide", () => numerical.dispose(), { once: true });
+Object.assign(window, { __humanViewerPersistence: numerical.persistence });
+Object.assign(window, { __humanViewerAdmit: numerical.admit, __humanViewerProtocol: humanViewerProtocol });
+parent.postMessage({ type: "human:admission" }, location.origin);
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
 /** Resident key of the frame on screen, which a trim never releases. */
@@ -95,15 +98,18 @@ const residents = createHumanViewerCache<IHumanViewerResident<HumanViewerStage>>
 const buildResident = (
   selected: HumanViewerCatalogue["documents"][number],
   ao: boolean,
+  operation: "preview" | "construct",
 ): Promise<IHumanViewerResident<HumanViewerStage>> => {
   const host = createHumanViewerViewportHost(canvas, renderer, loader);
+  if (operation === "construct" && selected.domain === "body")
+    throw new Error("The body domain has no construction inspection entry.");
   if (selected.domain === "face")
-    return buildHumanViewerFaceResident({ host, document: selected.document, ao,
+    return buildHumanViewerFaceResident({ host, document: selected.document, ao, operation,
       worker: () => numerical.port<ConnectedFaceRequest, ConnectedFaceResult>(selected, ao) });
   const worker = () => numerical.port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false);
   if (selected.domain === "person")
     return buildHumanViewerBodyResident({ host, document: selected.document,
-      serialize: serializeHumanPersonDocument, worker });
+      serialize: serializeHumanPersonDocument, worker, operation });
   return buildHumanViewerBodyResident({ host, document: selected.document, worker });
 };
 
@@ -125,14 +131,15 @@ async function show(address: HumanViewerAddress): Promise<void> {
   );
   if (selected === undefined)
     throw new Error(`Unknown document: ${address.doc}`);
-  const key = selected.key + (address.ao ? "-ao" : "-direct");
+  const operation = address.operation ?? "preview";
+  const key = selected.key + (address.ao ? "-ao" : "-direct") + (operation === "construct" ? "-construction" : "");
   const start = performance.now();
   status.textContent = "Preparing " + address.doc;
   display.style.width = `${address.size}px`;
   display.style.height = `${address.size}px`;
   let resident = residents.get(key);
   if (resident === undefined) {
-    resident = await buildResident(selected, address.ao);
+    resident = await buildResident(selected, address.ao, operation);
     residents.set(key, resident);
   }
   active = resident.stage;
@@ -151,7 +158,10 @@ async function show(address: HumanViewerAddress): Promise<void> {
     reference, landmarks: document.querySelector<SVGSVGElement>("#landmarks")! });
   current = address;
   work("idle");
+  if (!residentCapture) numerical.persist();
   status.textContent = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
+  if (resident.admission !== undefined)
+    status.textContent += ` | Construction draft: ${resident.admission.accepted ? "accepted" : "refused"}, ${resident.admission.failures.length} admission failures`;
 }
 
 let queue = Promise.resolve();
@@ -193,7 +203,13 @@ async function main(): Promise<void> {
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
       address: () => current,
-      png: () => readHumanViewerPng({ stage: active, renderer, canvas, composition, photo: reference }),
+      admission: () => residents.get(shownKey)?.admission ?? null,
+      periocularMappings: () => residents.get(shownKey)?.periocularMappings,
+      png: () => {
+        const png = readHumanViewerPng({ stage: active, renderer, canvas, composition, photo: reference });
+        numerical.persist();
+        return png;
+      },
       evict: () => residents.evictOldest(shownKey),
     },
   });

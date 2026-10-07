@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { reweightHumanBodyShoulderSkin } from "./reweightHumanBodyShoulderSkin";

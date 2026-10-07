@@ -20,6 +20,9 @@ import type { readHumanViewerCompilationStatus } from "./readHumanViewerCompilat
  * @author Samchon
  */
 export interface IHumanViewerHealthSources {
+  /** Resolved mutable storage served by this process. */
+  storage: string;
+
   /** Port the server listens on. */
   port: number;
 

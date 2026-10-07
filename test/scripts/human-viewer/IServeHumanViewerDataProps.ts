@@ -24,8 +24,11 @@ export interface IServeHumanViewerDataProps {
   /** Repository root. */
   root: string;
 
-  /** `.shots/human-viewer` storage directory. */
+  /** Resolved mutable viewer storage directory. */
   storage: string;
+
+  /** Existing local input photographs, read independently of mutable storage. */
+  referenceDirectory: string;
 
   /** Published basis files. */
   basisFiles: IHumanViewerBasisFiles;

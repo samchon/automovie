@@ -24,6 +24,8 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
     buildMs: () => viewer.buildMs(),
     spans: () => viewer.spans(),
     address: () => viewer.address(),
+    admission: () => viewer.admission(),
+    periocularMappings: () => viewer.periocularMappings?.(),
     png: () => viewer.png(),
     evict: () => viewer.evict(),
     show: (address) => {

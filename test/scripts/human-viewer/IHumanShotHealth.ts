@@ -9,7 +9,13 @@ export interface IHumanShotHealth {
   /** Always `automovie-human-viewer` for this viewer. */
   service: string;
 
-  /** Server process id. */
+  /** Wire generation of this resident backend; absent on older incompatible servers. */
+  protocol?: string;
+
+  /** Resolved mutable storage; older viewers did not report this member. */
+  storage?: string;
+
+  /** Public-port owner PID; health.serverPid separately names the server child. */
   pid: number;
 
   /** Current source revision. */

@@ -1,0 +1,13 @@
+{
+  "rootProjectionOffsetMillimetres": 0.8,
+  "dorsumProjectionOffsetMillimetres": 0.6,
+  "tipProjectionOffsetMillimetres": 1,
+  "tipBreadthOffsetMillimetres": 0.6,
+  "tipHeightOffsetMillimetres": 0.5,
+  "columellarProjectionOffsetMillimetres": 0.4,
+  "columellarBreadthOffsetMillimetres": 0.4,
+  "leftAlarBreadthOffsetMillimetres": 0.5,
+  "rightAlarBreadthOffsetMillimetres": 0.3,
+  "leftAlarHeightOffsetMillimetres": 0.3,
+  "rightAlarHeightOffsetMillimetres": 0.2
+}

@@ -18,7 +18,7 @@ export interface ICreateHumanViewerSidecarFactsProps {
 
   /**
    * What a file is: a candidate basis (its opening id), a person candidate
-   * packet (its id and face/body ids) or a published generation view (its id
+   * packet (its id and face/body ids) or a typed generation view (its id
    * and member ids).
    */
   kind: (file: string) => "basis" | "person" | "view";

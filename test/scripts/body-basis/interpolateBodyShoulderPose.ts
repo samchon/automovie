@@ -1,9 +1,8 @@
-import {
-  type IAutoMovieHumanBodyShoulderPose,
-  humanBodyShoulderPoseFromDirection,
-  humanBodyShoulderTtRotation,
-} from "@automovie/human";
+import { humanBodyShoulderPoseFromDirection } from "@automovie/human/body/basis/humanBodyShoulderPoseFromDirection";
+import { humanBodyShoulderTtRotation } from "@automovie/human/body/basis/humanBodyShoulderTtRotation";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IBodyShoulderInterpolationInput } from "./IBodyShoulderInterpolationInput";
 
 /**
  * Sample the shortest physical orientation path from a shaped rest to a TT goal.
@@ -17,11 +16,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint representations remain exact; no pose preset or photograph supplies a path.
  * @evidence contracts/common.md#meaningful-documentation States actual sampler authority, endpoint admission and intermediate range validation.
  */
-export function interpolateBodyShoulderPose(input: {
-  from: IAutoMovieHumanBodyShoulderPose;
-  to: IAutoMovieHumanBodyShoulderPose;
-  fraction: number;
-}): IAutoMovieHumanBodyShoulderPose {
+export function interpolateBodyShoulderPose(input: IBodyShoulderInterpolationInput): IAutoMovieHumanBodyShoulderPose {
   if (!Number.isFinite(input.fraction) || input.fraction < 0 || input.fraction > 1)
     throw new Error("A shoulder sample fraction must be finite and in [0,1].");
   if (input.from.bone !== input.to.bone)

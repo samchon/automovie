@@ -22,4 +22,7 @@ export interface IRouteHumanViewerConsoleProps {
 
   /** A `HUMAN_FIRST_ADDRESS` line: a candidate could not show its first address and opened on the standard document. */
   firstAddress: (reason: string) => void;
+
+  /** Independent optional persistence result and its measured codec/write durations. */
+  cache?: (text: string) => void;
 }

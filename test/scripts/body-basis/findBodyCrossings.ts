@@ -1,29 +1,17 @@
-import {
-  type IAutoMovieHumanBodyBasis,
-  createHumanBodyBasisBuilder,
-  createHumanBodySegmenter,
-} from "@automovie/human";
+import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
+import { createHumanBodySegmenter } from "@automovie/human/body/measure/createHumanBodySegmenter";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
+import type { IBodyCrossingFinding } from "./IBodyCrossingFinding";
+import type { IBodyCrossingRefusal } from "./IBodyCrossingRefusal";
+import type { IBodyCrossings } from "./IBodyCrossings";
 import { bodyCorrectiveDocument } from "./bodyCorrectiveDocument";
-import { createBodyCorrectiveWorld } from "./bodyCorrectiveWorld";
+import { createBodyCorrectiveWorld } from "./createBodyCorrectiveWorld";
 import {
   type IBodyContactPair,
   readBodyContacts,
 } from "./readBodyContacts";
-
-/** A state whose posed body crosses itself. */
-export interface IBodyCrossingFinding {
-  name: string;
-  document: {
-    shape: Record<string, number>;
-    pose: IBodyCorrectiveState["pose"];
-    shoulders?: IBodyCorrectiveState["shoulders"];
-  };
-
-  /** The crossing pairs and how many triangles of each side they pierce. */
-  pairs: IBodyContactPair[];
-}
 
 /**
  * The census instrument for a list of states: pose each through the public
@@ -44,12 +32,12 @@ export function findBodyCrossings(
     state: IBodyCorrectiveState,
     found: IBodyContactPair[] | string,
   ) => void = () => undefined,
-): { findings: IBodyCrossingFinding[]; refused: { name: string; reason: string }[] } {
+): IBodyCrossings {
   const world = createBodyCorrectiveWorld(basis);
   const build = createHumanBodyBasisBuilder(basis);
   const segment = createHumanBodySegmenter(basis);
   const findings: IBodyCrossingFinding[] = [];
-  const refused: { name: string; reason: string }[] = [];
+  const refused: IBodyCrossingRefusal[] = [];
   for (const state of states) {
     let pairs: IBodyContactPair[];
     try {

@@ -28,6 +28,25 @@ export function registerHumanSourceTeeth(face: IAutoMovieHumanFaceBasis): IHuman
   const index = face.surfaces.findIndex((s) => s.id === SURFACE);
   if (index < 0) throw new Error(`Tooth registration: the face has no ${SURFACE} surface.`);
   const surface = face.surfaces[index];
+  const retained = Object.entries(face.skinRegions ?? {}).filter(([name]) => /^tooth-[1-4][1-8]$/u.test(name));
+  if (retained.length !== 0) {
+    if (retained.length !== 32 || retained.some(([, region]) => region.surface !== index ||
+        region.vertices.length === 0 || new Set(region.vertices).size !== region.vertices.length ||
+        region.vertices.some((vertex) => !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= surface.positions.length / 3)))
+      throw new Error("Retained source tooth identities need all 32 actual native component populations.");
+    const owner = new Map<number, string>();
+    for (const [name, region] of retained) for (const vertex of region.vertices) {
+      if (owner.has(vertex)) throw new Error("Retained source crowns share a native vertex identity.");
+      owner.set(vertex, name);
+    }
+    for (let at = 0; at < surface.indices.length; at += 3) {
+      const names = surface.indices.slice(at, at + 3).map((vertex) => owner.get(vertex));
+      if (names.some((name) => name !== undefined) && names.some((name) => name !== names[0]))
+        throw new Error("Retained crown registration crosses an actual native component.");
+    }
+    return { regions: Object.fromEntries(retained), record: { surface: SURFACE, registered: 32,
+      rule: "Exact retained original source ISO component identities; edited crown coordinates do not renumber teeth.", refused: [] } };
+  }
   const p = surface.positions;
   const n = p.length / 3;
   const parent = Int32Array.from({ length: n }, (_, i) => i);

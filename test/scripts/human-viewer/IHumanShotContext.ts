@@ -13,7 +13,7 @@ export interface IHumanShotContext {
   /** Repository root. */
   root: string;
 
-  /** `.shots/human-viewer`, where records, logs and captures live. */
+  /** Resolved mutable directory where records, logs, inputs and captures live. */
   storage: string;
 
   /** `http://127.0.0.1:<port>` of the viewer. */

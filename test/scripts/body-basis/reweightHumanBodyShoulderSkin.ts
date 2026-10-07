@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 type Skin = IAutoMovieHumanBodyBasis["surfaces"][number]["skin"];

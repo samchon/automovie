@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisCorrective";
 
 /**
  * The correctives a solve run published, as the solver shard holds them.

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanSkinRegion } from "@automovie/human";
+import type { IAutoMovieHumanSkinRegion } from "@automovie/human/common/basis/IAutoMovieHumanSkinRegion";
 
 import type { IHumanSourceHeadRegion } from "./IHumanSourceHeadRegion.ts";
 

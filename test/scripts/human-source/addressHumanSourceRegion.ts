@@ -13,6 +13,7 @@ export function addressHumanSourceRegion(
   fill: IHumanSourceRegionFill,
   sampleFaces: readonly number[][],
   faceToG1: Int32Array,
+  nativeToSource?: Int32Array,
 ): number[] {
   const view = new Map<number, number[]>();
   faceToG1.forEach((g, j) => {
@@ -22,7 +23,10 @@ export function addressHumanSourceRegion(
   const out: number[] = [];
   sampleFaces.forEach((faces, s) => {
     if (faces.length === 0 || !faces.every((f) => fill.faces.has(f))) return;
-    const at = view.get(s) ?? [];
+    const canonical = nativeToSource === undefined ? s : nativeToSource[s];
+    if (!Number.isSafeInteger(canonical) || canonical < 0)
+      throw new Error(`Skin region ${name}: native sample ${s} is retired or absent from this source.`);
+    const at = view.get(canonical) ?? [];
     if (at.length !== 1) throw new Error(`Skin region ${name}: sample ${s} appears ${at.length} times on the head view.`);
     out.push(at[0]);
   });

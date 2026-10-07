@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type { IAutoMovieHumanPersonDocument } from "@automovie/human/human/structures/IAutoMovieHumanPersonDocument";
 
 import type { IHumanSourceAdmissionDocumentInput } from "./structures/IHumanSourceAdmissionDocumentInput.ts";
 

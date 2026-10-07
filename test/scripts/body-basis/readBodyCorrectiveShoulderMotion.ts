@@ -1,4 +1,5 @@
-import { type IAutoMovieHumanBodyShoulderPose, humanBodyShoulderOrientationDistance } from "@automovie/human";
+import { humanBodyShoulderOrientationDistance } from "@automovie/human/body/basis/humanBodyShoulderOrientationDistance";
+import type { IBodyShoulderMotionInput } from "./IBodyShoulderMotionInput";
 
 /**
  * Bind each complete TT goal to the same shape's actual rest readout.
@@ -10,10 +11,7 @@ import { type IAutoMovieHumanBodyShoulderPose, humanBodyShoulderOrientationDista
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing rests receive no metadata fallback or invented angle.
  * @evidence contracts/common.md#meaningful-documentation States actual session/driver consumers and owned records.
  */
-export function readBodyCorrectiveShoulderMotion(input: {
-  goals: readonly IAutoMovieHumanBodyShoulderPose[];
-  rests: readonly IAutoMovieHumanBodyShoulderPose[];
-}) {
+export function readBodyCorrectiveShoulderMotion(input: IBodyShoulderMotionInput) {
   return input.goals.map((goal) => {
     const rest = input.rests.find((pose) => pose.bone === goal.bone);
     if (rest === undefined) throw new Error("A TT motion needs the same shaped rest: " + goal.bone);

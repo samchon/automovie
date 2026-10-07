@@ -19,15 +19,15 @@ export interface IHumanViewerInstance {
   /** `http://127.0.0.1:<port>`, the origin every client and the resident page use. */
   origin: string;
 
-  /** File name, under `.shots/human-viewer`, of the owning process record. */
+  /** File name, under the resolved viewer storage, of the owning process record. */
   record: string;
 
-  /** File name, under `.shots/human-viewer`, of the compile process's last report. */
+  /** File name, under the resolved viewer storage, of the compile process's last report. */
   sourceStatus: string;
 
-  /** File name, under `.shots/human-viewer`, of the server output log a starting client appends to. */
+  /** File name, under the resolved viewer storage, of the server output log a starting client appends to. */
   log: string;
 
-  /** Folder name, under `.shots/human-viewer`, of this viewer's thumbnails. */
+  /** Folder name, under the resolved viewer storage, of this viewer's thumbnails. */
   thumbnails: string;
 }

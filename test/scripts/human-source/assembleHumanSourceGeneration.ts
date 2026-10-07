@@ -9,54 +9,31 @@ import type { IHumanSourceGenerationStamp } from "./structures/IHumanSourceGener
 /**
  * Assemble the one-skin generation G1 from verified pieces.
  *
- * Neutral authority per vertex: the published face where the face has the
- * vertex (its later neutral bakes included); otherwise the published body plus
- * the source chin bake the face already carries, so the bake is continuous
- * across the cut; otherwise the upstream source plus that bake. Weights: the
- * published body where it has the vertex, upstream with the extractor's
- * storage elsewhere, and the stencil of both ends at a cut sample.
+ * The source topology owns every neutral coordinate. Ordered cut stencils
+ * interpolate that same root on both sides; published face/body neutrals and
+ * their historical bakes are comparison inputs only. The upstream rig rows
+ * own original support weights, with the same stencil at each cut sample.
+ * All supplied endpoint and anatomical registrations must already address
+ * this root. A changed source invalidates their historical acceptance.
  */
 export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput): IHumanSourceGeneration {
   const { face, body, cut, topology } = input;
   const n = cut.originalVertices;
   const total = n + cut.intersections.length;
-  const human = face.surfaces.find((s) => s.id === "Human")!;
   const bodySurface = body.surfaces[0];
-  const chin = input.reader.skin("chin/chin-height-incr");
-  const r16Of = new Int32Array(n).fill(-1);
-  cut.r16ToSource.forEach((x, v) => (r16Of[x] = v));
-  const faceOf = new Int32Array(total).fill(-1);
-  cut.faceToG1.forEach((g, v) => (faceOf[g] = v));
-
+  if (topology.vertexCount !== n || topology.positions.length !== 3 * n || input.rig.freshWeights.length !== n)
+    throw new Error("Generation neutral requires this cut's complete canonical root.");
   const positions = new Array<number>(3 * total);
   const neutralOrigin = new Array<number>(total);
-  let chinBakedBodyVertices = 0;
   for (let g = 0; g < total; g++) {
-    const f = faceOf[g];
-    if (f >= 0) {
-      for (let c = 0; c < 3; c++) positions[3 * g + c] = human.positions[3 * f + c];
-      neutralOrigin[g] = 0;
-      continue;
-    }
-    if (g >= n) throw new Error(`Cut sample ${g} has no face vertex.`);
-    const v = r16Of[g];
-    for (let c = 0; c < 3; c++)
-      positions[3 * g + c] =
-        (v >= 0 ? bodySurface.positions[3 * v + c] : topology.positions[3 * g + c]) + input.chinFactor * chin[3 * g + c];
-    if (v >= 0 && (chin[3 * g] !== 0 || chin[3 * g + 1] !== 0 || chin[3 * g + 2] !== 0)) chinBakedBodyVertices++;
-    neutralOrigin[g] = v >= 0 ? 1 : 2;
+    const sample = g < n ? { a: g, b: g, t: 0 } : cut.intersections[g - n];
+    for (let c = 0; c < 3; c++) positions[3 * g + c] =
+      (1 - sample.t) * topology.positions[3 * sample.a + c] + sample.t * topology.positions[3 * sample.b + c];
+    neutralOrigin[g] = g < n ? 3 : 4;
   }
 
   const joints = bodySurface.skin.joints;
-  const rowsAt = (x: number): [string, number][] => {
-    const v = r16Of[x];
-    if (v < 0) return input.rig.freshWeights[x];
-    const out: [string, number][] = [];
-    for (let k = 0; k < 4; k++)
-      if (bodySurface.skin.weights[4 * v + k] !== 0)
-        out.push([joints[bodySurface.skin.boneIndices[4 * v + k]], bodySurface.skin.weights[4 * v + k]]);
-    return out;
-  };
+  const rowsAt = (x: number): [string, number][] => input.rig.freshWeights[x];
   const boneIndices: number[] = [];
   const weights: number[] = [];
   const weightOrigin: number[] = [];
@@ -64,7 +41,7 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
     let rows: [string, number][];
     if (g < n) {
       rows = rowsAt(g);
-      weightOrigin.push(r16Of[g] >= 0 ? 0 : 1);
+      weightOrigin.push(1);
     } else {
       const s = cut.intersections[g - n];
       const merged = new Map<string, number>();
@@ -88,13 +65,13 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
     targets[name] = rows;
   }
   const stamps: IHumanSourceGenerationStamp[] = [
-    { derivative: "face hair domains", authoredOn: face.id, status: "carried-by-map", note: "head triangles keep the published face triangle order" },
-    { derivative: "face hair contact closure", authoredOn: face.id, status: "carried-by-map", note: "face vertex ids through skin.faceVertexToSkin" },
+    { derivative: "face hair domains", authoredOn: face.id, status: "stale", note: "source face input must reauthor domains on current parent/cell incidence; historical acceptance is not inherited" },
+    { derivative: "face hair contact closure", authoredOn: face.id, status: "stale", note: "current source requires readdressed closure and performed contact observation" },
     { derivative: "face articulation (jaw, eyes)", authoredOn: face.id, status: "carried-by-map", note: "fitted by prepare-articulated-basis; not replayed" },
     { derivative: "face contact (lips, incisors, closure, passage, colliders, soft)", authoredOn: face.id, status: "carried-by-map", note: "face vertex terms; prepare-contact-basis not replayed" },
     { derivative: "face jaw attachment weights", authoredOn: face.id, status: "carried-by-map", note: "compared against upstream in the reproduction table" },
-    { derivative: "face neutral bakes after the chin bake (cranial breadth and others)", authoredOn: face.id, status: "carried-by-map", note: "tracked prepare-* revisions; cranial breadth replay was byte-identical earlier" },
-    { derivative: "source chin neutral bake", authoredOn: "lower-face-receipt.json", status: "regenerated", note: `applied to the body side as well; ${chinBakedBodyVertices} published body vertices move` },
+    { derivative: "face historical neutral bakes", authoredOn: face.id, status: "stale", note: "comparison inputs only; the current source topology owns neutral geometry" },
+    { derivative: "canonical source neutral", authoredOn: "source topology", status: "regenerated", note: "one root and its frozen cut stencils define every skin coordinate" },
     { derivative: "body regional, macro and macro-pair endpoints", authoredOn: body.id, status: "regenerated", note: "new neck support from the upstream recipe; published values kept where published" },
     { derivative: "body post-extraction fields (individuality, envelope, definition, symmetry, pose and state correctives)", authoredOn: body.id, status: "stale", note: "carried on published vertices; new support listed in unavailable; producers absent or partial" },
     { derivative: "body joints, frames, couplings, pelvifemoral", authoredOn: body.id, status: "carried-by-map", note: "joint cubes compared against upstream; frames and constraints not replayed" },
@@ -122,6 +99,8 @@ export function assembleHumanSourceGeneration(input: IHumanSourceAssemblyInput):
       cornerUvs: Array.from(cut.cornerUv),
       faceVertexToSkin: Array.from(cut.faceToG1),
       bodyVertexToSkin: Array.from(cut.r16ToSource),
+      ...(input.nativeToSource === undefined ? {} : { nativeToSource: Array.from(input.nativeToSource) }),
+      ...(input.sourceToNative === undefined ? {} : { sourceToNative: Array.from(input.sourceToNative) }),
     },
     partition: {
       labels: ["head", "body"],

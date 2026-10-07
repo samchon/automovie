@@ -1,15 +1,11 @@
-import type {
-  IAutoMovieHumanBodyBasis,
-  IAutoMovieHumanBodyBasisCorrective,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisCorrective";
 import { storeHumanBodyCorrectiveRows } from "@automovie/human/body/basis/storeHumanBodyCorrectiveRows";
 
-import {
-  isSidedBodyCorrective,
-  mirrorBodyCorrective,
-  mirrorBodyVertices,
-  symmetrizeBodyRows,
-} from "./mirrorBodyCorrective";
+import { isSidedBodyCorrective } from "./isSidedBodyCorrective";
+import { mirrorBodyCorrective } from "./mirrorBodyCorrective";
+import { mirrorBodyVertices } from "./mirrorBodyVertices";
+import { symmetrizeBodyRows } from "./symmetrizeBodyRows";
 import type { IBodyCorrectiveMerge } from "./IBodyCorrectiveMerge";
 import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
 

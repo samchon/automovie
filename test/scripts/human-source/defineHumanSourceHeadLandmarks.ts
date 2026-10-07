@@ -34,7 +34,18 @@ export function defineHumanSourceHeadLandmarks(input: IHumanSourceHeadLandmarkIn
   const { generation, mirror, faces, faceToG1, face } = input;
   const p = generation.skin.positions;
   const head = markHumanSourceSide(generation.skin, 0);
-  const midline = mirror.midline.filter((v) => head[v] === 1);
+  const sourceOf = (native: number, role: string): number => {
+    const source = input.nativeToSource === undefined ? native : input.nativeToSource[native];
+    if (!Number.isSafeInteger(source) || source < 0) throw new Error(`Head landmark ${role}: native sample ${native} is retired or absent.`);
+    return source;
+  };
+  const midline = mirror.midline
+    .filter((native) => input.nativeToSource === undefined || input.nativeToSource[native] >= 0)
+    .map((native) => sourceOf(native, "midline"))
+    .filter((source) => head[source] === 1);
+  const profileFaces = input.nativeToSource === undefined ? faces : faces
+    .filter((corners) => corners.every((native) => input.nativeToSource![native] >= 0))
+    .map((corners) => corners.map((native) => sourceOf(native, "profile face")));
   const faceSet = generation.landmarks.find((set) => set.origin === "face");
   const mouth = faceSet?.ids.indexOf("joint-mouth") ?? -1;
   if (faceSet === undefined || mouth < 0) throw new Error("Head landmarks: the face landmark set has no mouth joint.");
@@ -42,11 +53,13 @@ export function defineHumanSourceHeadLandmarks(input: IHumanSourceHeadLandmarkIn
   const pronasale = selectHumanSourcePronasale(p, midline, faceSet.positions[3 * mouth + 1]);
   const picks: Record<string, IHumanSourceLandmarkPick> = {
     glabella,
-    sellion: selectHumanSourceSellion(p, faces, midline, glabella.vertex, pronasale.vertex),
-    menton: selectHumanSourceMenton(generation, midline),
+    sellion: selectHumanSourceSellion(p, profileFaces, midline, glabella.vertex, pronasale.vertex),
+    menton: selectHumanSourceMenton(generation, midline, input.sourceGuide === undefined ? undefined : sourceOf(input.sourceGuide.landmarkNativeIds.menton, "source chin chart anchor")),
   };
   picks.gnathion = picks.menton;
-  for (const [name, read] of Object.entries(HUMAN_SOURCE_READ_LANDMARKS)) picks[name] = selectHumanSourceReadLandmark(name, p, head, read);
+  for (const [name, read] of Object.entries(HUMAN_SOURCE_READ_LANDMARKS)) picks[name] = selectHumanSourceReadLandmark(name, p, head, {
+    ...read, vertex: sourceOf(read.vertex, name), neighbours: read.neighbours.map((native) => sourceOf(native, name)),
+  });
   // Mouth rules run on the face's own vertices and rest positions; each pick is
   // carried to its generation sample, where the face and the head skin coincide.
   const lipsSurface = face.surfaces.find((s) => s.id === face.contact?.lips.surface);
@@ -57,7 +70,7 @@ export function defineHumanSourceHeadLandmarks(input: IHumanSourceHeadLandmarkIn
   }
   for (const side of MIRRORED_SIDES) {
     const right = picks[`${side}-right`];
-    const vertex = mirrorHumanSourceLandmark(`${side}-left`, p, mirror, right.vertex);
+    const vertex = mirrorHumanSourceLandmark(`${side}-left`, p, mirror, right.vertex, input.nativeToSource, input.sourceToNative);
     picks[`${side}-left`] = { vertex, candidates: [{ vertex, position: [0, 1, 2].map((c) => p[3 * vertex + c]), value: p[3 * vertex + 1] }] };
   }
   const mirrored = new Map(MIRRORED_SIDES.map((side) => [`${side}-left`, `${side}-right`]));
@@ -79,11 +92,15 @@ export function defineHumanSourceHeadLandmarks(input: IHumanSourceHeadLandmarkIn
     skinLandmarks[name] = { surface: 0, vertex: views[0] };
     records.push({
       ...HUMAN_SOURCE_HEAD_LANDMARK_TEXTS[name],
+      ...(input.sourceGuide !== undefined && (name === "menton" || name === "gnathion") ? {
+        rule: "Exact retained native chin anchor supplied by the same head provider's mandibular/chin/cervical chart; independent of deformation jaw influence.",
+        status: "named approximation" as const,
+      } : {}),
       vertex: pick.vertex,
       viewVertex: views[0],
       position: [0, 1, 2].map((c) => p[3 * pick.vertex + c]),
       candidates: pick.candidates.slice(0, 4),
-      limit: LIMIT,
+      limit: input.sourceGuide !== undefined && (name === "menton" || name === "gnathion") ? `${LIMIT} ${input.sourceGuide.qualification}` : LIMIT,
       ambiguity: describeAmbiguity(name),
       convention: HUMAN_SOURCE_HEAD_CONVENTION,
     });

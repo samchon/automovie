@@ -7,6 +7,9 @@ export interface IAnsurCensusRefusal {
   /** The subject's sex column. */
   sex: string;
 
+  /** Actual subjectid from the sex-specific public database. */
+  subjectId: number;
+
   /** The identity card the simple tier was given. */
   card: unknown;
 

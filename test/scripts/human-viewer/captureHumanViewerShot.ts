@@ -7,7 +7,7 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
 /**
  * Ask the ready server for one image (`render`, `sheet`, `compare`) or warm
  * answer and write it. An image goes to the requested file or a timestamped
- * file under `captures/`; repository output outside `.shots/human-viewer` is
+ * file under the selected storage's `captures/`; repository output outside it is
  * refused. The printed record names the revision, staleness, renderer and
  * time. A frame drawn by an older source generation is kept for reference
  * but exits 5, since it does not show the current source.
@@ -27,9 +27,15 @@ export async function captureHumanViewerShot(context: IHumanShotContext): Promis
   }
   const filename = path.resolve(context.output ??
     path.join(context.storage, "captures", `${Date.now()}-${context.command}.png`));
-  const relative = path.relative(context.root, filename);
-  if (!relative.startsWith("..") && !path.isAbsolute(relative) && !filename.startsWith(context.storage + path.sep))
-    throw new Error("Repository render output belongs under .shots/human-viewer");
+  // Parent traversal is a complete path component, not an ordinary name
+  // beginning with two dots. Both boundaries use the same platform relation.
+  const within = (directory: string): boolean => {
+    const relative = path.relative(directory, filename);
+    return relative === "" || (relative !== ".." &&
+      !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative));
+  };
+  if (within(context.root) && !within(context.storage))
+    throw new Error("Repository render output belongs under " + context.storage);
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, Buffer.from(await response.arrayBuffer()));
   const stale = response.headers.get("x-human-stale") === "true";

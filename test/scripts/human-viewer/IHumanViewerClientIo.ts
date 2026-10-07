@@ -8,6 +8,9 @@ import type { IHumanViewerFetchResponse } from "./IHumanViewerFetchResponse";
  * @author Samchon
  */
 export interface IHumanViewerClientIo {
+  /** Explicitly selected mutable storage, whose identity the server must confirm. */
+  storage?: string;
+
   /** Requests a viewer URL. */
   fetch(url: string): Promise<IHumanViewerFetchResponse>;
 

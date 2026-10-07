@@ -4,6 +4,14 @@
  * rights split the license states. `consumed` sources were read by the
  * sampler; the others are recorded for the rights chain only.
  *
+ * `licenses` holds the digest of each license text that ships inside the
+ * archive, and is empty when the archive ships none. `rights` then carries
+ * the determination in words: `data` and `code` name the license of each
+ * kind of content, `attribution` the required credit line, and the evidence
+ * keys say which official text or embedded header was actually read. An
+ * `unknown` key states what those texts leave undecided and `handling` what
+ * the producer does meanwhile; neither is resolved by assumption.
+ *
  * @author Samchon
  */
 export interface IHumanSourceGenerationUpstream {

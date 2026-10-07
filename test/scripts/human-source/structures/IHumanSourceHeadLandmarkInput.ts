@@ -2,6 +2,7 @@ import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/
 
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
 import type { IHumanSourceMirror } from "./IHumanSourceMirror.ts";
+import type { IHumanSourceHeadGuide } from "./IHumanSourceHeadGuide.ts";
 
 /**
  * What head landmark selection reads: the generation (neutral skin, head
@@ -25,4 +26,13 @@ export interface IHumanSourceHeadLandmarkInput {
 
   /** Published face vertex to generation skin sample, for the head view index. */
   faceToG1: Int32Array;
+
+  /** Native authoring to canonical root, retaining negative retirement entries. */
+  nativeToSource?: Int32Array;
+
+  /** Canonical root to native authoring, for the licensed mirror table. */
+  sourceToNative?: Int32Array;
+
+  /** Provider's anatomical chart anchors, independent of jaw rig influence. */
+  sourceGuide?: IHumanSourceHeadGuide;
 }
