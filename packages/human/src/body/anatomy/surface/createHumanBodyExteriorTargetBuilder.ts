@@ -18,9 +18,11 @@ import type { IAutoMovieHumanBodyExteriorTargetSource } from "./IAutoMovieHumanB
  * Compile one source into a builder that reports how a body document's
  * anatomical surface targets are met on its emitted exterior.
  *
- * The document passes the product admission, which refuses observed values,
- * paths without a consumer and bound channels authored beside their
- * measurement. The actual body builder resolves the anatomy's bound targets
+ * The document passes product admission with its basis's registered assembly
+ * when present. Exact-source-bound observations retain their raw acquisition
+ * values; unregistered observations, paths without a consumer and bound
+ * channels authored beside their measurement refuse. The actual body builder
+ * resolves bound targets
  * into channel weights (`resolveHumanBodyAnatomy`) and builds the body once;
  * its unsplit final skin crosses the Float32 mesh-buffer boundary, and each
  * bound instrument (`collectHumanBodyExteriorRequests`) is read again on that
@@ -50,7 +52,7 @@ export function createHumanBodyExteriorTargetBuilder(input: IAutoMovieHumanBodyE
     throw new Error("Exterior source registration must belong to the exact compiled source basis.");
   const build = createHumanBodyBasisBuilder(basis, { physicalSource: reference.incidence });
   return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyExteriorCandidateBuild => {
-    const document = admitHumanBodyBasisDocument(inputDocument);
+    const document = admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly);
     if (document.basis !== basis.id)
       throw new Error("Exterior request must name the exact compiled source.");
     const requested = collectHumanBodyExteriorRequests(document.anatomy);

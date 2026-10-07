@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanPersonChannelAlias,
   IAutoMovieHumanPersonDocument,
+  IAutoMovieHumanBodySimpleShape,
 } from "@automovie/human";
 
 import type { BodyPosePreset } from "../body/bodyPosePresets";
@@ -14,6 +15,7 @@ import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolutio
 import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
+import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
 /**
  * Inputs of `mountConnectedPersonPanel`.
@@ -43,11 +45,20 @@ export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel>
   /** Face channels the generation defines once through a body channel. */
   aliases: IAutoMovieHumanPersonChannelAlias[];
 
+  /** Registered independent head differences from the same head view; absent on older unsupported generations. */
+  headShapeSource?: IAutoMovieHumanPersonHeadShapeSource;
+
   /** The body partition view. */
   body: IAutoMovieHumanBodyBasis;
 
   /** The document the page opens with and Reset returns to. */
   initial: IAutoMovieHumanPersonDocument;
+
+  /** Project simple values on this person's complete current rest skin and canonical body anatomy. */
+  projectSimple(person: IAutoMovieHumanPersonDocument): Promise<IAutoMovieHumanBodySimpleShape>;
+
+  /** Expand the owner's simple values over the current person's effective body shape. */
+  expandSimple(person: IAutoMovieHumanPersonDocument, simple: IAutoMovieHumanBodySimpleShape): Promise<Record<string, number>>;
 
   /** Body pose presets. */
   poses: BodyPosePreset[];

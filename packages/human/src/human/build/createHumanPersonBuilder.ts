@@ -3,6 +3,7 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/res
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
+import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
@@ -26,6 +27,7 @@ import { findHumanPersonSkinSurface } from "./findHumanPersonSkinSurface";
 import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
+import { placeHumanPersonMixedSourceMesh } from "./placeHumanPersonMixedSourceMesh";
 import { prefixHumanPersonPart } from "./prefixHumanPersonPart";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
@@ -117,6 +119,7 @@ export function createHumanPersonBuilder(
   // topology. The seam reads one vertex per canonical sample; emitted parts
   // and the normal consumer retain every authored corner alias.
   const faceSamples = faceSkin.surface.sourcePartition?.samples;
+  const faceSampleVertices = new Map(faceSamples?.map((sample, vertex) => [sample, vertex]));
   const faceRepresentatives = new Map<number, number>();
   if (faceSamples !== undefined)
     for (const vertex of faceSkin.surface.indices) {
@@ -186,6 +189,8 @@ export function createHumanPersonBuilder(
   });
 
   return (document) => {
+    if (document.headShape !== undefined && Object.keys(document.headShape).length !== 0)
+      throw new Error("Head numerical fields unavailable without shared source generation registration.");
     const bodyDocument = deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials });
     const body = buildBody(bodyDocument);
     const faceDocument = deriveHumanPersonFace(document);
@@ -291,7 +296,12 @@ export function createHumanPersonBuilder(
           type: "mesh" as const,
           mesh:
             sources === undefined
-              ? moveHumanMeshRigidly(mesh, head)
+              ? physicalSource === undefined ? moveHumanMeshRigidly(mesh, head)
+                : placeHumanPersonMixedSourceMesh({
+                    mesh, head, samples: faceSampleVertices, positions: facePosed,
+                    origin: humanPhysicalSourceDomain(faceDocument.id, physicalSource.generation),
+                    domain: physicalDomain!,
+                  })
               : stitchHumanPersonBoundary({
                   mesh: read(mesh, sources, facePosed, 0),
                   sources,
@@ -308,7 +318,7 @@ export function createHumanPersonBuilder(
     clearHumanPersonHair({
       parts: placed,
       isGenerated: (id) => currentFace.hairPartIds.has(id),
-      layers: faceDocument.hair?.layers ?? [],
+      layers: resolveHumanFaceAppearanceDocument(faceBasis, faceDocument).hair?.layers ?? [],
       positions: bodyPosed,
       indices: bodyKept,
     });

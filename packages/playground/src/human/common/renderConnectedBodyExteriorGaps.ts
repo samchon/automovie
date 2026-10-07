@@ -1,4 +1,4 @@
-import { HUMAN_BODY_EXTERIOR_GAPS } from "@automovie/human";
+import { HUMAN_BODY_EXTERIOR_GAPS } from "@automovie/human/body/anatomy/surface/HUMAN_BODY_EXTERIOR_GAPS";
 
 import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
 

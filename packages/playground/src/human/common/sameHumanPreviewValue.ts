@@ -3,7 +3,8 @@
  * (`NaN` equals `NaN`), arrays and typed arrays element by element, plain
  * objects key by key with an `undefined` member treated as absent. It answers
  * the question a serialized comparison used to answer without building a
- * string of the whole value, so comparing two large models allocates nothing.
+ * string of the whole value. Object comparison still allocates its key lists
+ * and their union set; avoiding serialization is not an allocation-free path.
  *
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Decides resident buffer reuse from the actual static model structure.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Decides whether a preview value is unchanged so an edit reuses its displayed buffers.

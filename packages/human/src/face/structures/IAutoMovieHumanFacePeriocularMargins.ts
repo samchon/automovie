@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFacePeriocularLashRoots } from "./IAutoMovieHumanFacePeriocularLashRoots";
+
 /**
  * One eye's upper and lower lid margins on the skin surface.
  *
@@ -30,4 +32,10 @@ export interface IAutoMovieHumanFacePeriocularMargins {
 
   /** Lower margin vertex indices, ordered medial to lateral. */
   lower: number[];
+
+  /**
+   * Optional anterior root rows on this surface. Omission leaves numerical
+   * lashes unavailable; the posterior margin is not substituted for a root.
+   */
+  lashRoots?: IAutoMovieHumanFacePeriocularLashRoots;
 }

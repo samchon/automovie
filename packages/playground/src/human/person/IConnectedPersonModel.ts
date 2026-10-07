@@ -21,4 +21,7 @@ export interface IConnectedPersonModel {
 
   /** Humeral-head reading, when a check asked for it. */
   anatomy?: IConnectedBodyPreviewResult["anatomy"];
+
+  /** Geometric foot-to-ground readings requested on the same body build. */
+  groundSupport?: IConnectedBodyPreviewResult["groundSupport"];
 }

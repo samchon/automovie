@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3, IAutoMovieMesh } from "@automovie/interface";
+import type { AutoMovieHumanFaceOpticalSurface } from "../eye/AutoMovieHumanFaceOpticalSurface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFaceMeasurementSurface } from "./IHumanFaceMeasurementSurface";
@@ -74,4 +75,25 @@ export interface IHumanFaceMeasurementContext {
 
   /** The contact frame's unit opening direction, or null without articulation. */
   apertureUp: IAutoMovieVector3 | null;
+
+  /**
+   * Optional final generated optical mesh at Float32 precision in this same
+   * frame. Null means this build emits no independent surface of that role.
+   * Person readers undo the common head carry after reading the actual asset.
+   */
+  opticalMesh?: (side: "left" | "right", role: AutoMovieHumanFaceOpticalSurface) => IAutoMovieMesh | null;
+
+  /**
+   * Optional homologous source shape-only reference point, in the same frame
+   * and Float32 precision as point. Omission is a named reference gap;
+   * consumers must not use neutral basis positions in its place.
+   */
+  referencePoint?: ((surface: string, vertex: number) => IAutoMovieVector3) | null;
+
+  /**
+   * Final generated shaft row at Float32 precision in this same frame.
+   * An empty mesh means an explicitly emitted zero population; null means
+   * this build retains source cards without an individual shaft instrument.
+   */
+  lashMesh?: (side: "left" | "right", row: "upper" | "lower") => IAutoMovieMesh | null;
 }

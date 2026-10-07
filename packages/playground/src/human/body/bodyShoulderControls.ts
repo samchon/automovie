@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieHumanBodyShoulderPose,
-  humanBodyShoulderElevationLimit,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
+import { humanBodyShoulderElevationLimit } from "@automovie/human/body/basis/humanBodyShoulderElevationLimit";
 
 import type { IBodyShoulderControlsProps } from "./IBodyShoulderControlsProps";
 

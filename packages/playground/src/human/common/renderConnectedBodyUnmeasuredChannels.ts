@@ -1,4 +1,5 @@
-import { type IAutoMovieHumanBodyBasis, humanBodyChannelReading } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import { humanBodyChannelReading } from "@automovie/human/body/measure/humanBodyChannelReading";
 
 import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
 

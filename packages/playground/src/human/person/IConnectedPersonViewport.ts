@@ -1,6 +1,8 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
+import type { IConnectedPersonConstructionPreview } from "./IConnectedPersonConstructionPreview";
+import type { IConnectedBodyConstructionExportResult } from "../body/IConnectedBodyConstructionExportResult";
 
 /**
  * What the person panel needs of its viewport: build a person document in the
@@ -15,6 +17,12 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
   /** Build a person document; rejects with the runtime's refusal. */
   build(document: IAutoMovieHumanPersonDocument, measure?: boolean, anatomy?: boolean): Promise<Model>;
+
+  /** Prepare the same source owner's full construction and admission for draft inspection. */
+  construct(document: IAutoMovieHumanPersonDocument): Promise<IConnectedPersonConstructionPreview<Model>>;
+
+  /** Encode a draft through unchanged export guards; admission stays separate. */
+  exportConstruction(document: IAutoMovieHumanPersonDocument): Promise<Pick<IConnectedBodyConstructionExportResult, "glb" | "admission">>;
 
   /** Withdraw the pending build. */
   cancel(): void;

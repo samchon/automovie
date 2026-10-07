@@ -19,4 +19,7 @@ export interface IBodySimpleBody {
 
   /** Anatomical measurements the builder solves into channel weights, if any. */
   anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements;
+
+  /** Optional whole-person context identity; a changed head invalidates stature and volume readback. */
+  contextKey?: string;
 }

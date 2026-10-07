@@ -36,7 +36,7 @@ export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBa
   const build = createHumanBodyBasisBuilder(input);
   let reference: ReturnType<typeof build> | undefined;
   return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyAnatomicalInspection => {
-    const document = admitHumanBodyBasisDocument(inputDocument);
+    const document = admitHumanBodyBasisDocument(inputDocument, input.anatomicalAssembly);
     if (document.basis !== basis)
       throw new Error("Body document basis must match the compiled reference: " + basis);
     // admission has refused observed radii: no acquisition centre or posture

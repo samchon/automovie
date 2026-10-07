@@ -8,8 +8,10 @@
  * the same numbers describe a lower row shaped like the upper row reflected
  * through the horizontal plane. One record shapes every lower lash of one eye.
  * The bounds are those of `humanFaceLowerLashParameters`, a convention that
- * mirrors the upper envelope because no lower-lash source is held; they are not
- * a measured population range.
+ * mirrors the upper envelope because no calibrated lower 3D root-frame
+ * envelope is held. The right-lid caliper and image-angle study of Kikuchi
+ * et al. 2015 (DOI 10.15761/GOD.1000123) does not register this frame, so these
+ * bounds are not a measured population range.
  *
  * @evidence contracts/common.md#principled-implementation The seven scalars describe one constant-curvature tapered strand; mirroring the angle frame lets the lower row use the same strand construction without an upper-biased curl interval.
  * @evidence contracts/common.md#clear-and-simple-design A flat record of seven named numbers with one owner for its bounds, `humanFaceLowerLashParameters`.

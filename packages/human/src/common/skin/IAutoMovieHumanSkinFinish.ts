@@ -16,6 +16,15 @@ import type { IAutoMovieHumanSkinScattering } from "./IAutoMovieHumanSkinScatter
  * @evidence contracts/common.md#meaningful-documentation States why the record exists and why albedo is outside it.
  * @evidence contracts/modeling.md#shared-boundaries This record defines the common finish both consumers must apply for material continuity at a skin join.
  * @evidence contracts/modeling.md#spatial-conventions Scattering distances are metres; the material id is a name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The explicit material identity and shared scattering record retain one finish authority instead of replacing an anatomical surface or source value.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Material identity is not a new anatomical part identity.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The finish carries optical appearance without a geometry or motion channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry applyHumanSkinFinish assigns material coefficients and emits no primitive.
+ * @evidenceExclude contracts/modeling.md#rendered-observation Consuming face/body assemblies own the observed finish and neck join; the record asserts no captured appearance.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The record transports renderer appearance; HUMAN_SKIN_FINISH owns the shared default's optical-source derivation.
+ * @evidenceExclude contracts/anatomy.md#permitted-range Optical material values declare no physiological skin envelope.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority Matching material finish across surfaces does not infer personal tissue geometry or clinical properties.
+ * @author Samchon
  */
 export interface IAutoMovieHumanSkinFinish {
   /** Material id consumers use to identify their skin. */

@@ -5,8 +5,9 @@ import type { IAutoMovieHumanFaceUpperLashPair } from "./IAutoMovieHumanFaceUppe
  * A document's independent lash profiles, upper and lower rows separately.
  *
  * A present row replaces that row's lash cards with numerical lashes rooted on
- * the registered live lid margin. It needs the basis's periocular
- * registration; without it the builder refuses the document by name. An
+ * the registered live anterior lid edge, distinct from the posterior contact
+ * margin. Count is explicit for each side, including zero. It needs the
+ * basis's periocular and anterior root registrations; without them the builder refuses the document by name. An
  * omitted row keeps the basis's cards byte for byte.
  *
  * @evidence contracts/common.md#principled-implementation Upper and lower rows are separate inputs with their own profile types, matching their separate registered regions.

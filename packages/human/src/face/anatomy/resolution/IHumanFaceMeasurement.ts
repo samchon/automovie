@@ -18,7 +18,7 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A reader without its registration returns a named gap, never a proxy.
  * @evidence contracts/common.md#meaningful-documentation States the reader's contract, the channel order and the report-only case.
  * @evidence contracts/modeling.md#parameter-channels Channels are existing named basis channels the inverse may move.
- * @evidence contracts/modeling.md#spatial-conventions Values are millimetres, degrees or cubic centimetres as the unit field states.
+ * @evidence contracts/modeling.md#spatial-conventions Values are millimetres, square millimetres, degrees or cubic centimetres as the unit field states.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A measurement names no part.
  * @evidenceExclude contracts/modeling.md#emitted-geometry A measurement emits no geometry.
  * @evidenceExclude contracts/modeling.md#shared-boundaries A measurement builds no boundary.
@@ -33,10 +33,17 @@ export interface IHumanFaceMeasurement {
   id: string;
 
   /** Unit of the reading and of a target. */
-  unit: "millimetres" | "degrees" | "cubic-centimetres";
+  unit: "millimetres" | "square-millimetres" | "degrees" | "cubic-centimetres" | "count";
 
   /** Existing channels a target may move, in solve order; empty is report-only. */
   channels: readonly string[];
+
+  /**
+   * Qualification of the observable source quantity when it differs from a
+   * clinically registered measurement. Kept with every numerical readout;
+   * it grants neither a clinical value nor permission to invert this quantity.
+   */
+  qualification?: string;
 
   /**
    * Read one build's final surface, or name what the basis lacks.

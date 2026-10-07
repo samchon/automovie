@@ -1,4 +1,6 @@
-import { type IAutoMovieHumanBodyBasisDocument, serializeHumanBodyBasisDocument } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createHumanWorker } from "./human/common/createHumanWorker";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
 import { mountBodyAnatomicalRequestPanel } from "./human/body/mountBodyAnatomicalRequestPanel";
@@ -12,10 +14,10 @@ async function main() {
   const basis = (await readConnectedBodyView()).body;
   const viewport = createConnectedBodyPageViewport<IAutoMovieHumanBodyBasisDocument>(
     canvas,
-    serializeHumanBodyBasisDocument,
-    () => new Worker(new URL("./connected-body-anatomy-worker.ts", import.meta.url), { type: "module" }),
+    (bodyDocument) => serializeHumanBodyBasisDocument(bodyDocument, basis.anatomicalAssembly),
+    () => createHumanWorker("worker=body-anatomy"),
   );
-  mountBodyAnatomicalRequestPanel(app, { basis: basis.id, viewport, download: downloadConnectedFile });
+  mountBodyAnatomicalRequestPanel(app, { basis: basis.id, source: basis.anatomicalAssembly, viewport, download: downloadConnectedFile });
 }
 void main().catch((error: unknown) => {
   document.querySelector<HTMLElement>("#request-status")!.textContent = error instanceof Error ? error.message : String(error);

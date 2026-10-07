@@ -1,4 +1,5 @@
-import { HUMAN_HEAD_MEASUREMENTS, HUMAN_PERSON_HEAD_SOLVE } from "@automovie/human";
+import { HUMAN_HEAD_MEASUREMENTS } from "@automovie/human/common/measure/HUMAN_HEAD_MEASUREMENTS";
+import { HUMAN_PERSON_HEAD_SOLVE } from "@automovie/human/human/constants/HUMAN_PERSON_HEAD_SOLVE";
 
 import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadControlsProps";
 
@@ -19,11 +20,9 @@ import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadCo
  * person and shows the worker's text, which names the closest readings and the
  * channels at their limits.
  *
- * The note under the rows names the head's open gaps: circumference at a given
- * length and breadth falls short for fuller heads, and two channels show shape
- * faults near their far ends (`posteriorHeadDepth` at 1, `cranialBreadth` near
- * its maximum). The solve may use any value in a channel's envelope; the report
- * shows every value so a far end is visible.
+ * The note distinguishes earlier cranial-source faults from current-source
+ * qualification. The solve may use any value in a channel's envelope; the
+ * report shows every value so its source endpoints can be inspected.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Lets the user target the head's ANSUR II measurements in millimetres and see what the solved head measures.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reads and solves the head measurements through the measurement worker and the person's transaction.
@@ -63,9 +62,9 @@ export function mountConnectedPersonHeadControls(props: IConnectedPersonHeadCont
   const note = props.dom.createElement("small");
   note.textContent =
     "Solved on face channels " + HUMAN_PERSON_HEAD_SOLVE.channels.join(", ") +
-    ", least departure from the standard head. Open gaps: circumference falls short for fuller heads (no cranial fullness channel; " +
-    "the hair ANSUR's tape compresses is not separable); posteriorHeadDepth at 1 balloons the back of the head over the neck and " +
-    "cranialBreadth near its maximum raises bosses over the temples. Every channel value the solve sets is reported.";
+    ", least departure from the standard head. Circumference and cranial shape need qualification on this source generation. " +
+    "Earlier source observations found posterior depth and breadth faults; they do not establish this source's current result. " +
+    "Every channel value the solve sets is reported.";
   props.container.append(apply, note);
   apply.onclick = async (): Promise<void> => {
     const ticket = props.reserve();

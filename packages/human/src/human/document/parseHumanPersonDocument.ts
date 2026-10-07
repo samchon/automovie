@@ -1,4 +1,5 @@
 import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { admitHumanPersonDocument } from "./admitHumanPersonDocument";
 
@@ -23,7 +24,8 @@ import { admitHumanPersonDocument } from "./admitHumanPersonDocument";
  */
 export function parseHumanPersonDocument(
   text: string,
+  bodySource?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): IAutoMovieHumanPersonDocument {
   assertTextSize(text);
-  return admitHumanPersonDocument(JSON.parse(text));
+  return admitHumanPersonDocument(JSON.parse(text), bodySource);
 }

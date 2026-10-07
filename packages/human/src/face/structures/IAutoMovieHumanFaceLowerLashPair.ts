@@ -1,10 +1,11 @@
-import type { IAutoMovieHumanFaceLowerLashProfile } from "../anatomy/lash/IAutoMovieHumanFaceLowerLashProfile";
+import type { IAutoMovieHumanFaceLowerLashPopulation } from "../anatomy/lash/IAutoMovieHumanFaceLowerLashPopulation";
 
 /**
  * The lower lash row's profile for each eye.
  *
- * Each side takes one `IAutoMovieHumanFaceLowerLashProfile`, whose angles use
- * the lower row's mirrored frame and whose bounds are a stated convention.
+ * Each side takes an explicit shaft count and the lower profile, whose angles
+ * use the lower row's mirrored frame and whose bounds are a stated convention.
+ * Count is independent of the upper row and zero emits no shafts on that side.
  *
  * @evidence contracts/common.md#principled-implementation Each side reuses the one lower-lash profile definition and its envelope.
  * @evidence contracts/common.md#clear-and-simple-design Two named sides.
@@ -24,8 +25,8 @@ import type { IAutoMovieHumanFaceLowerLashProfile } from "../anatomy/lash/IAutoM
  */
 export interface IAutoMovieHumanFaceLowerLashPair {
   /** Lower lash profile of the anatomical left eye. */
-  left: IAutoMovieHumanFaceLowerLashProfile;
+  left: IAutoMovieHumanFaceLowerLashPopulation;
 
   /** Lower lash profile of the anatomical right eye. */
-  right: IAutoMovieHumanFaceLowerLashProfile;
+  right: IAutoMovieHumanFaceLowerLashPopulation;
 }

@@ -1,7 +1,6 @@
-import {
-  type IAutoMovieHumanBodyBasisDocument,
-  serializeHumanBodyBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createHumanWorker } from "../common/createHumanWorker";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 import * as THREE from "three";
 
 import { createHumanResidentPort } from "../common/residentPort";
@@ -27,7 +26,7 @@ import type { IConnectedBodyHeadSeatProps } from "./IConnectedBodyHeadSeatProps"
  */
 export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps): (model: unknown, body: IAutoMovieHumanBodyBasisDocument) => void {
   const worker = createHumanResidentWorker<ConnectedBodyRequest, ConnectedBodyResult>(() =>
-    createHumanResidentPort(new Worker(new URL("../../connected-body-head-worker.ts", import.meta.url), { type: "module" })),
+    createHumanResidentPort(createHumanWorker("worker=body-head")),
   );
   const renderer = createConnectedBodyRenderer({
     loadTexture: (asset) => new THREE.TextureLoader().loadAsync(asset),
@@ -47,7 +46,7 @@ export function createConnectedBodyHeadSeat(props: IConnectedBodyHeadSeatProps):
     // This runs after the panel has written this body's status, so a head
     // failure is appended to that line rather than overwritten by it.
     void worker
-      .request({ operation: "preview", document: serializeHumanBodyBasisDocument(body), measure: false })
+      .request({ operation: "preview", document: serializeHumanBodyBasisDocument(body, props.source), measure: false })
       .result.then(async (result) => {
         if (mine !== sequence) return;
         if (result.operation !== "preview") throw new Error("Expected a head preview.");

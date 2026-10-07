@@ -1,5 +1,6 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHumanPersonHeadTransform } from "../structures/IAutoMovieHumanPersonHeadTransform";
 
 /**
  * A copy of a mesh carried by a rigid transform: positions through `point`,
@@ -30,10 +31,7 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
  */
 export function moveHumanMeshRigidly(
   mesh: IAutoMovieMesh,
-  transform: {
-    point: (p: IAutoMovieVector3) => IAutoMovieVector3;
-    direction: (n: IAutoMovieVector3) => IAutoMovieVector3;
-  },
+  transform: Pick<IAutoMovieHumanPersonHeadTransform, "point" | "direction">,
 ): IAutoMovieMesh {
   if (mesh.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(mesh);

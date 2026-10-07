@@ -1,8 +1,6 @@
-import {
-  createHumanFaceComponentTree,
-  createHumanFaceControlMap,
-  measureHumanFaceBasisChannels,
-} from "@automovie/human";
+import { createHumanFaceComponentTree } from "@automovie/human/face/basis/createHumanFaceComponentTree";
+import { createHumanFaceControlMap } from "@automovie/human/face/basis/createHumanFaceControlMap";
+import { measureHumanFaceBasisChannels } from "@automovie/human/face/channels/measureHumanFaceBasisChannels";
 
 import type { IAppendConnectedFaceControlRowProps } from "./IAppendConnectedFaceControlRowProps";
 import type { IConnectedFaceControlsProps } from "./IConnectedFaceControlsProps";

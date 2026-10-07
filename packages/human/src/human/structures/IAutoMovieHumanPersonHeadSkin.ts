@@ -1,4 +1,4 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { IAutoMovieHumanSkinBinding } from "../../common/basis/IAutoMovieHumanSkinBinding";
 
 /**
  * The one skin-weight map of a source generation, restricted to its head
@@ -27,13 +27,4 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/anatomy.md#parametric-authority The table is compiled source data, not a caller input.
  * @author Samchon
  */
-export interface IAutoMovieHumanPersonHeadSkin {
-  /** Body joints the indices address, in the body skin table's order. */
-  joints: AutoMovieHumanoidBone[];
-
-  /** Four joint indices per face skin vertex. */
-  boneIndices: number[];
-
-  /** Four dimensionless weights per face skin vertex, summing to one. */
-  weights: number[];
-}
+export interface IAutoMovieHumanPersonHeadSkin extends IAutoMovieHumanSkinBinding {}

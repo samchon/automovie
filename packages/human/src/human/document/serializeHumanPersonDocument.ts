@@ -1,4 +1,5 @@
 import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { admitHumanPersonDocument } from "./admitHumanPersonDocument";
 
@@ -23,8 +24,9 @@ import { admitHumanPersonDocument } from "./admitHumanPersonDocument";
  */
 export function serializeHumanPersonDocument(
   document: IAutoMovieHumanPersonDocument,
+  bodySource?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): string {
-  const text = JSON.stringify(admitHumanPersonDocument(document), null, 2);
+  const text = JSON.stringify(admitHumanPersonDocument(document, bodySource), null, 2);
   assertTextSize(text);
   return text;
 }

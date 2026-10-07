@@ -5,6 +5,7 @@ export * from "./resolveHumanPersonFaceBones";
 export * from "./keepHumanPersonHairClear";
 export * from "./meshOfHumanPart";
 export * from "./moveHumanMeshRigidly";
+export * from "./placeHumanPersonMixedSourceMesh";
 export * from "./stitchHumanPersonBoundary";
 export * from "./createHumanPersonGenerationBuilder";
 export * from "./humanPersonEyeCentre";

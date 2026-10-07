@@ -1,17 +1,18 @@
-import {
-  type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceLowerLashProfile,
-  type IAutoMovieHumanFaceOpticalDimensions,
-  type IPortraitEyelashProfile,
-  humanFaceLowerLashParameters,
-  portraitEyelashParameters,
+import type {
+  IAutoMovieHumanFaceBasisDocument,
+  IAutoMovieHumanFaceOpticalDimensions,
 } from "@automovie/human";
+import type { IAutoMovieHumanFaceLowerLashPopulation } from "@automovie/human/face/anatomy/lash/IAutoMovieHumanFaceLowerLashPopulation";
+import type { IAutoMovieHumanFaceUpperLashPopulation } from "@automovie/human/face/anatomy/lash/IAutoMovieHumanFaceUpperLashPopulation";
+import { humanFaceLowerLashParameters } from "@automovie/human/face/anatomy/lash/humanFaceLowerLashParameters";
+import { portraitEyelashParameters } from "@automovie/human/face/anatomy/lash/portraitEyelashParameters";
 
 import type { IConnectedPersonEyeControlsProps } from "./IConnectedPersonEyeControlsProps";
+import { mountConnectedPersonPeriocularControls } from "./mountConnectedPersonPeriocularControls";
 
 /**
  * Render the eye-region controls of the person editor: independent upper and
- * lower lash profiles and independent optical dimensions, each for both eyes.
+ * lower lash populations and independent optical dimensions, each for both eyes.
  *
  * Each group writes one optional face document field (`lashes.upper`,
  * `lashes.lower`, `eyes`); the lower group reads its fields and units from the
@@ -19,12 +20,12 @@ import type { IConnectedPersonEyeControlsProps } from "./IConnectedPersonEyeCont
  * transaction under a fresh intent ticket, so admission, last-valid state,
  * undo and save/reload are the editor's. Every value is entered explicitly;
  * nothing is pre-filled with an assumed population value. "Remove" deletes the
- * field, which restores the basis's cards or globes byte for byte. A present
- * field refuses by name, and the committed person stays: on a basis without
- * the producer's periocular registration or optical support the refusal names
- * the registration, and on a basis that carries it the refusal names the
- * optical builder or lash generator that does not exist yet, so a value is
- * never accepted and left without effect.
+ * field, which restores the basis's cards or globes byte for byte. Explicit
+ * shaft counts include zero and stay separate from card darkness. A present
+ * field reaches its producer on a registered basis; missing optical support
+ * or anterior lash roots and invalid geometric combinations refuse by name
+ * while preserving the displayed person. A completed transaction can display
+ * a construction draft; the panel alone identifies an accepted history commit.
  *
  * @author Samchon
  */
@@ -41,12 +42,14 @@ export function mountConnectedPersonEyeControls(
     "irisApertureRadiusMm",
     "irisDepthFromAnteriorSupportMm",
   ];
-  const upperFields = portraitEyelashParameters.map(
-    (parameter) => parameter.id,
-  );
-  const lowerFields = humanFaceLowerLashParameters.map(
-    (parameter) => parameter.id,
-  );
+  const upperFields: readonly string[] = [
+    "strandCount",
+    ...portraitEyelashParameters.map((parameter) => parameter.id),
+  ];
+  const lowerFields: readonly string[] = [
+    "strandCount",
+    ...humanFaceLowerLashParameters.map((parameter) => parameter.id),
+  ];
   const inputs = new Map<string, HTMLInputElement>();
   const group = (
     title: string,
@@ -66,7 +69,11 @@ export function mountConnectedPersonEyeControls(
         row.className = "row";
         number.id = `eye-control-${prefix}-${side}-${field}`;
         number.type = "number";
-        number.step = "any";
+        number.step = field === "strandCount" ? "1" : "any";
+        if (field === "strandCount") {
+          number.min = "0";
+          number.max = "1024";
+        }
         caption.htmlFor = number.id;
         caption.textContent = `${side} ${field} (${unit(field)})`;
         row.append(caption, number);
@@ -117,14 +124,15 @@ export function mountConnectedPersonEyeControls(
         ticket,
       );
       if (success && props.isCurrent(ticket))
-        props.report(text.replace(/…$/u, "") + " committed.");
+        props.report(text.replace(/…$/u, "") + " applied.");
     } catch (error) {
       if (props.isCurrent(ticket)) props.refuse(error);
     }
   };
   const upperLash = (
     values: Record<string, number>,
-  ): IPortraitEyelashProfile => ({
+  ): IAutoMovieHumanFaceUpperLashPopulation => ({
+    strandCount: values.strandCount,
     length: values.length,
     elevation: values.elevation,
     curl: values.curl,
@@ -135,7 +143,8 @@ export function mountConnectedPersonEyeControls(
   });
   const lowerLash = (
     values: Record<string, number>,
-  ): IAutoMovieHumanFaceLowerLashProfile => ({
+  ): IAutoMovieHumanFaceLowerLashPopulation => ({
+    strandCount: values.strandCount,
     length: values.length,
     elevation: values.elevation,
     curl: values.curl,
@@ -160,8 +169,10 @@ export function mountConnectedPersonEyeControls(
     "lash-upper",
     upperFields,
     (field) =>
-      portraitEyelashParameters.find((parameter) => parameter.id === field)!
-        .unit,
+      field === "strandCount"
+        ? "shafts (authored count)"
+        : portraitEyelashParameters.find((parameter) => parameter.id === field)!
+            .unit,
   );
   upper.apply.onclick = (): void => {
     const values = read("lash-upper", upperFields);
@@ -185,8 +196,11 @@ export function mountConnectedPersonEyeControls(
     "lash-lower",
     lowerFields,
     (field) =>
-      humanFaceLowerLashParameters.find((parameter) => parameter.id === field)!
-        .unit,
+      field === "strandCount"
+        ? "shafts (authored count)"
+        : humanFaceLowerLashParameters.find(
+            (parameter) => parameter.id === field,
+          )!.unit,
   );
   lower.apply.onclick = (): void => {
     const values = read("lash-lower", lowerFields);
@@ -249,8 +263,9 @@ export function mountConnectedPersonEyeControls(
       return rest;
     }, "Removing the eye optics…");
   };
+  const periocular = mountConnectedPersonPeriocularControls(props);
   return {
-    /** Show the committed document's values in the inputs. */
+    /** Show the displayed document's values in the inputs. */
     refresh: (): void => {
       const face = props.current().face;
       const fill = (
@@ -270,6 +285,7 @@ export function mountConnectedPersonEyeControls(
       fill("lash-upper", upperFields, face.lashes?.upper);
       fill("lash-lower", lowerFields, face.lashes?.lower);
       fill("optics", opticalFields, face.eyes);
+      periocular.refresh();
     },
   };
 }

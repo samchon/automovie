@@ -1,10 +1,11 @@
 import type * as THREE from "three";
 
-import type { HumanResidentPort } from "../common/residentWorker";
+import type { HumanResidentPort } from "../common/HumanResidentPort";
 import type { createHumanViewport } from "../common/viewport";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { IConnectedBodyShadowRenderer } from "./IConnectedBodyShadowRenderer";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Host services of `createConnectedBodyViewport`.
@@ -54,4 +55,7 @@ export interface IConnectedBodyViewportHost<Document>
    * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Lets the stage choose body or person document serialization.
    */
   serialize?: (document: Document) => string;
+
+  /** Loaded source authority for body-only auxiliary transactions; no private geometry enters a document. */
+  source?: IAutoMovieHumanBodyAnatomicalAssembly;
 }

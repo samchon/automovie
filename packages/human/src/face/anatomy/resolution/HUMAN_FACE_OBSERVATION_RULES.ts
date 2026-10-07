@@ -9,10 +9,15 @@ import type { IHumanFaceObservationRule } from "./IHumanFaceObservationRule";
  * permanent dentition in maximum intercuspation and no proxy for a primary,
  * mixed or edentulous mouth is built. Mouth, dental, tongue and oral cavity
  * values are kept as observations: lip and commissure distances are compared
- * with their measurements, the dentition has no per-tooth registration, and
- * the tongue and cavity have no shaping channel. Jaw motion capacity is kept
+ * with their measurements and per-tooth clinical protocol axes remain
+ * unregistered. Authored crown, tongue and lining dimensions have their own
+ * geometry consumers; these observations do not infer those dimensions or
+ * establish clinical proper-space boundaries. Jaw motion capacity is kept
  * and checked against the document's own pose. Each face part owner adds the
- * rules for its subtree here; a field no rule covers is refused.
+ * rules for its subtree here; a field no rule covers is refused. Upper-face
+ * skin line observations retain Lorenc et al.'s published 1–4 labels at rest
+ * and maximum contraction; neither a zero-based index nor a geometry depth is
+ * accepted as one of those raw labels.
  *
  * @author Samchon
  */
@@ -68,23 +73,23 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "dentition.teeth.*.state",
     outcome: "observed",
-    reason: "the dental surface carries every permanent tooth erupted; an unerupted, absent or prosthetic tooth has no representation",
+    reason: "clinical eruption and dentition-state conversion are not registered; authored present:false can omit a source crown without establishing a clinical absent-tooth state",
     values: ["erupted"],
   },
   {
     path: "oralCavity",
     outcome: "observed",
-    reason: "compared with oralCavity.properSpaceVolume, which names the missing palate and floor-of-mouth registration",
+    reason: "coarse oral lining exists; oralCavity.properSpaceVolume still requires registered clinical palate and floor-of-mouth boundaries",
   },
   {
     path: "tongue",
     outcome: "observed",
-    reason: "compared with the face's tongue.* measurements; no channel shapes the tongue",
+    reason: "compared with tongue.* measurements; authored tongue geometry dimensions exist separately and have no automatic conversion from these clinical observations",
   },
   {
     path: "motionCapacity.jaw",
     outcome: "observed",
-    reason: "checked against jaw.interincisalOpening, jaw.protrusionBeyondOverjet and jaw.lateralExcursion on the document's own pose",
+    reason: "checked against raw jaw.interincisalOpening and reference-relative jaw.protrusionFromReference/jaw.lateralExcursionFromReference on the document's own identity and pose",
   },
   {
     path: "craniofacial",
@@ -104,32 +109,32 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "eyes",
     outcome: "observed",
-    reason: "compared with the face's eye measurements (eye.* and eye.<side>.*); the crease, limbus, pupil aperture, axial length and cornea read as named gaps",
+    reason: "compared with eye.* and eye.<side>.* measurements, including generated optical dimensions; clinical crease registration and physiological light-adapted pupil acquisition remain separate gaps",
   },
   {
     path: "eyes.*.lowerEyelid",
     outcome: "observed",
-    reason: "kept for the record; missing registration: the face carries no lower-lid tissue layer, orbital fat or bag channel",
+    reason: "coarse lower-lid tissue shells exist; observed orbital-fat and bag grades have no registered acquisition or physiological conversion into those dimensions",
   },
   {
     path: "brows",
     outcome: "observed",
-    reason: "compared with the face's brow measurements (brow.<side>.*); the medial and lateral brow-to-lid distances and the arch apex, referenced to a limbus the CC0 eye proxy lacks, read as named gaps",
+    reason: "compared with brow.<side>.* measurements; generated brow shafts do not supply the unregistered clinical limbal verticals or arch-apex acquisition protocol",
   },
   {
     path: "brows.*.hairCoverageFraction",
     outcome: "observed",
-    reason: "kept for the record; missing registration: the brow is one card with no mature-hair population to cover",
+    reason: "generated brow shafts exist; mature-hair coverage acquisition and its surface-area denominator are not registered",
   },
   {
     path: "eyelashes",
     outcome: "observed",
-    reason: "compared with the face's lash measurements (eyelash.<side>.<row>.*), which read as named gaps because the lashes are cards",
+    reason: "compared with eyelash.<side>.<row>.*; generated shaft counts and sampled centreline lengths are output quantities, while the clinical central-2-mm caliper protocol remains unimplemented",
   },
   {
     path: "eyelashes.*.*.centralTwoMmShaftCount",
     outcome: "observed",
-    reason: "kept for the record; missing registration: the lashes are cards with no shaft population to count",
+    reason: "generated lash shafts exist; the clinical central-2-mm acquisition window and its biological shaft-count protocol are not registered",
   },
   {
     path: "eyelashes.*.*.form",
@@ -179,7 +184,12 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
   {
     path: "performance.jaw.lateralExcursionMm",
     outcome: "observed",
-    reason: "compared with jaw.lateralExcursion on the document's own pose",
+    reason: "compared with jaw.lateralExcursionFromReference, correcting the current identity's initial dental midline deviation",
+  },
+  {
+    path: "performance.jaw.protrusionMm",
+    outcome: "observed",
+    reason: "compared with jaw.protrusionFromReference, including the current identity's initial overjet",
   },
   {
     path: "performance.interlabialGapMm",
@@ -196,6 +206,19 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
     outcome: "observed",
     reason: "kept for the record; no channel or material carries a photonumeric line or sagging grade",
   },
+  ...[
+    "foreheadLines",
+    "glabellarLines",
+    "leftLateralCanthalLines",
+    "rightLateralCanthalLines",
+  ].flatMap((site) =>
+    ["protocol", "restGrade", "maximumContractionGrade"].map((state): IHumanFaceObservationRule => ({
+      path: `skinCondition.${site}.${state}`,
+      outcome: "observed",
+      values: state === "protocol" ? ["medytox-upper-face-2025"] : [1, 2, 3, 4],
+      reason: "Lorenc et al. 2025 upper-face protocol keeps raw severity labels 1 none/minimal, 2 mild, 3 moderate, 4 severe; omission is unobserved and no geometry is inferred",
+    })),
+  ),
   {
     path: "skinColour",
     outcome: "observed",

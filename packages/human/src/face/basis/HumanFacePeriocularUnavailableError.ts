@@ -2,9 +2,9 @@ import type { IHumanFacePeriocularUnavailable } from "./IHumanFacePeriocularUnav
 
 /**
  * The named refusal of a periocular document field that cannot be built yet:
- * either the producer-qualified registration it needs is absent from the
- * basis, or the basis carries it but no shape producer turns the field into
- * geometry yet. The field is never accepted and silently ignored.
+ * the producer-qualified registration it needs is absent from the basis.
+ * Complete registrations reach the actual producers and their admission;
+ * absent ones are never accepted and silently ignored.
  *
  * @evidence contracts/common.md#principled-implementation A missing registration or shape producer refuses by name instead of being guessed from asset names or silently ignored.
  * @evidence contracts/common.md#clear-and-simple-design One error class for one refusal kind (an unbuildable periocular field), with its record as a named member.
@@ -31,23 +31,13 @@ export class HumanFacePeriocularUnavailableError extends Error {
    */
   public constructor(detail: IHumanFacePeriocularUnavailable) {
     super(
-      detail.missing === "opticalSupport" || detail.missing === "periocular"
-        ? "The face document field " +
+      "The face document field " +
             detail.field +
             " needs the basis's " +
             detail.missing +
             " registration, which basis " +
             detail.basis +
-            " does not carry yet."
-        : "The face document field " +
-            detail.field +
-            " cannot shape basis " +
-            detail.basis +
-            " yet: no " +
-            (detail.missing === "opticalBuilder"
-              ? "optical builder"
-              : "lash generator") +
-            " turns it into geometry, so it is refused rather than ignored.",
+            " does not carry yet.",
     );
     this.name = "HumanFacePeriocularUnavailableError";
     this.detail = detail;

@@ -26,3 +26,8 @@ export * from "./summarizeHumanFaceArticulation";
 export * from "./unposeHumanFaceSurface";
 export * from "./IHumanFaceApertureFrame";
 export * from "./IHumanFaceAperturePair";
+export * from "./IHumanFaceConstructionStage";
+export * from "./publishHumanFaceConstruction";
+export * from "./createHumanFaceConstructionEntries";
+export * from "./resolveHumanFaceAppearanceDocument";
+export * from "./createHumanFaceSurfaceColours";

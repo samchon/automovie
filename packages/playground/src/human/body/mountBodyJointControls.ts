@@ -1,14 +1,14 @@
-import {
-  resolveHumanBodyCouplings,
-  resolveHumanBodyDocumentPose,
-  resolveHumanBodyShapeShoulderRest,
-} from "@automovie/human";
+import { resolveHumanBodyCouplings } from "@automovie/human/body/basis/resolveHumanBodyCouplings";
+import { resolveHumanBodyDocumentPose } from "@automovie/human/body/basis/resolveHumanBodyDocumentPose";
+import { resolveHumanBodyShapeShoulderRest } from "@automovie/human/body/basis/resolveHumanBodyShapeShoulderRest";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
+import { renderBodyGroundPlacementControl } from "./renderBodyGroundPlacementControl";
+import { renderBodyAtlasInspectionControls } from "./renderBodyAtlasInspectionControls";
 
 /**
  * Bind the body's joint picker and its current document's numerical controls.
@@ -30,6 +30,8 @@ import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
 export function mountBodyJointControls(props: IBodyJointControlsProps): void {
   const { dom, container, basis } = props;
   const draft = props.current();
+  renderBodyGroundPlacementControl(props);
+  renderBodyAtlasInspectionControls(props);
   let bone = props.bone;
   const rest = () => {
     try {

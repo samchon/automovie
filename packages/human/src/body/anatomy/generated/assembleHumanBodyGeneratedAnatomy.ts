@@ -12,8 +12,10 @@ import type { IAutoMovieHumanBodyRegionPartsInput } from "./IAutoMovieHumanBodyR
  * Each registered region resolver answers its own parts. Two answers for one
  * part refuse by that part's name, because the regions would disagree about
  * who owns it. A part no region answers yet is `geometry-not-validated`: no
- * generator for it exists. The shared skin is a candidate exterior, never a
- * validated generated skin, so it is `geometry-not-validated` as well.
+ * independently validated anatomical resolution is supplied. Acquired or
+ * authored coarse source geometry may exist separately; this report does not
+ * prohibit its generation or certify its biological validity. The shared skin
+ * remains a candidate exterior with the same independent validation boundary.
  *
  * @evidence contracts/common.md#principled-implementation Regions own their reasons; the assembly only combines them, refuses duplicates and names the unanswered default.
  * @evidence contracts/common.md#clear-and-simple-design One pass over the registry and the closed id set.

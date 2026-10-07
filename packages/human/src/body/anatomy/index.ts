@@ -44,3 +44,15 @@ export type { IAutoMovieHumanBodyExteriorGap } from "./surface/IAutoMovieHumanBo
 export type { AutoMovieHumanBodyExteriorGapReason } from "./surface/AutoMovieHumanBodyExteriorGapReason";
 export * from "./resolveHumanBodyAnatomy";
 export * from "./admitHumanBodyDocumentAnatomy";
+export * from "./layer/readHumanBodyLayerOrder";
+export type { IHumanBodyLayerOrderInput } from "./layer/IHumanBodyLayerOrderInput";
+export * from "./layer/createHumanBodyLayerSurfaces";
+export * from "./layer/createHumanBodySubcutaneousShell";
+export * from "./atlas/isHumanBodyAtlasSourceRecorded";
+export type { IHumanBodyLayerReference } from "./layer/IHumanBodyLayerReference";
+export type { IHumanBodyLayerSurfaces } from "./layer/IHumanBodyLayerSurfaces";
+export type { IHumanBodyLayerSurfacesInput } from "./layer/IHumanBodyLayerSurfacesInput";
+export type { IAutoMovieHumanBodyLayerThicknessField } from "./layer/IAutoMovieHumanBodyLayerThicknessField";
+export type { IAutoMovieHumanBodyLayerThicknessAnchor } from "./layer/IAutoMovieHumanBodyLayerThicknessAnchor";
+export * from "./binding/createHumanBodyExteriorFollower";
+export type { IAutoMovieHumanBodyExteriorBinding } from "./binding/IAutoMovieHumanBodyExteriorBinding";

@@ -5,6 +5,14 @@ import {
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
+import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
+import type { IHumanFaceContactBounds } from "./IHumanFaceContactBounds";
+import type { IHumanFaceContactGeometry } from "./IHumanFaceContactGeometry";
+import type { IHumanFaceContactColliderState } from "./IHumanFaceContactColliderState";
+import type { IHumanFaceContactWitness } from "./IHumanFaceContactWitness";
+import type { IHumanFaceContactHit } from "./IHumanFaceContactHit";
+import type { IHumanFaceContactFloor } from "./IHumanFaceContactFloor";
 
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 
@@ -82,6 +90,7 @@ export function resolveHumanFaceContact(
   contact: Contact,
   posed: Map<string, number[]>,
   shaped: ReadonlyMap<string, readonly number[]>,
+  generated?: ReadonlyMap<string, readonly IHumanFaceDynamicCollider[]>,
 ): IAutoMovieHumanFaceContactSummary["resolved"] {
   const surfaces = new Map(
     basis.surfaces.map((surface) => [surface.id, surface]),
@@ -90,17 +99,35 @@ export function resolveHumanFaceContact(
     id: string,
     closure: readonly number[],
     positions: readonly number[],
-  ) => {
-    const query = createAutoMovieSignedMeshQuery(
+    mesh?: IAutoMovieMesh,
+    label: string = id,
+    pointIds?: readonly string[],
+  ): IHumanFaceContactGeometry => {
+    let query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+    try {
+      query = createAutoMovieSignedMeshQuery(
       {
         positions: positions as number[],
-        indices: [...surfaces.get(id)!.indices, ...closure],
+        indices: mesh === undefined ? [...surfaces.get(id)!.indices, ...closure] : mesh.indices,
         normals: null,
         uvs: null,
         skin: null,
       },
       { boundary: "open" },
-    );
+      );
+    } catch (error) {
+      const original = mesh === undefined ? surfaces.get(id)?.positions : undefined;
+      let changedCoordinates = 0, maximumChangeMetres = 0;
+      if (original !== undefined && original.length === positions.length)
+        positions.forEach((value, at) => {
+          if (value !== original[at]) changedCoordinates++;
+          maximumChangeMetres = Math.max(maximumChangeMetres, Math.abs(value - original[at]));
+        });
+      throw new Error("Face contact collider " + label +
+        (original === undefined ? "" : "; changed source coordinates " + changedCoordinates + ", maximum change " + maximumChangeMetres + " m") +
+        ": " + (error instanceof Error ? error.message : String(error)) +
+        (pointIds === undefined ? "" : "; physical point identities " + JSON.stringify(pointIds)), { cause: error });
+    }
     const low = [Infinity, Infinity, Infinity];
     const high = [-Infinity, -Infinity, -Infinity];
     for (let at = 0; at < positions.length; at += 3)
@@ -110,22 +137,39 @@ export function resolveHumanFaceContact(
       }
     return { query, low, high };
   };
-  const colliders = contact.colliders.map((collider) => ({
+  const colliders: IHumanFaceContactColliderState[] = contact.colliders.flatMap((collider) => {
+    const replacements = generated?.get(collider.surface);
+    if (replacements !== undefined) {
+      if (replacements.length === 0)
+        throw new Error("Generated contact replacement must retain at least one exterior.");
+      return replacements.map(replacement => ({
+        reach: collider.reachMetres,
+        cover: collider.coverMetres ?? 0,
+        now: compile(collider.surface, [], replacement.posed.positions, replacement.posed, (replacement.id ?? collider.surface) + ":performed", replacement.pointIds),
+        rest: compile(collider.surface, [], replacement.rest.positions, replacement.rest, (replacement.id ?? collider.surface) + ":rest", replacement.pointIds),
+      }));
+    }
+    return [{
     reach: collider.reachMetres,
     cover: collider.coverMetres ?? 0,
     now: compile(
       collider.surface,
       collider.closure,
       posed.get(collider.surface)!,
+      undefined,
+      collider.surface + ":performed",
     ),
     rest: compile(
       collider.surface,
       collider.closure,
       shaped.get(collider.surface)!,
+      undefined,
+      collider.surface + ":rest",
     ),
-  }));
+    }];
+  });
   const near = (
-    box: { low: number[]; high: number[] },
+    box: IHumanFaceContactBounds,
     reach: number,
     p: readonly number[],
   ): boolean =>
@@ -156,8 +200,8 @@ export function resolveHumanFaceContact(
       members.push(vertex);
     }
     const pushes = new Map<number, number[]>();
-    const floors = new Map<number, { collider: typeof colliders[number]; floor: number; signed: number }[]>();
-    const rowsOf = new Map<number, ContactFloor[]>();
+    const floors = new Map<number, IHumanFaceContactWitness[]>();
+    const rowsOf = new Map<number, IHumanFaceContactFloor[]>();
     // The first refusal reading of one welded point, or null when every
     // original floor holds there within the declared tolerance and the net
     // budget. A directly corrected point refuses on it; a spread-only
@@ -193,8 +237,8 @@ export function resolveHumanFaceContact(
     for (const members of groups.values()) {
       const vertex = members[0];
       const p = positions.slice(3 * vertex, 3 * vertex + 3);
-      const known: { collider: typeof colliders[number]; floor: number; signed: number }[] = [];
-      const rows: ContactFloor[] = [];
+      const known: IHumanFaceContactWitness[] = [];
+      const rows: IHumanFaceContactFloor[] = [];
       for (const collider of colliders) {
         if (!near(collider.now, collider.reach, p)) continue;
         const hit = collider.now.query(p);
@@ -313,13 +357,7 @@ export function resolveHumanFaceContact(
  * limit.
  */
 function signedGradient(
-  hit: {
-    point: number[];
-    normal: number[];
-    distance: number;
-    signedDistance: number;
-    feature: string;
-  },
+  hit: IHumanFaceContactHit,
   query: readonly number[],
 ): number[] {
   if (hit.feature === "face" || !(hit.distance > 0)) return hit.normal;
@@ -327,11 +365,8 @@ function signedGradient(
   return query.map((value, axis) => (side * (value - hit.point[axis])) / hit.distance);
 }
 
-/** Original unit-gradient affine floors in the posed point's metre frame. */
-type ContactFloor = { normal: readonly number[]; minimum: number };
-
 /** Whether every affine floor reads at least its minimum minus the slack. */
-function holds(rows: readonly ContactFloor[], vector: readonly number[], slack: number): boolean {
+function holds(rows: readonly IHumanFaceContactFloor[], vector: readonly number[], slack: number): boolean {
   return rows.every((row) =>
     row.normal.reduce((sum, value, axis) => sum + value * vector[axis], 0) >= row.minimum - slack);
 }
@@ -353,7 +388,7 @@ function holds(rows: readonly ContactFloor[], vector: readonly number[], slack: 
  * convex, outside a convex feature, and actual signed geometry is checked by
  * the caller before committing any move.
  */
-function contactCorrection(rows: readonly ContactFloor[], budget: number, tolerance: number): number[] {
+function contactCorrection(rows: readonly IHumanFaceContactFloor[], budget: number, tolerance: number): number[] {
   const needed = rows.filter((row) => row.minimum > tolerance);
   const largest = needed.reduce((a, b) => a.minimum >= b.minimum ? a : b);
   const direct = largest.normal.map((value) => value * largest.minimum);
@@ -377,7 +412,7 @@ function contactCorrection(rows: readonly ContactFloor[], budget: number, tolera
  * refused after the solve.
  */
 function contactProjection(
-  rows: readonly ContactFloor[],
+  rows: readonly IHumanFaceContactFloor[],
   target: readonly number[],
   budget: number,
   tolerance: number,

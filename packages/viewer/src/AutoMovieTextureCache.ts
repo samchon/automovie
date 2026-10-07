@@ -16,14 +16,18 @@ import { textureBindingAsset } from "./textureBindingAsset";
  * ONTO the texture object it is given, so two slots that name the same image
  * must not receive the same object: a floor repeating its tile 40 times and a
  * table top repeating the same tile twice would otherwise fight over one
- * `repeat`, last writer winning. But decoding that image twice is a second
- * download and a second GPU upload of identical pixels, per model, for a
- * building whose whole point is that the same tile recurs everywhere.
+ * `repeat`, last writer winning. Decoding that image once instead lets every
+ * binding reuse its loaded pixel source without repeating the host's load and
+ * decode work for each model.
  *
  * So the asset is decoded once and each binding gets `clone()` of it. A
- * `three.js` clone shares its source's `Source` object, which is what the
- * renderer keys its GPU upload on, so N clones of one asset are N cheap
- * descriptors over ONE upload while each keeps its own sampling state.
+ * `three.js` clone shares its source's `Source` object while keeping binding
+ * state private. Within one WebGL renderer, that source can share a GPU texture
+ * when the renderer's texture-state keys match. UV repeat and offset alone do
+ * not change that key; different sampler, format, flip or color-space state can
+ * allocate and upload separate textures for the same pixels. GPU resources
+ * also belong to their renderer, so sharing a decoded source does not promise
+ * one upload across bindings, updates or renderers.
  *
  * The cache is per shot rather than per model because a shot is the lifetime a
  * host can actually end: {@link dispose} releases every clone it issued and

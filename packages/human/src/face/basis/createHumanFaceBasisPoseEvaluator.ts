@@ -1,28 +1,40 @@
 import { Vector3 } from "@automovie/engine";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { readHumanFacePeriocularTissueSpace } from "../anatomy/eye/readHumanFacePeriocularTissueSpace";
+import { buildHumanFacePeriocularTissues } from "../anatomy/eye/buildHumanFacePeriocularTissues";
+import { createHumanFacePeriocularDefaults } from "../anatomy/eye/createHumanFacePeriocularDefaults";
+import { seatHumanFaceLidCage } from "../anatomy/eye/seatHumanFaceLidCage";
+import { buildHumanFaceOralAssembly } from "../anatomy/oral/buildHumanFaceOralAssembly";
+import { connectHumanFaceOralLipPorts } from "../anatomy/oral/connectHumanFaceOralLipPorts";
+import { evaluateHumanFaceOralPassage } from "../anatomy/oral/evaluateHumanFaceOralPassage";
+import { poseHumanFaceOralAssembly } from "../anatomy/oral/poseHumanFaceOralAssembly";
+import { applyHumanFaceNasolabialRelief } from "../anatomy/skin/applyHumanFaceNasolabialRelief";
+import { applyHumanFaceRegionalRelief } from "../anatomy/skin/applyHumanFaceRegionalRelief";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
-import type { IHumanFaceApertureFrame } from "./IHumanFaceApertureFrame";
+import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
+import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
+import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
 import { applyHumanFaceSourceClosure } from "./applyHumanFaceSourceClosure";
+import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
+import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
+import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
-import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
-import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { measureHumanFaceMarginGaps } from "./measureHumanFaceMarginGaps";
-import { createHumanFaceClosureGain } from "./createHumanFaceClosureGain";
-import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
-import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
-import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
+import { prepareHumanFaceReference } from "./prepareHumanFaceReference";
 import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
 /**
  * Compile the connected basis's geometry stage, independent of appearance.
  * One call receives admitted channel weights and the matching identity shape,
  * and owns native rest deformation, shaped joints, companion scaling, attached
- * posing and source refinement replay. A compiled source span reads fixed
+ * posing and source refinement replay. With independent optics, the lid cage of
+ * each eye is then seated on that eye's analytic exterior in the rest and the
+ * performed state (`seatHumanFaceLidCage`). A compiled source span reads fixed
  * closure-zero/one native stages with the same other inputs, forms its endpoint
  * after replay and applies the request once. Native closure scales its rows by
  * `measureHumanFaceClosureRatio`, so closure weight one brings the central lip
@@ -61,11 +73,8 @@ export function createHumanFaceBasisPoseEvaluator(
 ): (
   state: ReturnType<typeof humanFaceBasisWeights>,
   shape: IAutoMovieHumanFaceBasisDocument["shape"],
-) => {
-  positions: ReadonlyMap<string, readonly number[]>;
-  normals: ReadonlyMap<string, readonly number[]>;
-  summary: IAutoMovieHumanFaceContactSummary | null;
-} {
+  geometry?: IHumanFacePoseGeometry,
+) => IHumanFacePoseResult {
   for (const surface of basis.surfaces)
     if (
       surface.sourcePosePlan !== undefined &&
@@ -75,104 +84,146 @@ export function createHumanFaceBasisPoseEvaluator(
       throw new Error(
         "Face source pose and normal partitions need the same compiler generation.",
       );
-  const closure = new Set(
-    basis.contact === undefined ? [] : [basis.contact.closure.channel],
-  );
-  const shapeChannels = new Set(
-    basis.channels
-      .filter((channel) => channel.kind === "shape")
-      .map((channel) => channel.id),
-  );
   const contact = basis.contact;
   const sourceSpan = contact?.closure.sourceSpan;
   if (sourceSpan !== undefined) {
-    const source = basis.surfaces.find(surface => surface.id === sourceSpan.surface);
+    const source = basis.surfaces.find(
+      (surface) => surface.id === sourceSpan.surface,
+    );
     if (source === undefined)
       throw new Error("Face source closure names an absent basis surface.");
-    if ([source.sourcePosePlan?.generation, source.sourcePartition?.generation]
-      .some(generation => generation !== undefined && generation !== sourceSpan.generation))
-      throw new Error("Face source closure needs the same compiler generation.");
+    if (
+      [
+        source.sourcePosePlan?.generation,
+        source.sourcePartition?.generation,
+      ].some(
+        (generation) =>
+          generation !== undefined && generation !== sourceSpan.generation,
+      )
+    )
+      throw new Error(
+        "Face source closure needs the same compiler generation.",
+      );
   }
-  const poseNative = (state: ReturnType<typeof humanFaceBasisWeights>) => {
-    const rest = evaluateHumanFaceRest(basis, state, closure);
-    const motions =
-      basis.articulation === undefined
-        ? undefined
-        : resolveHumanFaceArticulation(
-            basis.articulation,
-            state.weights,
-            rest.landmarks,
-          ).motions;
-    let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
-    let frame: IHumanFaceApertureFrame | undefined;
-    let closureRatio = 0;
-    if (contact !== undefined) {
-      shaped = evaluateHumanFaceRest(basis, {
-        weights: new Map(
-          [...state.weights].filter(([id]) => shapeChannels.has(id)),
+  const poseNative = createHumanFaceNativePose(basis);
+  return (state, shape, geometry) => {
+    const checks: IHumanFacePoseResult["checks"][number][] = [];
+    const { skinRelief, oral } = geometry ?? {};
+    const periocularTissues = createHumanFacePeriocularDefaults(basis, geometry);
+    const fixed = (weight: number) =>
+      humanFaceBasisWeights(basis, {
+        shape,
+        expression: Object.fromEntries(
+          basis.channels
+            .filter((channel) => channel.kind === "expression")
+            .map((channel) => [
+              channel.id,
+              channel.id === contact!.closure.channel
+                ? weight
+                : (state.weights.get(channel.id) ?? 0),
+            ]),
         ),
-        activations: state.activations.filter((one) => one.shapeOnly),
       });
-      frame = measureHumanFaceAperture(basis, contact, rest.surfaces, motions!);
-      const gains = createHumanFaceClosureGain(
-        basis,
-        contact,
-        rest.surfaces,
-        motions!,
-        frame.up,
+    const native = poseNative(
+      sourceSpan === undefined ? state : fixed(0),
+      geometry,
+    );
+    const posed =
+      sourceSpan === undefined
+        ? native.posed
+        : applyHumanFaceSourceClosure(
+            sourceSpan,
+            native.posed,
+            poseNative(fixed(1), geometry).posed,
+            state.weights.get(contact!.closure.channel) ?? 0,
+          );
+    const preparation = prepareHumanFaceReference({ basis, state, geometry, native });
+    const shaped = preparation.shaped;
+    // The lid margin is seated on the generated ocular exterior before any
+    // stage reads the skin, so contact, tissue and every measurement see one
+    // rest and one performed lid.
+    const optics = preparation.optics;
+    for (const eye of optics ?? []) {
+      const cage = basis.periocular?.[eye.side].cage;
+      if (cage === undefined) continue;
+      assertHumanFacePeriocularCage(basis, cage);
+      const host = basis.surfaces.findIndex(
+        (surface) => surface.id === cage.surface,
       );
-      closureRatio = gains.ratio;
-      const weight = state.weights.get(contact.closure.channel) ?? 0;
-      const endpoint = basis.channels.find(
-        (channel) => channel.id === contact.closure.channel,
-      )!.positive;
-      if (weight !== 0)
-        basis.surfaces.forEach((surface, index) => {
-          const rows = surface.targets[endpoint];
-          if (rows === undefined) return;
-          const positions = rest.surfaces[index];
-          const lips = surface.id === contact.lips.surface;
-          for (let i = 0; i < rows.length; i += 4) {
-            const gain = weight * (lips ? gains.lips[rows[i]] : gains.ratio);
-            for (let axis = 0; axis < 3; axis++)
-              positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
-          }
-        });
-    }
-    const posed = new Map<string, number[]>();
-    basis.surfaces.forEach((surface, index) => {
+      const samples = basis.surfaces[host].sourcePartition!.samples;
       posed.set(
-        surface.id,
-        replayHumanFaceSourceRefinements(
-          surface.sourcePosePlan,
-          motions !== undefined && (surface.attachments?.length ?? 0) > 0
-            ? poseHumanFaceSurface(
-                rest.surfaces[index],
-                surface.attachments!,
-                motions,
-              )
-            : rest.surfaces[index],
+        cage.surface,
+        seatHumanFaceLidCage(
+          cage,
+          samples,
+          posed.get(cage.surface)!,
+          eye.exterior.posed,
+          basis.surfaces[host].indices,
         ),
       );
-    });
-    return { posed, shaped, frame, closureRatio };
-  };
-  return (state, shape) => {
-    const fixed = (weight: number) => humanFaceBasisWeights(basis, {
-      shape,
-      expression: Object.fromEntries(basis.channels
-        .filter(channel => channel.kind === "expression")
-        .map(channel => [channel.id, channel.id === contact!.closure.channel
-          ? weight : state.weights.get(channel.id) ?? 0])),
-    });
-    const native = poseNative(sourceSpan === undefined ? state : fixed(0));
-    const posed = sourceSpan === undefined ? native.posed : applyHumanFaceSourceClosure(
-      sourceSpan, native.posed, poseNative(fixed(1)).posed,
-      state.weights.get(contact!.closure.channel) ?? 0,
-    );
-    const shaped = native.shaped;
-    let frame = native.frame;
+    }
+    const oralAssembly =
+      oral === undefined
+        ? undefined
+        : shaped === undefined
+          ? (() => {
+              throw new Error(
+                "Oral assembly needs its shape-only source reference.",
+              );
+            })()
+          : (() => {
+              const reference = new Map(
+                basis.surfaces.map((surface, at) => [
+                  surface.id,
+                  shaped.surfaces[at],
+                ]),
+              );
+              const jaw = native.motions?.get("jaw");
+              if (jaw === undefined)
+                throw new Error(
+                  "Oral assembly needs its actual source jaw motion.",
+                );
+              return poseHumanFaceOralAssembly(
+                basis,
+                reference,
+                buildHumanFaceOralAssembly(basis, reference, oral),
+                jaw,
+              );
+            })();
+    if (skinRelief !== undefined) {
+      const relieved = applyHumanFaceRegionalRelief(
+        basis,
+        applyHumanFaceNasolabialRelief(basis, posed, state.weights, skinRelief),
+        skinRelief,
+      );
+      for (const [id, positions] of relieved)
+        if (positions !== posed.get(id)) posed.set(id, [...positions]);
+    }
+    const reference = preparation.complete();
     let summary: IAutoMovieHumanFaceContactSummary | null = null;
+    const generated = new Map<string, IHumanFaceDynamicCollider[]>();
+    for (const eye of optics ?? []) {
+      const entries = generated.get(eye.surface) ?? [];
+      entries.push(eye.collider);
+      generated.set(eye.surface, entries);
+    }
+    if (oralAssembly !== undefined) {
+      if (contact === undefined || oralAssembly.colliders === undefined)
+        throw new Error(
+          "Oral assembly needs its actual generated contact exterior.",
+        );
+      generated.set(oralAssembly.dentalSurface, [...oralAssembly.colliders]);
+    }
+    if (
+      optics !== undefined &&
+      (contact === undefined ||
+        [...generated.keys()].some(
+          (id) => !contact.colliders.some((c) => c.surface === id),
+        ))
+    )
+      throw new Error(
+        "Independent optics need their registered exterior in the source contact assembly.",
+      );
     if (contact !== undefined) {
       const resolved = resolveHumanFaceContact(
         basis,
@@ -184,56 +235,156 @@ export function createHumanFaceBasisPoseEvaluator(
             shaped!.surfaces[index],
           ]),
         ),
+        generated,
       );
       const pair = (entry: typeof contact.lips) => {
         const positions = posed.get(entry.surface)!;
-        const point = (vertex: number) => Vector3.create(
-          positions[3 * vertex],
-          positions[3 * vertex + 1],
-          positions[3 * vertex + 2],
-        );
+        const point = (vertex: number) =>
+          Vector3.create(
+            positions[3 * vertex],
+            positions[3 * vertex + 1],
+            positions[3 * vertex + 2],
+          );
         const upper = point(entry.upper);
         const lower = point(entry.lower);
-        return { upper, lower, gap: measureHumanFaceApertureGap(upper, lower, frame!.up) };
+        return {
+          upper,
+          lower,
+          gap: measureHumanFaceApertureGap(upper, lower, native.up!),
+        };
       };
       const authoredLips = pair(contact.lips);
-      const lips = sourceSpan === undefined ? authoredLips : pair({
-        surface: sourceSpan.surface,
-        upper: sourceSpan.representativePair[0],
-        lower: sourceSpan.representativePair[1],
-      });
-      frame = { ...frame!, lips, incisors: pair(contact.incisors) };
-      const passage = evaluateHumanFacePassage(
-        contact,
-        posed.get(contact.passage.surface)!,
-        frame,
-        basis.surfaces.find((surface) => surface.id === contact.passage.surface)!.indices,
-      );
+      const lips =
+        sourceSpan === undefined
+          ? authoredLips
+          : pair({
+              surface: sourceSpan.surface,
+              upper: sourceSpan.representativePair[0],
+              lower: sourceSpan.representativePair[1],
+            });
+      const missingIncisor =
+        oralAssembly !== undefined &&
+        contact.incisors.surface === oralAssembly.dentalSurface &&
+        [contact.incisors.upper, contact.incisors.lower].some((vertex) =>
+          oralAssembly.absentDentalVertices.has(vertex),
+        );
+      const incisors = missingIncisor ? undefined : pair(contact.incisors);
+      const up = native.up!,
+        forward = Vector3.cross(
+          Vector3.create(...basis.articulation!.jaw.axis),
+          up,
+        );
+      const passage =
+        oralAssembly === undefined
+          ? evaluateHumanFacePassage(
+              contact,
+              posed.get(contact.passage.surface)!,
+              { up, forward, lips, incisors: incisors! },
+              basis.surfaces.find(
+                (surface) => surface.id === contact.passage.surface,
+              )!.indices,
+            )
+          : (() => {
+              if (reference === undefined)
+                throw new Error(
+                  "Actual oral passage needs its matching shape-only source reference.",
+                );
+              return evaluateHumanFaceOralPassage({
+                basis,
+                assembly: oralAssembly,
+                reference,
+                positions: posed,
+                up,
+                forward,
+              });
+            })();
       summary = {
-        interlabialMetres: frame!.lips.gap,
-        interincisalMetres: frame!.incisors.gap,
+        interlabialMetres: lips.gap,
+        interincisalMetres: incisors?.gap ?? null,
         closureRatio: native.closureRatio,
         passage,
         resolved,
-        ...(contact.margin === undefined ? {} : {
-          marginInterlabialMetres: measureHumanFaceMarginGaps(
-            posed.get(contact.lips.surface)!,
-            contact.margin,
-            basis.articulation!.jaw.axis,
-            frame!.up,
-          ),
-        }),
-        ...(sourceSpan === undefined ? {} : {
-          sourceNativeInterlabialMetres: authoredLips.gap,
-        }),
+        ...(contact.margin === undefined
+          ? {}
+          : {
+              marginInterlabialMetres: measureHumanFaceMarginGaps(
+                posed.get(contact.lips.surface)!,
+                contact.margin,
+                basis.articulation!.jaw.axis,
+                native.up!,
+              ),
+            }),
+        ...(sourceSpan === undefined
+          ? {}
+          : {
+              sourceNativeInterlabialMetres: authoredLips.gap,
+            }),
       };
     }
+    const finalOral =
+      oralAssembly === undefined
+        ? undefined
+        : connectHumanFaceOralLipPorts(
+            basis,
+            oralAssembly,
+            posed,
+            native.motions!.get("jaw")!,
+          );
     const normals = new Map(
       basis.surfaces.map((surface) => [
         surface.id,
         areaWeightedNormals(posed.get(surface.id)!, surface.indices),
       ]),
     );
-    return { positions: posed, normals, summary };
+    const tissues =
+      periocularTissues === undefined
+        ? undefined
+        : (() => {
+            if (reference === undefined)
+              throw new Error(
+                "Periocular tissues need their actual shape-only source reference.",
+              );
+            const exteriors = (state: "rest" | "posed") =>
+              new Map(
+                (optics ?? []).map((eye) => [eye.side, eye.exterior[state]]),
+              );
+            const resting = buildHumanFacePeriocularTissues(
+              basis,
+              reference,
+              new Map(
+                basis.surfaces.map((surface) => [
+                  surface.id,
+                  areaWeightedNormals(
+                    [...reference.get(surface.id)!],
+                    surface.indices,
+                  ),
+                ]),
+              ),
+              exteriors("rest"),
+              periocularTissues,
+            );
+            checks.push(createHumanFaceClearanceCheck("periocular-rest", "Periocular rest shell exceeds its lid or intersects its optical exterior or another shell", () => readHumanFacePeriocularTissueSpace(basis, reference, resting, optics, "rest")));
+            const performed = buildHumanFacePeriocularTissues(
+              basis,
+              posed,
+              normals,
+              exteriors("posed"),
+              periocularTissues,
+            );
+            checks.push(createHumanFaceClearanceCheck("periocular-performed", "Periocular performed shell exceeds its lid or intersects its optical exterior or another shell", () => readHumanFacePeriocularTissueSpace(basis, posed, performed, optics, "performed")));
+            return performed;
+          })();
+    return {
+      checks,
+      positions: posed,
+      normals,
+      summary,
+      ...(optics === undefined ? {} : { optics }),
+      ...(reference === undefined ? {} : { reference }),
+      ...(tissues === undefined ? {} : { periocularTissues: tissues }),
+      ...(finalOral === undefined
+        ? {}
+        : { oral: finalOral, jawMotion: native.motions?.get("jaw") }),
+    };
   };
 }

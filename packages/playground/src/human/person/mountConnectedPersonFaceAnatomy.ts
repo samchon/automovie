@@ -1,8 +1,5 @@
-import {
-  type AutoMovieHumanFaceMeasurementReading,
-  type IAutoMovieHumanFaceAnatomicalRequest,
-  HUMAN_FACE_MEASUREMENTS,
-} from "@automovie/human";
+import type { AutoMovieHumanFaceMeasurementReading, IAutoMovieHumanFaceAnatomicalRequest, IAutoMovieHumanFaceMeasurementMeasured } from "@automovie/human";
+import { HUMAN_FACE_MEASUREMENTS } from "@automovie/human/face/anatomy/resolution/HUMAN_FACE_MEASUREMENTS";
 
 import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAnatomyProps";
 
@@ -12,7 +9,10 @@ import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAna
  * face and, where the measurement lists a channel, a target the worker solves.
  *
  * A reading shows its value and unit, or the named reason the face cannot
- * read it (a missing landmark, rule or registration). A target is offered only
+ * read it (a missing landmark, rule or registration). It keeps the registry's
+ * source/protocol qualification beside the value and formats each declared
+ * unit, including area, without guessing from the measurement's name.
+ * A target is offered only
  * for a measurement whose registry entry lists a channel, and its input and
  * Solve stay disabled while the reading is unavailable, enabling again as soon
  * as the face can read it; applying it solves
@@ -20,9 +20,12 @@ import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAna
  * weight and the target recorded in `face.anatomical.targets`, so admission,
  * last-valid state, undo and save/reload are the editor's. The clinical
  * observations record (`face.anatomical.observations`) is edited as JSON and
- * committed the same way; the face admission keeps or refuses each field by
- * name. A refusal keeps the committed person and shows the reason.
+ * applied through the same transaction; the face admission keeps or refuses
+ * each field by name. A refusal keeps the displayed person and shows the
+ * reason; only the panel's state identifies an accepted history commit.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Displays grouped anatomical readouts and supported numeric targets through the person's committed editor state.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Displays registry units and source qualifications without changing document values, and submits observations and solvable targets through the supplied person transaction.
  * @author Samchon
  */
 export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnatomyProps) {
@@ -34,8 +37,14 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
   }
   const readings = new Map<string, HTMLElement>();
   const controls = new Map<string, (HTMLInputElement | HTMLButtonElement)[]>();
-  const unit = (name: string): string =>
-    name === "millimetres" ? "mm" : name === "degrees" ? "°" : "cm³";
+  const units: Record<IAutoMovieHumanFaceMeasurementMeasured["unit"], string> = {
+    millimetres: "mm",
+    "square-millimetres": "mm²",
+    degrees: "°",
+    "cubic-centimetres": "cm³",
+    count: "count",
+  };
+  const unit = (name: IAutoMovieHumanFaceMeasurementMeasured["unit"]): string => units[name];
   const commit = async (
     text: string,
     next: () => Promise<Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]>,
@@ -47,7 +56,7 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
       if (!props.isCurrent(ticket)) return;
       const success = await props.change(document, ticket);
       if (success && props.isCurrent(ticket))
-        props.report(text.replace(/…$/u, "") + " committed.");
+        props.report(text.replace(/…$/u, "") + " applied.");
     } catch (error) {
       if (props.isCurrent(ticket)) props.refuse(error);
     }
@@ -117,7 +126,9 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
       return { ...document, face };
     });
   };
-  props.container.append(observations, applyObservations);
+  const observationMeaning = props.dom.createElement("small");
+  observationMeaning.textContent = "Observation JSON stores measured records with their original protocol. It is separate from the numerical styling targets above and supplies no missing anatomical support.";
+  props.container.append(observationMeaning, observations, applyObservations);
   let generation = 0;
   return {
     refresh: (): void => {
@@ -148,7 +159,7 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
             value === undefined
               ? "Current: unreadable — " + failure
               : value.status === "measured"
-                ? `Current: ${value.measured.toFixed(2)} ${unit(value.unit)}${target}`
+                ? `Current: ${value.measured.toFixed(2)} ${unit(value.unit)}${target}${value.qualification === undefined ? "" : `; ${value.qualification}`}`
                 : `Unavailable: ${value.reason}${target}`;
         }
       })();

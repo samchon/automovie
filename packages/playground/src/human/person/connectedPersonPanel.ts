@@ -1,51 +1,52 @@
-import {
-  type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanPersonDocument,
-  createHumanFaceEditor,
-  parseHumanPersonDocument,
-  serializeHumanPersonDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanFaceBasisDocument, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
+import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
+import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 
 import { renderBodyPosePresets } from "../body/bodyPosePresets";
 import { createBodyIntentGate } from "../body/createBodyIntentGate";
-import { mountConnectedFaceControls } from "../face/connectedControls";
-import { connectedFaceComponents } from "../face/anatomy/connectedFaceComponents";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
-import { createConnectedPersonFaceComponents } from "./createConnectedPersonFaceComponents";
-import { mountConnectedPersonMeasuredControls } from "./connectedPersonMeasuredControls";
-import { mountConnectedPersonEyeControls } from "./mountConnectedPersonEyeControls";
-import { mountConnectedPersonFaceAnatomy } from "./mountConnectedPersonFaceAnatomy";
-import { mountConnectedPersonHeadControls } from "./mountConnectedPersonHeadControls";
-import { mountConnectedPersonBodyControls } from "./mountConnectedPersonBodyControls";
+import { createConnectedPersonSession } from "./createConnectedPersonSession";
+import { describeConnectedPersonAdmission } from "./describeConnectedPersonAdmission";
+import { describeConnectedPersonStatus } from "./describeConnectedPersonStatus";
+import { exportConnectedPersonAsset } from "./exportConnectedPersonAsset";
+import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
+import { mountConnectedPersonAdmissionReport } from "./mountConnectedPersonAdmissionReport";
 import { bodyAnatomyReading } from "../body/bodyAnatomyReading";
-import { renderBodyHumeralHeadControls } from "../body/bodyHumeralHeadControls";
+import { bodyGroundReading } from "../body/bodyGroundReading";
 import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
-import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAliasedChannels";
 import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
 
 /**
- * Mount the connected person editor: one person document, one transaction
- * history and one viewport, with the body editor's measured, joint and pose
- * controls editing the body subtree and the face editor's shape and
+ * Mount the connected person editor: one working person document, one
+ * viewport and one accepted history, with the body editor's measured, joint
+ * and pose controls editing the body subtree and the face editor's shape and
  * expression controls editing the face subtree.
  *
  * Every edit, from either subtree, from the document text or from a loaded
- * file, goes through one `createHumanFaceEditor` over the whole person
- * document, so undo, redo and reset traverse both subtrees in one history,
- * a refused build keeps the last valid person drawn and its document
- * committed, and only the latest request may publish (`createBodyIntentGate`
- * plus the editor's own generation). The face controls list the head view's
+ * file, is one construction of the whole working document, which always
+ * answers with a model and its owner's admission report. An accepted
+ * construction is committed to the one `createHumanFaceEditor` history, so
+ * undo, redo and reset traverse both subtrees; the first accepted document
+ * founds that history, whenever it arrives. A construction its owner refused
+ * is displayed as a draft with the whole report and stays editable, saved and
+ * encoded only as a draft; it never enters the history and the screen never
+ * calls it committed. A request that produces no model (a schema, range or
+ * registration refusal) changes nothing: the displayed person, the working
+ * document and the history stay, and the status says so.
+ *
+ * The status line, the admission report and every button state are drawn
+ * from the session state and the history (`describeConnectedPersonStatus`),
+ * never written directly, and only the latest request may change that state
+ * (`createBodyIntentGate`). Save and Export act on the displayed person, not
+ * on unapplied document text. The face controls list the head view's
  * channels without its driver channels, which the body owns. The body
  * controls show every body view channel: one with an unavailable endpoint is
  * listed disabled with the missing target named, and an envelope-limited
- * channel's row states where its reach ends and why; a measured target past
- * the reach, or a document asking for a missing target, is refused by name
- * and the committed person stays. The standard document asks for none of
- * them. Save writes the
- * committed document; Export GLB exports it and is discarded if the committed
- * model changed meanwhile. The panel evaluates nothing itself.
+ * channel's row states where its reach ends and why. The panel evaluates
+ * nothing itself.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Edits the person's body subtree with the body editor's measured, joint and pose controls.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Edits the person's face subtree with the face editor's shape and expression controls.
@@ -55,7 +56,7 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The person panel is one editing screen; the body domain index also spans extraction, evaluation and review owned elsewhere.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The panel evaluates no body endpoint or corrective; the person builder in the worker does.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The panel writes joint rows and articulates nothing; the person builder resolves and skins the pose.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The person editor offers no simple-tier inputs; the body editor owns that tier.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Routes simple values read on the current person's rest skin through the same shape transaction, keeping its current pose.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The person editor offers no underwear selection.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The person editor exports a whole-person file, not the body file this unit defines.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The panel evaluates no face endpoint; the person builder replays the head view.
@@ -63,11 +64,11 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The person panel owns its editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no body basis evaluation.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The person editor runs no simple-tier expansion or inversion.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Sends projection and expansion to the resident measurement worker with the complete current-person document and retains refusals.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The person editor evaluates no underwear region.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The person editor serializes no body file.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The panel compiles no face basis; the person generation does.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris The person editor offers no iris pigment control.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Reuses per-eye linear pigment controls through the whole-person transaction and keeps iris omission as the source texture.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre The person editor offers no fibre-card pigment or density control.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion The person editor bakes no ambient occlusion.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export The person editor serializes no face file.
@@ -80,176 +81,165 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   const dom = app.ownerDocument;
   app.innerHTML = connectedPersonPanelMarkup();
   const element = <T extends HTMLElement>(id: string): T => app.querySelector<T>("#" + id)!;
-  const bodySection = element("body-section");
-  const faceSection = element("face-section");
   const viewport = props.viewport(element<HTMLCanvasElement>("person-canvas"));
-  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined;
-  let draft = structuredClone(props.initial);
+  const source = props.body.anatomicalAssembly;
+  const session = createConnectedPersonSession<Model>();
   const intents = createBodyIntentGate();
-  const status = (text: string, state: string): void => {
-    element("person-status").textContent = text;
-    element("person-status").dataset.state = state;
+  const admissions = new WeakMap<Model, IAutoMovieHumanConstructionAdmission>();
+  const report = mountConnectedPersonAdmissionReport({ container: element("admission-report"), download: props.download });
+  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined;
+  // the document the controls edit: the displayed person's, or the standard one before any is displayed
+  let working = structuredClone(props.initial);
+  let handoff: Model | undefined;
+  let framed = false;
+  let measured: string | undefined;
+  const reason = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+  // the history's builder: a model just constructed for this edit, or a fresh
+  // construction that must still be accepted when a history entry is restored
+  const accept = async (document: IAutoMovieHumanPersonDocument): Promise<Model> => {
+    const prepared = handoff;
+    handoff = undefined;
+    if (prepared !== undefined) return prepared;
+    const result = await viewport.construct(document);
+    if (!result.admission.accepted) {
+      viewport.dispose(result.model);
+      throw new Error(
+        "This history entry is no longer accepted: " +
+          result.admission.failures.map((failure) => failure.owner + ": " + failure.cause).join("; "),
+      );
+    }
+    admissions.set(result.model, result.admission);
+    return result.model;
   };
-  const report = (text: string): void => {
-    element("person-status").textContent += String.fromCharCode(10) + text;
+  const show = (): void => {
+    const state = session.snapshot();
+    const committed = editor?.snapshot();
+    const view = describeConnectedPersonStatus(
+      state,
+      committed === undefined ? null : { name: committed.document.name, parts: committed.model.parts },
+    );
+    element("person-status").textContent = view.text;
+    element("person-status").dataset.state = view.state;
+    const idle = state.pending === null;
+    const displayed = state.draft ?? committed;
+    element<HTMLButtonElement>("person-undo").disabled = committed === undefined || !committed.canUndo;
+    element<HTMLButtonElement>("person-redo").disabled = committed === undefined || !committed.canRedo;
+    element<HTMLButtonElement>("person-reset").disabled = committed === undefined;
+    element<HTMLButtonElement>("person-discard").disabled = committed === undefined || state.draft === null;
+    element<HTMLButtonElement>("person-save").disabled = displayed === undefined;
+    element<HTMLButtonElement>("person-glb").disabled = displayed === undefined || !idle;
+    element<HTMLButtonElement>("person-glb").textContent =
+      state.draft === null ? "Export GLB" : "Export draft GLB with admission report";
+    // the contact and humeral-head reading is taken on the admitted preview
+    element<HTMLButtonElement>("person-anatomy").disabled = committed === undefined || state.draft !== null;
+    report.show(
+      describeConnectedPersonAdmission(
+        state.draft === null ? "accepted" : "construction draft",
+        displayed?.document,
+        displayed?.model.parts,
+        displayed === undefined ? undefined : state.draft?.admission ?? admissions.get(displayed.model),
+      ),
+    );
   };
   const withdraw = (): number => {
     editor?.cancel();
     viewport.cancel();
     return intents.reserve();
   };
+  // redraw every control from the displayed person; the working document
+  // returns to it after a refusal
+  const refresh = (): void => {
+    const displayed = session.snapshot().draft?.document ?? editor?.snapshot().document ?? props.initial;
+    working = structuredClone(displayed);
+    element<HTMLTextAreaElement>("document-json").value = serializeHumanPersonDocument(displayed, source);
+    element("document-unapplied").textContent = "";
+    show();
+    sections.render();
+    // a displayed person changes its measurements; a refusal does not
+    const text = element<HTMLTextAreaElement>("document-json").value;
+    if (measured === text) return;
+    measured = text;
+    sections.refresh(displayed);
+  };
   const refuse = (error: unknown): void => {
     withdraw();
-    if (editor !== undefined) draft = editor.snapshot().document;
-    status(error instanceof Error ? error.message : String(error), "error");
-    renderAll();
+    session.refuse(reason(error));
+    refresh();
   };
-  const refresh = (): void => {
-    const state = editor!.snapshot();
-    draft = state.document;
-    status(
-      state.error ??
-        `${state.document.name}\n${state.model.parts} material regions · committed person document`,
-      state.status,
-    );
-    element<HTMLButtonElement>("person-undo").disabled = !state.canUndo;
-    element<HTMLButtonElement>("person-redo").disabled = !state.canRedo;
-    element<HTMLTextAreaElement>("document-json").value = serializeHumanPersonDocument(state.document);
-    renderAll();
-    if (measured !== state.document) {
-      measured = state.document;
-      personMeasurements.refresh();
-      headMeasurements.refresh();
-      humeralHeads.refresh(state.document.body.humeralHeads);
-      eyeControls.refresh();
-      faceAnatomy.refresh();
-    }
+  const busy = (text: string): void => {
+    session.begin(text);
+    show();
+  };
+  const note = (text: string): void => {
+    session.note(text);
+    show();
   };
   const change = async (
     next: IAutoMovieHumanPersonDocument,
     ticket: number = withdraw(),
   ): Promise<boolean> => {
     if (!intents.isCurrent(ticket)) return false;
-    draft = structuredClone(next);
-    status("Building the latest person…", "building");
-    const success = await editor!.edit(next);
-    if (!intents.isCurrent(ticket)) return false;
-    if (success) viewport.publish(editor!.snapshot().model);
-    refresh();
-    return success;
+    working = structuredClone(next);
+    busy("Building the latest person…");
+    try {
+      const result = await viewport.construct(next);
+      if (!intents.isCurrent(ticket)) {
+        viewport.dispose(result.model);
+        return false;
+      }
+      admissions.set(result.model, result.admission);
+      viewport.publish(result.model);
+      if (!result.admission.accepted)
+        session.settle({ document: structuredClone(next), model: result.model, admission: result.admission });
+      else {
+        if (editor === undefined) editor = createHumanFaceEditor({ document: next, model: result.model, build: accept });
+        else {
+          handoff = result.model;
+          await editor.edit(next);
+        }
+        session.settle(null);
+      }
+      if (!framed) viewport.fitView();
+      framed = true;
+      refresh();
+      return true;
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+      return false;
+    }
   };
   const withBody = (body: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanPersonDocument => ({
-    ...structuredClone(draft),
+    ...structuredClone(working),
     body: structuredClone(body),
   });
   const withFace = (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanPersonDocument => ({
-    ...structuredClone(draft),
+    ...structuredClone(working),
     face: structuredClone(face),
   });
   const applyText = async (text: string, ticket = withdraw()): Promise<void> => {
     try {
-      if (intents.isCurrent(ticket)) await change(parseHumanPersonDocument(text), ticket);
+      if (intents.isCurrent(ticket)) await change(parseHumanPersonDocument(text, source), ticket);
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  const personMeasurements = mountConnectedPersonMeasuredControls({
-    dom,
-    container: bodySection.querySelector<HTMLElement>('[data-role="person-measurements"]')!,
-    current: () => draft,
-    reserve: withdraw,
-    isCurrent: intents.isCurrent,
-    read: props.readPersonMeasurement,
-    solve: props.solvePersonMeasurement,
-    change: (next, ticket) => change(next, ticket),
-    busy: (text) => status(text, "building"),
-    report,
-    refuse,
-  });
-  const headMeasurements = mountConnectedPersonHeadControls({
-    dom,
-    container: faceSection.querySelector<HTMLElement>('[data-role="head-measurements"]')!,
-    current: () => draft,
-    reserve: withdraw,
-    isCurrent: intents.isCurrent,
-    read: props.readPersonHead,
-    solve: props.solvePersonHead,
-    change: (next, ticket) => change(next, ticket),
-    busy: (text) => status(text, "building"),
-    report,
-    refuse,
-  });
-  const eyeControls = mountConnectedPersonEyeControls({
-    dom,
-    container: faceSection.querySelector<HTMLElement>('[data-role="eye-controls"]')!,
-    current: () => draft,
-    reserve: withdraw,
-    isCurrent: intents.isCurrent,
-    change: (next, ticket) => change(next, ticket),
-    busy: (text) => status(text, "building"),
-    report,
-    refuse,
-  });
-  const faceAnatomy = mountConnectedPersonFaceAnatomy({
-    dom,
-    container: faceSection.querySelector<HTMLElement>('[data-role="face-anatomy"]')!,
-    current: () => draft,
-    reserve: withdraw,
-    isCurrent: intents.isCurrent,
-    read: props.readFaceMeasurements,
-    solve: props.solveFaceMeasurement,
-    change: (next, ticket) => change(next, ticket),
-    busy: (text) => status(text, "building"),
-    report,
-    refuse,
-  });
-  const bodyControls = mountConnectedPersonBodyControls({
-    dom,
-    section: bodySection,
-    body: props.body,
-    current: () => draft.body,
-    reserve: withdraw,
-    isCurrent: intents.isCurrent,
-    solve: props.solveMeasurement,
-    change: (next, ticket) => change(withBody(next), ticket),
-    busy: (text) => status(text, "building"),
-    report,
-    refuse,
-  });
-  // the body editor's humeral-head radii, written into the person's body
-  const humeralHeads = renderBodyHumeralHeadControls({
-    dom,
-    container: bodySection.querySelector<HTMLElement>('[data-role="humeral-heads"]')!,
-    current: () => draft.body,
-    onChange: (body) => void change(withBody(body)),
-    onRefuse: refuse,
-  });
-  // The face controls list the head view's own channels. Driver channels carry
-  // the body's gains and are never edited from the face. An aliased face
-  // channel is defined once by its body channel: it is listed disabled with
-  // that owner named, and a document stating it is refused by name.
-  const drivers = new Set(
-    props.face.channels.filter((channel) => channel.id.startsWith("driver:")).map((channel) => channel.id),
-  );
-  const aliased = new Set(props.aliases.map((alias) => alias.face));
-  const faceControls = mountConnectedFaceControls(faceSection, {
-    basis: {
-      ...props.face,
-      channels: props.face.channels.filter((channel) => !drivers.has(channel.id) && !aliased.has(channel.id)),
+  const sections = mountConnectedPersonSections({
+    app,
+    panel: props,
+    controls: {
+      dom,
+      current: () => working,
+      reserve: withdraw,
+      isCurrent: intents.isCurrent,
+      change: (next: IAutoMovieHumanPersonDocument, ticket?: number) => change(next, ticket),
+      busy,
+      report: note,
+      refuse,
     },
-    // the face editor's anatomical groups, bound to the head view
-    components: createConnectedPersonFaceComponents({ tree: connectedFaceComponents, basis: props.face.id, excluded: [...aliased] }),
-    document: () => draft.face,
-    change: async (face) => { await change(withFace(face)); },
-    refuse,
+    isDraft: () => session.snapshot().draft !== null,
+    currentIntent: intents.currentTicket,
+    draftChanged: () => { session.rest(); session.note("Simple measurement draft changed; apply again."); show(); },
   });
-  renderConnectedPersonAliasedChannels(dom, faceSection, props.aliases);
-  const renderAll = (): void => {
-    bodyControls.render();
-    faceControls.refresh();
-  };
-  // a committed person changes its measurements; a refusal does not
-  let measured: IAutoMovieHumanPersonDocument | undefined;
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = () => viewport.fitView();
@@ -259,42 +249,87 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   for (const action of ["undo", "redo", "reset"] as const)
     element("person-" + action).onclick = async () => {
+      const history = editor;
+      if (history === undefined) return;
       const ticket = withdraw();
-      status("Restoring the selected person…", "building");
-      const success = await editor![action]();
+      busy("Restoring the selected person…");
+      const success = await history[action]();
       if (!intents.isCurrent(ticket)) return;
-      if (success) viewport.publish(editor!.snapshot().model);
+      const restored = history.snapshot();
+      if (success) {
+        viewport.publish(restored.model);
+        session.settle(null);
+      } else if (restored.error !== null) session.refuse(restored.error);
+      else session.rest();
       refresh();
     };
+  // leave a draft: the committed document is constructed again, because the
+  // draft replaced the frame the committed model was drawn from
+  element("person-discard").onclick = async () => {
+    const history = editor;
+    if (history === undefined || session.snapshot().draft === null) return;
+    const ticket = withdraw();
+    busy("Returning to the accepted person…");
+    try {
+      const model = await accept(history.snapshot().document);
+      if (!intents.isCurrent(ticket)) {
+        viewport.dispose(model);
+        return;
+      }
+      viewport.publish(model);
+      session.settle(null);
+      refresh();
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+    }
+  };
   renderBodyPosePresets({
     dom,
     container: element("pose-presets"),
     presets: props.poses,
-    current: () => draft.body,
+    current: () => working.body,
     reserve: withdraw,
     isCurrent: intents.isCurrent,
     apply: (body, ticket) => void change(withBody(body), ticket),
     refuse,
-    busy: (text) => status(text, "building"),
+    busy,
   });
   renderConnectedPersonExpressionPresets(dom, element("expression-presets"), props.expressions, (expression) =>
-    void change(withFace({ ...structuredClone(draft.face), expression })),
+    void change(withFace({ ...structuredClone(working.face), expression })),
   );
+  element<HTMLTextAreaElement>("document-json").oninput = () => {
+    element("document-unapplied").textContent =
+      "Unapplied text. Save and Export use the displayed person until this text is applied.";
+  };
   element("document-apply").onclick = () => {
     const ticket = withdraw();
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);
   };
   element("person-save").onclick = () => {
-    const document = editor!.snapshot().document;
-    props.download(document.id + ".json", serializeHumanPersonDocument(document), "application/json");
+    const draft = session.snapshot().draft;
+    const document = draft?.document ?? editor?.snapshot().document;
+    if (document === undefined) return;
+    props.download(
+      document.id + (draft === null ? ".json" : ".construction.json"),
+      serializeHumanPersonDocument(document, source),
+      "application/json",
+    );
   };
   element("person-glb").onclick = async () => {
-    const state = editor!.snapshot();
+    const draft = session.snapshot().draft;
+    const committed = editor?.snapshot();
     const ticket = intents.currentTicket();
     try {
-      const bytes = await viewport.export(state.document);
-      if (intents.isCurrent(ticket) && editor!.snapshot().model === state.model)
-        props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+      const line = await exportConnectedPersonAsset({
+        viewport,
+        draft,
+        committed: committed?.document,
+        unchanged: () =>
+          intents.isCurrent(ticket) &&
+          (draft !== null ? session.snapshot().draft?.model === draft.model : editor?.snapshot().model === committed?.model),
+        download: props.download,
+      });
+      if (line !== null && intents.isCurrent(ticket)) note(line);
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -302,27 +337,28 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   // the same contact and humeral-head reading the body editor runs, on the
   // person's body build (`createConnectedPersonRuntime`)
   element("person-anatomy").onclick = async () => {
+    const committed = editor?.snapshot();
+    if (committed === undefined) return;
     const ticket = withdraw();
-    status("Measuring skin contacts and humeral heads…", "building");
+    busy("Measuring skin contacts and humeral heads…");
     try {
-      const posed = await viewport.build(editor!.snapshot().document, true, true);
+      const posed = await viewport.build(committed.document, true, true);
       const crossings = posed.crossings ?? null;
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
+      const ground = bodyGroundReading(posed.groundSupport);
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
-      status(
-        [
-          crossings === null
-            ? "This build does not supply a crossing reading."
-            : crossings.length === 0
-              ? "The posed body skin crosses nowhere."
-              : `The posed body skin crosses in ${crossings.length} places.`,
-          anatomy,
-        ]
-          .filter((line) => line !== null)
-          .join(String.fromCharCode(10)),
-        crossings === null ? "error" : "ready",
-      );
+      if (crossings === null) session.refuse("This build does not supply a crossing reading.");
+      else {
+        session.rest();
+        session.note(
+          crossings.length === 0
+            ? "The posed body skin crosses nowhere."
+            : `The posed body skin crosses in ${crossings.length} places.`,
+        );
+      }
+      for (const line of [anatomy, ground]) if (line !== null) session.note(line);
+      show();
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -341,26 +377,16 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  const ready = (async (): Promise<void> => {
-    const ticket = intents.reserve();
-    try {
-      const model = await viewport.build(props.initial);
-      if (!intents.isCurrent(ticket)) {
-        viewport.dispose(model);
-        return;
-      }
-      editor = createHumanFaceEditor({ document: props.initial, model, build: viewport.build });
-      viewport.publish(model);
-      viewport.fitView();
-      element<HTMLFieldSetElement>("editing").disabled = false;
-      refresh();
-    } catch (error) {
-      if (intents.isCurrent(ticket)) refuse(error);
-    }
-  })();
+  // The controls edit the working document from the start. The first build
+  // is an ordinary intent: a newer one supersedes it and founds the history
+  // itself, so nothing waits on this one having finished.
+  element<HTMLFieldSetElement>("editing").disabled = false;
+  sections.render();
+  const ready = change(props.initial, intents.reserve()).then(() => undefined);
   return {
     ready,
     snapshot: () => editor?.snapshot(),
+    session: () => session.snapshot(),
     change: (document: IAutoMovieHumanPersonDocument) => change(document),
   };
 }

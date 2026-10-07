@@ -1,3 +1,6 @@
+import type { IAutoMovieHumanFaceContactResolutionSummary } from "./IAutoMovieHumanFaceContactResolutionSummary";
+import type { IAutoMovieHumanFaceTonguePassageSummary } from "./IAutoMovieHumanFaceTonguePassageSummary";
+
 /**
  * What the coupled oral contact evaluation measured and did for one document,
  * in the units a reader checks: apertures in metres along the opening
@@ -41,15 +44,15 @@ export interface IAutoMovieHumanFaceContactSummary {
    */
   sourceNativeInterlabialMetres?: number;
 
-  /** Signed interincisal gap along the opening direction on the final posed geometry, metres. */
-  interincisalMetres: number;
+  /** Signed registered interincisal gap in metres, or null when an authored absent crown removes its representative. Actual oral passage remains independently read from retained dentition and lips. */
+  interincisalMetres: number | null;
 
   /** Nonnegative closure gain per unit closure weight that brings the central lip pair to margin contact; source-span mode evaluates it at fixed native endpoints. */
   closureRatio: number;
 
   /** Tongue past the incisal plane: how far and how thick over the slab, or null when it stayed behind. */
-  passage: { protrudingMetres: number; thicknessMetres: number } | null;
+  passage: IAutoMovieHumanFaceTonguePassageSummary | null;
 
   /** Per soft surface, welded vertices moved back to their rest clearance and the deepest penetration found. */
-  resolved: { surface: string; vertices: number; maxDepthMetres: number }[];
+  resolved: IAutoMovieHumanFaceContactResolutionSummary[];
 }

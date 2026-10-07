@@ -3,7 +3,14 @@
  * expression. Clinical jaw examination measures maximum unassisted
  * interincisal opening, protrusion and left/right laterotrusion from the
  * closed reference (https://pmc.ncbi.nlm.nih.gov/articles/PMC8235157/;
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC4085221/). The incisal measure
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC4085221/). The former study records
+ * the raw maximum interincisal gap without positive-overbite correction,
+ * while protrusion includes initial overjet and laterotrusion corrects initial
+ * midline deviation. The latter is a neutral-craniocervical ROM reliability
+ * study whose protrusion protocol combines initial and final incisal positions;
+ * it is not the DC/TMD protocol publication. These fields retain raw opening
+ * and reference-relative protrusive/lateral excursion as distinct quantities.
+ * The incisal measure
  * requires documented dental or prosthetic edges. Ocular duction testing
  * separately measures adduction, abduction, elevation and depression in each
  * eye; the 261-subject sample found directional and age differences rather
@@ -58,10 +65,10 @@ export namespace IAutoMovieHumanFaceMotionCapacityParameters {
    * @author Samchon
    */
   export interface Jaw {
-    /** Maximum unassisted midline interincisal opening in mm. */
+    /** Maximum unassisted raw midline incisal gap in mm, without adding positive overbite. */
     maximumInterincisalOpeningMm?: number;
 
-    /** Maximum anterior mandibular protrusion beyond overjet, mm. */
+    /** Maximum anterior incisal excursion from closed reference, including initial overjet, mm. */
     maximumProtrusionMm?: number;
 
     /** Maximum anatomical-left laterotrusion, mm. */

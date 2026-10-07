@@ -1,4 +1,5 @@
-import { type IAutoMovieHumanBodyBasis, humanBodyChannelReach } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import { humanBodyChannelReach } from "@automovie/human/body/measure/humanBodyChannelReach";
 
 import type { IConnectedBodyReach } from "./IConnectedBodyReach";
 

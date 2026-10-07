@@ -451,6 +451,7 @@ export { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "./validation/constants
 export { isAutoMovieMaterialExtension } from "./validation/isAutoMovieMaterialExtension";
 export { unsupportedAutoMovieMaterialExtensions } from "./validation/unsupportedAutoMovieMaterialExtensions";
 export { validateMeshTopology } from "./validation/validateMeshTopology";
+export type { IAutoMovieMeshTopologyValidationProps } from "./validation/IAutoMovieMeshTopologyValidationProps";
 export { appendMeshTopology } from "./validation/appendMeshTopology";
 export { validateModel } from "./validation/validateModel";
 export { validateSceneEnvironment } from "./validation/validateSceneEnvironment";

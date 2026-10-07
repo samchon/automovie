@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IHumanFacePoseCacheEntry } from "./IHumanFacePoseCacheEntry";
+import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 
 /**
@@ -32,20 +34,129 @@ export function createHumanFaceBasisPoseCache<T>(
   evaluate: (
     state: ReturnType<typeof humanFaceBasisWeights>,
     shape: IAutoMovieHumanFaceBasisDocument["shape"],
+    geometry?: IHumanFacePoseGeometry,
   ) => T,
 ): (
   state: ReturnType<typeof humanFaceBasisWeights>,
   shape: IAutoMovieHumanFaceBasisDocument["shape"],
+  geometry?: IHumanFacePoseGeometry,
 ) => T {
   const ids = channels.map((channel) => channel.id);
-  let last: { weights: number[]; result: T } | undefined;
-  return (state, shape) => {
+  let last: IHumanFacePoseCacheEntry<T> | undefined;
+  return (state, shape, geometry) => {
+    const {
+      eyes,
+      skinRelief,
+      oral,
+      periocularTissues,
+      brows,
+      eyelids,
+      eyelidPhenotypes,
+      ocularSurfaces,
+    } = geometry ?? {};
     const weights = ids.map((id) => state.weights.get(id) ?? 0);
+    const dimensions =
+      eyes === undefined
+        ? null
+        : (["left", "right"] as const).map((side) => [
+            eyes[side].globeRadiusMm,
+            eyes[side].limbusRadiusMm,
+            eyes[side].apexCurvatureRadiusMm,
+            eyes[side].centralThicknessMicrometres,
+            eyes[side].irisOuterRadiusMm,
+            eyes[side].irisApertureRadiusMm,
+            eyes[side].irisDepthFromAnteriorSupportMm,
+          ]);
+    const relief =
+      skinRelief === undefined
+        ? null
+        : (["left", "right"] as const).map((side) => {
+            const one = skinRelief.nasolabial?.[side];
+            return one === undefined
+              ? null
+              : [one.restDepthMm ?? 0, one.smileDepthMm ?? 0, one.widthMm];
+          });
+    const regionalValues = Object.values(skinRelief?.regions ?? {}).flatMap(
+      (region) =>
+        region === undefined
+          ? []
+          : Object.values(region).filter((value) => value !== undefined),
+    );
     if (
-      last === undefined ||
-      last.weights.some((weight, index) => weight !== weights[index])
+      [
+        ...weights,
+        ...(dimensions?.flat() ?? []),
+        ...(relief?.flatMap((one) => one ?? []) ?? []),
+        ...regionalValues,
+      ].some((value) => !Number.isFinite(value))
     )
-      last = { weights, result: evaluate(state, shape) };
+      throw new Error(
+        "Pose cache keys need finite admitted geometric inputs; nonfinite values cannot alias an omitted optional value.",
+      );
+    const oralValues = Object.values(oral?.teeth ?? {}).flatMap((tooth) =>
+      tooth === undefined
+        ? []
+        : [tooth.widthMm, tooth.heightMm, tooth.depthMm].filter(
+            (value) => value !== undefined,
+          ),
+    );
+    for (const group of [
+      oral?.maxillary,
+      oral?.mandibular,
+      oral?.space,
+      oral?.tongue,
+      oral?.performance,
+    ])
+      if (group !== undefined)
+        for (const value of Object.values(group))
+          if (typeof value === "number") oralValues.push(value);
+    if (oralValues.some((value) => !Number.isFinite(value)))
+      throw new Error(
+        "Oral pose keys need finite numerical dimensions and performance.",
+      );
+    const tissueValues = [
+      periocularTissues?.left,
+      periocularTissues?.right,
+    ].flatMap((side) =>
+      Object.values(side ?? {}).flatMap((section) =>
+        section === undefined
+          ? []
+          : [section.inwardOffsetMm, section.thicknessMm],
+      ),
+    );
+    if (tissueValues.some((value) => !Number.isFinite(value)))
+      throw new Error("Periocular tissue pose keys need finite dimensions.");
+    // Generated brow geometry is composed downstream from these skin arrays.
+    // Its profile must still invalidate the pose identity used by model AO.
+    const lidValues = [eyelids?.left, eyelids?.right].flatMap((side) =>
+      Object.values(side ?? {}).flatMap((section) =>
+        section === undefined
+          ? []
+          : [section.elevationMm, section.projectionMm],
+      ),
+    );
+    if (lidValues.some((value) => !Number.isFinite(value)))
+      throw new Error("Lid section pose keys need finite dimensions.");
+    const ocularValues = [ocularSurfaces?.left, ocularSurfaces?.right].flatMap(
+      (side) =>
+        Object.values(side ?? {}).filter((value) => value !== undefined),
+    );
+    if (ocularValues.some((value) => !Number.isFinite(value)))
+      throw new Error("Ocular surface pose keys need finite dimensions.");
+    const key = JSON.stringify([
+      weights,
+      dimensions,
+      relief,
+      skinRelief?.regions ?? null,
+      oral ?? null,
+      periocularTissues ?? null,
+      brows ?? null,
+      eyelids ?? null,
+      eyelidPhenotypes ?? null,
+      ocularSurfaces ?? null,
+    ]);
+    if (last === undefined || last.key !== key)
+      last = { key, result: evaluate(state, shape, geometry) };
     return last.result;
   };
 }

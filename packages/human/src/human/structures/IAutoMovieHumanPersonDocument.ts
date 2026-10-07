@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "../../body/structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanPersonHeadShape } from "./IAutoMovieHumanPersonHeadShape";
 
 /**
  * One person: a face document and a body document, each against its own
@@ -16,13 +17,16 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAu
  *   refused, because two values for one person's colour would disagree).
  * - Age and sex can be stated once (`population`), which makes the head the age
  *   and sex of the body.
- * - The head is the face's and the neck below the chin is the face's until the
- *   seam, which the body follows (`IAutoMovieHumanPersonSeam`); the body's
- *   pose carries the face on its `head` joint.
+ * - A legacy pair meets at its source-defined neck seam. A registered source
+ *   generation owns one shared skin across that partition, including head and
+ *   cervical traits. The body's pose carries the face on its `head` joint.
+ * - `headShape` belongs to the person: source-unit exterior differences may
+ *   affect both partitions. Its registered body channel supplies the one
+ *   endpoint owner; neither inner document independently reconstructs it.
  *
  * Identities are the person's own; the inner documents keep theirs. The
- * document holds no photograph, mesh or image, and every value lives in the
- * inner documents.
+ * document holds no photograph, mesh or image. Anatomy-specific values remain
+ * in the inner documents; shared source-head differences stay in headShape.
  *
  * @author Samchon
  */
@@ -38,6 +42,14 @@ export interface IAutoMovieHumanPersonDocument {
 
   /** The body, against the body basis the person builder was compiled with, with no `skinColour` of its own. */
   body: IAutoMovieHumanBodyBasisDocument;
+
+  /**
+   * Source-neutral anatomical exterior differences in registered mm/degrees.
+   * Each present field, including zero, needs the shared source's one actual
+   * body-channel registration. This saved request supplies no personal mesh
+   * and remains separate from clinical observations and raw shape weights.
+   */
+  headShape?: IAutoMovieHumanPersonHeadShape;
 
   /**
    * How the person's age and sex are stated. Omission keeps the two documents

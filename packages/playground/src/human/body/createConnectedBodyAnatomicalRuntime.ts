@@ -22,7 +22,9 @@ import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 export function createConnectedBodyAnatomicalRuntime(basis: IAutoMovieHumanBodyBasis) {
   const inspect = createHumanBodyAnatomicalInspection(basis);
   return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
-    const document = parseHumanBodyBasisDocument(request.document);
+    if (request.operation === "construct" || request.operation === "exportConstruction")
+      throw new Error("Articular inspection does not construct a whole-person draft.");
+    const document = parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
     if (request.operation === "armsDown")
       throw new Error("Articular inspection does not resolve a body arms-down pose.");
     const inspection = inspect(document);

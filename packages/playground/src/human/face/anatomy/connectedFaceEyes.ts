@@ -16,7 +16,7 @@ export const connectedFaceEyes: IAutoMovieHumanFaceComponentTree.Node = {
   id: "orbits",
   label: "Eyes and orbits",
   description:
-    "Paired optical organs with shared skin lids and separate fibre meshes. Independent optical dimensions are refused by name: they need the basis's optical support and an optical builder, which does not exist yet.",
+    "Paired optical organs with shared skin lids and separate fibre meshes. Independent optical dimensions require registered source support; incompatible inputs are refused by name.",
   channels: [],
   surfaces: ["Human.low-poly"],
   documentFields: ["iris", "eyes"],
@@ -112,7 +112,7 @@ export const connectedFaceEyes: IAutoMovieHumanFaceComponentTree.Node = {
     {
       id: "lashes",
       label: "Eyelashes",
-      description: "One fibre mesh attached to both eyelid margins. Independent upper and lower lash profiles are refused by name: they need the basis's periocular registration and a lash generator, which does not exist yet.",
+      description: "Source fibre cards follow both eyelids. Independent numerical shaft populations require registered anterior roots; count and free-shaft geometry are independent of card darkness.",
       channels: [],
       surfaces: ["Human.eyelashes01"],
       documentFields: ["lashes"],

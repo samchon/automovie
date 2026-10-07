@@ -2,6 +2,7 @@ import type { AutoMovieHumanFaceMeasurementReading } from "../../structures/Auto
 import type { IAutoMovieHumanFaceAnatomicalRequest } from "../../structures/IAutoMovieHumanFaceAnatomicalRequest";
 import { HUMAN_FACE_MEASUREMENTS } from "./HUMAN_FACE_MEASUREMENTS";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
+import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 
 /**
  * Read every registered face measurement on one build's final surface.
@@ -9,7 +10,11 @@ import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContex
  * Each reading is in registry order, carries the document's target for it or
  * null, and is either the measured value or the gap the basis leaves, so a
  * caller sees every measurement and its residual in one list. A target never
- * replaces a reading.
+ * replaces a reading. A registry qualification travels with the value, so
+ * the actual editor can distinguish a source-conditioned observable from an
+ * unregistered clinical quantity without consulting source comments.
+ * Each instrument's refusal or non-finite result becomes that measurement's
+ * unavailable reason; other readable quantities remain observable.
  *
  * @evidence contracts/common.md#principled-implementation Requested and measured values come from the same final surface of the same build.
  * @evidence contracts/common.md#clear-and-simple-design One pass over the registry yields one reading per measurement.
@@ -34,7 +39,14 @@ export function readHumanFaceMeasurements(
     (request?.targets ?? []).map((target) => [target.measurement, target.value]),
   );
   return HUMAN_FACE_MEASUREMENTS.map((measurement) => {
-    const value = measurement.read(context);
+    let value: number | IHumanFaceMeasurementGap;
+    try {
+      value = measurement.read(context);
+      if (typeof value === "number" && !Number.isFinite(value))
+        value = { reason: `The instrument for ${measurement.id} has no finite reading on the final surface.` };
+    } catch (error) {
+      value = { reason: error instanceof Error ? error.message : String(error) };
+    }
     return typeof value === "number"
       ? {
           status: "measured",
@@ -42,6 +54,7 @@ export function readHumanFaceMeasurements(
           unit: measurement.unit,
           requested: targets.get(measurement.id) ?? null,
           measured: value,
+          ...(measurement.qualification === undefined ? {} : { qualification: measurement.qualification }),
         }
       : { status: "unavailable", measurement: measurement.id, reason: value.reason };
   });

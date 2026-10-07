@@ -1,7 +1,5 @@
-import {
-  HUMAN_BODY_SIMPLE_SHAPE,
-  type IAutoMovieHumanBodySimpleShape,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
+import { HUMAN_BODY_SIMPLE_SHAPE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_SHAPE";
 
 import type { IBodySimpleControlsProps } from "./IBodySimpleControlsProps";
 import type { IBodySimpleField } from "./IBodySimpleField";
@@ -348,6 +346,7 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): IBody
 
 /** Whether two bodies name the same channels at the same weights and the same anatomy. */
 const sameShape = (a: IBodySimpleBody, b: IBodySimpleBody): boolean =>
+  a.contextKey === b.contextKey &&
   Object.keys(a.shape).length === Object.keys(b.shape).length &&
   Object.entries(a.shape).every(([channel, weight]) => b.shape[channel] === weight) &&
   JSON.stringify(a.anatomy ?? null) === JSON.stringify(b.anatomy ?? null);

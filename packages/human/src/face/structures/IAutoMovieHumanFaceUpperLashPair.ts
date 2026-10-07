@@ -1,11 +1,12 @@
-import type { IPortraitEyelashProfile } from "../anatomy/lash/IPortraitEyelashProfile";
+import type { IAutoMovieHumanFaceUpperLashPopulation } from "../anatomy/lash/IAutoMovieHumanFaceUpperLashPopulation";
 
 /**
  * The upper lash row's profile for each eye.
  *
- * Each side takes one `IPortraitEyelashProfile`: maximum centreline length,
+ * Each side takes one explicit population: strand count and maximum centreline length,
  * launch elevation, curl, fan, root radius, taper and per-strand variation,
- * within that profile's authoring envelopes.
+ * within that profile's authoring envelopes. Count is not card density or a
+ * measured follicle count; zero emits no shafts on that side.
  *
  * @evidence contracts/common.md#principled-implementation Each side reuses the one lash profile definition and its envelopes.
  * @evidence contracts/common.md#clear-and-simple-design Two named sides.
@@ -25,8 +26,8 @@ import type { IPortraitEyelashProfile } from "../anatomy/lash/IPortraitEyelashPr
  */
 export interface IAutoMovieHumanFaceUpperLashPair {
   /** Lash profile of the anatomical left eye. */
-  left: IPortraitEyelashProfile;
+  left: IAutoMovieHumanFaceUpperLashPopulation;
 
   /** Lash profile of the anatomical right eye. */
-  right: IPortraitEyelashProfile;
+  right: IAutoMovieHumanFaceUpperLashPopulation;
 }

@@ -3,6 +3,8 @@ import type { IAutoMovieHumanFacePeriocularComponent } from "./IAutoMovieHumanFa
 import type { IAutoMovieHumanFacePeriocularGlobe } from "./IAutoMovieHumanFacePeriocularGlobe";
 import type { IAutoMovieHumanFacePeriocularLashes } from "./IAutoMovieHumanFacePeriocularLashes";
 import type { IAutoMovieHumanFacePeriocularMargins } from "./IAutoMovieHumanFacePeriocularMargins";
+import type { IAutoMovieHumanFacePeriocularCage } from "./IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularBrowBand } from "./IAutoMovieHumanFacePeriocularBrowBand";
 
 /**
  * The periocular registration of one eye.
@@ -38,4 +40,10 @@ export interface IAutoMovieHumanFacePeriocularSide {
 
   /** This side's medial and lateral canthus definitions. */
   canthi: IAutoMovieHumanFacePeriocularCanthi;
+
+  /** Optional licensed host cage for full coarse sections and tissue shells. */
+  cage?: IAutoMovieHumanFacePeriocularCage;
+
+  /** Optional licensed complete forehead implantation band. */
+  browBand?: IAutoMovieHumanFacePeriocularBrowBand;
 }

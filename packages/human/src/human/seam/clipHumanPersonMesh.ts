@@ -2,6 +2,7 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/res
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
+import type { IHumanPersonClippedMesh } from "../structures/IHumanPersonClippedMesh";
 import { clipHumanPersonTriangles } from "./clipHumanPersonTriangles";
 
 /**
@@ -35,7 +36,7 @@ export function clipHumanPersonMesh(
   mesh: IAutoMovieMesh,
   sources: readonly number[],
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
-): { mesh: IAutoMovieMesh; sources: number[] } {
+): IHumanPersonClippedMesh {
   if (mesh.indices === null || mesh.skin !== null)
     throw new Error("Person clipping requires a static indexed mesh.");
   if (mesh.physicalVertices !== undefined)

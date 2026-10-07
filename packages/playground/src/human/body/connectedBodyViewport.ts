@@ -18,6 +18,8 @@ import { createHumanPreviewCamera } from "../common/previewScene";
 import type { IConnectedBodyViewportHost } from "./IConnectedBodyViewportHost";
 import { createConnectedBodyPreview } from "./connectedBodyPreview";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+import type { IConnectedBodyInspectionLight } from "./IConnectedBodyInspectionLight";
+import type { IConnectedBodyInspectionLightDirection } from "./IConnectedBodyInspectionLightDirection";
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
@@ -41,10 +43,7 @@ export function createConnectedBodyViewport<
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   const shadowLights: THREE.DirectionalLight[] = [];
-  const directional = new Map<string, {
-    light: THREE.DirectionalLight;
-    rest: THREE.Vector3;
-  }>();
+  const directional = new Map<string, IConnectedBodyInspectionLight>();
   for (const [name, x, y, z, power, color] of [
     ["key", -1.5, 1.75, 2.25, 2.3, 0xffe9d8],
     ["fill", 1.75, 0.5, 1.5, 0.85, 0xdaeaff],
@@ -103,6 +102,7 @@ export function createConnectedBodyViewport<
     worker: props.worker,
     renderer: numerical,
     serialize: props.serialize,
+    source: props.source,
   });
   type Model = Awaited<ReturnType<typeof preview.build>>;
   const {
@@ -167,10 +167,7 @@ export function createConnectedBodyViewport<
      * finite subnormal and very large directions representable. This affects
      * display only, never the numerical model, document or exported bytes.
      */
-    setLightDirection: (input: {
-      name: string;
-      direction: readonly [number, number, number];
-    } | null): void => {
+    setLightDirection: (input: IConnectedBodyInspectionLightDirection | null): void => {
       const selected = input === null ? null : directional.get(input.name);
       if (selected === undefined)
         throw new Error("Unknown inspection light: " + input!.name);

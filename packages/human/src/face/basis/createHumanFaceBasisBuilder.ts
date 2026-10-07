@@ -2,38 +2,62 @@ import { validateModel } from "@automovie/engine";
 import { createMeshPhysicalPartitionMatcher } from "@automovie/engine/math/createMeshPhysicalPartitionMatcher";
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
+import type { IAutoMovieHumanFaceBasisBuilder } from "../structures/IAutoMovieHumanFaceBasisBuilder";
+import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage";
+import { publishHumanFaceConstruction } from "./publishHumanFaceConstruction";
+import { createHumanFaceConstructionEntries } from "./createHumanFaceConstructionEntries";
 
-import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
-import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
+import { applyHumanSkinFinish } from "../../common/skin/applyHumanSkinFinish";
+import { buildHumanFaceBrowAssembly } from "../anatomy/brow/buildHumanFaceBrowAssembly";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
+import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
+import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
+import { assertHumanFaceLashContact } from "../anatomy/lash/assertHumanFaceLashContact";
+import { buildHumanFaceLashRows } from "../anatomy/lash/buildHumanFaceLashRows";
+import { readHumanFaceLashClearance } from "../anatomy/lash/readHumanFaceLashClearance";
+import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import { admitHumanFaceAnatomicalRequest } from "../anatomy/resolution/admitHumanFaceAnatomicalRequest";
 import { assertHumanFaceJawCapacity } from "../anatomy/resolution/assertHumanFaceJawCapacity";
 import { assertHumanFaceMeasurementTargets } from "../anatomy/resolution/assertHumanFaceMeasurementTargets";
 import { createHumanFaceMeasurementContext } from "../anatomy/resolution/createHumanFaceMeasurementContext";
 import { readHumanFaceMeasurements } from "../anatomy/resolution/readHumanFaceMeasurements";
-import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
-import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
-import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
-import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
-import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
+import { createHumanFaceFibreTint } from "../anatomy/skin/createHumanFaceFibreTint";
+import { createHumanFaceSkinRegionGains } from "../anatomy/skin/createHumanFaceSkinRegionGains";
+import { createHumanFaceResidentParts } from "./createHumanFaceResidentParts";
+import { resolveHumanFaceAppearanceDocument } from "./resolveHumanFaceAppearanceDocument";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceBasisBuilderOptions } from "../structures/IAutoMovieHumanFaceBasisBuilderOptions";
+import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
+import { assertHumanFacePeriocularAvailable } from "./assertHumanFacePeriocularAvailable";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
-import { assertHumanFacePeriocularAvailable } from "./assertHumanFacePeriocularAvailable";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
+import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
+import { createHumanFaceGeneratedComposition } from "./createHumanFaceGeneratedComposition";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { liftHumanFaceColours } from "./liftHumanFaceColours";
+import { readHumanFaceAssemblyClearances } from "./readHumanFaceAssemblyClearances";
+import { readHumanFaceOralLiningSpace } from "./readHumanFaceOralLiningSpace";
+import { readHumanFacePartCensus } from "./readHumanFacePartCensus";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
  * The playground's connected-basis editor consumes this builder and exports its
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
+ *
+ * One construction stage creates every requested part before the original
+ * physical admission tasks run. The ordinary callable still refuses and
+ * publishes no successful observers on failed admission. Its explicit
+ * `construct` method returns the same complete geometry with every refusal,
+ * so a product construction draft can display it without becoming accepted.
+ * `construct` always carries the unchanged judged relations. With
+ * `options.census`, it also carries report-only spatial relations and the
+ * census of each part; the ordinary callable runs the same conditions.
  *
  * The order per document is fixed:
  * channel weights and corrective activations (`humanFaceBasisWeights`), then
@@ -76,7 +100,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * Pigmentation is sampled on immutable neutral source coordinates, then
  * gathered with the same region correspondence; the scalp under a hair
  * document's populations is tinted toward the hair colour by
- * `createHumanFaceScalpTint`, as a further gain on it. It changes no position or
+ * `createHumanFaceFibreTint`, as a further gain on it. It changes no position or
  * normal and follows both shape and articulated expression. A document's iris
  * pigments repaint only the anatomical iris disc of the eye texture
  * (`createHumanFaceIrisPigment`) after the material overrides, so an override
@@ -122,7 +146,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
   options?: IAutoMovieHumanFaceBasisBuilderOptions,
-): (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieModel {
+): IAutoMovieHumanFaceBasisBuilder {
   const basis = structuredClone(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
@@ -130,9 +154,10 @@ export function createHumanFaceBasisBuilder(
   const buildHair = createHumanFaceHairResultCache(
     createHumanFaceHairBuilder(basis),
   );
-  const scalpTint = createHumanFaceScalpTint(basis);
+  const fibreTint = createHumanFaceFibreTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
+  const composeGenerated = createHumanFaceGeneratedComposition(basis);
   const evaluatePose = createHumanFaceBasisPoseCache(
     basis.channels,
     createHumanFaceBasisPoseEvaluator(basis),
@@ -145,34 +170,15 @@ export function createHumanFaceBasisBuilder(
       : createHumanFaceOcclusionCache((model) =>
           bakeHumanFaceOcclusion(model, occlusion),
         );
-  const surfaces = basis.surfaces.map((surface) => {
-    const source = surface.sourcePartition;
-    if (source !== undefined) {
-      if (source.generation.trim() === "")
-        throw new Error("Facial physical registration needs a nonempty source generation.");
-      const extent = source.originalVertices + source.intersections.length +
-        (source.refinements?.length ?? 0);
-      if (!Number.isSafeInteger(source.originalVertices) || source.originalVertices < 3 ||
-        !Number.isSafeInteger(extent) || source.samples.length !== surface.positions.length / 3 ||
-        Array.from(source.samples).some(sample => !Number.isSafeInteger(sample) || sample < 0 || sample >= extent))
-        throw new Error("Facial physical registration needs dense samples in its declared safe canonical source domain.");
-    }
-    return {
-      surface,
-      regions: surface.regions.map((region) => ({
-        region,
-        evaluate: createHumanBasisRegion(region),
-      })),
-    };
-  });
+  const gatherResidentParts = createHumanFaceResidentParts(basis);
   let partitions:
     | ReturnType<typeof createMeshPhysicalPartitionMatcher>[]
     | undefined;
-  const build = (
+  const stage = (
     inputDocument: IAutoMovieHumanFaceBasisDocument,
-  ): IAutoMovieModel => {
-    const document =
-      typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument);
+  ): IHumanFaceConstructionStage => {
+    const document = resolveHumanFaceAppearanceDocument(basis,
+      typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(inputDocument));
     if (
       document.basis !== basis.id ||
       [document.id, document.name].some((id) => id.trim() === "")
@@ -217,60 +223,96 @@ export function createHumanFaceBasisBuilder(
         material.roughness = override.roughness;
     }
     fibrePigment(document.materials, materials);
-    irisPigment(document.iris, materials);
-    const pose = evaluatePose(state, document.shape);
-    const { positions: posed, normals, summary } = pose;
+    irisPigment(
+      document.iris,
+      materials,
+      document.eyes === undefined
+        ? undefined
+        : new Set(["leftEye", "rightEye"]),
+    );
+    applyHumanSkinFinish(materials);
+    const pose = evaluatePose(state, document.shape, document);
+    const checks = [...pose.checks];
+    checks.push({ owner: "oral-sampling", assert: () => {
+      const unresolved = pose.oral?.liningUnresolvedEdges ?? 0;
+      if (unresolved > 0) throw new Error("Oral lining retains " + unresolved + " unresolved cervical-spacing or collar-chord edges.");
+    } });
+    const { positions: posed, summary } = pose;
+    const brows =
+      document.brows === undefined
+        ? undefined
+        : (() => {
+            if (pose.reference === undefined)
+              throw new Error(
+                "Brow assembly needs its actual shape-only source reference.",
+              );
+            const resting = buildHumanFaceBrowAssembly(
+              basis,
+              pose.reference,
+              document,
+              materials,
+              "rest",
+            );
+            checks.push(...resting.checks);
+            const performed = buildHumanFaceBrowAssembly(
+              basis,
+              posed,
+              document,
+              materials,
+            );
+            checks.push(...performed.checks);
+            return performed;
+          })();
+    const lashes =
+      document.lashes === undefined
+        ? undefined
+        : buildHumanFaceLashRows(
+            basis,
+            state,
+            posed,
+            document.lashes,
+            document.id,
+            pose.optics,
+          );
+    if (lashes !== undefined)
+      checks.push(
+        createHumanFaceClearanceCheck("lash-clearance", "Lash shaft penetrates its optical exterior or its free skin", () => readHumanFaceLashClearance(basis, posed, lashes, pose.optics)),
+        { owner: "lash-structure", assert: () => assertHumanFaceLashContact(lashes) },
+      );
+    const replacedLashes = new Set((lashes ?? []).map((row) => row.region));
+    const oralRegistration: IHumanFaceOralMeasurementRegistration | undefined =
+      pose.oral === undefined ||
+      (options?.observeOralMeasurements === undefined &&
+        options?.observeMeasurements === undefined &&
+        document.anatomical === undefined)
+        ? undefined
+        : {
+            generation: pose.oral.generation,
+            dentalNativeSha256: pose.oral.dentalNativeSha256,
+            dentalSurface: pose.oral.dentalSurface,
+            absentDentalVertices: [...pose.oral.absentDentalVertices],
+          };
     const readings =
-      options?.observeMeasurements !== undefined || document.anatomical !== undefined
+      options?.observeMeasurements !== undefined ||
+      document.anatomical !== undefined
         ? readHumanFaceMeasurements(
-            createHumanFaceMeasurementContext(basis, posed),
+            createHumanFaceMeasurementContext(basis, posed, {
+              optics: pose.optics,
+              reference: pose.reference,
+              lashes,
+              oral: oralRegistration,
+              brows,
+            }),
             document.anatomical,
           )
         : [];
-    assertHumanFaceMeasurementTargets(
-      readings,
-      (document.anatomical?.targets ?? []).map((target) => target.measurement),
-    );
-    assertHumanFaceJawCapacity(readings, document.anatomical);
-    const evaluated = new Map<string, readonly number[]>();
-    const tints = scalpTint(document.hair, materials);
-    const parts = surfaces.flatMap(({ surface, regions }) => {
-      const fields = Object.hasOwn(document.skin ?? {}, surface.id)
-        ? document.skin![surface.id]
-        : undefined;
-      let colors: number[] | undefined;
-      if (fields !== undefined) {
-        const sample = createPortraitColourField(fields);
-        colors = [];
-        for (let vertex = 0; vertex < surface.positions.length; vertex += 3)
-          colors.push(...sample(surface.positions.slice(vertex, vertex + 3)));
-      }
-      // The scalp under hair takes the hair's colour, as a further gain on
-      // whatever pigmentation the document painted.
-      const tint = tints.get(surface.id);
-      if (tint !== undefined)
-        colors =
-          colors === undefined
-            ? tint.slice()
-            : colors.map((value, at) => value * tint[at]);
-      const positions = posed.get(surface.id)!;
-      const surfaceNormals = normals.get(surface.id)!;
-      evaluated.set(surface.id, positions);
-      return regions.map(({ region, evaluate }) => ({
-        id: region.id,
-        name: region.id,
-        material: region.material,
-        geometry: {
-          type: "mesh" as const,
-          mesh: evaluate(positions, surfaceNormals, colors,
-            surface.sourcePartition === undefined ? undefined : {
-              domain: humanPhysicalSourceDomain(document.id, surface.sourcePartition.generation),
-              samples: surface.sourcePartition.samples,
-            }),
-        },
-        attachedBone: null,
-        transform: null,
-      }));
+    checks.push({ owner: "measurement-targets", assert: () => assertHumanFaceMeasurementTargets(readings, (document.anatomical?.targets ?? []).map(target => target.measurement)) });
+    checks.push({ owner: "jaw-capacity", assert: () => assertHumanFaceJawCapacity(readings, document.anatomical) });
+    const tints = fibreTint(document.hair, materials, brows?.tints);
+    const skinGains = createHumanFaceSkinRegionGains(basis, document.skinAppearance);
+    const browReplacements = brows?.replacements ?? new Map<string, Set<number>>();
+    const { parts, evaluated, sourceRegions } = gatherResidentParts({
+      document, pose, browReplacements, replacedLashes, fibreTints: tints, skinGains,
     });
     // Before validation, which a fixed weld partition may skip: a vertex
     // colour never leaves [0, 1].
@@ -285,6 +327,12 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
+    composeGenerated({ document, pose, lashes, brows, model, materialMap, checks });
+    // Admission reads these on the delivered model, after hair is composed.
+    checks.push(
+      createHumanFaceClearanceCheck("oral-lining", "Oral lining intersects a dental crown", () => readHumanFaceOralLiningSpace({ basis, pose, model })),
+    );
+    if (options?.census === true) checks.push({ owner: "assembly-census", assert: () => undefined, read: () => readHumanFaceAssemblyClearances({ basis, pose, model }), census: () => readHumanFacePartCensus(model) });
     // Fixed indices, UVs, references and resident finishes were admitted on the
     // neutral. Explicit source meaning and alias agreement, connectivity and
     // the current legacy partition govern reuse. Contact coordinates alone
@@ -292,9 +340,8 @@ export function createHumanFaceBasisBuilder(
     // its actual instance rather than retaining the constructor's neutral ID.
     if (
       partitions === undefined ||
-      parts.some(
-        (part, index) => !partitions![index](part.geometry.mesh),
-      )
+      partitions.length !== parts.length ||
+      parts.some((part, index) => !partitions![index](part.geometry.mesh))
     ) {
       const validation = validateModel({ model });
       if (!validation.success)
@@ -350,11 +397,15 @@ export function createHumanFaceBasisBuilder(
         generated.certify();
       }
     }
-    options?.observe?.(summary === null ? null : structuredClone(summary));
-    options?.observeHairParts?.(hairPartIds.slice());
-    options?.observeMeasurements?.(readings);
-    return model;
+    const value = { model, hairPartIds, reference: pose.reference, oral: oralRegistration,
+      sourceRegions, browReplacements };
+    return { value, checks, publish: () => publishHumanFaceConstruction(options, value, summary, readings),
+      readMappings: () => (pose.periocularTissues ?? []).flatMap((part) => part.readMapping === undefined ? [] : [{
+        subject: "periocular:" + part.side + ":" + part.tissue, reading: part.readMapping(),
+      }]),
+    };
   };
+  const build = createHumanFaceConstructionEntries(stage, options?.observeConstructionProgress);
   build({
     id: basis.id,
     name: basis.id,

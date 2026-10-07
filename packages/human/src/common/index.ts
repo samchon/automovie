@@ -5,3 +5,4 @@ export * from "./export";
 export * from "./measure";
 export * from "./mesh";
 export * from "./structures";
+export * from "./skin";

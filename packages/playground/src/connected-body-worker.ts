@@ -4,17 +4,24 @@
  * teardown. It admits the body partition view of the published person
  * generation once, then evaluates correlated
  * preview and explicit export requests against that compiled evaluator.
+ * The whole-person reader consumes this same loaded body and its companion
+ * head rather than fetching another body during worker preparation.
  */
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
-import { createConnectedBodyRuntime } from "./human/body/connectedBodyRuntime";
+import { createConnectedBodyGenerationRuntime } from "./human/body/createConnectedBodyGenerationRuntime";
 import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
+import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.all([readConnectedBodyView(), createConnectedBodySimpleWhole()]).then(([view, whole]) =>
-  createConnectedBodyRuntime(view.body, whole),
+const signal = (progress: string): void => {
+  const message: IConnectedBodyProgress = { progress };
+  scope.postMessage(message);
+};
+const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, view]) =>
+  createConnectedBodyGenerationRuntime(head, view, signal),
 );
 const handle = createHumanResidentHandler({
   prepare: prepared,

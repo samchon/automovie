@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieHumanBodyBasisDocument,
-  createPortraitMaterials,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 
 /**
  * The body editor's starting document on a body revision: neutral shape, the

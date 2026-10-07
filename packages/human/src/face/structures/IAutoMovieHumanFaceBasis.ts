@@ -10,6 +10,8 @@ import type { IAutoMovieHumanFaceBasisLandmarks } from "./IAutoMovieHumanFaceBas
 import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
 import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocular";
+import type { IAutoMovieHumanFaceOralSupport } from "./IAutoMovieHumanFaceOralSupport";
+import type { IAutoMovieHumanFaceNasalContour } from "./IAutoMovieHumanFaceNasalContour";
 
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
@@ -42,6 +44,12 @@ export interface IAutoMovieHumanFaceBasis {
    * from it; without it they refuse by name rather than match asset names.
    */
   periocular?: IAutoMovieHumanFacePeriocular;
+
+  /** Producer-qualified native crown/cervical correspondence, independent of skin partition IDs. */
+  oralSupport?: IAutoMovieHumanFaceOralSupport;
+
+  /** Producer-qualified ordered nasal source contours; clinical aperture remains distinct. */
+  nasalContours?: IAutoMovieHumanFaceNasalContour[];
 
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
   channels: IAutoMovieHumanFaceBasisChannel[];

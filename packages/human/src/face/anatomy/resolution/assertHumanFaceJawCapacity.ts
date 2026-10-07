@@ -10,9 +10,11 @@ const HALF_READOUT_MM = 0.05;
  *
  * The document's `motionCapacity.jaw` maxima are compared with its readings
  * on the same final surface: interincisal opening against the maximum
- * opening, protrusion past the upper incisor against the maximum protrusion,
- * and lateral excursion toward the face's left or right against that side's
- * maximum. A supplied maximum whose reading is unavailable cannot be checked
+ * opening, reference-relative protrusion against the maximum protrusion,
+ * and reference-relative lateral excursion toward the face's left or right
+ * against that side's maximum. Initial overjet and midline deviation are
+ * accounted for by the shared excursion reader, not ignored as if the reference
+ * were zero. A supplied maximum whose reading is unavailable cannot be checked
  * and refuses by name rather than passing unchecked. Nothing is clamped.
  *
  * @evidence contracts/common.md#principled-implementation Capacity and performance are compared on the same build's final incisal offset in the contact frame.
@@ -53,7 +55,7 @@ export function assertHumanFaceJawCapacity(
       );
   };
   check(jaw.maximumInterincisalOpeningMm, "jaw.interincisalOpening", 1, "interincisal opening");
-  check(jaw.maximumProtrusionMm, "jaw.protrusionBeyondOverjet", 1, "protrusion");
-  check(jaw.maximumLeftExcursionMm, "jaw.lateralExcursion", 1, "left excursion");
-  check(jaw.maximumRightExcursionMm, "jaw.lateralExcursion", -1, "right excursion");
+  check(jaw.maximumProtrusionMm, "jaw.protrusionFromReference", 1, "protrusion");
+  check(jaw.maximumLeftExcursionMm, "jaw.lateralExcursionFromReference", 1, "left excursion");
+  check(jaw.maximumRightExcursionMm, "jaw.lateralExcursionFromReference", -1, "right excursion");
 }

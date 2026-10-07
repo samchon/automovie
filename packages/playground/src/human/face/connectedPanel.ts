@@ -7,17 +7,15 @@
  * A failed or superseded edit retains the committed preview and downloads.
  */
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
-import {
-  type IAutoMovieHumanFaceBasisDocument,
-  createHumanFaceEditor,
-  parseHumanFaceBasisDocument,
-  serializeHumanFaceBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
+import { serializeHumanFaceBasisDocument } from "@automovie/human/face/document/serializeHumanFaceBasisDocument";
+import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 
-import { mountConnectedFaceAppearance } from "./connectedAppearance";
-import { mountConnectedFaceControls } from "./connectedControls";
 import type { IConnectedFacePanelModel } from "./IConnectedFacePanelModel";
 import type { IConnectedFacePanelProps } from "./IConnectedFacePanelProps";
+import { mountConnectedFaceAppearance } from "./connectedAppearance";
+import { mountConnectedFaceControls } from "./connectedControls";
 import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
 
 /**
@@ -119,7 +117,7 @@ Jaw ${joints.jaw.degrees.toFixed(1)}° open, ${(joints.jaw.translationMetres * 1
       contact === undefined || contact === null
         ? ""
         : `
-Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${(contact.interincisalMetres * 1000).toFixed(1)} mm apart · closure ×${contact.closureRatio.toFixed(2)}` +
+Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${contact.interincisalMetres === null ? "measurement unavailable (representative absent)" : (contact.interincisalMetres * 1000).toFixed(1) + " mm apart"} · closure ×${contact.closureRatio.toFixed(2)}` +
           (contact.passage === null
             ? ""
             : ` · tongue ${(contact.passage.protrudingMetres * 1000).toFixed(1)} mm out, ${(contact.passage.thicknessMetres * 1000).toFixed(1)} mm thick`) +

@@ -9,8 +9,9 @@ import { createHumanObservationAlbedoMaterial } from "./createHumanObservationAl
  * borrowed sources and disposes owned candidates and replacements. Cached
  * replacements survive unchanged frames and
  * are released on departure or `clear`, including material arrays and groups.
- * Custom shaders and mapped displacement refuse rather than invent a colour
- * projection or silently change the observed surface.
+ * Unnamed shader hooks, unknown shader patches and mapped displacement refuse
+ * rather than invent a colour projection or silently change the observed
+ * surface; the material owner states which viewer patches it admits.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Supplies a distinct material-colour observation without altering the source asset.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Restores source materials and names unsupported shader observations.

@@ -1,4 +1,5 @@
-import { HUMAN_BODY_EXTERIOR_TARGETS, HUMAN_BODY_MEASUREMENTS } from "@automovie/human";
+import { HUMAN_BODY_EXTERIOR_TARGETS } from "@automovie/human/body/anatomy/surface/HUMAN_BODY_EXTERIOR_TARGETS";
+import { HUMAN_BODY_MEASUREMENTS } from "@automovie/human/body/constants/HUMAN_BODY_MEASUREMENTS";
 
 import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
 import { readConnectedBodyAnatomyTarget } from "./readConnectedBodyAnatomyTarget";

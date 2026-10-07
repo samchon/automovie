@@ -18,37 +18,20 @@ import {
 
 import { applyExpression } from "./applyExpression";
 import { applyPose } from "./applyPose";
-import { IAutoMovieModelObject } from "./buildModel";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
+import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement";
 
-/**
- * Secondary-motion config: the joints that should lag/overshoot the animated
- * target (a tail, ears) and the spring that drives them.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Exposes the bounded joint, stiffness, and damping controls owned by this secondary-motion solver.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Implements the live deterministic spring choice at the sampled moving boundary.
- * @author Samchon
- */
-export interface IAutoMovieSpringConfig {
-  /**
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Declares the joints governed by the bounded secondary-motion solver.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Keeps the live spring choice explicit at the moving boundary.
-   */
-  joints: AutoMovieHumanoidBone[];
-  /**
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Declares the spring stiffness owned by the bounded secondary-motion solver.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Keeps the live spring choice explicit at the moving boundary.
-   */
-  stiffness: number;
-  /**
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Declares the spring damping owned by the bounded secondary-motion solver.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Keeps the live spring choice explicit at the moving boundary.
-   */
-  damping: number;
-}
+import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig";
 
+/** One joint's three solver states, retained in this player's spring map. */
 interface IAxisSprings {
+  /** Flexion value and velocity carried between bounded solver updates. */
   flexion: ISpringStep;
+
+  /** Abduction value and velocity carried between the same updates. */
   abduction: ISpringStep;
+
+  /** Twist value and velocity carried between the same updates. */
   twist: ISpringStep;
 }
 
@@ -170,7 +153,7 @@ export class AutoMoviePlayer {
     const axis = (
       state: ISpringStep | undefined,
       target: number | null,
-    ): { angle: number | null; next: ISpringStep } => {
+    ): IAutoMovieSpringAxisSettlement => {
       // A vanished axis DECAYS toward neutral instead of hard-resetting
       // (#1048): follow-through settles smoothly when a keyframe segment
       // stops authoring the joint, rather than popping to rest.

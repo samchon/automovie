@@ -21,7 +21,7 @@ export const portraitEyelashParameters = [
     unit: "degrees",
     meaning: "Upper-lash root elevation",
     effect:
-      "Increasing tilts the initial tangent upwards from the head's anterior axis.",
+      "Increasing tilts the initial tangent upwards from the lash root frame's anterior direction.",
   },
   {
     id: "curl",

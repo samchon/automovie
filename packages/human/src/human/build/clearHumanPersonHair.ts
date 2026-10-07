@@ -1,5 +1,6 @@
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanPersonHairClearanceProps } from "../structures/IAutoMovieHumanPersonHairClearanceProps";
+import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHairContactProps";
 import { keepHumanPersonHairClear } from "./keepHumanPersonHairClear";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 
@@ -38,7 +39,7 @@ export function clearHumanPersonHair(
   const generated = props.parts.filter((part) => props.isGenerated(part.id));
   if (generated.length === 0) return;
   const meshes = generated.map(meshOfHumanPart);
-  const cleared = keepHumanPersonHairClear({
+  const input: IHumanPersonHairContactProps = {
     positions: props.positions,
     indices: props.indices,
     hair: meshes.map((mesh) => ({
@@ -49,7 +50,18 @@ export function clearHumanPersonHair(
       0,
       ...props.layers.map((layer) => layer.clearance + layer.samplingStep / 2),
     ),
-  });
+  };
+  if (props.observe !== undefined)
+    props.observe(Object.freeze({
+      positions: Object.freeze([...input.positions]),
+      indices: Object.freeze([...input.indices]),
+      hair: Object.freeze(input.hair.map((mesh) => Object.freeze({
+        positions: Object.freeze([...mesh.positions]),
+        indices: Object.freeze([...mesh.indices]),
+      }))),
+      clearance: input.clearance,
+    }));
+  const cleared = keepHumanPersonHairClear(input);
   meshes.forEach((mesh, at) => {
     const changed = mesh.positions.some((value, vertex) => value !== cleared[at][vertex]);
     mesh.positions = cleared[at];

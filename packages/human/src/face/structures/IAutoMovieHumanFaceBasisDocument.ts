@@ -4,6 +4,17 @@ import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
 import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
 import type { IAutoMovieHumanFaceEyes } from "./IAutoMovieHumanFaceEyes";
 import type { IAutoMovieHumanFaceLashes } from "./IAutoMovieHumanFaceLashes";
+import type { IAutoMovieHumanFaceSkinRelief } from "./IAutoMovieHumanFaceSkinRelief";
+import type { IAutoMovieHumanFaceMaterialOverride } from "./IAutoMovieHumanFaceMaterialOverride";
+import type { IAutoMovieHumanFacePeriocularTissues } from "./IAutoMovieHumanFacePeriocularTissues";
+import type { IAutoMovieHumanFaceOral } from "./IAutoMovieHumanFaceOral";
+import type { IAutoMovieHumanFaceBrows } from "./IAutoMovieHumanFaceBrows";
+import type { IAutoMovieHumanFaceEyelids } from "./IAutoMovieHumanFaceEyelids";
+import type { IAutoMovieHumanFaceOcularSurfaces } from "./IAutoMovieHumanFaceOcularSurfaces";
+import type { IAutoMovieHumanFaceScalpHair } from "./IAutoMovieHumanFaceScalpHair";
+import type { IAutoMovieHumanFaceHairTraits } from "./IAutoMovieHumanFaceHairTraits";
+import type { IAutoMovieHumanFaceSkinRegionAppearance } from "./IAutoMovieHumanFaceSkinRegionAppearance";
+import type { IAutoMovieHumanFaceEyelidPhenotypes } from "./IAutoMovieHumanFaceEyelidPhenotypes";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.
@@ -45,6 +56,15 @@ export interface IAutoMovieHumanFaceBasisDocument {
    */
   hair?: IAutoMovieHumanFaceHair | null;
 
+  /** Complete named scalp styling; alternative to the legacy full hair document. */
+  scalpHair?: IAutoMovieHumanFaceScalpHair;
+
+  /** Sparse named traits over selected hair layer identities; unselected fields retain exact values. */
+  hairTraits?: Record<string, IAutoMovieHumanFaceHairTraits>;
+
+  /** Reflectance gains on immutable basis-owned skin areas; no personal coordinates or region geometry. */
+  skinAppearance?: Record<string, IAutoMovieHumanFaceSkinRegionAppearance>;
+
   /**
    * Numerical pigmentation by basis surface identity. Field centres and radii
    * use metres in the immutable neutral basis, so shape and expression carry
@@ -54,6 +74,13 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * across its material regions with their common vertex correspondence.
    */
   skin?: Record<string, IPortraitColourField[]> | null;
+
+  /**
+   * Independent authored resting and performed regional skin relief. This
+   * moves the connected host before contact and normals; clinical observations
+   * in `anatomical` remain separate. Omission retains source geometry.
+   */
+  skinRelief?: IAutoMovieHumanFaceSkinRelief;
 
   /**
    * Optional iris pigmentation of each articulated eye, painted by one shared
@@ -77,6 +104,29 @@ export interface IAutoMovieHumanFaceBasisDocument {
   lashes?: IAutoMovieHumanFaceLashes;
 
   /**
+   * Coarse tissue dimensions attached to the registered live lid cage.
+   * Omission of the whole section expands owner-defined defaults for eyes
+   * with generated optics and a cage. An explicit section retains sparse
+   * selection, including an empty side, without adding omitted members.
+   */
+  periocularTissues?: IAutoMovieHumanFacePeriocularTissues;
+
+  /** Independent source crown, arch and tongue dimensions and oral lining. */
+  oral?: IAutoMovieHumanFaceOral;
+
+  /** Independent numerical brow shafts on the registered shared forehead. */
+  brows?: IAutoMovieHumanFaceBrows;
+
+  /** Independent authored lid sections on the common source cage. */
+  eyelids?: IAutoMovieHumanFaceEyelids;
+
+  /** Visible resting crease, hood and source epicanthal traits; source-row displacement controls cannot author the same side simultaneously. */
+  eyelidPhenotypes?: IAutoMovieHumanFaceEyelidPhenotypes;
+
+  /** Visible medial and wet-margin surfaces on one registered shared opening. */
+  ocularSurfaces?: IAutoMovieHumanFaceOcularSurfaces;
+
+  /**
    * Optional overrides by existing material ID: linear RGB `color` and
    * `roughness`, each in [0,1]. A material whose base-colour texture carries
    * fibre coverage in its alpha (a brow or lash card cut by a mask or
@@ -84,15 +134,7 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * and `density`, a factor on that coverage in [0,4]; both are painted into
    * the texture by the shared fibre rule.
    */
-  materials?: Record<
-    string,
-    {
-      color?: { r: number; g: number; b: number };
-      roughness?: number;
-      pigment?: [number, number, number];
-      density?: number;
-    }
-  >;
+  materials?: Record<string, IAutoMovieHumanFaceMaterialOverride>;
 
   /**
    * Optional anatomical record: measurement targets the editor solves onto

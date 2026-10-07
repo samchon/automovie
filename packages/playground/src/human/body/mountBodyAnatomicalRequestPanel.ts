@@ -41,7 +41,7 @@ export function mountBodyAnatomicalRequestPanel<
     element<HTMLButtonElement>("request-undo").disabled = !snapshot?.canUndo;
     element<HTMLButtonElement>("request-redo").disabled = !snapshot?.canRedo;
     if (snapshot === undefined) return;
-    if (replaceText) text.value = serializeHumanBodyBasisDocument(snapshot.document);
+    if (replaceText) text.value = serializeHumanBodyBasisDocument(snapshot.document, props.source);
     if (snapshot.error !== null) {
       status(snapshot.error, "error");
       return;
@@ -57,7 +57,11 @@ export function mountBodyAnatomicalRequestPanel<
       ].join("\n"), "ready");
       return;
     }
-    const report = snapshot.model.anatomicalRequest!;
+    const report = snapshot.model.anatomicalRequest;
+    if (report === undefined) {
+      status("Actual source anatomical parts. Numerical targets retain their source authoring conditions; clinical and acquisition validity remain unavailable.", "ready");
+      return;
+    }
     status([
       "Target spheres only. Reference rig: " + report.reference.basis,
       "Requested skin and complete bones: unavailable (geometry not validated).",
@@ -78,7 +82,7 @@ export function mountBodyAnatomicalRequestPanel<
     try {
       // exactly one report, bound to this document and source
       const qualified = exterior !== undefined
-        ? articular === undefined && exterior.reference.basis === document.basis && serializeHumanBodyBasisDocument(exterior.requested) === serializeHumanBodyBasisDocument(document)
+        ? articular === undefined && exterior.reference.basis === document.basis && serializeHumanBodyBasisDocument(exterior.requested, props.source) === serializeHumanBodyBasisDocument(document, props.source)
         : articular !== undefined && articular.reference.basis === document.basis;
       if (!qualified)
         throw new Error("The worker supplied no matching unique numerical candidate qualification.");
@@ -90,7 +94,7 @@ export function mountBodyAnatomicalRequestPanel<
   };
   const apply = async (value: string, ticket = withdraw()) => {
     try {
-      const document = parseHumanBodyBasisDocument(value);
+      const document = parseHumanBodyBasisDocument(value, props.source);
       if (!intents.isCurrent(ticket)) return false;
       status("Building the anatomy inspection…", "building");
       if (editor === undefined) {
@@ -122,7 +126,7 @@ export function mountBodyAnatomicalRequestPanel<
   element<HTMLButtonElement>("request-save").onclick = () => {
     if (editor === undefined) return;
     const document = editor.snapshot().document;
-    props.download(document.id + ".json", serializeHumanBodyBasisDocument(document), "application/json");
+    props.download(document.id + ".json", serializeHumanBodyBasisDocument(document, props.source), "application/json");
   };
   element<HTMLButtonElement>("request-export").onclick = async () => {
     if (editor === undefined) return;

@@ -4,6 +4,7 @@ import type { IAutoMovieHumanPersonChannelAlias } from "./IAutoMovieHumanPersonC
 import type { IAutoMovieHumanPersonEndpointDriver } from "./IAutoMovieHumanPersonEndpointDriver";
 import type { IAutoMovieHumanPersonGenerationBand } from "./IAutoMovieHumanPersonGenerationBand";
 import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadSkin";
+import type { IAutoMovieHumanPersonHeadShapeSource } from "./IAutoMovieHumanPersonHeadShapeSource";
 
 /**
  * One source generation read as one connected skin with a head/body
@@ -67,4 +68,7 @@ export interface IAutoMovieHumanPersonGeneration {
    * landmark rows with the body's gain, or omitted when the face view has none.
    */
   drivers?: IAutoMovieHumanPersonEndpointDriver[];
+
+  /** Actual source-owned numerical head traits, or absent when no such source was authored. */
+  headShapeSource?: IAutoMovieHumanPersonHeadShapeSource;
 }

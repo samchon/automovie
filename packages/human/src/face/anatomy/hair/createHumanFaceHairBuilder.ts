@@ -12,6 +12,7 @@ import type {
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import type { IHumanFaceHairHostQueries } from "./IHumanFaceHairHostQueries";
+import type { IHumanFaceHairSourceSurface } from "./IHumanFaceHairSourceSurface";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { closeHumanFaceHairContact } from "./closeHumanFaceHairContact";
@@ -113,7 +114,13 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
 export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
   const sources = new Map(
     input.surfaces.map((original) => {
-      const surface = structuredClone(original);
+      const surface: IHumanFaceHairSourceSurface = structuredClone({
+        id: original.id,
+        positions: original.positions,
+        indices: original.indices,
+        hairDomains: original.hairDomains,
+        hairContactClosure: original.hairContactClosure,
+      });
       const ids = new Set<string>();
       const domains = new Map(
         (surface.hairDomains ?? []).map((domain) => {

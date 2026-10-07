@@ -5,10 +5,9 @@
  * Both face.html and connected-face.html mount this same numerical editor.
  * The selected photo never participates in this replay.
  */
-import {
-  type IAutoMovieHumanFaceBasisDocument,
-  parseHumanFaceBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import { createHumanWorker } from "./human/common/createHumanWorker";
+import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -71,10 +70,7 @@ async function main(): Promise<void> {
           orbit: (stageCamera) => new OrbitControls(stageCamera, canvas),
           worker: () =>
             createHumanResidentPort(
-              new Worker(
-                new URL("./connected-face-worker.ts", import.meta.url),
-                { type: "module" },
-              ),
+              createHumanWorker("worker=face"),
             ),
           loadTexture: (asset) => loader.loadAsync(asset),
           observeResize: (resize) => {

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
+import { resolveHumanBodyAnatomy } from "../../body/anatomy/resolveHumanBodyAnatomy";
 import { evaluateHumanBodyShape } from "../../body/basis/evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
@@ -10,6 +11,7 @@ import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieH
 import { evaluateHumanFaceRest } from "../../face/basis/evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "../../face/basis/humanFaceBasisWeights";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
+import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonFormedSkin } from "../structures/IAutoMovieHumanPersonFormedSkin";
@@ -24,7 +26,8 @@ import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
  * measurement does not read.
  *
  * The body view's shaped surface and landmarks come from the same endpoint
- * state the body builder skins with (`humanBodyBasisWeights`, the shape's own
+ * state the body builder skins with (anatomical target solving,
+ * `humanBodyBasisWeights`, the shape's own
  * shoulder rest). The face producer's rest layer (`evaluateHumanFaceRest`)
  * evaluates the person's derived face document, driver gains included. The
  * head carry is the shaped eye centre minus the neutral one, as in the full
@@ -54,16 +57,22 @@ export function evaluateHumanPersonRestSkin(
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanPersonFormedSkin {
   const { generation, plan } = compiled;
+  const effectiveDocument = createHumanPersonHeadShapeResolver(generation)(document);
   const body = generation.body;
-  const bodyDocument = deriveHumanPersonBody({ document, faceMaterials: generation.face.materials });
+  const bodyDocument = deriveHumanPersonBody({ document: effectiveDocument, faceMaterials: generation.face.materials });
+  if (bodyDocument.anatomy !== undefined)
+    bodyDocument.shape = resolveHumanBodyAnatomy(body, bodyDocument.shape, bodyDocument.anatomy);
   delete bodyDocument.pose;
   delete bodyDocument.shoulders;
+  delete bodyDocument.anatomicalMotion;
+  delete bodyDocument.toes;
+  delete bodyDocument.thighGoals;
   const state = humanBodyBasisWeights(body, bodyDocument, resolveHumanBodyShapeShoulderRest(body, bodyDocument.shape));
   const shaped = evaluateHumanBodyShape(body, state);
   const bodyRest = compiled.restNeutral.slice();
   applyHumanBodyShapeRows(body, state, bodyRest, compiled.restTargets);
   const faceDocument = deriveHumanPersonGenerationFace({
-    document: { ...document, face: { ...document.face, expression: {} } },
+    document: { ...effectiveDocument, face: { ...effectiveDocument.face, expression: {} } },
     gains: humanPersonBodyEndpointGains(body, state),
     aliases: compiled.aliases,
     drivers: compiled.drivers,

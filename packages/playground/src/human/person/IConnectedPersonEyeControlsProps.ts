@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type { IAutoMovieHumanFaceBasis, IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 /**
  * What the eye-region controls render into and call: the container, the
@@ -13,6 +13,9 @@ export interface IConnectedPersonEyeControlsProps {
 
   /** The element the rows are rendered into. */
   container: HTMLElement;
+
+  /** Registered face owner used to preserve its omitted tissue defaults when editing one member. */
+  faceBasis?: IAutoMovieHumanFaceBasis;
 
   /** The current draft person document. */
   current: () => IAutoMovieHumanPersonDocument;

@@ -3,8 +3,8 @@ import typia from "typia";
 import { createPortraitIrisMaterials } from "../anatomy/eye/createPortraitIrisMaterials";
 import { resolveHumanFaceOpticalProfile } from "../anatomy/eye/resolveHumanFaceOpticalProfile";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
-import { assertHumanFaceLowerLashProfile } from "../anatomy/lash/assertHumanFaceLowerLashProfile";
-import { assertPortraitEyelashProfile } from "../anatomy/lash/assertPortraitEyelashProfile";
+import { assertHumanFaceLashPopulation } from "../anatomy/lash/assertHumanFaceLashPopulation";
+import { assertPortraitEyebrowProfile } from "../anatomy/brow/assertPortraitEyebrowProfile";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
@@ -36,13 +36,30 @@ export function admitHumanFaceBasisDocument(
       document.lashes.upper.left,
       document.lashes.upper.right,
     ])
-      assertPortraitEyelashProfile(side);
+      assertHumanFaceLashPopulation(side, "upper");
   if (document.lashes?.lower !== undefined)
     for (const side of [
       document.lashes.lower.left,
       document.lashes.lower.right,
     ])
-      assertHumanFaceLowerLashProfile(side);
+      assertHumanFaceLashPopulation(side, "lower");
+  for (const brow of [document.brows?.left, document.brows?.right])
+    if (brow !== undefined) assertPortraitEyebrowProfile(brow, brow.strandCount);
+  for (const side of [document.periocularTissues?.left, document.periocularTissues?.right])
+    for (const section of Object.values(side ?? {}))
+      if (section !== undefined && ![section.inwardOffsetMm, section.thicknessMm].every(value => Number.isFinite(value) && value > 0))
+        throw new Error("Periocular tissue dimensions need positive finite millimetres.");
+  for (const side of [document.eyelids?.left, document.eyelids?.right])
+    for (const section of Object.values(side ?? {}))
+      if (section !== undefined && ![section.elevationMm, section.projectionMm].every(Number.isFinite))
+        throw new Error("Lid section displacements need finite millimetres.");
+  for (const shape of [document.ocularSurfaces?.left, document.ocularSurfaces?.right])
+    if (shape !== undefined) {
+      if (!Object.values(shape).filter(value => value !== undefined).every(value => Number.isFinite(value) && value >= 0))
+        throw new Error("Ocular surface dimensions need nonnegative finite millimetres.");
+      if ((shape.upperMarginWidth === undefined) !== (shape.upperMarginLift === undefined))
+        throw new Error("Upper wet-margin width and lift must be supplied together.");
+    }
   const values = [
     ...Object.values(document.shape),
     ...Object.values(document.expression),

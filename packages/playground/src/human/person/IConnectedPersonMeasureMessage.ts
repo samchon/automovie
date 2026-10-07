@@ -5,6 +5,8 @@ import type { IConnectedPersonHeadReadMessage } from "./IConnectedPersonHeadRead
 import type { IConnectedPersonHeadSolveMessage } from "./IConnectedPersonHeadSolveMessage";
 import type { IConnectedPersonReadMessage } from "./IConnectedPersonReadMessage";
 import type { IConnectedPersonSolveMessage } from "./IConnectedPersonSolveMessage";
+import type { IConnectedPersonSimpleExpandMessage } from "./IConnectedPersonSimpleExpandMessage";
+import type { IConnectedPersonSimpleProjectMessage } from "./IConnectedPersonSimpleProjectMessage";
 
 /**
  * One request the person editor posts to its measurement worker,
@@ -21,4 +23,6 @@ export type IConnectedPersonMeasureMessage =
   | IConnectedPersonHeadReadMessage
   | IConnectedPersonHeadSolveMessage
   | IConnectedPersonFaceReadMessage
-  | IConnectedPersonFaceSolveMessage;
+  | IConnectedPersonFaceSolveMessage
+  | IConnectedPersonSimpleExpandMessage
+  | IConnectedPersonSimpleProjectMessage;

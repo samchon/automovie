@@ -2,22 +2,20 @@ import { Vector3 } from "@automovie/engine";
 
 import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
 import { readHumanFaceBrowAtVertical } from "./readHumanFaceBrowAtVertical";
-import { readHumanFaceBrowLength } from "./readHumanFaceBrowLength";
 import { readHumanFaceCanthus } from "./readHumanFaceCanthus";
 import { readHumanFaceMarginAtVertical } from "./readHumanFaceMarginAtVertical";
 import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
+import { readHumanFaceOpticalMetric } from "./readHumanFaceOpticalMetric";
 
 /**
- * The eye-region measurements of the face resolver: one per numeric field of
- * `IAutoMovieHumanFaceEyeParameters` (`eye.<field>` and `eye.<side>.<field>`),
- * `IAutoMovieHumanFaceBrowParameters` (`brow.<side>.<field>`) and
- * `IAutoMovieHumanFaceEyelashParameters`
- * (`eyelash.<side>.<row>.<field>`), each without its unit suffix.
+ * Eye and independent optical measurements on the final connected surface.
+ * Brow-band and lash-shaft quantities retain their separate registries.
  *
  * Readers use the producer's periocular registration and optical support.
  * Canthi come from the registered definitions (`readHumanFaceCanthus`), the
- * pupil centre from each eye's anterior chart point (a named approximation,
- * `readHumanFacePupilCentre`), palpebrale superius and inferius from the
+ * pupil centre from the generated iris centroid, or on a build without
+ * independent optics the source anterior chart approximation
+ * (`readHumanFacePupilCentre`), palpebrale superius and inferius from the
  * margin rows on the pupil vertical (`readHumanFaceMarginAtVertical`), and the
  * brow borders from the brow card on a vertical (`readHumanFaceBrowAtVertical`).
  * Canthal, interpupillary and fissure lengths, the fissure height and the
@@ -29,15 +27,13 @@ import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
  * brow length is the card's head-frame X extent. A basis without the registration reads every one as a registration
  * gap.
  *
- * Still gaps: the upper-lid crease (no crease is registered); limbus, pupil
- * aperture, axial length and cornea (the CC0 eye proxy has no cornea, limbus,
- * aperture or posterior pole); the medial and lateral brow-to-lid distances
- * (the study measures them on the medial and lateral limbus verticals); the
- * brow arch apex (it is referenced to the medial limbus); and the lash lengths (the
- * lashes are cards, not shafts). Central corneal thickness reads in
- * millimetres, the registry's unit, against the observation's micrometres. The
- * shaft count, brow hair coverage, lash form and lower-lid tissue grades have
- * no measurement. Channels name the identity channels a target may move.
+ * Generated optical geometry is measured by readHumanFaceOpticalMetric;
+ * a build without it retains the named assembly gap. Clinical pupil diameter
+ * at 250 lux remains unavailable because authored aperture supplies no
+ * physiological adaptation protocol. The upper crease remains unregistered.
+ * Central corneal thickness reads in millimetres, against the observation's
+ * micrometres. Channels name the existing identity axes a target may move;
+ * independent optical output metrics are report-only.
  *
  * @author Samchon
  */
@@ -150,12 +146,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.left.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "horizontalLimbusDiameter"),
   },
   {
     id: "eye.left.pupilDiameterAt250Lux",
@@ -164,7 +156,7 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+          "missing physiological protocol: iris aperture is authored geometry, without a measured 250 lux adaptation response",
       };
     },
   },
@@ -172,34 +164,22 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.left.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "globeAxialLength"),
   },
   {
     id: "eye.left.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "anteriorCornealRadius"),
   },
   {
     id: "eye.left.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "centralCornealThickness"),
   },
   {
     id: "eye.right.fissureLength",
@@ -273,12 +253,8 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.right.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "horizontalLimbusDiameter"),
   },
   {
     id: "eye.right.pupilDiameterAt250Lux",
@@ -287,7 +263,7 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
+          "missing physiological protocol: iris aperture is authored geometry, without a measured 250 lux adaptation response",
       };
     },
   },
@@ -295,217 +271,63 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.right.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "globeAxialLength"),
   },
   {
     id: "eye.right.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "anteriorCornealRadius"),
   },
   {
     id: "eye.right.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the CC0 eye proxy carries no cornea, limbus, pupil aperture or posterior pole",
-      };
-    },
+    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "centralCornealThickness"),
   },
   {
-    id: "brow.left.length",
+    id: "eye.left.irisOuterDiameter",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceBrowLength(context, "left"),
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisOuterDiameter"),
   },
   {
-    id: "brow.left.centralBreadth",
+    id: "eye.left.irisApertureDiameter",
     unit: "millimetres",
     channels: [],
-    read: (context) => {
-      const pupil = readHumanFacePupilCentre(context, "left");
-      if ("reason" in pupil) return pupil;
-      const brow = readHumanFaceBrowAtVertical(context, "left", pupil.x);
-      if ("reason" in brow) return brow;
-      return (brow.superior.y - brow.inferior.y) * 1000;
-    },
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisApertureDiameter"),
   },
   {
-    id: "brow.left.medialBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "brow.left.centralBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: (context) => {
-      const pupil = readHumanFacePupilCentre(context, "left");
-      if ("reason" in pupil) return pupil;
-      const brow = readHumanFaceBrowAtVertical(context, "left", pupil.x);
-      if ("reason" in brow) return brow;
-      const lid = readHumanFaceMarginAtVertical(
-        context,
-        "left",
-        "upper",
-        pupil.x,
-      );
-      if ("reason" in lid) return lid;
-      return Vector3.length(Vector3.subtract(brow.inferior, lid)) * 1000;
-    },
-  },
-  {
-    id: "brow.left.lateralBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "brow.left.upperArchApexRise",
-    unit: "millimetres",
-    channels: ["browAngle"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the left medial limbus; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "brow.right.length",
+    id: "eye.left.irisDepthFromAnteriorSupport",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceBrowLength(context, "right"),
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisDepthFromAnteriorSupport"),
   },
   {
-    id: "brow.right.centralBreadth",
+    id: "eye.right.irisOuterDiameter",
     unit: "millimetres",
     channels: [],
-    read: (context) => {
-      const pupil = readHumanFacePupilCentre(context, "right");
-      if ("reason" in pupil) return pupil;
-      const brow = readHumanFaceBrowAtVertical(context, "right", pupil.x);
-      if ("reason" in brow) return brow;
-      return (brow.superior.y - brow.inferior.y) * 1000;
-    },
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisOuterDiameter"),
   },
   {
-    id: "brow.right.medialBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "brow.right.centralBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: (context) => {
-      const pupil = readHumanFacePupilCentre(context, "right");
-      if ("reason" in pupil) return pupil;
-      const brow = readHumanFaceBrowAtVertical(context, "right", pupil.x);
-      if ("reason" in brow) return brow;
-      const lid = readHumanFaceMarginAtVertical(
-        context,
-        "right",
-        "upper",
-        pupil.x,
-      );
-      if ("reason" in lid) return lid;
-      return Vector3.length(Vector3.subtract(brow.inferior, lid)) * 1000;
-    },
-  },
-  {
-    id: "brow.right.lateralBrowToLid",
-    unit: "millimetres",
-    channels: ["browElevation"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "brow.right.upperArchApexRise",
-    unit: "millimetres",
-    channels: ["browAngle"],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the right medial limbus; the CC0 eye proxy carries no limbus",
-      };
-    },
-  },
-  {
-    id: "eyelash.left.upper.longestCentralLength",
+    id: "eye.right.irisApertureDiameter",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the left upper lashes are cards with no shaft population",
-      };
-    },
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisApertureDiameter"),
   },
   {
-    id: "eyelash.left.lower.longestCentralLength",
+    id: "eye.right.irisDepthFromAnteriorSupport",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the left lower lashes are cards with no shaft population",
-      };
-    },
-  },
-  {
-    id: "eyelash.right.upper.longestCentralLength",
-    unit: "millimetres",
-    channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the right upper lashes are cards with no shaft population",
-      };
-    },
-  },
-  {
-    id: "eyelash.right.lower.longestCentralLength",
-    unit: "millimetres",
-    channels: [],
-    read: () => {
-      return {
-        reason:
-          "missing registration: the right lower lashes are cards with no shaft population",
-      };
-    },
+    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisDepthFromAnteriorSupport"),
   },
 ];

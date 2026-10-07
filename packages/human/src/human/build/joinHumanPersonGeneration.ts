@@ -45,5 +45,6 @@ export function joinHumanPersonGeneration(
     band: body.band,
     aliases: head.aliases,
     drivers: head.drivers,
+    headShapeSource: head.headShapeSource,
   };
 }

@@ -1,7 +1,10 @@
 import { validateModel } from "@automovie/engine";
+import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
+import { createHumanPersonBodyEndpointSource } from "./createHumanPersonBodyEndpointSource";
+import { admitHumanPersonDocument } from "../document/admitHumanPersonDocument";
 import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
@@ -21,9 +24,14 @@ import { placeHumanPersonSkinPart } from "./placeHumanPersonSkinPart";
 import { readHumanPersonFaceRest } from "./readHumanPersonFaceRest";
 import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
-import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
+import { placeHumanPersonMixedSourceMesh } from "./placeHumanPersonMixedSourceMesh";
+import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
 import { prefixHumanPersonPart } from "./prefixHumanPersonPart";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
+import { createHumanPersonFaceMeasurementReader } from "../measure/createHumanPersonFaceMeasurementReader";
+import type { IAutoMovieHumanPersonFaceRest } from "../structures/IAutoMovieHumanPersonFaceRest";
+import type { IAutoMovieHumanPersonGenerationBuilder } from "../structures/IAutoMovieHumanPersonGenerationBuilder";
+import type { IAutoMovieHumanPersonConstruction } from "../structures/IAutoMovieHumanPersonConstruction";
 
 /**
  * Compile one source generation into an evaluator of whole people that reads
@@ -65,7 +73,10 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  *    cell opposing its source parent.
  * 5. Emits the face and body parts unclipped (the views are already the
  *    partition), keeps the face's hair off the posed body and validates the
- *    resident model.
+ *    resident model. An optional final-face observer reads this validated
+ *    model at export precision, undoing the actual head carry into the
+ *    registry's canonical measurement frame. Internal reference evaluations
+ *    publish no measurement; omission adds no measurement work.
  *
  * There is no cut evaluation, collar conform, boundary subdivision or normal
  * fairing. What a seam stage absorbed is not hidden: where the two
@@ -76,6 +87,11 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  * skinned. The evaluator owns no anatomy and does
  * not judge head-to-stature or neck-girth relations.
  *
+ * The explicit construction entry carries every requested face part into this
+ * same person model with the face's unchanged admission report. The ordinary
+ * callable refuses a rejected report. Source, schema, geometry, normal and
+ * static resident-model checks still execute on their original boundaries.
+ *
  * @evidence contracts/common.md#principled-implementation The order follows data dependence: both partitions are evaluated before the rest skin can be formed, the rest skin before the one skinning, the posed halves before the one normal field, and the normals before the parts are read back; a shared sample is one value because both partitions' fields are summed once and then skinned once with one weight row.
  * @evidence contracts/common.md#clear-and-simple-design One orchestrator over the existing face, body, head-carry, skinning, normal and hair owners; the only tables compiled once are the shared-sample maps and the region corner tables.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a document, a vertex or a revision; incompatible views refuse by name, the source normal guards are used unchanged and the boundary disagreement is reported rather than corrected.
@@ -85,15 +101,17 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  * @evidence contracts/modeling.md#shared-boundaries Every shared sample has one rest value and one skinning row, so both halves read the same position, and one source normal field gives both the same normal.
  * @evidence contracts/modeling.md#emitted-geometry Emits the partition views' own triangles; no triangle is clipped, subdivided or dropped.
  * @evidenceExclude contracts/modeling.md#parameter-channels The evaluator consumes the partitions' channels through their owners and defines none.
- * @evidenceExclude contracts/modeling.md#rendered-observation Rendering is observed by the consumers of the model.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The evaluator carries no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The partitions' owners admit their documents.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The evaluator consumes the person document and adds no input.
  */
 export function createHumanPersonGenerationBuilder(
   props: IAutoMovieHumanPersonGenerationBuilderProps,
-): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild {
+): IAutoMovieHumanPersonGenerationBuilder {
   const compiled = compileHumanPersonGeneration(props.generation);
+  const resolveHeadShape = createHumanPersonHeadShapeResolver(props.generation);
+  const readFaceMeasurements = props.observeFaceMeasurements === undefined
+    ? undefined : createHumanPersonFaceMeasurementReader(compiled);
   const {
     generation, faceProducer, bodyIndex, faceSource, bodySource, plan,
     restTargets, restNeutral, neutralAnchor, aliases, drivers, bodyRegions, sourceNormals,
@@ -101,13 +119,19 @@ export function createHumanPersonGenerationBuilder(
   const { face: faceBasis, body: bodyBasis } = generation;
   const { faceCount, faceRegions } = plan;
   const bodySkin = bodyBasis.surfaces[bodyIndex];
+  const anatomicalExteriorNeutral = [...plan.faceNeutral, ...bodySkin.positions];
   const bandSurface = plan.band?.surface;
-  const buildFace = createHumanPersonFaceBuilder(faceProducer, props.occlusion);
-  const buildBody = createHumanBodyBasisBuilder(bodyBasis, { physicalSource: "source-partition" });
+  const buildFace = createHumanPersonFaceBuilder(faceProducer, props.occlusion, readFaceMeasurements !== undefined, props.census === true, props.observeFaceConstructionProgress);
+  const faceSampleVertices = new Map(faceSource.samples.map((sample, vertex) => [sample, vertex]));
+  const buildBody = createHumanBodyBasisBuilder(bodyBasis, { physicalSource: "source-partition", endpointSource: createHumanPersonBodyEndpointSource(generation), observeProgress: props.observeBodyConstructionProgress });
 
-  return (document) => {
-    const bodyDocument = deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials });
-    const body = buildBody(bodyDocument);
+  const construct = (document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonConstruction => {
+    const effectiveDocument = resolveHeadShape(bodyBasis.anatomicalAssembly?.mode === "neutral-only"
+      ? admitHumanPersonDocument(document, bodyBasis.anatomicalAssembly) : document);
+    const preparedBody = buildBody.prepare(deriveHumanPersonBody({ document: effectiveDocument, faceMaterials: faceBasis.materials }));
+    const bodySkinState = preparedBody.skin;
+    props.observeStage?.("body-evaluated");
+    const bodyDocument = bodySkinState.evaluatedDocument;
     // the body's own endpoint state, the one its builder skinned the shaped
     // surface with (pose correctives included)
     const state = humanBodyBasisWeights(
@@ -118,36 +142,48 @@ export function createHumanPersonGenerationBuilder(
     const bodyRest = restNeutral.slice();
     applyHumanBodyShapeRows(bodyBasis, state, bodyRest, restTargets);
     const faceDocument = deriveHumanPersonGenerationFace({
-      document,
+      document: effectiveDocument,
       gains: humanPersonBodyEndpointGains(bodyBasis, state),
       aliases,
       drivers,
     });
-    const bones = new Map(body.bones.map((one) => [one.bone, one]));
+    const bones = new Map(bodySkinState.bones.map((one) => [one.bone, one]));
     const head = createHumanPersonHeadTransform({
-      anchor: { neutral: neutralAnchor, shaped: humanPersonEyeCentre(body.landmarks) },
+      anchor: { neutral: neutralAnchor, shaped: humanPersonEyeCentre(bodySkinState.landmarks) },
       rest: bones.get("head")!.rest,
       posed: bones.get("head")!.posed,
     });
-    const frameOf = (face: IAutoMovieModel) => ({
-      faceRest: readHumanPersonFaceRest(plan, face),
+    const frameOf = (face: IAutoMovieModel | IAutoMovieHumanPersonFaceRest) => ({
+      faceRest: "parts" in face ? readHumanPersonFaceRest(plan, face) : face,
       shift: [head.shift.x, head.shift.y, head.shift.z],
       bodyRest,
       bones,
-      bodyPosed: body.posedSurfaces[bodyIndex].positions,
+      bodyPosed: bodySkinState.posedSurfaces[bodyIndex].positions,
     });
 
-    const currentFace = buildFace(faceDocument);
+    const currentFace = buildFace.construct(faceDocument);
+    props.observeStage?.("face-evaluated");
     const face = currentFace.model;
     const skin = formHumanPersonSkin(plan, frameOf(face));
     const { facePosed, bodyPosed } = skin;
+    // The complete consumer exterior exists before any internal target solve.
+    // All anatomical parts and quantities are constructed once by the same
+    // prepared body's completion, with no preliminary body-only source solve.
+    const body = preparedBody.finish(bodyBasis.anatomicalAssembly?.mode === "neutral-only" &&
+      bodyBasis.anatomicalAssembly.exteriorBinding !== undefined
+      ? { neutral: anatomicalExteriorNeutral, evaluated: [...facePosed, ...bodyPosed] } : undefined);
     // A fixed normal transport reads the mouthClose-zero reference of the same
     // shape, other expression and body; omission is zero at the face owner.
-    const referenceExpression = { ...faceDocument.expression };
-    delete referenceExpression.mouthClose;
     const reference = faceSource.normalTransport === undefined
       ? undefined
-      : formHumanPersonSkin(plan, frameOf(buildFace({ ...faceDocument, expression: referenceExpression }).model));
+      : (faceDocument.expression.mouthClose ?? 0) === 0
+        ? skin
+        : (() => {
+            const referenceExpression = { ...faceDocument.expression };
+            delete referenceExpression.mouthClose;
+            return formHumanPersonSkin(plan, frameOf(buildFace.construct({ ...faceDocument, expression: referenceExpression }).model));
+          })();
+    props.observeStage?.("skin-formed");
     const normals = sourceNormals({
       face: facePosed,
       body: bodyPosed,
@@ -169,7 +205,10 @@ export function createHumanPersonGenerationBuilder(
         geometry: {
           type: "mesh" as const,
           mesh: sources === undefined
-            ? moveHumanMeshRigidly(mesh, head)
+            ? placeHumanPersonMixedSourceMesh({
+                mesh, head, samples: faceSampleVertices, positions: facePosed,
+                origin: humanPhysicalSourceDomain(faceDocument.id, generation.id), domain,
+              })
             : placeHumanPersonSkinPart({
                 mesh,
                 sources,
@@ -185,10 +224,11 @@ export function createHumanPersonGenerationBuilder(
     });
     clearHumanPersonHair({
       parts: placed,
-      isGenerated: (id) => currentFace.hairPartIds.has(id),
-      layers: faceDocument.hair?.layers ?? [],
+      isGenerated: (id) => currentFace.hairPartIds.includes(id),
+      layers: resolveHumanFaceAppearanceDocument(faceProducer, faceDocument).hair?.layers ?? [],
       positions: bodyPosed,
       indices: bodySkin.indices,
+      observe: props.observeHairContact,
     });
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
       prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
@@ -223,7 +263,40 @@ export function createHumanPersonGenerationBuilder(
     const validation = validateModel({ model });
     if (!validation.success)
       throw new Error("The evaluated person is not a valid resident model: " + JSON.stringify(validation));
+    props.observeStage?.("model-validated");
+    if (readFaceMeasurements !== undefined && currentFace.admission.accepted) {
+      let measuredReference: Map<string, readonly number[]> | undefined;
+      if (currentFace.reference !== undefined) {
+        measuredReference = new Map();
+        const headSurface = faceProducer.surfaces[compiled.faceProducerSkin].id;
+        const sourceHead = currentFace.reference.get(headSurface);
+        const referenceSkin = sourceHead === undefined ? undefined : formHumanPersonSkin(plan, frameOf({
+          head: sourceHead.slice(),
+          band: compiled.faceProducerBand === undefined ? undefined
+            : currentFace.reference.get(faceProducer.surfaces[compiled.faceProducerBand].id)?.slice(),
+        }));
+        for (const surface of faceBasis.surfaces) {
+          const values = currentFace.reference.get(surface.id);
+          if (values === undefined) continue;
+          if (surface.id === headSurface) {
+            if (referenceSkin !== undefined) measuredReference.set(surface.id, referenceSkin.facePosed);
+            continue;
+          }
+          const world: number[] = [];
+          for (let at = 0; at < values.length; at += 3) {
+            const point = head.point({ x: values[at], y: values[at + 1], z: values[at + 2] });
+            world.push(point.x, point.y, point.z);
+          }
+          measuredReference.set(surface.id, world);
+        }
+      }
+      props.observeFaceMeasurements!(readFaceMeasurements({ model, document, head,
+        sourceRegions: currentFace.sourceRegions.filter((region) => region.surface !== bandSurface),
+        browReplacements: currentFace.browReplacements,
+        reference: measuredReference, oral: currentFace.oral }));
+    }
     return {
+      admission: currentFace.admission,
       model,
       body,
       bones: [
@@ -233,4 +306,10 @@ export function createHumanPersonGenerationBuilder(
       boundary: { faceFieldMetres: skin.faceField, bodyFieldMetres: skin.bodyField },
     };
   };
+  const build = (document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonGenerationBuild => {
+    const result = construct(document);
+    if (!result.admission.accepted) throw new Error(result.admission.failures[0].cause);
+    return result;
+  };
+  return Object.assign(build, { construct });
 }

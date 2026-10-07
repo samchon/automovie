@@ -2,6 +2,7 @@ import typia from "typia";
 
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
+import { assertHumanSkinBinding } from "../../common/basis/assertHumanSkinBinding";
 import type { IAutoMovieHumanPersonChannelAlias } from "../structures/IAutoMovieHumanPersonChannelAlias";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonEndpointDriver } from "../structures/IAutoMovieHumanPersonEndpointDriver";
@@ -64,11 +65,7 @@ export function compileHumanPersonGeneration(
   )
     throw new Error("Both partition views must be registered on the generation " + generation.id + ".");
   const faceCount = faceSkin.positions.length / 3;
-  if (headSkin.boneIndices.length !== faceCount * 4 || headSkin.weights.length !== faceCount * 4)
-    throw new Error("The head weight map needs four influences per head skin vertex.");
-  for (const bone of headSkin.joints)
-    if (!bodyBasis.joints.some((joint) => joint.bone === bone))
-      throw new Error("The head weight map names a joint the body does not declare: " + bone);
+  assertHumanSkinBinding({ binding: headSkin, vertices: faceCount, declared: new Set(bodyBasis.joints.map((joint) => joint.bone)), surface: faceSkin.id, description: "Head skin" });
   // Admits complementary coverage of the one source tree; a partial or
   // incompatible pair refuses here.
   const sourceNormals = createHumanPersonSourceNormals({ face: faceSkin, body: bodySkin });

@@ -2,6 +2,7 @@ import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieH
 import type { IAutoMovieHumanPersonChannelAlias } from "./IAutoMovieHumanPersonChannelAlias";
 import type { IAutoMovieHumanPersonEndpointDriver } from "./IAutoMovieHumanPersonEndpointDriver";
 import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadSkin";
+import type { IAutoMovieHumanPersonHeadShapeSource } from "./IAutoMovieHumanPersonHeadShapeSource";
 
 /**
  * The head file of a published person generation: the head partition view of
@@ -16,7 +17,7 @@ import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadS
  * the same generation completes it (`joinHumanPersonGeneration`).
  *
  * @evidence contracts/common.md#principled-implementation The producer re-addresses the generation offline; the file is the head half of that output, so the runtime only admits and joins it.
- * @evidence contracts/common.md#clear-and-simple-design Five fields, each an existing type of the evaluator's input.
+ * @evidence contracts/common.md#clear-and-simple-design Existing partition, weight, alias and driver records remain separate from optional source-owned numerical trait registration.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing here is derived at runtime; a mismatched body file refuses at the join.
  * @evidence contracts/common.md#meaningful-documentation States what each field holds and how the file pairs with its body file.
  * @evidence contracts/modeling.md#shared-boundaries The head view's source partition shares the registered neck samples with the body view of the same id.
@@ -25,7 +26,7 @@ import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadS
  * @evidenceExclude contracts/modeling.md#parameter-channels The file adds no user channel; driver channels are derived inputs.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The file emits no geometry.
  * @evidenceExclude contracts/modeling.md#rendered-observation The file is observed through the evaluated person.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The file carries source data, not anatomical measurements.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source Individual numerical source-field records own their authored support/protocol qualifications; this partition wrapper derives no clinical anatomy.
  * @evidenceExclude contracts/anatomy.md#permitted-range The face and body owners admit document values.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The file is compiled data, not a caller input.
  * @author Samchon
@@ -45,4 +46,7 @@ export interface IAutoMovieHumanPersonHeadView {
 
   /** Driver channels of the body endpoints that shape the head. */
   drivers: IAutoMovieHumanPersonEndpointDriver[];
+
+  /** Sampled numerical source-trait registration, when authored by this generation. */
+  headShapeSource?: IAutoMovieHumanPersonHeadShapeSource;
 }

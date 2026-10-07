@@ -3,5 +3,8 @@ export * from "./humanBasisRegionCorners";
 export * from "./IAutoMovieHumanSkinLandmark";
 export * from "./IAutoMovieHumanSkinLandmarkHolder";
 export * from "./IAutoMovieHumanSkinLandmarkSurface";
+export * from "./IAutoMovieHumanSkinBinding";
 export * from "./IAutoMovieHumanSkinRegion";
 export * from "./IAutoMovieHumanSkinRegionHolder";
+export * from "./IHumanConstructionCheck";
+export * from "./admitHumanConstruction";

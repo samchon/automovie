@@ -1,23 +1,8 @@
-import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
-import type { JSONDocument } from "@gltf-transform/core";
-
-type Artifact = {
-  glb: Uint8Array<ArrayBuffer>;
-  gltf: JSONDocument;
-  parts: number;
-  /** Absent when the port does not measure, null when this request did not ask. */
-  crossings?: IAutoMovieModelCrossing[] | null;
-  /** Facts the worker describes beside the bytes; absent when it describes none. */
-  extras?: Record<string, unknown>;
-};
-type Reply = ({ success: true } & Artifact) | { success: false; error: string };
-type WorkerPort = {
-  onError: (message: string) => void;
-  onReply: (reply: Reply) => void;
-  send: (text: string, measure?: boolean) => void;
-  terminate: () => void;
-};
+import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
+import type { IHumanPreviewArtifact } from "./IHumanPreviewArtifact";
+import type { IHumanPreviewBuilderProps } from "./IHumanPreviewBuilderProps";
+import type { IHumanPreviewWorker } from "./IHumanPreviewWorker";
 
 /**
  * Build the latest numerical preview through a disposable worker and decoder.
@@ -31,15 +16,9 @@ type WorkerPort = {
 export function createHumanPreviewBuilder<
   Model,
   Document = IAutoMovieHumanFaceDocument,
->(props: {
-  /** Admission and serialization belong to the selected numerical document format. */
-  serialize: (document: Document) => string;
-  worker: () => WorkerPort;
-  decode: (artifact: Artifact) => Promise<Model>;
-  dispose: (model: Model) => void;
-}) {
+>(props: IHumanPreviewBuilderProps<Model, Document>) {
   let generation = 0;
-  let active: WorkerPort | undefined;
+  let active: IHumanPreviewWorker | undefined;
   let rejectActive: (() => void) | undefined;
   const cancel = (): void => {
     ++generation;
@@ -54,16 +33,15 @@ export function createHumanPreviewBuilder<
     const text = props.serialize(document);
     const worker = props.worker();
     active = worker;
-    let artifact: Artifact;
+    let artifact: IHumanPreviewArtifact;
     try {
-      artifact = await new Promise<Artifact>((resolve, reject) => {
+      artifact = await new Promise<IHumanPreviewArtifact>((resolve, reject) => {
         rejectActive = () =>
           reject(new Error("Superseded by a newer face request."));
         worker.onError = (message) =>
           reject(
             new Error(
-              message.trim() ||
-                "The face worker failed before returning a result.",
+              humanWorkerErrorMessage(message, "The face worker failed before returning a result."),
             ),
           );
         worker.onReply = (reply) =>

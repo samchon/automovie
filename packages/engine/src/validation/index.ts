@@ -41,6 +41,7 @@ export * from "./validateFootSkate";
 export * from "./validateGroundContact";
 export * from "./validateHonorableChannel";
 export * from "./validateMeshTopology";
+export * from "./IAutoMovieMeshTopologyValidationProps";
 export * from "./validateModel";
 export * from "./validateMotion";
 export * from "./validateNonEmptyId";

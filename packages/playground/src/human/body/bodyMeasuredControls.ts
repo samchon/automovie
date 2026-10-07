@@ -1,4 +1,4 @@
-import { HUMAN_BODY_ANSUR_II_REFERENCE } from "@automovie/human";
+import { HUMAN_BODY_ANSUR_II_REFERENCE } from "@automovie/human/body/constants/HUMAN_BODY_ANSUR_II_REFERENCE";
 
 import type { IBodyMeasuredControlsProps } from "./IBodyMeasuredControlsProps";
 import { bodyMeasuredChannel } from "./bodyMeasuredChannel";

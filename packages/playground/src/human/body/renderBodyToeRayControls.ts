@@ -1,7 +1,5 @@
-import {
-  HUMAN_BODY_TOE_RANGE,
-  type IAutoMovieHumanBodyToePose,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyToePose } from "@automovie/human";
+import { HUMAN_BODY_TOE_RANGE } from "@automovie/human/body/constants/HUMAN_BODY_TOE_RANGE";
 
 import type { IBodyToeRayControlsProps } from "./IBodyToeRayControlsProps";
 

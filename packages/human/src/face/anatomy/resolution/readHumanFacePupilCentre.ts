@@ -4,8 +4,10 @@ import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContex
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 
 /**
- * The pupil centre of one eye on the build's final surface, read as the
- * producer's anterior chart point of that eye's optical support.
+ * The geometric iris-aperture centre on the build's final optical surface.
+ * A generated regular annulus has equal samples on every ring, so their
+ * centroid gives its common centre from the actual Float32 positions.
+ * Without independent optics the source proxy keeps its chart approximation.
  *
  * The chart is the hit of the support's chosen neutral axis on the eye
  * proxy's front, carried by its native triangle and barycentric weights
@@ -14,8 +16,8 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * surface, so the chart point stands for the pupil centre in forward gaze. A
  * basis without that eye's optical support returns a registration gap.
  *
- * @evidence contracts/common.md#principled-implementation Reads the producer-registered chart on the posed triangle, so the point moves with every shape and gaze channel without a refit.
- * @evidence contracts/common.md#clear-and-simple-design One lookup and one barycentric combination.
+ * @evidence contracts/common.md#principled-implementation Reads the generated regular annulus centroid after pose and Float32 rounding; a source-only build retains its explicit barycentric anterior chart approximation.
+ * @evidence contracts/common.md#clear-and-simple-design One generated-surface lookup with the unchanged source-only chart path.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No maximum-projection vertex or asset name stands in; a missing support returns its gap.
  * @evidence contracts/common.md#meaningful-documentation States the approximation and the gap.
  * @evidence contracts/modeling.md#spatial-conventions Metres in the basis head frame.
@@ -34,6 +36,18 @@ export function readHumanFacePupilCentre(
   context: IHumanFaceMeasurementContext,
   side: "left" | "right",
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
+  const iris = context.opticalMesh?.(side, "iris");
+  if (iris !== undefined && iris !== null) {
+    const count = iris.positions.length / 3;
+    if (!Number.isSafeInteger(count) || count < 3 || !iris.positions.every(Number.isFinite))
+      return { reason: "unread generated iris: incomplete or nonfinite final positions" };
+    const center = [0, 1, 2].map(axis => {
+      let sum = 0;
+      for (let vertex = 0; vertex < count; vertex++) sum += iris.positions[3 * vertex + axis];
+      return sum / count;
+    });
+    return { x: center[0], y: center[1], z: center[2] };
+  }
   const owner = side === "left" ? "leftEye" : "rightEye";
   const support = context.basis.opticalSupport?.find(
     (entry) => entry.owner === owner,

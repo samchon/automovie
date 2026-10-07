@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
+import { createHumanWorker } from "../common/createHumanWorker";
 
 import { createBodySimpleWorkerTransport } from "./bodySimpleWorkerTransport";
 import { CONNECTED_BODY_WHOLE_SOURCE } from "./CONNECTED_BODY_WHOLE_SOURCE";
@@ -17,7 +18,7 @@ import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers"
  */
 export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers {
   const { ask } = createBodySimpleWorkerTransport(
-    () => new Worker(new URL("../../connected-body-simple-worker.ts", import.meta.url), { type: "module" }),
+    () => createHumanWorker("worker=body-simple"),
   );
   return {
     expand: (simple, over) => ask<Record<string, number>>({ kind: "expand", simple, over }),

@@ -8,6 +8,7 @@ import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
+import type { IAutoMovieMeshDeformationInfluence } from "./IAutoMovieMeshDeformationInfluence";
 
 /**
  * Compile immutable compact deformation fields into a mesh operation. Every
@@ -45,10 +46,10 @@ export function createAutoMovieMeshDeformer(
   fields: readonly IAutoMovieMeshDeformationField[],
 ): (
   mesh: IAutoMovieMesh,
-  influence?: readonly { weight: number; gradient: IAutoMovieVector3 }[],
+  influence?: readonly IAutoMovieMeshDeformationInfluence[],
 ) => IAutoMovieMesh {
   const packed = fields.map((field) => {
-    const vector = (value: { x: number; y: number; z: number }): number[] => [
+    const vector = (value: IAutoMovieVector3): number[] => [
       value.x,
       value.y,
       value.z,

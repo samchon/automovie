@@ -1,9 +1,11 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createHumanWorker } from "../common/createHumanWorker";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createConnectedBodyPort } from "./connectedBodyPort";
 import { createConnectedBodyViewport } from "./connectedBodyViewport";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * A body page's viewport on its canvas: a WebGL renderer that keeps its
@@ -18,13 +20,14 @@ import { createConnectedBodyViewport } from "./connectedBodyViewport";
  */
 export function createConnectedBodyPageViewport<
   Document extends IAutoMovieHumanBodyBasisDocument = IAutoMovieHumanBodyBasisDocument,
->(canvas: HTMLCanvasElement, serialize?: (document: Document) => string, worker?: () => Worker) {
+>(canvas: HTMLCanvasElement, serialize?: (document: Document) => string, worker?: () => Worker, source?: IAutoMovieHumanBodyAnatomicalAssembly) {
   return createConnectedBodyViewport<Document>({
+    source,
     canvas,
     pixelRatio: devicePixelRatio,
     renderer: new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }),
     orbit: (camera) => new OrbitControls(camera, canvas),
-    worker: () => createConnectedBodyPort(worker?.() ?? new Worker(new URL("../../connected-body-worker.ts", import.meta.url), { type: "module" })),
+    worker: () => createConnectedBodyPort(worker?.() ?? createHumanWorker("worker=body")),
     ...(serialize === undefined ? {} : { serialize }),
     loadTexture: (asset) => new THREE.TextureLoader().loadAsync(asset),
     observeResize: (resize) => {

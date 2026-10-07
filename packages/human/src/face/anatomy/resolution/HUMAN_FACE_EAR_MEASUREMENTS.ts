@@ -1,10 +1,20 @@
 import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
+import { findHumanIntertragicNotch } from "../../../common/measure/findHumanIntertragicNotch";
+import { humanHeadDistance } from "../../../common/measure/humanHeadDistance";
 import { humanHeadPoint } from "../../../common/measure/humanHeadPoint";
+import { readHumanConchaExtent } from "../../../common/measure/readHumanConchaExtent";
+import { readHumanEarBreadth } from "../../../common/measure/readHumanEarBreadth";
+import { readHumanEarInclination } from "../../../common/measure/readHumanEarInclination";
 import { readHumanEarLength } from "../../../common/measure/readHumanEarLength";
 import { readHumanEarProjection } from "../../../common/measure/readHumanEarProjection";
+import { readHumanLobuleWidth } from "../../../common/measure/readHumanLobuleWidth";
 import { readHumanFaceHeadRule } from "./readHumanFaceHeadRule";
 import { readHumanFaceLandmarkDistance } from "./readHumanFaceLandmarkDistance";
-import { readHumanFaceMeasurementLandmark } from "./readHumanFaceMeasurementLandmark";
+
+const CONCHA_SAMPLE_QUALIFICATION =
+  "Source convention: sampled region extent along the registered attachment frame; clinical conchal boundary and depth remain unregistered.";
+const LOBULE_SAMPLE_QUALIFICATION =
+  "Source convention: cavum inferior sample stands for the notch and the sampled lobule supplies the extent; clinical h-f/h-i landmarks remain unregistered.";
 
 /**
  * The auricle measurements of the face resolver, one per numeric field of
@@ -18,12 +28,17 @@ import { readHumanFaceMeasurementLandmark } from "./readHumanFaceMeasurementLand
  * protrusion read at the superaurale and tragion heights
  * (`readHumanEarProjection`; the scalp behind the ear at that height stands in
  * for the mastoid surface, a convention). The attachment
- * length reads the otobasion landmarks once source registers them ("missing
- * landmark: <name>" until then). Breadth, inclination, concha,
- * tragus and lobule measurements need landmarks found per shape within the ear
- * area; until each rule exists the measurement reads as "missing rule:
- * <name>". The categorical observations (helix rim, lobule shape and
- * attachment) have no measurement. Every measurement is report-only.
+ * length reads the registered otobasion landmarks. Breadth is Pa-Pra and
+ * inclination the superaurale-subaurale-otobasion superius angle of the cited
+ * 3D auricle study (`readHumanEarBreadth`, `readHumanEarInclination`); the
+ * conchal length and breadth read the registered cymba and cavum conchae
+ * against the attachment line (`readHumanConchaExtent`); lobular length and
+ * width are the Korean CT study's h-f and h-i from the intertragic notch
+ * (`findHumanIntertragicNotch`, `readHumanLobuleWidth`). Conchal depth and the
+ * tragus distances follow sources not read, and read as unread sources. A
+ * part the basis does not register reads as "missing region: <name>". The
+ * categorical observations (helix rim, lobule shape and attachment) have no
+ * measurement. Every measurement is report-only.
  *
  * @author Samchon
  */
@@ -38,9 +53,7 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "ear.left.breadth",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: preaurale and postaurale of the left auricle" };
-    },
+    read: (context) => readHumanFaceHeadRule(context, [], ["ear-left"], (head) => readHumanEarBreadth(head, "ear-left").metres),
   },
   {
     id: "ear.left.attachmentLength",
@@ -71,67 +84,82 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "ear.left.inclination",
     unit: "degrees",
     channels: [],
-    read: (context) => {
-      const a = readHumanFaceMeasurementLandmark(context, "otobasion-superius-left");
-      if ("reason" in a) return a;
-      return { reason: "missing rule: superaurale and subaurale as points of the left auricle" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-left"],
+        ["ear-left"],
+        (head) => readHumanEarInclination(head, "ear-left", humanHeadPoint(head, "otobasion-superius-left")),
+        1,
+      ),
   },
   {
     id: "ear.left.conchaLength",
+    qualification: CONCHA_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left conchal bowl extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, ["otobasion-superius-left", "otobasion-inferius-left"], ["cymba-conchae-left", "cavum-conchae-left"], (head) =>
+        readHumanConchaExtent(head, ["cymba-conchae-left", "cavum-conchae-left"], humanHeadPoint(head, "otobasion-superius-left"), humanHeadPoint(head, "otobasion-inferius-left")).length,
+      ),
   },
   {
     id: "ear.left.conchaBreadth",
+    qualification: CONCHA_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left conchal bowl extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, ["otobasion-superius-left", "otobasion-inferius-left"], ["cymba-conchae-left", "cavum-conchae-left"], (head) =>
+        readHumanConchaExtent(head, ["cymba-conchae-left", "cavum-conchae-left"], humanHeadPoint(head, "otobasion-superius-left"), humanHeadPoint(head, "otobasion-inferius-left")).breadth,
+      ),
   },
   {
     id: "ear.left.conchaDepth",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left conchal entrance plane and floor" };
-    },
+    read: () => ({
+      reason:
+        "unread source: conchal depth from the entrance plane to the floor follows the external-ear protocol the parameter cites (Int J Pediatr Otorhinolaryngol 2003, S0165587603002210), not read",
+    }),
   },
   {
     id: "ear.left.tragusToAntihelix",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left tragus and antihelix points" };
-    },
+    read: () => ({
+      reason:
+        "unread source: the tragus-to-antihelix points follow Rani et al. 2021 (Clin Ter, PubMed 34821348), read only as its abstract, which names the distance without its landmarks",
+    }),
   },
   {
     id: "ear.left.tragusToHelix",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left tragus and helix points" };
-    },
+    read: () => ({
+      reason:
+        "unread source: the tragus-to-helix points follow Rani et al. 2021 (Clin Ter, PubMed 34821348), read only as its abstract, which names the distance without its landmarks",
+    }),
   },
   {
     id: "ear.left.lobuleLength",
+    qualification: LOBULE_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left intertragic notch and lobule extent" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, [], ["ear-left", "cavum-conchae-left"], (head) =>
+        humanHeadDistance(findHumanIntertragicNotch(head, "cavum-conchae-left"), readHumanEarLength(head, "ear-left").points.subaurale),
+      ),
   },
   {
     id: "ear.left.lobuleBreadth",
+    qualification: LOBULE_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the left lobule extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, [], ["ear-left", "cavum-conchae-left", "lobule-left"], (head) => {
+        const { superaurale, subaurale } = readHumanEarLength(head, "ear-left").points;
+        return readHumanLobuleWidth(head, "lobule-left", findHumanIntertragicNotch(head, "cavum-conchae-left"), superaurale, subaurale);
+      }),
   },
   {
     id: "ear.right.length",
@@ -143,9 +171,7 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "ear.right.breadth",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: preaurale and postaurale of the right auricle" };
-    },
+    read: (context) => readHumanFaceHeadRule(context, [], ["ear-right"], (head) => readHumanEarBreadth(head, "ear-right").metres),
   },
   {
     id: "ear.right.attachmentLength",
@@ -176,66 +202,81 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "ear.right.inclination",
     unit: "degrees",
     channels: [],
-    read: (context) => {
-      const a = readHumanFaceMeasurementLandmark(context, "otobasion-superius-right");
-      if ("reason" in a) return a;
-      return { reason: "missing rule: superaurale and subaurale as points of the right auricle" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-right"],
+        ["ear-right"],
+        (head) => readHumanEarInclination(head, "ear-right", humanHeadPoint(head, "otobasion-superius-right")),
+        1,
+      ),
   },
   {
     id: "ear.right.conchaLength",
+    qualification: CONCHA_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right conchal bowl extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, ["otobasion-superius-right", "otobasion-inferius-right"], ["cymba-conchae-right", "cavum-conchae-right"], (head) =>
+        readHumanConchaExtent(head, ["cymba-conchae-right", "cavum-conchae-right"], humanHeadPoint(head, "otobasion-superius-right"), humanHeadPoint(head, "otobasion-inferius-right")).length,
+      ),
   },
   {
     id: "ear.right.conchaBreadth",
+    qualification: CONCHA_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right conchal bowl extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, ["otobasion-superius-right", "otobasion-inferius-right"], ["cymba-conchae-right", "cavum-conchae-right"], (head) =>
+        readHumanConchaExtent(head, ["cymba-conchae-right", "cavum-conchae-right"], humanHeadPoint(head, "otobasion-superius-right"), humanHeadPoint(head, "otobasion-inferius-right")).breadth,
+      ),
   },
   {
     id: "ear.right.conchaDepth",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right conchal entrance plane and floor" };
-    },
+    read: () => ({
+      reason:
+        "unread source: conchal depth from the entrance plane to the floor follows the external-ear protocol the parameter cites (Int J Pediatr Otorhinolaryngol 2003, S0165587603002210), not read",
+    }),
   },
   {
     id: "ear.right.tragusToAntihelix",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right tragus and antihelix points" };
-    },
+    read: () => ({
+      reason:
+        "unread source: the tragus-to-antihelix points follow Rani et al. 2021 (Clin Ter, PubMed 34821348), read only as its abstract, which names the distance without its landmarks",
+    }),
   },
   {
     id: "ear.right.tragusToHelix",
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right tragus and helix points" };
-    },
+    read: () => ({
+      reason:
+        "unread source: the tragus-to-helix points follow Rani et al. 2021 (Clin Ter, PubMed 34821348), read only as its abstract, which names the distance without its landmarks",
+    }),
   },
   {
     id: "ear.right.lobuleLength",
+    qualification: LOBULE_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right intertragic notch and lobule extent" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, [], ["ear-right", "cavum-conchae-right"], (head) =>
+        humanHeadDistance(findHumanIntertragicNotch(head, "cavum-conchae-right"), readHumanEarLength(head, "ear-right").points.subaurale),
+      ),
   },
   {
     id: "ear.right.lobuleBreadth",
+    qualification: LOBULE_SAMPLE_QUALIFICATION,
     unit: "millimetres",
     channels: [],
-    read: () => {
-      return { reason: "missing rule: the right lobule extremes" };
-    },
+    read: (context) =>
+      readHumanFaceHeadRule(context, [], ["ear-right", "cavum-conchae-right", "lobule-right"], (head) => {
+        const { superaurale, subaurale } = readHumanEarLength(head, "ear-right").points;
+        return readHumanLobuleWidth(head, "lobule-right", findHumanIntertragicNotch(head, "cavum-conchae-right"), superaurale, subaurale);
+      }),
   },
 ];

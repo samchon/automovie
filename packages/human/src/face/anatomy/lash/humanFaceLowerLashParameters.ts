@@ -1,10 +1,15 @@
 /**
  * Admission and editor envelopes of the lower lash row.
  *
- * No measured lower-lash source is held, so these bounds are a convention:
- * they mirror the upper row's envelopes (`portraitEyelashParameters`) in the
+ * No calibrated three-dimensional lower root-frame envelope is held, so
+ * these bounds are a convention. Kikuchi et al. 2015, Global Dermatology 2,
+ * DOI 10.15761/GOD.1000123 measured longest central shafts and scaled-image
+ * counts in 50 healthy Japanese adults, right lids only. Their lateral angle
+ * is relative to image vertical and cannot supply these live 3D bounds.
+ * These bounds mirror the upper row's envelopes (`portraitEyelashParameters`) in the
  * lower profile's mirrored angle frame. They are authoring bounds, not a
- * measured population range, and a sourced lower-lash envelope replaces them.
+ * measured population range; a directly registered lower 3D envelope is still
+ * a named scientific gap.
  */
 export const humanFaceLowerLashParameters = [
   {
@@ -25,7 +30,7 @@ export const humanFaceLowerLashParameters = [
     unit: "degrees",
     meaning: "Lower-lash root depression",
     effect:
-      "Increasing tilts the initial tangent downwards from the head's anterior axis.",
+      "Increasing tilts the initial tangent downwards from the lash root frame's anterior direction.",
   },
   {
     id: "curl",

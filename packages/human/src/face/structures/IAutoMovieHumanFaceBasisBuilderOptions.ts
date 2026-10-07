@@ -1,11 +1,15 @@
 import type { AutoMovieHumanFaceMeasurementReading } from "./AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceContactSummary } from "./IAutoMovieHumanFaceContactSummary";
 import type { IAutoMovieHumanFaceOcclusionOptions } from "./IAutoMovieHumanFaceOcclusionOptions";
+import type { IAutoMovieHumanFaceConstructionProgress } from "./IAutoMovieHumanFaceConstructionProgress";
+import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 
 /**
  * Optional observers and occlusion baking for `createHumanFaceBasisBuilder`.
  *
- * Observers receive copies after each admitted model and never alter it.
+ * Result observers receive copies after each admitted model and never alter
+ * it. The progress observer instead receives actual completed boundaries,
+ * including refused construction admission, without model access.
  * Omitting `occlusion` leaves materials without a baked occlusion texture.
  *
  * @evidence contracts/common.md#principled-implementation Observers read the builder's admitted results and the occlusion options pass to the baker unchanged.
@@ -24,6 +28,23 @@ import type { IAutoMovieHumanFaceOcclusionOptions } from "./IAutoMovieHumanFaceO
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisBuilderOptions {
+  /**
+   * Successful actual dental correspondence; omission allocates no observer snapshot.
+   * @evidence contracts/common.md#principled-implementation Publishes compact source correspondence only after the same actual model admission, with an owned snapshot.
+   * @evidence contracts/common.md#clear-and-simple-design One optional callback carries successful oral correspondence to actual-model readers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission creates no observer copy and failure publishes no substitute registration.
+   * @evidence contracts/common.md#meaningful-documentation States successful publication, source correspondence and omission cost.
+   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reports generator-owned identities without defining parts.
+   * @evidenceExclude contracts/modeling.md#emitted-geometry Reports no coordinate or mesh.
+   * @evidenceExclude contracts/modeling.md#parameter-channels This observation callback adds no shape input.
+   * @evidenceExclude contracts/modeling.md#shared-boundaries Reports source correspondence; the oral assembler owns actual boundaries.
+   * @evidenceExclude contracts/modeling.md#spatial-conventions The compact record contains identities and indices, without coordinates.
+   * @evidenceExclude contracts/modeling.md#rendered-observation Final model readers and viewer consumers perform observation; this callback transports correspondence only.
+   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical measurement, default or acquisition claim.
+   * @evidenceExclude contracts/anatomy.md#permitted-range Supplies no physiological range.
+   * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring control.
+   */
+  observeOralMeasurements?: (registration: IHumanFaceOralMeasurementRegistration | undefined) => void;
   /**
    * Receive a copy of each admitted model's contact summary, or null when the
    * basis evaluates no contact.
@@ -85,6 +106,39 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#parametric-authority observeMeasurements does not shape a person.
    */
   observeMeasurements?: (readings: AutoMovieHumanFaceMeasurementReading[]) => void;
+
+  /**
+   * Receive an owned snapshot of this successful build's evaluated shape-only
+   * reference. Undefined means the evaluator has no reference state. A failed
+   * model publishes nothing; omission avoids copying reference buffers.
+   *
+   * @evidence contracts/common.md#principled-implementation The observer receives the exact cached pose reference through an owned copy only after model admission.
+   * @evidence contracts/common.md#clear-and-simple-design One callback transports the homologous reference state to the person measurement consumer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing source reference remains undefined rather than using neutral basis coordinates or a closure-zero performed pose.
+   * @evidence contracts/common.md#meaningful-documentation States publication timing, copying and missing-state meaning.
+   * @evidence contracts/modeling.md#spatial-conventions Reference arrays remain canonical head-frame metre coordinates.
+   * @evidenceExclude contracts/anatomy.md#anatomical-source Transports an evaluated state without introducing anatomical values.
+   * @evidenceExclude contracts/anatomy.md#permitted-range The source evaluator admits the reference.
+   * @evidenceExclude contracts/anatomy.md#parametric-authority The callback defines no authoring control.
+   */
+  observeReference?: (reference: ReadonlyMap<string, readonly number[]> | undefined) => void;
+
+  /**
+   * True also evaluates the report-only assembly census in `construct`: every
+   * unjudged spatial relation and the census of each part. It costs a signed
+   * query per vertex of the whole model, so an interactive consumer omits it.
+   * Omission changes no verdict: every judged relation is still measured,
+   * reported and refused under the same conditions.
+   */
+  census?: boolean;
+
+  /**
+   * Receive actual geometry and admission completion for ordinary builds and
+   * construction drafts. A stage that throws has no completion event. Events
+   * carry fresh scalar records; an observer error propagates to its caller.
+   * This is execution status and never success-only model publication.
+   */
+  observeConstructionProgress?: (progress: IAutoMovieHumanFaceConstructionProgress) => void;
 
   /** Ambient-occlusion sampling; omission bakes no occlusion texture. */
   occlusion?: IAutoMovieHumanFaceOcclusionOptions;

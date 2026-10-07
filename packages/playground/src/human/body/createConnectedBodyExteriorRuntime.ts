@@ -27,7 +27,9 @@ export function createConnectedBodyExteriorRuntime(basis: IAutoMovieHumanBodyBas
   };
   const build = createHumanBodyExteriorTargetBuilder({ basis, reference });
   return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
-    const document = parseHumanBodyBasisDocument(request.document);
+    if (request.operation === "construct" || request.operation === "exportConstruction")
+      throw new Error("Exterior inspection does not construct a whole-person draft.");
+    const document = parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
     if (request.operation === "armsDown")
       throw new Error("Source-conditioned exterior supports only its authored source-rest frame.");
     const built = build(document);

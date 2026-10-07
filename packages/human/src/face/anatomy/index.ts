@@ -8,6 +8,7 @@ export * from "./hair";
 export * from "./lash";
 export * from "./mouth";
 export * from "./nose";
+export * from "./oral";
 export * from "./resolution";
 export * from "./skin";
 export * from "./tongue";

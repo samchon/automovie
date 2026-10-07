@@ -1,4 +1,4 @@
-import { HUMAN_PERSON_MEASUREMENTS } from "@automovie/human";
+import { HUMAN_PERSON_MEASUREMENTS } from "@automovie/human/human/constants/HUMAN_PERSON_MEASUREMENTS";
 
 import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMeasuredControlsProps";
 

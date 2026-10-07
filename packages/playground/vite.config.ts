@@ -5,6 +5,17 @@ export default defineConfig({
   // This linked package is rebuilt through typia's compiler transform. Do not
   // retain an optimized copy of yesterday's region inventory after a rebuild.
   optimizeDeps: { exclude: ["@automovie/human"] },
+  plugins: [
+    {
+      name: "watch-linked-human-output",
+      configureServer: (server) => {
+        // The package build removes lib before re-emitting it. Watching only
+        // the imported files loses their replacements after that directory is
+        // deleted; the surviving package parent reports the new tree as well.
+        server.watcher.add(resolve(__dirname, "../human"));
+      },
+    },
+  ],
   server: {
     host: "127.0.0.1",
     port: 5173,
@@ -12,6 +23,9 @@ export default defineConfig({
     fs: { allow: [resolve(__dirname, "../..")] },
   },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },
+  // The human editors share one worker entry that loads its role on demand;
+  // module format lets the bundler split those roles into chunks.
+  worker: { format: "es" },
   build: {
     rollupOptions: {
       input: {

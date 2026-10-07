@@ -9,24 +9,26 @@
  * (`connectedBodyReach`), so a target past an unavailable source
  * target is refused by name instead of evaluating it. Stature and mass are
  * read on the whole person (`createConnectedBodySimpleWhole`), with the head
- * the page shows.
+ * the page shows. Its whole-person reader and detailed-channel reach share
+ * the same loaded body view.
  */
-import {
-  expandHumanBodySimpleShape,
-  projectHumanBodySimpleShape,
-  resolveHumanBodyAnatomy,
-  solveHumanBodyMeasuredChannel,
-} from "@automovie/human";
+import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
+import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
+import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
+import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";
 
 import type { IBodySimpleExpandMessage } from "./human/body/IBodySimpleExpandMessage";
 import type { IBodySimpleProjectMessage } from "./human/body/IBodySimpleProjectMessage";
 import type { IBodySimpleSolveMessage } from "./human/body/IBodySimpleSolveMessage";
 import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { connectedBodyReach } from "./human/common/connectedBodyReach";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.all([readConnectedBodyView().then((view) => connectedBodyReach(view.body).basis), createConnectedBodySimpleWhole()]);
+const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, view]) =>
+  [connectedBodyReach(view.body).basis, createConnectedBodySimpleWhole(head, view)] as const,
+);
 
 scope.onmessage = async (
   event: MessageEvent<IBodySimpleExpandMessage | IBodySimpleProjectMessage | IBodySimpleSolveMessage>,

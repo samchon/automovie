@@ -1,4 +1,7 @@
 import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import type { IHumanFaceHairRootBoundary } from "./IHumanFaceHairRootBoundary";
+import type { IHumanFaceHairRootBoundaryProps } from "./IHumanFaceHairRootBoundaryProps";
+import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference";
 
 /**
  * Compile root-feature incidence on one current closed hair collider.
@@ -51,13 +54,9 @@ import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits computational metadata, not a living anatomical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Root triangle and support come from the shared sampler and are not a new caller authoring field.
  */
-export function createHumanFaceHairRootBoundary(props: {
-  positions: readonly number[];
-  indices: readonly number[];
-}): {
-  resolve: (root: { triangle: number; weights: readonly number[] }) => number[];
-  distance: (triangle: number, point: readonly number[]) => number;
-} {
+export function createHumanFaceHairRootBoundary(
+  props: IHumanFaceHairRootBoundaryProps,
+): IHumanFaceHairRootBoundary {
   const positions = [...props.positions];
   const indices = [...props.indices];
   if (
@@ -103,7 +102,7 @@ export function createHumanFaceHairRootBoundary(props: {
       throw new Error("Root boundary requires its original resident triangle ordinal.");
   };
   const queries = new Map<number, ReturnType<typeof createAutoMovieSignedMeshQuery>>();
-  const resolve = (root: { triangle: number; weights: readonly number[] }): number[] => {
+  const resolve = (root: IHumanFaceHairRootReference): number[] => {
     resident(root.triangle);
     if (root.weights.length !== 3 || root.weights.some((weight) => !Number.isFinite(weight) || weight < 0))
       throw new Error("Root boundary needs three finite nonnegative support weights.");

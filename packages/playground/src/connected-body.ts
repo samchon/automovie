@@ -19,6 +19,7 @@ import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBo
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 
 async function main(): Promise<void> {
   const basis = (await readConnectedBodyView()).body;
@@ -28,8 +29,9 @@ async function main(): Promise<void> {
     initial: createConnectedBodyInitialDocument(basis.id),
     simple: createConnectedBodySimpleSolvers(),
     poses: [...connectedBodyEditorPoses],
-    viewport: (canvas) => (viewport = createConnectedBodyPageViewport(canvas)),
+    viewport: (canvas) => (viewport = createConnectedBodyPageViewport(canvas, (bodyDocument) => serializeHumanBodyBasisDocument(bodyDocument, basis.anatomicalAssembly), undefined, basis.anatomicalAssembly)),
     seat: createConnectedBodyHeadSeat({
+      source: basis.anatomicalAssembly,
       viewport: () => viewport,
       status: (text) => {
         document.querySelector<HTMLDivElement>("#body-status")!.textContent += "\n" + text;

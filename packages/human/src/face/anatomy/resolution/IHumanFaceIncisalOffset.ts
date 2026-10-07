@@ -1,7 +1,7 @@
 /**
  * Lower minus upper midline incisal point in the contact frame, millimetres.
  *
- * @evidence contracts/common.md#principled-implementation The three components of one offset carry overbite or opening, overjet or protrusion, and lateral excursion.
+ * @evidence contracts/common.md#principled-implementation The three components of one absolute offset carry overbite or opening, overjet or position past the upper incisor, and dental-midline offset; excursion subtracts the corresponding closed-reference offset separately.
  * @evidence contracts/common.md#clear-and-simple-design One record per incisal offset reading.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Components are projections of the measured offset, never stored constants.
  * @evidence contracts/common.md#meaningful-documentation States each axis and its sign.

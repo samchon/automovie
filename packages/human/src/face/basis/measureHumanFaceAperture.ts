@@ -1,5 +1,3 @@
-import { Vector3 } from "@automovie/engine";
-
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisContact } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceMidlinePair } from "../structures/IAutoMovieHumanFaceMidlinePair";
@@ -8,7 +6,7 @@ import type { IHumanFaceApertureFrame } from "./IHumanFaceApertureFrame";
 import type { IHumanFaceAperturePair } from "./IHumanFaceAperturePair";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
-import { resolveHumanFaceApertureUp } from "./resolveHumanFaceApertureUp";
+import { resolveHumanFaceApertureDirections } from "./resolveHumanFaceApertureDirections";
 
 /**
  * Measure the oral apertures of one state the way the closure and passage
@@ -16,8 +14,8 @@ import { resolveHumanFaceApertureUp } from "./resolveHumanFaceApertureUp";
  * and incisal edge vertex pairs, after the pairs alone have been posed from
  * the given rest layer's surface positions by the given motions.
  *
- * Up is the normalized component of basis Y-up perpendicular to the declared
- * mandibular axis; forward is that axis crossed with up. This is a model
+ * Up is the normalized component of basis Y-up perpendicular to the locally
+ * canonical unit mandibular direction; forward is that direction crossed with up. This is a model
  * measurement convention. An axis with a Y component changes up from the
  * original basis vertical. An incisor's displacement can include both jaw
  * rotation and coupled translation and does not define this fixed frame.
@@ -30,7 +28,7 @@ import { resolveHumanFaceApertureUp } from "./resolveHumanFaceApertureUp";
  * before the surfaces are posed, which is when the closure rows need it.
  *
  * @evidence contracts/common.md#principled-implementation Both apertures project upper minus lower onto normalized basis Y-up with its mandibular-axis component removed. This frame follows the declared basis axis, and posed translations contribute their components along it. The model convention establishes no universal clinical vertical or incisor-chord direction.
- * @evidence contracts/common.md#clear-and-simple-design Only four vertices are posed, so the measure runs before the surfaces are posed; it delegates the direction to resolveHumanFaceApertureUp and posing to poseHumanFaceVertex.
+ * @evidence contracts/common.md#clear-and-simple-design Only four vertices are posed, so the measure runs before the surfaces are posed; it delegates both canonical directions to resolveHumanFaceApertureDirections and posing to poseHumanFaceVertex.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant; a degenerate axis refuses.
  * @evidence contracts/common.md#meaningful-documentation States the frame, the layer it reads, the sign and why the measure is cheap enough to run first.
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; up and forward are unit vectors of the basis frame.
@@ -50,8 +48,7 @@ export function measureHumanFaceAperture(
   rest: readonly (readonly number[])[],
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
 ): IHumanFaceApertureFrame {
-  const up = resolveHumanFaceApertureUp(basis.articulation!.jaw.axis);
-  const forward = Vector3.cross(Vector3.create(...basis.articulation!.jaw.axis), up);
+  const { up, forward } = resolveHumanFaceApertureDirections(basis.articulation!.jaw.axis);
   const pair = (entry: IAutoMovieHumanFaceMidlinePair): IHumanFaceAperturePair => {
     const index = basis.surfaces.findIndex((surface) => surface.id === entry.surface);
     const surface = basis.surfaces[index];

@@ -1,3 +1,6 @@
+import type {} from "./IAutoMovieHumanFaceHair/compatibility/Layer";
+import type {} from "./IAutoMovieHumanFaceHair/compatibility/Region";
+
 /**
  * Numerical instructions for generating scalp locks on a shared facial basis.
  * The basis owns anatomical growth regions and neutral correspondence. This
@@ -7,190 +10,18 @@
  * and +X anatomical left. Fields describe static styling, not follicle biology,
  * elastic-rod dynamics, hair-to-hair contact or a biological density calibration.
  *
+ * Existing qualified member names are loaded by type-only compatibility
+ * modules, which forward to independently owned canonical interfaces.
+ * The aliases add no runtime value or second field definition.
+ *
+ * @evidence contracts/common.md#principled-implementation The document groups the canonical layer records while type-only aliases retain the existing public qualification.
+ * @evidence contracts/common.md#clear-and-simple-design Each member interface owns its fields in one named file; compatibility modules only forward their type identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing fields and namespace syntax are preserved without duplicated definitions or runtime mutation.
+ * @evidence contracts/common.md#meaningful-documentation States metric styling ownership, source-growth responsibility and the compatibility loading boundary.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHair {
   /** Independently generated named populations, at most eight. */
   layers: IAutoMovieHumanFaceHair.Layer[];
-}
-
-/**
- * Field types nested under the numerical hairstyle document.
- */
-export namespace IAutoMovieHumanFaceHair {
-  /**
-   * One deterministic root population and its metric styling/appearance inputs.
-   * Every length includes its root-to-strip transition. Sampling step is a
-   * numerical accuracy setting, distinct from painted fibres and lock count.
-   *
-   * A ribbon has no authored width. It stands for the whole neighbourhood of
-   * one root, so its width is the side of the scalp that root is responsible
-   * for, which the population measures from its own local density. Thinner
-   * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
-   * ribbon, and the `clearance` below is the fibre path's, not the ribbon's.
-   *
-   * @author Samchon
-   */
-  export interface Layer {
-    /** Nonblank identity unique within this hairstyle, independent of a person. */
-    id: string;
-    /** Existing shared basis surface and its declared growth-domain identity. */
-    surface: string;
-    /** Named anatomical growth domain within that shared surface. */
-    domain: string;
-    /** Number of generated locks, integral in [0,1024]; not follicles per area. */
-    count: number;
-    /** Unsigned 32-bit seed; retained roots keep their original sequence identity. */
-    seed: number;
-    /**
-     * Polar hairline angles in [0,pi] radians from +Y about the domain origin.
-     * The left/right side and front/back values blend by squared azimuth weights.
-     * The mask can only reduce the shared anatomical growth domain.
-     */
-    hairline: { front: number; left: number; right: number; back: number };
-    /**
-     * Optional neutral-space Gaussian root preference. Sampling retains the
-     * requested count within the common domain/hairline, with relative area
-     * density exp(-0.5*sum(((root-center)/spread)^2)). This localizes independent
-     * populations such as a fringe; it is not a biological density estimate.
-     */
-    rootRegion?: IAutoMovieHumanFaceHair.Region;
-    /**
-     * Positive centreline lengths in metres at the six neutral chart axes,
-     * ordered [+X,-X,+Y,-Y,+Z,-Z]: left, right, crown, nape, front, back.
-     * Absolute radial components form nonnegative weights summing to one.
-     * These are a regional length field, not six measured anatomical landmarks.
-     */
-    lengthAxes: [number, number, number, number, number, number];
-    /**
-     * Optional positive factor on each root's whole length by its frontal
-     * share: a root's length is multiplied by 1 + (frontScale - 1) times the
-     * weight its direction gives the +Z (front) axis, so the roots of the
-     * frontal hairline, whose lengths the blend also takes from the crown,
-     * are cut or grown as a fringe is, and the crown behind them is not.
-     * Omission is one.
-     */
-    frontScale?: number;
-    /** Seeded fractional length amplitude in [0,1]. */
-    lengthVariation: number;
-    /**
-     * The guide hierarchy: `fraction` in (0,1] of the roots, chosen by their
-     * own sample identity, are integrated through the fields and the surface
-     * contact as guides; every other root is a strand interpolated from its
-     * `neighbours` (integral in [1,8]) nearest guides on the same side of the
-     * part, weighted by scalp distance against the guides' own mean spacing.
-     * Optional `clump` in [0,1] gathers strands toward their nearest guide,
-     * nothing at the root and that fraction of the way at the tip. Absent,
-     * every root is a guide, which is the flat population.
-     */
-    guides?: { fraction: number; neighbours: number; clump?: number };
-    /**
-     * Optional shared gathering operation for a tied hairstyle. The tie is a
-     * ray from the growth domain's neutral origin, with polar angle from +Y
-     * and azimuth from +Z toward +X, both in radians. The builder attaches
-     * its hit barycentrically to the current scalp. `radius` in metres is the
-     * tie neighborhood; `strength` in (0,1] blends scalp-directed attraction
-     * with the ordinary comb field until a curve enters it. The remaining
-     * authored length then follows `tail.direction` in the head frame. No
-     * individual curve or tie vertex is stored. A gathered layer integrates
-     * all roots because whole-curve guide interpolation would mix the two
-     * stages at different arc fractions.
-     */
-    gather?: {
-      anchor: { polar: number; azimuth: number };
-      radius: number;
-      strength: number;
-      tail: {
-        direction: [number, number, number];
-        /**
-         * Optional metre-space tail cross-section target and positive arc
-         * length over which it grows or contracts from the tie. The same
-         * smooth radial profile applies to every rooted lock; no person owns
-         * a strand offset or a hidden bundle mesh.
-         */
-        spread?: { radius: number; reach: number };
-      };
-    };
-    /** Positive maximum integration step in metres, at most 0.005. */
-    samplingStep: number;
-    /** Nonnegative requested free-strip clearance from the skin, in metres. */
-    clearance: number;
-    /**
-     * Nonzero dimensionless world-frame flow vector. Its magnitude sets its
-     * weight relative to the optional parting field; it is not a physical force.
-     */
-    flow: [number, number, number];
-    /** Nonnegative outward direction bias and its positive decay distance (m). */
-    lift: { strength: number; reach: number };
-    /**
-     * Optional continuous parting field. The plane normal is normalized before
-     * use and offset is signed metric distance from the neutral frame origin.
-     * The tanh transition width and arc-length decay reach are positive metres.
-     * A Gaussian root-space envelope optionally limits the field's influence.
-     */
-    part?: {
-      normal: [number, number, number];
-      offset: number;
-      transitionWidth: number;
-      /** Additional dimensionless flow bias, projected into the local tangent. */
-      bias: [number, number, number];
-      /** Nonnegative relative weight and positive arc-length decay distance (m). */
-      strength: number;
-      reach: number;
-      region?: IAutoMovieHumanFaceHair.Region;
-    };
-    /**
-     * Wave or helical direction modulation. Angle is in [0,pi/2) radians.
-     * Wavelength and onset reach are positive metres of centreline arc length.
-     * A wavelength needs at least eight integration intervals. Contact can
-     * modify the desired curl; this does not prescribe a stress-free rod shape.
-     */
-    curl: {
-      mode: "wave" | "helix";
-      angle: number;
-      wavelength: number;
-      reach: number;
-    };
-    /** Positive tip/root width ratio in [0.05,1] and taper start fraction [0,0.95]. */
-    taper: { tipWidth: number; start: number };
-    /**
-     * Linear RGB/roughness in [0,1] and procedural fibre appearance. Painted
-     * fibres are integral in [1,32], coverage in [0.1,1], normal/shade in [0,1].
-     * This generates shared-formula pixels and stores no personal bitmap.
-     *
-     * `color` is the pigmented fibre's own colour. Greying is a follicle's own
-     * switch, so a greying head is an admixture of white and pigmented fibres
-     * rather than one faded colour: `grey` is the proportion of the painted
-     * fibres left unpigmented, in [0,1], and each painted fibre takes one side
-     * of that switch by its own deterministic coordinate. Absent or zero
-     * paints every fibre pigmented, which is the population before this field
-     * existed. Greying runs temples first, then frontal, vertex and parietal,
-     * with the occipital region last, so a head that is grey only at the
-     * temples is a layer of its own with its own `rootRegion` and proportion,
-     * not a field invented here.
-     */
-    finish: {
-      color: [number, number, number];
-      roughness: number;
-      fibres: number;
-      coverage: number;
-      normal: number;
-      shade: number;
-      grey?: number;
-    };
-  }
-
-  /**
-   * Axis-aligned Gaussian envelope in the neutral head's metre coordinates.
-   * Root sampling and parting use the same arithmetic but independent inputs.
-   * It stores six field coefficients, never a root list or curve samples.
-   *
-   * @author Samchon
-   */
-  export interface Region {
-    /** Finite centre coordinates in neutral head metres. */
-    center: [number, number, number];
-    /** Positive metre-space standard deviations, not a hard clipping radius. */
-    spread: [number, number, number];
-  }
 }

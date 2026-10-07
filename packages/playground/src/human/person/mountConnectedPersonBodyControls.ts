@@ -1,4 +1,5 @@
-import { assembleHumanBodyGeneratedAnatomy, measureHumanBodyBasisChannels } from "@automovie/human";
+import { assembleHumanBodyGeneratedAnatomy } from "@automovie/human/body/anatomy/generated/assembleHumanBodyGeneratedAnatomy";
+import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { renderBodyMeasuredControls } from "../body/bodyMeasuredControls";

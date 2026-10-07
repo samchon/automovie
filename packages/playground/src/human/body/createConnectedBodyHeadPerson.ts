@@ -1,11 +1,10 @@
-import {
-  type IAutoMovieHumanPersonHeadView,
-  HUMAN_PERSON_SEAM,
-  parseHumanBodyBasisDocument,
-  serializeHumanPersonDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanPersonHeadView } from "@automovie/human";
+import { HUMAN_PERSON_SEAM } from "@automovie/human/human/constants/HUMAN_PERSON_SEAM";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 
 import { createConnectedBodyDefaultFace } from "./createConnectedBodyDefaultFace";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * The person the body editor's head is drawn from: the edited body document
@@ -18,8 +17,8 @@ import { createConnectedBodyDefaultFace } from "./createConnectedBodyDefaultFace
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps the companion head display-only while it wears the cheek colour the body document carries.
  * @author Samchon
  */
-export function createConnectedBodyHeadPerson(head: IAutoMovieHumanPersonHeadView, document: string): string {
-  const { skinColour, ...body } = parseHumanBodyBasisDocument(document);
+export function createConnectedBodyHeadPerson(head: IAutoMovieHumanPersonHeadView, document: string, source?: IAutoMovieHumanBodyAnatomicalAssembly): string {
+  const { skinColour, ...body } = parseHumanBodyBasisDocument(document, source);
   return serializeHumanPersonDocument({
     id: "body-editor-person",
     name: "body editor person",
@@ -29,5 +28,5 @@ export function createConnectedBodyHeadPerson(head: IAutoMovieHumanPersonHeadVie
     },
     body,
     population: "linked",
-  });
+  }, source);
 }

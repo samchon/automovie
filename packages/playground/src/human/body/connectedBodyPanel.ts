@@ -15,15 +15,13 @@
  * disabled with the target named. A request past the reach is refused by
  * name and the committed body stays.
  */
-import {
-  HUMAN_BODY_SIMPLE_POSTURE,
-  type IAutoMovieHumanBodyBasisDocument,
-  createHumanFaceEditor,
-  humanBodySimplePosture,
-  measureHumanBodyBasisChannels,
-  parseHumanBodyBasisDocument,
-  serializeHumanBodyBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { HUMAN_BODY_SIMPLE_POSTURE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_POSTURE";
+import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
+import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { connectedBodyReach } from "../common/connectedBodyReach";
@@ -135,7 +133,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     element<HTMLButtonElement>("body-undo").disabled = !state.canUndo;
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
-      serializeHumanBodyBasisDocument(state.document);
+      serializeHumanBodyBasisDocument(state.document, props.basis.anatomicalAssembly);
     underwear.value = state.document.underwear?.style ?? "";
     humeral.controls?.refresh(state.document.humeralHeads);
     void simple.refresh({ shape: state.document.shape, ...(state.document.anatomy === undefined ? {} : { anatomy: state.document.anatomy }) });
@@ -163,7 +161,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   ): Promise<void> => {
     try {
       if (intents.isCurrent(ticket))
-        await change(parseHumanBodyBasisDocument(text), ticket);
+        await change(parseHumanBodyBasisDocument(text, props.basis.anatomicalAssembly), ticket);
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -296,7 +294,7 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     const document = editor!.snapshot().document;
     props.download(
       document.id + ".json",
-      serializeHumanBodyBasisDocument(document),
+      serializeHumanBodyBasisDocument(document, props.basis.anatomicalAssembly),
       "application/json",
     );
   };

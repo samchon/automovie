@@ -1,5 +1,6 @@
 import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
 import type { IBodyAnatomicalRequestViewport } from "./IBodyAnatomicalRequestViewport";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Inputs of `mountBodyAnatomicalRequestPanel`.
@@ -17,6 +18,8 @@ export interface IBodyAnatomicalRequestPanelProps<
 > {
   /** Exact basis identity of the neutral reference rig. */
   basis: string;
+  /** Loaded source quantity authority for request admission and persistence; absent sources retain legacy unsupported-path refusals. */
+  source?: IAutoMovieHumanBodyAnatomicalAssembly;
 
   /** Viewport that builds, publishes and exports frames. */
   viewport: IBodyAnatomicalRequestViewport<Model>;

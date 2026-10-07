@@ -74,3 +74,8 @@ export * from "./IAutoMovieHumanBodyLandmarkDistance";
 export * from "./IAutoMovieHumanBodyLevelSection";
 export * from "./IAutoMovieHumanBodySkinExtent";
 export * from "./IAutoMovieHumanBodyStationSection";
+export * from "./IAutoMovieHumanBodyHumeralHeadRadii";
+export * from "./IAutoMovieHumanBodySkinColour";
+export * from "./IAutoMovieHumanBodySkinLayerStrength";
+export * from "./IAutoMovieHumanBodyMaterialOverride";
+export * from "./rig/IAutoMovieHumanBodyBuildBone";

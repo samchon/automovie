@@ -16,7 +16,8 @@
     "render:sequence": "ttsx --no-plugins scripts/render-sequence-and-see.cts --",
     "shots": "ttsx --no-plugins scripts/capture-shots.ts --",
     "preview": "vite preview --port 4173 --strictPort",
-    "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.cts --"
+    "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.cts --",
+    "observe:person": "ttsx --no-plugins scripts/observe-connected-person.cts --"
   },
   "author": "Samchon",
   "license": "MIT",

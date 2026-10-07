@@ -3,10 +3,11 @@ import type {
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
 
-import type { HumanResidentPort } from "../common/residentWorker";
+import type { HumanResidentPort } from "../common/HumanResidentPort";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Inputs of `createConnectedBodyPreview`.
@@ -24,6 +25,9 @@ export interface IConnectedBodyPreviewProps<
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
 > {
+  /** Actual loaded source authority for body-only auxiliary transactions such as arms-down solving. */
+  source?: IAutoMovieHumanBodyAnatomicalAssembly;
+
   /** Start the resident worker port. */
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
 

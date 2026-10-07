@@ -24,7 +24,7 @@ const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()])
   const evaluate = createConnectedPersonRuntime([head, body]);
   return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
     if (request.operation !== "preview") throw new Error("The body editor's head worker answers previews only.");
-    const result = await evaluate({ ...request, document: createConnectedBodyHeadPerson(head, request.document) });
+    const result = await evaluate({ ...request, document: createConnectedBodyHeadPerson(head, request.document, body.body.anatomicalAssembly) });
     if (result.operation !== "preview") throw new Error("Expected a person preview.");
     return { ...result, model: { ...result.model, parts: result.model.parts.filter((part) => part.id.startsWith("face:")) } };
   };

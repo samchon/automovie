@@ -1,19 +1,6 @@
-/** A reply is correlated with the request that owns it, including failures. */
-export type HumanResidentReply<Output> =
-  | { id: number; success: true; value: Output }
-  | { id: number; success: false; error: string };
-
-/** Browser transport only; the request owner does not allocate browser globals. */
-export type HumanResidentPort<Input, Output> = {
-  /** Current correlated response callback; null detaches the consumer. */
-  onmessage: ((event: { data: HumanResidentReply<Output> }) => void) | null;
-  /** Transport failures invalidate all requests owned by this connection. */
-  onerror: ((event: { message: string }) => void) | null;
-  /** Send an immutable request envelope to the numerical worker. */
-  postMessage: (request: { id: number; input: Input }) => void;
-  /** Stop this connection after a transport failure or final disposal. */
-  terminate: () => void;
-};
+import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
+import type { HumanResidentPort } from "./HumanResidentPort";
+import type { IHumanPendingResult } from "./IHumanPendingResult";
 
 /**
  * Keep one numerical worker alive across edits and correlate concurrent replies.
@@ -30,10 +17,7 @@ export function createHumanResidentWorker<Input, Output>(
   let sequence = 0;
   let worker: HumanResidentPort<Input, Output> | undefined;
   let disposed = false;
-  const pending = new Map<
-    number,
-    { resolve: (value: Output) => void; reject: (error: Error) => void }
-  >();
+  const pending = new Map<number, IHumanPendingResult<Output>>();
   const close = (error: Error): void => {
     const previous = worker;
     worker = undefined;
@@ -53,9 +37,9 @@ export function createHumanResidentWorker<Input, Output>(
       if (data.success) request.resolve(data.value);
       else request.reject(new Error(data.error));
     };
-    current.onerror = ({ message }) => {
+    current.onerror = (event) => {
       if (worker === current)
-        close(new Error(message.trim() || "The face worker failed."));
+        close(new Error(humanWorkerErrorMessage(event, "The face worker failed.")));
     };
     return current;
   };

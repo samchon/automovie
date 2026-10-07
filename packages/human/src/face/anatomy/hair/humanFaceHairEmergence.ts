@@ -15,6 +15,9 @@ import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRe
  * combed; a field with no tangential part leaves the hair on its normal, since
  * there is no direction to lie down in. The caller owns what happens after
  * emergence, including the surface contact this direction is projected by.
+ * The tangential direction is normalized before the bounded cosine weight is
+ * applied. A finite positive subnormal length therefore cannot overflow an
+ * intermediate reciprocal; the same shared vector owner supplies both norms.
  *
  * @evidence contracts/common.md#principled-implementation The result is sin(a)
  *   * n + cos(a) * t, with n the unit normal and t the unit tangential part of
@@ -67,7 +70,7 @@ export function humanFaceHairEmergence(
   return Vector3.normalize(
     Vector3.add(
       Vector3.scale(normal, Math.sin(angle)),
-      Vector3.scale(tangential, Math.cos(angle) / length),
+      Vector3.scale(Vector3.normalize(tangential), Math.cos(angle)),
     ),
   );
 }
