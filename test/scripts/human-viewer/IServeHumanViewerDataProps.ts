@@ -55,6 +55,12 @@ export interface IServeHumanViewerDataProps {
    */
   settleInputs: () => Promise<IHumanViewerCatalogue>;
 
+  /** Read just the requested descriptor, starting only its domain admission. */
+  readDocument: (doc: string) => IHumanViewerCatalogue;
+
+  /** Await only the requested document's own sidecars and admission. */
+  settleDocument: (doc: string) => Promise<IHumanViewerCatalogue>;
+
   /** Whether the frame with this generation token runs the current revision's code. */
   currentCode: (token: string | null) => boolean;
 }

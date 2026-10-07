@@ -164,8 +164,10 @@ async function show(address: HumanViewerAddress): Promise<void> {
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
-  if (selected === undefined)
-    throw new Error(`Unknown document: ${address.doc}`);
+  if (selected === undefined) {
+    const rejected = catalogue.rejected.find((entry) => entry.id === address.doc);
+    throw new Error(rejected?.reason ?? `Unknown document: ${address.doc}`);
+  }
   const operation = address.operation ?? "preview";
   const key =
     selected.key +

@@ -131,6 +131,7 @@ export function createHumanViewerSource(directory: string) {
   let sidecarListener = (): void => {};
   // The host binds the page's admission once its page exists.
   let admission: IReadHumanViewerCatalogueProps["admission"];
+  let peekAdmission: IReadHumanViewerCatalogueProps["admission"];
   const sidecars = createHumanViewerSidecarFacts({
     stamp: (name) => {
       const stat = fs.statSync(path.join(inputsDirectory, name));
@@ -163,8 +164,18 @@ export function createHumanViewerSource(directory: string) {
       exists: (view) => fs.existsSync(generationFiles[view]),
       facts: (view) => views.facts(generationFiles[view]),
     });
-  const catalogue = () =>
+  /** An owned sidecar selects its own authority; the input owner still checks every required member and basis identity. */
+  const hasOwnInput = (doc: string): boolean => {
+    if (!doc.startsWith("file:")) return false;
+    const stem = doc.slice(5).split("/")[0];
+    if (!/^[A-Za-z0-9._-]+$/.test(stem)) return false;
+    return [".basis.json.gz", ".person.json.gz", ".head.json.gz", ".body.json.gz"]
+      .some((suffix) => fs.existsSync(path.join(inputsDirectory, stem + suffix)));
+  };
+  const catalogue = (selectedDoc?: string, admitAll = false) =>
     readHumanViewerCatalogue({
+      selectedDoc,
+      independentInput: selectedDoc !== undefined && hasOwnInput(selectedDoc),
       basisFiles,
       documentsFile,
       subjectPeopleFile,
@@ -175,7 +186,7 @@ export function createHumanViewerSource(directory: string) {
       revisions: revisions.current(),
       sidecar: sidecars.facts,
       generation,
-      admission,
+      admission: selectedDoc !== undefined || admitAll ? admission : peekAdmission,
     });
   return {
     root,
@@ -190,6 +201,7 @@ export function createHumanViewerSource(directory: string) {
     revisions,
     watched,
     catalogue,
+    hasOwnInput,
     refreshBases: () => {
       bases = basisDigest();
     },
@@ -204,8 +216,10 @@ export function createHumanViewerSource(directory: string) {
     /** Bind the page owner's document admission. */
     admitWith: (
       judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>,
+      peek: NonNullable<IReadHumanViewerCatalogueProps["admission"]> = judge,
     ): void => {
       admission = judge;
+      peekAdmission = peek;
     },
   };
 }

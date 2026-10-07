@@ -10,6 +10,7 @@ import path from "node:path";
 import { PNG } from "pngjs";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import type { HumanViewerLane } from "./HumanViewerLane";
 import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstructionPartsResponse";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps";
@@ -48,7 +49,6 @@ export function serveHumanViewerCapture(
 ): boolean {
   const { url, response, json } = props;
   if (!ROUTES.includes(url.pathname)) return false;
-  const inventory = props.inventory();
   const start = performance.now();
   const lane =
     url.searchParams.get("lane") ?? (url.pathname === "/warm" ? "bulk" : "cli");
@@ -57,6 +57,29 @@ export function serveHumanViewerCapture(
     json({ error: "lane must be ui, cli or bulk" });
     return true;
   }
+  const wanted = [url.searchParams.get("doc"), url.searchParams.get("against")]
+    .filter((doc): doc is string => doc !== null);
+  if (props.settleDocument !== undefined && wanted.length !== 0) {
+    const settleDocument = props.settleDocument;
+    void Promise.all([...new Set(wanted)].map((doc) => settleDocument(doc)))
+      .then(() => dispatchHumanViewerCapture(props, start, lane))
+      .catch((error: unknown) => {
+        response.statusCode = 503;
+        json({ error: error instanceof Error ? error.message : String(error) });
+      });
+    return true;
+  }
+  return dispatchHumanViewerCapture(props, start, lane);
+}
+
+/** Dispatch the original GPU operation after its selected document owners have answered. */
+function dispatchHumanViewerCapture(
+  props: IServeHumanViewerCaptureProps,
+  start: number,
+  lane: HumanViewerLane,
+): boolean {
+  const { url, response, json } = props;
+  const inventory = props.inventory();
   // A misspelled document fails here, not after a wait in the queue.
   for (const name of ["doc", "against"]) {
     const wanted = url.searchParams.get(name);
