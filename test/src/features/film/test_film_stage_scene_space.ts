@@ -1,0 +1,212 @@
+import { spaceGround, stageScene } from "@automovie/engine";
+import { IAutoMovieSpace } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import { hasViolation, namedFacts, nclose } from "../internal/predicates";
+
+/** A floor square and a ramp climbing 1 m over the 2 m east of it. */
+const makeSpace = (
+  partial: Partial<IAutoMovieSpace> = {},
+): IAutoMovieSpace => ({
+  id: "space-yard",
+  surfaces: [
+    {
+      id: "floor",
+      kind: "floor",
+      polygon: [
+        { x: -2, y: 0, z: -2 },
+        { x: 2, y: 0, z: -2 },
+        { x: 2, y: 0, z: 2 },
+        { x: -2, y: 0, z: 2 },
+      ],
+      anchor: { x: 0, y: 0, z: 0 },
+      rampTo: null,
+    },
+    {
+      id: "ramp",
+      kind: "ramp",
+      polygon: [
+        { x: 2, y: 0, z: -1 },
+        { x: 4, y: 0, z: -1 },
+        { x: 4, y: 0, z: 1 },
+        { x: 2, y: 0, z: 1 },
+      ],
+      anchor: { x: 2, y: 0, z: 0 },
+      rampTo: { x: 4, y: 1, z: 0 },
+    },
+  ],
+  walkable: ["floor", "ramp"],
+  ...partial,
+});
+
+/**
+ * Staging may author the scene's `space` (#1173): the ground's MEANING beside
+ * the `set`'s geometry. `stageScene` gates it with the shared `validateSpace`
+ * (re-rooted under `$input.space`, so one surface rule can never mean two
+ * things) and copies it onto the composed scene, which is what finally lets the
+ * pairing `IAutoMovieSurface` documents be authored end to end: before this the
+ * space type existed and nothing ever emitted one.
+ *
+ * Scenarios:
+ *
+ * 1. A floor + ramp space stages onto the scene verbatim (ids, kinds, anchors, and
+ *    walkability), and the composed scene feeds `spaceGround` directly: 0 m
+ *    over the floor, 0.5 m at the ramp's midpoint (half of the 1 m climb), and
+ *    the 0 m fallback off every footprint.
+ * 2. Omitting `space` composes `space: null`, the scalar ground plane the engine
+ *    assumed before spaces existed: an absent ground is stated, not implied.
+ * 3. The gates fire at the submitted field: a self-crossing footprint, a
+ *    degenerate ramp axis, and a walkable id resolving to no surface are each
+ *    refused under `$input.space.*` in one round. The footprint witness used to
+ *    be a concave one, which #1868 made legal — `surfaceContains` classifies
+ *    against the authored ring now, so a notch is a shape rather than something
+ *    the validator has to forbid on the query's behalf. A ring that crosses
+ *    itself is what the footprint gate still refuses, because two lobes meeting
+ *    at a crossing leave no inside for a foot to be on.
+ * 4. The negative twin, and it is the exact inverse of what this case pinned
+ *    before: the concave quadrilateral one property away from that bowtie —
+ *    same four corners, one of them pulled inside instead of across — stages
+ *    clean. So the footprint gate refuses a ring with no inside rather than
+ *    every four-point polygon that is not convex.
+ */
+export const test_film_stage_scene_space = (): void => {
+  const staged = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite({ space: makeSpace() }),
+  );
+  TestValidator.equals("staging with a space succeeds", staged.success, true);
+  if (staged.success !== true) return;
+
+  const space = staged.scene.space ?? null;
+  TestValidator.equals("the space is carried onto the scene", space, {
+    id: "space-yard",
+    surfaces: makeSpace().surfaces,
+    walkable: ["floor", "ramp"],
+  });
+
+  // The composed scene plugs straight into the ground callback the motion
+  // seams consume: flat over the floor, half-climbed at the ramp's midpoint.
+  const ground = spaceGround(space!);
+  TestValidator.equals(
+    "the staged space answers ground height",
+    namedFacts([
+      ["ncloseGround", () => nclose(ground(0, 0), 0)],
+      ["ncloseGround2", () => nclose(ground(3, 0), 0.5)],
+      ["ncloseGround3", () => nclose(ground(4, 0), 1)],
+      ["ncloseGround4", () => nclose(ground(20, 20), 0)],
+    ]),
+    {
+      ncloseGround: true,
+      ncloseGround2: true,
+      ncloseGround3: true,
+      ncloseGround4: true,
+    },
+  );
+
+  // 2. an omitted space is stated as null, not left absent.
+  const bare = stageScene(makeScriptWrite(), makeStagingWrite());
+  TestValidator.equals(
+    "an omitted space composes as null",
+    bare.success === true ? bare.scene.space : undefined,
+    null,
+  );
+
+  // 3. every space gate reports under the submitted field.
+  const refused = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite({
+      space: makeSpace({
+        surfaces: [
+          {
+            id: "floor",
+            kind: "floor",
+            // The first edge and the third cross each other, so the ring
+            // encloses two lobes that meet at a point and no region at all.
+            polygon: [
+              { x: -2, y: 0, z: -2 },
+              { x: 2, y: 0, z: 2 },
+              { x: 2, y: 0, z: -2 },
+              { x: -2, y: 0, z: 3 },
+            ],
+            anchor: { x: 0, y: 0, z: 0 },
+            rampTo: null,
+          },
+          {
+            id: "ramp",
+            kind: "ramp",
+            polygon: [
+              { x: 2, y: 0, z: -1 },
+              { x: 4, y: 0, z: -1 },
+              { x: 4, y: 0, z: 1 },
+            ],
+            anchor: { x: 2, y: 0, z: 0 },
+            // Same (x, z) as the anchor: no axis to interpolate along.
+            rampTo: { x: 2, y: 1, z: 0 },
+          },
+        ],
+        walkable: ["floor", "balcony"],
+      }),
+    }),
+  );
+  TestValidator.equals(
+    "every space gate fires under $input.space in one round",
+    namedFacts([
+      ["refusedSuccess", () => refused.success === false],
+      [
+        "hasViolationRefusedType",
+        () =>
+          refused.success === false &&
+          hasViolation(refused, "type", "$input.space.surfaces[0].polygon"),
+      ],
+      [
+        "hasViolationRefusedRange",
+        () =>
+          refused.success === false &&
+          hasViolation(refused, "range", "$input.space.surfaces[1].rampTo"),
+      ],
+      [
+        "hasViolationRefusedType2",
+        () =>
+          refused.success === false &&
+          hasViolation(refused, "type", "$input.space.walkable[1]"),
+      ],
+    ]),
+    {
+      refusedSuccess: true,
+      hasViolationRefusedType: true,
+      hasViolationRefusedRange: true,
+      hasViolationRefusedType2: true,
+    },
+  );
+
+  // 4. the negative twin: the same corners, with the fourth pulled inside the
+  // ring instead of across it. A notch is a shape the ground query answers for.
+  const notched = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite({
+      space: makeSpace({
+        surfaces: [
+          {
+            id: "floor",
+            kind: "floor",
+            polygon: [
+              { x: -2, y: 0, z: -2 },
+              { x: 2, y: 0, z: -2 },
+              { x: 0, y: 0, z: 2 },
+              { x: 0, y: 0, z: 0 },
+            ],
+            anchor: { x: 0, y: 0, z: 0 },
+            rampTo: null,
+          },
+        ],
+        walkable: ["floor"],
+      }),
+    }),
+  );
+  TestValidator.equals(
+    "a notch is a footprint, not a defect",
+    notched.success,
+    true,
+  );
+};

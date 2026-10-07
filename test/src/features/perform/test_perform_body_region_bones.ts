@@ -1,0 +1,96 @@
+import { bodyRegionBones } from "@automovie/engine";
+import { AutoMovieHumanoidBone } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { namedFacts } from "../internal/predicates";
+
+const disjoint = (
+  a: readonly AutoMovieHumanoidBone[],
+  b: readonly AutoMovieHumanoidBone[],
+): boolean => {
+  const set = new Set(a);
+  return b.every((x) => !set.has(x));
+};
+
+/**
+ * `bodyRegionBones`: the disjoint-and-complete partition of the humanoid
+ * skeleton into body regions, the basis for layering clips on non-overlapping
+ * regions.
+ *
+ * Completeness is not asserted here, and the count below is documentation
+ * rather than proof. This scenario used to claim the three regions "cover the
+ * full 55-bone VRM rig exactly" while comparing them only with each other, so a
+ * bone added to the union and to no region kept every assertion green while
+ * every mask stripped it (#1400). The claim now belongs to the builder:
+ * `AUTOMOVIE_RIG_IS_PARTITIONED` types as `true` only while the partition
+ * covers `AutoMovieHumanoidBone`, and an escaped bone fails the build by name.
+ * What is left for run time is what a type cannot see: disjointness, the empty
+ * face region, and `fullBody` really being the three concatenated.
+ *
+ * Scenarios:
+ *
+ * 1. Each region owns the expected bones (lower = hips+legs, upper = torso+arms+
+ *    fingers, head = neck/head/eyes/jaw, face = none).
+ * 2. The three bony regions are pairwise disjoint.
+ * 3. `fullBody` is exactly their concatenation, element for element. Nothing here
+ *    asserts completeness: an assertion that cannot fail is not a guard, and
+ *    `AUTOMOVIE_RIG_IS_PARTITIONED` is a type, checked when the engine builds.
+ */
+export const test_perform_body_region_bones = (): void => {
+  const lower = bodyRegionBones("lowerBody");
+  const upper = bodyRegionBones("upperBody");
+  const head = bodyRegionBones("head");
+  const face = bodyRegionBones("face");
+  const full = bodyRegionBones("fullBody");
+
+  // 1. membership
+  TestValidator.equals("lowerBody owns 9 bones", lower.length, 9);
+  TestValidator.equals(
+    "lowerBody has hips + a foot",
+    namedFacts([
+      ["lowerIncludesHips", () => lower.includes("hips")],
+      ["lowerIncludesLeftFoot", () => lower.includes("leftFoot")],
+    ]),
+    { lowerIncludesHips: true, lowerIncludesLeftFoot: true },
+  );
+  TestValidator.equals("upperBody owns 41 bones", upper.length, 41);
+  TestValidator.equals(
+    "upperBody has spine, a hand, a finger",
+    namedFacts([
+      ["upperIncludesSpine", () => upper.includes("spine")],
+      ["upperIncludesLeftHand", () => upper.includes("leftHand")],
+      [
+        "upperIncludesRightLittleDistal",
+        () => upper.includes("rightLittleDistal"),
+      ],
+    ]),
+    {
+      upperIncludesSpine: true,
+      upperIncludesLeftHand: true,
+      upperIncludesRightLittleDistal: true,
+    },
+  );
+  TestValidator.equals("head owns 5 bones", head.length, 5);
+  TestValidator.equals(
+    "head has neck + jaw",
+    namedFacts([
+      ["headIncludesNeck", () => head.includes("neck")],
+      ["headIncludesJaw", () => head.includes("jaw")],
+    ]),
+    { headIncludesNeck: true, headIncludesJaw: true },
+  );
+  TestValidator.equals("face owns no bones", face.length, 0);
+
+  // 2. pairwise disjoint
+  TestValidator.predicate("lower ∩ upper = ∅", disjoint(lower, upper));
+  TestValidator.predicate("lower ∩ head = ∅", disjoint(lower, head));
+  TestValidator.predicate("upper ∩ head = ∅", disjoint(upper, head));
+
+  // 3. fullBody is the three regions, and the build proved they are all of them
+  TestValidator.equals(
+    "fullBody is the three regions concatenated",
+    [...full],
+    [...lower, ...upper, ...head],
+  );
+  TestValidator.equals("fullBody has no duplicates", new Set(full).size, 55);
+};

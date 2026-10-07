@@ -1,0 +1,173 @@
+import { HUMANOID_GAITS, HUMANOID_PROFILE } from "@automovie/archetypes";
+import {
+  bindProfileGaits,
+  gaitMotion,
+  validateMotion,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { namedFacts, nclose } from "../internal/predicates";
+
+const bone = (b: AutoMovieHumanoidBone): IAutoMovieBone => ({
+  bone: b,
+  parent: null,
+  rest: {
+    translation: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    scale: { x: 1, y: 1, z: 1 },
+  },
+  constraint: null,
+});
+
+// A rig carrying exactly the bones the gaits drive, all with null constraints
+// so validateMotion falls back to the engine's default humanoid ROM table.
+const RIG: IAutoMovieSkeleton = {
+  id: "humanoid",
+  bones: [
+    "hips",
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+    "leftUpperArm",
+    "rightUpperArm",
+  ].map((b) => bone(b as AutoMovieHumanoidBone)),
+};
+
+const NAMES = ["walk", "run", "sprint", "sneak", "march"] as const;
+
+const ampOf = (
+  gait: (typeof HUMANOID_GAITS)[keyof typeof HUMANOID_GAITS],
+  b: AutoMovieHumanoidBone,
+) => gait.limbs.find((l) => l.bone === b)!.amplitude;
+
+/**
+ * The canonical humanoid gait library: `locomote`'s whole `gait` enum as ready
+ * data. The point of the library (and of the `neutral` field it leans on):
+ * every gait must sit inside the humanoid ROM, so a host can drop any of the
+ * five into an actor context and the compiled clip validates without
+ * hand-tuning.
+ *
+ * Scenarios:
+ *
+ * 1. All five gaits are present under their enum names, each stamping its own
+ *    name.
+ * 2. Each gait, synthesised densely (24 samples) and validated against the
+ *    default-ROM humanoid rig, passes: knees never hyperextend, fast-gait hips
+ *    never cross the −30° floor. This is the whole reason `neutral` is tuned
+ *    per gait.
+ * 3. The gaits are ordered by energy where it should show: sprint's hip swing
+ *    exceeds run's exceeds walk's; sprint bends the knee hardest of the five;
+ *    sneak is the slowest (longest period). 3b. Every gait carries visible
+ *    contralateral upper-arm swing: each arm is half a cycle from the same-side
+ *    leg and therefore leads the opposite leg.
+ * 4. The humanoid profile fixture carries the same gait names and binds them into
+ *    concrete clips with profile-scoped ids.
+ */
+export const test_motion_humanoid_gaits = (): void => {
+  TestValidator.equals(
+    "all five gaits present",
+    Object.keys(HUMANOID_GAITS).sort((a, b) => a.localeCompare(b)),
+    [...NAMES].sort((a, b) => a.localeCompare(b)),
+  );
+  for (const name of NAMES)
+    TestValidator.equals(
+      `${name} stamps its name`,
+      HUMANOID_GAITS[name].name,
+      name,
+    );
+
+  for (const name of NAMES) {
+    const clip = gaitMotion(name, RIG.id, HUMANOID_GAITS[name], 24);
+    TestValidator.equals(
+      `${name} stays inside ROM`,
+      validateMotion({ motion: clip, skeleton: RIG }).success,
+      true,
+    );
+  }
+
+  const hip: AutoMovieHumanoidBone = "leftUpperLeg";
+  const knee: AutoMovieHumanoidBone = "leftLowerLeg";
+  TestValidator.equals(
+    "hip swing grows walk < run < sprint",
+    namedFacts([
+      [
+        "ampOfHUMANOID_GAITSWalk",
+        () => ampOf(HUMANOID_GAITS.walk, hip) < ampOf(HUMANOID_GAITS.run, hip),
+      ],
+      [
+        "ampOfHUMANOID_GAITSRun",
+        () =>
+          ampOf(HUMANOID_GAITS.run, hip) < ampOf(HUMANOID_GAITS.sprint, hip),
+      ],
+    ]),
+    { ampOfHUMANOID_GAITSWalk: true, ampOfHUMANOID_GAITSRun: true },
+  );
+  TestValidator.predicate(
+    "sprint bends the knee hardest of the five",
+    NAMES.filter((n) => n !== "sprint").every(
+      (n) =>
+        ampOf(HUMANOID_GAITS[n], knee) < ampOf(HUMANOID_GAITS.sprint, knee),
+    ),
+  );
+  TestValidator.predicate(
+    "sneak is the slowest of the five",
+    NAMES.filter((n) => n !== "sneak").every(
+      (n) => HUMANOID_GAITS.sneak.period > HUMANOID_GAITS[n].period,
+    ),
+  );
+
+  // 3b. the restored counter-swing is present on every shipped gait.
+  for (const name of NAMES) {
+    const gait = HUMANOID_GAITS[name];
+    const leftArm = gait.limbs.find((limb) => limb.bone === "leftUpperArm")!;
+    const rightArm = gait.limbs.find((limb) => limb.bone === "rightUpperArm")!;
+    const leftLeg = gait.limbs.find((limb) => limb.bone === "leftUpperLeg")!;
+    const rightLeg = gait.limbs.find((limb) => limb.bone === "rightUpperLeg")!;
+    TestValidator.equals(
+      `${name} carries visible contralateral arm swing`,
+      namedFacts([
+        ["leftArmAmplitude", () => leftArm.amplitude > 0],
+        ["rightArmAmplitude", () => rightArm.amplitude > 0],
+        ["ncloseLeftArmPhase", () => nclose(leftArm.phase, rightLeg.phase)],
+        ["ncloseRightArmPhase", () => nclose(rightArm.phase, leftLeg.phase)],
+      ]),
+      {
+        leftArmAmplitude: true,
+        rightArmAmplitude: true,
+        ncloseLeftArmPhase: true,
+        ncloseRightArmPhase: true,
+      },
+    );
+  }
+
+  const bound = bindProfileGaits(HUMANOID_PROFILE, RIG.id, 24);
+  TestValidator.equals(
+    "humanoid profile carries all gait names",
+    HUMANOID_PROFILE.gaits!.map((g) => g.name).sort((a, b) =>
+      a.localeCompare(b),
+    ),
+    [...NAMES].sort((a, b) => a.localeCompare(b)),
+  );
+  TestValidator.equals(
+    "humanoid profile binds every gait",
+    Object.keys(bound).sort((a, b) => a.localeCompare(b)),
+    [...NAMES].sort((a, b) => a.localeCompare(b)),
+  );
+  TestValidator.equals(
+    "profile-bound walk has a profile-scoped id",
+    bound.walk!.id,
+    "humanoid:walk",
+  );
+  for (const name of NAMES)
+    TestValidator.equals(
+      `profile-bound ${name} stays inside ROM`,
+      validateMotion({ motion: bound[name], skeleton: RIG }).success,
+      true,
+    );
+};
