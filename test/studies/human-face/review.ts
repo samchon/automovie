@@ -1,15 +1,5 @@
 import { readHumanMeshPhysicalVertices } from "@automovie/human";
 
-
-
-
-
-
-
-
-
-
-
 /**
  * @evidence ./numerical-hair-review.ts#humanFaceNumericalHairReview Retains inspection of the numerical scalp, guide and gathered-tail construction path separately from photographic likeness.
  * @evidence ../../../packages/human/src/face/anatomy/skin/structures/IPortraitColourField.ts#IPortraitColourField Read the complete five-field numerical reflectance envelope and both consumers. It stores a centre, positive support radii, linear attenuation and strength, with no image or vertex payload. Units follow the caller; connected documents use metres.

@@ -24,7 +24,6 @@ import michaelGambon from "./michael-gambon.json";
 import miriamMargolyes from "./miriam-margolyes.json";
 import ohSeungYoon from "./oh-seung-yoon.json";
 import parkEunBin from "./park-eun-bin.json";
-
 import rupertGrint from "./rupert-grint.json";
 import yooSeungHo from "./yoo-seung-ho.json";
 

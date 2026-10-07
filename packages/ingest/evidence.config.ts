@@ -10,9 +10,7 @@ import {
  * package answer for units it does not implement, so a domain whose contracts
  * live beside other owners' contracts is selected document by document.
  */
-const documentReferences = (
-  files: readonly string[],
-): IEvidenceReference[] => [
+const documentReferences = (files: readonly string[]): IEvidenceReference[] => [
   {
     type: "markdown",
     root: "../../docs",

@@ -90,7 +90,11 @@ export function clipHumanPersonTriangles(
         polygon.findIndex((other) => other.vertex === one.vertex) === at,
     );
     for (let corner = 1; corner + 1 < uniqueCorners.length; corner++)
-      result.push(uniqueCorners[0], uniqueCorners[corner], uniqueCorners[corner + 1]);
+      result.push(
+        uniqueCorners[0],
+        uniqueCorners[corner],
+        uniqueCorners[corner + 1],
+      );
   }
   return result;
 }

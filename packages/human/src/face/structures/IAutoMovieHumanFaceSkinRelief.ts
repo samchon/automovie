@@ -50,7 +50,8 @@ export namespace IAutoMovieHumanFaceSkinRelief {
    * @evidenceExclude contracts/anatomy.md#permitted-range The Nasolabial alias defines no physiological value or admission; those remain with the canonical record and producer.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The Nasolabial alias defines no physiological value or admission; those remain with the canonical record and producer.
    */
-  export type Nasolabial = import("./IAutoMovieHumanFaceSkinRelief/Nasolabial").Nasolabial;
+  export type Nasolabial =
+    import("./IAutoMovieHumanFaceSkinRelief/Nasolabial").Nasolabial;
 
   /**
    * Retain IAutoMovieHumanFaceSkinRelief.Regions as the qualified name of its canonical record.
@@ -69,6 +70,6 @@ export namespace IAutoMovieHumanFaceSkinRelief {
    * @evidenceExclude contracts/anatomy.md#permitted-range The Regions alias defines no physiological value or admission; those remain with the canonical record and producer.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The Regions alias defines no physiological value or admission; those remain with the canonical record and producer.
    */
-  export type Regions = import("./IAutoMovieHumanFaceSkinRelief/Regions").Regions;
-
+  export type Regions =
+    import("./IAutoMovieHumanFaceSkinRelief/Regions").Regions;
 }

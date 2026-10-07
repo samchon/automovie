@@ -3,12 +3,12 @@ import type {
   ITtscEvidenceGraphReference,
 } from "@ttsc/evidence";
 import type { TtscLintSeverity } from "@ttsc/lint";
-import path from "node:path";
 import type {
   EvidenceSeverity,
   IEvidenceConfig,
   IEvidenceReference,
 } from "@wrtnlabs/evidence";
+import path from "node:path";
 
 /**
  * Admit the production factory's graph into the standalone evaluator contract.
@@ -57,14 +57,28 @@ const reference = (
         "Standalone TypeScript evidence requires explicit root/files instead of a compiler package population.",
       );
     const { package: _package, ...population } = value;
-    return { ...population, files: value.files, root: root(value.root, location), severity: severity(value.severity) };
+    return {
+      ...population,
+      files: value.files,
+      root: root(value.root, location),
+      severity: severity(value.severity),
+    };
   }
-  return { ...value, root: root(value.type === "swagger" ? undefined : value.root, location), severity: severity(value.severity) };
+  return {
+    ...value,
+    root: root(value.type === "swagger" ? undefined : value.root, location),
+    severity: severity(value.severity),
+  };
 };
 
 /** Retain native refusals before converting a configuration-relative root. */
 const root = (value: string | undefined, location: string): string => {
-  if (value !== undefined && (value.trim().length === 0 || /^[A-Za-z]:(?![/\\])/u.test(value)))
-    throw new Error("Evidence roots must be nonblank directories without drive-relative paths.");
+  if (
+    value !== undefined &&
+    (value.trim().length === 0 || /^[A-Za-z]:(?![/\\])/u.test(value))
+  )
+    throw new Error(
+      "Evidence roots must be nonblank directories without drive-relative paths.",
+    );
   return path.resolve(location, value ?? ".");
 };

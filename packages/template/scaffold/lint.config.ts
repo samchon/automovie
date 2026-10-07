@@ -44,4 +44,7 @@ export const productionEvidence = {
 const graph = createAutoMovieEvidenceConfig(productionEvidence);
 
 /** Standalone evidence evaluation consumes the sole production declaration. */
-export default createAutoMovieStandaloneEvidenceConfig(graph, productionEvidence.location) satisfies IEvidenceConfig;
+export default createAutoMovieStandaloneEvidenceConfig(
+  graph,
+  productionEvidence.location,
+) satisfies IEvidenceConfig;

@@ -62,5 +62,4 @@ export namespace IAutoMovieHumanFaceHair {
    * @evidenceExclude contracts/anatomy.md#parametric-authority The Region alias defines no physiological value or admission; those remain with the canonical record and producer.
    */
   export type Region = import("./IAutoMovieHumanFaceHair/Region").Region;
-
 }

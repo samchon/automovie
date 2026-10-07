@@ -1,7 +1,4 @@
-import {
-  type IEvidenceClaim,
-  type IEvidenceConfig,
-} from "@wrtnlabs/evidence";
+import { type IEvidenceClaim, type IEvidenceConfig } from "@wrtnlabs/evidence";
 
 /**
  * Every supported public declaration under `src` is selected for contract evidence.

@@ -50,16 +50,14 @@ export function assembleHumanBodyGeneratedAnatomy(
     },
     parts: typia.assertEquals<IAutoMovieHumanBodyGeneratedAnatomy["parts"]>(
       Object.fromEntries(
-        typia.reflect
-          .literals<AutoMovieHumanBodyPartId>()
-          .map((id) => [
+        typia.reflect.literals<AutoMovieHumanBodyPartId>().map((id) => [
+          id,
+          answered.get(id) ?? {
             id,
-            answered.get(id) ?? {
-              id,
-              status: "unavailable",
-              reason: "geometry-not-validated",
-            },
-          ]),
+            status: "unavailable",
+            reason: "geometry-not-validated",
+          },
+        ]),
       ),
     ),
   };

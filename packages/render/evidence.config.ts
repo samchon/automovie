@@ -3,9 +3,7 @@ import {
   type IEvidenceReference,
 } from "@wrtnlabs/evidence";
 
-const documentReferences = (
-  files: readonly string[],
-): IEvidenceReference[] => [
+const documentReferences = (files: readonly string[]): IEvidenceReference[] => [
   {
     type: "markdown",
     root: "../../docs",
@@ -14,9 +12,7 @@ const documentReferences = (
   },
 ];
 
-const topicReferences = (
-  folders: readonly string[],
-): IEvidenceReference[] => [
+const topicReferences = (folders: readonly string[]): IEvidenceReference[] => [
   {
     type: "markdown",
     root: "../../docs",

@@ -21,7 +21,16 @@ const { renderAutoMovieScaffoldNextSteps } = loadSourceModule<INextStepsModule>(
  */
 export const test_cli_scaffold_next_steps = (): void => {
   const hint = renderAutoMovieScaffoldNextSteps("a-production");
-  TestValidator.predicate("requested command context", hint.includes("from a-production"));
-  TestValidator.predicate("source validation is reachable", hint.includes("npm run lint for source"));
-  TestValidator.predicate("authored graph validation is reachable", hint.includes("npm run evidence for authored evidence"));
+  TestValidator.predicate(
+    "requested command context",
+    hint.includes("from a-production"),
+  );
+  TestValidator.predicate(
+    "source validation is reachable",
+    hint.includes("npm run lint for source"),
+  );
+  TestValidator.predicate(
+    "authored graph validation is reachable",
+    hint.includes("npm run evidence for authored evidence"),
+  );
 };

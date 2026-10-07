@@ -12,7 +12,6 @@ import { referenceControlNet } from "./controlNet";
 import { buildFittedReferencePortrait } from "./fittedModel";
 import { buildPortraitHairProxy } from "./hairProxy";
 
-
 /**
  * Assemble this one reference face from independently inspectable anatomical
  * builders now shared by the human package. This study retains its own measured
