@@ -3,6 +3,7 @@ import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/commo
 import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
 import { registerHumanSourceLipMargin } from "./registerHumanSourceLipMargin.ts";
 import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
+import { registerHumanSourceMaterialCharts } from "./registerHumanSourceMaterialCharts.ts";
 import { splitHumanSourceToes } from "./splitHumanSourceToes.ts";
 import type { IHumanSourceEndpointDomain } from "./structures/IHumanSourceEndpointDomain.ts";
 import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
@@ -198,10 +199,11 @@ export function assembleHumanSourceP1(
               Array.from(cut.p1FaceParents),
             ),
           }
-        : s,
+        : { ...s },
     ),
   };
 
+  registerHumanSourceMaterialCharts(p1Face);
   const bodySurface = body.surfaces[0];
   const count = cut.p1BodyToG1.length;
   const positions: number[] = [];

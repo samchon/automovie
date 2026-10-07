@@ -171,6 +171,7 @@ export function defineHumanSourcePeriocularCage(
       selection.lowerColumns,
       generation,
       "Human",
+      sourceSamples,
     ),
     attachmentCharts: compileHumanSourcePeriocularAttachmentCharts(
       generation,

@@ -3,28 +3,33 @@ import type { IHumanExactFraction } from "@automovie/human/common/measure/IHuman
 import type { IAutoMovieHumanFaceMaterialPatch } from "@automovie/human/face/structures/IAutoMovieHumanFaceMaterialPatch";
 
 import type { IHumanSourceMaterialClipPoint } from "./structures/IHumanSourceMaterialClipPoint.ts";
+import { traceHumanSourceMaterialBoundary } from "./traceHumanSourceMaterialBoundary.ts";
+import { compileHumanSourceMaterialDisk } from "./compileHumanSourceMaterialDisk.ts";
 
 /**
- * Intersect actual native triangles with one source-authored frontal region.
+ * Intersect actual native triangles with one source-authored material region.
  * A simple, possibly concave loop is ear-decomposed with exact represented
- * predicates. Every convex window clips the original 3D triangle against its
- * extruded half-spaces; a rank-zero XY projection therefore is not discarded
- * as a zero-area 3D surface. Shared support stencils, not coincident XYZ, own
+ * predicates in the registered positive native disk. World-space frontal
+ * projection is not a material coordinate: it can fold or collapse a curved
+ * endpoint star. The same disk supplies every boundary point and clipped cell.
+ * Shared support stencils, not coincident XYZ, own
  * intersections. Original native vertices retain their identities at t=0/1.
  * The actual edge-connected component at the medial endpoint owns the patch;
  * ambiguous seeds, open incidence and missing connector endpoints refuse.
- * The loop's last connector joins the upper and lower endpoints; its actual
- * material cut is the authored plica support. No clinical boundary is inferred.
+ * Native boundary registration precedes disk selection, so a narrow anchor
+ * corridor cannot replace the ordered source contour. The actual native
+ * lower-to-upper connector is plica support; no clinical boundary is inferred.
  */
 export function compileHumanSourceMaterialPatch(
   positions: readonly number[],
   indices: readonly number[],
-  loop: readonly number[],
+  anchors: readonly number[],
   medial: number,
   upper: number,
   lower: number,
   generation: string,
   surface: string,
+  samples: readonly number[],
 ): IAutoMovieHumanFaceMaterialPatch {
   const zero = F.create(0n),
     one = F.create(1n);
@@ -32,9 +37,9 @@ export function compileHumanSourceMaterialPatch(
     positions.length % 3 ||
     indices.length % 3 ||
     positions.some((value) => !Number.isFinite(value)) ||
-    loop.length < 3 ||
-    new Set(loop).size !== loop.length ||
-    [...indices, ...loop].some(
+    anchors.length < 3 ||
+    new Set(anchors).size !== anchors.length ||
+    [...indices, ...anchors].some(
       (vertex) =>
         !Number.isSafeInteger(vertex) ||
         vertex < 0 ||
@@ -44,13 +49,25 @@ export function compileHumanSourceMaterialPatch(
     throw new Error(
       "Material clipping needs complete finite source triangles and distinct loop identities.",
     );
+  const boundary = traceHumanSourceMaterialBoundary(
+    indices, positions.length / 3, anchors, upper, lower,
+  );
+  const loop = boundary.loop;
+  const chart = compileHumanSourceMaterialDisk(
+    generation, surface, indices, samples, loop,
+  );
+  const chartVertices = new Map(chart.vertices.map((vertex, at) => [vertex, at]));
+  const coordinate = (vertex: number): number[] => {
+    const at = chartVertices.get(vertex);
+    if (at === undefined)
+      throw new Error("Material region leaves its registered native disk.");
+    return [chart.coordinates[at * 2], chart.coordinates[at * 2 + 1]];
+  };
   const sourcePoints = new Map<number, IHumanExactFraction[]>();
   const xyz = (vertex: number): IHumanExactFraction[] => {
     let point = sourcePoints.get(vertex);
     if (point === undefined) {
-      point = positions
-        .slice(3 * vertex, 3 * vertex + 3)
-        .map((value) => F.from(value));
+      point = coordinate(vertex).map((value) => F.from(value));
       sourcePoints.set(vertex, point);
     }
     return point;
@@ -188,28 +205,28 @@ export function compileHumanSourceMaterialPatch(
       triangle,
       weights: point.weights.map((value) => F.number(value)),
     });
-    exactPoints.push(point.xyz);
+    exactPoints.push(point.coordinates);
     if (support.length === 1 && F.compare(support[0][1], one) === 0)
       nativePoint.set(support[0][0], at);
     return at;
   };
-  const minX = Math.min(...loop.map((v) => positions[3 * v])),
-    maxX = Math.max(...loop.map((v) => positions[3 * v]));
-  const minY = Math.min(...loop.map((v) => positions[3 * v + 1])),
-    maxY = Math.max(...loop.map((v) => positions[3 * v + 1]));
-  for (let triangle = 0; triangle < indices.length / 3; triangle++) {
+  const minX = Math.min(...loop.map((v) => coordinate(v)[0])),
+    maxX = Math.max(...loop.map((v) => coordinate(v)[0]));
+  const minY = Math.min(...loop.map((v) => coordinate(v)[1])),
+    maxY = Math.max(...loop.map((v) => coordinate(v)[1]));
+  for (const triangle of chart.sourceTriangles) {
     const corners = indices.slice(3 * triangle, 3 * triangle + 3);
     if (
-      Math.max(...corners.map((v) => positions[3 * v])) < minX ||
-      Math.min(...corners.map((v) => positions[3 * v])) > maxX ||
-      Math.max(...corners.map((v) => positions[3 * v + 1])) < minY ||
-      Math.min(...corners.map((v) => positions[3 * v + 1])) > maxY
+      Math.max(...corners.map((v) => coordinate(v)[0])) < minX ||
+      Math.min(...corners.map((v) => coordinate(v)[0])) > maxX ||
+      Math.max(...corners.map((v) => coordinate(v)[1])) < minY ||
+      Math.min(...corners.map((v) => coordinate(v)[1])) > maxY
     )
       continue;
     for (const window of windows) {
       let clipped: IHumanSourceMaterialClipPoint[] = corners.map(
         (vertex, at) => ({
-          xyz: xyz(vertex),
+          coordinates: xyz(vertex),
           weights: [0, 1, 2].map((i) => (i === at ? one : zero)),
         }),
       );
@@ -221,8 +238,8 @@ export function compileHumanSourceMaterialPatch(
         for (let at = 0; at < input.length; at++) {
           const first = input[at],
             last = input[(at + 1) % input.length];
-          const da = orient(a, b, first.xyz),
-            db = orient(a, b, last.xyz);
+          const da = orient(a, b, first.coordinates),
+            db = orient(a, b, last.coordinates);
           if (sign(da) >= 0) clipped.push(first);
           if (sign(da) * sign(db) < 0) {
             const t = F.divide(da, F.subtract(da, db));
@@ -234,7 +251,7 @@ export function compileHumanSourceMaterialPatch(
                 F.add(value, F.multiply(t, F.subtract(y[axis], value))),
               );
             clipped.push({
-              xyz: interpolate(first.xyz, last.xyz),
+              coordinates: interpolate(first.coordinates, last.coordinates),
               weights: interpolate(first.weights, last.weights),
             });
           }
@@ -345,8 +362,9 @@ export function compileHumanSourceMaterialPatch(
   const successor = new Map<number, number>(),
     incoming = new Map<number, number>();
   const connector = new Map<number, number[]>();
-  const lowerXYZ = xyz(lower),
-    upperXYZ = xyz(upper);
+  const connectorSegments = boundary.connector.slice(1).map((vertex, at) =>
+    [xyz(boundary.connector[at]), xyz(vertex)],
+  );
   for (const at of selected)
     for (let edge = 0; edge < 3; edge++) {
       const a = faces[at][edge],
@@ -361,8 +379,9 @@ export function compileHumanSourceMaterialPatch(
       successor.set(a, b);
       incoming.set(b, a);
       if (
-        on(exactPoints[a], lowerXYZ, upperXYZ) &&
-        on(exactPoints[b], lowerXYZ, upperXYZ)
+        connectorSegments.some(([start, end]) =>
+          on(exactPoints[a], start, end) && on(exactPoints[b], start, end),
+        )
       ) {
         connector.set(a, [...(connector.get(a) ?? []), b]);
         connector.set(b, [...(connector.get(b) ?? []), a]);

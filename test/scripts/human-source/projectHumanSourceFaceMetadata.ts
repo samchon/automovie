@@ -12,7 +12,8 @@ import type { IHumanSourceFaceMetadataProjectionReceipt } from "./structures/IHu
 /**
  * Put one compiled face attachment registration into its original head host.
  * Exact serialized equality after removing only attachment-chart and native
- * displacement and clipped medial material registrations proves every other face value is unchanged. All head fields are
+ * displacement, clipped medial material and skin-course registrations proves
+ * every other face value is unchanged. All head fields are
  * preserved directly, including id, aliases, drivers and headSkin. Input
  * bytes remain immutable and a fresh destination is required. This metadata
  * representation candidate is not a new root generation, geometry bake,
@@ -73,6 +74,11 @@ export function projectHumanSourceFaceMetadata(
         "Head metadata projection has a different-source medial material registration.",
       );
   }
+  for (const surface of face.surfaces)
+    for (const chart of Object.values(surface.materialCharts ?? {}))
+      if (chart.generation !== surface.sourcePartition?.generation ||
+          chart.surface !== surface.id)
+        throw new Error("Head metadata projection has a different-source skin course disk.");
   const stripSide = (
     side: IAutoMovieHumanFacePeriocularSide,
   ): IAutoMovieHumanFacePeriocularSide => ({
@@ -93,6 +99,7 @@ export function projectHumanSourceFaceMetadata(
   const preserved = (value: IAutoMovieHumanFaceBasis): string =>
     JSON.stringify({
       ...value,
+      surfaces: value.surfaces.map((surface) => ({ ...surface, materialCharts: undefined })),
       periocular:
         value.periocular === undefined
           ? undefined
@@ -129,7 +136,7 @@ export function projectHumanSourceFaceMetadata(
     outputHeadSha256: sha(outputBytes),
     outputHeadBytes: outputBytes.length,
     qualification:
-      "Lossless host-owned face attachment/displacement/medial material metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices and head identity/aliases/drivers/headSkin are preserved. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
+      "Lossless host-owned face attachment/displacement/medial material/skin-course metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices and head identity/aliases/drivers/headSkin are preserved. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
   };
   publishHumanSourceFiles({
     directory: path.dirname(path.resolve(outputFile)),

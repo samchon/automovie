@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-import { compileHumanSourceMaterialPatch } from "./compileHumanSourceMaterialPatch.ts";
+import { compileHumanSourceNativeRegistration } from "./compileHumanSourceNativeRegistration.ts";
 import { extendHumanSourcePeriocularAttachmentCharts } from "./extendHumanSourcePeriocularAttachmentCharts.ts";
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
 import { readHumanSourceProducerClosure } from "./readHumanSourceProducerClosure.ts";
@@ -56,49 +56,11 @@ const document = JSON.parse(
 ) as IAutoMovieHumanFaceBasisDocument;
 const sha = (value: Buffer): string =>
   crypto.createHash("sha256").update(value).digest("hex");
-const counts: Record<string, number> = {};
 const coverage: Record<string, IHumanSourceAttachmentCoverage[]> = {};
 // Native material clipping consumes immutable host geometry, not the full
 // numerical reference. Discover its source-domain refusal before expensive
 // independent relief preparation; successful publication still requires all.
-for (const side of ["left", "right"] as const) {
-  const cage = basis.periocular?.[side]?.cage;
-  if (cage === undefined) continue;
-  const host = basis.surfaces.find((surface) => surface.id === cage.surface);
-  if (
-    host?.sourcePartition === undefined ||
-    host.sourcePartition.generation !== cage.generation
-  )
-    throw new Error(
-      "Attachment chart requires same-generation actual host samples.",
-    );
-  const bed = cage.medialBed;
-  const margin = cage.stations.find(
-    (station) => station.role === "posteriorMargin",
-  );
-  if (bed !== undefined && margin !== undefined) {
-    const upper = cage.upperColumns
-      .slice(0, bed.upperColumns)
-      .map((column) => margin.vertices[column]);
-    const lower = cage.lowerColumns
-      .slice(0, bed.lowerColumns)
-      .map((column) => margin.vertices[column]);
-    const loop = [...upper, ...lower.slice(1).reverse()];
-    bed.materialPatch = compileHumanSourceMaterialPatch(
-      host.positions,
-      host.indices,
-      loop,
-      loop[0],
-      upper[upper.length - 1],
-      lower[lower.length - 1],
-      cage.generation,
-      cage.surface,
-    );
-    counts[`${side}:medial:points`] = bed.materialPatch.points.length;
-    counts[`${side}:medial:triangles`] = bed.materialPatch.indices.length / 3;
-    counts[`${side}:medial:plicaPoints`] = bed.materialPatch.plica.length;
-  }
-}
+const counts = compileHumanSourceNativeRegistration(basis);
 console.log(
   "[human-source] native medial patches complete",
   JSON.stringify(counts),
