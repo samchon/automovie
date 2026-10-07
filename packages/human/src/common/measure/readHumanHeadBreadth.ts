@@ -18,9 +18,9 @@ import { humanHeadEar } from "./humanHeadEar";
  * spreading caliper held horizontal across the head reads at its maximum.
  * A side with no point above its ear refuses by name.
  *
- * A bound alone is not enough: a vertex height cannot bound an ear whose rim
- * rises between vertices, and an exclusion alone lets the search reach scalp
- * below the ear at the ear root. The rule takes both.
+ * Triangle exclusion removes the declared ear's lateral extent even above
+ * the area height bound. The height condition separately excludes lower
+ * non-ear scalp; both predicates retain their own source-derived population.
  *
  * @evidence contracts/common.md#principled-implementation The ears are left out as declared areas and the bound is read from those areas on each skin.
  * @evidence contracts/common.md#clear-and-simple-design One pass over the triangles that remain.

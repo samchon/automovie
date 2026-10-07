@@ -63,7 +63,9 @@ export interface IAutoMovieHumanBodyBuild {
    * Source-bound quantities from the same anatomical part shape evaluation.
    * Target volumes are measured on the actual pre-pose boundary in mL;
    * observed records preserve their acquisition and unavailable comparison.
-   * These are neither post-pose muscle volumes nor clinical certificates.
+   * The final Float32 field separately reads the actual posed output boundary.
+   * These geometric source readings certify neither living muscle volumes nor
+   * clinical tissue segmentation.
    * An empty array means the registered assembly consumed no quantities;
    * omission means this basis has no evaluated anatomical assembly.
    */

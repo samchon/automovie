@@ -1,7 +1,9 @@
 /**
- * The ages over which a body becomes able to build muscle, as curves over
- * sex: before `startAgeYears` training adds no measurable muscle, from
- * `endAgeYears` it adds an adult's, linearly between.
+ * Authored age ramp for the simple-shape model's training contribution.
+ * The factor is zero before `startAgeYears`, one from `endAgeYears` and
+ * linear between, with both endpoints interpolated over sex. This is the
+ * table owner's numerical bridge, not a measurement of an individual's
+ * capacity or evidence that training produces no muscle before an endpoint.
  *
  * @evidence contracts/common.md#principled-implementation The maturity block's fields, extracted from the table declaration without change.
  * @evidence contracts/common.md#clear-and-simple-design Two curves over sex.

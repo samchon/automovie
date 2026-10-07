@@ -99,7 +99,8 @@ export const HUMAN_HEAD_MEASUREMENTS: Record<string, IAutoMovieHumanHeadMeasurem
    * side". The plane through glabella and the head length's opisthocranion,
    * level from side to side, stands in for the tape's path, held level where
    * it would rise behind the glabella and raised at the back to touch the
-   * highest ear point where it would cut an ear (named approximations:
+   * limiting corner of every triangle touching either declared ear area,
+   * including corners outside the area's vertex membership (named approximations:
    * glabella itself rather than just above the ridges, and the admissible
    * plane nearest the longest front-to-back line rather than a search for the
    * maximum girth). Observed 500–635 mm in women and 516–633 mm in men.

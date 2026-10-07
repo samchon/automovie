@@ -1,3 +1,4 @@
+import type { IHumanBodySimpleShapeFatReading } from "./IHumanBodySimpleShapeFatReading";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { AutoMovieHumanBodySimpleParameter } from "../structures/AutoMovieHumanBodySimpleParameter";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
@@ -55,7 +56,7 @@ export const humanBodySimpleShapeMath = {
   fat(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
     bodyMassIndex: number,
-  ): { percent: number; excess: number } {
+  ): IHumanBodySimpleShapeFatReading {
     const table = HUMAN_BODY_SIMPLE_SHAPE.fat;
     const estimate = (model: typeof table.pediatric): number =>
       model.bodyMassIndex * bodyMassIndex +
@@ -80,8 +81,9 @@ export const humanBodySimpleShapeMath = {
   },
 
   /**
-   * How far a body has matured to build muscle, 0 before the sex's
-   * adolescent muscle spurt and 1 after it, linear between the table's ages.
+   * The table owner's authored training factor, zero before its start age,
+   * one after its end age and linear between. This numerical ramp measures
+   * neither an individual's maturity nor a physiological zero response.
    */
   maturity(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,

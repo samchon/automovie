@@ -63,7 +63,7 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: () => {
-      return { reason: "missing rule: nasion and pronasale, both found per shape" };
+      return { reason: "unavailable instrument: registered nasion and connected nasal bridge length; pronasale has a per-shape reader" };
     },
   },
   {
@@ -136,7 +136,7 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: (context) => {
       const a = readHumanFaceMeasurementLandmark(context, "glabella");
       if ("reason" in a) return a;
-      return { reason: "missing rule: nasion and pronasale, both found per shape" };
+      return { reason: "unavailable instrument: registered nasion and connected nasofrontal angle; pronasale has a per-shape reader" };
     },
   },
   {

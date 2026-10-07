@@ -1,3 +1,4 @@
+import type { IHumanFloat32MeshBuffers } from "./IHumanFloat32MeshBuffers";
 import { weldedDegenerateTriangles } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
@@ -18,12 +19,7 @@ import { readHumanMeshNormalRefusals } from "./readHumanMeshNormalRefusals";
  * No photograph, subject name, absolute area threshold or renderer verdict
  * exempts a face. All coordinates remain in the input's local metre frame.
  */
-export function float32MeshBuffers(mesh: IAutoMovieMesh, identity: string = "unnamed resident mesh"): {
-  positions: Float32Array<ArrayBuffer>;
-  normals: Float32Array<ArrayBuffer> | null;
-  uvs: Float32Array<ArrayBuffer> | null;
-  indices: Uint32Array<ArrayBuffer>;
-} {
+export function float32MeshBuffers(mesh: IAutoMovieMesh, identity: string = "unnamed resident mesh"): IHumanFloat32MeshBuffers {
   const degenerate = new Set(weldedDegenerateTriangles(mesh));
   if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
     throw new Error("Model normal buffers must align with resident positions.");

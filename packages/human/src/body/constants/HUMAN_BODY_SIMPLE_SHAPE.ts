@@ -40,7 +40,7 @@ import { HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_RIGHT } from "./simple-shape/HUMA
  * Babuccu et al. 2004 found weight, not age, explained the adult groups in
  * their female sample (doi:10.1007/s00266-004-4010-9). Gluteal mass and
  * pelvic tone muscle raises and age
- * takes, the adolescent maturity before which training builds no muscle, the
+ * takes, the authored adolescent ramp for the training contribution, the
  * redistribution of fat from the limbs to the trunk with age, the WHO
  * android/gynoid split by sex, Deurenberg's age-specific body fat estimates
  * from BMI, age and sex, and the body fat bands below which the rectus,

@@ -62,8 +62,9 @@ export function createHumanFaceHairExteriorInterval(props: IHumanFaceHairExterio
     );
   const origin = [props.root.x, props.root.y, props.root.z];
   const along = [direction.x, direction.y, direction.z];
+  const root = Vector3.create(origin[0], origin[1], origin[2]);
   const pointAt = (travel: number) =>
-    Vector3.add(props.root, Vector3.scale(direction, travel));
+    Vector3.add(root, Vector3.scale(direction, travel));
   let low = 0;
   let bound = props.maximum;
   let bounded = false;

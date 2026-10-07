@@ -1,13 +1,13 @@
 import type { IHumanFaceHairRootRefusal } from "./IHumanFaceHairRootRefusal";
 
 /**
- * The named refusal of a hair root whose stem cannot clear the skin at any
- * exit elevation the cited source allows, carrying the elevations tried and
+ * The named refusal of a hair root whose attempted exit elevations did not
+ * clear the skin, carrying the actual elevations tried and
  * the stem's own record at the range top.
  *
- * @evidence contracts/common.md#principled-implementation A root refusal that carries the exhausted interval and the stem record can be judged without a probe.
+ * @evidence contracts/common.md#principled-implementation Carries the declared interval, actual attempted elevations and stem record without claiming that every intermediate elevation was evaluated.
  * @evidence contracts/common.md#clear-and-simple-design One error class for one refusal kind, with its record as a named member.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Raised only after every cited elevation was walked; it changes no admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the integrator's actual failed attempts and changes no admission; an endpoint failure is not a proof that the whole interval is impossible.
  * @evidence contracts/common.md#meaningful-documentation States what the message and detail carry.
  * @evidenceExclude contracts/modeling.md#spatial-conventions The detail states its units.
  * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
@@ -27,7 +27,7 @@ export class HumanFaceHairRootRefusalError extends Error {
 
   /**
    * @param message Human-readable root location and elevations tried.
-   * @param detail The record of the exhausted interval.
+   * @param detail The declared interval and actual failed attempts.
    */
   public constructor(message: string, detail: IHumanFaceHairRootRefusal) {
     super(message);

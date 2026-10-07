@@ -141,10 +141,10 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
     /** External auricles, with independently owned sides. */
     ears?: IAutoMovieHumanFaceAnatomicalParameters.EarPair;
 
-    /** Biological scalp population and numerical grooming; null emits no visible layer. */
+    /** Observed scalp population and grooming; null records observed absence and does not command the numerical hair producer. */
     scalpHair?: IAutoMovieHumanFaceHairParameters | null;
 
-    /** Visible terminal moustache and beard populations; null emits no visible layer. */
+    /** Observed terminal moustache and beard populations; null records absence, independently of any authored emitted layer. */
     facialHair?: IAutoMovieHumanFaceFacialHairParameters | null;
 
     /** Calibrated observed skin colour, not the renderer's intrinsic albedo. */

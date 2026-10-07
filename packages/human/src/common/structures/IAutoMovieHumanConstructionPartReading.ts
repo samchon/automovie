@@ -37,10 +37,10 @@ export interface IAutoMovieHumanConstructionPartReading {
   /** Largest coordinate on each axis, metres. */
   maximum: number[];
 
-  /** Edges used by exactly one triangle after coordinate welding. */
+  /** Edges used by one triangle under explicit source incidence, or legacy coordinate-grid welding when metadata is absent. */
   boundaryEdges: number;
 
-  /** Edges used by more than two triangles after coordinate welding. */
+  /** Edges used by more than two triangles under the same explicit-source or legacy-coordinate topology. */
   nonManifoldEdges: number;
 
   /** Triangles of zero area. */

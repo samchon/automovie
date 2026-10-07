@@ -4,8 +4,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * A cutting plane for one body section measurement.
  *
  * The plane passes through `point` with normal `normal`. A vertex whose
- * signed distance is zero counts as the positive side, so every crossing is an
- * interior point of its edge.
+ * signed distance is zero counts as the positive side. An edge from an
+ * on-plane vertex to a negative-side vertex therefore crosses at that endpoint.
  *
  * @evidence contracts/common.md#principled-implementation The signed distance to one point-normal plane decides each vertex's side, with on-plane vertices assigned to the positive side.
  * @evidence contracts/common.md#clear-and-simple-design One named record replaces the section instrument's anonymous plane type.

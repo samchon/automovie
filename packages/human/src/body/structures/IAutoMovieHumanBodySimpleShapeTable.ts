@@ -51,9 +51,9 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
   fat: IAutoMovieHumanBodySimpleShapeFat;
 
   /**
-   * The ages over which a body becomes able to build muscle, as curves over
-   * sex: before `startAgeYears` training adds no measurable muscle, from
-   * `endAgeYears` it adds an adult's, linearly between. The derived
+   * Authored age ramp for the model's training contribution: zero before
+   * `startAgeYears`, one from `endAgeYears` and linear between, with endpoints
+   * interpolated over sex. It measures no individual's capacity. The derived
    * `developedMuscle` is the muscle parameter times this ramp; relations
    * calibrated on adult training read it instead of `muscle`, and so does
    * the fat-free mass the definition gates subtract.

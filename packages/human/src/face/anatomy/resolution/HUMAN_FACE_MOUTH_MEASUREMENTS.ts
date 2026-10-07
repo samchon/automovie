@@ -13,8 +13,9 @@ import { readHumanFaceLandmarkDistance } from "./readHumanFaceLandmarkDistance";
  * read between the named skin landmarks the basis registers; the Cupid's bow
  * angle is the 3D angle at labiale superius between the crista-philtri peaks.
  * A peak height needs the labial fissure line under its peak, and an
- * esthetic-line distance needs per-shape rules for pronasale and pogonion;
- * until those exist each reads as a named gap. The interlabial gap is the
+ * esthetic-line distance has no connected, qualified distance instrument even
+ * though per-shape pronasale and pogonion readers exist. These unsupported
+ * distances read as named gaps. The interlabial gap is the
  * performed central lip aperture of the contact's vermilion seam pair along
  * the contact frame's opening direction. A measurement lists a channel
  * only where one existing channel varies that distance; the rest are
@@ -111,13 +112,13 @@ export const HUMAN_FACE_MOUTH_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "mouth.upperLipToEstheticLine",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "missing rule: pronasale and pogonion (the esthetic line's ends, found per shape)" }),
+    read: () => ({ reason: "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion" }),
   },
   {
     id: "mouth.lowerLipToEstheticLine",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "missing rule: pronasale and pogonion (the esthetic line's ends, found per shape)" }),
+    read: () => ({ reason: "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion" }),
   },
   {
     id: "mouth.interlabialGap",

@@ -22,9 +22,9 @@ export interface IHumanFaceDynamicCollider {
   /** Producer-owned physical identity of every query point, when its assembly supplies one. */
   pointIds?: readonly string[];
 
-  /** Generated source-frame exterior without gaze. */
+  /** Generated exterior before its owning eye or oral rigid motion. */
   rest: IAutoMovieMesh;
 
-  /** The identical exterior with the existing eye owner's gaze. */
+  /** The same exterior after its owner's performed gaze or jaw motion. */
   posed: IAutoMovieMesh;
 }

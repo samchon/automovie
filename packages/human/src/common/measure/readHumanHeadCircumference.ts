@@ -18,7 +18,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * front than it is in the back" and passes "above the attachment of the ears".
  * The plane through the opisthocranion is the head's longest front-to-back
  * line; where it would rise behind the glabella it is held level, and where it
- * would cut an ear it is raised at the back to touch the highest ear point.
+ * would cut the selected ear triangles it is raised at the back until all
+ * three corners of every triangle touching either named ear area are clear.
+ * This includes corners outside the named vertex area and is a source-mesh
+ * clearance convention, not a measured anatomical ear-attachment boundary.
  * The girth is the convex hull perimeter of the closed loop nearest the
  * plane's midline between the glabella and its back point
  * (`measureHumanSection`), the tape a body girth reads. An ear in front of

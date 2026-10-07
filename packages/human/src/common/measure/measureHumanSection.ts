@@ -15,9 +15,9 @@ import type { IAutoMovieHumanSectionReading } from "./IAutoMovieHumanSectionRead
  * vertices straddle the plane contributes one segment between two edge
  * crossings; crossings are keyed by their edge so neighbouring triangles share
  * them exactly, and the segments are chained through those keys into loops.
- * A vertex on the plane counts as the positive side, which keeps every
- * crossing an interior point of its edge and every straddling triangle a
- * two-crossing case. Open chains (a surface boundary cut by the plane) are
+ * A vertex on the plane counts as the positive side. Each straddling triangle
+ * has two crossing edge keys, and a crossing may lie at an on-plane endpoint;
+ * keys preserve edge identity even when coordinates coincide. Open chains are
  * discarded, because a girth is the length of a closed contour.
  *
  * Several loops usually exist (a plane through a thigh also cuts the other
@@ -41,7 +41,7 @@ import type { IAutoMovieHumanSectionReading } from "./IAutoMovieHumanSectionRead
  * inframammary fold and the navel as the ISO 8559-1 and ANSUR tape girths
  * do, and equals the perimeter on a convex section.
  *
- * @evidence contracts/common.md#principled-implementation A plane cuts a triangle exactly when its corners lie on both sides, edge crossings are interpolated linearly and keyed by their edge so neighbours share them, the loop is walked through those keys, and the tape girth is the convex hull perimeter of the planar loop (Andrew's monotone chain). A vertex on the plane counts positive so every crossing is interior to its edge. The optional triangle list only narrows which triangles are read and must contain every straddler in ascending order; the result is then identical to a full walk.
+ * @evidence contracts/common.md#principled-implementation A plane cuts a triangle exactly when its corners lie on both sides, edge crossings are interpolated linearly and keyed by their edge so neighbours share them, the loop is walked through those keys, and the tape girth is the convex hull perimeter of the planar loop (Andrew's monotone chain). On-plane vertices count positive, admitting endpoint crossings while retaining two crossing edge keys per straddling triangle. The optional triangle list only narrows which triangles are read and must contain every straddler in ascending order; the result is then identical to a full walk.
  * @evidence contracts/common.md#clear-and-simple-design One responsibility: the cut of a triangle surface by a plane and the loop nearest a seed. The plane, the seed and the candidate triangles are the caller's; no anatomy is held here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No landmark, rule or expected girth is named, and the candidate list is only a narrowing of the same exact test.
  * @evidence contracts/common.md#meaningful-documentation The comment states the method, the loop selection, the tape convention, the null answers, the cost and the candidate-list contract.

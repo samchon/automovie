@@ -11,7 +11,10 @@ import type { IAutoMovieHumanConstructionPartReading } from "../../common/struct
  *
  * Coordinates are rounded to Float32 first, the precision the model emits.
  * Counts come from the engine topology instrument, which welds coincident
- * coordinates, so a seam of duplicated shading vertices is not a boundary.
+ * coordinates only for legacy meshes. Explicit physical metadata retains its
+ * source incidence, so attribute aliases share source edges while distinct
+ * source points remain distinct even at equal coordinates.
+ * Coordinate-collapsed triangles still enter the independent degeneracy check.
  * A region of a larger surface legitimately has boundary edges where it meets
  * its neighbouring regions; the census reports the count and judges nothing.
  * Self-crossings are the engine crossing census with the part as both

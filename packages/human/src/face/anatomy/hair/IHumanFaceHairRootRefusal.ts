@@ -1,15 +1,15 @@
 import type { IHumanFaceHairStemRefusal } from "./IHumanFaceHairStemRefusal";
 
 /**
- * Why a hair root refused: no exit elevation in its cited range let the stem
- * clear the skin.
+ * Why a hair root refused: the integrator's attempted exit elevations did not
+ * let its stem clear the skin. Intermediate elevations remain untested.
  *
  * `lowest` and `highest` are the root's cited elevation interval in degrees
  * (`humanFaceHairEmergenceRange`). `tried` lists every elevation walked, in
  * order, each of which ended in a stem refusal; `stem` is the record of the
  * stem refusal at the range top, the steepest exit the source allows.
  *
- * @evidence contracts/common.md#principled-implementation Reports the whole cited interval and each elevation tried, so the refusal proves the range was exhausted.
+ * @evidence contracts/common.md#principled-implementation Retains the declared interval and actual failed attempts without promoting endpoint failure into an exhaustive interval proof.
  * @evidence contracts/common.md#clear-and-simple-design Named members replace an anonymous record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports state; it changes no admission.
  * @evidence contracts/common.md#meaningful-documentation States units, order and which stem record is kept.

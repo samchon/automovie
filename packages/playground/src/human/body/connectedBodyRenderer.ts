@@ -19,16 +19,14 @@ import { releaseHumanPreviewGroup } from "../common/releaseHumanPreviewGroup";
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { IConnectedBodyFrame } from "./IConnectedBodyFrame";
 import type { IConnectedBodyResident } from "./IConnectedBodyResident";
+import type { IConnectedBodyRendererProps } from "./IConnectedBodyRendererProps";
 import { sameConnectedBodyStructure } from "./sameConnectedBodyStructure";
 
 /** Own and publish the Three.js buffers used by one body editor viewport.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the committed posed body and its material regions without changing its document.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prepares resident geometry, reuses matching buffers and swaps visible frames only on publication.
  */
-export function createConnectedBodyRenderer(props: {
-  loadTexture: (asset: string) => Promise<THREE.Texture>;
-  maxAnisotropy: number;
-}) {
+export function createConnectedBodyRenderer(props: IConnectedBodyRendererProps) {
   let active: IConnectedBodyResident | undefined;
   const release = (resident: IConnectedBodyResident): void => {
     if (resident.released) return;

@@ -9,8 +9,9 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * when the basis lacks what the measurement needs. `channels` lists the
  * existing channels the editor's inverse may move for a target, tried in
  * order within each channel's admitted range; an empty list makes the
- * measurement report-only, and a target for it is kept as requested without
- * moving shape. Each face part owner registers its measurements in its own
+ * measurement report-only. Its report can retain requested context, but the
+ * editor inverse refuses a target with no solving channel rather than treating
+ * it as achieved without moving shape. Each face part owner registers its measurements in its own
  * file and adds them to `HUMAN_FACE_MEASUREMENTS`.
  *
  * @evidence contracts/common.md#principled-implementation A measurement couples one final-surface reader with the channels that may answer it, so an inverse is judged on the real output.

@@ -6,8 +6,9 @@
  * the convex hull perimeter of the closed section loop, as a body girth
  * reads it. The tape is not lower in front than at the back and passes above
  * the ears, so the plane is held level where it would rise behind the
- * glabella and raised at the back to touch the highest point of either named
- * ear area where it would cut one.
+ * glabella and raised at the back to clear every corner of triangles touching
+ * either named ear area. This selected triangle population can include
+ * vertices outside the area's membership and is a source clearance convention.
  *
  * The observed range of the cited source sample is recorded for reporting,
  * not as a bound. A named point or area the head view does not declare

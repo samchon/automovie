@@ -17,7 +17,7 @@ import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
  * and are not read here.
  *
  * Each crown is also read against every crown of the opposing arch, named by
- * its ISO tooth number, as a report-only reading of the resting occlusion.
+ * its ISO tooth number, as a report-only reading of the performed occlusion.
  *
  * The lip margin gaps are a report-only reading of the contact summary: the
  * signed gap of each lip margin chain vertex against the opposite chain,
@@ -55,7 +55,7 @@ export function readHumanFaceOralLiningSpace(
     const ids = oral.dentalColliderIds;
     const colliders = oral.dentalColliders ?? [];
     // Crowns of one arch against the crowns of the opposing arch: a
-    // report-only reading of where the two dentitions stand at rest. The
+    // report-only reading of where the two performed dentitions stand. The
     // first digit of an ISO tooth number is its quadrant; 1 and 2 are
     // maxillary, 3 and 4 mandibular.
     if (ids !== undefined && ids.length === colliders.length)
