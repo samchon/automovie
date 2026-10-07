@@ -12,6 +12,9 @@ import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFa
  * caller certifies a result only after the complete model passes its
  * structural gate; until then a cache hit still takes that gate. This changes
  * neither card generation nor the biological meaning of any field.
+ * The optional progress callback is forwarded on a miss only and is not a
+ * cache key. It reports completed production owners without model access;
+ * an observer exception propagates before a new cache entry is assigned.
  *
  * @evidence contracts/common.md#principled-implementation The cache key is the
  *   pose object's identity together with the hair document's JSON. It relies on
@@ -57,22 +60,24 @@ export function createHumanFaceHairResultCache<T>(
   build: (
     hair: IAutoMovieHumanFaceHair,
     positions: ReadonlyMap<string, readonly number[]>,
+    progress?: (owner: string) => void,
   ) => T,
 ): (
   hair: IAutoMovieHumanFaceHair,
   positions: ReadonlyMap<string, readonly number[]>,
   pose: object,
+  progress?: (owner: string) => void,
 ) => { value: T; certified: boolean; certify: () => void } {
   let last:
     | { pose: object; hair: string; result: T; certified: boolean }
     | undefined;
-  return (hair, positions, pose) => {
+  return (hair, positions, pose, progress) => {
     const key = JSON.stringify(hair);
     if (last === undefined || last.pose !== pose || last.hair !== key)
       last = {
         pose,
         hair: key,
-        result: build(hair, positions),
+        result: build(hair, positions, progress),
         certified: false,
       };
     const entry = last;

@@ -6,9 +6,6 @@ import typia from "typia";
 import { applyHumanSkinFinish } from "../../common/skin/applyHumanSkinFinish";
 import { buildHumanFaceBrowAssembly } from "../anatomy/brow/buildHumanFaceBrowAssembly";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
-import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
-import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
-import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
 import { assertHumanFaceLashContact } from "../anatomy/lash/assertHumanFaceLashContact";
 import { buildHumanFaceLashRows } from "../anatomy/lash/buildHumanFaceLashRows";
 import { readHumanFaceLashClearance } from "../anatomy/lash/readHumanFaceLashClearance";
@@ -34,6 +31,7 @@ import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 import { createHumanFaceConstructionEntries } from "./createHumanFaceConstructionEntries";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceGeneratedComposition } from "./createHumanFaceGeneratedComposition";
+import { createHumanFaceHairComposition } from "./createHumanFaceHairComposition";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { createHumanFaceResidentParts } from "./createHumanFaceResidentParts";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -152,9 +150,7 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
-  const buildHair = createHumanFaceHairResultCache(
-    createHumanFaceHairBuilder(basis),
-  );
+  const composeHair = createHumanFaceHairComposition(basis);
   const fibreTint = createHumanFaceFibreTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
@@ -189,6 +185,13 @@ export function createHumanFaceBasisBuilder(
       throw new Error(
         "Facial edits need nonempty identities and the exact compiled basis revision.",
       );
+    const geometryProgress = (owner: string): void =>
+      options?.observeConstructionProgress?.({
+        documentId: document.id,
+        basis: document.basis,
+        phase: "geometry-owner-finished",
+        geometryOwner: owner,
+      });
     const surfaceIds = new Set(basis.surfaces.map((surface) => surface.id));
     for (const id of Object.keys(document.skin ?? {}))
       if (!surfaceIds.has(id))
@@ -235,6 +238,7 @@ export function createHumanFaceBasisBuilder(
     );
     applyHumanSkinFinish(materials);
     const pose = evaluatePose(state, document.shape, document);
+    geometryProgress("pose");
     const checks = [...pose.checks];
     checks.push({
       owner: "oral-sampling",
@@ -277,6 +281,7 @@ export function createHumanFaceBasisBuilder(
             checks.push(...performed.checks);
             return performed;
           })();
+    if (brows !== undefined) geometryProgress("brows");
     const lashes =
       document.lashes === undefined
         ? undefined
@@ -288,6 +293,7 @@ export function createHumanFaceBasisBuilder(
             document.id,
             pose.optics,
           );
+    if (lashes !== undefined) geometryProgress("lashes");
     if (lashes !== undefined)
       checks.push(
         createHumanFaceClearanceCheck(
@@ -356,6 +362,7 @@ export function createHumanFaceBasisBuilder(
       fibreTints: tints,
       skinGains,
     });
+    geometryProgress("source-regions");
     // Before validation, which a fixed weld partition may skip: a vertex
     // colour never leaves [0, 1].
     liftHumanFaceColours(parts, materialMap);
@@ -378,6 +385,7 @@ export function createHumanFaceBasisBuilder(
       materialMap,
       checks,
     });
+    geometryProgress("generated-composition");
     // Admission reads these on the delivered model, after hair is composed.
     checks.push(
       createHumanFaceClearanceCheck(
@@ -416,47 +424,8 @@ export function createHumanFaceBasisBuilder(
     if (bakeOcclusion !== undefined)
       for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
-    let hairPartIds: string[] = [];
-    if (document.hair !== undefined && document.hair !== null) {
-      assertHumanFaceHair(document.hair);
-      const generated = buildHair(document.hair, evaluated, pose);
-      const hair = generated.value;
-      hairPartIds = hair.parts.map((part) => part.id);
-      if (
-        hair.parts.some((part) =>
-          model.parts.some((resident) => resident.id === part.id),
-        ) ||
-        hair.materials.some((material) =>
-          model.materials.some((resident) => resident.id === material.id),
-        )
-      )
-        throw new Error(
-          "Numerical hair identities collide with resident face geometry or finishes.",
-        );
-      // validateModel checks each part/material locally plus IDs and references.
-      // A certified hair copy passed the full model gate for this exact pose
-      // and hair document. Admit the current face/material changes separately
-      // before composing it; the collision check above settles shared IDs.
-      if (generated.certified) {
-        const validation = validateModel({ model });
-        if (!validation.success)
-          throw new Error(
-            "The numerical hairstyle did not form a valid resident model: " +
-              JSON.stringify(validation),
-          );
-      }
-      model.parts.push(...hair.parts);
-      model.materials.push(...hair.materials);
-      if (!generated.certified) {
-        const validation = validateModel({ model });
-        if (!validation.success)
-          throw new Error(
-            "The numerical hairstyle did not form a valid resident model: " +
-              JSON.stringify(validation),
-          );
-        generated.certify();
-      }
-    }
+    if (bakeOcclusion !== undefined) geometryProgress("occlusion");
+    const hairPartIds = composeHair(document, evaluated, pose, model, geometryProgress);
     const value = {
       model,
       hairPartIds,

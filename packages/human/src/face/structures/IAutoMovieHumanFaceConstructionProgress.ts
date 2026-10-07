@@ -3,10 +3,10 @@
  *
  * Geometry completion does not establish admission. Admission completion
  * reports its actual verdict, including a refused draft. A thrown geometry
- * stage produces neither event. No timer, estimated fraction or model buffer
+ * stage reports only the internal owners that actually finished. No timer, estimated fraction or model buffer
  * is carried, and constructor bootstrap is identified by its own document ID.
  *
- * @evidence contracts/common.md#principled-implementation Phase identifies a completed synchronous owner boundary; accepted is supplied only after the unchanged admission returns.
+ * @evidence contracts/common.md#principled-implementation Phase identifies a completed synchronous internal owner or whole-stage boundary; accepted is supplied only after the unchanged admission returns.
  * @evidence contracts/common.md#clear-and-simple-design One record associates a boundary with its exact document and basis.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No elapsed-time guess or admission substitute is represented.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes geometry completion, actual verdict and thrown-stage behavior.
@@ -29,7 +29,10 @@ export interface IAutoMovieHumanFaceConstructionProgress {
   basis: string;
 
   /** Completion boundary reached by actual construction execution. */
-  phase: "geometry-built" | "admission-check-finished" | "admission-finished";
+  phase: "geometry-owner-finished" | "geometry-built" | "admission-check-finished" | "admission-finished";
+
+  /** Actual internal geometry owner that completed; not a geometry or admission verdict. */
+  geometryOwner?: string;
 
   /** Original condition owner, supplied only for its completed admission check. */
   checkOwner?: string;

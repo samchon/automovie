@@ -357,6 +357,7 @@ export function buildHumanFaceHairMesh(
       if (order === 1) indices.push(offset, row, row + 1);
       else indices.push(row - 2, row, row - 1, row - 1, row, row + 1);
     }
+    props.progress?.(ordinal);
   });
   const point = (id: number) =>
     Vector3.create(

@@ -52,6 +52,9 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
  * the domain its own sampler accepted taken on this face's own triangles, so a
  * thinned hairline widens its ribbons exactly as far as it thinned them and a
  * larger head widens them with it.
+ * The optional observer receives actual completed guide, interpolation,
+ * grown-strand, ribbon-buffer and whole-layer boundaries. It reads no model,
+ * changes no geometry or budget and is never an elapsed-time heartbeat.
  *
  * @evidence contracts/common.md#principled-implementation Compilation admits
  *   each growth domain and the closure once: ordered resident triangles, finite
@@ -194,6 +197,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
   return (
     hair: IAutoMovieHumanFaceHair,
     positions: ReadonlyMap<string, readonly number[]>,
+    progress?: (owner: string) => void,
   ) => {
     assertHumanFaceHair(hair);
     const parts: IAutoMovieModelPart[] = [],
@@ -309,6 +313,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         });
         spend(curve.points.length);
         integrated.set(at, curve);
+        progress?.("hair:" + layer.id + ":guide:" + root.sequence);
       });
       if (integrated.size === 0)
         throw new Error(
@@ -333,6 +338,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         })),
       });
       spend(strands.reduce((total, strand) => total + strand.points.length, 0));
+      progress?.("hair:" + layer.id + ":interpolated-strands");
       // Interpolated strands keep the clearance their guides were integrated
       // with, and a strand the projection cannot place is grown instead
       // (`growHumanFaceHairStrand`).
@@ -376,6 +382,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
             }),
         });
         spend(grown.points.length - strand.points.length);
+        progress?.("hair:" + layer.id + ":strand:" + root.sequence);
         return grown;
       });
       const id = "numerical-hair:" + layer.id;
@@ -428,9 +435,12 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
               weights: root.weights,
               supports: boundary.resolve(root),
             })),
+            progress: progress === undefined ? undefined : (ordinal) =>
+              progress("hair:" + layer.id + ":ribbon:" + ordinal),
           }),
         },
       });
+      progress?.("hair:" + layer.id + ":layer-mesh");
     }
     return { parts, materials };
   };

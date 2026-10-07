@@ -44,4 +44,7 @@ export interface IHumanFaceHairMeshContext {
 
   /** Each curve's canonical root seat on the host skin. */
   attachments: readonly IAutoMovieMeshSeparationAttachment[];
+
+  /** Reports a completed curve ribbon buffer; whole-mesh validation remains downstream. */
+  progress?: (ordinal: number) => void;
 }

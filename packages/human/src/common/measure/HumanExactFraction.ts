@@ -46,9 +46,7 @@ export class HumanExactFraction {
       numerator = -numerator;
       denominator = -denominator;
     }
-    let a = numerator < 0n ? -numerator : numerator,
-      b = denominator;
-    while (b !== 0n) [a, b] = [b, a % b];
+    const a = this.gcd(numerator, denominator);
     return { numerator: numerator / a, denominator: denominator / a };
   }
 
@@ -79,7 +77,7 @@ export class HumanExactFraction {
   /**
    * Add exact values; interval addition applies the same operation to ordered bounds.
    *
-   * @evidence contracts/common.md#principled-implementation Common-denominator sums preserve exact scalar values and interval endpoint order.
+   * @evidence contracts/common.md#principled-implementation A denominator common divisor removes shared factors before addition; final create canonicalizes the same exact value without requiring canonical operands.
    * @evidence contracts/common.md#clear-and-simple-design add keeps its specific numerical operation with the shared owning implementation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts add retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
    * @evidence contracts/common.md#meaningful-documentation Add exact values; interval addition applies the same operation to ordered bounds.
@@ -97,9 +95,14 @@ export class HumanExactFraction {
     a: IHumanExactFraction,
     b: IHumanExactFraction,
   ): IHumanExactFraction {
+    if (a.denominator === b.denominator)
+      return this.create(a.numerator + b.numerator, a.denominator);
+    const common = this.gcd(a.denominator, b.denominator);
+    const left = a.denominator / common;
+    const right = b.denominator / common;
     return this.create(
-      a.numerator * b.denominator + b.numerator * a.denominator,
-      a.denominator * b.denominator,
+      a.numerator * right + b.numerator * left,
+      left * b.denominator,
     );
   }
 
@@ -151,7 +154,7 @@ export class HumanExactFraction {
   /**
    * Multiply exact rational values or take the extrema of all four products for ordered intervals.
    *
-   * @evidence contracts/common.md#principled-implementation Exact products preserve values; interval extrema include every endpoint product.
+   * @evidence contracts/common.md#principled-implementation Cross common factors are removed before integer products; final create retains exact value, sign normalization and denominator refusal even for unreduced operands.
    * @evidence contracts/common.md#clear-and-simple-design multiply keeps its specific numerical operation with the shared owning implementation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts multiply retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
    * @evidence contracts/common.md#meaningful-documentation Multiply exact rational values or take the extrema of all four products for ordered intervals.
@@ -169,9 +172,13 @@ export class HumanExactFraction {
     a: IHumanExactFraction,
     b: IHumanExactFraction,
   ): IHumanExactFraction {
+    if (a.denominator === 0n || b.denominator === 0n)
+      return this.create(a.numerator * b.numerator, 0n);
+    const left = this.gcd(a.numerator, b.denominator);
+    const right = this.gcd(b.numerator, a.denominator);
     return this.create(
-      a.numerator * b.numerator,
-      a.denominator * b.denominator,
+      (a.numerator / left) * (b.numerator / right),
+      (a.denominator / right) * (b.denominator / left),
     );
   }
 
@@ -196,10 +203,35 @@ export class HumanExactFraction {
     a: IHumanExactFraction,
     b: IHumanExactFraction,
   ): IHumanExactFraction {
-    return this.create(
-      a.numerator * b.denominator,
-      a.denominator * b.numerator,
-    );
+    return this.multiply(a, {
+      numerator: b.denominator,
+      denominator: b.numerator,
+    });
+  }
+
+  /**
+   * Read a nonnegative common divisor before multiplying represented integers.
+   * Final create normalization remains authoritative, including directly
+   * constructed unreduced values and the original denominator refusal.
+   * @evidence contracts/common.md#principled-implementation Euclidean divisibility removes common integer factors exactly without assuming canonical operands.
+   * @evidence contracts/common.md#clear-and-simple-design One integer owner serves normalization and operation-specific pre-cancellation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No coefficient cutoff, float approximation or changed anatomical guard enters integer reduction.
+   * @evidence contracts/common.md#meaningful-documentation States nonnegative integer output and final normalization authority.
+   * @evidenceExclude contracts/modeling.md#spatial-conventions Integer divisibility owns no physical frame.
+   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no displayed part.
+   * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authoring trait.
+   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
+   * @evidenceExclude contracts/modeling.md#shared-boundaries Numerical factors establish no geometric join.
+   * @evidenceExclude contracts/modeling.md#rendered-observation Geometry consumers own observation.
+   * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical measurement.
+   * @evidenceExclude contracts/anatomy.md#permitted-range Retains numerical denominator refusal without anatomical bounds.
+   * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no sculpt or clinical input.
+   */
+  private static gcd(a: bigint, b: bigint): bigint {
+    a = a < 0n ? -a : a;
+    b = b < 0n ? -b : b;
+    while (b !== 0n) [a, b] = [b, a % b];
+    return a;
   }
 
   /**
