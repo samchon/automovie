@@ -61,14 +61,20 @@ export function prepareHumanFaceReference(
   }
   let completed = false;
   let reference: Map<string, number[]> | undefined;
+  const materialReference = shaped === undefined ? undefined : new Map(
+    basis.surfaces.map((surface, at) => [surface.id, [...shaped.surfaces[at]]]),
+  );
   return {
     optics,
     shaped,
+    materialReference,
     complete: () => {
       if (completed) return reference;
       if (shaped !== undefined) {
         let candidate = shaped.surfaces;
         if (geometry?.skinRelief !== undefined) {
+          if (materialReference === undefined)
+            throw new Error("Skin relief needs its same shape-only material reference.");
           const shapeChannels = new Set(
             basis.channels
               .filter((channel) => channel.kind === "shape")
@@ -88,8 +94,10 @@ export function prepareHumanFaceReference(
                 [...state.weights].filter(([id]) => shapeChannels.has(id)),
               ),
               geometry.skinRelief,
+              materialReference,
             ),
             humanFaceSkinReliefIdentity(geometry.skinRelief),
+            materialReference,
           );
           candidate = basis.surfaces.map((surface) => [
             ...relieved.get(surface.id)!,

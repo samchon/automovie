@@ -21,7 +21,7 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
  * A registered material chart compiles a continuous native course independent
  * of width. Its source-owned positive disk retains every native guide anchor.
  * Forehead and glabellar use registered glabella support and convert their
- * dimensioned displacements through its reference facet differential.
+ * finite dimensioned guides once on the same shape-only reference skin.
  * Unsupported source coverage and continuation refuse. This representation
  * replaces a width-dependent sampled curve, so affected identity references,
  * source derivatives and assembled observations require regeneration.
@@ -49,6 +49,7 @@ export function applyHumanFaceRegionalRelief(
   basis: IAutoMovieHumanFaceBasis,
   positions: ReadonlyMap<string, readonly number[]>,
   relief: IAutoMovieHumanFaceSkinRelief | undefined,
+  reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.regions === undefined) return positions;
   const glabella = findHumanSkinLandmark(basis, "glabella");
@@ -211,6 +212,7 @@ export function applyHumanFaceRegionalRelief(
       course: createHumanFaceSkinMaterialCourse({
         host,
         surface,
+        referencePositions: reference.get(surface.id) ?? [],
         domain: name,
         supportVertices: [...supportVertices],
         guide: materialGuide,

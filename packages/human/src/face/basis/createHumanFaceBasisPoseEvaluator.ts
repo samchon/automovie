@@ -199,10 +199,13 @@ export function createHumanFaceBasisPoseEvaluator(
               );
             })();
     if (skinRelief !== undefined) {
+      if (preparation.materialReference === undefined)
+        throw new Error("Skin relief needs its same shape-only material reference.");
       const relieved = applyHumanFaceRegionalRelief(
         basis,
-        applyHumanFaceNasolabialRelief(basis, posed, state.weights, skinRelief),
+        applyHumanFaceNasolabialRelief(basis, posed, state.weights, skinRelief, preparation.materialReference),
         skinRelief,
+        preparation.materialReference,
       );
       for (const [id, positions] of relieved)
         if (positions !== posed.get(id)) posed.set(id, [...positions]);

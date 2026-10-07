@@ -49,7 +49,8 @@ export function buildHumanFaceBrowAssembly(
   positions: ReadonlyMap<string, readonly number[]>,
   document: IAutoMovieHumanFaceBasisDocument,
   materials: readonly IAutoMovieMaterial[],
-  state: "rest" | "performed" = "performed",
+  state: "rest" | "performed",
+  reference: ReadonlyMap<string, readonly number[]>,
 ): IHumanFaceBrowAssembly {
   const replacements = new Map<string, Set<number>>();
   const checks: IHumanConstructionCheck[] = [];
@@ -92,14 +93,14 @@ export function buildHumanFaceBrowAssembly(
     const host = createHumanFaceSkinHost(surface.indices, points);
     const chart = createHumanFaceSkinChart({
       surface,
+      referencePositions: reference.get(surface.id) ?? [],
       domain: side === "left" ? "browLeft" : "browRight",
       host,
       supportVertices: [...band.upper, ...band.lower],
     });
     const parts = buildHumanFaceBrowShafts({
       chart,
-      positions: points,
-      referencePositions: surface.positions,
+      referencePositions: reference.get(surface.id) ?? [],
       binding: { side, upper: band.upper, lower: band.lower },
       count: input.strandCount,
       profile: input,

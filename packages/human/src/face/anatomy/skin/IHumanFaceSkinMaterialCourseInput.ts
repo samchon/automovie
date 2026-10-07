@@ -5,7 +5,7 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
 /**
  * Registered source-reference geometry, current host and native relief guide.
  * Every station names its native vertex; optional reference-metre offsets are
- * converted by the source chart differential. Material identity stays fixed
+ * registered through the same shape-only native reference. Material identity stays fixed
  * while the current host supplies physical lengths, positions and normals.
  *
  * @evidence contracts/common.md#principled-implementation Native support identities define the chart branch independently of guide width and distance queries.
@@ -26,6 +26,9 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
 export interface IHumanFaceSkinMaterialCourseInput {
   /** Native source reference and its producer-registered material disks. */
   surface: IAutoMovieHumanFaceBasisSurface;
+
+  /** Shape-only reference geometry used once to register finite dimensioned guides. */
+  referencePositions: readonly number[];
 
   /** Exact source-registered course domain, independent of current geometry. */
   domain: string;

@@ -25,6 +25,9 @@ export interface IHumanFaceSkinChartInput {
   /** Source reference geometry, native incidence and registered material disks. */
   surface: IAutoMovieHumanFaceBasisSurface;
 
+  /** Shape-only reference positions in head-frame metres, with the same native incidence. */
+  referencePositions: readonly number[];
+
   /** Publisher-owned anatomical course domain; overlapping disks are never interchangeable. */
   domain: string;
 

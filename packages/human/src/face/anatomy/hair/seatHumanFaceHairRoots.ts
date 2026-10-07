@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, interpolateAutoMovieTrianglePoint } from "@automovie/engine";
 
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference";
@@ -8,8 +8,9 @@ import type { IHumanFaceHairRootSeatsProps } from "./IHumanFaceHairRootSeatsProp
 /**
  * Carry sampled roots from the neutral scalp onto the face as it now stands.
  * A root is a barycentric seat on one triangle of the shared growth domain, so
- * its posed position is the same weights over that triangle's current
- * corners, and its outward normal interpolates the current scalp host's shared
+ * its posed position uses the engine's canonical represented interpolation of
+ * those weights over that triangle's current corners. Its outward normal uses
+ * the current scalp host's shared
  * vertex normals with those same weights. The common host resolves coordinate
  * seam aliases before supplying the normal field. Adjacent triangles therefore
  * use one continuous normal field at their common edge, rather than introducing
@@ -24,7 +25,7 @@ import type { IHumanFaceHairRootSeatsProps } from "./IHumanFaceHairRootSeatsProp
  * Positions are metres in the head frame, current and neutral alike. Inputs
  * are read only and the seats own their vectors.
  *
- * @evidence contracts/common.md#principled-implementation The canonical sampler seat is read through the common skin host, so position, seam-resolved normal interpolation and singular/inward fallback share one definition with other attached parts. Sampler weights sum to one and exact collision geometry remains unchanged.
+ * @evidence contracts/common.md#principled-implementation The source root consumes the same represented triangle interpolation as engine attachment admission; seam-resolved normals and singular/inward fallback remain with the common skin host. Sampler weights and exact collision geometry remain unchanged.
  * @evidence contracts/common.md#clear-and-simple-design One pure function from roots, indices and current positions to seats, extracted from the builder so that the builder only orders the stages.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case for a subject or shape; every root is seated by the same rule, and degenerate triangles are refused earlier by the root sampler.
  * @evidence contracts/common.md#meaningful-documentation The comment states what a seat is, what follows the shape and what does not, the frame and where a degenerate triangle is refused.
@@ -49,10 +50,16 @@ export function seatHumanFaceHairRoots<T extends IHumanFaceHairRootReference>(
       triangle: root.triangle,
       weights: [root.weights[0], root.weights[1], root.weights[2]],
     });
-    const seated = Vector3.create(
-      frame.point[0],
-      frame.point[1],
-      frame.point[2],
+    const seated = interpolateAutoMovieTrianglePoint(
+      [0, 1, 2].map((corner) => {
+        const vertex = indices[3 * root.triangle + corner];
+        return Vector3.create(
+          current[3 * vertex],
+          current[3 * vertex + 1],
+          current[3 * vertex + 2],
+        );
+      }),
+      root.weights,
     );
     const normal = Vector3.create(
       frame.normal[0],

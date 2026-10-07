@@ -7,7 +7,7 @@ import { createHumanFaceSkinChartCourse } from "./createHumanFaceSkinChartCourse
  * Lift a source-relative relief guide through one registered material chart.
  * All stations address their original native identities in a source-owned
  * positive material disk. Forehead and glabellar dimensions convert once from
- * reference head-frame metres through the source facet differential. The
+ * reference head-frame metre guides through one native reference registration. The
  * current host reads positions and physical metric from that same native
  * correspondence without choosing new nearest-sheet support.
  *
@@ -36,6 +36,7 @@ export function createHumanFaceSkinMaterialCourse(
 ): IHumanFaceSkinChartCourse {
   const chart = createHumanFaceSkinChart({
     surface: input.surface,
+    referencePositions: input.referencePositions,
     domain: input.domain,
     host: input.host,
     supportVertices: input.supportVertices,

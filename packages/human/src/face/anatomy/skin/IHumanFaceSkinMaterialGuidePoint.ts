@@ -2,7 +2,7 @@
  * One source-native relief station and an optional source-reference offset.
  * The vertex comes from the shared anatomical registration, not a person's
  * sculpt input. A displacement uses head-frame metres and is converted by the
- * registered material chart's reference differential before any performance.
+ * registered material chart's shape-only native reference before performance.
  *
  * @evidence contracts/common.md#principled-implementation A native station and a separately represented reference displacement retain source identity while leaving metric conversion with the registered chart owner.
  * @evidence contracts/common.md#clear-and-simple-design One internal record describes an endpoint or dimensioned station without an alternate free curve representation.

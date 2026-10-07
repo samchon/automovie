@@ -263,6 +263,7 @@ export function createHumanFaceBasisBuilder(
               document,
               materials,
               "rest",
+              pose.reference,
             );
             checks.push(...resting.checks);
             const performed = buildHumanFaceBrowAssembly(
@@ -270,6 +271,8 @@ export function createHumanFaceBasisBuilder(
               posed,
               document,
               materials,
+              "performed",
+              pose.reference,
             );
             checks.push(...performed.checks);
             return performed;

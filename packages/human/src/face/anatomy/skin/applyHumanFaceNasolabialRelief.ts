@@ -59,6 +59,7 @@ export function applyHumanFaceNasolabialRelief(
   positions: ReadonlyMap<string, readonly number[]>,
   weights: ReadonlyMap<string, number>,
   relief: IAutoMovieHumanFaceSkinRelief | undefined,
+  reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.nasolabial === undefined) return positions;
   const rows = (["left", "right"] as const).flatMap((side) => {
@@ -158,6 +159,7 @@ export function applyHumanFaceNasolabialRelief(
         course: createHumanFaceSkinMaterialCourse({
           host,
           surface,
+          referencePositions: reference.get(surface.id) ?? [],
           domain: row.side === "left" ? "nasolabialLeft" : "nasolabialRight",
           supportVertices: [row.ala.vertex, row.corner.vertex],
           guide: [{ vertex: row.ala.vertex }, { vertex: row.corner.vertex }],

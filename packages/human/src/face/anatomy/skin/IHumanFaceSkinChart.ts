@@ -4,9 +4,9 @@ import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 /**
  * One source-registered material disk and its native continued inverse.
  * Registered vertices supply fixed dimensionless coordinates; reference-metre
- * offsets use the source facet differential. Compilation transports the same
- * native incidence through the current host. It is neither global nearest
- * projection nor a geodesic. Missing coverage or ambiguous continuation refuses.
+ * offsets are registered on its shape-only reference skin. Compilation transports the same
+ * native incidence through the current host. Performed geometry never selects
+ * another nearest sheet, and the course is not a geodesic. Missing coverage or ambiguous continuation refuses.
  *
  * @evidence contracts/common.md#principled-implementation A locally nonsingular piecewise affine chart lifts an ordered path through its native triangle adjacency.
  * @evidence contracts/common.md#clear-and-simple-design Separates chart coordinate reading from one native-supported course compiler.
@@ -27,11 +27,15 @@ export interface IHumanFaceSkinChart {
   /** Read one registered native vertex's fixed material coordinates. */
   coordinate(vertex: number): IHumanFaceSkinChartCoordinate;
 
+  /** Register one finite 3D point on the fixed shape-only native reference, with domain coverage required. */
+  register(point: readonly number[]): IHumanFaceSkinChartCoordinate;
+
   /**
-   * Convert a head-frame metre displacement using the source-reference facet
-   * differential at this material point. The normal component is orthogonally
-   * discarded. The affine local conversion is an authored guide convention,
-   * not finite geodesic length; resulting domain coverage is checked by compile.
+   * Register a finite head-frame metre displacement on the shape-only reference
+   * skin through its native nearest owner, retaining that seat in this disk.
+   * Performed skin cannot select another sheet. Source coverage and continuous
+   * native lifting are required; the existing F64 nearest and geometric weight
+   * bounds supply registration rather than an exact-nearest certificate.
    */
   offset(
     point: IHumanFaceSkinChartCoordinate,

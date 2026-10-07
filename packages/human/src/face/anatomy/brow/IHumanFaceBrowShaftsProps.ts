@@ -3,13 +3,15 @@ import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
 import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 
 /**
- * What one eyebrow's shaft population is built from: the skin it grows on,
- * the registered implantation band on that skin, and the authored population.
+ * One eyebrow's current material chart, shape-only native reference band and
+ * authored shaft population. The reference defines finite guides; the chart
+ * transports their retained native incidence to current metric and normals.
  *
- * @evidence contracts/common.md#principled-implementation The chart and positions belong to the same current native surface; registered band identities and inverse chart pieces address that skin.
+ * @evidence contracts/common.md#principled-implementation Shape-only reference positions and the current chart share original native incidence; the reference defines guides while the chart alone supplies current geometry and metric.
  * @evidence contracts/common.md#clear-and-simple-design One record names every input of the shaft builder; nothing is read from ambient state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Original native binding and reference positions accompany the existing profile; no performed-frame fallback supplies guide registration.
  * @evidence contracts/common.md#meaningful-documentation Each member states its unit and owner.
- * @evidence contracts/modeling.md#spatial-conventions Skin positions are head-frame metres; the profile keeps its documented millimetres and fractions, and the shaft builder converts them once.
+ * @evidence contracts/modeling.md#spatial-conventions Reference and current positions share head-frame metres; the profile retains millimetres and fractions, converted by the reference-guide and shaft owners.
  *
  * @author Samchon
  */
@@ -17,10 +19,7 @@ export interface IHumanFaceBrowShaftsProps {
   /** Current registered-band chart retaining native triangle continuation. */
   chart: IHumanFaceSkinChart;
 
-  /** Flat head-frame metre positions of the host surface in the state being built. */
-  positions: readonly number[];
-
-  /** Source-reference head-frame metres supplying band orientation and guide-bend directions. */
+  /** Shape-only head-frame metres defining the finite band, roots and guide-bend directions. */
   referencePositions: readonly number[];
 
   /** Side and ordered band boundaries as host-surface vertex identities. */
