@@ -124,16 +124,17 @@ import { readHumanFacePartCensus } from "./readHumanFacePartCensus";
  * with UVs of the finished face (before any hair) takes the ambient
  * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
  * its occlusion texture. The resulting image is reused while the admitted
- * pose stays the same: the source material's opaque classification is fixed,
- * and colour, roughness and fibre edits do not change the geometry the rays
- * read. Without the option no texture is baked.
+ * pose and actual opaque mesh-material population stay the same. Generated
+ * brow and lash profiles enter the pose identity; composed material alpha
+ * modes enter the opaque population. Colour and roughness do not change these
+ * bake inputs. Without the option no texture is baked.
  *
  * A skin field that
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
  *
- * @evidence contracts/common.md#principled-implementation The pose owner distinguishes legacy closure from fixed native/replayed source endpoints before rigid contact, passage and normals. Reuse is keyed by the inputs each stage reads: channel weights for pose, pose identity for occlusion, and pose plus hair layers for hair. Each edit checks source incidence, alias agreement, legacy coordinate equivalence and coordinate-collapsed triangle participation; a change takes full model admission again.
+ * @evidence contracts/common.md#principled-implementation The pose owner distinguishes legacy closure from fixed native/replayed source endpoints before rigid contact, passage and normals. Reuse is keyed by the inputs each stage reads: admitted geometry for pose, pose identity plus actual opaque material population for occlusion, and pose plus hair layers for hair. Each edit checks source incidence, alias agreement, legacy coordinate equivalence and coordinate-collapsed triangle participation; a change takes full model admission again.
  * @evidence contracts/common.md#clear-and-simple-design An orchestrator: it holds the caches and calls one named owner per stage; no stage's formula lives in it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached hair result is certified only after the full model passes validateModel, and identity collisions with resident geometry refuse; nothing is special-cased for a subject or a document.
  * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order with each owner, what is retained between edits, what is admitted once and per edit, and the limits of the contact stage.

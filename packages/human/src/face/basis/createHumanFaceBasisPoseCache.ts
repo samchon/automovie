@@ -16,10 +16,11 @@ import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
  * stage retain the channel identities, ranges and dependencies. Comparing
  * these values does not certify independent anatomical traits or their ranges.
  *
- * @evidence contracts/common.md#principled-implementation The pose is a pure function of the admitted weights (shape channels included), so retaining the last result and replacing it whenever any weight in channel order changes is exact memoization; omission and an explicit zero compare equal because both read as 0.
- * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by the ordered weight vector; no eviction policy or option.
+ * @evidence contracts/common.md#principled-implementation Retains ordered admitted weights and named geometric profiles read by pose and downstream generated parts; omitted and explicit zero channel weights compare equal because both evaluate as zero, while profile changes replace the shared geometric identity.
+ * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by ordered weights and the actual geometric document members; no eviction policy or alternative evaluator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No test-only or subject-specific logic; a changed weight always recomputes.
- * @evidence contracts/common.md#meaningful-documentation States the key, why omission equals zero, and that cached outputs must be treated as read-only.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes admitted channel weights from geometric profiles and requires downstream consumers to treat retained outputs as read-only.
+ * @evidence contracts/modeling.md#parameter-channels Preserves the channel owner's neutral-zero weights and document member identities without reinterpreting their measurement or motion meaning.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseCache is a pure computation and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseCache decides no primitive population of a form.
  * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceBasisPoseCache constructs no surface that meets another part.
@@ -50,6 +51,7 @@ export function createHumanFaceBasisPoseCache<T>(
       oral,
       periocularTissues,
       brows,
+      lashes,
       eyelids,
       eyelidPhenotypes,
       ocularSurfaces,
@@ -126,8 +128,8 @@ export function createHumanFaceBasisPoseCache<T>(
     );
     if (tissueValues.some((value) => !Number.isFinite(value)))
       throw new Error("Periocular tissue pose keys need finite dimensions.");
-    // Generated brow geometry is composed downstream from these skin arrays.
-    // Its profile must still invalidate the pose identity used by model AO.
+    // Generated brow and lash geometry is composed downstream from these skin
+    // arrays. Their profiles still invalidate the pose identity used by model AO.
     const lidValues = [eyelids?.left, eyelids?.right].flatMap((side) =>
       Object.values(side ?? {}).flatMap((section) =>
         section === undefined
@@ -151,6 +153,7 @@ export function createHumanFaceBasisPoseCache<T>(
       oral ?? null,
       periocularTissues ?? null,
       brows ?? null,
+      lashes ?? null,
       eyelids ?? null,
       eyelidPhenotypes ?? null,
       ocularSurfaces ?? null,

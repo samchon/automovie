@@ -61,8 +61,10 @@ const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const receiptBytes = fs.readFileSync(path.join(registrationDirectory, "registration-receipt.json"));
 const receipt = JSON.parse(receiptBytes);
 const revision = "body-anatomy-registration/" + sha(receiptBytes);
-const assembly = JSON.parse(fs.readFileSync(assemblyFile, "utf8"));
-const plan = JSON.parse(fs.readFileSync(planFile, "utf8"));
+const inputAssemblyBytes = fs.readFileSync(assemblyFile);
+const planBytes = fs.readFileSync(planFile);
+const assembly = JSON.parse(inputAssemblyBytes.toString("utf8"));
+const plan = JSON.parse(planBytes.toString("utf8"));
 if (receipt.targetBodyBasis !== assembly.basis)
   throw new Error("Registration and assembly name different body bases.");
 fs.mkdirSync(output, { recursive: true });
@@ -238,7 +240,7 @@ if (layerDirectory !== undefined) {
 
 const joinProducerSha256 = sha(fs.readFileSync(new URL(import.meta.url)));
 const generation = "registered-body-" + sha(JSON.stringify({ receipt: sha(receiptBytes), producer: joinProducerSha256,
-  assembly: sha(fs.readFileSync(assemblyFile)), plan: sha(fs.readFileSync(planFile)) })).slice(0, 20);
+  assembly: sha(inputAssemblyBytes), plan: sha(planBytes) })).slice(0, 20);
 const nodes = JSON.parse(fs.readFileSync(path.join(registrationDirectory, "source-rig-nodes.json"), "utf8"));
 const supportAccounts = [];
 for (const reading of receipt.measurements ?? []) {
@@ -310,8 +312,8 @@ for (const source of [...replacedFiles.values(), ...nativePayloadInputs]) {
 }
 fs.writeFileSync(path.join(output, "compile-plan.json"), JSON.stringify(next, null, 2));
 fs.writeFileSync(path.join(output, "join-receipt.json"), JSON.stringify({
-  generation, revision, rebasedFrom: rebased?.from ?? null, bodyBasis: assembly.basis, registrationReceiptSha256: sha(receiptBytes), inputAssemblySha256: sha(fs.readFileSync(assemblyFile)),
-  inputPlanSha256: sha(fs.readFileSync(planFile)), assemblySha256: sha(assemblyBytes), replacedMembers: [...replacedFiles.keys()],
+  generation, revision, rebasedFrom: rebased?.from ?? null, bodyBasis: assembly.basis, registrationReceiptSha256: sha(receiptBytes), inputAssemblySha256: sha(inputAssemblyBytes),
+  inputPlanSha256: sha(planBytes), assemblySha256: sha(assemblyBytes), replacedMembers: [...replacedFiles.keys()],
   joinProducerSha256, rawInputCount: next.rawInputs.length, supportAccounts,
   authoredParts: [...authoredParts],
   meaning: "Campaign candidate assembly; registered members and rig nodes replaced, complete target-native parts replace their bindings and derivatives together, all else unchanged, nothing published",

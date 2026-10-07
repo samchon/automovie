@@ -37,8 +37,9 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * An open reference is an oriented sheet. Its sign means something only near
  * it: a point beyond its rim or farther than its local feature size reads an
  * arbitrary side. The caller therefore states the reach its geometry
- * justifies, and a vertex beyond that reach is counted as unreached and
- * enters no other count. Without a reach, an open reference reports a side
+ * justifies. A nearest rim feature first counts as boundary-side unknown,
+ * regardless of distance. Other vertices beyond the stated reach count as
+ * unreached and enter no inside/outside count. Without a reach, an open reference reports a side
  * for every vertex, which is valid only when the subject stays close to it.
  *
  * Uncertainty of the vertex reading is the Float32 rounding of both meshes,

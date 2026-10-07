@@ -35,7 +35,7 @@ import { walkHumanFaceHairCurve } from "./walkHumanFaceHairCurve";
  *
  * @evidence contracts/common.md#principled-implementation The convention is kept wherever admitted, and otherwise the elevation is searched only inside the cited interval, using the walk's own admission as the test.
  * @evidence contracts/common.md#clear-and-simple-design Owns the elevation choice only; the walk, the stem step and the emergence direction keep their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No azimuth change, no subject case and no elevation outside the cited range; an exhausted range refuses by name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No azimuth change, subject case or elevation outside the cited range; failed endpoint attempts refuse without claiming every intermediate elevation is impossible.
  * @evidence contracts/common.md#meaningful-documentation States the order of trials, the search, its non-monotone limit and what propagates.
  * @evidence contracts/modeling.md#spatial-conventions Elevations are degrees above the tangent plane; lengths are head-frame metres.
  * @evidenceExclude contracts/modeling.md#parameter-channels Reads the authored layer without defining a channel.
@@ -86,7 +86,7 @@ export function integrateHumanFaceHairCurve(
     throw new HumanFaceHairRootRefusalError(
       "A hair root at (" +
         [props.root.x, props.root.y, props.root.z].map((v) => v.toFixed(4)).join(", ") +
-        ") m cannot clear the skin at any cited exit elevation (" +
+        ") m did not clear the skin at the attempted cited exit elevations (" +
         tried.map((v) => v.toFixed(2)).join(", ") + " degrees): " + steepest.message,
       { lowest: range.lowest, highest: range.highest, tried, stem: steepest.detail },
     );

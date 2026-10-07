@@ -69,7 +69,8 @@ import type { IHumanBodyConstructionProgress } from "../structures/IHumanBodyCon
  * choosing its complete exterior. Completing that prepared build constructs
  * internal source parts and solves their targets once against the supplied
  * exterior. Ordinary calls prepare and complete against the body's own rest
- * skin.
+ * skin. Preparation owns one admitted document snapshot, so later caller edits
+ * cannot combine already evaluated skin with different anatomy or placement.
  * The optional physicalSource constructor mode registers actual native
  * indexed incidence or declared canonical source samples before UV gathering.
  * Omission preserves the existing model and metadata absence. Registration
@@ -95,9 +96,9 @@ export function createHumanBodyBasisBuilder(
   // read, so pose, material and history edits do not repeat it
   let solved: IHumanBodyAnatomySolve | undefined;
   const prepare = (inputDocument: IAutoMovieHumanBodyBasisDocument): IHumanBodyPreparedBuild => {
+    const admitted = structuredClone(admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly));
     const progress = (stage: IHumanBodyConstructionProgress["stage"], details?: Pick<IHumanBodyConstructionProgress, "part" | "path" | "completed" | "total">): void =>
-      admittedOptions?.observeProgress?.({ basis: basis.id, document: inputDocument.id, stage, ...details });
-    const admitted = admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly);
+      admittedOptions?.observeProgress?.({ basis: basis.id, document: admitted.id, stage, ...details });
     if (
       admitted.basis !== basis.id ||
       [admitted.id, admitted.name].some((id) => id.trim() === "")

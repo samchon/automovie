@@ -1,19 +1,23 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+import { compareCodeUnits } from "@automovie/engine";
+import type { IHumanFaceOcclusionCacheEntry } from "./IHumanFaceOcclusionCacheEntry";
+import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
 
 /**
  * Retain the expensive baked ambient-visibility images for one posed face.
- * The connected builder bakes before adding scalp hair; its source materials
- * own the opaque/masked classification and document overrides can change only
- * colour, roughness, fibre pigment and coverage. The bake reads positions,
- * normals, UVs, indices and that fixed classification, never those appearance
- * values, so the admitted pose object's identity is the complete invalidation
- * key for one builder with fixed ray count and texture size. Each returned map
+ * The connected builder bakes before adding scalp hair. The pose identity
+ * includes native and generated geometric profiles; actual composed materials
+ * additionally decide which mesh materials are opaque. Brow and lash density
+ * can change that membership, so it is compared separately through the same
+ * classification owner the bake uses. Colour, roughness and pigment do not
+ * enter either key. Ray count and texture size are fixed by the builder.
+ * Each returned map
  * has its own entries; a consumer cannot change the cached material binding.
  * The bakeHumanFaceOcclusion owner explains the sampling and its limits.
  *
- * @evidence contracts/common.md#principled-implementation The bake reads only positions, normals, UVs, indices and the opaque classification, which are fixed by the pose object's identity for one builder with fixed ray count and size, so pose identity is a complete invalidation key.
- * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; a new pose object always rebakes.
+ * @evidence contracts/common.md#principled-implementation Pose identity retains geometric input and sorted actually used opaque material IDs retain classification input; both must match before one builder reuses its bake.
+ * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by pose identity and actual opaque population.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed pose or opaque population rebakes without altering geometry, finish admission or ray settings.
  * @evidence contracts/common.md#meaningful-documentation States the key, what does not invalidate it, and that each returned map is a fresh copy.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceOcclusionCache is a pure computation and defines no part or group of parts.
  * @evidenceExclude contracts/modeling.md#parameter-channels createHumanFaceOcclusionCache defines and consumes no parameter channel.
@@ -28,10 +32,15 @@ import type { IAutoMovieModel } from "@automovie/interface";
 export function createHumanFaceOcclusionCache(
   bake: (model: IAutoMovieModel) => ReadonlyMap<string, string>,
 ): (pose: object, model: IAutoMovieModel) => Map<string, string> {
-  let last: { pose: object; images: ReadonlyMap<string, string> } | undefined;
+  let last: IHumanFaceOcclusionCacheEntry | undefined;
   return (pose, model) => {
-    if (last === undefined || last.pose !== pose)
-      last = { pose, images: new Map(bake(model)) };
+    const opaque = humanFaceOcclusionOpaqueMaterials(model);
+    const opaqueMaterials = JSON.stringify([...new Set(model.parts.flatMap((part) =>
+      part.geometry.type === "mesh" && part.material !== null && opaque.has(part.material)
+        ? [part.material] : [],
+    ))].sort(compareCodeUnits));
+    if (last === undefined || last.pose !== pose || last.opaqueMaterials !== opaqueMaterials)
+      last = { pose, opaqueMaterials, images: new Map(bake(model)) };
     return new Map(last.images);
   };
 }

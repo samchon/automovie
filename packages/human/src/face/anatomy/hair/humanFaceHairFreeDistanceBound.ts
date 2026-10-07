@@ -1,4 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IHumanFaceHairFreeDistanceBoundProps } from "./IHumanFaceHairFreeDistanceBoundProps";
 
 /**
  * Certify that an unqueried point remains outside a closed contact surface.
@@ -55,13 +55,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function humanFaceHairFreeDistanceBound(props: {
-  sampled: IAutoMovieVector3;
-  distance: number;
-  candidate: IAutoMovieVector3;
-  required: number;
-  allowance: number;
-}): boolean {
+export function humanFaceHairFreeDistanceBound(props: IHumanFaceHairFreeDistanceBoundProps): boolean {
   const separation = Math.hypot(
     props.candidate.x - props.sampled.x,
     props.candidate.y - props.sampled.y,

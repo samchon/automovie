@@ -103,11 +103,14 @@ if (stage === "layer-surfaces" && layerFieldFile === undefined)
 // before any input or archive record can be replaced by this attempt.
 fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
 fs.mkdirSync(output);
-const plan = typia.assertEquals<IHumanBodyAnatomicalCompilePlan>(JSON.parse(fs.readFileSync(planFile, "utf8")));
+const planBytes = fs.readFileSync(planFile);
+const plan = typia.assertEquals<IHumanBodyAnatomicalCompilePlan>(JSON.parse(planBytes.toString("utf8")));
 const resolve = (file: string): string => path.resolve(path.dirname(planFile), file);
 const hash = (bytes: string | Uint8Array): string => createHash("sha256").update(bytes).digest("hex");
-const head = typia.assertEquals<IAutoMovieHumanPersonHeadView>(JSON.parse(gunzipSync(fs.readFileSync(resolve(plan.headView))).toString("utf8")));
-const body = typia.assertEquals<IAutoMovieHumanPersonBodyView>(JSON.parse(gunzipSync(fs.readFileSync(resolve(plan.bodyView))).toString("utf8")));
+const headBytes = fs.readFileSync(resolve(plan.headView));
+const originalBodyBytes = fs.readFileSync(resolve(plan.bodyView));
+const head = typia.assertEquals<IAutoMovieHumanPersonHeadView>(JSON.parse(gunzipSync(headBytes).toString("utf8")));
+const body = typia.assertEquals<IAutoMovieHumanPersonBodyView>(JSON.parse(gunzipSync(originalBodyBytes).toString("utf8")));
 const assemblyBytes = fs.readFileSync(assemblyFile);
 const originalAssembly = typia.assertEquals<IAutoMovieHumanBodyAnatomicalAssembly>(JSON.parse(assemblyBytes.toString("utf8")));
 const originalRig = typia.assertEquals<IAutoMovieHumanBodySourceRig>(JSON.parse(fs.readFileSync(resolve(plan.rig), "utf8")));
@@ -136,7 +139,7 @@ for (const part of originalAssembly.parts)
     if (!originalSourceHashes.has(surface.source.sha256.toLowerCase()) || hash(JSON.stringify(surface.mesh)) !== surface.compiledMeshSha256.toLowerCase())
       throw new Error("Registered source mesh identity differs: " + part.id + "/" + surface.id);
 
-const candidateId = body.body.id + "/anatomical-" + hash(JSON.stringify({ originalBody: hash(JSON.stringify(body.body)), assembly: hash(assemblyBytes), plan: hash(fs.readFileSync(planFile)) })).slice(0, 16);
+const candidateId = body.body.id + "/anatomical-" + hash(JSON.stringify({ originalBody: hash(JSON.stringify(body.body)), assembly: hash(assemblyBytes), plan: hash(planBytes) })).slice(0, 16);
 const assembly = { ...originalAssembly, basis: candidateId };
 const candidate: IAutoMovieHumanBodyBasis = { ...body.body, id: candidateId, anatomicalAssembly: assembly };
 // A derived atlas consumer cannot silently change any original skin, rig,
@@ -163,7 +166,6 @@ fs.writeFileSync(path.join(output, "person-document.json"), saved);
 fs.writeFileSync(path.join(output, "body-document.json"), JSON.stringify(bodyDocument, null, 2));
 // The existing viewer tuple reader consumes each complete typed partition;
 // joining both into one JSON string would exceed the runtime string limit.
-const headBytes = fs.readFileSync(resolve(plan.headView));
 const bodyBytes = gzipSync(JSON.stringify({ ...body, body: candidate }));
 fs.writeFileSync(path.join(output, "whole-neutral.head.json.gz"), headBytes);
 fs.writeFileSync(path.join(output, "whole-neutral.body.json.gz"), bodyBytes);
@@ -171,12 +173,14 @@ fs.writeFileSync(path.join(output, "whole-neutral.json"), saved);
 fs.writeFileSync(path.join(output, "viewer-split-receipt.json"), JSON.stringify({
   generation: body.id, bodyBasis: candidateId, faceBasis: head.face.id,
   headSha256: hash(headBytes), bodySha256: hash(bodyBytes), documentSha256: hash(saved),
-  originalBodySha256: hash(fs.readFileSync(resolve(plan.bodyView))),
+  originalBodySha256: hash(originalBodyBytes),
   sourceAssemblySha256: hash(assemblyBytes),
   meaning: "Actual complete typed construction inputs; runtime admission and rendered acceptance remain separate",
 }, null, 2));
-const layerField = layerFieldFile === undefined ? undefined
-  : typia.assertEquals<IAutoMovieHumanBodyLayerThicknessField>(JSON.parse(fs.readFileSync(layerFieldFile, "utf8")));
+const layerFieldBytes = layerFieldFile === undefined ? undefined : fs.readFileSync(layerFieldFile);
+const layerFieldSha256 = layerFieldBytes === undefined ? undefined : hash(layerFieldBytes);
+const layerField = layerFieldBytes === undefined ? undefined
+  : typia.assertEquals<IAutoMovieHumanBodyLayerThicknessField>(JSON.parse(layerFieldBytes.toString("utf8")));
 if (layerField !== undefined && layerField.basis !== body.body.id)
   throw new Error("Layer thickness field addresses another body basis.");
 const skinIndices = body.body.surfaces[0].indices;
@@ -192,14 +196,14 @@ if (stage === "layer-surfaces") {
   // The remaining synchronous path consumes only the loaded layer/mesh owners;
   // it never constructs a face or lazily imports a source module.
   console.log(JSON.stringify({ stage: "layer-surfaces-inputs-verified", pid: process.pid,
-    bodyBasis: body.body.id, fieldSha256: hash(fs.readFileSync(layerFieldFile!)),
+    bodyBasis: body.body.id, fieldSha256: layerFieldSha256,
     qualification: "Static source modules and original inputs already loaded; remaining layer computation is synchronous on these immutable values" }));
   const surfaces = createHumanBodyLayerSurfaces({ positions: body.body.surfaces[0].positions, indices: skinIndices, field: layerField! });
   fs.writeFileSync(path.join(output, "layer-surface-observations.json"), JSON.stringify(surfaces));
   const shell = JSON.stringify(createHumanBodySubcutaneousShell(surfaces, skinIndices));
   fs.writeFileSync(path.join(output, "subcutaneous-shell.mesh.json"), shell);
   fs.writeFileSync(path.join(output, "layer-surfaces.json"), JSON.stringify({
-    basis: body.body.id, fieldSha256: hash(fs.readFileSync(layerFieldFile!)), vertices: surfaces.dermis.length / 3,
+    basis: body.body.id, fieldSha256: layerFieldSha256, vertices: surfaces.dermis.length / 3,
     beyondReachVertices: surfaces.beyondReachVertices, tightestVertex: surfaces.tightestVertex, tightestRatio: surfaces.tightestRatio,
     invertedTriangles: surfaces.invertedTriangles, dermalInvertedTriangles: surfaces.dermalInvertedTriangles,
     unmeasuredReachVertices: surfaces.unmeasuredReachVertices, qualification: surfaces.qualification,

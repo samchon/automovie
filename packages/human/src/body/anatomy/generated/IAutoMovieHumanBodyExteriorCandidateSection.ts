@@ -16,8 +16,9 @@ export interface IAutoMovieHumanBodyExteriorCandidateSection {
   readonly point: IAutoMovieVector3;
 
   /**
-   * Unit normal of the cutting plane; the horizontal girth rule this report
-   * requires gives `+Y` (0, 1, 0).
+   * Unit normal of the instrument's cutting plane in the source-rest frame.
+   * Horizontal girth rules use +Y; perpendicular rules derive their normal
+   * from the oriented landmark segment used by that instrument.
    */
   readonly normal: IAutoMovieVector3;
 

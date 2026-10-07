@@ -22,7 +22,8 @@ export interface IAutoMovieMeshCrossingOptions {
    * frame. Triangle ordinals address the original index buffers. The callback
    * must not mutate geometry. Omitted counts every strict intersection.
    *
-   * @publicUnconsumed measureHumanFaceClearance/readHumanFaceLashClearance: The finite resident traversal repair ships independently before the complete Human integration review; these clearance consumers classify individual insertion witnesses in the subsequent coherent Human unit.
+   * The connected face and lash clearance readers use this callback to
+   * classify individual insertion witnesses without exempting a triangle pair.
    */
   acceptTransversePoint?: (
     point: readonly number[],

@@ -4,9 +4,10 @@ import type { IAutoMovieHumanBodyExteriorTarget } from "./IAutoMovieHumanBodyExt
  * Surface targets of the numerical body request that the source-conditioned
  * exterior generator answers, in solve order.
  *
- * Each region owner appends its own bindings. A request path without a
- * binding stays in the report's unfulfilled context instead of being
- * approximated by another instrument.
+ * Each region owner appends its own bindings. Document admission requires a
+ * supplied target to have a reachable consumer. Named gaps refuse with their
+ * missing dependency, and other unbound paths refuse before a candidate can
+ * be reported. A named gap is never approximated by another instrument.
  *
  * @author Samchon
  */

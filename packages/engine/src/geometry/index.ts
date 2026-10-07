@@ -13,6 +13,8 @@ export * from "./IAutoMovieProjectionIntervals";
 export * from "./IAutoMovieTriangleAttachmentContactBound";
 export * from "./IAutoMovieMeshCrossing";
 export * from "./IAutoMovieMeshCrossingOptions";
+export * from "./IAutoMovieSignedMeshQueryHit";
+export * from "./IAutoMovieSignedMeshQueryOptions";
 export * from "./IAutoMovieSpatialQueryEntry";
 export * from "./IAutoMovieMeshGroup";
 export * from "./IAutoMovieMeshPart";

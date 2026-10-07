@@ -2,20 +2,21 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
 import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 
 /**
- * What a region's part resolver reads: the request's detailed targets, if
+ * What a region's part resolver reads: the document's anatomy, if
  * any, and the compiled source basis.
  *
- * A simple-tier request arrives already lifted to its detailed targets, so a
- * region resolver never lifts again. A consumer without a numerical request
+ * Document admission preserves anatomical measurements and registered raw
+ * observations before this carrier reaches a region resolver. A consumer
+ * without anatomical input
  * (the shape-weight body editor) omits `targets` and receives each part's
  * source reason without inventing an age, stature or mass; completeness of a
- * request stays with document admission. The basis lets a resolver state that a
+ * document stays with document admission. The basis lets a resolver state that a
  * defining landmark or tissue boundary is absent from the source.
  *
- * @evidence contracts/common.md#principled-implementation Regions read one lifted request and one basis instead of each re-deriving them.
+ * @evidence contracts/common.md#principled-implementation Regions read the admitted document anatomy and its compiled basis without re-deriving measurements or observations.
  * @evidence contracts/common.md#clear-and-simple-design Two read-only members shared by every region resolver.
  * @evidenceExclude contracts/common.md#prohibited-implementation-shortcuts A carrier; it substitutes nothing.
- * @evidence contracts/common.md#meaningful-documentation States why the targets are detailed and why the basis is present.
+ * @evidence contracts/common.md#meaningful-documentation Identifies document anatomy as the input and explains why the source basis is present.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part.
  * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
@@ -28,7 +29,7 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyRegionPartsInput {
-  /** The request's detailed targets, lifted from the simple tier; omitted without a request. */
+  /** Admitted document anatomy, including registered observations; omitted without anatomy. */
   readonly targets?: IAutoMovieHumanBodyAnatomicalMeasurements;
 
   /** The compiled source basis the exterior was built from. */

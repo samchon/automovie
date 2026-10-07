@@ -118,7 +118,8 @@ def main():
         return points - np.asarray([plane, 0.0, 0.0]), faces
 
     plane = sagittal_plane(atlas("leftGluteusMedius", by_part["leftGluteusMedius"][0][0])[0], atlas("rightGluteusMedius", by_part["rightGluteusMedius"][0][0])[0])
-    packet = json.loads(args.operators.read_bytes())
+    operator_bytes = args.operators.read_bytes()
+    packet = json.loads(operator_bytes)
     groups = BoneGroups(packet, plane)
     bones = {}
     for part in groups.owner:
@@ -355,7 +356,7 @@ def main():
     refusals = [owner for owner, account in fits.items() if account["refused"]] + (["coccyx"] if coccyx_account["refused"] else [])
     receipt = {
         "schema": "automovie-body-anatomy-registration/4", "targetBodyBasis": body_id, "planSha256": sha256(plan_bytes),
-        "operatorsSha256": sha256(args.operators.read_bytes()), "layerSurfacesSha256": sha256(layer_bytes), "layerFieldSha256": layer["fieldSha256"],
+        "operatorsSha256": sha256(operator_bytes), "layerSurfacesSha256": sha256(layer_bytes), "layerFieldSha256": layer["fieldSha256"],
         "inputs": receipts, "producer": closure, "pitchMetres": pitch,
         "frames": {"atlas": "BodyParts3D common metres, +X left/+Y up/+Z anterior, sagittal plane moved to x=0", "target": "canonical body metres at zero shape and no pose"},
         "atlasSagittalPlaneMetres": plane, "upperLimitAtlasMetres": float(top), "collarTargetMetres": collar, "atlasExterior": skin_account, "unmatchedExteriorRemoved": unmatched,

@@ -15,7 +15,9 @@ import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../should
  * its shape and other measurements do not generate that reference. Imaging radii cannot be placed as individual anatomy until
  * the acquisition and centre have been registered. Even standing imaging has
  * no such registration in this inspector. Target spheres remain mathematical
- * candidates and certify neither complete bones nor exterior skin.
+ * candidates and certify neither complete bones nor exterior skin. The
+ * inspector owns its assembly admission snapshot alongside the compiled rig;
+ * later edits to the caller's source cannot change only one of those owners.
  *
  * @evidence contracts/common.md#principled-implementation Uses the admitted body builder's neutral transforms and existing target-radius placement owners; observation registration is refused before placement and no prior fills omitted radii.
  * @evidence contracts/common.md#clear-and-simple-design A compiled reference and one request evaluator supply concrete articular candidates without a generic estimator registry.
@@ -33,10 +35,11 @@ import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../should
  */
 export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBasis) {
   const basis = input.id;
+  const anatomicalAssembly = structuredClone(input.anatomicalAssembly);
   const build = createHumanBodyBasisBuilder(input);
   let reference: ReturnType<typeof build> | undefined;
   return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyAnatomicalInspection => {
-    const document = admitHumanBodyBasisDocument(inputDocument, input.anatomicalAssembly);
+    const document = admitHumanBodyBasisDocument(inputDocument, anatomicalAssembly);
     if (document.basis !== basis)
       throw new Error("Body document basis must match the compiled reference: " + basis);
     // admission has refused observed radii: no acquisition centre or posture

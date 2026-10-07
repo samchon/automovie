@@ -6,14 +6,15 @@ import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMo
  *
  * What each value rests on:
  *
- * - `radius` 0.025 mm is measured. Kalmoni, Addai, Adjenti, Adutwum-Ofosu,
+ * - `radius` 0.025 mm is a rounded derived default. Kalmoni, Addai, Adjenti, Adutwum-Ofosu,
  *   Ahenkorah, Hottor and Blay, "Light Microscopic Morphology of Indigenous
  *   Ghanaian African Hair from Scalp, Eyebrow, Axilla, and Pubic Regions",
  *   Int J Trichology 2019;11(1):8-13: plucked eyebrow hair of 30 male and 30
  *   female indigenous Ghanaians aged 15 to 20, diameter by digital light
  *   microscopy at three points 1 mm apart, mean 53.97 um in males (95% CI
  *   49.13 to 58.81) and 46.69 um in females (42.24 to 51.14). The default is
- *   half the mean of the two sexes. Its use for other populations and ages is
+ *   equal-weight sex mean diameter divided by two: 0.025165 mm, rounded to
+ *   the existing 0.025 mm convention. Its use for other populations and ages is
  *   an authored extension.
  * - `strandCount` 250 is a clinical convention and not a read measurement:
  *   hair-restoration practice describes roughly 200 to 400 hairs per brow.
@@ -39,7 +40,7 @@ import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMo
  * The connected document's whole-section omission selects this record through
  * resolveHumanFaceBrows; explicit sparse populations retain their own values.
  *
- * @evidence contracts/common.md#principled-implementation One record separates the single measured value from the conventions around it, so a consumer can replace each on its own evidence.
+ * @evidence contracts/common.md#principled-implementation One record separates measured diameters, their derived and rounded default radius, and the other authoring conventions.
  * @evidence contracts/common.md#clear-and-simple-design A constant of the public population type; no second type or resolver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject is named and no value was tuned to pass an admission.
  * @evidence contracts/common.md#meaningful-documentation States the ground of every value and what the record cannot promise.

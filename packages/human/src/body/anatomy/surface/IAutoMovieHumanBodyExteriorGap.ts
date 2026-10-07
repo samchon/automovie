@@ -24,7 +24,7 @@ import type { AutoMovieHumanBodyExteriorGapReason } from "./AutoMovieHumanBodyEx
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorGap {
-  /** Detailed request path below `targets`, such as `surface.leftUpperLimb.hand.length`. */
+  /** Document path below `anatomy`, such as `surface.leftUpperLimb.hand.length`. */
   readonly path: string;
 
   /** The kind of dependency the path lacks. */

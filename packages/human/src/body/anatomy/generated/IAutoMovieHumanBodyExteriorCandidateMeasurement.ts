@@ -11,10 +11,10 @@ import type { IAutoMovieHumanBodyExteriorCandidateSection } from "./IAutoMovieHu
  */
 export interface IAutoMovieHumanBodyExteriorCandidateMeasurement {
   /**
-   * Detailed request path of the consumed target, such as
-   * `targets.surface.leftLowerLimb.foot.length`. A simple-tier request is
-   * reported by the detailed path its value was lifted to. The report
-   * excludes exactly these paths from its unfulfilled context.
+   * Canonical document path of the consumed bound target, such as
+   * `anatomy.surface.leftUpperLimb.hand.length`. The exterior builder preserves
+   * this identity beside the anatomical part report; no separate simple-tier
+   * request is lifted by this carrier.
    */
   readonly path: string;
 
