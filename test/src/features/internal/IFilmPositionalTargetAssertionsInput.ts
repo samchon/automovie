@@ -7,7 +7,11 @@ export interface IFilmPositionalTargetAssertionsInput {
   perform(draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot;
 
   /** Read every required diagnostic fragment from the same result. */
-  says(result: IAutoMoviePerformedShot, path: string, ...fragments: string[]): boolean;
+  says(
+    result: IAutoMoviePerformedShot,
+    path: string,
+    ...fragments: string[]
+  ): boolean;
 
   /** Read absence of a refusal at the original diagnostic path. */
   silentAt(result: IAutoMoviePerformedShot, path: string): boolean;

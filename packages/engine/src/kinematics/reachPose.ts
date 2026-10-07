@@ -111,11 +111,17 @@ export const reachPose = (
   ): [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] => [
     {
       bone: upperName,
-      ...decomposeJointRotation(upperDelta, upperAxes, restFrames[upperName], { bone: upperName, constraint: upperConstraint }),
+      ...decomposeJointRotation(upperDelta, upperAxes, restFrames[upperName], {
+        bone: upperName,
+        constraint: upperConstraint,
+      }),
     },
     {
       bone: lowerName,
-      ...decomposeJointRotation(lowerDelta, lowerAxes, restFrames[lowerName], { bone: lowerName, constraint: lowerConstraint }),
+      ...decomposeJointRotation(lowerDelta, lowerAxes, restFrames[lowerName], {
+        bone: lowerName,
+        constraint: lowerConstraint,
+      }),
     },
   ];
 

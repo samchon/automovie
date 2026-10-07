@@ -1,4 +1,8 @@
-import type { IAutoMovieJointPose, IAutoMovieSkeleton, AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";

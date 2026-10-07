@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanPersonGeneration } from "./IAutoMovieHumanPersonGeneration";
-import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
-import type { AutoMovieHumanFaceMeasurementReading } from "../../face/structures/AutoMovieHumanFaceMeasurementReading";
-import type { IHumanPersonHairContactProps } from "./IHumanPersonHairContactProps";
-import type { AutoMovieHumanPersonConstructionStage } from "./AutoMovieHumanPersonConstructionStage";
-import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
 import type { IHumanBodyConstructionProgress } from "../../body/structures/IHumanBodyConstructionProgress";
+import type { AutoMovieHumanFaceMeasurementReading } from "../../face/structures/AutoMovieHumanFaceMeasurementReading";
+import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
+import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
+import type { AutoMovieHumanPersonConstructionStage } from "./AutoMovieHumanPersonConstructionStage";
+import type { IAutoMovieHumanPersonGeneration } from "./IAutoMovieHumanPersonGeneration";
+import type { IHumanPersonHairContactProps } from "./IHumanPersonHairContactProps";
 
 /**
  * What the one-skin person evaluator is compiled from: one source generation
@@ -53,7 +53,9 @@ export interface IAutoMovieHumanPersonGenerationBuilderProps {
    * @evidenceExclude contracts/anatomy.md#permitted-range The callback admits no anatomical range.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The callback introduces no authoring channel.
    */
-  observeFaceMeasurements?: (readings: readonly AutoMovieHumanFaceMeasurementReading[]) => void;
+  observeFaceMeasurements?: (
+    readings: readonly AutoMovieHumanFaceMeasurementReading[],
+  ) => void;
 
   /**
    * Observe an independently owned frozen snapshot of the actual placed hair
@@ -101,8 +103,12 @@ export interface IAutoMovieHumanPersonGenerationBuilderProps {
    * their actual face document. Omission adds no reporting; exceptions from
    * the observer propagate without changing any geometry or admission rule.
    */
-  observeFaceConstructionProgress?: (progress: IAutoMovieHumanFaceConstructionProgress) => void;
+  observeFaceConstructionProgress?: (
+    progress: IAutoMovieHumanFaceConstructionProgress,
+  ) => void;
 
   /** Forward completed body/source-owner boundaries unchanged, including constructor stages and actual quantity reads; observer failures propagate. */
-  observeBodyConstructionProgress?: (progress: IHumanBodyConstructionProgress) => void;
+  observeBodyConstructionProgress?: (
+    progress: IHumanBodyConstructionProgress,
+  ) => void;
 }

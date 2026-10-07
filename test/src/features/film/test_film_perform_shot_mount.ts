@@ -1,6 +1,3 @@
-import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
-import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
-import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -22,6 +19,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
+import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
+import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
 import {
   makePerformanceWrite,
   makeStagingWrite,

@@ -1,5 +1,8 @@
 /** Vertices on a triangle surface's open boundary: corners of an edge that only one triangle uses. */
-export function findHumanSourceBoundaryVertices(indices: Int32Array, count: number): Uint8Array {
+export function findHumanSourceBoundaryVertices(
+  indices: Int32Array,
+  count: number,
+): Uint8Array {
   const uses = new Map<string, number>();
   for (let t = 0; t < indices.length; t += 3)
     for (let k = 0; k < 3; k++) {

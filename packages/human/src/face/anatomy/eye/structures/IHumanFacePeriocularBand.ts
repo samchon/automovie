@@ -1,8 +1,8 @@
+import type { IAutoMovieHumanFaceAttachmentChart } from "../../../structures/IAutoMovieHumanFaceAttachmentChart";
 import type { IHumanFaceSkinFrame } from "../../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceConformingSheet } from "./IHumanFaceConformingSheet";
 import type { IHumanFacePeriocularHostSample } from "./IHumanFacePeriocularHostSample";
 import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
-import type { IAutoMovieHumanFaceAttachmentChart } from "../../../structures/IAutoMovieHumanFaceAttachmentChart";
-import type { IHumanFaceConformingSheet } from "./IHumanFaceConformingSheet";
 
 /** One immutable source sampler shared by tarsal and conjunctival sheets of the same lid.
  *

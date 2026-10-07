@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
-import { readHumanFacePeriocularTissueSpace } from "../anatomy/eye/readHumanFacePeriocularTissueSpace";
 import { buildHumanFacePeriocularTissues } from "../anatomy/eye/buildHumanFacePeriocularTissues";
 import { createHumanFacePeriocularDefaults } from "../anatomy/eye/createHumanFacePeriocularDefaults";
+import { readHumanFacePeriocularTissueSpace } from "../anatomy/eye/readHumanFacePeriocularTissueSpace";
 import { seatHumanFaceLidCage } from "../anatomy/eye/seatHumanFaceLidCage";
 import { buildHumanFaceOralAssembly } from "../anatomy/oral/buildHumanFaceOralAssembly";
 import { connectHumanFaceOralLipPorts } from "../anatomy/oral/connectHumanFaceOralLipPorts";
@@ -109,7 +109,10 @@ export function createHumanFaceBasisPoseEvaluator(
   return (state, shape, geometry) => {
     const checks: IHumanFacePoseResult["checks"][number][] = [];
     const { skinRelief, oral } = geometry ?? {};
-    const periocularTissues = createHumanFacePeriocularDefaults(basis, geometry);
+    const periocularTissues = createHumanFacePeriocularDefaults(
+      basis,
+      geometry,
+    );
     const fixed = (weight: number) =>
       humanFaceBasisWeights(basis, {
         shape,
@@ -137,7 +140,12 @@ export function createHumanFaceBasisPoseEvaluator(
             poseNative(fixed(1), geometry).posed,
             state.weights.get(contact!.closure.channel) ?? 0,
           );
-    const preparation = prepareHumanFaceReference({ basis, state, geometry, native });
+    const preparation = prepareHumanFaceReference({
+      basis,
+      state,
+      geometry,
+      native,
+    });
     const shaped = preparation.shaped;
     // The lid margin is seated on the generated ocular exterior before any
     // stage reads the skin, so contact, tissue and every measurement see one
@@ -363,7 +371,20 @@ export function createHumanFaceBasisPoseEvaluator(
               exteriors("rest"),
               periocularTissues,
             );
-            checks.push(createHumanFaceClearanceCheck("periocular-rest", "Periocular rest shell exceeds its lid or intersects its optical exterior or another shell", () => readHumanFacePeriocularTissueSpace(basis, reference, resting, optics, "rest")));
+            checks.push(
+              createHumanFaceClearanceCheck(
+                "periocular-rest",
+                "Periocular rest shell exceeds its lid or intersects its optical exterior or another shell",
+                () =>
+                  readHumanFacePeriocularTissueSpace(
+                    basis,
+                    reference,
+                    resting,
+                    optics,
+                    "rest",
+                  ),
+              ),
+            );
             const performed = buildHumanFacePeriocularTissues(
               basis,
               posed,
@@ -371,7 +392,20 @@ export function createHumanFaceBasisPoseEvaluator(
               exteriors("posed"),
               periocularTissues,
             );
-            checks.push(createHumanFaceClearanceCheck("periocular-performed", "Periocular performed shell exceeds its lid or intersects its optical exterior or another shell", () => readHumanFacePeriocularTissueSpace(basis, posed, performed, optics, "performed")));
+            checks.push(
+              createHumanFaceClearanceCheck(
+                "periocular-performed",
+                "Periocular performed shell exceeds its lid or intersects its optical exterior or another shell",
+                () =>
+                  readHumanFacePeriocularTissueSpace(
+                    basis,
+                    posed,
+                    performed,
+                    optics,
+                    "performed",
+                  ),
+              ),
+            );
             return performed;
           })();
     return {

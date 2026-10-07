@@ -1,9 +1,9 @@
-import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
-import type { IHumanFaceOpticalAssembly } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
-import type { IHumanFaceOralAssembly } from "../anatomy/oral/IHumanFaceOralAssembly";
-import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
-import type { IHumanFacePeriocularTissuePart } from "../anatomy/eye/structures/IHumanFacePeriocularTissuePart";
 import type { IHumanConstructionCheck } from "../../common/basis/IHumanConstructionCheck";
+import type { IHumanFaceOpticalAssembly } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
+import type { IHumanFacePeriocularTissuePart } from "../anatomy/eye/structures/IHumanFacePeriocularTissuePart";
+import type { IHumanFaceOralAssembly } from "../anatomy/oral/IHumanFaceOralAssembly";
+import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
+import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 
 /**
  * Owned final coordinates, normals and the contact state emitted together.

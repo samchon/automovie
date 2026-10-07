@@ -1,4 +1,7 @@
-import type { resolveHumanBodyCouplings, IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  resolveHumanBodyCouplings,
+} from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -38,7 +41,9 @@ export interface IBodyPoseControlsProps {
   currentPose?: () => readonly IAutoMovieJointPose[];
 
   /** The package's coupled additions for this draft; absent when the caller evaluated none. */
-  coupled?: readonly ReturnType<typeof resolveHumanBodyCouplings>["contributions"][number][];
+  coupled?: readonly ReturnType<
+    typeof resolveHumanBodyCouplings
+  >["contributions"][number][];
 
   /** Receive the new sparse rows after a slider edit. */
   onChange: (pose: IAutoMovieJointPose[]) => void;

@@ -24,8 +24,8 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { readAutoMovieDeliveryCrop } from "./deliveryCrop";
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps";
+import { readAutoMovieDeliveryCrop } from "./deliveryCrop";
 import {
   applyFormationCycleCadence,
   applyFormationCycleMaterial,
@@ -68,7 +68,9 @@ import type {
  * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-transition Carries the prior tier into each camera-driven LOD selection.
  * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Carries the previous selected tier into the existing hysteretic camera policy without changing member identity.
  */
-export const buildInstancedFormation = (input: IBuildInstancedFormationProps): IAutoMovieFormationViewerObject => {
+export const buildInstancedFormation = (
+  input: IBuildInstancedFormationProps,
+): IAutoMovieFormationViewerObject => {
   const root = new THREE.Group();
   root.name = `formation:${input.formation.id}`;
   root.position.copy(vector(input.formation.anchor));

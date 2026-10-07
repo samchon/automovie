@@ -1,10 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "./predicates";
 import type { FilmLaunchPerformer } from "./FilmLaunchPerformer";
+import { namedFacts } from "./predicates";
 
 /** Run the existing volley identity and live bone target handoff assertions. */
-export function assertFilmLaunchTargetHandoffs(perform: FilmLaunchPerformer): void {
+export function assertFilmLaunchTargetHandoffs(
+  perform: FilmLaunchPerformer,
+): void {
   // 10. a volley: two launches of one projectile bake unique flight ids
   const volley = perform([
     {

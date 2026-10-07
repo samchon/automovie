@@ -8,11 +8,11 @@ import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
-import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
-import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
+import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
 /**
  * Build brow fibres against the actual refined skin. Boundary vertices define
@@ -68,7 +68,11 @@ export function buildPortraitEyebrow(
   const shape = structuredClone(input);
   assertPortraitEyebrowProfile(shape, fibres);
   if (fibres === 0) return [];
-  const { flow, rootBand, endFade: ends } = resolvePortraitEyebrowPlacement(shape);
+  const {
+    flow,
+    rootBand,
+    endFade: ends,
+  } = resolvePortraitEyebrowPlacement(shape);
   if (
     (binding.side !== "left" && binding.side !== "right") ||
     binding.upper.length < 2 ||

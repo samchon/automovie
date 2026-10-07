@@ -1,7 +1,11 @@
-import { type IAutoMovieVector3, IAutoMovieConvexSpaceCell, IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { createModel } from "./fixtures";
-import { builtEnvironmentTestTransform as transform } from "./builtEnvironmentTestTransform";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConvexSpaceCell,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 
+import { builtEnvironmentTestTransform as transform } from "./builtEnvironmentTestTransform";
+import { createModel } from "./fixtures";
 
 const boxCell = (
   id: string,
@@ -18,7 +22,6 @@ const boxCell = (
     { normal: { x: 0, y: 0, z: -1 }, offset: -min.z },
   ],
 });
-
 
 /** Create the independently linked visible, logical and traversal graphs of the tower. */
 export const builtEnvironmentTestBuilding = (): IAutoMovieBuiltEnvironment => ({

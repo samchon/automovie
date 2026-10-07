@@ -44,7 +44,9 @@ export function measureHumanFaceClosureRatio(
   up: IAutoMovieVector3,
   pair: IAutoMovieHumanFaceMidlinePair,
 ): number {
-  const index = basis.surfaces.findIndex((surface) => surface.id === contact.lips.surface);
+  const index = basis.surfaces.findIndex(
+    (surface) => surface.id === contact.lips.surface,
+  );
   const surface = basis.surfaces[index];
   const positions = rest[index];
   const endpoint = basis.channels.find(
@@ -56,15 +58,12 @@ export function measureHumanFaceClosureRatio(
     if (gain !== 0)
       for (let i = 0; i < rows.length; i += 4)
         if (rows[i] === vertex)
-          for (let axis = 0; axis < 3; axis++) local[axis] += gain * rows[i + axis + 1];
+          for (let axis = 0; axis < 3; axis++)
+            local[axis] += gain * rows[i + axis + 1];
     return poseHumanFaceVertex(surface, vertex, local, motions);
   };
   const aperture = (gain: number) =>
-    measureHumanFaceApertureGap(
-      at(pair.upper, gain),
-      at(pair.lower, gain),
-      up,
-    );
+    measureHumanFaceApertureGap(at(pair.upper, gain), at(pair.lower, gain), up);
   const current = aperture(0);
   if (!(current > 0)) return 0;
   const narrowing = current - aperture(1);

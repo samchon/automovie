@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
+import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import type { Quaternion } from "../math/Quaternion";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 

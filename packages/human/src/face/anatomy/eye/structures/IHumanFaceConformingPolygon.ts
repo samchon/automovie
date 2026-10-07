@@ -20,7 +20,6 @@ import type { IHumanFaceConformingMaterialCut } from "./IHumanFaceConformingMate
  */
 type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
 
-
 /**
  * One ordered convex intersection and its exact material area. Ear incidence
  * is evaluated after the sheet owner remaps the shared cuts.

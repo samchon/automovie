@@ -1,6 +1,4 @@
-import {
-  IAutoMovieMaterial,
-} from "@automovie/interface";
+import { IAutoMovieMaterial } from "@automovie/interface";
 import * as THREE from "three";
 
 import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";

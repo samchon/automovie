@@ -35,13 +35,37 @@ export function resolveHumanBodyCarpusParts(
   return (["left", "right"] as const).flatMap((side) => {
     const carpus = input.targets?.[`${side}UpperLimb`]?.hand?.carpus;
     return [
-      humanBodyUnavailablePart(`${side}Scaphoid` as const, carpus?.scaphoid, bone),
+      humanBodyUnavailablePart(
+        `${side}Scaphoid` as const,
+        carpus?.scaphoid,
+        bone,
+      ),
       humanBodyUnavailablePart(`${side}Lunate` as const, carpus?.lunate, bone),
-      humanBodyUnavailablePart(`${side}Triquetrum` as const, carpus?.triquetrum, bone),
-      humanBodyUnavailablePart(`${side}Pisiform` as const, carpus?.pisiform, bone),
-      humanBodyUnavailablePart(`${side}Trapezium` as const, carpus?.trapezium, bone),
-      humanBodyUnavailablePart(`${side}Trapezoid` as const, carpus?.trapezoid, bone),
-      humanBodyUnavailablePart(`${side}Capitate` as const, carpus?.capitate, bone),
+      humanBodyUnavailablePart(
+        `${side}Triquetrum` as const,
+        carpus?.triquetrum,
+        bone,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Pisiform` as const,
+        carpus?.pisiform,
+        bone,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Trapezium` as const,
+        carpus?.trapezium,
+        bone,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Trapezoid` as const,
+        carpus?.trapezoid,
+        bone,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Capitate` as const,
+        carpus?.capitate,
+        bone,
+      ),
       humanBodyUnavailablePart(`${side}Hamate` as const, carpus?.hamate, bone),
     ];
   });

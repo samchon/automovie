@@ -11,16 +11,30 @@ import type { IHumanSourceTopology } from "./structures/IHumanSourceTopology.ts"
  * The authored-topology builder consumes this result before the publisher
  * rebuilds its cut samples and both P1 views from the compacted tree.
  */
-export function compactHumanSourceTopology(input: IHumanSourceTopology): IHumanSourceCompactedTopology {
-  if (!Number.isSafeInteger(input.vertexCount) || input.vertexCount < 1 ||
-      input.positions.length !== 3 * input.vertexCount ||
-      input.triangles.length === 0 || input.triangles.length % 3 !== 0 ||
-      input.cornerUv.length !== 2 * input.triangles.length)
-    throw new Error("Authored source compaction needs complete positions, triples and corner UVs.");
+export function compactHumanSourceTopology(
+  input: IHumanSourceTopology,
+): IHumanSourceCompactedTopology {
+  if (
+    !Number.isSafeInteger(input.vertexCount) ||
+    input.vertexCount < 1 ||
+    input.positions.length !== 3 * input.vertexCount ||
+    input.triangles.length === 0 ||
+    input.triangles.length % 3 !== 0 ||
+    input.cornerUv.length !== 2 * input.triangles.length
+  )
+    throw new Error(
+      "Authored source compaction needs complete positions, triples and corner UVs.",
+    );
   const active = new Uint8Array(input.vertexCount);
   for (const vertex of input.triangles) {
-    if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= input.vertexCount)
-      throw new Error(`Authored source triangle references absent native vertex ${vertex}.`);
+    if (
+      !Number.isSafeInteger(vertex) ||
+      vertex < 0 ||
+      vertex >= input.vertexCount
+    )
+      throw new Error(
+        `Authored source triangle references absent native vertex ${vertex}.`,
+      );
     active[vertex] = 1;
   }
   const nativeToSource = new Int32Array(input.vertexCount).fill(-1);
@@ -34,7 +48,10 @@ export function compactHumanSourceTopology(input: IHumanSourceTopology): IHumanS
   retained.forEach((native, canonical) => {
     for (let axis = 0; axis < 3; axis++) {
       const value = input.positions[3 * native + axis];
-      if (!Number.isFinite(value)) throw new Error(`Authored source vertex ${native} has nonfinite geometry.`);
+      if (!Number.isFinite(value))
+        throw new Error(
+          `Authored source vertex ${native} has nonfinite geometry.`,
+        );
       positions[3 * canonical + axis] = value;
     }
   });
@@ -45,7 +62,10 @@ export function compactHumanSourceTopology(input: IHumanSourceTopology): IHumanS
       offset: input.offset,
       vertexCount: retained.length,
       positions,
-      triangles: Int32Array.from(input.triangles, (native) => nativeToSource[native]),
+      triangles: Int32Array.from(
+        input.triangles,
+        (native) => nativeToSource[native],
+      ),
       cornerUv: input.cornerUv.slice(),
     },
     nativeToSource,

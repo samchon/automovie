@@ -22,7 +22,6 @@ import type { IHumanFaceConformingPolygon } from "./structures/IHumanFaceConform
  */
 type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 
-
 /**
  * Exact twice-area as a signed rational, used before any output rounding.
  *
@@ -41,7 +40,6 @@ type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
  * @evidenceExclude contracts/anatomy.md#parametric-authority The MaterialArea witness exposes no personal shaping input.
  */
 type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
-
 
 /**
  * Own one convex source/grid intersection, its retained boundary cuts and
@@ -139,20 +137,51 @@ export class HumanFaceConformingPolygon {
     while (remaining.length > 3) {
       let removed = false;
       for (let at = 0; at < remaining.length; at++) {
-        const corners: [number, number, number] = [remaining[(at + remaining.length - 1) % remaining.length], remaining[at], remaining[(at + 1) % remaining.length]];
+        const corners: [number, number, number] = [
+          remaining[(at + remaining.length - 1) % remaining.length],
+          remaining[at],
+          remaining[(at + 1) % remaining.length],
+        ];
         const points = corners.map((id) => polygon[id].point);
-        if (Arithmetic.orientation(points[0], points[1], points[2]) <= 0n) continue;
-        if (remaining.some((id) => !corners.includes(id) && points.every((point, side) =>
-          Arithmetic.orientation(point, points[(side + 1) % 3], polygon[id].point) >= 0n))) continue;
+        if (Arithmetic.orientation(points[0], points[1], points[2]) <= 0n)
+          continue;
+        if (
+          remaining.some(
+            (id) =>
+              !corners.includes(id) &&
+              points.every(
+                (point, side) =>
+                  Arithmetic.orientation(
+                    point,
+                    points[(side + 1) % 3],
+                    polygon[id].point,
+                  ) >= 0n,
+              ),
+          )
+        )
+          continue;
         indices.push(corners);
         remaining.splice(at, 1);
         removed = true;
         break;
       }
-      if (!removed) throw new Error("A conforming convex polygon needs a nondegenerate triangulation.");
+      if (!removed)
+        throw new Error(
+          "A conforming convex polygon needs a nondegenerate triangulation.",
+        );
     }
-    if (Arithmetic.orientation(...remaining.map((id) => polygon[id].point) as [MaterialPoint, MaterialPoint, MaterialPoint]) <= 0n)
-      throw new Error("The final conforming triangle needs positive material area.");
+    if (
+      Arithmetic.orientation(
+        ...(remaining.map((id) => polygon[id].point) as [
+          MaterialPoint,
+          MaterialPoint,
+          MaterialPoint,
+        ]),
+      ) <= 0n
+    )
+      throw new Error(
+        "The final conforming triangle needs positive material area.",
+      );
     indices.push(remaining as [number, number, number]);
     return indices;
   }
@@ -177,7 +206,11 @@ export class HumanFaceConformingPolygon {
  */
 function inside(point: MaterialPoint, triangle: MaterialTriangle): boolean {
   const sign = Arithmetic.orientation(...triangle.points) > 0n ? 1n : -1n;
-  return triangle.points.every((a, at) => sign * Arithmetic.orientation(a, triangle.points[(at + 1) % 3], point) >= 0n);
+  return triangle.points.every(
+    (a, at) =>
+      sign * Arithmetic.orientation(a, triangle.points[(at + 1) % 3], point) >=
+      0n,
+  );
 }
 
 /**
@@ -204,7 +237,8 @@ function intersect(
   hostIds: readonly number[],
 ): MaterialCut[] {
   const cuts = new Map<string, MaterialCut>();
-  const sourceKey = (id: number): string => aliases.get(id) ?? `h:${hostIds[id]}`;
+  const sourceKey = (id: number): string =>
+    aliases.get(id) ?? `h:${hostIds[id]}`;
   const insert = (key: string, point: MaterialPoint): void => {
     if (!cuts.has(key)) cuts.set(key, { key, point });
   };
@@ -236,15 +270,21 @@ function intersect(
       }
       if (t < 0n || t > denominator || u < 0n || u > denominator) continue;
       const key =
-        t === 0n ? `g:${grid.corners[i]}` :
-        t === denominator ? `g:${grid.corners[(i + 1) % 3]}` :
-        u === 0n ? sourceKey(host.corners[j]) :
-        u === denominator ? sourceKey(host.corners[(j + 1) % 3]) :
-        `x:g:${HumanFaceConformingPolygon.edge(
-          grid.corners[i], grid.corners[(i + 1) % 3],
-        )}:h:${HumanFaceConformingPolygon.edge(
-          hostIds[host.corners[j]], hostIds[host.corners[(j + 1) % 3]],
-        )}`;
+        t === 0n
+          ? `g:${grid.corners[i]}`
+          : t === denominator
+            ? `g:${grid.corners[(i + 1) % 3]}`
+            : u === 0n
+              ? sourceKey(host.corners[j])
+              : u === denominator
+                ? sourceKey(host.corners[(j + 1) % 3])
+                : `x:g:${HumanFaceConformingPolygon.edge(
+                    grid.corners[i],
+                    grid.corners[(i + 1) % 3],
+                  )}:h:${HumanFaceConformingPolygon.edge(
+                    hostIds[host.corners[j]],
+                    hostIds[host.corners[(j + 1) % 3]],
+                  )}`;
       insert(key, [
         a[0] * denominator + rx * t,
         a[1] * denominator + ry * t,
@@ -281,19 +321,34 @@ function hull(cuts: MaterialCut[]): MaterialCut[] {
   const sorted = [...cuts].sort(compare);
   for (let at = 1; at < sorted.length; at++)
     if (compare(sorted[at - 1], sorted[at]) === 0)
-      throw new Error("Coincident material features need a declared source endpoint identity: " +
-        JSON.stringify(sorted.slice(at - 1, at + 1).map((cut) => ({
-          provenance: cut.key, homogeneous: cut.point.map(String),
-        }))));
+      throw new Error(
+        "Coincident material features need a declared source endpoint identity: " +
+          JSON.stringify(
+            sorted.slice(at - 1, at + 1).map((cut) => ({
+              provenance: cut.key,
+              homogeneous: cut.point.map(String),
+            })),
+          ),
+      );
   const half = (points: MaterialCut[]): MaterialCut[] => {
     const chain: MaterialCut[] = [];
     for (const point of points) {
-      while (chain.length > 1 && Arithmetic.orientation(chain[chain.length - 2].point, chain[chain.length - 1].point, point.point) < 0n) chain.pop();
+      while (
+        chain.length > 1 &&
+        Arithmetic.orientation(
+          chain[chain.length - 2].point,
+          chain[chain.length - 1].point,
+          point.point,
+        ) < 0n
+      )
+        chain.pop();
       chain.push(point);
     }
     return chain.slice(0, -1);
   };
-  return sorted.length < 3 ? sorted : [...half(sorted), ...half([...sorted].reverse())];
+  return sorted.length < 3
+    ? sorted
+    : [...half(sorted), ...half([...sorted].reverse())];
 }
 
 /**
@@ -319,7 +374,10 @@ function polygonArea(polygon: MaterialCut[]): MaterialArea {
     const a = polygon[0].point;
     const b = polygon[at].point;
     const c = polygon[at + 1].point;
-    area = Arithmetic.addArea(area, [Arithmetic.orientation(a, b, c), a[2] * b[2] * c[2]]);
+    area = Arithmetic.addArea(area, [
+      Arithmetic.orientation(a, b, c),
+      a[2] * b[2] * c[2],
+    ]);
   }
   return area;
 }

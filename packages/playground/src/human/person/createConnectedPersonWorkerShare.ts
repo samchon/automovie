@@ -21,12 +21,20 @@ import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare"
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Retires the shared worker for both transports on a failure and lets each recover on its next request.
  * @author Samchon
  */
-export function createConnectedPersonWorkerShare(factory: () => Worker): IConnectedPersonWorkerShare {
+export function createConnectedPersonWorkerShare(
+  factory: () => Worker,
+): IConnectedPersonWorkerShare {
   let live: Worker | undefined;
   let preview: ConnectedPersonWorkerEnd | undefined;
   let measure: ConnectedPersonWorkerEnd | undefined;
-  const retired = (): ErrorEvent => new ErrorEvent("error", { message: "The shared person worker was retired." });
-  const end = (worker: Worker, peer: () => ConnectedPersonWorkerEnd | undefined): ConnectedPersonWorkerEnd => ({
+  const retired = (): ErrorEvent =>
+    new ErrorEvent("error", {
+      message: "The shared person worker was retired.",
+    });
+  const end = (
+    worker: Worker,
+    peer: () => ConnectedPersonWorkerEnd | undefined,
+  ): ConnectedPersonWorkerEnd => ({
     onmessage: null,
     onerror: null,
     onmessageerror: null,
@@ -50,8 +58,10 @@ export function createConnectedPersonWorkerShare(factory: () => Worker): IConnec
     worker.onmessage = (event: MessageEvent) => {
       if (live !== worker) return;
       const data: object = event.data;
-      if ("progress" in data || "success" in data) previewEnd.onmessage?.call(worker, event);
-      if ("progress" in data || !("success" in data)) measureEnd.onmessage?.call(worker, event);
+      if ("progress" in data || "success" in data)
+        previewEnd.onmessage?.call(worker, event);
+      if ("progress" in data || !("success" in data))
+        measureEnd.onmessage?.call(worker, event);
     };
     worker.onerror = (event) => {
       if (live !== worker) return;

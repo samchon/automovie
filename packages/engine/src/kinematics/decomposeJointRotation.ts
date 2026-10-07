@@ -1,27 +1,35 @@
-import { IAutoMovieQuaternion, type IAutoMovieAngleRange } from "@automovie/interface";
+import {
+  type IAutoMovieAngleRange,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
-import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
-import { normalizeJointAxes } from "./normalizeJointAxes";
-import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
+import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointRomOvershoot } from "./jointRomOvershoot";
+import { normalizeJointAxes } from "./normalizeJointAxes";
 
 const RAD2DEG = 180 / Math.PI;
 const QUATERNION_AXES = ["x", "y", "z", "w"] as const;
 
 /** Choose an admitted full-turn alias when one exists; never clamp an angle. */
-const periodicAngle = (angle: number, range: IAutoMovieAngleRange | null): number => {
+const periodicAngle = (
+  angle: number,
+  range: IAutoMovieAngleRange | null,
+): number => {
   const minimum = range?.min ?? 0;
   const maximum = range?.max ?? 0;
   if (angle >= minimum && angle <= maximum) return angle;
   const first = Math.ceil((minimum - angle) / 360);
   const last = Math.floor((maximum - angle) / 360);
-  return first > last ? angle : angle + 360 * Math.max(first, Math.min(last, 0));
+  return first > last
+    ? angle
+    : angle + 360 * Math.max(first, Math.min(last, 0));
 };
 
 const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
@@ -87,7 +95,9 @@ export const decomposeJointRotation = (
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const clinical = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
+  const clinical = (
+    rig: IAutoMovieResolvedJointAngles,
+  ): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,
@@ -101,25 +111,44 @@ export const decomposeJointRotation = (
       ? 1
       : -1;
   const twistAxis = Vector3.scale(basis.twist, handed);
-  const lift = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => {
+  const lift = (
+    rig: IAutoMovieResolvedJointAngles,
+  ): IAutoMovieResolvedJointAngles => {
     const principal = clinical(rig);
     if (domain === undefined || domain.constraint === null) return principal;
     const constraint = domain.constraint;
-    const align = (candidate: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
+    const align = (
+      candidate: IAutoMovieResolvedJointAngles,
+    ): IAutoMovieResolvedJointAngles => ({
       flexion: periodicAngle(candidate.flexion, constraint.flexion),
       abduction: periodicAngle(candidate.abduction, constraint.abduction),
       twist: periodicAngle(candidate.twist, constraint.twist),
     });
     const alternate = clinical({
-      flexion: basis.twistPlacement === "distal" ? 180 - rig.flexion : rig.flexion + 180,
-      abduction: basis.twistPlacement === "distal" ? rig.abduction + 180 : 180 - rig.abduction,
+      flexion:
+        basis.twistPlacement === "distal"
+          ? 180 - rig.flexion
+          : rig.flexion + 180,
+      abduction:
+        basis.twistPlacement === "distal"
+          ? rig.abduction + 180
+          : 180 - rig.abduction,
       twist: rig.twist + 180 * handed,
     });
     let selected = principal;
-    let overshoot = jointRomOvershoot({ bone: domain.bone, ...selected }, constraint);
+    let overshoot = jointRomOvershoot(
+      { bone: domain.bone, ...selected },
+      constraint,
+    );
     for (const candidate of [align(principal), align(alternate)]) {
-      const next = jointRomOvershoot({ bone: domain.bone, ...candidate }, constraint);
-      if (next < overshoot) { selected = candidate; overshoot = next; }
+      const next = jointRomOvershoot(
+        { bone: domain.bone, ...candidate },
+        constraint,
+      );
+      if (next < overshoot) {
+        selected = candidate;
+        overshoot = next;
+      }
     }
     return selected;
   };
@@ -138,12 +167,24 @@ export const decomposeJointRotation = (
       // with abduction pinned to 0, R = Rx(±90°)·Rz(t): R00 = cos t, R01 = −sin t
       const r00 = Vector3.dot(basis.flexion, Rf);
       const r01 = Vector3.dot(basis.flexion, Ra);
-      return lift({ flexion: r12 < 0 ? 90 : -90, abduction: 0, twist: handed * Math.atan2(-r01, r00) * RAD2DEG });
+      return lift({
+        flexion: r12 < 0 ? 90 : -90,
+        abduction: 0,
+        twist: handed * Math.atan2(-r01, r00) * RAD2DEG,
+      });
     }
     return lift({
       flexion: Math.asin(Math.max(-1, Math.min(1, -r12))) * RAD2DEG,
-      abduction: Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) * RAD2DEG,
-      twist: handed * Math.atan2(Vector3.dot(basis.abduction, Rf), Vector3.dot(basis.abduction, Ra)) * RAD2DEG,
+      abduction:
+        Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) *
+        RAD2DEG,
+      twist:
+        handed *
+        Math.atan2(
+          Vector3.dot(basis.abduction, Rf),
+          Vector3.dot(basis.abduction, Ra),
+        ) *
+        RAD2DEG,
     });
   }
 

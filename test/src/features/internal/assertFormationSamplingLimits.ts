@@ -5,8 +5,23 @@ import type { IFormationOverlapScenario } from "./IFormationOverlapScenario";
 import { namedFacts } from "./predicates";
 
 /** Existing tier, height, member-cap and cue-budget assertions; the original limits are unchanged. */
-export const assertFormationSamplingLimits = (wide: IAutoMovieModel, flat: IAutoMovieModel, scenario: IFormationOverlapScenario): void => {
-  const { post, row, tiered, file, judge, host, hostSlotX, filler, carry, codes } = scenario;
+export const assertFormationSamplingLimits = (
+  wide: IAutoMovieModel,
+  flat: IAutoMovieModel,
+  scenario: IFormationOverlapScenario,
+): void => {
+  const {
+    post,
+    row,
+    tiered,
+    file,
+    judge,
+    host,
+    hostSlotX,
+    filler,
+    carry,
+    codes,
+  } = scenario;
   // 12. a unit a camera may draw at more than one tier is judged by the least.
   const narrow = post({ id: "narrow", radius: 0.1 });
   const tieredPair = [

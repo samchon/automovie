@@ -30,7 +30,15 @@ export function resolveHumanBodyKneeParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
   return [
-    humanBodyUnavailablePart("leftPatella", input.targets?.leftLowerLimb?.knee?.patella, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightPatella", input.targets?.rightLowerLimb?.knee?.patella, "missing-bone-landmark"),
+    humanBodyUnavailablePart(
+      "leftPatella",
+      input.targets?.leftLowerLimb?.knee?.patella,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "rightPatella",
+      input.targets?.rightLowerLimb?.knee?.patella,
+      "missing-bone-landmark",
+    ),
   ];
 }

@@ -1,5 +1,5 @@
-import type { IHumanFaceSkinSeat } from "../../skin/IHumanFaceSkinSeat";
 import type { IAutoMovieHumanFaceAttachmentPoint } from "../../../structures/IAutoMovieHumanFaceAttachmentPoint";
+import type { IHumanFaceSkinSeat } from "../../skin/IHumanFaceSkinSeat";
 
 /** A source material disk read through the actual skin's current topology.
  *

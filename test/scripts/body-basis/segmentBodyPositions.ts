@@ -1,7 +1,11 @@
-import type { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
+
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 import { meshOfSegment } from "./bodyContactGeometry";
 import type { IBodySegmented } from "./readBodyContacts";
-import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 
 /**
  * The segments of a body given as bare positions in basis vertex order, the

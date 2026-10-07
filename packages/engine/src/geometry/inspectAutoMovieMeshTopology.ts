@@ -43,8 +43,10 @@ export const inspectAutoMovieMeshTopology = (
     countNonFinite(mesh.colors ?? null) +
     countNonFinite(mesh.reliefWeights ?? null);
   const indices = triangleIndicesOf(mesh, "mesh topology");
-  const physical = mesh.physicalVertices === undefined
-    ? undefined : resolveAutoMovieMeshPhysicalVertices(mesh);
+  const physical =
+    mesh.physicalVertices === undefined
+      ? undefined
+      : resolveAutoMovieMeshPhysicalVertices(mesh);
   const key = (at: number): string =>
     [0, 1, 2]
       .map((axis) =>
@@ -54,13 +56,19 @@ export const inspectAutoMovieMeshTopology = (
   const edges = new Map<string, number>();
   const degenerateTriangles: number[] = [];
   for (let index = 0; index < indices.length; index += 3) {
-    const coordinateCorners = [0, 1, 2].map((corner) => key(indices[index + corner]!));
+    const coordinateCorners = [0, 1, 2].map((corner) =>
+      key(indices[index + corner]!),
+    );
     if (new Set(coordinateCorners).size < 3) {
       degenerateTriangles.push(index / 3);
       continue;
     }
-    const corners = physical === undefined ? coordinateCorners
-      : [0, 1, 2].map((corner) => String(physical.vertices[indices[index + corner]!]));
+    const corners =
+      physical === undefined
+        ? coordinateCorners
+        : [0, 1, 2].map((corner) =>
+            String(physical.vertices[indices[index + corner]!]),
+          );
     for (let edge = 0; edge < 3; ++edge) {
       // The degenerate skip above leaves three distinct corner keys, so the
       // two ends of an edge can never compare equal here.

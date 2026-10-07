@@ -1,9 +1,9 @@
 import typia from "typia";
 
 import { admitHumanBodyDocumentAnatomy } from "../anatomy/admitHumanBodyDocumentAnatomy";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import { admitHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/admitHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Schema and finite-scalar admission shared by loading and saving a body
@@ -33,11 +33,23 @@ export function admitHumanBodyBasisDocument(
 ): IAutoMovieHumanBodyBasisDocument {
   const document = typia.assertEquals<IAutoMovieHumanBodyBasisDocument>(input);
   if (source !== undefined && source.basis !== document.basis)
-    throw new Error("Body source quantity admission needs the document's exact registered basis.");
-  if (source?.mode === "neutral-only" &&
-    ([document.pose, document.shoulders, document.toes, document.anatomicalMotion, document.thighGoals]
-      .some((rows) => (rows?.length ?? 0) !== 0) || document.groundPlacement !== undefined))
-    throw new Error("The body source is neutral-only; performance requests and ground placement are not registered.");
+    throw new Error(
+      "Body source quantity admission needs the document's exact registered basis.",
+    );
+  if (
+    source?.mode === "neutral-only" &&
+    ([
+      document.pose,
+      document.shoulders,
+      document.toes,
+      document.anatomicalMotion,
+      document.thighGoals,
+    ].some((rows) => (rows?.length ?? 0) !== 0) ||
+      document.groundPlacement !== undefined)
+  )
+    throw new Error(
+      "The body source is neutral-only; performance requests and ground placement are not registered.",
+    );
   const values = [...Object.values(document.shape)];
   if (document.humeralHeads !== undefined)
     values.push(...Object.values(document.humeralHeads));
@@ -48,8 +60,7 @@ export function admitHumanBodyBasisDocument(
     values.push(shoulder.plane, shoulder.elevation, shoulder.axialRotation);
   for (const goal of document.thighGoals ?? [])
     values.push(goal.flexion, goal.abduction, goal.twist);
-  for (const goal of document.anatomicalMotion ?? [])
-    values.push(goal.value);
+  for (const goal of document.anatomicalMotion ?? []) values.push(goal.value);
   if (document.skinColour !== undefined)
     values.push(...Object.values(document.skinColour.cheek));
   if (document.skinDetail !== undefined)
@@ -66,7 +77,9 @@ export function admitHumanBodyBasisDocument(
   const bones = (document.pose ?? []).map((joint) => joint.bone);
   const shoulderBones = (document.shoulders ?? []).map((one) => one.bone);
   const goalBones = (document.thighGoals ?? []).map((one) => one.bone);
-  const anatomicalCoordinates = (document.anatomicalMotion ?? []).map((one) => one.bone + "." + one.axis);
+  const anatomicalCoordinates = (document.anatomicalMotion ?? []).map(
+    (one) => one.bone + "." + one.axis,
+  );
   if (
     !values.every(Number.isFinite) ||
     (document.humeralHeads !== undefined &&

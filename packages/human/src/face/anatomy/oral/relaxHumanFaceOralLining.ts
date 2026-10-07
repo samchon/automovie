@@ -68,7 +68,10 @@ export function relaxHumanFaceOralLining(
     const owner = new Map<string, number>();
     for (let at = 0; at < current.length; at += 3)
       for (let k = 0; k < 3; k++)
-        owner.set(current[at + k] + ":" + current[at + ((k + 1) % 3)], at + ((k + 2) % 3));
+        owner.set(
+          current[at + k] + ":" + current[at + ((k + 1) % 3)],
+          at + ((k + 2) % 3),
+        );
     const touched = new Set<number>();
     let flips = 0;
     for (const [key, cornerAt] of owner) {
@@ -85,9 +88,15 @@ export function relaxHumanFaceOralLining(
       // that unsampled chord after the refinement owner has split it.
       if (collar.has(c) && collar.has(d)) continue;
       // A flip must leave two properly wound triangles; a quad that is not strictly convex keeps its diagonal.
-      const span = (points[b][0] - points[a][0]) ** 2 + (points[b][1] - points[a][1]) ** 2;
-      const flat = !(area(a, b, c) > 1e-9 * span) || !(area(b, a, d) > 1e-9 * span);
-      if (!(area(a, d, c) > 1e-9 * span && area(d, b, c) > 1e-9 * span) || !(flat || inside(a, b, c, d))) continue;
+      const span =
+        (points[b][0] - points[a][0]) ** 2 + (points[b][1] - points[a][1]) ** 2;
+      const flat =
+        !(area(a, b, c) > 1e-9 * span) || !(area(b, a, d) > 1e-9 * span);
+      if (
+        !(area(a, d, c) > 1e-9 * span && area(d, b, c) > 1e-9 * span) ||
+        !(flat || inside(a, b, c, d))
+      )
+        continue;
       current.splice(first, 3, a, d, c);
       current.splice(second, 3, d, b, c);
       touched.add(first);

@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_SHAPE";
 
-import type { IBodySimpleControlsProps } from "./IBodySimpleControlsProps";
-import type { IBodySimpleField } from "./IBodySimpleField";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
 import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
+import type { IBodySimpleControlsProps } from "./IBodySimpleControlsProps";
+import type { IBodySimpleField } from "./IBodySimpleField";
 import type { IBodySimpleMeasured } from "./IBodySimpleMeasured";
 import type { IBodySimplePending } from "./IBodySimplePending";
 
@@ -160,7 +160,9 @@ const FIELDS: IBodySimpleField[] = [
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
  */
-export const renderBodySimpleControls = (props: IBodySimpleControlsProps): IBodySimpleControlsHandle => {
+export const renderBodySimpleControls = (
+  props: IBodySimpleControlsProps,
+): IBodySimpleControlsHandle => {
   const { dom, container } = props;
   container.replaceChildren();
   // Projection and user input have different invalidation keys: a projection
@@ -348,5 +350,7 @@ export const renderBodySimpleControls = (props: IBodySimpleControlsProps): IBody
 const sameShape = (a: IBodySimpleBody, b: IBodySimpleBody): boolean =>
   a.contextKey === b.contextKey &&
   Object.keys(a.shape).length === Object.keys(b.shape).length &&
-  Object.entries(a.shape).every(([channel, weight]) => b.shape[channel] === weight) &&
+  Object.entries(a.shape).every(
+    ([channel, weight]) => b.shape[channel] === weight,
+  ) &&
   JSON.stringify(a.anatomy ?? null) === JSON.stringify(b.anatomy ?? null);

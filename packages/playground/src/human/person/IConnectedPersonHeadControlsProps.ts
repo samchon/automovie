@@ -28,13 +28,21 @@ export interface IConnectedPersonHeadControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Read every head measurement on a person's skin at rest, metres by name. */
-  read: (document: IAutoMovieHumanPersonDocument) => Promise<Record<string, number>>;
+  read: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => Promise<Record<string, number>>;
 
   /** Solve the head for targets in metres by measurement name. */
-  solve: (document: IAutoMovieHumanPersonDocument, targets: Record<string, number>) => Promise<IConnectedPersonHeadSolution>;
+  solve: (
+    document: IAutoMovieHumanPersonDocument,
+    targets: Record<string, number>,
+  ) => Promise<IConnectedPersonHeadSolution>;
 
   /** Commit a person document under a ticket. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

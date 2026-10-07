@@ -38,26 +38,110 @@ export function resolveHumanBodyThighParts(
   const muscle = "missing-tissue-boundary" as const;
   return [
     humanBodyUnavailablePart("leftFemur", left?.femur, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightFemur", right?.femur, "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftRectusFemoris", left?.quadriceps?.rectusFemoris, muscle),
-    humanBodyUnavailablePart("rightRectusFemoris", right?.quadriceps?.rectusFemoris, muscle),
-    humanBodyUnavailablePart("leftVastusLateralis", left?.quadriceps?.vastusLateralis, muscle),
-    humanBodyUnavailablePart("rightVastusLateralis", right?.quadriceps?.vastusLateralis, muscle),
-    humanBodyUnavailablePart("leftVastusMedialis", left?.quadriceps?.vastusMedialis, muscle),
-    humanBodyUnavailablePart("rightVastusMedialis", right?.quadriceps?.vastusMedialis, muscle),
-    humanBodyUnavailablePart("leftVastusIntermedius", left?.quadriceps?.vastusIntermedius, muscle),
-    humanBodyUnavailablePart("rightVastusIntermedius", right?.quadriceps?.vastusIntermedius, muscle),
-    humanBodyUnavailablePart("leftBicepsFemorisLongHead", left?.hamstrings?.bicepsFemorisLongHead, muscle),
-    humanBodyUnavailablePart("rightBicepsFemorisLongHead", right?.hamstrings?.bicepsFemorisLongHead, muscle),
-    humanBodyUnavailablePart("leftBicepsFemorisShortHead", left?.hamstrings?.bicepsFemorisShortHead, muscle),
-    humanBodyUnavailablePart("rightBicepsFemorisShortHead", right?.hamstrings?.bicepsFemorisShortHead, muscle),
-    humanBodyUnavailablePart("leftSemitendinosus", left?.hamstrings?.semitendinosus, muscle),
-    humanBodyUnavailablePart("rightSemitendinosus", right?.hamstrings?.semitendinosus, muscle),
-    humanBodyUnavailablePart("leftSemimembranosus", left?.hamstrings?.semimembranosus, muscle),
-    humanBodyUnavailablePart("rightSemimembranosus", right?.hamstrings?.semimembranosus, muscle),
-    humanBodyUnavailablePart("leftAdductorMagnus", left?.adductorMagnus, muscle),
-    humanBodyUnavailablePart("rightAdductorMagnus", right?.adductorMagnus, muscle),
-    humanBodyUnavailablePart("leftIliotibialTract", left?.iliotibialTract, muscle),
-    humanBodyUnavailablePart("rightIliotibialTract", right?.iliotibialTract, muscle),
+    humanBodyUnavailablePart(
+      "rightFemur",
+      right?.femur,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "leftRectusFemoris",
+      left?.quadriceps?.rectusFemoris,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightRectusFemoris",
+      right?.quadriceps?.rectusFemoris,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftVastusLateralis",
+      left?.quadriceps?.vastusLateralis,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightVastusLateralis",
+      right?.quadriceps?.vastusLateralis,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftVastusMedialis",
+      left?.quadriceps?.vastusMedialis,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightVastusMedialis",
+      right?.quadriceps?.vastusMedialis,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftVastusIntermedius",
+      left?.quadriceps?.vastusIntermedius,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightVastusIntermedius",
+      right?.quadriceps?.vastusIntermedius,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftBicepsFemorisLongHead",
+      left?.hamstrings?.bicepsFemorisLongHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightBicepsFemorisLongHead",
+      right?.hamstrings?.bicepsFemorisLongHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftBicepsFemorisShortHead",
+      left?.hamstrings?.bicepsFemorisShortHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightBicepsFemorisShortHead",
+      right?.hamstrings?.bicepsFemorisShortHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftSemitendinosus",
+      left?.hamstrings?.semitendinosus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightSemitendinosus",
+      right?.hamstrings?.semitendinosus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftSemimembranosus",
+      left?.hamstrings?.semimembranosus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightSemimembranosus",
+      right?.hamstrings?.semimembranosus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftAdductorMagnus",
+      left?.adductorMagnus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightAdductorMagnus",
+      right?.adductorMagnus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftIliotibialTract",
+      left?.iliotibialTract,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightIliotibialTract",
+      right?.iliotibialTract,
+      muscle,
+    ),
   ];
 }

@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
 
-import { bodyCorrectiveDocument } from "./bodyCorrectiveDocument";
 import type { IBodyCorrectiveSampleInput } from "./IBodyCorrectiveSampleInput";
+import { bodyCorrectiveDocument } from "./bodyCorrectiveDocument";
 import { readBodyCorrectiveShoulderRest } from "./readBodyCorrectiveShoulderRest";
 
 /**
@@ -17,9 +17,34 @@ import { readBodyCorrectiveShoulderRest } from "./readBodyCorrectiveShoulderRest
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/refused shaped rest is not replaced by fixed metadata or an empty collision list.
  * @evidence contracts/common.md#meaningful-documentation Identifies the actual solver caller, extra build cost, ownership and refusal behavior.
  */
-export function buildBodyCorrectiveSample(input: IBodyCorrectiveSampleInput): IAutoMovieHumanBodyBuild {
-  const rest = input.state.shoulders !== undefined && input.state.shoulders.length > 0 && input.t !== 0 && input.t !== 1
-    ? readBodyCorrectiveShoulderRest(input.build(bodyCorrectiveDocument(input.world, input.state, 0, input.u, input.basis)))
-    : [];
-  return input.build(bodyCorrectiveDocument(input.world, input.state, input.t, input.u, input.basis, rest));
+export function buildBodyCorrectiveSample(
+  input: IBodyCorrectiveSampleInput,
+): IAutoMovieHumanBodyBuild {
+  const rest =
+    input.state.shoulders !== undefined &&
+    input.state.shoulders.length > 0 &&
+    input.t !== 0 &&
+    input.t !== 1
+      ? readBodyCorrectiveShoulderRest(
+          input.build(
+            bodyCorrectiveDocument(
+              input.world,
+              input.state,
+              0,
+              input.u,
+              input.basis,
+            ),
+          ),
+        )
+      : [];
+  return input.build(
+    bodyCorrectiveDocument(
+      input.world,
+      input.state,
+      input.t,
+      input.u,
+      input.basis,
+      rest,
+    ),
+  );
 }

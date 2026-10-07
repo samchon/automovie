@@ -34,10 +34,15 @@ export function createHumanPersonSimpleWhole(
 ): IAutoMovieHumanBodySimpleWhole {
   let lastKey: string | undefined;
   let last: IAutoMovieHumanPersonRestReading | undefined;
-  const read = (shape: Readonly<Record<string, number>>): IAutoMovieHumanPersonRestReading => {
+  const read = (
+    shape: Readonly<Record<string, number>>,
+  ): IAutoMovieHumanPersonRestReading => {
     const key = JSON.stringify(shape);
     if (key !== lastKey || last === undefined) {
-      last = readHumanPersonRest(compiled, { ...person, body: { ...person.body, shape: { ...shape } } });
+      last = readHumanPersonRest(compiled, {
+        ...person,
+        body: { ...person.body, shape: { ...shape } },
+      });
       lastKey = key;
     }
     return last;

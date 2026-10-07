@@ -24,8 +24,11 @@ export function humanBodyShoulderPoseFromDirection(input: {
   const side = input.bone === "leftUpperArm" ? 1 : -1;
   return {
     bone: input.bone,
-    plane: Math.atan2(input.direction.z, side * input.direction.x) * 180 / Math.PI,
-    elevation: Math.acos(Math.max(-1, Math.min(1, -input.direction.y))) * 180 / Math.PI,
+    plane:
+      (Math.atan2(input.direction.z, side * input.direction.x) * 180) / Math.PI,
+    elevation:
+      (Math.acos(Math.max(-1, Math.min(1, -input.direction.y))) * 180) /
+      Math.PI,
     axialRotation: 0,
   };
 }

@@ -30,12 +30,15 @@ export function humanBodyDominantVertices(
   bones: readonly AutoMovieHumanoidBone[],
 ): number[] {
   const { joints, boneIndices, weights } = surface.skin;
-  const wanted = new Set(joints.flatMap((joint, slot) => (bones.includes(joint) ? [slot] : [])));
+  const wanted = new Set(
+    joints.flatMap((joint, slot) => (bones.includes(joint) ? [slot] : [])),
+  );
   const vertices: number[] = [];
   if (wanted.size === 0) return vertices;
   for (let vertex = 0; vertex * 4 < weights.length; vertex++) {
     let best = 0;
-    for (let k = 1; k < 4; k++) if (weights[vertex * 4 + k] > weights[vertex * 4 + best]) best = k;
+    for (let k = 1; k < 4; k++)
+      if (weights[vertex * 4 + k] > weights[vertex * 4 + best]) best = k;
     if (wanted.has(boneIndices[vertex * 4 + best])) vertices.push(vertex);
   }
   return vertices;

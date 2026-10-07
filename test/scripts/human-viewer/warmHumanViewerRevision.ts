@@ -18,7 +18,9 @@ import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail";
  * @evidence contracts/common.md#clear-and-simple-design One function binds the server's disk, capture and queue to the warm pass.
  * @evidence contracts/common.md#meaningful-documentation States priority, yielding and withdrawal.
  */
-export async function warmHumanViewerRevision(props: IWarmHumanViewerRevisionProps): Promise<void> {
+export async function warmHumanViewerRevision(
+  props: IWarmHumanViewerRevisionProps,
+): Promise<void> {
   const thumbnail = (id: string): string =>
     openHumanViewerHref(id).thumbnail.slice("/render?".length);
   await warmHumanViewerDocuments({

@@ -1,4 +1,3 @@
-
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { humanViewerChoices } from "./humanViewerChoices";
 import { parseHumanViewerLight } from "./parseHumanViewerLight";
@@ -94,9 +93,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
       throw new Error(
         "look requires yaw, pitch, distance, target x, y, z and an optional field of view",
       );
-    look = (
-      values.length === 6 ? [...values, 28] : values
-    ) as NonNullable<HumanViewerAddress["look"]>;
+    look = (values.length === 6 ? [...values, 28] : values) as NonNullable<
+      HumanViewerAddress["look"]
+    >;
   }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");

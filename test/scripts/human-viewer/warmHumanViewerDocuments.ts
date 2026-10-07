@@ -12,7 +12,9 @@
 import type { IWarmHumanViewerDocumentsProps } from "./IWarmHumanViewerDocumentsProps";
 import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
-export async function warmHumanViewerDocuments(props: IWarmHumanViewerDocumentsProps): Promise<void> {
+export async function warmHumanViewerDocuments(
+  props: IWarmHumanViewerDocumentsProps,
+): Promise<void> {
   const pending = props.documents.filter((entry) => !props.cached(entry.id));
   Object.assign(props.status, {
     revision: props.revision,
@@ -23,21 +25,31 @@ export async function warmHumanViewerDocuments(props: IWarmHumanViewerDocumentsP
     current: null,
   });
   for (const entry of pending) {
-    if (props.currentRevision() !== props.revision ||
-        props.status.revision !== props.revision) return;
+    if (
+      props.currentRevision() !== props.revision ||
+      props.status.revision !== props.revision
+    )
+      return;
     props.status.current = entry.id;
     let failed: string | null = null;
     try {
       await props.queue(entry.id, () => props.capture(entry.id));
     } catch (error) {
-      failed = describeHumanViewerFailure(error instanceof Error ? error.message : String(error));
+      failed = describeHumanViewerFailure(
+        error instanceof Error ? error.message : String(error),
+      );
     }
     if (props.status.revision !== props.revision) return;
     if (failed !== null) {
       ++props.status.skipped;
       props.status.failures.push({ id: entry.id, reason: failed });
       // Kept across passes: a new pass resets the counters, not this.
-      props.status.lastFailure = { id: entry.id, reason: failed, at: new Date().toISOString(), revision: props.revision };
+      props.status.lastFailure = {
+        id: entry.id,
+        reason: failed,
+        at: new Date().toISOString(),
+        revision: props.revision,
+      };
     } else ++props.status.done;
   }
   props.status.current = null;

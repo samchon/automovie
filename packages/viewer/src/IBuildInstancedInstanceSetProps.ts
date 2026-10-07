@@ -1,4 +1,7 @@
-import type { IAutoMovieCompiledInstanceSet, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
 

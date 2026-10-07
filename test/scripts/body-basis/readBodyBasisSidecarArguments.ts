@@ -10,10 +10,19 @@
  * @evidence contracts/common.md#meaningful-documentation States the real consumer, payload identity and delegated ramp admission.
  */
 export function readBodyBasisSidecarArguments(argv: readonly string[]) {
-  const allowed = new Set(["--basis", "--out", "--id", "--expected-sha", "--receipt", "--onset", "--full"]);
+  const allowed = new Set([
+    "--basis",
+    "--out",
+    "--id",
+    "--expected-sha",
+    "--receipt",
+    "--onset",
+    "--full",
+  ]);
   const values = new Map<string, string>();
   for (let i = 0; i < argv.length; i += 2) {
-    const flag = argv[i], value = argv[i + 1];
+    const flag = argv[i],
+      value = argv[i + 1];
     if (!allowed.has(flag) || values.has(flag))
       throw new Error("Unknown or duplicate sidecar flag: " + flag);
     if (value === undefined || value.length === 0 || value.startsWith("--"))
@@ -22,12 +31,15 @@ export function readBodyBasisSidecarArguments(argv: readonly string[]) {
   }
   const required = (flag: string): string => {
     const value = values.get(flag);
-    if (value === undefined) throw new Error("Give explicit " + flag + " for a sidecar recipe.");
+    if (value === undefined)
+      throw new Error("Give explicit " + flag + " for a sidecar recipe.");
     return value;
   };
   const output = required("--out");
   return {
-    basis: required("--basis"), output, revision: required("--id"),
+    basis: required("--basis"),
+    output,
+    revision: required("--id"),
     expectedSha256: required("--expected-sha"),
     receipt: values.get("--receipt") ?? output + ".girdle-receipt.json",
     onsetDegrees: Number(values.get("--onset") ?? "70"),

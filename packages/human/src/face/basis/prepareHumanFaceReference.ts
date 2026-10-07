@@ -3,10 +3,10 @@ import { seatHumanFaceLidCage } from "../anatomy/eye/seatHumanFaceLidCage";
 import { applyHumanFaceNasolabialRelief } from "../anatomy/skin/applyHumanFaceNasolabialRelief";
 import { applyHumanFaceRegionalRelief } from "../anatomy/skin/applyHumanFaceRegionalRelief";
 import { humanFaceSkinReliefIdentity } from "../anatomy/skin/humanFaceSkinReliefIdentity";
-import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
-import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import type { IHumanFaceReferencePreparation } from "./IHumanFaceReferencePreparation";
 import type { IHumanFaceReferencePreparationInput } from "./IHumanFaceReferencePreparationInput";
+import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
+import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
 
 /**
@@ -37,18 +37,27 @@ export function prepareHumanFaceReference(
   input: IHumanFaceReferencePreparationInput,
 ): IHumanFaceReferencePreparation {
   const { basis, state, geometry } = input;
-  const native = input.native ?? createHumanFaceNativePose(basis)(state, geometry);
+  const native =
+    input.native ?? createHumanFaceNativePose(basis)(state, geometry);
   const shaped = native.shaped;
-  const optics = geometry?.eyes === undefined ? undefined :
-    buildHumanFaceOpticalAssembly(basis, state, geometry.eyes);
+  const optics =
+    geometry?.eyes === undefined
+      ? undefined
+      : buildHumanFaceOpticalAssembly(basis, state, geometry.eyes);
   for (const eye of optics ?? []) {
     const cage = basis.periocular?.[eye.side].cage;
     if (cage === undefined || shaped === undefined) continue;
     assertHumanFacePeriocularCage(basis, cage);
-    const host = basis.surfaces.findIndex((surface) => surface.id === cage.surface);
-    shaped.surfaces[host] = seatHumanFaceLidCage(cage,
-      basis.surfaces[host].sourcePartition!.samples, shaped.surfaces[host], eye.exterior.rest,
-      basis.surfaces[host].indices);
+    const host = basis.surfaces.findIndex(
+      (surface) => surface.id === cage.surface,
+    );
+    shaped.surfaces[host] = seatHumanFaceLidCage(
+      cage,
+      basis.surfaces[host].sourcePartition!.samples,
+      shaped.surfaces[host],
+      eye.exterior.rest,
+      basis.surfaces[host].indices,
+    );
   }
   let completed = false;
   let reference: Map<string, number[]> | undefined;
@@ -60,19 +69,46 @@ export function prepareHumanFaceReference(
       if (shaped !== undefined) {
         let candidate = shaped.surfaces;
         if (geometry?.skinRelief !== undefined) {
-          const shapeChannels = new Set(basis.channels.filter((channel) => channel.kind === "shape").map((channel) => channel.id));
-          const relieved = applyHumanFaceRegionalRelief(basis,
-            applyHumanFaceNasolabialRelief(basis,
-              new Map(basis.surfaces.map((surface, at) => [surface.id, shaped.surfaces[at]])),
-              new Map([...state.weights].filter(([id]) => shapeChannels.has(id))), geometry.skinRelief),
-            humanFaceSkinReliefIdentity(geometry.skinRelief));
-          candidate = basis.surfaces.map((surface) => [...relieved.get(surface.id)!]);
+          const shapeChannels = new Set(
+            basis.channels
+              .filter((channel) => channel.kind === "shape")
+              .map((channel) => channel.id),
+          );
+          const relieved = applyHumanFaceRegionalRelief(
+            basis,
+            applyHumanFaceNasolabialRelief(
+              basis,
+              new Map(
+                basis.surfaces.map((surface, at) => [
+                  surface.id,
+                  shaped.surfaces[at],
+                ]),
+              ),
+              new Map(
+                [...state.weights].filter(([id]) => shapeChannels.has(id)),
+              ),
+              geometry.skinRelief,
+            ),
+            humanFaceSkinReliefIdentity(geometry.skinRelief),
+          );
+          candidate = basis.surfaces.map((surface) => [
+            ...relieved.get(surface.id)!,
+          ]);
         }
-        const replayed = new Map(basis.surfaces.map((surface, at) => [surface.id,
-          replayHumanFaceSourceRefinements(surface.sourcePosePlan, candidate[at])]));
+        const replayed = new Map(
+          basis.surfaces.map((surface, at) => [
+            surface.id,
+            replayHumanFaceSourceRefinements(
+              surface.sourcePosePlan,
+              candidate[at],
+            ),
+          ]),
+        );
         // A failed replay leaves the exposed native shape unchanged, so a
         // later completion cannot apply persistent relief to it a second time.
-        candidate.forEach((positions, at) => { shaped.surfaces[at] = positions; });
+        candidate.forEach((positions, at) => {
+          shaped.surfaces[at] = positions;
+        });
         reference = replayed;
       }
       completed = true;

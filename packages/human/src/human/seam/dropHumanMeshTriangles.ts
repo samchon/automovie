@@ -79,11 +79,17 @@ export function dropHumanMeshTriangles(
     ...(mesh.reliefWeights === undefined
       ? {}
       : { reliefWeights: gather(mesh.reliefWeights, 1) }),
-    ...(mesh.physicalVertices === undefined ? {} : {
-      physicalVertices: {
-        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-        vertices: survivors.map((vertex) => mesh.physicalVertices!.vertices[vertex]),
-      },
-    }),
+    ...(mesh.physicalVertices === undefined
+      ? {}
+      : {
+          physicalVertices: {
+            sources: mesh.physicalVertices.sources.map((source) => ({
+              ...source,
+            })),
+            vertices: survivors.map(
+              (vertex) => mesh.physicalVertices!.vertices[vertex],
+            ),
+          },
+        }),
   };
 }

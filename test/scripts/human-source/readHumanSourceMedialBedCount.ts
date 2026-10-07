@@ -16,11 +16,18 @@ export function readHumanSourceMedialBedCount(
 ): number {
   let arc = 0;
   for (let at = 1; at < columns.length - 1; at++) {
-    const a = margin[columns[at - 1]], b = margin[columns[at]];
-    arc += Math.hypot(positions[3 * b] - positions[3 * a],
-      positions[3 * b + 1] - positions[3 * a + 1], positions[3 * b + 2] - positions[3 * a + 2]);
-    if (!Number.isFinite(arc)) throw new Error("Medial bed has a nonfinite source arc.");
+    const a = margin[columns[at - 1]],
+      b = margin[columns[at]];
+    arc += Math.hypot(
+      positions[3 * b] - positions[3 * a],
+      positions[3 * b + 1] - positions[3 * a + 1],
+      positions[3 * b + 2] - positions[3 * a + 2],
+    );
+    if (!Number.isFinite(arc))
+      throw new Error("Medial bed has a nonfinite source arc.");
     if (arc >= HUMAN_FACE_LID_SEAT.medialBedMetres) return at + 1;
   }
-  throw new Error("Medial bed has no source column at its shared reach before the lateral join.");
+  throw new Error(
+    "Medial bed has no source column at its shared reach before the lateral join.",
+  );
 }

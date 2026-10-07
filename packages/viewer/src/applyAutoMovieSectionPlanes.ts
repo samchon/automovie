@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps";
 
 /**
@@ -41,7 +42,9 @@ import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSection
  * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Realizes the declared cut as a viewing state over an unmodified resolved scene and keeps geometry lying exactly on the plane.
  * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Applies the optional clipping planes at the runtime boundary as the same intersection of kept half-spaces the evaluation measures.
  */
-export const applyAutoMovieSectionPlanes = (props: IApplyAutoMovieSectionPlanesProps): THREE.Plane[] => {
+export const applyAutoMovieSectionPlanes = (
+  props: IApplyAutoMovieSectionPlanesProps,
+): THREE.Plane[] => {
   const built = props.planes.map((plane) =>
     new THREE.Plane().setFromNormalAndCoplanarPoint(
       new THREE.Vector3(

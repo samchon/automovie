@@ -14,7 +14,14 @@
  * row at the lid centre.
  */
 export const HUMAN_SOURCE_READ_MARGINS = {
-  upper: [7769, 7768, 7772, 7767, 7766, 7765, 7748, 7747, 7749, 7750, 7751, 7752, 7753, 7754],
-  lower: [7769, 7770, 7771, 7764, 11717, 7763, 7762, 7761, 7760, 7759, 7758, 7757, 11716, 7756, 7755, 7754],
-  frames: "neutral person eyes, front clay and normal with margin candidates marked",
+  upper: [
+    7769, 7768, 7772, 7767, 7766, 7765, 7748, 7747, 7749, 7750, 7751, 7752,
+    7753, 7754,
+  ],
+  lower: [
+    7769, 7770, 7771, 7764, 11717, 7763, 7762, 7761, 7760, 7759, 7758, 7757,
+    11716, 7756, 7755, 7754,
+  ],
+  frames:
+    "neutral person eyes, front clay and normal with margin candidates marked",
 } as const;

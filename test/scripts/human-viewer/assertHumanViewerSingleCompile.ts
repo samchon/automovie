@@ -14,9 +14,16 @@ import { HumanViewerMixedCompileError } from "./HumanViewerMixedCompileError";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Detects the mix from the served modules themselves instead of from timing.
  * @evidence contracts/common.md#meaningful-documentation States why a mix arises and what happens to the refused candidate.
  */
-export function assertHumanViewerSingleCompile(page: readonly string[], worker: readonly string[]): void {
+export function assertHumanViewerSingleCompile(
+  page: readonly string[],
+  worker: readonly string[],
+): void {
   const all = new Set([...page, ...worker]);
   if (all.size > 1)
-    throw new HumanViewerMixedCompileError("The source generation was replaced during display: the page ran compiles " +
-      page.join(", ") + " and its worker " + worker.join(", "));
+    throw new HumanViewerMixedCompileError(
+      "The source generation was replaced during display: the page ran compiles " +
+        page.join(", ") +
+        " and its worker " +
+        worker.join(", "),
+    );
 }

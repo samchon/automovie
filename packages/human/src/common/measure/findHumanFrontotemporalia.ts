@@ -49,12 +49,24 @@ export function findHumanFrontotemporalia(
       const point = { x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] };
       if (point.y < glabella.y) continue;
       const k = Math.floor((point.y - glabella.y) / band);
-      if (point.x < 0 && point.z > tragion.right.z && (rights[k] === undefined || point.x < rights[k].x)) rights[k] = point;
-      if (point.x > 0 && point.z > tragion.left.z && (lefts[k] === undefined || point.x > lefts[k].x)) lefts[k] = point;
+      if (
+        point.x < 0 &&
+        point.z > tragion.right.z &&
+        (rights[k] === undefined || point.x < rights[k].x)
+      )
+        rights[k] = point;
+      if (
+        point.x > 0 &&
+        point.z > tragion.left.z &&
+        (lefts[k] === undefined || point.x > lefts[k].x)
+      )
+        lefts[k] = point;
     }
   }
   const breadth = (k: number): number | undefined =>
-    rights[k] === undefined || lefts[k] === undefined ? undefined : lefts[k].x - rights[k].x;
+    rights[k] === undefined || lefts[k] === undefined
+      ? undefined
+      : lefts[k].x - rights[k].x;
   for (let k = 0; k < Math.max(rights.length, lefts.length); k++) {
     const here = breadth(k);
     if (here === undefined) continue;
@@ -68,5 +80,7 @@ export function findHumanFrontotemporalia(
     }
     if (seen && !narrower) return { right: rights[k], left: lefts[k] };
   }
-  throw new Error(`The head view of ${head.id} has no narrowest forehead band above the glabella.`);
+  throw new Error(
+    `The head view of ${head.id} has no narrowest forehead band above the glabella.`,
+  );
 }

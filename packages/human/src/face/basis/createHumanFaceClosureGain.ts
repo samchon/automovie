@@ -59,11 +59,20 @@ export function createHumanFaceClosureGain(
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
   up: IAutoMovieVector3,
 ): IHumanFaceClosureGain {
-  const index = basis.surfaces.findIndex((surface) => surface.id === contact.lips.surface);
+  const index = basis.surfaces.findIndex(
+    (surface) => surface.id === contact.lips.surface,
+  );
   const surface = basis.surfaces[index];
   const positions = rest[index];
   const count = positions.length / 3;
-  const ratio = measureHumanFaceClosureRatio(basis, contact, rest, motions, up, contact.lips);
+  const ratio = measureHumanFaceClosureRatio(
+    basis,
+    contact,
+    rest,
+    motions,
+    up,
+    contact.lips,
+  );
   const lips = new Float64Array(count).fill(ratio);
   if (contact.margin === undefined) return { ratio, lips };
 
@@ -76,14 +85,19 @@ export function createHumanFaceClosureGain(
   for (let i = 0; i < rows.length; i += 4)
     for (let k = 0; k < 3; k++) delta[3 * rows[i] + k] = rows[i + 1 + k];
   const budget =
-    contact.soft.find((entry) => entry.surface === contact.lips.surface)?.budgetMetres ?? 0;
+    contact.soft.find((entry) => entry.surface === contact.lips.surface)
+      ?.budgetMetres ?? 0;
 
   // posed position at gains 0 and 1 of every chain vertex: along and height
   // the central pair belongs to the margin: each chain takes its vertex, in order along the axis
   const restAlong = (vertex: number) =>
-    positions[3 * vertex] * axis[0] + positions[3 * vertex + 1] * axis[1] + positions[3 * vertex + 2] * axis[2];
+    positions[3 * vertex] * axis[0] +
+    positions[3 * vertex + 1] * axis[1] +
+    positions[3 * vertex + 2] * axis[2];
   const withCentre = (chain: readonly number[], vertex: number) =>
-    (chain.includes(vertex) ? [...chain] : [...chain, vertex]).sort((a, b) => restAlong(a) - restAlong(b));
+    (chain.includes(vertex) ? [...chain] : [...chain, vertex]).sort(
+      (a, b) => restAlong(a) - restAlong(b),
+    );
   const upperChain = withCentre(contact.margin.upper, contact.lips.upper);
   const lowerChain = withCentre(contact.margin.lower, contact.lips.lower);
   const chains = [upperChain, lowerChain];
@@ -128,7 +142,9 @@ export function createHumanFaceClosureGain(
       if (before(along(a), at) && before(at, along(b)))
         return along(b) === along(a)
           ? height(a)
-          : height(a) + ((at - along(a)) * (height(b) - height(a))) / (along(b) - along(a));
+          : height(a) +
+              ((at - along(a)) * (height(b) - height(a))) /
+                (along(b) - along(a));
     }
     return height(ends[1]);
   };
@@ -158,7 +174,11 @@ export function createHumanFaceClosureGain(
       gains[at] = reach(at, (position) => across(lowerChain, position));
   }
   nodes.forEach((vertex, at) => {
-    const reach = Math.hypot(delta[3 * vertex], delta[3 * vertex + 1], delta[3 * vertex + 2]);
+    const reach = Math.hypot(
+      delta[3 * vertex],
+      delta[3 * vertex + 1],
+      delta[3 * vertex + 2],
+    );
     const extra = Math.abs(gains[at] - ratio) * reach;
     if (extra > budget)
       throw new Error(
@@ -167,7 +187,11 @@ export function createHumanFaceClosureGain(
   });
 
   for (let vertex = 0; vertex < count; vertex++) {
-    if (delta[3 * vertex] === 0 && delta[3 * vertex + 1] === 0 && delta[3 * vertex + 2] === 0)
+    if (
+      delta[3 * vertex] === 0 &&
+      delta[3 * vertex + 1] === 0 &&
+      delta[3 * vertex + 2] === 0
+    )
       continue;
     const own = column.get(vertex);
     if (own !== undefined) {
@@ -193,4 +217,3 @@ export function createHumanFaceClosureGain(
   }
   return { ratio, lips };
 }
-

@@ -24,7 +24,8 @@ export function findHumanSkinLandmark(
   basis: Pick<IAutoMovieHumanSkinLandmarkHolder, "skinLandmarks">,
   name: string,
 ): IAutoMovieHumanSkinLandmark | undefined {
-  return basis.skinLandmarks !== undefined && Object.hasOwn(basis.skinLandmarks, name)
+  return basis.skinLandmarks !== undefined &&
+    Object.hasOwn(basis.skinLandmarks, name)
     ? basis.skinLandmarks[name]
     : undefined;
 }

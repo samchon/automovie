@@ -1,8 +1,8 @@
+import type { IHumanFaceSkinProjectionComparison } from "./IHumanFaceSkinProjectionComparison";
+import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
 import type { IHumanFaceSkinProjectionFeatures } from "./IHumanFaceSkinProjectionFeatures";
 import type { IHumanFaceSkinProjectionInterval } from "./IHumanFaceSkinProjectionInterval";
 import { compareHumanFaceSkinProjectionFeatures } from "./compareHumanFaceSkinProjectionFeatures";
-import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
-import type { IHumanFaceSkinProjectionComparison } from "./IHumanFaceSkinProjectionComparison";
 
 /**
  * Construct the lower envelope of valid native-feature squared distances by
@@ -38,15 +38,28 @@ export function createHumanFaceSkinProjectionEnvelope(
   // A pair's immutable represented polynomial belongs to this one guide.
   // Validity clipping is read separately, so repeated overlap fragments do
   // not reconstruct its coefficients or isolate the same roots again.
-  const comparisons = new Map<IHumanFaceSkinProjectionFeature,
-    Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>>();
-  const readComparison = (first: IHumanFaceSkinProjectionFeature,
-    second: IHumanFaceSkinProjectionFeature): IHumanFaceSkinProjectionComparison => {
-    const row = comparisons.get(first) ?? new Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>();
+  const comparisons = new Map<
+    IHumanFaceSkinProjectionFeature,
+    Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>
+  >();
+  const readComparison = (
+    first: IHumanFaceSkinProjectionFeature,
+    second: IHumanFaceSkinProjectionFeature,
+  ): IHumanFaceSkinProjectionComparison => {
+    const row =
+      comparisons.get(first) ??
+      new Map<
+        IHumanFaceSkinProjectionFeature,
+        IHumanFaceSkinProjectionComparison
+      >();
     comparisons.set(first, row);
     let result = row.get(second);
     if (result === undefined) {
-      result = compareHumanFaceSkinProjectionFeatures(first, second, input.direction);
+      result = compareHumanFaceSkinProjectionFeatures(
+        first,
+        second,
+        input.direction,
+      );
       row.set(second, result);
     }
     return result;

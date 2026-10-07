@@ -1,7 +1,7 @@
-import type { IHumanBodySimpleShapeFatReading } from "./IHumanBodySimpleShapeFatReading";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { AutoMovieHumanBodySimpleParameter } from "../structures/AutoMovieHumanBodySimpleParameter";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import type { IHumanBodySimpleShapeFatReading } from "./IHumanBodySimpleShapeFatReading";
 
 /**
  * The arithmetic the simple tier's expansion and projection share: the

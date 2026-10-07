@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The rigid motion that carries a face part from the neutral frame onto the

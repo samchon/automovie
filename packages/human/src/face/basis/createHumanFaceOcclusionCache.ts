@@ -1,5 +1,6 @@
-import type { IAutoMovieModel } from "@automovie/interface";
 import { compareCodeUnits } from "@automovie/engine";
+import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IHumanFaceOcclusionCacheEntry } from "./IHumanFaceOcclusionCacheEntry";
 import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
 
@@ -35,11 +36,24 @@ export function createHumanFaceOcclusionCache(
   let last: IHumanFaceOcclusionCacheEntry | undefined;
   return (pose, model) => {
     const opaque = humanFaceOcclusionOpaqueMaterials(model);
-    const opaqueMaterials = JSON.stringify([...new Set(model.parts.flatMap((part) =>
-      part.geometry.type === "mesh" && part.material !== null && opaque.has(part.material)
-        ? [part.material] : [],
-    ))].sort(compareCodeUnits));
-    if (last === undefined || last.pose !== pose || last.opaqueMaterials !== opaqueMaterials)
+    const opaqueMaterials = JSON.stringify(
+      [
+        ...new Set(
+          model.parts.flatMap((part) =>
+            part.geometry.type === "mesh" &&
+            part.material !== null &&
+            opaque.has(part.material)
+              ? [part.material]
+              : [],
+          ),
+        ),
+      ].sort(compareCodeUnits),
+    );
+    if (
+      last === undefined ||
+      last.pose !== pose ||
+      last.opaqueMaterials !== opaqueMaterials
+    )
       last = { pose, opaqueMaterials, images: new Map(bake(model)) };
     return new Map(last.images);
   };

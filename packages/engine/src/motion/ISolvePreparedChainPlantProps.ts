@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";

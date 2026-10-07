@@ -32,12 +32,12 @@ export class HumanFacePeriocularUnavailableError extends Error {
   public constructor(detail: IHumanFacePeriocularUnavailable) {
     super(
       "The face document field " +
-            detail.field +
-            " needs the basis's " +
-            detail.missing +
-            " registration, which basis " +
-            detail.basis +
-            " does not carry yet.",
+        detail.field +
+        " needs the basis's " +
+        detail.missing +
+        " registration, which basis " +
+        detail.basis +
+        " does not carry yet.",
     );
     this.name = "HumanFacePeriocularUnavailableError";
     this.detail = detail;

@@ -48,9 +48,15 @@ export function measureHumanFaceAperture(
   rest: readonly (readonly number[])[],
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
 ): IHumanFaceApertureFrame {
-  const { up, forward } = resolveHumanFaceApertureDirections(basis.articulation!.jaw.axis);
-  const pair = (entry: IAutoMovieHumanFaceMidlinePair): IHumanFaceAperturePair => {
-    const index = basis.surfaces.findIndex((surface) => surface.id === entry.surface);
+  const { up, forward } = resolveHumanFaceApertureDirections(
+    basis.articulation!.jaw.axis,
+  );
+  const pair = (
+    entry: IAutoMovieHumanFaceMidlinePair,
+  ): IHumanFaceAperturePair => {
+    const index = basis.surfaces.findIndex(
+      (surface) => surface.id === entry.surface,
+    );
     const surface = basis.surfaces[index];
     const at = (vertex: number) =>
       poseHumanFaceVertex(
@@ -63,5 +69,10 @@ export function measureHumanFaceAperture(
     const lower = at(entry.lower);
     return { upper, lower, gap: measureHumanFaceApertureGap(upper, lower, up) };
   };
-  return { up, forward, lips: pair(contact.lips), incisors: pair(contact.incisors) };
+  return {
+    up,
+    forward,
+    lips: pair(contact.lips),
+    incisors: pair(contact.incisors),
+  };
 }

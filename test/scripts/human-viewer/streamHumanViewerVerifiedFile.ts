@@ -37,12 +37,19 @@ export function streamHumanViewerVerifiedFile(
     }
     const actual = hasher.digest("hex");
     if (!actual.startsWith(digest)) {
-      answer(409, `${label} changed: digest ${actual.slice(0, 12)}, requested ${digest}`);
+      answer(
+        409,
+        `${label} changed: digest ${actual.slice(0, 12)}, requested ${digest}`,
+      );
       return;
     }
     response.setHeader("Content-Type", "application/gzip");
     response.end(Buffer.concat(chunks));
   })().catch((error: unknown) => {
-    answer(500, `${label} could not be read: ` + (error instanceof Error ? error.message : String(error)));
+    answer(
+      500,
+      `${label} could not be read: ` +
+        (error instanceof Error ? error.message : String(error)),
+    );
   });
 }

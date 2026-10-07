@@ -51,10 +51,16 @@ export function createHumanBodyPosedSurface(
         ? skinned
         : (() => {
             const neutral = skinHumanBodySurface(
-              rest, surface.skin, joints, transforms, surface.toeSplit,
+              rest,
+              surface.skin,
+              joints,
+              transforms,
+              surface.toeSplit,
             );
             const restored = mush(rest, neutral);
-            return skinned.map((value, i) => value + (restored[i] - neutral[i]));
+            return skinned.map(
+              (value, i) => value + (restored[i] - neutral[i]),
+            );
           })();
     if (sag === null || rest === null) return filtered;
     const declared = surface.sag!;
@@ -78,7 +84,9 @@ export function createHumanBodyPosedSurface(
         skin: surface.skin,
         joints,
         transforms,
-        ...(surface.toeSplit === undefined ? {} : { toeSplit: surface.toeSplit }),
+        ...(surface.toeSplit === undefined
+          ? {}
+          : { toeSplit: surface.toeSplit }),
       }),
       softness,
     });

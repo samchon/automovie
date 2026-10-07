@@ -21,7 +21,10 @@ import type { IHumanFaceHairRootedSteering } from "./IHumanFaceHairRootedSteerin
  *
  * @author Samchon
  */
-export interface IHumanFaceHairTurnProps extends Pick<IHumanFaceHairRootedSteering, "before"> {
+export interface IHumanFaceHairTurnProps extends Pick<
+  IHumanFaceHairRootedSteering,
+  "before"
+> {
   /** Requested unit travel direction in the same head frame. */
   direction: IAutoMovieVector3;
 

@@ -1,11 +1,18 @@
-import type { IBuiltTopologyTestSlabHalf } from "./IBuiltTopologyTestSlabHalf";
-import type { IAutoMovieVector3, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieConvexSpaceCell, IAutoMovieQuaternion, IAutoMovieTransform } from "@automovie/interface";
-import { createModel } from "./fixtures";
-import { builtTopologyTestYaw as yaw } from "./builtTopologyTestYaw";
-import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "./BUILT_TOPOLOGY_TEST_WING_YAW";
-import { builtTopologyTestRoll as roll } from "./builtTopologyTestRoll";
-import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "./BUILT_TOPOLOGY_TEST_ANNEX_TILT";
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "./BUILT_TOPOLOGY_TEST_ANNEX_TILT";
+import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "./BUILT_TOPOLOGY_TEST_WING_YAW";
+import type { IBuiltTopologyTestSlabHalf } from "./IBuiltTopologyTestSlabHalf";
+import { builtTopologyTestRoll as roll } from "./builtTopologyTestRoll";
+import { builtTopologyTestYaw as yaw } from "./builtTopologyTestYaw";
+import { createModel } from "./fixtures";
 
 const place = (
   x: number,
@@ -18,7 +25,6 @@ const place = (
   rotation,
   scale,
 });
-
 
 const box = (
   id: string,
@@ -35,7 +41,6 @@ const box = (
     { normal: { x: 0, y: 0, z: -1 }, offset: -min.z },
   ],
 });
-
 
 const slab = (
   id: string,
@@ -55,7 +60,6 @@ const slab = (
   model: "stone",
   space,
 });
-
 
 /**
  * One work holding two independently rooted building units and a sky-bridge.

@@ -24,54 +24,67 @@ import type { IAutoMovieHumanBodyExteriorGap } from "./IAutoMovieHumanBodyExteri
  * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
-export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[] = [
-  // trunk (#2717)
-  {
-    path: "surface.trunk.ribIliacMidpointWaistGirth",
-    reason: "missing-landmark",
-    detail: "The lowest palpable rib and the iliac crest that place this waist are not registered on the source skin.",
-  },
-  ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorGap[] => [
+export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[] =
+  [
+    // trunk (#2717)
     {
-      path: `surface.trunk.${side}SubscapularSkinfold`,
-      reason: "missing-tissue-boundary",
-      detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-    {
-      path: `surface.trunk.${side}SuprailiacSkinfold`,
-      reason: "missing-tissue-boundary",
-      detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-  ]),
-  // upper limb (#2718, #2710)
-  ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorGap[] => [
-    {
-      path: `surface.${side}UpperLimb.upperArm.tricepsSkinfold`,
-      reason: "missing-tissue-boundary",
-      detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-  ]),
-  // lower limb (#2716, #2714)
-  ...(["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyExteriorGap[] => [
-    {
-      path: `surface.${side}LowerLimb.thigh.hipToKneeLength`,
+      path: "surface.trunk.ribIliacMidpointWaistGirth",
       reason: "missing-landmark",
-      detail: `Missing landmarks: trochanterion-${side} and the lateral knee joint line, the ends of a surface thigh length; the hip and knee joint centres are not skin points.`,
+      detail:
+        "The lowest palpable rib and the iliac crest that place this waist are not registered on the source skin.",
     },
-    {
-      path: `surface.${side}LowerLimb.thigh.anteriorSkinfold`,
-      reason: "missing-tissue-boundary",
-      detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-    {
-      path: `surface.${side}LowerLimb.leg.medialCalfSkinfold`,
-      reason: "missing-tissue-boundary",
-      detail: "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
-    },
-    {
-      path: `surface.${side}LowerLimb.leg.kneeToAnkleLength`,
-      reason: "missing-landmark",
-      detail: `Missing landmarks: the lateral knee joint line and sphyrion-${side}, the ends of a surface shank length; the knee and ankle joint centres are not skin points.`,
-    },
-  ]),
-];
+    ...(["left", "right"] as const).flatMap(
+      (side): IAutoMovieHumanBodyExteriorGap[] => [
+        {
+          path: `surface.trunk.${side}SubscapularSkinfold`,
+          reason: "missing-tissue-boundary",
+          detail:
+            "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
+        },
+        {
+          path: `surface.trunk.${side}SuprailiacSkinfold`,
+          reason: "missing-tissue-boundary",
+          detail:
+            "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
+        },
+      ],
+    ),
+    // upper limb (#2718, #2710)
+    ...(["left", "right"] as const).flatMap(
+      (side): IAutoMovieHumanBodyExteriorGap[] => [
+        {
+          path: `surface.${side}UpperLimb.upperArm.tricepsSkinfold`,
+          reason: "missing-tissue-boundary",
+          detail:
+            "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
+        },
+      ],
+    ),
+    // lower limb (#2716, #2714)
+    ...(["left", "right"] as const).flatMap(
+      (side): IAutoMovieHumanBodyExteriorGap[] => [
+        {
+          path: `surface.${side}LowerLimb.thigh.hipToKneeLength`,
+          reason: "missing-landmark",
+          detail: `Missing landmarks: trochanterion-${side} and the lateral knee joint line, the ends of a surface thigh length; the hip and knee joint centres are not skin points.`,
+        },
+        {
+          path: `surface.${side}LowerLimb.thigh.anteriorSkinfold`,
+          reason: "missing-tissue-boundary",
+          detail:
+            "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
+        },
+        {
+          path: `surface.${side}LowerLimb.leg.medialCalfSkinfold`,
+          reason: "missing-tissue-boundary",
+          detail:
+            "A skinfold is a subcutaneous fat thickness; the one connected skin has no fat layer to pinch.",
+        },
+        {
+          path: `surface.${side}LowerLimb.leg.kneeToAnkleLength`,
+          reason: "missing-landmark",
+          detail: `Missing landmarks: the lateral knee joint line and sphyrion-${side}, the ends of a surface shank length; the knee and ankle joint centres are not skin points.`,
+        },
+      ],
+    ),
+  ];

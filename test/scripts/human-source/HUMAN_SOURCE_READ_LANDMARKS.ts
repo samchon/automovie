@@ -23,12 +23,15 @@ import type { IHumanSourceReadLandmark } from "./structures/IHumanSourceReadLand
  * - `otobasion-inferius-right`: the lowest point of the notch where the lobe's
  *   lower edge meets the cheek, on the attachment loop.
  */
-export const HUMAN_SOURCE_READ_LANDMARKS: Readonly<Record<string, IHumanSourceReadLandmark>> = {
+export const HUMAN_SOURCE_READ_LANDMARKS: Readonly<
+  Record<string, IHumanSourceReadLandmark>
+> = {
   "tragion-right": {
     vertex: 5477,
     neighbours: [5699, 5610],
     ambiguityMetres: 0.0004,
-    frames: "right ear of the neutral generation person: side, front and three-quarter, normal and clay, candidates marked",
+    frames:
+      "right ear of the neutral generation person: side, front and three-quarter, normal and clay, candidates marked",
   },
   subnasale: {
     vertex: 343,
@@ -40,24 +43,28 @@ export const HUMAN_SOURCE_READ_LANDMARKS: Readonly<Record<string, IHumanSourceRe
     vertex: 5051,
     neighbours: [5139, 288],
     ambiguityMetres: 0.0015,
-    frames: "neutral person nose, front three-quarter normal and side clay with alar groove candidates marked",
+    frames:
+      "neutral person nose, front three-quarter normal and side clay with alar groove candidates marked",
   },
   "subalare-right": {
     vertex: 358,
     neighbours: [286, 288],
     ambiguityMetres: 0.0015,
-    frames: "neutral person nose, front three-quarter normal with alar groove candidates marked",
+    frames:
+      "neutral person nose, front three-quarter normal with alar groove candidates marked",
   },
   "otobasion-superius-right": {
     vertex: 5767,
     neighbours: [5755, 5756],
     ambiguityMetres: 0.001,
-    frames: "neutral person right ear, side and front three-quarter clay with attachment loop candidates marked",
+    frames:
+      "neutral person right ear, side and front three-quarter clay with attachment loop candidates marked",
   },
   "otobasion-inferius-right": {
     vertex: 5761,
     neighbours: [5768, 5752],
     ambiguityMetres: 0.001,
-    frames: "neutral person right ear, front three-quarter clay with attachment loop candidates marked",
+    frames:
+      "neutral person right ear, front three-quarter clay with attachment loop candidates marked",
   },
 };

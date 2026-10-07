@@ -53,9 +53,12 @@ export const mergeAutoMovieMeshes = (
 ): IAutoMovieMesh => {
   if (meshes.some((mesh) => mesh.skin !== null))
     throw new Error("procedural rigid-mesh merge does not accept skinning");
-  const keepPhysical = meshes.some((mesh) => mesh.physicalVertices !== undefined);
+  const keepPhysical = meshes.some(
+    (mesh) => mesh.physicalVertices !== undefined,
+  );
   const physicalVertices: NonNullable<IAutoMovieMesh["physicalVertices"]> = {
-    sources: [], vertices: [],
+    sources: [],
+    vertices: [],
   };
   const sourceTable = new Map<string, number>();
   const positions: number[] = [];

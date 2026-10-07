@@ -1,7 +1,10 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
-import { createModel } from "./fixtures";
-import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "./BUILT_SPACE_SHELL_TEST_HALL";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
+import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "./BUILT_SPACE_SHELL_TEST_HALL";
+import { createModel } from "./fixtures";
 
 /** Create the existing scenario environment with fresh mutable records. */
 export const builtSpaceShellTestWork = (

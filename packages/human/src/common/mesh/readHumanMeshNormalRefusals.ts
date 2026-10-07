@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import type { IHumanMeshNormalRefusal } from "./IHumanMeshNormalRefusal";
 import { triangleAreaVector } from "./triangleAreaVector";
 
@@ -25,11 +26,24 @@ export function readHumanMeshNormalRefusals(
     if (Math.abs(length - 1) <= 2 ** -23) continue;
     const vertex = at / 3;
     const alias = mesh.physicalVertices?.vertices[vertex];
-    failures.push({ vertex, original: mesh.normals!.slice(at, at + 3), float32: direction,
-      length, faces: [], areaSum: [0, 0, 0], faceAreas: [], facePositions: [], physical: alias === undefined || alias === null
-        ? null : mesh.physicalVertices!.sources[alias] ?? null });
+    failures.push({
+      vertex,
+      original: mesh.normals!.slice(at, at + 3),
+      float32: direction,
+      length,
+      faces: [],
+      areaSum: [0, 0, 0],
+      faceAreas: [],
+      facePositions: [],
+      physical:
+        alias === undefined || alias === null
+          ? null
+          : (mesh.physicalVertices!.sources[alias] ?? null),
+    });
   }
-  const byVertex = new Map(failures.map((failure) => [failure.vertex, failure]));
+  const byVertex = new Map(
+    failures.map((failure) => [failure.vertex, failure]),
+  );
   for (let at = 0; at < indices.length; at += 3) {
     const area = triangleAreaVector(mesh.positions, indices, at);
     for (const vertex of new Set(Array.from(indices.slice(at, at + 3)))) {
@@ -37,7 +51,11 @@ export function readHumanMeshNormalRefusals(
       if (failure === undefined) continue;
       failure.faces.push(at / 3);
       failure.faceAreas.push([area.x, area.y, area.z]);
-      failure.facePositions.push(Array.from(indices.slice(at, at + 3)).flatMap((corner) => mesh.positions.slice(3 * corner, 3 * corner + 3)));
+      failure.facePositions.push(
+        Array.from(indices.slice(at, at + 3)).flatMap((corner) =>
+          mesh.positions.slice(3 * corner, 3 * corner + 3),
+        ),
+      );
       failure.areaSum[0] += area.x;
       failure.areaSum[1] += area.y;
       failure.areaSum[2] += area.z;

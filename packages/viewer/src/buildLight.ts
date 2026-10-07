@@ -1,6 +1,7 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+
 import { applyLightState } from "./applyLightState";
 
 /**

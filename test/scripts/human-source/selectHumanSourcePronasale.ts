@@ -6,6 +6,16 @@ import type { IHumanSourceLandmarkPick } from "./structures/IHumanSourceLandmark
  * (the face's mouth joint). It bounds the nasal bridge sellion is searched on
  * and is not itself declared as a landmark.
  */
-export function selectHumanSourcePronasale(positions: readonly number[], midline: readonly number[], mouthHeight: number): IHumanSourceLandmarkPick {
-  return pickHumanSourceExtremum("pronasale", positions, midline.filter((v) => positions[3 * v + 1] > mouthHeight), 2, "max");
+export function selectHumanSourcePronasale(
+  positions: readonly number[],
+  midline: readonly number[],
+  mouthHeight: number,
+): IHumanSourceLandmarkPick {
+  return pickHumanSourceExtremum(
+    "pronasale",
+    positions,
+    midline.filter((v) => positions[3 * v + 1] > mouthHeight),
+    2,
+    "max",
+  );
 }

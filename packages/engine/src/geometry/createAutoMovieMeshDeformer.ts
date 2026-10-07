@@ -7,8 +7,8 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 import type { IAutoMovieMeshDeformationInfluence } from "./IAutoMovieMeshDeformationInfluence";
+import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 
 /**
  * Compile immutable compact deformation fields into a mesh operation. Every
@@ -195,14 +195,26 @@ export function createAutoMovieMeshDeformer(
         normals.push(normal.x, normal.y, normal.z);
       }
     }
-    assertAutoMovieDeformedTriangles(mesh.positions, positions, indices, cofactors);
-    const result = { ...mesh, positions, normals,
-      ...(mesh.physicalVertices === undefined ? {} : {
-        physicalVertices: {
-          sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-          vertices: mesh.physicalVertices.vertices.slice(),
-        },
-      }),
+    assertAutoMovieDeformedTriangles(
+      mesh.positions,
+      positions,
+      indices,
+      cofactors,
+    );
+    const result = {
+      ...mesh,
+      positions,
+      normals,
+      ...(mesh.physicalVertices === undefined
+        ? {}
+        : {
+            physicalVertices: {
+              sources: mesh.physicalVertices.sources.map((source) => ({
+                ...source,
+              })),
+              vertices: mesh.physicalVertices.vertices.slice(),
+            },
+          }),
     };
     if (result.physicalVertices !== undefined)
       resolveAutoMovieMeshPhysicalVertices(result);

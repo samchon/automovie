@@ -1,10 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "./predicates";
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";
+import { namedFacts } from "./predicates";
 
 /** Run the existing placed, grouped, malformed and camera target admission assertions. */
-export function assertFilmPositionalTargetKinds(input: IFilmPositionalTargetAssertionsInput): void {
+export function assertFilmPositionalTargetKinds(
+  input: IFilmPositionalTargetAssertionsInput,
+): void {
   const { perform, says, silentAt } = input;
   // 3. the counter-cases one property away: a valid node target of either
   // placed flavour is not over-rejected.
@@ -208,5 +210,4 @@ export function assertFilmPositionalTargetKinds(input: IFilmPositionalTargetAsse
     ]),
     { refused: true, violated: true },
   );
-
 }

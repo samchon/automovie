@@ -1,10 +1,14 @@
 import type { IHumanSourcePartRowExclusion } from "./structures/IHumanSourcePartRowExclusion.ts";
 
 const MIDFACE_TRAITS = [
-  "facial.leftMalarProjection", "facial.rightMalarProjection",
-  "nasalExterior.columellarBreadth", "nasalExterior.columellarProjection",
-  "nasalExterior.leftAlarBreadth", "nasalExterior.rightAlarBreadth",
-  "nasalExterior.leftAlarHeight", "nasalExterior.rightAlarHeight",
+  "facial.leftMalarProjection",
+  "facial.rightMalarProjection",
+  "nasalExterior.columellarBreadth",
+  "nasalExterior.columellarProjection",
+  "nasalExterior.leftAlarBreadth",
+  "nasalExterior.rightAlarBreadth",
+  "nasalExterior.leftAlarHeight",
+  "nasalExterior.rightAlarHeight",
 ];
 
 /**
@@ -20,11 +24,22 @@ const MIDFACE_TRAITS = [
  * residue and not a movement of the upper jaw. Both are authored decisions
  * about what these endpoints mean.
  */
-export const HUMAN_SOURCE_PART_ROW_EXCLUSIONS: readonly IHumanSourcePartRowExclusion[] = [
-  ...["leftEyeBagVolume.negative", "rightEyeBagVolume.negative"].map((endpoint): IHumanSourcePartRowExclusion => ({
-    surface: "Human.low-poly", endpoint, reason: "under-eye volume does not move the globe",
-  })),
-  ...MIDFACE_TRAITS.flatMap((trait) => ["positive", "negative"].map((side): IHumanSourcePartRowExclusion => ({
-    surface: "Human.teeth_base", endpoint: `head-source:${trait}:${side}`, reason: "malar and nasal exterior traits do not move the dentition",
-  }))),
-];
+export const HUMAN_SOURCE_PART_ROW_EXCLUSIONS: readonly IHumanSourcePartRowExclusion[] =
+  [
+    ...["leftEyeBagVolume.negative", "rightEyeBagVolume.negative"].map(
+      (endpoint): IHumanSourcePartRowExclusion => ({
+        surface: "Human.low-poly",
+        endpoint,
+        reason: "under-eye volume does not move the globe",
+      }),
+    ),
+    ...MIDFACE_TRAITS.flatMap((trait) =>
+      ["positive", "negative"].map(
+        (side): IHumanSourcePartRowExclusion => ({
+          surface: "Human.teeth_base",
+          endpoint: `head-source:${trait}:${side}`,
+          reason: "malar and nasal exterior traits do not move the dentition",
+        }),
+      ),
+    ),
+  ];

@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import { assertHumanSkinBinding } from "../../../../common/basis/assertHumanSkinBinding";
 
+import { assertHumanSkinBinding } from "../../../../common/basis/assertHumanSkinBinding";
 import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHumanBodyBasis";
 
 /**
@@ -18,6 +18,12 @@ export function assertHumanBodyRigSkin(
   declared: ReadonlySet<AutoMovieHumanoidBone>,
 ): void {
   for (const surface of basis.surfaces) {
-    assertHumanSkinBinding({ binding: surface.skin, vertices: surface.positions.length / 3, declared, surface: surface.id, description: "Body skin" });
+    assertHumanSkinBinding({
+      binding: surface.skin,
+      vertices: surface.positions.length / 3,
+      declared,
+      surface: surface.id,
+      description: "Body skin",
+    });
   }
 }

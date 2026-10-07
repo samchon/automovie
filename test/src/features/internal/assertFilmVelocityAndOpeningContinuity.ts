@@ -1,21 +1,32 @@
 import {
+  type IAutoMovieActorContext,
   Vector3,
   compileDefinedShot,
   defineShot,
   makeActorSynthesizer,
   sampleMotion,
-  type IAutoMovieActorContext,
 } from "@automovie/engine";
-
-import type { IAutoMovieShotProgram, IAutoMovieBeatEndState, IAutoMovieVector3 } from "@automovie/interface";
-import { makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite } from "./filmFixtures";
-import { createSkeleton, makePose, joint } from "./fixtures";
-import { namedFacts, vclose } from "./predicates";
+import type {
+  IAutoMovieBeatEndState,
+  IAutoMovieShotProgram,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
+import {
+  makeBlockingWrite,
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+} from "./filmFixtures";
+import { createSkeleton, joint, makePose } from "./fixtures";
+import { namedFacts, vclose } from "./predicates";
 
 /** Preserve the original velocity and complete opening handoff assertions and input order. */
-export function assertFilmVelocityAndOpeningContinuity(input: IFilmDefinedShotContinuityInputs): void {
+export function assertFilmVelocityAndOpeningContinuity(
+  input: IFilmDefinedShotContinuityInputs,
+): void {
   const { rig, groundedStage, compileWalk, WALK } = input;
   const velocityRig = createSkeleton();
   const velocityFirst = compileWalk({

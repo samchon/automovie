@@ -49,9 +49,7 @@ export class HumanFaceOcularCellMetric {
 
   private readonly radius: number;
 
-  constructor(
-    profile: ReturnType<typeof resolveHumanFaceOpticalProfile>,
-  ) {
+  constructor(profile: ReturnType<typeof resolveHumanFaceOpticalProfile>) {
     this.radius = profile.radius;
     this.cap = new HumanFaceOcularCapMetric(profile);
   }
@@ -175,11 +173,18 @@ export class HumanFaceOcularCellMetric {
             scale(local[coordinate], Fraction.from(vectors[coordinate][key])),
           );
         let error = zero;
-        for (const value of [corner.position[axis], Math.fround(corner.position[axis])]) {
+        for (const value of [
+          corner.position[axis],
+          Math.fround(corner.position[axis]),
+        ]) {
           const represented = Fraction.from(value);
-          error = maximum(error, maximum(
-            absolute(Fraction.add(represented, Fraction.negate(expected[0]))),
-            absolute(Fraction.add(represented, Fraction.negate(expected[1])))));
+          error = maximum(
+            error,
+            maximum(
+              absolute(Fraction.add(represented, Fraction.negate(expected[0]))),
+              absolute(Fraction.add(represented, Fraction.negate(expected[1]))),
+            ),
+          );
         }
         squaredError = Fraction.add(
           squaredError,

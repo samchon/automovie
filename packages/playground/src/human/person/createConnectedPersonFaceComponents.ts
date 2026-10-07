@@ -28,16 +28,29 @@ export function createConnectedPersonFaceComponents(
   props: ICreateConnectedPersonFaceComponentsProps,
 ): IAutoMovieHumanFaceComponentTree {
   const excluded = new Set(props.excluded);
-  const prune = (node: IAutoMovieHumanFaceComponentTree.Node): IAutoMovieHumanFaceComponentTree.Node | null => {
+  const prune = (
+    node: IAutoMovieHumanFaceComponentTree.Node,
+  ): IAutoMovieHumanFaceComponentTree.Node | null => {
     const children = node.children
       .map(prune)
-      .filter((child): child is IAutoMovieHumanFaceComponentTree.Node => child !== null);
+      .filter(
+        (child): child is IAutoMovieHumanFaceComponentTree.Node =>
+          child !== null,
+      );
     const channels = node.channels.filter((id) => !excluded.has(id));
-    if (channels.length === 0 && node.surfaces.length === 0 && node.documentFields.length === 0 && children.length === 0)
+    if (
+      channels.length === 0 &&
+      node.surfaces.length === 0 &&
+      node.documentFields.length === 0 &&
+      children.length === 0
+    )
       return null;
     return { ...node, channels, children };
   };
   const root = prune(props.tree.root);
-  if (root === null) throw new Error(`The face component tree has no member left for ${props.basis}.`);
+  if (root === null)
+    throw new Error(
+      `The face component tree has no member left for ${props.basis}.`,
+    );
   return { basis: props.basis, root };
 }

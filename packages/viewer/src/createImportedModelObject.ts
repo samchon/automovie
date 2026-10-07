@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
+
 import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
 
@@ -28,7 +29,6 @@ export const createImportedModelObject = (
   expressionTargets: options.expressionTargets,
   afterAutoMovieFrame: options.afterAutoMovieFrame,
 });
-
 
 const wrapObject = (object: THREE.Object3D): THREE.Group => {
   const group = new THREE.Group();

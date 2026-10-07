@@ -46,7 +46,9 @@ export function createHumanFaceLidBoundaryPins(
     !samples.every((sample) => Number.isSafeInteger(sample) && sample >= 0) ||
     boundaryVertices.length < 3
   )
-    throw new Error("Lid boundary pins need finite native positions and a cycle.");
+    throw new Error(
+      "Lid boundary pins need finite native positions and a cycle.",
+    );
   const sampleAt = (vertex: number): number => {
     if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= samples.length)
       throw new Error("Lid boundary pins reference an absent source vertex.");
@@ -63,9 +65,13 @@ export function createHumanFaceLidBoundaryPins(
     const previous = fixed.get(sample);
     if (
       previous !== undefined &&
-      (previous.x !== delta.x || previous.y !== delta.y || previous.z !== delta.z)
+      (previous.x !== delta.x ||
+        previous.y !== delta.y ||
+        previous.z !== delta.z)
     )
-      throw new Error("Lid boundary pins have contradictory source-alias values.");
+      throw new Error(
+        "Lid boundary pins have contradictory source-alias values.",
+      );
     fixed.set(sample, { x: delta.x, y: delta.y, z: delta.z });
   }
   const lengths = boundaryVertices.map((vertex, at) => {
@@ -76,7 +82,9 @@ export function createHumanFaceLidBoundaryPins(
       positions[3 * next + 2] - positions[3 * vertex + 2],
     );
     if (!(length > 0 && Number.isFinite(length)))
-      throw new Error("Lid boundary pins need finite positive native-edge lengths.");
+      throw new Error(
+        "Lid boundary pins need finite positive native-edge lengths.",
+      );
     return length;
   });
   const anchors = cycleSamples.flatMap((sample, at) =>
@@ -117,7 +125,9 @@ export function createHumanFaceLidBoundaryPins(
               z: (1 - t) * left.z + t * right.z,
             };
       if (![delta.x, delta.y, delta.z].every(Number.isFinite))
-        throw new Error("Lid boundary interpolation exceeds finite displacement.");
+        throw new Error(
+          "Lid boundary interpolation exceeds finite displacement.",
+        );
       result.set(boundaryVertices[at], delta);
       travelled += lengths[at];
     }

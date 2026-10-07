@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 
-import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import { HumanFaceHairRootRefusalError } from "./HumanFaceHairRootRefusalError";
 import { HumanFaceHairStemRefusalError } from "./HumanFaceHairStemRefusalError";
+import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { humanFaceHairContact } from "./humanFaceHairContact";
@@ -70,7 +70,9 @@ export function integrateHumanFaceHairCurve(
     Vector3.subtract(props.reference, props.origin),
   );
   const tried: number[] = [];
-  const attempt = (degrees: number): IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError => {
+  const attempt = (
+    degrees: number,
+  ): IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError => {
     tried.push(degrees);
     try {
       return walkHumanFaceHairCurve(props, metric, degrees);
@@ -85,10 +87,19 @@ export function integrateHumanFaceHairCurve(
   if (steepest instanceof HumanFaceHairStemRefusalError)
     throw new HumanFaceHairRootRefusalError(
       "A hair root at (" +
-        [props.root.x, props.root.y, props.root.z].map((v) => v.toFixed(4)).join(", ") +
+        [props.root.x, props.root.y, props.root.z]
+          .map((v) => v.toFixed(4))
+          .join(", ") +
         ") m did not clear the skin at the attempted cited exit elevations (" +
-        tried.map((v) => v.toFixed(2)).join(", ") + " degrees): " + steepest.message,
-      { lowest: range.lowest, highest: range.highest, tried, stem: steepest.detail },
+        tried.map((v) => v.toFixed(2)).join(", ") +
+        " degrees): " +
+        steepest.message,
+      {
+        lowest: range.lowest,
+        highest: range.highest,
+        tried,
+        stem: steepest.detail,
+      },
     );
   let low = range.lowest,
     high = range.highest,

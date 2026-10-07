@@ -1,7 +1,11 @@
 import { closestPointsBetweenSegments } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-import type { IBodyContactPlane } from "./IBodyContactPlane";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { BodyContactBones } from "./BodyContactBones";
+import type { IBodyContactPlane } from "./IBodyContactPlane";
 import { bodyBoneAxis } from "./bodyBoneAxis";
 
 /**

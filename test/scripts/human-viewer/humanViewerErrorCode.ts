@@ -11,7 +11,8 @@
 export function humanViewerErrorCode(error: unknown): string | null {
   for (let current: unknown = error, depth = 0; depth < 8; ++depth) {
     if (typeof current !== "object" || current === null) return null;
-    if ("code" in current && typeof current.code === "string") return current.code;
+    if ("code" in current && typeof current.code === "string")
+      return current.code;
     if (!("cause" in current)) return null;
     current = current.cause;
   }

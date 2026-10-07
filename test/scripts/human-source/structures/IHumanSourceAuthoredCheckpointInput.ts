@@ -1,5 +1,5 @@
-import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
 import type { IHumanSourceAuthoredSkin } from "./IHumanSourceAuthoredSkin.ts";
+import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
 import type { IHumanSourceGenerationInput } from "./IHumanSourceGenerationInput.ts";
 
 /** Verified preparation onto which an immutable inspection checkpoint is read.

@@ -51,7 +51,10 @@ export interface IHumanFaceHairStemRefusalContext {
   contact: IHumanFaceHairContact;
 
   /** Ray index over the same collider. */
-  raycaster: Pick<ReturnType<typeof createAutoMovieMeshRayCaster>, "nearestHit">;
+  raycaster: Pick<
+    ReturnType<typeof createAutoMovieMeshRayCaster>,
+    "nearestHit"
+  >;
 
   /** The walk's shared lock budget. */
   budget: IAutoMovieMeshQueryBudget;

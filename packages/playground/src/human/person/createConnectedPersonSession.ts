@@ -12,8 +12,15 @@ import type { IConnectedPersonSessionState } from "./IConnectedPersonSessionStat
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Leaves the displayed draft and the accepted history untouched when an edit is refused.
  * @author Samchon
  */
-export function createConnectedPersonSession<Model>(): IConnectedPersonSession<Model> {
-  const state: IConnectedPersonSessionState<Model> = { pending: null, refusal: null, notes: [], draft: null };
+export function createConnectedPersonSession<
+  Model,
+>(): IConnectedPersonSession<Model> {
+  const state: IConnectedPersonSessionState<Model> = {
+    pending: null,
+    refusal: null,
+    notes: [],
+    draft: null,
+  };
   return {
     snapshot: () => ({ ...state, notes: [...state.notes] }),
     begin: (waiting) => {

@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasisChannel, IAutoMovieHumanBodyChannelScale } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisChannel,
+  IAutoMovieHumanBodyChannelScale,
+} from "@automovie/human";
 
 /**
  * Whether the body panel offers a channel as a measured control of its own.

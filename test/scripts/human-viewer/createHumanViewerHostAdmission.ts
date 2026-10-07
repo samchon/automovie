@@ -1,7 +1,7 @@
 import type { IHumanViewerAdmissionBridge } from "./IHumanViewerAdmissionBridge";
 import type { IHumanViewerAdmissionWindow } from "./IHumanViewerAdmissionWindow";
-import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 import { humanViewerProtocol } from "./humanViewerProtocol";
+import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 
 /**
  * The host page's admission bridge over its viewer frames. The frames are
@@ -22,17 +22,27 @@ export function createHumanViewerHostAdmission(
     protocol: humanViewerProtocol,
     admit: async (domain, text, basis) => {
       for (const frame of frames()) {
-        const child = frame?.contentWindow as (Window & IHumanViewerAdmissionWindow) | null | undefined;
+        const child = frame?.contentWindow as
+          | (Window & IHumanViewerAdmissionWindow)
+          | null
+          | undefined;
         if (child?.__humanViewerProtocol !== humanViewerProtocol) continue;
-        const admit = (frame?.contentWindow as (Window & IHumanViewerAdmissionWindow) | null | undefined)
-          ?.__humanViewerAdmit;
+        const admit = (
+          frame?.contentWindow as
+            | (Window & IHumanViewerAdmissionWindow)
+            | null
+            | undefined
+        )?.__humanViewerAdmit;
         if (admit !== undefined) {
-          const token = readHumanViewerFrameToken(frame!.contentWindow!.location.search);
+          const token = readHumanViewerFrameToken(
+            frame!.contentWindow!.location.search,
+          );
           const reason = await admit(domain, text, basis);
           if (reason !== null && typeof reason !== "string")
-            throw new Error("The frame returned an incompatible admission envelope");
-          return { available: true, reason,
-            token };
+            throw new Error(
+              "The frame returned an incompatible admission envelope",
+            );
+          return { available: true, reason, token };
         }
       }
       return { available: false, reason: null, token: null };

@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
-import { createHumanWorker } from "../common/createHumanWorker";
 
-import { createBodySimpleWorkerTransport } from "./bodySimpleWorkerTransport";
+import { createHumanWorker } from "../common/createHumanWorker";
 import { CONNECTED_BODY_WHOLE_SOURCE } from "./CONNECTED_BODY_WHOLE_SOURCE";
 import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
+import { createBodySimpleWorkerTransport } from "./bodySimpleWorkerTransport";
 
 /**
  * The body editor's simple tier and measurement inverse, each request sent to
@@ -17,14 +17,25 @@ import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers"
  * @author Samchon
  */
 export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers {
-  const { ask } = createBodySimpleWorkerTransport(
-    () => createHumanWorker("worker=body-simple"),
+  const { ask } = createBodySimpleWorkerTransport(() =>
+    createHumanWorker("worker=body-simple"),
   );
   return {
-    expand: (simple, over) => ask<Record<string, number>>({ kind: "expand", simple, over }),
+    expand: (simple, over) =>
+      ask<Record<string, number>>({ kind: "expand", simple, over }),
     wholeSource: CONNECTED_BODY_WHOLE_SOURCE,
-    project: (body) => ask<IAutoMovieHumanBodySimpleShape>({ kind: "project", shape: body.shape, ...(body.anatomy === undefined ? {} : { anatomy: body.anatomy }) }),
+    project: (body) =>
+      ask<IAutoMovieHumanBodySimpleShape>({
+        kind: "project",
+        shape: body.shape,
+        ...(body.anatomy === undefined ? {} : { anatomy: body.anatomy }),
+      }),
     solveMeasurement: (shape, channel, targetMetres) =>
-      ask<IConnectedBodyMeasurement>({ kind: "solveMeasurement", shape, channel, targetMetres }),
+      ask<IConnectedBodyMeasurement>({
+        kind: "solveMeasurement",
+        shape,
+        channel,
+        targetMetres,
+      }),
   };
 }

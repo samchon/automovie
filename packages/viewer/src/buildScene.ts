@@ -1,13 +1,14 @@
 import type { IAutoMovieCamera, IAutoMovieScene } from "@automovie/interface";
 import * as THREE from "three";
-import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject";
+
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
+import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject";
+import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation";
+import { applySceneFog } from "./applySceneFog";
 import { applyTransform } from "./applyTransform";
+import { buildLight } from "./buildLight";
 import { buildSpaceObject } from "./buildSpace";
 import { applySceneEnvironment } from "./sceneEnvironment";
-import { applySceneFog } from "./applySceneFog";
-import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation";
-import { buildLight } from "./buildLight";
 
 /**
  * Build a `three.js` scene from an {@link IAutoMovieScene}.
@@ -99,7 +100,6 @@ export const buildScene = (
   const cameras = scene.cameras.map(buildCamera);
   return { scene: root, cameras, lights };
 };
-
 
 const buildCamera = (cam: IAutoMovieCamera): THREE.PerspectiveCamera => {
   const camera = new THREE.PerspectiveCamera(cam.fovY, 1, cam.near, cam.far);

@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
@@ -206,18 +209,35 @@ export function skinHumanBodySurface(
   // each phalanx joins the hemisphere of its side's toes bone. Rays without
   // transforms (no posed phalanx) leave the toes bone to skin alone.
   const rays =
-    toeSplit === undefined || !toeSplit.bones.every((bone) => transforms.has(bone))
+    toeSplit === undefined ||
+    !toeSplit.bones.every((bone) => transforms.has(bone))
       ? null
       : toeSplit.bones.map((bone) => {
           const transform = transforms.get(bone)!;
-          const real = Quaternion.multiply(transform.posed.rotation, Quaternion.inverse(transform.rest.rotation));
-          const translation = Vector3.subtract(transform.posed.position, Quaternion.rotateVector(real, transform.rest.position));
-          const dual = scale(Quaternion.multiply({ ...translation, w: 0 }, real), 0.5);
-          const toes = aligned.get(bone.startsWith("left") ? "leftToes" : "rightToes");
+          const real = Quaternion.multiply(
+            transform.posed.rotation,
+            Quaternion.inverse(transform.rest.rotation),
+          );
+          const translation = Vector3.subtract(
+            transform.posed.position,
+            Quaternion.rotateVector(real, transform.rest.position),
+          );
+          const dual = scale(
+            Quaternion.multiply({ ...translation, w: 0 }, real),
+            0.5,
+          );
+          const toes = aligned.get(
+            bone.startsWith("left") ? "leftToes" : "rightToes",
+          );
           const sign = toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
           return { real: scale(real, sign), dual: scale(dual, sign) };
         });
-  const rowOf = new Map<number, number>((rays === null ? [] : toeSplit!.vertices).map((vertex, row) => [vertex, row]));
+  const rowOf = new Map<number, number>(
+    (rays === null ? [] : toeSplit!.vertices).map((vertex, row) => [
+      vertex,
+      row,
+    ]),
+  );
   const output = new Array<number>(positions.length);
   for (let v = 0; v < positions.length / 3; v++) {
     const real = { x: 0, y: 0, z: 0, w: 0 };
@@ -227,7 +247,11 @@ export function skinHumanBodySurface(
       if (weight === 0) continue;
       const index = skin.boneIndices[v * 4 + k];
       const row = rays === null ? undefined : rowOf.get(v);
-      if (row !== undefined && (skin.joints[index] === "leftToes" || skin.joints[index] === "rightToes")) {
+      if (
+        row !== undefined &&
+        (skin.joints[index] === "leftToes" ||
+          skin.joints[index] === "rightToes")
+      ) {
         // shares divide the vertex's whole toes weight (both sides' toes slots
         // together, as at the midline of a few source vertices), so the rows
         // are applied once, at the first toes slot, and later toes slots skip
@@ -235,12 +259,20 @@ export function skinHumanBodySurface(
         let total = 0;
         for (let j = 0; j < 4; j++) {
           const toes = skin.joints[skin.boneIndices[v * 4 + j]];
-          if (skin.weights[v * 4 + j] === 0 || (toes !== "leftToes" && toes !== "rightToes")) continue;
+          if (
+            skin.weights[v * 4 + j] === 0 ||
+            (toes !== "leftToes" && toes !== "rightToes")
+          )
+            continue;
           if (j < k) first = false;
           total += skin.weights[v * 4 + j];
         }
         if (first)
-          for (let r = toeSplit!.offsets[row]; r < toeSplit!.offsets[row + 1]; r++) {
+          for (
+            let r = toeSplit!.offsets[row];
+            r < toeSplit!.offsets[row + 1];
+            r++
+          ) {
             const ray = rays![toeSplit!.bonesIndex[r]];
             accumulate(real, ray.real, total * toeSplit!.shares[r]);
             accumulate(dual, ray.dual, total * toeSplit!.shares[r]);

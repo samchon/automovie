@@ -2,7 +2,9 @@ import { productionRuntimeModelId } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 /** Preserve the existing standing member model and height-derived transform. */
-export const createFilmFormationMemberModel = (MEMBER_HEIGHT: number): IAutoMovieModel => ({
+export const createFilmFormationMemberModel = (
+  MEMBER_HEIGHT: number,
+): IAutoMovieModel => ({
   id: productionRuntimeModelId("member"),
   name: null,
   origin: "generated",

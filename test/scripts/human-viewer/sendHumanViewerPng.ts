@@ -8,8 +8,13 @@ import type { ServerResponse } from "node:http";
  * @evidence contracts/common.md#clear-and-simple-design One response helper serves every stored thumbnail answer.
  * @evidence contracts/common.md#meaningful-documentation States the headers' role.
  */
-export function sendHumanViewerPng(response: ServerResponse, file: string, headers: Record<string, string>): void {
+export function sendHumanViewerPng(
+  response: ServerResponse,
+  file: string,
+  headers: Record<string, string>,
+): void {
   response.setHeader("Content-Type", "image/png");
-  for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
+  for (const [name, value] of Object.entries(headers))
+    response.setHeader(name, value);
   fs.createReadStream(file).pipe(response);
 }

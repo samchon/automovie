@@ -6,11 +6,11 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
+import type { IBodyPoseCensusIdentity } from "./IBodyPoseCensusIdentity";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { bodyPoseCensusSourceDigest } from "./bodyPoseCensusSourceDigest";
 import { bodyPoseDefectZone } from "./bodyPoseDefectZone";
 import { formatBodyPoseDefectTable } from "./formatBodyPoseDefectTable";
-import type { IBodyPoseCensusIdentity } from "./IBodyPoseCensusIdentity";
 import { readBodyPoseCensusArguments } from "./readBodyPoseCensusArguments";
 import { resolveBodyPoseCensusInput } from "./resolveBodyPoseCensusInput";
 import { runBodyPoseDefectCensus } from "./runBodyPoseDefectCensus";
@@ -45,37 +45,48 @@ const label = options.label;
 const root = path.resolve(__dirname, "../../..");
 const basisPath = resolveBodyPoseCensusInput({
   selected: options.basis,
-  shipped: path.join(root, "test/studies/human-body/connected-basis/basis.json.gz"),
+  shipped: path.join(
+    root,
+    "test/studies/human-body/connected-basis/basis.json.gz",
+  ),
   resolveExplicit: (file) => path.resolve(file),
 });
-const readBasis = (): IAutoMovieHumanBodyBasis => JSON.parse(
-  zlib
-    .gunzipSync(
-      fs.readFileSync(basisPath),
-    )
-    .toString("utf8"),
-) as IAutoMovieHumanBodyBasis;
+const readBasis = (): IAutoMovieHumanBodyBasis =>
+  JSON.parse(
+    zlib.gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
+  ) as IAutoMovieHumanBodyBasis;
 const basis = readBasis();
 const snapshot = (inputBasis = readBasis()): IBodyPoseCensusIdentity => ({
   basis: { id: inputBasis.id, sha256: bodyCorrectiveBasisDigest(inputBasis) },
-  head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root }).toString().trim(),
+  head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root })
+    .toString()
+    .trim(),
   sourceSha256: bodyPoseCensusSourceDigest([
-    ...[...new Set(fs.globSync([
-      "packages/{human,engine,interface}/src/**/*.{ts,mts,cts,json}",
-      "packages/engine/vendor/**/*.{wasm,js,mjs,cjs,ts,json,rs,toml,c,h}",
-      "test/scripts/body-{basis,review}/**/*.{ts,mts,cts,json}",
-      "packages/{human,engine,interface}/package.json",
-      "config/**/*.{ts,json}",
-      "test/{package,tsconfig,tsconfig.scripts}.json",
-      "package.json",
-      "pnpm-lock.yaml",
-    ], { cwd: root }))].map((file) => ({
+    ...[
+      ...new Set(
+        fs.globSync(
+          [
+            "packages/{human,engine,interface}/src/**/*.{ts,mts,cts,json}",
+            "packages/engine/vendor/**/*.{wasm,js,mjs,cjs,ts,json,rs,toml,c,h}",
+            "test/scripts/body-{basis,review}/**/*.{ts,mts,cts,json}",
+            "packages/{human,engine,interface}/package.json",
+            "config/**/*.{ts,json}",
+            "test/{package,tsconfig,tsconfig.scripts}.json",
+            "package.json",
+            "pnpm-lock.yaml",
+          ],
+          { cwd: root },
+        ),
+      ),
+    ].map((file) => ({
       path: file.replaceAll("\\", "/"),
       bytes: fs.readFileSync(path.join(root, file)),
     })),
     {
       path: "@runtime/node",
-      bytes: Buffer.from(`${process.version}/${process.platform}/${process.arch}`),
+      bytes: Buffer.from(
+        `${process.version}/${process.platform}/${process.arch}`,
+      ),
     },
   ]),
 });
@@ -87,7 +98,9 @@ const poseNames = Object.entries(states)
   .filter(([, state]) => state.pose.length > 0 || state.shoulders !== undefined)
   .map(([name]) => name);
 const shapeNames = Object.entries(states)
-  .filter(([, state]) => state.pose.length === 0 && state.shoulders === undefined)
+  .filter(
+    ([, state]) => state.pose.length === 0 && state.shoulders === undefined,
+  )
   .map(([name]) => name);
 const build = createHumanBodyBasisBuilder(basis);
 const surface = basis.surfaces[0];
@@ -96,7 +109,9 @@ const zones = Array.from({ length: surface.positions.length / 3 }, (_, v) => {
   for (let k = 1; k < 4; ++k)
     if (surface.skin.weights[4 * v + k] > surface.skin.weights[4 * v + best])
       best = k;
-  return bodyPoseDefectZone(surface.skin.joints[surface.skin.boneIndices[4 * v + best]]);
+  return bodyPoseDefectZone(
+    surface.skin.joints[surface.skin.boneIndices[4 * v + best]],
+  );
 });
 const rows = runBodyPoseDefectCensus({
   identity,

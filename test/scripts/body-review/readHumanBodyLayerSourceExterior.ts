@@ -1,5 +1,5 @@
-import { readHumanBodyLayerExterior } from "@automovie/human/body/anatomy/layer/readHumanBodyLayerExterior";
 import type { IHumanBodyLayerExterior } from "@automovie/human/body/anatomy/layer/IHumanBodyLayerExterior";
+import { readHumanBodyLayerExterior } from "@automovie/human/body/anatomy/layer/readHumanBodyLayerExterior";
 import { findHumanPersonSkinSurface } from "@automovie/human/human/build/findHumanPersonSkinSurface";
 import { validateHumanPersonSourcePartitions } from "@automovie/human/human/build/validateHumanPersonSourcePartitions";
 import type { IAutoMovieHumanPersonGeneration } from "@automovie/human/human/structures/IAutoMovieHumanPersonGeneration";
@@ -14,13 +14,21 @@ import type { IAutoMovieHumanPersonGeneration } from "@automovie/human/human/str
  * construction, clinical tissue reconstruction or shaped-document evaluation
  * is substituted by these neutral source positions.
  */
-export function readHumanBodyLayerSourceExterior(generation: IAutoMovieHumanPersonGeneration): IHumanBodyLayerExterior {
+export function readHumanBodyLayerSourceExterior(
+  generation: IAutoMovieHumanPersonGeneration,
+): IHumanBodyLayerExterior {
   const face = findHumanPersonSkinSurface(generation.face.surfaces).surface;
   const body = findHumanPersonSkinSurface(generation.body.surfaces).surface;
   const plan = validateHumanPersonSourcePartitions({ face, body });
-  if (plan === undefined || face.sourcePartition === undefined || body.sourcePartition === undefined ||
-      face.sourcePartition.generation !== generation.id)
-    throw new Error("Neutral layer exterior needs both actual source partitions of this generation.");
+  if (
+    plan === undefined ||
+    face.sourcePartition === undefined ||
+    body.sourcePartition === undefined ||
+    face.sourcePartition.generation !== generation.id
+  )
+    throw new Error(
+      "Neutral layer exterior needs both actual source partitions of this generation.",
+    );
   const domain = "neutral-source-layer:" + generation.id;
   return readHumanBodyLayerExterior({
     domain,

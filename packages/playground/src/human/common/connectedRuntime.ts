@@ -1,13 +1,14 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import type { IAutoMovieHumanFaceContactSummary } from "@automovie/human";
 import { createHumanFaceBasisBuilder } from "@automovie/human/face/basis/createHumanFaceBasisBuilder";
-import { exportHumanFace } from "@automovie/human/face/export/exportHumanFace";
-import { createHumanFaceOralExportQualification } from "@automovie/human/face/export/createHumanFaceOralExportQualification";
-import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
-import { summarizeHumanFaceArticulation } from "@automovie/human/face/basis/summarizeHumanFaceArticulation";
 import { readHumanFacePartCensus } from "@automovie/human/face/basis/readHumanFacePartCensus";
-import type { IConnectedFaceRuntimeProps } from "./IConnectedFaceRuntimeProps";
+import { summarizeHumanFaceArticulation } from "@automovie/human/face/basis/summarizeHumanFaceArticulation";
+import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
+import { createHumanFaceOralExportQualification } from "@automovie/human/face/export/createHumanFaceOralExportQualification";
+import { exportHumanFace } from "@automovie/human/face/export/exportHumanFace";
+
 import type { ConnectedFaceRequest } from "./ConnectedFaceRequest";
+import type { IConnectedFaceRuntimeProps } from "./IConnectedFaceRuntimeProps";
 
 /**
  * The ambient occlusion a preview or export bakes when asked: 32 rays a
@@ -40,7 +41,10 @@ export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
   const observe = (summary: IAutoMovieHumanFaceContactSummary | null) => {
     contact = summary;
   };
-  const evaluate = createHumanFaceBasisBuilder(props.basis, { observe, observeConstructionProgress: props.progress });
+  const evaluate = createHumanFaceBasisBuilder(props.basis, {
+    observe,
+    observeConstructionProgress: props.progress,
+  });
   // The builder that also bakes the face's ambient occlusion, made on the
   // first request that asks for it.
   let occluded: ReturnType<typeof createHumanFaceBasisBuilder> | undefined;
@@ -59,19 +63,33 @@ export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
       return {
         operation: "construct" as const,
         model: construction.model,
-        admission: { ...construction.admission,
-          parts: construction.admission.parts ?? readHumanFacePartCensus(construction.model) },
+        admission: {
+          ...construction.admission,
+          parts:
+            construction.admission.parts ??
+            readHumanFacePartCensus(construction.model),
+        },
         periocularMappings: construction.periocularMappings,
         articulation: summarizeHumanFaceArticulation(props.basis, document),
         // Construction publishes no success-only contact observer. Its
         // complete measured relations remain in the owner's admission.
         contact: null,
-        crossings: request.measure === true ? measureAutoMovieModelCrossings(construction.model) : null,
+        crossings:
+          request.measure === true
+            ? measureAutoMovieModelCrossings(construction.model)
+            : null,
       };
     }
     const model = builder(document);
     if (request.operation === "export") {
-      const { glb } = await exportHumanFace(model, await createHumanFaceOralExportQualification(props.basis, document, model));
+      const { glb } = await exportHumanFace(
+        model,
+        await createHumanFaceOralExportQualification(
+          props.basis,
+          document,
+          model,
+        ),
+      );
       return { operation: "export" as const, glb };
     }
     return {

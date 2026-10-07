@@ -1,5 +1,5 @@
-import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
 import type { IHumanBasisRegionCorners } from "../structures/IHumanBasisRegionCorners";
+import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
 
 /**
  * The fixed correspondence between a connected surface's shared vertices and
@@ -30,7 +30,9 @@ import type { IHumanBasisRegionCorners } from "../structures/IHumanBasisRegionCo
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary between parts.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed form; the regions it numbers are observed by their owners.
  */
-export function humanBasisRegionCorners(region: IHumanMaterialRegion): IHumanBasisRegionCorners {
+export function humanBasisRegionCorners(
+  region: IHumanMaterialRegion,
+): IHumanBasisRegionCorners {
   const vertices = new Map<string, number>();
   const sources: number[] = [];
   const indices: number[] = [];

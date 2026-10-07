@@ -126,8 +126,7 @@ export const test_math_float64_neighbors = (): void => {
   TestValidator.predicate(
     "rounded admitted coefficient cannot accept an overflowing seat",
     throwsError(
-      () =>
-        interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
+      () => interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
       "representable weighted coordinates",
     ),
   );

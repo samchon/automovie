@@ -1,5 +1,5 @@
-import type { IHumanSourceTongueRestParameters } from "./IHumanSourceTongueRestParameters.ts";
 import type { IHumanSourceTongueRestEvaluation } from "./IHumanSourceTongueRestEvaluation.ts";
+import type { IHumanSourceTongueRestParameters } from "./IHumanSourceTongueRestParameters.ts";
 
 /** Source fit candidate with sampled lining and explicit whole-admission gaps. */
 export interface IHumanSourceTongueRestSearch {

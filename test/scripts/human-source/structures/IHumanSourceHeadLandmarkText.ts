@@ -14,7 +14,10 @@ export interface IHumanSourceHeadLandmarkText {
   citation: string;
 
   /** Whether the vertex realises the definition or stands in for it. */
-  status: "definition" | "definition, read from renders" | "named approximation";
+  status:
+    | "definition"
+    | "definition, read from renders"
+    | "named approximation";
 
   /** The selection rule, naming any stand-in. */
   rule: string;

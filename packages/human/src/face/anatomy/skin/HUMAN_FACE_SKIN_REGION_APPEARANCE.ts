@@ -21,7 +21,8 @@ import type { IAutoMovieHumanFaceSkinRegionAppearance } from "../../structures/I
  * @evidenceExclude contracts/anatomy.md#permitted-range Appearance admission remains numerical rather than physiological.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The record adds no person-authoring authority beyond the named appearance type.
  */
-export const HUMAN_FACE_SKIN_REGION_APPEARANCE: IAutoMovieHumanFaceSkinRegionAppearance = {
-  gain: [1, 1, 1],
-  strength: 0,
-};
+export const HUMAN_FACE_SKIN_REGION_APPEARANCE: IAutoMovieHumanFaceSkinRegionAppearance =
+  {
+    gain: [1, 1, 1],
+    strength: 0,
+  };

@@ -18,7 +18,9 @@ export function renderConnectedBodyUnavailableChannels(
   unavailable: ReadonlySet<string>,
   query: string,
 ): void {
-  const listed = missing.filter((channel) => channel.id.toLowerCase().includes(query));
+  const listed = missing.filter((channel) =>
+    channel.id.toLowerCase().includes(query),
+  );
   if (listed.length === 0) return;
   const group = dom.createElement("details");
   const summary = dom.createElement("summary");
@@ -31,7 +33,10 @@ export function renderConnectedBodyUnavailableChannels(
         channel.id,
         [channel.positive, channel.negative]
           .filter((target) => target !== null && unavailable.has(target))
-          .map((target) => `The source target ${target} is unavailable on this generation.`)
+          .map(
+            (target) =>
+              `The source target ${target} is unavailable on this generation.`,
+          )
           .join(" "),
       ),
     );

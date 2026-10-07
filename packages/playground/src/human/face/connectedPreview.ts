@@ -55,23 +55,40 @@ export function createConnectedFacePreview(props: IConnectedFacePreviewProps) {
       };
     },
     /** Prepare the complete construction while retaining its independent admission verdict. */
-    construct: async (document: IAutoMovieHumanFaceBasisDocument, occlusion = false) => {
+    construct: async (
+      document: IAutoMovieHumanFaceBasisDocument,
+      occlusion = false,
+    ) => {
       cancel();
       const ticket = generation;
-      const request = worker.request({ operation: "construct",
-        document: serializeHumanFaceBasisDocument(document), occlusion });
+      const request = worker.request({
+        operation: "construct",
+        document: serializeHumanFaceBasisDocument(document),
+        occlusion,
+      });
       withdraw = request.cancel;
       const result = await request.result;
-      if (result.operation !== "construct") throw new Error("Expected a whole numerical face construction.");
+      if (result.operation !== "construct")
+        throw new Error("Expected a whole numerical face construction.");
       const frame = await props.renderer.prepare(result.model);
       if (ticket !== generation) {
         props.renderer.dispose(frame);
-        throw new Error("Superseded while preparing face construction geometry.");
+        throw new Error(
+          "Superseded while preparing face construction geometry.",
+        );
       }
       withdraw = undefined;
-      return { model: { frame, parts: result.model.parts.length,
-        articulation: result.articulation, contact: result.contact, crossings: result.crossings },
-        admission: result.admission, periocularMappings: result.periocularMappings };
+      return {
+        model: {
+          frame,
+          parts: result.model.parts.length,
+          articulation: result.articulation,
+          contact: result.contact,
+          crossings: result.crossings,
+        },
+        admission: result.admission,
+        periocularMappings: result.periocularMappings,
+      };
     },
     export: async (
       document: IAutoMovieHumanFaceBasisDocument,

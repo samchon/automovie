@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
 
 /**
@@ -35,21 +36,29 @@ export function createHumanFaceOralArchQueryMesh(
   observePointIds?: (ids: readonly string[]) => void,
 ): IAutoMovieMesh {
   const identities = new Map<string, number>();
-  const positions: number[] = [], indices: number[] = [];
+  const positions: number[] = [],
+    indices: number[] = [];
   for (const part of parts) {
     if (part.owner !== owner || part.materialRole === "enamel") continue;
     for (const vertex of part.mesh.indices!) {
       const identity = part.physicalPoints[vertex];
       if (identity === undefined)
-        throw new Error("Oral arch query needs every triangle point's physical identity.");
+        throw new Error(
+          "Oral arch query needs every triangle point's physical identity.",
+        );
       const point = part.mesh.positions.slice(3 * vertex, 3 * vertex + 3);
       let at = identities.get(identity);
       if (at === undefined) {
         at = identities.size;
         identities.set(identity, at);
         positions.push(...point);
-      } else if (point.some((value, axis) => value !== positions[3 * at! + axis]))
-        throw new Error("Oral arch physical identity has inconsistent boundary coordinates: " + identity);
+      } else if (
+        point.some((value, axis) => value !== positions[3 * at! + axis])
+      )
+        throw new Error(
+          "Oral arch physical identity has inconsistent boundary coordinates: " +
+            identity,
+        );
       indices.push(at);
     }
   }

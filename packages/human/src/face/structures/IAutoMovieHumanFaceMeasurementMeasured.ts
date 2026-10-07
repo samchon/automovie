@@ -30,7 +30,12 @@ export interface IAutoMovieHumanFaceMeasurementMeasured {
   measurement: string;
 
   /** Unit of both values. */
-  unit: "millimetres" | "square-millimetres" | "degrees" | "cubic-centimetres" | "count";
+  unit:
+    | "millimetres"
+    | "square-millimetres"
+    | "degrees"
+    | "cubic-centimetres"
+    | "count";
 
   /** Document target, or null when the measurement is only reported. */
   requested: number | null;

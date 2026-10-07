@@ -1,4 +1,5 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 
 /**

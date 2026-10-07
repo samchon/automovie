@@ -1,8 +1,8 @@
 import typia from "typia";
 
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
-import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { assertHumanSkinBinding } from "../../common/basis/assertHumanSkinBinding";
+import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import type { IAutoMovieHumanPersonChannelAlias } from "../structures/IAutoMovieHumanPersonChannelAlias";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonEndpointDriver } from "../structures/IAutoMovieHumanPersonEndpointDriver";
@@ -45,16 +45,22 @@ export function compileHumanPersonGeneration(
 ): IAutoMovieHumanPersonCompiledGeneration {
   // the generation-level records the face and body builders do not admit;
   // each partition view is admitted by its own builder below
-  const headSkin = typia.assertEquals<IAutoMovieHumanPersonHeadSkin>(generation.headSkin);
+  const headSkin = typia.assertEquals<IAutoMovieHumanPersonHeadSkin>(
+    generation.headSkin,
+  );
   if (generation.band !== undefined)
     typia.assertEquals<IAutoMovieHumanPersonGenerationBand>(generation.band);
   if (generation.aliases !== undefined)
     typia.assertEquals<IAutoMovieHumanPersonChannelAlias[]>(generation.aliases);
   if (generation.drivers !== undefined)
-    typia.assertEquals<IAutoMovieHumanPersonEndpointDriver[]>(generation.drivers);
+    typia.assertEquals<IAutoMovieHumanPersonEndpointDriver[]>(
+      generation.drivers,
+    );
   const { face: faceBasis, body: bodyBasis } = generation;
   const { surface: faceSkin } = findHumanPersonSkinSurface(faceBasis.surfaces);
-  const { index: bodyIndex, surface: bodySkin } = findHumanPersonSkinSurface(bodyBasis.surfaces);
+  const { index: bodyIndex, surface: bodySkin } = findHumanPersonSkinSurface(
+    bodyBasis.surfaces,
+  );
   const faceSource = faceSkin.sourcePartition;
   const bodySource = bodySkin.sourcePartition;
   if (
@@ -63,12 +69,25 @@ export function compileHumanPersonGeneration(
     faceSource.generation !== generation.id ||
     bodySource.generation !== generation.id
   )
-    throw new Error("Both partition views must be registered on the generation " + generation.id + ".");
+    throw new Error(
+      "Both partition views must be registered on the generation " +
+        generation.id +
+        ".",
+    );
   const faceCount = faceSkin.positions.length / 3;
-  assertHumanSkinBinding({ binding: headSkin, vertices: faceCount, declared: new Set(bodyBasis.joints.map((joint) => joint.bone)), surface: faceSkin.id, description: "Head skin" });
+  assertHumanSkinBinding({
+    binding: headSkin,
+    vertices: faceCount,
+    declared: new Set(bodyBasis.joints.map((joint) => joint.bone)),
+    surface: faceSkin.id,
+    description: "Head skin",
+  });
   // Admits complementary coverage of the one source tree; a partial or
   // incompatible pair refuses here.
-  const sourceNormals = createHumanPersonSourceNormals({ face: faceSkin, body: bodySkin });
+  const sourceNormals = createHumanPersonSourceNormals({
+    face: faceSkin,
+    body: bodySkin,
+  });
   if (sourceNormals === undefined)
     throw new Error("A one-skin generation needs source-partitioned views.");
 
@@ -87,7 +106,9 @@ export function compileHumanPersonGeneration(
   });
   const bodyOfFace = new Map<number, number>();
   faceSource.samples.forEach((sample, vertex) => {
-    const at = sharedFace.findIndex((face) => faceSource.samples[face] === sample);
+    const at = sharedFace.findIndex(
+      (face) => faceSource.samples[face] === sample,
+    );
     if (at >= 0) bodyOfFace.set(vertex, sharedBody[at]);
   });
   if (sharedBody.length === 0)
@@ -96,24 +117,41 @@ export function compileHumanPersonGeneration(
   // The band's face side is evaluated by the face producer on an extended
   // view; its body side keeps the body builder's posing plus the face delta.
   const band = generation.band;
-  const bandView = band === undefined ? undefined : createHumanPersonBandFaceView(generation, bodyIndex);
-  const bandSources = bandView === undefined
-    ? undefined
-    : humanBasisRegionCorners(
-        bandView.basis.surfaces.find((surface) => surface.id === bandView.surface)!.regions[0],
-      ).sources;
+  const bandView =
+    band === undefined
+      ? undefined
+      : createHumanPersonBandFaceView(generation, bodyIndex);
+  const bandSources =
+    bandView === undefined
+      ? undefined
+      : humanBasisRegionCorners(
+          bandView.basis.surfaces.find(
+            (surface) => surface.id === bandView.surface,
+          )!.regions[0],
+        ).sources;
   const faceRegions = new Map(
-    faceSkin.regions.map((region) => [region.id, humanBasisRegionCorners(region).sources]),
+    faceSkin.regions.map((region) => [
+      region.id,
+      humanBasisRegionCorners(region).sources,
+    ]),
   );
   const bodyRegions = new Map(
-    bodySkin.regions.map((region) => [region.id, humanBasisRegionCorners(humanBodyGpuRegion(region)).sources]),
+    bodySkin.regions.map((region) => [
+      region.id,
+      humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
+    ]),
   );
   const neutralAnchor = humanPersonEyeCentre(
-    Object.fromEntries(bodyBasis.landmarks.ids.map((id, at) => [id, {
-      x: bodyBasis.landmarks.positions[at * 3],
-      y: bodyBasis.landmarks.positions[at * 3 + 1],
-      z: bodyBasis.landmarks.positions[at * 3 + 2],
-    }])),
+    Object.fromEntries(
+      bodyBasis.landmarks.ids.map((id, at) => [
+        id,
+        {
+          x: bodyBasis.landmarks.positions[at * 3],
+          y: bodyBasis.landmarks.positions[at * 3 + 1],
+          z: bodyBasis.landmarks.positions[at * 3 + 2],
+        },
+      ]),
+    ),
   );
   const neutralBody = bodySkin.positions;
   // Aliased face channels are owned once by a body channel on the whole skin:
@@ -123,11 +161,24 @@ export function compileHumanPersonGeneration(
   const aliases = generation.aliases ?? [];
   const drivers = generation.drivers ?? [];
   for (const driver of drivers)
-    if (!faceBasis.channels.some((channel) => channel.id === driver.channel && channel.positive === driver.endpoint))
-      throw new Error("The face view needs the driver channel " + driver.channel + " of body endpoint " + driver.endpoint + ".");
+    if (
+      !faceBasis.channels.some(
+        (channel) =>
+          channel.id === driver.channel && channel.positive === driver.endpoint,
+      )
+    )
+      throw new Error(
+        "The face view needs the driver channel " +
+          driver.channel +
+          " of body endpoint " +
+          driver.endpoint +
+          ".",
+      );
   // the band's own body vertices (shared samples belong to the face skin)
   const sharedSet = new Set(sharedBody);
-  const bandBody = (bandView?.bodyVertices ?? []).filter((vertex) => !sharedSet.has(vertex));
+  const bandBody = (bandView?.bodyVertices ?? []).filter(
+    (vertex) => !sharedSet.has(vertex),
+  );
   // the body vertices whose rest the evaluator reads: shared samples, then
   // the band's body side, in one compact table of the body's own rows
   const restVertices = [...sharedBody, ...bandBody];
@@ -137,11 +188,14 @@ export function compileHumanPersonGeneration(
     const kept: number[] = [];
     for (let i = 0; i < rows.length; i += 4) {
       const at = restRows.get(rows[i]);
-      if (at !== undefined) kept.push(at, rows[i + 1], rows[i + 2], rows[i + 3]);
+      if (at !== undefined)
+        kept.push(at, rows[i + 1], rows[i + 2], rows[i + 3]);
     }
     if (kept.length > 0) restTargets[name] = kept;
   }
-  const restNeutral = restVertices.flatMap((vertex) => [0, 1, 2].map((axis) => neutralBody[vertex * 3 + axis]));
+  const restNeutral = restVertices.flatMap((vertex) =>
+    [0, 1, 2].map((axis) => neutralBody[vertex * 3 + axis]),
+  );
   const plan: IAutoMovieHumanPersonSkinPlan = {
     faceCount,
     faceNeutral: faceSkin.positions,
@@ -153,30 +207,40 @@ export function compileHumanPersonGeneration(
     restRows,
     headSkin,
     joints: bodyBasis.joints,
-    band: bandView === undefined || bandSources === undefined
-      ? undefined
-      : {
-          surface: bandView.surface,
-          sources: bandSources,
-          viewBodyVertices: bandView.bodyVertices,
-          bodyVertices: bandBody,
-          slots: new Map(bandBody.map((vertex, at) => [vertex, at])),
-          skin: {
-            joints: bodySkin.skin.joints,
-            boneIndices: bandBody.flatMap((vertex) => bodySkin.skin.boneIndices.slice(vertex * 4, vertex * 4 + 4)),
-            weights: bandBody.flatMap((vertex) => bodySkin.skin.weights.slice(vertex * 4, vertex * 4 + 4)),
+    band:
+      bandView === undefined || bandSources === undefined
+        ? undefined
+        : {
+            surface: bandView.surface,
+            sources: bandSources,
+            viewBodyVertices: bandView.bodyVertices,
+            bodyVertices: bandBody,
+            slots: new Map(bandBody.map((vertex, at) => [vertex, at])),
+            skin: {
+              joints: bodySkin.skin.joints,
+              boneIndices: bandBody.flatMap((vertex) =>
+                bodySkin.skin.boneIndices.slice(vertex * 4, vertex * 4 + 4),
+              ),
+              weights: bandBody.flatMap((vertex) =>
+                bodySkin.skin.weights.slice(vertex * 4, vertex * 4 + 4),
+              ),
+            },
           },
-        },
   };
 
   const faceProducer = bandView?.basis ?? faceBasis;
   return {
     generation,
     faceProducer,
-    faceProducerSkin: faceProducer.surfaces.findIndex((surface) => surface.id === faceSkin.id),
-    faceProducerBand: bandView === undefined
-      ? undefined
-      : faceProducer.surfaces.findIndex((surface) => surface.id === bandView.surface),
+    faceProducerSkin: faceProducer.surfaces.findIndex(
+      (surface) => surface.id === faceSkin.id,
+    ),
+    faceProducerBand:
+      bandView === undefined
+        ? undefined
+        : faceProducer.surfaces.findIndex(
+            (surface) => surface.id === bandView.surface,
+          ),
     bodyIndex,
     faceSource,
     bodySource,

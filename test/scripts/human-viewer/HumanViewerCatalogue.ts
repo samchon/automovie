@@ -22,7 +22,11 @@ export interface HumanViewerCatalogue {
   revision: string;
 
   /** Display inputs and their document/basis/source digests. */
-  documents: (IHumanViewerFaceCatalogueEntry | IHumanViewerBodyCatalogueEntry | IHumanViewerPersonCatalogueEntry)[];
+  documents: (
+    | IHumanViewerFaceCatalogueEntry
+    | IHumanViewerBodyCatalogueEntry
+    | IHumanViewerPersonCatalogueEntry
+  )[];
 
   /** Documents refused or not yet decided, with the reason, so one bad file hides no other. */
   rejected: IHumanViewerRejectedInput[];

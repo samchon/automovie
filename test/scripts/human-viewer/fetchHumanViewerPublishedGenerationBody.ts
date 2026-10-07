@@ -15,8 +15,15 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
  *
  * @author Samchon
  */
-export async function fetchHumanViewerPublishedGenerationBody(token: string, origin: string = ""): Promise<IAutoMovieHumanBodyBasis> {
-  const [body] = humanViewerBasisDigests(token, humanViewerBasisTokens.publishedGenerationBody, 1);
+export async function fetchHumanViewerPublishedGenerationBody(
+  token: string,
+  origin: string = "",
+): Promise<IAutoMovieHumanBodyBasis> {
+  const [body] = humanViewerBasisDigests(
+    token,
+    humanViewerBasisTokens.publishedGenerationBody,
+    1,
+  );
   const view = await readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
     read: () => fetch(origin + "/basis/person/body?digest=" + body),
   });

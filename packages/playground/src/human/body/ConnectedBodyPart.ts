@@ -7,8 +7,10 @@ import type { IConnectedBodyMeshGeometry } from "./IConnectedBodyMeshGeometry";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps each resident region's geometry paired with its material binding.
  * @author Samchon
  */
-export interface ConnectedBodyPart
-  extends Omit<IAutoMovieModelPart, "geometry"> {
+export interface ConnectedBodyPart extends Omit<
+  IAutoMovieModelPart,
+  "geometry"
+> {
   /** Prepared static mesh. */
   geometry: IConnectedBodyMeshGeometry;
 }

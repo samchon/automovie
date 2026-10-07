@@ -1,6 +1,6 @@
-import { createFilmVisualReadTransform } from "./createFilmVisualReadTransform";
 import type { IAutoMovieMotion } from "@automovie/interface";
 
+import { createFilmVisualReadTransform } from "./createFilmVisualReadTransform";
 import { keyframe, makeMotion, makePose } from "./fixtures";
 
 /** Build the existing stationary actor root at its authored world coordinates. */

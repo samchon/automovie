@@ -11,4 +11,11 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no interval.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Names output quantities, not shaping inputs.
  */
-export type AutoMovieHumanFaceOpticalMetric = "irisOuterDiameter" | "irisApertureDiameter" | "horizontalLimbusDiameter" | "globeAxialLength" | "centralCornealThickness" | "anteriorCornealRadius" | "irisDepthFromAnteriorSupport";
+export type AutoMovieHumanFaceOpticalMetric =
+  | "irisOuterDiameter"
+  | "irisApertureDiameter"
+  | "horizontalLimbusDiameter"
+  | "globeAxialLength"
+  | "centralCornealThickness"
+  | "anteriorCornealRadius"
+  | "irisDepthFromAnteriorSupport";

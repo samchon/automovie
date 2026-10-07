@@ -1,6 +1,6 @@
+import { humanSkinRegion } from "../basis/humanSkinRegion";
 import type { IAutoMovieHumanHeadReading } from "./IAutoMovieHumanHeadReading";
 import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
-import { humanSkinRegion } from "../basis/humanSkinRegion";
 
 /**
  * Read an auricle's length, in metres: ANSUR II 6.4.32 (Hotzman et al. 2011,
@@ -26,10 +26,15 @@ import { humanSkinRegion } from "../basis/humanSkinRegion";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function readHumanEarLength(head: IAutoMovieHumanHeadSkin, region: string): IAutoMovieHumanHeadReading {
+export function readHumanEarLength(
+  head: IAutoMovieHumanHeadSkin,
+  region: string,
+): IAutoMovieHumanHeadReading {
   const area = humanSkinRegion(head, region);
   if (area.surface !== head.surface)
-    throw new Error(`The skin region ${region} of ${head.id} is not on the head view skin the rules read.`);
+    throw new Error(
+      `The skin region ${region} of ${head.id} is not on the head view skin the rules read.`,
+    );
   const p = head.positions;
   let top = area.vertices[0];
   let bottom = area.vertices[0];
@@ -40,5 +45,8 @@ export function readHumanEarLength(head: IAutoMovieHumanHeadSkin, region: string
   const at = (v: number) => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
   const a = at(top);
   const b = at(bottom);
-  return { metres: Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), points: { superaurale: a, subaurale: b } };
+  return {
+    metres: Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z),
+    points: { superaurale: a, subaurale: b },
+  };
 }

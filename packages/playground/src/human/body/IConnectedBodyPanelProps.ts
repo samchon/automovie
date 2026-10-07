@@ -3,9 +3,9 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
 } from "@automovie/human";
 
-import type { BodyPosePreset } from "./bodyPosePresets";
 import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
 import type { IConnectedBodyViewport } from "./IConnectedBodyViewport";
+import type { BodyPosePreset } from "./bodyPosePresets";
 
 /**
  * What the connected body panel is mounted with: the admitted basis, the
@@ -33,7 +33,10 @@ export interface IConnectedBodyPanelProps<Model> {
    * Seat the head on the published body for this body document, or hide it
    * (`null`); the head is evaluated from the document, not from the model.
    */
-  seat: (model: Model | null, document: IAutoMovieHumanBodyBasisDocument) => void;
+  seat: (
+    model: Model | null,
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => void;
 
   /** The simple tier and measurement inverse, solved off the page's thread. */
   simple: IConnectedBodySimpleSolvers;

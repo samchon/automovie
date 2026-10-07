@@ -18,7 +18,10 @@ export interface IHumanSourceHeadLandmark {
   citation: string;
 
   /** Whether the vertex realises the definition or stands in for it. */
-  status: "definition" | "definition, read from renders" | "named approximation";
+  status:
+    | "definition"
+    | "definition, read from renders"
+    | "named approximation";
 
   /** The selection rule as applied, including any stand-in it uses. */
   rule: string;

@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
+
 import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget";
 import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame";
 

@@ -9,9 +9,13 @@ import type { IConnectedFaceExpressionPreset } from "../face/IConnectedFaceExpre
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Supplies each preset's expression weights applied over the unchanged identity.
  * @author Samchon
  */
-export const connectedPersonExpressionPresets: IConnectedFaceExpressionPreset[] = [
-  { name: "Neutral", expression: {} },
-  { name: "Smile", expression: { mouthSmileLeft: 0.5, mouthSmileRight: 0.5 } },
-  { name: "Open jaw", expression: { jawOpen: 0.5 } },
-  { name: "Wink", expression: { eyeBlinkRight: 1 } },
-];
+export const connectedPersonExpressionPresets: IConnectedFaceExpressionPreset[] =
+  [
+    { name: "Neutral", expression: {} },
+    {
+      name: "Smile",
+      expression: { mouthSmileLeft: 0.5, mouthSmileRight: 0.5 },
+    },
+    { name: "Open jaw", expression: { jawOpen: 0.5 } },
+    { name: "Wink", expression: { eyeBlinkRight: 1 } },
+  ];

@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
+
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 
@@ -12,5 +13,7 @@ export interface IBodyCorrectiveSampleInput {
   /** Shape fraction, dimensionless. */
   u: number;
   basis: string;
-  build: (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyBuild;
+  build: (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => IAutoMovieHumanBodyBuild;
 }

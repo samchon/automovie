@@ -21,9 +21,13 @@ export function admitHumanViewerAuthoredEntries(
   for (const entry of entries) {
     const admission = admit(entry);
     if (admission.state === "admitted") result.documents.push(entry);
-    else result.rejected.push({ file: `viewer-authored ${entry.id}`,
-      reason: `${entry.id}: ${admission.reason ?? admission.state}`,
-      pending: admission.state === "pending", id: entry.id });
+    else
+      result.rejected.push({
+        file: `viewer-authored ${entry.id}`,
+        reason: `${entry.id}: ${admission.reason ?? admission.state}`,
+        pending: admission.state === "pending",
+        id: entry.id,
+      });
   }
   return result;
 }

@@ -1,6 +1,6 @@
+import { HumanFaceConformingMaterialArithmetic as Arithmetic } from "./HumanFaceConformingMaterialArithmetic";
 import { HumanFaceConformingPolygon as Polygon } from "./HumanFaceConformingPolygon";
 import type { IHumanFaceConformingMaterialTriangle as MaterialTriangle } from "./structures/IHumanFaceConformingMaterialTriangle";
-import { HumanFaceConformingMaterialArithmetic as Arithmetic } from "./HumanFaceConformingMaterialArithmetic";
 import type { IHumanFaceConformingSheet } from "./structures/IHumanFaceConformingSheet";
 import type { IHumanFaceConformingSheetInput } from "./structures/IHumanFaceConformingSheetInput";
 import type { IHumanFaceConformingSheetVertex } from "./structures/IHumanFaceConformingSheetVertex";
@@ -76,49 +76,93 @@ type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
  * @evidenceExclude contracts/anatomy.md#permitted-range Existing tissue admission owns physiological and clearance conditions.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Preserves the existing numerical authoring contract.
  */
-export function createHumanFaceConformingSheet(input: IHumanFaceConformingSheetInput): IHumanFaceConformingSheet {
+export function createHumanFaceConformingSheet(
+  input: IHumanFaceConformingSheetInput,
+): IHumanFaceConformingSheet {
   const { chart, samples, topology } = input;
   const gridIds = [...new Set(topology.cells.flat())];
   const gridUV = gridIds.map((id) => {
     const point = samples[id]?.materialPoint;
     if (point === undefined || !point.every(Number.isFinite))
-      throw new Error("A conforming sheet needs every original material sample.");
+      throw new Error(
+        "A conforming sheet needs every original material sample.",
+      );
     return point;
   });
   const allUV = [...chart.coordinates, ...gridUV.flat()];
   const binary = allUV.map(Arithmetic.dyadic);
-  const exponent = Math.min(...binary.filter(([n]) => n !== 0n).map(([, e]) => e));
-  if (!Number.isFinite(exponent)) throw new Error("A conforming chart needs nonzero material extent.");
+  const exponent = Math.min(
+    ...binary.filter(([n]) => n !== 0n).map(([, e]) => e),
+  );
+  if (!Number.isFinite(exponent))
+    throw new Error("A conforming chart needs nonzero material extent.");
   const integers = binary.map(([n, e]) => n << BigInt(e - exponent));
-  const hostPoints = chart.vertices.map((_, at): MaterialPoint => [integers[2 * at], integers[2 * at + 1], 1n]);
-  const gridPoints = new Map(gridIds.map((id, at): [number, MaterialPoint] =>
-    [id, [integers[chart.coordinates.length + 2 * at], integers[chart.coordinates.length + 2 * at + 1], 1n]]));
+  const hostPoints = chart.vertices.map(
+    (_, at): MaterialPoint => [integers[2 * at], integers[2 * at + 1], 1n],
+  );
+  const gridPoints = new Map(
+    gridIds.map((id, at): [number, MaterialPoint] => [
+      id,
+      [
+        integers[chart.coordinates.length + 2 * at],
+        integers[chart.coordinates.length + 2 * at + 1],
+        1n,
+      ],
+    ]),
+  );
   const hostOrdinal = new Map(chart.sourceTriangles.map((id, at) => [id, at]));
   const aliases = new Map<number, string>();
   for (const id of gridIds) {
     const seat = samples[id].seat;
     const at = hostOrdinal.get(seat.triangle);
-    if (at === undefined) throw new Error("A conforming sample needs its resident source triangle.");
+    if (at === undefined)
+      throw new Error(
+        "A conforming sample needs its resident source triangle.",
+      );
     const corner = seat.weights.findIndex((weight) => weight === 1);
-    if (corner < 0 || seat.weights.some((weight, index) => index !== corner && weight !== 0)) continue;
+    if (
+      corner < 0 ||
+      seat.weights.some((weight, index) => index !== corner && weight !== 0)
+    )
+      continue;
     const host = chart.indices[3 * at + corner];
     const prior = aliases.get(host);
     if (prior !== undefined && prior !== `g:${id}`)
-      throw new Error("Distinct canonical grid vertices cannot name one source endpoint.");
+      throw new Error(
+        "Distinct canonical grid vertices cannot name one source endpoint.",
+      );
     aliases.set(host, `g:${id}`);
   }
-  const source = chart.sourceTriangles.map((_, at) => triangle(
-    chart.indices.slice(3 * at, 3 * at + 3) as [number, number, number],
-    (id) => hostPoints[id], (id) => chart.coordinates.slice(2 * id, 2 * id + 2),
-  ));
-  const result: IHumanFaceConformingSheet = { vertices: [], indices: [], sourceTriangles: [], boundaryEdges: [] };
+  const source = chart.sourceTriangles.map((_, at) =>
+    triangle(
+      chart.indices.slice(3 * at, 3 * at + 3) as [number, number, number],
+      (id) => hostPoints[id],
+      (id) => chart.coordinates.slice(2 * id, 2 * id + 2),
+    ),
+  );
+  const result: IHumanFaceConformingSheet = {
+    vertices: [],
+    indices: [],
+    sourceTriangles: [],
+    boundaryEdges: [],
+  };
   const resident = new Map<string, number>();
   for (const [a, b, c, d] of topology.cells)
-    for (const corners of [[a, b, c], [a, c, d]] as [number, number, number][]) {
+    for (const corners of [
+      [a, b, c],
+      [a, c, d],
+    ] as [number, number, number][]) {
       if (new Set(corners).size !== 3) continue;
-      const grid = triangle(corners, (id) => gridPoints.get(id)!, (id) => samples[id].materialPoint!);
+      const grid = triangle(
+        corners,
+        (id) => gridPoints.get(id)!,
+        (id) => samples[id].materialPoint!,
+      );
       const direction = Arithmetic.orientation(...grid.points);
-      if (direction === 0n) throw new Error("A noncollapsed material grid triangle needs nonzero area.");
+      if (direction === 0n)
+        throw new Error(
+          "A noncollapsed material grid triangle needs nonzero area.",
+        );
       let covered: MaterialArea = [0n, 1n];
       for (let at = 0; at < source.length; at++) {
         const host = source[at];
@@ -132,13 +176,27 @@ export function createHumanFaceConformingSheet(input: IHumanFaceConformingSheetI
           const prior = resident.get(cut.key);
           if (prior !== undefined) return prior;
           const index = result.vertices.length;
-          const original = cut.key.startsWith("g:") ? samples[Number(cut.key.slice(2))] : undefined;
+          const original = cut.key.startsWith("g:")
+            ? samples[Number(cut.key.slice(2))]
+            : undefined;
           const vertex: IHumanFaceConformingSheetVertex = {
             provenance: cut.key,
-            materialPoint: [Arithmetic.numberAt(cut.point[0], cut.point[2], exponent), Arithmetic.numberAt(cut.point[1], cut.point[2], exponent)],
-            seat: original === undefined ? { triangle: chart.sourceTriangles[at], weights: Arithmetic.barycentric(host.points, cut.point) } :
-              { triangle: original.seat.triangle, weights: [...original.seat.weights] },
-            gridCorners: [...corners], gridWeights: Arithmetic.barycentric(grid.points, cut.point),
+            materialPoint: [
+              Arithmetic.numberAt(cut.point[0], cut.point[2], exponent),
+              Arithmetic.numberAt(cut.point[1], cut.point[2], exponent),
+            ],
+            seat:
+              original === undefined
+                ? {
+                    triangle: chart.sourceTriangles[at],
+                    weights: Arithmetic.barycentric(host.points, cut.point),
+                  }
+                : {
+                    triangle: original.seat.triangle,
+                    weights: [...original.seat.weights],
+                  },
+            gridCorners: [...corners],
+            gridWeights: Arithmetic.barycentric(grid.points, cut.point),
           };
           resident.set(cut.key, index);
           result.vertices.push(vertex);
@@ -146,15 +204,22 @@ export function createHumanFaceConformingSheet(input: IHumanFaceConformingSheetI
         });
         for (const piece of Polygon.triangulate(polygon.cuts)) {
           const emitted = piece.map((corner) => mapped[corner]);
-          if (direction < 0n) [emitted[1], emitted[2]] = [emitted[2], emitted[1]];
+          if (direction < 0n)
+            [emitted[1], emitted[2]] = [emitted[2], emitted[1]];
           result.indices.push(...emitted);
           result.sourceTriangles.push(chart.sourceTriangles[at]);
         }
       }
       const expected = direction < 0n ? -direction : direction;
       if (covered[0] !== expected * covered[1])
-        throw new Error("A conforming source disk must cover the complete original grid triangle exactly: " +
-          JSON.stringify({ grid: corners, covered: covered.map(String), expected: String(expected) }));
+        throw new Error(
+          "A conforming source disk must cover the complete original grid triangle exactly: " +
+            JSON.stringify({
+              grid: corners,
+              covered: covered.map(String),
+              expected: String(expected),
+            }),
+        );
     }
   result.boundaryEdges = boundary(result.indices);
   return result;
@@ -239,15 +304,19 @@ function boundary(indices: readonly number[]): [number, number][] {
   for (let at = 0; at < indices.length; at += 3) {
     for (let side = 0; side < 3; side++) {
       const a = indices[at + side];
-      const b = indices[at + (side + 1) % 3];
+      const b = indices[at + ((side + 1) % 3)];
       const key = Polygon.edge(a, b);
       const prior = edges.get(key);
       if (paired.has(key))
-        throw new Error("A conforming sheet edge must have at most two incident triangles.");
+        throw new Error(
+          "A conforming sheet edge must have at most two incident triangles.",
+        );
       if (prior === undefined) edges.set(key, [a, b]);
       else {
         if (prior[0] !== b || prior[1] !== a)
-          throw new Error("Conforming interior triangles need opposite shared-edge orientation.");
+          throw new Error(
+            "Conforming interior triangles need opposite shared-edge orientation.",
+          );
         edges.delete(key);
         paired.add(key);
       }
@@ -257,7 +326,9 @@ function boundary(indices: readonly number[]): [number, number][] {
   const incoming = new Set<number>();
   for (const [a, b] of edges.values()) {
     if (next.has(a) || incoming.has(b))
-      throw new Error("A conforming boundary needs one incoming and outgoing edge per vertex.");
+      throw new Error(
+        "A conforming boundary needs one incoming and outgoing edge per vertex.",
+      );
     next.set(a, b);
     incoming.add(b);
   }
@@ -274,6 +345,8 @@ function boundary(indices: readonly number[]): [number, number][] {
     current = target;
   } while (current !== first);
   if (result.length !== edges.size)
-    throw new Error("A conforming material sheet must have one boundary component.");
+    throw new Error(
+      "A conforming material sheet must have one boundary component.",
+    );
   return result;
 }

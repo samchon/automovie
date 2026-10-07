@@ -1,18 +1,19 @@
-import type { IGeometryFormationTestMeasureProps } from "./IGeometryFormationTestMeasureProps";
 import { measureAutoMovieGeometry } from "@automovie/engine";
 import { IAutoMovieProductionDesign } from "@automovie/interface";
-import { GEOMETRY_FORMATION_TEST_WORLD as WORLD } from "./GEOMETRY_FORMATION_TEST_WORLD";
-import { geometryFormationTestUnit as unit } from "./geometryFormationTestUnit";
-import { geometryFormationTestContract as contract } from "./geometryFormationTestContract";
 
+import { GEOMETRY_FORMATION_TEST_WORLD as WORLD } from "./GEOMETRY_FORMATION_TEST_WORLD";
+import type { IGeometryFormationTestMeasureProps } from "./IGeometryFormationTestMeasureProps";
+import { geometryFormationTestContract as contract } from "./geometryFormationTestContract";
+import { geometryFormationTestUnit as unit } from "./geometryFormationTestUnit";
 
 const PRODUCTION: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
   frameFormat: { width: 200, height: 100, fps: 24, colorSpace: "srgb" },
 };
 
-
 /** Measure the requested formation from the existing design and compiled shot records. */
-export const geometryFormationTestMeasure = (props: IGeometryFormationTestMeasureProps): Record<string, number | string | boolean> => {
+export const geometryFormationTestMeasure = (
+  props: IGeometryFormationTestMeasureProps,
+): Record<string, number | string | boolean> => {
   const result = measureAutoMovieGeometry({
     request: {
       query: "formation",

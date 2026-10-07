@@ -1,6 +1,5 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-
 /** Construct a unit rotation about the world Y axis for the stated angle in radians. */
 export const builtTopologyTestYaw = (angle: number): IAutoMovieQuaternion => ({
   x: 0,

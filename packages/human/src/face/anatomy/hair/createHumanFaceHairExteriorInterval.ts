@@ -1,7 +1,4 @@
-import {
-  Vector3,
-  adjacentAutoMovieFloat64,
-} from "@automovie/engine";
+import { Vector3, adjacentAutoMovieFloat64 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairExteriorRay } from "./IHumanFaceHairExteriorRay";
@@ -37,7 +34,9 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits computational premises, not clinical bounds.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Its inputs are producer-derived rays rather than personal curve controls.
  */
-export function createHumanFaceHairExteriorInterval(props: IHumanFaceHairExteriorRay) {
+export function createHumanFaceHairExteriorInterval(
+  props: IHumanFaceHairExteriorRay,
+) {
   const direction = humanFaceHairFrame.direction(props.direction);
   const { epsilon, sample } = props.contact;
   assertHumanFaceHairIntegrationContext(props);

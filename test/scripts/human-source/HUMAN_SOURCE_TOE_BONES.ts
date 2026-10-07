@@ -7,7 +7,10 @@ import type { AutoMovieHumanBodyToeBone } from "@automovie/human/body/structures
  * the lesser toes three (toeN-1 to toeN-3), listed proximal first so a parent
  * always precedes its child.
  */
-export const HUMAN_SOURCE_TOE_BONES: readonly [string, AutoMovieHumanBodyToeBone][] = [
+export const HUMAN_SOURCE_TOE_BONES: readonly [
+  string,
+  AutoMovieHumanBodyToeBone,
+][] = [
   ["toe1-1", "leftHalluxProximal"],
   ["toe1-2", "leftHalluxDistal"],
   ["toe2-1", "leftSecondToeProximal"],

@@ -1,9 +1,10 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import type { BodyBoneFrames } from "./BodyBoneFrames";
-import type { IBodyBoneJoint } from "./IBodyBoneJoint";
 import type { IBodyBoneDualQuaternion } from "./IBodyBoneDualQuaternion";
+import type { IBodyBoneJoint } from "./IBodyBoneJoint";
 import { rotationMatrixOf } from "./rotationMatrixOf";
 
 /**
@@ -15,10 +16,7 @@ export function boneDualQuaternions(
   frames: BodyBoneFrames,
   joints: readonly IBodyBoneJoint[],
 ): IBodyBoneDualQuaternion[] {
-  const aligned = new Map<
-    AutoMovieHumanoidBone,
-    IBodyBoneDualQuaternion
-  >();
+  const aligned = new Map<AutoMovieHumanoidBone, IBodyBoneDualQuaternion>();
   for (const joint of joints) {
     const frame = frames.get(joint.bone);
     if (frame === undefined) throw new Error("no frame for " + joint.bone);

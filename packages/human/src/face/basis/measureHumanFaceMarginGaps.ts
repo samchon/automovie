@@ -34,9 +34,13 @@ export function measureHumanFaceMarginGaps(
   up: IAutoMovieVector3,
 ): number[] {
   const along = (v: number) =>
-    positions[3 * v] * axis[0] + positions[3 * v + 1] * axis[1] + positions[3 * v + 2] * axis[2];
+    positions[3 * v] * axis[0] +
+    positions[3 * v + 1] * axis[1] +
+    positions[3 * v + 2] * axis[2];
   const height = (v: number) =>
-    positions[3 * v] * up.x + positions[3 * v + 1] * up.y + positions[3 * v + 2] * up.z;
+    positions[3 * v] * up.x +
+    positions[3 * v + 1] * up.y +
+    positions[3 * v + 2] * up.z;
   const across = (chain: readonly number[], at: number): number => {
     const first = chain[0];
     const last = chain[chain.length - 1];
@@ -50,7 +54,9 @@ export function measureHumanFaceMarginGaps(
       if (before(along(a), at) && before(at, along(b)))
         return along(b) === along(a)
           ? height(a)
-          : height(a) + ((at - along(a)) * (height(b) - height(a))) / (along(b) - along(a));
+          : height(a) +
+              ((at - along(a)) * (height(b) - height(a))) /
+                (along(b) - along(a));
     }
     return height(last);
   };

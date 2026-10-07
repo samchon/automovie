@@ -26,7 +26,9 @@ export function humanPersonEyeCentre(
   const left = landmarks["joint-l-eye"];
   const right = landmarks["joint-r-eye"];
   if (left === undefined || right === undefined)
-    throw new Error("The person head carry needs the body's joint-l-eye and joint-r-eye landmarks.");
+    throw new Error(
+      "The person head carry needs the body's joint-l-eye and joint-r-eye landmarks.",
+    );
   return {
     x: (left.x + right.x) / 2,
     y: (left.y + right.y) / 2,

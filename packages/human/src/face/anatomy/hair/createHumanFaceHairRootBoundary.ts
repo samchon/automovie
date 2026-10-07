@@ -1,4 +1,5 @@
 import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+
 import type { IHumanFaceHairRootBoundary } from "./IHumanFaceHairRootBoundary";
 import type { IHumanFaceHairRootBoundaryProps } from "./IHumanFaceHairRootBoundaryProps";
 import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference";
@@ -60,11 +61,15 @@ export function createHumanFaceHairRootBoundary(
   const positions = [...props.positions];
   const indices = [...props.indices];
   if (
-    positions.length % 3 !== 0 || indices.length === 0 || indices.length % 3 !== 0 ||
-    !positions.every(Number.isFinite) || indices.some((id) =>
-      !Number.isInteger(id) || id < 0 || id >= positions.length / 3,
+    positions.length % 3 !== 0 ||
+    indices.length === 0 ||
+    indices.length % 3 !== 0 ||
+    !positions.every(Number.isFinite) ||
+    indices.some(
+      (id) => !Number.isInteger(id) || id < 0 || id >= positions.length / 3,
     )
-  ) throw new Error("Root boundary needs finite complete resident triangles.");
+  )
+    throw new Error("Root boundary needs finite complete resident triangles.");
   const identities = new Map<string, number>();
   const vertices: number[] = [];
   for (let at = 0; at < positions.length; at += 3) {
@@ -82,13 +87,23 @@ export function createHumanFaceHairRootBoundary(
     const source = indices.slice(at, at + 3);
     const ids = source.map((id) => vertices[id]);
     if (new Set(ids).size !== 3)
-      throw new Error("Root boundary triangles need distinct current vertices.");
-    const [a, b, c] = source.map((id) => Vector3.create(
-      positions[3 * id], positions[3 * id + 1], positions[3 * id + 2],
-    ));
-    const area = Vector3.length(Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)));
+      throw new Error(
+        "Root boundary triangles need distinct current vertices.",
+      );
+    const [a, b, c] = source.map((id) =>
+      Vector3.create(
+        positions[3 * id],
+        positions[3 * id + 1],
+        positions[3 * id + 2],
+      ),
+    );
+    const area = Vector3.length(
+      Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
+    );
     if (!(area > 0) || !Number.isFinite(area))
-      throw new Error("Root boundary triangle arithmetic must be finite and nondegenerate.");
+      throw new Error(
+        "Root boundary triangle arithmetic must be finite and nondegenerate.",
+      );
     const ordinal = triangles.length;
     triangles.push(ids);
     for (const id of ids) {
@@ -98,15 +113,31 @@ export function createHumanFaceHairRootBoundary(
     }
   }
   const resident = (triangle: number): void => {
-    if (!Number.isInteger(triangle) || triangle < 0 || triangle >= triangles.length)
-      throw new Error("Root boundary requires its original resident triangle ordinal.");
+    if (
+      !Number.isInteger(triangle) ||
+      triangle < 0 ||
+      triangle >= triangles.length
+    )
+      throw new Error(
+        "Root boundary requires its original resident triangle ordinal.",
+      );
   };
-  const queries = new Map<number, ReturnType<typeof createAutoMovieSignedMeshQuery>>();
+  const queries = new Map<
+    number,
+    ReturnType<typeof createAutoMovieSignedMeshQuery>
+  >();
   const resolve = (root: IHumanFaceHairRootReference): number[] => {
     resident(root.triangle);
-    if (root.weights.length !== 3 || root.weights.some((weight) => !Number.isFinite(weight) || weight < 0))
-      throw new Error("Root boundary needs three finite nonnegative support weights.");
-    const support = triangles[root.triangle].filter((_id, at) => root.weights[at] > 0);
+    if (
+      root.weights.length !== 3 ||
+      root.weights.some((weight) => !Number.isFinite(weight) || weight < 0)
+    )
+      throw new Error(
+        "Root boundary needs three finite nonnegative support weights.",
+      );
+    const support = triangles[root.triangle].filter(
+      (_id, at) => root.weights[at] > 0,
+    );
     if (support.length === 0)
       throw new Error("Root boundary weights need positive support.");
     let candidates = incidence.get(support[0])!;
@@ -114,7 +145,9 @@ export function createHumanFaceHairRootBoundary(
       const adjacent = incidence.get(id)!;
       if (adjacent.length < candidates.length) candidates = adjacent;
     }
-    return candidates.filter((triangle) => support.every((id) => triangles[triangle].includes(id)));
+    return candidates.filter((triangle) =>
+      support.every((id) => triangles[triangle].includes(id)),
+    );
   };
   return {
     resolve,
@@ -122,10 +155,18 @@ export function createHumanFaceHairRootBoundary(
       resident(triangle);
       let query = queries.get(triangle);
       if (query === undefined) {
-        query = createAutoMovieSignedMeshQuery({
-          positions: indices.slice(3 * triangle, 3 * triangle + 3).flatMap((id) => positions.slice(3 * id, 3 * id + 3)),
-          indices: [0, 1, 2], normals: null, uvs: null, skin: null,
-        }, { boundary: "open" });
+        query = createAutoMovieSignedMeshQuery(
+          {
+            positions: indices
+              .slice(3 * triangle, 3 * triangle + 3)
+              .flatMap((id) => positions.slice(3 * id, 3 * id + 3)),
+            indices: [0, 1, 2],
+            normals: null,
+            uvs: null,
+            skin: null,
+          },
+          { boundary: "open" },
+        );
         queries.set(triangle, query);
       }
       return query(point).distance;

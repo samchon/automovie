@@ -1,16 +1,18 @@
-import {
-  performShot,
-  type IAutoMovieStagedSet,
-} from "@automovie/engine";
-
+import { type IAutoMovieStagedSet, performShot } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { makeScriptWrite, makePerformanceWrite, validSynthesizer } from "./filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  validSynthesizer,
+} from "./filmFixtures";
 import { createSkeleton } from "./fixtures";
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Run the existing camera and malformed actor boundary assertions against the same staged set. */
-export function assertFilmNonFrameActorShapes(staged: IAutoMovieStagedSet.ISuccess): void {
+export function assertFilmNonFrameActorShapes(
+  staged: IAutoMovieStagedSet.ISuccess,
+): void {
   const cameraGesture = performShot({
     script: makeScriptWrite(),
     staged,

@@ -1,9 +1,9 @@
-import type { IBodyContactPlane } from "./IBodyContactPlane";
 import type { BodyContactBones } from "./BodyContactBones";
+import type { IBodyContactPlane } from "./IBodyContactPlane";
+import type { IChosenBodyPlane } from "./IChosenBodyPlane";
 import { bisectorPlane } from "./bisectorPlane";
 import { contactPlane } from "./contactPlane";
 import { depthOfPlane } from "./depthOfPlane";
-import type { IChosenBodyPlane } from "./IChosenBodyPlane";
 
 /**
  * The plane that asks the crossing patches for the least movement once it is
@@ -38,11 +38,13 @@ export function chooseContactPlane(
       2;
     return (
       listA.reduce(
-        (sum, v) => sum + Math.max(0, shift - depthOfPlane(plane, positions, v)),
+        (sum, v) =>
+          sum + Math.max(0, shift - depthOfPlane(plane, positions, v)),
         0,
       ) +
       listB.reduce(
-        (sum, v) => sum + Math.max(0, depthOfPlane(plane, positions, v) - shift),
+        (sum, v) =>
+          sum + Math.max(0, depthOfPlane(plane, positions, v) - shift),
         0,
       )
     );

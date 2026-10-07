@@ -92,7 +92,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
    * @author Samchon
    */
   export interface Fields {
-
     /** Fixed acquisition state for the surface measurements below. */
     referencePose: "eyes-open-forward-gaze-lips-apposed";
 

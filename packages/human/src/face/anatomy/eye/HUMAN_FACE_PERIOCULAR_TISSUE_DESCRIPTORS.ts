@@ -76,23 +76,79 @@ export const HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS: IAutoMovieHumanFacePerioc
     return [
       {
         tissue: `${lid}Orbicularis` as const,
-        inwardOffset: scalar(0.32, 0.17, 0.47, "authored", HWANG + "; using that skin thickness as whole-strip muscle depth without the connective layer is authored, not a measured muscle offset." + note),
-        thickness: scalar(0.336, 0.09, 0.585, authored ?? "measured", SURVE + ", orbicularis oculi 0.336 +/- 0.083 mm." + note),
+        inwardOffset: scalar(
+          0.32,
+          0.17,
+          0.47,
+          "authored",
+          HWANG +
+            "; using that skin thickness as whole-strip muscle depth without the connective layer is authored, not a measured muscle offset." +
+            note,
+        ),
+        thickness: scalar(
+          0.336,
+          0.09,
+          0.585,
+          authored ?? "measured",
+          SURVE + ", orbicularis oculi 0.336 +/- 0.083 mm." + note,
+        ),
       },
       {
         tissue: `${lid}TarsalBody` as const,
-        inwardOffset: scalar(0.656, 0.26, 1.055, "authored", "Authored cross-site sum: skin 0.32 mm (Hwang 2013) plus orbicularis 0.336 mm (Surve et al. 2018); the quantities were not measured together." + note),
-        thickness: scalar(0.907, 0.613, 1.201, authored ?? "measured", SURVE + ", tarsus 0.907 +/- 0.098 mm." + note),
+        inwardOffset: scalar(
+          0.656,
+          0.26,
+          1.055,
+          "authored",
+          "Authored cross-site sum: skin 0.32 mm (Hwang 2013) plus orbicularis 0.336 mm (Surve et al. 2018); the quantities were not measured together." +
+            note,
+        ),
+        thickness: scalar(
+          0.907,
+          0.613,
+          1.201,
+          authored ?? "measured",
+          SURVE + ", tarsus 0.907 +/- 0.098 mm." + note,
+        ),
       },
       {
         tissue: `${lid}SeptalSupport` as const,
-        inwardOffset: scalar(0.656, 0.26, 1.055, "authored", "Authored placement at the tarsal body's outer-face depth, behind the orbicularis." + note),
-        thickness: scalar(0.3, 0.1, 1, "authored", "Authored; no read source measures the orbital septum's thickness."),
+        inwardOffset: scalar(
+          0.656,
+          0.26,
+          1.055,
+          "authored",
+          "Authored placement at the tarsal body's outer-face depth, behind the orbicularis." +
+            note,
+        ),
+        thickness: scalar(
+          0.3,
+          0.1,
+          1,
+          "authored",
+          "Authored; no read source measures the orbital septum's thickness.",
+        ),
       },
       {
         tissue: `${lid}Conjunctiva` as const,
-        inwardOffset: scalar(1.563, 0.87, 2.26, "authored", "Authored cross-site sum of skin 0.32 mm, orbicularis 0.336 mm and tarsus 0.907 mm; no same-site depth was measured." + note),
-        thickness: scalar(0.049, 0.01, 0.2, "authored", "Authored arithmetic remainder of 1.612 mm after measurements at different sites (" + SURVE + "); conjunctival thickness remains unknown." + note),
+        inwardOffset: scalar(
+          1.563,
+          0.87,
+          2.26,
+          "authored",
+          "Authored cross-site sum of skin 0.32 mm, orbicularis 0.336 mm and tarsus 0.907 mm; no same-site depth was measured." +
+            note,
+        ),
+        thickness: scalar(
+          0.049,
+          0.01,
+          0.2,
+          "authored",
+          "Authored arithmetic remainder of 1.612 mm after measurements at different sites (" +
+            SURVE +
+            "); conjunctival thickness remains unknown." +
+            note,
+        ),
       },
     ];
   });

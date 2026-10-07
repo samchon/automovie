@@ -31,8 +31,7 @@ export function weldLatticeSeamNormals(
   columns: number,
   rows: number,
 ): IAutoMovieMesh {
-  if (mesh.normals === null || mesh.normals === undefined)
-    return { ...mesh };
+  if (mesh.normals === null || mesh.normals === undefined) return { ...mesh };
   const width = columns + 1;
   if (mesh.normals.length !== 3 * width * (rows + 1))
     throw new Error("The lattice's normals must match its columns and rows.");
@@ -40,7 +39,9 @@ export function weldLatticeSeamNormals(
   for (let row = 0; row <= rows; row++) {
     const a = 3 * row * width,
       b = a + 3 * columns;
-    const sum = [0, 1, 2].map((axis) => mesh.normals![a + axis] + mesh.normals![b + axis]);
+    const sum = [0, 1, 2].map(
+      (axis) => mesh.normals![a + axis] + mesh.normals![b + axis],
+    );
     const length = Math.hypot(...sum);
     if (length === 0) continue;
     for (let axis = 0; axis < 3; axis++) {

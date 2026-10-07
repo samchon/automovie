@@ -1,15 +1,19 @@
-import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
-import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
-import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";
 import {
   DEFAULT_SUBJECT_HEIGHT,
   materializeCompiledFormation,
   performShot,
   stageScene,
 } from "@automovie/engine";
-import { IAutoMovieActionCall, IAutoMovieFormationMotion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieFormationMotion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
+import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
+import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";
 import {
   makePerformanceWrite,
   makeScriptWrite,

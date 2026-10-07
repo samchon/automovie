@@ -1,7 +1,7 @@
 import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { admitHumanBodyBasisDocument } from "./admitHumanBodyBasisDocument";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Serialize the last valid body document, keeping geometry in its basis.
@@ -16,7 +16,11 @@ export function serializeHumanBodyBasisDocument(
   document: IAutoMovieHumanBodyBasisDocument,
   source?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): string {
-  const text = JSON.stringify(admitHumanBodyBasisDocument(document, source), null, 2);
+  const text = JSON.stringify(
+    admitHumanBodyBasisDocument(document, source),
+    null,
+    2,
+  );
   assertTextSize(text);
   return text;
 }

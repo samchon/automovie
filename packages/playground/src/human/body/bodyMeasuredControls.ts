@@ -25,7 +25,9 @@ import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
  * cannot erase a measurement the user is still entering. Only a successful
  * solve changes the body document; this draft map is never serialized.
  */
-export function renderBodyMeasuredControls(props: IBodyMeasuredControlsProps): void {
+export function renderBodyMeasuredControls(
+  props: IBodyMeasuredControlsProps,
+): void {
   const mm = (metres: number | null): string =>
     metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
   const interval = (band: readonly [number, number]): string =>

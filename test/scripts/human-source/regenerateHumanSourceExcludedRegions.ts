@@ -30,29 +30,73 @@ export function regenerateHumanSourceExcludedRegions(
 ): IHumanSourceExcludedRegionReceipt[] {
   const receipts: IHumanSourceExcludedRegionReceipt[] = [];
   for (const [region, prefix, interior, boundary, operator] of [
-    ["nipple", "flatten", sample.flattenInterior, sample.flattenBoundary, sample.flattenOperator],
-    ["genital", "genital-fill", sample.genitalInterior, sample.genitalBoundary, sample.genitalOperator],
+    [
+      "nipple",
+      "flatten",
+      sample.flattenInterior,
+      sample.flattenBoundary,
+      sample.flattenOperator,
+    ],
+    [
+      "genital",
+      "genital-fill",
+      sample.genitalInterior,
+      sample.genitalBoundary,
+      sample.genitalOperator,
+    ],
   ] as const) {
     const before = Float64Array.from(skin.positions);
-    fillHumanSourceRegion(interior, boundary, operator, skin.positions, root.nativeToSource);
-    const vertices = Array.from(interior, (native) => root.nativeToSource[native]).sort((a, b) => a - b);
-    let moved = 0, maximum = 0, total = 0;
+    fillHumanSourceRegion(
+      interior,
+      boundary,
+      operator,
+      skin.positions,
+      root.nativeToSource,
+    );
+    const vertices = Array.from(
+      interior,
+      (native) => root.nativeToSource[native],
+    ).sort((a, b) => a - b);
+    let moved = 0,
+      maximum = 0,
+      total = 0;
     for (const vertex of vertices) {
-      const distance = Math.hypot(...[0, 1, 2].map((axis) => skin.positions[3 * vertex + axis] - before[3 * vertex + axis]));
-      if (!Number.isFinite(distance)) throw new Error(`The ${region} fill produced a nonfinite coordinate.`);
+      const distance = Math.hypot(
+        ...[0, 1, 2].map(
+          (axis) =>
+            skin.positions[3 * vertex + axis] - before[3 * vertex + axis],
+        ),
+      );
+      if (!Number.isFinite(distance))
+        throw new Error(`The ${region} fill produced a nonfinite coordinate.`);
       if (distance !== 0) moved++;
       maximum = Math.max(maximum, distance);
       total += distance;
-      for (let axis = 0; axis < 3; axis++) root.topology.positions[3 * vertex + axis] = skin.positions[3 * vertex + axis];
+      for (let axis = 0; axis < 3; axis++)
+        root.topology.positions[3 * vertex + axis] =
+          skin.positions[3 * vertex + axis];
     }
     receipts.push({
-      region, operator: [`${prefix}-interior.i32`, `${prefix}-boundary.i32`, `${prefix}-operator.f64`],
-      sourceVertices: vertices, moved, maximumDisplacementMetres: maximum,
-      meanDisplacementMetres: vertices.length === 0 ? 0 : total / vertices.length,
+      region,
+      operator: [
+        `${prefix}-interior.i32`,
+        `${prefix}-boundary.i32`,
+        `${prefix}-operator.f64`,
+      ],
+      sourceVertices: vertices,
+      moved,
+      maximumDisplacementMetres: maximum,
+      meanDisplacementMetres:
+        vertices.length === 0 ? 0 : total / vertices.length,
     });
   }
   const cut = skin.partition.cut;
-  const pick = (samples: Int32Array): Float64Array => Float64Array.from(Array.from(samples).flatMap((vertex) => Array.from(skin.positions.subarray(3 * vertex, 3 * vertex + 3))));
+  const pick = (samples: Int32Array): Float64Array =>
+    Float64Array.from(
+      Array.from(samples).flatMap((vertex) =>
+        Array.from(skin.positions.subarray(3 * vertex, 3 * vertex + 3)),
+      ),
+    );
   skin.bodyPositions = pick(cut.p1BodyToG1);
   skin.headPositions = pick(cut.faceToG1);
   return receipts;

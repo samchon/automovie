@@ -1,6 +1,6 @@
-import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IHumanBodyExteriorRestReference } from "../binding/IHumanBodyExteriorRestReference";
 import type { AutoMovieHumanBodyPartId } from "../identity/AutoMovieHumanBodyPartId";
 
@@ -44,8 +44,15 @@ export interface IHumanBodyAnatomicalAssemblyPartsInput {
   exteriorRestReference?: IHumanBodyExteriorRestReference;
 
   /** Actual completed source part; observer exceptions propagate to the original construction. */
-  observePartComplete?: (part: AutoMovieHumanBodyPartId, completed: number, total: number) => void;
+  observePartComplete?: (
+    part: AutoMovieHumanBodyPartId,
+    completed: number,
+    total: number,
+  ) => void;
 
   /** Actual consumed source quantity path; observer exceptions propagate. */
-  observeQuantityComplete?: (part: AutoMovieHumanBodyPartId, path: string) => void;
+  observeQuantityComplete?: (
+    part: AutoMovieHumanBodyPartId,
+    path: string,
+  ) => void;
 }

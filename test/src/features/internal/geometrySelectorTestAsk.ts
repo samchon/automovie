@@ -1,15 +1,33 @@
-import { type IAutoMovieVector3, IAutoMovieTransform, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieClip, IAutoMovieShot, IAutoMovieCamera, IAutoMovieCompiledShotSource, AutoMovieGeometryQuery, IAutoMovieGeometryResult, IAutoMovieWorldDesign } from "@automovie/interface";
-import { joint, keyframe, makeMotion, makePose, createModel, createSkeleton } from "./fixtures";
 import { measureAutoMovieGeometry } from "@automovie/engine";
-import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "./GEOMETRY_SELECTOR_TEST_WORLD";
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieGeometryResult,
+  IAutoMovieModel,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieTransform,
+  type IAutoMovieVector3,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
 
+import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "./GEOMETRY_SELECTOR_TEST_WORLD";
+import {
+  createModel,
+  createSkeleton,
+  joint,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "./fixtures";
 
 const place = (
   translation: IAutoMovieVector3,
   rotation = { x: 0, y: 0, z: 0, w: 1 },
   scale = { x: 1, y: 1, z: 1 },
 ): IAutoMovieTransform => ({ translation, rotation, scale });
-
 
 /** A two-second clip whose every key holds the root one metre forward. */
 const WALK = {
@@ -35,18 +53,14 @@ const WALK = {
   id: "walk",
 };
 
-
 const PROP: IAutoMovieModel = { ...createModel(null), id: "prop" };
-
 
 const RIGGED: IAutoMovieModel = {
   ...createModel(createSkeleton()),
   id: "rigged",
 };
 
-
 const QUARTER_Y = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
-
 
 const node = (
   id: string,
@@ -61,7 +75,6 @@ const node = (
   pose: null,
   ...extra,
 });
-
 
 /** Eight metres along +x over four seconds, under a fixed quarter turn and doubled scale. */
 const CART_PATH: IAutoMovieClip = {
@@ -100,7 +113,6 @@ const CART_PATH: IAutoMovieClip = {
   ],
 };
 
-
 const shot = (
   id: string,
   overrides: Partial<IAutoMovieShot> = {},
@@ -116,7 +128,6 @@ const shot = (
   ...overrides,
 });
 
-
 const camera: IAutoMovieCamera = {
   id: "cam",
   transform: place({ x: 0, y: 1, z: 10 }),
@@ -125,7 +136,6 @@ const camera: IAutoMovieCamera = {
   far: 100,
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 };
-
 
 const compiled = (
   value: IAutoMovieShot,
@@ -144,7 +154,6 @@ const compiled = (
   formationSlotMotions: [],
   effects: [],
 });
-
 
 const SHOTS = new Map<string, IAutoMovieCompiledShotSource>([
   [
@@ -195,7 +204,6 @@ const SHOTS = new Map<string, IAutoMovieCompiledShotSource>([
     ),
   ],
 ]);
-
 
 /** Evaluate the existing geometry query against the shared compiled shot records. */
 export const geometrySelectorTestAsk = (

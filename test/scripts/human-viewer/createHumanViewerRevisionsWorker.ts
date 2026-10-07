@@ -21,12 +21,18 @@ import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the published digests and the worker; the digest rules stay in createHumanViewerRevisions.
  * @evidence contracts/common.md#meaningful-documentation States where each computation runs, the ordering and the failure handling.
  */
-export function createHumanViewerRevisionsWorker(props: ICreateHumanViewerRevisionsWorkerProps) {
+export function createHumanViewerRevisionsWorker(
+  props: ICreateHumanViewerRevisionsWorkerProps,
+) {
   const first = createHumanViewerRevisions(props);
   let current: IHumanViewerRevisions = first.current();
   let reached = new Set(first.reached());
-  const init: IHumanViewerRevisionsWorkerInit = { root: props.root, entries: props.entries,
-    extra: [...props.extra], bases: props.bases() };
+  const init: IHumanViewerRevisionsWorkerInit = {
+    root: props.root,
+    entries: props.entries,
+    extra: [...props.extra],
+    bases: props.bases(),
+  };
   const worker = new Worker(props.worker, { workerData: init });
   // The worker must not keep a stopping server alive.
   worker.unref();
@@ -35,11 +41,20 @@ export function createHumanViewerRevisionsWorker(props: ICreateHumanViewerRevisi
   const fail = (error: Error): void => {
     failure = error;
     for (const settle of waiting.splice(0))
-      settle({ revisions: current, moved: [], reached: [...reached], error: error.message });
+      settle({
+        revisions: current,
+        moved: [],
+        reached: [...reached],
+        error: error.message,
+      });
   };
-  worker.on("message", (reply: IHumanViewerRevisionsReply) => waiting.shift()?.(reply));
+  worker.on("message", (reply: IHumanViewerRevisionsReply) =>
+    waiting.shift()?.(reply),
+  );
   worker.on("error", fail);
-  worker.on("exit", (code) => fail(new Error(`The revision worker exited with code ${code}`)));
+  worker.on("exit", (code) =>
+    fail(new Error(`The revision worker exited with code ${code}`)),
+  );
   return {
     /** The last computed digests. */
     current: (): IHumanViewerRevisions => current,
@@ -52,10 +67,14 @@ export function createHumanViewerRevisionsWorker(props: ICreateHumanViewerRevisi
       if (failure !== null) throw failure;
       const reply = await new Promise<IHumanViewerRevisionsReply>((resolve) => {
         waiting.push(resolve);
-        const change: IHumanViewerRevisionsChange = { files, bases: props.bases() };
+        const change: IHumanViewerRevisionsChange = {
+          files,
+          bases: props.bases(),
+        };
         worker.postMessage(change);
       });
-      if (reply.error !== null) throw new Error("Revision digests failed: " + reply.error);
+      if (reply.error !== null)
+        throw new Error("Revision digests failed: " + reply.error);
       current = reply.revisions;
       reached = new Set(reply.reached);
       return { moved: reply.moved };

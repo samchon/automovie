@@ -1,8 +1,8 @@
 import type { HumanViewerLane } from "./HumanViewerLane";
-import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus";
 import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
 import type { ICreateHumanViewerQueueProps } from "./ICreateHumanViewerQueueProps";
 import type { IHumanViewerQueueRunning } from "./IHumanViewerQueueRunning";
+import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus";
 
 const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
 
@@ -35,14 +35,19 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
     label: string;
     start: () => Promise<void>;
   }
-  const lines: Record<HumanViewerLane, IEntry[]> = { ui: [], cli: [], bulk: [] };
+  const lines: Record<HumanViewerLane, IEntry[]> = {
+    ui: [],
+    cli: [],
+    bulk: [],
+  };
   let running: IHumanViewerQueueRunning | null = null;
   let last: IHumanViewerQueueStatus["last"] = null;
   let streak = 0;
   let foregroundAt = Number.NEGATIVE_INFINITY;
   let timer = false;
   const quiet = (): boolean =>
-    (props.quietMs ?? 0) <= 0 || props.now() - foregroundAt >= (props.quietMs ?? 0);
+    (props.quietMs ?? 0) <= 0 ||
+    props.now() - foregroundAt >= (props.quietMs ?? 0);
   const pick = (): IEntry | undefined => {
     const order =
       streak >= props.patience && lines.cli.length !== 0
@@ -62,10 +67,13 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
     else if (lines.bulk.length !== 0 && !timer) {
       // Only gated bulk work waits: look again when the quiet period can end.
       timer = true;
-      (props.later ?? ((run, ms) => void setTimeout(run, ms)))(() => {
-        timer = false;
-        drain();
-      }, Math.max(1, (props.quietMs ?? 0) - (props.now() - foregroundAt)));
+      (props.later ?? ((run, ms) => void setTimeout(run, ms)))(
+        () => {
+          timer = false;
+          drain();
+        },
+        Math.max(1, (props.quietMs ?? 0) - (props.now() - foregroundAt)),
+      );
     }
   };
   return {
@@ -128,7 +136,11 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
       });
     },
     status: (): IHumanViewerQueueStatus => ({
-      waiting: { ui: lines.ui.length, cli: lines.cli.length, bulk: lines.bulk.length },
+      waiting: {
+        ui: lines.ui.length,
+        cli: lines.cli.length,
+        bulk: lines.bulk.length,
+      },
       running: running?.label ?? null,
       runningMs: running === null ? null : props.now() - running.start,
       last,

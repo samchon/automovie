@@ -1,8 +1,15 @@
-import type { AutoMovieContentDigest, IAutoMovieDiagnostic, IAutoMovieGeneratedManifest } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieDiagnostic,
+  IAutoMovieGeneratedManifest,
+} from "@automovie/interface";
 import path from "node:path";
 
 import type { AutoMovieProductionProject } from "./AutoMovieProductionProject";
-import { canonicalAutoMovieJsonBytes, digestAutoMovieBytes } from "./contentIdentity";
+import {
+  canonicalAutoMovieJsonBytes,
+  digestAutoMovieBytes,
+} from "./contentIdentity";
 import { generatedOwnershipDiagnosticMessage } from "./generatedOwnershipDiagnosticMessage";
 import { normalizeSlash } from "./productionBuildDiagnostics";
 
@@ -27,8 +34,13 @@ import { normalizeSlash } from "./productionBuildDiagnostics";
  */
 export const inspectAutoMovieGeneratedOwnership = (props: {
   /** Fenced reader for resident generated records and bytes. */
-  project: Pick<AutoMovieProductionProject,
-    "root" | "generatedManifest" | "generatedRoot" | "trackedStatePath" | "readGeneratedFile"
+  project: Pick<
+    AutoMovieProductionProject,
+    | "root"
+    | "generatedManifest"
+    | "generatedRoot"
+    | "trackedStatePath"
+    | "readGeneratedFile"
   >;
 
   /** Exact manifest derived from the current design, source and protocol. */
@@ -82,11 +94,8 @@ export const inspectAutoMovieGeneratedOwnership = (props: {
         matchesDeclared = false;
       }
       diagnostics.push({
-        code: matchesDeclared
-          ? "generated-stale-output"
-          : "generated-unowned",
-        category:
-          matchesDeclared && repairDeclaredFiles ? "warning" : "error",
+        code: matchesDeclared ? "generated-stale-output" : "generated-unowned",
+        category: matchesDeclared && repairDeclaredFiles ? "warning" : "error",
         phase: "compile",
         target: relative,
         path: normalizeSlash(path.relative(props.project.root, file)),

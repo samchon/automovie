@@ -8,7 +8,9 @@ import type { IHumanResidentRequest } from "./IHumanResidentRequest";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Returns numerical failures without publishing partial results.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps initialization and evaluation in a correlated worker error boundary.
  */
-export function createHumanResidentHandler<Input, Output>(props: IHumanResidentHandlerProps<Input, Output>) {
+export function createHumanResidentHandler<Input, Output>(
+  props: IHumanResidentHandlerProps<Input, Output>,
+) {
   return async (request: IHumanResidentRequest<Input>): Promise<void> => {
     try {
       const evaluate = await props.prepare;

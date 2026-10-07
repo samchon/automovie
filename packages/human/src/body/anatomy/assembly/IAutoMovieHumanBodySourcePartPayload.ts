@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodySourcePartAttachment } from "./IAutoMovieHumanBodySourcePartAttachment";
 import type { IAutoMovieHumanBodySourcePartSurface } from "./IAutoMovieHumanBodySourcePartSurface";
-import type { IAutoMovieHumanBodySourceVolumeBinding } from "./IAutoMovieHumanBodySourceVolumeBinding";
 import type { IAutoMovieHumanBodySourceShapeField } from "./IAutoMovieHumanBodySourceShapeField";
+import type { IAutoMovieHumanBodySourceVolumeBinding } from "./IAutoMovieHumanBodySourceVolumeBinding";
 
 /**
  * Acquired or authored members and attachments of one coarse anatomical part.
@@ -28,7 +28,10 @@ import type { IAutoMovieHumanBodySourceShapeField } from "./IAutoMovieHumanBodyS
  */
 export interface IAutoMovieHumanBodySourcePartPayload {
   /** Nonempty independent source boundaries, preserving separate muscle heads or islands. */
-  surfaces: readonly [IAutoMovieHumanBodySourcePartSurface, ...IAutoMovieHumanBodySourcePartSurface[]];
+  surfaces: readonly [
+    IAutoMovieHumanBodySourcePartSurface,
+    ...IAutoMovieHumanBodySourcePartSurface[],
+  ];
   /** Named source graph references; muscle source requires origin and insertion roles. */
   attachments: readonly IAutoMovieHumanBodySourcePartAttachment[];
   /** Atlas or authored-reference meaning and unresolved scientific limits. */

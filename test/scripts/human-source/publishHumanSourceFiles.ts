@@ -7,12 +7,22 @@ import type { IHumanSourceFilesPublicationInput } from "./structures/IHumanSourc
  * acquires normal-admission authority. Stage qualification stays explicit.
  * @author Samchon
  */
-export function publishHumanSourceFiles(input: IHumanSourceFilesPublicationInput): void {
+export function publishHumanSourceFiles(
+  input: IHumanSourceFilesPublicationInput,
+): void {
   input.verifyInputs();
-  const publication = createHumanSourcePublication(input.directory, input.authorityName);
+  const publication = createHumanSourcePublication(
+    input.directory,
+    input.authorityName,
+  );
   try {
     for (const [name, bytes] of input.files) publication.write(name, bytes);
-    publication.complete(input.generation, input.completeGeneration, input.inspectionOnly, input.verifyInputs);
+    publication.complete(
+      input.generation,
+      input.completeGeneration,
+      input.inspectionOnly,
+      input.verifyInputs,
+    );
   } catch (error) {
     publication.refuse(error);
     throw error;

@@ -1,6 +1,6 @@
+import { convertHumanSourceCoordinates } from "./convertHumanSourceCoordinates.ts";
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 import type { IHumanSourceTopology } from "./structures/IHumanSourceTopology.ts";
-import { convertHumanSourceCoordinates } from "./convertHumanSourceCoordinates.ts";
 
 /**
  * Convert the sampled skin to the shared frame and fan-triangulate it.
@@ -11,9 +11,15 @@ import { convertHumanSourceCoordinates } from "./convertHumanSourceCoordinates.t
  * source-frame convention recorded by the body extraction receipt; the caller
  * proves it by exact twins rather than trusting the number.
  */
-export function buildHumanSourceTopology(sample: IHumanSourceSample, offset: number): IHumanSourceTopology {
+export function buildHumanSourceTopology(
+  sample: IHumanSourceSample,
+  offset: number,
+): IHumanSourceTopology {
   const n = sample.manifest.vertices;
-  if (sample.neutral.length !== 3 * n) throw new Error("The sampled source vertex population disagrees with its coordinates.");
+  if (sample.neutral.length !== 3 * n)
+    throw new Error(
+      "The sampled source vertex population disagrees with its coordinates.",
+    );
   const positions = convertHumanSourceCoordinates(sample.neutral, offset);
   const triangles: number[] = [];
   const cornerUv: number[] = [];

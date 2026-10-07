@@ -1,11 +1,26 @@
-import type { IAutoMovieTransform, IAutoMovieClip } from "@automovie/interface";
+import type { IAutoMovieClip, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { createModel, createSkeleton } from "./fixtures";
+
 import type { IFilmCameraClearanceDeformationInputs } from "./IFilmCameraClearanceDeformationInputs";
+import { createModel, createSkeleton } from "./fixtures";
 
 /** Run the original articulated reach, unsupported deformation and motion boundary assertions. */
-export function assertFilmCameraClearanceDeformation(input: IFilmCameraClearanceDeformationInputs): IAutoMovieClip {
-  const { performed, clearStage, heroCamera, sourceNode, movingNode, propModel, inspectAdapter, runtimeModels, identity, offClockCameraMotion, runtime } = input;
+export function assertFilmCameraClearanceDeformation(
+  input: IFilmCameraClearanceDeformationInputs,
+): IAutoMovieClip {
+  const {
+    performed,
+    clearStage,
+    heroCamera,
+    sourceNode,
+    movingNode,
+    propModel,
+    inspectAdapter,
+    runtimeModels,
+    identity,
+    offClockCameraMotion,
+    runtime,
+  } = input;
   const [actorNode, actorMotion] = Object.entries(performed.motions)[0]!;
   const foldedSkeleton = createSkeleton();
   foldedSkeleton.bones = foldedSkeleton.bones.map((bone) =>

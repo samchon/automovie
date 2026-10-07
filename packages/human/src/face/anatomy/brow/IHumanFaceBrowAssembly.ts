@@ -1,11 +1,15 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IHumanConstructionCheck } from "../../../common/basis/IHumanConstructionCheck";
 
 /** Generated brow shafts plus exact resident card vertices they replace.
  *
  * @author Samchon
  */
-export interface IHumanFaceBrowAssembly extends Pick<IAutoMovieModel, "parts" | "materials"> {
+export interface IHumanFaceBrowAssembly extends Pick<
+  IAutoMovieModel,
+  "parts" | "materials"
+> {
   /** Original implantation checks on the same constructed shaft population. */
   checks: readonly IHumanConstructionCheck[];
 

@@ -10,8 +10,13 @@ import { humanViewerStorage } from "./humanViewerStorage";
  * HUMAN_VIEWER_STORAGE_ROOT like the server and control clients, so authored
  * documents reach the same input catalogue as the selected viewer.
  */
-export function createNodeHumanViewerClientIo(root: string): IHumanViewerClientIo {
-  const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
+export function createNodeHumanViewerClientIo(
+  root: string,
+): IHumanViewerClientIo {
+  const storage = humanViewerStorage(
+    root,
+    process.env.HUMAN_VIEWER_STORAGE_ROOT,
+  );
   const inputs = path.join(storage, "inputs");
   return {
     storage: process.env.HUMAN_VIEWER_STORAGE_ROOT ? storage : undefined,
@@ -24,6 +29,8 @@ export function createNodeHumanViewerClientIo(root: string): IHumanViewerClientI
       fs.mkdirSync(inputs, { recursive: true });
       fs.copyFileSync(source, path.join(inputs, name));
     },
-    report: (message) => { process.stderr.write(message + "\n"); },
+    report: (message) => {
+      process.stderr.write(message + "\n");
+    },
   };
 }

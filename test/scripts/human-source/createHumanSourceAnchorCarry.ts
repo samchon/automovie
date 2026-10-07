@@ -9,7 +9,10 @@ import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/
  * value. With no anchor landmarks the carry is zero; a named landmark the body
  * does not have is refused.
  */
-export function createHumanSourceAnchorCarry(body: IAutoMovieHumanBodyBasis, landmarks: readonly string[]): (name: string) => number[] {
+export function createHumanSourceAnchorCarry(
+  body: IAutoMovieHumanBodyBasis,
+  landmarks: readonly string[],
+): (name: string) => number[] {
   const indices = landmarks.map((id) => {
     const index = body.landmarks.ids.indexOf(id);
     if (index < 0) throw new Error(`The body has no anchor landmark ${id}.`);
@@ -19,7 +22,9 @@ export function createHumanSourceAnchorCarry(body: IAutoMovieHumanBodyBasis, lan
     if (indices.length === 0) return [0, 0, 0];
     const rows = body.landmarks.targets[name] ?? [];
     const sum = [0, 0, 0];
-    for (let i = 0; i < rows.length; i += 4) if (indices.includes(rows[i])) for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c];
+    for (let i = 0; i < rows.length; i += 4)
+      if (indices.includes(rows[i]))
+        for (let c = 0; c < 3; c++) sum[c] += rows[i + 1 + c];
     return sum.map((x) => x / indices.length);
   };
 }

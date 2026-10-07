@@ -1,7 +1,7 @@
+import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
+import type { IHumanFaceProjectedSkinCourse } from "./IHumanFaceProjectedSkinCourse";
 import type { IHumanFaceSkinFrame } from "./IHumanFaceSkinFrame";
 import type { IHumanFaceSkinSeat } from "./IHumanFaceSkinSeat";
-import type { IHumanFaceProjectedSkinCourse } from "./IHumanFaceProjectedSkinCourse";
-import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
 
 /**
  * The face skin as a host for what grows on it or is pressed into it.
@@ -148,5 +148,7 @@ export interface IHumanFaceSkinHost {
    * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission stays with the relief owners.
    * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose guide points for personal sculpting.
    */
-  compileProjectedCourse(guide: readonly (readonly number[])[]): IHumanFaceProjectedSkinCourse;
+  compileProjectedCourse(
+    guide: readonly (readonly number[])[],
+  ): IHumanFaceProjectedSkinCourse;
 }

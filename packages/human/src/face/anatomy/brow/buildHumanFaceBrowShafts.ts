@@ -4,8 +4,8 @@ import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import type { IHumanFaceBrowShaftsProps } from "./IHumanFaceBrowShaftsProps";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
-import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 import { createHumanFaceBrowCourse } from "./createHumanFaceBrowCourse";
+import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
 /**
  * Build one eyebrow's shafts on the skin they grow from.
@@ -93,8 +93,11 @@ export function buildHumanFaceBrowShafts(
   )
     throw new Error("Eyebrow boundaries need resident skin identities.");
   const millimetre = 0.001;
-  const { flow, rootBand, endFade: ends } =
-    resolvePortraitEyebrowPlacement(shape);
+  const {
+    flow,
+    rootBand,
+    endFade: ends,
+  } = resolvePortraitEyebrowPlacement(shape);
   const landmark = (id: number) => ({
     x: positions[3 * id],
     y: positions[3 * id + 1],
@@ -144,8 +147,7 @@ export function buildHumanFaceBrowShafts(
     const end =
       direction?.tip ??
       start + (shape.span ?? 0.26 + 0.08 * Math.sin(Math.PI * u));
-    const bend =
-      (direction?.outwardBend ?? shape.outwardBend) * millimetre;
+    const bend = (direction?.outwardBend ?? shape.outwardBend) * millimetre;
     // Unit tangent of the band along the brow, toward its lateral end.
     const before = band(Math.max(0, u - 0.01), 0.5),
       after = band(Math.min(1, u + 0.01), 0.5);
@@ -161,8 +163,13 @@ export function buildHumanFaceBrowShafts(
         (value, axis) => value + (along[axis] / alongLength) * bend * t * t,
       );
     };
-    const metric = createHumanFaceBrowCourse(chart.compile(
-      Array.from({ length: rings }, (_, ring) => chart.project(course(ring / shape.segments)))));
+    const metric = createHumanFaceBrowCourse(
+      chart.compile(
+        Array.from({ length: rings }, (_, ring) =>
+          chart.project(course(ring / shape.segments)),
+        ),
+      ),
+    );
     const length = metric.lengthMetres;
     const progress = (t: number): number => t * t * (3 - 2 * t);
     const radius = (t: number): number =>
@@ -175,11 +182,16 @@ export function buildHumanFaceBrowShafts(
       const t = ring / shape.segments;
       const foot = metric.frameAt(length * t * advance);
       const weight = progress(t);
-      const normal = unit(foot.normal.map((value, axis) =>
-        metric.rootNormal[axis] * (1 - weight) + value * weight));
+      const normal = unit(
+        foot.normal.map(
+          (value, axis) =>
+            metric.rootNormal[axis] * (1 - weight) + value * weight,
+        ),
+      );
       const height =
         radius(t) +
-        (shape.clearance + shape.arch * Math.sin(Math.PI * t) ** 2) * millimetre +
+        (shape.clearance + shape.arch * Math.sin(Math.PI * t) ** 2) *
+          millimetre +
         length * t * rise;
       centres.push(
         foot.point.map((value, axis) => value + normal[axis] * height),
@@ -189,10 +201,15 @@ export function buildHumanFaceBrowShafts(
     const frames = centres.map((at, ring) => {
       const next = centres[Math.min(rings - 1, ring + 1)],
         previous = centres[Math.max(0, ring - 1)];
-      const tangent = ring === 0
-        ? unit(metric.rootTangent.map((value, axis) =>
-            value * advance + metric.rootNormal[axis] * rise))
-        : unit(next.map((value, axis) => value - previous[axis]));
+      const tangent =
+        ring === 0
+          ? unit(
+              metric.rootTangent.map(
+                (value, axis) =>
+                  value * advance + metric.rootNormal[axis] * rise,
+              ),
+            )
+          : unit(next.map((value, axis) => value - previous[axis]));
       const right = unit(cross(normals[ring], tangent));
       return { at, right, up: cross(tangent, right) };
     });

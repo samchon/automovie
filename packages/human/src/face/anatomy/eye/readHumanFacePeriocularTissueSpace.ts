@@ -104,13 +104,16 @@ export function readHumanFacePeriocularTissueSpace(
       throw new Error(
         "Periocular tissue space needs the lid skin of its cage: " + side,
       );
-    skins.set(side, skins.get(side) ?? {
-      positions: [...skinPoints],
-      indices: host.indices,
-      normals: null,
-      uvs: null,
-      skin: null,
-    });
+    skins.set(
+      side,
+      skins.get(side) ?? {
+        positions: [...skinPoints],
+        indices: host.indices,
+        normals: null,
+        uvs: null,
+        skin: null,
+      },
+    );
     for (const part of selected)
       readings.push(
         measureHumanFaceClearance({

@@ -1,16 +1,15 @@
 import { materializeCompiledFormation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
-import { geometryFormationTestUnit as unit } from "../internal/geometryFormationTestUnit";
+
+import { GEOMETRY_FORMATION_TEST_LOOKING_AWAY as LOOKING_AWAY } from "../internal/GEOMETRY_FORMATION_TEST_LOOKING_AWAY";
 import { GEOMETRY_FORMATION_TEST_WORLD as WORLD } from "../internal/GEOMETRY_FORMATION_TEST_WORLD";
 import { geometryFormationTestCompiledShot as compiledShot } from "../internal/geometryFormationTestCompiledShot";
-import { geometryFormationTestMeasure as measure } from "../internal/geometryFormationTestMeasure";
-import { geometryFormationTestGroundAt as groundAt } from "../internal/geometryFormationTestGroundAt";
-import { geometryFormationTestRemoveSlotFive as removeSlotFive } from "../internal/geometryFormationTestRemoveSlotFive";
-import { GEOMETRY_FORMATION_TEST_LOOKING_AWAY as LOOKING_AWAY } from "../internal/GEOMETRY_FORMATION_TEST_LOOKING_AWAY";
 import { geometryFormationTestContract as contract } from "../internal/geometryFormationTestContract";
-
-
+import { geometryFormationTestGroundAt as groundAt } from "../internal/geometryFormationTestGroundAt";
+import { geometryFormationTestMeasure as measure } from "../internal/geometryFormationTestMeasure";
+import { geometryFormationTestRemoveSlotFive as removeSlotFive } from "../internal/geometryFormationTestRemoveSlotFive";
+import { geometryFormationTestUnit as unit } from "../internal/geometryFormationTestUnit";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * A formation query reads a unit where its compiled runtime places it, and

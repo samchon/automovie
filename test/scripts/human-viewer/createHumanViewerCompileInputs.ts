@@ -13,8 +13,12 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the last compile's inputs and answers for each event.
  * @evidence contracts/common.md#meaningful-documentation States what counts, the membership rule and the state before the first compile.
  */
-export function createHumanViewerCompileInputs(human: string, extra: readonly string[]) {
-  const normalize = (file: string): string => path.resolve(file).replaceAll("\\", "/").toLowerCase();
+export function createHumanViewerCompileInputs(
+  human: string,
+  extra: readonly string[],
+) {
+  const normalize = (file: string): string =>
+    path.resolve(file).replaceAll("\\", "/").toLowerCase();
   const source = normalize(path.join(human, "src")) + "/";
   const root = normalize(human) + "/";
   const configs = new Set(extra.map(normalize));

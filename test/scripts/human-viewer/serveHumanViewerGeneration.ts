@@ -12,7 +12,9 @@ import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenera
  * @evidence contracts/common.md#principled-implementation The hold lives exactly as long as the client's open request, so no vanished client keeps compiles withheld.
  * @evidence contracts/common.md#meaningful-documentation States both routes, the release rule and the answer.
  */
-export function serveHumanViewerGeneration(props: IServeHumanViewerGenerationProps): boolean {
+export function serveHumanViewerGeneration(
+  props: IServeHumanViewerGenerationProps,
+): boolean {
   const { url, response } = props;
   if (url.pathname === "/generation/hold") {
     const token = props.windows.open();

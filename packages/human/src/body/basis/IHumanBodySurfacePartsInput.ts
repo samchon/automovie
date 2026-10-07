@@ -41,5 +41,7 @@ export interface IHumanBodySurfacePartsInput {
   leanOf: (index: number) => number[];
 
   /** Existing appearance owner's evaluated site colours. */
-  coloured: ReturnType<ReturnType<typeof createHumanBodyAppearance>>["coloured"];
+  coloured: ReturnType<
+    ReturnType<typeof createHumanBodyAppearance>
+  >["coloured"];
 }

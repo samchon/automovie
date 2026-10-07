@@ -1,10 +1,10 @@
-import { Quaternion, type IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IHumanBodyReferenceGoalPreparation } from "./IHumanBodyReferenceGoalPreparation";
 import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
-import type { IHumanBodyReferenceGoalPreparation } from "./IHumanBodyReferenceGoalPreparation";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
 import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShoulderRest";
 import { resolveHumanBodySourceReferenceGoals } from "./resolveHumanBodySourceReferenceGoals";
@@ -39,22 +39,59 @@ export function prepareHumanBodyReferenceGoalDocument(
 ): IHumanBodyReferenceGoalPreparation {
   if ((document.thighGoals ?? []).length === 0) return { document };
   for (const goal of document.thighGoals!) {
-    if (basis.joints.find((joint) => joint.bone === goal.bone)?.sourceReferenceGoal === undefined)
-      throw new Error("Body source-reference goal needs its exact basis capability: " + goal.bone);
+    if (
+      basis.joints.find((joint) => joint.bone === goal.bone)
+        ?.sourceReferenceGoal === undefined
+    )
+      throw new Error(
+        "Body source-reference goal needs its exact basis capability: " +
+          goal.bone,
+      );
     if (document.pose?.some((row) => row.bone === goal.bone))
-      throw new Error("Body thigh and source pose cannot author the same bone: " + goal.bone);
+      throw new Error(
+        "Body thigh and source pose cannot author the same bone: " + goal.bone,
+      );
   }
   const withoutGoals = { ...document, thighGoals: undefined };
-  const state = humanBodyBasisWeights(basis, withoutGoals,
-    resolveHumanBodyShapeShoulderRest(basis, document.shape));
-  const baseline = resolveHumanBodyBuildPose({ basis, document: withoutGoals,
-    poseRows: state.pose, landmarks: evaluateHumanBodyLandmarks(basis, state), phase: "pre-pelvis" });
-  const resolved: IAutoMovieResolvedBone[] = baseline.skeleton.bones.map((bone) => {
-    const frame = baseline.transforms.get(bone.bone)!.posed;
-    const parent = bone.parent === null ? undefined : baseline.transforms.get(bone.parent)!.posed;
-    return { bone: bone.bone, worldPosition: frame.position, worldRotation: frame.rotation,
-      localRotation: Quaternion.multiply(parent === undefined ? Quaternion.identity() : Quaternion.inverse(parent.rotation), frame.rotation) };
+  const state = humanBodyBasisWeights(
+    basis,
+    withoutGoals,
+    resolveHumanBodyShapeShoulderRest(basis, document.shape),
+  );
+  const baseline = resolveHumanBodyBuildPose({
+    basis,
+    document: withoutGoals,
+    poseRows: state.pose,
+    landmarks: evaluateHumanBodyLandmarks(basis, state),
+    phase: "pre-pelvis",
   });
-  return { document: resolveHumanBodySourceReferenceGoals({ basis, document, rig: baseline.rig, baseline: resolved }),
-    rig: baseline.rig };
+  const resolved: IAutoMovieResolvedBone[] = baseline.skeleton.bones.map(
+    (bone) => {
+      const frame = baseline.transforms.get(bone.bone)!.posed;
+      const parent =
+        bone.parent === null
+          ? undefined
+          : baseline.transforms.get(bone.parent)!.posed;
+      return {
+        bone: bone.bone,
+        worldPosition: frame.position,
+        worldRotation: frame.rotation,
+        localRotation: Quaternion.multiply(
+          parent === undefined
+            ? Quaternion.identity()
+            : Quaternion.inverse(parent.rotation),
+          frame.rotation,
+        ),
+      };
+    },
+  );
+  return {
+    document: resolveHumanBodySourceReferenceGoals({
+      basis,
+      document,
+      rig: baseline.rig,
+      baseline: resolved,
+    }),
+    rig: baseline.rig,
+  };
 }

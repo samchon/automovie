@@ -1,14 +1,14 @@
 import {
+  Vector3,
   buildAutoMovieMeshQueryHierarchy,
   collectAutoMovieSpatialQueryCandidates,
   segmentSegmentDistance,
-  Vector3,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceLashCapsuleEntry } from "./structures/IHumanFaceLashCapsuleEntry";
 import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
 import type { IHumanFaceLashSegment } from "./structures/IHumanFaceLashSegment";
-import type { IHumanFaceLashCapsuleEntry } from "./structures/IHumanFaceLashCapsuleEntry";
 
 /**
  * Admit the actual free shafts as shafts: each leaves its root, and no two
@@ -51,49 +51,92 @@ import type { IHumanFaceLashCapsuleEntry } from "./structures/IHumanFaceLashCaps
 export function assertHumanFaceLashContact(
   rows: readonly IHumanFaceLashRow[],
 ): void {
-  const point = (values: readonly number[], vertex: number): IAutoMovieVector3 => Vector3.create(values[3 * vertex], values[3 * vertex + 1], values[3 * vertex + 2]);
+  const point = (
+    values: readonly number[],
+    vertex: number,
+  ): IAutoMovieVector3 =>
+    Vector3.create(
+      values[3 * vertex],
+      values[3 * vertex + 1],
+      values[3 * vertex + 2],
+    );
   const segments: IHumanFaceLashSegment[] = [];
   let shaftId = 0;
   for (const row of rows) {
     if (row.mesh === null) continue;
-    const mesh = { ...row.mesh, positions: row.mesh.positions.map(Math.fround) };
+    const mesh = {
+      ...row.mesh,
+      positions: row.mesh.positions.map(Math.fround),
+    };
     for (let shaft = 0; shaft < row.centrelines.length; shaft++, shaftId++) {
       const centers = Array.from({ length: 13 }, (_, sample) => {
         const sum = Vector3.create();
         for (let radial = 0; radial < 8; radial++) {
           const p = point(mesh.positions, shaft * 117 + sample * 9 + radial);
-          sum.x += p.x / 8; sum.y += p.y / 8; sum.z += p.z / 8;
+          sum.x += p.x / 8;
+          sum.y += p.y / 8;
+          sum.z += p.z / 8;
         }
         return sum;
       });
-      const radii = centers.map((center, sample) => Math.max(...Array.from({ length: 8 }, (_, radial) => Vector3.length(Vector3.subtract(point(mesh.positions, shaft * 117 + sample * 9 + radial), center)))));
+      const radii = centers.map((center, sample) =>
+        Math.max(
+          ...Array.from({ length: 8 }, (_, radial) =>
+            Vector3.length(
+              Vector3.subtract(
+                point(mesh.positions, shaft * 117 + sample * 9 + radial),
+                center,
+              ),
+            ),
+          ),
+        ),
+      );
       const root = centers[0];
       if (Vector3.length(Vector3.subtract(centers[12], root)) <= radii[0])
-        throw new Error(`${row.side} ${row.row} shaft ${shaft} never leaves its geometric root insertion.`);
+        throw new Error(
+          `${row.side} ${row.row} shaft ${shaft} never leaves its geometric root insertion.`,
+        );
       for (let sample = 0; sample < 12; sample++) {
-        segments.push({ from: centers[sample], to: centers[sample + 1], radius: Math.max(radii[sample], radii[sample + 1]), shaft: shaftId, population: row.side + " " + row.row });
+        segments.push({
+          from: centers[sample],
+          to: centers[sample + 1],
+          radius: Math.max(radii[sample], radii[sample + 1]),
+          shaft: shaftId,
+          population: row.side + " " + row.row,
+        });
       }
     }
   }
   if (segments.length === 0) return;
-  const cell = Math.max(...segments.map(segment => Vector3.length(Vector3.subtract(segment.to, segment.from)) + 2 * segment.radius));
-  if (!(cell > 0) || !Number.isFinite(cell)) throw new Error("Generated shaft proximity has no finite spatial cell.");
-  const capsules: IHumanFaceLashCapsuleEntry[] = segments.map((segment, ordinal) => {
-    const axes = ["x", "y", "z"] as const;
-    const low = axes.map(
-      (axis) => Math.min(segment.from[axis], segment.to[axis]) - segment.radius,
-    );
-    const high = axes.map(
-      (axis) => Math.max(segment.from[axis], segment.to[axis]) + segment.radius,
-    );
-    return {
-      segment,
-      ordinal,
-      low,
-      high,
-      centre: low.map((value, axis) => value / 2 + high[axis] / 2),
-    };
-  });
+  const cell = Math.max(
+    ...segments.map(
+      (segment) =>
+        Vector3.length(Vector3.subtract(segment.to, segment.from)) +
+        2 * segment.radius,
+    ),
+  );
+  if (!(cell > 0) || !Number.isFinite(cell))
+    throw new Error("Generated shaft proximity has no finite spatial cell.");
+  const capsules: IHumanFaceLashCapsuleEntry[] = segments.map(
+    (segment, ordinal) => {
+      const axes = ["x", "y", "z"] as const;
+      const low = axes.map(
+        (axis) =>
+          Math.min(segment.from[axis], segment.to[axis]) - segment.radius,
+      );
+      const high = axes.map(
+        (axis) =>
+          Math.max(segment.from[axis], segment.to[axis]) + segment.radius,
+      );
+      return {
+        segment,
+        ordinal,
+        low,
+        high,
+        centre: low.map((value, axis) => value / 2 + high[axis] / 2),
+      };
+    },
+  );
   const hierarchy = buildAutoMovieMeshQueryHierarchy([...capsules]);
   for (const capsule of capsules) {
     const segment = capsule.segment;
@@ -113,7 +156,9 @@ export function assertHumanFaceLashContact(
         candidate.to,
       );
       if (distance < segment.radius + candidate.radius)
-        throw new Error(`${segment.population} shaft ${segment.shaft} overlaps the conservative capsule of ${candidate.population} shaft ${candidate.shaft}: ${distance * 1000} mm separation.`);
+        throw new Error(
+          `${segment.population} shaft ${segment.shaft} overlaps the conservative capsule of ${candidate.population} shaft ${candidate.shaft}: ${distance * 1000} mm separation.`,
+        );
     }
   }
 }

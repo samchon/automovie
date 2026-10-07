@@ -1,6 +1,6 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
 import type { IHumanPersonHairContactProps } from "@automovie/human/human/structures/IHumanPersonHairContactProps";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IUpperLimbHairContactObservation } from "./IUpperLimbHairContactObservation";
 import type { IUpperLimbSignedSurfaceObservation } from "./IUpperLimbSignedSurfaceObservation";
@@ -18,10 +18,17 @@ import type { IUpperLimbSignedSurfaceObservation } from "./IUpperLimbSignedSurfa
 export function observeUpperLimbHairContact(
   input: IHumanPersonHairContactProps,
 ): IUpperLimbHairContactObservation {
-  const read = (indices: readonly number[]): IUpperLimbSignedSurfaceObservation => {
+  const read = (
+    indices: readonly number[],
+  ): IUpperLimbSignedSurfaceObservation => {
     const start = performance.now();
     if (indices.length === 0)
-      return { status: "unavailable", triangles: 0, reason: "No actual selected contact triangles.", milliseconds: performance.now() - start };
+      return {
+        status: "unavailable",
+        triangles: 0,
+        reason: "No actual selected contact triangles.",
+        milliseconds: performance.now() - start,
+      };
     const mesh: IAutoMovieMesh = {
       positions: [...input.positions],
       indices: [...indices],
@@ -31,18 +38,41 @@ export function observeUpperLimbHairContact(
     };
     try {
       createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
-      return { status: "admitted", triangles: indices.length / 3, reason: null, milliseconds: performance.now() - start };
+      return {
+        status: "admitted",
+        triangles: indices.length / 3,
+        reason: null,
+        milliseconds: performance.now() - start,
+      };
     } catch (error) {
-      return { status: "refused", triangles: indices.length / 3, reason: error instanceof Error ? error.message : String(error), milliseconds: performance.now() - start };
+      return {
+        status: "refused",
+        triangles: indices.length / 3,
+        reason: error instanceof Error ? error.message : String(error),
+        milliseconds: performance.now() - start,
+      };
     }
   };
   return {
     stage: "placed-hair-before-body-contact",
     frame: "+Y up, +Z forward, +X left; person-model metres",
     bodyVertices: input.positions.length / 3,
-    hairVertices: input.hair.reduce((total, mesh) => total + mesh.positions.length / 3, 0),
+    hairVertices: input.hair.reduce(
+      (total, mesh) => total + mesh.positions.length / 3,
+      0,
+    ),
     clearanceMetres: input.clearance,
-    frozen: Object.isFrozen(input) && Object.isFrozen(input.positions) && Object.isFrozen(input.indices) && Object.isFrozen(input.hair) && input.hair.every((mesh) => Object.isFrozen(mesh) && Object.isFrozen(mesh.positions) && Object.isFrozen(mesh.indices)),
+    frozen:
+      Object.isFrozen(input) &&
+      Object.isFrozen(input.positions) &&
+      Object.isFrozen(input.indices) &&
+      Object.isFrozen(input.hair) &&
+      input.hair.every(
+        (mesh) =>
+          Object.isFrozen(mesh) &&
+          Object.isFrozen(mesh.positions) &&
+          Object.isFrozen(mesh.indices),
+      ),
     full: read(input.indices),
   };
 }

@@ -2,8 +2,8 @@ import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import { fetchHumanViewerPublishedGenerationBody } from "./fetchHumanViewerPublishedGenerationBody";
-import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import { humanViewerBasisDigests } from "./humanViewerBasisDigests";
+import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 
 /**
  * Read the same published body view the viewer's standard neutral body uses.
@@ -17,21 +17,44 @@ import { humanViewerBasisDigests } from "./humanViewerBasisDigests";
  * @evidence contracts/common.md#meaningful-documentation States source selection, replacement refusal and explicit-candidate separation.
  * @author Samchon
  */
-export async function readHumanViewerDefaultBodyBasis(origin: string): Promise<IAutoMovieHumanBodyBasis> {
+export async function readHumanViewerDefaultBodyBasis(
+  origin: string,
+): Promise<IAutoMovieHumanBodyBasis> {
   const response = await fetch(origin + "/docs?settled=1");
   if (!response.ok)
-    throw new Error(`The viewer body catalogue could not be read: ${response.status}`);
-  const catalogue = await response.json() as IHumanViewerCatalogue;
-  const body = catalogue.documents.find((entry) => entry.id === "body:neutral" && entry.domain === "body");
+    throw new Error(
+      `The viewer body catalogue could not be read: ${response.status}`,
+    );
+  const catalogue = (await response.json()) as IHumanViewerCatalogue;
+  const body = catalogue.documents.find(
+    (entry) => entry.id === "body:neutral" && entry.domain === "body",
+  );
   if (body === undefined) {
-    const refused = catalogue.rejected.find((entry) => entry.id === "body:neutral");
-    throw new Error("The viewer's standard body is not admitted: " + (refused?.reason ?? "body:neutral is unavailable"));
+    const refused = catalogue.rejected.find(
+      (entry) => entry.id === "body:neutral",
+    );
+    throw new Error(
+      "The viewer's standard body is not admitted: " +
+        (refused?.reason ?? "body:neutral is unavailable"),
+    );
   }
   if (body.basis.startsWith(humanViewerBasisTokens.publishedGeneration + "@")) {
-    const [, digest] = humanViewerBasisDigests(body.basis, humanViewerBasisTokens.publishedGeneration, 2);
-    return fetchHumanViewerPublishedGenerationBody(humanViewerBasisTokens.publishedGenerationBody + "@" + digest, origin);
+    const [, digest] = humanViewerBasisDigests(
+      body.basis,
+      humanViewerBasisTokens.publishedGeneration,
+      2,
+    );
+    return fetchHumanViewerPublishedGenerationBody(
+      humanViewerBasisTokens.publishedGenerationBody + "@" + digest,
+      origin,
+    );
   }
-  if (!body.basis.startsWith(humanViewerBasisTokens.publishedGenerationBody + "@"))
-    throw new Error("The viewer's standard body does not name a published generation-body view: " + body.basis);
+  if (
+    !body.basis.startsWith(humanViewerBasisTokens.publishedGenerationBody + "@")
+  )
+    throw new Error(
+      "The viewer's standard body does not name a published generation-body view: " +
+        body.basis,
+    );
   return fetchHumanViewerPublishedGenerationBody(body.basis, origin);
 }

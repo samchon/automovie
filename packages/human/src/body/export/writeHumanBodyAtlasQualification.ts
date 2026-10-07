@@ -18,23 +18,49 @@ import { readHumanBodyAtlasAssetCorrespondence } from "./readHumanBodyAtlasAsset
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Qualification is never supplied from material labels or reconstructed geometry.
  * @evidence contracts/common.md#meaningful-documentation States exact selected-member scope and unchanged geometry authority.
  */
-export function writeHumanBodyAtlasQualification(document: Document, input: IAutoMovieHumanBodyAtlasQualification): void {
-  const report = typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(input);
+export function writeHumanBodyAtlasQualification(
+  document: Document,
+  input: IAutoMovieHumanBodyAtlasQualification,
+): void {
+  const report =
+    typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(input);
   const records = new Map(report.parts.map((part) => [part.id, part]));
-  const primitives = document.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives());
-  const actual = primitives.flatMap((primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? [])
+  const primitives = document
+    .getRoot()
+    .listMeshes()
+    .flatMap((mesh) => mesh.listPrimitives());
+  const actual = primitives
+    .flatMap(
+      (primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+    )
     .filter((part) => /^(body:)?anatomical-atlas:/.test(part.id));
-  if (records.size === 0 || records.size !== report.parts.length || actual.length !== records.size ||
-      new Set(actual.map((part) => part.id)).size !== records.size || actual.some((part) => !records.has(part.id)))
-    throw new Error("Atlas qualification must identify every actual atlas source part exactly once.");
+  if (
+    records.size === 0 ||
+    records.size !== report.parts.length ||
+    actual.length !== records.size ||
+    new Set(actual.map((part) => part.id)).size !== records.size ||
+    actual.some((part) => !records.has(part.id))
+  )
+    throw new Error(
+      "Atlas qualification must identify every actual atlas source part exactly once.",
+    );
   for (const primitive of primitives) {
-    const parts = readHumanStaticPartCorrespondence(primitive)!.parts.flatMap((part) => {
-      const record = records.get(part.id);
-      return record === undefined ? [] : [structuredClone(record)];
-    });
+    const parts = readHumanStaticPartCorrespondence(primitive)!.parts.flatMap(
+      (part) => {
+        const record = records.get(part.id);
+        return record === undefined ? [] : [structuredClone(record)];
+      },
+    );
     if (parts.length === 0) continue;
-    const qualification: IAutoMovieHumanBodyAtlasQualification = { version: 1, qualification: "reference-atlas-inspection", parts };
-    primitive.setExtras({ ...primitive.getExtras(), automovieAtlasInspection: qualification });
+    const qualification: IAutoMovieHumanBodyAtlasQualification = {
+      version: 1,
+      qualification: "reference-atlas-inspection",
+      parts,
+    };
+    primitive.setExtras({
+      ...primitive.getExtras(),
+      automovieAtlasInspection: qualification,
+    });
     readHumanBodyAtlasAssetCorrespondence(primitive);
   }
 }

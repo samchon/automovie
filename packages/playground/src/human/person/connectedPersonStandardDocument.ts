@@ -12,12 +12,26 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Names the exact head view revision the starting face is replayed on.
  * @author Samchon
  */
-export function connectedPersonStandardDocument(faceBasis: string, bodyBasis: string): IAutoMovieHumanPersonDocument {
+export function connectedPersonStandardDocument(
+  faceBasis: string,
+  bodyBasis: string,
+): IAutoMovieHumanPersonDocument {
   return {
     id: "connected-person",
     name: "CC0 connected person",
     population: "linked",
-    face: { id: "connected-person-face", name: "reference face", basis: faceBasis, shape: {}, expression: {} },
-    body: { id: "connected-person-body", name: "neutral body", basis: bodyBasis, shape: {} },
+    face: {
+      id: "connected-person-face",
+      name: "reference face",
+      basis: faceBasis,
+      shape: {},
+      expression: {},
+    },
+    body: {
+      id: "connected-person-body",
+      name: "neutral body",
+      basis: bodyBasis,
+      shape: {},
+    },
   };
 }

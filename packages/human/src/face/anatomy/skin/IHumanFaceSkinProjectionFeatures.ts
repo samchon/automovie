@@ -1,5 +1,5 @@
-import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
 import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
+import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
 
 /**
  * Native nearest-feature candidates for one guide chord. A single local scale

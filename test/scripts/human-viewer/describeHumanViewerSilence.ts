@@ -15,10 +15,13 @@ import type { IHumanViewerSilenceFacts } from "./IHumanViewerSilenceFacts";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpret silence as readiness or as absence.
  * @evidence contracts/common.md#meaningful-documentation States what each outcome allows and why the module is import-free.
  */
-export function describeHumanViewerSilence(facts: IHumanViewerSilenceFacts): IHumanViewerSilence {
-  const owner = facts.recordedPid === null
-    ? "no process record for this port"
-    : `recorded pid ${facts.recordedPid} ${facts.recordedAlive ? "is alive" : "is gone"}`;
+export function describeHumanViewerSilence(
+  facts: IHumanViewerSilenceFacts,
+): IHumanViewerSilence {
+  const owner =
+    facts.recordedPid === null
+      ? "no process record for this port"
+      : `recorded pid ${facts.recordedPid} ${facts.recordedAlive ? "is alive" : "is gone"}`;
   return {
     ready: false,
     answer: facts.refused ? "absent" : "unanswered",

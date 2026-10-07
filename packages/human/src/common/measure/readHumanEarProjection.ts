@@ -40,15 +40,37 @@ export function readHumanEarProjection(
 ): IAutoMovieHumanHeadReading {
   const ear = humanHeadEar(head, region);
   const area = head.skinRegions![region];
-  const sign = Math.sign(area.vertices.reduce((sum, v) => sum + head.positions[v * 3], 0));
-  const lateral = (point: IAutoMovieVector3): number => sign * point.x;
-  const outermost = (points: IAutoMovieVector3[]): IAutoMovieVector3 | undefined =>
-    points.reduce<IAutoMovieVector3 | undefined>((a, b) => (a === undefined || lateral(b) > lateral(a) ? b : a), undefined);
-  const earPoint = outermost(humanHeadPlanePoints(head, 1, height, (t) => ear.triangles.has(t)).filter((point) => Math.sign(point.x) === sign));
-  if (earPoint === undefined) throw new Error(`The head view of ${head.id} cuts no ${region} at ${(height * 1000).toFixed(1)} mm.`);
-  const scalp = outermost(
-    humanHeadPlanePoints(head, 1, height, (t) => !ear.triangles.has(t)).filter((point) => Math.sign(point.x) === sign && point.z < earPoint.z),
+  const sign = Math.sign(
+    area.vertices.reduce((sum, v) => sum + head.positions[v * 3], 0),
   );
-  if (scalp === undefined) throw new Error(`The head view of ${head.id} has no scalp behind ${region} at ${(height * 1000).toFixed(1)} mm.`);
-  return { metres: lateral(earPoint) - lateral(scalp), points: { "ear-point": earPoint, "scalp-reference": scalp } };
+  const lateral = (point: IAutoMovieVector3): number => sign * point.x;
+  const outermost = (
+    points: IAutoMovieVector3[],
+  ): IAutoMovieVector3 | undefined =>
+    points.reduce<IAutoMovieVector3 | undefined>(
+      (a, b) => (a === undefined || lateral(b) > lateral(a) ? b : a),
+      undefined,
+    );
+  const earPoint = outermost(
+    humanHeadPlanePoints(head, 1, height, (t) => ear.triangles.has(t)).filter(
+      (point) => Math.sign(point.x) === sign,
+    ),
+  );
+  if (earPoint === undefined)
+    throw new Error(
+      `The head view of ${head.id} cuts no ${region} at ${(height * 1000).toFixed(1)} mm.`,
+    );
+  const scalp = outermost(
+    humanHeadPlanePoints(head, 1, height, (t) => !ear.triangles.has(t)).filter(
+      (point) => Math.sign(point.x) === sign && point.z < earPoint.z,
+    ),
+  );
+  if (scalp === undefined)
+    throw new Error(
+      `The head view of ${head.id} has no scalp behind ${region} at ${(height * 1000).toFixed(1)} mm.`,
+    );
+  return {
+    metres: lateral(earPoint) - lateral(scalp),
+    points: { "ear-point": earPoint, "scalp-reference": scalp },
+  };
 }

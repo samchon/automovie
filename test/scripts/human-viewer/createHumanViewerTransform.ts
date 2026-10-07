@@ -42,4 +42,6 @@ export function createHumanViewerTransform<Result>(
 }
 
 /** Named local transport for createHumanViewerTransform; member meaning remains with its calculation owner. */
-interface IHumanViewerWatchChange { event: string }
+interface IHumanViewerWatchChange {
+  event: string;
+}

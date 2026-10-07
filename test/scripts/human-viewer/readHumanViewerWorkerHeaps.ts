@@ -20,7 +20,10 @@ import type { IHumanViewerWorkerHeap } from "./IHumanViewerWorkerHeap";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns attaching, asking and detaching for every worker.
  * @evidence contracts/common.md#meaningful-documentation States the transport, the collection option and the vanished case.
  */
-export async function readHumanViewerWorkerHeaps(browser: Browser, collect: boolean): Promise<IHumanViewerWorkerHeap[]> {
+export async function readHumanViewerWorkerHeaps(
+  browser: Browser,
+  collect: boolean,
+): Promise<IHumanViewerWorkerHeap[]> {
   const root = await browser.newBrowserCDPSession();
   try {
     // Destruction events arrive only for discovered targets.
@@ -44,7 +47,12 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
       lost.catch(() => undefined);
       try {
         const { sessionId } = await Promise.race([
-          root.send("Target.attachToTarget", { targetId: target.targetId, flatten: false }), lost]);
+          root.send("Target.attachToTarget", {
+            targetId: target.targetId,
+            flatten: false,
+          }),
+          lost,
+        ]);
         let next = 0;
         const ask = <T>(method: string): Promise<T> => {
           const id = ++next;
@@ -56,10 +64,13 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
             };
             const listen = (event: IHumanViewerTargetMessage): void => {
               if (event.sessionId !== sessionId) return;
-              const reply = JSON.parse(event.message) as IHumanViewerWorkerReply<T>;
+              const reply = JSON.parse(
+                event.message,
+              ) as IHumanViewerWorkerReply<T>;
               if (reply.id !== id) return;
               done();
-              if (reply.error !== undefined) reject(new Error(reply.error.message));
+              if (reply.error !== undefined)
+                reject(new Error(reply.error.message));
               else resolve(reply.result as T);
             };
             // A worker that ends while it is read (a generation swap removes
@@ -78,16 +89,27 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
             root.on("Target.receivedMessageFromTarget", listen);
             root.on("Target.detachedFromTarget", detached);
             root.on("Target.targetDestroyed", destroyed);
-            void root.send("Target.sendMessageToTarget", { sessionId, message: JSON.stringify({ id, method }) })
+            void root
+              .send("Target.sendMessageToTarget", {
+                sessionId,
+                message: JSON.stringify({ id, method }),
+              })
               .catch((error: unknown) => {
                 done();
-                reject(error instanceof Error ? error : new Error(String(error)));
+                reject(
+                  error instanceof Error ? error : new Error(String(error)),
+                );
               });
           });
         };
         if (collect) await ask<object>("HeapProfiler.collectGarbage");
-        heaps.push({ url: target.url, usage: await ask<IHumanViewerHeapUsage>("Runtime.getHeapUsage") });
-        void root.send("Target.detachFromTarget", { sessionId }).catch(() => undefined);
+        heaps.push({
+          url: target.url,
+          usage: await ask<IHumanViewerHeapUsage>("Runtime.getHeapUsage"),
+        });
+        void root
+          .send("Target.detachFromTarget", { sessionId })
+          .catch(() => undefined);
       } catch {
         // The worker ended while it was read.
       } finally {
@@ -101,7 +123,13 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
 }
 
 /** Named local transport for readHumanViewerWorkerHeaps; member meaning remains with its calculation owner. */
-interface IHumanViewerWorkerReply<T> { id?: number; result?: T; error?: IHumanViewerWorkerError }
+interface IHumanViewerWorkerReply<T> {
+  id?: number;
+  result?: T;
+  error?: IHumanViewerWorkerError;
+}
 
 /** Named local transport for readHumanViewerWorkerHeaps; member meaning remains with its calculation owner. */
-interface IHumanViewerWorkerError { message: string }
+interface IHumanViewerWorkerError {
+  message: string;
+}

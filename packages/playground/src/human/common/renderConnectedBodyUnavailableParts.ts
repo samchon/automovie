@@ -28,7 +28,10 @@ export function renderConnectedBodyUnavailableParts(
   const byReason = new Map<string, string[]>();
   for (const part of Object.values(anatomy.parts))
     if (part.status === "unavailable" && part.id.toLowerCase().includes(query))
-      byReason.set(part.reason, [...(byReason.get(part.reason) ?? []), part.id]);
+      byReason.set(part.reason, [
+        ...(byReason.get(part.reason) ?? []),
+        part.id,
+      ]);
   if (byReason.size === 0) return;
   const group = dom.createElement("details");
   const summary = dom.createElement("summary");
@@ -40,7 +43,13 @@ export function renderConnectedBodyUnavailableParts(
     title.textContent = `${reason} (${ids.length})`;
     inner.append(title);
     for (const id of ids)
-      inner.append(createConnectedDisabledRow(dom, id, `Not generated on this body: ${reason}.`));
+      inner.append(
+        createConnectedDisabledRow(
+          dom,
+          id,
+          `Not generated on this body: ${reason}.`,
+        ),
+      );
     group.append(inner);
   }
   container.append(group);

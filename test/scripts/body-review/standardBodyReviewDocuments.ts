@@ -1,7 +1,7 @@
-import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
-import type { IAutoMovieJointPose } from "@automovie/interface";
 import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
 import { createHumanBodyShoulderPose } from "@automovie/human/body/document/createHumanBodyShoulderPose";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
+import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IBodyReviewState } from "./IBodyReviewState";
 

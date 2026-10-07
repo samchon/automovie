@@ -4,11 +4,11 @@ import type { HumanResidentPort } from "@automovie/playground/src/human/common/H
 
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import type { ICreateHumanViewerNumericalPortProps } from "./ICreateHumanViewerNumericalPortProps";
+import type { IHumanViewerPendingAdmission } from "./IHumanViewerPendingAdmission";
 import type { IHumanViewerPendingBuild } from "./IHumanViewerPendingBuild";
 import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
-import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
-import type { IHumanViewerPendingAdmission } from "./IHumanViewerPendingAdmission";
 import { humanViewerProtocol } from "./humanViewerProtocol";
+import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 
 type Result = ConnectedFaceResult | ConnectedBodyResult;
 
@@ -28,9 +28,14 @@ type Result = ConnectedFaceResult | ConnectedBodyResult;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Builds through the product runtimes and persists their actual results.
  * @evidence contracts/common.md#meaningful-documentation States cache order, persistence boundary and failure effect.
  */
-export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumericalPortProps) {
+export function createHumanViewerNumericalPort(
+  props: ICreateHumanViewerNumericalPortProps,
+) {
   const { work, spans } = props;
-  const worker = new Worker(new URL("./numerical-worker.mts", import.meta.url), { type: "module" });
+  const worker = new Worker(
+    new URL("./numerical-worker.mts", import.meta.url),
+    { type: "module" },
+  );
   const pending = new Map<number, IHumanViewerPendingBuild>();
   const admissions = new Map<number, IHumanViewerPendingAdmission>();
   let sequence = 0;
@@ -59,10 +64,13 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
     }
     if (data.type === "compiles") {
       if (data.protocol !== humanViewerProtocol) {
-        workerFailure = new Error("The numerical worker runs an incompatible viewer protocol");
+        workerFailure = new Error(
+          "The numerical worker runs an incompatible viewer protocol",
+        );
         rejectCompiles(workerFailure);
         for (const request of pending.values()) request.reject(workerFailure);
-        for (const admission of admissions.values()) admission.reject(workerFailure);
+        for (const admission of admissions.values())
+          admission.reject(workerFailure);
         pending.clear();
         admissions.clear();
         worker.terminate();
@@ -91,9 +99,13 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
   /** Why the worker can no longer answer, or null while it can. */
   let workerFailure: Error | null = null;
   worker.onerror = (error) => {
-    workerFailure = new Error("The numerical worker failed: " + (error.message || "it could not load its modules"));
+    workerFailure = new Error(
+      "The numerical worker failed: " +
+        (error.message || "it could not load its modules"),
+    );
     rejectCompiles(workerFailure);
-    for (const request of pending.values()) request.reject(new Error(error.message));
+    for (const request of pending.values())
+      request.reject(new Error(error.message));
     pending.clear();
     for (const request of admissions.values()) request.reject(workerFailure);
     admissions.clear();
@@ -101,12 +113,25 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
   };
   return {
     /** Ask the original domain owner with the exact loaded source; no model or disk cache participates. */
-    admit: (domain: string, document: string, basis: string): Promise<string | null> => new Promise((resolve, reject) => {
-      if (workerFailure !== null) { reject(workerFailure); return; }
-      const id = ++sequence;
-      admissions.set(id, { resolve, reject });
-      worker.postMessage({ id, domain, basis, input: { document, operation: "admit" } });
-    }),
+    admit: (
+      domain: string,
+      document: string,
+      basis: string,
+    ): Promise<string | null> =>
+      new Promise((resolve, reject) => {
+        if (workerFailure !== null) {
+          reject(workerFailure);
+          return;
+        }
+        const id = ++sequence;
+        admissions.set(id, { resolve, reject });
+        worker.postMessage({
+          id,
+          domain,
+          basis,
+          input: { document, operation: "admit" },
+        });
+      }),
     /** A product worker port for one catalogue document. */
     port: <Input, Output>(
       selected: HumanViewerCatalogue["documents"][number],
@@ -122,9 +147,12 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
         terminate: () => {
           stopped = true;
           abort.abort();
-          if (persistedId !== undefined) worker.postMessage({ persistence: "discard", id: persistedId });
+          if (persistedId !== undefined)
+            worker.postMessage({ persistence: "discard", id: persistedId });
           for (const workerId of requests) {
-            pending.get(workerId)?.reject(new Error("The numerical connection was released"));
+            pending
+              .get(workerId)
+              ?.reject(new Error("The numerical connection was released"));
             pending.delete(workerId);
           }
           requests.clear();
@@ -136,56 +164,102 @@ export function createHumanViewerNumericalPort(props: ICreateHumanViewerNumerica
           // Changed requests still build normally but cannot read or write
           // another document's cache. Formatting alone has no significance.
           let cacheable = false;
-          if (typeof input === "object" && input !== null && "document" in input && typeof input.document === "string") {
-            try { cacheable = JSON.stringify(JSON.parse(input.document)) === JSON.stringify(selected.document); }
-            catch { /* The domain runtime reports malformed document text. */ }
-          }
-          const build = (): Promise<Result> => spans.measure("workerMs", () => new Promise<Result>((resolve, reject) => {
-            if (workerFailure !== null) {
-              reject(workerFailure);
-              return;
+          if (
+            typeof input === "object" &&
+            input !== null &&
+            "document" in input &&
+            typeof input.document === "string"
+          ) {
+            try {
+              cacheable =
+                JSON.stringify(JSON.parse(input.document)) ===
+                JSON.stringify(selected.document);
+            } catch {
+              /* The domain runtime reports malformed document text. */
             }
-            work("build");
-            const workerId = ++sequence;
-            requests.add(workerId);
-            persistedId = workerId;
-            pending.set(workerId, {
-              resolve: (value) => { requests.delete(workerId); resolve(value); },
-              reject: (error) => { requests.delete(workerId); reject(error); },
-            });
-            worker.postMessage({ id: workerId, domain: selected.domain, basis: selected.basis,
-              input: { ...input, occlusion: ao },
-              cache: cacheable && token !== null ? { key, token } : undefined });
-          }));
+          }
+          const build = (): Promise<Result> =>
+            spans.measure(
+              "workerMs",
+              () =>
+                new Promise<Result>((resolve, reject) => {
+                  if (workerFailure !== null) {
+                    reject(workerFailure);
+                    return;
+                  }
+                  work("build");
+                  const workerId = ++sequence;
+                  requests.add(workerId);
+                  persistedId = workerId;
+                  pending.set(workerId, {
+                    resolve: (value) => {
+                      requests.delete(workerId);
+                      resolve(value);
+                    },
+                    reject: (error) => {
+                      requests.delete(workerId);
+                      reject(error);
+                    },
+                  });
+                  worker.postMessage({
+                    id: workerId,
+                    domain: selected.domain,
+                    basis: selected.basis,
+                    input: { ...input, occlusion: ao },
+                    cache:
+                      cacheable && token !== null ? { key, token } : undefined,
+                  });
+                }),
+            );
           void (async () => {
             // The persisted codec owns admitted previews only. Construction
             // carries its complete admission report directly from the worker.
-            if (typeof input === "object" && input !== null && "operation" in input && input.operation === "construct") {
+            if (
+              typeof input === "object" &&
+              input !== null &&
+              "operation" in input &&
+              input.operation === "construct"
+            ) {
               const value = await build();
               if (stopped) return;
               work("prepare");
-              transport.onmessage?.({ data: { id, success: true, value: value as Output } });
+              transport.onmessage?.({
+                data: { id, success: true, value: value as Output },
+              });
               return;
             }
             work("cache-read");
             const cached = cacheable
-              ? await spans.measure("cacheReadMs", () => fetch(`/cache/${key}`, { signal: abort.signal })) : undefined;
+              ? await spans.measure("cacheReadMs", () =>
+                  fetch(`/cache/${key}`, { signal: abort.signal }),
+                )
+              : undefined;
             let value: Result;
             if (cached?.ok)
-              value = await spans.measure("cacheDecodeMs", async () =>
-                decodeHumanViewerPreview(await cached.text()) as Result);
+              value = await spans.measure(
+                "cacheDecodeMs",
+                async () =>
+                  decodeHumanViewerPreview(await cached.text()) as Result,
+              );
             else {
               work("build");
               value = await build();
             }
             if (stopped) return;
             work("prepare");
-            transport.onmessage?.({ data: { id, success: true, value: value as Output } });
+            transport.onmessage?.({
+              data: { id, success: true, value: value as Output },
+            });
           })().catch((error: unknown) => {
             if (stopped) return;
             work("failed");
-            transport.onmessage?.({ data: { id, success: false,
-              error: error instanceof Error ? error.message : String(error) } });
+            transport.onmessage?.({
+              data: {
+                id,
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+              },
+            });
           });
         },
       };

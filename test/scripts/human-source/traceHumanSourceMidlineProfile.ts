@@ -26,13 +26,23 @@ export function traceHumanSourceMidlineProfile(
       next.get(b)!.add(a);
     }
   const length = (a: number, b: number): number =>
-    Math.hypot(positions[3 * a] - positions[3 * b], positions[3 * a + 1] - positions[3 * b + 1], positions[3 * a + 2] - positions[3 * b + 2]);
+    Math.hypot(
+      positions[3 * a] - positions[3 * b],
+      positions[3 * a + 1] - positions[3 * b + 1],
+      positions[3 * a + 2] - positions[3 * b + 2],
+    );
   const distance = new Map<number, number>([[from, 0]]);
   const previous = new Map<number, number>();
   const open = new Set<number>([from]);
   while (open.size > 0) {
     let current = -1;
-    for (const v of open) if (current < 0 || distance.get(v)! < distance.get(current)! || (distance.get(v) === distance.get(current) && v < current)) current = v;
+    for (const v of open)
+      if (
+        current < 0 ||
+        distance.get(v)! < distance.get(current)! ||
+        (distance.get(v) === distance.get(current) && v < current)
+      )
+        current = v;
     open.delete(current);
     if (current === to) break;
     for (const n of next.get(current) ?? []) {
@@ -44,8 +54,10 @@ export function traceHumanSourceMidlineProfile(
       }
     }
   }
-  if (!distance.has(to)) throw new Error(`No midline profile joins vertices ${from} and ${to}.`);
+  if (!distance.has(to))
+    throw new Error(`No midline profile joins vertices ${from} and ${to}.`);
   const path = [to];
-  while (path[path.length - 1] !== from) path.push(previous.get(path[path.length - 1])!);
+  while (path[path.length - 1] !== from)
+    path.push(previous.get(path[path.length - 1])!);
   return path.reverse();
 }

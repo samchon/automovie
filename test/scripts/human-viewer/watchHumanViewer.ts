@@ -22,10 +22,15 @@ const HANG_MS = 600000;
  * @evidence contracts/common.md#principled-implementation Ownership of the child process, not the record file, decides every kill.
  * @evidence contracts/common.md#meaningful-documentation States the start, restart and ownership rules.
  */
-export async function watchHumanViewer(context: IHumanShotContext): Promise<void> {
+export async function watchHumanViewer(
+  context: IHumanShotContext,
+): Promise<void> {
   let owned: ChildProcess | undefined;
   let silentSince: number | null = null;
-  const pause = (ms: number) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); });
+  const pause = (ms: number) =>
+    new Promise<undefined>((resolve) => {
+      setTimeout(resolve, ms);
+    });
   const health = async () => {
     try {
       return (await probeHumanViewer(context)).health;
@@ -49,11 +54,14 @@ export async function watchHumanViewer(context: IHumanShotContext): Promise<void
       owned = startHumanViewerServer(context);
       silentSince = Date.now() + 180000;
     } else if (plan === "restart") {
-      console.error("watch: own server silent for " + HANG_MS / 1000 + " s, restarting");
+      console.error(
+        "watch: own server silent for " + HANG_MS / 1000 + " s, restarting",
+      );
       if (owned?.pid) killHumanViewerProcess(owned.pid);
       fs.rmSync(context.record, { force: true });
       // The port is released only when the old process is gone.
-      for (let wait = 0; wait < 30 && (await health()) !== null; ++wait) await pause(1000);
+      for (let wait = 0; wait < 30 && (await health()) !== null; ++wait)
+        await pause(1000);
       owned = startHumanViewerServer(context);
       silentSince = Date.now() + 180000;
     }

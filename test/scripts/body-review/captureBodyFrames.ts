@@ -1,7 +1,7 @@
 import { reviewFileName } from "../review/reviewFileName";
+import type { IBodyCaptureDocumentEntry } from "./IBodyCaptureDocumentEntry";
 import type { IBodyCaptureProps } from "./IBodyCaptureProps";
 import type { IBodyCaptureResult } from "./IBodyCaptureResult";
-import type { IBodyCaptureDocumentEntry } from "./IBodyCaptureDocumentEntry";
 
 /**
  * Draw the requested frames of a body through the resident viewer and write
@@ -29,7 +29,9 @@ import type { IBodyCaptureDocumentEntry } from "./IBodyCaptureDocumentEntry";
  * (`writeBodyFrames`) and builds the record. A source or device change during
  * the run refuses the combined observation instead of mixing its authority.
  */
-export async function captureBodyFrames(input: IBodyCaptureProps): Promise<IBodyCaptureResult> {
+export async function captureBodyFrames(
+  input: IBodyCaptureProps,
+): Promise<IBodyCaptureResult> {
   const { viewer } = input;
   const documents = new Map<string, IBodyCaptureDocumentEntry>();
   const names = new Set<string>();
@@ -81,9 +83,14 @@ export async function captureBodyFrames(input: IBodyCaptureProps): Promise<IBody
       continue;
     }
     const first = drawn[0];
-    if (first !== undefined &&
-        (rendered.revision !== first.revision || rendered.renderer !== first.renderer))
-      throw new Error("The viewer source revision or renderer changed during the capture run; its frames cannot form one observation");
+    if (
+      first !== undefined &&
+      (rendered.revision !== first.revision ||
+        rendered.renderer !== first.renderer)
+    )
+      throw new Error(
+        "The viewer source revision or renderer changed during the capture run; its frames cannot form one observation",
+      );
     const state =
       frame.isolate === null
         ? frame.state

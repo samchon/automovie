@@ -8,6 +8,8 @@ import type { IAutoMovieHumanFaceOralCrownSupport } from "../../structures/IAuto
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Runtime validation precedes narrowing; no unchecked publisher cast fabricates tooth identity.
  * @author Samchon
  */
-export function isHumanFaceOralToothId(id: string): id is IAutoMovieHumanFaceOralCrownSupport["id"] {
+export function isHumanFaceOralToothId(
+  id: string,
+): id is IAutoMovieHumanFaceOralCrownSupport["id"] {
   return id.length === 2 && /^[1-4][1-8]$/.test(id);
 }

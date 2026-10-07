@@ -1,8 +1,8 @@
+import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 import { mountConnectedFaceFibres } from "./connectedFibres";
 import { mountConnectedFaceHair } from "./connectedHair";
 import { mountConnectedFaceIris } from "./connectedIris";
 import { mountConnectedFacePigmentation } from "./connectedPigmentation";
-import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 
 /**
  * Edit global reflectance in either control mode. Material selection is view

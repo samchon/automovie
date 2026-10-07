@@ -1,10 +1,10 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
+import type { IHumanConstructionCheck } from "../../common/basis/IHumanConstructionCheck";
 import type { IHumanFaceBrowAssembly } from "../anatomy/brow/IHumanFaceBrowAssembly";
 import type { IHumanFaceLashRow } from "../anatomy/lash/structures/IHumanFaceLashRow";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
-import type { IHumanConstructionCheck } from "../../common/basis/IHumanConstructionCheck";
 
 /** One owned model composition with exact geometry stages and the current finish lookup.
  *

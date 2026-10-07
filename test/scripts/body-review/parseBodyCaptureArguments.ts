@@ -1,10 +1,9 @@
-import {
-  HUMAN_OBSERVATION_PASSES,
-} from "@automovie/playground/src/human/common/observation/HumanObservationPass";
+import { HUMAN_OBSERVATION_PASSES } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
 import {
   HUMAN_OBSERVATION_VIEWS,
   type HumanObservationView,
 } from "@automovie/playground/src/human/common/observation/HumanObservationView";
+
 import type { IBodyCaptureRequest } from "./IBodyCaptureRequest";
 
 /** The six horizon views a body review needs by default, without the poles. */

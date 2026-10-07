@@ -15,14 +15,30 @@ import type { IHumanSourceEndpointSurfaceReading } from "./structures/IHumanSour
  * metres. Nothing here evaluates a corrective, an articulation or contact,
  * and a row count says nothing about whether the motion is anatomical.
  */
-export function measureHumanSourceEndpointSurfaces(face: IAutoMovieHumanFaceBasis): IHumanSourceEndpointCensusRow[] {
+export function measureHumanSourceEndpointSurfaces(
+  face: IAutoMovieHumanFaceBasis,
+): IHumanSourceEndpointCensusRow[] {
   const skin = face.surfaces[0].id;
-  const read = (surface: string, rows: readonly number[] | undefined): IHumanSourceEndpointSurfaceReading | null => {
+  const read = (
+    surface: string,
+    rows: readonly number[] | undefined,
+  ): IHumanSourceEndpointSurfaceReading | null => {
     if (rows === undefined || rows.length === 0) return null;
-    if (rows.length % 4 !== 0) throw new Error(`Endpoint rows of ${surface} are not [vertex, dx, dy, dz] quadruples.`);
+    if (rows.length % 4 !== 0)
+      throw new Error(
+        `Endpoint rows of ${surface} are not [vertex, dx, dy, dz] quadruples.`,
+      );
     let maximum = 0;
-    for (let at = 0; at < rows.length; at += 4) maximum = Math.max(maximum, Math.hypot(rows[at + 1], rows[at + 2], rows[at + 3]));
-    return { surface, movedVertices: rows.length / 4, maximumDisplacementMetres: maximum };
+    for (let at = 0; at < rows.length; at += 4)
+      maximum = Math.max(
+        maximum,
+        Math.hypot(rows[at + 1], rows[at + 2], rows[at + 3]),
+      );
+    return {
+      surface,
+      movedVertices: rows.length / 4,
+      maximumDisplacementMetres: maximum,
+    };
   };
   const result: IHumanSourceEndpointCensusRow[] = [];
   for (const channel of face.channels) {
@@ -38,9 +54,13 @@ export function measureHumanSourceEndpointSurfaces(face: IAutoMovieHumanFaceBasi
       const landmarks = read("landmarks", face.landmarks?.targets[endpoint]);
       if (landmarks !== null) moved.push(landmarks);
       result.push({
-        channel: channel.id, kind: channel.kind, side, endpoint,
+        channel: channel.id,
+        kind: channel.kind,
+        side,
+        endpoint,
         bound: side === "positive" ? channel.maximum : channel.minimum,
-        moved, skinOnly: moved.length === 1 && moved[0].surface === skin,
+        moved,
+        skinOnly: moved.length === 1 && moved[0].surface === skin,
       });
     }
   }

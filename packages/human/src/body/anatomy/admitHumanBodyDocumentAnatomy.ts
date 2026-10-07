@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./assembly/IAutoMovieHumanBodyAnatomicalAssembly";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import { HUMAN_BODY_EXTERIOR_GAPS } from "./surface/HUMAN_BODY_EXTERIOR_GAPS";
 import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGETS";
 
@@ -50,37 +50,72 @@ export function admitHumanBodyDocumentAnatomy(
     // a scalar choice such as a phalangeal pattern describes an
     // ungenerated part as much as a measurement does
     if (typeof node !== "object" || node === null)
-      throw new Error(`anatomy.${at} has no consumer: the part or quantity it describes is not generated.`);
+      throw new Error(
+        `anatomy.${at} has no consumer: the part or quantity it describes is not generated.`,
+      );
     if (!Object.hasOwn(node, "kind")) {
       for (const [key, child] of Object.entries(node))
         if (child !== undefined) walk(child, at === "" ? key : at + "." + key);
       return;
     }
-    const registered = source?.parts.flatMap(part => (part.quantityBindings ?? []).map(binding => ({ part, binding }))).filter(one => one.binding.path === at) ?? [];
-    if (registered.length > 1) throw new Error(`anatomy.${at} has ambiguous source quantity ownership.`);
+    const registered =
+      source?.parts
+        .flatMap((part) =>
+          (part.quantityBindings ?? []).map((binding) => ({ part, binding })),
+        )
+        .filter((one) => one.binding.path === at) ?? [];
+    if (registered.length > 1)
+      throw new Error(`anatomy.${at} has ambiguous source quantity ownership.`);
     if (registered.length === 1) {
       const { part, binding } = registered[0];
-      if (!("millilitres" in node) || typeof node.millilitres !== "number" || !Number.isFinite(node.millilitres) || node.millilitres <= 0 ||
-        binding.sourceProtocol.trim() === "" || binding.targetCondition.trim() === "" || binding.members.length === 0 ||
-        new Set(binding.members).size !== binding.members.length || binding.members.some(member => !part.surfaces.some(surface => surface.id === member)))
+      if (
+        !("millilitres" in node) ||
+        typeof node.millilitres !== "number" ||
+        !Number.isFinite(node.millilitres) ||
+        node.millilitres <= 0 ||
+        binding.sourceProtocol.trim() === "" ||
+        binding.targetCondition.trim() === "" ||
+        binding.members.length === 0 ||
+        new Set(binding.members).size !== binding.members.length ||
+        binding.members.some(
+          (member) => !part.surfaces.some((surface) => surface.id === member),
+        )
+      )
         throw new Error(`source-volume-binding-unavailable:anatomy.${at}`);
-      if ((node as Record<string, unknown>).kind === "target" && !part.shapeFields?.some(field => field.id === binding.field))
+      if (
+        (node as Record<string, unknown>).kind === "target" &&
+        !part.shapeFields?.some((field) => field.id === binding.field)
+      )
         throw new Error(`source-shape-field-unavailable:anatomy.${at}`);
       return;
     }
     if ((node as Record<string, unknown>).kind === "observed")
-      throw new Error(`acquisition-not-registered:anatomy.${at} (posture, plane and site)`);
-    const bound = HUMAN_BODY_EXTERIOR_TARGETS.find((target) => target.path === at);
+      throw new Error(
+        `acquisition-not-registered:anatomy.${at} (posture, plane and site)`,
+      );
+    const bound = HUMAN_BODY_EXTERIOR_TARGETS.find(
+      (target) => target.path === at,
+    );
     if (bound !== undefined) {
       if (Object.hasOwn(shape, bound.channel))
-        throw new Error(`The body channel ${bound.channel} is solved from anatomy.${at} and cannot also be authored in shape.`);
+        throw new Error(
+          `The body channel ${bound.channel} is solved from anatomy.${at} and cannot also be authored in shape.`,
+        );
       return;
     }
     // sphere-fitted head radii are the articular inspection's inputs
-    if (/^(left|right)(UpperLimb\.upperArm\.humerus|LowerLimb\.thigh\.femur)\.sphereFittedHeadRadius$/u.test(at)) return;
+    if (
+      /^(left|right)(UpperLimb\.upperArm\.humerus|LowerLimb\.thigh\.femur)\.sphereFittedHeadRadius$/u.test(
+        at,
+      )
+    )
+      return;
     const gap = HUMAN_BODY_EXTERIOR_GAPS.find((one) => one.path === at);
-    if (gap !== undefined) throw new Error(`${gap.reason}:anatomy.${at} ${gap.detail}`);
-    throw new Error(`anatomy.${at} has no consumer: the part or quantity it describes is not generated.`);
+    if (gap !== undefined)
+      throw new Error(`${gap.reason}:anatomy.${at} ${gap.detail}`);
+    throw new Error(
+      `anatomy.${at} has no consumer: the part or quantity it describes is not generated.`,
+    );
   };
   walk(anatomy, "");
 }

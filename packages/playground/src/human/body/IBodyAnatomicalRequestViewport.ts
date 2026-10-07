@@ -30,7 +30,9 @@ export interface IBodyAnatomicalRequestViewport<
   cancel: () => void;
 
   /** Encode the request's candidate-only model as GLB bytes. */
-  export: (document: IAutoMovieHumanBodyBasisDocument) => Promise<Uint8Array<ArrayBuffer>>;
+  export: (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => Promise<Uint8Array<ArrayBuffer>>;
 
   /** Frame the subject in view. */
   fitView: () => void;

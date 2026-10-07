@@ -19,7 +19,9 @@ import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceRepro
  * not stored, so their P2 stays null. Nothing here is assumed equal: an
  * unchanged copy measures zero because its values are equal.
  */
-export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSourceReproductionRow[] {
+export function measureHumanSourceCarry(
+  input: IHumanSourceCarryInput,
+): IHumanSourceReproductionRow[] {
   const { face, body, cut, generation, p1 } = input;
   const n = generation.skin.originalVertices;
   const human = face.surfaces.find((s) => s.id === "Human")!;
@@ -33,19 +35,34 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
   cut.p1BodyToG1.forEach((g, j) => p1Of.set(g, j));
   const headOnly = markHumanSourceHeadOnly(generation.skin);
   const anchorTargets = new Set(generation.anchor?.targets ?? []);
-  const anchorOf = createHumanSourceAnchorCarry(body, generation.anchor?.landmarks ?? []);
+  const anchorOf = createHumanSourceAnchorCarry(
+    body,
+    generation.anchor?.landmarks ?? [],
+  );
   const aliasOf = new Map<string, string>();
-  for (const alias of generation.aliases) for (const [from, to] of Object.entries(alias.endpoints)) aliasOf.set(from, to);
+  for (const alias of generation.aliases)
+    for (const [from, to] of Object.entries(alias.endpoints))
+      aliasOf.set(from, to);
   const skinRows = (name: string): Map<number, number[]> => {
     const rows = generation.targets[name] ?? [];
     const out = new Map<number, number[]>();
-    for (let i = 0; i < rows.length; i += 4) out.set(rows[i], [rows[i + 1], rows[i + 2], rows[i + 3]]);
+    for (let i = 0; i < rows.length; i += 4)
+      out.set(rows[i], [rows[i + 1], rows[i + 2], rows[i + 3]]);
     return out;
   };
   const zeros = (count: number): Float64Array => new Float64Array(3 * count);
-  const scalarField = (count: number, at: (v: number) => number): Float64Array =>
-    Float64Array.from({ length: 3 * count }, (_, i) => (i % 3 === 0 ? at(i / 3) : 0));
-  const compact = (published: ArrayLike<number>, candidate: (v: number, c: number) => number | undefined, count: number) => {
+  const scalarField = (
+    count: number,
+    at: (v: number) => number,
+  ): Float64Array =>
+    Float64Array.from({ length: 3 * count }, (_, i) =>
+      i % 3 === 0 ? at(i / 3) : 0,
+    );
+  const compact = (
+    published: ArrayLike<number>,
+    candidate: (v: number, c: number) => number | undefined,
+    count: number,
+  ) => {
     const p: number[] = [];
     const q: number[] = [];
     let missing = 0;
@@ -59,9 +76,16 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
         q.push(candidate(v, c)!);
       }
     }
-    return { published: Float64Array.from(p), candidate: Float64Array.from(q), missing };
+    return {
+      published: Float64Array.from(p),
+      candidate: Float64Array.from(q),
+      missing,
+    };
   };
-  const weightDifference = (rowsOf: (v: number) => Map<string, number> | undefined, count: number) => {
+  const weightDifference = (
+    rowsOf: (v: number) => Map<string, number> | undefined,
+    count: number,
+  ) => {
     let missing = 0;
     const compared: number[] = [];
     for (let v = 0; v < count; v++) {
@@ -73,19 +97,33 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       const published = new Map<string, number>();
       for (let k = 0; k < 4; k++) {
         const w = bodySurface.skin.weights[4 * v + k];
-        const slot = bodySurface.skin.joints[bodySurface.skin.boneIndices[4 * v + k]];
+        const slot =
+          bodySurface.skin.joints[bodySurface.skin.boneIndices[4 * v + k]];
         if (w !== 0) published.set(slot, (published.get(slot) ?? 0) + w);
       }
       let worst = 0;
       for (const slot of new Set([...published.keys(), ...candidate.keys()]))
-        worst = Math.max(worst, Math.abs((published.get(slot) ?? 0) - (candidate.get(slot) ?? 0)));
+        worst = Math.max(
+          worst,
+          Math.abs((published.get(slot) ?? 0) - (candidate.get(slot) ?? 0)),
+        );
       compared.push(worst, 0, 0);
     }
     return { field: Float64Array.from(compared), missing };
   };
-  const slotRows = (joints: readonly string[], boneIndices: readonly number[], weights: readonly number[], at: number): Map<string, number> => {
+  const slotRows = (
+    joints: readonly string[],
+    boneIndices: readonly number[],
+    weights: readonly number[],
+    at: number,
+  ): Map<string, number> => {
     const out = new Map<string, number>();
-    for (let k = 0; k < 4; k++) if (weights[4 * at + k] !== 0) out.set(joints[boneIndices[4 * at + k]], (out.get(joints[boneIndices[4 * at + k]]) ?? 0) + weights[4 * at + k]);
+    for (let k = 0; k < 4; k++)
+      if (weights[4 * at + k] !== 0)
+        out.set(
+          joints[boneIndices[4 * at + k]],
+          (out.get(joints[boneIndices[4 * at + k]]) ?? 0) + weights[4 * at + k],
+        );
     return out;
   };
   const faceLandmarks = generation.landmarks.find((l) => l.origin === "face");
@@ -95,7 +133,11 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
     let p2: IHumanSourceReproductionError | null = null;
     let p1Error: IHumanSourceReproductionError | null = null;
     let note = row.note;
-    if (row.basis === "face" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
+    if (
+      row.basis === "face" &&
+      row.surface === "Human" &&
+      (row.role === "channel-endpoint" || row.role === "corrective")
+    ) {
       const d = denseHumanSourceRows(human.targets[row.row], faceCount);
       // An aliased face endpoint is read from the body endpoint that owns it,
       // relative to the head anchor as the face frame was: the stored head row,
@@ -105,41 +147,113 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       const anchor = owner === undefined ? [0, 0, 0] : anchorOf(owner);
       const candidate = Float64Array.from({ length: 3 * faceCount }, (_, i) => {
         const g = cut.faceToG1[Math.floor(i / 3)];
-        return (map.get(g)?.[i % 3] ?? 0) - (owner !== undefined && g >= n ? anchor[i % 3] : 0);
+        return (
+          (map.get(g)?.[i % 3] ?? 0) -
+          (owner !== undefined && g >= n ? anchor[i % 3] : 0)
+        );
       });
-      p2 = measureHumanSourceError({ published: d, candidate, neutral: human.positions });
-      if (owner !== undefined) note = `${note}; P2 reads alias ${owner} relative to the eye anchor`;
-      p1Error = measureHumanSourceError({ published: d, candidate: denseHumanSourceRows(p1Human.targets[row.row], faceCount), neutral: human.positions });
-    } else if (row.basis === "face" && row.surface === "Human" && row.role === "neutral") {
+      p2 = measureHumanSourceError({
+        published: d,
+        candidate,
+        neutral: human.positions,
+      });
+      if (owner !== undefined)
+        note = `${note}; P2 reads alias ${owner} relative to the eye anchor`;
+      p1Error = measureHumanSourceError({
+        published: d,
+        candidate: denseHumanSourceRows(p1Human.targets[row.row], faceCount),
+        neutral: human.positions,
+      });
+    } else if (
+      row.basis === "face" &&
+      row.surface === "Human" &&
+      row.role === "neutral"
+    ) {
       const published = Float64Array.from(human.positions);
-      const candidate = Float64Array.from({ length: 3 * faceCount }, (_, i) => generation.skin.positions[3 * cut.faceToG1[Math.floor(i / 3)] + (i % 3)]);
-      p2 = measureHumanSourceError({ published, candidate, neutral: zeros(faceCount) });
-      p1Error = measureHumanSourceError({ published, candidate: Float64Array.from(p1Human.positions), neutral: zeros(faceCount) });
+      const candidate = Float64Array.from(
+        { length: 3 * faceCount },
+        (_, i) =>
+          generation.skin.positions[
+            3 * cut.faceToG1[Math.floor(i / 3)] + (i % 3)
+          ],
+      );
+      p2 = measureHumanSourceError({
+        published,
+        candidate,
+        neutral: zeros(faceCount),
+      });
+      p1Error = measureHumanSourceError({
+        published,
+        candidate: Float64Array.from(p1Human.positions),
+        neutral: zeros(faceCount),
+      });
     } else if (row.basis === "face" && row.role === "attachment") {
       const owner = row.row.slice("attachment:".length);
-      const weightsOf = (rows: readonly number[] | undefined): Map<number, number> => {
+      const weightsOf = (
+        rows: readonly number[] | undefined,
+      ): Map<number, number> => {
         const out = new Map<number, number>();
-        for (let i = 0; rows !== undefined && i < rows.length; i += 2) out.set(rows[i], rows[i + 1]);
+        for (let i = 0; rows !== undefined && i < rows.length; i += 2)
+          out.set(rows[i], rows[i + 1]);
         return out;
       };
-      const published = weightsOf(human.attachments?.find((a) => a.owner === owner)?.rows);
-      const skin = weightsOf(generation.attachments.find((a) => a.owner === owner)?.rows);
-      const p1Rows = weightsOf(p1Human.attachments?.find((a) => a.owner === owner)?.rows);
+      const published = weightsOf(
+        human.attachments?.find((a) => a.owner === owner)?.rows,
+      );
+      const skin = weightsOf(
+        generation.attachments.find((a) => a.owner === owner)?.rows,
+      );
+      const p1Rows = weightsOf(
+        p1Human.attachments?.find((a) => a.owner === owner)?.rows,
+      );
       const reference = scalarField(faceCount, (v) => published.get(v) ?? 0);
-      p2 = measureHumanSourceError({ published: reference, candidate: scalarField(faceCount, (v) => skin.get(cut.faceToG1[v]) ?? 0), neutral: zeros(faceCount) });
-      p1Error = measureHumanSourceError({ published: reference, candidate: scalarField(faceCount, (v) => p1Rows.get(v) ?? 0), neutral: zeros(faceCount) });
-    } else if (row.basis === "face" && row.surface === "landmarks" && face.landmarks !== undefined && faceLandmarks !== undefined) {
+      p2 = measureHumanSourceError({
+        published: reference,
+        candidate: scalarField(
+          faceCount,
+          (v) => skin.get(cut.faceToG1[v]) ?? 0,
+        ),
+        neutral: zeros(faceCount),
+      });
+      p1Error = measureHumanSourceError({
+        published: reference,
+        candidate: scalarField(faceCount, (v) => p1Rows.get(v) ?? 0),
+        neutral: zeros(faceCount),
+      });
+    } else if (
+      row.basis === "face" &&
+      row.surface === "landmarks" &&
+      face.landmarks !== undefined &&
+      faceLandmarks !== undefined
+    ) {
       const count = face.landmarks.ids.length;
-      const pick = (positions: readonly number[], targets: Record<string, number[]>): Float64Array =>
-        row.role === "neutral" ? Float64Array.from(positions) : denseHumanSourceRows(targets[row.row], count);
+      const pick = (
+        positions: readonly number[],
+        targets: Record<string, number[]>,
+      ): Float64Array =>
+        row.role === "neutral"
+          ? Float64Array.from(positions)
+          : denseHumanSourceRows(targets[row.row], count);
       const published = pick(face.landmarks.positions, face.landmarks.targets);
-      const neutral = row.role === "neutral" ? zeros(count) : face.landmarks.positions;
+      const neutral =
+        row.role === "neutral" ? zeros(count) : face.landmarks.positions;
       // A macro row now lives under its body owner, relative to the eye anchor.
       const owner = row.role === "neutral" ? undefined : aliasOf.get(row.row);
-      const stored = owner === undefined ? pick(faceLandmarks.positions, faceLandmarks.targets) : denseHumanSourceRows(faceLandmarks.targets[owner], count);
+      const stored =
+        owner === undefined
+          ? pick(faceLandmarks.positions, faceLandmarks.targets)
+          : denseHumanSourceRows(faceLandmarks.targets[owner], count);
       p2 = measureHumanSourceError({ published, candidate: stored, neutral });
-      if (owner !== undefined) note = `${note}; P2 reads ${owner} relative to the eye anchor`;
-      p1Error = measureHumanSourceError({ published, candidate: pick(p1.face.landmarks!.positions, p1.face.landmarks!.targets), neutral });
+      if (owner !== undefined)
+        note = `${note}; P2 reads ${owner} relative to the eye anchor`;
+      p1Error = measureHumanSourceError({
+        published,
+        candidate: pick(
+          p1.face.landmarks!.positions,
+          p1.face.landmarks!.targets,
+        ),
+        neutral,
+      });
     } else if (row.basis === "face" && row.role === "part-endpoint") {
       const surface = face.surfaces.find((s) => s.id === row.surface)!;
       const p1Surface = p1.face.surfaces.find((s) => s.id === row.surface)!;
@@ -148,16 +262,26 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       const owner = aliasOf.get(row.row);
       p2 = measureHumanSourceError({
         published: denseHumanSourceRows(surface.targets[row.row], count),
-        candidate: denseHumanSourceRows(owner === undefined ? stored.surface.targets[row.row] : stored.bodyTargets[owner], count),
+        candidate: denseHumanSourceRows(
+          owner === undefined
+            ? stored.surface.targets[row.row]
+            : stored.bodyTargets[owner],
+          count,
+        ),
         neutral: surface.positions,
       });
-      if (owner !== undefined) note = `${note}; P2 reads body row ${owner} regenerated through the part binding`;
+      if (owner !== undefined)
+        note = `${note}; P2 reads body row ${owner} regenerated through the part binding`;
       p1Error = measureHumanSourceError({
         published: denseHumanSourceRows(surface.targets[row.row], count),
         candidate: denseHumanSourceRows(p1Surface.targets[row.row], count),
         neutral: surface.positions,
       });
-    } else if (row.basis === "body" && row.surface === "Human" && (row.role === "channel-endpoint" || row.role === "corrective")) {
+    } else if (
+      row.basis === "body" &&
+      row.surface === "Human" &&
+      (row.role === "channel-endpoint" || row.role === "corrective")
+    ) {
       const d = denseHumanSourceRows(bodySurface.targets[row.row], bodyCount);
       const map = skinRows(row.row);
       // The head is carried rigidly with the anchor once a band is defined; a
@@ -166,7 +290,8 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
       const carry = anchored ? anchorOf(row.row) : [0, 0, 0];
       const p1Map = new Map<number, number[]>();
       const p1Rows = p1Body.targets[row.row] ?? [];
-      for (let i = 0; i < p1Rows.length; i += 4) p1Map.set(p1Rows[i], [p1Rows[i + 1], p1Rows[i + 2], p1Rows[i + 3]]);
+      for (let i = 0; i < p1Rows.length; i += 4)
+        p1Map.set(p1Rows[i], [p1Rows[i + 1], p1Rows[i + 2], p1Rows[i + 3]]);
       const candidate = new Float64Array(3 * bodyCount);
       const p1Candidate = new Float64Array(3 * bodyCount);
       for (let v = 0; v < bodyCount; v++) {
@@ -176,46 +301,100 @@ export function measureHumanSourceCarry(input: IHumanSourceCarryInput): IHumanSo
         const j = p1Of.get(x);
         for (let c = 0; c < 3; c++) {
           candidate[3 * v + c] = (stored?.[c] ?? 0) + (relative ? carry[c] : 0);
-          p1Candidate[3 * v + c] = j === undefined ? 0 : (p1Map.get(j)?.[c] ?? 0);
+          p1Candidate[3 * v + c] =
+            j === undefined ? 0 : (p1Map.get(j)?.[c] ?? 0);
         }
       }
-      p2 = measureHumanSourceError({ published: d, candidate, neutral: bodySurface.positions });
-      p1Error = measureHumanSourceError({ published: d, candidate: p1Candidate, neutral: bodySurface.positions });
-    } else if (row.basis === "body" && row.surface === "Human" && row.role === "neutral") {
+      p2 = measureHumanSourceError({
+        published: d,
+        candidate,
+        neutral: bodySurface.positions,
+      });
+      p1Error = measureHumanSourceError({
+        published: d,
+        candidate: p1Candidate,
+        neutral: bodySurface.positions,
+      });
+    } else if (
+      row.basis === "body" &&
+      row.surface === "Human" &&
+      row.role === "neutral"
+    ) {
       p2 = measureHumanSourceError({
         published: Float64Array.from(bodySurface.positions),
-        candidate: Float64Array.from({ length: 3 * bodyCount }, (_, i) => generation.skin.positions[3 * kept[Math.floor(i / 3)] + (i % 3)]),
+        candidate: Float64Array.from(
+          { length: 3 * bodyCount },
+          (_, i) =>
+            generation.skin.positions[3 * kept[Math.floor(i / 3)] + (i % 3)],
+        ),
         neutral: zeros(bodyCount),
       });
-      const present = compact(bodySurface.positions, (v, c) => {
-        const j = p1Of.get(kept[v]);
-        return j === undefined ? undefined : p1Body.positions[3 * j + c];
-      }, bodyCount);
-      p1Error = measureHumanSourceError({ published: present.published, candidate: present.candidate, neutral: zeros(present.published.length / 3) });
+      const present = compact(
+        bodySurface.positions,
+        (v, c) => {
+          const j = p1Of.get(kept[v]);
+          return j === undefined ? undefined : p1Body.positions[3 * j + c];
+        },
+        bodyCount,
+      );
+      p1Error = measureHumanSourceError({
+        published: present.published,
+        candidate: present.candidate,
+        neutral: zeros(present.published.length / 3),
+      });
       note = `${note}; P1 compares ${bodyCount - present.missing} vertices, ${present.missing} dropped above the cut`;
     } else if (row.basis === "body" && row.role === "weights") {
       const w = generation.weights;
-      const skin = weightDifference((v) => slotRows(w.joints, w.boneIndices, w.weights, kept[v]), bodyCount);
+      const skin = weightDifference(
+        (v) => slotRows(w.joints, w.boneIndices, w.weights, kept[v]),
+        bodyCount,
+      );
       const pw = p1Body.skin;
       const p1w = weightDifference((v) => {
         const j = p1Of.get(kept[v]);
-        return j === undefined ? undefined : slotRows(pw.joints, pw.boneIndices, pw.weights, j);
+        return j === undefined
+          ? undefined
+          : slotRows(pw.joints, pw.boneIndices, pw.weights, j);
       }, bodyCount);
       const compared = (field: Float64Array): number => field.length / 3;
-      p2 = measureHumanSourceError({ published: zeros(compared(skin.field)), candidate: skin.field, neutral: zeros(compared(skin.field)) });
-      p1Error = measureHumanSourceError({ published: zeros(compared(p1w.field)), candidate: p1w.field, neutral: zeros(compared(p1w.field)) });
+      p2 = measureHumanSourceError({
+        published: zeros(compared(skin.field)),
+        candidate: skin.field,
+        neutral: zeros(compared(skin.field)),
+      });
+      p1Error = measureHumanSourceError({
+        published: zeros(compared(p1w.field)),
+        candidate: p1w.field,
+        neutral: zeros(compared(p1w.field)),
+      });
       note = `${note}; P1 compares ${compared(p1w.field)} vertices, ${p1w.missing} dropped above the cut`;
     } else if (row.basis === "body" && row.surface === "landmarks") {
       const count = body.landmarks.ids.length;
-      const pick = (positions: readonly number[], targets: Record<string, number[]>): Float64Array =>
-        row.role === "neutral" ? Float64Array.from(positions) : denseHumanSourceRows(targets[row.row], count);
+      const pick = (
+        positions: readonly number[],
+        targets: Record<string, number[]>,
+      ): Float64Array =>
+        row.role === "neutral"
+          ? Float64Array.from(positions)
+          : denseHumanSourceRows(targets[row.row], count);
       const published = pick(body.landmarks.positions, body.landmarks.targets);
-      const neutral = row.role === "neutral" ? zeros(count) : body.landmarks.positions;
-      p2 = measureHumanSourceError({ published, candidate: pick(bodyLandmarks.positions, bodyLandmarks.targets), neutral });
-      p1Error = measureHumanSourceError({ published, candidate: pick(p1.body.landmarks.positions, p1.body.landmarks.targets), neutral });
+      const neutral =
+        row.role === "neutral" ? zeros(count) : body.landmarks.positions;
+      p2 = measureHumanSourceError({
+        published,
+        candidate: pick(bodyLandmarks.positions, bodyLandmarks.targets),
+        neutral,
+      });
+      p1Error = measureHumanSourceError({
+        published,
+        candidate: pick(p1.body.landmarks.positions, p1.body.landmarks.targets),
+        neutral,
+      });
     } else if (row.basis === "body" && row.role === "joint") {
       const published = body.joints.find((j) => j.bone === row.row);
-      const equal = (joints: typeof body.joints): boolean => JSON.stringify(joints.find((j) => j.bone === row.row)) === JSON.stringify(published);
+      const equal = (joints: typeof body.joints): boolean =>
+        JSON.stringify(joints.find((j) => j.bone === row.row)) ===
+        JSON.stringify(published);
       const unit = (same: boolean): IHumanSourceReproductionError => ({
         maximumMetres: same ? 0 : Number.NaN,
         rmsMetres: same ? 0 : Number.NaN,

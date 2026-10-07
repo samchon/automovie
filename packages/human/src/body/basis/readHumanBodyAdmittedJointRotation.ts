@@ -1,9 +1,18 @@
 import {
-  DEFAULT_JOINT_AXES, Quaternion, Vector3, decomposeJointRotation,
-  jointToQuaternion, normalizeJointAxes, toClinicalAngle, validatePose,
+  DEFAULT_JOINT_AXES,
   type IAutoMovieResolvedJointAngles,
+  Quaternion,
+  Vector3,
+  decomposeJointRotation,
+  jointToQuaternion,
+  normalizeJointAxes,
+  toClinicalAngle,
+  validatePose,
 } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovieHumanBodySkeletonRig";
 
@@ -44,17 +53,38 @@ export function readHumanBodyAdmittedJointRotation(
   reference: IAutoMovieJointPose,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieResolvedJointAngles {
-  const axes = normalizeJointAxes(rig.axes[reference.bone] ?? DEFAULT_JOINT_AXES, "body actual joint coordinates");
+  const axes = normalizeJointAxes(
+    rig.axes[reference.bone] ?? DEFAULT_JOINT_AXES,
+    "body actual joint coordinates",
+  );
   const frame = rig.frames[reference.bone];
   const actual = Quaternion.normalize(rotation);
   const admits = (candidate: IAutoMovieResolvedJointAngles): boolean => {
     const forward = jointToQuaternion(candidate, axes, frame);
-    const sign = forward.x * actual.x + forward.y * actual.y + forward.z * actual.z + forward.w * actual.w < 0 ? -1 : 1;
-    const error = Math.max(...(["x", "y", "z", "w"] as const).map((axis) => Math.abs(forward[axis] * sign - actual[axis])));
-    return error <= 1e-12 && validatePose({
-      skeleton: rig.skeleton,
-      pose: { skeleton: rig.skeleton.id, root: null, joints: [{ bone: reference.bone, ...candidate }] },
-    }).items.length === 0;
+    const sign =
+      forward.x * actual.x +
+        forward.y * actual.y +
+        forward.z * actual.z +
+        forward.w * actual.w <
+      0
+        ? -1
+        : 1;
+    const error = Math.max(
+      ...(["x", "y", "z", "w"] as const).map((axis) =>
+        Math.abs(forward[axis] * sign - actual[axis]),
+      ),
+    );
+    return (
+      error <= 1e-12 &&
+      validatePose({
+        skeleton: rig.skeleton,
+        pose: {
+          skeleton: rig.skeleton.id,
+          root: null,
+          joints: [{ bone: reference.bone, ...candidate }],
+        },
+      }).items.length === 0
+    );
   };
   const authored: IAutoMovieResolvedJointAngles = {
     flexion: reference.flexion ?? frame?.flexion?.neutral ?? 0,
@@ -65,13 +95,34 @@ export function readHumanBodyAdmittedJointRotation(
   const principal = decomposeJointRotation(rotation, axes, frame);
   if (admits(principal)) return principal;
   const raw = decomposeJointRotation(rotation, axes);
-  const handed = Vector3.dot(axes.twist, Vector3.cross(axes.flexion, axes.abduction)) >= 0 ? 1 : -1;
-  const turn = (degrees: number): number => ((degrees + 180) % 360 + 360) % 360 - 180;
+  const handed =
+    Vector3.dot(axes.twist, Vector3.cross(axes.flexion, axes.abduction)) >= 0
+      ? 1
+      : -1;
+  const turn = (degrees: number): number =>
+    ((((degrees + 180) % 360) + 360) % 360) - 180;
   const alternate: IAutoMovieResolvedJointAngles = {
-    flexion: toClinicalAngle(turn(axes.twistPlacement === "distal" ? 180 - raw.flexion : raw.flexion + 180), frame?.flexion)!,
-    abduction: toClinicalAngle(turn(axes.twistPlacement === "distal" ? raw.abduction + 180 : 180 - raw.abduction), frame?.abduction)!,
+    flexion: toClinicalAngle(
+      turn(
+        axes.twistPlacement === "distal"
+          ? 180 - raw.flexion
+          : raw.flexion + 180,
+      ),
+      frame?.flexion,
+    )!,
+    abduction: toClinicalAngle(
+      turn(
+        axes.twistPlacement === "distal"
+          ? raw.abduction + 180
+          : 180 - raw.abduction,
+      ),
+      frame?.abduction,
+    )!,
     twist: toClinicalAngle(turn(raw.twist + 180 * handed), frame?.twist)!,
   };
   if (admits(alternate)) return alternate;
-  throw new Error("Actual body articulation has no admissible clinical coordinate chart: " + reference.bone);
+  throw new Error(
+    "Actual body articulation has no admissible clinical coordinate chart: " +
+      reference.bone,
+  );
 }

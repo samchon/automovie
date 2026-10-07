@@ -1,12 +1,19 @@
 import {
+  type IAutoMoviePerformedShot,
   performShot,
   stageScene,
-  type IAutoMoviePerformedShot,
 } from "@automovie/engine";
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
-
-import { makeScriptWrite, makeStagingWrite, makePerformanceWrite, validSynthesizer } from "./filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "./filmFixtures";
 import { createSkeleton } from "./fixtures";
 
 const script = makeScriptWrite();

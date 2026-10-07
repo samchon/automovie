@@ -1,6 +1,6 @@
-import type { IAutoMovieHumanBodyAtlasSource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasSource";
 import type { IAutoMovieHumanBodySourcePart } from "../anatomy/assembly/IAutoMovieHumanBodySourcePart";
 import type { IAutoMovieHumanBodySourcePartAttachment } from "../anatomy/assembly/IAutoMovieHumanBodySourcePartAttachment";
+import type { IAutoMovieHumanBodyAtlasSource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasSource";
 import type { IAutoMovieHumanBodyAssemblySourceVertices } from "./IAutoMovieHumanBodyAssemblySourceVertices";
 
 /** Original member provenance carried beside its actual static source-part interval. @author Samchon */

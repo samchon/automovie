@@ -22,10 +22,14 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * @evidence contracts/common.md#meaningful-documentation States the shared path and what is kept.
  */
 export async function buildHumanViewerBodyResident<
-  Document extends IAutoMovieHumanBodyBasisDocument | IAutoMovieHumanPersonDocument,
+  Document extends
+    | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanPersonDocument,
 >(
   props: IBuildHumanViewerBodyResidentProps<Document>,
-): Promise<IHumanViewerResident<ReturnType<typeof createConnectedBodyViewport<Document>>>> {
+): Promise<
+  IHumanViewerResident<ReturnType<typeof createConnectedBodyViewport<Document>>>
+> {
   const stage = createConnectedBodyViewport<Document>({
     ...props.host.props,
     serialize: props.serialize,
@@ -36,10 +40,20 @@ export async function buildHumanViewerBodyResident<
     props.host.release();
   };
   try {
-    const construction = props.operation === "construct" ? await stage.construct(props.document) : undefined;
-    const model = construction === undefined ? await stage.build(props.document) : construction.model;
-    try { stage.publish(model); }
-    catch (error) { stage.dispose(model); throw error; }
+    const construction =
+      props.operation === "construct"
+        ? await stage.construct(props.document)
+        : undefined;
+    const model =
+      construction === undefined
+        ? await stage.build(props.document)
+        : construction.model;
+    try {
+      stage.publish(model);
+    } catch (error) {
+      stage.dispose(model);
+      throw error;
+    }
     const group = model.frame.resident.group;
     return {
       stage,
@@ -50,7 +64,10 @@ export async function buildHumanViewerBodyResident<
         releaseConnection();
         disposeHumanPreview(group);
       },
-      bytes: measureHumanViewerResidentBytes(group, collectHumanViewerBodyArrays(model.frame.resident.parts)),
+      bytes: measureHumanViewerResidentBytes(
+        group,
+        collectHumanViewerBodyArrays(model.frame.resident.parts),
+      ),
     };
   } catch (error) {
     releaseConnection();

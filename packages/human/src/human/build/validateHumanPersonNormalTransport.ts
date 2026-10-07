@@ -51,9 +51,7 @@ export function validateHumanPersonNormalTransport(
         one.triangles.length === 0 ||
         one.triangles.length % 3 !== 0 ||
         one.domains.length !== one.triangles.length ||
-        Array.from(one.triangles).some(
-          (id) => !valid(id, plan.sampleCount),
-        ) ||
+        Array.from(one.triangles).some((id) => !valid(id, plan.sampleCount)) ||
         Array.from(one.domains).some(
           (id) => !Number.isSafeInteger(id) || id < 0,
         )
@@ -171,7 +169,10 @@ export function validateHumanPersonNormalTransport(
         throw new Error(
           "Person feature normal binding must name an incident source cell.",
         );
-      if (!Array.isArray(binding.coordinates) || binding.coordinates.length !== 2)
+      if (
+        !Array.isArray(binding.coordinates) ||
+        binding.coordinates.length !== 2
+      )
         throw new Error(
           "Person feature normal binding needs its ordered two-coordinate chart.",
         );
@@ -214,26 +215,39 @@ export function validateHumanPersonNormalTransport(
   const emitted = sides.flatMap((side, which) =>
     records[which].parents.map((parent, cell) => {
       const normalParent = offsets[parent] + transports[which].cells[cell];
-      const samples = side.indices.slice(cell * 3, cell * 3 + 3).map((vertex) => {
-        const sample = records[which].samples[vertex];
-        const binding = bindings[which][vertex]!;
-        const weights = cells[normalParent].samples.includes(sample)
-          ? [{ id: sample, weight: 1 }]
-          : binding.cell === undefined ? [...plan.preimage(sample)]
-          : cells[binding.cell].samples.flatMap((id, corner) => {
-            const weight = interpolateHumanBasisSourceTriangle(
-              [corner === 0 ? 1 : 0, corner === 1 ? 1 : 0, corner === 2 ? 1 : 0], binding.coordinates!,
+      const samples = side.indices
+        .slice(cell * 3, cell * 3 + 3)
+        .map((vertex) => {
+          const sample = records[which].samples[vertex];
+          const binding = bindings[which][vertex]!;
+          const weights = cells[normalParent].samples.includes(sample)
+            ? [{ id: sample, weight: 1 }]
+            : binding.cell === undefined
+              ? [...plan.preimage(sample)]
+              : cells[binding.cell].samples.flatMap((id, corner) => {
+                  const weight = interpolateHumanBasisSourceTriangle(
+                    [
+                      corner === 0 ? 1 : 0,
+                      corner === 1 ? 1 : 0,
+                      corner === 2 ? 1 : 0,
+                    ],
+                    binding.coordinates!,
+                  );
+                  return weight > 0 ? [{ id, weight }] : [];
+                });
+          weights.sort((a, b) => a.id - b.id);
+          const key = `${normalParent}:${sample}`;
+          const prior = incidentCharts.get(key);
+          if (
+            prior !== undefined &&
+            JSON.stringify(prior) !== JSON.stringify(weights)
+          )
+            throw new Error(
+              "Person normal coverage has ambiguous incident source charts.",
             );
-            return weight > 0 ? [{ id, weight }] : [];
-          });
-        weights.sort((a, b) => a.id - b.id);
-        const key = `${normalParent}:${sample}`;
-        const prior = incidentCharts.get(key);
-        if (prior !== undefined && JSON.stringify(prior) !== JSON.stringify(weights))
-          throw new Error("Person normal coverage has ambiguous incident source charts.");
-        incidentCharts.set(key, weights);
-        return sample;
-      });
+          incidentCharts.set(key, weights);
+          return sample;
+        });
       return { parent: normalParent, samples };
     }),
   );

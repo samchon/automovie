@@ -1,5 +1,3 @@
-
-
 /**
  * The separating planes of two skin segments in a pose, for the body contact
  * solver.

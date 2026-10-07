@@ -21,6 +21,11 @@ import { humanHeadPoint } from "./humanHeadPoint";
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  * @author Samchon
  */
-export function humanHeadTragia(head: IAutoMovieHumanHeadSkin): IAutoMovieHumanHeadPair {
-  return { right: humanHeadPoint(head, "tragion-right"), left: humanHeadPoint(head, "tragion-left") };
+export function humanHeadTragia(
+  head: IAutoMovieHumanHeadSkin,
+): IAutoMovieHumanHeadPair {
+  return {
+    right: humanHeadPoint(head, "tragion-right"),
+    left: humanHeadPoint(head, "tragion-left"),
+  };
 }

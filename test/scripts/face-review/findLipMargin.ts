@@ -1,11 +1,11 @@
-import type { IFindLipMarginProps } from "./IFindLipMarginProps";
-import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
-import type { IFindLipMarginResult } from "./IFindLipMarginResult";
 import type {
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanFaceLipMargin,
 } from "@automovie/human";
 
+import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
+import type { IFindLipMarginProps } from "./IFindLipMarginProps";
+import type { IFindLipMarginResult } from "./IFindLipMarginResult";
 import { findLipMarginPairs } from "./findLipMarginPairs";
 
 /**
@@ -21,11 +21,14 @@ import { findLipMarginPairs } from "./findLipMarginPairs";
  * the fissure with no break between anchors or before the join; the station
  * spacing fixes only the anchors, never which vertices between them close.
  */
-export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult {
+export function findLipMargin(
+  props: IFindLipMarginProps,
+): IFindLipMarginResult {
   const { surface, region, axis } = props;
   const { pairs, limitMetres } = findLipMarginPairs(props);
   const p = surface.positions;
-  const along = (v: number) => p[3 * v] * axis[0] + p[3 * v + 1] * axis[1] + p[3 * v + 2] * axis[2];
+  const along = (v: number) =>
+    p[3 * v] * axis[0] + p[3 * v + 1] * axis[1] + p[3 * v + 2] * axis[2];
   const edges = new Map<number, Map<number, number>>();
   for (let t = 0; t < region.length; t += 3) {
     const triangle = region.slice(t, t + 3);
@@ -34,10 +37,16 @@ export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult 
       for (const b of triangle)
         if (a !== b) {
           if (!edges.has(a)) edges.set(a, new Map());
-          edges.get(a)!.set(
-            b,
-            Math.hypot(p[3 * a] - p[3 * b], p[3 * a + 1] - p[3 * b + 1], p[3 * a + 2] - p[3 * b + 2]),
-          );
+          edges
+            .get(a)!
+            .set(
+              b,
+              Math.hypot(
+                p[3 * a] - p[3 * b],
+                p[3 * a + 1] - p[3 * b + 1],
+                p[3 * a + 2] - p[3 * b + 2],
+              ),
+            );
         }
   }
   const component = (start: number): number[] => {
@@ -58,7 +67,8 @@ export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult 
     while (open.size > 0) {
       let current = -1;
       for (const v of open)
-        if (current === -1 || distance.get(v)! < distance.get(current)!) current = v;
+        if (current === -1 || distance.get(v)! < distance.get(current)!)
+          current = v;
       open.delete(current);
       if (current === to) break;
       for (const [next, length] of edges.get(current)!) {
@@ -71,16 +81,24 @@ export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult 
       }
     }
     if (!previous.has(to) && from !== to)
-      throw new Error(`${surface.id}: no lips-region edge path joins margin vertices ${from} and ${to}.`);
+      throw new Error(
+        `${surface.id}: no lips-region edge path joins margin vertices ${from} and ${to}.`,
+      );
     const path = [to];
     while (path[0] !== from) path.unshift(previous.get(path[0])!);
     return path;
   };
   const chain = (centre: number, anchors: number[]): number[] => {
     const members = component(centre);
-    const ordered = [...new Set([centre, ...anchors])].sort((a, b) => along(a) - along(b));
-    const left = members.reduce((best, v) => (along(v) < along(best) ? v : best));
-    const right = members.reduce((best, v) => (along(v) > along(best) ? v : best));
+    const ordered = [...new Set([centre, ...anchors])].sort(
+      (a, b) => along(a) - along(b),
+    );
+    const left = members.reduce((best, v) =>
+      along(v) < along(best) ? v : best,
+    );
+    const right = members.reduce((best, v) =>
+      along(v) > along(best) ? v : best,
+    );
     const stops = [left, ...ordered, right];
     const result: number[] = [];
     for (let i = 0; i + 1 < stops.length; i++) {
@@ -91,8 +109,14 @@ export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult 
   };
   return {
     margin: {
-      upper: chain(props.central.upper, pairs.map((pair) => pair.upper)),
-      lower: chain(props.central.lower, pairs.map((pair) => pair.lower)),
+      upper: chain(
+        props.central.upper,
+        pairs.map((pair) => pair.upper),
+      ),
+      lower: chain(
+        props.central.lower,
+        pairs.map((pair) => pair.lower),
+      ),
     },
     limitMetres,
   };

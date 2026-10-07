@@ -1,7 +1,7 @@
-import { createHumanBodyHumeralHeads } from "@automovie/human/body/anatomy/shoulder/createHumanBodyHumeralHeads";
 import { measureHumanBodySpheresSkinClearance } from "@automovie/human/body/anatomy/contact/measureHumanBodySpheresSkinClearance";
-import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
+import { createHumanBodyHumeralHeads } from "@automovie/human/body/anatomy/shoulder/createHumanBodyHumeralHeads";
+import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
@@ -27,10 +27,20 @@ import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReadi
 export function readConnectedBodyHumeralHeads(
   props: IReadConnectedBodyHumeralHeadsProps,
 ): IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy {
-  if (props.crossings.length !== 0) return { status: "unavailable", reason: "skin-crossing" };
+  if (props.crossings.length !== 0)
+    return { status: "unavailable", reason: "skin-crossing" };
   // the shown body's weights, with the document's anatomy solved in
-  const shape = resolveHumanBodyAnatomy(props.basis, props.document.shape, props.document.anatomy);
-  const simple = projectHumanBodySimpleShape(props.basis, props.whole, shape, []);
+  const shape = resolveHumanBodyAnatomy(
+    props.basis,
+    props.document.shape,
+    props.document.anatomy,
+  );
+  const simple = projectHumanBodySimpleShape(
+    props.basis,
+    props.whole,
+    shape,
+    [],
+  );
   const heads = createHumanBodyHumeralHeads({
     ageYears: simple.ageYears,
     sex: simple.sex,
@@ -44,7 +54,11 @@ export function readConnectedBodyHumeralHeads(
       indices: surface.indices,
       positions: props.built.posedSurfaces[index].positions,
     })),
-    spheres: heads.map(({ bone, center, radiusMetres }) => ({ id: bone, center, radiusMetres })),
+    spheres: heads.map(({ bone, center, radiusMetres }) => ({
+      id: bone,
+      center,
+      radiusMetres,
+    })),
   });
   return packHumanBodyHumeralHeadReading(heads, measured);
 }

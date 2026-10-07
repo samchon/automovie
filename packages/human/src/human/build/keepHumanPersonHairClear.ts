@@ -43,7 +43,9 @@ import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHai
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
-export function keepHumanPersonHairClear(props: IHumanPersonHairContactProps): number[][] {
+export function keepHumanPersonHairClear(
+  props: IHumanPersonHairContactProps,
+): number[][] {
   const { positions, hair, clearance } = props;
   if (!(clearance >= 0) || !Number.isFinite(clearance))
     throw new Error("Hair clearance must be a nonnegative finite length.");

@@ -1,4 +1,3 @@
-import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";
 import {
   footprintArea,
   footprintContains,
@@ -20,6 +19,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
@@ -121,7 +121,9 @@ const spaceOf = (surface: IAutoMovieSurface): IAutoMovieSpace => ({
 });
 
 /** Twice the plan area of one convex piece, by the shoelace formula. */
-const pieceArea = (piece: ReturnType<typeof footprintConvexPieces>[number]): number =>
+const pieceArea = (
+  piece: ReturnType<typeof footprintConvexPieces>[number],
+): number =>
   Math.abs(footprintRing(piece.map((p) => v(p.x, p.z))).doubleArea) / 2;
 
 /**
@@ -398,5 +400,16 @@ export const test_space_footprint_voids = (): void => {
     },
   );
 
-  assertFootprintVoidGeometry({ holed, holedSpace, plate, ell, diamond, relief, v, gallery, spaceOf, pieceArea });
+  assertFootprintVoidGeometry({
+    holed,
+    holedSpace,
+    plate,
+    ell,
+    diamond,
+    relief,
+    v,
+    gallery,
+    spaceOf,
+    pieceArea,
+  });
 };

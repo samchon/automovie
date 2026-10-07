@@ -34,9 +34,13 @@ export function solveHumanFaceMeasurementTarget(
 ): IHumanFaceMeasurementSolution {
   const { measurement, target } = input;
   if (measurement.channels.length === 0)
-    throw new Error(`The face measurement ${measurement.id} has no channel that varies it.`);
+    throw new Error(
+      `The face measurement ${measurement.id} has no channel that varies it.`,
+    );
   if (measurement.unit !== "millimetres")
-    throw new Error(`Only millimetre face targets solve; ${measurement.id} is in ${measurement.unit}.`);
+    throw new Error(
+      `Only millimetre face targets solve; ${measurement.id} is in ${measurement.unit}.`,
+    );
   const failures: string[] = [];
   for (const id of measurement.channels) {
     const channel = input.channels.find((candidate) => candidate.id === id);
@@ -53,14 +57,24 @@ export function solveHumanFaceMeasurementTarget(
         read: (weight) => {
           const value = input.read(id, weight);
           if (typeof value !== "number")
-            throw new Error(`The face cannot measure ${measurement.id}: ${value.reason}.`);
+            throw new Error(
+              `The face cannot measure ${measurement.id}: ${value.reason}.`,
+            );
           return value / 1000;
         },
       });
-      return { channel: id, weight: solved.weight, measured: solved.actualMetres * 1000 };
+      return {
+        channel: id,
+        weight: solved.weight,
+        measured: solved.actualMetres * 1000,
+      };
     } catch (error) {
-      failures.push(`${id}: ${error instanceof Error ? error.message : String(error)}`);
+      failures.push(
+        `${id}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
-  throw new Error(`No channel reaches ${target} mm of ${measurement.id} (${failures.join("; ")}).`);
+  throw new Error(
+    `No channel reaches ${target} mm of ${measurement.id} (${failures.join("; ")}).`,
+  );
 }

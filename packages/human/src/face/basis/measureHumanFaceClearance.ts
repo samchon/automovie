@@ -124,7 +124,10 @@ export function measureHumanFaceClearance(
         reading.boundaryVertices++;
         continue;
       }
-      if (request.reachMetres !== undefined && hit.distance > request.reachMetres) {
+      if (
+        request.reachMetres !== undefined &&
+        hit.distance > request.reachMetres
+      ) {
         reading.unreachedVertices = (reading.unreachedVertices ?? 0) + 1;
         continue;
       }
@@ -171,14 +174,14 @@ export function measureHumanFaceClearance(
           ? []
           : measureAutoMovieMeshCrossings(faces, exterior, {
               acceptTransversePoint: request.acceptTransversePoint,
-            }).filter(
-              (hit) => !hit.coplanar,
-            );
+            }).filter((hit) => !hit.coplanar);
       reading.crossings = hits.length;
       const corners = (mesh: IAutoMovieMesh, triangle: number): number[] =>
         (mesh.indices ?? [])
           .slice(3 * triangle, 3 * triangle + 3)
-          .flatMap((vertex) => mesh.positions.slice(3 * vertex, 3 * vertex + 3));
+          .flatMap((vertex) =>
+            mesh.positions.slice(3 * vertex, 3 * vertex + 3),
+          );
       reading.crossingWitness =
         hits.length === 0
           ? null
@@ -190,7 +193,8 @@ export function measureHumanFaceClearance(
             };
     }
   } catch (error) {
-    reading.unavailable = error instanceof Error ? error.message : String(error);
+    reading.unavailable =
+      error instanceof Error ? error.message : String(error);
   }
   reading.refused =
     request.judged &&

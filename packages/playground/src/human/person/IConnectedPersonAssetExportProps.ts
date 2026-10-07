@@ -14,7 +14,10 @@ import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
  */
 export interface IConnectedPersonAssetExportProps<Model> {
   /** The viewport whose resident worker encodes the file. */
-  viewport: Pick<IConnectedPersonViewport<never>, "export" | "exportConstruction">;
+  viewport: Pick<
+    IConnectedPersonViewport<never>,
+    "export" | "exportConstruction"
+  >;
 
   /** The refused construction on screen, or null when the accepted person is. */
   draft: IConnectedPersonDraft<Model> | null;

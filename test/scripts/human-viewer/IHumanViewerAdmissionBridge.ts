@@ -14,5 +14,9 @@ export interface IHumanViewerAdmissionBridge {
   protocol: string;
 
   /** Judge one document JSON with its domain owner's admission in the newest loaded frame. */
-  admit: (domain: string, text: string, basis: string) => Promise<IHumanViewerAdmissionReply>;
+  admit: (
+    domain: string,
+    text: string,
+    basis: string,
+  ) => Promise<IHumanViewerAdmissionReply>;
 }

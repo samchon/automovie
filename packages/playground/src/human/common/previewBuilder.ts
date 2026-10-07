@@ -1,8 +1,9 @@
 import type { IAutoMovieHumanFaceDocument } from "@automovie/human";
-import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
+
 import type { IHumanPreviewArtifact } from "./IHumanPreviewArtifact";
 import type { IHumanPreviewBuilderProps } from "./IHumanPreviewBuilderProps";
 import type { IHumanPreviewWorker } from "./IHumanPreviewWorker";
+import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
 
 /**
  * Build the latest numerical preview through a disposable worker and decoder.
@@ -41,7 +42,10 @@ export function createHumanPreviewBuilder<
         worker.onError = (message) =>
           reject(
             new Error(
-              humanWorkerErrorMessage(message, "The face worker failed before returning a result."),
+              humanWorkerErrorMessage(
+                message,
+                "The face worker failed before returning a result.",
+              ),
             ),
           );
         worker.onReply = (reply) =>

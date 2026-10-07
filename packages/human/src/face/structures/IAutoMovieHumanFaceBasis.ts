@@ -1,17 +1,17 @@
-import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
-import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
 import type { IAutoMovieHumanFaceBasisArticulation } from "./IAutoMovieHumanFaceBasisArticulation";
 import type { IAutoMovieHumanFaceBasisChannel } from "./IAutoMovieHumanFaceBasisChannel";
 import type { IAutoMovieHumanFaceBasisContact } from "./IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceBasisCorrective } from "./IAutoMovieHumanFaceBasisCorrective";
 import type { IAutoMovieHumanFaceBasisLandmarks } from "./IAutoMovieHumanFaceBasisLandmarks";
 import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
-import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocular";
-import type { IAutoMovieHumanFaceOralSupport } from "./IAutoMovieHumanFaceOralSupport";
 import type { IAutoMovieHumanFaceNasalContour } from "./IAutoMovieHumanFaceNasalContour";
+import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFaceOralSupport } from "./IAutoMovieHumanFaceOralSupport";
+import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocular";
 
 /**
  * An immutable, externally authored connected facial surface and its endpoints.

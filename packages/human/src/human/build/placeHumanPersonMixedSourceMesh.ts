@@ -31,27 +31,46 @@ import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
  * @evidenceExclude contracts/anatomy.md#permitted-range The source/pose/model owners admit the geometry.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The placement introduces no anatomy input.
  */
-export function placeHumanPersonMixedSourceMesh(props: IAutoMovieHumanPersonMixedSourceMeshProps): IAutoMovieMesh {
+export function placeHumanPersonMixedSourceMesh(
+  props: IAutoMovieHumanPersonMixedSourceMeshProps,
+): IAutoMovieMesh {
   const { mesh, head, samples, positions, origin, domain } = props;
   const output = moveHumanMeshRigidly(mesh, head);
   const physical = output.physicalVertices;
-  if (physical === undefined || !physical.sources.some(source => source.domain === origin)) return output;
+  if (
+    physical === undefined ||
+    !physical.sources.some((source) => source.domain === origin)
+  )
+    return output;
   for (let vertex = 0; vertex < physical.vertices.length; vertex++) {
     const reference = physical.vertices[vertex];
     const source = reference === null ? undefined : physical.sources[reference];
     if (source === undefined || source.domain !== origin) continue;
     const sample = samples.get(source.id);
     if (sample === undefined || sample * 3 + 2 >= positions.length)
-      throw new Error("Generated person attachment needs its actual canonical skin sample: " + source.id + ".");
+      throw new Error(
+        "Generated person attachment needs its actual canonical skin sample: " +
+          source.id +
+          ".",
+      );
     for (let axis = 0; axis < 3; axis++) {
       const value = positions[sample * 3 + axis];
       if (!Number.isFinite(value))
-        throw new Error("Generated person attachment has a nonfinite actual skin sample: " + source.id + ".");
+        throw new Error(
+          "Generated person attachment has a nonfinite actual skin sample: " +
+            source.id +
+            ".",
+        );
       output.positions[vertex * 3 + axis] = value;
     }
   }
-  physical.sources = physical.sources.map(source => ({ ...source, domain: source.domain === origin ? domain : source.domain }));
-  const indices = output.indices ?? Array.from({ length: output.positions.length / 3 }, (_, vertex) => vertex);
+  physical.sources = physical.sources.map((source) => ({
+    ...source,
+    domain: source.domain === origin ? domain : source.domain,
+  }));
+  const indices =
+    output.indices ??
+    Array.from({ length: output.positions.length / 3 }, (_, vertex) => vertex);
   output.normals = areaWeightedNormals(output.positions, indices);
   resolveAutoMovieMeshPhysicalVertices(output);
   return output;

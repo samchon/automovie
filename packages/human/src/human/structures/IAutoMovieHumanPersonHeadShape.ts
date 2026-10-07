@@ -17,4 +17,6 @@ import type { AutoMovieHumanPersonHeadShapeField } from "./AutoMovieHumanPersonH
  * @evidence contracts/anatomy.md#parametric-authority A person supplies named anatomical displacement differences without vertices, curves or sculpt resources.
  * @author Samchon
  */
-export interface IAutoMovieHumanPersonHeadShape extends Partial<Record<AutoMovieHumanPersonHeadShapeField, number>> {}
+export interface IAutoMovieHumanPersonHeadShape extends Partial<
+  Record<AutoMovieHumanPersonHeadShapeField, number>
+> {}

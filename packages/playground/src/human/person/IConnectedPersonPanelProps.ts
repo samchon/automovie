@@ -1,21 +1,21 @@
 import type {
   AutoMovieHumanFaceMeasurementReading,
   IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodySimpleShape,
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanPersonChannelAlias,
   IAutoMovieHumanPersonDocument,
-  IAutoMovieHumanBodySimpleShape,
 } from "@automovie/human";
+import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
+import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
 import type { BodyPosePreset } from "../body/bodyPosePresets";
 import type { IConnectedFaceExpressionPreset } from "../face/IConnectedFaceExpressionPreset";
-import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
 import type { IConnectedPersonFaceSolution } from "./IConnectedPersonFaceSolution";
 import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
-import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
 /**
  * Inputs of `mountConnectedPersonPanel`.
@@ -38,7 +38,9 @@ import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/huma
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Supplies the standard person the editor screen opens with.
  * @author Samchon
  */
-export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel> {
+export interface IConnectedPersonPanelProps<
+  Model extends IConnectedPersonModel,
+> {
   /** The head partition view (a face basis with driver channels). */
   face: IAutoMovieHumanFaceBasis;
 
@@ -55,10 +57,15 @@ export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel>
   initial: IAutoMovieHumanPersonDocument;
 
   /** Project simple values on this person's complete current rest skin and canonical body anatomy. */
-  projectSimple(person: IAutoMovieHumanPersonDocument): Promise<IAutoMovieHumanBodySimpleShape>;
+  projectSimple(
+    person: IAutoMovieHumanPersonDocument,
+  ): Promise<IAutoMovieHumanBodySimpleShape>;
 
   /** Expand the owner's simple values over the current person's effective body shape. */
-  expandSimple(person: IAutoMovieHumanPersonDocument, simple: IAutoMovieHumanBodySimpleShape): Promise<Record<string, number>>;
+  expandSimple(
+    person: IAutoMovieHumanPersonDocument,
+    simple: IAutoMovieHumanBodySimpleShape,
+  ): Promise<Record<string, number>>;
 
   /** Body pose presets. */
   poses: BodyPosePreset[];
@@ -77,7 +84,10 @@ export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel>
   ): Promise<IConnectedBodyMeasurement>;
 
   /** Read a person measurement on a person's final skin at rest, metres. */
-  readPersonMeasurement(document: IAutoMovieHumanPersonDocument, channel: string): Promise<number>;
+  readPersonMeasurement(
+    document: IAutoMovieHumanPersonDocument,
+    channel: string,
+  ): Promise<number>;
 
   /** Solve a person measurement along its body channel for a target in metres. */
   solvePersonMeasurement(
@@ -87,16 +97,27 @@ export interface IConnectedPersonPanelProps<Model extends IConnectedPersonModel>
   ): Promise<IConnectedPersonMeasuredSolution>;
 
   /** Read every head measurement on a person's skin at rest, metres by name. */
-  readPersonHead(document: IAutoMovieHumanPersonDocument): Promise<Record<string, number>>;
+  readPersonHead(
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<Record<string, number>>;
 
   /** Solve the person's head channels for head measurement targets in metres. */
-  solvePersonHead(document: IAutoMovieHumanPersonDocument, targets: Record<string, number>): Promise<IConnectedPersonHeadSolution>;
+  solvePersonHead(
+    document: IAutoMovieHumanPersonDocument,
+    targets: Record<string, number>,
+  ): Promise<IConnectedPersonHeadSolution>;
 
   /** Read every registered face measurement on a person's face. */
-  readFaceMeasurements(document: IAutoMovieHumanPersonDocument): Promise<AutoMovieHumanFaceMeasurementReading[]>;
+  readFaceMeasurements(
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<AutoMovieHumanFaceMeasurementReading[]>;
 
   /** Solve one face measurement target, in the measurement's unit, onto the channels it lists. */
-  solveFaceMeasurement(document: IAutoMovieHumanPersonDocument, measurement: string, target: number): Promise<IConnectedPersonFaceSolution>;
+  solveFaceMeasurement(
+    document: IAutoMovieHumanPersonDocument,
+    measurement: string,
+    target: number,
+  ): Promise<IConnectedPersonFaceSolution>;
 
   /** Save bytes the user asked for under a file name. */
   download(filename: string, bytes: BlobPart, mime: string): void;

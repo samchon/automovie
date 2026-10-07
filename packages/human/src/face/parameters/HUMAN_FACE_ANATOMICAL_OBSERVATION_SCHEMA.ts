@@ -29,4 +29,5 @@ import type { IAutoMovieHumanFaceAnatomicalParameters } from "./IAutoMovieHumanF
  * @evidenceExclude contracts/anatomy.md#parametric-authority The schema restates the declared observation record and defines no input.
  * @author Samchon
  */
-export const HUMAN_FACE_ANATOMICAL_OBSERVATION_SCHEMA = typia.json.schema<IAutoMovieHumanFaceAnatomicalParameters>();
+export const HUMAN_FACE_ANATOMICAL_OBSERVATION_SCHEMA =
+  typia.json.schema<IAutoMovieHumanFaceAnatomicalParameters>();

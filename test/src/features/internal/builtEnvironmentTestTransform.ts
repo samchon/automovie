@@ -1,6 +1,5 @@
 import { IAutoMovieTransform } from "@automovie/interface";
 
-
 /** Construct the parent local translation, quaternion and per axis scale used by the tower. */
 export const builtEnvironmentTestTransform = (
   x = 0,

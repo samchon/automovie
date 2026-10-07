@@ -55,7 +55,9 @@ import type { IHumanFaceHairFreeDistanceBoundProps } from "./IHumanFaceHairFreeD
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function humanFaceHairFreeDistanceBound(props: IHumanFaceHairFreeDistanceBoundProps): boolean {
+export function humanFaceHairFreeDistanceBound(
+  props: IHumanFaceHairFreeDistanceBoundProps,
+): boolean {
   const separation = Math.hypot(
     props.candidate.x - props.sampled.x,
     props.candidate.y - props.sampled.y,

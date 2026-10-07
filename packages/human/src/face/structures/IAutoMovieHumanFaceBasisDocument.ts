@@ -1,20 +1,20 @@
 import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
 import type { IAutoMovieHumanFaceAnatomicalRequest } from "./IAutoMovieHumanFaceAnatomicalRequest";
-import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
-import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
-import type { IAutoMovieHumanFaceEyes } from "./IAutoMovieHumanFaceEyes";
-import type { IAutoMovieHumanFaceLashes } from "./IAutoMovieHumanFaceLashes";
-import type { IAutoMovieHumanFaceSkinRelief } from "./IAutoMovieHumanFaceSkinRelief";
-import type { IAutoMovieHumanFaceMaterialOverride } from "./IAutoMovieHumanFaceMaterialOverride";
-import type { IAutoMovieHumanFacePeriocularTissues } from "./IAutoMovieHumanFacePeriocularTissues";
-import type { IAutoMovieHumanFaceOral } from "./IAutoMovieHumanFaceOral";
 import type { IAutoMovieHumanFaceBrows } from "./IAutoMovieHumanFaceBrows";
-import type { IAutoMovieHumanFaceEyelids } from "./IAutoMovieHumanFaceEyelids";
-import type { IAutoMovieHumanFaceOcularSurfaces } from "./IAutoMovieHumanFaceOcularSurfaces";
-import type { IAutoMovieHumanFaceScalpHair } from "./IAutoMovieHumanFaceScalpHair";
-import type { IAutoMovieHumanFaceHairTraits } from "./IAutoMovieHumanFaceHairTraits";
-import type { IAutoMovieHumanFaceSkinRegionAppearance } from "./IAutoMovieHumanFaceSkinRegionAppearance";
 import type { IAutoMovieHumanFaceEyelidPhenotypes } from "./IAutoMovieHumanFaceEyelidPhenotypes";
+import type { IAutoMovieHumanFaceEyelids } from "./IAutoMovieHumanFaceEyelids";
+import type { IAutoMovieHumanFaceEyes } from "./IAutoMovieHumanFaceEyes";
+import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceHairTraits } from "./IAutoMovieHumanFaceHairTraits";
+import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
+import type { IAutoMovieHumanFaceLashes } from "./IAutoMovieHumanFaceLashes";
+import type { IAutoMovieHumanFaceMaterialOverride } from "./IAutoMovieHumanFaceMaterialOverride";
+import type { IAutoMovieHumanFaceOcularSurfaces } from "./IAutoMovieHumanFaceOcularSurfaces";
+import type { IAutoMovieHumanFaceOral } from "./IAutoMovieHumanFaceOral";
+import type { IAutoMovieHumanFacePeriocularTissues } from "./IAutoMovieHumanFacePeriocularTissues";
+import type { IAutoMovieHumanFaceScalpHair } from "./IAutoMovieHumanFaceScalpHair";
+import type { IAutoMovieHumanFaceSkinRegionAppearance } from "./IAutoMovieHumanFaceSkinRegionAppearance";
+import type { IAutoMovieHumanFaceSkinRelief } from "./IAutoMovieHumanFaceSkinRelief";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.

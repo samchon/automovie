@@ -12,6 +12,9 @@ import type { Page } from "playwright";
  * @evidence contracts/common.md#principled-implementation The server's view of the page follows the browser's own document-load event, not a timeout or a URL comparison.
  * @evidence contracts/common.md#meaningful-documentation States why only a new document is a reload and why the History API updates are excluded.
  */
-export function watchHumanViewerMainFrame(page: Page, reloaded: () => void): void {
+export function watchHumanViewerMainFrame(
+  page: Page,
+  reloaded: () => void,
+): void {
   page.on("domcontentloaded", () => reloaded());
 }

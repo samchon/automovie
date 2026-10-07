@@ -33,7 +33,10 @@ export interface IConnectedBodyPreviewResult {
   crossings: IAutoMovieModelCrossing[] | null;
 
   /** Humeral head reading, its refusal, or null when not requested. */
-  anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null;
+  anatomy:
+    | IConnectedBodyMeasuredAnatomy
+    | IConnectedBodyUnavailableAnatomy
+    | null;
 
   /** Femoral head target reading, or null when not requested or not asked for. */
   femoralHeads?: IConnectedBodyFemoralHeads | null;

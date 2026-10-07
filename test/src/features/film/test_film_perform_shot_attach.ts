@@ -1,8 +1,3 @@
-import { createFilmAttachRaisedMotion } from "../internal/createFilmAttachRaisedMotion";
-import { FILM_ATTACH_JOINT_AXES as CUSTOM_JOINT_AXES } from "../internal/FILM_ATTACH_JOINT_AXES";
-import { filmAttachSynthesizer as synth } from "../internal/filmAttachSynthesizer";
-import { createFilmAttachStage as stagingOf } from "../internal/createFilmAttachStage";
-import { createFilmAttachScript as scriptOf } from "../internal/createFilmAttachScript";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -16,19 +11,16 @@ import {
   sampleMotion,
   stageScene,
 } from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  makePerformanceWrite,
-} from "../internal/filmFixtures";
-import {
-  IDENTITY_TRANSFORM,
-  createSkeleton,
-} from "../internal/fixtures";
+import { FILM_ATTACH_JOINT_AXES as CUSTOM_JOINT_AXES } from "../internal/FILM_ATTACH_JOINT_AXES";
+import { createFilmAttachRaisedMotion } from "../internal/createFilmAttachRaisedMotion";
+import { createFilmAttachScript as scriptOf } from "../internal/createFilmAttachScript";
+import { createFilmAttachStage as stagingOf } from "../internal/createFilmAttachStage";
+import { filmAttachSynthesizer as synth } from "../internal/filmAttachSynthesizer";
+import { makePerformanceWrite } from "../internal/filmFixtures";
+import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**

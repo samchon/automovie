@@ -1,8 +1,9 @@
+import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
+
 import type { IConnectedPersonInputCatalogueControlsProps } from "./IConnectedPersonInputCatalogueControlsProps";
 import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDescriptor";
 import { readConnectedPersonInput } from "./readConnectedPersonInput";
 import { writeConnectedPersonInput } from "./writeConnectedPersonInput";
-import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 /**
  * Mount one searchable list of the person document's described numerical
@@ -28,9 +29,12 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Draws every row from one descriptor list and names the inputs that list cannot describe.
  * @author Samchon
  */
-export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputCatalogueControlsProps) {
+export function mountConnectedPersonInputCatalogue(
+  props: IConnectedPersonInputCatalogueControlsProps,
+) {
   const { dom } = props;
-  const inputs = (): IConnectedPersonInputDescriptor[] => typeof props.inputs === "function" ? props.inputs() : props.inputs;
+  const inputs = (): IConnectedPersonInputDescriptor[] =>
+    typeof props.inputs === "function" ? props.inputs() : props.inputs;
   const search = dom.createElement("input");
   search.type = "search";
   search.placeholder = "Find an input: helix, lobule, lash, eye, nose…";
@@ -50,24 +54,63 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
     absent.append(line);
   }
   props.container.append(search, select, rows, absent);
-  const update = (current: IAutoMovieHumanPersonDocument, input: IConnectedPersonInputDescriptor, value: number | string | null | undefined): IAutoMovieHumanPersonDocument => {
+  const update = (
+    current: IAutoMovieHumanPersonDocument,
+    input: IConnectedPersonInputDescriptor,
+    value: number | string | null | undefined,
+  ): IAutoMovieHumanPersonDocument => {
     if (typeof value === "number" && !Number.isFinite(value))
-      throw new Error("Enter a finite " + input.unit + " value for " + input.path.join(" › ") + ".");
+      throw new Error(
+        "Enter a finite " +
+          input.unit +
+          " value for " +
+          input.path.join(" › ") +
+          ".",
+      );
     if (typeof value === "string" && !input.choices?.includes(value))
-      throw new Error("Choose an owner-defined value for " + input.path.join(" › ") + ".");
-    const prepared = value === undefined ? current : props.prepare?.(current, input.path) ?? current;
-    const path = value === undefined ? input.removePath ?? input.path : value === null ? input.disablePath ?? input.path : input.path;
-    return writeConnectedPersonInput(prepared, path, value, input.seed, input.seedPath);
+      throw new Error(
+        "Choose an owner-defined value for " + input.path.join(" › ") + ".",
+      );
+    const prepared =
+      value === undefined
+        ? current
+        : (props.prepare?.(current, input.path) ?? current);
+    const path =
+      value === undefined
+        ? (input.removePath ?? input.path)
+        : value === null
+          ? (input.disablePath ?? input.path)
+          : input.path;
+    return writeConnectedPersonInput(
+      prepared,
+      path,
+      value,
+      input.seed,
+      input.seedPath,
+    );
   };
-  const commit = async (input: IConnectedPersonInputDescriptor, value: number | string | null | undefined): Promise<void> => {
+  const commit = async (
+    input: IConnectedPersonInputDescriptor,
+    value: number | string | null | undefined,
+  ): Promise<void> => {
     const ticket = props.reserve();
     try {
       const current = props.current();
-      const path = value === undefined ? input.removePath ?? input.path : value === null ? input.disablePath ?? input.path : input.path;
+      const path =
+        value === undefined
+          ? (input.removePath ?? input.path)
+          : value === null
+            ? (input.disablePath ?? input.path)
+            : input.path;
       const next = update(current, input, value);
       props.busy("Building " + input.label + "…");
       if ((await props.change(next, ticket)) && props.isCurrent(ticket))
-        props.report(path.join(" › ") + (value === undefined ? " removed." : " set to " + value + " " + input.unit + "."));
+        props.report(
+          path.join(" › ") +
+            (value === undefined
+              ? " removed."
+              : " set to " + value + " " + input.unit + "."),
+        );
     } catch (error) {
       if (props.isCurrent(ticket)) props.refuse(error);
     }
@@ -82,15 +125,25 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
     for (const group of groups) {
       const option = dom.createElement("option");
       option.value = group;
-      option.textContent = group + " (" + catalogue.filter((input) => input.group === group).length + ")";
+      option.textContent =
+        group +
+        " (" +
+        catalogue.filter((input) => input.group === group).length +
+        ")";
       select.append(option);
     }
     if (groups.includes(selected)) select.value = selected;
     rows.replaceChildren();
-    const controls = new Map<IConnectedPersonInputDescriptor, HTMLInputElement | HTMLSelectElement>();
+    const controls = new Map<
+      IConnectedPersonInputDescriptor,
+      HTMLInputElement | HTMLSelectElement
+    >();
     for (const input of catalogue) {
-      const name = (input.group + input.label + input.path.join("")).toLowerCase().replace(/\s/gu, "");
-      if (query === "" ? input.group !== select.value : !name.includes(query)) continue;
+      const name = (input.group + input.label + input.path.join(""))
+        .toLowerCase()
+        .replace(/\s/gu, "");
+      if (query === "" ? input.group !== select.value : !name.includes(query))
+        continue;
       const value = readConnectedPersonInput(person, input.path);
       const row = dom.createElement("div");
       row.className = "row";
@@ -103,15 +156,18 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
         const number = dom.createElement("input");
         number.type = "number";
         number.step = input.step === null ? "any" : String(input.step);
-        if (input.minimum !== null && !input.minimumExclusive) number.min = String(input.minimum);
-        if (input.maximum !== null && !input.maximumExclusive) number.max = String(input.maximum);
+        if (input.minimum !== null && !input.minimumExclusive)
+          number.min = String(input.minimum);
+        if (input.maximum !== null && !input.maximumExclusive)
+          number.max = String(input.maximum);
         number.value = typeof value === "number" ? String(value) : "";
         control = number;
       } else {
         const choice = dom.createElement("select");
         const omitted = dom.createElement("option");
         omitted.value = "";
-        omitted.textContent = "Choose an explicit trait; omission retains the original field";
+        omitted.textContent =
+          "Choose an explicit trait; omission retains the original field";
         choice.append(omitted);
         for (const name of input.choices) {
           const option = dom.createElement("option");
@@ -127,8 +183,15 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
       const apply = dom.createElement("button");
       apply.type = "button";
       apply.textContent = "Apply";
-      apply.onclick = () => void commit(input, input.choices === undefined
-        ? control.value.trim() === "" ? Number.NaN : Number(control.value) : control.value);
+      apply.onclick = () =>
+        void commit(
+          input,
+          input.choices === undefined
+            ? control.value.trim() === ""
+              ? Number.NaN
+              : Number(control.value)
+            : control.value,
+        );
       entry.append(control, apply);
       if (input.ownerDefault !== null) {
         const defaults = dom.createElement("button");
@@ -154,18 +217,31 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
       if (input.removable) {
         const remove = dom.createElement("button");
         remove.type = "button";
-        remove.textContent = input.removePath === undefined ? "Remove" : "Remove record";
-        remove.disabled = value === undefined && (input.disablePath === undefined || readConnectedPersonInput(person, input.disablePath) !== null);
+        remove.textContent =
+          input.removePath === undefined ? "Remove" : "Remove record";
+        remove.disabled =
+          value === undefined &&
+          (input.disablePath === undefined ||
+            readConnectedPersonInput(person, input.disablePath) !== null);
         remove.onclick = () => void commit(input, undefined);
         entry.append(remove);
       }
       const state = dom.createElement("small");
       state.textContent =
-        (value === undefined ? "Omitted: " + input.omission : value === null ? "Operation explicitly disabled" : `Current: ${value} ${input.unit}`) +
+        (value === undefined
+          ? "Omitted: " + input.omission
+          : value === null
+            ? "Operation explicitly disabled"
+            : `Current: ${value} ${input.unit}`) +
         " · Owner range: " +
-        (input.choices !== undefined ? input.choices.join(", ") : input.minimum === null && input.maximum === null ? "not supplied"
-          : `${input.minimum === null ? "unbounded below" : (input.minimumExclusive ? "> " : "≥ ") + input.minimum} and ${input.maximum === null ? "unbounded above" : (input.maximumExclusive ? "< " : "≤ ") + input.maximum} ${input.unit}`) +
-        (input.ownerDefault === null ? "" : ` · Owner default: ${input.ownerDefault} ${input.unit}`);
+        (input.choices !== undefined
+          ? input.choices.join(", ")
+          : input.minimum === null && input.maximum === null
+            ? "not supplied"
+            : `${input.minimum === null ? "unbounded below" : (input.minimumExclusive ? "> " : "≥ ") + input.minimum} and ${input.maximum === null ? "unbounded above" : (input.maximumExclusive ? "< " : "≤ ") + input.maximum} ${input.unit}`) +
+        (input.ownerDefault === null
+          ? ""
+          : ` · Owner default: ${input.ownerDefault} ${input.unit}`);
       const ground = dom.createElement("small");
       ground.textContent = input.path.join(" › ") + " · " + input.qualification;
       row.append(label, entry, state, ground);
@@ -182,18 +258,29 @@ export function mountConnectedPersonInputCatalogue(props: IConnectedPersonInputC
           let entered = 0;
           for (const [input, control] of controls) {
             if (control.value.trim() === "") continue;
-            next = update(next, input, input.choices === undefined ? Number(control.value) : control.value);
+            next = update(
+              next,
+              input,
+              input.choices === undefined
+                ? Number(control.value)
+                : control.value,
+            );
             entered++;
           }
-          if (entered === 0) throw new Error("Enter the named group values first; no styling defaults are inferred.");
+          if (entered === 0)
+            throw new Error(
+              "Enter the named group values first; no styling defaults are inferred.",
+            );
           props.busy("Building " + select.value + "…");
-          if ((await props.change(next, ticket)) && props.isCurrent(ticket)) props.report(select.value + " applied.");
+          if ((await props.change(next, ticket)) && props.isCurrent(ticket))
+            props.report(select.value + " applied.");
         } catch (error) {
           if (props.isCurrent(ticket)) props.refuse(error);
         }
       };
       const help = dom.createElement("small");
-      help.textContent = "A new operation needs its complete named record. Blank fields keep existing data; enter all required values together when no original record exists.";
+      help.textContent =
+        "A new operation needs its complete named record. Blank fields keep existing data; enter all required values together when no original record exists.";
       rows.append(applyGroup, help);
     }
   };

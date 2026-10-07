@@ -18,7 +18,10 @@ import type { IAutoMovieHumanBodyAnatomicalValidation } from "./IAutoMovieHumanB
  * @evidenceExclude contracts/anatomy.md#parametric-authority It is generated output, not an authoring input.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyAnatomicalResolved<Id extends string, Value> {
+export interface IAutoMovieHumanBodyAnatomicalResolved<
+  Id extends string,
+  Value,
+> {
   /** Stable identity of the anatomical part or shared skin. */
   readonly id: Id;
   /** Geometry passed the named validation cohort and domain checks. */

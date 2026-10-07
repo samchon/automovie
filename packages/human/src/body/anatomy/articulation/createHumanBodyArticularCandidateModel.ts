@@ -34,8 +34,8 @@ export function createHumanBodyArticularCandidateModel(
   const material = {
     id: "articular-inspection",
     name: "Provisional inspection finish",
-    baseColor: { r: .7, g: .7, b: .7, a: 1, hex: null },
-    roughness: .75,
+    baseColor: { r: 0.7, g: 0.7, b: 0.7, a: 1, hex: null },
+    roughness: 0.75,
     metallic: 0,
     opacity: 1,
     emissive: null,
@@ -49,7 +49,10 @@ export function createHumanBodyArticularCandidateModel(
     parts: props.inspection.candidates.map((head) => ({
       id: head.part + "/head-candidate",
       name: head.part + " target head candidate",
-      geometry: { type: "primitive", shape: { type: "sphere", radius: head.radiusMetres } },
+      geometry: {
+        type: "primitive",
+        shape: { type: "sphere", radius: head.radiusMetres },
+      },
       material: material.id,
       attachedBone: null,
       transform: {
@@ -67,17 +70,27 @@ export function createHumanBodyArticularCandidateModel(
   // mesh topology's redundant-pole policy is not radius admission.
   const dimensions = validateModel({ model });
   if (!dimensions.success)
-    throw new Error("Invalid articular candidate dimensions: " + JSON.stringify(dimensions));
+    throw new Error(
+      "Invalid articular candidate dimensions: " + JSON.stringify(dimensions),
+    );
   model.parts = model.parts.map((part, index) => ({
     ...part,
-    geometry: { type: "mesh", mesh: placeMeshPreservingFaces(
-      tessellateToMesh({ type: "sphere", radius: props.inspection.candidates[index].radiusMetres }),
-      { translation: props.inspection.candidates[index].center },
-    ) },
+    geometry: {
+      type: "mesh",
+      mesh: placeMeshPreservingFaces(
+        tessellateToMesh({
+          type: "sphere",
+          radius: props.inspection.candidates[index].radiusMetres,
+        }),
+        { translation: props.inspection.candidates[index].center },
+      ),
+    },
     transform: null,
   }));
   const validation = validateModel({ model });
   if (!validation.success)
-    throw new Error("Invalid articular candidate model: " + JSON.stringify(validation));
+    throw new Error(
+      "Invalid articular candidate model: " + JSON.stringify(validation),
+    );
   return model;
 }

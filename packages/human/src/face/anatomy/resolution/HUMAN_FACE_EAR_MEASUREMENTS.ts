@@ -1,4 +1,3 @@
-import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
 import { findHumanIntertragicNotch } from "../../../common/measure/findHumanIntertragicNotch";
 import { humanHeadDistance } from "../../../common/measure/humanHeadDistance";
 import { humanHeadPoint } from "../../../common/measure/humanHeadPoint";
@@ -8,6 +7,7 @@ import { readHumanEarInclination } from "../../../common/measure/readHumanEarInc
 import { readHumanEarLength } from "../../../common/measure/readHumanEarLength";
 import { readHumanEarProjection } from "../../../common/measure/readHumanEarProjection";
 import { readHumanLobuleWidth } from "../../../common/measure/readHumanLobuleWidth";
+import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
 import { readHumanFaceHeadRule } from "./readHumanFaceHeadRule";
 import { readHumanFaceLandmarkDistance } from "./readHumanFaceLandmarkDistance";
 
@@ -47,28 +47,53 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "ear.left.length",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceHeadRule(context, [], ["ear-left"], (head) => readHumanEarLength(head, "ear-left").metres),
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-left"],
+        (head) => readHumanEarLength(head, "ear-left").metres,
+      ),
   },
   {
     id: "ear.left.breadth",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceHeadRule(context, [], ["ear-left"], (head) => readHumanEarBreadth(head, "ear-left").metres),
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-left"],
+        (head) => readHumanEarBreadth(head, "ear-left").metres,
+      ),
   },
   {
     id: "ear.left.attachmentLength",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "otobasion-superius-left", "otobasion-inferius-left"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(
+        context,
+        "otobasion-superius-left",
+        "otobasion-inferius-left",
+      ),
   },
   {
     id: "ear.left.superiorProjection",
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-left"], (head) =>
-        // 0.1 mm under superaurale, so the plane cuts the helix just below its apex
-        readHumanEarProjection(head, "ear-left", readHumanEarLength(head, "ear-left").points.superaurale.y - 0.0001).metres,
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-left"],
+        (head) =>
+          // 0.1 mm under superaurale, so the plane cuts the helix just below its apex
+          readHumanEarProjection(
+            head,
+            "ear-left",
+            readHumanEarLength(head, "ear-left").points.superaurale.y - 0.0001,
+          ).metres,
       ),
   },
   {
@@ -76,8 +101,16 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["tragion-left"], ["ear-left"], (head) =>
-        readHumanEarProjection(head, "ear-left", humanHeadPoint(head, "tragion-left").y).metres,
+      readHumanFaceHeadRule(
+        context,
+        ["tragion-left"],
+        ["ear-left"],
+        (head) =>
+          readHumanEarProjection(
+            head,
+            "ear-left",
+            humanHeadPoint(head, "tragion-left").y,
+          ).metres,
       ),
   },
   {
@@ -89,7 +122,12 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
         context,
         ["otobasion-superius-left"],
         ["ear-left"],
-        (head) => readHumanEarInclination(head, "ear-left", humanHeadPoint(head, "otobasion-superius-left")),
+        (head) =>
+          readHumanEarInclination(
+            head,
+            "ear-left",
+            humanHeadPoint(head, "otobasion-superius-left"),
+          ),
         1,
       ),
   },
@@ -99,8 +137,17 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["otobasion-superius-left", "otobasion-inferius-left"], ["cymba-conchae-left", "cavum-conchae-left"], (head) =>
-        readHumanConchaExtent(head, ["cymba-conchae-left", "cavum-conchae-left"], humanHeadPoint(head, "otobasion-superius-left"), humanHeadPoint(head, "otobasion-inferius-left")).length,
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-left", "otobasion-inferius-left"],
+        ["cymba-conchae-left", "cavum-conchae-left"],
+        (head) =>
+          readHumanConchaExtent(
+            head,
+            ["cymba-conchae-left", "cavum-conchae-left"],
+            humanHeadPoint(head, "otobasion-superius-left"),
+            humanHeadPoint(head, "otobasion-inferius-left"),
+          ).length,
       ),
   },
   {
@@ -109,8 +156,17 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["otobasion-superius-left", "otobasion-inferius-left"], ["cymba-conchae-left", "cavum-conchae-left"], (head) =>
-        readHumanConchaExtent(head, ["cymba-conchae-left", "cavum-conchae-left"], humanHeadPoint(head, "otobasion-superius-left"), humanHeadPoint(head, "otobasion-inferius-left")).breadth,
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-left", "otobasion-inferius-left"],
+        ["cymba-conchae-left", "cavum-conchae-left"],
+        (head) =>
+          readHumanConchaExtent(
+            head,
+            ["cymba-conchae-left", "cavum-conchae-left"],
+            humanHeadPoint(head, "otobasion-superius-left"),
+            humanHeadPoint(head, "otobasion-inferius-left"),
+          ).breadth,
       ),
   },
   {
@@ -146,8 +202,15 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-left", "cavum-conchae-left"], (head) =>
-        humanHeadDistance(findHumanIntertragicNotch(head, "cavum-conchae-left"), readHumanEarLength(head, "ear-left").points.subaurale),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-left", "cavum-conchae-left"],
+        (head) =>
+          humanHeadDistance(
+            findHumanIntertragicNotch(head, "cavum-conchae-left"),
+            readHumanEarLength(head, "ear-left").points.subaurale,
+          ),
       ),
   },
   {
@@ -156,37 +219,76 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-left", "cavum-conchae-left", "lobule-left"], (head) => {
-        const { superaurale, subaurale } = readHumanEarLength(head, "ear-left").points;
-        return readHumanLobuleWidth(head, "lobule-left", findHumanIntertragicNotch(head, "cavum-conchae-left"), superaurale, subaurale);
-      }),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-left", "cavum-conchae-left", "lobule-left"],
+        (head) => {
+          const { superaurale, subaurale } = readHumanEarLength(
+            head,
+            "ear-left",
+          ).points;
+          return readHumanLobuleWidth(
+            head,
+            "lobule-left",
+            findHumanIntertragicNotch(head, "cavum-conchae-left"),
+            superaurale,
+            subaurale,
+          );
+        },
+      ),
   },
   {
     id: "ear.right.length",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceHeadRule(context, [], ["ear-right"], (head) => readHumanEarLength(head, "ear-right").metres),
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-right"],
+        (head) => readHumanEarLength(head, "ear-right").metres,
+      ),
   },
   {
     id: "ear.right.breadth",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceHeadRule(context, [], ["ear-right"], (head) => readHumanEarBreadth(head, "ear-right").metres),
+    read: (context) =>
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-right"],
+        (head) => readHumanEarBreadth(head, "ear-right").metres,
+      ),
   },
   {
     id: "ear.right.attachmentLength",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "otobasion-superius-right", "otobasion-inferius-right"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(
+        context,
+        "otobasion-superius-right",
+        "otobasion-inferius-right",
+      ),
   },
   {
     id: "ear.right.superiorProjection",
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-right"], (head) =>
-        // 0.1 mm under superaurale, so the plane cuts the helix just below its apex
-        readHumanEarProjection(head, "ear-right", readHumanEarLength(head, "ear-right").points.superaurale.y - 0.0001).metres,
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-right"],
+        (head) =>
+          // 0.1 mm under superaurale, so the plane cuts the helix just below its apex
+          readHumanEarProjection(
+            head,
+            "ear-right",
+            readHumanEarLength(head, "ear-right").points.superaurale.y - 0.0001,
+          ).metres,
       ),
   },
   {
@@ -194,8 +296,16 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["tragion-right"], ["ear-right"], (head) =>
-        readHumanEarProjection(head, "ear-right", humanHeadPoint(head, "tragion-right").y).metres,
+      readHumanFaceHeadRule(
+        context,
+        ["tragion-right"],
+        ["ear-right"],
+        (head) =>
+          readHumanEarProjection(
+            head,
+            "ear-right",
+            humanHeadPoint(head, "tragion-right").y,
+          ).metres,
       ),
   },
   {
@@ -207,7 +317,12 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
         context,
         ["otobasion-superius-right"],
         ["ear-right"],
-        (head) => readHumanEarInclination(head, "ear-right", humanHeadPoint(head, "otobasion-superius-right")),
+        (head) =>
+          readHumanEarInclination(
+            head,
+            "ear-right",
+            humanHeadPoint(head, "otobasion-superius-right"),
+          ),
         1,
       ),
   },
@@ -217,8 +332,17 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["otobasion-superius-right", "otobasion-inferius-right"], ["cymba-conchae-right", "cavum-conchae-right"], (head) =>
-        readHumanConchaExtent(head, ["cymba-conchae-right", "cavum-conchae-right"], humanHeadPoint(head, "otobasion-superius-right"), humanHeadPoint(head, "otobasion-inferius-right")).length,
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-right", "otobasion-inferius-right"],
+        ["cymba-conchae-right", "cavum-conchae-right"],
+        (head) =>
+          readHumanConchaExtent(
+            head,
+            ["cymba-conchae-right", "cavum-conchae-right"],
+            humanHeadPoint(head, "otobasion-superius-right"),
+            humanHeadPoint(head, "otobasion-inferius-right"),
+          ).length,
       ),
   },
   {
@@ -227,8 +351,17 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["otobasion-superius-right", "otobasion-inferius-right"], ["cymba-conchae-right", "cavum-conchae-right"], (head) =>
-        readHumanConchaExtent(head, ["cymba-conchae-right", "cavum-conchae-right"], humanHeadPoint(head, "otobasion-superius-right"), humanHeadPoint(head, "otobasion-inferius-right")).breadth,
+      readHumanFaceHeadRule(
+        context,
+        ["otobasion-superius-right", "otobasion-inferius-right"],
+        ["cymba-conchae-right", "cavum-conchae-right"],
+        (head) =>
+          readHumanConchaExtent(
+            head,
+            ["cymba-conchae-right", "cavum-conchae-right"],
+            humanHeadPoint(head, "otobasion-superius-right"),
+            humanHeadPoint(head, "otobasion-inferius-right"),
+          ).breadth,
       ),
   },
   {
@@ -264,8 +397,15 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-right", "cavum-conchae-right"], (head) =>
-        humanHeadDistance(findHumanIntertragicNotch(head, "cavum-conchae-right"), readHumanEarLength(head, "ear-right").points.subaurale),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-right", "cavum-conchae-right"],
+        (head) =>
+          humanHeadDistance(
+            findHumanIntertragicNotch(head, "cavum-conchae-right"),
+            readHumanEarLength(head, "ear-right").points.subaurale,
+          ),
       ),
   },
   {
@@ -274,9 +414,23 @@ export const HUMAN_FACE_EAR_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["ear-right", "cavum-conchae-right", "lobule-right"], (head) => {
-        const { superaurale, subaurale } = readHumanEarLength(head, "ear-right").points;
-        return readHumanLobuleWidth(head, "lobule-right", findHumanIntertragicNotch(head, "cavum-conchae-right"), superaurale, subaurale);
-      }),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["ear-right", "cavum-conchae-right", "lobule-right"],
+        (head) => {
+          const { superaurale, subaurale } = readHumanEarLength(
+            head,
+            "ear-right",
+          ).points;
+          return readHumanLobuleWidth(
+            head,
+            "lobule-right",
+            findHumanIntertragicNotch(head, "cavum-conchae-right"),
+            superaurale,
+            subaurale,
+          );
+        },
+      ),
   },
 ];

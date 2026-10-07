@@ -14,8 +14,12 @@ import type { IHumanViewerWatchState } from "./IHumanViewerWatchState";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No process is chosen by name or by record; only the watcher's own child is restarted.
  * @evidence contracts/common.md#meaningful-documentation States the start rule, the ownership rule and the hang limit.
  */
-export function planHumanViewerWatch(state: IHumanViewerWatchState): "wait" | "start" | "restart" {
+export function planHumanViewerWatch(
+  state: IHumanViewerWatchState,
+): "wait" | "start" | "restart" {
   if (state.answered) return "wait";
   if (state.refused && !state.ownedRunning) return "start";
-  return state.ownedRunning && state.silentMs > state.limitMs ? "restart" : "wait";
+  return state.ownedRunning && state.silentMs > state.limitMs
+    ? "restart"
+    : "wait";
 }

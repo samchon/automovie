@@ -28,61 +28,83 @@ export const HUMAN_FACE_MOUTH_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "mouth.fissureWidth",
     unit: "millimetres",
     channels: ["mouthWidth"],
-    read: (context) => readHumanFaceLandmarkDistance(context, "cheilion-left", "cheilion-right"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "cheilion-left", "cheilion-right"),
   },
   {
     id: "mouth.cristaPhiltriToCheilion.left",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "crista-philtri-left", "cheilion-left"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(
+        context,
+        "crista-philtri-left",
+        "cheilion-left",
+      ),
   },
   {
     id: "mouth.cristaPhiltriToCheilion.right",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "crista-philtri-right", "cheilion-right"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(
+        context,
+        "crista-philtri-right",
+        "cheilion-right",
+      ),
   },
   {
     id: "mouth.philtrumWidth",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "crista-philtri-left", "crista-philtri-right"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(
+        context,
+        "crista-philtri-left",
+        "crista-philtri-right",
+      ),
   },
   {
     id: "mouth.philtrumLength",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "subnasale", "labiale-superius"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "subnasale", "labiale-superius"),
   },
   {
     id: "mouth.upperLipHeight",
     unit: "millimetres",
     channels: ["upperLipHeight"],
-    read: (context) => readHumanFaceLandmarkDistance(context, "subnasale", "stomion"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "subnasale", "stomion"),
   },
   {
     id: "mouth.lowerLipHeight",
     unit: "millimetres",
     channels: ["lowerLipHeight"],
-    read: (context) => readHumanFaceLandmarkDistance(context, "stomion", "sublabiale"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "stomion", "sublabiale"),
   },
   {
     id: "mouth.upperVermilionHeight",
     unit: "millimetres",
     channels: ["upperVermilionHeight"],
-    read: (context) => readHumanFaceLandmarkDistance(context, "labiale-superius", "stomion"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "labiale-superius", "stomion"),
   },
   {
     id: "mouth.lowerVermilionHeight",
     unit: "millimetres",
     channels: ["lowerVermilionHeight"],
-    read: (context) => readHumanFaceLandmarkDistance(context, "stomion", "labiale-inferius"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "stomion", "labiale-inferius"),
   },
   {
     id: "mouth.lowerCutaneousLipHeight",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "labiale-inferius", "sublabiale"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "labiale-inferius", "sublabiale"),
   },
   {
     id: "mouth.cupidBowCentralAngle",
@@ -100,25 +122,37 @@ export const HUMAN_FACE_MOUTH_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "mouth.cupidBowPeakHeight.left",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "missing registration: the labial fissure line under the left crista philtri" }),
+    read: () => ({
+      reason:
+        "missing registration: the labial fissure line under the left crista philtri",
+    }),
   },
   {
     id: "mouth.cupidBowPeakHeight.right",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "missing registration: the labial fissure line under the right crista philtri" }),
+    read: () => ({
+      reason:
+        "missing registration: the labial fissure line under the right crista philtri",
+    }),
   },
   {
     id: "mouth.upperLipToEstheticLine",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion" }),
+    read: () => ({
+      reason:
+        "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion",
+    }),
   },
   {
     id: "mouth.lowerLipToEstheticLine",
     unit: "millimetres",
     channels: [],
-    read: () => ({ reason: "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion" }),
+    read: () => ({
+      reason:
+        "unavailable instrument: connected esthetic-line distance between per-shape pronasale and pogonion",
+    }),
   },
   {
     id: "mouth.interlabialGap",
@@ -127,7 +161,10 @@ export const HUMAN_FACE_MOUTH_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: (context) => {
       const contact = context.basis.contact;
       if (contact === undefined || context.apertureUp === null)
-        return { reason: "missing registration: the vermilion seam pair and jaw articulation" };
+        return {
+          reason:
+            "missing registration: the vermilion seam pair and jaw articulation",
+        };
       return (
         Vector3.dot(
           Vector3.subtract(

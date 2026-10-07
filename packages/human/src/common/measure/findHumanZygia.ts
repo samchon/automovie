@@ -47,7 +47,8 @@ export function findHumanZygia(
   const p = head.positions;
   const ears = [humanHeadEar(head, rightEar), humanHeadEar(head, leftEar)];
   const excluded = new Set([...ears[0].triangles, ...ears[1].triangles]);
-  const front = (region: string): number => Math.max(...head.skinRegions![region].vertices.map((v) => p[v * 3 + 2]));
+  const front = (region: string): number =>
+    Math.max(...head.skinRegions![region].vertices.map((v) => p[v * 3 + 2]));
   const frontRight = front(rightEar);
   const frontLeft = front(leftEar);
   let right: IAutoMovieVector3 | undefined;
@@ -59,11 +60,24 @@ export function findHumanZygia(
       const v = head.indices[t * 3 + k];
       const point = { x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] };
       if (point.y < low || point.y > sellion.y) continue;
-      if (point.x < 0 && point.z > frontRight && (right === undefined || point.x < right.x)) right = point;
-      if (point.x > 0 && point.z > frontLeft && (left === undefined || point.x > left.x)) left = point;
+      if (
+        point.x < 0 &&
+        point.z > frontRight &&
+        (right === undefined || point.x < right.x)
+      )
+        right = point;
+      if (
+        point.x > 0 &&
+        point.z > frontLeft &&
+        (left === undefined || point.x > left.x)
+      )
+        left = point;
     }
   }
-  if (right === undefined || left === undefined) throw new Error(`The head view of ${head.id} has no face skin in the zygomatic band.`);
+  if (right === undefined || left === undefined)
+    throw new Error(
+      `The head view of ${head.id} has no face skin in the zygomatic band.`,
+    );
   if (right.z - frontRight < 0.002 || left.z - frontLeft < 0.002)
     throw new Error(
       `missing rule: zygion on ${head.id}; the skin keeps widening toward the ear root, so its most lateral point in the zygomatic band lies on the band's anterior bound and the arch shows no lateral maximum of its own`,

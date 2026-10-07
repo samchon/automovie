@@ -1,8 +1,9 @@
 import { Vector3 } from "@automovie/engine";
+
+import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference";
 import type { IHumanFaceHairRootSeat } from "./IHumanFaceHairRootSeat";
 import type { IHumanFaceHairRootSeatsProps } from "./IHumanFaceHairRootSeatsProps";
-import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 
 /**
  * Carry sampled roots from the neutral scalp onto the face as it now stands.
@@ -44,10 +45,20 @@ export function seatHumanFaceHairRoots<T extends IHumanFaceHairRootReference>(
   if (props.roots.length === 0) return [];
   const host = createHumanFaceSkinHost(indices, current);
   return props.roots.map((root) => {
-    const frame = host.frame({ triangle: root.triangle,
-      weights: [root.weights[0], root.weights[1], root.weights[2]] });
-    const seated = Vector3.create(frame.point[0], frame.point[1], frame.point[2]);
-    const normal = Vector3.create(frame.normal[0], frame.normal[1], frame.normal[2]);
+    const frame = host.frame({
+      triangle: root.triangle,
+      weights: [root.weights[0], root.weights[1], root.weights[2]],
+    });
+    const seated = Vector3.create(
+      frame.point[0],
+      frame.point[1],
+      frame.point[2],
+    );
+    const normal = Vector3.create(
+      frame.normal[0],
+      frame.normal[1],
+      frame.normal[2],
+    );
     return { root, seated, normal };
   });
 }

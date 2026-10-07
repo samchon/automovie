@@ -34,8 +34,20 @@ export function resolveHumanBodyHindfootParts(
   const right = input.targets?.rightLowerLimb?.foot;
   return [
     humanBodyUnavailablePart("leftTalus", left?.talus, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightTalus", right?.talus, "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftCalcaneus", left?.calcaneus, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightCalcaneus", right?.calcaneus, "missing-bone-landmark"),
+    humanBodyUnavailablePart(
+      "rightTalus",
+      right?.talus,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "leftCalcaneus",
+      left?.calcaneus,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "rightCalcaneus",
+      right?.calcaneus,
+      "missing-bone-landmark",
+    ),
   ];
 }

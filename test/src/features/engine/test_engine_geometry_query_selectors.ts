@@ -1,13 +1,12 @@
-import type { IGeometrySelectorTestActorExtra } from "../internal/IGeometrySelectorTestActorExtra";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+
+import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "../internal/GEOMETRY_SELECTOR_TEST_WORLD";
+import type { IGeometrySelectorTestActorExtra } from "../internal/IGeometrySelectorTestActorExtra";
+import { geometrySelectorTestAsk as ask } from "../internal/geometrySelectorTestAsk";
 import { geometrySelectorTestMeters as meters } from "../internal/geometrySelectorTestMeters";
 import { geometrySelectorTestPoint as point } from "../internal/geometrySelectorTestPoint";
-import { geometrySelectorTestAsk as ask } from "../internal/geometrySelectorTestAsk";
-import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "../internal/GEOMETRY_SELECTOR_TEST_WORLD";
 import { geometrySelectorTestValues as values } from "../internal/geometrySelectorTestValues";
-
-
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * Distance, ground and pose queries resolve selectors, actors and terrain from
@@ -131,7 +130,10 @@ export const test_engine_geometry_query_selectors = (): void => {
     },
   );
 
-  const actor = (name: string, extra: IGeometrySelectorTestActorExtra = {}) => ({
+  const actor = (
+    name: string,
+    extra: IGeometrySelectorTestActorExtra = {},
+  ) => ({
     kind: "actor" as const,
     actor: name,
     ...extra,

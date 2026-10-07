@@ -1,11 +1,20 @@
-import { Quaternion, Vector3, resolvePose, sampleMotion, spaceGround } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolvePose,
+  sampleMotion,
+  spaceGround,
+} from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
+
+import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
 import { makeStagingWrite } from "./filmFixtures";
 import { namedFacts, vclose } from "./predicates";
-import { TestValidator } from "@nestia/e2e";
-import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
 
 /** Preserve the original ramp planting assertions and input order. */
-export function assertFilmRampContinuity(input: IFilmDefinedShotContinuityInputs): boolean {
+export function assertFilmRampContinuity(
+  input: IFilmDefinedShotContinuityInputs,
+): boolean {
   const { rig, groundedStage, compileWalk } = input;
   const slopeSpace = {
     id: "rising-ground",

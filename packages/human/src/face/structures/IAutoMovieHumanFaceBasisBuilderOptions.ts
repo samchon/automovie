@@ -1,8 +1,8 @@
+import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { AutoMovieHumanFaceMeasurementReading } from "./AutoMovieHumanFaceMeasurementReading";
+import type { IAutoMovieHumanFaceConstructionProgress } from "./IAutoMovieHumanFaceConstructionProgress";
 import type { IAutoMovieHumanFaceContactSummary } from "./IAutoMovieHumanFaceContactSummary";
 import type { IAutoMovieHumanFaceOcclusionOptions } from "./IAutoMovieHumanFaceOcclusionOptions";
-import type { IAutoMovieHumanFaceConstructionProgress } from "./IAutoMovieHumanFaceConstructionProgress";
-import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 
 /**
  * Optional observers and occlusion baking for `createHumanFaceBasisBuilder`.
@@ -44,7 +44,9 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#permitted-range Supplies no physiological range.
    * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring control.
    */
-  observeOralMeasurements?: (registration: IHumanFaceOralMeasurementRegistration | undefined) => void;
+  observeOralMeasurements?: (
+    registration: IHumanFaceOralMeasurementRegistration | undefined,
+  ) => void;
   /**
    * Receive a copy of each admitted model's contact summary, or null when the
    * basis evaluates no contact.
@@ -105,7 +107,9 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#permitted-range observeMeasurements admits no anatomical value.
    * @evidenceExclude contracts/anatomy.md#parametric-authority observeMeasurements does not shape a person.
    */
-  observeMeasurements?: (readings: AutoMovieHumanFaceMeasurementReading[]) => void;
+  observeMeasurements?: (
+    readings: AutoMovieHumanFaceMeasurementReading[],
+  ) => void;
 
   /**
    * Receive an owned snapshot of this successful build's evaluated shape-only
@@ -121,7 +125,9 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#permitted-range The source evaluator admits the reference.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The callback defines no authoring control.
    */
-  observeReference?: (reference: ReadonlyMap<string, readonly number[]> | undefined) => void;
+  observeReference?: (
+    reference: ReadonlyMap<string, readonly number[]> | undefined,
+  ) => void;
 
   /**
    * True also evaluates the report-only assembly census in `construct`: every
@@ -138,7 +144,9 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * carry fresh scalar records; an observer error propagates to its caller.
    * This is execution status and never success-only model publication.
    */
-  observeConstructionProgress?: (progress: IAutoMovieHumanFaceConstructionProgress) => void;
+  observeConstructionProgress?: (
+    progress: IAutoMovieHumanFaceConstructionProgress,
+  ) => void;
 
   /** Ambient-occlusion sampling; omission bakes no occlusion texture. */
   occlusion?: IAutoMovieHumanFaceOcclusionOptions;

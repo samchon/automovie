@@ -1,7 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceResidentSourceRegion } from "../../face/basis/IHumanFaceResidentSourceRegion";
-
 import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonHeadTransform } from "./IAutoMovieHumanPersonHeadTransform";
 

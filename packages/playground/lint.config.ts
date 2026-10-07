@@ -41,7 +41,10 @@ const faceSources = [
 const authoring = (layer: "requirements" | "specifications") => {
   const roots =
     layer === "requirements"
-      ? ["requirements/actors/facial-authoring", "requirements/actors/body-authoring"]
+      ? [
+          "requirements/actors/facial-authoring",
+          "requirements/actors/body-authoring",
+        ]
       : [
           "specifications/asset-and-representation/facial-authoring",
           "specifications/asset-and-representation/body-authoring",
@@ -56,7 +59,10 @@ const authoring = (layer: "requirements" | "specifications") => {
     {
       type: "markdown" as const,
       root: "../../docs",
-      files: roots.flatMap((folder) => [folder + "/**/*.md", "!" + folder + "/**/README.md"]),
+      files: roots.flatMap((folder) => [
+        folder + "/**/*.md",
+        "!" + folder + "/**/README.md",
+      ]),
       symbol: "h3" as const,
     },
   ];

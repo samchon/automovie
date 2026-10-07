@@ -33,15 +33,37 @@ const arguments_ = process.argv.slice(2);
 let oralEvaluations: number | undefined;
 let tongueEvaluations: number | undefined;
 let inspectionCheckpoint: string | undefined;
-for (const option of ["--oral-evaluations", "--tongue-evaluations", "--inspection-checkpoint"]) {
+for (const option of [
+  "--oral-evaluations",
+  "--tongue-evaluations",
+  "--inspection-checkpoint",
+]) {
   const at = arguments_.indexOf(option);
   if (at === -1) continue;
-  if (at + 1 >= arguments_.length || arguments_.indexOf(option, at + 1) !== -1) throw new Error(option + " requires one unique evaluation budget.");
-  if (option === "--inspection-checkpoint") inspectionCheckpoint = path.resolve(arguments_[at + 1]);
-  else if (option === "--oral-evaluations") oralEvaluations = Number(arguments_[at + 1]);
+  if (at + 1 >= arguments_.length || arguments_.indexOf(option, at + 1) !== -1)
+    throw new Error(option + " requires one unique evaluation budget.");
+  if (option === "--inspection-checkpoint")
+    inspectionCheckpoint = path.resolve(arguments_[at + 1]);
+  else if (option === "--oral-evaluations")
+    oralEvaluations = Number(arguments_[at + 1]);
   else tongueEvaluations = Number(arguments_[at + 1]);
   arguments_.splice(at, 2);
 }
-const [work, output, provider, replay, traits] = arguments_.map((p) => path.resolve(p));
-if (work === undefined || output === undefined) throw new Error("Usage: compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]]");
-compileHumanSourceGeneration(work, output, path.resolve(__dirname, "../../.."), provider, replay, traits, oralEvaluations, tongueEvaluations, inspectionCheckpoint);
+const [work, output, provider, replay, traits] = arguments_.map((p) =>
+  path.resolve(p),
+);
+if (work === undefined || output === undefined)
+  throw new Error(
+    "Usage: compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]]",
+  );
+compileHumanSourceGeneration(
+  work,
+  output,
+  path.resolve(__dirname, "../../.."),
+  provider,
+  replay,
+  traits,
+  oralEvaluations,
+  tongueEvaluations,
+  inspectionCheckpoint,
+);

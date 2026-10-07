@@ -7,21 +7,21 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { Document } from "@gltf-transform/core";
-import typia from "typia";
 import {
   KHRMaterialsClearcoat,
   KHRMaterialsIOR,
   KHRMaterialsTransmission,
   KHRMaterialsVolume,
 } from "@gltf-transform/extensions";
+import typia from "typia";
 
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
-import { applyHumanGltfTextureSampling } from "./applyHumanGltfTextureSampling";
 import type { IAutoMovieHumanExportOptions } from "./IAutoMovieHumanExportOptions";
 import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanStaticPartCorrespondence";
-import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
+import { applyHumanGltfTextureSampling } from "./applyHumanGltfTextureSampling";
 import { readHumanMeshPhysicalVertices } from "./readHumanMeshPhysicalVertices";
+import { readHumanStaticPartCorrespondence } from "./readHumanStaticPartCorrespondence";
 import { resolveHumanGltfTextureReference } from "./resolveHumanGltfTextureReference";
 
 /**
@@ -58,8 +58,14 @@ import { resolveHumanGltfTextureReference } from "./resolveHumanGltfTextureRefer
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional metadata changes neither source geometry nor the legacy default and conveys no anatomical certification.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes optional source identity and the existing static exporter limitations.
  */
-export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieHumanExportOptions): Document {
-  const identity = typia.assertEquals<IAutoMovieHumanExportOptions>(options === undefined ? {} : options).sourcePartIdentity === true;
+export function createGltfDocument(
+  model: IAutoMovieModel,
+  options?: IAutoMovieHumanExportOptions,
+): Document {
+  const identity =
+    typia.assertEquals<IAutoMovieHumanExportOptions>(
+      options === undefined ? {} : options,
+    ).sourcePartIdentity === true;
   if (
     model.skeleton !== null ||
     model.materials.some((m) =>
@@ -102,7 +108,13 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
       );
     });
     const mesh = mergeAutoMovieMeshes(meshes);
-    const packed = float32MeshBuffers(mesh, "material:" + finish.id + " parts:" + members.map((part) => part.id).join(","));
+    const packed = float32MeshBuffers(
+      mesh,
+      "material:" +
+        finish.id +
+        " parts:" +
+        members.map((part) => part.id).join(","),
+    );
     // Quantization can merge separate edges even while every individual face
     // retains its area. Check all final material groups for manifold/winding
     // agreement; only a positive optical thickness additionally requires closure.
@@ -171,8 +183,9 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
         );
       let texture = textures.get(reference.uri);
       if (texture === undefined) {
-        const bytes = Uint8Array.from(atob(reference.uri.slice(prefix.length)), (c) =>
-          c.charCodeAt(0),
+        const bytes = Uint8Array.from(
+          atob(reference.uri.slice(prefix.length)),
+          (c) => c.charCodeAt(0),
         );
         // The header is read rather than trusted: the declared type has to be
         // the type the bytes actually are, or a viewer is handed a mislabelled
@@ -194,17 +207,29 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
       }
       if (slot === "baseColorTexture") {
         material.setBaseColorTexture(texture);
-        applyHumanGltfTextureSampling(document, material.getBaseColorTextureInfo()!, reference);
+        applyHumanGltfTextureSampling(
+          document,
+          material.getBaseColorTextureInfo()!,
+          reference,
+        );
       } else if (slot === "normalTexture") {
         material
           .setNormalTexture(texture)
           .setNormalScale(finish.normalScale ?? 1);
-        applyHumanGltfTextureSampling(document, material.getNormalTextureInfo()!, reference);
+        applyHumanGltfTextureSampling(
+          document,
+          material.getNormalTextureInfo()!,
+          reference,
+        );
       } else {
         material
           .setOcclusionTexture(texture)
           .setOcclusionStrength(finish.occlusionStrength ?? 1);
-        applyHumanGltfTextureSampling(document, material.getOcclusionTextureInfo()!, reference);
+        applyHumanGltfTextureSampling(
+          document,
+          material.getOcclusionTextureInfo()!,
+          reference,
+        );
       }
     }
     if (finish.transmission !== undefined || finish.thickness !== undefined)
@@ -295,7 +320,13 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
           const prepared = meshes[ordinal];
           const vertexCount = prepared.positions.length / 3;
           const indexCount = prepared.indices!.length;
-          const record = { id: part.id, vertexOffset, vertexCount, indexOffset, indexCount };
+          const record = {
+            id: part.id,
+            vertexOffset,
+            vertexCount,
+            indexOffset,
+            indexCount,
+          };
           vertexOffset += vertexCount;
           indexOffset += indexCount;
           return record;
@@ -309,21 +340,33 @@ export function createGltfDocument(model: IAutoMovieModel, options?: IAutoMovieH
       // references; opaque safe integer source IDs remain lossless JSON.
       // glTF 2.0 custom attributes cannot use uint32. Two unnormalized uint16
       // words preserve each 32-bit reference at four-byte vertex alignment.
-      const references = new Uint16Array(mesh.physicalVertices.vertices.length * 2);
+      const references = new Uint16Array(
+        mesh.physicalVertices.vertices.length * 2,
+      );
       mesh.physicalVertices.vertices.forEach((reference, vertex) => {
         const value = reference === null ? 0 : reference + 1;
         references[vertex * 2] = value % 65536;
         references[vertex * 2 + 1] = Math.floor(value / 65536);
       });
-      primitive.setAttribute("_AUTOMOVIE_PHYSICAL_SOURCE", document.createAccessor()
-        .setType("VEC2")
-        .setNormalized(false)
-        .setArray(references)
-        .setBuffer(buffer));
-      primitive.setExtras({ ...primitive.getExtras(), automoviePhysicalVertices: {
-        version: 1, attribute: "_AUTOMOVIE_PHYSICAL_SOURCE",
-        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-      } });
+      primitive.setAttribute(
+        "_AUTOMOVIE_PHYSICAL_SOURCE",
+        document
+          .createAccessor()
+          .setType("VEC2")
+          .setNormalized(false)
+          .setArray(references)
+          .setBuffer(buffer),
+      );
+      primitive.setExtras({
+        ...primitive.getExtras(),
+        automoviePhysicalVertices: {
+          version: 1,
+          attribute: "_AUTOMOVIE_PHYSICAL_SOURCE",
+          sources: mesh.physicalVertices.sources.map((source) => ({
+            ...source,
+          })),
+        },
+      });
       readHumanMeshPhysicalVertices(primitive);
     }
     scene.addChild(

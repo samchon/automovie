@@ -1,11 +1,11 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 
+import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
+import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
 import type { IHumanFaceSkinFrame } from "./IHumanFaceSkinFrame";
 import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 import type { IHumanFaceSkinSeat } from "./IHumanFaceSkinSeat";
 import { compileHumanFaceProjectedSkinCourse } from "./compileHumanFaceProjectedSkinCourse";
-import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
-import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
 
 /**
  * Compile one state of the face skin into a host for attached parts.
@@ -114,7 +114,13 @@ export function createHumanFaceSkinHost(
   let query: ReturnType<typeof createAutoMovieSignedMeshQuery> | undefined;
   const nearest = (point: readonly number[]) =>
     (query ??= createAutoMovieSignedMeshQuery(
-      { positions: points, indices: corners, normals: null, uvs: null, skin: null },
+      {
+        positions: points,
+        indices: corners,
+        normals: null,
+        uvs: null,
+        skin: null,
+      },
       { boundary: "open" },
     ))(point);
   const frameExact = (seat: IHumanFaceExactSkinSeat): IHumanFaceSkinFrame => {
@@ -124,9 +130,10 @@ export function createHumanFaceSkinHost(
       const id = corner(seat.triangle, at);
       const weight = Fraction.number(seat.weights[at]);
       for (let axis = 0; axis < 3; axis++) {
-        point[axis] = Fraction.add(point[axis], Fraction.multiply(
-          seat.weights[at], Fraction.from(points[id + axis]),
-        ));
+        point[axis] = Fraction.add(
+          point[axis],
+          Fraction.multiply(seat.weights[at], Fraction.from(points[id + axis])),
+        );
         blend[axis] += weight * normals[id + axis];
       }
     }
@@ -162,14 +169,24 @@ export function createHumanFaceSkinHost(
   };
   return {
     seat,
-    frame: (seat) => frameExact({ triangle: seat.triangle,
-      weights: [Fraction.from(seat.weights[0]), Fraction.from(seat.weights[1]), Fraction.from(seat.weights[2])] }),
+    frame: (seat) =>
+      frameExact({
+        triangle: seat.triangle,
+        weights: [
+          Fraction.from(seat.weights[0]),
+          Fraction.from(seat.weights[1]),
+          Fraction.from(seat.weights[2]),
+        ],
+      }),
     frameExact,
     corners: (triangle) => corners.slice(3 * triangle, 3 * triangle + 3),
     signedDistance: (point) => nearest(point).signedDistance,
     normals,
-    compileProjectedCourse: (guide) => compileHumanFaceProjectedSkinCourse({
-      positions: points, indices: corners, guide,
-    }),
+    compileProjectedCourse: (guide) =>
+      compileHumanFaceProjectedSkinCourse({
+        positions: points,
+        indices: corners,
+        guide,
+      }),
   };
 }

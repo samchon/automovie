@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasisChannel, IAutoMovieHumanBodyChannelScale } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisChannel,
+  IAutoMovieHumanBodyChannelScale,
+} from "@automovie/human";
 
 import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
 
@@ -19,7 +22,11 @@ export function bodyMeasuredGroups(
 ): string[] {
   return [
     ...new Set(
-      channels.filter((channel) => bodyMeasuredChannel(channel, scales.get(channel.id))).map((channel) => channel.group),
+      channels
+        .filter((channel) =>
+          bodyMeasuredChannel(channel, scales.get(channel.id)),
+        )
+        .map((channel) => channel.group),
     ),
   ];
 }

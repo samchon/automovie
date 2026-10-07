@@ -1,5 +1,3 @@
-
-
 /** Carry a rest displacement to the posed frame: `R d`. */
 export function carryToPosed(rotation: number[][], d: number[]): number[] {
   return [0, 1, 2].map(

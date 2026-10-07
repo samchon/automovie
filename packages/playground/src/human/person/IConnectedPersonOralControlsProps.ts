@@ -23,7 +23,10 @@ export interface IConnectedPersonOralControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Admit and commit the candidate under its ticket; false means it was not published. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a pending candidate operation before its asynchronous result. */
   busy: (text: string) => void;

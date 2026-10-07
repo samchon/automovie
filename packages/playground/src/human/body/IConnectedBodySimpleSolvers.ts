@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 
-import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
+import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 
 /**
  * The simple tier and the detailed measurement inverse, solved off the page's

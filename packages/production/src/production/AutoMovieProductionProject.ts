@@ -1,4 +1,3 @@
-import { autoMovieModelRecipeDependsOn } from "./autoMovieModelRecipeDependsOn";
 import { resolveProductionFrameRate } from "@automovie/engine";
 import {
   AutoMovieContentDigest,
@@ -44,11 +43,16 @@ import {
   advanceAutoMovieProjectRevision,
   decodeAutoMovieProjectRevision,
 } from "../project/projectRevision";
+import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
+import type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
+import type { IAutoMovieProductionProjectSummary } from "./IAutoMovieProductionProjectSummary";
+import type { IAutoMovieVerifiedRepaintSelection } from "./IAutoMovieVerifiedRepaintSelection";
 import {
   acceptanceAddressesShot,
   acceptanceCriterionShots,
 } from "./acceptanceScope";
 import { assetUrlAdmissionRefusal } from "./assetAcquisition";
+import { autoMovieModelRecipeDependsOn } from "./autoMovieModelRecipeDependsOn";
 import { parseAutoMovieCaptureRuntimeIdentity } from "./captureRuntimeIdentity";
 import {
   canonicalAutoMovieJsonBytes,
@@ -130,10 +134,6 @@ import {
   validateAutoMovieProductionGraph,
 } from "./validateProductionDesign";
 
-import type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
-import type { IAutoMovieProductionProjectSummary } from "./IAutoMovieProductionProjectSummary";
-import type { IAutoMovieVerifiedRepaintSelection } from "./IAutoMovieVerifiedRepaintSelection";
-
 // Preserve the existing module import boundary while the defining identities
 // live with their source-input, project-inspection and repaint domains.
 export type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
@@ -188,7 +188,6 @@ const REPAINT_RETRYABLE_FAILURE_CLASSES: ReadonlySet<AutoMovieRepaintFailureClas
     "internal",
   ]);
 
-import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 export { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 
 /**
@@ -4146,16 +4145,22 @@ export class AutoMovieProductionProject {
   ): number {
     const serializedManifest = serializeJson(manifest);
     return this.commitFiles(
-      () => planAutoMovieGeneratedPublication({
-        previous: this.generatedManifest(),
-        files,
-        serializedManifest,
-        resolveMember: (relative) => resolveInside(this.generatedRoot(), relative),
-        exists: (absolute) => fileSystem.existsSync(absolute),
-        readMember: (relative) => this.readGeneratedFile(relative),
-        manifestPath: path.join(this.productionStateRoot, "generated-manifest.json"),
-        readManifest: () => this.readTrackedStateFile("generated-manifest.json"),
-      }),
+      () =>
+        planAutoMovieGeneratedPublication({
+          previous: this.generatedManifest(),
+          files,
+          serializedManifest,
+          resolveMember: (relative) =>
+            resolveInside(this.generatedRoot(), relative),
+          exists: (absolute) => fileSystem.existsSync(absolute),
+          readMember: (relative) => this.readGeneratedFile(relative),
+          manifestPath: path.join(
+            this.productionStateRoot,
+            "generated-manifest.json",
+          ),
+          readManifest: () =>
+            this.readTrackedStateFile("generated-manifest.json"),
+        }),
       inputCurrent,
       expectedRevision,
       () => this.assertGeneratedOutputCurrent(files, serializedManifest),
@@ -5302,7 +5307,13 @@ const consequencesOf = (
         addReview({ kind: "asset", id });
       }
     for (const [id, formation] of graph.formations)
-      if (autoMovieModelRecipeDependsOn(graph.models, formation.modelRecipe, target.id)) {
+      if (
+        autoMovieModelRecipeDependsOn(
+          graph.models,
+          formation.modelRecipe,
+          target.id,
+        )
+      ) {
         affectedFormations.add(id);
         addReview({
           kind: "design",
@@ -5325,7 +5336,11 @@ const consequencesOf = (
         shot.participants.some(
           (participant) =>
             participant.kind === "actor" &&
-            autoMovieModelRecipeDependsOn(graph.models, participant.id, target.id),
+            autoMovieModelRecipeDependsOn(
+              graph.models,
+              participant.id,
+              target.id,
+            ),
         )) ||
       shot.participants.some(
         (participant) =>

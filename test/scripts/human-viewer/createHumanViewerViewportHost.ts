@@ -72,7 +72,9 @@ export function createHumanViewerViewportHost(
       controls.push(orbit);
       return orbit;
     },
-    observeResize: (observer: () => void) => { resize = observer; },
+    observeResize: (observer: () => void) => {
+      resize = observer;
+    },
     loadTexture: (asset: string) => loader.loadAsync(asset),
   };
   return {

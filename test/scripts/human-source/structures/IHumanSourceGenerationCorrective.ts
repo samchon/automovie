@@ -12,7 +12,10 @@ import type { IHumanSourceGenerationCorrectiveInput } from "./IHumanSourceGenera
 export interface IHumanSourceGenerationCorrective {
   id: string;
   origin: "face" | "body";
-  inputs: (IHumanSourceGenerationCorrectiveInput | IAutoMovieHumanBodyBasisCorrective["inputs"][number])[];
+  inputs: (
+    | IHumanSourceGenerationCorrectiveInput
+    | IAutoMovieHumanBodyBasisCorrective["inputs"][number]
+  )[];
   weight: number;
   target: string;
 }

@@ -1,6 +1,6 @@
-import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
-import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
 import type { IHumanSourceAuthoredPacket } from "./IHumanSourceAuthoredPacket.ts";
+import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
+import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
 import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
 
 /** Current provider endpoint or explicitly carried original native residual.

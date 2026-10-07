@@ -1,10 +1,3 @@
-import { createFilmFacadeYaw as yaw } from "../internal/createFilmFacadeYaw";
-import type { IFilmFacadeSubject } from "../internal/IFilmFacadeSubject";
-import type { IFilmFacadeGrade } from "../internal/IFilmFacadeGrade";
-import type { IFilmCameraClearanceBox } from "../internal/IFilmCameraClearanceBox";
-import { createFilmFacadeTransform as transform } from "../internal/createFilmFacadeTransform";
-import { createFilmFacadeContract } from "../internal/createFilmFacadeContract";
-import { performFilmFacade } from "../internal/performFilmFacade";
 import {
   compileCameraMove,
   computeModelRestExtent,
@@ -26,6 +19,13 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmCameraClearanceBox } from "../internal/IFilmCameraClearanceBox";
+import type { IFilmFacadeGrade } from "../internal/IFilmFacadeGrade";
+import type { IFilmFacadeSubject } from "../internal/IFilmFacadeSubject";
+import { createFilmFacadeContract } from "../internal/createFilmFacadeContract";
+import { createFilmFacadeTransform as transform } from "../internal/createFilmFacadeTransform";
+import { createFilmFacadeYaw as yaw } from "../internal/createFilmFacadeYaw";
+import { performFilmFacade } from "../internal/performFilmFacade";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 const NODE = "civic/west-facade";
@@ -39,8 +39,6 @@ const FOV_Y = 40;
 const ASPECT = 16 / 9;
 const HALF_Y = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
 const HALF_X = HALF_Y * ASPECT;
-
-
 
 /**
  * A facade authored the way a building element is: the element origin sits

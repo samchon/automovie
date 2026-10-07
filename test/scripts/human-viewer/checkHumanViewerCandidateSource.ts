@@ -9,6 +9,8 @@ import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceErr
  * @evidence contracts/common.md#meaningful-documentation States the refusal.
  */
 export async function checkHumanViewerCandidateSource(): Promise<void> {
-  const health = await (await fetch("/health")).json() as Parameters<typeof humanViewerCandidateSourceError>[0];
+  const health = (await (await fetch("/health")).json()) as Parameters<
+    typeof humanViewerCandidateSourceError
+  >[0];
   assertHumanViewerSource(humanViewerCandidateSourceError(health));
 }

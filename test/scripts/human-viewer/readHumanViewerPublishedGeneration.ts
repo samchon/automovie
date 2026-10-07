@@ -21,27 +21,58 @@ import type { IReadHumanViewerPublishedGenerationProps } from "./IReadHumanViewe
 export function readHumanViewerPublishedGeneration(
   props: IReadHumanViewerPublishedGenerationProps,
 ): IHumanViewerPublishedGeneration | IHumanViewerRejectedInput {
-  const missing = (["head", "body"] as const).filter((view) => !props.exists(view));
+  const missing = (["head", "body"] as const).filter(
+    (view) => !props.exists(view),
+  );
   if (missing.length !== 0)
-    return { file: missing.map((view) => props.files[view]).join(", "), pending: false,
-      reason: "person generation files are not published yet: the standard people are drawn only on the published head and body views" };
+    return {
+      file: missing.map((view) => props.files[view]).join(", "),
+      pending: false,
+      reason:
+        "person generation files are not published yet: the standard people are drawn only on the published head and body views",
+    };
   const head = props.facts("head");
   const body = props.facts("body");
   if (head === null || body === null)
-    return { file: `${props.files.head}, ${props.files.body}`, pending: true,
-      reason: "the published person generation views are still being read" };
-  for (const [view, facts] of [["head", head], ["body", body]] as const)
+    return {
+      file: `${props.files.head}, ${props.files.body}`,
+      pending: true,
+      reason: "the published person generation views are still being read",
+    };
+  for (const [view, facts] of [
+    ["head", head],
+    ["body", body],
+  ] as const)
     if (facts.view === null)
-      return { file: props.files[view], pending: false,
-        reason: `the ${view} view could not be read: ${facts.failure ?? "not a generation view"}` };
+      return {
+        file: props.files[view],
+        pending: false,
+        reason: `the ${view} view could not be read: ${facts.failure ?? "not a generation view"}`,
+      };
   if (head.view!.id !== body.view!.id)
-    return { file: `${props.files.head}, ${props.files.body}`, pending: false,
-      reason: `the head view belongs to generation ${head.view!.id} but the body view to ${body.view!.id}` };
+    return {
+      file: `${props.files.head}, ${props.files.body}`,
+      pending: false,
+      reason: `the head view belongs to generation ${head.view!.id} but the body view to ${body.view!.id}`,
+    };
   const face = head.view!.members.face;
   const bodyBasis = body.view!.members.body;
   if (face === undefined)
-    return { file: props.files.head, pending: false, reason: "the head view has no face basis that opens with its id" };
+    return {
+      file: props.files.head,
+      pending: false,
+      reason: "the head view has no face basis that opens with its id",
+    };
   if (bodyBasis === undefined)
-    return { file: props.files.body, pending: false, reason: "the body view has no body basis that opens with its id" };
-  return { face, body: bodyBasis, headDigest: head.digest, bodyDigest: body.digest };
+    return {
+      file: props.files.body,
+      pending: false,
+      reason: "the body view has no body basis that opens with its id",
+    };
+  return {
+    face,
+    body: bodyBasis,
+    headDigest: head.digest,
+    bodyDigest: body.digest,
+  };
 }

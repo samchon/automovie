@@ -1,6 +1,10 @@
-import type { IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuildBone } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyBuildBone";
+import type {
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IHumanBodyAnatomicalBoneReading } from "./IHumanBodyAnatomicalBoneReading";
 
 /**

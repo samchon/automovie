@@ -18,7 +18,9 @@ import type { IBodyToeRayControlsProps } from "./IBodyToeRayControlsProps";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Bounds each phalanx input by the admitted convention range and states it.
  * @author Samchon
  */
-export function renderBodyToeRayControls(props: IBodyToeRayControlsProps): void {
+export function renderBodyToeRayControls(
+  props: IBodyToeRayControlsProps,
+): void {
   const { dom, container, basis, side } = props;
   const heading = dom.createElement("h3");
   heading.textContent = "Toe rays (relative to the toes bone)";
@@ -26,16 +28,20 @@ export function renderBodyToeRayControls(props: IBodyToeRayControlsProps): void 
   const rays = basis.toeRays?.filter((ray) => ray.bone.startsWith(side)) ?? [];
   if (rays.length === 0) {
     const gap = dom.createElement("small");
-    gap.textContent = "This basis declares no toe rays: the toes move as one bone (#2711).";
+    gap.textContent =
+      "This basis declares no toe rays: the toes move as one bone (#2711).";
     container.append(gap);
     return;
   }
   const note = dom.createElement("small");
-  note.textContent = "Ranges are a stated convention without a clinical source yet: flexion is positive toward the sole (the toes bone above uses the source's opposite sign); proximal −70° to 45°, interphalangeal 0° to 60°, proximal splay −10° to 10°.";
+  note.textContent =
+    "Ranges are a stated convention without a clinical source yet: flexion is positive toward the sole (the toes bone above uses the source's opposite sign); proximal −70° to 45°, interphalangeal 0° to 60°, proximal splay −10° to 10°.";
   container.append(note);
   for (const ray of rays) {
     const proximal = ray.parent === "leftToes" || ray.parent === "rightToes";
-    const axes: ("flexion" | "abduction")[] = proximal ? ["flexion", "abduction"] : ["flexion"];
+    const axes: ("flexion" | "abduction")[] = proximal
+      ? ["flexion", "abduction"]
+      : ["flexion"];
     for (const axis of axes) {
       const range =
         axis === "abduction"
@@ -62,10 +68,23 @@ export function renderBodyToeRayControls(props: IBodyToeRayControlsProps): void 
         const text = input.value.trim();
         const rows = props.toes().filter((one) => one.bone !== ray.bone);
         const before = props.toes().find((one) => one.bone === ray.bone);
-        const flexion = axis === "flexion" ? (text === "" ? undefined : Number(text)) : before?.flexion;
-        const abduction = axis === "abduction" ? (text === "" ? undefined : Number(text)) : before?.abduction;
+        const flexion =
+          axis === "flexion"
+            ? text === ""
+              ? undefined
+              : Number(text)
+            : before?.flexion;
+        const abduction =
+          axis === "abduction"
+            ? text === ""
+              ? undefined
+              : Number(text)
+            : before?.abduction;
         if (flexion !== undefined || abduction !== undefined) {
-          const next: IAutoMovieHumanBodyToePose = { bone: ray.bone, flexion: flexion ?? 0 };
+          const next: IAutoMovieHumanBodyToePose = {
+            bone: ray.bone,
+            flexion: flexion ?? 0,
+          };
           if (abduction !== undefined) next.abduction = abduction;
           rows.push(next);
         }

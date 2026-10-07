@@ -14,21 +14,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { IHumanShotHealth } from "./IHumanShotHealth.ts";
+import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
 import { describeHumanViewerSilence } from "./describeHumanViewerSilence.ts";
 import { humanViewerErrorCode } from "./humanViewerErrorCode.ts";
 import { humanViewerInstance } from "./humanViewerInstance.ts";
-import { humanViewerStorage } from "./humanViewerStorage.ts";
-import type { IHumanShotHealth } from "./IHumanShotHealth.ts";
-import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
-import { planHumanViewerControl } from "./planHumanViewerControl.ts";
 import { humanViewerProtocol } from "./humanViewerProtocol.ts";
+import { humanViewerStorage } from "./humanViewerStorage.ts";
+import { planHumanViewerControl } from "./planHumanViewerControl.ts";
 
 const command = process.argv[2];
 if (command !== "status" && command !== "stop")
   throw new Error("usage: human-viewer-control.mts <status|stop>");
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const record = path.join(humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT), instance.record);
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../..",
+);
+const record = path.join(
+  humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT),
+  instance.record,
+);
 const PROBE_MS = 2000;
 let health: IHumanShotHealth | null | undefined;
 try {
@@ -40,9 +46,16 @@ try {
 } catch (error) {
   health = humanViewerErrorCode(error) === "ECONNREFUSED" ? null : undefined;
 }
-if (health !== null && health !== undefined && process.env.HUMAN_VIEWER_STORAGE_ROOT &&
-  health.storage !== humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT))
-  throw new Error(`Port ${instance.port} does not serve the selected viewer storage; it reports ${health.storage ?? "no storage identity"}`);
+if (
+  health !== null &&
+  health !== undefined &&
+  process.env.HUMAN_VIEWER_STORAGE_ROOT &&
+  health.storage !==
+    humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT)
+)
+  throw new Error(
+    `Port ${instance.port} does not serve the selected viewer storage; it reports ${health.storage ?? "no storage identity"}`,
+  );
 const saved = fs.existsSync(record)
   ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
   : null;
@@ -56,13 +69,19 @@ if (plan.action === "report" && (health === null || health === undefined)) {
     } catch {
       alive = false;
     }
-  const silence = describeHumanViewerSilence({ refused: health === null,
-    port: instance.port, probeMs: PROBE_MS, recordedPid: saved?.pid ?? null, recordedAlive: alive });
+  const silence = describeHumanViewerSilence({
+    refused: health === null,
+    port: instance.port,
+    probeMs: PROBE_MS,
+    recordedPid: saved?.pid ?? null,
+    recordedAlive: alive,
+  });
   console.log(JSON.stringify(silence));
   process.exitCode = silence.answer === "absent" ? 3 : 4;
 } else if (plan.action === "report") {
   console.log(JSON.stringify(health ?? { ready: false }));
-  process.exitCode = health?.protocol === humanViewerProtocol ? plan.exitCode : 3;
+  process.exitCode =
+    health?.protocol === humanViewerProtocol ? plan.exitCode : 3;
 } else if (plan.action === "absent") console.log("human-viewer absent");
 else if (plan.action === "refuse") {
   console.error(plan.reason);

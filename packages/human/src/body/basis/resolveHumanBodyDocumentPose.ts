@@ -1,15 +1,15 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
+import { prepareHumanBodyReferenceGoalDocument } from "./prepareHumanBodyReferenceGoalDocument";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
 import { resolveHumanBodyShapeShoulderRest } from "./resolveHumanBodyShapeShoulderRest";
-import { prepareHumanBodyReferenceGoalDocument } from "./prepareHumanBodyReferenceGoalDocument";
 
 /**
  * Read the current document's admitted source-rig clinical coordinates.
@@ -46,20 +46,34 @@ export function resolveHumanBodyDocumentPose(
   input: IAutoMovieHumanBodyBasisDocument,
 ): IAutoMovieJointPose[] {
   const admitted = admitHumanBodyBasisDocument(input, basis.anatomicalAssembly);
-  let document = admitted.anatomy === undefined ? admitted : {
-    ...admitted,
-    shape: resolveHumanBodyAnatomy(basis, admitted.shape, admitted.anatomy),
-  };
+  let document =
+    admitted.anatomy === undefined
+      ? admitted
+      : {
+          ...admitted,
+          shape: resolveHumanBodyAnatomy(
+            basis,
+            admitted.shape,
+            admitted.anatomy,
+          ),
+        };
   if (document.basis !== basis.id)
-    throw new Error("Body pose reading needs the exact compiled basis revision.");
+    throw new Error(
+      "Body pose reading needs the exact compiled basis revision.",
+    );
   const referenceGoals = prepareHumanBodyReferenceGoalDocument(basis, document);
   document = referenceGoals.document;
   const rest = resolveHumanBodyShapeShoulderRest(basis, document.shape);
   const state = humanBodyBasisWeights(basis, document, rest);
   for (const shoulder of document.shoulders ?? []) {
-    const contract = basis.joints.find((joint) => joint.bone === shoulder.bone)?.shoulder;
+    const contract = basis.joints.find(
+      (joint) => joint.bone === shoulder.bone,
+    )?.shoulder;
     if (contract === undefined || !humanBodyShoulderReaches(contract, shoulder))
-      throw new Error("Body shoulder goal exceeds its thorax-tt clinical range: " + shoulder.bone);
+      throw new Error(
+        "Body shoulder goal exceeds its thorax-tt clinical range: " +
+          shoulder.bone,
+      );
   }
   return resolveHumanBodyBuildPose({
     basis,

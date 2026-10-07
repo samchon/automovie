@@ -1,7 +1,7 @@
-import { createHumanFaceSkinChart } from "./createHumanFaceSkinChart";
-import { createHumanFaceSkinChartCourse } from "./createHumanFaceSkinChartCourse";
 import type { IHumanFaceSkinChartCourse } from "./IHumanFaceSkinChartCourse";
 import type { IHumanFaceSkinMaterialCourseInput } from "./IHumanFaceSkinMaterialCourseInput";
+import { createHumanFaceSkinChart } from "./createHumanFaceSkinChart";
+import { createHumanFaceSkinChartCourse } from "./createHumanFaceSkinChartCourse";
 
 /**
  * Lift a source-relative relief guide through one registered material chart.

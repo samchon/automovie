@@ -11,12 +11,23 @@ import type { IServeHumanViewerHeapProps } from "./IServeHumanViewerHeapProps";
  * @evidence contracts/common.md#meaningful-documentation States the queue independence and the failure answer.
  */
 export function serveHumanViewerHeap(props: IServeHumanViewerHeapProps): void {
-  void Promise.all([props.readLiveHeap(), props.readWorkerHeaps()]).then(([live, workers]) => {
-    const work = props.work();
-    props.json({ live, workers, residents: work?.residents ?? null,
-      residentBytes: work?.residentBytes ?? null, revision: props.readyRevision() });
-  }).catch((error: unknown) => {
-    props.response.statusCode = 503;
-    props.json({ error: "Heap reading unavailable: " + (error instanceof Error ? error.message : String(error)) });
-  });
+  void Promise.all([props.readLiveHeap(), props.readWorkerHeaps()])
+    .then(([live, workers]) => {
+      const work = props.work();
+      props.json({
+        live,
+        workers,
+        residents: work?.residents ?? null,
+        residentBytes: work?.residentBytes ?? null,
+        revision: props.readyRevision(),
+      });
+    })
+    .catch((error: unknown) => {
+      props.response.statusCode = 503;
+      props.json({
+        error:
+          "Heap reading unavailable: " +
+          (error instanceof Error ? error.message : String(error)),
+      });
+    });
 }

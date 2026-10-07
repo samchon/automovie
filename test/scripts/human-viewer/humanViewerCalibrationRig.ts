@@ -17,11 +17,36 @@
  * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, +Z front, origin at the head centre, as the viewer's model frame.
  */
 export const humanViewerCalibrationRig = [
-  { name: "front-left-high", position: [0.3, -0.4, 0.4], radius: 0.03, color: [255, 0, 0] },
-  { name: "front-right-high", position: [-0.3, -0.4, 0.4], radius: 0.03, color: [0, 255, 0] },
-  { name: "front-left-low", position: [0.3, -1.0, 0.4], radius: 0.03, color: [0, 0, 255] },
-  { name: "front-right-low", position: [-0.3, -1.0, 0.4], radius: 0.03, color: [255, 255, 0] },
-  { name: "rear-midline", position: [0, -0.7, -0.4], radius: 0.03, color: [255, 0, 255] },
+  {
+    name: "front-left-high",
+    position: [0.3, -0.4, 0.4],
+    radius: 0.03,
+    color: [255, 0, 0],
+  },
+  {
+    name: "front-right-high",
+    position: [-0.3, -0.4, 0.4],
+    radius: 0.03,
+    color: [0, 255, 0],
+  },
+  {
+    name: "front-left-low",
+    position: [0.3, -1.0, 0.4],
+    radius: 0.03,
+    color: [0, 0, 255],
+  },
+  {
+    name: "front-right-low",
+    position: [-0.3, -1.0, 0.4],
+    radius: 0.03,
+    color: [255, 255, 0],
+  },
+  {
+    name: "rear-midline",
+    position: [0, -0.7, -0.4],
+    radius: 0.03,
+    color: [255, 0, 255],
+  },
 ] as const satisfies readonly {
   name: string;
   position: readonly [number, number, number];

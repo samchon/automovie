@@ -41,7 +41,11 @@ export function readHumanFaceHeadRule(
   if ("reason" in head) return head;
   try {
     const value = read(head) * scale;
-    return Number.isFinite(value) ? value : { reason: `The head instrument on ${head.id} has no finite reading in the requested unit.` };
+    return Number.isFinite(value)
+      ? value
+      : {
+          reason: `The head instrument on ${head.id} has no finite reading in the requested unit.`,
+        };
   } catch (error) {
     return { reason: error instanceof Error ? error.message : String(error) };
   }

@@ -9,7 +9,9 @@ import type { IHumanViewerHostProgress } from "./IHumanViewerHostProgress";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the progress timer and its line.
  * @evidence contracts/common.md#meaningful-documentation States what the line reports and when it stops.
  */
-export function createHumanViewerHostProgress(progress: HTMLElement): IHumanViewerHostProgress {
+export function createHumanViewerHostProgress(
+  progress: HTMLElement,
+): IHumanViewerHostProgress {
   let waiting: ReturnType<typeof setInterval> | undefined;
   const settle = (): void => {
     clearInterval(waiting);
@@ -22,8 +24,13 @@ export function createHumanViewerHostProgress(progress: HTMLElement): IHumanView
       const seconds = Math.round((Date.now() - started) / 1000);
       let busy = "";
       try {
-        const health = (await (await fetch("/health")).json()) as IHumanViewerHealthQueue;
-        const count = Object.values(health.queue.waiting).reduce((a, b) => a + b, 0);
+        const health = (await (
+          await fetch("/health")
+        ).json()) as IHumanViewerHealthQueue;
+        const count = Object.values(health.queue.waiting).reduce(
+          (a, b) => a + b,
+          0,
+        );
         busy = count === 0 ? "" : `, server queue ${count}`;
       } catch {
         busy = ", server not answering";

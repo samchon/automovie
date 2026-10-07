@@ -1,6 +1,4 @@
-import {
-  AutoMovieTextureBinding,
-} from "@automovie/interface";
+import { AutoMovieTextureBinding } from "@automovie/interface";
 import * as THREE from "three";
 
 import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader";

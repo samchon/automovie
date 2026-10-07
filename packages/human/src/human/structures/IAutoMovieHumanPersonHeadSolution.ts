@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanHeadReading } from "../../common/measure/IAutoMovieHumanHeadReading";
+import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 
 /**
  * A solved head: the person with its head channels set, every head rule read

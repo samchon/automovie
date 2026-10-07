@@ -9,7 +9,8 @@ import { humanSourcePositionTolerance } from "./humanSourcePositionTolerance.ts"
 export function mirrorHumanSourceSurface(positions: Float64Array): Int32Array {
   const n = positions.length / 3;
   const cell = 0.001;
-  const key = (x: number, y: number, z: number): string => `${Math.floor(x / cell)},${Math.floor(y / cell)},${Math.floor(z / cell)}`;
+  const key = (x: number, y: number, z: number): string =>
+    `${Math.floor(x / cell)},${Math.floor(y / cell)},${Math.floor(z / cell)}`;
   const grid = new Map<string, number[]>();
   for (let v = 0; v < n; v++) {
     const k = key(positions[3 * v], positions[3 * v + 1], positions[3 * v + 2]);
@@ -30,13 +31,20 @@ export function mirrorHumanSourceSurface(positions: Float64Array): Int32Array {
       for (let b = -1; b <= 1; b++)
         for (let c = -1; c <= 1; c++)
           for (const w of grid.get(`${cx + a},${cy + b},${cz + c}`) ?? []) {
-            const d = Math.hypot(positions[3 * w] - x, positions[3 * w + 1] - y, positions[3 * w + 2] - z);
+            const d = Math.hypot(
+              positions[3 * w] - x,
+              positions[3 * w + 1] - y,
+              positions[3 * w + 2] - z,
+            );
             if (d < gap) {
               gap = d;
               best = w;
             }
           }
-    if (best < 0 || gap > humanSourcePositionTolerance) throw new Error(`Surface vertex ${v} has no mirror twin within storage (${gap} m).`);
+    if (best < 0 || gap > humanSourcePositionTolerance)
+      throw new Error(
+        `Surface vertex ${v} has no mirror twin within storage (${gap} m).`,
+      );
     twin[v] = best;
   }
   return twin;

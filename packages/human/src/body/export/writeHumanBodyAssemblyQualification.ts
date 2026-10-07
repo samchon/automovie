@@ -18,17 +18,42 @@ import { readHumanBodyAssemblyAssetCorrespondence } from "./readHumanBodyAssembl
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or extra provenance records cannot be hidden by geometry grouping.
  * @evidence contracts/common.md#meaningful-documentation States responsibility and scientific limits.
  */
-export function writeHumanBodyAssemblyQualification(document: Document, supplied: IAutoMovieHumanBodyAssemblyQualification): void {
-  const qualification = typia.assertEquals<IAutoMovieHumanBodyAssemblyQualification>(supplied);
+export function writeHumanBodyAssemblyQualification(
+  document: Document,
+  supplied: IAutoMovieHumanBodyAssemblyQualification,
+): void {
+  const qualification =
+    typia.assertEquals<IAutoMovieHumanBodyAssemblyQualification>(supplied);
   const members = new Map(qualification.parts.map((part) => [part.id, part]));
-  const primitives = document.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives());
-  const actual = primitives.flatMap((primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? []).filter((part) => /^(?:body:)?anatomical-source:/.test(part.id));
-  if (members.size !== qualification.parts.length || actual.length !== members.size || actual.some((part) => !members.has(part.id)))
-    throw new Error("Coarse anatomical report must qualify every actual source member exactly once.");
+  const primitives = document
+    .getRoot()
+    .listMeshes()
+    .flatMap((mesh) => mesh.listPrimitives());
+  const actual = primitives
+    .flatMap(
+      (primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+    )
+    .filter((part) => /^(?:body:)?anatomical-source:/.test(part.id));
+  if (
+    members.size !== qualification.parts.length ||
+    actual.length !== members.size ||
+    actual.some((part) => !members.has(part.id))
+  )
+    throw new Error(
+      "Coarse anatomical report must qualify every actual source member exactly once.",
+    );
   for (const primitive of primitives) {
-    const parts = (readHumanStaticPartCorrespondence(primitive)?.parts ?? []).filter((part) => members.has(part.id));
+    const parts = (
+      readHumanStaticPartCorrespondence(primitive)?.parts ?? []
+    ).filter((part) => members.has(part.id));
     if (parts.length === 0) continue;
-    primitive.setExtras({ ...primitive.getExtras(), automovieAnatomicalAssembly: { ...qualification, parts: parts.map((part) => members.get(part.id)!) } });
+    primitive.setExtras({
+      ...primitive.getExtras(),
+      automovieAnatomicalAssembly: {
+        ...qualification,
+        parts: parts.map((part) => members.get(part.id)!),
+      },
+    });
     readHumanBodyAssemblyAssetCorrespondence(primitive);
   }
 }

@@ -10,9 +10,13 @@ import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
  * (`fillHumanSourceNippleRegion`), summed in index order, which may differ
  * from NumPy's BLAS order in the last bits inside the fill region only.
  */
-export function createHumanSourceBodyField(sample: IHumanSourceSample, offset: number): IHumanSourceBodyField {
+export function createHumanSourceBodyField(
+  sample: IHumanSourceSample,
+  offset: number,
+): IHumanSourceBodyField {
   const n = sample.manifest.vertices;
-  const fill = (absolute: Float64Array): void => fillHumanSourceNippleRegion(sample, absolute);
+  const fill = (absolute: Float64Array): void =>
+    fillHumanSourceNippleRegion(sample, absolute);
   const frame = (blender: Float64Array): Float64Array => {
     const out = new Float64Array(3 * n);
     for (let v = 0; v < n; v++) {
@@ -53,7 +57,9 @@ export function createHumanSourceBodyField(sample: IHumanSourceSample, offset: n
       for (let i = 0; i < s.rowCount; i++) {
         const row = s.rowOffset + i;
         const v = sample.rowsVertex[row];
-        for (let c = 0; c < 3; c++) absolute[3 * v + c] = sample.neutral[3 * v + c] + sample.rowsDelta[3 * row + c];
+        for (let c = 0; c < 3; c++)
+          absolute[3 * v + c] =
+            sample.neutral[3 * v + c] + sample.rowsDelta[3 * row + c];
       }
       fill(absolute);
       const mapped = frame(absolute);
@@ -64,7 +70,9 @@ export function createHumanSourceBodyField(sample: IHumanSourceSample, offset: n
       const s = state(name);
       const absolute = new Float64Array(3 * landmarkCount);
       for (let i = 0; i < absolute.length; i++)
-        absolute[i] = sample.landmarksNeutral[i] + sample.landmarkDelta[3 * s.landmarkOffset + i];
+        absolute[i] =
+          sample.landmarksNeutral[i] +
+          sample.landmarkDelta[3 * s.landmarkOffset + i];
       const mapped = landmarkFrame(absolute, 0);
       for (let i = 0; i < mapped.length; i++) mapped[i] -= landmarksNeutral[i];
       return mapped;

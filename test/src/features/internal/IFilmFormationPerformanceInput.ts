@@ -1,5 +1,9 @@
 import type { materializeCompiledFormation } from "@automovie/engine";
-import type { IAutoMovieActionCall, IAutoMovieModel, IAutoMovieFormationMotion } from "@automovie/interface";
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieFormationMotion,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 /** Original framing action and optional formation runtime registries. */
 export interface IFilmFormationPerformanceInput {

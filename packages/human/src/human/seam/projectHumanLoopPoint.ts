@@ -31,10 +31,19 @@ export function projectHumanLoopPoint(
     const b = points[(edge + 1) % points.length];
     const along = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
     const length = along.x * along.x + along.y * along.y + along.z * along.z;
-    const raw = length === 0 ? 0 :
-      ((p.x - a.x) * along.x + (p.y - a.y) * along.y + (p.z - a.z) * along.z) / length;
+    const raw =
+      length === 0
+        ? 0
+        : ((p.x - a.x) * along.x +
+            (p.y - a.y) * along.y +
+            (p.z - a.z) * along.z) /
+          length;
     const fraction = Math.min(1, Math.max(0, raw));
-    const distance = Math.hypot(p.x - (a.x + along.x * fraction), p.y - (a.y + along.y * fraction), p.z - (a.z + along.z * fraction));
+    const distance = Math.hypot(
+      p.x - (a.x + along.x * fraction),
+      p.y - (a.y + along.y * fraction),
+      p.z - (a.z + along.z * fraction),
+    );
     if (distance < best.distance) best = { edge, fraction, distance };
   }
   return { edge: best.edge, fraction: best.fraction };

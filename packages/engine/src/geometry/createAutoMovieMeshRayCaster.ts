@@ -42,7 +42,9 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Queries a mesh without changing topology or attributes and retains the caller's metric coordinate frame.
  * @author Samchon
  */
-export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMeshRayCaster {
+export function createAutoMovieMeshRayCaster(
+  mesh: IAutoMovieMesh,
+): IAutoMovieMeshRayCaster {
   const indices =
     mesh.indices ??
     Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i);
@@ -137,8 +139,13 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
       edge[9 * i + axis] = corner[c + axis];
       edge[9 * i + 3 + axis] = corner[c + 3 + axis] - corner[c + axis];
       edge[9 * i + 6 + axis] = corner[c + 6 + axis] - corner[c + axis];
-      if (!Number.isFinite(edge[9 * i + 3 + axis]) || !Number.isFinite(edge[9 * i + 6 + axis]))
-        throw new Error("Ray triangle edges are not representable: " + order[i]);
+      if (
+        !Number.isFinite(edge[9 * i + 3 + axis]) ||
+        !Number.isFinite(edge[9 * i + 6 + axis])
+      )
+        throw new Error(
+          "Ray triangle edges are not representable: " + order[i],
+        );
     }
   }
   const stack = new Int32Array(Math.max(64, 2 * left.length));
@@ -168,8 +175,14 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
     const excluded = options?.excludedTriangles;
     if (excluded !== undefined)
       for (const triangle of excluded)
-        if (!Number.isSafeInteger(triangle) || triangle < 0 || triangle >= count)
-          throw new Error("Ray exclusions must address original triangles of this mesh.");
+        if (
+          !Number.isSafeInteger(triangle) ||
+          triangle < 0 ||
+          triangle >= count
+        )
+          throw new Error(
+            "Ray exclusions must address original triangles of this mesh.",
+          );
     if (count === 0) return null;
     const ox = origin[0];
     const oy = origin[1];
@@ -178,7 +191,11 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
     let dy = direction[1] / length;
     let dz = direction[2] / length;
     if (!Number.isFinite(length) || length < 2 ** -1022) {
-      const scale = Math.max(Math.abs(direction[0]), Math.abs(direction[1]), Math.abs(direction[2]));
+      const scale = Math.max(
+        Math.abs(direction[0]),
+        Math.abs(direction[1]),
+        Math.abs(direction[2]),
+      );
       const x = direction[0] / scale;
       const y = direction[1] / scale;
       const z = direction[2] / scale;
@@ -190,13 +207,22 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
     const ix = 1 / dx;
     const iy = 1 / dy;
     const iz = 1 / dz;
-    const slabTravel = (bound: number, coordinate: number, inverse: number, component: number): number => {
+    const slabTravel = (
+      bound: number,
+      coordinate: number,
+      inverse: number,
+      component: number,
+    ): number => {
       const delta = bound - coordinate;
-      if (!Number.isFinite(delta)) throw new Error("Ray box displacement is not representable.");
+      if (!Number.isFinite(delta))
+        throw new Error("Ray box displacement is not representable.");
       // A subnormal nonzero component can have an infinite reciprocal while
       // delta/component is finite. Preserve the ordinary multiply arithmetic.
-      const travel = Number.isFinite(inverse) ? delta * inverse : delta / component;
-      if (Number.isNaN(travel)) throw new Error("Ray box travel is indeterminate.");
+      const travel = Number.isFinite(inverse)
+        ? delta * inverse
+        : delta / component;
+      if (Number.isNaN(travel))
+        throw new Error("Ray box travel is indeterminate.");
       return travel;
     };
     let best = maximum;
@@ -258,28 +284,58 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
         const py = dz * e2x - dx * e2z;
         const pz = dx * e2y - dy * e2x;
         const det = e1x * px + e1y * py + e1z * pz;
-        if (!Number.isFinite(px) || !Number.isFinite(py) || !Number.isFinite(pz) || !Number.isFinite(det))
-          throw new Error("Ray triangle determinant is not representable: " + order[i]);
+        if (
+          !Number.isFinite(px) ||
+          !Number.isFinite(py) ||
+          !Number.isFinite(pz) ||
+          !Number.isFinite(det)
+        )
+          throw new Error(
+            "Ray triangle determinant is not representable: " + order[i],
+          );
         if (det > -1e-18 && det < 1e-18) continue;
         const inv = 1 / det;
         const sx = ox - edge[c];
         const sy = oy - edge[c + 1];
         const sz = oz - edge[c + 2];
-        if (!Number.isFinite(sx) || !Number.isFinite(sy) || !Number.isFinite(sz))
-          throw new Error("Ray triangle displacement is not representable: " + order[i]);
+        if (
+          !Number.isFinite(sx) ||
+          !Number.isFinite(sy) ||
+          !Number.isFinite(sz)
+        )
+          throw new Error(
+            "Ray triangle displacement is not representable: " + order[i],
+          );
         const u = (sx * px + sy * py + sz * pz) * inv;
-        if (!Number.isFinite(u)) throw new Error("Ray triangle barycentric coordinate is not representable: " + order[i]);
+        if (!Number.isFinite(u))
+          throw new Error(
+            "Ray triangle barycentric coordinate is not representable: " +
+              order[i],
+          );
         if (u < 0 || u > 1) continue;
         const qx = sy * e1z - sz * e1y;
         const qy = sz * e1x - sx * e1z;
         const qz = sx * e1y - sy * e1x;
-        if (!Number.isFinite(qx) || !Number.isFinite(qy) || !Number.isFinite(qz))
-          throw new Error("Ray triangle cross product is not representable: " + order[i]);
+        if (
+          !Number.isFinite(qx) ||
+          !Number.isFinite(qy) ||
+          !Number.isFinite(qz)
+        )
+          throw new Error(
+            "Ray triangle cross product is not representable: " + order[i],
+          );
         const v = (dx * qx + dy * qy + dz * qz) * inv;
-        if (!Number.isFinite(v)) throw new Error("Ray triangle barycentric coordinate is not representable: " + order[i]);
+        if (!Number.isFinite(v))
+          throw new Error(
+            "Ray triangle barycentric coordinate is not representable: " +
+              order[i],
+          );
         if (v < 0 || u + v > 1) continue;
         const hit = (e2x * qx + e2y * qy + e2z * qz) * inv;
-        if (!Number.isFinite(hit)) throw new Error("Ray triangle travel is not representable: " + order[i]);
+        if (!Number.isFinite(hit))
+          throw new Error(
+            "Ray triangle travel is not representable: " + order[i],
+          );
         if (hit < minimumTravel || hit > best) continue;
         // Edges belong to every incident triangle. Metadata uses original
         // identity rather than traversal order; legacy distance assignment
@@ -295,7 +351,8 @@ export function createAutoMovieMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMe
   };
   return {
     nearest: (origin, direction, maximum, minimum, options) =>
-      cast(origin, direction, maximum, minimum, false, options)?.distance ?? null,
+      cast(origin, direction, maximum, minimum, false, options)?.distance ??
+      null,
     nearestHit: (origin, direction, maximum, minimum, options) =>
       cast(origin, direction, maximum, minimum, false, options),
     blocked: (origin, direction, maximum, minimum, options) =>

@@ -14,9 +14,14 @@ export function createHumanSourcePartRow(
   bound: IHumanSourceBoundPart,
   body: IAutoMovieHumanBodyBasis,
   anchorOf: (name: string) => number[],
-  pointRow: (name: string, triangle: number, weights: readonly number[]) => number[],
+  pointRow: (
+    name: string,
+    triangle: number,
+    weights: readonly number[],
+  ) => number[],
 ): (name: string, v: number) => number[] {
-  const skinRow = (name: string, v: number): number[] => pointRow(name, bound.triangles[v], bound.weights.slice(3 * v, 3 * v + 3));
+  const skinRow = (name: string, v: number): number[] =>
+    pointRow(name, bound.triangles[v], bound.weights.slice(3 * v, 3 * v + 3));
   const cache = new Map<string, number[]>();
   const translation = (name: string, frame: string): number[] => {
     const key = `${name}|${frame}`;
@@ -25,16 +30,20 @@ export function createHumanSourcePartRow(
       const index = body.landmarks.ids.indexOf(frame);
       if (index >= 0) {
         const anchor = anchorOf(name);
-        row = readHumanSourceLandmarkRow(body, name, index).map((x, c) => x - anchor[c]);
+        row = readHumanSourceLandmarkRow(body, name, index).map(
+          (x, c) => x - anchor[c],
+        );
       } else {
         const sum = [0, 0, 0];
         const list = bound.members.get(frame)!;
-        for (const v of list) skinRow(name, v).forEach((x, c) => (sum[c] += x / list.length));
+        for (const v of list)
+          skinRow(name, v).forEach((x, c) => (sum[c] += x / list.length));
         row = sum;
       }
       cache.set(key, row);
     }
     return row;
   };
-  return (name, v) => (bound.rigid ? translation(name, bound.binding.frames[v]) : skinRow(name, v));
+  return (name, v) =>
+    bound.rigid ? translation(name, bound.binding.frames[v]) : skinRow(name, v);
 }

@@ -1,5 +1,3 @@
-import { assertTextureAssetImageFacts } from "../internal/assertTextureAssetImageFacts";
-import type { ITextureAssetClosureOverrides } from "../internal/ITextureAssetClosureOverrides";
 import {
   IAutoMovieTextureImageFacts,
   validateTextureAssets,
@@ -13,6 +11,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { ITextureAssetClosureOverrides } from "../internal/ITextureAssetClosureOverrides";
+import { assertTextureAssetImageFacts } from "../internal/assertTextureAssetImageFacts";
 import { createModel } from "../internal/fixtures";
 import {
   hasViolation,

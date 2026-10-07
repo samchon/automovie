@@ -27,7 +27,9 @@ export function renderConnectedBodyUnmeasuredChannels(
   query: string,
 ): void {
   const listed = basis.channels.filter(
-    (channel) => channel.id.toLowerCase().includes(query) && humanBodyChannelReading(channel.id) === undefined,
+    (channel) =>
+      channel.id.toLowerCase().includes(query) &&
+      humanBodyChannelReading(channel.id) === undefined,
   );
   if (listed.length === 0) return;
   const group = dom.createElement("details");

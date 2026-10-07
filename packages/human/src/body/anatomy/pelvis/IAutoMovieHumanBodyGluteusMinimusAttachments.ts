@@ -1,7 +1,9 @@
 import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /** One anatomical side's whole record: its origins and insertions never name the other side. */
-interface IAutoMovieHumanBodyGluteusMinimusAttachmentsRecord<Side extends AutoMovieHumanBodySide> {
+interface IAutoMovieHumanBodyGluteusMinimusAttachmentsRecord<
+  Side extends AutoMovieHumanBodySide,
+> {
   /** Deep iliac origin between the anterior and inferior gluteal lines. */
   readonly origins: readonly [
     {
@@ -44,4 +46,6 @@ interface IAutoMovieHumanBodyGluteusMinimusAttachmentsRecord<Side extends AutoMo
  */
 export type IAutoMovieHumanBodyGluteusMinimusAttachments<
   Side extends AutoMovieHumanBodySide,
-> = Side extends AutoMovieHumanBodySide ? IAutoMovieHumanBodyGluteusMinimusAttachmentsRecord<Side> : never;
+> = Side extends AutoMovieHumanBodySide
+  ? IAutoMovieHumanBodyGluteusMinimusAttachmentsRecord<Side>
+  : never;

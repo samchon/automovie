@@ -1,8 +1,8 @@
 import type { IConnectedBodyArmsDownResult } from "./IConnectedBodyArmsDownResult";
+import type { IConnectedBodyConstructionExportResult } from "./IConnectedBodyConstructionExportResult";
+import type { IConnectedBodyConstructionResult } from "./IConnectedBodyConstructionResult";
 import type { IConnectedBodyExportResult } from "./IConnectedBodyExportResult";
 import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
-import type { IConnectedBodyConstructionResult } from "./IConnectedBodyConstructionResult";
-import type { IConnectedBodyConstructionExportResult } from "./IConnectedBodyConstructionExportResult";
 
 /** The matching result for one worker request.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Returns numerical preview buffers for publication.

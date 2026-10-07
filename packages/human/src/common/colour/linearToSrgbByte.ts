@@ -23,8 +23,6 @@
  */
 export function linearToSrgbByte(linear: number): number {
   const encoded =
-    linear <= 0.0031308
-      ? 12.92 * linear
-      : 1.055 * linear ** (1 / 2.4) - 0.055;
+    linear <= 0.0031308 ? 12.92 * linear : 1.055 * linear ** (1 / 2.4) - 0.055;
   return Math.round(Math.min(1, Math.max(0, encoded)) * 255);
 }

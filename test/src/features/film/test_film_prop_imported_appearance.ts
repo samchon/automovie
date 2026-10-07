@@ -1,11 +1,11 @@
-import { createImportedPropSpec } from "../internal/createImportedPropSpec";
-import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
-import { filmImportedPropDigest as digest } from "../internal/filmImportedPropDigest";
-import { assertFilmImportedLodClosure } from "../internal/assertFilmImportedLodClosure";
 import { forgeProp } from "@automovie/engine";
 import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
+import { assertFilmImportedLodClosure } from "../internal/assertFilmImportedLodClosure";
+import { createImportedPropSpec } from "../internal/createImportedPropSpec";
+import { filmImportedPropDigest as digest } from "../internal/filmImportedPropDigest";
 import { createSkeleton } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 import { createDoorPropSpec } from "./test_film_forge_prop";
@@ -333,7 +333,13 @@ export const test_film_prop_imported_appearance = (): void => {
     },
   );
 
-  assertFilmImportedLodClosure({ createImportedPropSpec, refuses, tolerated, digest, SIDECAR_BYTES });
+  assertFilmImportedLodClosure({
+    createImportedPropSpec,
+    refuses,
+    tolerated,
+    digest,
+    SIDECAR_BYTES,
+  });
 
   TestValidator.equals(
     "every other prop contract still holds over an imported appearance",

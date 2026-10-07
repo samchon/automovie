@@ -1,4 +1,7 @@
-import type { IAutoMoviePropSpec, IAutoMovieStageSetPiece } from "@automovie/interface";
+import type {
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
 
 /** Original chair registry and corresponding staged placements. */
 export interface IFilmChairRing {

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import type { IBodyContactPlane } from "./IBodyContactPlane";
+
 import type { BodyContactBones } from "./BodyContactBones";
+import type { IBodyContactPlane } from "./IBodyContactPlane";
 import { bodyBoneAxis } from "./bodyBoneAxis";
 
 /**

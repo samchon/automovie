@@ -33,55 +33,105 @@ import { readHumanViewerStandardBodies } from "./readHumanViewerStandardBodies";
 import { readHumanViewerStandardPeople } from "./readHumanViewerStandardPeople";
 import { readHumanViewerSubjectPeople } from "./readHumanViewerSubjectPeople";
 
-export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps): IHumanViewerCatalogue {
+export function readHumanViewerCatalogue(
+  props: IReadHumanViewerCatalogueProps,
+): IHumanViewerCatalogue {
   const sources = props.revisions;
   const readBasis = (file: string): IHumanViewerBasisIdentity => {
     if (props.basisOf !== undefined) return props.basisOf(file);
     const bytes = fs.readFileSync(file);
-    return { id: readHumanViewerBasisIdentity(bytes), digest: createHash("sha256").update(bytes).digest("hex") };
+    return {
+      id: readHumanViewerBasisIdentity(bytes),
+      digest: createHash("sha256").update(bytes).digest("hex"),
+    };
   };
-  const bases = { face: readBasis(props.basisFiles.face), body: readBasis(props.basisFiles.body) };
-  const admit = props.admission ?? ((): IHumanViewerAdmission =>
-    ({ state: "pending", reason: "awaiting admission: no viewer page admits documents" }));
+  const bases = {
+    face: readBasis(props.basisFiles.face),
+    body: readBasis(props.basisFiles.body),
+  };
+  const admit =
+    props.admission ??
+    ((): IHumanViewerAdmission => ({
+      state: "pending",
+      reason: "awaiting admission: no viewer page admits documents",
+    }));
   // The subject list is re-read and re-keyed only when it, the face basis or
   // the face source changed: an admission verdict republishes the catalogue.
   const subjectsStat = fs.statSync(props.documentsFile);
   const faceSignature = `${subjectsStat.mtimeMs}:${subjectsStat.size}|${bases.face.digest}|${sources.face}`;
-  const faces = props.faceMemo !== undefined && props.faceMemo.signature === faceSignature && props.faceMemo.value !== null
-    ? props.faceMemo.value
-    : readHumanViewerFaceDocuments({ face: bases.face, documentsFile: props.documentsFile, sources });
+  const faces =
+    props.faceMemo !== undefined &&
+    props.faceMemo.signature === faceSignature &&
+    props.faceMemo.value !== null
+      ? props.faceMemo.value
+      : readHumanViewerFaceDocuments({
+          face: bases.face,
+          documentsFile: props.documentsFile,
+          sources,
+        });
   if (props.faceMemo !== undefined) {
     props.faceMemo.signature = faceSignature;
     props.faceMemo.value = faces;
   }
-  const generation = (props.generation ?? ((): IHumanViewerRejectedInput => ({
-    file: "test/studies/human-person/generation", pending: false,
-    reason: "person generation files are not published yet" })))();
+  const generation = (
+    props.generation ??
+    ((): IHumanViewerRejectedInput => ({
+      file: "test/studies/human-person/generation",
+      pending: false,
+      reason: "person generation files are not published yet",
+    }))
+  )();
   // Subject people come from the source owner's generation subject file when
   // it exists (drawn on the one-skin generation); otherwise from the legacy
   // published face and body pair.
-  const generationSubjects = "reason" in generation || props.subjectPeopleFile === undefined ||
+  const generationSubjects =
+    "reason" in generation ||
+    props.subjectPeopleFile === undefined ||
     !fs.existsSync(props.subjectPeopleFile)
-    ? null
-    : readHumanViewerGenerationSubjects({ text: fs.readFileSync(props.subjectPeopleFile, "utf8"),
-      file: path.relative(path.resolve(props.subjectPeopleFile, "../../../.."), props.subjectPeopleFile).replaceAll("\\", "/"),
-      generation, sources });
-  const subjectPeople = generationSubjects === null
-    ? readHumanViewerSubjectPeople({ subjects: faces.subjects, bases, sources }) : [];
-  const authored = "reason" in generation
-    ? { documents: [], rejected: [generation] }
-    : admitHumanViewerAuthoredEntries([
-      ...readHumanViewerStandardBodies({ generation, sources }),
-      ...readHumanViewerStandardPeople({ reference: faces.reference, generation, sources }),
-      ...(generationSubjects?.documents ?? []),
-    ], admit);
-  if (generationSubjects !== null) authored.rejected.push(...generationSubjects.rejected);
+      ? null
+      : readHumanViewerGenerationSubjects({
+          text: fs.readFileSync(props.subjectPeopleFile, "utf8"),
+          file: path
+            .relative(
+              path.resolve(props.subjectPeopleFile, "../../../.."),
+              props.subjectPeopleFile,
+            )
+            .replaceAll("\\", "/"),
+          generation,
+          sources,
+        });
+  const subjectPeople =
+    generationSubjects === null
+      ? readHumanViewerSubjectPeople({
+          subjects: faces.subjects,
+          bases,
+          sources,
+        })
+      : [];
+  const authored =
+    "reason" in generation
+      ? { documents: [], rejected: [generation] }
+      : admitHumanViewerAuthoredEntries(
+          [
+            ...readHumanViewerStandardBodies({ generation, sources }),
+            ...readHumanViewerStandardPeople({
+              reference: faces.reference,
+              generation,
+              sources,
+            }),
+            ...(generationSubjects?.documents ?? []),
+          ],
+          admit,
+        );
+  if (generationSubjects !== null)
+    authored.rejected.push(...generationSubjects.rejected);
   const inputs =
     props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
       ? readHumanViewerInputs({
           io: {
             names: () => fs.readdirSync(props.inputsDirectory!),
-            read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
+            read: (name) =>
+              fs.readFileSync(path.join(props.inputsDirectory!, name)),
             stamp: (name) => {
               const stat = fs.statSync(path.join(props.inputsDirectory!, name));
               return `${stat.mtimeMs}:${stat.size}`;
@@ -98,6 +148,11 @@ export function readHumanViewerCatalogue(props: IReadHumanViewerCatalogueProps):
   return {
     revision: sources.browser,
     rejected: [...authored.rejected, ...inputs.rejected],
-    documents: [...faces.entries, ...subjectPeople, ...authored.documents, ...inputs.documents],
+    documents: [
+      ...faces.entries,
+      ...subjectPeople,
+      ...authored.documents,
+      ...inputs.documents,
+    ],
   };
 }

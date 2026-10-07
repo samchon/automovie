@@ -6,7 +6,9 @@ import type { IHumanSourceGenerationSkin } from "./structures/IHumanSourceGenera
  * touched by a head triangle and by no body triangle. Vertices inserted by the
  * neck cut are never flagged.
  */
-export function markHumanSourceHeadOnly(skin: IHumanSourceGenerationSkin): Uint8Array {
+export function markHumanSourceHeadOnly(
+  skin: IHumanSourceGenerationSkin,
+): Uint8Array {
   const head = markHumanSourceSide(skin, 0);
   const body = markHumanSourceSide(skin, 1);
   return head.map((flag, x) => (flag === 1 && body[x] === 0 ? 1 : 0));

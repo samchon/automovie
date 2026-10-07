@@ -27,15 +27,32 @@ import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal control.
  */
-export function steerHumanFaceHairRootedStep(props: IHumanFaceHairRootedSteering): IAutoMovieVector3 {
-  if (![props.point, props.before, props.normal].every(p => p !== undefined &&
-      p !== null && [p.x, p.y, p.z].every(Number.isFinite)) ||
-      !Number.isFinite(props.step) || props.step <= props.contact.epsilon)
-    throw new Error("Rooted steering requires finite geometry and positive representable travel.");
-  if (props.budget === undefined || props.budget === null ||
-      !Number.isSafeInteger(props.budget.remaining) || props.budget.remaining < 0)
+export function steerHumanFaceHairRootedStep(
+  props: IHumanFaceHairRootedSteering,
+): IAutoMovieVector3 {
+  if (
+    ![props.point, props.before, props.normal].every(
+      (p) =>
+        p !== undefined && p !== null && [p.x, p.y, p.z].every(Number.isFinite),
+    ) ||
+    !Number.isFinite(props.step) ||
+    props.step <= props.contact.epsilon
+  )
+    throw new Error(
+      "Rooted steering requires finite geometry and positive representable travel.",
+    );
+  if (
+    props.budget === undefined ||
+    props.budget === null ||
+    !Number.isSafeInteger(props.budget.remaining) ||
+    props.budget.remaining < 0
+  )
     throw new Error("Rooted steering requires its safe-integer shared budget.");
-  const direction = limitHumanFaceHairTurn({ before: props.before, direction: props.normal, step: props.step });
+  const direction = limitHumanFaceHairTurn({
+    before: props.before,
+    direction: props.normal,
+    step: props.step,
+  });
   if (props.budget.remaining === 0)
     throw new Error("Rooted steering exhausted its shared geometry budget.");
   props.budget.remaining--;

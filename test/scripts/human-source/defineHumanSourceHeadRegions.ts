@@ -1,8 +1,8 @@
 import { HUMAN_SOURCE_HEAD_CONVENTION } from "./HUMAN_SOURCE_HEAD_CONVENTION.ts";
+import { HUMAN_SOURCE_READ_REGIONS } from "./HUMAN_SOURCE_READ_REGIONS.ts";
 import { addressHumanSourceRegion } from "./addressHumanSourceRegion.ts";
 import { assertHumanSourceMirroredFill } from "./assertHumanSourceMirroredFill.ts";
 import { fillHumanSourceReadRegion } from "./fillHumanSourceReadRegion.ts";
-import { HUMAN_SOURCE_READ_REGIONS } from "./HUMAN_SOURCE_READ_REGIONS.ts";
 import { mirrorHumanSourceReadRegion } from "./mirrorHumanSourceReadRegion.ts";
 import type { IHumanSourceHeadRegionInput } from "./structures/IHumanSourceHeadRegionInput.ts";
 import type { IHumanSourceHeadRegions } from "./structures/IHumanSourceHeadRegions.ts";
@@ -18,7 +18,9 @@ const EAR_RULE =
  * Each region gets its record: the loop, that it closed, the seed and outside
  * vertex, and its base and head view vertex counts.
  */
-export function defineHumanSourceHeadRegions(input: IHumanSourceHeadRegionInput): IHumanSourceHeadRegions {
+export function defineHumanSourceHeadRegions(
+  input: IHumanSourceHeadRegionInput,
+): IHumanSourceHeadRegions {
   const { faces, mirror, sampleFaces, faceToG1 } = input;
   const rightRead = HUMAN_SOURCE_READ_REGIONS["ear-right"];
   const leftRead = mirrorHumanSourceReadRegion(mirror, rightRead);
@@ -27,12 +29,22 @@ export function defineHumanSourceHeadRegions(input: IHumanSourceHeadRegionInput)
   assertHumanSourceMirroredFill("ear-left", mirror, right, left);
   const skinRegions: IHumanSourceHeadRegions["skinRegions"] = {};
   const records: IHumanSourceHeadRegions["records"] = [];
-  const sides: [string, IHumanSourceReadRegion, ReturnType<typeof fillHumanSourceReadRegion>][] = [
+  const sides: [
+    string,
+    IHumanSourceReadRegion,
+    ReturnType<typeof fillHumanSourceReadRegion>,
+  ][] = [
     ["ear-right", rightRead, right],
     ["ear-left", leftRead, left],
   ];
   for (const [name, read, fill] of sides) {
-    const vertices = addressHumanSourceRegion(name, fill, sampleFaces, faceToG1, input.nativeToSource);
+    const vertices = addressHumanSourceRegion(
+      name,
+      fill,
+      sampleFaces,
+      faceToG1,
+      input.nativeToSource,
+    );
     skinRegions[name] = { surface: 0, vertices };
     records.push({
       name,
@@ -46,8 +58,10 @@ export function defineHumanSourceHeadRegions(input: IHumanSourceHeadRegionInput)
       baseVertices: fill.vertices.length,
       viewVertices: vertices.length,
       frames: read.frames,
-      citation: "the head-region owner's frame reading of the CC0 MakeHuman base mesh (hm08); no published definition is cited",
-      ambiguity: "Not quantified: the loop is the owner's reading of the attachment on the recorded frames, and no alternative loop was recorded.",
+      citation:
+        "the head-region owner's frame reading of the CC0 MakeHuman base mesh (hm08); no published definition is cited",
+      ambiguity:
+        "Not quantified: the loop is the owner's reading of the attachment on the recorded frames, and no alternative loop was recorded.",
       convention: HUMAN_SOURCE_HEAD_CONVENTION,
     });
   }

@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type * as THREE from "three";
 
 import type { HumanResidentPort } from "../common/HumanResidentPort";
@@ -5,7 +6,6 @@ import type { createHumanViewport } from "../common/viewport";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { IConnectedBodyShadowRenderer } from "./IConnectedBodyShadowRenderer";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Host services of `createConnectedBodyViewport`.
@@ -18,11 +18,10 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the host services the viewport needs for camera, shadows and resident frames.
  * @author Samchon
  */
-export interface IConnectedBodyViewportHost<Document>
-  extends Pick<
-    Parameters<typeof createHumanViewport>[0],
-    "canvas" | "pixelRatio" | "orbit" | "observeResize"
-  > {
+export interface IConnectedBodyViewportHost<Document> extends Pick<
+  Parameters<typeof createHumanViewport>[0],
+  "canvas" | "pixelRatio" | "orbit" | "observeResize"
+> {
   /**
    * Shared viewport renderer with shadow-map control.
    *

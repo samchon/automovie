@@ -50,7 +50,7 @@ const prepared = prepareVermilionBasis({
   channel: "upperLipHeight",
   skin: "Human",
   region: "Human/lips",
-  lips: (basis.json).contact!.lips,
+  lips: basis.json.contact!.lips,
   ancestries: [
     ancestry(
       "europeanAncestry",

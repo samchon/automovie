@@ -1,9 +1,10 @@
 import { measureAutoMovieMeshCrossings } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
+import type { IHumanFacePeriocularCrossingWitness } from "./structures/IHumanFacePeriocularCrossingWitness";
 import type { IHumanFacePeriocularMappingInput } from "./structures/IHumanFacePeriocularMappingInput";
 import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFacePeriocularMappingReading";
-import type { IHumanFacePeriocularCrossingWitness } from "./structures/IHumanFacePeriocularCrossingWitness";
 
 /**
  * Read the generated band's material, sampled-skin and offset stages separately.
@@ -23,38 +24,62 @@ import type { IHumanFacePeriocularCrossingWitness } from "./structures/IHumanFac
  * @evidence contracts/common.md#meaningful-documentation Separates mathematical mapping readings from clinical acceptance and reports absent source UV as unknown.
  * @evidence contracts/modeling.md#spatial-conventions Material areas are dimensionless; all spatial buffers are head-frame metres rounded to Float32 exactly as part census.
  */
-export function readHumanFacePeriocularMapping(input: IHumanFacePeriocularMappingInput): IHumanFacePeriocularMappingReading {
+export function readHumanFacePeriocularMapping(
+  input: IHumanFacePeriocularMappingInput,
+): IHumanFacePeriocularMappingReading {
   const topology = createHumanFacePeriocularTopology(input);
-  const indices: number[] = input.indices === undefined ? [] : [...input.indices];
+  const indices: number[] =
+    input.indices === undefined ? [] : [...input.indices];
   if (input.indices === undefined)
     for (const [a, b, c, d] of topology.cells)
-      for (const corners of [[a, b, c], [a, c, d]])
+      for (const corners of [
+        [a, b, c],
+        [a, c, d],
+      ])
         if (new Set(corners).size === 3) indices.push(...corners);
   const sheet = (positions: number[]): IAutoMovieMesh => ({
-    positions: positions.map(Math.fround), indices, normals: null, uvs: null, skin: null,
+    positions: positions.map(Math.fround),
+    indices,
+    normals: null,
+    uvs: null,
+    skin: null,
   });
-  const skin = input.sourceReading === undefined ? sheet(input.skin) : undefined;
-  const outer = sheet(input.outer), inner = sheet(input.inner);
+  const skin =
+    input.sourceReading === undefined ? sheet(input.skin) : undefined;
+  const outer = sheet(input.outer),
+    inner = sheet(input.inner);
   const crossings = (a: IAutoMovieMesh, b: IAutoMovieMesh) =>
     measureAutoMovieMeshCrossings(a, b).filter((hit) => !hit.coplanar);
-  const outerHits = crossings(outer, outer), innerHits = crossings(inner, inner);
+  const outerHits = crossings(outer, outer),
+    innerHits = crossings(inner, inner);
   const betweenHits = crossings(outer, inner);
-  const witness = (hit: (typeof outerHits)[number]): IHumanFacePeriocularCrossingWitness => ({
-    triangle: hit.triangle, other: hit.other,
+  const witness = (
+    hit: (typeof outerHits)[number],
+  ): IHumanFacePeriocularCrossingWitness => ({
+    triangle: hit.triangle,
+    other: hit.other,
     sourceTriangle: input.sourceTriangles[hit.triangle],
     otherSourceTriangle: input.sourceTriangles[hit.other],
     corners: indices.slice(3 * hit.triangle, 3 * hit.triangle + 3),
     otherCorners: indices.slice(3 * hit.other, 3 * hit.other + 3),
   });
-  const outerWitnesses = outerHits.map(witness), innerWitnesses = innerHits.map(witness);
+  const outerWitnesses = outerHits.map(witness),
+    innerWitnesses = innerHits.map(witness);
   const betweenWitnesses = betweenHits.map(witness);
-  const used = new Set([...outerWitnesses, ...innerWitnesses, ...betweenWitnesses]
-    .flatMap((hit) => [...hit.corners, ...hit.otherCorners]));
-  let positive = 0, negative = 0, zero = 0;
+  const used = new Set(
+    [...outerWitnesses, ...innerWitnesses, ...betweenWitnesses].flatMap(
+      (hit) => [...hit.corners, ...hit.otherCorners],
+    ),
+  );
+  let positive = 0,
+    negative = 0,
+    zero = 0;
   if (input.material !== undefined && input.sourceReading === undefined)
     for (let at = 0; at < indices.length; at += 3) {
-      const [a, b, c] = indices.slice(at, at + 3), uv = input.material;
-      const area = (uv[2 * b] - uv[2 * a]) * (uv[2 * c + 1] - uv[2 * a + 1]) -
+      const [a, b, c] = indices.slice(at, at + 3),
+        uv = input.material;
+      const area =
+        (uv[2 * b] - uv[2 * a]) * (uv[2 * c + 1] - uv[2 * a + 1]) -
         (uv[2 * b + 1] - uv[2 * a + 1]) * (uv[2 * c] - uv[2 * a]);
       if (area > 0) positive++;
       else if (area < 0) negative++;
@@ -62,23 +87,49 @@ export function readHumanFacePeriocularMapping(input: IHumanFacePeriocularMappin
     }
   return {
     triangles: indices.length / 3,
-    positiveMaterialTriangles: input.sourceReading === undefined ? input.material === undefined ? null : positive : input.sourceReading.positiveMaterialTriangles,
-    negativeMaterialTriangles: input.sourceReading === undefined ? input.material === undefined ? null : negative : input.sourceReading.negativeMaterialTriangles,
-    zeroMaterialTriangles: input.sourceReading === undefined ? input.material === undefined ? null : zero : input.sourceReading.zeroMaterialTriangles,
-    skinSheetCrossings: input.sourceReading?.skinSheetCrossings ?? crossings(skin!, skin!).length,
+    positiveMaterialTriangles:
+      input.sourceReading === undefined
+        ? input.material === undefined
+          ? null
+          : positive
+        : input.sourceReading.positiveMaterialTriangles,
+    negativeMaterialTriangles:
+      input.sourceReading === undefined
+        ? input.material === undefined
+          ? null
+          : negative
+        : input.sourceReading.negativeMaterialTriangles,
+    zeroMaterialTriangles:
+      input.sourceReading === undefined
+        ? input.material === undefined
+          ? null
+          : zero
+        : input.sourceReading.zeroMaterialTriangles,
+    skinSheetCrossings:
+      input.sourceReading?.skinSheetCrossings ?? crossings(skin!, skin!).length,
     outerSheetCrossings: outerHits.length,
     innerSheetCrossings: innerHits.length,
     betweenSheetCrossings: betweenHits.length,
-    sampledSourceTriangles: input.sourceReading?.sampledSourceTriangles ?? [...new Set(input.sourceTriangles)].sort((a, b) => a - b),
-    ...(input.frames === undefined || input.seats === undefined ? {} : {
-      offsetWitnesses: {
-        outerDistanceMetres: input.outerDistanceMetres,
-        innerDistanceMetres: input.innerDistanceMetres,
-        outer: outerWitnesses, inner: innerWitnesses, between: betweenWitnesses,
-        vertices: [...used].sort((a, b) => a - b).map((vertex) => ({
-          vertex, frame: input.frames![vertex], seat: input.seats![vertex],
-        })),
-      },
-    }),
+    sampledSourceTriangles:
+      input.sourceReading?.sampledSourceTriangles ??
+      [...new Set(input.sourceTriangles)].sort((a, b) => a - b),
+    ...(input.frames === undefined || input.seats === undefined
+      ? {}
+      : {
+          offsetWitnesses: {
+            outerDistanceMetres: input.outerDistanceMetres,
+            innerDistanceMetres: input.innerDistanceMetres,
+            outer: outerWitnesses,
+            inner: innerWitnesses,
+            between: betweenWitnesses,
+            vertices: [...used]
+              .sort((a, b) => a - b)
+              .map((vertex) => ({
+                vertex,
+                frame: input.frames![vertex],
+                seat: input.seats![vertex],
+              })),
+          },
+        }),
   };
 }

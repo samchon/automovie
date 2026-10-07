@@ -8,4 +8,6 @@ import type { IHumanResidentSuccess } from "./IHumanResidentSuccess";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares the discriminated numerical reply between worker and caller.
  * @author Samchon
  */
-export type HumanResidentReply<Output> = IHumanResidentSuccess<Output> | IHumanResidentFailure;
+export type HumanResidentReply<Output> =
+  | IHumanResidentSuccess<Output>
+  | IHumanResidentFailure;

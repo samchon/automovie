@@ -1,8 +1,8 @@
-import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
-import { connectedFaceJawExcursionMillimetres } from "./anatomy/connectedFaceJawExcursionMillimetres";
 import type { IConnectedFaceControlEntry } from "./IConnectedFaceControlEntry";
 import type { IConnectedFaceControlMetric } from "./IConnectedFaceControlMetric";
 import type { ICreateConnectedFaceChannelControlProps } from "./ICreateConnectedFaceChannelControlProps";
+import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
+import { connectedFaceJawExcursionMillimetres } from "./anatomy/connectedFaceJawExcursionMillimetres";
 import { describeConnectedFaceControlScale } from "./describeConnectedFaceControlScale";
 
 /**
@@ -16,31 +16,46 @@ import { describeConnectedFaceControlScale } from "./describeConnectedFaceContro
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement in the channel's display unit.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Builds the control row of one fine face channel in its physical unit.
  */
-export function createConnectedFaceChannelControl(props: ICreateConnectedFaceChannelControlProps): IConnectedFaceControlEntry {
+export function createConnectedFaceChannelControl(
+  props: ICreateConnectedFaceChannelControlProps,
+): IConnectedFaceControlEntry {
   const { channel, scale, document } = props;
   const angle = connectedFaceArticulationDegrees(props.basis, channel.id);
-  const distance = connectedFaceJawExcursionMillimetres(props.basis, channel.id);
-  const metric: IConnectedFaceControlMetric | null = angle !== null
-    ? { perWeight: angle, unit: "°", label: "°" }
-    : distance !== null
-      ? { perWeight: distance, unit: " mm", label: "mm" }
-      : null;
+  const distance = connectedFaceJawExcursionMillimetres(
+    props.basis,
+    channel.id,
+  );
+  const metric: IConnectedFaceControlMetric | null =
+    angle !== null
+      ? { perWeight: angle, unit: "°", label: "°" }
+      : distance !== null
+        ? { perWeight: distance, unit: " mm", label: "mm" }
+        : null;
   const unit = metric?.perWeight ?? 1;
   return {
     ...channel,
-    label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2") + (metric === null ? "" : ` (${metric.label})`),
+    label:
+      channel.id.replace(/([a-z])([A-Z])/g, "$1 $2") +
+      (metric === null ? "" : ` (${metric.label})`),
     group: props.group,
     minimum: Math.min(channel.minimum * unit, channel.maximum * unit),
     maximum: Math.max(channel.minimum * unit, channel.maximum * unit),
-    value: Object.hasOwn(document[channel.kind], channel.id) ? document[channel.kind][channel.id] * unit : 0,
+    value: Object.hasOwn(document[channel.kind], channel.id)
+      ? document[channel.kind][channel.id] * unit
+      : 0,
     description: [
       ...(channel.description === undefined ? [] : [channel.description]),
       describeConnectedFaceControlScale("+", scale.positive, metric),
-      ...(scale.negative === null ? [] : [describeConnectedFaceControlScale("-", scale.negative, metric)]),
+      ...(scale.negative === null
+        ? []
+        : [describeConnectedFaceControlScale("-", scale.negative, metric)]),
     ].join(" · "),
     edit: (value) => {
       const next = structuredClone(props.latest());
-      next[channel.kind] = { ...next[channel.kind], [channel.id]: value / unit };
+      next[channel.kind] = {
+        ...next[channel.kind],
+        [channel.id]: value / unit,
+      };
       return next;
     },
   };

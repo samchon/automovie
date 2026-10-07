@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { applyHumanFaceLidSections } from "../anatomy/eye/applyHumanFaceLidSections";
 import { applyHumanFaceEyelidPhenotypes } from "../anatomy/eye/applyHumanFaceEyelidPhenotypes";
+import { applyHumanFaceLidSections } from "../anatomy/eye/applyHumanFaceLidSections";
 import { applyHumanFaceOralIdentity } from "../anatomy/oral/applyHumanFaceOralIdentity";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFaceNativePose } from "./IHumanFaceNativePose";
@@ -66,9 +66,16 @@ export function createHumanFaceNativePose(
       });
     }
     if (eyelidPhenotypes !== undefined) {
-      const namedLids = applyHumanFaceEyelidPhenotypes(basis,
-        new Map(basis.surfaces.map((surface, at) => [surface.id, rest.surfaces[at]])), eyelidPhenotypes);
-      basis.surfaces.forEach((surface, at) => { rest.surfaces[at] = [...namedLids.get(surface.id)!]; });
+      const namedLids = applyHumanFaceEyelidPhenotypes(
+        basis,
+        new Map(
+          basis.surfaces.map((surface, at) => [surface.id, rest.surfaces[at]]),
+        ),
+        eyelidPhenotypes,
+      );
+      basis.surfaces.forEach((surface, at) => {
+        rest.surfaces[at] = [...namedLids.get(surface.id)!];
+      });
     }
     if (oral !== undefined) {
       const oralRest = applyHumanFaceOralIdentity(
@@ -116,9 +123,19 @@ export function createHumanFaceNativePose(
         });
       }
       if (eyelidPhenotypes !== undefined) {
-        const namedRestLids = applyHumanFaceEyelidPhenotypes(basis,
-          new Map(basis.surfaces.map((surface, at) => [surface.id, shaped!.surfaces[at]])), eyelidPhenotypes);
-        basis.surfaces.forEach((surface, at) => { shaped!.surfaces[at] = [...namedRestLids.get(surface.id)!]; });
+        const namedRestLids = applyHumanFaceEyelidPhenotypes(
+          basis,
+          new Map(
+            basis.surfaces.map((surface, at) => [
+              surface.id,
+              shaped!.surfaces[at],
+            ]),
+          ),
+          eyelidPhenotypes,
+        );
+        basis.surfaces.forEach((surface, at) => {
+          shaped!.surfaces[at] = [...namedRestLids.get(surface.id)!];
+        });
       }
       if (oral !== undefined) {
         const identity = structuredClone(oral);

@@ -1,5 +1,7 @@
-import type { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** The eight corners and twelve outward facets of an axis-aligned box. */
 export const builtSpaceShellTestBoxShell = (

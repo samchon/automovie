@@ -14,8 +14,15 @@ import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Records readings as measured, with no document-specific estimate.
  * @evidence contracts/common.md#meaningful-documentation States when readings occur and how a failed reading is reported.
  */
-export function createHumanViewerHeapGauge(read: () => Promise<IHumanViewerHeapUsage>) {
-  const heap: IHumanViewerHeap = { last: null, peak: null, samples: 0, unavailable: null };
+export function createHumanViewerHeapGauge(
+  read: () => Promise<IHumanViewerHeapUsage>,
+) {
+  const heap: IHumanViewerHeap = {
+    last: null,
+    peak: null,
+    samples: 0,
+    unavailable: null,
+  };
   let reading = false;
   /** The largest reading since the last `mark`, or null when none arrived. */
   let windowPeak: number | null = null;
@@ -23,20 +30,29 @@ export function createHumanViewerHeapGauge(read: () => Promise<IHumanViewerHeapU
     sample: (work: HumanViewerWork): void => {
       if (reading) return;
       reading = true;
-      void read().then((usage) => {
-        heap.last = usage;
-        heap.unavailable = null;
-        windowPeak = Math.max(windowPeak ?? 0, usage.usedSize);
-        ++heap.samples;
-        if (heap.peak === null || usage.usedSize > heap.peak.usedSize)
-          heap.peak = { usedSize: usage.usedSize, revision: work.revision,
-            doc: work.doc, phase: work.phase, at: new Date().toISOString() };
-      }).catch((error: unknown) => {
-        // A failed reading is reported, never turned into a value.
-        heap.unavailable = error instanceof Error ? error.message : String(error);
-      }).finally(() => {
-        reading = false;
-      });
+      void read()
+        .then((usage) => {
+          heap.last = usage;
+          heap.unavailable = null;
+          windowPeak = Math.max(windowPeak ?? 0, usage.usedSize);
+          ++heap.samples;
+          if (heap.peak === null || usage.usedSize > heap.peak.usedSize)
+            heap.peak = {
+              usedSize: usage.usedSize,
+              revision: work.revision,
+              doc: work.doc,
+              phase: work.phase,
+              at: new Date().toISOString(),
+            };
+        })
+        .catch((error: unknown) => {
+          // A failed reading is reported, never turned into a value.
+          heap.unavailable =
+            error instanceof Error ? error.message : String(error);
+        })
+        .finally(() => {
+          reading = false;
+        });
     },
     status: (): IHumanViewerHeap => heap,
 

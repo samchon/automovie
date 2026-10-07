@@ -44,7 +44,9 @@ export function createHumanViewerCache<Value>(
     set: (key: string, value: Value): void => {
       const bytes = size(value);
       if (!Number.isFinite(bytes) || bytes < 0)
-        throw new Error("A cache entry size must be a finite nonnegative number");
+        throw new Error(
+          "A cache entry size must be a finite nonnegative number",
+        );
       if (entries.has(key)) {
         const previous = entries.get(key)!;
         total -= sizes.get(key)!;

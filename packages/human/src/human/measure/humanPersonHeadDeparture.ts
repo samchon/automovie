@@ -35,7 +35,8 @@ export function humanPersonHeadDeparture(
 ): number[] {
   return channels.map((id, j) => {
     const scale = scales.find((one) => one.id === id);
-    if (scale === undefined) throw new Error(`The head view measures no channel ${id}.`);
+    if (scale === undefined)
+      throw new Error(`The head view measures no channel ${id}.`);
     const positive = scale.positive.displacement;
     const negative = scale.negative?.displacement ?? positive;
     if (weights[j] > 0) return positive;

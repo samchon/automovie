@@ -1,5 +1,5 @@
-import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo";
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
+import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo";
 import type { IHumanViewerRevisionsEntries } from "./IHumanViewerRevisionsEntries";
 
 /**

@@ -36,12 +36,17 @@ export function createHumanBasisRegion(
 ) => IAutoMovieMesh {
   const { sources, indices, uvs } = humanBasisRegionCorners(region);
   return (positions, normals, colors, physical) => {
-    if (physical !== undefined && (
-      physical.domain.trim().length === 0 ||
-      physical.samples.length !== positions.length / 3 ||
-      Array.from(physical.samples).some((id) => !Number.isSafeInteger(id) || id < 0)
-    ))
-      throw new Error("Human region physical registration needs an instance domain and dense canonical samples aligned with its connected surface.");
+    if (
+      physical !== undefined &&
+      (physical.domain.trim().length === 0 ||
+        physical.samples.length !== positions.length / 3 ||
+        Array.from(physical.samples).some(
+          (id) => !Number.isSafeInteger(id) || id < 0,
+        ))
+    )
+      throw new Error(
+        "Human region physical registration needs an instance domain and dense canonical samples aligned with its connected surface.",
+      );
     const gather = (values: readonly number[]): number[] => {
       const output = new Array<number>(sources.length * 3);
       for (let i = 0; i < sources.length; i++)
@@ -56,12 +61,17 @@ export function createHumanBasisRegion(
       uvs: uvs?.slice() ?? null,
       skin: null,
       ...(colors === undefined ? {} : { colors: gather(colors) }),
-      ...(physical === undefined ? {} : {
-        physicalVertices: {
-          sources: sources.map((source) => ({ domain: physical.domain, id: physical.samples[source] })),
-          vertices: sources.map((_, vertex) => vertex),
-        },
-      }),
+      ...(physical === undefined
+        ? {}
+        : {
+            physicalVertices: {
+              sources: sources.map((source) => ({
+                domain: physical.domain,
+                id: physical.samples[source],
+              })),
+              vertices: sources.map((_, vertex) => vertex),
+            },
+          }),
     };
   };
 }

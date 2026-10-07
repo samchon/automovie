@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One world frame of a bone: its joint position in metres and its orientation,

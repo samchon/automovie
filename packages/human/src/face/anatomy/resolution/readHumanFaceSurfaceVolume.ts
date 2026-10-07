@@ -41,11 +41,17 @@ export function readHumanFaceSurfaceVolume(
     }
   const open = [...edges.values()].filter((count) => count !== 2).length;
   if (open !== 0)
-    return { reason: `the surface ${surfaceId} is not closed (${open} edges not shared by two triangles)` };
+    return {
+      reason: `the surface ${surfaceId} is not closed (${open} edges not shared by two triangles)`,
+    };
   let volume = 0;
   for (let at = 0; at < indices.length; at += 3) {
     const [a, b, c] = [indices[at], indices[at + 1], indices[at + 2]].map(
-      (vertex) => [positions[3 * vertex], positions[3 * vertex + 1], positions[3 * vertex + 2]],
+      (vertex) => [
+        positions[3 * vertex],
+        positions[3 * vertex + 1],
+        positions[3 * vertex + 2],
+      ],
     );
     volume +=
       (a[0] * (b[1] * c[2] - b[2] * c[1]) -

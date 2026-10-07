@@ -1,9 +1,13 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import { rotationMatrixOf } from "./rotationMatrixOf";
+
 import type { BodyContactBones } from "./BodyContactBones";
+import { rotationMatrixOf } from "./rotationMatrixOf";
 
 /** Bone rotation local Y column, in the body coordinate frame. */
-export const bodyBoneAxis = (bones: BodyContactBones, bone: string): number[] => {
+export const bodyBoneAxis = (
+  bones: BodyContactBones,
+  bone: string,
+): number[] => {
   const m = rotationMatrixOf(
     bones.get(bone as AutoMovieHumanoidBone)!.rotation,
   );

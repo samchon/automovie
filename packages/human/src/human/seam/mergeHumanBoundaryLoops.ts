@@ -65,9 +65,7 @@ export function mergeHumanBoundaryLoops(
       start = k;
     }
   if (descents > 1 || along.some((value) => !(value >= 0 && value <= count)))
-    throw new Error(
-      "The second loop does not run along the first in order.",
-    );
+    throw new Error("The second loop does not run along the first in order.");
   const order = walk.map((_, b) => walk[(start + b) % m]);
   const position = order.map((j) => parameters[j]);
   const first = Math.min(Math.floor(position[0]), count - 1);
@@ -83,7 +81,10 @@ export function mergeHumanBoundaryLoops(
         : bodyDone + 1 < m
           ? position[bodyDone + 1]
           : position[0] + count;
-    if (bodyDone >= m || (faceDone < count && first + faceDone + 1 <= nextPosition)) {
+    if (
+      bodyDone >= m ||
+      (faceDone < count && first + faceDone + 1 <= nextPosition)
+    ) {
       indices.push(nextFace, face, count + order[bodyDone % m]);
       faceDone++;
     } else {

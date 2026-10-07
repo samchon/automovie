@@ -1,6 +1,5 @@
 import type { AutoMovieBuiltPlacementSupportLocator } from "@automovie/interface";
 
-
 /** Construct the stated support locator without changing its kind. */
 export const builtPlacementTestSupport = (
   kind: AutoMovieBuiltPlacementSupportLocator["kind"],

@@ -52,7 +52,10 @@ export interface IConnectedBodyControlsProps {
   current: () => IAutoMovieHumanBodyBasisDocument;
 
   /** Commit a document, under a reserved intent ticket when given. */
-  change: (document: IAutoMovieHumanBodyBasisDocument, ticket?: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    ticket?: number,
+  ) => Promise<boolean>;
 
   /** Reserve a new intent, withdrawing pending work. */
   reserve: () => number;
@@ -61,7 +64,11 @@ export interface IConnectedBodyControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Solve one measured channel for a target in metres off the page. */
-  solve: (shape: Record<string, number>, channel: string, targetMetres: number) => Promise<IConnectedBodyMeasurement>;
+  solve: (
+    shape: Record<string, number>,
+    channel: string,
+    targetMetres: number,
+  ) => Promise<IConnectedBodyMeasurement>;
 
   /** Show a building status. */
   busy: (text: string) => void;

@@ -12,10 +12,18 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One settled read replaces any polling or delay.
  * @evidence contracts/common.md#meaningful-documentation States when the settled catalogue is read and what a missing document then means.
  */
-export async function readHumanViewerShowCatalogue(doc: string): Promise<HumanViewerCatalogue> {
-  const published = (await (await fetch("/docs")).json()) as HumanViewerCatalogue;
-  if (published.documents.some((entry) => entry.id === doc) ||
-      !published.rejected.some((entry) => entry.pending))
+export async function readHumanViewerShowCatalogue(
+  doc: string,
+): Promise<HumanViewerCatalogue> {
+  const published = (await (
+    await fetch("/docs")
+  ).json()) as HumanViewerCatalogue;
+  if (
+    published.documents.some((entry) => entry.id === doc) ||
+    !published.rejected.some((entry) => entry.pending)
+  )
     return published;
-  return (await (await fetch("/docs?settled=1")).json()) as HumanViewerCatalogue;
+  return (await (
+    await fetch("/docs?settled=1")
+  ).json()) as HumanViewerCatalogue;
 }

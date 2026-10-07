@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
 import { resolveHumanFaceApertureDirections } from "../../basis/resolveHumanFaceApertureDirections";
-
 import type { IHumanFaceIncisalOffset } from "./IHumanFaceIncisalOffset";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -45,12 +44,22 @@ export function readHumanFaceIncisalOffset(
 ): IHumanFaceIncisalOffset | IHumanFaceMeasurementGap {
   const contact = context.basis.contact;
   const articulation = context.basis.articulation;
-  if (contact === undefined || articulation === undefined || context.apertureUp === null)
-    return { reason: "the basis declares no incisor contact pair and jaw articulation" };
+  if (
+    contact === undefined ||
+    articulation === undefined ||
+    context.apertureUp === null
+  )
+    return {
+      reason: "the basis declares no incisor contact pair and jaw articulation",
+    };
   const point = reference ? context.referencePoint : context.point;
   if (point === undefined || point === null)
-    return { reason: "the current identity has no evaluated closed incisal reference" };
-  const { axis, up, forward } = resolveHumanFaceApertureDirections(articulation.jaw.axis);
+    return {
+      reason: "the current identity has no evaluated closed incisal reference",
+    };
+  const { axis, up, forward } = resolveHumanFaceApertureDirections(
+    articulation.jaw.axis,
+  );
   const offset = Vector3.subtract(
     point(contact.incisors.surface, contact.incisors.lower),
     point(contact.incisors.surface, contact.incisors.upper),

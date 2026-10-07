@@ -1,11 +1,11 @@
+import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
+import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
-import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
-import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
-import type { IAutoMovieHumanPersonFaceBuild } from "../structures/IAutoMovieHumanPersonFaceBuild";
-import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IAutoMovieHumanFaceConstruction } from "../../face/structures/IAutoMovieHumanFaceConstruction";
 import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
+import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
+import type { IAutoMovieHumanPersonFaceBuild } from "../structures/IAutoMovieHumanPersonFaceBuild";
 
 /**
  * Pair a person's admitted face with its actual generated hair identities.
@@ -45,7 +45,9 @@ export function createHumanPersonFaceBuilder(
   occlusion?: IAutoMovieHumanFaceOcclusionOptions,
   readMeasurementStates: boolean = false,
   census: boolean = false,
-  observeConstructionProgress?: (progress: IAutoMovieHumanFaceConstructionProgress) => void,
+  observeConstructionProgress?: (
+    progress: IAutoMovieHumanFaceConstructionProgress,
+  ) => void,
 ) {
   let emitted: readonly string[] = [];
   let reference: ReadonlyMap<string, readonly number[]> | undefined;
@@ -57,16 +59,36 @@ export function createHumanPersonFaceBuilder(
     observeHairParts: (ids) => {
       emitted = ids;
     },
-    ...(readMeasurementStates ? { observeReference: (value: ReadonlyMap<string, readonly number[]> | undefined) => { reference = value; } } : {}),
-    ...(readMeasurementStates ? { observeOralMeasurements: (value: IHumanFaceOralMeasurementRegistration | undefined) => { oral = value; } } : {}),
+    ...(readMeasurementStates
+      ? {
+          observeReference: (
+            value: ReadonlyMap<string, readonly number[]> | undefined,
+          ) => {
+            reference = value;
+          },
+        }
+      : {}),
+    ...(readMeasurementStates
+      ? {
+          observeOralMeasurements: (
+            value: IHumanFaceOralMeasurementRegistration | undefined,
+          ) => {
+            oral = value;
+          },
+        }
+      : {}),
   });
-  const evaluate = (document: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanPersonFaceBuild => {
+  const evaluate = (
+    document: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieHumanPersonFaceBuild => {
     reference = undefined;
     oral = undefined;
     const model = build(document);
     return { model, hairPartIds: new Set(emitted), reference, oral };
   };
   return Object.assign(evaluate, {
-    construct: (document: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceConstruction => build.construct(document),
+    construct: (
+      document: IAutoMovieHumanFaceBasisDocument,
+    ): IAutoMovieHumanFaceConstruction => build.construct(document),
   });
 }

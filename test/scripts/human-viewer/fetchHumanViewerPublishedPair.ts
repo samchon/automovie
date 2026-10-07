@@ -17,7 +17,11 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 export async function fetchHumanViewerPublishedPair(
   token: string,
 ): Promise<Pick<IAutoMovieHumanPersonGeneration, "face" | "body">> {
-  const [face, body] = humanViewerBasisDigests(token, humanViewerBasisTokens.published, 2);
+  const [face, body] = humanViewerBasisDigests(
+    token,
+    humanViewerBasisTokens.published,
+    2,
+  );
   return {
     face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
       read: () => fetch("/basis/face?digest=" + face),

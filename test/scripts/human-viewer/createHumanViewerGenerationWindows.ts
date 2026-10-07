@@ -26,7 +26,9 @@ const KEPT = 64;
  * @evidence contracts/common.md#clear-and-simple-design One owner opens, closes and labels windows and holds the gate for them.
  * @evidence contracts/common.md#meaningful-documentation States the labelling rule, the null case and the growth bound.
  */
-export function createHumanViewerGenerationWindows(props: ICreateHumanViewerGenerationWindowsProps) {
+export function createHumanViewerGenerationWindows(
+  props: ICreateHumanViewerGenerationWindowsProps,
+) {
   const open = new Map<string, IHumanViewerGenerationWindow>();
   const labels = new Map<string, string | null>();
   return {
@@ -34,7 +36,9 @@ export function createHumanViewerGenerationWindows(props: ICreateHumanViewerGene
     open: (): string => {
       const token = randomUUID();
       let close: (label: string | null) => void = () => {};
-      const closed = new Promise<string | null>((resolve) => { close = resolve; });
+      const closed = new Promise<string | null>((resolve) => {
+        close = resolve;
+      });
       open.set(token, { dirty: false, closed, close });
       props.gate.hold();
       return token;
@@ -45,8 +49,8 @@ export function createHumanViewerGenerationWindows(props: ICreateHumanViewerGene
       const window = open.get(token);
       if (window === undefined) return;
       open.delete(token);
-      const label = !window.dirty && !props.updating()
-        ? props.revision() : null;
+      const label =
+        !window.dirty && !props.updating() ? props.revision() : null;
       labels.set(token, label);
       for (const old of labels.keys()) {
         if (labels.size <= KEPT) break;
@@ -72,7 +76,9 @@ export function createHumanViewerGenerationWindows(props: ICreateHumanViewerGene
 
     /** Whether this token's code is the current revision (its window closed with the current label). */
     current: (token: string | null): boolean =>
-      token !== null && labels.has(token) && labels.get(token) === props.revision(),
+      token !== null &&
+      labels.has(token) &&
+      labels.get(token) === props.revision(),
 
     /** Close every open window, as when the page that opened them is gone. */
     closeAll: (): void => {

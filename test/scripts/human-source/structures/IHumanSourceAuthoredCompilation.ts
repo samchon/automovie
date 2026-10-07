@@ -1,15 +1,15 @@
-import type { IHumanSourceEditReceipt } from "./IHumanSourceEditReceipt.ts";
-import type { IHumanSourceExcludedRegionReceipt } from "./IHumanSourceExcludedRegionReceipt.ts";
-import type { IHumanSourceLidSeatReceipt } from "./IHumanSourceLidSeatReceipt.ts";
-import type { IHumanSourceOrbitalSkinReceipt } from "./IHumanSourceOrbitalSkinReceipt.ts";
-import type { IHumanSourceLipSealReceipt } from "./IHumanSourceLipSealReceipt.ts";
 import type { IHumanSourceAuthoredPacket } from "./IHumanSourceAuthoredPacket.ts";
 import type { IHumanSourceAuthoredSkin } from "./IHumanSourceAuthoredSkin.ts";
 import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
 import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
+import type { IHumanSourceEditReceipt } from "./IHumanSourceEditReceipt.ts";
+import type { IHumanSourceExcludedRegionReceipt } from "./IHumanSourceExcludedRegionReceipt.ts";
 import type { IHumanSourceGenerationInput } from "./IHumanSourceGenerationInput.ts";
-import type { IHumanSourceNasalAxisReceipt } from "./IHumanSourceNasalAxisReceipt.ts";
 import type { IHumanSourceHeadGuide } from "./IHumanSourceHeadGuide.ts";
+import type { IHumanSourceLidSeatReceipt } from "./IHumanSourceLidSeatReceipt.ts";
+import type { IHumanSourceLipSealReceipt } from "./IHumanSourceLipSealReceipt.ts";
+import type { IHumanSourceNasalAxisReceipt } from "./IHumanSourceNasalAxisReceipt.ts";
+import type { IHumanSourceOrbitalSkinReceipt } from "./IHumanSourceOrbitalSkinReceipt.ts";
 
 /** Same-run root and endpoint reader consumed by the main generation
  * assembler. Historical metadata crosses its retired-aware lineage boundary

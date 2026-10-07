@@ -1,13 +1,18 @@
 import { selectFormationLod, srgbHexToLinearColor } from "@automovie/engine";
-import type { IAutoMovieCompiledFormationLod, IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSlot, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieInstanceSlot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceSetProps";
 import type { IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject";
 import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats";
-import { regenerateInstanceSlot } from "./regenerateInstanceSlot";
+import type { IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceSetProps";
 import { readAutoMovieDeliveryCrop } from "./deliveryCrop";
 import { flattenInstancedModel, flattenInstancedObject } from "./formation";
+import { regenerateInstanceSlot } from "./regenerateInstanceSlot";
 
 /** One chunk's prototype tier meshes and the hysteretic tier selected by its last update. */
 interface IInstancePrototypeChunkObject {
@@ -67,7 +72,9 @@ interface IInstanceChunkObject {
  * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Keeps instance-set LOD and culling state separate from authored visibility and compact member identity.
  * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-effective-ownership Keeps the palette input encoding and its scene-linear output under one explicit conversion owner.
  */
-export const buildInstancedInstanceSet = (input: IBuildInstancedInstanceSetProps): IAutoMovieInstanceSetViewerObject => {
+export const buildInstancedInstanceSet = (
+  input: IBuildInstancedInstanceSetProps,
+): IAutoMovieInstanceSetViewerObject => {
   const root = new THREE.Group();
   // One decoded carrier per authored swatch. `setColorAt` copies its
   // components, and a block may hold a hundred thousand slots, so neither the
@@ -305,7 +312,6 @@ export const buildInstancedInstanceSet = (input: IBuildInstancedInstanceSetProps
   };
 };
 
-
 const instanceMatrix = (
   slot: IAutoMovieInstanceSlot,
   anchor: IAutoMovieCompiledInstanceSet["anchor"],
@@ -402,7 +408,8 @@ const exactPaletteMaterial = (material: THREE.Material): THREE.Material => {
   // A three.js material either carries a diffuse `color` or has none at all;
   // there is no third state to test for, so the presence of the channel is the
   // whole question.
-  const clone = material.clone() as THREE.Material & Partial<Pick<THREE.MeshStandardMaterial, "color">>;
+  const clone = material.clone() as THREE.Material &
+    Partial<Pick<THREE.MeshStandardMaterial, "color">>;
   clone.color?.set(0xffffff);
   return clone;
 };

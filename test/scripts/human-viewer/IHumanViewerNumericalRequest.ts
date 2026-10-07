@@ -31,5 +31,8 @@ export interface IHumanViewerNumericalRequest {
   input: IHumanViewerNumericalInput;
 
   /** Optional preview persistence authority, captured from the current catalogue and frame. */
-  cache?: Pick<import("./IHumanViewerPersistenceJob").IHumanViewerPersistenceJob, "key" | "token">;
+  cache?: Pick<
+    import("./IHumanViewerPersistenceJob").IHumanViewerPersistenceJob,
+    "key" | "token"
+  >;
 }

@@ -16,5 +16,7 @@ export interface IConnectedPersonEvaluator {
   compiled: IAutoMovieHumanPersonCompiledGeneration;
 
   /** Evaluate a person document on that generation. */
-  build: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild;
+  build: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => IAutoMovieHumanPersonGenerationBuild;
 }

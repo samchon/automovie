@@ -11,7 +11,12 @@
  */
 export function sameHumanPreviewValue(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null)
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
     return false;
   if (ArrayBuffer.isView(a) || Array.isArray(a)) {
     if (!(ArrayBuffer.isView(b) || Array.isArray(b))) return false;

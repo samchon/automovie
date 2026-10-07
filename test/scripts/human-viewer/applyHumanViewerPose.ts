@@ -22,7 +22,8 @@ export function applyHumanViewerPose(
   const subject = pose.slice(separator + 1);
   if (separator < 1 || subject === "" || !/^[a-z0-9-]+$/.test(file))
     throw new Error("pose requires <pose file>:<subject>");
-  if (fields.has("look")) throw new Error("pose and look both place the camera");
+  if (fields.has("look"))
+    throw new Error("pose and look both place the camera");
   let text: string;
   try {
     text = read(file);

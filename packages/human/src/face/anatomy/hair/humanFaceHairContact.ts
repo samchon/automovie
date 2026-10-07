@@ -1,13 +1,10 @@
-import {
-  Vector3,
-  type IAutoMovieMeshQueryBudget,
-} from "@automovie/engine";
+import { type IAutoMovieMeshQueryBudget, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
-import type { IHumanFaceHairContactSample } from "./IHumanFaceHairContactSample";
 import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
+import type { IHumanFaceHairContactSample } from "./IHumanFaceHairContactSample";
 import type { IHumanFaceHairContactSource } from "./IHumanFaceHairContactSource";
+import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
 import type { IHumanFaceHairRetraction } from "./IHumanFaceHairRetraction";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
@@ -175,13 +172,23 @@ export function humanFaceHairContact(
     budget: IAutoMovieMeshQueryBudget,
   ): IHumanFaceHairRetraction => {
     if (!Number.isFinite(offset) || offset < clearance - epsilon)
-      throw new Error("Hair offset retraction requires the unchanged free clearance.");
-    if (budget === undefined || budget === null ||
-        !Number.isSafeInteger(budget.remaining) || budget.remaining < 0)
-      throw new Error("Hair offset retraction requires its safe-integer shared budget.");
+      throw new Error(
+        "Hair offset retraction requires the unchanged free clearance.",
+      );
+    if (
+      budget === undefined ||
+      budget === null ||
+      !Number.isSafeInteger(budget.remaining) ||
+      budget.remaining < 0
+    )
+      throw new Error(
+        "Hair offset retraction requires its safe-integer shared budget.",
+      );
     const read = (point: IAutoMovieVector3): ReturnType<typeof sample> => {
       if (budget.remaining === 0)
-        throw new Error("Hair offset retraction exhausted its shared geometry budget.");
+        throw new Error(
+          "Hair offset retraction exhausted its shared geometry budget.",
+        );
       budget.remaining--;
       return sample(point);
     };
@@ -194,12 +201,16 @@ export function humanFaceHairContact(
         Vector3.scale(normal, offset),
       );
       const measured = read(candidate);
-      if (measured.signedDistance >= clearance - epsilon &&
-          Math.abs(measured.signedDistance - offset) <= epsilon)
+      if (
+        measured.signedDistance >= clearance - epsilon &&
+        Math.abs(measured.signedDistance - offset) <= epsilon
+      )
         return { point: candidate, normal };
       point = candidate;
     }
-    throw new Error("Hair offset retraction did not converge on its closed surface.");
+    throw new Error(
+      "Hair offset retraction did not converge on its closed surface.",
+    );
   };
   return { clearance, step: h, epsilon, sample, outward, project, retract };
 }

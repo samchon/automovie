@@ -1,5 +1,5 @@
-import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 
 /**
  * List every catalogue document for a person browsing, grouped by what it is:
@@ -27,14 +27,20 @@ export function describeHumanViewerDocuments(
         ? document.name
         : entry.id;
     if (entry.id.startsWith("file:"))
-      return { id: entry.id, label: entry.id.slice(5), domain: entry.domain, section: "Local input" };
+      return {
+        id: entry.id,
+        label: entry.id.slice(5),
+        domain: entry.domain,
+        section: "Local input",
+      };
     if (entry.domain === "face")
       return { id: entry.id, label, domain: "face", section: "Face" };
     if (entry.domain === "person")
       return { id: entry.id, label, domain: "person", section: "Person" };
     const channels = Object.keys(document.shape ?? {});
     const posed =
-      (document.pose?.length ?? 0) !== 0 || (document.shoulders?.length ?? 0) !== 0;
+      (document.pose?.length ?? 0) !== 0 ||
+      (document.shoulders?.length ?? 0) !== 0;
     const section = posed
       ? "Body pose"
       : channels.length === 0

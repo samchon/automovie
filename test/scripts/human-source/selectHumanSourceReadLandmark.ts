@@ -13,7 +13,10 @@ export function selectHumanSourceReadLandmark(
   head: Uint8Array,
   read: IHumanSourceReadLandmark,
 ): IHumanSourceLandmarkPick {
-  if (head[read.vertex] !== 1) throw new Error(`Head landmark ${name}: read vertex ${read.vertex} is not on the head partition.`);
+  if (head[read.vertex] !== 1)
+    throw new Error(
+      `Head landmark ${name}: read vertex ${read.vertex} is not on the head partition.`,
+    );
   return {
     vertex: read.vertex,
     candidates: [read.vertex, ...read.neighbours].map((vertex) => ({

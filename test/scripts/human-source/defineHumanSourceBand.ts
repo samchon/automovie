@@ -29,7 +29,9 @@ import type { IHumanSourceGenerationBandTarget } from "./structures/IHumanSource
  * has no source value on part of the cut, so it gets no band row and stays
  * refused by name. Nothing here is fitted to an output.
  */
-export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourceBandExtension {
+export function defineHumanSourceBand(
+  input: IHumanSourceBandInput,
+): IHumanSourceBandExtension {
   const { generation, face, body, reachMetres } = input;
   const skin = generation.skin;
   const n = skin.originalVertices;
@@ -37,8 +39,16 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
   const head = markHumanSourceSide(skin, 0);
   const bodySide = markHumanSourceSide(skin, 1);
   const samples = Array.from({ length: total - n }, (_, i) => n + i);
-  const axis = [0, 2].map((c) => samples.reduce((sum, g) => sum + skin.positions[3 * g + c], 0) / samples.length);
-  const azimuth = (g: number): number => Math.atan2(skin.positions[3 * g] - axis[0], skin.positions[3 * g + 2] - axis[1]);
+  const axis = [0, 2].map(
+    (c) =>
+      samples.reduce((sum, g) => sum + skin.positions[3 * g + c], 0) /
+      samples.length,
+  );
+  const azimuth = (g: number): number =>
+    Math.atan2(
+      skin.positions[3 * g] - axis[0],
+      skin.positions[3 * g + 2] - axis[1],
+    );
   const loop = samples.slice().sort((x, y) => azimuth(x) - azimuth(y));
   const loopAzimuth = loop.map(azimuth);
   const bracket = (theta: number): number[] => {
@@ -57,7 +67,9 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
   for (let g = 0; g < n; g++) {
     if (bodySide[g] === 0) continue;
     const [i, j, t] = bracket(azimuth(g));
-    const loopY = skin.positions[3 * loop[i] + 1] * (1 - t) + skin.positions[3 * loop[j] + 1] * t;
+    const loopY =
+      skin.positions[3 * loop[i] + 1] * (1 - t) +
+      skin.positions[3 * loop[j] + 1] * t;
     const depth = loopY - skin.positions[3 * g + 1];
     if (depth < 0 || depth >= reachMetres) continue;
     const u = depth / reachMetres;
@@ -72,35 +84,57 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
   };
   const toMap = (rows: readonly number[]): Map<number, number[]> => {
     const out = new Map<number, number[]>();
-    for (let i = 0; i < rows.length; i += 4) out.set(rows[i], rows.slice(i + 1, i + 4));
+    for (let i = 0; i < rows.length; i += 4)
+      out.set(rows[i], rows.slice(i + 1, i + 4));
     return out;
   };
   const toRows = (map: Map<number, number[]>): number[] =>
-    [...map].filter(([, v]) => v.some((x) => x !== 0)).sort((x, y) => x[0] - y[0]).flatMap(([g, v]) => [g, ...v]);
-  const anchorOf = createHumanSourceAnchorCarry(body, generation.anchor?.landmarks ?? []);
+    [...map]
+      .filter(([, v]) => v.some((x) => x !== 0))
+      .sort((x, y) => x[0] - y[0])
+      .flatMap(([g, v]) => [g, ...v]);
+  const anchorOf = createHumanSourceAnchorCarry(
+    body,
+    generation.anchor?.landmarks ?? [],
+  );
   const origin = new Map<string, "face" | "body">();
   for (const channel of generation.channels) {
     origin.set(channel.positive, channel.origin);
     if (channel.negative !== null) origin.set(channel.negative, channel.origin);
   }
-  for (const corrective of generation.correctives) origin.set(corrective.target, corrective.origin);
+  for (const corrective of generation.correctives)
+    origin.set(corrective.target, corrective.origin);
   const macro = new Set(generation.anchor?.targets ?? []);
   const targets: Record<string, number[]> = {};
   const records: IHumanSourceGenerationBandTarget[] = [];
   for (const [name, rows] of Object.entries(generation.targets)) {
     const owner = origin.get(name);
-    if (owner === undefined) throw new Error(`Endpoint ${name} has no channel or corrective.`);
+    if (owner === undefined)
+      throw new Error(`Endpoint ${name} has no channel or corrective.`);
     if (owner === "body" && macro.has(name)) {
       targets[name] = rows;
       continue;
     }
     const map = toMap(rows);
     if (owner === "face") {
-      for (const g of [...map.keys()]) if (g < n && head[g] === 0) map.delete(g);
-      const moves = loop.some((g) => (map.get(g) ?? [0, 0, 0]).some((x) => x !== 0));
+      for (const g of [...map.keys()])
+        if (g < n && head[g] === 0) map.delete(g);
+      const moves = loop.some((g) =>
+        (map.get(g) ?? [0, 0, 0]).some((x) => x !== 0),
+      );
       if (moves) {
-        vertices.forEach((g, k) => map.set(g, carried(map, brackets[k]).map((x) => x * weights[k])));
-        records.push({ target: name, origin: "face", rule: "face-band", rows: vertices.length });
+        vertices.forEach((g, k) =>
+          map.set(
+            g,
+            carried(map, brackets[k]).map((x) => x * weights[k]),
+          ),
+        );
+        records.push({
+          target: name,
+          origin: "face",
+          rule: "face-band",
+          rows: vertices.length,
+        });
       }
       targets[name] = toRows(map);
       continue;
@@ -108,47 +142,78 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
     for (const g of [...map.keys()]) if (g < n && head[g] === 1) map.delete(g);
     if (name in generation.unavailable) {
       targets[name] = toRows(map);
-      records.push({ target: name, origin: "body", rule: "unavailable", rows: 0 });
+      records.push({
+        target: name,
+        origin: "body",
+        rule: "unavailable",
+        rows: 0,
+      });
       continue;
     }
     const anchor = anchorOf(name);
-    const relative = new Map(loop.map((g) => [g, (map.get(g) ?? [0, 0, 0]).map((x, c) => x - anchor[c])]));
+    const relative = new Map(
+      loop.map((g) => [
+        g,
+        (map.get(g) ?? [0, 0, 0]).map((x, c) => x - anchor[c]),
+      ]),
+    );
     if ([...relative.values()].some((v) => v.some((x) => x !== 0))) {
       vertices.forEach((g, k) => {
         const own = map.get(g) ?? [0, 0, 0];
         const cut = carried(relative, brackets[k]);
-        map.set(g, own.map((x, c) => x - weights[k] * cut[c]));
+        map.set(
+          g,
+          own.map((x, c) => x - weights[k] * cut[c]),
+        );
       });
       for (const g of loop) map.set(g, anchor.slice());
-      records.push({ target: name, origin: "body", rule: "body-band", rows: vertices.length });
+      records.push({
+        target: name,
+        origin: "body",
+        rule: "body-band",
+        rows: vertices.length,
+      });
     }
     targets[name] = toRows(map);
   }
 
   // The face jaw attachment: published head rows, carried onto the band.
   const faceSkin = face.surfaces.find((s) => s.id === "Human")!;
-  const attachments: IHumanSourceGenerationAttachment[] = (faceSkin.attachments ?? []).map((attachment) => {
+  const attachments: IHumanSourceGenerationAttachment[] = (
+    faceSkin.attachments ?? []
+  ).map((attachment) => {
     const map = new Map<number, number>();
-    for (let i = 0; i < attachment.rows.length; i += 2) map.set(skin.faceVertexToSkin[attachment.rows[i]], attachment.rows[i + 1]);
+    for (let i = 0; i < attachment.rows.length; i += 2)
+      map.set(
+        skin.faceVertexToSkin[attachment.rows[i]],
+        attachment.rows[i + 1],
+      );
     vertices.forEach((g, k) => {
       const [i, j, t] = brackets[k];
-      const value = weights[k] * ((map.get(loop[i]) ?? 0) * (1 - t) + (map.get(loop[j]) ?? 0) * t);
+      const value =
+        weights[k] *
+        ((map.get(loop[i]) ?? 0) * (1 - t) + (map.get(loop[j]) ?? 0) * t);
       if (value > 0) map.set(g, Math.min(1, value));
     });
     return {
       owner: attachment.owner,
-      rows: [...map].filter(([, w]) => w !== 0).sort((x, y) => x[0] - y[0]).flatMap(([g, w]) => [g, w]),
+      rows: [...map]
+        .filter(([, w]) => w !== 0)
+        .sort((x, y) => x[0] - y[0])
+        .flatMap(([g, w]) => [g, w]),
       extension: "derived",
     };
   });
-  const count = (rule: string, side: string): number => records.filter((r) => r.rule === rule && r.origin === side).length;
+  const count = (rule: string, side: string): number =>
+    records.filter((r) => r.rule === rule && r.origin === side).length;
   return {
     generation: {
       ...generation,
       targets,
       attachments,
       band: {
-        convention: "smallest reach without a band fold in a sweep of the one-skin person evaluator (40/60/80/112.5 mm): an authored rig convention, not a measurement",
+        convention:
+          "smallest reach without a band fold in a sweep of the one-skin person evaluator (40/60/80/112.5 mm): an authored rig convention, not a measurement",
         reachMetres,
         axis,
         loopSamples: loop,
@@ -158,7 +223,12 @@ export function defineHumanSourceBand(input: IHumanSourceBandInput): IHumanSourc
       bandTargets: records,
       stamps: [
         ...generation.stamps,
-        { derivative: "body band", authoredOn: generation.id, status: "regenerated", note: `reach ${reachMetres} m, ${vertices.length} body vertices; face owns the head, body carries it with the eye anchor` },
+        {
+          derivative: "body band",
+          authoredOn: generation.id,
+          status: "regenerated",
+          note: `reach ${reachMetres} m, ${vertices.length} body vertices; face owns the head, body carries it with the eye anchor`,
+        },
       ],
     },
     checks: {

@@ -1,6 +1,6 @@
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission";
-import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity";
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
 import type { IHumanViewerInputsIo } from "./IHumanViewerInputsIo";
 import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration";

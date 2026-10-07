@@ -6,9 +6,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
-import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
-import { renderBodyGroundPlacementControl } from "./renderBodyGroundPlacementControl";
 import { renderBodyAtlasInspectionControls } from "./renderBodyAtlasInspectionControls";
+import { renderBodyGroundPlacementControl } from "./renderBodyGroundPlacementControl";
+import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
 
 /**
  * Bind the body's joint picker and its current document's numerical controls.

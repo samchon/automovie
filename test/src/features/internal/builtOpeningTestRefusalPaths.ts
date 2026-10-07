@@ -1,7 +1,7 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { builtOpeningTestPartition as partition } from "./builtOpeningTestPartition";
 
+import { builtOpeningTestPartition as partition } from "./builtOpeningTestPartition";
 
 /** The violation paths one mutation of the partition produces. */
 export const builtOpeningTestRefusalPaths = (

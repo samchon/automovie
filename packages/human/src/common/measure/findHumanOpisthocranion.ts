@@ -58,13 +58,19 @@ export function findHumanOpisthocranion(
         z: p[a * 3 + 2] + s * (p[b * 3 + 2] - p[a * 3 + 2]),
       };
       if (point.y < floor) continue;
-      const distance = Math.hypot(point.x - glabella.x, point.y - glabella.y, point.z - glabella.z);
+      const distance = Math.hypot(
+        point.x - glabella.x,
+        point.y - glabella.y,
+        point.z - glabella.z,
+      );
       if (distance > bestDistance) {
         bestDistance = distance;
         best = point;
       }
     }
   if (best === undefined)
-    throw new Error(`The head view of ${head.id} has no midsagittal point above the opisthocranion floor.`);
+    throw new Error(
+      `The head view of ${head.id} has no midsagittal point above the opisthocranion floor.`,
+    );
   return best;
 }

@@ -19,7 +19,6 @@ import type { HumanFaceConformingMaterialArithmetic as Arithmetic } from "../Hum
  */
 type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 
-
 /**
  * One original triangle, retaining corner IDs, exact coordinates and a conservative material box.
  *

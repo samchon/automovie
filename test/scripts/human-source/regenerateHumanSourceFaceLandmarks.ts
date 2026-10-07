@@ -19,14 +19,20 @@ export function regenerateHumanSourceFaceLandmarks(
 ): IHumanSourceGenerationLandmarks[] {
   return sets.map((set) => {
     if (set.origin !== "face") return set;
-    const targets: Record<string, number[]> = Object.fromEntries(Object.entries(set.targets).filter(([name]) => !aliased.has(name)));
+    const targets: Record<string, number[]> = Object.fromEntries(
+      Object.entries(set.targets).filter(([name]) => !aliased.has(name)),
+    );
     const indices = set.ids.map((id) => body.landmarks.ids.indexOf(id));
-    for (const name of Object.keys(body.landmarks.targets).filter((key) => headShaping.has(key))) {
+    for (const name of Object.keys(body.landmarks.targets).filter((key) =>
+      headShaping.has(key),
+    )) {
       const anchor = anchorOf(name);
       const out: number[] = [];
       indices.forEach((index, i) => {
         if (index < 0) return;
-        const row = readHumanSourceLandmarkRow(body, name, index).map((x, c) => x - anchor[c]);
+        const row = readHumanSourceLandmarkRow(body, name, index).map(
+          (x, c) => x - anchor[c],
+        );
         if (row.some((x) => x !== 0)) out.push(i, ...row);
       });
       if (out.length > 0) targets[name] = out;

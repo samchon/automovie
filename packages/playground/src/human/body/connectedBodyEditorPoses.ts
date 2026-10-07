@@ -1,6 +1,7 @@
-import type { BodyPosePreset } from "./bodyPosePresets";
 import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
 import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/document/createHumanBodyShoulderPose";
+
+import type { BodyPosePreset } from "./bodyPosePresets";
 
 /**
  * The body editor's pose presets, in button order. Angles are clinical
@@ -16,11 +17,23 @@ export const connectedBodyEditorPoses: readonly BodyPosePreset[] = [
   {
     name: "T-pose",
     pose: [joint("leftLowerArm", 0), joint("rightLowerArm", 0)],
-    shoulders: [shoulder("leftUpperArm", 0, 90), shoulder("rightUpperArm", 0, 90)],
+    shoulders: [
+      shoulder("leftUpperArm", 0, 90),
+      shoulder("rightUpperArm", 0, 90),
+    ],
   },
   { name: "Arms down", solve: "armsDown" },
-  { name: "Elbows 90", pose: [joint("leftLowerArm", 90), joint("rightLowerArm", 90)] },
-  { name: "Arms overhead", shoulders: [shoulder("leftUpperArm", 0, 180), shoulder("rightUpperArm", 0, 180)] },
+  {
+    name: "Elbows 90",
+    pose: [joint("leftLowerArm", 90), joint("rightLowerArm", 90)],
+  },
+  {
+    name: "Arms overhead",
+    shoulders: [
+      shoulder("leftUpperArm", 0, 180),
+      shoulder("rightUpperArm", 0, 180),
+    ],
+  },
   {
     name: "Squat",
     pose: [
@@ -34,10 +47,19 @@ export const connectedBodyEditorPoses: readonly BodyPosePreset[] = [
   },
   {
     name: "Sitting",
-    pose: [joint("leftUpperLeg", 90), joint("rightUpperLeg", 90), joint("leftLowerLeg", 90), joint("rightLowerLeg", 90)],
+    pose: [
+      joint("leftUpperLeg", 90),
+      joint("rightUpperLeg", 90),
+      joint("leftLowerLeg", 90),
+      joint("rightLowerLeg", 90),
+    ],
   },
   {
     name: "Trunk twist",
-    pose: [joint("spine", null, null, 10), joint("chest", null, null, 10), joint("upperChest", null, null, 10)],
+    pose: [
+      joint("spine", null, null, 10),
+      joint("chest", null, null, 10),
+      joint("upperChest", null, null, 10),
+    ],
   },
 ];

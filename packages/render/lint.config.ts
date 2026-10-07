@@ -45,7 +45,10 @@ const topicReferences = (
  */
 const allSources = ["src/**/*.ts", "!src/**/index.ts"];
 
-const screenplaySources = ["src/screenplay/**/*.ts", "!src/screenplay/index.ts"];
+const screenplaySources = [
+  "src/screenplay/**/*.ts",
+  "!src/screenplay/index.ts",
+];
 
 const captionSources = [
   "src/caption/**/*.ts",

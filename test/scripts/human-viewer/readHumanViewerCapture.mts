@@ -9,6 +9,7 @@
  * without rebuilding in the server.
  */
 import type { Page } from "playwright";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 
@@ -25,7 +26,9 @@ export async function readHumanViewerCapture(
       const viewer = (window as unknown as Partial<IHumanViewerWindow>)
         .__humanViewer;
       if (viewer === undefined)
-        throw new Error("The source generation was replaced during display (the page reloaded)");
+        throw new Error(
+          "The source generation was replaced during display (the page reloaded)",
+        );
       if (viewer.revision() !== input.revision)
         throw new Error("The source revision has not finished loading");
       const before = viewer.builds();

@@ -1,7 +1,12 @@
-import type { IAutoMovieVector3, IAutoMovieConvexSpaceCell, IAutoMovieTransform, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "./BUILT_OPENING_TEST_NO_ROTATION";
 import { createModel } from "./fixtures";
-
 
 const box = (
   id: string,
@@ -19,13 +24,11 @@ const box = (
   ],
 });
 
-
 const place = (x = 0, y = 0, z = 0): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: NO_ROTATION,
   scale: { x: 1, y: 1, z: 1 },
 });
-
 
 /**
  * One partition wall carrying every opening family this stage must express.

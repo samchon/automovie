@@ -1,7 +1,7 @@
-import type { IHumanFaceSkinChartCoordinate } from "./IHumanFaceSkinChartCoordinate";
-import type { IHumanFaceSkinChartTriangle } from "./IHumanFaceSkinChartTriangle";
-import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
+import type { IHumanFaceSkinChartCoordinate } from "./IHumanFaceSkinChartCoordinate";
+import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
+import type { IHumanFaceSkinChartTriangle } from "./IHumanFaceSkinChartTriangle";
 import type { IHumanFaceSkinFrame } from "./IHumanFaceSkinFrame";
 
 /**

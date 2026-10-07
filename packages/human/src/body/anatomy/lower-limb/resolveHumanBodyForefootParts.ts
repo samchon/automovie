@@ -1,7 +1,7 @@
-import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyToeMeasurements";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyToeMeasurements";
 
 /**
  * Answer each side's midfoot bones and every toe ray's bones.
@@ -36,7 +36,9 @@ export function resolveHumanBodyForefootParts(
 ): readonly IAutoMovieHumanBodyPartResolution[] {
   const bone = "missing-bone-landmark" as const;
   const toe = (request: IAutoMovieHumanBodyToeMeasurements | undefined) =>
-    request?.phalangealPattern === "biphalangeal" ? "anatomical-variant-absent" as const : bone;
+    request?.phalangealPattern === "biphalangeal"
+      ? ("anatomical-variant-absent" as const)
+      : bone;
   const left = input.targets?.leftLowerLimb?.foot;
   const right = input.targets?.rightLowerLimb?.foot;
   return [
@@ -44,35 +46,117 @@ export function resolveHumanBodyForefootParts(
     humanBodyUnavailablePart("rightNavicular", right?.midfoot?.navicular, bone),
     humanBodyUnavailablePart("leftCuboid", left?.midfoot?.cuboid, bone),
     humanBodyUnavailablePart("rightCuboid", right?.midfoot?.cuboid, bone),
-    humanBodyUnavailablePart("leftMedialCuneiform", left?.midfoot?.medialCuneiform, bone),
-    humanBodyUnavailablePart("rightMedialCuneiform", right?.midfoot?.medialCuneiform, bone),
-    humanBodyUnavailablePart("leftIntermediateCuneiform", left?.midfoot?.intermediateCuneiform, bone),
-    humanBodyUnavailablePart("rightIntermediateCuneiform", right?.midfoot?.intermediateCuneiform, bone),
-    humanBodyUnavailablePart("leftLateralCuneiform", left?.midfoot?.lateralCuneiform, bone),
-    humanBodyUnavailablePart("rightLateralCuneiform", right?.midfoot?.lateralCuneiform, bone),
-    humanBodyUnavailablePart("leftHalluxFirstMetatarsal", left?.hallux?.firstMetatarsal, bone),
-    humanBodyUnavailablePart("rightHalluxFirstMetatarsal", right?.hallux?.firstMetatarsal, bone),
-    humanBodyUnavailablePart("leftHalluxProximalPhalanx", left?.hallux?.proximalPhalanx, bone),
-    humanBodyUnavailablePart("rightHalluxProximalPhalanx", right?.hallux?.proximalPhalanx, bone),
-    humanBodyUnavailablePart("leftHalluxDistalPhalanx", left?.hallux?.distalPhalanx, bone),
-    humanBodyUnavailablePart("rightHalluxDistalPhalanx", right?.hallux?.distalPhalanx, bone),
-    ...([
-      ["Second", "secondToe"],
-      ["Third", "thirdToe"],
-      ["Fourth", "fourthToe"],
-      ["Fifth", "fifthToe"],
-    ] as const).flatMap(([ordinal, key]) => {
+    humanBodyUnavailablePart(
+      "leftMedialCuneiform",
+      left?.midfoot?.medialCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightMedialCuneiform",
+      right?.midfoot?.medialCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "leftIntermediateCuneiform",
+      left?.midfoot?.intermediateCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightIntermediateCuneiform",
+      right?.midfoot?.intermediateCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "leftLateralCuneiform",
+      left?.midfoot?.lateralCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightLateralCuneiform",
+      right?.midfoot?.lateralCuneiform,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "leftHalluxFirstMetatarsal",
+      left?.hallux?.firstMetatarsal,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightHalluxFirstMetatarsal",
+      right?.hallux?.firstMetatarsal,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "leftHalluxProximalPhalanx",
+      left?.hallux?.proximalPhalanx,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightHalluxProximalPhalanx",
+      right?.hallux?.proximalPhalanx,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "leftHalluxDistalPhalanx",
+      left?.hallux?.distalPhalanx,
+      bone,
+    ),
+    humanBodyUnavailablePart(
+      "rightHalluxDistalPhalanx",
+      right?.hallux?.distalPhalanx,
+      bone,
+    ),
+    ...(
+      [
+        ["Second", "secondToe"],
+        ["Third", "thirdToe"],
+        ["Fourth", "fourthToe"],
+        ["Fifth", "fifthToe"],
+      ] as const
+    ).flatMap(([ordinal, key]) => {
       const l = left?.[key];
       const r = right?.[key];
       return [
-        humanBodyUnavailablePart(`left${ordinal}ToeMetatarsal`, l?.metatarsal, toe(l)),
-        humanBodyUnavailablePart(`right${ordinal}ToeMetatarsal`, r?.metatarsal, toe(r)),
-        humanBodyUnavailablePart(`left${ordinal}ToeProximalPhalanx`, l?.proximalPhalanx, toe(l)),
-        humanBodyUnavailablePart(`right${ordinal}ToeProximalPhalanx`, r?.proximalPhalanx, toe(r)),
-        humanBodyUnavailablePart(`left${ordinal}ToeMiddlePhalanx`, l?.middlePhalanx, toe(l)),
-        humanBodyUnavailablePart(`right${ordinal}ToeMiddlePhalanx`, r?.middlePhalanx, toe(r)),
-        humanBodyUnavailablePart(`left${ordinal}ToeDistalPhalanx`, l?.distalPhalanx, toe(l)),
-        humanBodyUnavailablePart(`right${ordinal}ToeDistalPhalanx`, r?.distalPhalanx, toe(r)),
+        humanBodyUnavailablePart(
+          `left${ordinal}ToeMetatarsal`,
+          l?.metatarsal,
+          toe(l),
+        ),
+        humanBodyUnavailablePart(
+          `right${ordinal}ToeMetatarsal`,
+          r?.metatarsal,
+          toe(r),
+        ),
+        humanBodyUnavailablePart(
+          `left${ordinal}ToeProximalPhalanx`,
+          l?.proximalPhalanx,
+          toe(l),
+        ),
+        humanBodyUnavailablePart(
+          `right${ordinal}ToeProximalPhalanx`,
+          r?.proximalPhalanx,
+          toe(r),
+        ),
+        humanBodyUnavailablePart(
+          `left${ordinal}ToeMiddlePhalanx`,
+          l?.middlePhalanx,
+          toe(l),
+        ),
+        humanBodyUnavailablePart(
+          `right${ordinal}ToeMiddlePhalanx`,
+          r?.middlePhalanx,
+          toe(r),
+        ),
+        humanBodyUnavailablePart(
+          `left${ordinal}ToeDistalPhalanx`,
+          l?.distalPhalanx,
+          toe(l),
+        ),
+        humanBodyUnavailablePart(
+          `right${ordinal}ToeDistalPhalanx`,
+          r?.distalPhalanx,
+          toe(r),
+        ),
       ];
     }),
   ];

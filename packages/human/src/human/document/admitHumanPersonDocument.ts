@@ -1,9 +1,9 @@
 import typia from "typia";
 
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import { admitHumanBodyBasisDocument } from "../../body/document/admitHumanBodyBasisDocument";
 import { admitHumanFaceBasisDocument } from "../../face/document/admitHumanFaceBasisDocument";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Schema and finite-scalar admission shared by loading and saving a person.
@@ -47,13 +47,22 @@ export function admitHumanPersonDocument(
   const document = typia.assertEquals<IAutoMovieHumanPersonDocument>(input);
   admitHumanFaceBasisDocument(document.face);
   admitHumanBodyBasisDocument(document.body, bodySource);
-  if (bodySource?.mode === "neutral-only" &&
-    (Object.keys(document.face.expression).length !== 0 || document.face.oral?.performance !== undefined ||
-     Object.values(document.face.skinRelief?.regions ?? {}).some((region) => region?.performance !== undefined)))
-    throw new Error("The person source is neutral-only; expression, oral and regional performance must be owner-neutral omissions.");
+  if (
+    bodySource?.mode === "neutral-only" &&
+    (Object.keys(document.face.expression).length !== 0 ||
+      document.face.oral?.performance !== undefined ||
+      Object.values(document.face.skinRelief?.regions ?? {}).some(
+        (region) => region?.performance !== undefined,
+      ))
+  )
+    throw new Error(
+      "The person source is neutral-only; expression, oral and regional performance must be owner-neutral omissions.",
+    );
   for (const [id, value] of Object.entries(document.headShape ?? {}))
     if (!Number.isFinite(value))
-      throw new Error("A saved head numerical field must be finite: " + id + ".");
+      throw new Error(
+        "A saved head numerical field must be finite: " + id + ".",
+      );
   if ([document.id, document.name].some((id) => id.trim() === ""))
     throw new Error("A person needs nonempty identities.");
   return document;

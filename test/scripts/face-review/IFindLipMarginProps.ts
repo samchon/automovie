@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
+
 import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
 
 /** A source lips region and canonical station inputs for joined vermilion margins.

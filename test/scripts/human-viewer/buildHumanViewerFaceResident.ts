@@ -17,22 +17,39 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  */
 export async function buildHumanViewerFaceResident(
   props: IBuildHumanViewerFaceResidentProps,
-): Promise<IHumanViewerResident<ReturnType<typeof createConnectedFaceViewport>>> {
-  let port: ReturnType<IBuildHumanViewerFaceResidentProps["worker"]> | undefined;
-  const stage = createConnectedFaceViewport({ ...props.host.props, worker: () => {
-    port = props.worker();
-    return port;
-  } });
+): Promise<
+  IHumanViewerResident<ReturnType<typeof createConnectedFaceViewport>>
+> {
+  let port:
+    | ReturnType<IBuildHumanViewerFaceResidentProps["worker"]>
+    | undefined;
+  const stage = createConnectedFaceViewport({
+    ...props.host.props,
+    worker: () => {
+      port = props.worker();
+      return port;
+    },
+  });
   const releaseConnection = (): void => {
     stage.cancel();
     port?.terminate();
     props.host.release();
   };
   try {
-    const construction = props.operation === "construct" ? await stage.construct(props.document, props.ao) : undefined;
-    const model = construction === undefined ? await stage.build(props.document, false, props.ao) : construction.model;
-    try { stage.publish(model); }
-    catch (error) { stage.dispose(model); throw error; }
+    const construction =
+      props.operation === "construct"
+        ? await stage.construct(props.document, props.ao)
+        : undefined;
+    const model =
+      construction === undefined
+        ? await stage.build(props.document, false, props.ao)
+        : construction.model;
+    try {
+      stage.publish(model);
+    } catch (error) {
+      stage.dispose(model);
+      throw error;
+    }
     const group = model.frame.resident.group;
     return {
       stage,
@@ -44,8 +61,15 @@ export async function buildHumanViewerFaceResident(
         releaseConnection();
         disposeHumanPreview(group);
       },
-      bytes: measureHumanViewerResidentBytes(group, model.frame.witnesses.flatMap(
-        (witness) => [witness.positions, witness.normals, witness.indices, witness.uvs])),
+      bytes: measureHumanViewerResidentBytes(
+        group,
+        model.frame.witnesses.flatMap((witness) => [
+          witness.positions,
+          witness.normals,
+          witness.indices,
+          witness.uvs,
+        ]),
+      ),
     };
   } catch (error) {
     releaseConnection();

@@ -30,11 +30,16 @@ const gunzipAsync = promisify(gunzip);
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A file is never admitted before its digest and identity are actually known.
  * @evidence contracts/common.md#meaningful-documentation States the pending state, the republication signal, stamp validity and failure reporting.
  */
-export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFactsProps) {
+export function createHumanViewerSidecarFacts(
+  props: ICreateHumanViewerSidecarFactsProps,
+) {
   const known = new Map<string, IHumanViewerSidecarFacts>();
   const reading = new Map<string, string>();
   const inFlight = new Set<Promise<void>>();
-  const read = async (file: string, stamp: string): Promise<IHumanViewerSidecarFacts> => {
+  const read = async (
+    file: string,
+    stamp: string,
+  ): Promise<IHumanViewerSidecarFacts> => {
     const hash = createHash("sha256");
     const chunks: Buffer[] = [];
     for await (const chunk of props.stream(file)) {
@@ -42,12 +47,20 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
       chunks.push(chunk);
     }
     const bytes = Buffer.concat(chunks);
-    const facts: IHumanViewerSidecarFacts = { stamp, digest: hash.digest("hex"),
-      basis: null, packet: null, view: null, failure: null };
+    const facts: IHumanViewerSidecarFacts = {
+      stamp,
+      digest: hash.digest("hex"),
+      basis: null,
+      packet: null,
+      view: null,
+      failure: null,
+    };
     try {
       const kind = props.kind(file);
-      if (kind === "person") facts.packet = readHumanViewerPersonSidecar(await gunzipAsync(bytes));
-      else if (kind === "view") facts.view = scanHumanViewerPacketIdentities(await gunzipAsync(bytes));
+      if (kind === "person")
+        facts.packet = readHumanViewerPersonSidecar(await gunzipAsync(bytes));
+      else if (kind === "view")
+        facts.view = scanHumanViewerPacketIdentities(await gunzipAsync(bytes));
       else facts.basis = readHumanViewerBasisIdentity(bytes);
     } catch (error) {
       facts.failure = error instanceof Error ? error.message : String(error);
@@ -62,19 +75,37 @@ export function createHumanViewerSidecarFacts(props: ICreateHumanViewerSidecarFa
       if (kept !== undefined && kept.stamp === stamp) return kept;
       if (reading.get(file) !== stamp) {
         reading.set(file, stamp);
-        const request: Promise<void> = read(file, stamp).catch((error: unknown): IHumanViewerSidecarFacts => ({ stamp,
-          digest: "", basis: null, packet: null, view: null,
-          failure: "Could not read: " + (error instanceof Error ? error.message : String(error)) }))
+        const request: Promise<void> = read(file, stamp)
+          .catch(
+            (error: unknown): IHumanViewerSidecarFacts => ({
+              stamp,
+              digest: "",
+              basis: null,
+              packet: null,
+              view: null,
+              failure:
+                "Could not read: " +
+                (error instanceof Error ? error.message : String(error)),
+            }),
+          )
           .then((facts) => {
             // A newer stamp started its own read; this result is outdated.
             if (reading.get(file) !== stamp) return;
             reading.delete(file);
             known.set(file, facts);
             props.changed();
-          }).catch((error: unknown) => {
-            console.error("Sidecar facts could not be published for " + file + ": " +
-              (error instanceof Error ? error.message : String(error)));
-          }).finally(() => { inFlight.delete(request); });
+          })
+          .catch((error: unknown) => {
+            console.error(
+              "Sidecar facts could not be published for " +
+                file +
+                ": " +
+                (error instanceof Error ? error.message : String(error)),
+            );
+          })
+          .finally(() => {
+            inFlight.delete(request);
+          });
         inFlight.add(request);
       }
       return null;

@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanHeadReading } from "./IAutoMovieHumanHeadReading";
-import type { IAutoMovieHumanLandmarkDistanceMeasurement } from "./IAutoMovieHumanLandmarkDistanceMeasurement";
 import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
+import type { IAutoMovieHumanLandmarkDistanceMeasurement } from "./IAutoMovieHumanLandmarkDistanceMeasurement";
 import { humanHeadPoint } from "./humanHeadPoint";
 
 /**
@@ -27,5 +27,8 @@ export function readHumanLandmarkDistance(
 ): IAutoMovieHumanHeadReading {
   const from = humanHeadPoint(head, rule.from);
   const to = humanHeadPoint(head, rule.to);
-  return { metres: Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z), points: { [rule.from]: from, [rule.to]: to } };
+  return {
+    metres: Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z),
+    points: { [rule.from]: from, [rule.to]: to },
+  };
 }

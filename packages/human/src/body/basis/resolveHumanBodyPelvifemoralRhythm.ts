@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 import type { IHumanBodyPelvifemoralResult } from "./IHumanBodyPelvifemoralResult";
+import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 
 const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
 
@@ -49,7 +49,10 @@ export function resolveHumanBodyPelvifemoralRhythm(
     // every chain bone is a declared joint (admission), so the rest exists
     (result.find((joint) => joint.bone === bone)?.flexion ??
       neutral.get(bone)) as number;
-  const tilt = evaluateHumanBodyRhythmCurve(rhythm.curve, Math.max(...LEGS.map(flexion)));
+  const tilt = evaluateHumanBodyRhythmCurve(
+    rhythm.curve,
+    Math.max(...LEGS.map(flexion)),
+  );
   if (tilt === 0) return { joints: result, contributions: [] };
   const contributions: ReturnType<
     typeof resolveHumanBodyPelvifemoralRhythm

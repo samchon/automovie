@@ -1,5 +1,5 @@
-import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
 import type { IQueueHumanViewerRequestProps } from "./IQueueHumanViewerRequestProps";
+import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
 import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
 /**
@@ -47,13 +47,17 @@ export function queueHumanViewerRequest<Value>(
     .catch((error: unknown): undefined => {
       const message = error instanceof Error ? error.message : String(error);
       if (controller.signal.aborted || props.response.destroyed) {
-        console.log(`REFUSED ${new Date().toISOString()} ${props.label} client gone: ${message.slice(0, 300)}`);
+        console.log(
+          `REFUSED ${new Date().toISOString()} ${props.label} client gone: ${message.slice(0, 300)}`,
+        );
         return undefined;
       }
       const refusal = classifyHumanViewerRefusal(error);
       // Every refusal is logged with its cause, so a failed request can be
       // traced afterwards like a served one.
-      console.log(`REFUSED ${new Date().toISOString()} ${props.label} ${refusal.status}: ${message.slice(0, 500)}`);
+      console.log(
+        `REFUSED ${new Date().toISOString()} ${props.label} ${refusal.status}: ${message.slice(0, 500)}`,
+      );
       props.response.statusCode = refusal.status;
       if (refusal.retryAfter !== null)
         props.response.setHeader("Retry-After", String(refusal.retryAfter));

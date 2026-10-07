@@ -4,7 +4,11 @@
  * when `to` cannot be reached. Ties keep the first relaxation, and the
  * frontier is scanned in vertex order, so the result is deterministic.
  */
-export function findHumanSourceShortestPath(edges: ReadonlyMap<number, ReadonlyMap<number, number>>, from: number, to: number): number[] | null {
+export function findHumanSourceShortestPath(
+  edges: ReadonlyMap<number, ReadonlyMap<number, number>>,
+  from: number,
+  to: number,
+): number[] | null {
   const distance = new Map<number, number>([[from, 0]]);
   const previous = new Map<number, number>();
   const done = new Set<number>();
@@ -19,7 +23,8 @@ export function findHumanSourceShortestPath(edges: ReadonlyMap<number, ReadonlyM
     if (current < 0) return null;
     if (current === to) break;
     done.add(current);
-    for (const [next, weight] of edges.get(current) ?? new Map<number, number>()) {
+    for (const [next, weight] of edges.get(current) ??
+      new Map<number, number>()) {
       const candidate = best + weight;
       if (candidate < (distance.get(next) ?? Infinity)) {
         distance.set(next, candidate);
@@ -28,6 +33,7 @@ export function findHumanSourceShortestPath(edges: ReadonlyMap<number, ReadonlyM
     }
   }
   const path = [to];
-  while (path[path.length - 1] !== from) path.push(previous.get(path[path.length - 1])!);
+  while (path[path.length - 1] !== from)
+    path.push(previous.get(path[path.length - 1])!);
   return path.reverse();
 }

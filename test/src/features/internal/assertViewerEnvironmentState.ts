@@ -1,12 +1,19 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
-import { applyRenderMode, applyRendererEnvironment, applySceneEnvironment, buildLight } from "@automovie/viewer";
+import {
+  applyRenderMode,
+  applyRendererEnvironment,
+  applySceneEnvironment,
+  buildLight,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { namedFacts, nclose } from "./predicates";
 
 /** Existing scene, renderer and shadow-state assertions; restoration order and instances are unchanged. */
-export const assertViewerEnvironmentState = (ENVIRONMENT: IAutoMovieSceneEnvironment): void => {
+export const assertViewerEnvironmentState = (
+  ENVIRONMENT: IAutoMovieSceneEnvironment,
+): void => {
   const scene = new THREE.Scene();
   const texture = new THREE.Texture();
   const ldrVersion = texture.version;

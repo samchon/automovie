@@ -55,7 +55,9 @@ export function interpolateHumanFaceLidDisplacement(
     indices.length === 0 ||
     indices.length % 3 !== 0
   )
-    throw new Error("Lid displacement needs finite source positions and triangles.");
+    throw new Error(
+      "Lid displacement needs finite source positions and triangles.",
+    );
   const sampleAt = (vertex: number): number => {
     if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= samples.length)
       throw new Error("Lid displacement references an absent source vertex.");
@@ -67,10 +69,14 @@ export function interpolateHumanFaceLidDisplacement(
   for (let at = 0; at < indices.length; at += 3) {
     const corners = indices.slice(at, at + 3).map(sampleAt);
     if (new Set(corners).size !== 3)
-      throw new Error("Lid displacement has a collapsed source-sample triangle.");
+      throw new Error(
+        "Lid displacement has a collapsed source-sample triangle.",
+      );
     const triangle = [...corners].sort((a, b) => a - b).join(":");
     if (triangles.has(triangle))
-      throw new Error("Lid displacement repeats a native source-sample triangle.");
+      throw new Error(
+        "Lid displacement repeats a native source-sample triangle.",
+      );
     triangles.add(triangle);
     for (let corner = 0; corner < 3; corner++) {
       const a = corners[corner];
@@ -87,7 +93,9 @@ export function interpolateHumanFaceLidDisplacement(
       const edge: [number, number, number] = edges.get(key) ?? [low, high, 0];
       edge[2]++;
       if (edge[2] > 2)
-        throw new Error("Lid displacement has a nonmanifold source-sample edge.");
+        throw new Error(
+          "Lid displacement has a nonmanifold source-sample edge.",
+        );
       edges.set(key, edge);
     }
   }
@@ -103,7 +111,9 @@ export function interpolateHumanFaceLidDisplacement(
     actualBoundary.size !== declaredBoundary.size ||
     [...actualBoundary].some((sample) => !declaredBoundary.has(sample))
   )
-    throw new Error("Lid displacement needs its complete native annulus boundary.");
+    throw new Error(
+      "Lid displacement needs its complete native annulus boundary.",
+    );
   const fixed = new Map<number, IAutoMovieVector3>();
   for (const [vertex, delta] of pins) {
     const sample = sampleAt(vertex);
@@ -111,17 +121,23 @@ export function interpolateHumanFaceLidDisplacement(
       !neighbours.has(sample) ||
       ![delta.x, delta.y, delta.z].every(Number.isFinite)
     )
-      throw new Error("Lid displacement pins need annulus samples and finite XYZ.");
+      throw new Error(
+        "Lid displacement pins need annulus samples and finite XYZ.",
+      );
     const previous = fixed.get(sample);
     if (
       previous !== undefined &&
-      (previous.x !== delta.x || previous.y !== delta.y || previous.z !== delta.z)
+      (previous.x !== delta.x ||
+        previous.y !== delta.y ||
+        previous.z !== delta.z)
     )
       throw new Error("Lid displacement has contradictory source-alias pins.");
     fixed.set(sample, { x: delta.x, y: delta.y, z: delta.z });
   }
   if ([...actualBoundary].some((sample) => !fixed.has(sample)))
-    throw new Error("Lid displacement needs an exact pin on every boundary sample.");
+    throw new Error(
+      "Lid displacement needs an exact pin on every boundary sample.",
+    );
   const reached = new Set(fixed.keys());
   const queue = [...reached].sort((a, b) => a - b);
   for (let at = 0; at < queue.length; at++)

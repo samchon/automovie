@@ -17,20 +17,51 @@ import type { IHumanSourcePoseRegeneration } from "./structures/IHumanSourcePose
  * samples), and the dropped ids leave both unavailable lists. The receipt
  * keeps every solver record (crossing pairs, onsets, verification).
  */
-export function regenerateHumanSourcePose(body: IAutoMovieHumanBodyBasis, generation: IHumanSourceGeneration, cut: IHumanSourceCut): IHumanSourcePoseRegeneration {
+export function regenerateHumanSourcePose(
+  body: IAutoMovieHumanBodyBasis,
+  generation: IHumanSourceGeneration,
+  cut: IHumanSourceCut,
+): IHumanSourcePoseRegeneration {
   const dropped = new Set(P.dropped);
-  const declared = (body.unavailableTargets ?? []).filter((t) => !dropped.has(t));
+  const declared = (body.unavailableTargets ?? []).filter(
+    (t) => !dropped.has(t),
+  );
   const surface = body.surfaces[0];
   const working: IAutoMovieHumanBodyBasis = {
     ...body,
-    ...(declared.length === 0 ? { unavailableTargets: undefined } : { unavailableTargets: declared }),
+    ...(declared.length === 0
+      ? { unavailableTargets: undefined }
+      : { unavailableTargets: declared }),
     correctives: (body.correctives ?? []).filter((c) => !dropped.has(c.id)),
-    surfaces: [{ ...surface, targets: Object.fromEntries(Object.entries(surface.targets).filter(([name]) => !dropped.has(name))) }, ...body.surfaces.slice(1)],
+    surfaces: [
+      {
+        ...surface,
+        targets: Object.fromEntries(
+          Object.entries(surface.targets).filter(
+            ([name]) => !dropped.has(name),
+          ),
+        ),
+      },
+      ...body.surfaces.slice(1),
+    ],
   };
   const session = createBodyCorrectiveSession(working);
   for (const state of P.states) session.solve(state);
   const solved = session.published();
-  const merge = mergeBodyCorrectives({ ...body, ...(declared.length === 0 ? { unavailableTargets: undefined } : { unavailableTargets: declared }) }, { dropped: [...dropped], correctives: solved.correctives, rows: solved.rows }, body.id);
+  const merge = mergeBodyCorrectives(
+    {
+      ...body,
+      ...(declared.length === 0
+        ? { unavailableTargets: undefined }
+        : { unavailableTargets: declared }),
+    },
+    {
+      dropped: [...dropped],
+      correctives: solved.correctives,
+      rows: solved.rows,
+    },
+    body.id,
+  );
   const merged = merge.basis;
   const created = [...merge.added, ...merge.mirrored];
   const targets = { ...generation.targets };
@@ -38,7 +69,8 @@ export function regenerateHumanSourcePose(body: IAutoMovieHumanBodyBasis, genera
   for (const id of created) {
     const rows = merged.surfaces[0].targets[id];
     const g1: [number, number, number, number][] = [];
-    for (let i = 0; i < rows.length; i += 4) g1.push([cut.p1BodyToG1[rows[i]], rows[i + 1], rows[i + 2], rows[i + 3]]);
+    for (let i = 0; i < rows.length; i += 4)
+      g1.push([cut.p1BodyToG1[rows[i]], rows[i + 1], rows[i + 2], rows[i + 3]]);
     g1.sort((a, b) => a[0] - b[0]);
     targets[id] = g1.flat();
   }
@@ -47,7 +79,11 @@ export function regenerateHumanSourcePose(body: IAutoMovieHumanBodyBasis, genera
     const corrective = merged.correctives!.find((c) => c.id === id)!;
     correctives.push({ ...corrective, origin: "body" });
   }
-  const unavailable = Object.fromEntries(Object.entries(generation.unavailable).filter(([name]) => !dropped.has(name)));
+  const unavailable = Object.fromEntries(
+    Object.entries(generation.unavailable).filter(
+      ([name]) => !dropped.has(name),
+    ),
+  );
   return {
     body: merged,
     generation: {
@@ -57,12 +93,18 @@ export function regenerateHumanSourcePose(body: IAutoMovieHumanBodyBasis, genera
       unavailable,
       stamps: [
         ...generation.stamps,
-        { derivative: `body pose correctives re-solved (${P.revision})`, authoredOn: generation.id, status: "regenerated", note: `${[...dropped].join(", ")} replaced by ${created.join(", ")}; new solve, not the published values` },
+        {
+          derivative: `body pose correctives re-solved (${P.revision})`,
+          authoredOn: generation.id,
+          status: "regenerated",
+          note: `${[...dropped].join(", ")} replaced by ${created.join(", ")}; new solve, not the published values`,
+        },
       ],
     },
     receipt: {
       revision: P.revision,
-      method: "repository contact solver (createBodyCorrectiveSession) on the body view without the dropped correctives, merged with exact mirrors at 10 micrometres (mergeBodyCorrectives)",
+      method:
+        "repository contact solver (createBodyCorrectiveSession) on the body view without the dropped correctives, merged with exact mirrors at 10 micrometres (mergeBodyCorrectives)",
       solverChange:
         "the published round-9 correctives came from an earlier solver; the current one bisects the onset over the whole shape, prices pushes by per-pair tissue budgets and queues a still-crossing ramp midpoint as its own state, so the same state yields its own correctives",
       dropped: [...dropped],

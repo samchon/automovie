@@ -38,38 +38,82 @@ import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInpu
  * @evidenceExclude contracts/anatomy.md#anatomical-source The thickness field owns the values and their sources.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
-export function createHumanBodyLayerSurfaces(input: IHumanBodyLayerSurfacesInput): IHumanBodyLayerSurfaces {
+export function createHumanBodyLayerSurfaces(
+  input: IHumanBodyLayerSurfacesInput,
+): IHumanBodyLayerSurfaces {
   const { positions, indices, field } = input;
   const count = positions.length / 3;
-  if (positions.length % 3 !== 0 || indices.length % 3 !== 0 || field.skinMetres.length !== count || field.subcutaneousMetres.length !== count)
+  if (
+    positions.length % 3 !== 0 ||
+    indices.length % 3 !== 0 ||
+    field.skinMetres.length !== count ||
+    field.subcutaneousMetres.length !== count
+  )
     throw new Error("Layer thickness does not address this skin's vertices.");
-  if (count === 0 || indices.length === 0 || !positions.every(Number.isFinite) ||
-      indices.some((index) => !Number.isSafeInteger(index) || index < 0 || index >= count))
+  if (
+    count === 0 ||
+    indices.length === 0 ||
+    !positions.every(Number.isFinite) ||
+    indices.some(
+      (index) => !Number.isSafeInteger(index) || index < 0 || index >= count,
+    )
+  )
     throw new Error("Layer surfaces need a nonempty finite indexed skin.");
-  if ([...field.skinMetres, ...field.subcutaneousMetres].some((value) => !Number.isFinite(value) || value < 0))
+  if (
+    [...field.skinMetres, ...field.subcutaneousMetres].some(
+      (value) => !Number.isFinite(value) || value < 0,
+    )
+  )
     throw new Error("Layer thickness must be finite and nonnegative.");
   const areaOf = (surface: readonly number[], at: number): number[] => {
-    const [a, b, c] = [indices[at] * 3, indices[at + 1] * 3, indices[at + 2] * 3];
-    const u = [surface[b] - surface[a], surface[b + 1] - surface[a + 1], surface[b + 2] - surface[a + 2]];
-    const v = [surface[c] - surface[a], surface[c + 1] - surface[a + 1], surface[c + 2] - surface[a + 2]];
-    return [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    const [a, b, c] = [
+      indices[at] * 3,
+      indices[at + 1] * 3,
+      indices[at + 2] * 3,
+    ];
+    const u = [
+      surface[b] - surface[a],
+      surface[b + 1] - surface[a + 1],
+      surface[b + 2] - surface[a + 2],
+    ];
+    const v = [
+      surface[c] - surface[a],
+      surface[c + 1] - surface[a + 1],
+      surface[c + 2] - surface[a + 2],
+    ];
+    return [
+      u[1] * v[2] - u[2] * v[1],
+      u[2] * v[0] - u[0] * v[2],
+      u[0] * v[1] - u[1] * v[0],
+    ];
   };
   const normals = new Array<number>(positions.length).fill(0);
   const incident = Array.from({ length: count }, () => new Set<number>());
   for (let at = 0; at < indices.length; at += 3) {
     const area = areaOf(positions, at);
-    if (!area.every(Number.isFinite)) throw new Error("Skin triangle area is not representable.");
+    if (!area.every(Number.isFinite))
+      throw new Error("Skin triangle area is not representable.");
     for (let corner = 0; corner < 3; corner++) {
       incident[indices[at + corner]].add(at / 3);
-      for (let axis = 0; axis < 3; axis++) normals[indices[at + corner] * 3 + axis] += area[axis];
+      for (let axis = 0; axis < 3; axis++)
+        normals[indices[at + corner] * 3 + axis] += area[axis];
     }
   }
   for (let at = 0; at < normals.length; at += 3) {
     const length = Math.hypot(normals[at], normals[at + 1], normals[at + 2]);
-    if (!(length > 0) || !Number.isFinite(length)) throw new Error("Skin vertex " + at / 3 + " has no finite area-weighted normal.");
+    if (!(length > 0) || !Number.isFinite(length))
+      throw new Error(
+        "Skin vertex " + at / 3 + " has no finite area-weighted normal.",
+      );
     for (let axis = 0; axis < 3; axis++) normals[at + axis] /= length;
   }
-  const cast = createAutoMovieMeshRayCaster({ positions: [...positions], normals, indices: [...indices], uvs: null, skin: null });
+  const cast = createAutoMovieMeshRayCaster({
+    positions: [...positions],
+    normals,
+    indices: [...indices],
+    uvs: null,
+    skin: null,
+  });
   const dermis = new Array<number>(positions.length);
   const fascia = new Array<number>(positions.length);
   let beyondReachVertices = 0;
@@ -82,23 +126,39 @@ export function createHumanBodyLayerSurfaces(input: IHumanBodyLayerSurfacesInput
     const at = vertex * 3;
     const skin = field.skinMetres[vertex];
     const both = skin + field.subcutaneousMetres[vertex];
-    if (!Number.isFinite(both)) throw new Error("Combined layer thickness is not representable at vertex " + vertex);
+    if (!Number.isFinite(both))
+      throw new Error(
+        "Combined layer thickness is not representable at vertex " + vertex,
+      );
     const inward = [-normals[at], -normals[at + 1], -normals[at + 2]];
     for (let axis = 0; axis < 3; axis++) {
       dermis[at + axis] = positions[at + axis] + inward[axis] * skin;
       fascia[at + axis] = positions[at + axis] + inward[axis] * both;
-      if (!Number.isFinite(dermis[at + axis]) || !Number.isFinite(fascia[at + axis]))
-        throw new Error("Layer offset is not representable at vertex " + vertex);
+      if (
+        !Number.isFinite(dermis[at + axis]) ||
+        !Number.isFinite(fascia[at + axis])
+      )
+        throw new Error(
+          "Layer offset is not representable at vertex " + vertex,
+        );
     }
-    const reach = cast.nearest([positions[at], positions[at + 1], positions[at + 2]], inward, Infinity, 0,
-      { excludedTriangles: incident[vertex] });
+    const reach = cast.nearest(
+      [positions[at], positions[at + 1], positions[at + 2]],
+      inward,
+      Infinity,
+      0,
+      { excludedTriangles: incident[vertex] },
+    );
     if (reach === null || !(reach > 0) || !Number.isFinite(reach)) {
       unmeasuredReachVertices++;
       unmeasuredReachVertexOrdinals.push(vertex);
       continue;
     }
     const ratio = both / reach;
-    if (!Number.isFinite(ratio)) throw new Error("Layer thickness-to-ray ratio is not representable at vertex " + vertex);
+    if (!Number.isFinite(ratio))
+      throw new Error(
+        "Layer thickness-to-ray ratio is not representable at vertex " + vertex,
+      );
     if (ratio >= 0.5) {
       beyondReachVertices++;
       beyondReachVertexOrdinals.push(vertex);
@@ -116,10 +176,17 @@ export function createHumanBodyLayerSurfaces(input: IHumanBodyLayerSurfacesInput
     const outer = areaOf(positions, at);
     const inner = areaOf(fascia, at);
     const dermal = areaOf(dermis, at);
-    const fasciaOrientation = outer[0] * inner[0] + outer[1] * inner[1] + outer[2] * inner[2];
-    const dermalOrientation = outer[0] * dermal[0] + outer[1] * dermal[1] + outer[2] * dermal[2];
-    if (!Number.isFinite(fasciaOrientation) || !Number.isFinite(dermalOrientation))
-      throw new Error("Layer triangle orientation is not representable at triangle " + at / 3);
+    const fasciaOrientation =
+      outer[0] * inner[0] + outer[1] * inner[1] + outer[2] * inner[2];
+    const dermalOrientation =
+      outer[0] * dermal[0] + outer[1] * dermal[1] + outer[2] * dermal[2];
+    if (
+      !Number.isFinite(fasciaOrientation) ||
+      !Number.isFinite(dermalOrientation)
+    )
+      throw new Error(
+        "Layer triangle orientation is not representable at triangle " + at / 3,
+      );
     if (fasciaOrientation <= 0) {
       invertedTriangles++;
       fascialInvertedTriangleOrdinals.push(at / 3);
@@ -129,9 +196,21 @@ export function createHumanBodyLayerSurfaces(input: IHumanBodyLayerSurfacesInput
       dermalInvertedTriangleOrdinals.push(at / 3);
     }
   }
-  return { normals, dermis, fascia, beyondReachVertices, unmeasuredReachVertices,
-    tightestVertex, tightestRatio, invertedTriangles, dermalInvertedTriangles,
-    beyondReachVertexOrdinals, unmeasuredReachVertexOrdinals,
-    fascialInvertedTriangleOrdinals, dermalInvertedTriangleOrdinals,
-    qualification: "Normal-ray half-travel proxy and triangle orientation observations only; unequal opposite offsets, global embedding and clinical thickness are not certified." };
+  return {
+    normals,
+    dermis,
+    fascia,
+    beyondReachVertices,
+    unmeasuredReachVertices,
+    tightestVertex,
+    tightestRatio,
+    invertedTriangles,
+    dermalInvertedTriangles,
+    beyondReachVertexOrdinals,
+    unmeasuredReachVertexOrdinals,
+    fascialInvertedTriangleOrdinals,
+    dermalInvertedTriangleOrdinals,
+    qualification:
+      "Normal-ray half-travel proxy and triangle orientation observations only; unequal opposite offsets, global embedding and clinical thickness are not certified.",
+  };
 }

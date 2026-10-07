@@ -1,4 +1,7 @@
-import type { IAutoMovieCameraClearanceEnvelope, IAutoMovieStage } from "@automovie/interface";
+import type {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieStage,
+} from "@automovie/interface";
 
 import { makeStagingWrite } from "./filmFixtures";
 

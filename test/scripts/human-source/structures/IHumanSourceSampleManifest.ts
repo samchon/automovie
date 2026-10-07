@@ -1,5 +1,5 @@
-import type { IHumanSourceSamplePart } from "./IHumanSourceSamplePart.ts";
 import type { IHumanSourceSampleFile } from "./IHumanSourceSampleFile.ts";
+import type { IHumanSourceSamplePart } from "./IHumanSourceSamplePart.ts";
 import type { IHumanSourceSampleState } from "./IHumanSourceSampleState.ts";
 
 /**

@@ -39,5 +39,8 @@ export interface IHumanBodySimpleUnknown {
   target: number;
 
   /** Reading on this shared trial body (its reader and its shape), or null when the surface cannot answer. */
-  read: (reader: ReturnType<typeof createHumanBodyMeasurementReader>, shape: Record<string, number>) => number | null;
+  read: (
+    reader: ReturnType<typeof createHumanBodyMeasurementReader>,
+    shape: Record<string, number>,
+  ) => number | null;
 }

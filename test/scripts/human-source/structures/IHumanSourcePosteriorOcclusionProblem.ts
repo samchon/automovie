@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
-import type { IHumanSourceCrownDimension } from "./IHumanSourceCrownDimension.ts";
 import type { IHumanSourceCrownAffineFrame } from "./IHumanSourceCrownAffineFrame.ts";
+import type { IHumanSourceCrownDimension } from "./IHumanSourceCrownDimension.ts";
 import type { IHumanSourceCrownTopology } from "./IHumanSourceCrownTopology.ts";
 
 /**

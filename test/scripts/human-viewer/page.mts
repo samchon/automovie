@@ -7,9 +7,9 @@
  * This file owns the page state and the order of a show; each step it orders
  * lives in its own module.
  */
+import { serializeHumanPersonDocument } from "@automovie/human";
 import type { ConnectedBodyRequest } from "@automovie/playground/src/human/body/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "@automovie/playground/src/human/body/ConnectedBodyResult";
-import { serializeHumanPersonDocument } from "@automovie/human";
 import type { ConnectedFaceRequest } from "@automovie/playground/src/human/common/ConnectedFaceRequest";
 import type { ConnectedFaceResult } from "@automovie/playground/src/human/common/ConnectedFaceResult";
 import * as THREE from "three";
@@ -34,6 +34,7 @@ import { createHumanViewerSpans } from "./createHumanViewerSpans";
 import { createHumanViewerViewportHost } from "./createHumanViewerViewportHost";
 import { createHumanViewerWorkReporter } from "./createHumanViewerWorkReporter";
 import { frameHumanViewerAddress } from "./frameHumanViewerAddress";
+import { humanViewerProtocol } from "./humanViewerProtocol";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 import { readHumanViewerPng } from "./readHumanViewerPng";
@@ -41,7 +42,6 @@ import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
 import { showHumanViewerFirstAddress } from "./showHumanViewerFirstAddress";
 import { showHumanViewerReference } from "./showHumanViewerReference";
-import { humanViewerProtocol } from "./humanViewerProtocol";
 
 // Admission is offered as soon as this module has loaded, before any show:
 // the host routes the server's admissions here even while this frame is a
@@ -62,18 +62,28 @@ let workingDocument = "";
 const work = createHumanViewerWorkReporter(spans, (phase) => ({
   revision: catalogue?.revision ?? "bootstrap",
   frame: new URLSearchParams(location.search).get("generation") ?? "direct",
-  doc: workingDocument, phase, at: Date.now(), pending: numerical.pending(),
-  geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
-  residents: residents.keys().length, residentBytes: residents.total(),
+  doc: workingDocument,
+  phase,
+  at: Date.now(),
+  pending: numerical.pending(),
+  geometries: renderer.info.memory.geometries,
+  textures: renderer.info.memory.textures,
+  residents: residents.keys().length,
+  residentBytes: residents.total(),
 }));
 /** The worker and digest-cache transport the product viewports build through. */
 const numerical = createHumanViewerNumericalPort({ work, spans });
 // Resident captures read their PNG before starting optional disk work.
 // Interactive pages flush after drawing, without awaiting persistence.
-const residentCapture = new URLSearchParams(parent.location.search).has("resident");
+const residentCapture = new URLSearchParams(parent.location.search).has(
+  "resident",
+);
 addEventListener("pagehide", () => numerical.dispose(), { once: true });
 Object.assign(window, { __humanViewerPersistence: numerical.persistence });
-Object.assign(window, { __humanViewerAdmit: numerical.admit, __humanViewerProtocol: humanViewerProtocol });
+Object.assign(window, {
+  __humanViewerAdmit: numerical.admit,
+  __humanViewerProtocol: humanViewerProtocol,
+});
 parent.postMessage({ type: "human:admission" }, location.origin);
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
@@ -91,8 +101,13 @@ let active: HumanViewerStage;
  * build and preparation copies.
  */
 const RESIDENT_BUDGET = 512 * 1024 * 1024;
-const residents = createHumanViewerCache<IHumanViewerResident<HumanViewerStage>>(RESIDENT_BUDGET,
-  (resident) => resident.bytes, (resident) => resident.release());
+const residents = createHumanViewerCache<
+  IHumanViewerResident<HumanViewerStage>
+>(
+  RESIDENT_BUDGET,
+  (resident) => resident.bytes,
+  (resident) => resident.release(),
+);
 
 /** Build the resident of one catalogue document through its product viewport. */
 const buildResident = (
@@ -104,13 +119,29 @@ const buildResident = (
   if (operation === "construct" && selected.domain === "body")
     throw new Error("The body domain has no construction inspection entry.");
   if (selected.domain === "face")
-    return buildHumanViewerFaceResident({ host, document: selected.document, ao, operation,
-      worker: () => numerical.port<ConnectedFaceRequest, ConnectedFaceResult>(selected, ao) });
-  const worker = () => numerical.port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false);
+    return buildHumanViewerFaceResident({
+      host,
+      document: selected.document,
+      ao,
+      operation,
+      worker: () =>
+        numerical.port<ConnectedFaceRequest, ConnectedFaceResult>(selected, ao),
+    });
+  const worker = () =>
+    numerical.port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false);
   if (selected.domain === "person")
-    return buildHumanViewerBodyResident({ host, document: selected.document,
-      serialize: serializeHumanPersonDocument, worker, operation });
-  return buildHumanViewerBodyResident({ host, document: selected.document, worker });
+    return buildHumanViewerBodyResident({
+      host,
+      document: selected.document,
+      serialize: serializeHumanPersonDocument,
+      worker,
+      operation,
+    });
+  return buildHumanViewerBodyResident({
+    host,
+    document: selected.document,
+    worker,
+  });
 };
 
 async function show(address: HumanViewerAddress): Promise<void> {
@@ -125,14 +156,21 @@ async function show(address: HumanViewerAddress): Promise<void> {
   // with; across a newer source revision the page keeps its own catalogue
   // (see `admitHumanViewerCatalogue`). A document still awaiting admission is
   // awaited, not refused (see `readHumanViewerShowCatalogue`).
-  catalogue = admitHumanViewerCatalogue(catalogue, await readHumanViewerShowCatalogue(address.doc), address.doc);
+  catalogue = admitHumanViewerCatalogue(
+    catalogue,
+    await readHumanViewerShowCatalogue(address.doc),
+    address.doc,
+  );
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
   if (selected === undefined)
     throw new Error(`Unknown document: ${address.doc}`);
   const operation = address.operation ?? "preview";
-  const key = selected.key + (address.ao ? "-ao" : "-direct") + (operation === "construct" ? "-construction" : "");
+  const key =
+    selected.key +
+    (address.ao ? "-ao" : "-direct") +
+    (operation === "construct" ? "-construction" : "");
   const start = performance.now();
   status.textContent = "Preparing " + address.doc;
   display.style.width = `${address.size}px`;
@@ -154,8 +192,14 @@ async function show(address: HumanViewerAddress): Promise<void> {
   frameHumanViewerAddress(active, resident.group, address);
   addHumanViewerCalibration(resident.group, address.calibrate);
   active.finish();
-  composition = await showHumanViewerReference({ address, stage: active, display, canvas,
-    reference, landmarks: document.querySelector<SVGSVGElement>("#landmarks")! });
+  composition = await showHumanViewerReference({
+    address,
+    stage: active,
+    display,
+    canvas,
+    reference,
+    landmarks: document.querySelector<SVGSVGElement>("#landmarks")!,
+  });
   current = address;
   work("idle");
   if (!residentCapture) numerical.persist();
@@ -166,7 +210,9 @@ async function show(address: HumanViewerAddress): Promise<void> {
 
 let queue = Promise.resolve();
 const apply = (address: HumanViewerAddress): Promise<void> => {
-  const next = queue.then(() => show(address)).then(() => announceHumanViewerAddress(current, active));
+  const next = queue
+    .then(() => show(address))
+    .then(() => announceHumanViewerAddress(current, active));
   queue = next.catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : String(error);
   });
@@ -176,7 +222,8 @@ async function main(): Promise<void> {
   // The host's hold ends when this page and its worker have loaded their
   // modules; the build and drawing that follow no longer read source.
   const loaded = numerical.compiles();
-  void loaded.then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
+  void loaded
+    .then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
     .catch(() => undefined);
   await checkHumanViewerCandidateSource();
   catalogue = await (await fetch("/docs")).json();
@@ -185,10 +232,17 @@ async function main(): Promise<void> {
   // forever and never release the host's hold.
   // The first address is the host's last one; a document that cannot be
   // shown there does not keep this generation from becoming ready.
-  await showHumanViewerFirstAddress(parseHumanViewerAddress(location.hash), apply, loaded,
-    (message) => console.warn("HUMAN_FIRST_ADDRESS " + message));
+  await showHumanViewerFirstAddress(
+    parseHumanViewerAddress(location.hash),
+    apply,
+    loaded,
+    (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
+  );
   // Publish only a generation whose page and worker ran one compile.
-  assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.compiles());
+  assertHumanViewerSingleCompile(
+    readHumanViewerCompiles(),
+    await numerical.compiles(),
+  );
   await checkHumanViewerCandidateSource();
   addEventListener("hashchange", () => {
     void apply(parseHumanViewerAddress(location.hash));
@@ -206,7 +260,13 @@ async function main(): Promise<void> {
       admission: () => residents.get(shownKey)?.admission ?? null,
       periocularMappings: () => residents.get(shownKey)?.periocularMappings,
       png: () => {
-        const png = readHumanViewerPng({ stage: active, renderer, canvas, composition, photo: reference });
+        const png = readHumanViewerPng({
+          stage: active,
+          renderer,
+          canvas,
+          composition,
+          photo: reference,
+        });
         numerical.persist();
         return png;
       },
@@ -225,7 +285,11 @@ void main().catch((error: unknown) => {
   status.textContent = error instanceof Error ? error.message : String(error);
   // A candidate that mixed compiles is started again by the host at once.
   parent.postMessage(
-    { type: "human:error", error: status.textContent, restart: error instanceof HumanViewerMixedCompileError },
+    {
+      type: "human:error",
+      error: status.textContent,
+      restart: error instanceof HumanViewerMixedCompileError,
+    },
     location.origin,
   );
 });

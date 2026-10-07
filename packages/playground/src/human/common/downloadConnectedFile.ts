@@ -7,7 +7,11 @@
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Delivers the exported static bytes under their name and media type, revoking the object URL once taken.
  * @author Samchon
  */
-export function downloadConnectedFile(filename: string, bytes: BlobPart, mime: string): void {
+export function downloadConnectedFile(
+  filename: string,
+  bytes: BlobPart,
+  mime: string,
+): void {
   const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
   const anchor = document.createElement("a");
   anchor.href = url;

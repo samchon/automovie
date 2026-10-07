@@ -199,7 +199,12 @@ export const humanBodySimpleShapeDirection = {
         inverted,
         (at) => {
           const value = read(
-            humanBodySimpleShapeDirection.worn(basis, shape, along.direction, at),
+            humanBodySimpleShapeDirection.worn(
+              basis,
+              shape,
+              along.direction,
+              at,
+            ),
           );
           if (value === null)
             throw new Error(`A ${what} cannot be measured on this basis.`);

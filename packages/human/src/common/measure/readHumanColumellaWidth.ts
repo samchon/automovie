@@ -29,9 +29,16 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function readHumanColumellaWidth(head: IAutoMovieHumanHeadSkin, rightMargin: string, leftMargin: string): number {
+export function readHumanColumellaWidth(
+  head: IAutoMovieHumanHeadSkin,
+  rightMargin: string,
+  leftMargin: string,
+): number {
   const p = head.positions;
-  const band = (vertices: number[], pick: (a: number, b: number) => number): Map<number, number> => {
+  const band = (
+    vertices: number[],
+    pick: (a: number, b: number) => number,
+  ): Map<number, number> => {
     const out = new Map<number, number>();
     for (const v of vertices) {
       const k = Math.floor(p[v * 3 + 2] * 1000);
@@ -48,6 +55,9 @@ export function readHumanColumellaWidth(head: IAutoMovieHumanHeadSkin, rightMarg
     const l = left.get(k);
     if (l !== undefined) width = Math.min(width, l - x);
   }
-  if (width === Infinity) throw new Error(`The nostril margins ${rightMargin} and ${leftMargin} of ${head.id} share no front-to-back band.`);
+  if (width === Infinity)
+    throw new Error(
+      `The nostril margins ${rightMargin} and ${leftMargin} of ${head.id} share no front-to-back band.`,
+    );
   return width;
 }

@@ -9,4 +9,6 @@ import type { createConnectedFaceRuntime } from "./connectedRuntime";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps the reply alternatives aligned with the numerical owner.
  * @author Samchon
  */
-export type ConnectedFaceResult = Awaited<ReturnType<ReturnType<typeof createConnectedFaceRuntime>>>;
+export type ConnectedFaceResult = Awaited<
+  ReturnType<ReturnType<typeof createConnectedFaceRuntime>>
+>;

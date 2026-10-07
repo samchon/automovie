@@ -9,8 +9,20 @@ import type { IHumanSourceGenerationInput } from "./structures/IHumanSourceGener
  * loop. Subdivision keeps every base vertex at its own index as a source
  * sample, so these edges address the generation's skin directly.
  */
-export function readHumanSourceBaseFaces(work: string, inputs: IHumanSourceGenerationInput[]): number[][] {
+export function readHumanSourceBaseFaces(
+  work: string,
+  inputs: IHumanSourceGenerationInput[],
+): number[][] {
   return JSON.parse(
-    zlib.gunzipSync(readHumanSourceWorkBytes(inputs, work, "upstream/mpfb2/src/mpfb/data/mesh_metadata/basemesh_face_to_vertex_table.json.gz", "native base polygon table")).toString("utf8"),
+    zlib
+      .gunzipSync(
+        readHumanSourceWorkBytes(
+          inputs,
+          work,
+          "upstream/mpfb2/src/mpfb/data/mesh_metadata/basemesh_face_to_vertex_table.json.gz",
+          "native base polygon table",
+        ),
+      )
+      .toString("utf8"),
   );
 }

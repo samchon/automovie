@@ -1,5 +1,8 @@
 import { instanceSlot } from "@automovie/engine";
-import type { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSlot } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieInstanceSlot,
+} from "@automovie/interface";
 
 /**
  * Regenerate one exact instance from compact compiled parameters.

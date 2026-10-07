@@ -22,7 +22,10 @@ export interface IConnectedPersonSkinReliefControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Validate and commit through the existing person worker and history. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show the pending operation. */
   busy: (text: string) => void;

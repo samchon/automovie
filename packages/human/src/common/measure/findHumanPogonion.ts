@@ -40,7 +40,8 @@ export function findHumanPogonion(
   const window = 5;
   const samples: IAutoMovieVector3[] = [];
   for (const point of humanHeadPlanePoints(head, 0, menton.x)) {
-    if (point.y < menton.y || point.y > ceiling || point.z < menton.z - 0.02) continue;
+    if (point.y < menton.y || point.y > ceiling || point.z < menton.z - 0.02)
+      continue;
     const k = Math.floor((point.y - menton.y) / band);
     if (samples[k] === undefined || point.z > samples[k].z) samples[k] = point;
   }
@@ -56,5 +57,7 @@ export function findHumanPogonion(
     }
     if (seen && !higher) return sample;
   }
-  throw new Error(`The head view of ${head.id} has no anterior chin maximum above menton.`);
+  throw new Error(
+    `The head view of ${head.id} has no anterior chin maximum above menton.`,
+  );
 }

@@ -1,5 +1,9 @@
 import type { IAutoMoviePropSupportFace } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMoviePropBox, IAutoMovieStageSetPiece } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropBox,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
 
 import type { IFilmPropPatchInput } from "./IFilmPropPatchInput";
 
@@ -9,7 +13,14 @@ export interface IFilmPropUtilityInputs {
   environment: IAutoMovieBuiltEnvironment;
 
   /** Construct a bounds box from its original six coordinates. */
-  box(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number): IAutoMoviePropBox;
+  box(
+    minX: number,
+    minY: number,
+    minZ: number,
+    maxX: number,
+    maxY: number,
+    maxZ: number,
+  ): IAutoMoviePropBox;
 
   /** Original staged unit carrying the probe position. */
   UNIT: IAutoMovieStageSetPiece;

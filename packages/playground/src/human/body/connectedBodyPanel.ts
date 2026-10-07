@@ -17,30 +17,30 @@
  */
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 import { HUMAN_BODY_SIMPLE_POSTURE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_POSTURE";
-import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
-import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
-import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
+import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
+import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { connectedBodyReach } from "../common/connectedBodyReach";
+import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
+import type { IConnectedBodyPanelModel } from "./IConnectedBodyPanelModel";
+import type { IConnectedBodyPanelProps } from "./IConnectedBodyPanelProps";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
+import { createBodyContactWatch } from "./bodyContactWatch";
 import { bodyFemoralReading } from "./bodyFemoralReading";
 import { bodyGroundReading } from "./bodyGroundReading";
-import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
-import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
 import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
 import { renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
 import { createBodyIntentGate } from "./createBodyIntentGate";
-import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
-import type { IConnectedBodyPanelModel } from "./IConnectedBodyPanelModel";
-import type { IConnectedBodyPanelProps } from "./IConnectedBodyPanelProps";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
 import { renderConnectedBodyControls } from "./renderConnectedBodyControls";
+import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
 
 /**
  * Mount the body's shape, measurement and pose controls around an injected
@@ -79,8 +79,12 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   app.innerHTML = connectedBodyPanelMarkup(groups);
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
-  const controlKind = app.querySelector<HTMLSelectElement>('[data-role="control-kind"]')!;
-  const basisControls = app.querySelector<HTMLElement>('[data-role="basis-controls"]')!;
+  const controlKind = app.querySelector<HTMLSelectElement>(
+    '[data-role="control-kind"]',
+  )!;
+  const basisControls = app.querySelector<HTMLElement>(
+    '[data-role="basis-controls"]',
+  )!;
   const underwear = mountBodyUnderwearSelect(dom, element("editing"));
   const viewport = props.viewport(element<HTMLCanvasElement>("body-canvas"));
   let editor:
@@ -120,7 +124,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   });
   const show = (model: Model): void => {
     viewport.publish(model);
-    props.seat(element<HTMLInputElement>("face").checked ? model : null, editor?.snapshot().document ?? draft);
+    props.seat(
+      element<HTMLInputElement>("face").checked ? model : null,
+      editor?.snapshot().document ?? draft,
+    );
   };
   const refresh = (): void => {
     const state = editor!.snapshot();
@@ -133,10 +140,18 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     element<HTMLButtonElement>("body-undo").disabled = !state.canUndo;
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
-      serializeHumanBodyBasisDocument(state.document, props.basis.anatomicalAssembly);
+      serializeHumanBodyBasisDocument(
+        state.document,
+        props.basis.anatomicalAssembly,
+      );
     underwear.value = state.document.underwear?.style ?? "";
     humeral.controls?.refresh(state.document.humeralHeads);
-    void simple.refresh({ shape: state.document.shape, ...(state.document.anatomy === undefined ? {} : { anatomy: state.document.anatomy }) });
+    void simple.refresh({
+      shape: state.document.shape,
+      ...(state.document.anatomy === undefined
+        ? {}
+        : { anatomy: state.document.anatomy }),
+    });
     renderControls();
   };
   const change = async (
@@ -161,7 +176,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   ): Promise<void> => {
     try {
       if (intents.isCurrent(ticket))
-        await change(parseHumanBodyBasisDocument(text, props.basis.anatomicalAssembly), ticket);
+        await change(
+          parseHumanBodyBasisDocument(text, props.basis.anatomicalAssembly),
+          ticket,
+        );
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -171,7 +189,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       dom,
       container: basisControls,
       kind: () => controlKind.value,
-      query: () => element<HTMLInputElement>("body-control-search").value.toLowerCase().replace(/\s/g, ""),
+      query: () =>
+        element<HTMLInputElement>("body-control-search")
+          .value.toLowerCase()
+          .replace(/\s/g, ""),
       basis: props.basis,
       reach,
       scales,
@@ -240,7 +261,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     expand: props.simple.expand,
     project: props.simple.project,
     wholeSource: props.simple.wholeSource,
-    current: () => ({ shape: draft.shape, ...(draft.anatomy === undefined ? {} : { anatomy: draft.anatomy }) }),
+    current: () => ({
+      shape: draft.shape,
+      ...(draft.anatomy === undefined ? {} : { anatomy: draft.anatomy }),
+    }),
     reserveIntent: withdraw,
     currentIntent: intents.currentTicket,
     isCurrentIntent: intents.isCurrent,
@@ -262,7 +286,12 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
-    onPreparing: (active) => setConnectedBodyPreparing(dom, "the simple-tier reader (whole person with the standard head)", active),
+    onPreparing: (active) =>
+      setConnectedBodyPreparing(
+        dom,
+        "the simple-tier reader (whole person with the standard head)",
+        active,
+      ),
     onDraftChanged: () =>
       status("Simple body draft changed; apply again.", "ready"),
   });
@@ -329,7 +358,12 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       if (!intents.isCurrent(ticket)) return;
       const text = contacts.describe(reading);
       status(
-        [text ?? "This build does not supply a crossing reading.", anatomy, femoral, ground]
+        [
+          text ?? "This build does not supply a crossing reading.",
+          anatomy,
+          femoral,
+          ground,
+        ]
           .filter((line) => line !== null)
           .join("\n"),
         text === null ? "error" : "ready",

@@ -1,5 +1,6 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
+
 import { applyTransform } from "./applyTransform";
 
 /**

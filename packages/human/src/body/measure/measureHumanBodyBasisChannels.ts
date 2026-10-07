@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHumanBodyChannelScale";
+import type { IAutoMovieHumanBodyChannelScaleOptions } from "../structures/IAutoMovieHumanBodyChannelScaleOptions";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import { createHumanBodyMeasurementReader } from "./createHumanBodyMeasurementReader";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
-import type { IAutoMovieHumanBodyChannelScaleOptions } from "../structures/IAutoMovieHumanBodyChannelScaleOptions";
 import { humanBodyChannelReading } from "./humanBodyChannelReading";
 import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
 import { orientHumanBodyMeasurement } from "./orientHumanBodyMeasurement";
@@ -97,7 +97,10 @@ export function measureHumanBodyBasisChannels(
     )
     .map((channel) => {
       const reading = humanBodyChannelReading(channel.id);
-      const authored = reading === undefined ? undefined : humanBodyMeasurementRule(reading.rule);
+      const authored =
+        reading === undefined
+          ? undefined
+          : humanBodyMeasurementRule(reading.rule);
       const rule =
         reading === undefined || authored === undefined
           ? undefined

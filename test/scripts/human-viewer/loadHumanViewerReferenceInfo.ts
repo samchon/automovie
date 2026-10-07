@@ -7,9 +7,13 @@ import type { IHumanViewerReferenceInfo } from "./IHumanViewerReferenceInfo";
  *
  * @evidence contracts/common.md#meaningful-documentation States the answer and the failure reading.
  */
-export async function loadHumanViewerReferenceInfo(doc: string): Promise<IHumanViewerReferenceInfo> {
+export async function loadHumanViewerReferenceInfo(
+  doc: string,
+): Promise<IHumanViewerReferenceInfo> {
   try {
-    return (await (await fetch("/reference-info?" + new URLSearchParams({ doc }))).json()) as IHumanViewerReferenceInfo;
+    return (await (
+      await fetch("/reference-info?" + new URLSearchParams({ doc }))
+    ).json()) as IHumanViewerReferenceInfo;
   } catch {
     return { available: false, camera: null, landmarks: [] };
   }

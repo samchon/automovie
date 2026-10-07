@@ -1,29 +1,33 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanFaceBasisDocument, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanFaceBasisDocument,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 
-import { mountConnectedFaceControls } from "../face/connectedControls";
-import { connectedFaceComponents } from "../face/anatomy/connectedFaceComponents";
-import { createConnectedPersonFaceComponents } from "./createConnectedPersonFaceComponents";
-import { readConnectedPersonAdmitted } from "./readConnectedPersonAdmitted";
-import { mountConnectedPersonMeasuredControls } from "./connectedPersonMeasuredControls";
-import { mountConnectedPersonEyeControls } from "./mountConnectedPersonEyeControls";
-import { mountConnectedPersonSkinReliefControls } from "./mountConnectedPersonSkinReliefControls";
-import { mountConnectedPersonOralControls } from "./mountConnectedPersonOralControls";
-import { mountConnectedPersonRegionalSkinControls } from "./mountConnectedPersonRegionalSkinControls";
-import { mountConnectedPersonFaceAnatomy } from "./mountConnectedPersonFaceAnatomy";
-import { mountConnectedPersonHeadControls } from "./mountConnectedPersonHeadControls";
-import { mountConnectedPersonHeadShapeControls } from "./mountConnectedPersonHeadShapeControls";
-import { mountConnectedPersonBodyControls } from "./mountConnectedPersonBodyControls";
-import { CONNECTED_PERSON_UNDESCRIBED_INPUTS } from "./CONNECTED_PERSON_UNDESCRIBED_INPUTS";
-import { createConnectedPersonInputCatalogue } from "./createConnectedPersonInputCatalogue";
-import { mountConnectedPersonInputCatalogue } from "./mountConnectedPersonInputCatalogue";
-import { prepareConnectedPersonCatalogueInput } from "./prepareConnectedPersonCatalogueInput";
-import { renderBodySimpleControls } from "../body/bodySimpleControls";
-import { mountConnectedFaceIris } from "../face/connectedIris";
 import { renderBodyHumeralHeadControls } from "../body/bodyHumeralHeadControls";
-import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAliasedChannels";
+import { renderBodySimpleControls } from "../body/bodySimpleControls";
+import { connectedFaceComponents } from "../face/anatomy/connectedFaceComponents";
+import { mountConnectedFaceControls } from "../face/connectedControls";
+import { mountConnectedFaceIris } from "../face/connectedIris";
+import { CONNECTED_PERSON_UNDESCRIBED_INPUTS } from "./CONNECTED_PERSON_UNDESCRIBED_INPUTS";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonSections } from "./IConnectedPersonSections";
 import type { IConnectedPersonSectionsProps } from "./IConnectedPersonSectionsProps";
+import { mountConnectedPersonMeasuredControls } from "./connectedPersonMeasuredControls";
+import { createConnectedPersonFaceComponents } from "./createConnectedPersonFaceComponents";
+import { createConnectedPersonInputCatalogue } from "./createConnectedPersonInputCatalogue";
+import { mountConnectedPersonBodyControls } from "./mountConnectedPersonBodyControls";
+import { mountConnectedPersonEyeControls } from "./mountConnectedPersonEyeControls";
+import { mountConnectedPersonFaceAnatomy } from "./mountConnectedPersonFaceAnatomy";
+import { mountConnectedPersonHeadControls } from "./mountConnectedPersonHeadControls";
+import { mountConnectedPersonHeadShapeControls } from "./mountConnectedPersonHeadShapeControls";
+import { mountConnectedPersonInputCatalogue } from "./mountConnectedPersonInputCatalogue";
+import { mountConnectedPersonOralControls } from "./mountConnectedPersonOralControls";
+import { mountConnectedPersonRegionalSkinControls } from "./mountConnectedPersonRegionalSkinControls";
+import { mountConnectedPersonSkinReliefControls } from "./mountConnectedPersonSkinReliefControls";
+import { prepareConnectedPersonCatalogueInput } from "./prepareConnectedPersonCatalogueInput";
+import { readConnectedPersonAdmitted } from "./readConnectedPersonAdmitted";
+import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAliasedChannels";
 
 /**
  * Mount every control section of the person editor over the one working
@@ -45,85 +49,134 @@ import type { IConnectedPersonSectionsProps } from "./IConnectedPersonSectionsPr
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Routes every face section through the same transaction owner.
  * @author Samchon
  */
-export function mountConnectedPersonSections<Model extends IConnectedPersonModel>(props: IConnectedPersonSectionsProps<Model>): IConnectedPersonSections {
+export function mountConnectedPersonSections<
+  Model extends IConnectedPersonModel,
+>(props: IConnectedPersonSectionsProps<Model>): IConnectedPersonSections {
   // measurements are read on an admitted person; a draft has none
-  const admitted = <Arguments extends unknown[], Reading>(read: (...input: Arguments) => Promise<Reading>) =>
-    readConnectedPersonAdmitted(() => props.isDraft(), read);
+  const admitted = <Arguments extends unknown[], Reading>(
+    read: (...input: Arguments) => Promise<Reading>,
+  ) => readConnectedPersonAdmitted(() => props.isDraft(), read);
   const shared = props.controls;
   const { dom, refuse } = shared;
   const panel = props.panel;
-  const change = (next: IAutoMovieHumanPersonDocument, ticket: number = shared.reserve()): Promise<boolean> =>
-    shared.change(next, ticket);
+  const change = (
+    next: IAutoMovieHumanPersonDocument,
+    ticket: number = shared.reserve(),
+  ): Promise<boolean> => shared.change(next, ticket);
   const bodySection = props.app.querySelector<HTMLElement>("#body-section")!;
   const faceSection = props.app.querySelector<HTMLElement>("#face-section")!;
-  const withBody = (body: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanPersonDocument => ({
+  const withBody = (
+    body: IAutoMovieHumanBodyBasisDocument,
+  ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(shared.current()),
     body: structuredClone(body),
   });
-  const withFace = (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanPersonDocument => ({
+  const withFace = (
+    face: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(shared.current()),
     face: structuredClone(face),
   });
-  const simpleContainer = bodySection.querySelector<HTMLElement>('[data-role="person-simple-controls"]')!;
+  const simpleContainer = bodySection.querySelector<HTMLElement>(
+    '[data-role="person-simple-controls"]',
+  )!;
   const simpleStatus = dom.createElement("small");
   const simple = renderBodySimpleControls({
     dom,
     container: simpleContainer,
-    wholeSource: "this person's source rest-skin reader, including its own head; posed and closure stages are excluded",
+    wholeSource:
+      "this person's source rest-skin reader, including its own head; posed and closure stages are excluded",
     current: () => {
       const person = shared.current();
-      return { shape: person.body.shape, anatomy: person.body.anatomy,
-        contextKey: JSON.stringify([person.face, person.headShape, person.population]) };
+      return {
+        shape: person.body.shape,
+        anatomy: person.body.anatomy,
+        contextKey: JSON.stringify([
+          person.face,
+          person.headShape,
+          person.population,
+        ]),
+      };
     },
-    project: (body) => panel.projectSimple(withBody({ ...shared.current().body, shape: body.shape, anatomy: body.anatomy })),
-    expand: (values, shape) => panel.expandSimple(withBody({ ...shared.current().body, shape }), values),
+    project: (body) =>
+      panel.projectSimple(
+        withBody({
+          ...shared.current().body,
+          shape: body.shape,
+          anatomy: body.anatomy,
+        }),
+      ),
+    expand: (values, shape) =>
+      panel.expandSimple(withBody({ ...shared.current().body, shape }), values),
     reserveIntent: shared.reserve,
     currentIntent: props.currentIntent,
     isCurrentIntent: shared.isCurrent,
-    onApply: (shape, ticket) => { void change(withBody({ ...shared.current().body, shape }), ticket); },
+    onApply: (shape, ticket) => {
+      void change(withBody({ ...shared.current().body, shape }), ticket);
+    },
     onRefuse: refuse,
     onBusy: shared.busy,
     onDraftChanged: props.draftChanged,
-    onPreparing: (active) => { simpleStatus.textContent = active ? "Reading the current person's simple measurements…" : ""; },
+    onPreparing: (active) => {
+      simpleStatus.textContent = active
+        ? "Reading the current person's simple measurements…"
+        : "";
+    },
   });
   simpleContainer.append(simpleStatus);
   const personMeasurements = mountConnectedPersonMeasuredControls({
     ...shared,
-    container: bodySection.querySelector<HTMLElement>('[data-role="person-measurements"]')!,
+    container: bodySection.querySelector<HTMLElement>(
+      '[data-role="person-measurements"]',
+    )!,
     read: admitted(panel.readPersonMeasurement),
     solve: panel.solvePersonMeasurement,
   });
   const headMeasurements = mountConnectedPersonHeadControls({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="head-measurements"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="head-measurements"]',
+    )!,
     read: admitted(panel.readPersonHead),
     solve: panel.solvePersonHead,
   });
   const headShapeControls = mountConnectedPersonHeadShapeControls({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="head-measurements"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="head-measurements"]',
+    )!,
     source: panel.headShapeSource,
   });
   const eyeControls = mountConnectedPersonEyeControls({
     ...shared,
     faceBasis: panel.face,
-    container: faceSection.querySelector<HTMLElement>('[data-role="eye-controls"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="eye-controls"]',
+    )!,
   });
   const skinReliefControls = mountConnectedPersonSkinReliefControls({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="skin-relief-controls"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="skin-relief-controls"]',
+    )!,
   });
   const regionalSkinControls = mountConnectedPersonRegionalSkinControls({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="skin-relief-controls"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="skin-relief-controls"]',
+    )!,
   });
   const oralControls = mountConnectedPersonOralControls({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="oral-controls"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="oral-controls"]',
+    )!,
   });
   const faceAnatomy = mountConnectedPersonFaceAnatomy({
     ...shared,
-    container: faceSection.querySelector<HTMLElement>('[data-role="face-anatomy"]')!,
+    container: faceSection.querySelector<HTMLElement>(
+      '[data-role="face-anatomy"]',
+    )!,
     read: admitted(panel.readFaceMeasurements),
     solve: panel.solveFaceMeasurement,
   });
@@ -143,7 +196,9 @@ export function mountConnectedPersonSections<Model extends IConnectedPersonModel
   // the body editor's humeral-head radii, written into the person's body
   const humeralHeads = renderBodyHumeralHeadControls({
     dom,
-    container: bodySection.querySelector<HTMLElement>('[data-role="humeral-heads"]')!,
+    container: bodySection.querySelector<HTMLElement>(
+      '[data-role="humeral-heads"]',
+    )!,
     current: () => shared.current().body,
     onChange: (body) => void change(withBody(body)),
     onRefuse: refuse,
@@ -153,18 +208,28 @@ export function mountConnectedPersonSections<Model extends IConnectedPersonModel
   // channel is defined once by its body channel: it is listed disabled with
   // that owner named, and a document stating it is refused by name.
   const drivers = new Set(
-    panel.face.channels.filter((channel) => channel.id.startsWith("driver:")).map((channel) => channel.id),
+    panel.face.channels
+      .filter((channel) => channel.id.startsWith("driver:"))
+      .map((channel) => channel.id),
   );
   const aliased = new Set(panel.aliases.map((alias) => alias.face));
   const faceControls = mountConnectedFaceControls(faceSection, {
     basis: {
       ...panel.face,
-      channels: panel.face.channels.filter((channel) => !drivers.has(channel.id) && !aliased.has(channel.id)),
+      channels: panel.face.channels.filter(
+        (channel) => !drivers.has(channel.id) && !aliased.has(channel.id),
+      ),
     },
     // the face editor's anatomical groups, bound to the head view
-    components: createConnectedPersonFaceComponents({ tree: connectedFaceComponents, basis: panel.face.id, excluded: [...aliased] }),
+    components: createConnectedPersonFaceComponents({
+      tree: connectedFaceComponents,
+      basis: panel.face.id,
+      excluded: [...aliased],
+    }),
     document: () => shared.current().face,
-    change: async (face) => { await change(withFace(face)); },
+    change: async (face) => {
+      await change(withFace(face));
+    },
     refuse,
   });
   const appearanceAnchor = dom.createElement("div");
@@ -173,23 +238,29 @@ export function mountConnectedPersonSections<Model extends IConnectedPersonModel
   const iris = mountConnectedFaceIris(faceSection, {
     basis: panel.face,
     document: () => shared.current().face,
-    change: async (face) => { await change(withFace(face)); },
+    change: async (face) => {
+      await change(withFace(face));
+    },
     refuse,
   });
   renderConnectedPersonAliasedChannels(dom, faceSection, panel.aliases);
   // one list of every input whose owner publishes a descriptor
   const catalogue = mountConnectedPersonInputCatalogue({
     ...shared,
-    container: props.app.querySelector<HTMLElement>('[data-role="input-catalogue"]')!,
-    inputs: () => createConnectedPersonInputCatalogue({
-      face: panel.face,
-      body: panel.body,
-      person: shared.current(),
-      excluded: new Set([...drivers, ...aliased]),
-      headShape: panel.headShapeSource,
-    }),
+    container: props.app.querySelector<HTMLElement>(
+      '[data-role="input-catalogue"]',
+    )!,
+    inputs: () =>
+      createConnectedPersonInputCatalogue({
+        face: panel.face,
+        body: panel.body,
+        person: shared.current(),
+        excluded: new Set([...drivers, ...aliased]),
+        headShape: panel.headShapeSource,
+      }),
     undescribed: CONNECTED_PERSON_UNDESCRIBED_INPUTS,
-    prepare: (document, path) => prepareConnectedPersonCatalogueInput(panel.face, document, path),
+    prepare: (document, path) =>
+      prepareConnectedPersonCatalogueInput(panel.face, document, path),
   });
   const renderAll = (): void => {
     bodyControls.render();
@@ -198,8 +269,15 @@ export function mountConnectedPersonSections<Model extends IConnectedPersonModel
   return {
     render: renderAll,
     refresh: (displayed: IAutoMovieHumanPersonDocument): void => {
-      void simple.refresh({ shape: displayed.body.shape, anatomy: displayed.body.anatomy,
-        contextKey: JSON.stringify([displayed.face, displayed.headShape, displayed.population]) });
+      void simple.refresh({
+        shape: displayed.body.shape,
+        anatomy: displayed.body.anatomy,
+        contextKey: JSON.stringify([
+          displayed.face,
+          displayed.headShape,
+          displayed.population,
+        ]),
+      });
       personMeasurements.refresh();
       headMeasurements.refresh();
       headShapeControls.refresh();

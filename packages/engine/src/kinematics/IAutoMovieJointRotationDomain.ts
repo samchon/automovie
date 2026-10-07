@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 
 /**
  * Effective clinical domain used to choose an equivalent quaternion chart.

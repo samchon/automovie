@@ -48,13 +48,23 @@ export function readHumanConchaExtent(
   otobasionSuperius: IAutoMovieVector3,
   otobasionInferius: IAutoMovieVector3,
 ): IAutoMovieHumanConchaExtent {
-  const line = [otobasionSuperius.x - otobasionInferius.x, otobasionSuperius.y - otobasionInferius.y, otobasionSuperius.z - otobasionInferius.z];
+  const line = [
+    otobasionSuperius.x - otobasionInferius.x,
+    otobasionSuperius.y - otobasionInferius.y,
+    otobasionSuperius.z - otobasionInferius.z,
+  ];
   const l = Math.hypot(...line);
-  if (!Number.isFinite(l) || l === 0) throw new Error(`The auricle attachment line of ${head.id} has no finite direction.`);
+  if (!Number.isFinite(l) || l === 0)
+    throw new Error(
+      `The auricle attachment line of ${head.id} has no finite direction.`,
+    );
   const u = line.map((c) => c / l);
   const w0 = [-u[2] * u[0], -u[2] * u[1], 1 - u[2] * u[2]];
   const m = Math.hypot(...w0);
-  if (!Number.isFinite(m) || m === 0) throw new Error(`The auricle attachment line of ${head.id} has no perpendicular anterior direction.`);
+  if (!Number.isFinite(m) || m === 0)
+    throw new Error(
+      `The auricle attachment line of ${head.id} has no perpendicular anterior direction.`,
+    );
   const w = w0.map((c) => c / m);
   const p = head.positions;
   let uLow = Infinity;

@@ -15,10 +15,18 @@ export function describeConnectedFaceControlScale(
   scale: IAutoMovieHumanEndpointScale,
   metric: IConnectedFaceControlMetric | null = null,
 ): string {
-  const measured = metric === null ? null : sign === "-" ? -metric.perWeight : metric.perWeight;
-  const amount = measured === null
-    ? `${sign}1`
-    : `${measured >= 0 ? "+" : ""}${measured.toFixed(2)}${metric!.unit}`;
-  return `${amount} moves ${(scale.displacement * 1000).toFixed(2)} mm rms, ` +
-    `${(scale.peak * 1000).toFixed(2)} mm peak on ${scale.vertices} vertices`;
+  const measured =
+    metric === null
+      ? null
+      : sign === "-"
+        ? -metric.perWeight
+        : metric.perWeight;
+  const amount =
+    measured === null
+      ? `${sign}1`
+      : `${measured >= 0 ? "+" : ""}${measured.toFixed(2)}${metric!.unit}`;
+  return (
+    `${amount} moves ${(scale.displacement * 1000).toFixed(2)} mm rms, ` +
+    `${(scale.peak * 1000).toFixed(2)} mm peak on ${scale.vertices} vertices`
+  );
 }

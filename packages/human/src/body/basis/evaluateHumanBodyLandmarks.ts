@@ -38,7 +38,11 @@ export function evaluateHumanBodyLandmarks(
   applyHumanBodyShapeRows(basis, state, marks, basis.landmarks.targets);
   const landmarks: Record<string, IAutoMovieVector3> = {};
   basis.landmarks.ids.forEach((id, i) => {
-    landmarks[id] = { x: marks[i * 3], y: marks[i * 3 + 1], z: marks[i * 3 + 2] };
+    landmarks[id] = {
+      x: marks[i * 3],
+      y: marks[i * 3 + 1],
+      z: marks[i * 3 + 2],
+    };
   });
   return landmarks;
 }

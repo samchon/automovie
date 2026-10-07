@@ -1,12 +1,25 @@
-import { buildAutoMovieWall, builtBoundaryWallCut, builtOpeningPanelPlacements, builtOpeningSweepEnvelope, inspectAutoMovieMeshTopology, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  buildAutoMovieWall,
+  builtBoundaryWallCut,
+  builtOpeningPanelPlacements,
+  builtOpeningSweepEnvelope,
+  inspectAutoMovieMeshTopology,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, qclose, throwsError, vclose } from "../internal/predicates";
-import { builtOpeningTestPartition as partition } from "../internal/builtOpeningTestPartition";
+
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_OPENING_TEST_NO_ROTATION";
 import { assertBuiltOpeningTestRefusals } from "../internal/assertBuiltOpeningTestRefusals";
+import { builtOpeningTestPartition as partition } from "../internal/builtOpeningTestPartition";
 import { builtOpeningTestRefusalPaths as refusalPaths } from "../internal/builtOpeningTestRefusalPaths";
-
-
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * A door is a hole in a wall, a leaf inside that hole, and a state the leaf

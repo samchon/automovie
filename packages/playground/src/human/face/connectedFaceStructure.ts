@@ -24,7 +24,9 @@ export function connectedFaceStructure(
     const { positions, normals, indices, uvs, ...rest } = mesh;
     const witness = witnesses?.[index];
     return {
-      ...(witnesses === null ? part : structuredClone({ ...part, geometry: undefined })),
+      ...(witnesses === null
+        ? part
+        : structuredClone({ ...part, geometry: undefined })),
       geometry: {
         type: part.geometry.type,
         mesh: {
@@ -38,7 +40,8 @@ export function connectedFaceStructure(
     };
   });
   return {
-    materials: witnesses === null ? model.materials : structuredClone(model.materials),
+    materials:
+      witnesses === null ? model.materials : structuredClone(model.materials),
     parts,
   };
 }

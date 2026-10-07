@@ -1,11 +1,27 @@
-import { assertFilmVelocityAndOpeningContinuity } from "../internal/assertFilmVelocityAndOpeningContinuity";
-import { assertFilmRampContinuity } from "../internal/assertFilmRampContinuity";
-import { assertFilmClinicalAndAirborneContinuity } from "../internal/assertFilmClinicalAndAirborneContinuity";
-import type { IFilmCompileWalkInput } from "../internal/IFilmCompileWalkInput";
-import { IAutoMovieActorContext, Quaternion, Vector3, compileDefinedShot, defineShot, makeActorSynthesizer, resolveBeatEnd, resolvePose, sampleMotion } from "@automovie/engine";
-import { IAutoMovieDefinedShotContract, IAutoMovieGait, IAutoMovieShotProgram, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActorContext,
+  Quaternion,
+  Vector3,
+  compileDefinedShot,
+  defineShot,
+  makeActorSynthesizer,
+  resolveBeatEnd,
+  resolvePose,
+  sampleMotion,
+} from "@automovie/engine";
+import {
+  IAutoMovieDefinedShotContract,
+  IAutoMovieGait,
+  IAutoMovieShotProgram,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmCompileWalkInput } from "../internal/IFilmCompileWalkInput";
+import { assertFilmClinicalAndAirborneContinuity } from "../internal/assertFilmClinicalAndAirborneContinuity";
+import { assertFilmRampContinuity } from "../internal/assertFilmRampContinuity";
+import { assertFilmVelocityAndOpeningContinuity } from "../internal/assertFilmVelocityAndOpeningContinuity";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -226,9 +242,18 @@ export const test_film_defined_shot_continuity = (): void => {
       true,
   );
 
-  assertFilmClinicalAndAirborneContinuity({ rig, groundedStage, compileWalk, restAt, WALK });
+  assertFilmClinicalAndAirborneContinuity({
+    rig,
+    groundedStage,
+    compileWalk,
+    restAt,
+    WALK,
+  });
 
-  if (!assertFilmRampContinuity({ rig, groundedStage, compileWalk, restAt, WALK })) return;
+  if (
+    !assertFilmRampContinuity({ rig, groundedStage, compileWalk, restAt, WALK })
+  )
+    return;
 
   const firstActor = first.continuity.closing.actors.find(
     (actor) => actor.node === "knightA",
@@ -359,7 +384,11 @@ export const test_film_defined_shot_continuity = (): void => {
     },
   );
 
-  assertFilmVelocityAndOpeningContinuity({ rig, groundedStage, compileWalk, restAt, WALK });
-
-
+  assertFilmVelocityAndOpeningContinuity({
+    rig,
+    groundedStage,
+    compileWalk,
+    restAt,
+    WALK,
+  });
 };

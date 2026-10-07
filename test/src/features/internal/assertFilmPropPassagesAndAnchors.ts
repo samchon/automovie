@@ -1,11 +1,14 @@
 import { propAnchorFrame, propBlockedPassages } from "@automovie/engine";
-import { propRegistry, propSet } from "../film/propPlacementFixtures";
-import { namedFacts, vclose } from "./predicates";
 import { TestValidator } from "@nestia/e2e";
+
+import { propRegistry, propSet } from "../film/propPlacementFixtures";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
+import { namedFacts, vclose } from "./predicates";
 
 /** Run the original passage and anchor assertions without changing their order or inputs. */
-export function assertFilmPropPassagesAndAnchors(input: IFilmPropUtilityInputs): void {
+export function assertFilmPropPassagesAndAnchors(
+  input: IFilmPropUtilityInputs,
+): void {
   const { environment, box } = input;
   TestValidator.equals(
     "passages and anchors answer only what the record can support",
@@ -360,5 +363,4 @@ export function assertFilmPropPassagesAndAnchors(input: IFilmPropUtilityInputs):
       emptyPolygonSurfaceAnswersNull: true,
     },
   );
-
 }

@@ -33,10 +33,20 @@ export function humanBodyChannelReading(
   channel: string,
 ): IAutoMovieHumanBodyMeasuredChannelReading | undefined {
   if (humanBodyMeasurementRule(channel) !== undefined) return { rule: channel };
-  const bound = HUMAN_BODY_EXTERIOR_TARGETS.filter((target) => target.channel === channel);
+  const bound = HUMAN_BODY_EXTERIOR_TARGETS.filter(
+    (target) => target.channel === channel,
+  );
   const first = bound[0];
   if (first === undefined) return undefined;
-  if (bound.some((target) => target.rule !== first.rule || target.side !== first.side))
-    throw new Error(`The body channel ${channel} is bound to more than one measurement.`);
-  return first.side === undefined ? { rule: first.rule } : { rule: first.rule, side: first.side };
+  if (
+    bound.some(
+      (target) => target.rule !== first.rule || target.side !== first.side,
+    )
+  )
+    throw new Error(
+      `The body channel ${channel} is bound to more than one measurement.`,
+    );
+  return first.side === undefined
+    ? { rule: first.rule }
+    : { rule: first.rule, side: first.side };
 }

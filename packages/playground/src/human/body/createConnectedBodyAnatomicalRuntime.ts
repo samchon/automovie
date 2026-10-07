@@ -4,9 +4,9 @@ import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/pars
 import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 
-import { packConnectedBodyModel } from "./connectedBodyGeometry";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import { packConnectedBodyModel } from "./connectedBodyGeometry";
 
 /**
  * Consume complete numerical requests as visible target-sphere inspections.
@@ -19,16 +19,34 @@ import type { ConnectedBodyResult } from "./ConnectedBodyResult";
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Encodes explicitly requested candidate-only static geometry through the existing exporter.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Keeps numerical document replay distinct from the exported static candidate artifact.
  */
-export function createConnectedBodyAnatomicalRuntime(basis: IAutoMovieHumanBodyBasis) {
+export function createConnectedBodyAnatomicalRuntime(
+  basis: IAutoMovieHumanBodyBasis,
+) {
   const inspect = createHumanBodyAnatomicalInspection(basis);
-  return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
-    if (request.operation === "construct" || request.operation === "exportConstruction")
-      throw new Error("Articular inspection does not construct a whole-person draft.");
-    const document = parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
+  return async (
+    request: ConnectedBodyRequest,
+  ): Promise<ConnectedBodyResult> => {
+    if (
+      request.operation === "construct" ||
+      request.operation === "exportConstruction"
+    )
+      throw new Error(
+        "Articular inspection does not construct a whole-person draft.",
+      );
+    const document = parseHumanBodyBasisDocument(
+      request.document,
+      basis.anatomicalAssembly,
+    );
     if (request.operation === "armsDown")
-      throw new Error("Articular inspection does not resolve a body arms-down pose.");
+      throw new Error(
+        "Articular inspection does not resolve a body arms-down pose.",
+      );
     const inspection = inspect(document);
-    const model = createHumanBodyArticularCandidateModel({ id: document.id, name: document.name, inspection });
+    const model = createHumanBodyArticularCandidateModel({
+      id: document.id,
+      name: document.name,
+      inspection,
+    });
     if (request.operation === "export") {
       const { glb } = await exportHumanBody(model, inspection);
       return { operation: "export", glb };

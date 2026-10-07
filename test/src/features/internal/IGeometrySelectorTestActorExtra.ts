@@ -1,5 +1,3 @@
-
-
 /** Optional bone selector used by the existing distance refusal scenarios.
  *
  * @author Samchon

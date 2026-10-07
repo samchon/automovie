@@ -44,7 +44,8 @@ export const planAutoMovieGeneratedPublication = (props: {
   /** Fenced current manifest bytes; absence remains distinct from empty bytes. */
   readManifest: () => Uint8Array | null;
 }): Array<{ path: string; content: Uint8Array | string | null }> => {
-  const writes: Array<{ path: string; content: Uint8Array | string | null }> = [];
+  const writes: Array<{ path: string; content: Uint8Array | string | null }> =
+    [];
   const nextPaths = new Set(props.files.keys());
   for (const entry of props.previous?.files ?? [])
     if (nextPaths.has(entry.path) === false)
@@ -61,8 +62,13 @@ export const planAutoMovieGeneratedPublication = (props: {
   const manifest = props.readManifest();
   if (
     manifest === null ||
-    Buffer.from(manifest).equals(Buffer.from(props.serializedManifest, "utf8")) === false
+    Buffer.from(manifest).equals(
+      Buffer.from(props.serializedManifest, "utf8"),
+    ) === false
   )
-    writes.push({ path: props.manifestPath, content: props.serializedManifest });
+    writes.push({
+      path: props.manifestPath,
+      content: props.serializedManifest,
+    });
   return writes;
 };

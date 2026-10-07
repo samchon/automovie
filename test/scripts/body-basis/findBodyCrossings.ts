@@ -8,10 +8,7 @@ import type { IBodyCrossingRefusal } from "./IBodyCrossingRefusal";
 import type { IBodyCrossings } from "./IBodyCrossings";
 import { bodyCorrectiveDocument } from "./bodyCorrectiveDocument";
 import { createBodyCorrectiveWorld } from "./createBodyCorrectiveWorld";
-import {
-  type IBodyContactPair,
-  readBodyContacts,
-} from "./readBodyContacts";
+import { type IBodyContactPair, readBodyContacts } from "./readBodyContacts";
 
 /**
  * The census instrument for a list of states: pose each through the public
@@ -55,8 +52,11 @@ export function findBodyCrossings(
       findings.push({
         name: state.name,
         document: {
-          shape: { ...state.shape }, pose: state.pose.map((joint) => ({ ...joint })),
-          ...(state.shoulders === undefined ? {} : { shoulders: state.shoulders.map((goal) => ({ ...goal })) }),
+          shape: { ...state.shape },
+          pose: state.pose.map((joint) => ({ ...joint })),
+          ...(state.shoulders === undefined
+            ? {}
+            : { shoulders: state.shoulders.map((goal) => ({ ...goal })) }),
         },
         pairs,
       });

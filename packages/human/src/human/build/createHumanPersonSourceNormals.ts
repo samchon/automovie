@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanPersonPerformedSkin } from "../structures/IAutoMovieHumanPersonPerformedSkin";
-import type { IAutoMovieHumanPersonSourceStarBinding } from "../structures/IAutoMovieHumanPersonSourceStarBinding";
 import type { IAutoMovieHumanPersonSourceNormalInput } from "../structures/IAutoMovieHumanPersonSourceNormalInput";
 import type { IAutoMovieHumanPersonSourcePartitionsProps } from "../structures/IAutoMovieHumanPersonSourcePartitionsProps";
-import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells";
+import type { IAutoMovieHumanPersonSourceStarBinding } from "../structures/IAutoMovieHumanPersonSourceStarBinding";
 import { createHumanPersonNormalTransport } from "./createHumanPersonNormalTransport";
 import { createHumanPersonReferenceField } from "./createHumanPersonReferenceField";
+import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells";
 import { validateHumanPersonNormalTransport } from "./validateHumanPersonNormalTransport";
 import { validateHumanPersonSourcePartitions } from "./validateHumanPersonSourcePartitions";
 
@@ -71,23 +71,38 @@ export function createHumanPersonSourceNormals(
   const bodyIndices = [...props.body.indices];
   const transport = validateHumanPersonNormalTransport({
     plan,
-    face: { indices: faceIndices, transport: props.face.sourcePartition?.normalTransport },
-    body: { indices: bodyIndices, transport: props.body.sourcePartition?.normalTransport },
+    face: {
+      indices: faceIndices,
+      transport: props.face.sourcePartition?.normalTransport,
+    },
+    body: {
+      indices: bodyIndices,
+      transport: props.body.sourcePartition?.normalTransport,
+    },
   });
   const used = [faceIndices, bodyIndices].map((indices) => new Set(indices));
-  const bindingAt = (sample: number, parent: number): IAutoMovieHumanPersonSourceStarBinding => {
+  const bindingAt = (
+    sample: number,
+    parent: number,
+  ): IAutoMovieHumanPersonSourceStarBinding => {
     const record = plan.face;
     const corners = record.parentTriangles.slice(parent * 3, parent * 3 + 3);
-    const weights = plan.preimage(sample).map((point) => ({
-      key: `${point.id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(point.id)] ?? 0}`,
-      weight: point.weight,
-    })).sort((a, b) => a.key.localeCompare(b.key));
+    const weights = plan
+      .preimage(sample)
+      .map((point) => ({
+        key: `${point.id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(point.id)] ?? 0}`,
+        weight: point.weight,
+      }))
+      .sort((a, b) => a.key.localeCompare(b.key));
     const chart = plan.chart(sample);
     return {
       weights,
       identity: JSON.stringify(weights),
       coordinates: chart.coordinates,
-      keys: chart.originals.map((id) => `${id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(id)] ?? 0}`),
+      keys: chart.originals.map(
+        (id) =>
+          `${id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(id)] ?? 0}`,
+      ),
     };
   };
   const bindings = [props.face, props.body].map((surface, side) => {
@@ -102,13 +117,14 @@ export function createHumanPersonSourceNormals(
     return record.samples.map((sample, vertex) => {
       if (!used[side].has(vertex)) return undefined;
       const parents = [...incidence[vertex]];
-      const selected = record.normalParents?.[vertex] ?? transport?.bindings[side][vertex]?.parent;
+      const selected =
+        record.normalParents?.[vertex] ??
+        transport?.bindings[side][vertex]?.parent;
       const result = bindingAt(sample, selected ?? parents[0]);
       if (
         selected === undefined &&
         parents.some(
-          (parent) =>
-            bindingAt(sample, parent).identity !== result.identity,
+          (parent) => bindingAt(sample, parent).identity !== result.identity,
         )
       )
         throw new Error(
@@ -120,13 +136,20 @@ export function createHumanPersonSourceNormals(
   const referenceField = (parentAreas: readonly number[]) =>
     createHumanPersonReferenceField({ plan, bindings, bindingAt, parentAreas });
   const legacy = (input: IAutoMovieHumanPersonPerformedSkin): number[] => {
-    const { parentAreas } = evaluateHumanPersonSourceCells({ plan, faceIndices, bodyIndices, input });
+    const { parentAreas } = evaluateHumanPersonSourceCells({
+      plan,
+      faceIndices,
+      bodyIndices,
+      input,
+    });
     return referenceField(parentAreas).normals;
   };
-  return transport === undefined ? legacy : createHumanPersonNormalTransport({
-    evaluation: { plan, faceIndices, bodyIndices },
-    transport,
-    referenceField,
-    identity: (sample, parent) => bindingAt(sample, parent).identity,
-  });
+  return transport === undefined
+    ? legacy
+    : createHumanPersonNormalTransport({
+        evaluation: { plan, faceIndices, bodyIndices },
+        transport,
+        referenceField,
+        identity: (sample, parent) => bindingAt(sample, parent).identity,
+      });
 }

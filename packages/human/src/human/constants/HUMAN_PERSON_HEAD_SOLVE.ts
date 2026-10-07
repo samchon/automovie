@@ -35,7 +35,21 @@ import type { IAutoMovieHumanPersonHeadSolveTable } from "../structures/IAutoMov
  * @author Samchon
  */
 export const HUMAN_PERSON_HEAD_SOLVE: IAutoMovieHumanPersonHeadSolveTable = {
-  measurements: ["tragionTopOfHead", "headLength", "headBreadth", "mentonSellionLength"],
+  measurements: [
+    "tragionTopOfHead",
+    "headLength",
+    "headBreadth",
+    "mentonSellionLength",
+  ],
   secondary: ["headCircumference"],
-  channels: ["headHeight", "foreheadHeight", "chinHeight", "headDepth", "posteriorHeadDepth", "headWidth", "cranialBreadth", "templeWidth"],
+  channels: [
+    "headHeight",
+    "foreheadHeight",
+    "chinHeight",
+    "headDepth",
+    "posteriorHeadDepth",
+    "headWidth",
+    "cranialBreadth",
+    "templeWidth",
+  ],
 };

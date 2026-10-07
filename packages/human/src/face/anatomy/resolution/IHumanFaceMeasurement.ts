@@ -34,7 +34,12 @@ export interface IHumanFaceMeasurement {
   id: string;
 
   /** Unit of the reading and of a target. */
-  unit: "millimetres" | "square-millimetres" | "degrees" | "cubic-centimetres" | "count";
+  unit:
+    | "millimetres"
+    | "square-millimetres"
+    | "degrees"
+    | "cubic-centimetres"
+    | "count";
 
   /** Existing channels a target may move, in solve order; empty is report-only. */
   channels: readonly string[];
@@ -63,5 +68,7 @@ export interface IHumanFaceMeasurement {
    * @evidenceExclude contracts/anatomy.md#permitted-range The callback admits no value.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The callback is a reader, not a caller input.
    */
-  read: (context: IHumanFaceMeasurementContext) => number | IHumanFaceMeasurementGap;
+  read: (
+    context: IHumanFaceMeasurementContext,
+  ) => number | IHumanFaceMeasurementGap;
 }

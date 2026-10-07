@@ -16,15 +16,35 @@ import type { IHumanSourceCrownTopology } from "./structures/IHumanSourceCrownTo
  * the engine's signed mesh query. A problem may supply its immutable topology;
  * every signed query is still rebuilt from the actual candidate coordinates.
  */
-export function createHumanSourceCrownSolids(face: IAutoMovieHumanFaceBasis, positions: readonly number[], topology: readonly IHumanSourceCrownTopology[] = createHumanSourceCrownTopology(face)): IHumanSourceCrownSolid[] {
+export function createHumanSourceCrownSolids(
+  face: IAutoMovieHumanFaceBasis,
+  positions: readonly number[],
+  topology: readonly IHumanSourceCrownTopology[] = createHumanSourceCrownTopology(
+    face,
+  ),
+): IHumanSourceCrownSolid[] {
   return topology.map((crown): IHumanSourceCrownSolid => {
-    const mesh = { positions: [...positions], indices: [...crown.indices], normals: null, uvs: null, skin: null };
+    const mesh = {
+      positions: [...positions],
+      indices: [...crown.indices],
+      normals: null,
+      uvs: null,
+      skin: null,
+    };
     const query = createAutoMovieSignedMeshQuery(mesh, { boundary: "closed" });
     return {
-      id: crown.id, mandibular: crown.mandibular, vertices: [...crown.vertices], edges: crown.edges, mesh, query,
+      id: crown.id,
+      mandibular: crown.mandibular,
+      vertices: [...crown.vertices],
+      edges: crown.edges,
+      mesh,
+      query,
       signedDistance: (point) => {
         const hit = query(point);
-        if (hit.boundary) throw new Error(`Closed source crown ${crown.id} unexpectedly has an undefined side.`);
+        if (hit.boundary)
+          throw new Error(
+            `Closed source crown ${crown.id} unexpectedly has an undefined side.`,
+          );
         return hit.signedDistance;
       },
     };

@@ -15,13 +15,21 @@ export function appendConnectedFaceControlRow(
   control: IConnectedFaceControlEntry,
   props: IAppendConnectedFaceControlRowProps,
 ): void {
-  if (!(control.id + control.label + (control.group ?? "")).toLowerCase().replace(/\s/g, "").includes(props.query))
+  if (
+    !(control.id + control.label + (control.group ?? ""))
+      .toLowerCase()
+      .replace(/\s/g, "")
+      .includes(props.query)
+  )
     return;
   const dom = props.target.ownerDocument;
-  const row = dom.createElement("div"), label = dom.createElement("label"), entry = dom.createElement("div");
+  const row = dom.createElement("div"),
+    label = dom.createElement("label"),
+    entry = dom.createElement("div");
   row.className = "row";
   label.textContent = control.label;
-  const slider = dom.createElement("input"), number = dom.createElement("input");
+  const slider = dom.createElement("input"),
+    number = dom.createElement("input");
   slider.type = "range";
   number.type = "number";
   for (const input of [slider, number]) {
@@ -43,12 +51,15 @@ export function appendConnectedFaceControlRow(
       props.render();
     }
   };
-  slider.oninput = () => { number.value = slider.value; };
+  slider.oninput = () => {
+    number.value = slider.value;
+  };
   slider.onchange = () => edit(slider.value);
   number.onchange = () => edit(number.value);
   entry.append(slider, number);
   const note = dom.createElement("small");
-  note.id = (props.simple ? "face-simple-description-" : "face-scale-") + control.id;
+  note.id =
+    (props.simple ? "face-simple-description-" : "face-scale-") + control.id;
   note.textContent = control.description;
   row.append(label, entry, note);
   props.target.append(row);

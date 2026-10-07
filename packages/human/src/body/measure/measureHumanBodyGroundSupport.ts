@@ -43,19 +43,34 @@ export function measureHumanBodyGroundSupport(
   groundPlaneHeightMetres?: number,
 ): IAutoMovieHumanBodyFootSupport[] | null {
   const ground = landmarks["joint-ground"];
-  if (groundPlaneHeightMetres !== undefined && !Number.isFinite(groundPlaneHeightMetres))
+  if (
+    groundPlaneHeightMetres !== undefined &&
+    !Number.isFinite(groundPlaneHeightMetres)
+  )
     throw new Error("Body ground reading needs a finite fixed plane height.");
-  if (ground === undefined && groundPlaneHeightMetres === undefined) return null;
+  if (ground === undefined && groundPlaneHeightMetres === undefined)
+    return null;
   const floor = groundPlaneHeightMetres ?? ground!.y;
-  return (["left", "right"] as const).flatMap((side): IAutoMovieHumanBodyFootSupport[] => {
-    let lowest: IAutoMovieVector3 | undefined;
-    for (const [index, surface] of basis.surfaces.entries()) {
-      const positions = posedSurfaces[index];
-      if (positions === undefined) continue;
-      for (const vertex of humanBodyDominantVertices(surface, [`${side}Foot`, `${side}Toes`]))
-        if (lowest === undefined || positions[vertex * 3 + 1] < lowest.y)
-          lowest = { x: positions[vertex * 3], y: positions[vertex * 3 + 1], z: positions[vertex * 3 + 2] };
-    }
-    return lowest === undefined ? [] : [{ side, lowest, gapMetres: lowest.y - floor }];
-  });
+  return (["left", "right"] as const).flatMap(
+    (side): IAutoMovieHumanBodyFootSupport[] => {
+      let lowest: IAutoMovieVector3 | undefined;
+      for (const [index, surface] of basis.surfaces.entries()) {
+        const positions = posedSurfaces[index];
+        if (positions === undefined) continue;
+        for (const vertex of humanBodyDominantVertices(surface, [
+          `${side}Foot`,
+          `${side}Toes`,
+        ]))
+          if (lowest === undefined || positions[vertex * 3 + 1] < lowest.y)
+            lowest = {
+              x: positions[vertex * 3],
+              y: positions[vertex * 3 + 1],
+              z: positions[vertex * 3 + 2],
+            };
+      }
+      return lowest === undefined
+        ? []
+        : [{ side, lowest, gapMetres: lowest.y - floor }];
+    },
+  );
 }

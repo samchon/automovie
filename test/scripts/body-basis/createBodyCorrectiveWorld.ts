@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+
 import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 import { neighboursOf } from "./bodyContactGeometry";
 

@@ -10,8 +10,10 @@
  * one-skin person carries it. The head never enters the body document or its
  * export.
  */
-import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+
 import { connectedBodyEditorPoses } from "./human/body/connectedBodyEditorPoses";
+import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
 import { createConnectedBodyHeadSeat } from "./human/body/createConnectedBodyHeadSeat";
 import { createConnectedBodyInitialDocument } from "./human/body/createConnectedBodyInitialDocument";
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
@@ -19,29 +21,48 @@ import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBo
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
-import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 
 async function main(): Promise<void> {
   const basis = (await readConnectedBodyView()).body;
   let viewport!: ReturnType<typeof createConnectedBodyPageViewport>;
-  const panel = mountConnectedBodyPanel(document.querySelector<HTMLDivElement>("#app")!, {
-    basis,
-    initial: createConnectedBodyInitialDocument(basis.id),
-    simple: createConnectedBodySimpleSolvers(),
-    poses: [...connectedBodyEditorPoses],
-    viewport: (canvas) => (viewport = createConnectedBodyPageViewport(canvas, (bodyDocument) => serializeHumanBodyBasisDocument(bodyDocument, basis.anatomicalAssembly), undefined, basis.anatomicalAssembly)),
-    seat: createConnectedBodyHeadSeat({
-      source: basis.anatomicalAssembly,
-      viewport: () => viewport,
-      status: (text) => {
-        document.querySelector<HTMLDivElement>("#body-status")!.textContent += "\n" + text;
-      },
-      preparing: (active) => setConnectedBodyPreparing(document, "the head view on this body", active),
-    }),
-    download: downloadConnectedFile,
-  });
+  const panel = mountConnectedBodyPanel(
+    document.querySelector<HTMLDivElement>("#app")!,
+    {
+      basis,
+      initial: createConnectedBodyInitialDocument(basis.id),
+      simple: createConnectedBodySimpleSolvers(),
+      poses: [...connectedBodyEditorPoses],
+      viewport: (canvas) =>
+        (viewport = createConnectedBodyPageViewport(
+          canvas,
+          (bodyDocument) =>
+            serializeHumanBodyBasisDocument(
+              bodyDocument,
+              basis.anatomicalAssembly,
+            ),
+          undefined,
+          basis.anatomicalAssembly,
+        )),
+      seat: createConnectedBodyHeadSeat({
+        source: basis.anatomicalAssembly,
+        viewport: () => viewport,
+        status: (text) => {
+          document.querySelector<HTMLDivElement>("#body-status")!.textContent +=
+            "\n" + text;
+        },
+        preparing: (active) =>
+          setConnectedBodyPreparing(
+            document,
+            "the head view on this body",
+            active,
+          ),
+      }),
+      download: downloadConnectedFile,
+    },
+  );
   await panel.ready;
 }
 void main().catch((error: unknown) => {
-  document.querySelector<HTMLDivElement>("#app")!.textContent = error instanceof Error ? error.message : String(error);
+  document.querySelector<HTMLDivElement>("#app")!.textContent =
+    error instanceof Error ? error.message : String(error);
 });

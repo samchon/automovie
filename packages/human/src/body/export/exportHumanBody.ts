@@ -9,11 +9,11 @@ import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensio
 import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import type { IAutoMovieHumanBodyArticularQualification } from "./IAutoMovieHumanBodyArticularQualification";
-import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
-import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBodyAtlasQualification";
-import { writeHumanBodyAtlasQualification } from "./writeHumanBodyAtlasQualification";
 import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHumanBodyAssemblyQualification";
+import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBodyAtlasQualification";
+import { readHumanBodyArticularAssetCorrespondence } from "./readHumanBodyArticularAssetCorrespondence";
 import { writeHumanBodyAssemblyQualification } from "./writeHumanBodyAssemblyQualification";
+import { writeHumanBodyAtlasQualification } from "./writeHumanBodyAtlasQualification";
 
 /**
  * Serialize a built body to GLB and glTF with resident resources.
@@ -52,22 +52,74 @@ import { writeHumanBodyAssemblyQualification } from "./writeHumanBodyAssemblyQua
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
-export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAutoMovieHumanBodyAnatomicalInspection, options?: IAutoMovieHumanExportOptions, atlas?: IAutoMovieHumanBodyAtlasQualification, assembly?: IAutoMovieHumanBodyAssemblyQualification): Promise<IAutoMovieHumanGltfExport> {
-  if (atlas === undefined && model.parts.some((part) => /^anatomical-atlas:/.test(part.id)))
-    throw new Error("Atlas inspection export needs its source rights and reference qualification.");
-  if (assembly === undefined && model.parts.some((part) => /^anatomical-source:/.test(part.id)))
-    throw new Error("Coarse anatomical export needs its source rights and shared registration qualification.");
-  const report = inspection === undefined ? undefined : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
-  const admitted = options === undefined ? undefined : typia.assertEquals<IAutoMovieHumanExportOptions>(options);
-  const document = createGltfDocument(model, { sourcePartIdentity: report !== undefined || atlas !== undefined || assembly !== undefined || admitted?.sourcePartIdentity === true });
+export async function exportHumanBody(
+  model: IAutoMovieModel,
+  inspection?: IAutoMovieHumanBodyAnatomicalInspection,
+  options?: IAutoMovieHumanExportOptions,
+  atlas?: IAutoMovieHumanBodyAtlasQualification,
+  assembly?: IAutoMovieHumanBodyAssemblyQualification,
+): Promise<IAutoMovieHumanGltfExport> {
+  if (
+    atlas === undefined &&
+    model.parts.some((part) => /^anatomical-atlas:/.test(part.id))
+  )
+    throw new Error(
+      "Atlas inspection export needs its source rights and reference qualification.",
+    );
+  if (
+    assembly === undefined &&
+    model.parts.some((part) => /^anatomical-source:/.test(part.id))
+  )
+    throw new Error(
+      "Coarse anatomical export needs its source rights and shared registration qualification.",
+    );
+  const report =
+    inspection === undefined
+      ? undefined
+      : typia.assertEquals<IAutoMovieHumanBodyAnatomicalInspection>(inspection);
+  const admitted =
+    options === undefined
+      ? undefined
+      : typia.assertEquals<IAutoMovieHumanExportOptions>(options);
+  const document = createGltfDocument(model, {
+    sourcePartIdentity:
+      report !== undefined ||
+      atlas !== undefined ||
+      assembly !== undefined ||
+      admitted?.sourcePartIdentity === true,
+  });
   if (report !== undefined) {
-    if (report.generatorRevision !== "articular-head-inspection/1" || report.reference.basis.trim() === "" || report.candidates.length === 0)
-      throw new Error("Unsupported or empty articular inspection qualification.");
-    const candidates = new Map(report.candidates.map((candidate) => [candidate.part + "/head-candidate", candidate]));
-    const actual = document.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives());
-    const ids = actual.flatMap((primitive) => readHumanStaticPartCorrespondence(primitive)!.parts.map((part) => part.id));
-    if (candidates.size !== report.candidates.length || ids.length !== candidates.size || ids.some((id) => !candidates.has(id)))
-      throw new Error("Articular report must match every actual source candidate exactly once.");
+    if (
+      report.generatorRevision !== "articular-head-inspection/1" ||
+      report.reference.basis.trim() === "" ||
+      report.candidates.length === 0
+    )
+      throw new Error(
+        "Unsupported or empty articular inspection qualification.",
+      );
+    const candidates = new Map(
+      report.candidates.map((candidate) => [
+        candidate.part + "/head-candidate",
+        candidate,
+      ]),
+    );
+    const actual = document
+      .getRoot()
+      .listMeshes()
+      .flatMap((mesh) => mesh.listPrimitives());
+    const ids = actual.flatMap((primitive) =>
+      readHumanStaticPartCorrespondence(primitive)!.parts.map(
+        (part) => part.id,
+      ),
+    );
+    if (
+      candidates.size !== report.candidates.length ||
+      ids.length !== candidates.size ||
+      ids.some((id) => !candidates.has(id))
+    )
+      throw new Error(
+        "Articular report must match every actual source candidate exactly once.",
+      );
     for (const primitive of actual) {
       const mapping = readHumanStaticPartCorrespondence(primitive)!;
       const qualification: IAutoMovieHumanBodyArticularQualification = {
@@ -77,15 +129,24 @@ export async function exportHumanBody(model: IAutoMovieModel, inspection?: IAuto
         skin: { ...report.skin },
         parts: mapping.parts.map((part) => {
           const candidate = candidates.get(part.id)!;
-          return { id: `${candidate.part}/head-candidate`, source: candidate.source, registration: candidate.registration, partResolution: { ...candidate.partResolution } };
+          return {
+            id: `${candidate.part}/head-candidate`,
+            source: candidate.source,
+            registration: candidate.registration,
+            partResolution: { ...candidate.partResolution },
+          };
         }),
       };
-      primitive.setExtras({ ...primitive.getExtras(), automovieArticularInspection: qualification });
+      primitive.setExtras({
+        ...primitive.getExtras(),
+        automovieArticularInspection: qualification,
+      });
       readHumanBodyArticularAssetCorrespondence(primitive);
     }
   }
   if (atlas !== undefined) writeHumanBodyAtlasQualification(document, atlas);
-  if (assembly !== undefined) writeHumanBodyAssemblyQualification(document, assembly);
+  if (assembly !== undefined)
+    writeHumanBodyAssemblyQualification(document, assembly);
   const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);

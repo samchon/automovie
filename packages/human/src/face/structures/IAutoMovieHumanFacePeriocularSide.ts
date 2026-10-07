@@ -1,10 +1,10 @@
+import type { IAutoMovieHumanFacePeriocularBrowBand } from "./IAutoMovieHumanFacePeriocularBrowBand";
+import type { IAutoMovieHumanFacePeriocularCage } from "./IAutoMovieHumanFacePeriocularCage";
 import type { IAutoMovieHumanFacePeriocularCanthi } from "./IAutoMovieHumanFacePeriocularCanthi";
 import type { IAutoMovieHumanFacePeriocularComponent } from "./IAutoMovieHumanFacePeriocularComponent";
 import type { IAutoMovieHumanFacePeriocularGlobe } from "./IAutoMovieHumanFacePeriocularGlobe";
 import type { IAutoMovieHumanFacePeriocularLashes } from "./IAutoMovieHumanFacePeriocularLashes";
 import type { IAutoMovieHumanFacePeriocularMargins } from "./IAutoMovieHumanFacePeriocularMargins";
-import type { IAutoMovieHumanFacePeriocularCage } from "./IAutoMovieHumanFacePeriocularCage";
-import type { IAutoMovieHumanFacePeriocularBrowBand } from "./IAutoMovieHumanFacePeriocularBrowBand";
 
 /**
  * The periocular registration of one eye.

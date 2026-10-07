@@ -14,13 +14,17 @@ export function describeConnectedFaceContacts(
   before: readonly IAutoMovieModelCrossing[],
   after: readonly IAutoMovieModelCrossing[],
 ): string {
-  const label = (crossing: IAutoMovieModelCrossing): string => `${crossing.part} x ${crossing.other}`;
+  const label = (crossing: IAutoMovieModelCrossing): string =>
+    `${crossing.part} x ${crossing.other}`;
   const was = new Map(before.map((entry) => [label(entry), entry]));
   const fresh = after.filter((entry) => !was.has(label(entry)));
   const increased = after.filter((entry) => {
     const earlier = was.get(label(entry));
-    return earlier !== undefined &&
-      entry.triangles + entry.otherTriangles > earlier.triangles + earlier.otherTriangles;
+    return (
+      earlier !== undefined &&
+      entry.triangles + entry.otherTriangles >
+        earlier.triangles + earlier.otherTriangles
+    );
   });
   const line = (entry: IAutoMovieModelCrossing): string =>
     `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
@@ -28,8 +32,14 @@ export function describeConnectedFaceContacts(
   if (fresh.length === 0 && increased.length === 0)
     return `No new intersecting pairs or increased triangle counts relative to the source neutral. ${reference}`;
   return [
-    fresh.length === 0 ? null : `New intersecting pairs: ${fresh.map(line).join(", ")}`,
-    increased.length === 0 ? null : `Increased triangle counts: ${increased.map(line).join(", ")}`,
+    fresh.length === 0
+      ? null
+      : `New intersecting pairs: ${fresh.map(line).join(", ")}`,
+    increased.length === 0
+      ? null
+      : `Increased triangle counts: ${increased.map(line).join(", ")}`,
     reference,
-  ].filter((part) => part !== null).join("\n");
+  ]
+    .filter((part) => part !== null)
+    .join("\n");
 }

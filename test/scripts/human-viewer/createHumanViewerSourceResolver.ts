@@ -5,7 +5,11 @@ import path from "node:path";
 const EXTENSIONS = [".ts", ".mts", ".tsx", ".js", ".mjs", ".jsx", ".json"];
 
 /** Emitted extensions an import may name for a TypeScript source. */
-const EMITTED: Readonly<Record<string, readonly string[]>> = { ".js": [".ts", ".tsx"], ".mjs": [".mts"], ".jsx": [".tsx"] };
+const EMITTED: Readonly<Record<string, readonly string[]>> = {
+  ".js": [".ts", ".tsx"],
+  ".mjs": [".mts"],
+  ".jsx": [".tsx"],
+};
 
 /**
  * Resolve the relative and absolute imports of the workspace's own source
@@ -28,7 +32,8 @@ const EMITTED: Readonly<Record<string, readonly string[]>> = { ".js": [".ts", ".
  * @evidence contracts/common.md#meaningful-documentation States the profiled cause, why listings give real paths, the case rule and what is left to Vite.
  */
 export function createHumanViewerSourceResolver(roots: readonly string[]) {
-  const normalize = (file: string): string => path.resolve(file).replaceAll("\\", "/");
+  const normalize = (file: string): string =>
+    path.resolve(file).replaceAll("\\", "/");
   const rootList = roots.map((root) => normalize(root) + "/");
   /** Entries of each listed directory, keyed by lower-case name. */
   const listings = new Map<string, Map<string, fs.Dirent>>();
@@ -37,8 +42,11 @@ export function createHumanViewerSourceResolver(roots: readonly string[]) {
     const kept = listings.get(key);
     if (kept !== undefined) return kept;
     try {
-      const entries = new Map(fs.readdirSync(directory, { withFileTypes: true })
-        .map((entry) => [entry.name.toLowerCase(), entry] as const));
+      const entries = new Map(
+        fs
+          .readdirSync(directory, { withFileTypes: true })
+          .map((entry) => [entry.name.toLowerCase(), entry] as const),
+      );
       listings.set(key, entries);
       return entries;
     } catch {
@@ -46,16 +54,31 @@ export function createHumanViewerSourceResolver(roots: readonly string[]) {
     }
   };
   /** The path as the listings spell it, or null when a part is missing or is a link. */
-  const canonical = (file: string, kind: "file" | "directory"): string | null => {
-    const root = rootList.find((candidate) => file.toLowerCase().startsWith(candidate.toLowerCase()));
+  const canonical = (
+    file: string,
+    kind: "file" | "directory",
+  ): string | null => {
+    const root = rootList.find((candidate) =>
+      file.toLowerCase().startsWith(candidate.toLowerCase()),
+    );
     if (root === undefined) return null;
     let current = root.slice(0, -1);
-    const parts = file.slice(root.length).split("/").filter((part) => part !== "");
+    const parts = file
+      .slice(root.length)
+      .split("/")
+      .filter((part) => part !== "");
     for (let index = 0; index < parts.length; ++index) {
       const entry = list(current)?.get(parts[index].toLowerCase());
       if (entry === undefined || entry.isSymbolicLink()) return null;
       const last = index === parts.length - 1;
-      if (last ? (kind === "file" ? !entry.isFile() : !entry.isDirectory()) : !entry.isDirectory()) return null;
+      if (
+        last
+          ? kind === "file"
+            ? !entry.isFile()
+            : !entry.isDirectory()
+          : !entry.isDirectory()
+      )
+        return null;
       current += "/" + entry.name;
     }
     return current;
@@ -69,7 +92,10 @@ export function createHumanViewerSourceResolver(roots: readonly string[]) {
     }
     const emitted = path.posix.extname(target);
     for (const extension of EMITTED[emitted] ?? []) {
-      const found = canonical(target.slice(0, -emitted.length) + extension, "file");
+      const found = canonical(
+        target.slice(0, -emitted.length) + extension,
+        "file",
+      );
       if (found !== null) return found;
     }
     if (canonical(target, "directory") !== null)
@@ -82,13 +108,19 @@ export function createHumanViewerSourceResolver(roots: readonly string[]) {
   return {
     name: "human-viewer-source-resolver",
     enforce: "pre" as const,
-    resolveId: (source: string, importer: string | undefined): string | null => {
+    resolveId: (
+      source: string,
+      importer: string | undefined,
+    ): string | null => {
       if (source.includes("?") || source.includes("\0")) return null;
       let target: string;
       if (source.startsWith("./") || source.startsWith("../")) {
         if (importer === undefined || importer.includes("\0")) return null;
-        target = normalize(path.join(path.dirname(importer.split("?")[0]), source));
-      } else if (path.isAbsolute(source) && !source.startsWith("/@")) target = normalize(source);
+        target = normalize(
+          path.join(path.dirname(importer.split("?")[0]), source),
+        );
+      } else if (path.isAbsolute(source) && !source.startsWith("/@"))
+        target = normalize(source);
       else return null;
       return resolveFile(target);
     },

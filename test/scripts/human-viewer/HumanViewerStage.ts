@@ -14,5 +14,9 @@ import type { createConnectedFaceViewport } from "@automovie/playground/src/huma
  */
 export type HumanViewerStage =
   | ReturnType<typeof createConnectedFaceViewport>
-  | ReturnType<typeof createConnectedBodyViewport<IAutoMovieHumanBodyBasisDocument>>
-  | ReturnType<typeof createConnectedBodyViewport<IAutoMovieHumanPersonDocument>>;
+  | ReturnType<
+      typeof createConnectedBodyViewport<IAutoMovieHumanBodyBasisDocument>
+    >
+  | ReturnType<
+      typeof createConnectedBodyViewport<IAutoMovieHumanPersonDocument>
+    >;

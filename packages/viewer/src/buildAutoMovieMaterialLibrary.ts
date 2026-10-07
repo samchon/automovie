@@ -27,7 +27,9 @@ import { materialTextureBindings } from "./materialTextureBindings";
  * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps material lowering and disposal isolated to one runtime.
  * @author Samchon
  */
-export const buildAutoMovieMaterialLibrary = async (props: IBuildAutoMovieMaterialLibraryProps): Promise<IAutoMovieMaterialLibrary> => {
+export const buildAutoMovieMaterialLibrary = async (
+  props: IBuildAutoMovieMaterialLibraryProps,
+): Promise<IAutoMovieMaterialLibrary> => {
   const requested = new Set<string>();
   for (const id of props.materialIds) {
     if (id === null) continue;

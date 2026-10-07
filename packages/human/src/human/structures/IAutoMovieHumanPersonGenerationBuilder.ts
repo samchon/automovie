@@ -1,6 +1,6 @@
+import type { IAutoMovieHumanPersonConstruction } from "./IAutoMovieHumanPersonConstruction";
 import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPersonGenerationBuild";
-import type { IAutoMovieHumanPersonConstruction } from "./IAutoMovieHumanPersonConstruction";
 
 /** One source-person geometry owner with ordinary admission and explicit construction inspection.
  *
@@ -13,8 +13,12 @@ import type { IAutoMovieHumanPersonConstruction } from "./IAutoMovieHumanPersonC
  */
 export interface IAutoMovieHumanPersonGenerationBuilder {
   /** Ordinary authoring result; every unchanged admission condition must succeed. */
-  (document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonGenerationBuild;
+  (
+    document: IAutoMovieHumanPersonDocument,
+  ): IAutoMovieHumanPersonGenerationBuild;
 
   /** Complete owned body/face/bones/source context with named admission refusals. */
-  construct(document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonConstruction;
+  construct(
+    document: IAutoMovieHumanPersonDocument,
+  ): IAutoMovieHumanPersonConstruction;
 }

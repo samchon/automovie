@@ -34,7 +34,8 @@ export function createHumanPersonReferenceField(
   const { plan, bindings, bindingAt, parentAreas } = props;
   const unit = (vector: number[]): number[] => {
     const length = Math.hypot(...vector);
-    if (!(length > 0)) throw new Error("Person source shading needs a nonzero used normal.");
+    if (!(length > 0))
+      throw new Error("Person source shading needs a nonzero used normal.");
     return vector.map((value) => value / length);
   };
   const original = new Map<string, number[]>();
@@ -42,7 +43,8 @@ export function createHumanPersonReferenceField(
     for (let k = 0; k < 3; k++) {
       const key = `${plan.face.parentTriangles[at + k]}:${plan.face.parentNormalDomains?.[at + k] ?? 0}`;
       const vector = original.get(key) ?? [0, 0, 0];
-      for (let axis = 0; axis < 3; axis++) vector[axis] += parentAreas[at + axis];
+      for (let axis = 0; axis < 3; axis++)
+        vector[axis] += parentAreas[at + axis];
       original.set(key, vector);
     }
   const normalized = new Map<string, number[]>();
@@ -54,12 +56,16 @@ export function createHumanPersonReferenceField(
     }
     return vector;
   };
-  const normalAt = (binding: IAutoMovieHumanPersonSourceStarBinding): number[] => {
+  const normalAt = (
+    binding: IAutoMovieHumanPersonSourceStarBinding,
+  ): number[] => {
     const required = new Set(binding.weights.map((weight) => weight.key));
     return unit(
       [0, 1, 2].map((axis) =>
         interpolateHumanBasisSourceTriangle(
-          binding.keys.map((key) => (required.has(key) ? star(key)[axis] : 0)) as [number, number, number],
+          binding.keys.map((key) =>
+            required.has(key) ? star(key)[axis] : 0,
+          ) as [number, number, number],
           binding.coordinates,
         ),
       ),
@@ -67,7 +73,11 @@ export function createHumanPersonReferenceField(
   };
   const points = new Map<string, number[]>();
   return {
-    normals: bindings.flatMap((side) => side.flatMap((binding) => (binding === undefined ? [0, 0, 0] : normalAt(binding)))),
+    normals: bindings.flatMap((side) =>
+      side.flatMap((binding) =>
+        binding === undefined ? [0, 0, 0] : normalAt(binding),
+      ),
+    ),
     at: (sample: number, parent: number): number[] => {
       const binding = bindingAt(sample, parent);
       const key = `${sample}:${binding.identity}`;

@@ -26,5 +26,9 @@ export interface IHumanFaceExactSkinSeat {
   triangle: number;
 
   /** Exact affine weights of those three corners, summing to one. */
-  weights: readonly [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction];
+  weights: readonly [
+    IHumanExactFraction,
+    IHumanExactFraction,
+    IHumanExactFraction,
+  ];
 }

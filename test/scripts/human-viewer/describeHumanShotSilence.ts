@@ -13,8 +13,16 @@ import { readHumanViewerRecord } from "./readHumanViewerRecord";
  * @evidence contracts/common.md#principled-implementation Reports absent and unanswered as different outcomes, with the recorded owner.
  * @evidence contracts/common.md#meaningful-documentation States the two outcomes.
  */
-export function describeHumanShotSilence(context: IHumanShotContext, refused: boolean): IHumanViewerSilence {
+export function describeHumanShotSilence(
+  context: IHumanShotContext,
+  refused: boolean,
+): IHumanViewerSilence {
   const saved = readHumanViewerRecord(context.record);
-  return describeHumanViewerSilence({ refused, port: context.port, probeMs: context.probeMs,
-    recordedPid: saved?.pid ?? null, recordedAlive: saved !== null && isHumanViewerProcessAlive(saved.pid) });
+  return describeHumanViewerSilence({
+    refused,
+    port: context.port,
+    probeMs: context.probeMs,
+    recordedPid: saved?.pid ?? null,
+    recordedAlive: saved !== null && isHumanViewerProcessAlive(saved.pid),
+  });
 }

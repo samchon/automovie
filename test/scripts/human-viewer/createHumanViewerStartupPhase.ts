@@ -9,8 +9,13 @@ import type { IHumanViewerStartupPhase } from "./IHumanViewerStartupPhase";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the step and its log line.
  * @evidence contracts/common.md#meaningful-documentation States the log line and its purpose.
  */
-export function createHumanViewerStartupPhase(first: string): IHumanViewerStartupPhase {
-  const startup: IHumanViewerStartup = { phase: first, since: new Date().toISOString() };
+export function createHumanViewerStartupPhase(
+  first: string,
+): IHumanViewerStartupPhase {
+  const startup: IHumanViewerStartup = {
+    phase: first,
+    since: new Date().toISOString(),
+  };
   return {
     startup,
     phase: (name) => {

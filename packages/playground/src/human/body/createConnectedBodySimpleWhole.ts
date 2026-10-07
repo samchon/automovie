@@ -4,8 +4,8 @@ import type {
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
 import { compileHumanPersonGeneration } from "@automovie/human/human/build/compileHumanPersonGeneration";
-import { createHumanPersonSimpleWhole } from "@automovie/human/human/measure/createHumanPersonSimpleWhole";
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
+import { createHumanPersonSimpleWhole } from "@automovie/human/human/measure/createHumanPersonSimpleWhole";
 
 import { createConnectedBodyDefaultFace } from "./createConnectedBodyDefaultFace";
 
@@ -27,11 +27,19 @@ export function createConnectedBodySimpleWhole(
   head: IAutoMovieHumanPersonHeadView,
   body: IAutoMovieHumanPersonBodyView,
 ): IAutoMovieHumanBodySimpleWhole {
-  return createHumanPersonSimpleWhole(compileHumanPersonGeneration(joinHumanPersonGeneration(head, body)), {
-    id: "body-editor-person",
-    name: "body editor person",
-    population: "linked",
-    face: createConnectedBodyDefaultFace(head),
-    body: { id: "body-editor-body", name: "body editor body", basis: body.body.id, shape: {} },
-  });
+  return createHumanPersonSimpleWhole(
+    compileHumanPersonGeneration(joinHumanPersonGeneration(head, body)),
+    {
+      id: "body-editor-person",
+      name: "body editor person",
+      population: "linked",
+      face: createConnectedBodyDefaultFace(head),
+      body: {
+        id: "body-editor-body",
+        name: "body editor body",
+        basis: body.body.id,
+        shape: {},
+      },
+    },
+  );
 }

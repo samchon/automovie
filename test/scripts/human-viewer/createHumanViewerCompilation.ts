@@ -1,5 +1,6 @@
 import type { IHumanViewerCompilationStatus } from "./IHumanViewerCompilationStatus";
 import type { IHumanViewerCompiledSource } from "./IHumanViewerCompiledSource";
+
 /**
  * Own one whole-project source transformation between filesystem invalidations.
  * The compiler adapter supplies a complete path-to-TypeScript map or rejects;
@@ -53,9 +54,12 @@ export function createHumanViewerCompilation(
   const current = (): Promise<Record<string, string>> => {
     if (generation !== undefined) return generation;
     const selectedEpoch = epoch;
-    const compiled = running.catch(() => undefined).then(() =>
-      // Superseded while it waited: no compile runs for an obsolete epoch.
-      selectedEpoch === epoch ? compile() : null);
+    const compiled = running
+      .catch(() => undefined)
+      .then(() =>
+        // Superseded while it waited: no compile runs for an obsolete epoch.
+        selectedEpoch === epoch ? compile() : null,
+      );
     running = compiled;
     const started: Promise<Record<string, string>> = compiled.then((files) => {
       if (files === null) {
@@ -74,11 +78,17 @@ export function createHumanViewerCompilation(
     return started;
   };
   return {
-    source: async (file: string): Promise<IHumanViewerCompiledSource | undefined> => {
+    source: async (
+      file: string,
+    ): Promise<IHumanViewerCompiledSource | undefined> => {
       const selectedEpoch = epoch;
       const started = current();
-      const named = (files: Record<string, string>): IHumanViewerCompiledSource | undefined =>
-        files[file] === undefined ? undefined : { code: files[file], compile: names.get(files) ?? "unnamed" };
+      const named = (
+        files: Record<string, string>,
+      ): IHumanViewerCompiledSource | undefined =>
+        files[file] === undefined
+          ? undefined
+          : { code: files[file], compile: names.get(files) ?? "unnamed" };
       try {
         return named(await started);
       } catch (error) {

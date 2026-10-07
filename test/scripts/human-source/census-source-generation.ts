@@ -32,8 +32,8 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-import { measureHumanSourceEndpointSurfaces } from "./measureHumanSourceEndpointSurfaces.ts";
 import { measureHumanSourceCrownDimensions } from "./measureHumanSourceCrownDimensions.ts";
+import { measureHumanSourceEndpointSurfaces } from "./measureHumanSourceEndpointSurfaces.ts";
 import { measureHumanSourceOralSpace } from "./measureHumanSourceOralSpace.ts";
 import { measureHumanSourcePeriocularSeat } from "./measureHumanSourcePeriocularSeat.ts";
 import { readHumanSourceCoherence } from "./readHumanSourceCoherence.ts";
@@ -42,15 +42,24 @@ import { solveHumanSourceOcclusion } from "./solveHumanSourceOcclusion.ts";
 import type { IHumanSourceCensus } from "./structures/IHumanSourceCensus.ts";
 
 const [compiled, output, reference, edits] = process.argv.slice(2);
-if (compiled === undefined || output === undefined || (reference === undefined) !== (edits === undefined))
-  throw new Error("Usage: census-source-generation.ts COMPILED OUTPUT [REFERENCE EDITS]");
+if (
+  compiled === undefined ||
+  output === undefined ||
+  (reference === undefined) !== (edits === undefined)
+)
+  throw new Error(
+    "Usage: census-source-generation.ts COMPILED OUTPUT [REFERENCE EDITS]",
+  );
 const bytes = fs.readFileSync(path.join(compiled, "head.json.gz"));
-const head = JSON.parse(zlib.gunzipSync(bytes).toString("utf8")) as IAutoMovieHumanPersonHeadView;
+const head = JSON.parse(
+  zlib.gunzipSync(bytes).toString("utf8"),
+) as IAutoMovieHumanPersonHeadView;
 const census: IHumanSourceCensus = {
   generation: head.id,
   face: head.face.id,
   headSha256: crypto.createHash("sha256").update(bytes).digest("hex"),
-  convention: "head-frame metres, right-handed Y up, Z anterior, +X anatomical left; signed distance positive outside the closed source globe; source neutral plus endpoint rows only, without correctives, articulation, contact or the runtime optical assembly",
+  convention:
+    "head-frame metres, right-handed Y up, Z anterior, +X anatomical left; signed distance positive outside the closed source globe; source neutral plus endpoint rows only, without correctives, articulation, contact or the runtime optical assembly",
   periocular: measureHumanSourcePeriocularSeat(head.face),
   endpoints: measureHumanSourceEndpointSurfaces(head.face),
   oral: measureHumanSourceOralSpace(head.face),
@@ -58,11 +67,25 @@ const census: IHumanSourceCensus = {
   colliderGeometry: readHumanSourceColliderGeometry(head.face),
   occlusion: solveHumanSourceOcclusion(head.face),
 };
-if (reference !== undefined && edits !== undefined) census.coherence = readHumanSourceCoherence(reference, compiled, edits);
+if (reference !== undefined && edits !== undefined)
+  census.coherence = readHumanSourceCoherence(reference, compiled, edits);
 fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
 fs.writeFileSync(output, JSON.stringify(census, null, 1) + "\n");
-console.log("[human-source]", "census", census.generation, "periocular states", census.periocular.map((side) => side.states.length), "endpoints", census.endpoints.length);
+console.log(
+  "[human-source]",
+  "census",
+  census.generation,
+  "periocular states",
+  census.periocular.map((side) => side.states.length),
+  "endpoints",
+  census.endpoints.length,
+);
 if (census.coherence !== undefined) {
-  console.log("[human-source]", "coherent with", census.coherence.reference, census.coherence.coherent);
+  console.log(
+    "[human-source]",
+    "coherent with",
+    census.coherence.reference,
+    census.coherence.coherent,
+  );
   if (!census.coherence.coherent) process.exitCode = 1;
 }

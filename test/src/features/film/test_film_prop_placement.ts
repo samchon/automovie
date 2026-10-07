@@ -1,5 +1,3 @@
-import { createFilmPropPlacementGeometryCases } from "../internal/createFilmPropPlacementGeometryCases";
-import { createFilmPropPlacementIdentityCases } from "../internal/createFilmPropPlacementIdentityCases";
 import { validatePropPlacements } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
@@ -8,6 +6,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createFilmPropPlacementGeometryCases } from "../internal/createFilmPropPlacementGeometryCases";
+import { createFilmPropPlacementIdentityCases } from "../internal/createFilmPropPlacementIdentityCases";
 import { namedFacts } from "../internal/predicates";
 import {
   inSpace,
@@ -134,8 +134,32 @@ export const test_film_prop_placement = (): void => {
   TestValidator.equals(
     "identity, relation, box and geometry failures are located",
     namedFacts([
-      ...createFilmPropPlacementIdentityCases({ violated, TABLE, LAMP, SCONCE, CHARGER, PENDANT, CHIME, CABINET, DOOR, CRATE, SCULPTURE }),
-      ...createFilmPropPlacementGeometryCases({ violated, TABLE, LAMP, SCONCE, CHARGER, PENDANT, CHIME, CABINET, DOOR, CRATE, SCULPTURE }),
+      ...createFilmPropPlacementIdentityCases({
+        violated,
+        TABLE,
+        LAMP,
+        SCONCE,
+        CHARGER,
+        PENDANT,
+        CHIME,
+        CABINET,
+        DOOR,
+        CRATE,
+        SCULPTURE,
+      }),
+      ...createFilmPropPlacementGeometryCases({
+        violated,
+        TABLE,
+        LAMP,
+        SCONCE,
+        CHARGER,
+        PENDANT,
+        CHIME,
+        CABINET,
+        DOOR,
+        CRATE,
+        SCULPTURE,
+      }),
     ]),
     {
       duplicateProp: true,

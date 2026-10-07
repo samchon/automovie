@@ -9,7 +9,16 @@ import type { IAutoMovieHumanFaceConstructionProgress } from "@automovie/human/f
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Names completed face boundaries from the actual owner event rather than an elapsed-time estimate.
  * @author Samchon
  */
-export function describeConnectedPersonFaceProgress(progress: IAutoMovieHumanFaceConstructionProgress): string {
-  return "face:" + progress.documentId + ":" + progress.basis + ":" + progress.phase +
-    (progress.checkOwner === undefined ? "" : ":" + progress.checkOwner);
+export function describeConnectedPersonFaceProgress(
+  progress: IAutoMovieHumanFaceConstructionProgress,
+): string {
+  return (
+    "face:" +
+    progress.documentId +
+    ":" +
+    progress.basis +
+    ":" +
+    progress.phase +
+    (progress.checkOwner === undefined ? "" : ":" + progress.checkOwner)
+  );
 }

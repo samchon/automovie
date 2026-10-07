@@ -10,12 +10,17 @@ import type { IHumanSourceStageInput } from "./structures/IHumanSourceStageInput
  * the extraction-stage publication this separates sampling reproduction from
  * the later stages that changed the published rows.
  */
-export function compareHumanSourceBodyStage(input: IHumanSourceStageInput): Record<string, number | boolean | string> {
+export function compareHumanSourceBodyStage(
+  input: IHumanSourceStageInput,
+): Record<string, number | boolean | string> {
   const { stage, cut, reader, field, sample } = input;
   const surface = stage.surfaces[0];
   const count = surface.positions.length / 3;
   const kept = cut.r16ToSource;
-  if (count !== kept.length) throw new Error(`Stage ${stage.id} does not share the published body vertices.`);
+  if (count !== kept.length)
+    throw new Error(
+      `Stage ${stage.id} does not share the published body vertices.`,
+    );
   const recipeOf = createHumanSourceBodyRecipes(reader, field);
   let endpoints = 0;
   let exact = 0;
@@ -48,7 +53,11 @@ export function compareHumanSourceBodyStage(input: IHumanSourceStageInput): Reco
     landmarkRows++;
     const d = denseHumanSourceRows(rows, stage.landmarks.ids.length);
     const same = stage.landmarks.ids.every((id, i) =>
-      [0, 1, 2].every((c) => roundHalfEven(recipe.landmarks[3 * index.get(id)! + c], 6) === d[3 * i + c]),
+      [0, 1, 2].every(
+        (c) =>
+          roundHalfEven(recipe.landmarks[3 * index.get(id)! + c], 6) ===
+          d[3 * i + c],
+      ),
     );
     if (same) landmarkExact++;
   }
@@ -56,15 +65,28 @@ export function compareHumanSourceBodyStage(input: IHumanSourceStageInput): Reco
   for (let v = 0; v < count; v++)
     neutral = Math.max(
       neutral,
-      Math.hypot(...[0, 1, 2].map((c) => field.neutral[3 * kept[v] + c] - surface.positions[3 * v + c])),
+      Math.hypot(
+        ...[0, 1, 2].map(
+          (c) => field.neutral[3 * kept[v] + c] - surface.positions[3 * v + c],
+        ),
+      ),
     );
   let weights = 0;
   for (let v = 0; v < count; v++) {
-    const fresh = new Map(pruneHumanSourceWeights(sample.weights.bones[kept[v]]));
+    const fresh = new Map(
+      pruneHumanSourceWeights(sample.weights.bones[kept[v]]),
+    );
     for (let k = 0; k < 4; k++) {
       const w = surface.skin.weights[4 * v + k];
       if (w === 0) continue;
-      weights = Math.max(weights, Math.abs((fresh.get(surface.skin.joints[surface.skin.boneIndices[4 * v + k]]) ?? 0) - w));
+      weights = Math.max(
+        weights,
+        Math.abs(
+          (fresh.get(
+            surface.skin.joints[surface.skin.boneIndices[4 * v + k]],
+          ) ?? 0) - w,
+        ),
+      );
     }
   }
   differing.sort((x, y) => y[1] - x[1]);
@@ -74,7 +96,10 @@ export function compareHumanSourceBodyStage(input: IHumanSourceStageInput): Reco
     recipeEndpoints: endpoints,
     exactEndpoints: exact,
     worstEndpointMetres: worst,
-    worstEndpoints: differing.slice(0, 8).map(([n, e]) => `${n}=${e.toExponential(2)}`).join(", "),
+    worstEndpoints: differing
+      .slice(0, 8)
+      .map(([n, e]) => `${n}=${e.toExponential(2)}`)
+      .join(", "),
     recipeLandmarkRows: landmarkRows,
     exactLandmarkRows: landmarkExact,
     neutralMaximumMetres: neutral,

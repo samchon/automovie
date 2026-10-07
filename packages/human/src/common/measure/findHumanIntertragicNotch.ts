@@ -27,7 +27,10 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function findHumanIntertragicNotch(head: IAutoMovieHumanHeadSkin, cavum: string): IAutoMovieVector3 {
+export function findHumanIntertragicNotch(
+  head: IAutoMovieHumanHeadSkin,
+  cavum: string,
+): IAutoMovieVector3 {
   const p = head.positions;
   const vertices = humanHeadRegionVertices(head, [cavum]);
   let low = vertices[0];

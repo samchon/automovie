@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairTurnProps } from "./IHumanFaceHairTurnProps";
 import { humanFaceHairConstructionTurn } from "./humanFaceHairConstructionTurn";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
-import type { IHumanFaceHairTurnProps } from "./IHumanFaceHairTurnProps";
 
 /**
  * Hold a requested direction to the numerical construction turn per step. A wanted direction within the limit is returned as it is. A
@@ -30,7 +30,9 @@ import type { IHumanFaceHairTurnProps } from "./IHumanFaceHairTurnProps";
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint and displays nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the limit is a constant and the directions come from the integrator.
  */
-export function limitHumanFaceHairTurn(props: IHumanFaceHairTurnProps): IAutoMovieVector3 {
+export function limitHumanFaceHairTurn(
+  props: IHumanFaceHairTurnProps,
+): IAutoMovieVector3 {
   const { before, direction } = props;
   const turn = Math.acos(
     Math.max(-1, Math.min(1, Vector3.dot(before, direction))),

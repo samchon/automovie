@@ -1,7 +1,7 @@
-import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
 import type { IAutoMovieHumanBodyAtlasRegistration } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasRegistration";
 import type { IAutoMovieHumanBodyAtlasSource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasSource";
 import type { IAutoMovieHumanBodyUnvalidatedGeometry } from "../anatomy/generated/IAutoMovieHumanBodyUnvalidatedGeometry";
+import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
 
 /**
  * Provenance of one acquired atlas inspection member in a static primitive.

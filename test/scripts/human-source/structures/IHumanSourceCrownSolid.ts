@@ -1,5 +1,5 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
 import type { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * One registered crown as a closed solid with its signed distance query.

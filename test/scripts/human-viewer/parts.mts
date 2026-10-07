@@ -56,9 +56,8 @@ function card(
 }
 
 async function load(): Promise<void> {
-  revision = (
-    (await (await fetch("/docs")).json()) as HumanViewerCatalogue
-  ).revision;
+  revision = ((await (await fetch("/docs")).json()) as HumanViewerCatalogue)
+    .revision;
   const names = new Map<string, string[] | null>();
   for (const doc of new Set(humanViewerPartBookmarks.map((item) => item.doc))) {
     status.textContent = "Reading the meshes of " + doc;
@@ -77,7 +76,9 @@ async function load(): Promise<void> {
     for (const item of members) {
       const known = names.get(item.doc) ?? null;
       const missing =
-        known === null ? [] : item.meshes.filter((mesh) => !known.includes(mesh));
+        known === null
+          ? []
+          : item.meshes.filter((mesh) => !known.includes(mesh));
       const anchor = card(item, missing);
       grid.append(anchor);
       if (missing.length === 0) thumbnails.watch(anchor);
@@ -85,12 +86,15 @@ async function load(): Promise<void> {
     section.append(heading, grid);
     list.append(section);
   }
-  const unread = [...names].filter(([, value]) => value === null).map(([doc]) => doc);
+  const unread = [...names]
+    .filter(([, value]) => value === null)
+    .map(([doc]) => doc);
   status.textContent =
     unread.length === 0
       ? `${humanViewerPartBookmarks.length} parts`
       : "Could not read the meshes of " + unread.join(", ");
 }
 void load().catch((failure: unknown) => {
-  status.textContent = failure instanceof Error ? failure.message : String(failure);
+  status.textContent =
+    failure instanceof Error ? failure.message : String(failure);
 });

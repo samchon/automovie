@@ -20,23 +20,47 @@ export function closeHumanSourceAttachmentAnnulus(
     for (const star of topology.vertexFaces) {
       const selected = [...star].filter((triangle) => population.has(triangle));
       if (selected.length < 2 || selected.length === star.size) continue;
-      const visited = new Set<number>([selected[0]]), queue = [selected[0]];
-      for (let at = 0; at < queue.length; at++) for (const neighbor of topology.faceNeighbors[queue[at]])
-        if (star.has(neighbor) && population.has(neighbor) && !visited.has(neighbor)) { visited.add(neighbor); queue.push(neighbor); }
+      const visited = new Set<number>([selected[0]]),
+        queue = [selected[0]];
+      for (let at = 0; at < queue.length; at++)
+        for (const neighbor of topology.faceNeighbors[queue[at]])
+          if (
+            star.has(neighbor) &&
+            population.has(neighbor) &&
+            !visited.has(neighbor)
+          ) {
+            visited.add(neighbor);
+            queue.push(neighbor);
+          }
       if (visited.size === selected.length) continue;
-      for (const triangle of star) if (allowed.has(triangle) && !population.has(triangle)) { population.add(triangle); changed = true; }
+      for (const triangle of star)
+        if (allowed.has(triangle) && !population.has(triangle)) {
+          population.add(triangle);
+          changed = true;
+        }
     }
   }
-  const hostBoundary = new Set<number>([...topology.edges.values()].filter((faces) => faces.length === 1).flat());
+  const hostBoundary = new Set<number>(
+    [...topology.edges.values()].filter((faces) => faces.length === 1).flat(),
+  );
   const visited = new Set<number>();
   for (const seed of allowed) {
     if (population.has(seed) || visited.has(seed)) continue;
-    const queue = [seed]; visited.add(seed);
+    const queue = [seed];
+    visited.add(seed);
     let boundary = hostBoundary.has(seed);
-    for (let at = 0; at < queue.length; at++) for (const neighbor of topology.faceNeighbors[queue[at]]) {
-      if (!allowed.has(neighbor) || population.has(neighbor) || visited.has(neighbor)) continue;
-      visited.add(neighbor); queue.push(neighbor); boundary ||= hostBoundary.has(neighbor);
-    }
+    for (let at = 0; at < queue.length; at++)
+      for (const neighbor of topology.faceNeighbors[queue[at]]) {
+        if (
+          !allowed.has(neighbor) ||
+          population.has(neighbor) ||
+          visited.has(neighbor)
+        )
+          continue;
+        visited.add(neighbor);
+        queue.push(neighbor);
+        boundary ||= hostBoundary.has(neighbor);
+      }
     if (!boundary) queue.forEach((triangle) => population.add(triangle));
   }
   return population;

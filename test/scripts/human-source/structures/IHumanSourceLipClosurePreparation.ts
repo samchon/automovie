@@ -1,10 +1,11 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
-import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
-import type { IHumanSourceAuthoredSkin } from "./IHumanSourceAuthoredSkin.ts";
-import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
-import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
-import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
+
 import type { IHumanSourceAuthoredPacket } from "./IHumanSourceAuthoredPacket.ts";
+import type { IHumanSourceAuthoredSkin } from "./IHumanSourceAuthoredSkin.ts";
+import type { IHumanSourceCompactedTopology } from "./IHumanSourceCompactedTopology.ts";
+import type { IHumanSourceCut } from "./IHumanSourceCut.ts";
+import type { IHumanSourceDeltaReader } from "./IHumanSourceDeltaReader.ts";
+import type { IHumanSourceSample } from "./IHumanSourceSample.ts";
 
 /** Original recipe recovery and verified current replay for pre-binding seal.
  * @author Samchon

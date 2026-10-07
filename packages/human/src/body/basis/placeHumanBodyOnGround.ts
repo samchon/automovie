@@ -31,47 +31,115 @@ import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMo
  * @evidenceExclude contracts/anatomy.md#permitted-range Pose owners retain their admission; placement admits no clinical range.
  * @evidence contracts/anatomy.md#parametric-authority The public request is a named geometric support choice and never an authored surface or vertex offset.
  */
-export function placeHumanBodyOnGround(props: IHumanBodyGroundPlacementProps): IAutoMovieHumanBodyBuild {
+export function placeHumanBodyOnGround(
+  props: IHumanBodyGroundPlacementProps,
+): IAutoMovieHumanBodyBuild {
   const { basis, build } = props;
   const ground = basis.landmarks.ids.indexOf("joint-ground");
   if (ground === -1)
-    throw new Error("Lowest-foot placement needs the source-neutral joint-ground plane.");
+    throw new Error(
+      "Lowest-foot placement needs the source-neutral joint-ground plane.",
+    );
   const groundPlaneHeightMetres = basis.landmarks.positions[ground * 3 + 1];
-  const support = measureHumanBodyGroundSupport(basis, build.posedSurfaces.map((surface) => surface.positions), build.landmarks, groundPlaneHeightMetres);
+  const support = measureHumanBodyGroundSupport(
+    basis,
+    build.posedSurfaces.map((surface) => surface.positions),
+    build.landmarks,
+    groundPlaneHeightMetres,
+  );
   if (support === null || support.length !== 2)
-    throw new Error("Lowest-foot placement needs joint-ground and both registered foot skin regions.");
+    throw new Error(
+      "Lowest-foot placement needs joint-ground and both registered foot skin regions.",
+    );
   const shift = -Math.min(...support.map((foot) => foot.gapMetres));
   if (!Number.isFinite(shift))
     throw new Error("Lowest-foot placement needs finite final foot positions.");
-  const translate = (positions: readonly number[]): number[] => positions.map((value, index) => index % 3 === 1 ? value + shift : value);
-  const translateFrame = <T extends IAutoMovieHumanBodyBoneTransform>(bone: T): T => ({
+  const translate = (positions: readonly number[]): number[] =>
+    positions.map((value, index) => (index % 3 === 1 ? value + shift : value));
+  const translateFrame = <T extends IAutoMovieHumanBodyBoneTransform>(
+    bone: T,
+  ): T => ({
     ...bone,
-    posed: { ...bone.posed, position: { ...bone.posed.position, y: bone.posed.position.y + shift } },
+    posed: {
+      ...bone.posed,
+      position: { ...bone.posed.position, y: bone.posed.position.y + shift },
+    },
   });
   const model = {
     ...build.model,
     parts: build.model.parts.map((part) => {
-      if (part.geometry.type !== "mesh" || part.transform !== null || part.attachedBone !== null)
-        throw new Error("Lowest-foot placement needs a static source-frame mesh: " + part.id);
-      return { ...part, geometry: { type: "mesh" as const, mesh: { ...part.geometry.mesh, positions: translate(part.geometry.mesh.positions) } } };
+      if (
+        part.geometry.type !== "mesh" ||
+        part.transform !== null ||
+        part.attachedBone !== null
+      )
+        throw new Error(
+          "Lowest-foot placement needs a static source-frame mesh: " + part.id,
+        );
+      return {
+        ...part,
+        geometry: {
+          type: "mesh" as const,
+          mesh: {
+            ...part.geometry.mesh,
+            positions: translate(part.geometry.mesh.positions),
+          },
+        },
+      };
     }),
   };
   const validation = validateModel({ model });
   if (!validation.success)
-    throw new Error("The ground-placed body is not a valid resident model: " + JSON.stringify(validation));
+    throw new Error(
+      "The ground-placed body is not a valid resident model: " +
+        JSON.stringify(validation),
+    );
   return {
     ...build,
     groundPlaneHeightMetres,
     model,
-    posedSurfaces: build.posedSurfaces.map((surface) => ({ ...surface, positions: translate(surface.positions) })),
+    posedSurfaces: build.posedSurfaces.map((surface) => ({
+      ...surface,
+      positions: translate(surface.positions),
+    })),
     bones: build.bones.map(translateFrame),
-    ...(build.anatomicalRig === undefined ? {} : {
-      anatomicalRig: {
-        bones: new Map([...build.anatomicalRig.bones].map(([id, bone]) => [id, translateFrame(bone)] as const)),
-        projections: new Map([...build.anatomicalRig.projections].map(([id, bone]) => [id, translateFrame(bone)] as const)),
-        toeProjections: new Map([...build.anatomicalRig.toeProjections].map(([id, bone]) => [id, translateFrame(bone)] as const)),
-        sites: new Map([...build.anatomicalRig.sites].map(([id, sites]) => [id, new Map([...sites].map(([site, position]) => [site, { ...position, y: position.y + shift }] as const))] as const)),
-      },
-    }),
+    ...(build.anatomicalRig === undefined
+      ? {}
+      : {
+          anatomicalRig: {
+            bones: new Map(
+              [...build.anatomicalRig.bones].map(
+                ([id, bone]) => [id, translateFrame(bone)] as const,
+              ),
+            ),
+            projections: new Map(
+              [...build.anatomicalRig.projections].map(
+                ([id, bone]) => [id, translateFrame(bone)] as const,
+              ),
+            ),
+            toeProjections: new Map(
+              [...build.anatomicalRig.toeProjections].map(
+                ([id, bone]) => [id, translateFrame(bone)] as const,
+              ),
+            ),
+            sites: new Map(
+              [...build.anatomicalRig.sites].map(
+                ([id, sites]) =>
+                  [
+                    id,
+                    new Map(
+                      [...sites].map(
+                        ([site, position]) =>
+                          [
+                            site,
+                            { ...position, y: position.y + shift },
+                          ] as const,
+                      ),
+                    ),
+                  ] as const,
+              ),
+            ),
+          },
+        }),
   };
 }

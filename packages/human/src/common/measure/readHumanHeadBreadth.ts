@@ -47,8 +47,10 @@ export function readHumanHeadBreadth(
   let euryonLeft: IAutoMovieVector3 | undefined;
   const consider = (x: number, y: number, z: number): void => {
     if (x < 0) {
-      if (y >= right.top && (euryonRight === undefined || x < euryonRight.x)) euryonRight = { x, y, z };
-    } else if (y >= left.top && (euryonLeft === undefined || x > euryonLeft.x)) euryonLeft = { x, y, z };
+      if (y >= right.top && (euryonRight === undefined || x < euryonRight.x))
+        euryonRight = { x, y, z };
+    } else if (y >= left.top && (euryonLeft === undefined || x > euryonLeft.x))
+      euryonLeft = { x, y, z };
   };
   for (let t = 0; t < head.indices.length / 3; t++) {
     if (right.triangles.has(t) || left.triangles.has(t)) continue;
@@ -62,10 +64,19 @@ export function readHumanHeadBreadth(
       const db = p[b * 3 + 1] - bound;
       if (da >= 0 === db >= 0) continue;
       const s = da / (da - db);
-      consider(p[a * 3] + s * (p[b * 3] - p[a * 3]), bound, p[a * 3 + 2] + s * (p[b * 3 + 2] - p[a * 3 + 2]));
+      consider(
+        p[a * 3] + s * (p[b * 3] - p[a * 3]),
+        bound,
+        p[a * 3 + 2] + s * (p[b * 3 + 2] - p[a * 3 + 2]),
+      );
     }
   }
   if (euryonRight === undefined || euryonLeft === undefined)
-    throw new Error(`The head view of ${head.id} has no skin above ${euryonRight === undefined ? rule.rightEar : rule.leftEar}.`);
-  return { metres: euryonLeft.x - euryonRight.x, points: { "euryon-right": euryonRight, "euryon-left": euryonLeft } };
+    throw new Error(
+      `The head view of ${head.id} has no skin above ${euryonRight === undefined ? rule.rightEar : rule.leftEar}.`,
+    );
+  return {
+    metres: euryonLeft.x - euryonRight.x,
+    points: { "euryon-right": euryonRight, "euryon-left": euryonLeft },
+  };
 }

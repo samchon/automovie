@@ -1,18 +1,18 @@
 import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
 
+import type { IHumanConstructionCheck } from "../../../common/basis/IHumanConstructionCheck";
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
+import { HUMAN_SKIN_FINISH } from "../../../common/skin/HUMAN_SKIN_FINISH";
+import { createHumanFaceClearanceCheck } from "../../basis/createHumanFaceClearanceCheck";
 import { readHumanFaceFibrePigment } from "../../basis/readHumanFaceFibrePigment";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IHumanFaceBrowAssembly } from "./IHumanFaceBrowAssembly";
-import { createHumanFaceClearanceCheck } from "../../basis/createHumanFaceClearanceCheck";
+import { createHumanFaceSkinChart } from "../skin/createHumanFaceSkinChart";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
-import { HUMAN_SKIN_FINISH } from "../../../common/skin/HUMAN_SKIN_FINISH";
+import type { IHumanFaceBrowAssembly } from "./IHumanFaceBrowAssembly";
 import { applyHumanFaceBrowTint } from "./applyHumanFaceBrowTint";
 import { buildHumanFaceBrowShafts } from "./buildHumanFaceBrowShafts";
 import { readHumanFaceBrowClearance } from "./readHumanFaceBrowClearance";
-import type { IHumanConstructionCheck } from "../../../common/basis/IHumanConstructionCheck";
-import { createHumanFaceSkinChart } from "../skin/createHumanFaceSkinChart";
 
 /**
  * Generate both numerical brow populations on one state of the forehead skin.
@@ -93,9 +93,16 @@ export function buildHumanFaceBrowAssembly(
     const anchor = band.upper[Math.floor(band.upper.length / 2)];
     const seedCorner = surface.indices.indexOf(anchor);
     if (seedCorner < 0)
-      throw new Error("Brow source-chart anchor has no native support facet: " + side);
-    const chart = createHumanFaceSkinChart({ positions: points, indices: surface.indices,
-      host, seedTriangle: Math.floor(seedCorner / 3), supportVertices: [...band.upper, ...band.lower] });
+      throw new Error(
+        "Brow source-chart anchor has no native support facet: " + side,
+      );
+    const chart = createHumanFaceSkinChart({
+      positions: points,
+      indices: surface.indices,
+      host,
+      seedTriangle: Math.floor(seedCorner / 3),
+      supportVertices: [...band.upper, ...band.lower],
+    });
     const parts = buildHumanFaceBrowShafts({
       chart,
       positions: points,

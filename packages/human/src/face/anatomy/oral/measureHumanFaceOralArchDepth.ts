@@ -39,17 +39,35 @@ export function measureHumanFaceOralArchDepth(
   for (let k = 0; k + 1 < stations.length; k++) {
     const a = stations[k].centre;
     const b = stations[k + 1].centre;
-    if (a[1] > v !== b[1] > v && u < a[0] + ((v - a[1]) * (b[0] - a[0])) / (b[1] - a[1]))
+    if (
+      a[1] > v !== b[1] > v &&
+      u < a[0] + ((v - a[1]) * (b[0] - a[0])) / (b[1] - a[1])
+    )
       inside = !inside;
-    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const dx = b[0] - a[0],
+      dy = b[1] - a[1];
     const squared = dx * dx + dy * dy;
-    const t = squared === 0 ? 0 :
-      Math.min(1, Math.max(0, ((u - a[0]) * dx + (v - a[1]) * dy) / squared));
-    nearest = Math.min(nearest, Math.hypot(u - a[0] - t * dx, v - a[1] - t * dy));
+    const t =
+      squared === 0
+        ? 0
+        : Math.min(
+            1,
+            Math.max(0, ((u - a[0]) * dx + (v - a[1]) * dy) / squared),
+          );
+    nearest = Math.min(
+      nearest,
+      Math.hypot(u - a[0] - t * dx, v - a[1] - t * dy),
+    );
   }
-  for (const terminal of [stations[0].centre, stations[stations.length - 1].centre]) {
+  for (const terminal of [
+    stations[0].centre,
+    stations[stations.length - 1].centre,
+  ]) {
     if (terminal[1] > v && u < terminal[0]) inside = !inside;
-    nearest = Math.min(nearest, Math.hypot(u - terminal[0], Math.max(0, v - terminal[1])));
+    nearest = Math.min(
+      nearest,
+      Math.hypot(u - terminal[0], Math.max(0, v - terminal[1])),
+    );
   }
   return inside ? nearest : -nearest;
 }

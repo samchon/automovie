@@ -1,4 +1,3 @@
-import { assertBalanceSupportInputRefusals } from "../internal/assertBalanceSupportInputRefusals";
 import { validateBalanceSupport } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
@@ -8,6 +7,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertBalanceSupportInputRefusals } from "../internal/assertBalanceSupportInputRefusals";
 import { makeMotion } from "../internal/fixtures";
 import {
   namedFacts,

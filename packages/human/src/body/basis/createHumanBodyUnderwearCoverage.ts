@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodyUnderwearCoverageProps } from "../structures/IAutoMovieHumanBodyUnderwearCoverageProps";
 import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
+import type { IAutoMovieHumanBodyUnderwearCoverageProps } from "../structures/IAutoMovieHumanBodyUnderwearCoverageProps";
 
 /**
  * The coverage field of a garment style on the body at rest: a signed
@@ -52,7 +52,9 @@ import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the style is a closed choice.
  */
-export function createHumanBodyUnderwearCoverage(props: IAutoMovieHumanBodyUnderwearCoverageProps): (x: number, y: number, z: number, arm: number) => number {
+export function createHumanBodyUnderwearCoverage(
+  props: IAutoMovieHumanBodyUnderwearCoverageProps,
+): (x: number, y: number, z: number, arm: number) => number {
   const { table, style, basis, rest } = props;
   const landmark = (id: string): IAutoMovieVector3 => {
     const found = rest.landmarks[id];
@@ -74,11 +76,7 @@ export function createHumanBodyUnderwearCoverage(props: IAutoMovieHumanBodyUnder
   const thigh =
     hips
       .map((hip, k) =>
-        Math.hypot(
-          knees[k].x - hip.x,
-          knees[k].y - hip.y,
-          knees[k].z - hip.z,
-        ),
+        Math.hypot(knees[k].x - hip.x, knees[k].y - hip.y, knees[k].z - hip.z),
       )
       .reduce((sum, length) => sum + length, 0) / 2;
   const clamp = (value: number) => Math.min(1, Math.max(0, value));
@@ -101,7 +99,10 @@ export function createHumanBodyUnderwearCoverage(props: IAutoMovieHumanBodyUnder
           const rule = table.bra;
           // admitted with the basis, so the named point is a vertex of its surface
           const { surface, vertex } = humanSkinLandmark(basis, rule.nipple);
-          const nipple = rest.surfaces[surface].slice(vertex * 3, vertex * 3 + 3);
+          const nipple = rest.surfaces[surface].slice(
+            vertex * 3,
+            vertex * 3 + 3,
+          );
           const clavicle = landmark(names.clavicle);
           const shoulder = landmark(names.shoulder);
           const chest = landmark(names.lowerChest);

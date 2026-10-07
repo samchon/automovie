@@ -1,9 +1,18 @@
 import { performShot, stageScene } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieClip } from "@automovie/interface";
-import { makeScriptWrite, makeStagingWrite, makePerformanceWrite, validSynthesizer } from "./filmFixtures";
+import type { IAutoMovieClip, IAutoMovieModel } from "@automovie/interface";
+
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "./filmFixtures";
 
 /** Preserve the full shot consumer for the existing facade subject. */
-export const performFilmFacade = (model: IAutoMovieModel, FOV_Y: number): IAutoMovieClip | null => {
+export const performFilmFacade = (
+  model: IAutoMovieModel,
+  FOV_Y: number,
+): IAutoMovieClip | null => {
   const script = makeScriptWrite({
     cast: [
       { node: "west-facade", character: "the west facade", modelRef: model.id },

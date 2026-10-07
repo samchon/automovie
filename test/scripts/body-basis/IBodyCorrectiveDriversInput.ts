@@ -1,5 +1,5 @@
-import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 import type { IBodyCorrectiveAxis } from "./IBodyCorrectiveAxis";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 import type { readBodyCorrectiveShoulderMotion } from "./readBodyCorrectiveShoulderMotion";
 
 /** Conditional driver authority for one actual solver visit. */

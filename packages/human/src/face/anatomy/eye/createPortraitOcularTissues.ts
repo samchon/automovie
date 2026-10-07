@@ -2,8 +2,8 @@ import { linearInterpolate } from "../../mesh/linearInterpolate";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
-import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueShape";
 import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
+import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueShape";
 
 /**
  * Own a tissue profile and build both surfaces in one live ocular frame.
@@ -33,7 +33,9 @@ import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTi
  */
 export const createPortraitOcularTissues = (
   input: IPortraitOcularTissueShape,
-): ((boundary: IPortraitOcularTissueBoundary) => IPortraitOcularTissueMeshes) => {
+): ((
+  boundary: IPortraitOcularTissueBoundary,
+) => IPortraitOcularTissueMeshes) => {
   const shape = { ...input };
   if (
     Object.values(shape).some((value) => !Number.isFinite(value) || value < 0)

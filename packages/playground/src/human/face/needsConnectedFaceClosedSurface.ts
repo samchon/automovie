@@ -11,5 +11,8 @@ export function needsConnectedFaceClosedSurface(
   model: IAutoMovieModel,
   part: IAutoMovieModel["parts"][number],
 ): boolean {
-  return model.materials.some((material) => material.id === part.material && (material.thickness ?? 0) > 0);
+  return model.materials.some(
+    (material) =>
+      material.id === part.material && (material.thickness ?? 0) > 0,
+  );
 }

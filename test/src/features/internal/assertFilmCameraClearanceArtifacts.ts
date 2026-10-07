@@ -1,9 +1,15 @@
-import { appendShotMetadataArtifact, validateShotArtifact } from "@automovie/engine";
+import {
+  appendShotMetadataArtifact,
+  validateShotArtifact,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
 import type { IFilmCameraClearanceArtifactInputs } from "./IFilmCameraClearanceArtifactInputs";
 
 /** Run the original carried report identity, fixed clock and metadata refusal assertions. */
-export function assertFilmCameraClearanceArtifacts(input: IFilmCameraClearanceArtifactInputs): void {
+export function assertFilmCameraClearanceArtifacts(
+  input: IFilmCameraClearanceArtifactInputs,
+): void {
   const { performed, clearStage } = input;
   const acceptedReport = performed.shot.cameraClearance![0]!;
   const motionIds = new Set(
@@ -177,5 +183,4 @@ export function assertFilmCameraClearanceArtifacts(input: IFilmCameraClearanceAr
       "$metadata.cameraClearance[2].sampleTimes",
     ].every((path) => metadataViolations.some((item) => item.path === path)),
   );
-
 }

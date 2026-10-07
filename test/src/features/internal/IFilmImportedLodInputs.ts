@@ -6,7 +6,11 @@ export interface IFilmImportedLodInputs {
   createImportedPropSpec(): IAutoMoviePropSpec;
 
   /** Read the original addressed refusal after a registry mutation. */
-  refuses(mutate: (spec: IAutoMoviePropSpec) => void, path: string, message: string): boolean;
+  refuses(
+    mutate: (spec: IAutoMoviePropSpec) => void,
+    path: string,
+    message: string,
+  ): boolean;
 
   /** Read admission of the adjacent supported registry mutation. */
   tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean;

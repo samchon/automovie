@@ -29,9 +29,14 @@ export function humanPersonBodyEndpointGains(
   const gains = new Map<string, number>();
   for (const channel of basis.channels) {
     const weight = state.weights.get(channel.id) ?? 0;
-    if (weight !== 0) gains.set(weight < 0 ? channel.negative! : channel.positive, Math.abs(weight));
+    if (weight !== 0)
+      gains.set(
+        weight < 0 ? channel.negative! : channel.positive,
+        Math.abs(weight),
+      );
   }
   for (const one of state.activations)
-    if (one.activation > 0) gains.set(one.target, (gains.get(one.target) ?? 0) + one.activation);
+    if (one.activation > 0)
+      gains.set(one.target, (gains.get(one.target) ?? 0) + one.activation);
   return gains;
 }

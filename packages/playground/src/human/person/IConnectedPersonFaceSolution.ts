@@ -1,4 +1,7 @@
-import type { AutoMovieHumanFaceMeasurementReading, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  AutoMovieHumanFaceMeasurementReading,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 
 /**
  * A solved face measurement target: the person with the solved channel and

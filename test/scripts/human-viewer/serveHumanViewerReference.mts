@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { resolveHumanViewerReference } from "./resolveHumanViewerReference";
 import type { IServeHumanViewerReferenceProps } from "./IServeHumanViewerReferenceProps";
+import { resolveHumanViewerReference } from "./resolveHumanViewerReference";
 
 /**
  * Answer `/reference-info`, `/reference` and `/reference-index` from the local
@@ -18,7 +18,9 @@ import type { IServeHumanViewerReferenceProps } from "./IServeHumanViewerReferen
  * `references/body` and are matched by its manifest. Returns whether the
  * request was one of the routes, so the caller can fall through otherwise.
  */
-export function serveHumanViewerReference(props: IServeHumanViewerReferenceProps): boolean {
+export function serveHumanViewerReference(
+  props: IServeHumanViewerReferenceProps,
+): boolean {
   const { url, response, root, referenceDirectory: directory, json } = props;
   if (
     url.pathname !== "/reference-info" &&
@@ -83,8 +85,8 @@ export function serveHumanViewerReference(props: IServeHumanViewerReferenceProps
         ? "image/webp"
         : "image/jpeg",
   );
-  fs.createReadStream(path.join(directory, reference.folder, reference.file)).pipe(
-    response,
-  );
+  fs.createReadStream(
+    path.join(directory, reference.folder, reference.file),
+  ).pipe(response);
   return true;
 }

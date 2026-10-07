@@ -88,7 +88,9 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
       slider.max = number.max;
       number.disabled = true;
       slider.disabled = number.disabled;
-      note.textContent = "held: this joint does not move on this axis" + motionGap(props.bone, axis);
+      note.textContent =
+        "held: this joint does not move on this axis" +
+        motionGap(props.bone, axis);
     } else if (range !== null) {
       number.min = String(range.min);
       slider.min = number.min;
@@ -107,7 +109,10 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
       slider.min = number.min;
       number.max = "180";
       slider.max = number.max;
-      note.textContent = joint.parent === null ? "the root turns freely" : "this joint has no source-rig range";
+      note.textContent =
+        joint.parent === null
+          ? "the root turns freely"
+          : "this joint has no source-rig range";
     }
     number.value = String(value);
     slider.value = number.value;
@@ -133,8 +138,7 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
       const coupled = dom.createElement("output");
       coupled.id = number.id + "-coupled";
       coupled.setAttribute("for", number.id);
-      coupled.textContent =
-        `coupled ${addition.degrees < 0 ? "" : "+"}${addition.degrees.toFixed(1)}° by ${addition.coupling}`;
+      coupled.textContent = `coupled ${addition.degrees < 0 ? "" : "+"}${addition.degrees.toFixed(1)}° by ${addition.coupling}`;
       coupled.style.display = "block";
       row.append(coupled);
     }
@@ -143,9 +147,10 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
       const reading = dom.createElement("output");
       reading.id = number.id + "-clinical";
       reading.setAttribute("for", number.id);
-      reading.textContent = actual[axis] === null
-        ? `resolved source-rig ${axis} unavailable`
-        : `resolved source-rig ${axis} ${actual[axis].toFixed(6)}°`;
+      reading.textContent =
+        actual[axis] === null
+          ? `resolved source-rig ${axis} unavailable`
+          : `resolved source-rig ${axis} ${actual[axis].toFixed(6)}°`;
       reading.style.display = "block";
       row.append(reading);
     }
@@ -155,6 +160,7 @@ export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
 
 /** The named anatomical gap of a lower-limb axis, as a sentence suffix, or empty. */
 const motionGap = (bone: string, axis: string): string => {
-  const gap = HUMAN_BODY_MOTION_GAPS[`${bone.replace(/^(left|right)/u, "")}.${axis}`];
+  const gap =
+    HUMAN_BODY_MOTION_GAPS[`${bone.replace(/^(left|right)/u, "")}.${axis}`];
   return gap === undefined ? "" : ". " + gap;
 };

@@ -1,4 +1,5 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IHumanBodySourceQuantityReading } from "./IHumanBodySourceQuantityReading";
 
 /** Actual posed anatomical boundary parts and their separate inspection finishes. @author Samchon */

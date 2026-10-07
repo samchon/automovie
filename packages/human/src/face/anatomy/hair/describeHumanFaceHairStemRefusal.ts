@@ -55,7 +55,9 @@ export function describeHumanFaceHairStemRefusal(
     const point = points[at];
     const hit = contact.sample(point);
     const normal =
-      at === 0 ? humanFaceHairFrame.direction(props.rootNormal) : contact.outward(point, hit);
+      at === 0
+        ? humanFaceHairFrame.direction(props.rootNormal)
+        : contact.outward(point, hit);
     const chord: IAutoMovieVector3 | null =
       at === 0
         ? null

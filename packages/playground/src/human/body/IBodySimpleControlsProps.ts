@@ -19,7 +19,10 @@ export interface IBodySimpleControlsProps {
   container: HTMLElement;
 
   /** The expansion over the current shape, solved off the page's thread. */
-  expand: (simple: IAutoMovieHumanBodySimpleShape, over: Record<string, number>) => Promise<Record<string, number>>;
+  expand: (
+    simple: IAutoMovieHumanBodySimpleShape,
+    over: Record<string, number>,
+  ) => Promise<Record<string, number>>;
 
   /** The projection of a detailed shape, solved off the page's thread. */
   project: (body: IBodySimpleBody) => Promise<IAutoMovieHumanBodySimpleShape>;
@@ -44,7 +47,11 @@ export interface IBodySimpleControlsProps {
   isCurrentIntent: (ticket: number) => boolean;
 
   /** The expanded shape, with the values it was expanded from. */
-  onApply: (shape: Record<string, number>, ticket: number, simple: IAutoMovieHumanBodySimpleShape) => void;
+  onApply: (
+    shape: Record<string, number>,
+    ticket: number,
+    simple: IAutoMovieHumanBodySimpleShape,
+  ) => void;
 
   /** Report a refused expansion or projection. */
   onRefuse: (error: unknown) => void;

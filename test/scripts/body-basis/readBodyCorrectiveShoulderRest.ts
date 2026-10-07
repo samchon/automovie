@@ -1,7 +1,7 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { humanBodyShoulderPoseFromDirection } from "@automovie/human/body/basis/humanBodyShoulderPoseFromDirection";
 import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
-import { Quaternion, Vector3 } from "@automovie/engine";
 
 /**
  * Read TT rest from the same shaped skeleton the actual builder resolved.
@@ -20,9 +20,14 @@ export function readBodyCorrectiveShoulderRest(
   const rests: IAutoMovieHumanBodyShoulderPose[] = [];
   for (const bone of built.bones)
     if (bone.bone === "leftUpperArm" || bone.bone === "rightUpperArm")
-      rests.push(humanBodyShoulderPoseFromDirection({
-        bone: bone.bone,
-        direction: Quaternion.rotateVector(bone.rest.rotation, Vector3.create(0, 1, 0)),
-      }));
+      rests.push(
+        humanBodyShoulderPoseFromDirection({
+          bone: bone.bone,
+          direction: Quaternion.rotateVector(
+            bone.rest.rotation,
+            Vector3.create(0, 1, 0),
+          ),
+        }),
+      );
   return rests;
 }

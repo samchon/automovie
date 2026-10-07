@@ -1,7 +1,7 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { builtConnectorOperationTestRuns as runs } from "./builtConnectorOperationTestRuns";
 
+import { builtConnectorOperationTestRuns as runs } from "./builtConnectorOperationTestRuns";
 
 /** The violation paths one mutation of the moving work produces. */
 export const builtConnectorOperationTestRefusalPaths = (

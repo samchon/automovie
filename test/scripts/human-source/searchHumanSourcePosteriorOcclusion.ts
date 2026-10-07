@@ -23,27 +23,72 @@ import type { IHumanSourcePosteriorOcclusionSearch } from "./structures/IHumanSo
  * it is actually feasible. Exact parameter-vector memoization avoids repeated
  * queries of the same immutable candidate.
  */
-export function searchHumanSourcePosteriorOcclusion(problem: IHumanSourcePosteriorOcclusionProblem, maximumEvaluations: number): IHumanSourcePosteriorOcclusionSearch {
+export function searchHumanSourcePosteriorOcclusion(
+  problem: IHumanSourcePosteriorOcclusionProblem,
+  maximumEvaluations: number,
+): IHumanSourcePosteriorOcclusionSearch {
   if (!Number.isSafeInteger(maximumEvaluations) || maximumEvaluations < 1)
-    throw new Error("Source occlusion search needs a positive finite evaluation budget.");
-  const better = (candidate: IHumanSourcePosteriorOcclusionEvaluation, current: IHumanSourcePosteriorOcclusionEvaluation): boolean => {
+    throw new Error(
+      "Source occlusion search needs a positive finite evaluation budget.",
+    );
+  const better = (
+    candidate: IHumanSourcePosteriorOcclusionEvaluation,
+    current: IHumanSourcePosteriorOcclusionEvaluation,
+  ): boolean => {
     if (candidate.feasible !== current.feasible) return candidate.feasible;
     if (candidate.feasible) return candidate.objective < current.objective;
-    const violation = candidate.penetrationSquaredMetres + candidate.excessSquaredMetres;
-    const previous = current.penetrationSquaredMetres + current.excessSquaredMetres;
+    const violation =
+      candidate.penetrationSquaredMetres + candidate.excessSquaredMetres;
+    const previous =
+      current.penetrationSquaredMetres + current.excessSquaredMetres;
     if (violation !== previous) return violation < previous;
-    if (candidate.overlaps.length !== current.overlaps.length) return candidate.overlaps.length < current.overlaps.length;
+    if (candidate.overlaps.length !== current.overlaps.length)
+      return candidate.overlaps.length < current.overlaps.length;
     return candidate.objective < current.objective;
   };
-  const result = searchHumanSourcePattern<IHumanSourcePosteriorOcclusionEvaluation>({ initial: problem.parameters.map(() => 0), maximumEvaluations,
-    admit: (parameters) => parameters.every((value) => Number.isFinite(value) && Number.isFinite(Math.exp(value)) && Math.exp(value) > 0),
-    evaluate: (parameters) => evaluateHumanSourcePosteriorOcclusion(problem, parameters.map(Math.exp)), better,
-    accepted: (evaluation) => evaluation.feasible,
-    completed: (event) => console.log("[human-source] oral-evaluation " + JSON.stringify({ evaluations: event.evaluations, stage: event.stage,
-      elapsedMilliseconds: event.elapsedMilliseconds, logScales: event.parameters, refusal: event.refusal,
-      feasible: event.evaluation?.feasible, overlaps: event.evaluation?.overlaps.length,
-      penetrationSquaredMetres: event.evaluation?.penetrationSquaredMetres, excessSquaredMetres: event.evaluation?.excessSquaredMetres })) });
-  return { scales: result.parameters.map(Math.exp), evaluation: result.evaluation, evaluations: result.evaluations, mesh: result.mesh, arithmeticRefusals: result.refusals,
+  const result =
+    searchHumanSourcePattern<IHumanSourcePosteriorOcclusionEvaluation>({
+      initial: problem.parameters.map(() => 0),
+      maximumEvaluations,
+      admit: (parameters) =>
+        parameters.every(
+          (value) =>
+            Number.isFinite(value) &&
+            Number.isFinite(Math.exp(value)) &&
+            Math.exp(value) > 0,
+        ),
+      evaluate: (parameters) =>
+        evaluateHumanSourcePosteriorOcclusion(
+          problem,
+          parameters.map(Math.exp),
+        ),
+      better,
+      accepted: (evaluation) => evaluation.feasible,
+      completed: (event) =>
+        console.log(
+          "[human-source] oral-evaluation " +
+            JSON.stringify({
+              evaluations: event.evaluations,
+              stage: event.stage,
+              elapsedMilliseconds: event.elapsedMilliseconds,
+              logScales: event.parameters,
+              refusal: event.refusal,
+              feasible: event.evaluation?.feasible,
+              overlaps: event.evaluation?.overlaps.length,
+              penetrationSquaredMetres:
+                event.evaluation?.penetrationSquaredMetres,
+              excessSquaredMetres: event.evaluation?.excessSquaredMetres,
+            }),
+        ),
+    });
+  return {
+    scales: result.parameters.map(Math.exp),
+    evaluation: result.evaluation,
+    evaluations: result.evaluations,
+    mesh: result.mesh,
+    arithmeticRefusals: result.refusals,
     termination: result.termination,
-    qualification: "Finite source width/depth/height Hooke-Jeeves feasibility search over complete paired crowns with unchanged authored contacts and OB/OJ. Positive log scales are a mathematical source domain, not clinical ranges. First feasible admission is not a global optimum or clinical intercuspation claim." };
+    qualification:
+      "Finite source width/depth/height Hooke-Jeeves feasibility search over complete paired crowns with unchanged authored contacts and OB/OJ. Positive log scales are a mathematical source domain, not clinical ranges. First feasible admission is not a global optimum or clinical intercuspation claim.",
+  };
 }

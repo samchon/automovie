@@ -10,7 +10,18 @@ import { isHumanFaceOralSourceSha256 } from "./isHumanFaceOralSourceSha256";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither equal coordinates nor rendered vertex numbers provide native source correspondence.
  * @author Samchon
  */
-export function humanFaceOralDentalDomain(instance: string, generation: string, dentalNativeSha256: string): string {
-  if (!isHumanFaceOralSourceSha256(dentalNativeSha256)) throw new Error("Native oral domain needs an exact dental SHA-256 identity.");
-  return humanPhysicalSourceDomain(instance, generation) + ":oral-native:" + dentalNativeSha256;
+export function humanFaceOralDentalDomain(
+  instance: string,
+  generation: string,
+  dentalNativeSha256: string,
+): string {
+  if (!isHumanFaceOralSourceSha256(dentalNativeSha256))
+    throw new Error(
+      "Native oral domain needs an exact dental SHA-256 identity.",
+    );
+  return (
+    humanPhysicalSourceDomain(instance, generation) +
+    ":oral-native:" +
+    dentalNativeSha256
+  );
 }

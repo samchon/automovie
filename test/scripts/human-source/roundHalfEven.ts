@@ -9,7 +9,14 @@ export function roundHalfEven(value: number, decimals: number): number {
   const scaled = value * scale;
   const floor = Math.floor(scaled);
   const fraction = scaled - floor;
-  const rounded = fraction > 0.5 ? floor + 1 : fraction < 0.5 ? floor : floor % 2 === 0 ? floor : floor + 1;
+  const rounded =
+    fraction > 0.5
+      ? floor + 1
+      : fraction < 0.5
+        ? floor
+        : floor % 2 === 0
+          ? floor
+          : floor + 1;
   const result = rounded / scale;
   return result === 0 ? 0 : result;
 }

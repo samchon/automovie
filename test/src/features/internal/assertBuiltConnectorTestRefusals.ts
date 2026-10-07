@@ -1,11 +1,10 @@
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { builtConnectorTestRefusalPaths as refusalPaths } from "./builtConnectorTestRefusalPaths";
 
+import { builtConnectorTestRefusalPaths as refusalPaths } from "./builtConnectorTestRefusalPaths";
 
 /** Run the existing malformed BuiltConnectorTest cases in their authored order. */
 export const assertBuiltConnectorTestRefusals = (): void => {
-
   const malformed: Array<
     readonly [string, (value: IAutoMovieBuiltEnvironment) => void, string]
   > = [

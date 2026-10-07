@@ -1,16 +1,27 @@
-import { builtConnectorGeometry, builtConnectorSectionAt, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  builtConnectorGeometry,
+  builtConnectorSectionAt,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, qclose, qunit, throwsError, vclose } from "../internal/predicates";
-import { builtConnectorTestLevels as levels } from "../internal/builtConnectorTestLevels";
-import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_TURNS";
-import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RISE";
-import { BUILT_CONNECTOR_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_TEST_NO_ROTATION";
-import { builtConnectorTestYaw as yaw } from "../internal/builtConnectorTestYaw";
+
 import { BUILT_CONNECTOR_TEST_HELIX_RADIUS as HELIX_RADIUS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RADIUS";
+import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RISE";
+import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_TURNS";
+import { BUILT_CONNECTOR_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_TEST_NO_ROTATION";
 import { assertBuiltConnectorTestRefusals } from "../internal/assertBuiltConnectorTestRefusals";
+import { builtConnectorTestLevels as levels } from "../internal/builtConnectorTestLevels";
 import { builtConnectorTestRefusalPaths as refusalPaths } from "../internal/builtConnectorTestRefusalPaths";
-
-
+import { builtConnectorTestYaw as yaw } from "../internal/builtConnectorTestYaw";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  qunit,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * A connector is a measurable shape, not a labelled edge between two rooms.

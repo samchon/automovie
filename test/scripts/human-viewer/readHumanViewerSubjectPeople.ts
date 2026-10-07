@@ -14,20 +14,34 @@ import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the subject-people group.
  * @evidence contracts/common.md#meaningful-documentation States why these people stay on the legacy bases.
  */
-export function readHumanViewerSubjectPeople(props: IReadHumanViewerSubjectPeopleProps): IHumanViewerCatalogueEntry[] {
+export function readHumanViewerSubjectPeople(
+  props: IReadHumanViewerSubjectPeopleProps,
+): IHumanViewerCatalogueEntry[] {
   return props.subjects.map((face) => {
     const document = {
       id: "person:" + face.id,
       name: face.name ?? face.id,
       face,
-      body: { id: "person-body", name: "neutral body", basis: props.bases.body.id, shape: {} },
+      body: {
+        id: "person-body",
+        name: "neutral body",
+        basis: props.bases.body.id,
+        shape: {},
+      },
     };
     return {
       id: document.id,
       domain: "person" as const,
       document,
-      basis: humanViewerPublishedBasis(props.bases.face.digest, props.bases.body.digest),
-      key: humanViewerPersonKey({ document, bases: props.bases, sources: props.sources }),
+      basis: humanViewerPublishedBasis(
+        props.bases.face.digest,
+        props.bases.body.digest,
+      ),
+      key: humanViewerPersonKey({
+        document,
+        bases: props.bases,
+        sources: props.sources,
+      }),
     };
   });
 }

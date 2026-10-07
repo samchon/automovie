@@ -41,18 +41,28 @@ export function clipHumanPersonMesh(
     throw new Error("Person clipping requires a static indexed mesh.");
   if (mesh.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(mesh);
-  const corners = clipHumanPersonTriangles(mesh.indices.map((v) => sources[v]), cut);
+  const corners = clipHumanPersonTriangles(
+    mesh.indices.map((v) => sources[v]),
+    cut,
+  );
   const output: IAutoMovieMesh = {
-    positions: [], normals: mesh.normals === null ? null : [],
-    uvs: mesh.uvs === null ? null : [], indices: [], skin: null,
+    positions: [],
+    normals: mesh.normals === null ? null : [],
+    uvs: mesh.uvs === null ? null : [],
+    indices: [],
+    skin: null,
     ...(mesh.colors === undefined ? {} : { colors: [] }),
     ...(mesh.reliefWeights === undefined ? {} : { reliefWeights: [] }),
-    ...(mesh.physicalVertices === undefined ? {} : {
-      physicalVertices: {
-        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-        vertices: [],
-      },
-    }),
+    ...(mesh.physicalVertices === undefined
+      ? {}
+      : {
+          physicalVertices: {
+            sources: mesh.physicalVertices.sources.map((source) => ({
+              ...source,
+            })),
+            vertices: [],
+          },
+        }),
   };
   const resident = new Map<string, number>();
   const outputSources: number[] = [];
@@ -60,12 +70,19 @@ export function clipHumanPersonMesh(
     const a = mesh.indices[corner.a];
     const b = mesh.indices[corner.b];
     const gather = (values: number[], width: number): number[] =>
-      Array.from({ length: width }, (_, axis) =>
-        (1 - corner.t) * values[a * width + axis] + corner.t * values[b * width + axis],
+      Array.from(
+        { length: width },
+        (_, axis) =>
+          (1 - corner.t) * values[a * width + axis] +
+          corner.t * values[b * width + axis],
       );
     const uv = mesh.uvs === null ? null : gather(mesh.uvs, 2);
-    const color = mesh.colors === undefined ? undefined : gather(mesh.colors, 3);
-    const relief = mesh.reliefWeights === undefined ? undefined : gather(mesh.reliefWeights, 1);
+    const color =
+      mesh.colors === undefined ? undefined : gather(mesh.colors, 3);
+    const relief =
+      mesh.reliefWeights === undefined
+        ? undefined
+        : gather(mesh.reliefWeights, 1);
     const key = `${corner.vertex}/${uv?.join(",") ?? ""}/${color?.join(",") ?? ""}/${relief?.join(",") ?? ""}`;
     let index = resident.get(key);
     if (index === undefined) {
@@ -74,13 +91,16 @@ export function clipHumanPersonMesh(
       outputSources.push(corner.vertex);
       if (output.physicalVertices !== undefined) {
         if (corner.t !== 0 && corner.t !== 1)
-          throw new Error("Person physical registration does not support an unregistered strict cut point.");
+          throw new Error(
+            "Person physical registration does not support an unregistered strict cut point.",
+          );
         output.physicalVertices.vertices.push(
           mesh.physicalVertices!.vertices[corner.t === 0 ? a : b],
         );
       }
       output.positions.push(...gather(mesh.positions, 3));
-      if (mesh.normals !== null) output.normals!.push(...gather(mesh.normals, 3));
+      if (mesh.normals !== null)
+        output.normals!.push(...gather(mesh.normals, 3));
       if (uv !== null) output.uvs!.push(...uv);
       if (color !== undefined) output.colors!.push(...color);
       if (relief !== undefined) output.reliefWeights!.push(...relief);

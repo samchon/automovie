@@ -1,10 +1,12 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+
+import type { IBodyMirroredCorrective } from "./IBodyMirroredCorrective";
+import { isSidedBodyCorrective } from "./isSidedBodyCorrective";
+import { mirrorDriver } from "./mirrorDriver";
+import { swapBodySide } from "./swapBodySide";
+
 type Corrective = NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number];
 type Channel = IAutoMovieHumanBodyBasis["channels"][number];
-import { swapBodySide } from "./swapBodySide";
-import { mirrorDriver } from "./mirrorDriver";
-import { isSidedBodyCorrective } from "./isSidedBodyCorrective";
-import type { IBodyMirroredCorrective } from "./IBodyMirroredCorrective";
 
 /**
  * The exact mirror of a sided corrective and of its rows.

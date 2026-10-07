@@ -6,6 +6,18 @@ import type { IHumanSourceEyeSide } from "./structures/IHumanSourceEyeSide.ts";
  * +X, so its lateral canthus has the larger x; the right eye's the smaller.
  */
 export const HUMAN_SOURCE_EYE_SIDES: readonly IHumanSourceEyeSide[] = [
-  { side: "left", owner: "leftEye", center: "joint-l-eye", target: "joint-l-eye-target", lateral: 1 },
-  { side: "right", owner: "rightEye", center: "joint-r-eye", target: "joint-r-eye-target", lateral: -1 },
+  {
+    side: "left",
+    owner: "leftEye",
+    center: "joint-l-eye",
+    target: "joint-l-eye-target",
+    lateral: 1,
+  },
+  {
+    side: "right",
+    owner: "rightEye",
+    center: "joint-r-eye",
+    target: "joint-r-eye-target",
+    lateral: -1,
+  },
 ];

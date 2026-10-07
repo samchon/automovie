@@ -1,10 +1,10 @@
-import type { IHumanFloat32MeshBuffers } from "./IHumanFloat32MeshBuffers";
 import { weldedDegenerateTriangles } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import type { IHumanFloat32MeshBuffers } from "./IHumanFloat32MeshBuffers";
 import { assertDirection } from "./assertDirection";
-import { triangleAreaVector } from "./triangleAreaVector";
 import { readHumanMeshNormalRefusals } from "./readHumanMeshNormalRefusals";
+import { triangleAreaVector } from "./triangleAreaVector";
 
 /**
  * Materialize the shared preview/glTF precision boundary and refuse surface loss.
@@ -19,7 +19,10 @@ import { readHumanMeshNormalRefusals } from "./readHumanMeshNormalRefusals";
  * No photograph, subject name, absolute area threshold or renderer verdict
  * exempts a face. All coordinates remain in the input's local metre frame.
  */
-export function float32MeshBuffers(mesh: IAutoMovieMesh, identity: string = "unnamed resident mesh"): IHumanFloat32MeshBuffers {
+export function float32MeshBuffers(
+  mesh: IAutoMovieMesh,
+  identity: string = "unnamed resident mesh",
+): IHumanFloat32MeshBuffers {
   const degenerate = new Set(weldedDegenerateTriangles(mesh));
   if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
     throw new Error("Model normal buffers must align with resident positions.");
@@ -55,8 +58,12 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh, identity: string = "unn
         normals[offset + 2],
       );
       if (Math.abs(length - 1) > 2 ** -23)
-        throw new Error("Model GLTF NORMAL values must be unit directions: " + identity + " " +
-          JSON.stringify(readHumanMeshNormalRefusals(mesh, normals, indices)));
+        throw new Error(
+          "Model GLTF NORMAL values must be unit directions: " +
+            identity +
+            " " +
+            JSON.stringify(readHumanMeshNormalRefusals(mesh, normals, indices)),
+        );
     }
   for (let face = 0; face < indices.length; face += 3) {
     if (degenerate.has(face / 3)) continue;
@@ -66,15 +73,30 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh, identity: string = "unn
       assertDirection(before, after, face / 3, "Float32 conversion");
     } catch (error) {
       const corners = Array.from(indices.slice(face, face + 3));
-      throw new Error((error instanceof Error ? error.message : String(error)) + " mesh:" + identity + " " + JSON.stringify({
-        face: face / 3, corners, before, after,
-        positions: corners.map((vertex) => mesh.positions.slice(3 * vertex, 3 * vertex + 3)),
-        float32: corners.map((vertex) => Array.from(positions.slice(3 * vertex, 3 * vertex + 3))),
-        physical: corners.map((vertex) => {
-          const alias = mesh.physicalVertices?.vertices[vertex];
-          return alias === undefined || alias === null ? null : mesh.physicalVertices!.sources[alias] ?? null;
-        }),
-      }));
+      throw new Error(
+        (error instanceof Error ? error.message : String(error)) +
+          " mesh:" +
+          identity +
+          " " +
+          JSON.stringify({
+            face: face / 3,
+            corners,
+            before,
+            after,
+            positions: corners.map((vertex) =>
+              mesh.positions.slice(3 * vertex, 3 * vertex + 3),
+            ),
+            float32: corners.map((vertex) =>
+              Array.from(positions.slice(3 * vertex, 3 * vertex + 3)),
+            ),
+            physical: corners.map((vertex) => {
+              const alias = mesh.physicalVertices?.vertices[vertex];
+              return alias === undefined || alias === null
+                ? null
+                : (mesh.physicalVertices!.sources[alias] ?? null);
+            }),
+          }),
+      );
     }
   }
   return { positions, normals, uvs, indices };

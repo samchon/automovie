@@ -1,12 +1,19 @@
-import { propSupportFace, propSupportGap, surfaceHeightAt } from "@automovie/engine";
-import { propRegistry, propSet } from "../film/propPlacementFixtures";
-import { namedFacts, nclose } from "./predicates";
-import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
+import {
+  propSupportFace,
+  propSupportGap,
+  surfaceHeightAt,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
+import { propRegistry, propSet } from "../film/propPlacementFixtures";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
+import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
+import { namedFacts, nclose } from "./predicates";
 
 /** Run the original support surface and bearing assertions without changing their order or inputs. */
-export function assertFilmPropSupportFaces(input: IFilmPropUtilityInputs): void {
+export function assertFilmPropSupportFaces(
+  input: IFilmPropUtilityInputs,
+): void {
   const { environment, box, UNIT, tableTop, bearing, tipped, patch } = input;
   TestValidator.equals(
     "a support states one face, and a footprint bears on it or does not",
@@ -289,5 +296,4 @@ export function assertFilmPropSupportFaces(input: IFilmPropUtilityInputs): void 
       aFaceBesideTheFootprintOnEitherSideIsStillNull: true,
     },
   );
-
 }

@@ -1,12 +1,16 @@
-import { builtEnvironmentPlacementBounds, builtEnvironmentPlacementOverlap, builtEnvironmentSupportStatus, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  builtEnvironmentPlacementBounds,
+  builtEnvironmentPlacementOverlap,
+  builtEnvironmentSupportStatus,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type { AutoMovieBuiltPlacementSupportLocator } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/predicates";
-import { builtPlacementTestEnvironment as environment } from "../internal/builtPlacementTestEnvironment";
+
 import { builtPlacementTestBody as body } from "../internal/builtPlacementTestBody";
+import { builtPlacementTestEnvironment as environment } from "../internal/builtPlacementTestEnvironment";
 import { builtPlacementTestSupport as support } from "../internal/builtPlacementTestSupport";
-
-
+import { throwsError } from "../internal/predicates";
 
 /**
  * Building placement review reuses authored geometry and compact population

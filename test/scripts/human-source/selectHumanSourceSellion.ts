@@ -15,6 +15,12 @@ export function selectHumanSourceSellion(
   glabella: number,
   pronasale: number,
 ): IHumanSourceLandmarkPick {
-  const bridge = traceHumanSourceMidlineProfile(positions, faces, midline, glabella, pronasale).slice(1, -1);
+  const bridge = traceHumanSourceMidlineProfile(
+    positions,
+    faces,
+    midline,
+    glabella,
+    pronasale,
+  ).slice(1, -1);
   return pickHumanSourceExtremum("sellion", positions, bridge, 2, "min");
 }

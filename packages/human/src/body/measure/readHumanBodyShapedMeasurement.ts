@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
-import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
 import { findHumanSkinLandmark } from "../../common/basis/findHumanSkinLandmark";
+import { measureHumanSection } from "../../common/measure/measureHumanSection";
+import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import type { IAutoMovieHumanBodyMeasurementSection } from "../structures/IAutoMovieHumanBodyMeasurementSection";
 import { indexHumanBodySectionTriangles } from "./indexHumanBodySectionTriangles";
-import { measureHumanSection } from "../../common/measure/measureHumanSection";
 import { readHumanBodySkinExtent } from "./readHumanBodySkinExtent";
 import { readHumanBodySkinPoint } from "./readHumanBodySkinPoint";
 import { readHumanBodySkinReach } from "./readHumanBodySkinReach";
@@ -58,7 +58,9 @@ export function readHumanBodyShapedMeasurement(
   if (rule.kind === "skin-distance") {
     const a = readHumanBodySkinPoint(basis, shaped.surfaces, rule.from);
     const b = readHumanBodySkinPoint(basis, shaped.surfaces, rule.to);
-    return a === null || b === null ? null : Vector3.length(Vector3.subtract(b, a));
+    return a === null || b === null
+      ? null
+      : Vector3.length(Vector3.subtract(b, a));
   }
   // a registered skin point's height above the ground landmark's plane
   if (rule.kind === "skin-height") {
@@ -71,8 +73,10 @@ export function readHumanBodyShapedMeasurement(
   if (from === undefined || to === undefined) return null;
   if (rule.kind === "distance")
     return Vector3.length(Vector3.subtract(to, from));
-  if (rule.kind === "extent") return readHumanBodySkinExtent(basis, shaped.surfaces, from, to, rule);
-  if (rule.kind === "skin-reach") return readHumanBodySkinReach(basis, shaped.surfaces, from, to, rule);
+  if (rule.kind === "extent")
+    return readHumanBodySkinExtent(basis, shaped.surfaces, from, to, rule);
+  if (rule.kind === "skin-reach")
+    return readHumanBodySkinReach(basis, shaped.surfaces, from, to, rule);
   const axis = Vector3.subtract(to, from);
   const normal = rule.horizontal
     ? Vector3.create(0, 1, 0)
@@ -80,8 +84,13 @@ export function readHumanBodyShapedMeasurement(
   let fractions: number[];
   if ("level" in rule) {
     const point = findHumanSkinLandmark(basis, rule.level);
-    const positions = point === undefined ? undefined : shaped.surfaces[point.surface];
-    if (point === undefined || positions === undefined || point.vertex * 3 + 2 >= positions.length)
+    const positions =
+      point === undefined ? undefined : shaped.surfaces[point.surface];
+    if (
+      point === undefined ||
+      positions === undefined ||
+      point.vertex * 3 + 2 >= positions.length
+    )
       return null;
     const vertex = Vector3.create(
       positions[point.vertex * 3],
@@ -139,7 +148,11 @@ export function readHumanBodyShapedMeasurement(
           Vector3.length(Vector3.subtract(b.centroid, point)),
       )[0];
     if (section === undefined) continue;
-    observeSection?.({ point: { ...point }, normal: { ...normal }, seed: { ...point } });
+    observeSection?.({
+      point: { ...point },
+      normal: { ...normal },
+      seed: { ...point },
+    });
     const value = rule.kind === "breadth" ? section.breadth : section.girth;
     if (pick === "rearmost") {
       if (section.back < rearmost) {
@@ -153,4 +166,3 @@ export function readHumanBodyShapedMeasurement(
   }
   return chosen;
 }
-

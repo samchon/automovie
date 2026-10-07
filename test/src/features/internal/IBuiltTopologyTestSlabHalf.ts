@@ -1,5 +1,3 @@
-
-
 /** Plan half extents of the existing citadel slab, in metres.
  *
  * @author Samchon

@@ -7,13 +7,13 @@ import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { mountBodyJointControls } from "../body/mountBodyJointControls";
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
 import { connectedBodyReach } from "../common/connectedBodyReach";
-import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyControlsProps";
 import { renderConnectedBodyExteriorGaps } from "../common/renderConnectedBodyExteriorGaps";
 import { renderConnectedBodyExteriorTargets } from "../common/renderConnectedBodyExteriorTargets";
 import { renderConnectedBodyHeldMotions } from "../common/renderConnectedBodyHeldMotions";
 import { renderConnectedBodyUnavailableChannels } from "../common/renderConnectedBodyUnavailableChannels";
 import { renderConnectedBodyUnavailableParts } from "../common/renderConnectedBodyUnavailableParts";
 import { renderConnectedBodyUnmeasuredChannels } from "../common/renderConnectedBodyUnmeasuredChannels";
+import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyControlsProps";
 
 /**
  * Mount the person panel's body control section: the body editor's measured
@@ -40,15 +40,23 @@ import { renderConnectedBodyUnmeasuredChannels } from "../common/renderConnected
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows unavailable source targets and missing endpoints as named rows instead of hiding them.
  * @author Samchon
  */
-export function mountConnectedPersonBodyControls(props: IConnectedPersonBodyControlsProps) {
+export function mountConnectedPersonBodyControls(
+  props: IConnectedPersonBodyControlsProps,
+) {
   const { dom } = props;
   const reach = connectedBodyReach(props.body);
   const unavailable = new Set(props.body.unavailableTargets ?? []);
   const scales = new Map(
-    measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map((scale) => [scale.id, scale]),
+    measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
+      (scale) => [scale.id, scale],
+    ),
   );
-  const kind = props.section.querySelector<HTMLSelectElement>('[data-role="control-kind"]')!;
-  const container = props.section.querySelector<HTMLElement>('[data-role="basis-controls"]')!;
+  const kind = props.section.querySelector<HTMLSelectElement>(
+    '[data-role="control-kind"]',
+  )!;
+  const container = props.section.querySelector<HTMLElement>(
+    '[data-role="basis-controls"]',
+  )!;
   const groups = bodyMeasuredGroups(reach.basis.channels, scales);
   // no request is stated, so every part answers with its source reason
   const anatomy = assembleHumanBodyGeneratedAnatomy({ basis: props.body });
@@ -57,7 +65,11 @@ export function mountConnectedPersonBodyControls(props: IConnectedPersonBodyCont
     const option = dom.createElement("option");
     option.value = group;
     option.textContent =
-      group === "pose" ? "Pose · joints" : group === "anatomy" ? "Anatomy · targets and parts" : "Measurement · " + group;
+      group === "pose"
+        ? "Pose · joints"
+        : group === "anatomy"
+          ? "Anatomy · targets and parts"
+          : "Measurement · " + group;
     kind.append(option);
   }
   const drafts = new Map<string, string>();
@@ -129,7 +141,13 @@ export function mountConnectedPersonBodyControls(props: IConnectedPersonBodyCont
       refuse: props.refuse,
     });
     annotateConnectedBodyReach(container, reach.limits);
-    renderConnectedBodyUnavailableChannels(dom, container, reach.missing, unavailable, query);
+    renderConnectedBodyUnavailableChannels(
+      dom,
+      container,
+      reach.missing,
+      unavailable,
+      query,
+    );
   };
   search.oninput = render;
   kind.onchange = render;

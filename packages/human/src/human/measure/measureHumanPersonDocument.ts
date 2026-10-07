@@ -40,11 +40,23 @@ export function measureHumanPersonDocument(
     ? HUMAN_PERSON_MEASUREMENTS[props.channel]
     : undefined;
   if (rule === undefined)
-    throw new Error("No person measurement is named by the body channel " + props.channel + ".");
+    throw new Error(
+      "No person measurement is named by the body channel " +
+        props.channel +
+        ".",
+    );
   if (rule.kind === "stature")
-    return { metres: readHumanPersonRest(props.compiled, props.document).statureMetres };
+    return {
+      metres: readHumanPersonRest(props.compiled, props.document).statureMetres,
+    };
   const built = props.build(restHumanPersonDocument(props.document));
-  const reading = readHumanPersonGirth(built.model, built.body.landmarks, rule, props.compiled.generation.body);
-  if (reading === null) throw new Error("The current person cannot measure " + props.channel + ".");
+  const reading = readHumanPersonGirth(
+    built.model,
+    built.body.landmarks,
+    rule,
+    props.compiled.generation.body,
+  );
+  if (reading === null)
+    throw new Error("The current person cannot measure " + props.channel + ".");
   return reading;
 }

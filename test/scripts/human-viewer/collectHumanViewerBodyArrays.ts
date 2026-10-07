@@ -11,7 +11,13 @@ export function collectHumanViewerBodyArrays(
 ): (ArrayLike<number | null> | null | undefined)[] {
   return parts.flatMap((part) => {
     const mesh = part.geometry.mesh;
-    return [mesh.positions, mesh.normals, mesh.indices, mesh.uvs, mesh.colors,
-      mesh.physicalVertices?.vertices];
+    return [
+      mesh.positions,
+      mesh.normals,
+      mesh.indices,
+      mesh.uvs,
+      mesh.colors,
+      mesh.physicalVertices?.vertices,
+    ];
   });
 }

@@ -9,7 +9,11 @@ export interface IHumanSourceSubjectAge {
   macroAge: number | null;
 
   /** Which rule produced it. */
-  path: "subject-facts age through the body age curve" | "face value inverse (unique)" | "face value omitted (zero by document convention)" | "refused";
+  path:
+    | "subject-facts age through the body age curve"
+    | "face value inverse (unique)"
+    | "face value omitted (zero by document convention)"
+    | "refused";
 
   /** The facts or face value it was read from, and why a refusal happened. */
   note: string;

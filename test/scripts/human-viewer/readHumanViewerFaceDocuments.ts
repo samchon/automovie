@@ -19,8 +19,12 @@ import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the face group; other groups build on its reference.
  * @evidence contracts/common.md#meaningful-documentation States the reference, the key inputs and the admission boundary.
  */
-export function readHumanViewerFaceDocuments(props: IReadHumanViewerFaceDocumentsProps): IHumanViewerFaceDocuments {
-  const subjects = JSON.parse(fs.readFileSync(props.documentsFile, "utf8")) as IHumanViewerSubjectDocument[];
+export function readHumanViewerFaceDocuments(
+  props: IReadHumanViewerFaceDocumentsProps,
+): IHumanViewerFaceDocuments {
+  const subjects = JSON.parse(
+    fs.readFileSync(props.documentsFile, "utf8"),
+  ) as IHumanViewerSubjectDocument[];
   const reference: IHumanViewerReferenceFaceDocument = {
     id: "connected-reference",
     name: "CC0 connected reference",
@@ -36,7 +40,11 @@ export function readHumanViewerFaceDocuments(props: IReadHumanViewerFaceDocument
       domain: "face" as const,
       document,
       basis: humanViewerPublishedBasis(props.face.digest),
-      key: createHash("sha256").update(JSON.stringify(document) + props.face.digest + props.sources.face).digest("hex"),
+      key: createHash("sha256")
+        .update(
+          JSON.stringify(document) + props.face.digest + props.sources.face,
+        )
+        .digest("hex"),
     })),
   };
 }

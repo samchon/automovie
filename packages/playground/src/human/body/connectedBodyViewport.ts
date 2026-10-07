@@ -15,11 +15,11 @@ import * as THREE from "three";
 
 import { createHumanObservation } from "../common/observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
+import type { IConnectedBodyInspectionLight } from "./IConnectedBodyInspectionLight";
+import type { IConnectedBodyInspectionLightDirection } from "./IConnectedBodyInspectionLightDirection";
 import type { IConnectedBodyViewportHost } from "./IConnectedBodyViewportHost";
 import { createConnectedBodyPreview } from "./connectedBodyPreview";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-import type { IConnectedBodyInspectionLight } from "./IConnectedBodyInspectionLight";
-import type { IConnectedBodyInspectionLightDirection } from "./IConnectedBodyInspectionLightDirection";
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
@@ -92,7 +92,9 @@ export function createConnectedBodyViewport<
     roots: () => (active === undefined ? [] : [active]),
     clay,
     height: () => canvas.getBoundingClientRect().height,
-    invalidateShadows: () => { renderer.shadowMap.needsUpdate = true; },
+    invalidateShadows: () => {
+      renderer.shadowMap.needsUpdate = true;
+    },
   });
   const numerical = createConnectedBodyRenderer({
     loadTexture: props.loadTexture,
@@ -167,13 +169,17 @@ export function createConnectedBodyViewport<
      * finite subnormal and very large directions representable. This affects
      * display only, never the numerical model, document or exported bytes.
      */
-    setLightDirection: (input: IConnectedBodyInspectionLightDirection | null): void => {
+    setLightDirection: (
+      input: IConnectedBodyInspectionLightDirection | null,
+    ): void => {
       const selected = input === null ? null : directional.get(input.name);
       if (selected === undefined)
         throw new Error("Unknown inspection light: " + input!.name);
       const magnitude = input === null ? 1 : Math.hypot(...input.direction);
       if (!Number.isFinite(magnitude) || magnitude === 0)
-        throw new Error("An inspection light needs a finite nonzero direction.");
+        throw new Error(
+          "An inspection light needs a finite nonzero direction.",
+        );
       let changed = false;
       for (const one of directional.values()) {
         const goal = one.rest.clone();

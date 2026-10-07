@@ -12,10 +12,10 @@
  * the page shows. Its whole-person reader and detailed-channel reach share
  * the same loaded body view.
  */
-import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
-import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
 import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";
+import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
+import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 
 import type { IBodySimpleExpandMessage } from "./human/body/IBodySimpleExpandMessage";
 import type { IBodySimpleProjectMessage } from "./human/body/IBodySimpleProjectMessage";
@@ -26,12 +26,23 @@ import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { connectedBodyReach } from "./human/common/connectedBodyReach";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, view]) =>
-  [connectedBodyReach(view.body).basis, createConnectedBodySimpleWhole(head, view)] as const,
+const prepared = Promise.all([
+  readConnectedHeadView(),
+  readConnectedBodyView(),
+]).then(
+  ([head, view]) =>
+    [
+      connectedBodyReach(view.body).basis,
+      createConnectedBodySimpleWhole(head, view),
+    ] as const,
 );
 
 scope.onmessage = async (
-  event: MessageEvent<IBodySimpleExpandMessage | IBodySimpleProjectMessage | IBodySimpleSolveMessage>,
+  event: MessageEvent<
+    | IBodySimpleExpandMessage
+    | IBodySimpleProjectMessage
+    | IBodySimpleSolveMessage
+  >,
 ) => {
   const request = event.data;
   try {
@@ -40,7 +51,11 @@ scope.onmessage = async (
       request.kind === "expand"
         ? expandHumanBodySimpleShape(basis, whole, request.simple, request.over)
         : request.kind === "project"
-          ? projectHumanBodySimpleShape(basis, whole, resolveHumanBodyAnatomy(basis, request.shape, request.anatomy))
+          ? projectHumanBodySimpleShape(
+              basis,
+              whole,
+              resolveHumanBodyAnatomy(basis, request.shape, request.anatomy),
+            )
           : solveHumanBodyMeasuredChannel({
               basis,
               shape: request.shape,

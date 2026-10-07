@@ -36,16 +36,23 @@ export function readHumanFaceMeasurements(
   request: IAutoMovieHumanFaceAnatomicalRequest | undefined,
 ): AutoMovieHumanFaceMeasurementReading[] {
   const targets = new Map(
-    (request?.targets ?? []).map((target) => [target.measurement, target.value]),
+    (request?.targets ?? []).map((target) => [
+      target.measurement,
+      target.value,
+    ]),
   );
   return HUMAN_FACE_MEASUREMENTS.map((measurement) => {
     let value: number | IHumanFaceMeasurementGap;
     try {
       value = measurement.read(context);
       if (typeof value === "number" && !Number.isFinite(value))
-        value = { reason: `The instrument for ${measurement.id} has no finite reading on the final surface.` };
+        value = {
+          reason: `The instrument for ${measurement.id} has no finite reading on the final surface.`,
+        };
     } catch (error) {
-      value = { reason: error instanceof Error ? error.message : String(error) };
+      value = {
+        reason: error instanceof Error ? error.message : String(error),
+      };
     }
     return typeof value === "number"
       ? {
@@ -54,8 +61,14 @@ export function readHumanFaceMeasurements(
           unit: measurement.unit,
           requested: targets.get(measurement.id) ?? null,
           measured: value,
-          ...(measurement.qualification === undefined ? {} : { qualification: measurement.qualification }),
+          ...(measurement.qualification === undefined
+            ? {}
+            : { qualification: measurement.qualification }),
         }
-      : { status: "unavailable", measurement: measurement.id, reason: value.reason };
+      : {
+          status: "unavailable",
+          measurement: measurement.id,
+          reason: value.reason,
+        };
   });
 }

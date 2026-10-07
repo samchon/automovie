@@ -1,5 +1,7 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
-
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 /** Resolve a known logical space by its authored identifier. */
 export const builtSpaceShellTestSpaceOf = (

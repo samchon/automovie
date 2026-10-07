@@ -1,7 +1,9 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+
+import { swapBodySide } from "./swapBodySide";
+
 type Corrective = NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number];
 type Channel = IAutoMovieHumanBodyBasis["channels"][number];
-import { swapBodySide } from "./swapBodySide";
 
 /** One driver with its side swapped; a channel goes to the channel it mirrors. */
 export function mirrorDriver(

@@ -6,7 +6,10 @@ import {
   Vector3,
 } from "@automovie/engine";
 import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HUMAN_BODY_DISTAL_TWIST_BONES } from "../constants/HUMAN_BODY_DISTAL_TWIST_BONES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -52,7 +55,10 @@ export function resolveHumanBodySkeleton(
   basis: IAutoMovieHumanBodyBasis,
   landmarks: Record<string, IAutoMovieVector3>,
 ): IAutoMovieHumanBodySkeletonRig {
-  const rest = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneWorldRest>();
+  const rest = new Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBoneWorldRest
+  >();
   const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
     {};
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
@@ -63,7 +69,10 @@ export function resolveHumanBodySkeleton(
     assertFrameDirection(direction, "bone direction", joint.bone);
     const y = Vector3.normalize(direction);
     const reference = Vector3.create(...joint.reference);
-    const projected = Vector3.subtract(reference, Vector3.scale(y, Vector3.dot(reference, y)));
+    const projected = Vector3.subtract(
+      reference,
+      Vector3.scale(y, Vector3.dot(reference, y)),
+    );
     assertFrameDirection(projected, "projected flexion reference", joint.bone);
     const f = Vector3.normalize(projected);
     const x = Vector3.cross(y, f);
@@ -75,7 +84,10 @@ export function resolveHumanBodySkeleton(
     if (joint.flexionAxis !== undefined) {
       // the declared line in the bone's rest frame, turned to flex the same
       // way as the frame's X; abduction keeps as close to Z as it can
-      const declaredLine = Vector3.subtract(landmarks[joint.flexionAxis[1]], landmarks[joint.flexionAxis[0]]);
+      const declaredLine = Vector3.subtract(
+        landmarks[joint.flexionAxis[1]],
+        landmarks[joint.flexionAxis[0]],
+      );
       assertFrameDirection(declaredLine, "declared flexion line", joint.bone);
       const line = Quaternion.rotateVector(
         Quaternion.inverse(rotation),
@@ -83,8 +95,8 @@ export function resolveHumanBodySkeleton(
       );
       const flexion = line.x < 0 ? Vector3.scale(line, -1) : line;
       const transverse = Vector3.subtract(
-          Vector3.create(0, 0, 1),
-          Vector3.scale(flexion, flexion.z),
+        Vector3.create(0, 0, 1),
+        Vector3.scale(flexion, flexion.z),
       );
       assertFrameDirection(transverse, "abduction projection", joint.bone);
       const abduction = Vector3.normalize(transverse);
@@ -97,7 +109,10 @@ export function resolveHumanBodySkeleton(
       };
     }
     if (HUMAN_BODY_DISTAL_TWIST_BONES.includes(joint.bone))
-      axes[joint.bone] = { ...(axes[joint.bone] ?? DEFAULT_JOINT_AXES), twistPlacement: "distal" };
+      axes[joint.bone] = {
+        ...(axes[joint.bone] ?? DEFAULT_JOINT_AXES),
+        twistPlacement: "distal",
+      };
     // The engine reads a document's clinical angle and turns the rig by
     // `(clinical - neutral) / sign`, so the measured rest angle travels here
     // and the empty pose is exactly the rest.
@@ -143,7 +158,16 @@ export function resolveHumanBodySkeleton(
 }
 
 /** A computed frame direction must exist before normalization or quaternion construction. */
-function assertFrameDirection(vector: IAutoMovieVector3, role: string, bone: AutoMovieHumanoidBone): void {
-  if (![vector.x, vector.y, vector.z].every(Number.isFinite) || (vector.x === 0 && vector.y === 0 && vector.z === 0))
-    throw new Error(`Body shaped joint needs a finite nonzero ${role}: ${bone}`);
+function assertFrameDirection(
+  vector: IAutoMovieVector3,
+  role: string,
+  bone: AutoMovieHumanoidBone,
+): void {
+  if (
+    ![vector.x, vector.y, vector.z].every(Number.isFinite) ||
+    (vector.x === 0 && vector.y === 0 && vector.z === 0)
+  )
+    throw new Error(
+      `Body shaped joint needs a finite nonzero ${role}: ${bone}`,
+    );
 }

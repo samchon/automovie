@@ -1,8 +1,8 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
-import type { IConnectedPersonModel } from "./IConnectedPersonModel";
-import type { IConnectedPersonConstructionPreview } from "./IConnectedPersonConstructionPreview";
 import type { IConnectedBodyConstructionExportResult } from "../body/IConnectedBodyConstructionExportResult";
+import type { IConnectedPersonConstructionPreview } from "./IConnectedPersonConstructionPreview";
+import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 
 /**
  * What the person panel needs of its viewport: build a person document in the
@@ -16,13 +16,21 @@ import type { IConnectedBodyConstructionExportResult } from "../body/IConnectedB
  */
 export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
   /** Build a person document; rejects with the runtime's refusal. */
-  build(document: IAutoMovieHumanPersonDocument, measure?: boolean, anatomy?: boolean): Promise<Model>;
+  build(
+    document: IAutoMovieHumanPersonDocument,
+    measure?: boolean,
+    anatomy?: boolean,
+  ): Promise<Model>;
 
   /** Prepare the same source owner's full construction and admission for draft inspection. */
-  construct(document: IAutoMovieHumanPersonDocument): Promise<IConnectedPersonConstructionPreview<Model>>;
+  construct(
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<IConnectedPersonConstructionPreview<Model>>;
 
   /** Encode a draft through unchanged export guards; admission stays separate. */
-  exportConstruction(document: IAutoMovieHumanPersonDocument): Promise<Pick<IConnectedBodyConstructionExportResult, "glb" | "admission">>;
+  exportConstruction(
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<Pick<IConnectedBodyConstructionExportResult, "glb" | "admission">>;
 
   /** Withdraw the pending build. */
   cancel(): void;
@@ -34,7 +42,9 @@ export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
   dispose(model: Model): void;
 
   /** Export the static GLB of a person document. */
-  export(document: IAutoMovieHumanPersonDocument): Promise<Uint8Array<ArrayBuffer>>;
+  export(
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<Uint8Array<ArrayBuffer>>;
 
   /** Frame the whole figure. */
   fitView(): void;

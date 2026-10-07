@@ -2,10 +2,10 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
 import type { IAutoMovieMeshCrossingOptions } from "./IAutoMovieMeshCrossingOptions";
-import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
-import { triangleIndicesOf } from "./triangleIndicesOf";
 import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
+import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";
+import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
  * Local triangle record: three corners and the bounds used to index them.
@@ -23,7 +23,10 @@ interface Indexed extends IAutoMovieSpatialQueryEntry {
  * producing a report about triangles that do not exist.
  */
 const index = (mesh: IAutoMovieMesh): Indexed[] => {
-  const indices = triangleIndicesOf(mesh, "Mesh crossings (complete triangle buffers)");
+  const indices = triangleIndicesOf(
+    mesh,
+    "Mesh crossings (complete triangle buffers)",
+  );
   if (!mesh.positions.every(Number.isFinite))
     throw new Error("Mesh crossings need finite complete triangle buffers.");
   const out: Indexed[] = [];
@@ -357,7 +360,8 @@ export function measureAutoMovieMeshCrossings(
           tolerance,
           acceptPoint === undefined
             ? undefined
-            : (point) => acceptPoint(point, triangle.ordinal, candidate.ordinal),
+            : (point) =>
+                acceptPoint(point, triangle.ordinal, candidate.ordinal),
         )
       ) {
         if (allPairs) {

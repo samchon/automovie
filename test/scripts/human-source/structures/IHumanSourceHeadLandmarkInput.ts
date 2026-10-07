@@ -1,8 +1,8 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
 import type { IHumanSourceGeneration } from "./IHumanSourceGeneration.ts";
-import type { IHumanSourceMirror } from "./IHumanSourceMirror.ts";
 import type { IHumanSourceHeadGuide } from "./IHumanSourceHeadGuide.ts";
+import type { IHumanSourceMirror } from "./IHumanSourceMirror.ts";
 
 /**
  * What head landmark selection reads: the generation (neutral skin, head

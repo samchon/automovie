@@ -1,8 +1,8 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import type { IHumanFacePeriocularTissueFit } from "./IHumanFacePeriocularTissueFit";
 import type { AutoMovieHumanFacePeriocularTissue } from "../../../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
+import type { IHumanFacePeriocularTissueFit } from "./IHumanFacePeriocularTissueFit";
 
 /** Actual generated closed tissue shell and its shared source attachment.
  *

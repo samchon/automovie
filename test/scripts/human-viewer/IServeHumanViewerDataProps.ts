@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerBasisFiles } from "./IHumanViewerBasisFiles";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles";
 
 /**

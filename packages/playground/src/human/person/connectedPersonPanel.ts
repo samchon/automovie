@@ -1,22 +1,26 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanFaceBasisDocument, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanFaceBasisDocument,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 
+import { bodyAnatomyReading } from "../body/bodyAnatomyReading";
+import { bodyGroundReading } from "../body/bodyGroundReading";
 import { renderBodyPosePresets } from "../body/bodyPosePresets";
 import { createBodyIntentGate } from "../body/createBodyIntentGate";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
+import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
 import { createConnectedPersonSession } from "./createConnectedPersonSession";
 import { describeConnectedPersonAdmission } from "./describeConnectedPersonAdmission";
 import { describeConnectedPersonStatus } from "./describeConnectedPersonStatus";
 import { exportConnectedPersonAsset } from "./exportConnectedPersonAsset";
-import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
 import { mountConnectedPersonAdmissionReport } from "./mountConnectedPersonAdmissionReport";
-import { bodyAnatomyReading } from "../body/bodyAnatomyReading";
-import { bodyGroundReading } from "../body/bodyGroundReading";
-import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
+import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
 import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
 
 /**
@@ -80,23 +84,34 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
 ) {
   const dom = app.ownerDocument;
   app.innerHTML = connectedPersonPanelMarkup();
-  const element = <T extends HTMLElement>(id: string): T => app.querySelector<T>("#" + id)!;
+  const element = <T extends HTMLElement>(id: string): T =>
+    app.querySelector<T>("#" + id)!;
   const viewport = props.viewport(element<HTMLCanvasElement>("person-canvas"));
   const source = props.body.anatomicalAssembly;
   const session = createConnectedPersonSession<Model>();
   const intents = createBodyIntentGate();
   const admissions = new WeakMap<Model, IAutoMovieHumanConstructionAdmission>();
-  const report = mountConnectedPersonAdmissionReport({ container: element("admission-report"), download: props.download });
-  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined;
+  const report = mountConnectedPersonAdmissionReport({
+    container: element("admission-report"),
+    download: props.download,
+  });
+  let editor:
+    | ReturnType<
+        typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+      >
+    | undefined;
   // the document the controls edit: the displayed person's, or the standard one before any is displayed
   let working = structuredClone(props.initial);
   let handoff: Model | undefined;
   let framed = false;
   let measured: string | undefined;
-  const reason = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+  const reason = (error: unknown): string =>
+    error instanceof Error ? error.message : String(error);
   // the history's builder: a model just constructed for this edit, or a fresh
   // construction that must still be accepted when a history entry is restored
-  const accept = async (document: IAutoMovieHumanPersonDocument): Promise<Model> => {
+  const accept = async (
+    document: IAutoMovieHumanPersonDocument,
+  ): Promise<Model> => {
     const prepared = handoff;
     handoff = undefined;
     if (prepared !== undefined) return prepared;
@@ -105,7 +120,9 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       viewport.dispose(result.model);
       throw new Error(
         "This history entry is no longer accepted: " +
-          result.admission.failures.map((failure) => failure.owner + ": " + failure.cause).join("; "),
+          result.admission.failures
+            .map((failure) => failure.owner + ": " + failure.cause)
+            .join("; "),
       );
     }
     admissions.set(result.model, result.admission);
@@ -116,28 +133,41 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     const committed = editor?.snapshot();
     const view = describeConnectedPersonStatus(
       state,
-      committed === undefined ? null : { name: committed.document.name, parts: committed.model.parts },
+      committed === undefined
+        ? null
+        : { name: committed.document.name, parts: committed.model.parts },
     );
     element("person-status").textContent = view.text;
     element("person-status").dataset.state = view.state;
     const idle = state.pending === null;
     const displayed = state.draft ?? committed;
-    element<HTMLButtonElement>("person-undo").disabled = committed === undefined || !committed.canUndo;
-    element<HTMLButtonElement>("person-redo").disabled = committed === undefined || !committed.canRedo;
-    element<HTMLButtonElement>("person-reset").disabled = committed === undefined;
-    element<HTMLButtonElement>("person-discard").disabled = committed === undefined || state.draft === null;
-    element<HTMLButtonElement>("person-save").disabled = displayed === undefined;
-    element<HTMLButtonElement>("person-glb").disabled = displayed === undefined || !idle;
+    element<HTMLButtonElement>("person-undo").disabled =
+      committed === undefined || !committed.canUndo;
+    element<HTMLButtonElement>("person-redo").disabled =
+      committed === undefined || !committed.canRedo;
+    element<HTMLButtonElement>("person-reset").disabled =
+      committed === undefined;
+    element<HTMLButtonElement>("person-discard").disabled =
+      committed === undefined || state.draft === null;
+    element<HTMLButtonElement>("person-save").disabled =
+      displayed === undefined;
+    element<HTMLButtonElement>("person-glb").disabled =
+      displayed === undefined || !idle;
     element<HTMLButtonElement>("person-glb").textContent =
-      state.draft === null ? "Export GLB" : "Export draft GLB with admission report";
+      state.draft === null
+        ? "Export GLB"
+        : "Export draft GLB with admission report";
     // the contact and humeral-head reading is taken on the admitted preview
-    element<HTMLButtonElement>("person-anatomy").disabled = committed === undefined || state.draft !== null;
+    element<HTMLButtonElement>("person-anatomy").disabled =
+      committed === undefined || state.draft !== null;
     report.show(
       describeConnectedPersonAdmission(
         state.draft === null ? "accepted" : "construction draft",
         displayed?.document,
         displayed?.model.parts,
-        displayed === undefined ? undefined : state.draft?.admission ?? admissions.get(displayed.model),
+        displayed === undefined
+          ? undefined
+          : (state.draft?.admission ?? admissions.get(displayed.model)),
       ),
     );
   };
@@ -149,9 +179,13 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   // redraw every control from the displayed person; the working document
   // returns to it after a refusal
   const refresh = (): void => {
-    const displayed = session.snapshot().draft?.document ?? editor?.snapshot().document ?? props.initial;
+    const displayed =
+      session.snapshot().draft?.document ??
+      editor?.snapshot().document ??
+      props.initial;
     working = structuredClone(displayed);
-    element<HTMLTextAreaElement>("document-json").value = serializeHumanPersonDocument(displayed, source);
+    element<HTMLTextAreaElement>("document-json").value =
+      serializeHumanPersonDocument(displayed, source);
     element("document-unapplied").textContent = "";
     show();
     sections.render();
@@ -190,9 +224,18 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       admissions.set(result.model, result.admission);
       viewport.publish(result.model);
       if (!result.admission.accepted)
-        session.settle({ document: structuredClone(next), model: result.model, admission: result.admission });
+        session.settle({
+          document: structuredClone(next),
+          model: result.model,
+          admission: result.admission,
+        });
       else {
-        if (editor === undefined) editor = createHumanFaceEditor({ document: next, model: result.model, build: accept });
+        if (editor === undefined)
+          editor = createHumanFaceEditor({
+            document: next,
+            model: result.model,
+            build: accept,
+          });
         else {
           handoff = result.model;
           await editor.edit(next);
@@ -208,17 +251,25 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       return false;
     }
   };
-  const withBody = (body: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanPersonDocument => ({
+  const withBody = (
+    body: IAutoMovieHumanBodyBasisDocument,
+  ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(working),
     body: structuredClone(body),
   });
-  const withFace = (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanPersonDocument => ({
+  const withFace = (
+    face: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(working),
     face: structuredClone(face),
   });
-  const applyText = async (text: string, ticket = withdraw()): Promise<void> => {
+  const applyText = async (
+    text: string,
+    ticket = withdraw(),
+  ): Promise<void> => {
     try {
-      if (intents.isCurrent(ticket)) await change(parseHumanPersonDocument(text, source), ticket);
+      if (intents.isCurrent(ticket))
+        await change(parseHumanPersonDocument(text, source), ticket);
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -231,14 +282,19 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       current: () => working,
       reserve: withdraw,
       isCurrent: intents.isCurrent,
-      change: (next: IAutoMovieHumanPersonDocument, ticket?: number) => change(next, ticket),
+      change: (next: IAutoMovieHumanPersonDocument, ticket?: number) =>
+        change(next, ticket),
       busy,
       report: note,
       refuse,
     },
     isDraft: () => session.snapshot().draft !== null,
     currentIntent: intents.currentTicket,
-    draftChanged: () => { session.rest(); session.note("Simple measurement draft changed; apply again."); show(); },
+    draftChanged: () => {
+      session.rest();
+      session.note("Simple measurement draft changed; apply again.");
+      show();
+    },
   });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
@@ -294,8 +350,12 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     refuse,
     busy,
   });
-  renderConnectedPersonExpressionPresets(dom, element("expression-presets"), props.expressions, (expression) =>
-    void change(withFace({ ...structuredClone(working.face), expression })),
+  renderConnectedPersonExpressionPresets(
+    dom,
+    element("expression-presets"),
+    props.expressions,
+    (expression) =>
+      void change(withFace({ ...structuredClone(working.face), expression })),
   );
   element<HTMLTextAreaElement>("document-json").oninput = () => {
     element("document-unapplied").textContent =
@@ -326,7 +386,9 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
         committed: committed?.document,
         unchanged: () =>
           intents.isCurrent(ticket) &&
-          (draft !== null ? session.snapshot().draft?.model === draft.model : editor?.snapshot().model === committed?.model),
+          (draft !== null
+            ? session.snapshot().draft?.model === draft.model
+            : editor?.snapshot().model === committed?.model),
         download: props.download,
       });
       if (line !== null && intents.isCurrent(ticket)) note(line);
@@ -348,7 +410,8 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       const ground = bodyGroundReading(posed.groundSupport);
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
-      if (crossings === null) session.refuse("This build does not supply a crossing reading.");
+      if (crossings === null)
+        session.refuse("This build does not supply a crossing reading.");
       else {
         session.rest();
         session.note(
@@ -357,13 +420,15 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
             : `The posed body skin crosses in ${crossings.length} places.`,
         );
       }
-      for (const line of [anatomy, ground]) if (line !== null) session.note(line);
+      for (const line of [anatomy, ground])
+        if (line !== null) session.note(line);
       show();
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  element("person-load").onclick = () => element<HTMLInputElement>("person-file").click();
+  element("person-load").onclick = () =>
+    element<HTMLInputElement>("person-file").click();
   element<HTMLInputElement>("person-file").onchange = async () => {
     const input = element<HTMLInputElement>("person-file");
     const file = input.files?.[0];

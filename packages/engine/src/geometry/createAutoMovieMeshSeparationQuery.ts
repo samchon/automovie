@@ -1,13 +1,13 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
-import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
-import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
-import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
 import type { IAutoMovieMeshAttachmentCap } from "./IAutoMovieMeshAttachmentCap";
 import type { IAutoMovieMeshSeparationOptions } from "./IAutoMovieMeshSeparationOptions";
 import type { IAutoMovieMeshSeparationQuery } from "./IAutoMovieMeshSeparationQuery";
 import type { IAutoMovieMeshSeparationResult } from "./IAutoMovieMeshSeparationResult";
+import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
+import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
+import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -173,8 +173,7 @@ export function createAutoMovieMeshSeparationQuery(
       );
     // Any positive represented lower bound suffices for strict-zero admission.
     // MIN_VALUE is the first such value, not a spatial tolerance or gap reduction.
-    const sufficient =
-      clearance === 0 ? Number.MIN_VALUE : clearance;
+    const sufficient = clearance === 0 ? Number.MIN_VALUE : clearance;
     let lowerBound = sufficient,
       triangle = -1,
       examined = 0;

@@ -1,5 +1,5 @@
-import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 import type { IHumanFaceProjectedSkinCourse } from "./IHumanFaceProjectedSkinCourse";
+import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 
 /**
  * One relief course pressed into, or raised from, the face skin.

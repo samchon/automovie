@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFaceOralAssembly } from "./IHumanFaceOralAssembly";
 

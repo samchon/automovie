@@ -24,8 +24,20 @@ export interface IHumanSourceReproductionRow {
   basis: "face" | "body";
   surface: string;
   row: string;
-  role: "channel-endpoint" | "corrective" | "landmark" | "neutral" | "weights" | "joint" | "attachment" | "part-endpoint";
-  provenance: "upstream-recipe" | "carried-published" | "carried-part" | "regenerated-producer";
+  role:
+    | "channel-endpoint"
+    | "corrective"
+    | "landmark"
+    | "neutral"
+    | "weights"
+    | "joint"
+    | "attachment"
+    | "part-endpoint";
+  provenance:
+    | "upstream-recipe"
+    | "carried-published"
+    | "carried-part"
+    | "regenerated-producer";
   recipe: string | null;
   regeneration: IHumanSourceReproductionError | null;
   p2: IHumanSourceReproductionError | null;

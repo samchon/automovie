@@ -21,13 +21,19 @@ import type { IAutoMovieHumanPersonSkinSurface } from "../structures/IAutoMovieH
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function findHumanPersonSkinSurface<T extends IAutoMovieHumanPersonSkinCandidate>(
-  surfaces: T[],
-): IAutoMovieHumanPersonSkinSurface<T> {
+export function findHumanPersonSkinSurface<
+  T extends IAutoMovieHumanPersonSkinCandidate,
+>(surfaces: T[]): IAutoMovieHumanPersonSkinSurface<T> {
   const index = surfaces.findIndex((surface) =>
-    surface.regions.some((region) => region.material === HUMAN_PERSON_SEAM.skinMaterial),
+    surface.regions.some(
+      (region) => region.material === HUMAN_PERSON_SEAM.skinMaterial,
+    ),
   );
   if (index < 0)
-    throw new Error("A basis needs a surface that draws the '" + HUMAN_PERSON_SEAM.skinMaterial + "' material.");
+    throw new Error(
+      "A basis needs a surface that draws the '" +
+        HUMAN_PERSON_SEAM.skinMaterial +
+        "' material.",
+    );
   return { index, surface: surfaces[index] };
 }

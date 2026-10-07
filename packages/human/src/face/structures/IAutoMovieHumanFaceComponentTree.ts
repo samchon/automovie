@@ -48,5 +48,12 @@ export namespace IAutoMovieHumanFaceComponentTree {
    * skin, materials), independent shape inputs (eye optics, lash profiles) and
    * the anatomical record of measurement targets and observations.
    */
-  export type DocumentField = "hair" | "iris" | "skin" | "materials" | "eyes" | "lashes" | "anatomical";
+  export type DocumentField =
+    | "hair"
+    | "iris"
+    | "skin"
+    | "materials"
+    | "eyes"
+    | "lashes"
+    | "anatomical";
 }

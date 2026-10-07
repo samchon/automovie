@@ -54,7 +54,11 @@ export function addHumanViewerCalibration(
       }),
     );
     mesh.name = marker.name;
-    mesh.position.set(marker.position[0], marker.position[1], marker.position[2]);
+    mesh.position.set(
+      marker.position[0],
+      marker.position[1],
+      marker.position[2],
+    );
     rig.add(mesh);
   }
   root.add(rig);

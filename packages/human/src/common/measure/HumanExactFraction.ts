@@ -120,7 +120,10 @@ export class HumanExactFraction {
    * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical ranges remain with callers.
    * @evidenceExclude contracts/anatomy.md#parametric-authority Exposes no personal geometry control.
    */
-  static subtract(a: IHumanExactFraction, b: IHumanExactFraction): IHumanExactFraction {
+  static subtract(
+    a: IHumanExactFraction,
+    b: IHumanExactFraction,
+  ): IHumanExactFraction {
     return this.add(a, this.negate(b));
   }
 

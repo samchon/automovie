@@ -43,20 +43,38 @@ export function formHumanPersonSkin(
   const rest = raw.map((value, at) => value + shift[at % 3]);
   for (const [vertex, own] of plan.bodyOfFace) {
     const at = plan.restRows.get(own)!;
-    const faceStep = [0, 1, 2].map((axis) => raw[vertex * 3 + axis] - plan.faceNeutral[vertex * 3 + axis]);
-    const bodyStep = [0, 1, 2].map((axis) => bodyRest[at * 3 + axis] - plan.bodyNeutral[own * 3 + axis]);
+    const faceStep = [0, 1, 2].map(
+      (axis) => raw[vertex * 3 + axis] - plan.faceNeutral[vertex * 3 + axis],
+    );
+    const bodyStep = [0, 1, 2].map(
+      (axis) => bodyRest[at * 3 + axis] - plan.bodyNeutral[own * 3 + axis],
+    );
     faceField = Math.max(faceField, Math.hypot(...faceStep));
-    bodyField = Math.max(bodyField, Math.hypot(...bodyStep.map((step, axis) => step - shift[axis])));
-    for (let axis = 0; axis < 3; axis++) rest[vertex * 3 + axis] = raw[vertex * 3 + axis] + bodyStep[axis];
+    bodyField = Math.max(
+      bodyField,
+      Math.hypot(...bodyStep.map((step, axis) => step - shift[axis])),
+    );
+    for (let axis = 0; axis < 3; axis++)
+      rest[vertex * 3 + axis] = raw[vertex * 3 + axis] + bodyStep[axis];
   }
-  const facePosed = skinHumanBodySurface(rest, plan.headSkin, plan.joints, bones);
+  const facePosed = skinHumanBodySurface(
+    rest,
+    plan.headSkin,
+    plan.joints,
+    bones,
+  );
   const bodyPosed = frame.bodyPosed.slice();
   plan.sharedBody.forEach((vertex, at) => {
-    for (let axis = 0; axis < 3; axis++) bodyPosed[vertex * 3 + axis] = facePosed[plan.sharedFace[at] * 3 + axis];
+    for (let axis = 0; axis < 3; axis++)
+      bodyPosed[vertex * 3 + axis] = facePosed[plan.sharedFace[at] * 3 + axis];
   });
   const band = plan.band;
   const bandRest = frame.faceRest.band;
-  if (band !== undefined && bandRest !== undefined && band.bodyVertices.length > 0) {
+  if (
+    band !== undefined &&
+    bandRest !== undefined &&
+    band.bodyVertices.length > 0
+  ) {
     // the band's body side: the face producer's displacement of each appended
     // vertex, added in the rest frame and carried by the same rigid skinning
     // transform the body builder gave that vertex
@@ -66,16 +84,21 @@ export function formHumanPersonSkin(
     band.viewBodyVertices.forEach((bodyVertex, viewVertex) => {
       const slot = band.slots.get(bodyVertex);
       if (slot === undefined || !drawn.has(viewVertex)) return;
-      for (let axis = 0; axis < 3; axis++) banded[slot * 3 + axis] = bandRest[viewVertex * 3 + axis];
+      for (let axis = 0; axis < 3; axis++)
+        banded[slot * 3 + axis] = bandRest[viewVertex * 3 + axis];
     });
     const before = bodyRest.slice(plan.sharedBody.length * 3);
     const after = before.map(
-      (value, at) => value + banded[at] - plan.bodyNeutral[band.bodyVertices[Math.floor(at / 3)] * 3 + (at % 3)],
+      (value, at) =>
+        value +
+        banded[at] -
+        plan.bodyNeutral[band.bodyVertices[Math.floor(at / 3)] * 3 + (at % 3)],
     );
     const from = skinHumanBodySurface(before, band.skin, plan.joints, bones);
     const to = skinHumanBodySurface(after, band.skin, plan.joints, bones);
     band.bodyVertices.forEach((vertex, at) => {
-      for (let axis = 0; axis < 3; axis++) bodyPosed[vertex * 3 + axis] += to[at * 3 + axis] - from[at * 3 + axis];
+      for (let axis = 0; axis < 3; axis++)
+        bodyPosed[vertex * 3 + axis] += to[at * 3 + axis] - from[at * 3 + axis];
     });
   }
   return { facePosed, bodyPosed, faceField, bodyField };

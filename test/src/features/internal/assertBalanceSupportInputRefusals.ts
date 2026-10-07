@@ -1,5 +1,8 @@
 import { validateBalanceSupport } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, violationCount } from "./predicates";

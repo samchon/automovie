@@ -1,5 +1,12 @@
 import type { IAutoMovieCameraClearanceRuntime } from "@automovie/engine";
-import type { IAutoMovieClip, IAutoMovieModel, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShotCoverage } from "@automovie/interface";
+import type {
+  IAutoMovieClip,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieShotCoverage,
+} from "@automovie/interface";
+
 import type { IFilmCameraClearanceHero } from "./IFilmCameraClearanceHero";
 
 /** Original optional adapter override fields used by the existing scenario. */

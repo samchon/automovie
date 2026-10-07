@@ -1,4 +1,5 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
 
 /**
@@ -25,7 +26,10 @@ import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
  *
  * @author Samchon
  */
-export interface IHumanBodySkinEvaluation extends Omit<IAutoMovieHumanBodyBuild, "model" | "anatomicalQuantities"> {
+export interface IHumanBodySkinEvaluation extends Omit<
+  IAutoMovieHumanBodyBuild,
+  "model" | "anatomicalQuantities"
+> {
   /** Validated exterior-only model, before internal anatomical parts are constructed. */
   skinModel: IAutoMovieModel;
 }

@@ -8,7 +8,13 @@
  */
 export interface IHumanSourceSampleState {
   name: string;
-  kind: "body-target" | "body-macro" | "body-macro-pair" | "face-target" | "face-macro" | "extra-target";
+  kind:
+    | "body-target"
+    | "body-macro"
+    | "body-macro-pair"
+    | "face-target"
+    | "face-macro"
+    | "extra-target";
   recipe: Record<string, unknown>;
   rowOffset: number;
   rowCount: number;

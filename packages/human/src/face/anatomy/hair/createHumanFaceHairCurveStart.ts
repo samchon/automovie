@@ -1,6 +1,5 @@
-
-import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
+import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
 import { createHumanFaceHairGatherStage } from "./createHumanFaceHairGatherStage";
 import { humanFaceHairEmergence } from "./humanFaceHairEmergence";

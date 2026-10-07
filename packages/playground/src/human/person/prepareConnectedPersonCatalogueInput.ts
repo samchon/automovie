@@ -1,6 +1,9 @@
-import type { IAutoMovieHumanFaceBasis, IAutoMovieHumanPersonDocument } from "@automovie/human";
-import { createHumanFacePeriocularDefaults } from "@automovie/human/face/anatomy/eye/createHumanFacePeriocularDefaults";
+import type {
+  IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 import { resolveHumanFaceBrows } from "@automovie/human/face/anatomy/brow/resolveHumanFaceBrows";
+import { createHumanFacePeriocularDefaults } from "@automovie/human/face/anatomy/eye/createHumanFacePeriocularDefaults";
 
 /**
  * Materialize the face owner's omitted tissue stack or brow populations before
@@ -21,11 +24,25 @@ export function prepareConnectedPersonCatalogueInput(
   if (path[0] !== "face") return document;
   if (path[1] === "brows" && document.face.brows === undefined) {
     const brows = resolveHumanFaceBrows(basis, document.face.brows);
-    return { ...document, face: { ...document.face, brows: structuredClone(brows) } };
+    return {
+      ...document,
+      face: { ...document.face, brows: structuredClone(brows) },
+    };
   }
-  if (path[1] === "periocularTissues" && document.face.periocularTissues === undefined) {
+  if (
+    path[1] === "periocularTissues" &&
+    document.face.periocularTissues === undefined
+  ) {
     const tissues = createHumanFacePeriocularDefaults(basis, document.face);
-    return tissues === undefined ? document : { ...document, face: { ...document.face, periocularTissues: structuredClone(tissues) } };
+    return tissues === undefined
+      ? document
+      : {
+          ...document,
+          face: {
+            ...document.face,
+            periocularTissues: structuredClone(tissues),
+          },
+        };
   }
   return document;
 }

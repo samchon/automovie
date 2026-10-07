@@ -1,11 +1,12 @@
-import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
-import type { IHumanViewerClient } from "./IHumanViewerClient";
-import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
+import type { HumanViewerPartsResponse } from "./HumanViewerPartsResponse";
 import type { IConnectHumanViewerProps } from "./IConnectHumanViewerProps";
 import type { IHumanShotHealth } from "./IHumanShotHealth";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
+import type { IHumanViewerClient } from "./IHumanViewerClient";
+import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
 import type { IHumanViewerErrorBody } from "./IHumanViewerErrorBody";
-import type { HumanViewerPartsResponse } from "./HumanViewerPartsResponse";
 import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
+
 /**
  * Connect to the resident development viewer and return a client over it.
  *
@@ -21,7 +22,9 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
  * rebuilding, is also `ok: false`: it is not an observation of the current
  * source, so no record may count it as one. Pure over `io`.
  */
-export async function connectHumanViewer(props: IConnectHumanViewerProps): Promise<IHumanViewerClient> {
+export async function connectHumanViewer(
+  props: IConnectHumanViewerProps,
+): Promise<IHumanViewerClient> {
   const { origin } = props;
   // A loaded server resets kept-alive sockets; every route is safe to ask again.
   const io: IHumanViewerClientIo = {
@@ -29,7 +32,10 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
     fetch: (url) =>
       retryHumanViewerFetch(() => props.io.fetch(url), {
         attempts: 3,
-        pause: (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }),
+        pause: (ms) =>
+          new Promise<undefined>((resolve) => {
+            setTimeout(resolve, ms);
+          }),
       }),
   };
   const health = await io.fetch(origin + "/health");
@@ -37,7 +43,9 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
   if (status.service !== "automovie-human-viewer")
     throw new Error("The port belongs to another program");
   if (io.storage !== undefined && status.storage !== io.storage)
-    throw new Error(`The resident viewer does not serve the selected storage ${io.storage}; it reports ${status.storage ?? "no storage identity"}`);
+    throw new Error(
+      `The resident viewer does not serve the selected storage ${io.storage}; it reports ${status.storage ?? "no storage identity"}`,
+    );
   if (status.ready !== true)
     throw new Error(
       "The resident viewer is not ready; start it with human-shot.mts ensure.",
@@ -47,7 +55,9 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
     revision: status.revision ?? "",
     drop: async ({ label, documents, candidateBasis }) => {
       if (!/^[A-Za-z0-9._-]+$/.test(label))
-        throw new Error("An input label uses letters, digits, dots, dashes and underscores");
+        throw new Error(
+          "An input label uses letters, digits, dots, dashes and underscores",
+        );
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
@@ -58,15 +68,21 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
       // a page that cannot answer.
       let waiting = "";
       for (;;) {
-        const scan = (await (await io.fetch(origin + "/rescan")).json()) as Pick<IHumanViewerCatalogue, "rejected">;
-        const entries = scan.rejected.filter((entry) => entry.file === label + ".json");
+        const scan = (await (
+          await io.fetch(origin + "/rescan")
+        ).json()) as Pick<IHumanViewerCatalogue, "rejected">;
+        const entries = scan.rejected.filter(
+          (entry) => entry.file === label + ".json",
+        );
         const refused = entries.find((entry) => !entry.pending);
         if (refused !== undefined) throw new Error(refused.reason);
         if (entries.length === 0) return;
         const reason = entries.map((entry) => entry.reason).join("; ");
         if (reason !== waiting) io.report(`waiting for ${label}: ${reason}`);
         waiting = reason;
-        await new Promise<undefined>((resolve) => { setTimeout(resolve, 1000); });
+        await new Promise<undefined>((resolve) => {
+          setTimeout(resolve, 1000);
+        });
       }
     },
     parts: async (fields) => {
@@ -74,9 +90,13 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
         origin + "/parts?" + new URLSearchParams(fields).toString(),
       );
       if (!response.ok)
-        throw new Error(((await response.json()) as IHumanViewerErrorBody).error);
-      const parts = await response.json() as HumanViewerPartsResponse;
-      return Array.isArray(parts) ? parts.map((part) => part.name) : parts.parts;
+        throw new Error(
+          ((await response.json()) as IHumanViewerErrorBody).error,
+        );
+      const parts = (await response.json()) as HumanViewerPartsResponse;
+      return Array.isArray(parts)
+        ? parts.map((part) => part.name)
+        : parts.parts;
     },
     render: async (fields) => {
       const response = await io.fetch(
@@ -94,8 +114,16 @@ export async function connectHumanViewer(props: IConnectHumanViewerProps): Promi
         };
       const revision = response.headers.get("x-human-revision");
       const renderer = response.headers.get("x-renderer");
-      if (!revision || !renderer || response.headers.get("x-human-stale") !== "false")
-        return { ok: false, error: "The render response does not identify a current source revision and renderer" };
+      if (
+        !revision ||
+        !renderer ||
+        response.headers.get("x-human-stale") !== "false"
+      )
+        return {
+          ok: false,
+          error:
+            "The render response does not identify a current source revision and renderer",
+        };
       return {
         ok: true,
         bytes: Buffer.from(await response.arrayBuffer()),

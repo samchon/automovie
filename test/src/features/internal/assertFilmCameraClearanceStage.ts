@@ -1,11 +1,14 @@
 import { stageScene } from "@automovie/engine";
 import type { IAutoMovieCameraClearanceEnvelope } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { makeScriptWrite } from "./filmFixtures";
+
 import type { IFilmCameraClearanceStageInputs } from "./IFilmCameraClearanceStageInputs";
+import { makeScriptWrite } from "./filmFixtures";
 
 /** Run the original nested staging envelope and author-alias boundary assertions. */
-export function assertFilmCameraClearanceStage(input: IFilmCameraClearanceStageInputs): void {
+export function assertFilmCameraClearanceStage(
+  input: IFilmCameraClearanceStageInputs,
+): void {
   const { envelope, stageWithClearance } = input;
   const authored = stageWithClearance(envelope());
   const staged = stageScene(makeScriptWrite(), authored);
@@ -51,5 +54,4 @@ export function assertFilmCameraClearanceStage(input: IFilmCameraClearanceStageI
         result.violations.some((item) => item.path.includes(".clearance")),
     ),
   );
-
 }

@@ -28,5 +28,4 @@ export interface IAutoMovieHumanFaceHairlineAngles {
 
   /** Posterior polar limit in [0,180] degrees. */
   backDegrees: number;
-
 }

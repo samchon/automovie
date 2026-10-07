@@ -1,13 +1,13 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { WebIO } from "@gltf-transform/core";
 
+import type { IAutoMovieHumanBodyAssemblyQualification } from "../../body/export/IAutoMovieHumanBodyAssemblyQualification";
+import type { IAutoMovieHumanBodyAtlasQualification } from "../../body/export/IAutoMovieHumanBodyAtlasQualification";
+import { writeHumanBodyAssemblyQualification } from "../../body/export/writeHumanBodyAssemblyQualification";
+import { writeHumanBodyAtlasQualification } from "../../body/export/writeHumanBodyAtlasQualification";
+import type { IAutoMovieHumanGltfExport } from "../../common/export/IAutoMovieHumanGltfExport";
 import { createGltfDocument } from "../../common/export/createGltfDocument";
 import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
-import type { IAutoMovieHumanGltfExport } from "../../common/export/IAutoMovieHumanGltfExport";
-import type { IAutoMovieHumanBodyAtlasQualification } from "../../body/export/IAutoMovieHumanBodyAtlasQualification";
-import { writeHumanBodyAtlasQualification } from "../../body/export/writeHumanBodyAtlasQualification";
-import type { IAutoMovieHumanBodyAssemblyQualification } from "../../body/export/IAutoMovieHumanBodyAssemblyQualification";
-import { writeHumanBodyAssemblyQualification } from "../../body/export/writeHumanBodyAssemblyQualification";
 import type { IAutoMovieHumanFaceOralExportQualification } from "../../face/export/IAutoMovieHumanFaceOralExportQualification";
 import { writeHumanFaceOralExportQualification } from "../../face/export/writeHumanFaceOralExportQualification";
 
@@ -38,16 +38,40 @@ import { writeHumanFaceOralExportQualification } from "../../face/export/writeHu
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is patched; unsupported resources refuse in the shared exporter.
  * @evidence contracts/common.md#meaningful-documentation The comment states why no rig is written and why one module instance is kept.
  */
-export async function exportHumanPerson(model: IAutoMovieModel, atlas?: IAutoMovieHumanBodyAtlasQualification, assembly?: IAutoMovieHumanBodyAssemblyQualification, oral?: IAutoMovieHumanFaceOralExportQualification): Promise<IAutoMovieHumanGltfExport> {
-  if (atlas === undefined && model.parts.some((part) => /^body:anatomical-atlas:/.test(part.id)))
-    throw new Error("Person atlas inspection export needs its source rights and reference qualification.");
-  if (assembly === undefined && model.parts.some((part) => /^body:anatomical-source:/.test(part.id)))
-    throw new Error("Person coarse anatomical export needs its source rights and shared registration qualification.");
-  if (oral === undefined && model.parts.some((part) => /^face:oral:/.test(part.id)))
-    throw new Error("Person oral export needs its licensed source and clinical-gap qualification.");
-  const document = createGltfDocument(model, { sourcePartIdentity: atlas !== undefined || assembly !== undefined || oral !== undefined });
+export async function exportHumanPerson(
+  model: IAutoMovieModel,
+  atlas?: IAutoMovieHumanBodyAtlasQualification,
+  assembly?: IAutoMovieHumanBodyAssemblyQualification,
+  oral?: IAutoMovieHumanFaceOralExportQualification,
+): Promise<IAutoMovieHumanGltfExport> {
+  if (
+    atlas === undefined &&
+    model.parts.some((part) => /^body:anatomical-atlas:/.test(part.id))
+  )
+    throw new Error(
+      "Person atlas inspection export needs its source rights and reference qualification.",
+    );
+  if (
+    assembly === undefined &&
+    model.parts.some((part) => /^body:anatomical-source:/.test(part.id))
+  )
+    throw new Error(
+      "Person coarse anatomical export needs its source rights and shared registration qualification.",
+    );
+  if (
+    oral === undefined &&
+    model.parts.some((part) => /^face:oral:/.test(part.id))
+  )
+    throw new Error(
+      "Person oral export needs its licensed source and clinical-gap qualification.",
+    );
+  const document = createGltfDocument(model, {
+    sourcePartIdentity:
+      atlas !== undefined || assembly !== undefined || oral !== undefined,
+  });
   if (atlas !== undefined) writeHumanBodyAtlasQualification(document, atlas);
-  if (assembly !== undefined) writeHumanBodyAssemblyQualification(document, assembly);
+  if (assembly !== undefined)
+    writeHumanBodyAssemblyQualification(document, assembly);
   if (oral !== undefined) writeHumanFaceOralExportQualification(document, oral);
   const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);

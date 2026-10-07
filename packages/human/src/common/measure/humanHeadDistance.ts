@@ -19,6 +19,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  * @author Samchon
  */
-export function humanHeadDistance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
+export function humanHeadDistance(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }

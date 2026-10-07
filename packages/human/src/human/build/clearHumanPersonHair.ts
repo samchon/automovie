@@ -52,23 +52,37 @@ export function clearHumanPersonHair(
     ),
   };
   if (props.observe !== undefined)
-    props.observe(Object.freeze({
-      positions: Object.freeze([...input.positions]),
-      indices: Object.freeze([...input.indices]),
-      hair: Object.freeze(input.hair.map((mesh) => Object.freeze({
-        positions: Object.freeze([...mesh.positions]),
-        indices: Object.freeze([...mesh.indices]),
-      }))),
-      clearance: input.clearance,
-    }));
+    props.observe(
+      Object.freeze({
+        positions: Object.freeze([...input.positions]),
+        indices: Object.freeze([...input.indices]),
+        hair: Object.freeze(
+          input.hair.map((mesh) =>
+            Object.freeze({
+              positions: Object.freeze([...mesh.positions]),
+              indices: Object.freeze([...mesh.indices]),
+            }),
+          ),
+        ),
+        clearance: input.clearance,
+      }),
+    );
   const cleared = keepHumanPersonHairClear(input);
   meshes.forEach((mesh, at) => {
-    const changed = mesh.positions.some((value, vertex) => value !== cleared[at][vertex]);
+    const changed = mesh.positions.some(
+      (value, vertex) => value !== cleared[at][vertex],
+    );
     mesh.positions = cleared[at];
     if (changed && mesh.normals !== null) {
       const normals = areaWeightedNormals(mesh.positions, mesh.indices!);
       for (let vertex = 0; vertex < normals.length; vertex += 3)
-        if (Math.hypot(normals[vertex], normals[vertex + 1], normals[vertex + 2]) === 0)
+        if (
+          Math.hypot(
+            normals[vertex],
+            normals[vertex + 1],
+            normals[vertex + 2],
+          ) === 0
+        )
           normals.splice(vertex, 3, ...mesh.normals.slice(vertex, vertex + 3));
       mesh.normals = normals;
     }

@@ -248,6 +248,4 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
         (v) => v.kind === "type" && v.path.includes(".at"),
       ),
     );
-
-
 }

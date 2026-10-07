@@ -3,9 +3,9 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
 import type { IHumanFaceHairMeshContext } from "./IHumanFaceHairMeshContext";
-import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import { fitHumanFaceHairRibbonRows } from "./fitHumanFaceHairRibbonRows";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";

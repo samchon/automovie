@@ -1,6 +1,6 @@
 import { measureAutoMovieMeshCrossings } from "@automovie/engine";
-import { resolveHumanFaceOralArchFrame } from "@automovie/human/face/anatomy/oral/resolveHumanFaceOralArchFrame";
 import { readHumanFaceOralCrowns } from "@automovie/human/face/anatomy/oral/readHumanFaceOralCrowns";
+import { resolveHumanFaceOralArchFrame } from "@automovie/human/face/anatomy/oral/resolveHumanFaceOralArchFrame";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
 import { createHumanSourceCrownSolids } from "./createHumanSourceCrownSolids.ts";
@@ -46,27 +46,48 @@ const SEARCH_RESOLUTION_METRES = 0.00001;
  * Nothing is edited here; the source-generation census consumes this report.
  * Posterior occlusion authoring has its own problem, search and placement owners.
  */
-export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHumanSourceOcclusionReceipt {
-  const dental = face.surfaces.find((surface) => surface.id === "Human.teeth_base");
-  if (dental === undefined) throw new Error("Occlusion needs the dental surface.");
+export function solveHumanSourceOcclusion(
+  face: IAutoMovieHumanFaceBasis,
+): IHumanSourceOcclusionReceipt {
+  const dental = face.surfaces.find(
+    (surface) => surface.id === "Human.teeth_base",
+  );
+  if (dental === undefined)
+    throw new Error("Occlusion needs the dental surface.");
   const crowns = readHumanFaceOralCrowns(face);
   const crownTopology = createHumanSourceCrownTopology(face);
-  const frame = resolveHumanFaceOralArchFrame(crowns.filter((crown) => !crown.mandibular), dental.positions, false);
+  const frame = resolveHumanFaceOralArchFrame(
+    crowns.filter((crown) => !crown.mandibular),
+    dental.positions,
+    false,
+  );
   const direction = frame.apical.map((value) => -value);
-  const owned = (dental.attachments ?? []).filter((attachment) => attachment.owner === "jaw").flatMap((attachment) => attachment.rows.filter((_, at) => at % 2 === 0));
-  if (owned.length === 0) throw new Error("Occlusion needs the mandible's dental attachment.");
+  const owned = (dental.attachments ?? [])
+    .filter((attachment) => attachment.owner === "jaw")
+    .flatMap((attachment) => attachment.rows.filter((_, at) => at % 2 === 0));
+  if (owned.length === 0)
+    throw new Error("Occlusion needs the mandible's dental attachment.");
   const moved = (retrusion: number, opening: number): number[] => {
     const positions = [...dental.positions];
     for (const vertex of owned)
-      for (let axis = 0; axis < 3; axis++) positions[3 * vertex + axis] += opening * direction[axis] - retrusion * frame.forward[axis];
+      for (let axis = 0; axis < 3; axis++)
+        positions[3 * vertex + axis] +=
+          opening * direction[axis] - retrusion * frame.forward[axis];
     return positions;
   };
-  const point = (positions: readonly number[], vertex: number): number[] => positions.slice(3 * vertex, 3 * vertex + 3);
+  const point = (positions: readonly number[], vertex: number): number[] =>
+    positions.slice(3 * vertex, 3 * vertex + 3);
   const split = (positions: readonly number[]): IHumanSourceCrownSolid[][] => {
     const solids = createHumanSourceCrownSolids(face, positions, crownTopology);
-    return [solids.filter((solid) => !solid.mandibular), solids.filter((solid) => solid.mandibular)];
+    return [
+      solids.filter((solid) => !solid.mandibular),
+      solids.filter((solid) => solid.mandibular),
+    ];
   };
-  const inside = (from: IHumanSourceCrownSolid, into: IHumanSourceCrownSolid): boolean =>
+  const inside = (
+    from: IHumanSourceCrownSolid,
+    into: IHumanSourceCrownSolid,
+  ): boolean =>
     from.vertices.some((vertex) => {
       const distance = into.signedDistance(point(from.mesh.positions, vertex));
       return distance < 0;
@@ -76,12 +97,25 @@ export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHuma
     let pairs = 0;
     for (const above of upper)
       for (const below of lower)
-        if (inside(above, below) || inside(below, above) || measureAutoMovieMeshCrossings(above.mesh, below.mesh).length !== 0) pairs++;
+        if (
+          inside(above, below) ||
+          inside(below, above) ||
+          measureAutoMovieMeshCrossings(above.mesh, below.mesh).length !== 0
+        )
+          pairs++;
     return pairs;
   };
-  const relation = (positions: readonly number[]) => measureHumanSourceIncisorRelation(face, positions, direction, frame.forward);
-  const overbite = (positions: readonly number[]): number => relation(positions).overbiteMetres;
-  const overjet = (positions: readonly number[]): number => relation(positions).overjetMetres;
+  const relation = (positions: readonly number[]) =>
+    measureHumanSourceIncisorRelation(
+      face,
+      positions,
+      direction,
+      frame.forward,
+    );
+  const overbite = (positions: readonly number[]): number =>
+    relation(positions).overbiteMetres;
+  const overjet = (positions: readonly number[]): number =>
+    relation(positions).overjetMetres;
   const before = overlapping(dental.positions);
   const overjetBefore = overjet(dental.positions);
   // A rigid setback changes the overjet by exactly its own length.
@@ -92,7 +126,10 @@ export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHuma
     let clear = SEARCH_STEP_METRES;
     while (overlapping(opened(clear)) !== 0) {
       clear += SEARCH_STEP_METRES;
-      if (clear > SEARCH_LIMIT_METRES) throw new Error("No rigid opening within the search limit clears the neutral occlusion.");
+      if (clear > SEARCH_LIMIT_METRES)
+        throw new Error(
+          "No rigid opening within the search limit clears the neutral occlusion.",
+        );
     }
     let blocked = clear - SEARCH_STEP_METRES;
     while (clear - blocked > SEARCH_RESOLUTION_METRES) {
@@ -104,7 +141,9 @@ export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHuma
   }
   const positions = opened(translation);
   const [upper, lower] = split(positions);
-  const reading = (solid: IHumanSourceCrownSolid): IHumanSourceOcclusionToothReading => {
+  const reading = (
+    solid: IHumanSourceCrownSolid,
+  ): IHumanSourceOcclusionToothReading => {
     let least = Infinity;
     for (const vertex of solid.vertices)
       for (const above of upper) {
@@ -115,15 +154,26 @@ export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHuma
   };
   const after = overbite(positions);
   return {
-    direction, translationMetres: translation,
-    overlappingPairsBefore: before, overlappingPairsAfter: overlapping(positions),
-    overbiteBeforeMetres: overbite(dental.positions), overbiteAfterMetres: after,
-    forward: [...frame.forward], retrusionMetres: retrusion,
-    overjetBeforeMetres: overjetBefore, overjetAfterMetres: overjet(positions),
-    posteriorContacts: lower.filter((solid) => Number(solid.id[1]) >= 4).map(reading),
-    anteriorClearances: lower.filter((solid) => Number(solid.id[1]) <= 3).map(reading),
+    direction,
+    translationMetres: translation,
+    overlappingPairsBefore: before,
+    overlappingPairsAfter: overlapping(positions),
+    overbiteBeforeMetres: overbite(dental.positions),
+    overbiteAfterMetres: after,
+    forward: [...frame.forward],
+    retrusionMetres: retrusion,
+    overjetBeforeMetres: overjetBefore,
+    overjetAfterMetres: overjet(positions),
+    posteriorContacts: lower
+      .filter((solid) => Number(solid.id[1]) >= 4)
+      .map(reading),
+    anteriorClearances: lower
+      .filter((solid) => Number(solid.id[1]) <= 3)
+      .map(reading),
     mandibularVertices: owned.length,
-    overbiteWithinTolerance: after >= OVERBITE_MINIMUM_METRES && after <= OVERBITE_MAXIMUM_METRES,
-    qualification: "Rigid opening of the registered low-resolution crowns to a non-overlapping neutral; no intercuspation, guidance, tooth-height reauthoring or clinical occlusion.",
+    overbiteWithinTolerance:
+      after >= OVERBITE_MINIMUM_METRES && after <= OVERBITE_MAXIMUM_METRES,
+    qualification:
+      "Rigid opening of the registered low-resolution crowns to a non-overlapping neutral; no intercuspation, guidance, tooth-height reauthoring or clinical occlusion.",
   };
 }

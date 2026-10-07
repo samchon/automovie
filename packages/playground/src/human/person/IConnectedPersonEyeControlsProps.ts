@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanFaceBasis, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 
 /**
  * What the eye-region controls render into and call: the container, the
@@ -27,7 +30,10 @@ export interface IConnectedPersonEyeControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Commit a person document under a ticket. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

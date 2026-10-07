@@ -12,7 +12,14 @@ import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovi
  * @evidence contracts/common.md#meaningful-documentation Names the exact included source fields and independent clinical/rights authority.
  * @author Samchon
  */
-export function serializeHumanFaceOralNativeSource(source: IAutoMovieHumanFaceBasisSurface): string {
-  return JSON.stringify({ positions: source.positions, indices: source.indices, targets: source.targets,
-    attachments: source.attachments ?? [], regions: source.regions });
+export function serializeHumanFaceOralNativeSource(
+  source: IAutoMovieHumanFaceBasisSurface,
+): string {
+  return JSON.stringify({
+    positions: source.positions,
+    indices: source.indices,
+    targets: source.targets,
+    attachments: source.attachments ?? [],
+    regions: source.regions,
+  });
 }

@@ -88,8 +88,7 @@ export const closestPointsBetweenSegments = (
     const distance = Math.hypot(residual.x, residual.y, residual.z);
     if (
       distance < best ||
-      (distance === best &&
-        (alongA < s || (alongA === s && alongB < t)))
+      (distance === best && (alongA < s || (alongA === s && alongB < t)))
     ) {
       best = distance;
       s = alongA;
@@ -105,7 +104,11 @@ export const closestPointsBetweenSegments = (
     offer(clampAutoMovieUnitInterval((B - C) / A), 1);
   }
   if (A > 0 && E > 0) {
-    if (B === 0) offer(clampAutoMovieUnitInterval(-C / A), clampAutoMovieUnitInterval(F / E));
+    if (B === 0)
+      offer(
+        clampAutoMovieUnitInterval(-C / A),
+        clampAutoMovieUnitInterval(F / E),
+      );
     else {
       const first = C / B,
         last = (C + A) / B;
@@ -129,7 +132,9 @@ export const closestPointsBetweenSegments = (
             y: delta.y / length,
             z: delta.z / length,
           };
-          const fraction = clampAutoMovieUnitInterval(-Vector3.dot(residual, unit) / length);
+          const fraction = clampAutoMovieUnitInterval(
+            -Vector3.dot(residual, unit) / length,
+          );
           offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
         }
       }

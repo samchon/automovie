@@ -3,10 +3,10 @@ import type {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
-import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBodySourceReferenceGoal";
-import type { IAutoMovieHumanBodyJointSigns } from "./IAutoMovieHumanBodyJointSigns";
 import type { IAutoMovieHumanBodyJointNeutral } from "./IAutoMovieHumanBodyJointNeutral";
+import type { IAutoMovieHumanBodyJointSigns } from "./IAutoMovieHumanBodyJointSigns";
 import type { IAutoMovieHumanBodyShoulderContract } from "./IAutoMovieHumanBodyShoulderContract";
+import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBodySourceReferenceGoal";
 
 /**
  * One rig joint defined by two shape-dependent landmarks and a parent bone.

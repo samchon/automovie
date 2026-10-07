@@ -28,10 +28,19 @@ parentPort!.on("message", (change: IHumanViewerRevisionsChange) => {
   try {
     bases = change.bases;
     const { moved } = revisions.changed(change.files);
-    reply = { revisions: revisions.current(), moved, reached: revisions.reached(), error: null };
+    reply = {
+      revisions: revisions.current(),
+      moved,
+      reached: revisions.reached(),
+      error: null,
+    };
   } catch (error) {
-    reply = { revisions: revisions.current(), moved: [], reached: revisions.reached(),
-      error: error instanceof Error ? error.message : String(error) };
+    reply = {
+      revisions: revisions.current(),
+      moved: [],
+      reached: revisions.reached(),
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
   parentPort!.postMessage(reply);
 });

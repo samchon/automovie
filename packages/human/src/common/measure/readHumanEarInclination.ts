@@ -30,12 +30,27 @@ import { readHumanEarLength } from "./readHumanEarLength";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function readHumanEarInclination(head: IAutoMovieHumanHeadSkin, region: string, otobasionSuperius: IAutoMovieVector3): number {
+export function readHumanEarInclination(
+  head: IAutoMovieHumanHeadSkin,
+  region: string,
+  otobasionSuperius: IAutoMovieVector3,
+): number {
   const { superaurale, subaurale } = readHumanEarLength(head, region).points;
-  const a = [superaurale.x - subaurale.x, superaurale.y - subaurale.y, superaurale.z - subaurale.z];
-  const b = [otobasionSuperius.x - subaurale.x, otobasionSuperius.y - subaurale.y, otobasionSuperius.z - subaurale.z];
+  const a = [
+    superaurale.x - subaurale.x,
+    superaurale.y - subaurale.y,
+    superaurale.z - subaurale.z,
+  ];
+  const b = [
+    otobasionSuperius.x - subaurale.x,
+    otobasionSuperius.y - subaurale.y,
+    otobasionSuperius.z - subaurale.z,
+  ];
   const denominator = Math.hypot(...a) * Math.hypot(...b);
-  if (!Number.isFinite(denominator) || denominator === 0) throw new Error(`The auricle inclination of ${head.id} has no finite angle directions.`);
+  if (!Number.isFinite(denominator) || denominator === 0)
+    throw new Error(
+      `The auricle inclination of ${head.id} has no finite angle directions.`,
+    );
   const cos = (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / denominator;
   return (Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI;
 }

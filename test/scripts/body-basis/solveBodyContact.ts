@@ -1,8 +1,5 @@
-import {
-  crossedCorners,
-  surfaceOfSegment,
-} from "./bodyContactGeometry";
 import { type IBodyContactPlane } from "./IBodyContactPlane";
+import { crossedCorners, surfaceOfSegment } from "./bodyContactGeometry";
 import { depthOfPlane } from "./depthOfPlane";
 
 /**
@@ -210,7 +207,8 @@ export function solveBodyContact(
         [hitA, b],
         [hitB, a],
       ] as const) {
-        const nearest = live === null ? surfaceOfSegment(positions, into) : null;
+        const nearest =
+          live === null ? surfaceOfSegment(positions, into) : null;
         for (const vertex of hit) {
           const s = side.get(vertex)!;
           const direction =
@@ -287,7 +285,9 @@ export function solveBodyContact(
       const along = dot(worn, target.direction);
       if (along <= 0) continue;
       const list = standing.get(vertex) ?? [];
-      const same = list.find((held) => dot(held.direction, target.direction) > 0.99);
+      const same = list.find(
+        (held) => dot(held.direction, target.direction) > 0.99,
+      );
       if (same === undefined)
         list.push({ direction: [...target.direction], distance: along });
       else same.distance = Math.max(same.distance, along);

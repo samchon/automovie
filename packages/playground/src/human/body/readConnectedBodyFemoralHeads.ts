@@ -1,5 +1,5 @@
-import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "@automovie/human/body/anatomy/lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
 import { measureHumanBodySpheresSkinClearance } from "@automovie/human/body/anatomy/contact/measureHumanBodySpheresSkinClearance";
+import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "@automovie/human/body/anatomy/lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
 
 import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IReadConnectedBodyHumeralHeadsProps } from "./IReadConnectedBodyHumeralHeadsProps";
@@ -20,20 +20,27 @@ import type { IReadConnectedBodyHumeralHeadsProps } from "./IReadConnectedBodyHu
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reports measured or unavailable femoral heads without inventing a radius.
  * @author Samchon
  */
-export function readConnectedBodyFemoralHeads(props: IReadConnectedBodyHumeralHeadsProps): IConnectedBodyFemoralHeads | null {
+export function readConnectedBodyFemoralHeads(
+  props: IReadConnectedBodyHumeralHeadsProps,
+): IConnectedBodyFemoralHeads | null {
   if (props.document.anatomy === undefined) return null;
   const heads = createHumanBodyFemoralHeadsFromAnatomicalMeasurements({
     measurements: props.document.anatomy,
     bones: props.built.bones,
   });
   if (heads.length === 0) return null;
-  if (props.crossings.length !== 0) return { status: "skin-crossing", heads: [] };
+  if (props.crossings.length !== 0)
+    return { status: "skin-crossing", heads: [] };
   const measured = measureHumanBodySpheresSkinClearance({
     skins: props.basis.surfaces.map((surface, index) => ({
       indices: surface.indices,
       positions: props.built.posedSurfaces[index].positions,
     })),
-    spheres: heads.map(({ bone, center, radiusMetres }) => ({ id: bone, center, radiusMetres })),
+    spheres: heads.map(({ bone, center, radiusMetres }) => ({
+      id: bone,
+      center,
+      radiusMetres,
+    })),
   });
   return {
     status: "measured",

@@ -24,7 +24,10 @@ import type { IAutoMovieHumanHeadMeasurement } from "./IAutoMovieHumanHeadMeasur
  *
  * @author Samchon
  */
-export const HUMAN_HEAD_MEASUREMENTS: Record<string, IAutoMovieHumanHeadMeasurement> = {
+export const HUMAN_HEAD_MEASUREMENTS: Record<
+  string,
+  IAutoMovieHumanHeadMeasurement
+> = {
   /**
    * Tragion–top of head: ANSUR II 6.4.83 (p. 159), "the vertical distance
    * between the right tragion landmark ... and the horizontal plane tangent to

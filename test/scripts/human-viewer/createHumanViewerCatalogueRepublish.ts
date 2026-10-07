@@ -9,7 +9,9 @@
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the pending request.
  * @evidence contracts/common.md#meaningful-documentation States the measured cause and the folding rule.
  */
-export function createHumanViewerCatalogueRepublish(rebuild: () => void): () => void {
+export function createHumanViewerCatalogueRepublish(
+  rebuild: () => void,
+): () => void {
   let scheduled = false;
   return () => {
     if (scheduled) return;

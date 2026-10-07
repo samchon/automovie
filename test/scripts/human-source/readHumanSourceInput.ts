@@ -28,8 +28,12 @@ export function readHumanSourceInput<T>(
         });
   const sha256 = crypto.createHash("sha256").update(bytes).digest("hex");
   if (expectedSha256 !== null && sha256 !== expectedSha256)
-    throw new Error(`${role} ${path}${revision === null ? "" : "@" + revision} has digest ${sha256}, expected ${expectedSha256}.`);
+    throw new Error(
+      `${role} ${path}${revision === null ? "" : "@" + revision} has digest ${sha256}, expected ${expectedSha256}.`,
+    );
   inputs.push({ role, path, revision, bytes: bytes.length, sha256 });
-  const text = (path.endsWith(".gz") ? zlib.gunzipSync(bytes) : bytes).toString("utf8");
+  const text = (path.endsWith(".gz") ? zlib.gunzipSync(bytes) : bytes).toString(
+    "utf8",
+  );
   return JSON.parse(text) as T;
 }

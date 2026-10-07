@@ -18,13 +18,16 @@ import type { IConnectedPersonHeadShapeControlsProps } from "./IConnectedPersonH
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Leaves stale replies and failed geometry to the same transactional admission path as other person edits.
  * @author Samchon
  */
-export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHeadShapeControlsProps) {
+export function mountConnectedPersonHeadShapeControls(
+  props: IConnectedPersonHeadShapeControlsProps,
+) {
   const title = props.dom.createElement("h3");
   title.textContent = "Head, face, neck and ears";
   props.container.append(title);
   if (props.source === undefined || props.source.fields.length === 0) {
     const unavailable = props.dom.createElement("small");
-    unavailable.textContent = "Independent numerical head traits are unavailable in this source generation. Existing measurement and face controls remain available.";
+    unavailable.textContent =
+      "Independent numerical head traits are unavailable in this source generation. Existing measurement and face controls remain available.";
     props.container.append(unavailable);
     return { refresh: (): void => {} };
   }
@@ -37,8 +40,12 @@ export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHea
     groups.set(group, fields);
   }
   const labels: Record<string, string> = {
-    cranial: "Cranium", facial: "Cheeks, mandible and chin", cervical: "Neck and submental profile",
-    nasalExterior: "Nose", "ears.left": "Left ear", "ears.right": "Right ear",
+    cranial: "Cranium",
+    facial: "Cheeks, mandible and chin",
+    cervical: "Neck and submental profile",
+    nasalExterior: "Nose",
+    "ears.left": "Left ear",
+    "ears.right": "Right ear",
   };
   const refreshers: (() => void)[] = [];
   for (const [group, fields] of groups) {
@@ -50,7 +57,10 @@ export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHea
     for (const field of fields) {
       const option = props.dom.createElement("option");
       option.value = field.id;
-      option.textContent = field.id.split(".").at(-1)!.replace(/([a-z])([A-Z])/gu, "$1 $2");
+      option.textContent = field.id
+        .split(".")
+        .at(-1)!
+        .replace(/([a-z])([A-Z])/gu, "$1 $2");
       member.append(option);
     }
     const number = props.dom.createElement("input");
@@ -68,8 +78,9 @@ export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHea
     box.append(legend, member, number, state, support, apply, remove);
     props.container.append(box);
     const selected = (): IAutoMovieHumanPersonHeadShapeFieldSource => {
-      const field = fields.find(candidate => candidate.id === member.value);
-      if (field === undefined) throw new Error("A registered head trait must be selected.");
+      const field = fields.find((candidate) => candidate.id === member.value);
+      if (field === undefined)
+        throw new Error("A registered head trait must be selected.");
       return field;
     };
     const refresh = (): void => {
@@ -81,10 +92,18 @@ export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHea
       number.placeholder = "Difference in " + unit;
       number.min = String(field.minimum);
       number.max = String(field.maximum);
-      state.textContent = value === undefined ? "Omitted: source neutral" : `Current input: ${value} ${unit}`;
+      state.textContent =
+        value === undefined
+          ? "Omitted: source neutral"
+          : `Current input: ${value} ${unit}`;
       const duplicate = person.body.shape[field.bodyChannel] !== undefined;
-      support.textContent = `Source support: ${field.minimum} to ${field.maximum} ${unit}. ${field.qualification}` +
-        (duplicate ? " Raw body channel " + field.bodyChannel + " is authored; remove that input before applying this trait." : "");
+      support.textContent =
+        `Source support: ${field.minimum} to ${field.maximum} ${unit}. ${field.qualification}` +
+        (duplicate
+          ? " Raw body channel " +
+            field.bodyChannel +
+            " is authored; remove that input before applying this trait."
+          : "");
       remove.disabled = value === undefined;
     };
     const commit = async (erase: boolean): Promise<void> => {
@@ -95,28 +114,49 @@ export function mountConnectedPersonHeadShapeControls(props: IConnectedPersonHea
         if (erase) {
           if (person.headShape !== undefined) {
             delete person.headShape[field.id];
-            if (Object.keys(person.headShape).length === 0) delete person.headShape;
+            if (Object.keys(person.headShape).length === 0)
+              delete person.headShape;
           }
         } else {
-          if (number.value.trim() === "" || !Number.isFinite(Number(number.value)))
-            throw new Error("Enter a finite source difference; omission is restored with Remove difference.");
+          if (
+            number.value.trim() === "" ||
+            !Number.isFinite(Number(number.value))
+          )
+            throw new Error(
+              "Enter a finite source difference; omission is restored with Remove difference.",
+            );
           if (person.body.shape[field.bodyChannel] !== undefined)
-            throw new Error("Head trait " + field.id + " and raw body channel " + field.bodyChannel + " cannot author the same trait. Remove the raw channel input first.");
+            throw new Error(
+              "Head trait " +
+                field.id +
+                " and raw body channel " +
+                field.bodyChannel +
+                " cannot author the same trait. Remove the raw channel input first.",
+            );
           person.headShape ??= {};
           person.headShape[field.id] = Number(number.value);
         }
         props.busy("Building head difference…");
         const success = await props.change(person, ticket);
-        if (success && props.isCurrent(ticket)) props.report(field.id + (erase ? " omitted." : " applied."));
+        if (success && props.isCurrent(ticket))
+          props.report(field.id + (erase ? " omitted." : " applied."));
       } catch (error) {
         if (props.isCurrent(ticket)) props.refuse(error);
       }
     };
     member.onchange = refresh;
-    apply.onclick = () => { void commit(false); };
-    remove.onclick = () => { void commit(true); };
+    apply.onclick = () => {
+      void commit(false);
+    };
+    remove.onclick = () => {
+      void commit(true);
+    };
     refreshers.push(refresh);
     refresh();
   }
-  return { refresh: (): void => { refreshers.forEach(refresh => refresh()); } };
+  return {
+    refresh: (): void => {
+      refreshers.forEach((refresh) => refresh());
+    },
+  };
 }

@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyBasisSurface } from "@automovie/human/body/structures/surface/IAutoMovieHumanBodyBasisSurface";
 import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
+import type { IAutoMovieHumanBodyBasisSurface } from "@automovie/human/body/structures/surface/IAutoMovieHumanBodyBasisSurface";
 
 import { humanSourceWeightTolerance } from "./humanSourceWeightTolerance.ts";
 import { roundHalfEven } from "./roundHalfEven.ts";
@@ -58,21 +58,37 @@ export function splitHumanSourceToes(
     if (sideWeight.left === 0 && sideWeight.right === 0) continue;
     if (sideWeight.left > 0 && sideWeight.right > 0) twoSided++;
     const sample = sampleOf(v);
-    const rows = (sampleRays[sample] ?? []).filter(([bone, w]) => w > 0 && sourceIndex.has(bone));
-    for (const [side, suffix] of [["left", ".L"], ["right", ".R"]] as const) {
-      const sum = rows.filter(([bone]) => bone.endsWith(suffix)).reduce((s, [, w]) => s + w, 0);
+    const rows = (sampleRays[sample] ?? []).filter(
+      ([bone, w]) => w > 0 && sourceIndex.has(bone),
+    );
+    for (const [side, suffix] of [
+      ["left", ".L"],
+      ["right", ".R"],
+    ] as const) {
+      const sum = rows
+        .filter(([bone]) => bone.endsWith(suffix))
+        .reduce((s, [, w]) => s + w, 0);
       const deviation = Math.abs(sum - sideWeight[side]);
       if (deviation > PARTITION_TOLERANCE)
-        throw new Error(`Toe split: vertex ${v} (sample ${sample}) has ${side} toes weight ${sideWeight[side]} but ${side} phalanx weights summing to ${sum}.`);
+        throw new Error(
+          `Toe split: vertex ${v} (sample ${sample}) has ${side} toes weight ${sideWeight[side]} but ${side} phalanx weights summing to ${sum}.`,
+        );
       largestDeviation = Math.max(largestDeviation, deviation);
-      if (deviation > 4 * humanSourceWeightTolerance && !deviating.includes(v)) deviating.push(v);
+      if (deviation > 4 * humanSourceWeightTolerance && !deviating.includes(v))
+        deviating.push(v);
     }
     const total = rows.reduce((s, [, w]) => s + w, 0);
     rows.sort((a, b) => sourceIndex.get(a[0])! - sourceIndex.get(b[0])!);
-    const kept = rows.map(([bone, w]): [number, number] => [sourceIndex.get(bone)!, roundHalfEven(w / total, DECIMALS)]).filter(([, share]) => share > 0);
+    const kept = rows
+      .map(([bone, w]): [number, number] => [
+        sourceIndex.get(bone)!,
+        roundHalfEven(w / total, DECIMALS),
+      ])
+      .filter(([, share]) => share > 0);
     const spent = kept.slice(0, -1).reduce((s, [, share]) => s + share, 0);
     const last = roundHalfEven(1 - spent, DECIMALS);
-    if (kept.length === 0 || !(last > 0)) throw new Error(`Toe split: vertex ${v} has no positive phalanx share.`);
+    if (kept.length === 0 || !(last > 0))
+      throw new Error(`Toe split: vertex ${v} has no positive phalanx share.`);
     kept[kept.length - 1][1] = last;
     for (const [index, share] of kept) {
       bonesIndex.push(index);

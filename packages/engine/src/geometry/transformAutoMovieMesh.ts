@@ -112,12 +112,16 @@ export const transformAutoMovieMesh = (
       : { reliefWeights: [...mesh.reliefWeights] }),
     indices,
     skin: null,
-    ...(mesh.physicalVertices === undefined ? {} : {
-      physicalVertices: {
-        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-        vertices: mesh.physicalVertices.vertices.slice(),
-      },
-    }),
+    ...(mesh.physicalVertices === undefined
+      ? {}
+      : {
+          physicalVertices: {
+            sources: mesh.physicalVertices.sources.map((source) => ({
+              ...source,
+            })),
+            vertices: mesh.physicalVertices.vertices.slice(),
+          },
+        }),
   };
   if (result.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(result);

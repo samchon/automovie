@@ -36,7 +36,9 @@ export function resolveHumanFaceApertureDirections(
   const side = Vector3.normalize(Vector3.cross(Vector3.create(0, 1, 0), axis));
   const length = Vector3.length(side);
   if (!(length > 0) || !Number.isFinite(length))
-    throw new Error("The mandibular axis cannot be the vertical of the basis frame.");
+    throw new Error(
+      "The mandibular axis cannot be the vertical of the basis frame.",
+    );
   const up = Vector3.normalize(Vector3.cross(axis, side));
   const forward = Vector3.normalize(Vector3.cross(axis, up));
   return { axis, up, forward };

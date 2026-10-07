@@ -1,6 +1,6 @@
+import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
 import { createDentalCrownAxis } from "./createDentalCrownAxis";
 import { evaluateDentalSurfaceAnchor } from "./evaluateDentalSurfaceAnchor";
-import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
 
 /**
  * Project registered gingival-zenith minus incisal/cusp displacement onto the
@@ -32,28 +32,64 @@ export function measureDentalClinicalHeight(
   basisRevision: string,
   registration: IDentalClinicalRegistration | undefined,
   movingVertices: ReadonlySet<number>,
-): { measurement: "registered-landmark-axis-distance"; heightMetres: number; metresPerUpShift: number } {
-  if (registration === undefined || registration.basisRevision !== basisRevision || registration.registrationId.trim() === "")
-    throw new Error("Clinical crown height needs landmark registration for this exact basis and its provenance.");
-  if ([registration.axis.incisal, registration.axis.cervical, registration.incisalOrCusp]
-    .some((anchor) => anchor.vertices.some((vertex) => movingVertices.has(vertex))))
-    throw new Error("Clinical gingival movement needs stationary crown axis and incisal landmarks.");
+): {
+  measurement: "registered-landmark-axis-distance";
+  heightMetres: number;
+  metresPerUpShift: number;
+} {
+  if (
+    registration === undefined ||
+    registration.basisRevision !== basisRevision ||
+    registration.registrationId.trim() === ""
+  )
+    throw new Error(
+      "Clinical crown height needs landmark registration for this exact basis and its provenance.",
+    );
+  if (
+    [
+      registration.axis.incisal,
+      registration.axis.cervical,
+      registration.incisalOrCusp,
+    ].some((anchor) =>
+      anchor.vertices.some((vertex) => movingVertices.has(vertex)),
+    )
+  )
+    throw new Error(
+      "Clinical gingival movement needs stationary crown axis and incisal landmarks.",
+    );
   const axis = createDentalCrownAxis(
     evaluateDentalSurfaceAnchor(positions, registration.axis.incisal),
     evaluateDentalSurfaceAnchor(positions, registration.axis.cervical),
   ).unit;
-  const incisal = evaluateDentalSurfaceAnchor(positions, registration.incisalOrCusp);
-  const zenith = evaluateDentalSurfaceAnchor(positions, registration.gingivalZenith);
+  const incisal = evaluateDentalSurfaceAnchor(
+    positions,
+    registration.incisalOrCusp,
+  );
+  const zenith = evaluateDentalSurfaceAnchor(
+    positions,
+    registration.gingivalZenith,
+  );
   const displacement = zenith.map((value, at) => value - incisal[at]);
   const scale = Math.max(...displacement.map(Math.abs));
   if (!Number.isFinite(scale))
     throw new Error("Registered crown height arithmetic must remain finite.");
-  const heightMetres = scale === 0 ? 0 :
-    axis.reduce((sum, value, at) => sum + value * (displacement[at] / scale), 0) * scale;
+  const heightMetres =
+    scale === 0
+      ? 0
+      : axis.reduce(
+          (sum, value, at) => sum + value * (displacement[at] / scale),
+          0,
+        ) * scale;
   if (!Number.isFinite(heightMetres))
     throw new Error("Registered crown height arithmetic must remain finite.");
-  const carried = registration.gingivalZenith.vertices.reduce((sum, vertex, at) =>
-    sum + (movingVertices.has(vertex) ? registration.gingivalZenith.weights[at] : 0), 0);
+  const carried = registration.gingivalZenith.vertices.reduce(
+    (sum, vertex, at) =>
+      sum +
+      (movingVertices.has(vertex)
+        ? registration.gingivalZenith.weights[at]
+        : 0),
+    0,
+  );
   return {
     measurement: "registered-landmark-axis-distance",
     heightMetres,

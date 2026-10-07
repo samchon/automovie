@@ -49,7 +49,10 @@ export interface IHumanFaceHairRootedLookahead {
   step: number;
 
   /** Ray index over the same closed collider as the contact. */
-  raycaster: Pick<ReturnType<typeof createAutoMovieMeshRayCaster>, "nearestHit">;
+  raycaster: Pick<
+    ReturnType<typeof createAutoMovieMeshRayCaster>,
+    "nearestHit"
+  >;
 
   /** Contact sampler and outward reader of the same collider. */
   contact: Pick<IHumanFaceHairContact, "sample" | "outward">;

@@ -54,7 +54,8 @@ export function readHumanFaceSkinRegionRelations(
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const [name, area] of Object.entries(basis.skinRegions ?? {})) {
     const surface = basis.surfaces[area.surface];
-    const points = surface === undefined ? undefined : pose.positions.get(surface.id);
+    const points =
+      surface === undefined ? undefined : pose.positions.get(surface.id);
     if (surface === undefined || points === undefined) continue;
     const members = new Set(area.vertices);
     const inside: number[] = [],

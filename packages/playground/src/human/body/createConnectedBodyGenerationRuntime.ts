@@ -1,6 +1,10 @@
-import type { IAutoMovieHumanPersonBodyView, IAutoMovieHumanPersonHeadView } from "@automovie/human";
-import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
+import type {
+  IAutoMovieHumanPersonBodyView,
+  IAutoMovieHumanPersonHeadView,
+} from "@automovie/human";
 import { createHumanPersonBodyEndpointSource } from "@automovie/human/human/build/createHumanPersonBodyEndpointSource";
+import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
+
 import { createConnectedBodyRuntime } from "./connectedBodyRuntime";
 import { createConnectedBodySimpleWhole } from "./createConnectedBodySimpleWhole";
 
@@ -22,11 +26,15 @@ export function createConnectedBodyGenerationRuntime(
   progress?: (stage: string) => void,
 ): ReturnType<typeof createConnectedBodyRuntime> {
   const generation = joinHumanPersonGeneration(head, body);
-  return createConnectedBodyRuntime(body.body, createConnectedBodySimpleWhole(head, body), {
-    progress,
-    builderOptions: {
-      physicalSource: "source-partition",
-      endpointSource: createHumanPersonBodyEndpointSource(generation),
+  return createConnectedBodyRuntime(
+    body.body,
+    createConnectedBodySimpleWhole(head, body),
+    {
+      progress,
+      builderOptions: {
+        physicalSource: "source-partition",
+        endpointSource: createHumanPersonBodyEndpointSource(generation),
+      },
     },
-  });
+  );
 }

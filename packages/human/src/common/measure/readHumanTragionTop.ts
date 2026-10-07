@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
 import type { IAutoMovieHumanHeadReading } from "./IAutoMovieHumanHeadReading";
+import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
 import type { IAutoMovieHumanTragionTopMeasurement } from "./IAutoMovieHumanTragionTopMeasurement";
 import { humanHeadPoint } from "./humanHeadPoint";
 
@@ -31,6 +31,10 @@ export function readHumanTragionTop(
   let top = 0;
   for (let v = 1; v < head.positions.length / 3; v++)
     if (head.positions[v * 3 + 1] > head.positions[top * 3 + 1]) top = v;
-  const vertex = { x: head.positions[top * 3], y: head.positions[top * 3 + 1], z: head.positions[top * 3 + 2] };
+  const vertex = {
+    x: head.positions[top * 3],
+    y: head.positions[top * 3 + 1],
+    z: head.positions[top * 3 + 2],
+  };
   return { metres: vertex.y - tragion.y, points: { tragion, vertex } };
 }

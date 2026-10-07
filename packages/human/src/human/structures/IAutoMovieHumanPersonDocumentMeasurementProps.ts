@@ -43,7 +43,9 @@ export interface IAutoMovieHumanPersonDocumentMeasurementProps {
    * @evidenceExclude contracts/anatomy.md#permitted-range The member admits nothing.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The member converts no input.
    */
-  build: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild;
+  build: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => IAutoMovieHumanPersonGenerationBuild;
 
   /** The person to measure. */
   document: IAutoMovieHumanPersonDocument;

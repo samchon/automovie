@@ -33,26 +33,46 @@ import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrim
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No document-specific sizes; the limit is checked against measured heaps.
  * @evidence contracts/common.md#meaningful-documentation States why the cage is the limit, why the budget could not see it and the order of reading, collecting and releasing.
  */
-export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentTrimProps) {
-  if (!(props.target < props.limit)) throw new Error("A trim target must be below its limit");
+export function createHumanViewerResidentTrim(
+  props: ICreateHumanViewerResidentTrimProps,
+) {
+  if (!(props.target < props.limit))
+    throw new Error("A trim target must be below its limit");
   let last: IHumanViewerResidentTrimReading | null = null;
   /** The room each domain needs above its starting heap, learned from its captures. */
   const room = { ...props.seeds };
   /** The page heap when the current capture started. */
   let started = 0;
   /** Release page residents while the sum plus `extra` exceeds `bound`; returns how many were released. */
-  const release = async (extra: number, bound: number): Promise<IHumanViewerResidentRelease> => {
+  const release = async (
+    extra: number,
+    bound: number,
+  ): Promise<IHumanViewerResidentRelease> => {
     let reading = await sum(true);
     let evicted = 0;
-    while (reading.page + reading.workers + extra > bound && await props.evict()) {
+    while (
+      reading.page + reading.workers + extra > bound &&
+      (await props.evict())
+    ) {
       ++evicted;
       reading = { ...reading, page: (await props.page(true)).usedSize };
     }
     return { evicted, ...reading };
   };
-  const sum = async (collect: boolean): Promise<IHumanViewerResidentHeapSum> => {
-    const [page, workers] = await Promise.all([props.page(collect), props.workers(collect)]);
-    return { page: page.usedSize, workers: workers.reduce((total, worker) => total + worker.usage.usedSize, 0) };
+  const sum = async (
+    collect: boolean,
+  ): Promise<IHumanViewerResidentHeapSum> => {
+    const [page, workers] = await Promise.all([
+      props.page(collect),
+      props.workers(collect),
+    ]);
+    return {
+      page: page.usedSize,
+      workers: workers.reduce(
+        (total, worker) => total + worker.usage.usedSize,
+        0,
+      ),
+    };
   };
   return {
     /** Make room for a capture of this domain before it builds and draws. */
@@ -66,9 +86,13 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
         // makes the room, which is not worth a line.
         const short = made.page + made.workers + room[domain] > props.limit;
         if (made.evicted !== 0 || short)
-          console.log(`RESIDENT ROOM ${new Date().toISOString()} ${domain} needs ${Math.round(room[domain] / 1e6)} MB; released ` +
-            `${made.evicted}; page ${Math.round(made.page / 1e6)} MB + workers ${Math.round(made.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB` +
-            (short ? " (the worker's runtimes leave less room than the capture needs)" : ""));
+          console.log(
+            `RESIDENT ROOM ${new Date().toISOString()} ${domain} needs ${Math.round(room[domain] / 1e6)} MB; released ` +
+              `${made.evicted}; page ${Math.round(made.page / 1e6)} MB + workers ${Math.round(made.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB` +
+              (short
+                ? " (the worker's runtimes leave less room than the capture needs)"
+                : ""),
+          );
       }
       props.mark();
     },
@@ -78,7 +102,9 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
       const peak = props.windowPeak();
       if (peak !== null && peak - started > room[domain]) {
         room[domain] = peak - started;
-        console.log(`RESIDENT ROOM ${new Date().toISOString()} learned: a ${domain} capture took ${Math.round(room[domain] / 1e6)} MB above its start`);
+        console.log(
+          `RESIDENT ROOM ${new Date().toISOString()} learned: a ${domain} capture took ${Math.round(room[domain] / 1e6)} MB above its start`,
+        );
       }
     },
 
@@ -91,16 +117,27 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
       let evicted = 0;
       if (reading.page + reading.workers > props.limit) {
         reading = await sum(true);
-        while (reading.page + reading.workers > props.target && await props.evict()) {
+        while (
+          reading.page + reading.workers > props.target &&
+          (await props.evict())
+        ) {
           ++evicted;
           reading = { ...reading, page: (await props.page(true)).usedSize };
         }
       }
-      last = { at: new Date().toISOString(), page: reading.page, workers: reading.workers,
-        limit: props.limit, evicted, room: { ...room } };
+      last = {
+        at: new Date().toISOString(),
+        page: reading.page,
+        workers: reading.workers,
+        limit: props.limit,
+        evicted,
+        room: { ...room },
+      };
       if (evicted !== 0 || reading.page + reading.workers > props.limit)
-        console.log(`RESIDENT TRIM ${last.at} released ${evicted}; page ${Math.round(reading.page / 1e6)} MB + workers ` +
-          `${Math.round(reading.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB`);
+        console.log(
+          `RESIDENT TRIM ${last.at} released ${evicted}; page ${Math.round(reading.page / 1e6)} MB + workers ` +
+            `${Math.round(reading.workers / 1e6)} MB, limit ${Math.round(props.limit / 1e6)} MB`,
+        );
     },
 
     /** The last decision, or null before the first capture. */
@@ -109,7 +146,14 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
 }
 
 /** Named local transport for createHumanViewerResidentTrim; member meaning remains with its calculation owner. */
-interface IHumanViewerResidentRelease { evicted: number; page: number; workers: number }
+interface IHumanViewerResidentRelease {
+  evicted: number;
+  page: number;
+  workers: number;
+}
 
 /** Named local transport for createHumanViewerResidentTrim; member meaning remains with its calculation owner. */
-interface IHumanViewerResidentHeapSum { page: number; workers: number }
+interface IHumanViewerResidentHeapSum {
+  page: number;
+  workers: number;
+}

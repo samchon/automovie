@@ -8,4 +8,5 @@
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape States beside the stature and volume inversions that the head is the standard face, a convention rather than a measured head.
  * @author Samchon
  */
-export const CONNECTED_BODY_WHOLE_SOURCE = "whole person; head: standard face (convention)";
+export const CONNECTED_BODY_WHOLE_SOURCE =
+  "whole person; head: standard face (convention)";

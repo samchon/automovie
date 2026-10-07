@@ -31,9 +31,18 @@ export interface IHumanBodyConstructionProgress {
   document?: string;
 
   /** Construction boundary that has completed. */
-  stage: "basis-schema-admitted" | "basis-copied" | "basis-admitted" | "document-admitted" |
-    "shape-evaluated" | "pose-evaluated" | "skin-evaluated" | "source-quantity-read" |
-    "source-part-completed" | "assembly-evaluated" | "model-validated";
+  stage:
+    | "basis-schema-admitted"
+    | "basis-copied"
+    | "basis-admitted"
+    | "document-admitted"
+    | "shape-evaluated"
+    | "pose-evaluated"
+    | "skin-evaluated"
+    | "source-quantity-read"
+    | "source-part-completed"
+    | "assembly-evaluated"
+    | "model-validated";
 
   /** Actual source part whose work completed. */
   part?: AutoMovieHumanBodyPartId;

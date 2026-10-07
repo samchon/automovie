@@ -6,7 +6,6 @@
  * The selected photo never participates in this replay.
  */
 import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
-import { createHumanWorker } from "./human/common/createHumanWorker";
 import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -14,6 +13,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import simpleControls from "../../../test/studies/human-face/connected-basis/global-face/simple-controls.json";
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import { createHumanWorker } from "./human/common/createHumanWorker";
 import { createHumanResidentPort } from "./human/common/residentPort";
 import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
 import { mountConnectedFacePanel } from "./human/face/connectedPanel";
@@ -69,9 +69,7 @@ async function main(): Promise<void> {
           }),
           orbit: (stageCamera) => new OrbitControls(stageCamera, canvas),
           worker: () =>
-            createHumanResidentPort(
-              createHumanWorker("worker=face"),
-            ),
+            createHumanResidentPort(createHumanWorker("worker=face")),
           loadTexture: (asset) => loader.loadAsync(asset),
           observeResize: (resize) => {
             new ResizeObserver(resize).observe(canvas);

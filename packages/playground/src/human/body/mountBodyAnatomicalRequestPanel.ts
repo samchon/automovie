@@ -21,9 +21,14 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
 export function mountBodyAnatomicalRequestPanel<
   Model extends IBodyAnatomicalRequestModel,
 >(app: HTMLElement, props: IBodyAnatomicalRequestPanelProps<Model>) {
-  let editor: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>> | undefined;
+  let editor:
+    | ReturnType<
+        typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
+      >
+    | undefined;
   const intents = createBodyIntentGate();
-  const element = <T extends HTMLElement>(id: string) => app.querySelector<T>("#" + id)!;
+  const element = <T extends HTMLElement>(id: string) =>
+    app.querySelector<T>("#" + id)!;
   const text = element<HTMLTextAreaElement>("request-json");
   const status = (message: string, state: string) => {
     element("request-status").textContent = message;
@@ -41,32 +46,55 @@ export function mountBodyAnatomicalRequestPanel<
     element<HTMLButtonElement>("request-undo").disabled = !snapshot?.canUndo;
     element<HTMLButtonElement>("request-redo").disabled = !snapshot?.canRedo;
     if (snapshot === undefined) return;
-    if (replaceText) text.value = serializeHumanBodyBasisDocument(snapshot.document, props.source);
+    if (replaceText)
+      text.value = serializeHumanBodyBasisDocument(
+        snapshot.document,
+        props.source,
+      );
     if (snapshot.error !== null) {
       status(snapshot.error, "error");
       return;
     }
     const exterior = snapshot.model.exteriorCandidate;
     if (exterior !== undefined) {
-      status([
-        "Source-conditioned exterior candidate. Reference: " + exterior.reference.basis,
-        "Bare source-rest protocols; clinical skin and internal anatomy remain unavailable.",
-        ...exterior.fulfilled.map((metric) =>
-          `${metric.path}: target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${(metric.residualMetres * 1000).toFixed(3)} mm. ${metric.protocol}`),
-        "Anatomical parts unavailable: " + Object.values(exterior.anatomy.parts).filter((part) => part.status === "unavailable").length + ".",
-      ].join("\n"), "ready");
+      status(
+        [
+          "Source-conditioned exterior candidate. Reference: " +
+            exterior.reference.basis,
+          "Bare source-rest protocols; clinical skin and internal anatomy remain unavailable.",
+          ...exterior.fulfilled.map(
+            (metric) =>
+              `${metric.path}: target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${(metric.residualMetres * 1000).toFixed(3)} mm. ${metric.protocol}`,
+          ),
+          "Anatomical parts unavailable: " +
+            Object.values(exterior.anatomy.parts).filter(
+              (part) => part.status === "unavailable",
+            ).length +
+            ".",
+        ].join("\n"),
+        "ready",
+      );
       return;
     }
     const report = snapshot.model.anatomicalRequest;
     if (report === undefined) {
-      status("Actual source anatomical parts. Numerical targets retain their source authoring conditions; clinical and acquisition validity remain unavailable.", "ready");
+      status(
+        "Actual source anatomical parts. Numerical targets retain their source authoring conditions; clinical and acquisition validity remain unavailable.",
+        "ready",
+      );
       return;
     }
-    status([
-      "Target spheres only. Reference rig: " + report.reference.basis,
-      "Requested skin and complete bones: unavailable (geometry not validated).",
-      ...report.candidates.map((head) => `${head.part}: ${head.radiusMetres * 1000} mm target radius, reference-rig-only centre (${head.center.x}, ${head.center.y}, ${head.center.z}) m`),
-    ].join("\n"), "ready");
+    status(
+      [
+        "Target spheres only. Reference rig: " + report.reference.basis,
+        "Requested skin and complete bones: unavailable (geometry not validated).",
+        ...report.candidates.map(
+          (head) =>
+            `${head.part}: ${head.radiusMetres * 1000} mm target radius, reference-rig-only centre (${head.center.x}, ${head.center.y}, ${head.center.z}) m`,
+        ),
+      ].join("\n"),
+      "ready",
+    );
   };
   const build = async (document: IAutoMovieHumanBodyBasisDocument) => {
     const ticket = intents.currentTicket();
@@ -81,11 +109,20 @@ export function mountBodyAnatomicalRequestPanel<
     const exterior = model.exteriorCandidate;
     try {
       // exactly one report, bound to this document and source
-      const qualified = exterior !== undefined
-        ? articular === undefined && exterior.reference.basis === document.basis && serializeHumanBodyBasisDocument(exterior.requested, props.source) === serializeHumanBodyBasisDocument(document, props.source)
-        : articular !== undefined && articular.reference.basis === document.basis;
+      const qualified =
+        exterior !== undefined
+          ? articular === undefined &&
+            exterior.reference.basis === document.basis &&
+            serializeHumanBodyBasisDocument(
+              exterior.requested,
+              props.source,
+            ) === serializeHumanBodyBasisDocument(document, props.source)
+          : articular !== undefined &&
+            articular.reference.basis === document.basis;
       if (!qualified)
-        throw new Error("The worker supplied no matching unique numerical candidate qualification.");
+        throw new Error(
+          "The worker supplied no matching unique numerical candidate qualification.",
+        );
     } catch (error) {
       props.viewport.dispose(model);
       throw error;
@@ -126,7 +163,11 @@ export function mountBodyAnatomicalRequestPanel<
   element<HTMLButtonElement>("request-save").onclick = () => {
     if (editor === undefined) return;
     const document = editor.snapshot().document;
-    props.download(document.id + ".json", serializeHumanBodyBasisDocument(document, props.source), "application/json");
+    props.download(
+      document.id + ".json",
+      serializeHumanBodyBasisDocument(document, props.source),
+      "application/json",
+    );
   };
   element<HTMLButtonElement>("request-export").onclick = async () => {
     if (editor === undefined) return;
@@ -134,10 +175,21 @@ export function mountBodyAnatomicalRequestPanel<
     const ticket = intents.currentTicket();
     try {
       const bytes = await props.viewport.export(snapshot.document);
-      if (intents.isCurrent(ticket) && editor.snapshot().model === snapshot.model)
-        props.download(snapshot.document.id + (snapshot.model.exteriorCandidate === undefined ? ".inspection-candidates.glb" : ".exterior-candidate.glb"), bytes, "model/gltf-binary");
+      if (
+        intents.isCurrent(ticket) &&
+        editor.snapshot().model === snapshot.model
+      )
+        props.download(
+          snapshot.document.id +
+            (snapshot.model.exteriorCandidate === undefined
+              ? ".inspection-candidates.glb"
+              : ".exterior-candidate.glb"),
+          bytes,
+          "model/gltf-binary",
+        );
     } catch (error) {
-      if (intents.isCurrent(ticket)) status(error instanceof Error ? error.message : String(error), "error");
+      if (intents.isCurrent(ticket))
+        status(error instanceof Error ? error.message : String(error), "error");
     }
   };
   for (const direction of ["undo", "redo"] as const)
@@ -163,15 +215,21 @@ export function mountBodyAnatomicalRequestPanel<
         await apply(value, ticket);
       }
     } catch (error) {
-      if (intents.isCurrent(ticket)) status(error instanceof Error ? error.message : String(error), "error");
+      if (intents.isCurrent(ticket))
+        status(error instanceof Error ? error.message : String(error), "error");
     }
     file.value = "";
   };
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
-    button.onclick = () => props.viewport.cameraView(Number(button.dataset.view));
+    button.onclick = () =>
+      props.viewport.cameraView(Number(button.dataset.view));
   element("request-fit").onclick = props.viewport.fitView;
-  element<HTMLInputElement>("request-clay").onchange = (event) => props.viewport.setClay((event.currentTarget as HTMLInputElement).checked);
-  status("Load or enter a complete request. Reference basis: " + props.basis, "ready");
+  element<HTMLInputElement>("request-clay").onchange = (event) =>
+    props.viewport.setClay((event.currentTarget as HTMLInputElement).checked);
+  status(
+    "Load or enter a complete request. Reference basis: " + props.basis,
+    "ready",
+  );
   refresh(false);
   return { apply, snapshot: () => editor?.snapshot() };
 }

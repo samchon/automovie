@@ -12,7 +12,9 @@ import type { IHumanSourceAuthoredSkinInput } from "./structures/IHumanSourceAut
  * The source compiler consumes these views before rebuilding registrations,
  * endpoints, normals and attached parts on their new address space.
  */
-export function buildHumanSourceAuthoredSkin(input: IHumanSourceAuthoredSkinInput): IHumanSourceAuthoredSkin {
+export function buildHumanSourceAuthoredSkin(
+  input: IHumanSourceAuthoredSkinInput,
+): IHumanSourceAuthoredSkin {
   const partition = buildHumanSourceAuthoredCut(input);
   const { cut } = partition;
   const count = input.root.topology.vertexCount;
@@ -20,15 +22,24 @@ export function buildHumanSourceAuthoredSkin(input: IHumanSourceAuthoredSkinInpu
   positions.set(input.root.topology.positions);
   cut.intersections.forEach((sample, index) => {
     for (let axis = 0; axis < 3; axis++)
-      positions[3 * (count + index) + axis] = (1 - sample.t) * positions[3 * sample.a + axis] + sample.t * positions[3 * sample.b + axis];
+      positions[3 * (count + index) + axis] =
+        (1 - sample.t) * positions[3 * sample.a + axis] +
+        sample.t * positions[3 * sample.b + axis];
   });
-  const bindings = new Map(input.bindings.map((binding) => [binding.id, binding]));
-  const blend = (stencil: readonly (readonly [number, number])[], rows: readonly [string, number][][]): [string, number][] => {
+  const bindings = new Map(
+    input.bindings.map((binding) => [binding.id, binding]),
+  );
+  const blend = (
+    stencil: readonly (readonly [number, number])[],
+    rows: readonly [string, number][][],
+  ): [string, number][] => {
     const result = new Map<string, number>();
     for (const [parent, fraction] of stencil) {
       const source = rows[parent];
-      if (source === undefined) throw new Error(`Native support ${parent} has no rig weight record.`);
-      for (const [bone, weight] of source) result.set(bone, (result.get(bone) ?? 0) + fraction * weight);
+      if (source === undefined)
+        throw new Error(`Native support ${parent} has no rig weight record.`);
+      for (const [bone, weight] of source)
+        result.set(bone, (result.get(bone) ?? 0) + fraction * weight);
     }
     return [...result].filter(([, weight]) => weight > 0);
   };
@@ -36,24 +47,64 @@ export function buildHumanSourceAuthoredSkin(input: IHumanSourceAuthoredSkinInpu
     const result = Array.from(input.root.sourceToNative, (native) => {
       if (native < input.original.originalVertices) return rows[native];
       const binding = bindings.get(native);
-      if (binding === undefined || binding.nativeParents.length === 0 ||
-          binding.nativeParents.some((parent) => parent.id < 0 || parent.id >= input.original.originalVertices || !Number.isFinite(parent.weight) || parent.weight < 0) ||
-          Math.abs(binding.nativeParents.reduce((sum, parent) => sum + parent.weight, 0) - 1) > 1e-12)
-        throw new Error(`Appended native point ${native} lacks a normalized original support stencil.`);
-      return blend(binding.nativeParents.map((parent) => [parent.id, parent.weight]), rows);
+      if (
+        binding === undefined ||
+        binding.nativeParents.length === 0 ||
+        binding.nativeParents.some(
+          (parent) =>
+            parent.id < 0 ||
+            parent.id >= input.original.originalVertices ||
+            !Number.isFinite(parent.weight) ||
+            parent.weight < 0,
+        ) ||
+        Math.abs(
+          binding.nativeParents.reduce(
+            (sum, parent) => sum + parent.weight,
+            0,
+          ) - 1,
+        ) > 1e-12
+      )
+        throw new Error(
+          `Appended native point ${native} lacks a normalized original support stencil.`,
+        );
+      return blend(
+        binding.nativeParents.map((parent) => [parent.id, parent.weight]),
+        rows,
+      );
     });
-    for (const sample of cut.intersections) result.push(blend([[sample.a, 1 - sample.t], [sample.b, sample.t]], result));
+    for (const sample of cut.intersections)
+      result.push(
+        blend(
+          [
+            [sample.a, 1 - sample.t],
+            [sample.b, sample.t],
+          ],
+          result,
+        ),
+      );
     return result;
   };
   const bones = remap(input.weights.bones).map(pruneHumanSourceWeights);
   const attachments = remap(input.weights.attachments);
-  const pick = (samples: Int32Array): Float64Array => Float64Array.from(Array.from(samples).flatMap((vertex) => Array.from(positions.subarray(3 * vertex, 3 * vertex + 3))));
+  const pick = (samples: Int32Array): Float64Array =>
+    Float64Array.from(
+      Array.from(samples).flatMap((vertex) =>
+        Array.from(positions.subarray(3 * vertex, 3 * vertex + 3)),
+      ),
+    );
   return {
-    partition, positions, bones, attachments,
-    headPositions: pick(cut.faceToG1), bodyPositions: pick(cut.p1BodyToG1),
+    partition,
+    positions,
+    bones,
+    attachments,
+    headPositions: pick(cut.faceToG1),
+    bodyPositions: pick(cut.p1BodyToG1),
     headBones: Array.from(cut.faceToG1, (vertex) => bones[vertex]),
     bodyBones: Array.from(cut.p1BodyToG1, (vertex) => bones[vertex]),
     headAttachments: Array.from(cut.faceToG1, (vertex) => attachments[vertex]),
-    bodyAttachments: Array.from(cut.p1BodyToG1, (vertex) => attachments[vertex]),
+    bodyAttachments: Array.from(
+      cut.p1BodyToG1,
+      (vertex) => attachments[vertex],
+    ),
   };
 }

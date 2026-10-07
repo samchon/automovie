@@ -29,35 +29,58 @@ import path from "node:path";
 const [blender, archives, work] = process.argv.slice(2);
 if (blender === undefined || archives === undefined || work === undefined)
   throw new Error("Usage: sample-source-generation.ts BLENDER ARCHIVES WORK");
-if (!fs.existsSync(blender)) throw new Error(`Blender executable not found: ${blender}`);
+if (!fs.existsSync(blender))
+  throw new Error(`Blender executable not found: ${blender}`);
 const repository = path.resolve(__dirname, "../../..");
 const scripts = path.join(repository, "test/scripts/human-source");
 const run = (args: string[], env: NodeJS.ProcessEnv): void => {
-  const result = spawnSync(blender, ["--background", "--factory-startup", "--python-exit-code", "1", ...args], {
-    env,
-    stdio: "inherit",
-    windowsHide: true,
-  });
-  if (result.status !== 0) throw new Error(`Blender step failed with exit ${result.status}: ${args.join(" ")}`);
+  const result = spawnSync(
+    blender,
+    ["--background", "--factory-startup", "--python-exit-code", "1", ...args],
+    {
+      env,
+      stdio: "inherit",
+      windowsHide: true,
+    },
+  );
+  if (result.status !== 0)
+    throw new Error(
+      `Blender step failed with exit ${result.status}: ${args.join(" ")}`,
+    );
 };
 const workPath = path.resolve(work);
 run(
   [
-    "--python", path.join(scripts, "prepare-mpfb-profile.py"), "--",
-    "--lock", path.join(scripts, "upstream-lock.json"),
-    "--archives", path.resolve(archives),
-    "--work", workPath,
+    "--python",
+    path.join(scripts, "prepare-mpfb-profile.py"),
+    "--",
+    "--lock",
+    path.join(scripts, "upstream-lock.json"),
+    "--archives",
+    path.resolve(archives),
+    "--work",
+    workPath,
   ],
   process.env,
 );
 run(
   [
-    "--python", path.join(scripts, "sample-mpfb-generation.py"), "--",
-    "--data", path.join(workPath, "upstream/mpfb2/src/mpfb/data"),
-    "--extra", path.join(workPath, "upstream/mpfb-extra-targets"),
-    "--assets", path.join(workPath, "upstream/makehuman-system-assets"),
-    "--makehuman", path.join(workPath, "upstream/makehuman"),
-    "--out", path.join(workPath, "sample"),
+    "--python",
+    path.join(scripts, "sample-mpfb-generation.py"),
+    "--",
+    "--data",
+    path.join(workPath, "upstream/mpfb2/src/mpfb/data"),
+    "--extra",
+    path.join(workPath, "upstream/mpfb-extra-targets"),
+    "--assets",
+    path.join(workPath, "upstream/makehuman-system-assets"),
+    "--makehuman",
+    path.join(workPath, "upstream/makehuman"),
+    "--out",
+    path.join(workPath, "sample"),
   ],
-  { ...process.env, BLENDER_USER_RESOURCES: path.join(workPath, "blender-profile") },
+  {
+    ...process.env,
+    BLENDER_USER_RESOURCES: path.join(workPath, "blender-profile"),
+  },
 );

@@ -46,20 +46,33 @@ import type { IHumanSourcePartRekey } from "./structures/IHumanSourcePartRekey.t
  * refit (`checkHumanSourcePartRefit`). `drivers` lists every body endpoint
  * whose state drives head-partition data (`collectHumanSourceDrivers`).
  */
-export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSourcePartRekey {
+export function bindHumanSourceParts(
+  input: IHumanSourcePartInput,
+): IHumanSourcePartRekey {
   const { generation, body, sample, offset } = input;
   const skin = generation.skin;
   const headShaping = new Set(generation.anchor?.targets ?? []);
-  const aliased = new Set(generation.aliases.flatMap((alias) => Object.keys(alias.endpoints)));
-  const anchorOf = createHumanSourceAnchorCarry(body, generation.anchor?.landmarks ?? []);
-  const bodyEndpoints = Object.keys(body.surfaces[0].targets).filter((name) => headShaping.has(name));
+  const aliased = new Set(
+    generation.aliases.flatMap((alias) => Object.keys(alias.endpoints)),
+  );
+  const anchorOf = createHumanSourceAnchorCarry(
+    body,
+    generation.anchor?.landmarks ?? [],
+  );
+  const bodyEndpoints = Object.keys(body.surfaces[0].targets).filter((name) =>
+    headShaping.has(name),
+  );
   const headOnly = markHumanSourceHeadOnly(skin);
   const headTriangles: number[] = [];
   skin.labels.forEach((label, t) => {
     if (label === 0) headTriangles.push(t);
   });
   const pointRow = createHumanSourceSkinPointRow(generation, anchorOf);
-  const nearest = closestHumanSourceTriangle(skin.positions, skin.triangles, headTriangles);
+  const nearest = closestHumanSourceTriangle(
+    skin.positions,
+    skin.triangles,
+    headTriangles,
+  );
   const checks: Record<string, number | boolean | string> = {};
   const gaps: IHumanSourceGenerationGap[] = [];
   const losses: IHumanSourceLoss[] = [];
@@ -86,10 +99,25 @@ export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSource
       gaps.push(recorded.gap);
       losses.push(...recorded.losses);
     }
-    const refit = checkHumanSourcePartRefit({ id: part.id, count: bound.count, positions: part.surface.positions, row: partRow, anchorOf, sample, offset });
-    const relative = Object.entries(sizes).map(([name, size]) => `${name} ${(size * 1000).toFixed(2)} mm`);
-    checks[part.id] = `${bound.binding.kind}; ${rows} body rows over ${Object.keys(bodyTargets).length} endpoints; part-vs-skin ${relative.join(", ")}; ${refit}`;
-    const targets = Object.fromEntries(Object.entries(part.surface.targets).filter(([name]) => !aliased.has(name)));
+    const refit = checkHumanSourcePartRefit({
+      id: part.id,
+      count: bound.count,
+      positions: part.surface.positions,
+      row: partRow,
+      anchorOf,
+      sample,
+      offset,
+    });
+    const relative = Object.entries(sizes).map(
+      ([name, size]) => `${name} ${(size * 1000).toFixed(2)} mm`,
+    );
+    checks[part.id] =
+      `${bound.binding.kind}; ${rows} body rows over ${Object.keys(bodyTargets).length} endpoints; part-vs-skin ${relative.join(", ")}; ${refit}`;
+    const targets = Object.fromEntries(
+      Object.entries(part.surface.targets).filter(
+        ([name]) => !aliased.has(name),
+      ),
+    );
     return {
       ...part,
       provenance: `published face part; body-control rows regenerated from the skin through a ${bound.binding.kind} binding`,
@@ -98,18 +126,36 @@ export function bindHumanSourceParts(input: IHumanSourcePartInput): IHumanSource
       bodyTargets,
     };
   });
-  const landmarks = regenerateHumanSourceFaceLandmarks(generation.landmarks, body, headShaping, aliased, anchorOf);
+  const landmarks = regenerateHumanSourceFaceLandmarks(
+    generation.landmarks,
+    body,
+    headShaping,
+    aliased,
+    anchorOf,
+  );
   const bodyKeys = new Set(Object.keys(body.surfaces[0].targets));
   return {
     generation: {
       ...generation,
       parts,
       landmarks,
-      drivers: collectHumanSourceDrivers({ generation, headOnly, headShaping, bodyKeys, parts, landmarks }),
+      drivers: collectHumanSourceDrivers({
+        generation,
+        headOnly,
+        headShaping,
+        bodyKeys,
+        parts,
+        landmarks,
+      }),
       gaps: [...generation.gaps, ...gaps],
       stamps: [
         ...generation.stamps,
-        { derivative: "part body-control rows and face landmark body rows", authoredOn: generation.id, status: "regenerated", note: "parts bound to the skin (surface or rigid); rows relative to the head anchor" },
+        {
+          derivative: "part body-control rows and face landmark body rows",
+          authoredOn: generation.id,
+          status: "regenerated",
+          note: "parts bound to the skin (surface or rigid); rows relative to the head anchor",
+        },
       ],
     },
     losses,

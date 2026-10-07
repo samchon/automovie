@@ -32,7 +32,8 @@ export function createMeshPhysicalPartitionMatcher(mesh: IAutoMovieMesh) {
     const resolved = resolveAutoMovieMeshPhysicalVertices(input);
     const degenerate = weldedDegenerateTriangles(input);
     const sources = resolved.vertices.map((identity, vertex) =>
-      input.physicalVertices === undefined || input.physicalVertices.vertices[vertex] === null
+      input.physicalVertices === undefined ||
+      input.physicalVertices.vertices[vertex] === null
         ? null
         : resolved.labels[identity],
     );
@@ -44,10 +45,12 @@ export function createMeshPhysicalPartitionMatcher(mesh: IAutoMovieMesh) {
       const actual = capture(candidate);
       const equal = <T>(a: readonly T[], b: readonly T[]): boolean =>
         a.length === b.length && a.every((value, index) => value === b[index]);
-      return equal(expected.indices, actual.indices) &&
+      return (
+        equal(expected.indices, actual.indices) &&
         equal(expected.vertices, actual.vertices) &&
         equal(expected.sources, actual.sources) &&
-        equal(expected.degenerate, actual.degenerate);
+        equal(expected.degenerate, actual.degenerate)
+      );
     } catch {
       return false;
     }

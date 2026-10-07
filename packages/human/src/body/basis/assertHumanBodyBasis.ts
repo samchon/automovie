@@ -1,12 +1,12 @@
+import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
+import { assertHumanSkinRegions } from "../../common/basis/assertHumanSkinRegions";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyEndpointSource } from "../structures/IAutoMovieHumanBodyEndpointSource";
 import { assertHumanBodyBasisEndpoints } from "./admission/assertHumanBodyBasisEndpoints";
 import { assertHumanBodyBasisIdentity } from "./admission/assertHumanBodyBasisIdentity";
 import { assertHumanBodyBasisShape } from "./admission/assertHumanBodyBasisShape";
 import { assertHumanBodyBasisSurface } from "./admission/assertHumanBodyBasisSurface";
-import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
-import { assertHumanSkinRegions } from "../../common/basis/assertHumanSkinRegions";
 import { assertHumanBodyRig } from "./assertHumanBodyRig";
-import type { IAutoMovieHumanBodyEndpointSource } from "../structures/IAutoMovieHumanBodyEndpointSource";
 import { humanBodyExternalEndpointContributions } from "./humanBodyExternalEndpointContributions";
 
 /**
@@ -23,12 +23,19 @@ import { humanBodyExternalEndpointContributions } from "./humanBodyExternalEndpo
  * This checks the representation and its revision, not the physiological
  * plausibility or contact of every resulting body and pose.
  */
-export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis, endpointSource?: IAutoMovieHumanBodyEndpointSource): void {
+export function assertHumanBodyBasis(
+  basis: IAutoMovieHumanBodyBasis,
+  endpointSource?: IAutoMovieHumanBodyEndpointSource,
+): void {
   assertHumanBodyBasisIdentity(basis);
   const endpoints = assertHumanBodyBasisShape(basis);
   const resident = assertHumanBodyBasisSurface(basis, endpoints);
   if (endpointSource !== undefined)
-    for (const endpoint of humanBodyExternalEndpointContributions(basis, endpointSource)) resident.add(endpoint);
+    for (const endpoint of humanBodyExternalEndpointContributions(
+      basis,
+      endpointSource,
+    ))
+      resident.add(endpoint);
   assertHumanBodyBasisEndpoints(basis, endpoints, resident);
   assertHumanSkinLandmarks(basis);
   assertHumanSkinRegions(basis);

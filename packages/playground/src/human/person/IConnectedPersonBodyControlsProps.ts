@@ -42,7 +42,10 @@ export interface IConnectedPersonBodyControlsProps {
   ) => Promise<IConnectedBodyMeasurement>;
 
   /** Commit a body document, under a ticket when one was reserved. */
-  change: (body: IAutoMovieHumanBodyBasisDocument, ticket?: number) => Promise<boolean>;
+  change: (
+    body: IAutoMovieHumanBodyBasisDocument,
+    ticket?: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

@@ -11,11 +11,15 @@ import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
  *
  * @author Samchon
  */
-export const HUMAN_FACE_ORAL_CAVITY_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
-  {
-    id: "oralCavity.properSpaceVolume",
-    unit: "cubic-centimetres",
-    channels: [],
-    read: () => ({ reason: "missing registration: the palate, floor of mouth and lingual dental boundary of the oral cavity proper" }),
-  },
-];
+export const HUMAN_FACE_ORAL_CAVITY_MEASUREMENTS: readonly IHumanFaceMeasurement[] =
+  [
+    {
+      id: "oralCavity.properSpaceVolume",
+      unit: "cubic-centimetres",
+      channels: [],
+      read: () => ({
+        reason:
+          "missing registration: the palate, floor of mouth and lingual dental boundary of the oral cavity proper",
+      }),
+    },
+  ];

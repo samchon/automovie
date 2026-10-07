@@ -59,7 +59,9 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,
   table: IAutoMovieHumanBodyUnderwear.ITable = HUMAN_BODY_UNDERWEAR,
-): (props: IAutoMovieHumanBodyUnderwearProps) => IAutoMovieHumanBodyUnderwearParts {
+): (
+  props: IAutoMovieHumanBodyUnderwearProps,
+) => IAutoMovieHumanBodyUnderwearParts {
   if (basis.materials.some((material) => material.id === table.material))
     throw new Error(
       "Body underwear needs a material id the basis does not use: " +

@@ -56,6 +56,7 @@ export function resolvePortraitEyebrowPlacement(
     endFade: namedFades
       ? [shape.medialFade ?? 0, shape.lateralFade ?? 0]
       : (shape.endFade ?? [0, 0]),
-    flow: profile === undefined ? undefined : createPortraitEyebrowFlow(profile),
+    flow:
+      profile === undefined ? undefined : createPortraitEyebrowFlow(profile),
   };
 }

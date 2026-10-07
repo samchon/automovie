@@ -12,12 +12,17 @@ import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage";
  * @evidence contracts/common.md#principled-implementation The GPU flags select the hardware renderer the server verifies afterwards; heap reads do not share the capture session.
  * @evidence contracts/common.md#meaningful-documentation States the renderer flags and the session separation.
  */
-export async function launchHumanViewerPage(reuse?: Browser): Promise<IHumanViewerResidentPage> {
-  const browser = reuse !== undefined && reuse.isConnected() ? reuse : await chromium.launch({
-    channel: "chromium",
-    headless: true,
-    args: ["--use-gl=angle", "--ignore-gpu-blocklist"],
-  });
+export async function launchHumanViewerPage(
+  reuse?: Browser,
+): Promise<IHumanViewerResidentPage> {
+  const browser =
+    reuse !== undefined && reuse.isConnected()
+      ? reuse
+      : await chromium.launch({
+          channel: "chromium",
+          headless: true,
+          args: ["--use-gl=angle", "--ignore-gpu-blocklist"],
+        });
   const page = await browser.newPage({
     viewport: { width: 1160, height: 930 },
     deviceScaleFactor: 1,

@@ -1,4 +1,7 @@
-import type { IAutoMovieExpression, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieExpression,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * The deterministic state an {@link AutoMoviePlayer} just wrote this frame.

@@ -44,34 +44,66 @@ export function createHumanViewerPersistence(report: (value: unknown) => void) {
       const blob = new Blob(pieces, { type: "application/json" });
       const encoded = performance.now();
       const response = await fetch(`/cache/${job.key}`, {
-        method: "PUT", headers: { "Content-Type": "application/json", "X-Human-Generation": job.token },
-        body: blob, signal: abort.signal,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Human-Generation": job.token,
+        },
+        body: blob,
+        signal: abort.signal,
       });
-      if (!response.ok) throw new Error(`Numerical cache write refused (${response.status}): ${await response.text()}`);
-      report({ type: "persistence", key: job.key, state: "stored",
-        cacheEncodeMs: encoded - started, cacheWriteMs: performance.now() - encoded });
-    })().catch((error: unknown) => {
-      report({ type: "persistence", key: job.key, state: abort.signal.aborted ? "cancelled" : "failed",
-        error: error instanceof Error ? error.message : String(error) });
-    }).finally(() => {
-      active = undefined;
-      controller = undefined;
-      run();
-    });
+      if (!response.ok)
+        throw new Error(
+          `Numerical cache write refused (${response.status}): ${await response.text()}`,
+        );
+      report({
+        type: "persistence",
+        key: job.key,
+        state: "stored",
+        cacheEncodeMs: encoded - started,
+        cacheWriteMs: performance.now() - encoded,
+      });
+    })()
+      .catch((error: unknown) => {
+        report({
+          type: "persistence",
+          key: job.key,
+          state: abort.signal.aborted ? "cancelled" : "failed",
+          error: error instanceof Error ? error.message : String(error),
+        });
+      })
+      .finally(() => {
+        active = undefined;
+        controller = undefined;
+        run();
+      });
   };
   return {
     /** A newer foreground build preempts optional work, without touching disk entries. */
-    preempt: (): void => { controller?.abort(); pending = undefined; flushed = false; },
+    preempt: (): void => {
+      controller?.abort();
+      pending = undefined;
+      flushed = false;
+    },
 
     /** Retain only the latest successful admitted preview awaiting display. */
-    stage: (job: IHumanViewerPersistenceJob): void => { pending = job; flushed = false; },
+    stage: (job: IHumanViewerPersistenceJob): void => {
+      pending = job;
+      flushed = false;
+    },
 
     /** The renderer has finished; serialize at most the latest pending result. */
-    flush: (): void => { flushed = true; run(); },
+    flush: (): void => {
+      flushed = true;
+      run();
+    },
 
     /** A released connection no longer owns a persistence request. */
     discard: (id: number): void => {
-      if (pending?.id === id) { pending = undefined; flushed = false; }
+      if (pending?.id === id) {
+        pending = undefined;
+        flushed = false;
+      }
       if (active?.id === id) controller?.abort();
     },
   };

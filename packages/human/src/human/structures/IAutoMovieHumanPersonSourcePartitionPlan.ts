@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
-
 import type { IAutoMovieHumanPersonSourceChart } from "./IAutoMovieHumanPersonSourceChart";
 import type { IAutoMovieHumanPersonSourceWeight } from "./IAutoMovieHumanPersonSourceWeight";
 

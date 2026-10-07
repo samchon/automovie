@@ -36,10 +36,26 @@ export function resolveHumanBodyUpperArmParts(
   return (["left", "right"] as const).flatMap((side) => {
     const arm = input.targets?.[`${side}UpperLimb`]?.upperArm;
     return [
-      humanBodyUnavailablePart(`${side}Humerus` as const, arm?.humerus, "missing-bone-landmark"),
-      humanBodyUnavailablePart(`${side}BicepsBrachii` as const, arm?.bicepsBrachii, muscle),
-      humanBodyUnavailablePart(`${side}Brachialis` as const, arm?.brachialis, muscle),
-      humanBodyUnavailablePart(`${side}TricepsBrachii` as const, arm?.tricepsBrachii, muscle),
+      humanBodyUnavailablePart(
+        `${side}Humerus` as const,
+        arm?.humerus,
+        "missing-bone-landmark",
+      ),
+      humanBodyUnavailablePart(
+        `${side}BicepsBrachii` as const,
+        arm?.bicepsBrachii,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Brachialis` as const,
+        arm?.brachialis,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}TricepsBrachii` as const,
+        arm?.tricepsBrachii,
+        muscle,
+      ),
     ];
   });
 }

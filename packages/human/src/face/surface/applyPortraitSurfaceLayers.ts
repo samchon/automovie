@@ -8,8 +8,8 @@ import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
-import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 import type { IPortraitSurfaceEdge } from "./structures/IPortraitSurfaceEdge";
+import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 import type { IPortraitSurfaceNeighbour } from "./structures/IPortraitSurfaceNeighbour";
 
 /**

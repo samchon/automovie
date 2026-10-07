@@ -30,8 +30,10 @@ export function validateHumanPersonSourceCoverage(
   props: IAutoMovieHumanPersonSourceCoverageProps,
 ): void {
   const preimage = props.preimage;
-  const edges: Map<string, IAutoMovieHumanPersonSourceEdge>[] =
-    Array.from({ length: props.parentTriangles.length / 3 }, () => new Map());
+  const edges: Map<string, IAutoMovieHumanPersonSourceEdge>[] = Array.from(
+    { length: props.parentTriangles.length / 3 },
+    () => new Map(),
+  );
   for (const cell of props.cells) {
     const parent = cell.parent;
     const original = props.parentTriangles.slice(parent * 3, parent * 3 + 3);

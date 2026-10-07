@@ -39,44 +39,87 @@ import type { IHumanBodyToeRayInput } from "./IHumanBodyToeRayInput";
  * @evidence contracts/anatomy.md#parametric-authority Inputs are named phalanx motions in degrees only.
  * @author Samchon
  */
-export function resolveHumanBodyToeRays(input: IHumanBodyToeRayInput): Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform> {
+export function resolveHumanBodyToeRays(
+  input: IHumanBodyToeRayInput,
+): Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform> {
   const { basis, landmarks, transforms } = input;
   const rays = basis.toeRays ?? [];
   const poses = input.toes ?? [];
-  const result = new Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform>();
+  const result = new Map<
+    AutoMovieHumanBodyToeBone,
+    IAutoMovieHumanBodyBoneTransform
+  >();
   if (poses.length > 0 && rays.length === 0)
-    throw new Error("Body toe ray poses need a basis that declares toe rays: " + poses.map((one) => one.bone).join(", "));
+    throw new Error(
+      "Body toe ray poses need a basis that declares toe rays: " +
+        poses.map((one) => one.bone).join(", "),
+    );
   const seen = new Set<string>();
   for (const pose of poses) {
     const ray = rays.find((one) => one.bone === pose.bone);
     if (ray === undefined || seen.has(pose.bone))
-      throw new Error("Body toe pose names an undeclared or repeated phalanx: " + pose.bone);
+      throw new Error(
+        "Body toe pose names an undeclared or repeated phalanx: " + pose.bone,
+      );
     seen.add(pose.bone);
     const proximal = ray.parent === "leftToes" || ray.parent === "rightToes";
-    const flexion = proximal ? HUMAN_BODY_TOE_RANGE.proximal.flexion : HUMAN_BODY_TOE_RANGE.interphalangeal.flexion;
-    if (!Number.isFinite(pose.flexion) || pose.flexion < flexion[0] || pose.flexion > flexion[1])
-      throw new Error(`Body toe flexion of ${pose.bone} is outside ${flexion[0]} to ${flexion[1]} degrees: ${pose.flexion}`);
+    const flexion = proximal
+      ? HUMAN_BODY_TOE_RANGE.proximal.flexion
+      : HUMAN_BODY_TOE_RANGE.interphalangeal.flexion;
+    if (
+      !Number.isFinite(pose.flexion) ||
+      pose.flexion < flexion[0] ||
+      pose.flexion > flexion[1]
+    )
+      throw new Error(
+        `Body toe flexion of ${pose.bone} is outside ${flexion[0]} to ${flexion[1]} degrees: ${pose.flexion}`,
+      );
     if (pose.abduction !== undefined) {
       const splay = HUMAN_BODY_TOE_RANGE.proximal.abduction;
-      if (!proximal) throw new Error("Body toe splay exists only at a proximal phalanx: " + pose.bone);
-      if (!Number.isFinite(pose.abduction) || pose.abduction < splay[0] || pose.abduction > splay[1])
-        throw new Error(`Body toe splay of ${pose.bone} is outside ${splay[0]} to ${splay[1]} degrees: ${pose.abduction}`);
+      if (!proximal)
+        throw new Error(
+          "Body toe splay exists only at a proximal phalanx: " + pose.bone,
+        );
+      if (
+        !Number.isFinite(pose.abduction) ||
+        pose.abduction < splay[0] ||
+        pose.abduction > splay[1]
+      )
+        throw new Error(
+          `Body toe splay of ${pose.bone} is outside ${splay[0]} to ${splay[1]} degrees: ${pose.abduction}`,
+        );
     }
   }
   // no posed phalanx: the toes bone alone skins the toes, exactly as before
   if (poses.length === 0) return result;
   for (const ray of rays) {
-    const parent = transforms.get(ray.parent) ?? result.get(ray.parent as AutoMovieHumanBodyToeBone);
+    const parent =
+      transforms.get(ray.parent) ??
+      result.get(ray.parent as AutoMovieHumanBodyToeBone);
     const head = landmarks[ray.head];
     const tail = landmarks[ray.tail];
     if (parent === undefined || head === undefined || tail === undefined)
-      throw new Error("Body toe ray needs its parent transform and both landmarks: " + ray.bone);
-    const carry = Quaternion.multiply(parent.posed.rotation, Quaternion.inverse(parent.rest.rotation));
-    const posedHead = Vector3.add(parent.posed.position, Quaternion.rotateVector(carry, Vector3.subtract(head, parent.rest.position)));
+      throw new Error(
+        "Body toe ray needs its parent transform and both landmarks: " +
+          ray.bone,
+      );
+    const carry = Quaternion.multiply(
+      parent.posed.rotation,
+      Quaternion.inverse(parent.rest.rotation),
+    );
+    const posedHead = Vector3.add(
+      parent.posed.position,
+      Quaternion.rotateVector(
+        carry,
+        Vector3.subtract(head, parent.rest.position),
+      ),
+    );
     const direction = Vector3.subtract(tail, head);
     const bend = Vector3.cross(Vector3.create(0, 1, 0), direction);
     if (Vector3.length(direction) < 1e-9 || Vector3.length(bend) < 1e-9)
-      throw new Error("Body toe ray needs a non-vertical phalanx axis: " + ray.bone);
+      throw new Error(
+        "Body toe ray needs a non-vertical phalanx axis: " + ray.bone,
+      );
     const pose = poses.find((one) => one.bone === ray.bone);
     const flexAxis = Vector3.normalize(bend);
     const splayAxis = Vector3.normalize(Vector3.cross(direction, flexAxis));
@@ -88,7 +131,12 @@ export function resolveHumanBodyToeRays(input: IHumanBodyToeRayInput): Map<AutoM
     const delta = Quaternion.normalize(Quaternion.multiply(carry, local));
     result.set(ray.bone, {
       rest: { position: head, rotation: parent.rest.rotation },
-      posed: { position: posedHead, rotation: Quaternion.normalize(Quaternion.multiply(delta, parent.rest.rotation)) },
+      posed: {
+        position: posedHead,
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(delta, parent.rest.rotation),
+        ),
+      },
     });
   }
   return result;

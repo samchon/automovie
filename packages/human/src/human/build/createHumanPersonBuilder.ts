@@ -3,13 +3,11 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/res
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
-import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
-import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
-import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
+import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
@@ -19,8 +17,10 @@ import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
 import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
 import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import type { IAutoMovieHumanPersonBuild } from "../structures/IAutoMovieHumanPersonBuild";
+import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
+import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import { createHumanPersonSourceNormals } from "./createHumanPersonSourceNormals";
 import { createHumanPersonSourceSkin } from "./createHumanPersonSourceSkin";
 import { findHumanPersonSkinSurface } from "./findHumanPersonSkinSurface";
@@ -108,29 +108,47 @@ export function createHumanPersonBuilder(
   });
   // The normal constructor has admitted the common geometric source packet.
   // Capture its identities now; physical incidence never reads normal islands.
-  const physicalSource = sourceNormals === undefined ? undefined : {
-    generation: faceSkin.surface.sourcePartition!.generation,
-    face: faceSkin.surface.sourcePartition!.samples.slice(),
-    body: bodySkin.surface.sourcePartition!.samples.slice(),
-  };
-  const buildBody = createHumanBodyBasisBuilder(bodyBasis,
-    physicalSource === undefined ? undefined : { physicalSource: "source-partition" });
+  const physicalSource =
+    sourceNormals === undefined
+      ? undefined
+      : {
+          generation: faceSkin.surface.sourcePartition!.generation,
+          face: faceSkin.surface.sourcePartition!.samples.slice(),
+          body: bodySkin.surface.sourcePartition!.samples.slice(),
+        };
+  const buildBody = createHumanBodyBasisBuilder(
+    bodyBasis,
+    physicalSource === undefined
+      ? undefined
+      : { physicalSource: "source-partition" },
+  );
   // Source corner aliases separate shading incidence, not physical skin
   // topology. The seam reads one vertex per canonical sample; emitted parts
   // and the normal consumer retain every authored corner alias.
   const faceSamples = faceSkin.surface.sourcePartition?.samples;
-  const faceSampleVertices = new Map(faceSamples?.map((sample, vertex) => [sample, vertex]));
+  const faceSampleVertices = new Map(
+    faceSamples?.map((sample, vertex) => [sample, vertex]),
+  );
   const faceRepresentatives = new Map<number, number>();
   if (faceSamples !== undefined)
     for (const vertex of faceSkin.surface.indices) {
       const sample = faceSamples[vertex];
-      if (!faceRepresentatives.has(sample)) faceRepresentatives.set(sample, vertex);
+      if (!faceRepresentatives.has(sample))
+        faceRepresentatives.set(sample, vertex);
     }
   const seam = createHumanPersonSeam({
-    face: { basis: faceBasis.id, surface: faceSamples === undefined ? faceSkin.surface : {
-      ...faceSkin.surface,
-      indices: faceSkin.surface.indices.map((vertex) => faceRepresentatives.get(faceSamples[vertex])!),
-    } },
+    face: {
+      basis: faceBasis.id,
+      surface:
+        faceSamples === undefined
+          ? faceSkin.surface
+          : {
+              ...faceSkin.surface,
+              indices: faceSkin.surface.indices.map(
+                (vertex) => faceRepresentatives.get(faceSamples[vertex])!,
+              ),
+            },
+    },
     body: { basis: bodyBasis.id, surface: bodySkin.surface },
   });
   // the skin the mandible carries, whose lowest vertex ends the face's neck
@@ -170,11 +188,16 @@ export function createHumanPersonBuilder(
     ]),
   );
   const neutralAnchor = humanPersonEyeCentre(
-    Object.fromEntries(bodyBasis.landmarks.ids.map((id, at) => [id, {
-      x: bodyBasis.landmarks.positions[at * 3],
-      y: bodyBasis.landmarks.positions[at * 3 + 1],
-      z: bodyBasis.landmarks.positions[at * 3 + 2],
-    }])),
+    Object.fromEntries(
+      bodyBasis.landmarks.ids.map((id, at) => [
+        id,
+        {
+          x: bodyBasis.landmarks.positions[at * 3],
+          y: bodyBasis.landmarks.positions[at * 3 + 1],
+          z: bodyBasis.landmarks.positions[at * 3 + 2],
+        },
+      ]),
+    ),
   );
 
   const evaluateSkin = createHumanPersonSourceSkin({
@@ -189,9 +212,17 @@ export function createHumanPersonBuilder(
   });
 
   return (document) => {
-    if (document.headShape !== undefined && Object.keys(document.headShape).length !== 0)
-      throw new Error("Head numerical fields unavailable without shared source generation registration.");
-    const bodyDocument = deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials });
+    if (
+      document.headShape !== undefined &&
+      Object.keys(document.headShape).length !== 0
+    )
+      throw new Error(
+        "Head numerical fields unavailable without shared source generation registration.",
+      );
+    const bodyDocument = deriveHumanPersonBody({
+      document,
+      faceMaterials: faceBasis.materials,
+    });
     const body = buildBody(bodyDocument);
     const faceDocument = deriveHumanPersonFace(document);
     const currentFace = buildFace(faceDocument);
@@ -202,15 +233,16 @@ export function createHumanPersonBuilder(
     // expression channel must not receive an invented unsupported control.
     const referenceExpression = { ...faceDocument.expression };
     delete referenceExpression.mouthClose;
-    const reference = faceSkin.surface.sourcePartition?.normalTransport === undefined
-      ? undefined
-      : evaluateSkin({
-          face: buildFace({
-            ...faceDocument,
-            expression: referenceExpression,
-          }).model,
-          body,
-        });
+    const reference =
+      faceSkin.surface.sourcePartition?.normalTransport === undefined
+        ? undefined
+        : evaluateSkin({
+            face: buildFace({
+              ...faceDocument,
+              expression: referenceExpression,
+            }).model,
+            body,
+          });
     const normals =
       sourceNormals === undefined
         ? fairHumanSeamNormals({
@@ -226,18 +258,28 @@ export function createHumanPersonBuilder(
             face: facePosed,
             body: bodyPosed,
             bodyIndices: bodyKept,
-            reference: reference === undefined ? undefined : {
-              generation: faceSkin.surface.sourcePartition!.generation,
-              face: reference.face,
-              body: reference.body,
-              bodyIndices: bodyKept,
-            },
+            reference:
+              reference === undefined
+                ? undefined
+                : {
+                    generation: faceSkin.surface.sourcePartition!.generation,
+                    face: reference.face,
+                    body: reference.body,
+                    bodyIndices: bodyKept,
+                  },
           });
 
-    const physicalDomain = physicalSource === undefined ? undefined :
-      humanPhysicalSourceDomain(document.id, physicalSource.generation);
-    const physicalBoundary = physicalSource === undefined ? undefined :
-      seam.faceLoop.map((source) => ({ domain: physicalDomain!, id: physicalSource.face[source] }));
+    const physicalDomain =
+      physicalSource === undefined
+        ? undefined
+        : humanPhysicalSourceDomain(document.id, physicalSource.generation);
+    const physicalBoundary =
+      physicalSource === undefined
+        ? undefined
+        : seam.faceLoop.map((source) => ({
+            domain: physicalDomain!,
+            id: physicalSource.face[source],
+          }));
 
     const read = (
       mesh: IAutoMovieMesh,
@@ -252,22 +294,36 @@ export function createHumanPersonBuilder(
       };
       if (physicalSource === undefined) {
         if (mesh.physicalVertices !== undefined)
-          throw new Error("Person physical registration needs both compatible registered skin halves.");
+          throw new Error(
+            "Person physical registration needs both compatible registered skin halves.",
+          );
       } else {
         if (mesh.physicalVertices === undefined)
-          throw new Error("Person physical registration needs both actual registered skin halves.");
+          throw new Error(
+            "Person physical registration needs both actual registered skin halves.",
+          );
         resolveAutoMovieMeshPhysicalVertices(mesh);
-        const samples = offset === 0 ? physicalSource.face : physicalSource.body;
+        const samples =
+          offset === 0 ? physicalSource.face : physicalSource.body;
         const origin = humanPhysicalSourceDomain(
           offset === 0 ? faceDocument.id : bodyDocument.id,
           physicalSource.generation,
         );
         sources.forEach((source, vertex) => {
           const reference = mesh.physicalVertices!.vertices[vertex];
-          const actual = reference === null ? undefined : mesh.physicalVertices!.sources[reference];
-          if (samples[source] === undefined || actual === undefined ||
-              actual.domain !== origin || actual.id !== samples[source])
-            throw new Error("Person physical registration needs the actual admitted canonical skin samples.");
+          const actual =
+            reference === null
+              ? undefined
+              : mesh.physicalVertices!.sources[reference];
+          if (
+            samples[source] === undefined ||
+            actual === undefined ||
+            actual.domain !== origin ||
+            actual.id !== samples[source]
+          )
+            throw new Error(
+              "Person physical registration needs the actual admitted canonical skin samples.",
+            );
         });
         out.physicalVertices = {
           sources: mesh.physicalVertices.sources.map((source) => ({
@@ -296,10 +352,17 @@ export function createHumanPersonBuilder(
           type: "mesh" as const,
           mesh:
             sources === undefined
-              ? physicalSource === undefined ? moveHumanMeshRigidly(mesh, head)
+              ? physicalSource === undefined
+                ? moveHumanMeshRigidly(mesh, head)
                 : placeHumanPersonMixedSourceMesh({
-                    mesh, head, samples: faceSampleVertices, positions: facePosed,
-                    origin: humanPhysicalSourceDomain(faceDocument.id, physicalSource.generation),
+                    mesh,
+                    head,
+                    samples: faceSampleVertices,
+                    positions: facePosed,
+                    origin: humanPhysicalSourceDomain(
+                      faceDocument.id,
+                      physicalSource.generation,
+                    ),
                     domain: physicalDomain!,
                   })
               : stitchHumanPersonBoundary({
@@ -318,7 +381,9 @@ export function createHumanPersonBuilder(
     clearHumanPersonHair({
       parts: placed,
       isGenerated: (id) => currentFace.hairPartIds.has(id),
-      layers: resolveHumanFaceAppearanceDocument(faceBasis, faceDocument).hair?.layers ?? [],
+      layers:
+        resolveHumanFaceAppearanceDocument(faceBasis, faceDocument).hair
+          ?.layers ?? [],
       positions: bodyPosed,
       indices: bodyKept,
     });

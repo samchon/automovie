@@ -2,10 +2,10 @@ import type { IAutoMovieHumanBodyBasisJoint } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
-import { createJointPoseRow } from "./createJointPoseRow";
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 import type { IBodyObservationUnit } from "./IBodyObservationUnit";
 import type { IBodyReviewState } from "./IBodyReviewState";
+import { createJointPoseRow } from "./createJointPoseRow";
 
 /** The six horizon views a unit is observed from, and the poles added to whole-body frames. */
 const HORIZON: HumanObservationView[] = [

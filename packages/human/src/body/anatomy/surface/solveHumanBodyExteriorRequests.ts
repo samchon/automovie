@@ -49,9 +49,14 @@ export function solveHumanBodyExteriorRequests(
   const residuals = (trial: Record<string, number>): number[] | null => {
     const reader = createHumanBodyMeasurementReader(basis, trial);
     const readings = requests.map((one) => reader.read(one.rule));
-    return readings.some((value) => value === null) ? null : readings.map((value, index) => value! - requests[index].metres);
+    return readings.some((value) => value === null)
+      ? null
+      : readings.map((value, index) => value! - requests[index].metres);
   };
-  const met = (values: readonly number[]): boolean => values.every((value) => Math.abs(value) <= HUMAN_BODY_EXTERIOR_TOLERANCE_METRES);
+  const met = (values: readonly number[]): boolean =>
+    values.every(
+      (value) => Math.abs(value) <= HUMAN_BODY_EXTERIOR_TOLERANCE_METRES,
+    );
   // a sequential pass refuses a target its channel cannot reach from where
   // the other channels left the body; the joint solve may still meet it, so
   // the first such refusal is kept to name if the joint solve fails too
@@ -60,19 +65,31 @@ export function solveHumanBodyExteriorRequests(
     for (const one of requests)
       try {
         solved = solveHumanBodyMeasuredChannel({
-          basis, shape: solved, channel: one.binding.channel, targetMetres: one.metres,
-          measurement: one.binding.side === undefined ? { rule: one.binding.rule } : { rule: one.binding.rule, side: one.binding.side },
+          basis,
+          shape: solved,
+          channel: one.binding.channel,
+          targetMetres: one.metres,
+          measurement:
+            one.binding.side === undefined
+              ? { rule: one.binding.rule }
+              : { rule: one.binding.rule, side: one.binding.side },
         }).shape;
       } catch (error) {
         // the caller's refusal names the anatomical path, not only the channel
-        refusal = new Error(`anatomy.${one.binding.path}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+        refusal = new Error(
+          `anatomy.${one.binding.path}: ${error instanceof Error ? error.message : String(error)}`,
+          { cause: error },
+        );
         break sequential;
       }
     const current = residuals(solved);
     if (current !== null && met(current)) return solved;
   }
   // the sequential passes stalled on coupled channels: solve them jointly
-  const channels = requests.map((one) => basis.channels.find((channel) => channel.id === one.binding.channel)!);
+  const channels = requests.map(
+    (one) =>
+      basis.channels.find((channel) => channel.id === one.binding.channel)!,
+  );
   const start = channels.map((channel) => solved[channel.id] ?? 0);
   const place = (offsets: readonly number[]): Record<string, number> => {
     const trial = { ...solved };
@@ -88,7 +105,10 @@ export function solveHumanBodyExteriorRequests(
       // the same reach the per-channel inverse brackets: endpoints beyond an
       // unavailable source target are never evaluated
       const reach = humanBodyChannelReach(basis, channel);
-      return [reach.minimum - start[index], reach.maximum - start[index]] as const;
+      return [
+        reach.minimum - start[index],
+        reach.maximum - start[index],
+      ] as const;
     }),
     initial: residuals(solved),
     evaluate: (trial) => residuals(place(trial)),
@@ -99,5 +119,11 @@ export function solveHumanBodyExteriorRequests(
     const final = residuals(joint);
     if (final !== null && met(final)) return joint;
   }
-  throw refusal ?? new Error("inconsistent-measurements:" + requests.map((one) => "anatomy." + one.binding.path).join(", "));
+  throw (
+    refusal ??
+    new Error(
+      "inconsistent-measurements:" +
+        requests.map((one) => "anatomy." + one.binding.path).join(", "),
+    )
+  );
 }

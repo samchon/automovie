@@ -6,7 +6,10 @@ import type { IFormationOverlapScenario } from "./IFormationOverlapScenario";
 import { namedFacts, nclose } from "./predicates";
 
 /** Existing primitive and bone-chain column assertions on the caller's original post. */
-export const assertFormationModelColumns = (wide: IAutoMovieModel, scenario: IFormationOverlapScenario): void => {
+export const assertFormationModelColumns = (
+  wide: IAutoMovieModel,
+  scenario: IFormationOverlapScenario,
+): void => {
   const { at, bone } = scenario;
   const shapes: IAutoMovieModel = {
     ...wide,
@@ -282,6 +285,4 @@ export const assertFormationModelColumns = (wide: IAutoMovieModel, scenario: IFo
       theTurnedBoneCarriesNothing: true,
     },
   );
-
-
 };

@@ -11,7 +11,9 @@ import type { IAutoMovieHumanBodyFootSupport } from "@automovie/human";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows the geometric ground support reading with its qualification.
  * @author Samchon
  */
-export function bodyGroundReading(support: readonly IAutoMovieHumanBodyFootSupport[] | null | undefined): string | null {
+export function bodyGroundReading(
+  support: readonly IAutoMovieHumanBodyFootSupport[] | null | undefined,
+): string | null {
   if (support === null || support === undefined) return null;
   return (
     "Ground (geometric, the source ground plane): " +

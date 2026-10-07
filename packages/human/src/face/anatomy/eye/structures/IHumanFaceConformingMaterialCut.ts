@@ -19,7 +19,6 @@ import type { HumanFaceConformingMaterialArithmetic as Arithmetic } from "../Hum
  */
 type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 
-
 /**
  * An original incidence identity paired with its exactly constructed material point.
  *

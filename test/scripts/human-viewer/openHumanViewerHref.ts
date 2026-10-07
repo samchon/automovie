@@ -1,8 +1,7 @@
-
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import { humanViewerChoices } from "./humanViewerChoices";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
-import { humanViewerChoices } from "./humanViewerChoices";
 
 /**
  * The link that opens a document in the navigable viewer, the request that
@@ -20,11 +19,19 @@ export function openHumanViewerHref(
     ...fields,
   };
   const encoded = serializeHumanViewerAddress(address);
-  const thumbnail = serializeHumanViewerAddress({ ...address, pass: "clay", size: 160 });
+  const thumbnail = serializeHumanViewerAddress({
+    ...address,
+    pass: "clay",
+    size: 160,
+  });
   return {
     view: "/view#" + encoded,
     render: "/render?" + encoded,
     thumbnail: "/render?" + thumbnail,
-    sheet: "/sheet?" + encoded + "&axes=" + encodeURIComponent("view:" + humanViewerChoices.views.join(",")),
+    sheet:
+      "/sheet?" +
+      encoded +
+      "&axes=" +
+      encodeURIComponent("view:" + humanViewerChoices.views.join(",")),
   };
 }

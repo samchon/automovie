@@ -29,7 +29,10 @@ export function listBodyHipStates(
         [`${channel.id}@${channel.maximum}`, { [channel.id]: channel.maximum }],
         ...(channel.minimum < 0
           ? ([
-              [`${channel.id}@${channel.minimum}`, { [channel.id]: channel.minimum }],
+              [
+                `${channel.id}@${channel.minimum}`,
+                { [channel.id]: channel.minimum },
+              ],
             ] as [string, Record<string, number>][])
           : []),
       ]),

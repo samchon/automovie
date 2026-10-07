@@ -42,14 +42,18 @@ export function readHumanBodySkinExtent(
   const z = to.z - from.z;
   const length = Math.hypot(x, z);
   if (length < 1e-9) return null;
-  const direction = rule.across ? { x: -z / length, z: x / length } : { x: x / length, z: z / length };
+  const direction = rule.across
+    ? { x: -z / length, z: x / length }
+    : { x: x / length, z: z / length };
   let lowest = Infinity;
   let highest = -Infinity;
   for (const [index, surface] of basis.surfaces.entries()) {
     const positions = surfaces[index];
     if (positions === undefined) continue;
     for (const vertex of humanBodyDominantVertices(surface, rule.bones)) {
-      const along = positions[vertex * 3] * direction.x + positions[vertex * 3 + 2] * direction.z;
+      const along =
+        positions[vertex * 3] * direction.x +
+        positions[vertex * 3 + 2] * direction.z;
       if (along < lowest) lowest = along;
       if (along > highest) highest = along;
     }

@@ -1,4 +1,9 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationMotion,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieModel,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**

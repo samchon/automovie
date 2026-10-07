@@ -3,11 +3,12 @@ import type {
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
-import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
+
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
-import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";
 import type { IHumanBodySourceQuantityReading } from "../anatomy/assembly/IHumanBodySourceQuantityReading";
+import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
+import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";
 
 /**
  * Everything one evaluation of a body document produces.

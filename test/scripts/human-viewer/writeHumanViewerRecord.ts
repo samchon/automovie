@@ -11,6 +11,10 @@ import type { IHumanViewerRecord } from "./IHumanViewerRecord";
  * @evidence contracts/common.md#meaningful-documentation States when the record is written and why.
  */
 export function writeHumanViewerRecord(file: string, port: number): void {
-  const record: IHumanViewerRecord = { pid: process.pid, startedAt: new Date().toISOString(), port };
+  const record: IHumanViewerRecord = {
+    pid: process.pid,
+    startedAt: new Date().toISOString(),
+    port,
+  };
   fs.writeFileSync(file, JSON.stringify(record));
 }

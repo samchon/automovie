@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 /** One source bone/site supplies a public humanoid frame; no duplicate rig is solved. */
 export interface IAutoMovieHumanBodySourceProjection {

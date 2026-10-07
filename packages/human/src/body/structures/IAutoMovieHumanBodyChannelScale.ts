@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyChannelMeasurement } from "./IAutoMovieHumanBodyChannelMeasurement";
 import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
+import type { IAutoMovieHumanBodyChannelMeasurement } from "./IAutoMovieHumanBodyChannelMeasurement";
 
 /**
  * How far one unit of a body channel moves the skin, and what it measures.

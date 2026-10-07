@@ -1,5 +1,5 @@
-import { bodyPoseCensusRefusalMessage } from "./bodyPoseCensusRefusalMessage";
 import type { IBodyCorrectiveVerification } from "./IBodyCorrectiveVerification";
+import { bodyPoseCensusRefusalMessage } from "./bodyPoseCensusRefusalMessage";
 import type { IBodyContactPair } from "./readBodyContacts";
 
 /**
@@ -13,9 +13,15 @@ import type { IBodyContactPair } from "./readBodyContacts";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No range or build error is swallowed as a clean sample.
  * @evidence contracts/common.md#meaningful-documentation Identifies actual consumer, callback/ownership and rejection effects.
  */
-export function readBodyCorrectiveVerification(sample: () => IBodyContactPair[]): Exclude<IBodyCorrectiveVerification, { kind: "not-sampled" }>;
-export function readBodyCorrectiveVerification(sample: undefined): Extract<IBodyCorrectiveVerification, { kind: "not-sampled" }>;
-export function readBodyCorrectiveVerification(sample: (() => IBodyContactPair[]) | undefined): IBodyCorrectiveVerification;
+export function readBodyCorrectiveVerification(
+  sample: () => IBodyContactPair[],
+): Exclude<IBodyCorrectiveVerification, { kind: "not-sampled" }>;
+export function readBodyCorrectiveVerification(
+  sample: undefined,
+): Extract<IBodyCorrectiveVerification, { kind: "not-sampled" }>;
+export function readBodyCorrectiveVerification(
+  sample: (() => IBodyContactPair[]) | undefined,
+): IBodyCorrectiveVerification;
 export function readBodyCorrectiveVerification(
   sample: (() => IBodyContactPair[]) | undefined,
 ): IBodyCorrectiveVerification {

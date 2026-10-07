@@ -17,14 +17,17 @@ import { createHumanViewerSourceResolver } from "./createHumanViewerSourceResolv
 import { createHumanViewerTransform } from "./createHumanViewerTransform";
 import { humanViewerInstance } from "./humanViewerInstance";
 import { humanViewerLaunch } from "./humanViewerLaunch";
+import { humanViewerStorage } from "./humanViewerStorage";
 import { invalidateHumanViewerGeneration } from "./invalidateHumanViewerGeneration";
 import { runHumanViewerCompile } from "./runHumanViewerCompile";
 import { stampHumanViewerCompile } from "./stampHumanViewerCompile";
-import { humanViewerStorage } from "./humanViewerStorage";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
-const outputDirectory = humanViewerStorage(path.resolve(directory, "../../.."), process.env.HUMAN_VIEWER_STORAGE_ROOT);
+const outputDirectory = humanViewerStorage(
+  path.resolve(directory, "../../.."),
+  process.env.HUMAN_VIEWER_STORAGE_ROOT,
+);
 let server: ViteDevServer;
 /**
  * The compile withdrawal gate, shared with the server process that opens
@@ -52,7 +55,11 @@ const inputs = createHumanViewerCompileInputs(human, [
 ]);
 const compilation = createHumanViewerCompilation(
   async () => {
-    const { files, watch, inputs: keys } = await runHumanViewerCompile({ directory, human, outputDirectory });
+    const {
+      files,
+      watch,
+      inputs: keys,
+    } = await runHumanViewerCompile({ directory, human, outputDirectory });
     const began = performance.now();
     inputs.compiled(keys);
     // Only paths not yet watched are added: re-adding a thousand watched
@@ -60,7 +67,9 @@ const compilation = createHumanViewerCompilation(
     const fresh = watch.filter((file) => !watching.has(file));
     for (const file of fresh) watching.add(file);
     if (fresh.length !== 0) server.watcher.add(fresh);
-    console.log(`COMPILE applied in ${Math.round(performance.now() - began)} ms, ${fresh.length} newly watched`);
+    console.log(
+      `COMPILE applied in ${Math.round(performance.now() - began)} ms, ${fresh.length} newly watched`,
+    );
     return files;
   },
   (report) => {
@@ -72,7 +81,11 @@ const compilation = createHumanViewerCompilation(
 export default defineConfig({
   root: directory,
   plugins: [
-    { name: sourceResolver.name, enforce: sourceResolver.enforce, resolveId: sourceResolver.resolveId },
+    {
+      name: sourceResolver.name,
+      enforce: sourceResolver.enforce,
+      resolveId: sourceResolver.resolveId,
+    },
     {
       // An edit never reloads or hot-replaces a page a person is using: the
       // host page shows a banner and redraws when asked, keeping its state.
@@ -84,17 +97,22 @@ export default defineConfig({
         path.join(human, "src"),
         async (id) => {
           const compiled = await compilation.source(id);
-          return compiled === undefined ? undefined : { code: stampHumanViewerCompile(compiled.code, compiled.compile) };
+          return compiled === undefined
+            ? undefined
+            : {
+                code: stampHumanViewerCompile(compiled.code, compiled.compile),
+              };
         },
-        () => humanViewerCompileGate.withdraw(() => {
-          const seen = new Set<ModuleNode>();
-          invalidateHumanViewerGeneration(
-            path.join(human, "src"),
-            server.moduleGraph.idToModuleMap.values(),
-            compilation.invalidate,
-            (module) => server.moduleGraph.invalidateModule(module, seen),
-          );
-        }),
+        () =>
+          humanViewerCompileGate.withdraw(() => {
+            const seen = new Set<ModuleNode>();
+            invalidateHumanViewerGeneration(
+              path.join(human, "src"),
+              server.moduleGraph.idToModuleMap.values(),
+              compilation.invalidate,
+              (module) => server.moduleGraph.invalidateModule(module, seen),
+            );
+          }),
         inputs.affects,
       ),
       configureServer: (instance) => {
@@ -137,7 +155,9 @@ export default defineConfig({
     // Under a launcher the public port is the launcher's: this server takes a
     // free internal port, and the page's update socket goes through the
     // launcher on the public one.
-    port: launched ? Number(process.env[humanViewerLaunch.internalVariable]) : served.port,
+    port: launched
+      ? Number(process.env[humanViewerLaunch.internalVariable])
+      : served.port,
     strictPort: true,
     hmr: launched ? { clientPort: served.port } : undefined,
     fs: { allow: [path.resolve(directory, "../../..")] },

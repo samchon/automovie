@@ -1,5 +1,3 @@
-import { assertFilmLaunchTargetHandoffs } from "../internal/assertFilmLaunchTargetHandoffs";
-import { assertFilmLaunchAdmission } from "../internal/assertFilmLaunchAdmission";
 import {
   IAutoMovieActionSynthesizer,
   performShot,
@@ -14,6 +12,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertFilmLaunchAdmission } from "../internal/assertFilmLaunchAdmission";
+import { assertFilmLaunchTargetHandoffs } from "../internal/assertFilmLaunchTargetHandoffs";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -441,6 +441,4 @@ export const test_film_perform_shot_launch = (): void => {
   }
 
   assertFilmLaunchTargetHandoffs(perform);
-
-
 };

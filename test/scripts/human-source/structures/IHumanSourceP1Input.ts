@@ -1,7 +1,7 @@
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieHumanSkinLandmark } from "@automovie/human/common/basis/IAutoMovieHumanSkinLandmark";
 import type { IAutoMovieHumanSkinRegion } from "@automovie/human/common/basis/IAutoMovieHumanSkinRegion";
-import type { IAutoMovieHumanBodyToeRay } from "@automovie/human/body/structures/rig/IAutoMovieHumanBodyToeRay";
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFacePeriocular } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocular";
 

@@ -13,6 +13,9 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no interval.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
-export function humanFaceLashPartId(side: "left" | "right", row: "upper" | "lower"): string {
+export function humanFaceLashPartId(
+  side: "left" | "right",
+  row: "upper" | "lower",
+): string {
   return "lashes:" + side + ":" + row;
 }

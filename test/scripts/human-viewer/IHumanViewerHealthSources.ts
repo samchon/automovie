@@ -1,7 +1,7 @@
 import type { HumanViewerWork } from "./HumanViewerWork";
 import type { IHumanViewerAdmissionStatus } from "./IHumanViewerAdmissionStatus";
-import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerEdit } from "./IHumanViewerEdit";
 import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrimReading";
 import type { IHumanViewerStartup } from "./IHumanViewerStartup";

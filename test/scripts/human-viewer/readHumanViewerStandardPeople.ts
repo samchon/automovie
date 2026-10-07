@@ -1,8 +1,8 @@
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IReadHumanViewerStandardPeopleProps } from "./IReadHumanViewerStandardPeopleProps";
-import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
+import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 
 /**
  * The standard people, drawn on the published one-skin generation:
@@ -19,7 +19,9 @@ import { humanViewerPersonKey } from "./humanViewerPersonKey";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the standard-people group; admission stays with the caller.
  * @evidence contracts/common.md#meaningful-documentation States the documents, the linked population and the token.
  */
-export function readHumanViewerStandardPeople(props: IReadHumanViewerStandardPeopleProps): IHumanViewerCatalogueEntry[] {
+export function readHumanViewerStandardPeople(
+  props: IReadHumanViewerStandardPeopleProps,
+): IHumanViewerCatalogueEntry[] {
   const { reference, generation } = props;
   const face = { ...reference, basis: generation.face };
   const documents = [
@@ -27,14 +29,24 @@ export function readHumanViewerStandardPeople(props: IReadHumanViewerStandardPeo
       id: "person:connected-reference",
       name: reference.name,
       face,
-      body: { id: "person-body", name: "neutral body", basis: generation.body, shape: {} },
+      body: {
+        id: "person-body",
+        name: "neutral body",
+        basis: generation.body,
+        shape: {},
+      },
     },
     ...Object.entries(standardBodyReviewStates()).map(([name, state]) => ({
       id: "person:reference:" + name,
       name: "reference " + name,
       population: "linked",
       face,
-      body: { id: "person-body:" + name, name, basis: generation.body, ...state },
+      body: {
+        id: "person-body:" + name,
+        name,
+        basis: generation.body,
+        ...state,
+      },
     })),
   ];
   return documents.map((document) => ({
@@ -42,8 +54,13 @@ export function readHumanViewerStandardPeople(props: IReadHumanViewerStandardPeo
     domain: "person" as const,
     document,
     basis: humanViewerPublishedGenerationBasis(generation),
-    key: humanViewerPersonKey({ document,
-      bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
-      sources: props.sources }),
+    key: humanViewerPersonKey({
+      document,
+      bases: {
+        face: { digest: generation.headDigest },
+        body: { digest: generation.bodyDigest },
+      },
+      sources: props.sources,
+    }),
   }));
 }

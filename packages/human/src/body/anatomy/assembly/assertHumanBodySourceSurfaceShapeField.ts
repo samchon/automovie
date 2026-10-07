@@ -26,9 +26,24 @@ export function assertHumanBodySourceSurfaceShapeField(
   field: IAutoMovieHumanBodySourceSurfaceShapeField,
   vertices: number,
 ): void {
-  if (!Number.isSafeInteger(vertices) || vertices < 1 || field.displacements.length !== vertices * 3 ||
-      !field.displacements.every(Number.isFinite) || new Set(field.heldVertices).size !== field.heldVertices.length ||
-      field.heldVertices.some((vertex) => !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertices ||
-        field.displacements.slice(3 * vertex, 3 * vertex + 3).some((value) => value !== 0)))
-    throw new Error("Source shape field/member or held attachment is invalid: " + field.member);
+  if (
+    !Number.isSafeInteger(vertices) ||
+    vertices < 1 ||
+    field.displacements.length !== vertices * 3 ||
+    !field.displacements.every(Number.isFinite) ||
+    new Set(field.heldVertices).size !== field.heldVertices.length ||
+    field.heldVertices.some(
+      (vertex) =>
+        !Number.isSafeInteger(vertex) ||
+        vertex < 0 ||
+        vertex >= vertices ||
+        field.displacements
+          .slice(3 * vertex, 3 * vertex + 3)
+          .some((value) => value !== 0),
+    )
+  )
+    throw new Error(
+      "Source shape field/member or held attachment is invalid: " +
+        field.member,
+    );
 }

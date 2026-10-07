@@ -1,6 +1,6 @@
-import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFaceOralArchFrame } from "@automovie/human/face/anatomy/oral/IHumanFaceOralArchFrame";
 import type { IHumanFaceOralLiningField } from "@automovie/human/face/anatomy/oral/IHumanFaceOralLiningField";
+import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 
 import type { IHumanSourceCrownSolid } from "./IHumanSourceCrownSolid.ts";
 

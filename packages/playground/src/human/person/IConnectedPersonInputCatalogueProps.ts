@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanFaceBasis, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
 /**

@@ -1,15 +1,27 @@
-import { builtEnvironmentContainsPoint, builtEnvironmentSpaceFidelity, builtSpaceContainsPoint, builtSpaceIsConvex, builtSpaceShellVolume, builtSpaceStatesVolume, deriveAutoMovieDrawing, measureAutoMovieQuantities, validateBuiltEnvironment } from "@automovie/engine";
-import type { IAutoMovieBuiltSpace, IAutoMovieSpaceShell } from "@automovie/interface";
+import {
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceFidelity,
+  builtSpaceContainsPoint,
+  builtSpaceIsConvex,
+  builtSpaceShellVolume,
+  builtSpaceStatesVolume,
+  deriveAutoMovieDrawing,
+  measureAutoMovieQuantities,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltSpace,
+  IAutoMovieSpaceShell,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
+import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";
+import { builtSpaceShellTestBoxShell as boxShell } from "../internal/builtSpaceShellTestBoxShell";
+import { builtSpaceShellTestSpaceOf as spaceOf } from "../internal/builtSpaceShellTestSpaceOf";
+import { builtSpaceShellTestWork as work } from "../internal/builtSpaceShellTestWork";
 import { drawingView } from "../internal/drawingFixtures";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
-import { builtSpaceShellTestWork as work } from "../internal/builtSpaceShellTestWork";
-import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
-import { builtSpaceShellTestBoxShell as boxShell } from "../internal/builtSpaceShellTestBoxShell";
-import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";
-import { builtSpaceShellTestSpaceOf as spaceOf } from "../internal/builtSpaceShellTestSpaceOf";
-
-
 
 /**
  * A logical volume may be its own closed boundary, and that boundary may have a

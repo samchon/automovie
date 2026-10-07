@@ -5,9 +5,10 @@
  */
 import { createHash } from "node:crypto";
 import path from "node:path";
+
 import type { IHumanViewerThumbnailInventory } from "./IHumanViewerThumbnailInventory";
-import { humanViewerThumbnailDirectory } from "./planHumanViewerThumbnailPrune";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
+import { humanViewerThumbnailDirectory } from "./planHumanViewerThumbnailPrune";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 
 const hash = (bytes: string): string =>
@@ -34,7 +35,9 @@ export function humanViewerThumbnailFile(
     const fields = new URLSearchParams(search);
     fields.delete("lane");
     const address = parseHumanViewerAddress(fields.toString());
-    const document = inventory.documents.find((entry) => entry.id === address.doc);
+    const document = inventory.documents.find(
+      (entry) => entry.id === address.doc,
+    );
     // A frame carrying a reference photograph never reaches the disk cache.
     if (document === undefined || address.ref !== null) return null;
     return path.join(

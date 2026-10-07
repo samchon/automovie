@@ -39,14 +39,21 @@ export function assertHumanFaceJawCapacity(
   const jaw = request?.observations?.motionCapacity?.jaw;
   if (jaw === undefined) return;
   const read = (measurement: string, label: string): number => {
-    const reading = readings.find((candidate) => candidate.measurement === measurement);
+    const reading = readings.find(
+      (candidate) => candidate.measurement === measurement,
+    );
     if (reading === undefined || reading.status !== "measured")
       throw new Error(
         `The ${label} capacity cannot be checked: ${reading?.status === "unavailable" ? reading.reason : "no reading"}.`,
       );
     return reading.measured;
   };
-  const check = (maximum: number | undefined, measurement: string, sign: number, label: string): void => {
+  const check = (
+    maximum: number | undefined,
+    measurement: string,
+    sign: number,
+    label: string,
+  ): void => {
     if (maximum === undefined) return;
     const performed = sign * read(measurement, label);
     if (performed > maximum + HALF_READOUT_MM)
@@ -54,8 +61,28 @@ export function assertHumanFaceJawCapacity(
         `The pose reaches ${performed} mm of ${label}, beyond the observed maximum ${maximum} mm.`,
       );
   };
-  check(jaw.maximumInterincisalOpeningMm, "jaw.interincisalOpening", 1, "interincisal opening");
-  check(jaw.maximumProtrusionMm, "jaw.protrusionFromReference", 1, "protrusion");
-  check(jaw.maximumLeftExcursionMm, "jaw.lateralExcursionFromReference", 1, "left excursion");
-  check(jaw.maximumRightExcursionMm, "jaw.lateralExcursionFromReference", -1, "right excursion");
+  check(
+    jaw.maximumInterincisalOpeningMm,
+    "jaw.interincisalOpening",
+    1,
+    "interincisal opening",
+  );
+  check(
+    jaw.maximumProtrusionMm,
+    "jaw.protrusionFromReference",
+    1,
+    "protrusion",
+  );
+  check(
+    jaw.maximumLeftExcursionMm,
+    "jaw.lateralExcursionFromReference",
+    1,
+    "left excursion",
+  );
+  check(
+    jaw.maximumRightExcursionMm,
+    "jaw.lateralExcursionFromReference",
+    -1,
+    "right excursion",
+  );
 }

@@ -31,7 +31,9 @@ import { isHumanBodyAtlasSourceRecorded } from "./isHumanBodyAtlasSourceRecorded
  * @evidence contracts/anatomy.md#permitted-range Exact registered shape refuses unsupported combinations; clinical motion admission remains the body pose owner and rigid replay certifies no tissue clearance.
  * @evidence contracts/anatomy.md#parametric-authority A document selects only named bone IDs, never personal vertices or placement frames.
  */
-export function createHumanBodyAtlasParts(input: IHumanBodyAtlasPartsInput): IHumanBodyAtlasParts {
+export function createHumanBodyAtlasParts(
+  input: IHumanBodyAtlasPartsInput,
+): IHumanBodyAtlasParts {
   const result: IHumanBodyAtlasParts = { parts: [], materials: [] };
   const seen = new Set<string>();
   for (const id of input.document.anatomicalInspection ?? []) {
@@ -40,35 +42,65 @@ export function createHumanBodyAtlasParts(input: IHumanBodyAtlasPartsInput): IHu
     };
     if (seen.has(id)) refuse("duplicate-part-selection");
     seen.add(id);
-    const matches = (input.basis.anatomicalCandidates ?? []).filter((part) => part.id === id);
-    if (matches.length !== 1) refuse("source-resource-unavailable-or-ambiguous");
+    const matches = (input.basis.anatomicalCandidates ?? []).filter(
+      (part) => part.id === id,
+    );
+    if (matches.length !== 1)
+      refuse("source-resource-unavailable-or-ambiguous");
     const resource = matches[0];
-    if (!isHumanBodyAtlasSourceRecorded(resource.source) ||
-        !/^[a-fA-F0-9]{64}$/.test(resource.compiledMeshSha256))
+    if (
+      !isHumanBodyAtlasSourceRecorded(resource.source) ||
+      !/^[a-fA-F0-9]{64}$/.test(resource.compiledMeshSha256)
+    )
       refuse("source-provenance-or-rights-unrecorded");
     const registration = resource.registration;
     if (registration.basis !== input.basis.id) refuse("basis-not-registered");
-    if (registration.protocol.trim() === "") refuse("registration-protocol-unrecorded");
-    const keys = new Set([...Object.keys(registration.shape), ...Object.keys(input.document.shape)]);
+    if (registration.protocol.trim() === "")
+      refuse("registration-protocol-unrecorded");
+    const keys = new Set([
+      ...Object.keys(registration.shape),
+      ...Object.keys(input.document.shape),
+    ]);
     for (const key of keys) {
       const reference = registration.shape[key] ?? 0;
-      if (!Number.isFinite(reference) || reference !== (input.document.shape[key] ?? 0))
+      if (
+        !Number.isFinite(reference) ||
+        reference !== (input.document.shape[key] ?? 0)
+      )
         refuse("shape-not-registered:" + key);
     }
     const frame = registration.reference;
-    if (![...Object.values(frame.position), ...Object.values(frame.rotation)].every(Number.isFinite) ||
-        Math.abs(Math.hypot(...Object.values(frame.rotation)) - 1) > 1e-9)
+    if (
+      ![
+        ...Object.values(frame.position),
+        ...Object.values(frame.rotation),
+      ].every(Number.isFinite) ||
+      Math.abs(Math.hypot(...Object.values(frame.rotation)) - 1) > 1e-9
+    )
       refuse("invalid-reference-frame");
     const carry = input.transforms.get(registration.bone);
-    if (carry === undefined) refuse("attachment-transform-unavailable:" + registration.bone);
+    if (carry === undefined)
+      refuse("attachment-transform-unavailable:" + registration.bone);
     if (resource.mesh.skin !== null) refuse("source-mesh-must-be-rigid");
-    const rotation = Quaternion.multiply(carry!.posed.rotation, Quaternion.inverse(frame.rotation));
+    const rotation = Quaternion.multiply(
+      carry!.posed.rotation,
+      Quaternion.inverse(frame.rotation),
+    );
     const move = (values: number[], point: boolean): number[] => {
       const output: number[] = [];
       for (let at = 0; at < values.length; at += 3) {
-        const value: IAutoMovieVector3 = { x: values[at], y: values[at + 1], z: values[at + 2] };
-        const rotated = Quaternion.rotateVector(rotation, point ? Vector3.subtract(value, frame.position) : value);
-        const placed = point ? Vector3.add(rotated, carry!.posed.position) : rotated;
+        const value: IAutoMovieVector3 = {
+          x: values[at],
+          y: values[at + 1],
+          z: values[at + 2],
+        };
+        const rotated = Quaternion.rotateVector(
+          rotation,
+          point ? Vector3.subtract(value, frame.position) : value,
+        );
+        const placed = point
+          ? Vector3.add(rotated, carry!.posed.position)
+          : rotated;
         output.push(placed.x, placed.y, placed.z);
       }
       return output;
@@ -77,11 +109,17 @@ export function createHumanBodyAtlasParts(input: IHumanBodyAtlasPartsInput): IHu
     result.parts.push({
       id: material,
       name: id + " reference atlas bone (unvalidated personal anatomy)",
-      geometry: { type: "mesh", mesh: {
-        ...structuredClone(resource.mesh),
-        positions: move(resource.mesh.positions, true),
-        normals: resource.mesh.normals === null ? null : move(resource.mesh.normals, false),
-      } },
+      geometry: {
+        type: "mesh",
+        mesh: {
+          ...structuredClone(resource.mesh),
+          positions: move(resource.mesh.positions, true),
+          normals:
+            resource.mesh.normals === null
+              ? null
+              : move(resource.mesh.normals, false),
+        },
+      },
       material,
       attachedBone: null,
       transform: null,
@@ -89,8 +127,8 @@ export function createHumanBodyAtlasParts(input: IHumanBodyAtlasPartsInput): IHu
     result.materials.push({
       id: material,
       name: id + " atlas inspection finish",
-      baseColor: { r: .75, g: .7, b: .55, a: 1, hex: null },
-      roughness: .75,
+      baseColor: { r: 0.75, g: 0.7, b: 0.55, a: 1, hex: null },
+      roughness: 0.75,
       metallic: 0,
       opacity: 1,
       emissive: null,

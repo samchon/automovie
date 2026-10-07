@@ -13,14 +13,26 @@ import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the current stage and its timer.
  * @evidence contracts/common.md#meaningful-documentation States what progress is, what a stall does and why it closes every unknown wait.
  */
-export function createHumanViewerStageWatch(stalled: (stage: IHumanViewerCaptureStage) => void) {
+export function createHumanViewerStageWatch(
+  stalled: (stage: IHumanViewerCaptureStage) => void,
+) {
   let current: IHumanViewerCaptureStage | null = null;
   let lastProgress = 0;
   return {
     /** Run one stage; it fails as stalled after `boundMs` without progress. */
-    run: <Value>(name: string, doc: string, boundMs: number, work: () => Promise<Value>): Promise<Value> => {
+    run: <Value>(
+      name: string,
+      doc: string,
+      boundMs: number,
+      work: () => Promise<Value>,
+    ): Promise<Value> => {
       const now = new Date().toISOString();
-      const stage: IHumanViewerCaptureStage = { name, doc, since: now, progress: now };
+      const stage: IHumanViewerCaptureStage = {
+        name,
+        doc,
+        since: now,
+        progress: now,
+      };
       current = stage;
       lastProgress = Date.now();
       // Only this run's stage is cleared: a stalled run that settles later
@@ -31,15 +43,26 @@ export function createHumanViewerStageWatch(stalled: (stage: IHumanViewerCapture
       };
       let timer: ReturnType<typeof setInterval> | undefined;
       return new Promise<Value>((resolve, reject) => {
-        timer = setInterval(() => {
-          if (current !== stage || Date.now() - lastProgress <= boundMs) return;
-          finish();
-          stalled(stage);
-          reject(new HumanViewerStalledError(`The capture of ${doc} made no progress in its ${name} stage for ` +
-            `${Math.round(boundMs / 1000)} s (since ${stage.progress}); the request was ended and its slot released`));
-        }, Math.min(1000, boundMs));
-        work().then((value) => resolve(value))
-          .catch((error: unknown) => reject(error instanceof Error ? error : new Error(String(error))))
+        timer = setInterval(
+          () => {
+            if (current !== stage || Date.now() - lastProgress <= boundMs)
+              return;
+            finish();
+            stalled(stage);
+            reject(
+              new HumanViewerStalledError(
+                `The capture of ${doc} made no progress in its ${name} stage for ` +
+                  `${Math.round(boundMs / 1000)} s (since ${stage.progress}); the request was ended and its slot released`,
+              ),
+            );
+          },
+          Math.min(1000, boundMs),
+        );
+        work()
+          .then((value) => resolve(value))
+          .catch((error: unknown) =>
+            reject(error instanceof Error ? error : new Error(String(error))),
+          )
           .finally(finish);
       });
     },

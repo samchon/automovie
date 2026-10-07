@@ -1,15 +1,15 @@
 import { HUMAN_BODY_EXTERIOR_TARGETS } from "@automovie/human/body/anatomy/surface/HUMAN_BODY_EXTERIOR_TARGETS";
 import type { IAutoMovieHumanBodyExteriorReference } from "@automovie/human/body/anatomy/surface/IAutoMovieHumanBodyExteriorReference";
-import { assertTextSize } from "@automovie/human/common/document/assertTextSize";
 import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleWhole";
+import { assertTextSize } from "@automovie/human/common/document/assertTextSize";
 
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import { createConnectedBodyRuntime } from "./connectedBodyRuntime";
 import { createConnectedBodyAnatomicalRuntime } from "./createConnectedBodyAnatomicalRuntime";
 import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExteriorRuntime";
-import { createConnectedBodyRuntime } from "./connectedBodyRuntime";
 
 /**
  * The anatomy inspection page's worker runtime: route a body document by the
@@ -32,26 +32,62 @@ export function createConnectedBodyAnatomyRuntime(
   whole: IAutoMovieHumanBodySimpleWhole,
   source?: IAutoMovieHumanBodyExteriorReference,
 ) {
-  let exterior: ReturnType<typeof createConnectedBodyExteriorRuntime> | undefined;
-  let articular: ReturnType<typeof createConnectedBodyAnatomicalRuntime> | undefined;
+  let exterior:
+    | ReturnType<typeof createConnectedBodyExteriorRuntime>
+    | undefined;
+  let articular:
+    | ReturnType<typeof createConnectedBodyAnatomicalRuntime>
+    | undefined;
   let sourceParts: ReturnType<typeof createConnectedBodyRuntime> | undefined;
-  return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
+  return async (
+    request: ConnectedBodyRequest,
+  ): Promise<ConnectedBodyResult> => {
     assertTextSize(request.document);
-    const anatomy: unknown = parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly).anatomy;
+    const anatomy: unknown = parseHumanBodyBasisDocument(
+      request.document,
+      basis.anatomicalAssembly,
+    ).anatomy;
     const has = (path: string): boolean =>
-      path.split(".").reduce<unknown>(
-        (node, key) => (typeof node === "object" && node !== null ? (node as Record<string, unknown>)[key] : undefined),
-        anatomy,
-      ) !== undefined;
-    const bound = HUMAN_BODY_EXTERIOR_TARGETS.some((target) => has(target.path));
-    if (basis.anatomicalAssembly?.parts.some(part => part.quantityBindings?.some(binding => has(binding.path))))
-      return (sourceParts ??= createConnectedBodyRuntime(basis, whole))(request);
-    const heads = ["leftUpperLimb.upperArm.humerus", "rightUpperLimb.upperArm.humerus", "leftLowerLimb.thigh.femur", "rightLowerLimb.thigh.femur"]
-      .some((bone) => has(bone + ".sphereFittedHeadRadius"));
+      path
+        .split(".")
+        .reduce<unknown>(
+          (node, key) =>
+            typeof node === "object" && node !== null
+              ? (node as Record<string, unknown>)[key]
+              : undefined,
+          anatomy,
+        ) !== undefined;
+    const bound = HUMAN_BODY_EXTERIOR_TARGETS.some((target) =>
+      has(target.path),
+    );
+    if (
+      basis.anatomicalAssembly?.parts.some((part) =>
+        part.quantityBindings?.some((binding) => has(binding.path)),
+      )
+    )
+      return (sourceParts ??= createConnectedBodyRuntime(basis, whole))(
+        request,
+      );
+    const heads = [
+      "leftUpperLimb.upperArm.humerus",
+      "rightUpperLimb.upperArm.humerus",
+      "leftLowerLimb.thigh.femur",
+      "rightLowerLimb.thigh.femur",
+    ].some((bone) => has(bone + ".sphereFittedHeadRadius"));
     if (bound && heads)
-      throw new Error("One inspection per frame: exterior targets and articular head radii are inspected in separate documents.");
-    if (bound) return (exterior ??= createConnectedBodyExteriorRuntime(basis, source))(request);
-    if (heads) return (articular ??= createConnectedBodyAnatomicalRuntime(basis))(request);
-    throw new Error("missing-anatomical-input: the document's anatomy has no exterior target or articular head radius.");
+      throw new Error(
+        "One inspection per frame: exterior targets and articular head radii are inspected in separate documents.",
+      );
+    if (bound)
+      return (exterior ??= createConnectedBodyExteriorRuntime(basis, source))(
+        request,
+      );
+    if (heads)
+      return (articular ??= createConnectedBodyAnatomicalRuntime(basis))(
+        request,
+      );
+    throw new Error(
+      "missing-anatomical-input: the document's anatomy has no exterior target or articular head radius.",
+    );
   };
 }

@@ -1,12 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { ICreateHumanFaceHairGatherStageProps } from "./ICreateHumanFaceHairGatherStageProps";
 import { createHumanFaceHairTailSpread } from "./createHumanFaceHairTailSpread";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
-
-import type { ICreateHumanFaceHairGatherStageProps } from "./ICreateHumanFaceHairGatherStageProps";
 
 const requireDirection = humanFaceHairFrame.direction;
 

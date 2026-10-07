@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One bone's rest frame in body space: its head and its world orientation on

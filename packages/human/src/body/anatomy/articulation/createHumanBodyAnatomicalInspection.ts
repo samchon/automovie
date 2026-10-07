@@ -1,7 +1,7 @@
 import { createHumanBodyBasisBuilder } from "../../basis/createHumanBodyBasisBuilder";
 import { admitHumanBodyBasisDocument } from "../../document/admitHumanBodyBasisDocument";
-import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../generated/IAutoMovieHumanBodyAnatomicalInspection";
 import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "../lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
 import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
@@ -33,24 +33,44 @@ import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../should
  * @evidence contracts/anatomy.md#permitted-range Shared scalar/placement admission checks physical numbers; individual acquisition and posture registration refuse, and whole anatomy remains unavailable.
  * @evidence contracts/anatomy.md#parametric-authority Only named articular-radius targets are consumed geometrically; no authored centre or vertex enters the request.
  */
-export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBasis) {
+export function createHumanBodyAnatomicalInspection(
+  input: IAutoMovieHumanBodyBasis,
+) {
   const basis = input.id;
   const anatomicalAssembly = structuredClone(input.anatomicalAssembly);
   const build = createHumanBodyBasisBuilder(input);
   let reference: ReturnType<typeof build> | undefined;
-  return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyAnatomicalInspection => {
-    const document = admitHumanBodyBasisDocument(inputDocument, anatomicalAssembly);
+  return (
+    inputDocument: IAutoMovieHumanBodyBasisDocument,
+  ): IAutoMovieHumanBodyAnatomicalInspection => {
+    const document = admitHumanBodyBasisDocument(
+      inputDocument,
+      anatomicalAssembly,
+    );
     if (document.basis !== basis)
-      throw new Error("Body document basis must match the compiled reference: " + basis);
+      throw new Error(
+        "Body document basis must match the compiled reference: " + basis,
+      );
     // admission has refused observed radii: no acquisition centre or posture
     // is registered for an imaged head
     const targets = document.anatomy;
     if (targets === undefined)
       throw new Error("missing-anatomical-input:articular-head-radius");
-    reference ??= build({ id: basis + "/articular-reference", name: "Neutral reference rig", basis, shape: {} });
+    reference ??= build({
+      id: basis + "/articular-reference",
+      name: "Neutral reference rig",
+      basis,
+      shape: {},
+    });
     const heads = [
-      ...createHumanBodyHumeralHeadsFromAnatomicalMeasurements({ measurements: targets, bones: reference.bones }),
-      ...createHumanBodyFemoralHeadsFromAnatomicalMeasurements({ measurements: targets, bones: reference.bones }),
+      ...createHumanBodyHumeralHeadsFromAnatomicalMeasurements({
+        measurements: targets,
+        bones: reference.bones,
+      }),
+      ...createHumanBodyFemoralHeadsFromAnatomicalMeasurements({
+        measurements: targets,
+        bones: reference.bones,
+      }),
     ];
     if (heads.length === 0)
       throw new Error("missing-anatomical-input:articular-head-radius");
@@ -60,15 +80,23 @@ export function createHumanBodyAnatomicalInspection(input: IAutoMovieHumanBodyBa
       requested: structuredClone(targets),
       skin: { status: "unavailable", reason: "geometry-not-validated" },
       candidates: heads.map((head) => ({
-        part: head.bone === "leftUpperArm" ? "leftHumerus"
-          : head.bone === "rightUpperArm" ? "rightHumerus"
-            : head.bone === "leftUpperLeg" ? "leftFemur" : "rightFemur",
+        part:
+          head.bone === "leftUpperArm"
+            ? "leftHumerus"
+            : head.bone === "rightUpperArm"
+              ? "rightHumerus"
+              : head.bone === "leftUpperLeg"
+                ? "leftFemur"
+                : "rightFemur",
         bone: head.bone,
         center: { ...head.center },
         radiusMetres: head.radiusMetres,
         source: "target",
         registration: "reference-rig-only",
-        partResolution: { status: "unavailable", reason: "geometry-not-validated" },
+        partResolution: {
+          status: "unavailable",
+          reason: "geometry-not-validated",
+        },
       })),
     };
   };

@@ -1,6 +1,6 @@
 import type { IAutoMovieSpaceShell } from "@automovie/interface";
-import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
 
+import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
 
 /** One shell holding two, the inner one wound inward so it reads as a void. */
 const merge = (
@@ -13,7 +13,6 @@ const merge = (
     ...inner.triangles.map((index) => index + outer.vertices.length),
   ],
 });
-
 
 /** A 10x4x10 hall with a 4x4x4 atrium void standing in the middle of it. */
 export const BUILT_SPACE_SHELL_TEST_HALL = merge(

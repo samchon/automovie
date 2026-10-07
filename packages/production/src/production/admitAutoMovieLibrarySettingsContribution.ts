@@ -1,4 +1,5 @@
 import type { IAutoMovieDiagnostic } from "@automovie/interface";
+
 import type { ICompiledLibraryOwnerRegistration } from "./productionSourceBuild";
 
 /**
@@ -14,11 +15,11 @@ import type { ICompiledLibraryOwnerRegistration } from "./productionSourceBuild"
  * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Leaves nonempty settings output as a structured source failure rather than mixing semantic artifacts into its lineage-only result.
  */
 export const admitAutoMovieLibrarySettingsContribution = (props: {
-    diagnostics: IAutoMovieDiagnostic[];
-    registration: ICompiledLibraryOwnerRegistration;
-    source: string;
-    target: string;
-  }): boolean => {
+  diagnostics: IAutoMovieDiagnostic[];
+  registration: ICompiledLibraryOwnerRegistration;
+  source: string;
+  target: string;
+}): boolean => {
   const contribution = props.registration.contribution;
   const populations =
     contribution.environments.length +

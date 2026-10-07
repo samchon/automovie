@@ -1,4 +1,5 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IAutoMovieHumanFaceBasisDocument } from "./IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceConstruction } from "./IAutoMovieHumanFaceConstruction";
 
@@ -16,5 +17,7 @@ export interface IAutoMovieHumanFaceBasisBuilder {
   (document: IAutoMovieHumanFaceBasisDocument): IAutoMovieModel;
 
   /** Construct every requested part and report admission without pretending a refusal is success. */
-  construct(document: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceConstruction;
+  construct(
+    document: IAutoMovieHumanFaceBasisDocument,
+  ): IAutoMovieHumanFaceConstruction;
 }

@@ -2,7 +2,10 @@ import type { HumanObservationPass } from "./HumanObservationPass";
 import type { IHumanObservationPassDefinition } from "./IHumanObservationPassDefinition";
 
 /** The material and reading belong together so display clients cannot rename a diagnostic. */
-const DEFINITIONS: Record<HumanObservationPass, IHumanObservationPassDefinition> = {
+const DEFINITIONS: Record<
+  HumanObservationPass,
+  IHumanObservationPassDefinition
+> = {
   beauty: {
     reading:
       "lit product frame: judges shape and material under the authored lights",

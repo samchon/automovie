@@ -4,9 +4,18 @@
  *
  * @author Samchon
  */
-export function humanViewerBasisDigests(token: string, prefix: string, count: number): string[] {
+export function humanViewerBasisDigests(
+  token: string,
+  prefix: string,
+  count: number,
+): string[] {
   const digests = token.slice(prefix.length + 1).split(".");
-  if (digests.length !== count || digests.some((digest) => !/^[0-9a-f]{12}$/.test(digest)))
-    throw new Error(`A ${prefix} basis token names ${count} 12-digit file digest(s): ${token}`);
+  if (
+    digests.length !== count ||
+    digests.some((digest) => !/^[0-9a-f]{12}$/.test(digest))
+  )
+    throw new Error(
+      `A ${prefix} basis token names ${count} 12-digit file digest(s): ${token}`,
+    );
   return digests;
 }

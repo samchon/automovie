@@ -36,5 +36,9 @@ export function resolveHumanBodyAnatomy(
   anatomy: IAutoMovieHumanBodyAnatomicalMeasurements | undefined,
 ): Record<string, number> {
   if (anatomy === undefined) return { ...shape };
-  return solveHumanBodyExteriorRequests(basis, { ...shape }, collectHumanBodyExteriorRequests(anatomy));
+  return solveHumanBodyExteriorRequests(
+    basis,
+    { ...shape },
+    collectHumanBodyExteriorRequests(anatomy),
+  );
 }

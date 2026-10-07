@@ -13,7 +13,9 @@ import type { IHumanWorkerMessage } from "./IHumanWorkerMessage";
  */
 export interface HumanResidentPort<Input, Output> {
   /** Current correlated response callback; null detaches the consumer. */
-  onmessage: ((event: IHumanWorkerMessage<HumanResidentReply<Output>>) => void) | null;
+  onmessage:
+    | ((event: IHumanWorkerMessage<HumanResidentReply<Output>>) => void)
+    | null;
 
   /** A normalized transport failure invalidates requests of this connection. */
   onerror: ((event: IHumanWorkerError) => void) | null;

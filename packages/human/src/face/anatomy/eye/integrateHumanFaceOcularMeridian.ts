@@ -24,7 +24,9 @@ export function integrateHumanFaceOcularMeridian(
   end: number,
 ): number {
   if (!Number.isFinite(end) || end < 0 || end > profile.limbus)
-    throw new Error("Ocular meridian integration needs a cap radius in its admitted domain.");
+    throw new Error(
+      "Ocular meridian integration needs a cap radius in its admitted domain.",
+    );
   if (end === 0) return 0;
   const integrand = (r: number): number => Math.hypot(1, profile.slope(r));
   let previous: number | undefined;
@@ -35,11 +37,18 @@ export function integrateHumanFaceOcularMeridian(
       sum += (at % 2 === 0 ? 2 : 4) * integrand(at * step);
     const length = (step * sum) / 3;
     if (!Number.isFinite(length))
-      throw new Error("Ocular meridian integration must retain a finite metric length.");
-    if (previous !== undefined &&
-      Math.abs(length - previous) <= 32 * Number.EPSILON * Math.max(length, previous))
+      throw new Error(
+        "Ocular meridian integration must retain a finite metric length.",
+      );
+    if (
+      previous !== undefined &&
+      Math.abs(length - previous) <=
+        32 * Number.EPSILON * Math.max(length, previous)
+    )
       return length;
     previous = length;
   }
-  throw new Error("Ocular meridian integration did not converge at binary64 metric precision.");
+  throw new Error(
+    "Ocular meridian integration did not converge at binary64 metric precision.",
+  );
 }

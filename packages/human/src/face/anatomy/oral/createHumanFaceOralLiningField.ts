@@ -1,8 +1,8 @@
 import type { IHumanFaceOralArchFrame } from "./IHumanFaceOralArchFrame";
 import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimensions";
 import type { IHumanFaceOralLiningField } from "./IHumanFaceOralLiningField";
-import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDistance";
 import { measureHumanFaceOralArchDepth } from "./measureHumanFaceOralArchDepth";
+import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDistance";
 
 /**
  * Define one arch's lining as a height over its arch plane.
@@ -84,8 +84,12 @@ export function createHumanFaceOralLiningField(
         const t =
           length === 0
             ? 0
-            : Math.min(1, Math.max(0, ((u - ax) * dx + (v - ay) * dy) / length));
-        const height = ring[3 * k + 2] + t * (ring[3 * next + 2] - ring[3 * k + 2]);
+            : Math.min(
+                1,
+                Math.max(0, ((u - ax) * dx + (v - ay) * dy) / length),
+              );
+        const height =
+          ring[3 * k + 2] + t * (ring[3 * next + 2] - ring[3 * k + 2]);
         const squared = (u - ax - t * dx) ** 2 + (v - ay - t * dy) ** 2;
         if (squared === 0) return height;
         weights += 1 / squared;
@@ -98,7 +102,8 @@ export function createHumanFaceOralLiningField(
     let weights = 0;
     let sum = 0;
     for (const station of stations) {
-      const squared = (u - station.centre[0]) ** 2 + (v - station.centre[1]) ** 2;
+      const squared =
+        (u - station.centre[0]) ** 2 + (v - station.centre[1]) ** 2;
       if (squared === 0) return station.centre[2];
       weights += 1 / squared;
       sum += station.centre[2] / squared;
@@ -111,18 +116,24 @@ export function createHumanFaceOralLiningField(
   const apical = (u: number, v: number): number => {
     const d = distance(u, v);
     const facial =
-      dimensions.collarHeightMetres * Math.min(1, d / dimensions.wallClearanceMetres);
-    const reach = 1 - Math.min(d, frame.vaultSpanMetres) / frame.vaultSpanMetres;
+      dimensions.collarHeightMetres *
+      Math.min(1, d / dimensions.wallClearanceMetres);
+    const reach =
+      1 - Math.min(d, frame.vaultSpanMetres) / frame.vaultSpanMetres;
     const lingual = dimensions.vaultMetres * Math.sqrt(1 - reach * reach);
     const t = Math.min(
       1,
-      Math.max(0, (lingualDepth(u, v) + dimensions.collarThicknessMetres) /
-        (2 * dimensions.collarThicknessMetres)),
+      Math.max(
+        0,
+        (lingualDepth(u, v) + dimensions.collarThicknessMetres) /
+          (2 * dimensions.collarThicknessMetres),
+      ),
     );
     const blend = t * t * (3 - 2 * t);
     // The scallop of the rings fades into the arch's own height by the fornix.
     const fade = Math.min(1, d / dimensions.wallClearanceMetres);
-    const reference = cervical(u, v) + (archHeight(u, v) - cervical(u, v)) * fade;
+    const reference =
+      cervical(u, v) + (archHeight(u, v) - cervical(u, v)) * fade;
     return reference + facial + (lingual - facial) * blend;
   };
   return { distance, apical, lingualDepth };

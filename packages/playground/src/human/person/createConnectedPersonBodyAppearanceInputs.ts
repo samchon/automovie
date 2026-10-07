@@ -17,7 +17,8 @@ export function createConnectedPersonBodyAppearanceInputs(): IConnectedPersonInp
   return (["skinDetail", "skinTone", "skinVeins"] as const).map((layer) => ({
     path: ["body", layer, "strength"],
     group: "Body skin appearance",
-    label: layer.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase() + " intensity",
+    label:
+      layer.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase() + " intensity",
     unit: "dimensionless intensity",
     minimum: 0,
     maximum: 1,
@@ -26,6 +27,7 @@ export function createConnectedPersonBodyAppearanceInputs(): IConnectedPersonInp
     seed: null,
     omission: "the body owner's unmodified appearance for this layer",
     removable: true,
-    qualification: "IAutoMovieHumanBodySkinLayerStrength defines [0,1] as renderer intensity. Source material, UV and layer availability are admitted by the body builder; this is not a physiological measurement.",
+    qualification:
+      "IAutoMovieHumanBodySkinLayerStrength defines [0,1] as renderer intensity. Source material, UV and layer availability are admitted by the body builder; this is not a physiological measurement.",
   }));
 }

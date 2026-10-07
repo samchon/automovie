@@ -12,8 +12,17 @@ import { readConnectedFaceAsset } from "../common/connectedAsset";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies the companion head that stays display-only beside the body.
  * @author Samchon
  */
-export function readConnectedHeadView(source?: string): Promise<IAutoMovieHumanPersonHeadView> {
+export function readConnectedHeadView(
+  source?: string,
+): Promise<IAutoMovieHumanPersonHeadView> {
   return readConnectedFaceAsset<IAutoMovieHumanPersonHeadView>({
-    read: () => fetch(source ?? new URL("../../../../../test/studies/human-person/generation/head.json.gz", import.meta.url)),
+    read: () =>
+      fetch(
+        source ??
+          new URL(
+            "../../../../../test/studies/human-person/generation/head.json.gz",
+            import.meta.url,
+          ),
+      ),
   });
 }

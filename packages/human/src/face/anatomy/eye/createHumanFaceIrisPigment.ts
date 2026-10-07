@@ -7,10 +7,10 @@ import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
-import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
-import { humanFaceIrisTexelColour } from "./humanFaceIrisTexelColour";
 import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
+import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
 import { findHumanFaceIrisGlobe } from "./findHumanFaceIrisGlobe";
+import { humanFaceIrisTexelColour } from "./humanFaceIrisTexelColour";
 import { prepareHumanFaceIrisTextures } from "./prepareHumanFaceIrisTextures";
 import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
 import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisPreparedTexture";
@@ -95,8 +95,12 @@ export function createHumanFaceIrisPigment(
   return (iris, materials, excludedOwners) => {
     if (iris === undefined || iris === null) return;
     const bands: Record<string, [number, number, number][]> = {
-      leftEye: createPortraitIrisMaterials("iris", iris.left).map(materialBaseColourRgb),
-      rightEye: createPortraitIrisMaterials("iris", iris.right).map(materialBaseColourRgb),
+      leftEye: createPortraitIrisMaterials("iris", iris.left).map(
+        materialBaseColourRgb,
+      ),
+      rightEye: createPortraitIrisMaterials("iris", iris.right).map(
+        materialBaseColourRgb,
+      ),
     };
     if (globes.length === 0)
       throw new Error("Iris pigment needs a basis with articulated eyes.");
@@ -131,7 +135,10 @@ export function createHumanFaceIrisPigment(
             // painting across its edge.
             const cover =
               disc.painted > disc.limbus
-                ? clampAutoMovieUnitInterval((disc.painted + HUMAN_FACE_IRIS_EDGE - theta) / (2 * HUMAN_FACE_IRIS_EDGE))
+                ? clampAutoMovieUnitInterval(
+                    (disc.painted + HUMAN_FACE_IRIS_EDGE - theta) /
+                      (2 * HUMAN_FACE_IRIS_EDGE),
+                  )
                 : 0;
             const original = painted.map(
               (value, c) => value + (sclera[c] - value) * cover,
@@ -145,7 +152,8 @@ export function createHumanFaceIrisPigment(
               edge: HUMAN_FACE_IRIS_EDGE,
               original: original as [number, number, number],
             });
-            for (let c = 0; c < 3; ++c) rgba[4 * index + c] = linearToSrgbByte(colour[c]);
+            for (let c = 0; c < 3; ++c)
+              rgba[4 * index + c] = linearToSrgbByte(colour[c]);
           });
         textures.set(
           material,

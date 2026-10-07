@@ -1,5 +1,6 @@
 import type { IAutoMovieSectionPlane } from "@automovie/engine";
 import type * as THREE from "three";
+
 import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer";
 
 /**

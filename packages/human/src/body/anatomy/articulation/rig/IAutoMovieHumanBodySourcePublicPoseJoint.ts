@@ -1,8 +1,12 @@
-import type { IAutoMovieJointAxes, IAutoMovieRestFrame } from "@automovie/engine";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieRestFrame,
+} from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
+import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { IAutoMovieHumanBodySourceJointAxis } from "./IAutoMovieHumanBodySourceJointAxis";
 import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
-import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 
 /** Existing public clinical-coordinate conversion evaluated inside the single anatomical graph. */
 export interface IAutoMovieHumanBodySourcePublicPoseJoint {

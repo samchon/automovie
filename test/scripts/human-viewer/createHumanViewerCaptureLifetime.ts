@@ -21,20 +21,23 @@ export function createHumanViewerCaptureLifetime() {
       return new Promise<Value>((resolve, reject) => {
         let dispatched = false;
         pending.add(reject);
-        void Promise.resolve().then(() => {
-          if (failure !== null) throw failure;
-          dispatched = true;
-          return operation();
-        }).then((value) => {
-          pending.delete(reject);
-          if (failure !== null) reject(failure);
-          else resolve(value);
-        }).catch((error: unknown) => {
-          // A disconnected transport can reject while its renderer still runs.
-          if (dispatched && failure !== null && !settled) return;
-          pending.delete(reject);
-          reject(error);
-        });
+        void Promise.resolve()
+          .then(() => {
+            if (failure !== null) throw failure;
+            dispatched = true;
+            return operation();
+          })
+          .then((value) => {
+            pending.delete(reject);
+            if (failure !== null) reject(failure);
+            else resolve(value);
+          })
+          .catch((error: unknown) => {
+            // A disconnected transport can reject while its renderer still runs.
+            if (dispatched && failure !== null && !settled) return;
+            pending.delete(reject);
+            reject(error);
+          });
       });
     },
     fail: (error: Error, physicalSettled = true): void => {
@@ -51,7 +54,10 @@ export function createHumanViewerCaptureLifetime() {
      */
     renew: (): void => {
       if (failure === null) return;
-      if (!settled) throw new Error("The failed renderer has not stopped; its captures are still held");
+      if (!settled)
+        throw new Error(
+          "The failed renderer has not stopped; its captures are still held",
+        );
       failure = null;
       settled = false;
     },

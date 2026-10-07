@@ -28,7 +28,11 @@ export const test_geometry_attachment_admission = (): void => {
     { x: 0.6, y: 0.5, z: 0.1 },
   ];
   const attachment = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
-  const options = () => ({ clearance: 0, budget: { remaining: 1000 }, attachment });
+  const options = () => ({
+    clearance: 0,
+    budget: { remaining: 1000 },
+    attachment,
+  });
   TestValidator.equals(
     "dense canonical fan is supported",
     query(fan, options()).certified,

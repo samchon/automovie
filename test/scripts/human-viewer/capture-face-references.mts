@@ -24,24 +24,31 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { IHumanViewerRefusedModel } from "./IHumanViewerRefusedModel";
+import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument";
 import { connectHumanViewer } from "./connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "./createNodeHumanViewerClientIo";
 import { humanViewerInstance } from "./humanViewerInstance";
-import type { IHumanViewerRefusedModel } from "./IHumanViewerRefusedModel";
-import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument";
 import { resolveHumanViewerPose } from "./resolveHumanViewerPose";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../..",
+);
 
 async function main(): Promise<void> {
   const [study, output, poseFile] = process.argv.slice(2);
   if (study === undefined || output === undefined || poseFile === undefined)
-    throw new Error("Supply a study directory, an output directory and a pose file.");
+    throw new Error(
+      "Supply a study directory, an output directory and a pose file.",
+    );
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
     origin: humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin,
   });
-  const label = "study-" + path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
+  const label =
+    "study-" +
+    path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
   const documents = JSON.parse(
     fs.readFileSync(path.join(study, "subjects.json"), "utf8"),
   ) as IHumanViewerSubjectDocument[];

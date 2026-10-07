@@ -4,8 +4,8 @@
  * finish reuse the displayed Three buffers; changed topology or finish gets a
  * new group. Only the renderer owns and releases GPU and texture resources.
  */
-import type { IAutoMovieModel } from "@automovie/interface";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
+import type { IAutoMovieModel } from "@automovie/interface";
 import {
   AutoMovieGeometryPhysicalVertices,
   AutoMovieTextureCache,
@@ -18,15 +18,17 @@ import { prepareHumanPreview } from "../common/previewScene";
 import { releaseHumanPreviewGroup } from "../common/releaseHumanPreviewGroup";
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { IConnectedBodyFrame } from "./IConnectedBodyFrame";
-import type { IConnectedBodyResident } from "./IConnectedBodyResident";
 import type { IConnectedBodyRendererProps } from "./IConnectedBodyRendererProps";
+import type { IConnectedBodyResident } from "./IConnectedBodyResident";
 import { sameConnectedBodyStructure } from "./sameConnectedBodyStructure";
 
 /** Own and publish the Three.js buffers used by one body editor viewport.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the committed posed body and its material regions without changing its document.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prepares resident geometry, reuses matching buffers and swaps visible frames only on publication.
  */
-export function createConnectedBodyRenderer(props: IConnectedBodyRendererProps) {
+export function createConnectedBodyRenderer(
+  props: IConnectedBodyRendererProps,
+) {
   let active: IConnectedBodyResident | undefined;
   const release = (resident: IConnectedBodyResident): void => {
     if (resident.released) return;
@@ -35,7 +37,9 @@ export function createConnectedBodyRenderer(props: IConnectedBodyRendererProps) 
     void resident.textures.dispose();
   };
   return {
-    prepare: async (model: ConnectedBodyModel): Promise<IConnectedBodyFrame> => {
+    prepare: async (
+      model: ConnectedBodyModel,
+    ): Promise<IConnectedBodyFrame> => {
       const physical = model.parts.map((part) => {
         const metadata = structuredClone(part.geometry.mesh.physicalVertices);
         if (metadata !== undefined)
@@ -103,12 +107,19 @@ export function createConnectedBodyRenderer(props: IConnectedBodyRendererProps) 
       if (resident.released)
         throw new Error("This prepared body has been released.");
       if (frame.model.parts.length !== frame.physical.length)
-        throw new Error("Prepared body physical correspondence changed: parts.");
+        throw new Error(
+          "Prepared body physical correspondence changed: parts.",
+        );
       // Finish every metadata/coordinate check before touching displayed buffers.
       for (const [index, part] of frame.model.parts.entries()) {
         const metadata = frame.physical[index];
-        if (JSON.stringify(part.geometry.mesh.physicalVertices) !== JSON.stringify(metadata))
-          throw new Error("Prepared body physical correspondence changed: " + part.id);
+        if (
+          JSON.stringify(part.geometry.mesh.physicalVertices) !==
+          JSON.stringify(metadata)
+        )
+          throw new Error(
+            "Prepared body physical correspondence changed: " + part.id,
+          );
         if (metadata !== undefined)
           resolveAutoMovieMeshPhysicalVertices({
             positions: Array.from(part.geometry.mesh.positions),
@@ -133,7 +144,10 @@ export function createConnectedBodyRenderer(props: IConnectedBodyRendererProps) 
         }
         geometry.computeBoundingBox();
         geometry.computeBoundingSphere();
-        AutoMovieGeometryPhysicalVertices.writeOwned(geometry, frame.physical[index]);
+        AutoMovieGeometryPhysicalVertices.writeOwned(
+          geometry,
+          frame.physical[index],
+        );
       }
       resident.group.name = frame.model.name ?? frame.model.id;
       resident.parts = frame.model.parts;

@@ -9,9 +9,18 @@ import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieH
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No zeroed identity trait or clinical-grade conversion substitutes for a neutral performed state.
  * @author Samchon
  */
-export function humanFaceSkinReliefIdentity(relief: IAutoMovieHumanFaceSkinRelief | undefined): IAutoMovieHumanFaceSkinRelief | undefined {
-  if (relief === undefined || !Object.values(relief.regions ?? {}).some(settings => settings?.performance !== undefined)) return relief;
+export function humanFaceSkinReliefIdentity(
+  relief: IAutoMovieHumanFaceSkinRelief | undefined,
+): IAutoMovieHumanFaceSkinRelief | undefined {
+  if (
+    relief === undefined ||
+    !Object.values(relief.regions ?? {}).some(
+      (settings) => settings?.performance !== undefined,
+    )
+  )
+    return relief;
   const identity = structuredClone(relief);
-  for (const settings of Object.values(identity.regions ?? {})) if (settings !== undefined) delete settings.performance;
+  for (const settings of Object.values(identity.regions ?? {}))
+    if (settings !== undefined) delete settings.performance;
   return identity;
 }

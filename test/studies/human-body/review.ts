@@ -253,7 +253,8 @@ export interface humanBodyStudyReview {
  * @evidence {@link Human.parseHumanBodyBasisDocument} Read the shared UTF-16 envelope, JSON parsing and the admission hand-off.
  * @evidence {@link Human.serializeHumanBodyBasisDocument} Read admission before serialization and the envelope check on the escaped, formatted text.
  */
-export const humanBodyStudyReview: humanBodyStudyReview & IHumanBodyStudyProvenance = {
+export const humanBodyStudyReview: humanBodyStudyReview &
+  IHumanBodyStudyProvenance = {
   basis: "connected-basis/README.md",
   receipt: "connected-basis/extraction-receipt.json",
   likeness: "unaccepted",

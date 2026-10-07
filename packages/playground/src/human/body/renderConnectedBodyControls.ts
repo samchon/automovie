@@ -1,7 +1,7 @@
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
 import { renderConnectedBodyUnavailableChannels } from "../common/renderConnectedBodyUnavailableChannels";
-import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import type { IConnectedBodyControlsProps } from "./IConnectedBodyControlsProps";
+import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { mountBodyJointControls } from "./mountBodyJointControls";
 
 /**
@@ -17,7 +17,9 @@ import { mountBodyJointControls } from "./mountBodyJointControls";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Renders only channels with a measurement rule, in millimetres, over the reach the body view can evaluate.
  * @author Samchon
  */
-export function renderConnectedBodyControls(props: IConnectedBodyControlsProps): void {
+export function renderConnectedBodyControls(
+  props: IConnectedBodyControlsProps,
+): void {
   const { dom, container } = props;
   const kind = props.kind();
   const query = props.query();
@@ -57,5 +59,11 @@ export function renderConnectedBodyControls(props: IConnectedBodyControlsProps):
     refuse: props.refuse,
   });
   annotateConnectedBodyReach(container, props.reach.limits);
-  renderConnectedBodyUnavailableChannels(dom, container, props.reach.missing, new Set(props.reach.basis.unavailableTargets ?? []), query);
+  renderConnectedBodyUnavailableChannels(
+    dom,
+    container,
+    props.reach.missing,
+    new Set(props.reach.basis.unavailableTargets ?? []),
+    query,
+  );
 }

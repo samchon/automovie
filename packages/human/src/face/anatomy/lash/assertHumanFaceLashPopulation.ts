@@ -20,13 +20,23 @@ import { assertPortraitEyelashProfile } from "./assertPortraitEyelashProfile";
  * @evidenceExclude contracts/anatomy.md#parametric-authority Reads the population input without adding a shaping field.
  */
 export function assertHumanFaceLashPopulation(
-  input: IAutoMovieHumanFaceUpperLashPopulation | IAutoMovieHumanFaceLowerLashPopulation,
+  input:
+    | IAutoMovieHumanFaceUpperLashPopulation
+    | IAutoMovieHumanFaceLowerLashPopulation,
   row: "upper" | "lower",
 ): void {
   if (input.strandCount === undefined)
-    throw new Error(`The ${row} lash population requires an explicit strandCount; source cards do not supply follicles.`);
-  if (!Number.isSafeInteger(input.strandCount) || input.strandCount < 0 || input.strandCount > 1024)
-    throw new Error(`The ${row} lash strandCount must be an integer in the rendering budget [0,1024].`);
+    throw new Error(
+      `The ${row} lash population requires an explicit strandCount; source cards do not supply follicles.`,
+    );
+  if (
+    !Number.isSafeInteger(input.strandCount) ||
+    input.strandCount < 0 ||
+    input.strandCount > 1024
+  )
+    throw new Error(
+      `The ${row} lash strandCount must be an integer in the rendering budget [0,1024].`,
+    );
   if (row === "upper") assertPortraitEyelashProfile(input);
   else assertHumanFaceLowerLashProfile(input);
 }

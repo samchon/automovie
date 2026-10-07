@@ -94,9 +94,16 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidenceExclude contracts/anatomy.md#permitted-range The orientation arithmetic defines no physiological range.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The orientation arithmetic exposes no personal shaping input.
    */
-  static orientation(a: MaterialPoint, b: MaterialPoint, c: MaterialPoint): bigint {
-    return a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) +
-      a[2] * (b[0] * c[1] - b[1] * c[0]);
+  static orientation(
+    a: MaterialPoint,
+    b: MaterialPoint,
+    c: MaterialPoint,
+  ): bigint {
+    return (
+      a[0] * (b[1] * c[2] - b[2] * c[1]) -
+      a[1] * (b[0] * c[2] - b[2] * c[0]) +
+      a[2] * (b[0] * c[1] - b[1] * c[0])
+    );
   }
 
   /**
@@ -117,8 +124,10 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidenceExclude contracts/anatomy.md#parametric-authority The addArea arithmetic exposes no personal shaping input.
    */
   static addArea(a: MaterialArea, b: MaterialArea): MaterialArea {
-    const numerator = a[0] * b[1] + b[0] * a[1], denominator = a[1] * b[1];
-    let x = numerator < 0n ? -numerator : numerator, y = denominator;
+    const numerator = a[0] * b[1] + b[0] * a[1],
+      denominator = a[1] * b[1];
+    let x = numerator < 0n ? -numerator : numerator,
+      y = denominator;
     while (y !== 0n) [x, y] = [y, x % y];
     return [numerator / x, denominator / x];
   }
@@ -140,7 +149,11 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidenceExclude contracts/anatomy.md#permitted-range The numberAt arithmetic defines no physiological range.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The numberAt arithmetic exposes no personal shaping input.
    */
-  static numberAt(numerator: bigint, denominator: bigint, exponent = 0): number {
+  static numberAt(
+    numerator: bigint,
+    denominator: bigint,
+    exponent = 0,
+  ): number {
     return HumanBinary64Arithmetic.numberAt(numerator, denominator, exponent);
   }
 
@@ -161,14 +174,27 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidenceExclude contracts/anatomy.md#permitted-range The barycentric arithmetic defines no physiological range.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The barycentric arithmetic exposes no personal shaping input.
    */
-  static barycentric(triangle: readonly MaterialPoint[], point: MaterialPoint): [number, number, number] {
-    const area = HumanFaceConformingMaterialArithmetic.orientation(triangle[0], triangle[1], triangle[2]);
+  static barycentric(
+    triangle: readonly MaterialPoint[],
+    point: MaterialPoint,
+  ): [number, number, number] {
+    const area = HumanFaceConformingMaterialArithmetic.orientation(
+      triangle[0],
+      triangle[1],
+      triangle[2],
+    );
     const denominator = area * point[2];
     const sign = denominator < 0n ? -1n : 1n;
-    return [0, 1, 2].map((at) => HumanFaceConformingMaterialArithmetic.numberAt(
-      sign * HumanFaceConformingMaterialArithmetic.orientation(triangle[(at + 1) % 3], triangle[(at + 2) % 3], point),
-      sign * denominator,
-    )) as [number, number, number];
+    return [0, 1, 2].map((at) =>
+      HumanFaceConformingMaterialArithmetic.numberAt(
+        sign *
+          HumanFaceConformingMaterialArithmetic.orientation(
+            triangle[(at + 1) % 3],
+            triangle[(at + 2) % 3],
+            point,
+          ),
+        sign * denominator,
+      ),
+    ) as [number, number, number];
   }
-
 }

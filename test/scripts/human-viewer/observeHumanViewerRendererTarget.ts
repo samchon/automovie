@@ -36,7 +36,9 @@ export async function observeHumanViewerRendererTarget(
   // and `detached` with the reason "Render process gone.". Playwright reads
   // only the first; a resident renderer that died of a V8 out-of-memory
   // error was seen to produce no crash event at all, so both are observed.
-  const session = await options.page.context().newCDPSession(options.page as Page);
+  const session = await options.page
+    .context()
+    .newCDPSession(options.page as Page);
   const info = await session.send("Target.getTargetInfo");
   const targetId = info.targetInfo.targetId;
   /** Whether the page's renderer was reported gone; its session then never answers a detach. */
@@ -51,7 +53,8 @@ export async function observeHumanViewerRendererTarget(
     if (event.reason === RENDER_PROCESS_GONE)
       failed("Resident GPU renderer exited (" + event.reason + ")", true);
   };
-  const inspectorCrashed = (): void => failed("Resident GPU renderer crashed", true);
+  const inspectorCrashed = (): void =>
+    failed("Resident GPU renderer crashed", true);
   session.on("Inspector.detached", inspectorDetached);
   session.on("Inspector.targetCrashed", inspectorCrashed);
   await session.send("Inspector.enable");
@@ -70,7 +73,8 @@ export async function observeHumanViewerRendererTarget(
   // again, and the failure is permanent, so no later capture can share the
   // page with work the lost renderer might still be finishing: releasing the
   // dispatched capture is safe, and holding it would block the queue forever.
-  const disconnected = (): void => failed("Resident GPU browser disconnected", true);
+  const disconnected = (): void =>
+    failed("Resident GPU browser disconnected", true);
   const remove = (): void => {
     session.off("Inspector.detached", inspectorDetached);
     session.off("Inspector.targetCrashed", inspectorCrashed);

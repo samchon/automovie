@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairDirectionInput } from "./IHumanFaceHairDirectionInput";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairPartSide } from "./humanFaceHairPartSide";
-import type { IHumanFaceHairDirectionInput } from "./IHumanFaceHairDirectionInput";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 

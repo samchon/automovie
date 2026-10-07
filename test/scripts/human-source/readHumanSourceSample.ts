@@ -2,10 +2,10 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { assertHumanSourceSampleBuffers } from "./assertHumanSourceSampleBuffers.ts";
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 import type { IHumanSourceSampleManifest } from "./structures/IHumanSourceSampleManifest.ts";
 import type { IHumanSourceSampleWeights } from "./structures/IHumanSourceSampleWeights.ts";
-import { assertHumanSourceSampleBuffers } from "./assertHumanSourceSampleBuffers.ts";
 
 /**
  * Load one sampling run and verify every file against the run's own manifest
@@ -14,25 +14,36 @@ import { assertHumanSourceSampleBuffers } from "./assertHumanSourceSampleBuffers
  */
 export function readHumanSourceSample(directory: string): IHumanSourceSample {
   const manifestBytes = fs.readFileSync(path.join(directory, "manifest.json"));
-  const manifest: IHumanSourceSampleManifest = JSON.parse(manifestBytes.toString("utf8"));
+  const manifest: IHumanSourceSampleManifest = JSON.parse(
+    manifestBytes.toString("utf8"),
+  );
   const bytes = (name: string): Buffer => {
     const data = fs.readFileSync(path.join(directory, name));
     const expected = manifest.files[name];
-    if (expected === undefined) throw new Error(`Sample file ${name} is not in its manifest.`);
+    if (expected === undefined)
+      throw new Error(`Sample file ${name} is not in its manifest.`);
     const actual = crypto.createHash("sha256").update(data).digest("hex");
     if (actual !== expected.sha256 || data.length !== expected.bytes)
-      throw new Error(`Sample file ${name} does not match its manifest digest.`);
+      throw new Error(
+        `Sample file ${name} does not match its manifest digest.`,
+      );
     return data;
   };
   const f64 = (name: string): Float64Array => {
     const data = bytes(name);
-    return new Float64Array(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+    return new Float64Array(
+      data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength),
+    );
   };
   const i32 = (name: string): Int32Array => {
     const data = bytes(name);
-    return new Int32Array(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+    return new Int32Array(
+      data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength),
+    );
   };
-  const weights: IHumanSourceSampleWeights = JSON.parse(bytes("weights.json").toString("utf8"));
+  const weights: IHumanSourceSampleWeights = JSON.parse(
+    bytes("weights.json").toString("utf8"),
+  );
   const sample: IHumanSourceSample = {
     directory,
     manifestBytes,
@@ -55,7 +66,12 @@ export function readHumanSourceSample(directory: string): IHumanSourceSample {
     landmarkDelta: f64("landmarks.f64"),
     states: new Map(manifest.states.map((state) => [state.name, state])),
     partPositions: new Map(
-      manifest.parts.map((part) => [part.id, new Map(Object.entries(part.files).map(([level, file]) => [level, f64(file)]))]),
+      manifest.parts.map((part) => [
+        part.id,
+        new Map(
+          Object.entries(part.files).map(([level, file]) => [level, f64(file)]),
+        ),
+      ]),
     ),
   };
   assertHumanSourceSampleBuffers(sample);

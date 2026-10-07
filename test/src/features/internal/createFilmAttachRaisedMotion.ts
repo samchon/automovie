@@ -1,8 +1,10 @@
 import type { IAutoMovieMotion } from "@automovie/interface";
-import { makeMotion, keyframe, makePose, joint } from "./fixtures";
+
+import { joint, keyframe, makeMotion, makePose } from "./fixtures";
 
 /** Preserve the existing constant clinical arm-raise motion for each scenario invocation. */
-export const createFilmAttachRaisedMotion = (): IAutoMovieMotion => makeMotion(
+export const createFilmAttachRaisedMotion = (): IAutoMovieMotion =>
+  makeMotion(
     [
       keyframe(
         0,

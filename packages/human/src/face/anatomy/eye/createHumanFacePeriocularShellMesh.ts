@@ -1,8 +1,9 @@
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import type { IHumanFacePeriocularShellInput } from "./structures/IHumanFacePeriocularShellInput";
 import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
+import type { IHumanFacePeriocularShellInput } from "./structures/IHumanFacePeriocularShellInput";
 
 /**
  * Form a closed indexed shell over a structured anatomical support. A declared
@@ -22,7 +23,9 @@ import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTo
  * @evidence contracts/modeling.md#shared-boundaries Both sheets and perimeter consume one endpoint map, so the tapered boundary remains closed.
  * @evidence contracts/modeling.md#spatial-conventions Coordinates stay canonical head-frame metres; normals are dimensionless area-weighted directions.
  */
-export function createHumanFacePeriocularShellMesh(input: IHumanFacePeriocularShellInput): IAutoMovieMesh {
+export function createHumanFacePeriocularShellMesh(
+  input: IHumanFacePeriocularShellInput,
+): IAutoMovieMesh {
   const { stride, height } = input;
   const n = stride * height;
   const coordinates = [...input.outer, ...input.inner];
@@ -37,19 +40,37 @@ export function createHumanFacePeriocularShellMesh(input: IHumanFacePeriocularSh
     triangle(a, c, d);
   };
   for (const [a, b, c, d] of topology.cells) {
-      quad(a, b, c, d);
-      quad(n + a, n + d, n + c, n + b);
+    quad(a, b, c, d);
+    quad(n + a, n + d, n + c, n + b);
   }
   const perimeter = topology.perimeter;
   for (let at = 0; at < perimeter.length; at++) {
-    const a = perimeter[at], b = perimeter[(at + 1) % perimeter.length];
+    const a = perimeter[at],
+      b = perimeter[(at + 1) % perimeter.length];
     quad(a, n + a, n + b, b);
   }
   const vertices = [...new Set(sourceIndices)];
   const remap = new Map(vertices.map((vertex, index) => [vertex, index]));
-  const positions = vertices.flatMap((vertex) => coordinates.slice(3 * vertex, 3 * vertex + 3));
+  const positions = vertices.flatMap((vertex) =>
+    coordinates.slice(3 * vertex, 3 * vertex + 3),
+  );
   const indices = sourceIndices.map((vertex) => remap.get(vertex)!);
-  if (inspectAutoMovieMeshTopology({ positions, indices, normals: null, uvs: null, skin: null }).volume < 0)
-    for (let at = 0; at < indices.length; at += 3) [indices[at + 1], indices[at + 2]] = [indices[at + 2], indices[at + 1]];
-  return { positions, indices, normals: areaWeightedNormals(positions, indices), uvs: null, skin: null };
+  if (
+    inspectAutoMovieMeshTopology({
+      positions,
+      indices,
+      normals: null,
+      uvs: null,
+      skin: null,
+    }).volume < 0
+  )
+    for (let at = 0; at < indices.length; at += 3)
+      [indices[at + 1], indices[at + 2]] = [indices[at + 2], indices[at + 1]];
+  return {
+    positions,
+    indices,
+    normals: areaWeightedNormals(positions, indices),
+    uvs: null,
+    skin: null,
+  };
 }

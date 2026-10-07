@@ -1,17 +1,22 @@
 import {
-  validateFootSkate,
   type IAutoMovieJointAxes,
   type IAutoMovieRestFrame,
+  validateFootSkate,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSkeleton, AutoMovieHumanoidBone } from "@automovie/interface";
+import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
 import { makeStagingWrite } from "./filmFixtures";
 import { namedFacts, validationHasNoWarnings } from "./predicates";
-import { TestValidator } from "@nestia/e2e";
-import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
 
 /** Preserve the original clinical and airborne planting assertions and input order. */
-export function assertFilmClinicalAndAirborneContinuity(input: IFilmDefinedShotContinuityInputs): void {
+export function assertFilmClinicalAndAirborneContinuity(
+  input: IFilmDefinedShotContinuityInputs,
+): void {
   const { rig, groundedStage, compileWalk, restAt } = input;
   const clinicalRig: IAutoMovieSkeleton = {
     id: "skeleton-1",
@@ -196,5 +201,4 @@ export function assertFilmClinicalAndAirborneContinuity(input: IFilmDefinedShotC
       airborneContinuityClosing: true,
     },
   );
-
 }

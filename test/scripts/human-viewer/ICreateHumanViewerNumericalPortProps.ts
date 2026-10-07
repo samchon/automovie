@@ -1,6 +1,6 @@
 import type { HumanViewerWork } from "./HumanViewerWork";
-import type { createHumanViewerSpans } from "./createHumanViewerSpans";
 import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgress";
+import type { createHumanViewerSpans } from "./createHumanViewerSpans";
 
 /**
  * What the page's numerical transport reports to: stage transitions and the
@@ -12,7 +12,10 @@ import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgr
  */
 export interface ICreateHumanViewerNumericalPortProps {
   /** Reports a work-stage transition. */
-  work: (phase: HumanViewerWork["phase"], completed?: IHumanViewerNumericalProgress) => void;
+  work: (
+    phase: HumanViewerWork["phase"],
+    completed?: IHumanViewerNumericalProgress,
+  ) => void;
 
   /** Stage timings of the current capture. */
   spans: ReturnType<typeof createHumanViewerSpans>;

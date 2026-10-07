@@ -1,12 +1,11 @@
-import type { IAutoMovieHumanBodyToeSplit } from "./IAutoMovieHumanBodyToeSplit";
-import type { IAutoMovieHumanSkinBinding } from "../../../common/basis/IAutoMovieHumanSkinBinding";
-
 import type { IAutoMovieHumanBasisSourcePartition } from "../../../common/basis/IAutoMovieHumanBasisSourcePartition";
+import type { IAutoMovieHumanSkinBinding } from "../../../common/basis/IAutoMovieHumanSkinBinding";
+import type { IAutoMovieHumanBodyBasisRegion } from "./IAutoMovieHumanBodyBasisRegion";
 import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
 import type { IAutoMovieHumanBodyBasisSurfaceSag } from "./IAutoMovieHumanBodyBasisSurfaceSag";
-import type { IAutoMovieHumanBodyBasisRegion } from "./IAutoMovieHumanBodyBasisRegion";
-import type { IAutoMovieHumanBodySurfaceRelief } from "./IAutoMovieHumanBodySurfaceRelief";
 import type { IAutoMovieHumanBodyNailsOverlay } from "./IAutoMovieHumanBodyNailsOverlay";
+import type { IAutoMovieHumanBodySurfaceRelief } from "./IAutoMovieHumanBodySurfaceRelief";
+import type { IAutoMovieHumanBodyToeSplit } from "./IAutoMovieHumanBodyToeSplit";
 import type { IAutoMovieHumanBodyVeinsOverlay } from "./IAutoMovieHumanBodyVeinsOverlay";
 
 /**
@@ -120,5 +119,8 @@ export interface IAutoMovieHumanBodyBasisSurface {
    *
    * A material takes one nails layer at most and four layers in all.
    */
-  overlays?: (IAutoMovieHumanBodyNailsOverlay | IAutoMovieHumanBodyVeinsOverlay)[];
+  overlays?: (
+    | IAutoMovieHumanBodyNailsOverlay
+    | IAutoMovieHumanBodyVeinsOverlay
+  )[];
 }

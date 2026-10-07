@@ -1,12 +1,24 @@
-import { type IAutoMovieFormationPlacement, validateAutoMovieFormationOverlap } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieFormationPlacement,
+  validateAutoMovieFormationOverlap,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationMotion,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieModel,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** One staged unit as the overlap gate reads it: a placement and its tiers. */
-interface IFormationOverlapTier { model: string; }
+interface IFormationOverlapTier {
+  model: string;
+}
 interface IUnit extends IAutoMovieFormationPlacement {
   lod: ReadonlyArray<IFormationOverlapTier>;
 }
-
 
 interface IFormationPostInput {
   id: string;
@@ -223,7 +235,9 @@ export const createFormationOverlapScenario = () => {
     }));
 
   /** One cue taking named members out of the shot for the whole of it. */
-  const remove = (props: IFormationRemoveInput): IAutoMovieFormationSlotMotion => ({
+  const remove = (
+    props: IFormationRemoveInput,
+  ): IAutoMovieFormationSlotMotion => ({
     id: `${props.formation}-remove`,
     formation: props.formation,
     slots: props.slots,
@@ -245,7 +259,8 @@ export const createFormationOverlapScenario = () => {
   const judge = (props: IFormationJudgeInput): IAutoMovieDiagnostic[] =>
     validateAutoMovieFormationOverlap({ id: "opening" }, props);
 
-  const codes = (props: IFormationCodesInput): string[] => judge(props).map((diagnostic) => diagnostic.code);
+  const codes = (props: IFormationCodesInput): string[] =>
+    judge(props).map((diagnostic) => diagnostic.code);
 
   /** The time a refusal names, as the refusal itself spells it. */
   const sampledTime = (diagnostics: readonly IAutoMovieDiagnostic[]): string =>
@@ -263,5 +278,21 @@ export const createFormationOverlapScenario = () => {
     constraint: null,
   });
 
-  return { at, post, row, tiered, file, host, hostSlotX, carry, close, filler, remove, judge, codes, sampledTime, bone };
+  return {
+    at,
+    post,
+    row,
+    tiered,
+    file,
+    host,
+    hostSlotX,
+    carry,
+    close,
+    filler,
+    remove,
+    judge,
+    codes,
+    sampledTime,
+    bone,
+  };
 };

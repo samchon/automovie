@@ -1,4 +1,7 @@
-import { type IAutoMovieMeshSeparationAttachment, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieMeshSeparationAttachment,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRibbonFitContext } from "./IHumanFaceHairRibbonFitContext";
@@ -98,7 +101,11 @@ export function fitHumanFaceHairRibbonRows(
     clearance: number,
     attachment: IAutoMovieMeshSeparationAttachment | undefined,
   ): string =>
-    [clearance, attachment === undefined ? 0 : 1, ...run.flatMap((p) => [p.x, p.y, p.z])]
+    [
+      clearance,
+      attachment === undefined ? 0 : 1,
+      ...run.flatMap((p) => [p.x, p.y, p.z]),
+    ]
       .map((value) => (Object.is(value, -0) ? "-0" : String(value)))
       .join(",");
   const sourceVerdicts = new Map<string, boolean>();

@@ -22,5 +22,4 @@ export interface IUpperLimbHairContactObservation {
 
   /** Whole retained source surface admitted by the existing validator. */
   full: IUpperLimbSignedSurfaceObservation;
-
 }

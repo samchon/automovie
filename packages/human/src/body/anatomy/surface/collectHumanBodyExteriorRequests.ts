@@ -36,17 +36,31 @@ export function collectHumanBodyExteriorRequests(
   targets: IAutoMovieHumanBodyAnatomicalMeasurements | undefined,
 ): IAutoMovieHumanBodyExteriorRequest[] {
   return HUMAN_BODY_EXTERIOR_TARGETS.flatMap((binding) => {
-    const value = binding.path.split(".").reduce<unknown>(
-      (node, key) => (typeof node === "object" && node !== null ? (node as Record<string, unknown>)[key] : undefined),
-      targets,
-    );
+    const value = binding.path
+      .split(".")
+      .reduce<unknown>(
+        (node, key) =>
+          typeof node === "object" && node !== null
+            ? (node as Record<string, unknown>)[key]
+            : undefined,
+        targets,
+      );
     if (value === undefined) return [];
-    const target = typia.assert<AutoMovieHumanBodySurfaceDimension<string>>(value);
+    const target =
+      typia.assert<AutoMovieHumanBodySurfaceDimension<string>>(value);
     if (target.kind === "observed")
-      throw new Error(`acquisition-not-registered:targets.${binding.path} (posture, plane and site)`);
+      throw new Error(
+        `acquisition-not-registered:targets.${binding.path} (posture, plane and site)`,
+      );
     const authored = humanBodyMeasurementRule(binding.rule);
-    if (authored === undefined) throw new Error(`The exterior binding ${binding.path} names no rule ${binding.rule}.`);
-    const rule = binding.side === undefined ? authored : orientHumanBodyMeasurement(binding.rule, authored, binding.side);
+    if (authored === undefined)
+      throw new Error(
+        `The exterior binding ${binding.path} names no rule ${binding.rule}.`,
+      );
+    const rule =
+      binding.side === undefined
+        ? authored
+        : orientHumanBodyMeasurement(binding.rule, authored, binding.side);
     return [{ binding, rule, metres: target.metres }];
   });
 }

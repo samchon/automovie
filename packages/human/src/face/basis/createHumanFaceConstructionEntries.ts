@@ -1,8 +1,8 @@
+import { admitHumanConstruction } from "../../common/basis/admitHumanConstruction";
 import type { IAutoMovieHumanFaceBasisBuilder } from "../structures/IAutoMovieHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage";
 import type { IAutoMovieHumanFaceConstructionProgress } from "../structures/IAutoMovieHumanFaceConstructionProgress";
-import { admitHumanConstruction } from "../../common/basis/admitHumanConstruction";
+import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage";
 
 /**
  * Share one geometry stage between admitted authoring and construction inspection.
@@ -22,20 +22,41 @@ import { admitHumanConstruction } from "../../common/basis/admitHumanConstructio
  * @evidence contracts/common.md#meaningful-documentation States ordinary refusal, complete draft reporting and successful observer isolation.
  */
 export function createHumanFaceConstructionEntries(
-  stage: (document: IAutoMovieHumanFaceBasisDocument) => IHumanFaceConstructionStage,
+  stage: (
+    document: IAutoMovieHumanFaceBasisDocument,
+  ) => IHumanFaceConstructionStage,
   observe?: (progress: IAutoMovieHumanFaceConstructionProgress) => void,
 ): IAutoMovieHumanFaceBasisBuilder {
   const build: IAutoMovieHumanFaceBasisBuilder = Object.assign(
     (document: IAutoMovieHumanFaceBasisDocument) => {
       const current = stage(document);
-      observe?.({ documentId: document.id, basis: document.basis, phase: "geometry-built" });
+      observe?.({
+        documentId: document.id,
+        basis: document.basis,
+        phase: "geometry-built",
+      });
       // Authoring needs the verdict only; the readings and census belong to
       // construction inspection, which takes them below.
       const admission = admitHumanConstruction(
-        current.checks.map((check) => ({ owner: check.owner, assert: check.assert })),
-        (owner, accepted) => observe?.({ documentId: document.id, basis: document.basis, phase: "admission-check-finished", checkOwner: owner, accepted }),
+        current.checks.map((check) => ({
+          owner: check.owner,
+          assert: check.assert,
+        })),
+        (owner, accepted) =>
+          observe?.({
+            documentId: document.id,
+            basis: document.basis,
+            phase: "admission-check-finished",
+            checkOwner: owner,
+            accepted,
+          }),
       );
-      observe?.({ documentId: document.id, basis: document.basis, phase: "admission-finished", accepted: admission.accepted });
+      observe?.({
+        documentId: document.id,
+        basis: document.basis,
+        phase: "admission-finished",
+        accepted: admission.accepted,
+      });
       if (!admission.accepted) throw new Error(admission.failures[0].cause);
       current.publish();
       return current.value.model;
@@ -43,11 +64,35 @@ export function createHumanFaceConstructionEntries(
     {
       construct: (document: IAutoMovieHumanFaceBasisDocument) => {
         const current = stage(document);
-        observe?.({ documentId: document.id, basis: document.basis, phase: "geometry-built" });
-        const admission = admitHumanConstruction(current.checks, (owner, accepted) => observe?.({ documentId: document.id, basis: document.basis, phase: "admission-check-finished", checkOwner: owner, accepted }));
-        observe?.({ documentId: document.id, basis: document.basis, phase: "admission-finished", accepted: admission.accepted });
-        return { ...current.value, admission,
-          ...(current.readMappings === undefined ? {} : { periocularMappings: current.readMappings() }) };
+        observe?.({
+          documentId: document.id,
+          basis: document.basis,
+          phase: "geometry-built",
+        });
+        const admission = admitHumanConstruction(
+          current.checks,
+          (owner, accepted) =>
+            observe?.({
+              documentId: document.id,
+              basis: document.basis,
+              phase: "admission-check-finished",
+              checkOwner: owner,
+              accepted,
+            }),
+        );
+        observe?.({
+          documentId: document.id,
+          basis: document.basis,
+          phase: "admission-finished",
+          accepted: admission.accepted,
+        });
+        return {
+          ...current.value,
+          admission,
+          ...(current.readMappings === undefined
+            ? {}
+            : { periocularMappings: current.readMappings() }),
+        };
       },
     },
   );

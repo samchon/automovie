@@ -1,8 +1,8 @@
-import type { IAutoMovieSignedMeshQueryHit } from "./IAutoMovieSignedMeshQueryHit";
-import type { IAutoMovieSignedMeshQueryOptions } from "./IAutoMovieSignedMeshQueryOptions";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import type { IAutoMovieSignedMeshQueryHit } from "./IAutoMovieSignedMeshQueryHit";
+import type { IAutoMovieSignedMeshQueryOptions } from "./IAutoMovieSignedMeshQueryOptions";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -170,7 +170,15 @@ export function createAutoMovieSignedMeshQuery(
     const determinant = aa * bb - abac * abac;
     if (!(determinant > 0) || !Number.isFinite(determinant))
       throw new Error(
-        "Signed mesh triangle arithmetic must have finite positive rank: triangle " + at / 3 + ", vertices " + source.join(",") + ", determinant " + determinant + ", points " + JSON.stringify(points) + ".",
+        "Signed mesh triangle arithmetic must have finite positive rank: triangle " +
+          at / 3 +
+          ", vertices " +
+          source.join(",") +
+          ", determinant " +
+          determinant +
+          ", points " +
+          JSON.stringify(points) +
+          ".",
       );
     const segments: Triangle["segments"] = [];
     for (let corner = 0; corner < 3; corner++) {

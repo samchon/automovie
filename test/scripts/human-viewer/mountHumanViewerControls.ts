@@ -7,19 +7,18 @@
  * old document. The `/render` and `/sheet` links are built from the same
  * address and therefore draw what the viewport shows.
  */
-
 import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import { changeHumanViewerParts } from "./changeHumanViewerParts";
-import { humanViewerPhotoLook } from "./humanViewerPhotoLook";
 import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
+import { describeHumanViewerPass } from "./describeHumanViewerPass";
+import { humanViewerChoices } from "./humanViewerChoices";
+import { humanViewerLightDocuments } from "./humanViewerLightDocuments";
+import { humanViewerPhotoLook } from "./humanViewerPhotoLook";
+import { mountHumanViewerLightControls } from "./mountHumanViewerLightControls";
 import { neighbourHumanViewerDocument } from "./neighbourHumanViewerDocument";
 import { openHumanViewerHref } from "./openHumanViewerHref";
-import { humanViewerChoices } from "./humanViewerChoices";
-import { describeHumanViewerPass } from "./describeHumanViewerPass";
-import { mountHumanViewerLightControls } from "./mountHumanViewerLightControls";
-import { humanViewerLightDocuments } from "./humanViewerLightDocuments";
 
 const element = <T extends HTMLElement>(id: string): T =>
   document.querySelector<T>("#" + id)!;
@@ -47,7 +46,11 @@ export function mountHumanViewerControls(props: {
   const lighting = mountHumanViewerLightControls({
     form: element<HTMLFormElement>("light-controls"),
     name: element<HTMLSelectElement>("light-name"),
-    components: [element<HTMLInputElement>("light-x"), element<HTMLInputElement>("light-y"), element<HTMLInputElement>("light-z")],
+    components: [
+      element<HTMLInputElement>("light-x"),
+      element<HTMLInputElement>("light-y"),
+      element<HTMLInputElement>("light-z"),
+    ],
     reset: element<HTMLButtonElement>("light-reset"),
     error: element<HTMLElement>("light-error"),
     navigate: (light) => change({ light }),
@@ -118,7 +121,10 @@ export function mountHumanViewerControls(props: {
     link.hidden = against.value === "";
     if (current !== null && against.value !== "")
       link.href =
-        openHumanViewerHref(current.doc, current).render.replace("/render?", "/compare?") +
+        openHumanViewerHref(current.doc, current).render.replace(
+          "/render?",
+          "/compare?",
+        ) +
         "&against=" +
         encodeURIComponent(against.value);
   });
@@ -181,7 +187,8 @@ export function mountHumanViewerControls(props: {
       ids = entries.map((entry) => entry.id);
       doc.replaceChildren();
       against.replaceChildren(new Option("difference against...", ""));
-      for (const entry of entries) against.append(new Option(entry.label, entry.id));
+      for (const entry of entries)
+        against.append(new Option(entry.label, entry.id));
       const groups = new Map<string, HTMLOptGroupElement>();
       for (const entry of entries) {
         let group = groups.get(entry.section);
@@ -203,7 +210,11 @@ export function mountHumanViewerControls(props: {
         doc.append(new Option(address.doc, address.doc));
       doc.value = address.doc;
       pass.value = address.pass;
-      if (![...size.options].some((option) => option.value === String(address.size)))
+      if (
+        ![...size.options].some(
+          (option) => option.value === String(address.size),
+        )
+      )
         size.append(new Option(String(address.size), String(address.size)));
       size.value = String(address.size);
       pitch.value = String(address.pitch);
@@ -227,10 +238,14 @@ export function mountHumanViewerControls(props: {
     },
 
     /** Show the photograph controls when a local photograph exists, else hide them silently. */
-    photo: (info: { available: boolean; camera: IFaceLikenessCamera | null }): void => {
+    photo: (info: {
+      available: boolean;
+      camera: IFaceLikenessCamera | null;
+    }): void => {
       photoCamera = info.camera;
       element("photo").hidden = !info.available;
-      element<HTMLButtonElement>("photo-camera").disabled = info.camera === null;
+      element<HTMLButtonElement>("photo-camera").disabled =
+        info.camera === null;
     },
   };
 }

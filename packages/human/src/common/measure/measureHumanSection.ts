@@ -1,6 +1,6 @@
-import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, convexHull2D } from "@automovie/engine";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
+import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanSectionPlane } from "./IAutoMovieHumanSectionPlane";
 import type { IAutoMovieHumanSectionReading } from "./IAutoMovieHumanSectionReading";
@@ -64,7 +64,10 @@ export function measureHumanSection(
   physicalVertices?: IAutoMovieMesh["physicalVertices"],
 ): IAutoMovieHumanSectionReading | null {
   const count = positions.length / 3;
-  const physical = physicalVertices === undefined ? undefined : resolveAutoMovieMeshPhysicalVertices({ positions, physicalVertices });
+  const physical =
+    physicalVertices === undefined
+      ? undefined
+      : resolveAutoMovieMeshPhysicalVertices({ positions, physicalVertices });
   const distance = new Float64Array(count);
   const measure = (v: number): void => {
     distance[v] =

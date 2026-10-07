@@ -1,4 +1,7 @@
-import type { IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Clinical articulation of a two-link target candidate before final clamping.

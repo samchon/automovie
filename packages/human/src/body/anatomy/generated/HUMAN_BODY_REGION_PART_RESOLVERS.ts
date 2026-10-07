@@ -20,17 +20,18 @@ import type { IAutoMovieHumanBodyRegionPartResolver } from "./IAutoMovieHumanBod
  *
  * @author Samchon
  */
-export const HUMAN_BODY_REGION_PART_RESOLVERS: readonly IAutoMovieHumanBodyRegionPartResolver[] = [
-  resolveHumanBodyPelvisParts,
-  resolveHumanBodyThighParts,
-  resolveHumanBodyKneeParts,
-  resolveHumanBodyLegParts,
-  resolveHumanBodyHindfootParts,
-  resolveHumanBodyForefootParts,
-  resolveHumanBodyTrunkParts,
-  resolveHumanBodyShoulderParts,
-  resolveHumanBodyUpperArmParts,
-  resolveHumanBodyForearmParts,
-  resolveHumanBodyCarpusParts,
-  resolveHumanBodyDigitParts,
-];
+export const HUMAN_BODY_REGION_PART_RESOLVERS: readonly IAutoMovieHumanBodyRegionPartResolver[] =
+  [
+    resolveHumanBodyPelvisParts,
+    resolveHumanBodyThighParts,
+    resolveHumanBodyKneeParts,
+    resolveHumanBodyLegParts,
+    resolveHumanBodyHindfootParts,
+    resolveHumanBodyForefootParts,
+    resolveHumanBodyTrunkParts,
+    resolveHumanBodyShoulderParts,
+    resolveHumanBodyUpperArmParts,
+    resolveHumanBodyForearmParts,
+    resolveHumanBodyCarpusParts,
+    resolveHumanBodyDigitParts,
+  ];

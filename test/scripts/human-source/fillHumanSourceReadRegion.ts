@@ -10,8 +10,13 @@ import type { IHumanSourceRegionFill } from "./structures/IHumanSourceRegionFill
  * not separate and the region is refused. The loop's vertices belong to the
  * outside, not the region.
  */
-export function fillHumanSourceReadRegion(name: string, faces: readonly number[][], read: IHumanSourceReadRegion): IHumanSourceRegionFill {
-  const edge = (a: number, b: number): string => (a < b ? `${a},${b}` : `${b},${a}`);
+export function fillHumanSourceReadRegion(
+  name: string,
+  faces: readonly number[][],
+  read: IHumanSourceReadRegion,
+): IHumanSourceRegionFill {
+  const edge = (a: number, b: number): string =>
+    a < b ? `${a},${b}` : `${b},${a}`;
   const facesOfEdge = new Map<string, number[]>();
   faces.forEach((face, f) => {
     for (let i = 0; i < face.length; i++) {
@@ -20,8 +25,14 @@ export function fillHumanSourceReadRegion(name: string, faces: readonly number[]
       facesOfEdge.get(k)!.push(f);
     }
   });
-  const loopEdges = new Set(read.loop.map((v, i) => edge(v, read.loop[(i + 1) % read.loop.length])));
-  for (const k of loopEdges) if (!facesOfEdge.has(k)) throw new Error(`Skin region ${name}: loop step ${k} is not a base-mesh edge; the loop is not closed.`);
+  const loopEdges = new Set(
+    read.loop.map((v, i) => edge(v, read.loop[(i + 1) % read.loop.length])),
+  );
+  for (const k of loopEdges)
+    if (!facesOfEdge.has(k))
+      throw new Error(
+        `Skin region ${name}: loop step ${k} is not a base-mesh edge; the loop is not closed.`,
+      );
   const fill = (start: number): Set<number> => {
     const reached = new Set<number>();
     const queue = faces.flatMap((face, f) => (face.includes(start) ? [f] : []));
@@ -43,8 +54,14 @@ export function fillHumanSourceReadRegion(name: string, faces: readonly number[]
   };
   const inside = fill(read.seed);
   const outside = fill(read.outside);
-  for (const f of inside) if (outside.has(f)) throw new Error(`Skin region ${name}: the fill from the seed reaches the outside; the loop does not separate.`);
+  for (const f of inside)
+    if (outside.has(f))
+      throw new Error(
+        `Skin region ${name}: the fill from the seed reaches the outside; the loop does not separate.`,
+      );
   const loop = new Set(read.loop);
-  const vertices = [...new Set([...inside].flatMap((f) => faces[f]))].filter((v) => !loop.has(v)).sort((a, b) => a - b);
+  const vertices = [...new Set([...inside].flatMap((f) => faces[f]))]
+    .filter((v) => !loop.has(v))
+    .sort((a, b) => a - b);
   return { faces: inside, vertices, loopEdges };
 }

@@ -9,10 +9,17 @@
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Normalizes the native failure at the request transport boundary before it retires the failed connection.
  * @author Samchon
  */
-export function humanWorkerErrorMessage(value: unknown, fallback: string): string {
+export function humanWorkerErrorMessage(
+  value: unknown,
+  fallback: string,
+): string {
   if (typeof value === "string") return value.trim() || fallback;
   if (typeof value !== "object" || value === null) return fallback;
-  if ("message" in value && typeof value.message === "string" && value.message.trim() !== "")
+  if (
+    "message" in value &&
+    typeof value.message === "string" &&
+    value.message.trim() !== ""
+  )
     return value.message.trim();
   if ("error" in value && value.error instanceof Error)
     return value.error.message.trim() || fallback;

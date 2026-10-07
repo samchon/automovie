@@ -10,14 +10,19 @@ import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps source loading available when model admission refuses the selected generation.
  * @author Samchon
  */
-export function mountConnectedPersonSourceSelection(source: IConnectedPersonSourceUrls | undefined): void {
+export function mountConnectedPersonSourceSelection(
+  source: IConnectedPersonSourceUrls | undefined,
+): void {
   const form = document.createElement("form");
   const title = document.createElement("strong");
   title.textContent = "Typed source views ";
   form.append(title);
   const head = document.createElement("input");
   const body = document.createElement("input");
-  for (const [input, name, value] of [[head, "Head source URL", source?.head], [body, "Body source URL", source?.body]] as const) {
+  for (const [input, name, value] of [
+    [head, "Head source URL", source?.head],
+    [body, "Body source URL", source?.body],
+  ] as const) {
     input.type = "text";
     input.placeholder = name;
     input.setAttribute("aria-label", name);
@@ -35,7 +40,10 @@ export function mountConnectedPersonSourceSelection(source: IConnectedPersonSour
       return;
     }
     const url = new URL(location.href);
-    for (const [key, value] of [["headSource", head.value], ["bodySource", body.value]] as const) {
+    for (const [key, value] of [
+      ["headSource", head.value],
+      ["bodySource", body.value],
+    ] as const) {
       if (value.trim() === "") url.searchParams.delete(key);
       else url.searchParams.set(key, value);
     }

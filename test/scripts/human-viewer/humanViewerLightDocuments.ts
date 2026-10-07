@@ -13,7 +13,14 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
  * @evidence contracts/common.md#meaningful-documentation Explains the consuming controls and why Face and absent documents remain unsupported.
  */
 export function humanViewerLightDocuments(
-  documents: readonly Pick<HumanViewerCatalogue["documents"][number], "id" | "domain">[],
+  documents: readonly Pick<
+    HumanViewerCatalogue["documents"][number],
+    "id" | "domain"
+  >[],
 ): Set<string> {
-  return new Set(documents.filter((entry) => entry.domain !== "face").map((entry) => entry.id));
+  return new Set(
+    documents
+      .filter((entry) => entry.domain !== "face")
+      .map((entry) => entry.id),
+  );
 }

@@ -49,19 +49,33 @@ export function resolveHumanFaceOpticalProfile(
     input.irisDepthFromAnteriorSupportMm,
   ];
   if (dimensions.some((value) => !Number.isFinite(value) || value <= 0))
-    throw new Error("Independent optics need seven finite positive dimensions.");
-  const [radius, limbus, curvature] = dimensions.slice(0, 3).map((v) => v / 1000);
+    throw new Error(
+      "Independent optics need seven finite positive dimensions.",
+    );
+  const [radius, limbus, curvature] = dimensions
+    .slice(0, 3)
+    .map((v) => v / 1000);
   const thickness = input.centralThicknessMicrometres / 1000000;
   const iris = input.irisOuterRadiusMm / 1000;
   const aperture = input.irisApertureRadiusMm / 1000;
   const depth = input.irisDepthFromAnteriorSupportMm / 1000;
-  if (!(0 < aperture && aperture < iris && iris <= limbus && limbus < radius) ||
-    [radius, limbus, curvature, thickness, iris, aperture, depth].some((v) => v <= 0))
-    throw new Error("Independent optics need aperture < iris <= limbus < globe, in finite metre dimensions.");
+  if (
+    !(0 < aperture && aperture < iris && iris <= limbus && limbus < radius) ||
+    [radius, limbus, curvature, thickness, iris, aperture, depth].some(
+      (v) => v <= 0,
+    )
+  )
+    throw new Error(
+      "Independent optics need aperture < iris <= limbus < globe, in finite metre dimensions.",
+    );
   const rim = Math.sqrt((radius - limbus) * (radius + limbus));
   const height = (r: number): number => {
     const q = (r / limbus) ** 2;
-    return rim + ((limbus - r) * (limbus + r) / 4) * ((1 - q) / curvature + (1 + q) / rim);
+    return (
+      rim +
+      (((limbus - r) * (limbus + r)) / 4) *
+        ((1 - q) / curvature + (1 + q) / rim)
+    );
   };
   const slope = (r: number): number => {
     const q = (r / limbus) ** 2;
@@ -70,9 +84,30 @@ export function resolveHumanFaceOpticalProfile(
   const a = height(0);
   const irisZ = a - depth;
   const posteriorAtIris = -Math.sqrt(radius * radius - iris * iris);
-  if (![rim, a, irisZ, posteriorAtIris, height(iris)].every(Number.isFinite) ||
-    !(rim > 0 && thickness < 2 * rim && irisZ < height(iris) - thickness && irisZ > posteriorAtIris))
-    throw new Error("Independent optical profile cannot contain the supplied corneal thickness and iris plane.");
-  return { radius, limbus, curvature, thickness, iris, aperture, depth, rim,
-    apex: a, irisZ, height, slope };
+  if (
+    ![rim, a, irisZ, posteriorAtIris, height(iris)].every(Number.isFinite) ||
+    !(
+      rim > 0 &&
+      thickness < 2 * rim &&
+      irisZ < height(iris) - thickness &&
+      irisZ > posteriorAtIris
+    )
+  )
+    throw new Error(
+      "Independent optical profile cannot contain the supplied corneal thickness and iris plane.",
+    );
+  return {
+    radius,
+    limbus,
+    curvature,
+    thickness,
+    iris,
+    aperture,
+    depth,
+    rim,
+    apex: a,
+    irisZ,
+    height,
+    slope,
+  };
 }

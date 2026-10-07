@@ -1,17 +1,17 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
 import { resolveHumanBodyAnatomy } from "../../body/anatomy/resolveHumanBodyAnatomy";
+import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
 import { evaluateHumanBodyShape } from "../../body/basis/evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
+import { resolveHumanBodyBuildPose } from "../../body/basis/resolveHumanBodyBuildPose";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
 import { skinHumanBodySurface } from "../../body/basis/skinHumanBodySurface";
-import { resolveHumanBodyBuildPose } from "../../body/basis/resolveHumanBodyBuildPose";
 import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieHumanBodyBuild";
 import { evaluateHumanFaceRest } from "../../face/basis/evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "../../face/basis/humanFaceBasisWeights";
-import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
+import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonFormedSkin } from "../structures/IAutoMovieHumanPersonFormedSkin";
@@ -57,27 +57,45 @@ export function evaluateHumanPersonRestSkin(
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanPersonFormedSkin {
   const { generation, plan } = compiled;
-  const effectiveDocument = createHumanPersonHeadShapeResolver(generation)(document);
+  const effectiveDocument =
+    createHumanPersonHeadShapeResolver(generation)(document);
   const body = generation.body;
-  const bodyDocument = deriveHumanPersonBody({ document: effectiveDocument, faceMaterials: generation.face.materials });
+  const bodyDocument = deriveHumanPersonBody({
+    document: effectiveDocument,
+    faceMaterials: generation.face.materials,
+  });
   if (bodyDocument.anatomy !== undefined)
-    bodyDocument.shape = resolveHumanBodyAnatomy(body, bodyDocument.shape, bodyDocument.anatomy);
+    bodyDocument.shape = resolveHumanBodyAnatomy(
+      body,
+      bodyDocument.shape,
+      bodyDocument.anatomy,
+    );
   delete bodyDocument.pose;
   delete bodyDocument.shoulders;
   delete bodyDocument.anatomicalMotion;
   delete bodyDocument.toes;
   delete bodyDocument.thighGoals;
-  const state = humanBodyBasisWeights(body, bodyDocument, resolveHumanBodyShapeShoulderRest(body, bodyDocument.shape));
+  const state = humanBodyBasisWeights(
+    body,
+    bodyDocument,
+    resolveHumanBodyShapeShoulderRest(body, bodyDocument.shape),
+  );
   const shaped = evaluateHumanBodyShape(body, state);
   const bodyRest = compiled.restNeutral.slice();
   applyHumanBodyShapeRows(body, state, bodyRest, compiled.restTargets);
   const faceDocument = deriveHumanPersonGenerationFace({
-    document: { ...effectiveDocument, face: { ...effectiveDocument.face, expression: {} } },
+    document: {
+      ...effectiveDocument,
+      face: { ...effectiveDocument.face, expression: {} },
+    },
     gains: humanPersonBodyEndpointGains(body, state),
     aliases: compiled.aliases,
     drivers: compiled.drivers,
   });
-  const face = evaluateHumanFaceRest(compiled.faceProducer, humanFaceBasisWeights(compiled.faceProducer, faceDocument));
+  const face = evaluateHumanFaceRest(
+    compiled.faceProducer,
+    humanFaceBasisWeights(compiled.faceProducer, faceDocument),
+  );
   const anchor = humanPersonEyeCentre(shaped.landmarks);
   // the body's rest pose is not the identity everywhere: the shape's own
   // shoulder rest poses the shoulders, so the transforms are the body
@@ -88,13 +106,22 @@ export function evaluateHumanPersonRestSkin(
     poseRows: state.pose,
     landmarks: shaped.landmarks,
   });
-  const bones = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBuild["bones"][number]>(
-    [...transforms].map(([bone, frame]) => [bone, { bone, rest: frame.rest, posed: frame.posed }]),
+  const bones = new Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBuild["bones"][number]
+  >(
+    [...transforms].map(([bone, frame]) => [
+      bone,
+      { bone, rest: frame.rest, posed: frame.posed },
+    ]),
   );
   return formHumanPersonSkin(plan, {
     faceRest: {
       head: face.surfaces[compiled.faceProducerSkin],
-      band: compiled.faceProducerBand === undefined ? undefined : face.surfaces[compiled.faceProducerBand],
+      band:
+        compiled.faceProducerBand === undefined
+          ? undefined
+          : face.surfaces[compiled.faceProducerBand],
     },
     shift: [
       anchor.x - compiled.neutralAnchor.x,

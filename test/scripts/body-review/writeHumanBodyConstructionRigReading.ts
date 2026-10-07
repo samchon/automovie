@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+
 import type { IHumanBodyConstructionRigReading } from "./IHumanBodyConstructionRigReading";
 import type { IWriteHumanBodyConstructionRigReadingProps } from "./IWriteHumanBodyConstructionRigReadingProps";
 
@@ -17,7 +18,9 @@ import type { IWriteHumanBodyConstructionRigReadingProps } from "./IWriteHumanBo
  * @evidence contracts/common.md#meaningful-documentation States ownership, missing-state handling, calculation limits and file failure effects.
  * @evidence contracts/modeling.md#spatial-conventions Keeps existing metre positions and unit-quaternion rotations in their returned body frame.
  */
-export function writeHumanBodyConstructionRigReading(props: IWriteHumanBodyConstructionRigReadingProps): void {
+export function writeHumanBodyConstructionRigReading(
+  props: IWriteHumanBodyConstructionRigReadingProps,
+): void {
   const body = props.person?.body ?? props.body;
   const source = body.anatomicalRig;
   const reading: IHumanBodyConstructionRigReading = {
@@ -29,11 +32,22 @@ export function writeHumanBodyConstructionRigReading(props: IWriteHumanBodyConst
     bodyBones: body.bones,
     bodyLandmarks: body.landmarks,
     personBones: props.person?.bones,
-    ...(source === undefined ? {} : {
-      anatomicalBones: Array.from(source.bones, ([bone, transform]) => ({ bone, ...transform })),
-      anatomicalProjections: Array.from(source.projections, ([bone, transform]) => ({ bone, ...transform })),
-    }),
+    ...(source === undefined
+      ? {}
+      : {
+          anatomicalBones: Array.from(source.bones, ([bone, transform]) => ({
+            bone,
+            ...transform,
+          })),
+          anatomicalProjections: Array.from(
+            source.projections,
+            ([bone, transform]) => ({ bone, ...transform }),
+          ),
+        }),
     groundPlaneHeightMetres: body.groundPlaneHeightMetres,
   };
-  fs.writeFileSync(path.join(props.directory, "rig-reading.json"), JSON.stringify(reading, null, 2));
+  fs.writeFileSync(
+    path.join(props.directory, "rig-reading.json"),
+    JSON.stringify(reading, null, 2),
+  );
 }

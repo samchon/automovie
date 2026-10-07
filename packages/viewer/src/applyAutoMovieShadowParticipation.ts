@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { SPACE_GROUP_NAME } from "./buildSpace";
 
 /**

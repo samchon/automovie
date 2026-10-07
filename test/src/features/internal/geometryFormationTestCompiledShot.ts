@@ -1,10 +1,20 @@
-import type { IGeometryFormationTestCompiledShotProps } from "./IGeometryFormationTestCompiledShotProps";
-import { IAutoMovieCompiledShotSource, IAutoMovieQuaternion, IAutoMovieSceneNode } from "@automovie/interface";
-import { createModel, createSkeleton, joint, keyframe, makeMotion, makePose } from "./fixtures";
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+} from "@automovie/interface";
 
+import type { IGeometryFormationTestCompiledShotProps } from "./IGeometryFormationTestCompiledShotProps";
+import {
+  createModel,
+  createSkeleton,
+  joint,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "./fixtures";
 
 const LOOKING_BACK: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
 
 const SWAY = {
   ...makeMotion(
@@ -31,9 +41,10 @@ const SWAY = {
   id: "sway",
 };
 
-
 /** Stage the banner and its optional performance with the requested compiled formation. */
-export const geometryFormationTestCompiledShot = (props: IGeometryFormationTestCompiledShotProps): IAutoMovieCompiledShotSource => {
+export const geometryFormationTestCompiledShot = (
+  props: IGeometryFormationTestCompiledShotProps,
+): IAutoMovieCompiledShotSource => {
   const hero = props.runtime?.heroes[0];
   const nodes: IAutoMovieSceneNode[] =
     props.banner === "absent" || hero === undefined

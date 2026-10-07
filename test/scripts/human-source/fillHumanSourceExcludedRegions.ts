@@ -13,7 +13,23 @@ import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
  * surface its surroundings continue into; applied to an endpoint displacement
  * it keeps that endpoint from putting the detail back.
  */
-export function fillHumanSourceExcludedRegions(sample: IHumanSourceSample, values: Float64Array, nativeToSource?: Int32Array): void {
-  fillHumanSourceRegion(sample.flattenInterior, sample.flattenBoundary, sample.flattenOperator, values, nativeToSource);
-  fillHumanSourceRegion(sample.genitalInterior, sample.genitalBoundary, sample.genitalOperator, values, nativeToSource);
+export function fillHumanSourceExcludedRegions(
+  sample: IHumanSourceSample,
+  values: Float64Array,
+  nativeToSource?: Int32Array,
+): void {
+  fillHumanSourceRegion(
+    sample.flattenInterior,
+    sample.flattenBoundary,
+    sample.flattenOperator,
+    values,
+    nativeToSource,
+  );
+  fillHumanSourceRegion(
+    sample.genitalInterior,
+    sample.genitalBoundary,
+    sample.genitalOperator,
+    values,
+    nativeToSource,
+  );
 }

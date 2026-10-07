@@ -1,4 +1,7 @@
-import { type IAutoMovieModelCrossing, measureAutoMovieModelCrossings } from "@automovie/engine";
+import {
+  type IAutoMovieModelCrossing,
+  measureAutoMovieModelCrossings,
+} from "@automovie/engine";
 
 import type { IReadConnectedBodyContactsProps } from "./IReadConnectedBodyContactsProps";
 
@@ -29,10 +32,20 @@ export async function readConnectedBodyContacts(
     return props.superseded();
   };
   for (let first = 0; first < parts.length; first++) {
-    found.push(...measureAutoMovieModelCrossings({ ...props.model, parts: [parts[first]] }, { withinParts: true }));
+    found.push(
+      ...measureAutoMovieModelCrossings(
+        { ...props.model, parts: [parts[first]] },
+        { withinParts: true },
+      ),
+    );
     if (await pause()) return null;
     for (let second = first + 1; second < parts.length; second++) {
-      found.push(...measureAutoMovieModelCrossings({ ...props.model, parts: [parts[first], parts[second]] }));
+      found.push(
+        ...measureAutoMovieModelCrossings({
+          ...props.model,
+          parts: [parts[first], parts[second]],
+        }),
+      );
       if (await pause()) return null;
     }
   }

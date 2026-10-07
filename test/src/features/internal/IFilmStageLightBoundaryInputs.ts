@@ -1,5 +1,8 @@
 import type { stageScene } from "@automovie/engine";
-import type { IAutoMovieStageLight, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieStageLight,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 
 /** Existing staging and refusal readers carried into the light boundary assertion group. */
 export interface IFilmStageLightBoundaryInputs {

@@ -35,11 +35,19 @@ export function admitHumanFaceAnatomicalRequest(
   const seen = new Set<string>();
   for (const target of request.targets ?? []) {
     if (!registered.has(target.measurement))
-      throw new Error("No face measurement is registered as " + target.measurement + ".");
+      throw new Error(
+        "No face measurement is registered as " + target.measurement + ".",
+      );
     if (seen.has(target.measurement))
-      throw new Error("The face measurement " + target.measurement + " is targeted twice.");
+      throw new Error(
+        "The face measurement " + target.measurement + " is targeted twice.",
+      );
     if (!Number.isFinite(target.value))
-      throw new Error("The face measurement target " + target.measurement + " must be finite.");
+      throw new Error(
+        "The face measurement target " +
+          target.measurement +
+          " must be finite.",
+      );
     seen.add(target.measurement);
   }
   const visit = (value: unknown, path: string[]): void => {
@@ -57,10 +65,21 @@ export function admitHumanFaceAnatomicalRequest(
     }).sort((a, b) => b.path.split(".").length - a.path.split(".").length)[0];
     const name = path.join(".");
     if (rule === undefined)
-      throw new Error("The face resolver has no rule for the observation " + name + ".");
+      throw new Error(
+        "The face resolver has no rule for the observation " + name + ".",
+      );
     if (rule.outcome === "refused")
-      throw new Error("The face cannot represent the observation " + name + ": " + rule.reason + ".");
-    if (rule.values !== undefined && !rule.values.includes(value as string | number | boolean))
+      throw new Error(
+        "The face cannot represent the observation " +
+          name +
+          ": " +
+          rule.reason +
+          ".",
+      );
+    if (
+      rule.values !== undefined &&
+      !rule.values.includes(value as string | number | boolean)
+    )
       throw new Error(
         `The face cannot represent ${name} = ${JSON.stringify(value)}: ${rule.reason}.`,
       );

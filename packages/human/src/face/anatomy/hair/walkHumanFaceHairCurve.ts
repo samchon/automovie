@@ -1,18 +1,16 @@
-import {
-  Vector3,
-} from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
+import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
-import { stepHumanFaceHairRootedStem } from "./stepHumanFaceHairRootedStem";
-import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
 import { createHumanFaceHairCurveStart } from "./createHumanFaceHairCurveStart";
 import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
+import { stepHumanFaceHairRootedStem } from "./stepHumanFaceHairRootedStem";
 import { transportHumanFaceHairGatherStep } from "./transportHumanFaceHairGatherStep";
 
 const requireDirection = humanFaceHairFrame.direction;
@@ -187,27 +185,35 @@ export function walkHumanFaceHairCurve(
     // One step along a direction: the contact's own projection of a full
     // step, bisected back when that projection lands farther than the step,
     // which is the chord bound the clearance argument rests on.
-    const advance = (
-      along: IAutoMovieVector3,
-    ): IHumanFaceHairStationStep => {
+    const advance = (along: IAutoMovieVector3): IHumanFaceHairStationStep => {
       // A pending free lock acquired its datum at its only rooted-to-free
       // transition. Tie state never returns from the tail to pending.
       const transported = stage.pending() && layer.gather!.strength > 0;
       const candidate = Vector3.add(p, Vector3.scale(along, h));
-      const move = (parameter: number): IAutoMovieVector3 => transported
-        ? transportHumanFaceHairGatherStep({ point: p, direction: along, normal,
-            parameter, strength: layer.gather!.strength, offset: gatherOffset!,
-            contact: rule, budget }).point
-        : contact(Vector3.add(p, Vector3.scale(along, parameter)));
-      let point = transported ? move(h) : humanFaceHairFreeDistanceBound({
-        sampled: p,
-        distance: hit.signedDistance,
-        candidate,
-        required: clearance,
-        allowance: epsilon,
-      })
-        ? candidate
-        : contact(candidate);
+      const move = (parameter: number): IAutoMovieVector3 =>
+        transported
+          ? transportHumanFaceHairGatherStep({
+              point: p,
+              direction: along,
+              normal,
+              parameter,
+              strength: layer.gather!.strength,
+              offset: gatherOffset!,
+              contact: rule,
+              budget,
+            }).point
+          : contact(Vector3.add(p, Vector3.scale(along, parameter)));
+      let point = transported
+        ? move(h)
+        : humanFaceHairFreeDistanceBound({
+              sampled: p,
+              distance: hit.signedDistance,
+              candidate,
+              required: clearance,
+              allowance: epsilon,
+            })
+          ? candidate
+          : contact(candidate);
       let distance = Vector3.length(Vector3.subtract(point, p));
       if (distance > h + epsilon) {
         let low = 0,
@@ -299,8 +305,12 @@ export function walkHumanFaceHairCurve(
         if (stage.pending()) gatherOffset = free;
       }
     } else if (stage.pending()) {
-      gatherOffset = Math.max(clearance - epsilon, gatherOffset! +
-        Vector3.dot(direction, normal) * Vector3.length(Vector3.subtract(q, p)));
+      gatherOffset = Math.max(
+        clearance - epsilon,
+        gatherOffset! +
+          Vector3.dot(direction, normal) *
+            Vector3.length(Vector3.subtract(q, p)),
+      );
     }
     points.push(q);
     p = q;

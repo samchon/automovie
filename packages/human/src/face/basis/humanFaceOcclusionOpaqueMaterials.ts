@@ -18,8 +18,15 @@ import type { IAutoMovieModel } from "@automovie/interface";
  * @evidenceExclude contracts/modeling.md#spatial-conventions Carries no spatial quantity or conversion.
  * @author Samchon
  */
-export function humanFaceOcclusionOpaqueMaterials(model: IAutoMovieModel): Set<string> {
-  return new Set(model.materials.filter((material) =>
-    material.alphaMode !== "mask" && material.alphaMode !== "blend",
-  ).map((material) => material.id));
+export function humanFaceOcclusionOpaqueMaterials(
+  model: IAutoMovieModel,
+): Set<string> {
+  return new Set(
+    model.materials
+      .filter(
+        (material) =>
+          material.alphaMode !== "mask" && material.alphaMode !== "blend",
+      )
+      .map((material) => material.id),
+  );
 }

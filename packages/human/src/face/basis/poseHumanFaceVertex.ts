@@ -42,6 +42,7 @@ export function poseHumanFaceVertex(
         return [{ owner: attachment.owner, rows: [0, attachment.rows[i + 1]] }];
     return [];
   });
-  const posed = rows.length === 0 ? local : poseHumanFaceSurface(local, rows, motions);
+  const posed =
+    rows.length === 0 ? local : poseHumanFaceSurface(local, rows, motions);
   return Vector3.create(posed[0], posed[1], posed[2]);
 }

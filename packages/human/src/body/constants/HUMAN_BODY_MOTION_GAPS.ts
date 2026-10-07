@@ -25,6 +25,5 @@ export const HUMAN_BODY_MOTION_GAPS: Readonly<Record<string, string>> = {
     "Subtalar inversion and eversion about their own axis are not in this rig (#2708).",
   "Toes.abduction":
     "Toe splay needs per-ray phalanges, which this basis does not declare (#2711).",
-  "Toes.twist":
-    "Toe rotation is not in this rig (#2711).",
+  "Toes.twist": "Toe rotation is not in this rig (#2711).",
 };

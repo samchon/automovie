@@ -12,7 +12,11 @@ export interface IHumanViewerAdmissionWindow {
   __humanViewerProtocol?: string;
 
   /** A viewer frame's admission; null when admitted, else the owner's reason. Set when the frame module loads. */
-  __humanViewerAdmit?: (domain: string, text: string, basis: string) => Promise<string | null>;
+  __humanViewerAdmit?: (
+    domain: string,
+    text: string,
+    basis: string,
+  ) => Promise<string | null>;
 
   /** The host page's bridge, set when the host module runs. */
   __humanViewerAdmission?: IHumanViewerAdmissionBridge;

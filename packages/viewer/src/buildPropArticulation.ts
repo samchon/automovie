@@ -1,8 +1,9 @@
 import { placementChildNode } from "@automovie/engine";
 import type { IAutoMoviePropSpec } from "@automovie/interface";
 import * as THREE from "three";
-import type { IBuildPropArticulationProps } from "./IBuildPropArticulationProps";
+
 import type { IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation";
+import type { IBuildPropArticulationProps } from "./IBuildPropArticulationProps";
 import { applyTransform } from "./applyTransform";
 
 /** One prop joint's rest placement, restored before every frame. */
@@ -68,7 +69,9 @@ interface IJointRest {
  * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Materializes those channels at the attachment and interaction boundary.
  * @author Samchon
  */
-export const buildPropArticulation = (props: IBuildPropArticulationProps): IAutoMovieBuiltPropArticulation => {
+export const buildPropArticulation = (
+  props: IBuildPropArticulationProps,
+): IAutoMovieBuiltPropArticulation => {
   const registry = new Map<string, IAutoMoviePropSpec>();
   for (const spec of props.props)
     if (!registry.has(spec.node)) registry.set(spec.node, spec);

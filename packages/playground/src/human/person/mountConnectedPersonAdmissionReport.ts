@@ -17,7 +17,9 @@ import type { IConnectedPersonAdmissionView } from "./IConnectedPersonAdmissionV
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the admission report a separate file from the numerical person document.
  * @author Samchon
  */
-export function mountConnectedPersonAdmissionReport(props: IConnectedPersonAdmissionReportProps): IConnectedPersonAdmissionReport {
+export function mountConnectedPersonAdmissionReport(
+  props: IConnectedPersonAdmissionReportProps,
+): IConnectedPersonAdmissionReport {
   const dom = props.container.ownerDocument;
   const title = dom.createElement("h2");
   title.textContent = "Admission report";
@@ -30,7 +32,10 @@ export function mountConnectedPersonAdmissionReport(props: IConnectedPersonAdmis
   save.onclick = () => {
     if (shown === null) return;
     props.download(
-      shown.document + (shown.mode === "accepted" ? ".admission.json" : ".construction-admission.json"),
+      shown.document +
+        (shown.mode === "accepted"
+          ? ".admission.json"
+          : ".construction-admission.json"),
       JSON.stringify(shown, null, 2),
       "application/json",
     );
@@ -42,7 +47,11 @@ export function mountConnectedPersonAdmissionReport(props: IConnectedPersonAdmis
     text.textContent =
       view === null
         ? "No person is displayed."
-        : JSON.stringify({ mode: view.mode, parts: view.parts, admission: view.admission }, null, 2);
+        : JSON.stringify(
+            { mode: view.mode, parts: view.parts, admission: view.admission },
+            null,
+            2,
+          );
   };
   show(null);
   return { show };

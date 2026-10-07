@@ -20,29 +20,45 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
  * @evidence contracts/common.md#clear-and-simple-design The source owner converts subjects; the viewer only checks and keys them.
  * @evidence contracts/common.md#meaningful-documentation States the generation check, the refusal and the key.
  */
-export function readHumanViewerGenerationSubjects(props: IReadHumanViewerGenerationSubjectsProps): IHumanViewerInputs {
+export function readHumanViewerGenerationSubjects(
+  props: IReadHumanViewerGenerationSubjectsProps,
+): IHumanViewerInputs {
   const result: IHumanViewerInputs = { documents: [], rejected: [] };
   let parsed: IHumanViewerGenerationSubjectsFile;
   try {
     parsed = JSON.parse(props.text) as IHumanViewerGenerationSubjectsFile;
     if (!Array.isArray(parsed.people)) throw new Error("it has no people list");
   } catch (error) {
-    result.rejected.push({ file: props.file, pending: false,
-      reason: "the subject people file cannot be read: " + (error instanceof Error ? error.message : String(error)) });
+    result.rejected.push({
+      file: props.file,
+      pending: false,
+      reason:
+        "the subject people file cannot be read: " +
+        (error instanceof Error ? error.message : String(error)),
+    });
     return result;
   }
   const { generation } = props;
   for (const document of parsed.people) {
     const id = (document as IHumanViewerGenerationIdentity).id;
     if (typeof id !== "string" || !id.startsWith("person:")) {
-      result.rejected.push({ file: props.file, pending: false, reason: "a subject person needs an id starting with person:" });
+      result.rejected.push({
+        file: props.file,
+        pending: false,
+        reason: "a subject person needs an id starting with person:",
+      });
       continue;
     }
     const bases = readHumanViewerPersonBases(document as object);
     if (bases.face !== generation.face || bases.body !== generation.body) {
-      result.rejected.push({ file: props.file, id, pending: false,
-        reason: `${id} names face ${bases.face} and body ${bases.body}, but the published generation is face ` +
-          `${generation.face} and body ${generation.body} (subjects.json generation ${parsed.generation})` });
+      result.rejected.push({
+        file: props.file,
+        id,
+        pending: false,
+        reason:
+          `${id} names face ${bases.face} and body ${bases.body}, but the published generation is face ` +
+          `${generation.face} and body ${generation.body} (subjects.json generation ${parsed.generation})`,
+      });
       continue;
     }
     const entry: IHumanViewerCatalogueEntry = {
@@ -50,9 +66,14 @@ export function readHumanViewerGenerationSubjects(props: IReadHumanViewerGenerat
       domain: "person",
       document,
       basis: humanViewerPublishedGenerationBasis(generation),
-      key: humanViewerPersonKey({ document,
-        bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
-        sources: props.sources }),
+      key: humanViewerPersonKey({
+        document,
+        bases: {
+          face: { digest: generation.headDigest },
+          body: { digest: generation.bodyDigest },
+        },
+        sources: props.sources,
+      }),
     };
     result.documents.push(entry);
   }
@@ -60,4 +81,6 @@ export function readHumanViewerGenerationSubjects(props: IReadHumanViewerGenerat
 }
 
 /** Named local transport for readHumanViewerGenerationSubjects; member meaning remains with its calculation owner. */
-interface IHumanViewerGenerationIdentity { id?: unknown }
+interface IHumanViewerGenerationIdentity {
+  id?: unknown;
+}

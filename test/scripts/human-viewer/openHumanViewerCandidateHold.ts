@@ -12,7 +12,10 @@ import type { IHumanViewerCandidateHold } from "./IHumanViewerCandidateHold";
  */
 export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandidateHold> {
   const controller = new AbortController();
-  const response = await fetch("/generation/hold", { signal: controller.signal, cache: "no-store" });
+  const response = await fetch("/generation/hold", {
+    signal: controller.signal,
+    cache: "no-store",
+  });
   const token = response.headers.get("X-Human-Generation") ?? "";
   let released: Promise<string | null> | undefined;
   return {
@@ -21,7 +24,9 @@ export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandid
       released ??= (async () => {
         controller.abort();
         try {
-          const answer = (await (await fetch("/generation/label?" + new URLSearchParams({ token }))).json()) as IHumanViewerCandidateHoldLabel;
+          const answer = (await (
+            await fetch("/generation/label?" + new URLSearchParams({ token }))
+          ).json()) as IHumanViewerCandidateHoldLabel;
           return typeof answer.label === "string" ? answer.label : null;
         } catch {
           return null;
@@ -33,4 +38,6 @@ export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandid
 }
 
 /** Named local transport for openHumanViewerCandidateHold; member meaning remains with its calculation owner. */
-interface IHumanViewerCandidateHoldLabel { label?: string | null }
+interface IHumanViewerCandidateHoldLabel {
+  label?: string | null;
+}

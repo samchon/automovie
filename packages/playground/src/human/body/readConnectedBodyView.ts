@@ -12,8 +12,17 @@ import { readConnectedFaceAsset } from "../common/connectedAsset";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Supplies the basis the persistent body worker reads once and compiles before evaluating documents.
  * @author Samchon
  */
-export function readConnectedBodyView(source?: string): Promise<IAutoMovieHumanPersonBodyView> {
+export function readConnectedBodyView(
+  source?: string,
+): Promise<IAutoMovieHumanPersonBodyView> {
   return readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
-    read: () => fetch(source ?? new URL("../../../../../test/studies/human-person/generation/body.json.gz", import.meta.url)),
+    read: () =>
+      fetch(
+        source ??
+          new URL(
+            "../../../../../test/studies/human-person/generation/body.json.gz",
+            import.meta.url,
+          ),
+      ),
   });
 }

@@ -1,7 +1,7 @@
 import type { IHumanSourceAuthoredBinding } from "./IHumanSourceAuthoredBinding.ts";
 import type { IHumanSourceAuthoredPacketEntry } from "./IHumanSourceAuthoredPacketEntry.ts";
-import type { IHumanSourceSampleFile } from "./IHumanSourceSampleFile.ts";
 import type { IHumanSourceAuthoredPorts } from "./IHumanSourceAuthoredPorts.ts";
+import type { IHumanSourceSampleFile } from "./IHumanSourceSampleFile.ts";
 
 /** Provider neutral packet fields consumed by the actual root/P1 compiler.
  * Producer closure and biological qualification remain final-generation gates.

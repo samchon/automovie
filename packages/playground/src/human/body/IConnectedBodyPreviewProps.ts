@@ -2,12 +2,12 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 import type { HumanResidentPort } from "../common/HumanResidentPort";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Inputs of `createConnectedBodyPreview`.

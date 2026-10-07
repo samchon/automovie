@@ -27,9 +27,16 @@ import type { IAutoMovieHumanBodyAtlasSource } from "./IAutoMovieHumanBodyAtlasS
  * @evidenceExclude contracts/anatomy.md#permitted-range The record bounds no anatomical quantity.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The record is offline provenance, not an authoring input.
  */
-export function isHumanBodyAtlasSourceRecorded(source: IAutoMovieHumanBodyAtlasSource): boolean {
+export function isHumanBodyAtlasSourceRecorded(
+  source: IAutoMovieHumanBodyAtlasSource,
+): boolean {
   const { substitution, ...consumed } = source;
   const digest = /^[a-fA-F0-9]{64}$/;
-  return [...Object.values(consumed), ...Object.values(substitution ?? {})].every((text) => text.trim() !== "") &&
-    digest.test(source.sha256) && (substitution === undefined || digest.test(substitution.replacedSha256));
+  return (
+    [...Object.values(consumed), ...Object.values(substitution ?? {})].every(
+      (text) => text.trim() !== "",
+    ) &&
+    digest.test(source.sha256) &&
+    (substitution === undefined || digest.test(substitution.replacedSha256))
+  );
 }

@@ -1,16 +1,16 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
-import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
-import type { IAutoMovieHumanBodySourceJointGoal } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceJointGoal";
 
+import type { IAutoMovieHumanBodySourceJointGoal } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceJointGoal";
+import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
 import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
-import type { IAutoMovieHumanBodyToePose } from "./IAutoMovieHumanBodyToePose";
-import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
-import type { IAutoMovieHumanBodyThighGoal } from "./IAutoMovieHumanBodyThighGoal";
-import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
 import type { IAutoMovieHumanBodyHumeralHeadRadii } from "./IAutoMovieHumanBodyHumeralHeadRadii";
+import type { IAutoMovieHumanBodyMaterialOverride } from "./IAutoMovieHumanBodyMaterialOverride";
+import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanBodySkinColour } from "./IAutoMovieHumanBodySkinColour";
 import type { IAutoMovieHumanBodySkinLayerStrength } from "./IAutoMovieHumanBodySkinLayerStrength";
-import type { IAutoMovieHumanBodyMaterialOverride } from "./IAutoMovieHumanBodyMaterialOverride";
+import type { IAutoMovieHumanBodyThighGoal } from "./IAutoMovieHumanBodyThighGoal";
+import type { IAutoMovieHumanBodyToePose } from "./IAutoMovieHumanBodyToePose";
+import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
 
 /**
  * Compact edits against a separately supplied immutable body basis.

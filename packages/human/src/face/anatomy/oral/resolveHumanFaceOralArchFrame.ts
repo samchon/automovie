@@ -98,7 +98,9 @@ export function resolveHumanFaceOralArchFrame(
     return vector.map((value) => value / length);
   };
   const normal = unit([-beta, 1, -gamma]);
-  const forward = unit([0, 0, 1].map((value, axis) => value - normal[2] * normal[axis]));
+  const forward = unit(
+    [0, 0, 1].map((value, axis) => value - normal[2] * normal[axis]),
+  );
   const lateral = [
     normal[1] * forward[2] - normal[2] * forward[1],
     normal[2] * forward[0] - normal[0] * forward[2],
@@ -108,7 +110,9 @@ export function resolveHumanFaceOralArchFrame(
   const local = (p: readonly number[]): number[] => {
     const delta = p.map((value, axis) => value - origin[axis]);
     const dot = (direction: readonly number[]): number =>
-      delta[0] * direction[0] + delta[1] * direction[1] + delta[2] * direction[2];
+      delta[0] * direction[0] +
+      delta[1] * direction[1] +
+      delta[2] * direction[2];
     return [dot(lateral), dot(forward), dot(apical)];
   };
   const stations: IHumanFaceOralToothStation[] = ordered.map((crown, at) => ({
@@ -118,7 +122,8 @@ export function resolveHumanFaceOralArchFrame(
     vertices: [...crown.cervical],
   }));
   const midline =
-    stations.reduce((sum, station) => sum + station.centre[0], 0) / stations.length;
+    stations.reduce((sum, station) => sum + station.centre[0], 0) /
+    stations.length;
   const rear = Math.min(...stations.map((station) => station.centre[1]));
   const front = Math.max(...stations.map((station) => station.centre[1]));
   const samples = 64;
@@ -126,9 +131,21 @@ export function resolveHumanFaceOralArchFrame(
   for (let k = 0; k <= samples; k++)
     vaultSpanMetres = Math.max(
       vaultSpanMetres,
-      measureHumanFaceOralRingDistance(stations, midline, rear + ((front - rear) * k) / samples),
+      measureHumanFaceOralRingDistance(
+        stations,
+        midline,
+        rear + ((front - rear) * k) / samples,
+      ),
     );
   if (!(vaultSpanMetres > 0) || !Number.isFinite(vaultSpanMetres))
     throw new Error("Oral arch frame has no finite vault span.");
-  return { mandibular, origin, lateral, forward, apical, stations, vaultSpanMetres };
+  return {
+    mandibular,
+    origin,
+    lateral,
+    forward,
+    apical,
+    stations,
+    vaultSpanMetres,
+  };
 }

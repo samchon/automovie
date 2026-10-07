@@ -30,6 +30,8 @@ export function humanPhysicalSourceDomain(
   registration: string,
 ): string {
   if (instance.trim().length === 0 || registration.trim().length === 0)
-    throw new Error("Human physical source domain needs nonempty instance and registration identities.");
+    throw new Error(
+      "Human physical source domain needs nonempty instance and registration identities.",
+    );
   return JSON.stringify([instance, registration]);
 }

@@ -28,5 +28,4 @@ export interface IAutoMovieHumanFaceHairCurl {
 
   /** Positive arc length in millimetres for the exponential onset. */
   onsetMm: number;
-
 }

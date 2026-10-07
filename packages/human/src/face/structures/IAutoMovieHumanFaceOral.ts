@@ -16,7 +16,12 @@ import type { IAutoMovieHumanFaceOralTooth } from "./IAutoMovieHumanFaceOralToot
  */
 export interface IAutoMovieHumanFaceOral {
   /** Independent ISO3950 permanent source crowns; unlisted entries retain source geometry, not inferred clinical eruption. */
-  teeth?: Partial<Record<`${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`, IAutoMovieHumanFaceOralTooth>>;
+  teeth?: Partial<
+    Record<
+      `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`,
+      IAutoMovieHumanFaceOralTooth
+    >
+  >;
 
   /** Maxillary arch and gingiva, independent of mandibular identity. */
   maxillary?: IAutoMovieHumanFaceOralArch;

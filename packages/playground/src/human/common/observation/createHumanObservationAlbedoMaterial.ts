@@ -41,7 +41,9 @@ const OVERLAY_PATCH_PREFIX = "automovie-overlays-";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Refuses unsupported material families and unknown shader modifications instead of guessing their colour.
  * @author Samchon
  */
-export function createHumanObservationAlbedoMaterial(source: THREE.Material): THREE.MeshBasicMaterial {
+export function createHumanObservationAlbedoMaterial(
+  source: THREE.Material,
+): THREE.MeshBasicMaterial {
   if (
     !(
       source instanceof THREE.MeshBasicMaterial ||
@@ -56,14 +58,18 @@ export function createHumanObservationAlbedoMaterial(source: THREE.Material): TH
     );
   const label = source.name || source.type;
   if (source.onBeforeRender !== THREE.Material.prototype.onBeforeRender)
-    throw new Error(`Albedo observation refuses custom shader hooks on "${label}".`);
+    throw new Error(
+      `Albedo observation refuses custom shader hooks on "${label}".`,
+    );
   const patches =
     (source.userData.shaderPatches as IMaterialShaderPatch[] | undefined) ?? [];
   if (
     source.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile &&
     patches.length === 0
   )
-    throw new Error(`Albedo observation refuses custom shader hooks on "${label}".`);
+    throw new Error(
+      `Albedo observation refuses custom shader hooks on "${label}".`,
+    );
   let overlaid = false;
   for (const patch of patches) {
     if (LIGHTING_ONLY_PATCHES.includes(patch.key)) continue;

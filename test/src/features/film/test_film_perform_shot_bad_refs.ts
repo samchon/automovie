@@ -1,7 +1,7 @@
-import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
 import { performShot, stageScene } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
 import {
   makePerformanceWrite,
   makeScriptWrite,

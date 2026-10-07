@@ -5,10 +5,14 @@ import { hasViolation, namedFacts } from "./predicates";
 
 /** Existing malformed PBR binding/lobe cases in their original assertion order. */
 export const assertViewerPbrDeclarationRefusals = (
-  validateMaterial: (patch: Record<string, unknown>) => ReturnType<typeof validateModel>,
+  validateMaterial: (
+    patch: Record<string, unknown>,
+  ) => ReturnType<typeof validateModel>,
 ): void => {
   const materialRefusedAt = (
-    patch: Record<string, unknown>, kind: "type" | "range", path: string,
+    patch: Record<string, unknown>,
+    kind: "type" | "range",
+    path: string,
   ): boolean => hasViolation(validateMaterial(patch), kind, path);
   TestValidator.equals(
     "PBR declarations reject malformed bindings and contradictory states",

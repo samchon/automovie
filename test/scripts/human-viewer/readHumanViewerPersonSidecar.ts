@@ -13,12 +13,16 @@ import { scanHumanViewerPacketIdentities } from "./scanHumanViewerPacketIdentiti
  * @evidence contracts/common.md#clear-and-simple-design The shared structural scan reads; this function only states which members a person packet needs.
  * @evidence contracts/common.md#meaningful-documentation States what is required and who admits the rest.
  */
-export function readHumanViewerPersonSidecar(text: Buffer): IHumanViewerPersonSidecar {
+export function readHumanViewerPersonSidecar(
+  text: Buffer,
+): IHumanViewerPersonSidecar {
   const scanned = scanHumanViewerPacketIdentities(text);
   const identity = (member: string): string => {
     const value = scanned.members[member];
     if (value === undefined || value === "")
-      throw new Error(`A person packet needs a ${member} basis that opens with its id`);
+      throw new Error(
+        `A person packet needs a ${member} basis that opens with its id`,
+      );
     return value;
   };
   return { id: scanned.id, face: identity("face"), body: identity("body") };

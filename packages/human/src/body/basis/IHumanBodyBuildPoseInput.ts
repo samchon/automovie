@@ -1,4 +1,7 @@
-import type { IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";

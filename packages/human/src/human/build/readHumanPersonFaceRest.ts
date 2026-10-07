@@ -33,15 +33,19 @@ export function readHumanPersonFaceRest(
     if (sources === undefined) continue;
     const { positions } = meshOfHumanPart(part);
     sources.forEach((source, vertex) => {
-      for (let axis = 0; axis < 3; axis++) head[source * 3 + axis] = positions[vertex * 3 + axis];
+      for (let axis = 0; axis < 3; axis++)
+        head[source * 3 + axis] = positions[vertex * 3 + axis];
     });
   }
   const band = plan.band;
   if (band === undefined) return { head };
   const banded = new Array<number>(band.viewBodyVertices.length * 3).fill(0);
-  const { positions } = meshOfHumanPart(face.parts.find((one) => one.id === band.surface)!);
+  const { positions } = meshOfHumanPart(
+    face.parts.find((one) => one.id === band.surface)!,
+  );
   band.sources.forEach((source, vertex) => {
-    for (let axis = 0; axis < 3; axis++) banded[source * 3 + axis] = positions[vertex * 3 + axis];
+    for (let axis = 0; axis < 3; axis++)
+      banded[source * 3 + axis] = positions[vertex * 3 + axis];
   });
   return { head, band: banded };
 }

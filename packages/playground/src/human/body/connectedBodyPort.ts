@@ -14,9 +14,9 @@ import type { HumanResidentReply } from "../common/HumanResidentReply";
 import type { IHumanResidentRequest } from "../common/IHumanResidentRequest";
 import type { IHumanWorkerClock } from "../common/IHumanWorkerClock";
 import { humanWorkerErrorMessage } from "../common/humanWorkerErrorMessage";
+import { CONNECTED_BODY_STAGE_SILENCE_MS } from "./CONNECTED_BODY_STAGE_SILENCE_MS";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
-import { CONNECTED_BODY_STAGE_SILENCE_MS } from "./CONNECTED_BODY_STAGE_SILENCE_MS";
 import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
 /** Keep native event callbacks and termination inside the browser adapter.
@@ -92,7 +92,9 @@ export function createConnectedBodyPort(
     ) {
       worker.onmessage = (event) => {
         if (failed) return;
-        const data: HumanResidentReply<ConnectedBodyResult> | IConnectedBodyProgress = event.data;
+        const data:
+          | HumanResidentReply<ConnectedBodyResult>
+          | IConnectedBodyProgress = event.data;
         if ("progress" in data) {
           if (flight !== undefined) listen();
           return;

@@ -38,15 +38,29 @@ const AUTHORED_CONTOUR_QUALIFICATION =
  */
 export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
   ...(["left", "right"] as const).flatMap((side): IHumanFaceMeasurement[] => [
-    { id: `nose.authoredOpeningProjectedArea.${side}`, unit: "square-millimetres", channels: [],
+    {
+      id: `nose.authoredOpeningProjectedArea.${side}`,
+      unit: "square-millimetres",
+      channels: [],
       qualification: AUTHORED_CONTOUR_QUALIFICATION,
-      read: (context) => readHumanFaceNasalContour(context, side).area * 1e6 },
-    { id: `nose.authoredOpeningProjectedLongAxis.${side}`, unit: "millimetres", channels: [],
+      read: (context) => readHumanFaceNasalContour(context, side).area * 1e6,
+    },
+    {
+      id: `nose.authoredOpeningProjectedLongAxis.${side}`,
+      unit: "millimetres",
+      channels: [],
       qualification: AUTHORED_CONTOUR_QUALIFICATION,
-      read: (context) => readHumanFaceNasalContour(context, side).longAxis * 1000 },
-    { id: `nose.authoredOpeningProjectedShortAxis.${side}`, unit: "millimetres", channels: [],
+      read: (context) =>
+        readHumanFaceNasalContour(context, side).longAxis * 1000,
+    },
+    {
+      id: `nose.authoredOpeningProjectedShortAxis.${side}`,
+      unit: "millimetres",
+      channels: [],
       qualification: AUTHORED_CONTOUR_QUALIFICATION,
-      read: (context) => readHumanFaceNasalContour(context, side).shortAxis * 1000 },
+      read: (context) =>
+        readHumanFaceNasalContour(context, side).shortAxis * 1000,
+    },
   ]),
   {
     id: "nose.height",
@@ -55,7 +69,10 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: (context) => {
       const a = readHumanFaceMeasurementLandmark(context, "subnasale");
       if ("reason" in a) return a;
-      return { reason: "missing rule: nasion (the meeting of the brow ridge curves with the superior extension of the midline nasal profile, Katina 2016, found per shape)" };
+      return {
+        reason:
+          "missing rule: nasion (the meeting of the brow ridge curves with the superior extension of the midline nasal profile, Katina 2016, found per shape)",
+      };
     },
   },
   {
@@ -63,7 +80,10 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: () => {
-      return { reason: "unavailable instrument: registered nasion and connected nasal bridge length; pronasale has a per-shape reader" };
+      return {
+        reason:
+          "unavailable instrument: registered nasion and connected nasal bridge length; pronasale has a per-shape reader",
+      };
     },
   },
   {
@@ -71,8 +91,19 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["subnasale", "sellion", "menton"], [], (head) =>
-        humanHeadDistance(humanHeadPoint(head, "subnasale"), findHumanPronasale(head, humanHeadPoint(head, "sellion"), humanHeadPoint(head, "menton"))),
+      readHumanFaceHeadRule(
+        context,
+        ["subnasale", "sellion", "menton"],
+        [],
+        (head) =>
+          humanHeadDistance(
+            humanHeadPoint(head, "subnasale"),
+            findHumanPronasale(
+              head,
+              humanHeadPoint(head, "sellion"),
+              humanHeadPoint(head, "menton"),
+            ),
+          ),
       ),
   },
   {
@@ -82,14 +113,31 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: (context) =>
       readHumanFaceHeadRule(
         context,
-        ["subalare-right", "subalare-left", "alar-curvature-right", "alar-curvature-left", "sellion", "menton"],
+        [
+          "subalare-right",
+          "subalare-left",
+          "alar-curvature-right",
+          "alar-curvature-left",
+          "sellion",
+          "menton",
+        ],
         [],
         (head) => {
           const pair = findHumanAlaria(
             head,
-            { right: humanHeadPoint(head, "subalare-right"), left: humanHeadPoint(head, "subalare-left") },
-            { right: humanHeadPoint(head, "alar-curvature-right"), left: humanHeadPoint(head, "alar-curvature-left") },
-            findHumanPronasale(head, humanHeadPoint(head, "sellion"), humanHeadPoint(head, "menton")),
+            {
+              right: humanHeadPoint(head, "subalare-right"),
+              left: humanHeadPoint(head, "subalare-left"),
+            },
+            {
+              right: humanHeadPoint(head, "alar-curvature-right"),
+              left: humanHeadPoint(head, "alar-curvature-left"),
+            },
+            findHumanPronasale(
+              head,
+              humanHeadPoint(head, "sellion"),
+              humanHeadPoint(head, "menton"),
+            ),
           );
           return humanHeadDistance(pair.right, pair.left);
         },
@@ -99,16 +147,26 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "nose.subalarWidth",
     unit: "millimetres",
     channels: [],
-    read: (context) => readHumanFaceLandmarkDistance(context, "subalare-right", "subalare-left"),
+    read: (context) =>
+      readHumanFaceLandmarkDistance(context, "subalare-right", "subalare-left"),
   },
   {
     id: "nose.columellaWidth",
-    qualification: "Source convention: minimum medial sample gap in 1 mm Z bands, not a registered clinical columella section.",
+    qualification:
+      "Source convention: minimum medial sample gap in 1 mm Z bands, not a registered clinical columella section.",
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-right", "naris-margin-left"], (head) =>
-        readHumanColumellaWidth(head, "naris-margin-right", "naris-margin-left"),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-right", "naris-margin-left"],
+        (head) =>
+          readHumanColumellaWidth(
+            head,
+            "naris-margin-right",
+            "naris-margin-left",
+          ),
       ),
   },
   {
@@ -116,8 +174,19 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["alar-curvature-left", "sellion", "menton"], [], (head) =>
-        humanHeadDistance(humanHeadPoint(head, "alar-curvature-left"), findHumanPronasale(head, humanHeadPoint(head, "sellion"), humanHeadPoint(head, "menton"))),
+      readHumanFaceHeadRule(
+        context,
+        ["alar-curvature-left", "sellion", "menton"],
+        [],
+        (head) =>
+          humanHeadDistance(
+            humanHeadPoint(head, "alar-curvature-left"),
+            findHumanPronasale(
+              head,
+              humanHeadPoint(head, "sellion"),
+              humanHeadPoint(head, "menton"),
+            ),
+          ),
       ),
   },
   {
@@ -125,8 +194,19 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, ["alar-curvature-right", "sellion", "menton"], [], (head) =>
-        humanHeadDistance(humanHeadPoint(head, "alar-curvature-right"), findHumanPronasale(head, humanHeadPoint(head, "sellion"), humanHeadPoint(head, "menton"))),
+      readHumanFaceHeadRule(
+        context,
+        ["alar-curvature-right", "sellion", "menton"],
+        [],
+        (head) =>
+          humanHeadDistance(
+            humanHeadPoint(head, "alar-curvature-right"),
+            findHumanPronasale(
+              head,
+              humanHeadPoint(head, "sellion"),
+              humanHeadPoint(head, "menton"),
+            ),
+          ),
       ),
   },
   {
@@ -136,7 +216,10 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: (context) => {
       const a = readHumanFaceMeasurementLandmark(context, "glabella");
       if ("reason" in a) return a;
-      return { reason: "unavailable instrument: registered nasion and connected nasofrontal angle; pronasale has a per-shape reader" };
+      return {
+        reason:
+          "unavailable instrument: registered nasion and connected nasofrontal angle; pronasale has a per-shape reader",
+      };
     },
   },
   {
@@ -157,7 +240,13 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "square-millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-left"], (head) => readHumanNostrilBasal(head, "naris-margin-left").area, 1e6),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-left"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-left").area,
+        1e6,
+      ),
   },
   {
     id: "nose.nostrilArea.right",
@@ -165,7 +254,13 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "square-millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-right"], (head) => readHumanNostrilBasal(head, "naris-margin-right").area, 1e6),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-right"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-right").area,
+        1e6,
+      ),
   },
   {
     id: "nose.nostrilLongAxis.left",
@@ -173,7 +268,12 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-left"], (head) => readHumanNostrilBasal(head, "naris-margin-left").longAxis),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-left"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-left").longAxis,
+      ),
   },
   {
     id: "nose.nostrilShortAxis.left",
@@ -181,7 +281,12 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-left"], (head) => readHumanNostrilBasal(head, "naris-margin-left").shortAxis),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-left"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-left").shortAxis,
+      ),
   },
   {
     id: "nose.nostrilLongAxis.right",
@@ -189,7 +294,12 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-right"], (head) => readHumanNostrilBasal(head, "naris-margin-right").longAxis),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-right"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-right").longAxis,
+      ),
   },
   {
     id: "nose.nostrilShortAxis.right",
@@ -197,7 +307,12 @@ export const HUMAN_FACE_NOSE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     unit: "millimetres",
     channels: [],
     read: (context) =>
-      readHumanFaceHeadRule(context, [], ["naris-margin-right"], (head) => readHumanNostrilBasal(head, "naris-margin-right").shortAxis),
+      readHumanFaceHeadRule(
+        context,
+        [],
+        ["naris-margin-right"],
+        (head) => readHumanNostrilBasal(head, "naris-margin-right").shortAxis,
+      ),
   },
   {
     id: "nose.nostrilLongAxesAngle",

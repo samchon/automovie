@@ -37,22 +37,36 @@ try {
   });
   const result = compiler.transform();
   if (result.type === "success") {
-    const absolute = (file: string): string => path.resolve(human, file).replaceAll("\\", "/");
-    const files = Object.fromEntries(Object.entries(result.typescript as Record<string, string>)
-      .map(([file, source]) => [absolute(file), source]));
+    const absolute = (file: string): string =>
+      path.resolve(human, file).replaceAll("\\", "/");
+    const files = Object.fromEntries(
+      Object.entries(result.typescript as Record<string, string>).map(
+        ([file, source]) => [absolute(file), source],
+      ),
+    );
     const graph = result.graph as IHumanViewerCompileGraph | undefined;
-    const watch = [...new Set([
-      ...Object.keys(result.typescript as Record<string, string>),
-      ...(graph === undefined ? [] : [
-        ...Object.keys(graph.edges),
-        ...Object.values(graph.edges).flat(),
-        ...graph.globals,
-        ...graph.configs,
-        ...Object.values(graph.candidates ?? {}).flat(),
-        ...(graph.resolutionInputs ?? []),
-      ]),
-    ].map(absolute))];
-    body = JSON.stringify({ files, watch, inputs: watch.map((file) => file.toLowerCase()) });
+    const watch = [
+      ...new Set(
+        [
+          ...Object.keys(result.typescript as Record<string, string>),
+          ...(graph === undefined
+            ? []
+            : [
+                ...Object.keys(graph.edges),
+                ...Object.values(graph.edges).flat(),
+                ...graph.globals,
+                ...graph.configs,
+                ...Object.values(graph.candidates ?? {}).flat(),
+                ...(graph.resolutionInputs ?? []),
+              ]),
+        ].map(absolute),
+      ),
+    ];
+    body = JSON.stringify({
+      files,
+      watch,
+      inputs: watch.map((file) => file.toLowerCase()),
+    });
   } else body = JSON.stringify({ error: JSON.stringify(result) });
 } catch (error) {
   body = JSON.stringify({

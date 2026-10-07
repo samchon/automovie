@@ -1,8 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
+
 import type { IFilmCameraClearanceEvaluationInputs } from "./IFilmCameraClearanceEvaluationInputs";
 
 /** Run the original continuous numerical clearance and malformed clock assertions. */
-export function assertFilmCameraClearanceEvaluation(input: IFilmCameraClearanceEvaluationInputs): void {
+export function assertFilmCameraClearanceEvaluation(
+  input: IFilmCameraClearanceEvaluationInputs,
+): void {
   const { identity, box, envelope, evaluate, throws } = input;
   const boundary = evaluate({
     samples: [0, 1].map((time) => ({
@@ -337,5 +340,4 @@ export function assertFilmCameraClearanceEvaluation(input: IFilmCameraClearanceE
     ],
     [true, true, true, true, true, true, true, true, true, true, true, true],
   );
-
 }

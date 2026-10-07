@@ -1,8 +1,8 @@
-import { humanWorkerErrorMessage } from "../common/humanWorkerErrorMessage";
-import type { IHumanWorkerClock } from "../common/IHumanWorkerClock";
 import type { IHumanPendingResult } from "../common/IHumanPendingResult";
-import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
+import type { IHumanWorkerClock } from "../common/IHumanWorkerClock";
+import { humanWorkerErrorMessage } from "../common/humanWorkerErrorMessage";
 import type { IBodySimpleReply } from "./IBodySimpleReply";
+import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
 /**
  * Correlate the connected body editor's simple-tier expansion and projection
@@ -122,7 +122,9 @@ export function createBodySimpleWorkerTransport(
     current.onerror = (event: ErrorEvent) => {
       if (worker === current)
         retire(
-          new Error(humanWorkerErrorMessage(event, "The body simple worker failed.")),
+          new Error(
+            humanWorkerErrorMessage(event, "The body simple worker failed."),
+          ),
         );
     };
     current.onmessageerror = () => {
@@ -137,7 +139,10 @@ export function createBodySimpleWorkerTransport(
         const id = ++sequence;
         try {
           connect();
-          pending.set(id, { resolve: resolve as (value: never) => void, reject });
+          pending.set(id, {
+            resolve: resolve as (value: never) => void,
+            reject,
+          });
           waiting.set(id, request);
           advance();
         } catch (error) {

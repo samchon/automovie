@@ -12,13 +12,17 @@ export function isHumanSourceProjectedLoopInterior(
   loop: readonly number[],
   vertex: number,
 ): boolean {
-  const x = positions[3 * vertex], y = positions[3 * vertex + 1];
+  const x = positions[3 * vertex],
+    y = positions[3 * vertex + 1];
   let inside = false;
   for (let at = 0; at < loop.length; at++) {
-    const a = loop[at], b = loop[(at + 1) % loop.length];
-    const ax = positions[3 * a], ay = positions[3 * a + 1];
-    const bx = positions[3 * b], by = positions[3 * b + 1];
-    if ((ay > y) !== (by > y) && x < ax + (y - ay) * (bx - ax) / (by - ay))
+    const a = loop[at],
+      b = loop[(at + 1) % loop.length];
+    const ax = positions[3 * a],
+      ay = positions[3 * a + 1];
+    const bx = positions[3 * b],
+      by = positions[3 * b + 1];
+    if (ay > y !== by > y && x < ax + ((y - ay) * (bx - ax)) / (by - ay))
       inside = !inside;
   }
   return inside;

@@ -148,10 +148,18 @@ export function mountConnectedPersonPeriocularControls(
         props.busy("Building the owner's default brow population");
         try {
           const current = props.current();
-          const prepared = props.faceBasis === undefined ? current
-            : prepareConnectedPersonCatalogueInput(props.faceBasis, current, ["face", "brows"]);
+          const prepared =
+            props.faceBasis === undefined
+              ? current
+              : prepareConnectedPersonCatalogueInput(props.faceBasis, current, [
+                  "face",
+                  "brows",
+                ]);
           const person = structuredClone(prepared);
-          person.face.brows = { ...person.face.brows, [selectedSide()]: structuredClone(HUMAN_FACE_BROW_POPULATION) };
+          person.face.brows = {
+            ...person.face.brows,
+            [selectedSide()]: structuredClone(HUMAN_FACE_BROW_POPULATION),
+          };
           if ((await props.change(person, ticket)) && props.isCurrent(ticket))
             props.report("Owner default brow population applied.");
         } catch (error) {
@@ -196,9 +204,14 @@ export function mountConnectedPersonPeriocularControls(
             values[field] = Number(input.value);
           }
         const current = props.current();
-        const prepared = (form.field === "periocularTissues" || form.field === "brows") && props.faceBasis !== undefined
-          ? prepareConnectedPersonCatalogueInput(props.faceBasis, current, ["face", form.field])
-          : current;
+        const prepared =
+          (form.field === "periocularTissues" || form.field === "brows") &&
+          props.faceBasis !== undefined
+            ? prepareConnectedPersonCatalogueInput(props.faceBasis, current, [
+                "face",
+                form.field,
+              ])
+            : current;
         const person = structuredClone(prepared),
           face = person.face;
         if (form.field === "eyelids") {
@@ -241,7 +254,9 @@ export function mountConnectedPersonPeriocularControls(
               clearance: values.clearance,
               arch: values.arch,
               outwardBend: values.outwardBend,
-              segments: face.brows[selected]?.segments ?? HUMAN_FACE_BROW_POPULATION.segments,
+              segments:
+                face.brows[selected]?.segments ??
+                HUMAN_FACE_BROW_POPULATION.segments,
             };
           // Empty explicit brow selection retains source cards; omission would
           // select the owner's generated populations again.

@@ -2,17 +2,17 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
+import { createHumanLoopHeight } from "./createHumanLoopHeight";
+import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
 import { createHumanPersonCut } from "./createHumanPersonCut";
 import { evaluateHumanPersonCut } from "./evaluateHumanPersonCut";
-import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
-import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
-import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
-import { createHumanLoopHeight } from "./createHumanLoopHeight";
 import { findHumanBoundaryLoops } from "./findHumanBoundaryLoops";
+import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
 import { measureHumanHeadReach } from "./measureHumanHeadReach";
 import { measureHumanNeckReach } from "./measureHumanNeckReach";
 import { measureHumanSurfaceDistances } from "./measureHumanSurfaceDistances";
 import { mergeHumanBoundaryLoops } from "./mergeHumanBoundaryLoops";
+import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
 
 /** One connected skin surface as a basis holds it: shared vertices and oriented triangles. */
 type Skin = {
@@ -118,21 +118,31 @@ export function createHumanPersonSeam(props: {
 
   const guard =
     HUMAN_PERSON_SEAM.radialGuard *
-    Math.max(...bodyLoops[0].map((vertex) => around(point(body.surface, vertex))));
+    Math.max(
+      ...bodyLoops[0].map((vertex) => around(point(body.surface, vertex))),
+    );
   // Positive samples identify the height/radial covered interior; zero is retained.
   // Its affine extension inside each triangle is the declared approximation,
   // not an exact evaluation of the angular profile between source vertices.
-  const margins = Array.from({ length: body.surface.positions.length / 3 }, (_, vertex) => {
-    const p = point(body.surface, vertex);
-    return Math.min(
-      guard - around(p),
-      p.y - faceHeight(Math.atan2(p.x - centre.x, p.z - centre.z)),
-    );
-  });
-  const covered = [...new Set(body.surface.indices)].filter((vertex) => margins[vertex] > 0).sort((a, b) => a - b);
+  const margins = Array.from(
+    { length: body.surface.positions.length / 3 },
+    (_, vertex) => {
+      const p = point(body.surface, vertex);
+      return Math.min(
+        guard - around(p),
+        p.y - faceHeight(Math.atan2(p.x - centre.x, p.z - centre.z)),
+      );
+    },
+  );
+  const covered = [...new Set(body.surface.indices)]
+    .filter((vertex) => margins[vertex] > 0)
+    .sort((a, b) => a - b);
   const cut = createHumanPersonCut(body.surface.indices, margins);
   const kept = cut.indices;
-  const bodySurface = { ...body.surface, positions: evaluateHumanPersonCut(body.surface.positions, cut) };
+  const bodySurface = {
+    ...body.surface,
+    positions: evaluateHumanPersonCut(body.surface.positions, cut),
+  };
   const retained = findHumanBoundaryLoops(kept);
   if (retained.length !== 1)
     throw new Error(
@@ -174,7 +184,11 @@ export function createHumanPersonSeam(props: {
     (body.surface.skin === undefined
       ? Number.NaN
       : measureHumanNeckReach(distance, (vertex) => {
-          const weights = humanPersonCutBoneWeights(body.surface.skin!, vertex, cut);
+          const weights = humanPersonCutBoneWeights(
+            body.surface.skin!,
+            vertex,
+            cut,
+          );
           const bone = [...weights].sort((a, b) => b[1] - a[1])[0][0];
           return bone === "neck" || bone === "head";
         }));
@@ -189,7 +203,11 @@ export function createHumanPersonSeam(props: {
       : measureHumanHeadReach(
           distance,
           (vertex) => {
-            return humanPersonCutBoneWeights(body.surface.skin!, vertex, cut).get("head") ?? 0;
+            return (
+              humanPersonCutBoneWeights(body.surface.skin!, vertex, cut).get(
+                "head",
+              ) ?? 0
+            );
           },
           reachMetres,
         ));
@@ -197,7 +215,10 @@ export function createHumanPersonSeam(props: {
     throw new Error(
       "The seam needs a positive finite head reach, given or read from the body's skin weights.",
     );
-  const bracket = createHumanLoopParameterLookup(follow.map(({ edge, fraction }) => edge + fraction), faceLoop.length);
+  const bracket = createHumanLoopParameterLookup(
+    follow.map(({ edge, fraction }) => edge + fraction),
+    faceLoop.length,
+  );
   const boundaryAt = new Map(bodyLoop.map((vertex, index) => [vertex, index]));
   const band: IAutoMovieHumanPersonSeam["collar"]["band"] = [];
   for (let vertex = 0; vertex < distance.length; vertex++) {
@@ -208,9 +229,10 @@ export function createHumanPersonSeam(props: {
     // native points project to the same face sample. Interior lookup uses the
     // last tied resident; final collapsed samples belong to the stitch owner.
     const boundary = boundaryAt.get(vertex);
-    const { low, high, along } = boundary === undefined
-      ? bracket(projected.edge + projected.fraction)
-      : { low: boundary, high: boundary, along: 0 };
+    const { low, high, along } =
+      boundary === undefined
+        ? bracket(projected.edge + projected.fraction)
+        : { low: boundary, high: boundary, along: 0 };
     const r = distance[vertex] / reachMetres;
     band.push({
       vertex,

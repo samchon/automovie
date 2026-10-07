@@ -41,13 +41,23 @@ export function solveHumanBodySimpleCoupling(
   unknowns: IHumanBodySimpleUnknown[],
 ): Record<string, number> | null {
   if (unknowns.length === 0) return { ...shape };
-  if (unknowns.some((unknown) => !Number.isFinite(unknown.target) ||
-    unknown.target <= 0 || !Number.isFinite(unknown.tolerance) || unknown.tolerance < 0))
-    throw new Error("A coupled body solve needs positive finite targets and nonnegative finite tolerances.");
+  if (
+    unknowns.some(
+      (unknown) =>
+        !Number.isFinite(unknown.target) ||
+        unknown.target <= 0 ||
+        !Number.isFinite(unknown.tolerance) ||
+        unknown.tolerance < 0,
+    )
+  )
+    throw new Error(
+      "A coupled body solve needs positive finite targets and nonnegative finite tolerances.",
+    );
   const wear = (t: readonly number[]): Record<string, number> => {
     let trial = shape;
     unknowns.forEach((unknown, j) => {
-      if (t[j] !== 0) trial = direction.worn(basis, trial, unknown.along.direction, t[j]);
+      if (t[j] !== 0)
+        trial = direction.worn(basis, trial, unknown.along.direction, t[j]);
     });
     return trial;
   };
@@ -67,7 +77,11 @@ export function solveHumanBodySimpleCoupling(
   if (humanBodySimpleResidualsMet(initial, unknowns)) return { ...shape };
   const ranges: [number, number][] = [];
   for (const unknown of unknowns) {
-    const range = humanBodySimpleCouplingRange(basis.channels, shape, unknown.along.direction);
+    const range = humanBodySimpleCouplingRange(
+      basis.channels,
+      shape,
+      unknown.along.direction,
+    );
     if (range === null) return null;
     ranges.push(range);
   }

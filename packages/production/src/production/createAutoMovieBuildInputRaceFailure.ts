@@ -1,4 +1,8 @@
-import type { AutoMovieContentDigest, IAutoMovieBuildProjectOutput, IAutoMovieDiagnostic } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieBuildProjectOutput,
+  IAutoMovieDiagnostic,
+} from "@automovie/interface";
 
 import type { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 import { compareDiagnostics } from "./productionBuildDiagnostics";
@@ -30,8 +34,11 @@ export const createAutoMovieBuildInputRaceFailure = (props: {
   currentRevision: () => number;
 }): IAutoMovieBuildProjectOutput => {
   props.diagnostics.push({
-    code: "compile-input-changed", category: "error", phase: "compile",
-    target: "builder-input", path: null,
+    code: "compile-input-changed",
+    category: "error",
+    phase: "compile",
+    target: "builder-input",
+    path: null,
     message: `${props.failure.message} Re-run the project's compile entry against the current design, source, and declared content snapshot.`,
   });
   props.diagnostics.sort(compareDiagnostics);
@@ -45,8 +52,13 @@ export const createAutoMovieBuildInputRaceFailure = (props: {
     );
   }
   return {
-    success: false, revision,
-    builder: { version: AUTOMOVIE_PRODUCTION_BUILD_VERSION, inputFingerprint: props.inputFingerprint },
-    diagnostics: props.diagnostics, materialized: [],
+    success: false,
+    revision,
+    builder: {
+      version: AUTOMOVIE_PRODUCTION_BUILD_VERSION,
+      inputFingerprint: props.inputFingerprint,
+    },
+    diagnostics: props.diagnostics,
+    materialized: [],
   };
 };

@@ -17,16 +17,23 @@ const RIGID_GAP_OWNERS: Readonly<Record<string, readonly string[]>> = {
  * rule ties its size to stature or head size, so no scale is invented; the
  * gap names who owns that rule. A rigid part without an owner is refused.
  */
-export function recordHumanSourceRigidGap(partId: string, count: number, sizes: Record<string, number>): IHumanSourceRigidGap {
+export function recordHumanSourceRigidGap(
+  partId: string,
+  count: number,
+  sizes: Record<string, number>,
+): IHumanSourceRigidGap {
   const owners = RIGID_GAP_OWNERS[partId];
-  if (owners === undefined) throw new Error(`Rigid part ${partId} has no gap owner.`);
+  if (owners === undefined)
+    throw new Error(`Rigid part ${partId} has no gap owner.`);
   return {
     gap: {
       subject: partId,
-      quantity: "largest motion of a part vertex relative to its nearest skin point under a body control at weight one",
+      quantity:
+        "largest motion of a part vertex relative to its nearest skin point under a body control at weight one",
       sizes,
       owners: [...owners],
-      reason: "the part is carried rigidly; the skin around it is scaled by body macros, and no measured rule ties this part's size to stature or head size, so no scale is invented",
+      reason:
+        "the part is carried rigidly; the skin around it is scaled by body macros, and no measured rule ties this part's size to stature or head size, so no scale is invented",
     },
     losses: Object.entries(sizes).map(([name, size]) => ({
       basis: "face",

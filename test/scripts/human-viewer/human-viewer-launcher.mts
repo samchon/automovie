@@ -28,11 +28,11 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
 import { humanViewerInstance } from "./humanViewerInstance.ts";
-import { humanViewerStorage } from "./humanViewerStorage.ts";
 import { humanViewerLaunch } from "./humanViewerLaunch.ts";
 import { humanViewerProtocol } from "./humanViewerProtocol.ts";
-import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
+import { humanViewerStorage } from "./humanViewerStorage.ts";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
@@ -58,25 +58,31 @@ const starting = http.createServer((request, response) => {
   const route = new URL(request.url ?? "/", instance.origin).pathname;
   response.setHeader("Content-Type", "application/json");
   if (route === "/health") {
-    response.end(JSON.stringify({
-      service: "automovie-human-viewer",
-      protocol: humanViewerProtocol,
-      pid: process.pid,
-      port: instance.port,
-      storage,
-      revision: "",
-      renderer: "",
-      ready: false,
-      errors: failure === null ? [] : [failure],
-      sourceError: failure,
-      startup: { phase, since },
-      launcher: { phase, since, output: output.slice(-KEPT_LINES) },
-    }));
+    response.end(
+      JSON.stringify({
+        service: "automovie-human-viewer",
+        protocol: humanViewerProtocol,
+        pid: process.pid,
+        port: instance.port,
+        storage,
+        revision: "",
+        renderer: "",
+        ready: false,
+        errors: failure === null ? [] : [failure],
+        sourceError: failure,
+        startup: { phase, since },
+        launcher: { phase, since, output: output.slice(-KEPT_LINES) },
+      }),
+    );
     return;
   }
   response.statusCode = 503;
   response.setHeader("Retry-After", "3");
-  response.end(JSON.stringify({ error: `The viewer is starting (${phase} since ${since}), retry` }));
+  response.end(
+    JSON.stringify({
+      error: `The viewer is starting (${phase} since ${since}), retry`,
+    }),
+  );
 });
 /** Connections the launcher answers itself, closed when the server takes over. */
 const answered = new Set<net.Socket>();
@@ -98,7 +104,10 @@ let child: ReturnType<typeof spawn> | null = null;
 const stop = (code: number): void => {
   if (child?.pid !== undefined && child.exitCode === null) {
     if (process.platform === "win32")
-      spawnSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" });
+      spawnSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], {
+        windowsHide: true,
+        stdio: "ignore",
+      });
     else child.kill("SIGTERM");
   }
   fs.rmSync(record, { force: true });
@@ -108,57 +117,101 @@ process.once("SIGINT", () => stop(0));
 process.once("SIGTERM", () => stop(0));
 
 front.once("error", (error) => {
-  console.error(`LAUNCHER could not hold port ${instance.port}: ${error.message}`);
+  console.error(
+    `LAUNCHER could not hold port ${instance.port}: ${error.message}`,
+  );
   process.exit(1);
 });
-front.listen(instance.port, "127.0.0.1", () => void (async () => {
-  fs.mkdirSync(storage, { recursive: true });
-  const owned: IHumanViewerRecord = { pid: process.pid, startedAt: new Date().toISOString(), port: instance.port };
-  fs.writeFileSync(record, JSON.stringify(owned));
-  enter("type-checking and building the server");
-  // A free internal port for the server: the operating system picks one, and
-  // the server listens on it strictly, so a port taken meanwhile fails loudly.
-  const probe = net.createServer();
-  await new Promise<undefined>((resolve) => { probe.listen(0, "127.0.0.1", () => resolve(undefined)); });
-  const address = probe.address();
-  const internal = address !== null && typeof address === "object" ? address.port : 0;
-  await new Promise<undefined>((resolve) => { probe.close(() => resolve(undefined)); });
-  const require = createRequire(path.join(directory, "server.mts"));
-  const ttsx = path.join(path.dirname(require.resolve("ttsc/package.json")), "lib/launcher/ttsx.js");
-  child = spawn(process.execPath, [ttsx, "-P", path.join(directory, "tsconfig.json"), path.join(directory, "server.mts")], {
-    cwd: path.join(root, "test"),
-    env: { ...process.env, [humanViewerLaunch.ownerVariable]: String(process.pid),
-      [humanViewerLaunch.internalVariable]: String(internal) },
-    windowsHide: true,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  let pending = "";
-  const read = (target: NodeJS.WriteStream) => (bytes: Buffer): void => {
-    target.write(bytes);
-    pending += bytes.toString("utf8");
-    const lines = pending.split(/\r?\n/);
-    pending = lines.pop() ?? "";
-    for (const line of lines) {
-      output.push(line);
-      if (output.length > KEPT_LINES) output.shift();
-      if (line.startsWith(humanViewerLaunch.upstreamPrefix) && upstream === null) {
-        upstream = Number(line.slice(humanViewerLaunch.upstreamPrefix.length));
-        enter(`serving through the server on internal port ${upstream}`);
-        for (const socket of answered) socket.destroy();
-        answered.clear();
-      } else if (line.startsWith("STARTUP ")) phase = line.slice("STARTUP ".length).replace(/^\S+ /, "");
-    }
-  };
-  child.stdout!.on("data", read(process.stdout));
-  child.stderr!.on("data", read(process.stderr));
-  child.once("exit", (code, signal) => {
-    const exitCode = code ?? 1;
-    if (upstream === null) {
-      failure = `the server did not start: its build or startup exited with code ${code ?? "none"}` +
-        (signal === null ? "" : ` (signal ${signal})`) + "; see the output in /health and the log";
-      console.error(`LAUNCHER ${new Date().toISOString()} ${failure}`);
-    } else console.error(`LAUNCHER ${new Date().toISOString()} the server exited with code ${code ?? "none"}`);
-    child = null;
-    stop(exitCode === 0 && upstream === null ? 1 : exitCode);
-  });
-})());
+front.listen(
+  instance.port,
+  "127.0.0.1",
+  () =>
+    void (async () => {
+      fs.mkdirSync(storage, { recursive: true });
+      const owned: IHumanViewerRecord = {
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+        port: instance.port,
+      };
+      fs.writeFileSync(record, JSON.stringify(owned));
+      enter("type-checking and building the server");
+      // A free internal port for the server: the operating system picks one, and
+      // the server listens on it strictly, so a port taken meanwhile fails loudly.
+      const probe = net.createServer();
+      await new Promise<undefined>((resolve) => {
+        probe.listen(0, "127.0.0.1", () => resolve(undefined));
+      });
+      const address = probe.address();
+      const internal =
+        address !== null && typeof address === "object" ? address.port : 0;
+      await new Promise<undefined>((resolve) => {
+        probe.close(() => resolve(undefined));
+      });
+      const require = createRequire(path.join(directory, "server.mts"));
+      const ttsx = path.join(
+        path.dirname(require.resolve("ttsc/package.json")),
+        "lib/launcher/ttsx.js",
+      );
+      child = spawn(
+        process.execPath,
+        [
+          ttsx,
+          "-P",
+          path.join(directory, "tsconfig.json"),
+          path.join(directory, "server.mts"),
+        ],
+        {
+          cwd: path.join(root, "test"),
+          env: {
+            ...process.env,
+            [humanViewerLaunch.ownerVariable]: String(process.pid),
+            [humanViewerLaunch.internalVariable]: String(internal),
+          },
+          windowsHide: true,
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      );
+      let pending = "";
+      const read =
+        (target: NodeJS.WriteStream) =>
+        (bytes: Buffer): void => {
+          target.write(bytes);
+          pending += bytes.toString("utf8");
+          const lines = pending.split(/\r?\n/);
+          pending = lines.pop() ?? "";
+          for (const line of lines) {
+            output.push(line);
+            if (output.length > KEPT_LINES) output.shift();
+            if (
+              line.startsWith(humanViewerLaunch.upstreamPrefix) &&
+              upstream === null
+            ) {
+              upstream = Number(
+                line.slice(humanViewerLaunch.upstreamPrefix.length),
+              );
+              enter(`serving through the server on internal port ${upstream}`);
+              for (const socket of answered) socket.destroy();
+              answered.clear();
+            } else if (line.startsWith("STARTUP "))
+              phase = line.slice("STARTUP ".length).replace(/^\S+ /, "");
+          }
+        };
+      child.stdout!.on("data", read(process.stdout));
+      child.stderr!.on("data", read(process.stderr));
+      child.once("exit", (code, signal) => {
+        const exitCode = code ?? 1;
+        if (upstream === null) {
+          failure =
+            `the server did not start: its build or startup exited with code ${code ?? "none"}` +
+            (signal === null ? "" : ` (signal ${signal})`) +
+            "; see the output in /health and the log";
+          console.error(`LAUNCHER ${new Date().toISOString()} ${failure}`);
+        } else
+          console.error(
+            `LAUNCHER ${new Date().toISOString()} the server exited with code ${code ?? "none"}`,
+          );
+        child = null;
+        stop(exitCode === 0 && upstream === null ? 1 : exitCode);
+      });
+    })(),
+);

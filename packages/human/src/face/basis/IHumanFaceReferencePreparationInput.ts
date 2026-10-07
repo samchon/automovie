@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import type { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import type { IHumanFaceNativePose } from "./IHumanFaceNativePose";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
+import type { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 
 /** Inputs to the shared source reference stage, independent of generated assemblies.
  *

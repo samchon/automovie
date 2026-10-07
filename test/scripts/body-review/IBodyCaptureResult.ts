@@ -1,5 +1,5 @@
-import type { IBodyDrawnFrame } from "./IBodyDrawnFrame";
 import type { IBodyCaptureRefusal } from "./IBodyCaptureRefusal";
+import type { IBodyDrawnFrame } from "./IBodyDrawnFrame";
 
 /**
  * Actual results of one body capture run. Drawn frames share one response

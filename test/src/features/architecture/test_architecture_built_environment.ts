@@ -1,12 +1,21 @@
-import { builtEnvironmentAdjacentSpaces, builtEnvironmentBuildingOfSpace, builtEnvironmentContainsPoint, builtEnvironmentSpaceConnectors, builtEnvironmentSpaceNodes, builtEnvironmentSpaceSurfaces, lowerBuiltEnvironment, mergeAutoMovieSpaces, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentBuildingOfSpace,
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceConnectors,
+  builtEnvironmentSpaceNodes,
+  builtEnvironmentSpaceSurfaces,
+  lowerBuiltEnvironment,
+  mergeAutoMovieSpaces,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, qclose, throwsError } from "../internal/predicates";
+
+import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestBuilding as building } from "../internal/builtEnvironmentTestBuilding";
 import { builtEnvironmentTestCampus as campus } from "../internal/builtEnvironmentTestCampus";
-import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestRefusalPaths as refusalPaths } from "../internal/builtEnvironmentTestRefusalPaths";
-
-
+import { namedFacts, qclose, throwsError } from "../internal/predicates";
 
 /**
  * A building keeps its visible assembly, its logical partitions, and its

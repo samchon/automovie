@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanFaceHairFall } from "../IAutoMovieHumanFaceHairFall";
 import type { IAutoMovieHumanFaceHairFinish } from "../IAutoMovieHumanFaceHairFinish";
-import type { IHumanFaceHairLayerHairline } from "../IHumanFaceHairLayerHairline";
-import type { IHumanFaceHairLayerGuides } from "../IHumanFaceHairLayerGuides";
+import type { IHumanFaceHairLayerCurl } from "../IHumanFaceHairLayerCurl";
 import type { IHumanFaceHairLayerGather } from "../IHumanFaceHairLayerGather";
+import type { IHumanFaceHairLayerGuides } from "../IHumanFaceHairLayerGuides";
+import type { IHumanFaceHairLayerHairline } from "../IHumanFaceHairLayerHairline";
 import type { IHumanFaceHairLayerLift } from "../IHumanFaceHairLayerLift";
 import type { IHumanFaceHairLayerPart } from "../IHumanFaceHairLayerPart";
-import type { IHumanFaceHairLayerCurl } from "../IHumanFaceHairLayerCurl";
 import type { IHumanFaceHairLayerTaper } from "../IHumanFaceHairLayerTaper";
 import type { Region } from "./Region";
 

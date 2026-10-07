@@ -1,6 +1,6 @@
 import type { IHumanSourceIncisorRelation } from "./IHumanSourceIncisorRelation.ts";
-import type { IHumanSourceOralPairReading } from "./IHumanSourceOralPairReading.ts";
 import type { IHumanSourceOcclusionToothReading } from "./IHumanSourceOcclusionToothReading.ts";
+import type { IHumanSourceOralPairReading } from "./IHumanSourceOralPairReading.ts";
 
 /**
  * Exact represented-source predicates and numerical feature gaps of one candidate.

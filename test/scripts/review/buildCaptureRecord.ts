@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import type { IReviewCaptureRecordProps } from "./IReviewCaptureRecordProps";
+
 import type { IReviewCaptureRecord } from "./IReviewCaptureRecord";
+import type { IReviewCaptureRecordProps } from "./IReviewCaptureRecordProps";
 
 /**
  * The record of one review run: what was drawn, on which device, from which
@@ -19,7 +20,9 @@ import type { IReviewCaptureRecord } from "./IReviewCaptureRecord";
  *
  * @param input The device, the source identity and the frames with their bytes.
  */
-export function buildCaptureRecord(input: IReviewCaptureRecordProps): IReviewCaptureRecord {
+export function buildCaptureRecord(
+  input: IReviewCaptureRecordProps,
+): IReviewCaptureRecord {
   return {
     kind: input.kind,
     renderer: input.renderer,

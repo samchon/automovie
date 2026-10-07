@@ -1,12 +1,15 @@
 import { forgeProp } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "./predicates";
 import type { IFilmImportedLodInputs } from "./IFilmImportedLodInputs";
+import { namedFacts } from "./predicates";
 
 /** Run the existing imported appearance LOD identity and sealed byte closure assertions. */
-export function assertFilmImportedLodClosure(input: IFilmImportedLodInputs): void {
-  const { createImportedPropSpec, refuses, tolerated, digest, SIDECAR_BYTES } = input;
+export function assertFilmImportedLodClosure(
+  input: IFilmImportedLodInputs,
+): void {
+  const { createImportedPropSpec, refuses, tolerated, digest, SIDECAR_BYTES } =
+    input;
   TestValidator.equals(
     "the LOD closure answers for its own levels and for the hero",
     namedFacts([
@@ -155,5 +158,4 @@ export function assertFilmImportedLodClosure(input: IFilmImportedLodInputs): voi
       aSecondSealedLevelIsAccepted: true,
     },
   );
-
 }

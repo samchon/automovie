@@ -18,7 +18,9 @@ import type { IConnectedPersonStatus } from "./IConnectedPersonStatus";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state States that the displayed person is unchanged after a refusal.
  * @author Samchon
  */
-export function describeConnectedPersonStatus<Model extends IConnectedPersonModel>(
+export function describeConnectedPersonStatus<
+  Model extends IConnectedPersonModel,
+>(
   state: IConnectedPersonSessionState<Model>,
   accepted: IConnectedPersonAccepted | null,
 ): IConnectedPersonStatus {
@@ -28,16 +30,32 @@ export function describeConnectedPersonStatus<Model extends IConnectedPersonMode
     draft !== null
       ? [
           draft.document.name,
-          draft.model.parts + " material regions · construction draft, not accepted",
+          draft.model.parts +
+            " material regions · construction draft, not accepted",
           draft.admission.failures.length + " admission failures:",
-          ...draft.admission.failures.map((failure) => "- " + failure.owner + ": " + failure.cause),
+          ...draft.admission.failures.map(
+            (failure) => "- " + failure.owner + ": " + failure.cause,
+          ),
         ]
       : accepted !== null
-        ? [accepted.name, accepted.parts + " material regions · committed person document"]
+        ? [
+            accepted.name,
+            accepted.parts + " material regions · committed person document",
+          ]
         : ["No person has been built."];
-  const lines = state.refusal === null ? shown : [state.refusal, "Unchanged on screen:", ...shown];
+  const lines =
+    state.refusal === null
+      ? shown
+      : [state.refusal, "Unchanged on screen:", ...shown];
   return {
     text: [...lines, ...state.notes].join(String.fromCharCode(10)),
-    state: state.refusal !== null ? "error" : draft !== null ? "draft" : accepted !== null ? "ready" : "empty",
+    state:
+      state.refusal !== null
+        ? "error"
+        : draft !== null
+          ? "draft"
+          : accepted !== null
+            ? "ready"
+            : "empty",
   };
 }

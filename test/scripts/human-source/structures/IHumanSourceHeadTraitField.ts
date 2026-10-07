@@ -1,4 +1,5 @@
 import type { AutoMovieHumanPersonHeadShapeField } from "@automovie/human/human/structures/AutoMovieHumanPersonHeadShapeField";
+
 import type { IHumanSourceHeadTraitEndpoint } from "./IHumanSourceHeadTraitEndpoint.ts";
 
 /** One explicitly sampled anatomical source difference and its qualification.

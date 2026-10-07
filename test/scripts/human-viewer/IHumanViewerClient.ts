@@ -1,5 +1,6 @@
 import type { HumanViewerRender } from "./HumanViewerRender";
 import type { IHumanViewerDropProps } from "./IHumanViewerDropProps";
+
 /** A connected resident viewer. */
 export interface IHumanViewerClient {
   /** The graphics device string the server reported when it was ready. */

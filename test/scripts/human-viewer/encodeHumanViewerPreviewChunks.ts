@@ -22,7 +22,9 @@ const BLOCK = 65536;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Chunk boundaries affect transport allocation only, without discarding vertices, metadata or numerical precision.
  * @evidence contracts/common.md#meaningful-documentation Defines projection, Unicode boundaries, typed-array tags and ownership.
  */
-export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjection): Generator<string> {
+export function* encodeHumanViewerPreviewChunks(
+  value: IHumanViewerPreviewProjection,
+): Generator<string> {
   if (value.operation !== "preview" || value.model === undefined)
     throw new Error("Only numerical previews are cached");
   const projection = {
@@ -36,11 +38,19 @@ export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjec
   };
   const ancestors = new Set<object>();
   /** JSON's number text: finite numbers as `String` writes them, others as null. */
-  const number = (value: number): string => Number.isFinite(value) ? String(value) : "null";
+  const number = (value: number): string =>
+    Number.isFinite(value) ? String(value) : "null";
   const omitted = (entry: unknown): boolean =>
-    entry === undefined || typeof entry === "function" || typeof entry === "symbol";
+    entry === undefined ||
+    typeof entry === "function" ||
+    typeof entry === "symbol";
   const prepare = (entry: unknown, key: string): unknown => {
-    if (entry !== null && (typeof entry === "object" || typeof entry === "function" || typeof entry === "bigint")) {
+    if (
+      entry !== null &&
+      (typeof entry === "object" ||
+        typeof entry === "function" ||
+        typeof entry === "bigint")
+    ) {
       const json = (entry as IHumanViewerJsonConvertible).toJSON;
       if (typeof json === "function") return json.call(entry, key);
     }
@@ -54,20 +64,41 @@ export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjec
   function* write(entry: unknown): Generator<string> {
     // Intrinsic slot reads also recognize wrappers from another realm, without
     // consulting a spoofable toStringTag or user-overridden valueOf method.
-    if (entry !== null && typeof entry === "object" && !Array.isArray(entry) &&
-      !(entry instanceof Float32Array) && !(entry instanceof Uint32Array)) {
-      const readers: ((this: unknown) => unknown)[] = [Number.prototype.valueOf,
-        String.prototype.valueOf, Boolean.prototype.valueOf, BigInt.prototype.valueOf];
+    if (
+      entry !== null &&
+      typeof entry === "object" &&
+      !Array.isArray(entry) &&
+      !(entry instanceof Float32Array) &&
+      !(entry instanceof Uint32Array)
+    ) {
+      const readers: ((this: unknown) => unknown)[] = [
+        Number.prototype.valueOf,
+        String.prototype.valueOf,
+        Boolean.prototype.valueOf,
+        BigInt.prototype.valueOf,
+      ];
       for (const read of readers) {
         let primitive: unknown;
-        try { primitive = read.call(entry); } catch { continue; }
+        try {
+          primitive = read.call(entry);
+        } catch {
+          continue;
+        }
         // JSON's abstract ToNumber refuses BigInt; Number() would accept it.
-        entry = typeof primitive === "number" ? +(entry as unknown as number) :
-          typeof primitive === "string" ? String(entry) : primitive;
+        entry =
+          typeof primitive === "number"
+            ? +(entry as unknown as number)
+            : typeof primitive === "string"
+              ? String(entry)
+              : primitive;
         break;
       }
     }
-    if (entry === null || typeof entry === "number" || typeof entry === "boolean") {
+    if (
+      entry === null ||
+      typeof entry === "number" ||
+      typeof entry === "boolean"
+    ) {
       yield JSON.stringify(entry);
       return;
     }
@@ -75,13 +106,17 @@ export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjec
       yield* string(entry);
       return;
     }
-    if (typeof entry === "bigint") throw new TypeError("Cannot serialize BigInt");
+    if (typeof entry === "bigint")
+      throw new TypeError("Cannot serialize BigInt");
     const object = entry as object;
-    if (ancestors.has(object)) throw new TypeError("Converting circular structure to JSON");
+    if (ancestors.has(object))
+      throw new TypeError("Converting circular structure to JSON");
     ancestors.add(object);
     try {
       if (entry instanceof Float32Array || entry instanceof Uint32Array) {
-        yield entry instanceof Float32Array ? '{"$array":"Float32","values":[' : '{"$array":"Uint32","values":[';
+        yield entry instanceof Float32Array
+          ? '{"$array":"Float32","values":['
+          : '{"$array":"Uint32","values":[';
         // Typed elements are always numbers: write them in blocks, without a
         // generator step per element.
         let text = "";
@@ -97,8 +132,10 @@ export function* encodeHumanViewerPreviewChunks(value: IHumanViewerPreviewProjec
         yield "[";
         // Snapshot LengthOfArrayLike once, including Proxy/boxed coercion.
         const numericLength = +entry.length;
-        const length = Number.isNaN(numericLength) || numericLength <= 0 ? 0 :
-          Math.min(Math.trunc(numericLength), Number.MAX_SAFE_INTEGER);
+        const length =
+          Number.isNaN(numericLength) || numericLength <= 0
+            ? 0
+            : Math.min(Math.trunc(numericLength), Number.MAX_SAFE_INTEGER);
         let text = "";
         for (let at = 0; at < length; ++at) {
           const item = entry[at];

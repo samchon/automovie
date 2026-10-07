@@ -39,17 +39,32 @@ export function readHumanLobuleWidth(
   superaurale: IAutoMovieVector3,
   subaurale: IAutoMovieVector3,
 ): number {
-  const line = [superaurale.x - subaurale.x, superaurale.y - subaurale.y, superaurale.z - subaurale.z];
+  const line = [
+    superaurale.x - subaurale.x,
+    superaurale.y - subaurale.y,
+    superaurale.z - subaurale.z,
+  ];
   const l = Math.hypot(...line);
-  if (!Number.isFinite(l) || l === 0) throw new Error(`The auricle long axis of ${head.id} has no finite direction.`);
+  if (!Number.isFinite(l) || l === 0)
+    throw new Error(
+      `The auricle long axis of ${head.id} has no finite direction.`,
+    );
   const u = line.map((c) => c / l);
   const d0 = [u[2] * u[0], u[2] * u[1], u[2] * u[2] - 1];
   const m = Math.hypot(...d0);
-  if (!Number.isFinite(m) || m === 0) throw new Error(`The auricle long axis of ${head.id} has no perpendicular posterior direction.`);
+  if (!Number.isFinite(m) || m === 0)
+    throw new Error(
+      `The auricle long axis of ${head.id} has no perpendicular posterior direction.`,
+    );
   const d = d0.map((c) => c / m);
   const p = head.positions;
   let width = 0;
   for (const v of humanHeadRegionVertices(head, [lobule]))
-    width = Math.max(width, (p[v * 3] - notch.x) * d[0] + (p[v * 3 + 1] - notch.y) * d[1] + (p[v * 3 + 2] - notch.z) * d[2]);
+    width = Math.max(
+      width,
+      (p[v * 3] - notch.x) * d[0] +
+        (p[v * 3 + 1] - notch.y) * d[1] +
+        (p[v * 3 + 2] - notch.z) * d[2],
+    );
   return width;
 }

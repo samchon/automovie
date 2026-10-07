@@ -36,8 +36,16 @@ export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {
       ray.parent === `${side}Toes`
         ? basis.joints.some((joint) => joint.bone === ray.parent)
         : declared.has(ray.parent) && ray.parent.startsWith(side);
-    if (declared.has(ray.bone) || !parentOk || !basis.landmarks.ids.includes(ray.head) || !basis.landmarks.ids.includes(ray.tail))
-      throw new Error("Body toe ray needs a unique phalanx, a declared parent of its side and both landmarks: " + ray.bone);
+    if (
+      declared.has(ray.bone) ||
+      !parentOk ||
+      !basis.landmarks.ids.includes(ray.head) ||
+      !basis.landmarks.ids.includes(ray.tail)
+    )
+      throw new Error(
+        "Body toe ray needs a unique phalanx, a declared parent of its side and both landmarks: " +
+          ray.bone,
+      );
     declared.add(ray.bone);
   }
   for (const surface of basis.surfaces) {
@@ -47,19 +55,36 @@ export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {
       throw new Error(`Body toe split of surface ${surface.id} ${why}`);
     };
     if (rays.length === 0) refuse("needs a basis that declares toe rays.");
-    if (split.bones.some((bone) => !declared.has(bone))) refuse("names an undeclared phalanx.");
+    if (split.bones.some((bone) => !declared.has(bone)))
+      refuse("names an undeclared phalanx.");
     const vertices = surface.positions.length / 3;
     const toes = new Set(
-      surface.skin.joints.flatMap((joint, slot) => (joint === "leftToes" || joint === "rightToes" ? [slot] : [])),
+      surface.skin.joints.flatMap((joint, slot) =>
+        joint === "leftToes" || joint === "rightToes" ? [slot] : [],
+      ),
     );
-    if (split.offsets.length !== split.vertices.length + 1 || split.offsets[0] !== 0 ||
-      split.offsets[split.offsets.length - 1] !== split.bonesIndex.length || split.bonesIndex.length !== split.shares.length)
+    if (
+      split.offsets.length !== split.vertices.length + 1 ||
+      split.offsets[0] !== 0 ||
+      split.offsets[split.offsets.length - 1] !== split.bonesIndex.length ||
+      split.bonesIndex.length !== split.shares.length
+    )
       refuse("has rows that do not tile its arrays.");
     split.vertices.forEach((vertex, row) => {
-      if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertices || (row > 0 && vertex <= split.vertices[row - 1]))
+      if (
+        !Number.isSafeInteger(vertex) ||
+        vertex < 0 ||
+        vertex >= vertices ||
+        (row > 0 && vertex <= split.vertices[row - 1])
+      )
         refuse(`lists vertex ${vertex} out of range or order.`);
-      const carries = [0, 1, 2, 3].some((k) => surface.skin.weights[vertex * 4 + k] > 0 && toes.has(surface.skin.boneIndices[vertex * 4 + k]));
-      if (!carries) refuse(`lists vertex ${vertex}, which carries no toes weight.`);
+      const carries = [0, 1, 2, 3].some(
+        (k) =>
+          surface.skin.weights[vertex * 4 + k] > 0 &&
+          toes.has(surface.skin.boneIndices[vertex * 4 + k]),
+      );
+      if (!carries)
+        refuse(`lists vertex ${vertex}, which carries no toes weight.`);
       const start = split.offsets[row];
       const end = split.offsets[row + 1];
       if (end <= start) refuse(`gives vertex ${vertex} no rows.`);
@@ -67,11 +92,18 @@ export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {
       for (let r = start; r < end; r++) {
         const index = split.bonesIndex[r];
         const share = split.shares[r];
-        if (!Number.isSafeInteger(index) || index < 0 || index >= split.bones.length || !Number.isFinite(share) || share <= 0)
+        if (
+          !Number.isSafeInteger(index) ||
+          index < 0 ||
+          index >= split.bones.length ||
+          !Number.isFinite(share) ||
+          share <= 0
+        )
           refuse(`has an invalid row for vertex ${vertex}.`);
         total += share;
       }
-      if (Math.abs(total - 1) > 1e-7) refuse(`gives vertex ${vertex} shares summing to ${total}, not one.`);
+      if (Math.abs(total - 1) > 1e-7)
+        refuse(`gives vertex ${vertex} shares summing to ${total}, not one.`);
     });
   }
 }

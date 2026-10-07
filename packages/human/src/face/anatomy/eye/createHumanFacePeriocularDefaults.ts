@@ -1,6 +1,6 @@
+import type { IHumanFacePoseGeometry } from "../../basis/IHumanFacePoseGeometry";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFacePeriocularTissues } from "../../structures/IAutoMovieHumanFacePeriocularTissues";
-import type { IHumanFacePoseGeometry } from "../../basis/IHumanFacePoseGeometry";
 import { HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS } from "./HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS";
 
 /**

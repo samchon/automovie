@@ -4,8 +4,8 @@ import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
 import { readHumanFaceBrowAtVertical } from "./readHumanFaceBrowAtVertical";
 import { readHumanFaceCanthus } from "./readHumanFaceCanthus";
 import { readHumanFaceMarginAtVertical } from "./readHumanFaceMarginAtVertical";
-import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
 import { readHumanFaceOpticalMetric } from "./readHumanFaceOpticalMetric";
+import { readHumanFacePupilCentre } from "./readHumanFacePupilCentre";
 
 /**
  * Eye and independent optical measurements on the final connected surface.
@@ -146,8 +146,10 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.left.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "horizontalLimbusDiameter"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "horizontalLimbusDiameter"),
   },
   {
     id: "eye.left.pupilDiameterAt250Lux",
@@ -164,22 +166,28 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.left.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "globeAxialLength"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "globeAxialLength"),
   },
   {
     id: "eye.left.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "anteriorCornealRadius"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "anteriorCornealRadius"),
   },
   {
     id: "eye.left.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "centralCornealThickness"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "centralCornealThickness"),
   },
   {
     id: "eye.right.fissureLength",
@@ -253,8 +261,10 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.right.horizontalLimbusDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "horizontalLimbusDiameter"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "horizontalLimbusDiameter"),
   },
   {
     id: "eye.right.pupilDiameterAt250Lux",
@@ -271,63 +281,89 @@ export const HUMAN_FACE_EYE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "eye.right.globeAxialLength",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "globeAxialLength"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "globeAxialLength"),
   },
   {
     id: "eye.right.anteriorCornealRadius",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "anteriorCornealRadius"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "anteriorCornealRadius"),
   },
   {
     id: "eye.right.centralCornealThickness",
     unit: "millimetres",
     channels: [],
-    qualification: "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "centralCornealThickness"),
+    qualification:
+      "Authored independent optical geometry at Float32 output precision; not a measured clinical cornea.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "centralCornealThickness"),
   },
   {
     id: "eye.left.irisOuterDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisOuterDiameter"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "irisOuterDiameter"),
   },
   {
     id: "eye.left.irisApertureDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisApertureDiameter"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "left", "irisApertureDiameter"),
   },
   {
     id: "eye.left.irisDepthFromAnteriorSupport",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "left", "irisDepthFromAnteriorSupport"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(
+        context,
+        "left",
+        "irisDepthFromAnteriorSupport",
+      ),
   },
   {
     id: "eye.right.irisOuterDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisOuterDiameter"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "irisOuterDiameter"),
   },
   {
     id: "eye.right.irisApertureDiameter",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisApertureDiameter"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(context, "right", "irisApertureDiameter"),
   },
   {
     id: "eye.right.irisDepthFromAnteriorSupport",
     unit: "millimetres",
     channels: [],
-    qualification: "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
-    read: (context) => readHumanFaceOpticalMetric(context, "right", "irisDepthFromAnteriorSupport"),
+    qualification:
+      "Generated model-space optical geometry; pupil adaptation, refraction and personal clinical measurements are not modeled.",
+    read: (context) =>
+      readHumanFaceOpticalMetric(
+        context,
+        "right",
+        "irisDepthFromAnteriorSupport",
+      ),
   },
 ];

@@ -11,15 +11,15 @@ import {
   joinHumanPersonGeneration,
   measureHumanBodySimpleShape,
 } from "@automovie/human";
-import fs from "node:fs";
 import { createHash } from "node:crypto";
+import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
 import { ANSUR_BODY_MEASURES } from "./ANSUR_BODY_MEASURES";
 import type { IAnsurCensusRefusal } from "./IAnsurCensusRefusal";
-import type { IAnsurCensusUnread } from "./IAnsurCensusUnread";
 import type { IAnsurCensusSubject } from "./IAnsurCensusSubject";
+import type { IAnsurCensusUnread } from "./IAnsurCensusUnread";
 import {
   type IAnsurCensusRow,
   formatAnsurCensusTable,
@@ -61,68 +61,170 @@ import { summariseAnsurResiduals } from "./summariseAnsurResiduals";
 const label = process.argv[2] ?? "census";
 const perSex = Number(process.argv[3] ?? 12);
 const root = path.resolve(__dirname, "../../..");
-const generationDirectory = path.resolve(process.argv[4] ?? path.join(root, "test/studies/human-person/generation"));
+const generationDirectory = path.resolve(
+  process.argv[4] ?? path.join(root, "test/studies/human-person/generation"),
+);
 const sourceFiles = [
   "test/studies/human-person/generation/head.json.gz",
   "test/studies/human-person/generation/body.json.gz",
   ".references/anthropometry/ANSUR_II_FEMALE_Public.csv",
   ".references/anthropometry/ANSUR_II_MALE_Public.csv",
 ];
-const sourcePath = (file: string): string => file.startsWith("test/studies/human-person/generation/")
-  ? path.join(generationDirectory, path.basename(file)) : path.join(root, file);
-const sourceBytes = new Map(sourceFiles.map((file) => [file, fs.readFileSync(sourcePath(file))]));
-const sourceDigests = Object.fromEntries([...sourceBytes].map(([file, bytes]) => [file, createHash("sha256").update(bytes).digest("hex")]));
-const directory = path.resolve(process.argv[5] ?? path.join(root, ".wiki/08-campaigns/2707-human/artifacts/ansur-census"));
+const sourcePath = (file: string): string =>
+  file.startsWith("test/studies/human-person/generation/")
+    ? path.join(generationDirectory, path.basename(file))
+    : path.join(root, file);
+const sourceBytes = new Map(
+  sourceFiles.map((file) => [file, fs.readFileSync(sourcePath(file))]),
+);
+const sourceDigests = Object.fromEntries(
+  [...sourceBytes].map(([file, bytes]) => [
+    file,
+    createHash("sha256").update(bytes).digest("hex"),
+  ]),
+);
+const directory = path.resolve(
+  process.argv[5] ??
+    path.join(root, ".wiki/08-campaigns/2707-human/artifacts/ansur-census"),
+);
 const manifestFile = process.env.TTSX_RUNTIME_MANIFEST;
 if (manifestFile === undefined)
-  throw new Error("ANSUR census needs the owning ttsx runtime emission manifest.");
+  throw new Error(
+    "ANSUR census needs the owning ttsx runtime emission manifest.",
+  );
 const manifestBytes = fs.readFileSync(manifestFile);
-const runtimeManifest = JSON.parse(manifestBytes.toString("utf8")) as Record<string, unknown>;
+const runtimeManifest = JSON.parse(manifestBytes.toString("utf8")) as Record<
+  string,
+  unknown
+>;
 for (const field of ["depCacheDir", "entryFile", "entrySource"])
   if (typeof runtimeManifest[field] !== "string")
     throw new Error("ANSUR runtime manifest lacks " + field);
 const dependencyDirectory = runtimeManifest.depCacheDir as string;
-const loadedSources = Object.keys(require.cache).map((file) => fs.realpathSync(file));
-const dependencyEmits = fs.readdirSync(dependencyDirectory)
-  .filter((file) => /^[a-f0-9]{16}\.json$/.test(file)).map((file) => {
+const loadedSources = Object.keys(require.cache).map((file) =>
+  fs.realpathSync(file),
+);
+const dependencyEmits = fs
+  .readdirSync(dependencyDirectory)
+  .filter((file) => /^[a-f0-9]{16}\.json$/.test(file))
+  .map((file) => {
     const markerPath = path.join(dependencyDirectory, file);
     const markerBytes = fs.readFileSync(markerPath);
-    const marker = JSON.parse(markerBytes.toString("utf8")) as Record<string, unknown>;
-    if (typeof marker.rootDir !== "string" || typeof marker.generation !== "string" ||
-        !/^[a-f0-9]{32}$/.test(marker.generation))
-      throw new Error("ANSUR runtime dependency has no immutable generation: " + file);
+    const marker = JSON.parse(markerBytes.toString("utf8")) as Record<
+      string,
+      unknown
+    >;
+    if (
+      typeof marker.rootDir !== "string" ||
+      typeof marker.generation !== "string" ||
+      !/^[a-f0-9]{32}$/.test(marker.generation)
+    )
+      throw new Error(
+        "ANSUR runtime dependency has no immutable generation: " + file,
+      );
     const sourceRoot = fs.realpathSync(marker.rootDir);
-    const emitRoot = path.join(dependencyDirectory, path.basename(file, ".json"), "gen-" + marker.generation);
-    const files = loadedSources.filter((source) => {
-      const relative = path.relative(sourceRoot, source);
-      return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-    }).map((source) => {
-      const relative = path.relative(sourceRoot, source);
-      const emitted = path.join(emitRoot, relative.replace(/\.(ts|tsx|mts|cts)$/, (extension) =>
-        extension === ".mts" ? ".mjs" : extension === ".cts" ? ".cjs" : ".js"));
-      const bytes = fs.readFileSync(emitted);
-      return { source, emitted, bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
-    });
-    return { sourceRoot, emitRoot, generation: marker.generation,
-      markerPath, markerSha256: createHash("sha256").update(markerBytes).digest("hex"), files };
-  }).filter((dependency) => dependency.files.length > 0);
-if (!dependencyEmits.some((dependency) => path.relative(path.join(root, "packages/human/src"), dependency.sourceRoot) === ""))
-  throw new Error("ANSUR census has no loaded immutable human SDK emission identity.");
+    const emitRoot = path.join(
+      dependencyDirectory,
+      path.basename(file, ".json"),
+      "gen-" + marker.generation,
+    );
+    const files = loadedSources
+      .filter((source) => {
+        const relative = path.relative(sourceRoot, source);
+        return (
+          relative !== "" &&
+          !relative.startsWith("..") &&
+          !path.isAbsolute(relative)
+        );
+      })
+      .map((source) => {
+        const relative = path.relative(sourceRoot, source);
+        const emitted = path.join(
+          emitRoot,
+          relative.replace(/\.(ts|tsx|mts|cts)$/, (extension) =>
+            extension === ".mts"
+              ? ".mjs"
+              : extension === ".cts"
+                ? ".cjs"
+                : ".js",
+          ),
+        );
+        const bytes = fs.readFileSync(emitted);
+        return {
+          source,
+          emitted,
+          bytes: bytes.length,
+          sha256: createHash("sha256").update(bytes).digest("hex"),
+        };
+      });
+    return {
+      sourceRoot,
+      emitRoot,
+      generation: marker.generation,
+      markerPath,
+      markerSha256: createHash("sha256").update(markerBytes).digest("hex"),
+      files,
+    };
+  })
+  .filter((dependency) => dependency.files.length > 0);
+if (
+  !dependencyEmits.some(
+    (dependency) =>
+      path.relative(
+        path.join(root, "packages/human/src"),
+        dependency.sourceRoot,
+      ) === "",
+  )
+)
+  throw new Error(
+    "ANSUR census has no loaded immutable human SDK emission identity.",
+  );
 const entryFile = runtimeManifest.entryFile as string;
 const entryBytes = fs.readFileSync(entryFile);
 const runtimeIdentity = {
-  pid: process.pid, parentPid: process.ppid, node: process.version, execPath: process.execPath,
-  manifestFile, manifestSha256: createHash("sha256").update(manifestBytes).digest("hex"),
-  entrySource: runtimeManifest.entrySource, entryFile,
-  entrySha256: createHash("sha256").update(entryBytes).digest("hex"), dependencyEmits,
+  pid: process.pid,
+  parentPid: process.ppid,
+  node: process.version,
+  execPath: process.execPath,
+  manifestFile,
+  manifestSha256: createHash("sha256").update(manifestBytes).digest("hex"),
+  entrySource: runtimeManifest.entrySource,
+  entryFile,
+  entrySha256: createHash("sha256").update(entryBytes).digest("hex"),
+  dependencyEmits,
 };
 fs.mkdirSync(directory, { recursive: true });
-fs.writeFileSync(path.join(directory, label + ".runtime.json"), JSON.stringify({ runtimeIdentity, sourceDigests, generationDirectory }, null, 1));
-console.error("ANSUR runtime", JSON.stringify({ pid: process.pid, node: process.version, execPath: process.execPath,
-  entrySha256: runtimeIdentity.entrySha256, loadedModules: dependencyEmits.reduce((sum, dependency) => sum + dependency.files.length, 0), sourceDigests }));
+fs.writeFileSync(
+  path.join(directory, label + ".runtime.json"),
+  JSON.stringify(
+    { runtimeIdentity, sourceDigests, generationDirectory },
+    null,
+    1,
+  ),
+);
+console.error(
+  "ANSUR runtime",
+  JSON.stringify({
+    pid: process.pid,
+    node: process.version,
+    execPath: process.execPath,
+    entrySha256: runtimeIdentity.entrySha256,
+    loadedModules: dependencyEmits.reduce(
+      (sum, dependency) => sum + dependency.files.length,
+      0,
+    ),
+    sourceDigests,
+  }),
+);
 const started = performance.now();
 const view = <T>(file: string): T =>
-  JSON.parse(zlib.gunzipSync(sourceBytes.get("test/studies/human-person/generation/" + file)!).toString("utf8")) as T;
+  JSON.parse(
+    zlib
+      .gunzipSync(
+        sourceBytes.get("test/studies/human-person/generation/" + file)!,
+      )
+      .toString("utf8"),
+  ) as T;
 const head = view<IAutoMovieHumanPersonHeadView>("head.json.gz");
 const bodyView = view<IAutoMovieHumanPersonBodyView>("body.json.gz");
 const basis = bodyView.body;
@@ -135,11 +237,27 @@ const basis = bodyView.body;
  * the standard face's, a convention, not the subject's measured head.
  */
 const HEAD_CONVENTION = "whole person; head: standard face (convention)";
-const whole = createHumanPersonSimpleWhole(compileHumanPersonGeneration(joinHumanPersonGeneration(head, bodyView)), {
-  id: "census", name: "census", population: "linked",
-  face: { id: "census-face", name: "standard face", basis: head.face.id, shape: {}, expression: {} },
-  body: { id: "census-body", name: "census body", basis: basis.id, shape: {} },
-});
+const whole = createHumanPersonSimpleWhole(
+  compileHumanPersonGeneration(joinHumanPersonGeneration(head, bodyView)),
+  {
+    id: "census",
+    name: "census",
+    population: "linked",
+    face: {
+      id: "census-face",
+      name: "standard face",
+      basis: head.face.id,
+      shape: {},
+      expression: {},
+    },
+    body: {
+      id: "census-body",
+      name: "census body",
+      basis: basis.id,
+      shape: {},
+    },
+  },
+);
 const bmi = (row: Record<string, number>): number =>
   row.weightkg / 10 / (row.stature / 1000) ** 2;
 
@@ -162,10 +280,21 @@ for (const [sex, file, code] of [
   const residuals = ANSUR_BODY_MEASURES.map(() => [] as number[]);
   for (const person of people) {
     if (subjects.length % 10 === 0)
-      console.error("ANSUR subject", JSON.stringify({ sex, subjectId: person.subjectid,
-        completed: subjects.length, built: documents.length, refused: refused.length, elapsedMilliseconds: performance.now() - started }));
+      console.error(
+        "ANSUR subject",
+        JSON.stringify({
+          sex,
+          subjectId: person.subjectid,
+          completed: subjects.length,
+          built: documents.length,
+          refused: refused.length,
+          elapsedMilliseconds: performance.now() - started,
+        }),
+      );
     if (!Number.isSafeInteger(person.subjectid))
-      throw new Error(`ANSUR ${sex} selected row has no safe numeric subjectid.`);
+      throw new Error(
+        `ANSUR ${sex} selected row has no safe numeric subjectid.`,
+      );
     const card: IAutoMovieHumanBodySimpleShape = {
       sex: code,
       ageYears: person.age,
@@ -204,7 +333,11 @@ for (const [sex, file, code] of [
         const measure = ANSUR_BODY_MEASURES[index];
         // a reading the body cannot take is listed by name, never dropped
         if (metres === null) {
-          unread.push({ sex, measure: measure.name, reason: `the body cannot measure ${measure.name} on ${basis.id}` });
+          unread.push({
+            sex,
+            measure: measure.name,
+            reason: `the body cannot measure ${measure.name} on ${basis.id}`,
+          });
           return;
         }
         if (person[measure.column] === undefined) return;
@@ -233,17 +366,38 @@ for (const [sex, file, code] of [
       bands: summariseAnsurResiduals(residuals[index], bands),
     });
   });
-  console.error("ANSUR sex complete", JSON.stringify({ sex, completed: subjects.length,
-    built: documents.length, refused: refused.length, elapsedMilliseconds: performance.now() - started }));
+  console.error(
+    "ANSUR sex complete",
+    JSON.stringify({
+      sex,
+      completed: subjects.length,
+      built: documents.length,
+      refused: refused.length,
+      elapsedMilliseconds: performance.now() - started,
+    }),
+  );
 }
 for (const [file, digest] of Object.entries(sourceDigests))
-  if (createHash("sha256").update(fs.readFileSync(sourcePath(file))).digest("hex") !== digest)
+  if (
+    createHash("sha256")
+      .update(fs.readFileSync(sourcePath(file)))
+      .digest("hex") !== digest
+  )
     throw new Error("ANSUR census input changed during measurement: " + file);
 for (const dependency of dependencyEmits)
   for (const file of dependency.files)
-    if (createHash("sha256").update(fs.readFileSync(file.emitted)).digest("hex") !== file.sha256)
-      throw new Error("ANSUR loaded SDK emission changed during measurement: " + file.emitted);
-if (createHash("sha256").update(fs.readFileSync(entryFile)).digest("hex") !== runtimeIdentity.entrySha256)
+    if (
+      createHash("sha256")
+        .update(fs.readFileSync(file.emitted))
+        .digest("hex") !== file.sha256
+    )
+      throw new Error(
+        "ANSUR loaded SDK emission changed during measurement: " + file.emitted,
+      );
+if (
+  createHash("sha256").update(fs.readFileSync(entryFile)).digest("hex") !==
+  runtimeIdentity.entrySha256
+)
   throw new Error("ANSUR actual entry emission changed during measurement.");
 const table = formatAnsurCensusTable(rows);
 fs.writeFileSync(
@@ -254,7 +408,24 @@ fs.writeFileSync(
 );
 fs.writeFileSync(
   path.join(directory, label + ".json"),
-  JSON.stringify({ basis: basis.id, generation: head.id, generationDirectory, sourceDigests, runtimeIdentity, convention: HEAD_CONVENTION, perSex, selected: subjects.length, subjects, rows, refused, unread }, null, 1),
+  JSON.stringify(
+    {
+      basis: basis.id,
+      generation: head.id,
+      generationDirectory,
+      sourceDigests,
+      runtimeIdentity,
+      convention: HEAD_CONVENTION,
+      perSex,
+      selected: subjects.length,
+      subjects,
+      rows,
+      refused,
+      unread,
+    },
+    null,
+    1,
+  ),
 );
 fs.writeFileSync(
   path.join(directory, label + ".documents.json"),

@@ -9,11 +9,11 @@ import type {
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { getConstraint } from "../rom/getConstraint";
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
+import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 
@@ -218,7 +218,13 @@ export const importedNodeClipToAutoMovieMotion = (
                 HUMANOID_JOINT_AXES[entry.bone],
               props.sourceRestFrames?.[entry.bone] ??
                 HUMANOID_REST_FRAME[entry.bone],
-              { bone: entry.bone, constraint: getConstraint(entry.bone, sourceBones.get(entry.bone)!.constraint) },
+              {
+                bone: entry.bone,
+                constraint: getConstraint(
+                  entry.bone,
+                  sourceBones.get(entry.bone)!.constraint,
+                ),
+              },
             );
             return { bone: entry.bone, ...angles };
           }),
@@ -232,10 +238,7 @@ export const importedNodeClipToAutoMovieMotion = (
   };
 };
 
-const rootTransform = (
-  value: readonly number[],
-  rest: IAutoMovieVector3,
-) => ({
+const rootTransform = (value: readonly number[], rest: IAutoMovieVector3) => ({
   translation: {
     x: value[0]! - rest.x,
     y: value[1]! - rest.y,

@@ -33,7 +33,14 @@ export function createHumanBodySurfaceRegionParts(
     const region = humanBodyGpuRegion(source);
     return { region, gather: createHumanBasisRegion(region) };
   });
-  return ({ positions, normals, skinMaterial, colors, reliefWeights, physical }) =>
+  return ({
+    positions,
+    normals,
+    skinMaterial,
+    colors,
+    reliefWeights,
+    physical,
+  }) =>
     regions.map(({ region, gather }) => {
       const mesh =
         colors === null || region.material !== skinMaterial

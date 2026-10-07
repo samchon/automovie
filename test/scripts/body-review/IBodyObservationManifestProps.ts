@@ -1,5 +1,5 @@
-import type { IBodyObservationUnit } from "./IBodyObservationUnit";
 import type { IBodyCaptureResult } from "./IBodyCaptureResult";
+import type { IBodyObservationUnit } from "./IBodyObservationUnit";
 
 /**
  * The derived unit and actual viewer results recorded together. Capturing

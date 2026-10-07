@@ -1,8 +1,9 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
+
 import type { IAutoMovieHumanBodyShoulderPose } from "../../../structures/IAutoMovieHumanBodyShoulderPose";
+import type { IAutoMovieHumanBodyToePose } from "../../../structures/IAutoMovieHumanBodyToePose";
 import type { IAutoMovieHumanBodySourceJointGoal } from "./IAutoMovieHumanBodySourceJointGoal";
 import type { IAutoMovieHumanBodySourceRig } from "./IAutoMovieHumanBodySourceRig";
-import type { IAutoMovieHumanBodyToePose } from "../../../structures/IAutoMovieHumanBodyToePose";
 
 /** Shaped source graph and the actual canonical document's named performance requests. */
 export interface IAutoMovieHumanBodySourceRigInput {

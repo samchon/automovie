@@ -1,5 +1,5 @@
-import type {} from "./IAutoMovieHumanFaceSkinRelief/compatibility/Regions";
 import type {} from "./IAutoMovieHumanFaceSkinRelief/compatibility/Nasolabial";
+import type {} from "./IAutoMovieHumanFaceSkinRelief/compatibility/Regions";
 
 /**
  * Regional authored skin geometry, separate from clinical skin-condition

@@ -1,7 +1,3 @@
-import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
-import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
-import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisualReadTransform";
-import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
 import { reviewVisualRead } from "@automovie/engine";
 import {
   IAutoMovieCamera,
@@ -13,6 +9,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
+import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
+import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
+import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisualReadTransform";
 import { namedFacts } from "../internal/predicates";
 
 const node = (id: string): IAutoMovieSceneNode => ({
@@ -56,8 +56,6 @@ const framing = (
     motions: [actor],
     sampleRate: 1,
   });
-
-
 
 const hitEvent = (
   over: Partial<IAutoMovieInteractionEvent> = {},

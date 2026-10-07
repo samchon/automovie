@@ -8,9 +8,13 @@ import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human";
  *
  * @author Samchon
  */
-export function createHumanViewerHeadlessWhole(basis: string): IAutoMovieHumanBodySimpleWhole {
+export function createHumanViewerHeadlessWhole(
+  basis: string,
+): IAutoMovieHumanBodySimpleWhole {
   const refuse = (): never => {
-    throw new Error(`The viewer body ${basis} has no head, so stature and the whole person's volume are person measurements.`);
+    throw new Error(
+      `The viewer body ${basis} has no head, so stature and the whole person's volume are person measurements.`,
+    );
   };
   return { stature: refuse, volume: refuse };
 }

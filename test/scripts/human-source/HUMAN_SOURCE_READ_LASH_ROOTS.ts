@@ -12,7 +12,14 @@
  * tissue depth, and each new generation requires performed-root observation.
  */
 export const HUMAN_SOURCE_READ_LASH_ROOTS = {
-  upper: [6850, 6847, 6886, 6844, 6841, 6838, 6785, 6784, 6790, 6793, 6796, 6799, 6802, 6805],
-  lower: [6850, 6853, 6856, 6837, 11695, 6834, 6831, 6828, 6825, 6820, 6817, 6814, 11693, 6811, 6808, 6805],
-  frames: "neutral person anterior lid-edge borders, left front, side, oblique, below, above, medial and lateral; right front, below and medial, clay and normal with candidates marked",
+  upper: [
+    6850, 6847, 6886, 6844, 6841, 6838, 6785, 6784, 6790, 6793, 6796, 6799,
+    6802, 6805,
+  ],
+  lower: [
+    6850, 6853, 6856, 6837, 11695, 6834, 6831, 6828, 6825, 6820, 6817, 6814,
+    11693, 6811, 6808, 6805,
+  ],
+  frames:
+    "neutral person anterior lid-edge borders, left front, side, oblique, below, above, medial and lateral; right front, below and medial, clay and normal with candidates marked",
 } as const;

@@ -29,9 +29,17 @@ export function findHumanSourceDriverMaximum(
     if (channel.positive === endpoint) sides.push(channel.maximum);
     if (channel.negative === endpoint) sides.push(-channel.minimum);
   }
-  if (sides.length > 1) throw new Error(`Driver ${endpoint}: ${sides.length} body channel sides own it.`);
-  const correctives = bodyCorrectives.filter((corrective) => corrective.target === endpoint).length;
+  if (sides.length > 1)
+    throw new Error(
+      `Driver ${endpoint}: ${sides.length} body channel sides own it.`,
+    );
+  const correctives = bodyCorrectives.filter(
+    (corrective) => corrective.target === endpoint,
+  ).length;
   const maximum = (sides[0] ?? 0) + correctives;
-  if (!(maximum > 0)) throw new Error(`Driver ${endpoint}: no body channel side or corrective drives it.`);
+  if (!(maximum > 0))
+    throw new Error(
+      `Driver ${endpoint}: no body channel side or corrective drives it.`,
+    );
   return maximum;
 }

@@ -16,7 +16,10 @@ import type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionC
  * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Captures one equivalent composition input while preserving the existing constructor's project selection semantics.
  */
 export const resolveAutoMovieProductionContextOptions = (props: {
-  input: IAutoMovieProductionContextOptions | AutoMovieProductionFrameCapture | undefined;
+  input:
+    | IAutoMovieProductionContextOptions
+    | AutoMovieProductionFrameCapture
+    | undefined;
   legacy: Omit<IAutoMovieProductionContextOptions, "capture">;
 }): IAutoMovieProductionContextOptions =>
   typeof props.input === "function" || props.input === undefined

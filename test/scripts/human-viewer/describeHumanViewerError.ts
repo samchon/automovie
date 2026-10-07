@@ -8,9 +8,16 @@
  */
 export function describeHumanViewerError(error: unknown): string {
   const parts: string[] = [];
-  for (let current: unknown = error, depth = 0; current !== undefined && depth < 8; ++depth) {
+  for (
+    let current: unknown = error, depth = 0;
+    current !== undefined && depth < 8;
+    ++depth
+  ) {
     if (current instanceof Error) {
-      const code = "code" in current && typeof current.code === "string" ? ` [${current.code}]` : "";
+      const code =
+        "code" in current && typeof current.code === "string"
+          ? ` [${current.code}]`
+          : "";
       parts.push(`${current.name}: ${current.message}${code}`);
       current = current.cause;
     } else {

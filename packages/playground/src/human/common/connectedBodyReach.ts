@@ -21,11 +21,15 @@ import type { IConnectedBodyReach } from "./IConnectedBodyReach";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists channels whose endpoint is unavailable as missing and limits the rest to the reach the view evaluates.
  * @author Samchon
  */
-export function connectedBodyReach(body: IAutoMovieHumanBodyBasis): IConnectedBodyReach {
+export function connectedBodyReach(
+  body: IAutoMovieHumanBodyBasis,
+): IConnectedBodyReach {
   const unavailable = new Set(body.unavailableTargets ?? []);
   const limits = new Map<string, string[]>();
   const missing = body.channels.filter(
-    (channel) => unavailable.has(channel.positive) || (channel.negative !== null && unavailable.has(channel.negative)),
+    (channel) =>
+      unavailable.has(channel.positive) ||
+      (channel.negative !== null && unavailable.has(channel.negative)),
   );
   return {
     basis: {

@@ -2,9 +2,9 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { TtscCompiler } from "ttsc";
+
 import { assertHumanSourceCompilerObservations } from "./assertHumanSourceCompilerObservations.ts";
 import { compareHumanSourceNames } from "./compareHumanSourceNames.ts";
-
 import type { IHumanSourceGenerationInput } from "./structures/IHumanSourceGenerationInput.ts";
 import type { IHumanSourceProducerClosure } from "./structures/IHumanSourceProducerClosure.ts";
 import type { IHumanSourceProducerObservation } from "./structures/IHumanSourceProducerObservation.ts";
@@ -54,16 +54,34 @@ const ANATOMICAL_ASSEMBLY_PRODUCER = "body-anatomy";
  * A concurrent producer or resolver change
  * is refused before publication by the returned run-local verifier.
  */
-export function readHumanSourceProducerClosure(repository: string, entryFile: string = "test/scripts/human-source/compile-source-generation.ts"): IHumanSourceProducerClosure {
+export function readHumanSourceProducerClosure(
+  repository: string,
+  entryFile: string = "test/scripts/human-source/compile-source-generation.ts",
+): IHumanSourceProducerClosure {
   const project = path.join(repository, "test");
-  const result = new TtscCompiler({ cwd: project, tsconfig: path.join(project, "tsconfig.human-source.json"), plugins: false }).transform();
-  if (result.type !== "success") throw new Error(`Source producer graph could not be compiled: ${JSON.stringify(result)}`);
+  const result = new TtscCompiler({
+    cwd: project,
+    tsconfig: path.join(project, "tsconfig.human-source.json"),
+    plugins: false,
+  }).transform();
+  if (result.type !== "success")
+    throw new Error(
+      `Source producer graph could not be compiled: ${JSON.stringify(result)}`,
+    );
   const graph = result.graph;
-  if (graph === undefined) throw new Error("Source producer identity requires the compiler's resolved reference graph.");
+  if (graph === undefined)
+    throw new Error(
+      "Source producer identity requires the compiler's resolved reference graph.",
+    );
   const absolute = (file: string): string => path.resolve(project, file);
-  const keyOf = new Map(Object.keys(graph.edges).map((file) => [absolute(file), file]));
+  const keyOf = new Map(
+    Object.keys(graph.edges).map((file) => [absolute(file), file]),
+  );
   const entry = path.join(repository, entryFile);
-  if (!keyOf.has(entry)) throw new Error(`Source producer graph does not contain production entry ${entryFile}.`);
+  if (!keyOf.has(entry))
+    throw new Error(
+      `Source producer graph does not contain production entry ${entryFile}.`,
+    );
   const reached = new Set<string>();
   const pending = [entry];
   while (pending.length !== 0) {
@@ -71,26 +89,49 @@ export function readHumanSourceProducerClosure(repository: string, entryFile: st
     if (reached.has(file)) continue;
     reached.add(file);
     const key = keyOf.get(file);
-    if (key !== undefined) for (const dependency of graph.edges[key]) pending.push(absolute(dependency));
+    if (key !== undefined)
+      for (const dependency of graph.edges[key])
+        pending.push(absolute(dependency));
   }
   const paths = new Set(reached);
   const contentPaths = new Set(reached);
-  for (const file of [...graph.globals, ...graph.configs, ...(graph.resolutionInputs ?? []), ...(result.hostInputs ?? [])]) {
+  for (const file of [
+    ...graph.globals,
+    ...graph.configs,
+    ...(graph.resolutionInputs ?? []),
+    ...(result.hostInputs ?? []),
+  ]) {
     const resolved = absolute(file);
     paths.add(resolved);
-    if (fs.existsSync(resolved) && fs.statSync(resolved).isFile()) contentPaths.add(resolved);
+    if (fs.existsSync(resolved) && fs.statSync(resolved).isFile())
+      contentPaths.add(resolved);
   }
   for (const file of reached) {
     const key = keyOf.get(file);
-    if (key !== undefined) for (const candidate of graph.candidates?.[key] ?? []) paths.add(absolute(candidate));
+    if (key !== undefined)
+      for (const candidate of graph.candidates?.[key] ?? [])
+        paths.add(absolute(candidate));
   }
-  const failures = Object.entries(graph.inputProofFailures ?? {}).filter(([file]) => paths.has(absolute(file)));
-  if (failures.length !== 0) throw new Error(`Source producer graph has unproved filesystem inputs: ${JSON.stringify(failures)}`);
-  const realized = new Set([...reached, ...graph.globals.map(absolute), ...graph.configs.map(absolute)]);
+  const failures = Object.entries(graph.inputProofFailures ?? {}).filter(
+    ([file]) => paths.has(absolute(file)),
+  );
+  if (failures.length !== 0)
+    throw new Error(
+      `Source producer graph has unproved filesystem inputs: ${JSON.stringify(failures)}`,
+    );
+  const realized = new Set([
+    ...reached,
+    ...graph.globals.map(absolute),
+    ...graph.configs.map(absolute),
+  ]);
   assertHumanSourceCompilerObservations(graph, project, paths, realized);
   const offline = (directory: string): void => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (entry.name === "__pycache__" || entry.name === ANATOMICAL_ASSEMBLY_PRODUCER) continue;
+      if (
+        entry.name === "__pycache__" ||
+        entry.name === ANATOMICAL_ASSEMBLY_PRODUCER
+      )
+        continue;
       const file = path.join(directory, entry.name);
       if (entry.isDirectory()) offline(file);
       else {
@@ -104,56 +145,155 @@ export function readHumanSourceProducerClosure(repository: string, entryFile: st
   paths.add(path.join(repository, "pnpm-workspace.yaml"));
   contentPaths.add(path.join(repository, "pnpm-lock.yaml"));
   contentPaths.add(path.join(repository, "pnpm-workspace.yaml"));
-  const sha = (bytes: Uint8Array | string): string => crypto.createHash("sha256").update(bytes).digest("hex");
+  const sha = (bytes: Uint8Array | string): string =>
+    crypto.createHash("sha256").update(bytes).digest("hex");
   const portable = (file: string): string => {
     const relative = path.relative(repository, file).replaceAll("\\", "/");
-    if (!relative.startsWith("../") && !path.isAbsolute(relative) && !relative.split("/").includes("node_modules")) return relative;
-    let directory = fs.existsSync(file) && fs.statSync(file).isDirectory() ? file : path.dirname(file);
+    if (
+      !relative.startsWith("../") &&
+      !path.isAbsolute(relative) &&
+      !relative.split("/").includes("node_modules")
+    )
+      return relative;
+    let directory =
+      fs.existsSync(file) && fs.statSync(file).isDirectory()
+        ? file
+        : path.dirname(file);
     for (;;) {
       const manifest = path.join(directory, "package.json");
       if (fs.existsSync(manifest)) {
-        const identity = JSON.parse(fs.readFileSync(manifest, "utf8")) as Record<string, unknown>;
-        if (typeof identity.name === "string" && typeof identity.version === "string")
+        const identity = JSON.parse(
+          fs.readFileSync(manifest, "utf8"),
+        ) as Record<string, unknown>;
+        if (
+          typeof identity.name === "string" &&
+          typeof identity.version === "string"
+        )
           return `dependency/${identity.name}@${identity.version}/${path.relative(directory, file).replaceAll("\\", "/")}`;
       }
       const parent = path.dirname(directory);
-      if (parent === directory) throw new Error(`Source producer input has no portable package identity: ${file}`);
+      if (parent === directory)
+        throw new Error(
+          `Source producer input has no portable package identity: ${file}`,
+        );
       directory = parent;
     }
   };
-  const observe = (physicalPath: string, publicPath: string): IHumanSourceProducerObservation => {
-    const stat = fs.existsSync(physicalPath) ? fs.statSync(physicalPath) : undefined;
-    const kind = stat === undefined ? "absent" : stat.isDirectory() ? "directory" : "file";
-    const bytes = kind === "file" ? fs.readFileSync(physicalPath) : Buffer.from(kind === "directory" ? JSON.stringify(fs.readdirSync(physicalPath).sort(compareHumanSourceNames)) : "absent");
-    return { physicalPath, publicPath, kind, realpath: stat === undefined ? null : fs.realpathSync.native(physicalPath), bytes: bytes.length, sha256: sha(bytes) };
+  const observe = (
+    physicalPath: string,
+    publicPath: string,
+  ): IHumanSourceProducerObservation => {
+    const stat = fs.existsSync(physicalPath)
+      ? fs.statSync(physicalPath)
+      : undefined;
+    const kind =
+      stat === undefined ? "absent" : stat.isDirectory() ? "directory" : "file";
+    const bytes =
+      kind === "file"
+        ? fs.readFileSync(physicalPath)
+        : Buffer.from(
+            kind === "directory"
+              ? JSON.stringify(
+                  fs.readdirSync(physicalPath).sort(compareHumanSourceNames),
+                )
+              : "absent",
+          );
+    return {
+      physicalPath,
+      publicPath,
+      kind,
+      realpath:
+        stat === undefined ? null : fs.realpathSync.native(physicalPath),
+      bytes: bytes.length,
+      sha256: sha(bytes),
+    };
   };
-  const observations = [...paths].map((file) => observe(file, contentPaths.has(file) ? portable(file) : path.relative(repository, file).replaceAll("\\", "/")));
+  const observations = [...paths].map((file) =>
+    observe(
+      file,
+      contentPaths.has(file)
+        ? portable(file)
+        : path.relative(repository, file).replaceAll("\\", "/"),
+    ),
+  );
   const inputs = new Map<string, IHumanSourceGenerationInput>();
   for (const one of observations) {
     if (!contentPaths.has(one.physicalPath)) continue;
-    if (one.kind !== "file") throw new Error(`Resolved source producer input is not a file: ${one.publicPath}`);
+    if (one.kind !== "file")
+      throw new Error(
+        `Resolved source producer input is not a file: ${one.publicPath}`,
+      );
     const old = inputs.get(one.publicPath);
     const role = "producer";
-    if (old !== undefined && (old.sha256 !== one.sha256 || old.bytes !== one.bytes || old.role !== role))
-      throw new Error(`Source producer input aliases disagree: ${one.publicPath}`);
-    inputs.set(one.publicPath, { role, path: one.publicPath, revision: null, bytes: one.bytes, sha256: one.sha256 });
+    if (
+      old !== undefined &&
+      (old.sha256 !== one.sha256 ||
+        old.bytes !== one.bytes ||
+        old.role !== role)
+    )
+      throw new Error(
+        `Source producer input aliases disagree: ${one.publicPath}`,
+      );
+    inputs.set(one.publicPath, {
+      role,
+      path: one.publicPath,
+      revision: null,
+      bytes: one.bytes,
+      sha256: one.sha256,
+    });
   }
-  const resolvedEdges = [...reached].sort(compareHumanSourceNames).map((file) => {
-    const key = keyOf.get(file);
-    return [portable(file), (key === undefined ? [] : graph.edges[key]).map((dependency) => portable(absolute(dependency))).sort(compareHumanSourceNames)];
-  }).sort((a, b) => String(a[0]) < String(b[0]) ? -1 : String(a[0]) > String(b[0]) ? 1 : 0);
-  const graphBytes = Buffer.from(JSON.stringify({ edges: resolvedEdges, globals: graph.globals.map((file) => portable(absolute(file))).sort(compareHumanSourceNames), configs: graph.configs.map((file) => portable(absolute(file))).sort(compareHumanSourceNames) }));
+  const resolvedEdges = [...reached]
+    .sort(compareHumanSourceNames)
+    .map((file) => {
+      const key = keyOf.get(file);
+      return [
+        portable(file),
+        (key === undefined ? [] : graph.edges[key])
+          .map((dependency) => portable(absolute(dependency)))
+          .sort(compareHumanSourceNames),
+      ];
+    })
+    .sort((a, b) =>
+      String(a[0]) < String(b[0]) ? -1 : String(a[0]) > String(b[0]) ? 1 : 0,
+    );
+  const graphBytes = Buffer.from(
+    JSON.stringify({
+      edges: resolvedEdges,
+      globals: graph.globals
+        .map((file) => portable(absolute(file)))
+        .sort(compareHumanSourceNames),
+      configs: graph.configs
+        .map((file) => portable(absolute(file)))
+        .sort(compareHumanSourceNames),
+    }),
+  );
   const graphPath = `${entryFile}#resolved-reference-graph`;
-  inputs.set(graphPath, { role: "producer resolved graph", path: graphPath, revision: null, bytes: graphBytes.length, sha256: sha(graphBytes) });
+  inputs.set(graphPath, {
+    role: "producer resolved graph",
+    path: graphPath,
+    revision: null,
+    bytes: graphBytes.length,
+    sha256: sha(graphBytes),
+  });
   return {
-    inputs: [...inputs.values()].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0),
+    inputs: [...inputs.values()].sort((a, b) =>
+      a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
+    ),
     verifyUnchanged: () => {
       assertHumanSourceCompilerObservations(graph, project, paths, realized);
       const changed = observations.filter((before) => {
         const after = observe(before.physicalPath, before.publicPath);
-        return after.kind !== before.kind || after.realpath !== before.realpath || after.bytes !== before.bytes || after.sha256 !== before.sha256;
+        return (
+          after.kind !== before.kind ||
+          after.realpath !== before.realpath ||
+          after.bytes !== before.bytes ||
+          after.sha256 !== before.sha256
+        );
       });
-      if (changed.length !== 0) throw new Error(`Source producer inputs changed during compilation: ${changed.map((one) => one.publicPath).join(", ")}`);
+      if (changed.length !== 0)
+        throw new Error(
+          `Source producer inputs changed during compilation: ${changed.map((one) => one.publicPath).join(", ")}`,
+        );
     },
   };
 }

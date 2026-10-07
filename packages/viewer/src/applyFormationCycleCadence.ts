@@ -1,6 +1,7 @@
 import type { IAutoMovieFormationCadenceSegment } from "@automovie/engine";
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
+
 import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence";
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
 import { formationCycleCadence } from "./formationCycleCadence";
 
 /**

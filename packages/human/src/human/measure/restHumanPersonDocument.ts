@@ -18,7 +18,9 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function restHumanPersonDocument(document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonDocument {
+export function restHumanPersonDocument(
+  document: IAutoMovieHumanPersonDocument,
+): IAutoMovieHumanPersonDocument {
   const rest = structuredClone(document);
   delete rest.body.pose;
   delete rest.body.shoulders;

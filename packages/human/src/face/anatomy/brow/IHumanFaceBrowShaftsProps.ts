@@ -1,6 +1,6 @@
+import type { IHumanFaceSkinChart } from "../skin/IHumanFaceSkinChart";
 import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
 import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
-import type { IHumanFaceSkinChart } from "../skin/IHumanFaceSkinChart";
 
 /**
  * What one eyebrow's shaft population is built from: the skin it grows on,

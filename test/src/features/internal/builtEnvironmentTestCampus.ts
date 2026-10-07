@@ -1,7 +1,7 @@
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+
 import { builtEnvironmentTestBuilding as building } from "./builtEnvironmentTestBuilding";
 import { builtEnvironmentTestTransform as transform } from "./builtEnvironmentTestTransform";
-
 
 /** Two independently placed building units sharing one work. */
 export const builtEnvironmentTestCampus = (): IAutoMovieBuiltEnvironment => {

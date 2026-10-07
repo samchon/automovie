@@ -11,4 +11,8 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range A closed vocabulary, not a physiological interval.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no shaping input.
  */
-export type AutoMovieHumanFaceOpticalSurface = "sclera" | "cornea" | "iris" | "apertureBacking";
+export type AutoMovieHumanFaceOpticalSurface =
+  | "sclera"
+  | "cornea"
+  | "iris"
+  | "apertureBacking";

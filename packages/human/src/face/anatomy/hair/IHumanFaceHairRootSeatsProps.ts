@@ -19,7 +19,9 @@ import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference"
  *
  * @author Samchon
  */
-export interface IHumanFaceHairRootSeatsProps<T extends IHumanFaceHairRootReference> {
+export interface IHumanFaceHairRootSeatsProps<
+  T extends IHumanFaceHairRootReference,
+> {
   /** Original root references and any additional sampler identity fields. */
   roots: readonly T[];
 

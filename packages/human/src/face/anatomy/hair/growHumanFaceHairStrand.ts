@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
-import type { IHumanFaceHairStrandPlacement } from "./IHumanFaceHairStrandPlacement";
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import type { IHumanFaceHairStrandPlacement } from "./IHumanFaceHairStrandPlacement";
 
 /**
  * Admit a hierarchy remainder after the walk's completed canonical stem.

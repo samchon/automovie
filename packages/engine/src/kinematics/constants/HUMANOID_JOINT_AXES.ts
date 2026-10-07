@@ -47,6 +47,7 @@ export const HUMANOID_JOINT_AXES: Partial<
   ];
   const forearm: IAutoMovieJointAxes = { ...arm, twistPlacement: "distal" };
   const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
-  for (const s of slots) table[s] = s === "leftLowerArm" || s === "rightLowerArm" ? forearm : arm;
+  for (const s of slots)
+    table[s] = s === "leftLowerArm" || s === "rightLowerArm" ? forearm : arm;
   return table;
 })();

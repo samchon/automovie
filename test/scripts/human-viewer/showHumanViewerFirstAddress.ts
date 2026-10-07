@@ -30,8 +30,10 @@ export async function showHumanViewerFirstAddress(
     await loaded;
     const standard = parseHumanViewerAddress("");
     if (requested.doc === standard.doc) throw error;
-    report(`${requested.doc} could not be shown (${error instanceof Error ? error.message : String(error)}); ` +
-      `this generation opened on ${standard.doc}`);
+    report(
+      `${requested.doc} could not be shown (${error instanceof Error ? error.message : String(error)}); ` +
+        `this generation opened on ${standard.doc}`,
+    );
     await show(standard);
   }
 }

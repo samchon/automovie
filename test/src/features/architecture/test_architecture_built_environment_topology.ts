@@ -1,13 +1,19 @@
-import { builtEnvironmentAdjacentSpaces, builtEnvironmentBuildingOfSpace, builtEnvironmentContainsPoint, builtEnvironmentSpaceNodes, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentBuildingOfSpace,
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceNodes,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
-import { builtTopologyTestWork as work } from "../internal/builtTopologyTestWork";
-import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPOLOGY_TEST_WING_YAW";
-import { builtTopologyTestYaw as yaw } from "../internal/builtTopologyTestYaw";
+
 import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "../internal/BUILT_TOPOLOGY_TEST_ANNEX_TILT";
+import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPOLOGY_TEST_WING_YAW";
 import { builtTopologyTestRoll as roll } from "../internal/builtTopologyTestRoll";
-
-
+import { builtTopologyTestWork as work } from "../internal/builtTopologyTestWork";
+import { builtTopologyTestYaw as yaw } from "../internal/builtTopologyTestYaw";
+import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
 
 /**
  * A floor is one classification among many, never the root of the hierarchy.

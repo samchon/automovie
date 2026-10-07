@@ -13,7 +13,10 @@ import type { IHumanSourcePoseProducer } from "./structures/IHumanSourcePoseProd
  */
 export const HUMAN_SOURCE_POSE_PRODUCER: IHumanSourcePoseProducer = {
   revision: "pose-g1",
-  dropped: ["pose/leftUpperArm.tt(120,120,0)", "pose/rightUpperArm.tt(120,120,0)"],
+  dropped: [
+    "pose/leftUpperArm.tt(120,120,0)",
+    "pose/rightUpperArm.tt(120,120,0)",
+  ],
   states: [
     {
       name: "leftUpperArm.tt(120,120,0)",
@@ -21,7 +24,9 @@ export const HUMAN_SOURCE_POSE_PRODUCER: IHumanSourcePoseProducer = {
       group: "shoulders:leftUpperArm.tt(120,120,0)",
       shape: {},
       pose: [],
-      shoulders: [{ bone: "leftUpperArm", plane: 120, elevation: 120, axialRotation: 0 }],
+      shoulders: [
+        { bone: "leftUpperArm", plane: 120, elevation: 120, axialRotation: 0 },
+      ],
     },
   ],
 };

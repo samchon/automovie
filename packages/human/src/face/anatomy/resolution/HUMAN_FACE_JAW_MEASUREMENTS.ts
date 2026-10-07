@@ -1,6 +1,6 @@
 import type { IHumanFaceMeasurement } from "./IHumanFaceMeasurement";
-import { readHumanFaceIncisalOffset } from "./readHumanFaceIncisalOffset";
 import { readHumanFaceIncisalExcursion } from "./readHumanFaceIncisalExcursion";
+import { readHumanFaceIncisalOffset } from "./readHumanFaceIncisalOffset";
 
 /**
  * The performed jaw measurements of the face resolver: the midline incisal
@@ -30,7 +30,8 @@ export const HUMAN_FACE_JAW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "jaw.protrusionBeyondOverjet",
     unit: "millimetres",
     channels: [],
-    qualification: "absolute final incisal position past the upper edge, not protrusive excursion from the closed reference",
+    qualification:
+      "absolute final incisal position past the upper edge, not protrusive excursion from the closed reference",
     read: (context) => {
       const offset = readHumanFaceIncisalOffset(context);
       return "reason" in offset ? offset : offset.forward;
@@ -40,7 +41,8 @@ export const HUMAN_FACE_JAW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     id: "jaw.lateralExcursion",
     unit: "millimetres",
     channels: [],
-    qualification: "legacy absolute lower-to-upper midline offset, not excursion corrected for initial midline deviation",
+    qualification:
+      "legacy absolute lower-to-upper midline offset, not excursion corrected for initial midline deviation",
     read: (context) => {
       const offset = readHumanFaceIncisalOffset(context);
       return "reason" in offset ? offset : offset.left;

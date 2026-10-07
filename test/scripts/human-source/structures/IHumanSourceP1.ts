@@ -1,5 +1,5 @@
-import type { IHumanSourceP1Pair } from "./IHumanSourceP1Pair.ts";
 import type { IHumanSourceEndpointDomain } from "./IHumanSourceEndpointDomain.ts";
+import type { IHumanSourceP1Pair } from "./IHumanSourceP1Pair.ts";
 
 /**
  * The P1 representation: the current two-basis structure with both skins

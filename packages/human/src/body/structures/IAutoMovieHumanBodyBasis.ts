@@ -1,17 +1,17 @@
-import type { IAutoMovieHumanBodyToeRay } from "./rig/IAutoMovieHumanBodyToeRay";
-import type { IAutoMovieHumanBodyAtlasPartResource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasPartResource";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
+import type { IAutoMovieHumanBodyAtlasPartResource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasPartResource";
 import type { IAutoMovieHumanBodyBasisCoupling } from "./rig/IAutoMovieHumanBodyBasisCoupling";
 import type { IAutoMovieHumanBodyBasisJoint } from "./rig/IAutoMovieHumanBodyBasisJoint";
 import type { IAutoMovieHumanBodyBasisLandmarks } from "./rig/IAutoMovieHumanBodyBasisLandmarks";
 import type { IAutoMovieHumanBodyBasisPelvifemoral } from "./rig/IAutoMovieHumanBodyBasisPelvifemoral";
+import type { IAutoMovieHumanBodyToeRay } from "./rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieHumanBodyBasisChannel } from "./shape/IAutoMovieHumanBodyBasisChannel";
 import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHumanBodyBasisCorrective";
 import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
-import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
-import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
 
 /**
  * An immutable, externally authored connected body below the neck, with the

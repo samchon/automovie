@@ -1,21 +1,21 @@
+import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
+import { admitHumanBodyDocumentAnatomy } from "../anatomy/admitHumanBodyDocumentAnatomy";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
+import { collectHumanBodyExteriorRequests } from "../anatomy/surface/collectHumanBodyExteriorRequests";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import type { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
-import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
 import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
-import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
 import type { IHumanBodySimpleUnknown } from "./IHumanBodySimpleUnknown";
+import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
 import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "./projectHumanBodySimpleShape";
 import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../anatomy/measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
-import { admitHumanBodyDocumentAnatomy } from "../anatomy/admitHumanBodyDocumentAnatomy";
-import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
-import { collectHumanBodyExteriorRequests } from "../anatomy/surface/collectHumanBodyExteriorRequests";
 
 /**
  * Numerical acceptance budgets for the canonical expanded body: one
@@ -101,11 +101,22 @@ export function expandHumanBodySimpleShape(
   anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements,
 ): Record<string, number> {
   if (anatomy !== undefined) {
-    admitHumanBodyDocumentAnatomy(anatomy, over ?? {}, basis.anatomicalAssembly);
-    if (over !== undefined) over = resolveHumanBodyAnatomy(basis, over, anatomy);
+    admitHumanBodyDocumentAnatomy(
+      anatomy,
+      over ?? {},
+      basis.anatomicalAssembly,
+    );
+    if (over !== undefined)
+      over = resolveHumanBodyAnatomy(basis, over, anatomy);
   }
-  const targetChannels = new Set(collectHumanBodyExteriorRequests(anatomy).map((request) => request.binding.channel));
-  const effectiveTrial = (trial: Record<string, number>): Record<string, number> => {
+  const targetChannels = new Set(
+    collectHumanBodyExteriorRequests(anatomy).map(
+      (request) => request.binding.channel,
+    ),
+  );
+  const effectiveTrial = (
+    trial: Record<string, number>,
+  ): Record<string, number> => {
     if (anatomy === undefined) return trial;
     const raw = { ...trial };
     for (const channel of targetChannels) delete raw[channel];
@@ -241,9 +252,14 @@ export function expandHumanBodySimpleShape(
               tolerance: TAPE_TOLERANCE_METRES,
               along: direction.alone(basis, entry.channel),
               target,
-              read: (reader: Reader, trial: Record<string, number>) => anatomy === undefined
-                ? humanBodySimpleChannel(reader, entry.channel)
-                : measure.channel(basis, effectiveTrial(trial), entry.channel),
+              read: (reader: Reader, trial: Record<string, number>) =>
+                anatomy === undefined
+                  ? humanBodySimpleChannel(reader, entry.channel)
+                  : measure.channel(
+                      basis,
+                      effectiveTrial(trial),
+                      entry.channel,
+                    ),
             },
           ];
     }),
@@ -252,14 +268,16 @@ export function expandHumanBodySimpleShape(
       tolerance: MASS_TOLERANCE_KILOGRAMS,
       along: direction.mass(basis, parameters),
       target: simple.massKilograms,
-      read: (_reader: Reader, trial: Record<string, number>) => measure.mass(whole.volume(effectiveTrial(trial)), density),
+      read: (_reader: Reader, trial: Record<string, number>) =>
+        measure.mass(whole.volume(effectiveTrial(trial)), density),
     },
     {
       name: "statureMetres",
       tolerance: STATURE_TOLERANCE_METRES,
       along: statureAlong,
       target: simple.statureMetres,
-      read: (_reader: Reader, trial: Record<string, number>) => whole.stature(effectiveTrial(trial)),
+      read: (_reader: Reader, trial: Record<string, number>) =>
+        whole.stature(effectiveTrial(trial)),
     },
   ];
   const together = solveHumanBodySimpleCoupling(basis, shape, unknowns);
@@ -269,7 +287,9 @@ export function expandHumanBodySimpleShape(
   } else Object.assign(shape, together);
   matchStature();
   assertHumanBodySimpleValues(basis, shape, unknowns);
-  const canonical = (effective: Record<string, number>): Record<string, number> => {
+  const canonical = (
+    effective: Record<string, number>,
+  ): Record<string, number> => {
     if (anatomy === undefined) return effective;
     const raw = { ...effective };
     for (const channel of targetChannels) delete raw[channel];

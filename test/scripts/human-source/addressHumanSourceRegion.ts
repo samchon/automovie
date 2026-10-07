@@ -25,9 +25,14 @@ export function addressHumanSourceRegion(
     if (faces.length === 0 || !faces.every((f) => fill.faces.has(f))) return;
     const canonical = nativeToSource === undefined ? s : nativeToSource[s];
     if (!Number.isSafeInteger(canonical) || canonical < 0)
-      throw new Error(`Skin region ${name}: native sample ${s} is retired or absent from this source.`);
+      throw new Error(
+        `Skin region ${name}: native sample ${s} is retired or absent from this source.`,
+      );
     const at = view.get(canonical) ?? [];
-    if (at.length !== 1) throw new Error(`Skin region ${name}: sample ${s} appears ${at.length} times on the head view.`);
+    if (at.length !== 1)
+      throw new Error(
+        `Skin region ${name}: sample ${s} appears ${at.length} times on the head view.`,
+      );
     out.push(at[0]);
   });
   return out.sort((a, b) => a - b);

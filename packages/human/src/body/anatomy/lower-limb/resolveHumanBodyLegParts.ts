@@ -36,18 +36,66 @@ export function resolveHumanBodyLegParts(
   const muscle = "missing-tissue-boundary" as const;
   return [
     humanBodyUnavailablePart("leftTibia", left?.tibia, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightTibia", right?.tibia, "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftFibula", left?.fibula, "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightFibula", right?.fibula, "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftGastrocnemiusMedialHead", left?.tricepsSurae?.gastrocnemiusMedialHead, muscle),
-    humanBodyUnavailablePart("rightGastrocnemiusMedialHead", right?.tricepsSurae?.gastrocnemiusMedialHead, muscle),
-    humanBodyUnavailablePart("leftGastrocnemiusLateralHead", left?.tricepsSurae?.gastrocnemiusLateralHead, muscle),
-    humanBodyUnavailablePart("rightGastrocnemiusLateralHead", right?.tricepsSurae?.gastrocnemiusLateralHead, muscle),
+    humanBodyUnavailablePart(
+      "rightTibia",
+      right?.tibia,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "leftFibula",
+      left?.fibula,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "rightFibula",
+      right?.fibula,
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "leftGastrocnemiusMedialHead",
+      left?.tricepsSurae?.gastrocnemiusMedialHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightGastrocnemiusMedialHead",
+      right?.tricepsSurae?.gastrocnemiusMedialHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftGastrocnemiusLateralHead",
+      left?.tricepsSurae?.gastrocnemiusLateralHead,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightGastrocnemiusLateralHead",
+      right?.tricepsSurae?.gastrocnemiusLateralHead,
+      muscle,
+    ),
     humanBodyUnavailablePart("leftSoleus", left?.tricepsSurae?.soleus, muscle),
-    humanBodyUnavailablePart("rightSoleus", right?.tricepsSurae?.soleus, muscle),
-    humanBodyUnavailablePart("leftTibialisAnterior", left?.tibialisAnterior, muscle),
-    humanBodyUnavailablePart("rightTibialisAnterior", right?.tibialisAnterior, muscle),
-    humanBodyUnavailablePart("leftTibialisPosterior", left?.tibialisPosterior, muscle),
-    humanBodyUnavailablePart("rightTibialisPosterior", right?.tibialisPosterior, muscle),
+    humanBodyUnavailablePart(
+      "rightSoleus",
+      right?.tricepsSurae?.soleus,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftTibialisAnterior",
+      left?.tibialisAnterior,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightTibialisAnterior",
+      right?.tibialisAnterior,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "leftTibialisPosterior",
+      left?.tibialisPosterior,
+      muscle,
+    ),
+    humanBodyUnavailablePart(
+      "rightTibialisPosterior",
+      right?.tibialisPosterior,
+      muscle,
+    ),
   ];
 }

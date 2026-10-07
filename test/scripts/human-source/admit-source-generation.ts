@@ -25,19 +25,46 @@ import zlib from "node:zlib";
 import { admitHumanSourceP1 } from "./admitHumanSourceP1.ts";
 import { admitHumanSourcePersonViews } from "./admitHumanSourcePersonViews.ts";
 import { createHumanSourceAdmissionLog } from "./createHumanSourceAdmissionLog.ts";
-import type { IHumanSourceGeneration } from "./structures/IHumanSourceGeneration.ts";
 import { readHumanSourcePublication } from "./readHumanSourcePublication.ts";
+import type { IHumanSourceGeneration } from "./structures/IHumanSourceGeneration.ts";
 
 const compiled = process.argv[2];
-if (compiled === undefined) throw new Error("Usage: admit-source-generation.ts COMPILED");
-const admitted = readHumanSourcePublication(compiled, ["p1-face-basis.json.gz", "p1-body-basis.json.gz", "head.json.gz", "body.json.gz", "g1-generation.json.gz"]);
-const read = <T>(name: string): T => JSON.parse(zlib.gunzipSync(admitted.outputs.get(name)!).toString("utf8")) as T;
+if (compiled === undefined)
+  throw new Error("Usage: admit-source-generation.ts COMPILED");
+const admitted = readHumanSourcePublication(compiled, [
+  "p1-face-basis.json.gz",
+  "p1-body-basis.json.gz",
+  "head.json.gz",
+  "body.json.gz",
+  "g1-generation.json.gz",
+]);
+const read = <T>(name: string): T =>
+  JSON.parse(
+    zlib.gunzipSync(admitted.outputs.get(name)!).toString("utf8"),
+  ) as T;
 const face = read<IAutoMovieHumanFaceBasis>("p1-face-basis.json.gz");
 const body = read<IAutoMovieHumanBodyBasis>("p1-body-basis.json.gz");
 const head = read<IAutoMovieHumanPersonHeadView>("head.json.gz");
-if (head.id !== admitted.record.generation) throw new Error("Admitted source head and publication identities disagree.");
+if (head.id !== admitted.record.generation)
+  throw new Error("Admitted source head and publication identities disagree.");
 const log = createHumanSourceAdmissionLog();
-admitHumanSourceP1(log, face, body, read<IHumanSourceGeneration>("g1-generation.json.gz"));
-admitHumanSourcePersonViews(log, head, read<IAutoMovieHumanPersonBodyView>("body.json.gz"));
-fs.writeFileSync(path.join(compiled, "admission.json"), JSON.stringify({ face: face.id, body: body.id, generation: head.id, cases: log.cases }, null, 1) + "\n");
+admitHumanSourceP1(
+  log,
+  face,
+  body,
+  read<IHumanSourceGeneration>("g1-generation.json.gz"),
+);
+admitHumanSourcePersonViews(
+  log,
+  head,
+  read<IAutoMovieHumanPersonBodyView>("body.json.gz"),
+);
+fs.writeFileSync(
+  path.join(compiled, "admission.json"),
+  JSON.stringify(
+    { face: face.id, body: body.id, generation: head.id, cases: log.cases },
+    null,
+    1,
+  ) + "\n",
+);
 console.log(log.cases);

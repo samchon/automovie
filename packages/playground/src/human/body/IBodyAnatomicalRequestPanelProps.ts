@@ -1,6 +1,7 @@
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
+
 import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
 import type { IBodyAnatomicalRequestViewport } from "./IBodyAnatomicalRequestViewport";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Inputs of `mountBodyAnatomicalRequestPanel`.

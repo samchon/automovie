@@ -12,7 +12,9 @@ import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Gives every section the one intent order and refusal path of the panel.
  * @author Samchon
  */
-export interface IConnectedPersonSectionsProps<Model extends IConnectedPersonModel> {
+export interface IConnectedPersonSectionsProps<
+  Model extends IConnectedPersonModel,
+> {
   /** The element holding the mounted panel markup. */
   app: HTMLElement;
 

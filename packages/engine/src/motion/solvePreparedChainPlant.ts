@@ -1,7 +1,7 @@
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
+import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 
 /**
  * Solve one bend normal against prepared chain geometry and unchanged joint domains.
@@ -13,7 +13,9 @@ import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
  * @author Samchon
  */
 
-export const solvePreparedChainPlant = (props: ISolvePreparedChainPlantProps): IAutoMovieSolvedChainPlant | null => {
+export const solvePreparedChainPlant = (
+  props: ISolvePreparedChainPlantProps,
+): IAutoMovieSolvedChainPlant | null => {
   const { chain, upper, lower } = props.prepared;
 
   const articulation = twoBoneChainArticulation({

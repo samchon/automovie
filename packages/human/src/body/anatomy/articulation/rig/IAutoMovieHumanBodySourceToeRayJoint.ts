@@ -1,5 +1,5 @@
-import type { AutoMovieHumanBodySide } from "../../identity/AutoMovieHumanBodySide";
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
+import type { AutoMovieHumanBodySide } from "../../identity/AutoMovieHumanBodySide";
 import type { IAutoMovieHumanBodySourceJointAxis } from "./IAutoMovieHumanBodySourceJointAxis";
 
 /** A proximal source phalanx composes its ray motion on the foot's shared aggregate MTP frame in one graph evaluation. */

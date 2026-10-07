@@ -48,7 +48,9 @@ export function refineHumanFaceOralLining(
   maxEdgeMetres: number,
 ): number[] {
   if (!(maxEdgeMetres > 0) || !Number.isFinite(maxEdgeMetres))
-    throw new Error("Oral lining refinement needs a positive finite edge length.");
+    throw new Error(
+      "Oral lining refinement needs a positive finite edge length.",
+    );
   let current = [...indices];
   for (let pass = 0; pass < 64; pass++) {
     const midpoint = new Map<string, number>();

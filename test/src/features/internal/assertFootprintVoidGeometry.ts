@@ -1,12 +1,38 @@
-import { builtEnvironmentSpaceFidelity, footprintContains, footprintConvexPieces, footprintRing, footprintRingPlacement, measureAutoMovieQuantities, propSupportFace, propSupportGap, surfaceFootprint, surfaceHeightAt, tessellateSurface, validateSpace } from "@automovie/engine";
+import {
+  builtEnvironmentSpaceFidelity,
+  footprintContains,
+  footprintConvexPieces,
+  footprintRing,
+  footprintRingPlacement,
+  measureAutoMovieQuantities,
+  propSupportFace,
+  propSupportGap,
+  surfaceFootprint,
+  surfaceHeightAt,
+  tessellateSurface,
+  validateSpace,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";
 import { namedFacts, nclose } from "./predicates";
 
 /** Existing emitted-footprint, degeneracy and downstream-consumer checks on the unchanged source fixtures. */
-export const assertFootprintVoidGeometry = (props: IFootprintVoidGeometryProps): void => {
-  const { holed, holedSpace, plate, ell, diamond, relief, v, gallery, spaceOf, pieceArea } = props;
+export const assertFootprintVoidGeometry = (
+  props: IFootprintVoidGeometryProps,
+): void => {
+  const {
+    holed,
+    holedSpace,
+    plate,
+    ell,
+    diamond,
+    relief,
+    v,
+    gallery,
+    spaceOf,
+    pieceArea,
+  } = props;
   const drawn = tessellateSurface(plate)!;
   TestValidator.equals(
     "the drawn plate has the void open, exactly where the query says it is",

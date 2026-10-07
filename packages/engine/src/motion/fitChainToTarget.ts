@@ -15,11 +15,11 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
-import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
+import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
  * Fit one two-bone chain onto a world-space target without leaving the rig's
@@ -40,7 +40,9 @@ import { resolveBoneMap } from "./resolveBoneMap";
  * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Chooses the closest legal articulated solve under the rig's ROM controls.
  * @author Samchon
  */
-export const fitChainToTarget = (props: IFitChainToTargetProps): IAutoMoviePose => {
+export const fitChainToTarget = (
+  props: IFitChainToTargetProps,
+): IAutoMoviePose => {
   const prepared = prepareChainPlant(props);
   if (prepared === null) return props.pose;
   const solve = (
@@ -261,13 +263,20 @@ interface IPlantCandidateScore {
 }
 
 /** Best actual pose and its unchanged contact/continuity scores. */
-interface IPlantCandidate extends IPlantCandidateScore { pose: IAutoMoviePose; }
+interface IPlantCandidate extends IPlantCandidateScore {
+  pose: IAutoMoviePose;
+}
 
 /** Bend-plane parameter beside the contact/continuity scores it produced. */
-interface IPlantBendCandidate extends IPlantCandidateScore { angle: number; }
+interface IPlantBendCandidate extends IPlantCandidateScore {
+  angle: number;
+}
 
 /** Selected clinical joints read through the same prepared chain and frames. */
-interface IResolvedPreparedEffectorProps extends Pick<ISolvePreparedChainPlantProps, "prepared" | "jointAxes" | "restFrames"> {
+interface IResolvedPreparedEffectorProps extends Pick<
+  ISolvePreparedChainPlantProps,
+  "prepared" | "jointAxes" | "restFrames"
+> {
   upper: IAutoMovieJointPose;
   lower: IAutoMovieJointPose;
 }
@@ -324,9 +333,13 @@ const jointRotationDistance = (
   return angle * angle;
 };
 
-
 /** Resolve the pose-invariant chain data once for a bend-plane search. */
-const prepareChainPlant = (props: Pick<IFitChainToTargetProps, "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames">): IPreparedChainPlant | null => {
+const prepareChainPlant = (
+  props: Pick<
+    IFitChainToTargetProps,
+    "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
+  >,
+): IPreparedChainPlant | null => {
   const { chain } = props;
   // The limb at rest under the current parent pose: zero its own articulation
   // so the recovered world rotations carry the torso pose but not the limb's.
@@ -361,8 +374,22 @@ const prepareChainPlant = (props: Pick<IFitChainToTargetProps, "skeleton" | "pos
     chain,
     upper,
     lower,
-    upperDomain: { bone: chain.upper, constraint: getConstraint(chain.upper, props.skeleton.bones.find((bone) => bone.bone === chain.upper)?.constraint ?? null) },
-    lowerDomain: { bone: chain.lower, constraint: getConstraint(chain.lower, props.skeleton.bones.find((bone) => bone.bone === chain.lower)?.constraint ?? null) },
+    upperDomain: {
+      bone: chain.upper,
+      constraint: getConstraint(
+        chain.upper,
+        props.skeleton.bones.find((bone) => bone.bone === chain.upper)
+          ?.constraint ?? null,
+      ),
+    },
+    lowerDomain: {
+      bone: chain.lower,
+      constraint: getConstraint(
+        chain.lower,
+        props.skeleton.bones.find((bone) => bone.bone === chain.lower)
+          ?.constraint ?? null,
+      ),
+    },
     end: effector.worldPosition,
     hinge: Quaternion.rotateVector(
       lower.worldRotation,
@@ -396,7 +423,9 @@ const isDescendant = (
   );
 
 /** FK only the prepared chain after its two candidate joints are clamped. */
-const resolvedPreparedEffector = (props: IResolvedPreparedEffectorProps): IAutoMovieVector3 => {
+const resolvedPreparedEffector = (
+  props: IResolvedPreparedEffectorProps,
+): IAutoMovieVector3 => {
   const upperRotation = Quaternion.multiply(
     props.prepared.upper.worldRotation,
     jointToQuaternion(

@@ -2,6 +2,7 @@ import type {
   IAutoMovieHumanFaceBasisDocument,
   IPortraitIrisPigment,
 } from "@automovie/human";
+
 import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 
 /**

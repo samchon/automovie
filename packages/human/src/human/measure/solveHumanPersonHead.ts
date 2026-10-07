@@ -1,15 +1,15 @@
 import { solveHumanBodySimpleOffsets } from "../../body/simple/solveHumanBodySimpleOffsets";
-import { measureHumanFaceBasisChannels } from "../../face/channels/measureHumanFaceBasisChannels";
 import { HUMAN_HEAD_MEASUREMENTS } from "../../common/measure/HUMAN_HEAD_MEASUREMENTS";
+import { readHumanHeadMeasurement } from "../../common/measure/readHumanHeadMeasurement";
+import { measureHumanFaceBasisChannels } from "../../face/channels/measureHumanFaceBasisChannels";
 import { HUMAN_PERSON_HEAD_SOLVE } from "../constants/HUMAN_PERSON_HEAD_SOLVE";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonHeadSolution } from "../structures/IAutoMovieHumanPersonHeadSolution";
 import type { IAutoMovieHumanPersonHeadSolveProps } from "../structures/IAutoMovieHumanPersonHeadSolveProps";
+import type { IHumanPersonHeadCandidate } from "./IHumanPersonHeadCandidate";
 import { humanPersonHeadDeparture } from "./humanPersonHeadDeparture";
 import { measureHumanPersonHead } from "./measureHumanPersonHead";
-import { readHumanHeadMeasurement } from "../../common/measure/readHumanHeadMeasurement";
 import { readHumanPersonRestHead } from "./readHumanPersonRestHead";
-import type { IHumanPersonHeadCandidate } from "./IHumanPersonHeadCandidate";
 
 /** Half the 1 mm resolution ANSUR II records its head measurements at. */
 const RESOLUTION_METRES = 0.0005;
@@ -53,20 +53,33 @@ const RESOLUTION_METRES = 0.0005;
  * @evidenceExclude contracts/anatomy.md#permitted-range The channels' envelopes bound the solve; a target is not refused for lying outside the source population.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The solve converts measurements into existing channels; it defines no new input.
  */
-export function solveHumanPersonHead(props: IAutoMovieHumanPersonHeadSolveProps): IAutoMovieHumanPersonHeadSolution {
+export function solveHumanPersonHead(
+  props: IAutoMovieHumanPersonHeadSolveProps,
+): IAutoMovieHumanPersonHeadSolution {
   const { compiled, document, targets } = props;
   const face = compiled.generation.face;
   const { measurements, channels } = HUMAN_PERSON_HEAD_SOLVE;
   for (const name of measurements)
-    if (!Object.hasOwn(targets, name)) throw new Error(`The head solve needs a target for ${name}.`);
+    if (!Object.hasOwn(targets, name))
+      throw new Error(`The head solve needs a target for ${name}.`);
   for (const name of Object.keys(targets))
-    if (!measurements.includes(name) && !HUMAN_PERSON_HEAD_SOLVE.secondary.includes(name))
+    if (
+      !measurements.includes(name) &&
+      !HUMAN_PERSON_HEAD_SOLVE.secondary.includes(name)
+    )
       throw new Error(`The head solve does not pursue ${name}.`);
-  const pursued = HUMAN_PERSON_HEAD_SOLVE.secondary.filter((name) => Object.hasOwn(targets, name));
+  const pursued = HUMAN_PERSON_HEAD_SOLVE.secondary.filter((name) =>
+    Object.hasOwn(targets, name),
+  );
   const read = [...measurements, ...pursued];
   const envelopes = channels.map((id) => {
-    const channel = face.channels.find((one) => one.id === id && one.kind === "shape");
-    if (channel === undefined) throw new Error(`The head view of ${face.id} has no shape channel ${id}.`);
+    const channel = face.channels.find(
+      (one) => one.id === id && one.kind === "shape",
+    );
+    if (channel === undefined)
+      throw new Error(
+        `The head view of ${face.id} has no shape channel ${id}.`,
+      );
     return [channel.minimum, channel.maximum] as const;
   });
   const scales = measureHumanFaceBasisChannels(face);
@@ -81,14 +94,25 @@ export function solveHumanPersonHead(props: IAutoMovieHumanPersonHeadSolveProps)
   let closest: IHumanPersonHeadCandidate | undefined;
   const evaluate = (weights: readonly number[]): number[] | null => {
     const head = readHumanPersonRestHead(compiled, worn(weights));
-    const readings = read.map((name) => readHumanHeadMeasurement(head, HUMAN_HEAD_MEASUREMENTS[name]).metres);
-    const residual = readings.map((value, i) => (value - targets[read[i]]) / targets[read[i]]);
-    const merit = residual.slice(0, measurements.length).reduce((sum, value) => sum + value * value, 0);
-    if (closest === undefined || merit < closest.merit) closest = { merit, weights: [...weights], readings };
+    const readings = read.map(
+      (name) =>
+        readHumanHeadMeasurement(head, HUMAN_HEAD_MEASUREMENTS[name]).metres,
+    );
+    const residual = readings.map(
+      (value, i) => (value - targets[read[i]]) / targets[read[i]],
+    );
+    const merit = residual
+      .slice(0, measurements.length)
+      .reduce((sum, value) => sum + value * value, 0);
+    if (closest === undefined || merit < closest.merit)
+      closest = { merit, weights: [...weights], readings };
     return residual;
   };
   const met = (residual: readonly number[]): boolean =>
-    residual.every((value, i) => Math.abs(value * targets[measurements[i]]) <= RESOLUTION_METRES);
+    residual.every(
+      (value, i) =>
+        Math.abs(value * targets[measurements[i]]) <= RESOLUTION_METRES,
+    );
   const solved = solveHumanBodySimpleOffsets({
     ranges: envelopes,
     initial: evaluate(channels.map(() => 0)),
@@ -99,11 +123,20 @@ export function solveHumanPersonHead(props: IAutoMovieHumanPersonHeadSolveProps)
   });
   if (solved === null) {
     const best = closest!;
-    const limits = channels.filter((_, j) => best.weights[j] === envelopes[j][0] || best.weights[j] === envelopes[j][1]);
+    const limits = channels.filter(
+      (_, j) =>
+        best.weights[j] === envelopes[j][0] ||
+        best.weights[j] === envelopes[j][1],
+    );
     const mm = (metres: number): string => (metres * 1000).toFixed(2) + " mm";
     throw new Error(
       `The head solve of ${document.id} did not meet its targets: ` +
-        measurements.map((name, i) => `${name} ${mm(best.readings[i])} for ${mm(targets[name])}`).join(", ") +
+        measurements
+          .map(
+            (name, i) =>
+              `${name} ${mm(best.readings[i])} for ${mm(targets[name])}`,
+          )
+          .join(", ") +
         (limits.length > 0
           ? `; at their limits: ${limits.map((id) => `${id}=${best.weights[channels.indexOf(id)]}`).join(", ")}.`
           : "; no channel at its limit, so the iteration did not converge."),
@@ -113,6 +146,8 @@ export function solveHumanPersonHead(props: IAutoMovieHumanPersonHeadSolveProps)
   return {
     document: worn(solved),
     readings: measureHumanPersonHead(compiled, worn(solved)),
-    departureMetres: Math.sqrt(solved.reduce((sum, weight, j) => sum + (weight * departure[j]) ** 2, 0)),
+    departureMetres: Math.sqrt(
+      solved.reduce((sum, weight, j) => sum + (weight * departure[j]) ** 2, 0),
+    ),
   };
 }

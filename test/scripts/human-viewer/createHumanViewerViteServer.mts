@@ -14,7 +14,9 @@ import viewerConfig from "./vite.config.mjs";
  * @evidence contracts/common.md#principled-implementation The watcher the host subscribes to lives as long as the server.
  * @evidence contracts/common.md#meaningful-documentation States why no config file is used.
  */
-export function createHumanViewerViteServer(middleware: Connect.NextHandleFunction): Promise<ViteDevServer> {
+export function createHumanViewerViteServer(
+  middleware: Connect.NextHandleFunction,
+): Promise<ViteDevServer> {
   return createServer({
     ...viewerConfig,
     configFile: false,

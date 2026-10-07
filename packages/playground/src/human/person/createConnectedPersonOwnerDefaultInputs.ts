@@ -29,70 +29,107 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * @author Samchon
  */
 export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInputDescriptor[] {
-  const spaced = (name: string): string => name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
+  const spaced = (name: string): string =>
+    name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
   const sides = ["left", "right"] as const;
   const tissues = sides.flatMap((side) =>
     HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS.flatMap((tissue) => {
-      const seed = { inwardOffsetMm: tissue.inwardOffset.defaultMm, thicknessMm: tissue.thickness.defaultMm };
-      return ([
-        ["inwardOffsetMm", "inward offset from the lid skin", tissue.inwardOffset],
-        ["thicknessMm", "thickness", tissue.thickness],
-      ] as const).map(([member, label, scalar]): IConnectedPersonInputDescriptor => ({
-        path: ["face", "periocularTissues", side, tissue.tissue, member],
-        group: "Lid tissue shells · " + side,
-        label: spaced(tissue.tissue) + " " + label,
-        unit: "mm",
-        minimum: scalar.minimumMm,
-        maximum: scalar.maximumMm,
-        step: null,
-        ownerDefault: scalar.defaultMm,
-        seed,
-        omission: "an omitted whole tissue subtree uses registered-eye defaults; an explicit subtree emits only its stated tissue members",
-        removable: false,
-        qualification: scalar.kind + ": " + scalar.ground + " An authoring envelope, not a clinical range.",
-      }));
+      const seed = {
+        inwardOffsetMm: tissue.inwardOffset.defaultMm,
+        thicknessMm: tissue.thickness.defaultMm,
+      };
+      return (
+        [
+          [
+            "inwardOffsetMm",
+            "inward offset from the lid skin",
+            tissue.inwardOffset,
+          ],
+          ["thicknessMm", "thickness", tissue.thickness],
+        ] as const
+      ).map(
+        ([member, label, scalar]): IConnectedPersonInputDescriptor => ({
+          path: ["face", "periocularTissues", side, tissue.tissue, member],
+          group: "Lid tissue shells · " + side,
+          label: spaced(tissue.tissue) + " " + label,
+          unit: "mm",
+          minimum: scalar.minimumMm,
+          maximum: scalar.maximumMm,
+          step: null,
+          ownerDefault: scalar.defaultMm,
+          seed,
+          omission:
+            "an omitted whole tissue subtree uses registered-eye defaults; an explicit subtree emits only its stated tissue members",
+          removable: false,
+          qualification:
+            scalar.kind +
+            ": " +
+            scalar.ground +
+            " An authoring envelope, not a clinical range.",
+        }),
+      );
     }),
   );
   const brows = sides.flatMap((side) =>
-    Object.entries(HUMAN_FACE_BROW_POPULATION).flatMap(([member, value]): IConnectedPersonInputDescriptor[] =>
-      typeof value !== "number" || member === "segments" || member === "densitySeed"
-        ? []
-        : [
-            {
-              path: ["face", "brows", side, member],
-              group: "Brow shafts · " + side,
-              label: spaced(member),
-              unit: member === "strandCount" ? "count"
-                : member.endsWith("Degrees") ? "degrees"
-                    : ["taper", "rootLower", "rootUpper", "medialFade", "lateralFade"].includes(member) ? "fraction" : "mm",
-              minimum: null,
-              maximum: null,
-              step: member === "strandCount" ? 1 : null,
-              ownerDefault: value,
-              seed: HUMAN_FACE_BROW_POPULATION,
-              omission: "whole-section omission uses registered-band owner populations; explicit sparse sections retain source cards for omitted sides",
-              removable: member === "emergenceDegrees",
-              qualification: "The face owner's default brow population; the owner publishes no envelope per member, and its profile check admits the value.",
-            },
-          ],
+    Object.entries(HUMAN_FACE_BROW_POPULATION).flatMap(
+      ([member, value]): IConnectedPersonInputDescriptor[] =>
+        typeof value !== "number" ||
+        member === "segments" ||
+        member === "densitySeed"
+          ? []
+          : [
+              {
+                path: ["face", "brows", side, member],
+                group: "Brow shafts · " + side,
+                label: spaced(member),
+                unit:
+                  member === "strandCount"
+                    ? "count"
+                    : member.endsWith("Degrees")
+                      ? "degrees"
+                      : [
+                            "taper",
+                            "rootLower",
+                            "rootUpper",
+                            "medialFade",
+                            "lateralFade",
+                          ].includes(member)
+                        ? "fraction"
+                        : "mm",
+                minimum: null,
+                maximum: null,
+                step: member === "strandCount" ? 1 : null,
+                ownerDefault: value,
+                seed: HUMAN_FACE_BROW_POPULATION,
+                omission:
+                  "whole-section omission uses registered-band owner populations; explicit sparse sections retain source cards for omitted sides",
+                removable: member === "emergenceDegrees",
+                qualification:
+                  "The face owner's default brow population; the owner publishes no envelope per member, and its profile check admits the value.",
+              },
+            ],
     ),
   );
   const grain = sides.flatMap((side) =>
-    Object.entries(HUMAN_FACE_BROW_POPULATION.grain ?? {}).map(([member, value]): IConnectedPersonInputDescriptor => ({
-      path: ["face", "brows", side, "grain", member],
-      group: "Brow grain · " + side,
-      label: spaced(member),
-      unit: member.endsWith("Mm") ? "mm" : "dimensionless",
-      minimum: null,
-      maximum: null,
-      step: null,
-      ownerDefault: value,
-      seed: HUMAN_FACE_BROW_POPULATION,
-      seedPath: ["face", "brows", side],
-      omission: "whole-section omission uses registered-band owner populations; explicit sparse sections retain source cards for omitted sides",
-      removable: false,
-      qualification: "Named grain scalar from the face owner's authored default. No measured population envelope is supplied; the original profile admission decides support.",
-    })),
+    Object.entries(HUMAN_FACE_BROW_POPULATION.grain ?? {}).map(
+      ([member, value]): IConnectedPersonInputDescriptor => ({
+        path: ["face", "brows", side, "grain", member],
+        group: "Brow grain · " + side,
+        label: spaced(member),
+        unit: member.endsWith("Mm") ? "mm" : "dimensionless",
+        minimum: null,
+        maximum: null,
+        step: null,
+        ownerDefault: value,
+        seed: HUMAN_FACE_BROW_POPULATION,
+        seedPath: ["face", "brows", side],
+        omission:
+          "whole-section omission uses registered-band owner populations; explicit sparse sections retain source cards for omitted sides",
+        removable: false,
+        qualification:
+          "Named grain scalar from the face owner's authored default. No measured population envelope is supplied; the original profile admission decides support.",
+      }),
+    ),
   );
   return [...tissues, ...brows, ...grain];
 }

@@ -30,13 +30,29 @@ export function joinHumanPersonGeneration(
   body: IAutoMovieHumanPersonBodyView,
 ): IAutoMovieHumanPersonGeneration {
   if (head.id !== body.id)
-    throw new Error("The person head file (" + head.id + ") and body file (" + body.id + ") are different generations.");
-  const registered = (surfaces: readonly IAutoMovieHumanPersonSourceSurface[]): boolean =>
+    throw new Error(
+      "The person head file (" +
+        head.id +
+        ") and body file (" +
+        body.id +
+        ") are different generations.",
+    );
+  const registered = (
+    surfaces: readonly IAutoMovieHumanPersonSourceSurface[],
+  ): boolean =>
     surfaces.some((surface) => surface.sourcePartition?.generation === head.id);
   if (!registered(head.face.surfaces))
-    throw new Error("The person head file's face view is not registered on generation " + head.id + ".");
+    throw new Error(
+      "The person head file's face view is not registered on generation " +
+        head.id +
+        ".",
+    );
   if (!registered(body.body.surfaces))
-    throw new Error("The person body file's body view is not registered on generation " + head.id + ".");
+    throw new Error(
+      "The person body file's body view is not registered on generation " +
+        head.id +
+        ".",
+    );
   return {
     id: head.id,
     face: head.face,

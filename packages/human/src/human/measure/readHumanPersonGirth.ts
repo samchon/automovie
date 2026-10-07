@@ -1,8 +1,8 @@
 import type { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
 import { measureHumanSection } from "../../common/measure/measureHumanSection";
-import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanPersonGirthMeasurement } from "../structures/IAutoMovieHumanPersonGirthMeasurement";
 import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAutoMovieHumanPersonMeasurementReading";
 import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
@@ -44,9 +44,12 @@ export function readHumanPersonGirth(
   const to = landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
   const point = humanSkinLandmark(body, rule.landmark);
-  const sample = body.surfaces[point.surface].sourcePartition?.samples[point.vertex];
+  const sample =
+    body.surfaces[point.surface].sourcePartition?.samples[point.vertex];
   if (sample === undefined)
-    throw new Error(`The body view ${body.id} places ${rule.landmark} on no source sample of the generation.`);
+    throw new Error(
+      `The body view ${body.id} places ${rule.landmark} on no source sample of the generation.`,
+    );
   const skin = joinHumanPersonSkin(model, sample);
   if (skin === null) return null;
   const axis = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
@@ -56,9 +59,22 @@ export function readHumanPersonGirth(
   // the segment point on the plane seeds the loop choice
   const { anchor } = skin;
   const along =
-    (anchor.x - from.x) * normal.x + (anchor.y - from.y) * normal.y + (anchor.z - from.z) * normal.z;
-  const seed = { x: from.x + normal.x * along, y: from.y + normal.y * along, z: from.z + normal.z * along };
+    (anchor.x - from.x) * normal.x +
+    (anchor.y - from.y) * normal.y +
+    (anchor.z - from.z) * normal.z;
+  const seed = {
+    x: from.x + normal.x * along,
+    y: from.y + normal.y * along,
+    z: from.z + normal.z * along,
+  };
   const plane = { point: anchor, normal };
-  const section = measureHumanSection(skin.positions, skin.indices, plane, seed, undefined, skin.physicalVertices);
+  const section = measureHumanSection(
+    skin.positions,
+    skin.indices,
+    plane,
+    seed,
+    undefined,
+    skin.physicalVertices,
+  );
   return section === null ? null : { metres: section.girth, section, plane };
 }

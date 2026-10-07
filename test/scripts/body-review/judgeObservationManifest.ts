@@ -1,7 +1,7 @@
-import { OBSERVATION_MANIFEST_SCHEMA } from "./OBSERVATION_MANIFEST_SCHEMA";
+import type { IBodyObservationJudgment } from "./IBodyObservationJudgment";
 import type { IBodyObservationManifestIdentity } from "./IBodyObservationManifestIdentity";
 import type { IBodyObservationSource } from "./IBodyObservationSource";
-import type { IBodyObservationJudgment } from "./IBodyObservationJudgment";
+import { OBSERVATION_MANIFEST_SCHEMA } from "./OBSERVATION_MANIFEST_SCHEMA";
 
 /**
  * Whether an observation manifest still describes the current source.

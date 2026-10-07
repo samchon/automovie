@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
-import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
-import { humanFaceHairSequence } from "./humanFaceHairSequence";
-import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
 import type { IHumanFaceHairRootPopulation } from "./IHumanFaceHairRootPopulation";
 import type { IHumanFaceHairRootSamplingProps } from "./IHumanFaceHairRootSamplingProps";
 import type { IHumanFaceHairSampledRoot } from "./IHumanFaceHairSampledRoot";
+import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
+import { humanFaceHairSequence } from "./humanFaceHairSequence";
+import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
 
 /**
  * Compile the neutral area measure of one shared anatomical growth domain.
@@ -84,7 +84,9 @@ import type { IHumanFaceHairSampledRoot } from "./IHumanFaceHairSampledRoot";
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function createHumanFaceHairRoots(props: IHumanFaceHairRootSamplingProps) {
+export function createHumanFaceHairRoots(
+  props: IHumanFaceHairRootSamplingProps,
+) {
   const origin = Vector3.create(...props.origin);
   let area = 0;
   const triangles = props.triangles.map((triangle) => {

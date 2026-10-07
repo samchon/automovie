@@ -13,7 +13,17 @@ import type { IAutoMovieHumanFacePeriocularTissueSection } from "./IAutoMovieHum
  */
 export interface IAutoMovieHumanFacePeriocularTissues {
   /** Anatomical left tissue dimensions. */
-  left?: Partial<Record<AutoMovieHumanFacePeriocularTissue, IAutoMovieHumanFacePeriocularTissueSection>>;
+  left?: Partial<
+    Record<
+      AutoMovieHumanFacePeriocularTissue,
+      IAutoMovieHumanFacePeriocularTissueSection
+    >
+  >;
   /** Anatomical right tissue dimensions. */
-  right?: Partial<Record<AutoMovieHumanFacePeriocularTissue, IAutoMovieHumanFacePeriocularTissueSection>>;
+  right?: Partial<
+    Record<
+      AutoMovieHumanFacePeriocularTissue,
+      IAutoMovieHumanFacePeriocularTissueSection
+    >
+  >;
 }

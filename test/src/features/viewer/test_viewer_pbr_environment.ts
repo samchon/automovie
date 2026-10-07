@@ -1,18 +1,15 @@
-import { assertViewerPbrDeclarationRefusals } from "../internal/assertViewerPbrDeclarationRefusals";
-import { assertViewerEnvironmentState } from "../internal/assertViewerEnvironmentState";
 import { validateModel } from "@automovie/engine";
 import {
   IAutoMovieMaterial,
   IAutoMovieSceneEnvironment,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import {
-  buildGeometry,
-  buildMaterial,
-} from "@automovie/viewer";
+import { buildGeometry, buildMaterial } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { assertViewerEnvironmentState } from "../internal/assertViewerEnvironmentState";
+import { assertViewerPbrDeclarationRefusals } from "../internal/assertViewerPbrDeclarationRefusals";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 

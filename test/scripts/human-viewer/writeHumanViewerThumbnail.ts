@@ -10,7 +10,10 @@ import path from "node:path";
  * @evidence contracts/common.md#principled-implementation A per-process temporary file and rename never expose partial bytes.
  * @evidence contracts/common.md#meaningful-documentation States the atomicity it serves and the folder ownership.
  */
-export async function writeHumanViewerThumbnail(file: string, png: Buffer): Promise<void> {
+export async function writeHumanViewerThumbnail(
+  file: string,
+  png: Buffer,
+): Promise<void> {
   await fs.promises.mkdir(path.dirname(file), { recursive: true });
   const temporary = `${file}.${process.pid}.tmp`;
   await fs.promises.writeFile(temporary, png);

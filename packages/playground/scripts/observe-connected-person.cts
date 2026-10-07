@@ -76,27 +76,38 @@ const BUTTONS = ["undo", "redo", "reset", "discard", "save", "glb"] as const;
 
 const readState = (page: Page): Promise<IPersonPageState> =>
   page.evaluate((buttons: readonly string[]): IPersonPageState => {
-    const text = (selector: string): string | null => document.querySelector(selector)?.textContent ?? null;
+    const text = (selector: string): string | null =>
+      document.querySelector(selector)?.textContent ?? null;
     const status = document.querySelector<HTMLElement>("#person-status");
     return {
       status: status?.textContent ?? null,
       state: status?.dataset.state ?? null,
       disabled: Object.fromEntries(
-        buttons.map((name) => [name, document.querySelector<HTMLButtonElement>("#person-" + name)?.disabled ?? true]),
+        buttons.map((name) => [
+          name,
+          document.querySelector<HTMLButtonElement>("#person-" + name)
+            ?.disabled ?? true,
+        ]),
       ),
-      document: document.querySelector<HTMLTextAreaElement>("#document-json")?.value ?? null,
+      document:
+        document.querySelector<HTMLTextAreaElement>("#document-json")?.value ??
+        null,
       admission: text("#admission-report pre"),
       unapplied: text("#document-unapplied"),
     };
   }, BUTTONS);
 
-const settle = async (page: Page, seconds: number): Promise<IPersonPageState & Pick<IPersonObservation, "settled">> => {
+const settle = async (
+  page: Page,
+  seconds: number,
+): Promise<IPersonPageState & Pick<IPersonObservation, "settled">> => {
   const limit = Date.now() + seconds * 1000;
   // let the click's own status change land before the first read
   await page.waitForTimeout(400);
   for (;;) {
     const state = await readState(page);
-    if (state.state !== null && state.state !== "building") return { ...state, settled: true };
+    if (state.state !== null && state.state !== "building")
+      return { ...state, settled: true };
     if (Date.now() > limit) return { ...state, settled: false };
     await page.waitForTimeout(700);
   }
@@ -113,7 +124,8 @@ const act = async (page: Page, step: string): Promise<void> => {
   if (kind === "text") {
     const text = fs.readFileSync(value, "utf8");
     await page.evaluate((next: string) => {
-      const area = document.querySelector<HTMLTextAreaElement>("#document-json")!;
+      const area =
+        document.querySelector<HTMLTextAreaElement>("#document-json")!;
       area.closest("details")!.open = true;
       area.value = next;
       area.dispatchEvent(new Event("input", { bubbles: true }));
@@ -127,10 +139,15 @@ const act = async (page: Page, step: string): Promise<void> => {
     const leaf = row.split("/").at(-1)!.split(".").at(-1)!;
     await page
       .locator('[data-role="input-catalogue"] input[type=search]')
-      .fill(leaf.replace(/([a-z])([A-Z])/gu, "$1 $2").replace(/(Mm|Degrees)$/u, ""));
+      .fill(
+        leaf.replace(/([a-z])([A-Z])/gu, "$1 $2").replace(/(Mm|Degrees)$/u, ""),
+      );
     const target = page.locator('[data-path="' + row + '"]');
-    if (kind === "set") await target.locator("input[type=number]").fill(value.slice(colon + 1));
-    await target.locator("button", { hasText: kind === "set" ? "Apply" : "Remove" }).click();
+    if (kind === "set")
+      await target.locator("input[type=number]").fill(value.slice(colon + 1));
+    await target
+      .locator("button", { hasText: kind === "set" ? "Apply" : "Remove" })
+      .click();
     return;
   }
   if (kind === "click" && (BUTTONS as readonly string[]).includes(value)) {
@@ -142,19 +159,26 @@ const act = async (page: Page, step: string): Promise<void> => {
 
 const main = async (): Promise<void> => {
   const [out, ...rest] = process.argv.slice(2).filter((one) => one !== "--");
-  if (out === undefined) throw new Error("Usage: observe-connected-person <record.json> [key=value...] <step>...");
+  if (out === undefined)
+    throw new Error(
+      "Usage: observe-connected-person <record.json> [key=value...] <step>...",
+    );
   const options = new Map<string, string>();
   const steps: string[] = [];
   for (const one of rest) {
     const key = one.split("=")[0];
-    if (["base", "head", "body", "wait", "note"].includes(key)) options.set(key, one.slice(key.length + 1));
+    if (["base", "head", "body", "wait", "note"].includes(key))
+      options.set(key, one.slice(key.length + 1));
     else steps.push(one);
   }
   const source = new URLSearchParams();
   if (options.has("head")) source.set("headSource", options.get("head")!);
   if (options.has("body")) source.set("bodySource", options.get("body")!);
   const query = source.toString();
-  const url = (options.get("base") ?? "http://127.0.0.1:5173") + "/connected-person.html" + (query === "" ? "" : "?" + query);
+  const url =
+    (options.get("base") ?? "http://127.0.0.1:5173") +
+    "/connected-person.html" +
+    (query === "" ? "" : "?" + query);
   const seconds = Number(options.get("wait") ?? "240");
   const record: IPersonRecord = {
     url,
@@ -168,38 +192,65 @@ const main = async (): Promise<void> => {
   };
   const directory = path.dirname(path.resolve(out));
   const stem = path.basename(out).replace(/\.json$/u, "");
-  const save = (): void => fs.writeFileSync(out, JSON.stringify(record, null, 2));
+  const save = (): void =>
+    fs.writeFileSync(out, JSON.stringify(record, null, 2));
   const browser = await chromium.launch({
     executablePath: DEFAULT_CHROME_EXECUTABLE,
     headless: true,
     args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
   });
   try {
-    const context = await browser.newContext({ viewport: { width: 1500, height: 950 }, acceptDownloads: true });
+    const context = await browser.newContext({
+      viewport: { width: 1500, height: 950 },
+      acceptDownloads: true,
+    });
     const page = await context.newPage();
-    page.on("pageerror", (error) => record.pageErrors.push(String(error.stack ?? error).slice(0, 900)));
+    page.on("pageerror", (error) =>
+      record.pageErrors.push(String(error.stack ?? error).slice(0, 900)),
+    );
     const saved: Promise<IPersonDownload>[] = [];
     page.on("download", (download: Download) => {
       saved.push(
         (async (): Promise<IPersonDownload> => {
-          const file = path.join(directory, stem + "-" + saved.length + "-" + download.suggestedFilename());
+          const file = path.join(
+            directory,
+            stem + "-" + saved.length + "-" + download.suggestedFilename(),
+          );
           await download.saveAs(file);
           const bytes = fs.readFileSync(file);
-          return { name: download.suggestedFilename(), bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+          return {
+            name: download.suggestedFilename(),
+            bytes: bytes.length,
+            sha256: createHash("sha256").update(bytes).digest("hex"),
+          };
         })(),
       );
     });
     let taken = 0;
-    const observe = async (step: string, started: number, state: IPersonPageState, settled: boolean): Promise<void> => {
+    const observe = async (
+      step: string,
+      started: number,
+      state: IPersonPageState,
+      settled: boolean,
+    ): Promise<void> => {
       // a file the page is still writing belongs to this step
       await page.waitForTimeout(1500);
       const downloads = await Promise.all(saved.slice(taken));
       taken = saved.length;
-      record.observations.push({ step, at: new Date().toISOString(), settledAfterMs: Date.now() - started, settled, downloads, ...state });
+      record.observations.push({
+        step,
+        at: new Date().toISOString(),
+        settledAfterMs: Date.now() - started,
+        settled,
+        downloads,
+        ...state,
+      });
       save();
     };
     await page.goto(url, { waitUntil: "domcontentloaded" });
-    await page.locator("#person-file").waitFor({ state: "attached", timeout: 180_000 });
+    await page
+      .locator("#person-file")
+      .waitFor({ state: "attached", timeout: 180_000 });
     await observe("mounted", Date.now(), await readState(page), false);
     if (steps.length === 0) steps.push("wait");
     for (const step of steps) {
@@ -210,17 +261,29 @@ const main = async (): Promise<void> => {
       const { settled, ...state } = await settle(page, seconds);
       if (step === "click=glb") {
         const limit = Date.now() + seconds * 1000;
-        while (saved.length === before && Date.now() < limit) await page.waitForTimeout(1000);
+        while (saved.length === before && Date.now() < limit)
+          await page.waitForTimeout(1000);
       }
-      await observe(step, started, step === "click=glb" ? await readState(page) : state, settled);
+      await observe(
+        step,
+        started,
+        step === "click=glb" ? await readState(page) : state,
+        settled,
+      );
     }
     record.renderer = await page.evaluate((): string | null => {
       const gl = document.createElement("canvas").getContext("webgl2");
       const info = gl?.getExtension("WEBGL_debug_renderer_info");
-      return gl === null || gl === undefined ? null : String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+      return gl === null || gl === undefined
+        ? null
+        : String(
+            gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+          );
     });
   } catch (error) {
-    record.failure = String(error instanceof Error ? (error.stack ?? error.message) : error).slice(0, 1500);
+    record.failure = String(
+      error instanceof Error ? (error.stack ?? error.message) : error,
+    ).slice(0, 1500);
   } finally {
     record.finished = new Date().toISOString();
     save();

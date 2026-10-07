@@ -1,4 +1,5 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
+
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 
 /**

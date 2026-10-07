@@ -37,5 +37,4 @@ export interface IAutoMovieHumanFaceHairFinish {
 
   /** Unpigmented fraction in [0,1]; omitted means zero. */
   grey?: number;
-
 }

@@ -16,6 +16,12 @@ import type { AutoMovieHumanPersonHeadShapeField } from "../structures/AutoMovie
  * @evidence contracts/modeling.md#spatial-conventions Degrees for inclination differences, millimetres for other source-neutral differences.
  * @evidence contracts/anatomy.md#parametric-authority Only the closed head trait set selects a source unit.
  */
-export function humanPersonHeadShapeFieldUnit(field: AutoMovieHumanPersonHeadShapeField): "mm" | "degree" {
-  return field === "cranial.foreheadInclination" || field === "ears.left.pinnaInclination" || field === "ears.right.pinnaInclination" ? "degree" : "mm";
+export function humanPersonHeadShapeFieldUnit(
+  field: AutoMovieHumanPersonHeadShapeField,
+): "mm" | "degree" {
+  return field === "cranial.foreheadInclination" ||
+    field === "ears.left.pinnaInclination" ||
+    field === "ears.right.pinnaInclination"
+    ? "degree"
+    : "mm";
 }

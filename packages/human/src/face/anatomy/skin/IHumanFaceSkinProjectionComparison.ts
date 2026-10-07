@@ -50,7 +50,10 @@ export interface IHumanFaceSkinProjectionComparison {
    * @evidenceExclude contracts/anatomy.md#permitted-range This is a numerical domain, not a clinical interval.
    * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no sculpting control.
    */
-  partition(lower: number, upper: number): readonly IHumanFaceSkinProjectionOwnership[];
+  partition(
+    lower: number,
+    upper: number,
+  ): readonly IHumanFaceSkinProjectionOwnership[];
 
   /**
    * Negative means the first feature is nearer; zero is an exact distance tie.

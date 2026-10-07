@@ -10,7 +10,12 @@ export interface IHumanSourcePublication {
   /** Owned digest records of every successful output write, including receipts. */
   files(): Record<string, IHumanSourceSampleFile>;
   /** Reobserve every output and atomically commit its explicit qualification. */
-  complete(generation: string, completeGeneration: boolean, inspectionOnly: boolean, verifyInputs: () => void): void;
+  complete(
+    generation: string,
+    completeGeneration: boolean,
+    inspectionOnly: boolean,
+    verifyInputs: () => void,
+  ): void;
   /** Retain all candidate bytes and atomically record the actual refusal. */
   refuse(error: unknown): void;
 }

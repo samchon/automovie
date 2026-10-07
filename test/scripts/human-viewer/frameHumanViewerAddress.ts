@@ -18,7 +18,10 @@ export function frameHumanViewerAddress(
   group: THREE.Group,
   address: HumanViewerAddress,
 ): void {
-  if (address.frame === null && (address.parts.length !== 0 || address.zoom !== 1)) {
+  if (
+    address.frame === null &&
+    (address.parts.length !== 0 || address.zoom !== 1)
+  ) {
     const box = frameHumanViewerParts(group, address.parts);
     stage.observe.frame({
       center: box.center,

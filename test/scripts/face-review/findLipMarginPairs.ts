@@ -1,8 +1,8 @@
-import type { IFindLipMarginPairsProps } from "./IFindLipMarginPairsProps";
-import type { IFindLipMarginPairsResult } from "./IFindLipMarginPairsResult";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
 
 import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
+import type { IFindLipMarginPairsProps } from "./IFindLipMarginPairsProps";
+import type { IFindLipMarginPairsResult } from "./IFindLipMarginPairsResult";
 
 /**
  * The station anchors of a lips region's vermilion margin chains, from the
@@ -20,15 +20,25 @@ import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
  * direction (basis Y-up without its axis component) within half a station.
  * The station spacing is a stated sampling convention.
  */
-export function findLipMarginPairs(props: IFindLipMarginPairsProps): IFindLipMarginPairsResult {
+export function findLipMarginPairs(
+  props: IFindLipMarginPairsProps,
+): IFindLipMarginPairsResult {
   const { surface, region, axis, stationMetres } = props;
   const p = surface.positions;
-  const raisedLength = Math.hypot(-axis[0] * axis[1], 1 - axis[1] * axis[1], -axis[2] * axis[1]);
-  const up = [-axis[0] * axis[1], 1 - axis[1] * axis[1], -axis[2] * axis[1]].map(
-    (value) => value / raisedLength,
+  const raisedLength = Math.hypot(
+    -axis[0] * axis[1],
+    1 - axis[1] * axis[1],
+    -axis[2] * axis[1],
   );
-  const along = (v: number) => p[3 * v] * axis[0] + p[3 * v + 1] * axis[1] + p[3 * v + 2] * axis[2];
-  const height = (v: number) => p[3 * v] * up[0] + p[3 * v + 1] * up[1] + p[3 * v + 2] * up[2];
+  const up = [
+    -axis[0] * axis[1],
+    1 - axis[1] * axis[1],
+    -axis[2] * axis[1],
+  ].map((value) => value / raisedLength);
+  const along = (v: number) =>
+    p[3 * v] * axis[0] + p[3 * v + 1] * axis[1] + p[3 * v + 2] * axis[2];
+  const height = (v: number) =>
+    p[3 * v] * up[0] + p[3 * v + 1] * up[1] + p[3 * v + 2] * up[2];
   const components = (limit: number): number[][] => {
     const adjacency = new Map<number, number[]>();
     for (let t = 0; t < region.length; t += 3) {
@@ -65,22 +75,29 @@ export function findLipMarginPairs(props: IFindLipMarginPairsProps): IFindLipMar
     parts = components(limit);
   }
   if (parts.length < 2)
-    throw new Error(`${surface.id}: the lips region never separates into upper and lower vermilion.`);
+    throw new Error(
+      `${surface.id}: the lips region never separates into upper and lower vermilion.`,
+    );
   const mean = (component: number[]) =>
     component.reduce((total, v) => total + height(v), 0) / component.length;
   const [upper, lower] =
-    mean(parts[0]) > mean(parts[1]) ? [parts[0], parts[1]] : [parts[1], parts[0]];
+    mean(parts[0]) > mean(parts[1])
+      ? [parts[0], parts[1]]
+      : [parts[1], parts[0]];
   const pairs: IFaceLipMarginAnchor[] = [];
   for (const sign of [-1, 1])
     for (let k = 1; k * stationMetres < limit - stationMetres / 2; k++) {
       const station = sign * k * stationMetres;
-      const near = (v: number) => Math.abs(along(v) - station) <= stationMetres / 2;
+      const near = (v: number) =>
+        Math.abs(along(v) - station) <= stationMetres / 2;
       const top = upper.filter(near);
       const bottom = lower.filter(near);
       if (top.length === 0 || bottom.length === 0) continue;
       pairs.push({
         upper: top.reduce((best, v) => (height(v) < height(best) ? v : best)),
-        lower: bottom.reduce((best, v) => (height(v) > height(best) ? v : best)),
+        lower: bottom.reduce((best, v) =>
+          height(v) > height(best) ? v : best,
+        ),
       });
     }
   return { pairs, limitMetres: limit };

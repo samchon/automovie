@@ -48,31 +48,83 @@ export function resolveHumanBodyTrunkParts(
   const ribs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
   return [
     ...([1, 2, 3, 4, 5, 6, 7] as const).map((n) =>
-      humanBodyUnavailablePart(`c${n}` as const, [spine?.cervical?.[`c${n}`], curvature], bone),
+      humanBodyUnavailablePart(
+        `c${n}` as const,
+        [spine?.cervical?.[`c${n}`], curvature],
+        bone,
+      ),
     ),
     ...ribs.map((n) =>
-      humanBodyUnavailablePart(`t${n}` as const, [spine?.thoracic?.[`t${n}`], curvature], bone),
+      humanBodyUnavailablePart(
+        `t${n}` as const,
+        [spine?.thoracic?.[`t${n}`], curvature],
+        bone,
+      ),
     ),
     ...([1, 2, 3, 4, 5] as const).map((n) =>
-      humanBodyUnavailablePart(`l${n}` as const, [spine?.lumbar?.[`l${n}`], curvature], bone),
+      humanBodyUnavailablePart(
+        `l${n}` as const,
+        [spine?.lumbar?.[`l${n}`], curvature],
+        bone,
+      ),
     ),
     humanBodyUnavailablePart("sternum", [cage?.sternum, whole], bone),
     ...sides.flatMap((side) => {
       const muscles = trunk?.[`${side}Muscles`];
       return [
         ...ribs.map((n) =>
-          humanBodyUnavailablePart(`${side}Rib${n}` as const, [cage?.[`${side}Ribs`]?.[`rib${n}`], whole], bone),
+          humanBodyUnavailablePart(
+            `${side}Rib${n}` as const,
+            [cage?.[`${side}Ribs`]?.[`rib${n}`], whole],
+            bone,
+          ),
         ),
-        humanBodyUnavailablePart(`${side}CostalCartilages` as const, cage?.[`${side}CostalCartilages`], tissue),
-        humanBodyUnavailablePart(`${side}PectoralisMajor` as const, muscles?.pectoralisMajor, tissue),
-        humanBodyUnavailablePart(`${side}RectusAbdominis` as const, muscles?.rectusAbdominis, tissue),
-        humanBodyUnavailablePart(`${side}ExternalOblique` as const, muscles?.externalOblique, tissue),
-        humanBodyUnavailablePart(`${side}InternalOblique` as const, muscles?.internalOblique, tissue),
-        humanBodyUnavailablePart(`${side}LatissimusDorsi` as const, muscles?.latissimusDorsi, tissue),
-        humanBodyUnavailablePart(`${side}Trapezius` as const, muscles?.trapezius, tissue),
-        humanBodyUnavailablePart(`${side}ExternalObliqueAponeurosis` as const, muscles?.externalObliqueAponeurosis, tissue),
+        humanBodyUnavailablePart(
+          `${side}CostalCartilages` as const,
+          cage?.[`${side}CostalCartilages`],
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}PectoralisMajor` as const,
+          muscles?.pectoralisMajor,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}RectusAbdominis` as const,
+          muscles?.rectusAbdominis,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}ExternalOblique` as const,
+          muscles?.externalOblique,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}InternalOblique` as const,
+          muscles?.internalOblique,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}LatissimusDorsi` as const,
+          muscles?.latissimusDorsi,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Trapezius` as const,
+          muscles?.trapezius,
+          tissue,
+        ),
+        humanBodyUnavailablePart(
+          `${side}ExternalObliqueAponeurosis` as const,
+          muscles?.externalObliqueAponeurosis,
+          tissue,
+        ),
       ];
     }),
-    humanBodyUnavailablePart("abdominalVisceralAdipose", trunk?.abdominalAdipose, tissue),
+    humanBodyUnavailablePart(
+      "abdominalVisceralAdipose",
+      trunk?.abdominalAdipose,
+      tissue,
+    ),
   ];
 }

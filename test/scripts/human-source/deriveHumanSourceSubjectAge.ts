@@ -14,20 +14,51 @@ import type { IHumanSourceSubjectAge } from "./structures/IHumanSourceSubjectAge
  * document that omits the age axis means zero by the document convention and
  * is carried as zero, not filled in.
  */
-export function deriveHumanSourceSubjectAge(ageYears: number | undefined, approximate: boolean, face: number | undefined): IHumanSourceSubjectAge {
+export function deriveHumanSourceSubjectAge(
+  ageYears: number | undefined,
+  approximate: boolean,
+  face: number | undefined,
+): IHumanSourceSubjectAge {
   if (ageYears !== undefined) {
-    const term = HUMAN_BODY_SIMPLE_SHAPE.terms.find((t) => t.channel === HUMAN_PERSON_POPULATION.ageChannel.body);
+    const term = HUMAN_BODY_SIMPLE_SHAPE.terms.find(
+      (t) => t.channel === HUMAN_PERSON_POPULATION.ageChannel.body,
+    );
     const curve = term?.curves.find((c) => c.parameter === "ageYears");
-    if (term === undefined || curve === undefined) throw new Error("The body simple tier has no macroAge age curve.");
+    if (term === undefined || curve === undefined)
+      throw new Error("The body simple tier has no macroAge age curve.");
     return {
-      macroAge: term.gain * humanBodySimpleShapeMath.curve(curve.points as [number, number][], ageYears),
+      macroAge:
+        term.gain *
+        humanBodySimpleShapeMath.curve(
+          curve.points as [number, number][],
+          ageYears,
+        ),
       path: "subject-facts age through the body age curve",
       note: `${ageYears} years${approximate ? " (approximate in subject-facts)" : ""}`,
     };
   }
-  if (face === undefined) return { macroAge: 0, path: "face value omitted (zero by document convention)", note: "the face document omits globalAgeStructure, which the document reads as zero" };
-  if (face >= 0) return { macroAge: face, path: "face value inverse (unique)", note: `face ${face}` };
+  if (face === undefined)
+    return {
+      macroAge: 0,
+      path: "face value omitted (zero by document convention)",
+      note: "the face document omits globalAgeStructure, which the document reads as zero",
+    };
+  if (face >= 0)
+    return {
+      macroAge: face,
+      path: "face value inverse (unique)",
+      note: `face ${face}`,
+    };
   const { bodyChildNode, faceChildNode } = HUMAN_PERSON_POPULATION;
-  if (face > -1) return { macroAge: (face * (0.5 - faceChildNode)) / (0.5 - bodyChildNode), path: "face value inverse (unique)", note: `face ${face}` };
-  return { macroAge: null, path: "refused", note: `face ${face} is the face's youngest end, which every body younger than it maps to; no unique body age` };
+  if (face > -1)
+    return {
+      macroAge: (face * (0.5 - faceChildNode)) / (0.5 - bodyChildNode),
+      path: "face value inverse (unique)",
+      note: `face ${face}`,
+    };
+  return {
+    macroAge: null,
+    path: "refused",
+    note: `face ${face} is the face's youngest end, which every body younger than it maps to; no unique body age`,
+  };
 }

@@ -33,14 +33,20 @@ const load = (): Promise<unknown> => {
   if (role === "body-simple") return import("./connected-body-simple-worker");
   if (role === "face") return import("./connected-face-worker");
   if (role === "person") return import("./connected-person-worker");
-  return Promise.reject(new Error("The human worker has no role named " + String(role) + "."));
+  return Promise.reject(
+    new Error("The human worker has no role named " + String(role) + "."),
+  );
 };
 void load()
   .then(() => {
     // the role installed its handler while its module was evaluated
     const handler = scope.onmessage;
     if (handler === hold || handler === null)
-      throw new Error("The human worker role " + String(role) + " installed no message handler.");
+      throw new Error(
+        "The human worker role " +
+          String(role) +
+          " installed no message handler.",
+      );
     for (const event of held.splice(0)) handler.call(scope, event);
   })
   .catch((error: unknown) => {

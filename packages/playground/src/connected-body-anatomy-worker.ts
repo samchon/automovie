@@ -7,20 +7,27 @@
  * quantities (`createConnectedBodyAnatomyRuntime`). Whole-person readings use
  * that same loaded body view and its admitted companion head.
  */
-import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { createConnectedBodyAnatomyRuntime } from "./human/body/createConnectedBodyAnatomyRuntime";
-import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
 import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./human/body/ConnectedBodyResult";
 import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
+import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
+import { createConnectedBodyAnatomyRuntime } from "./human/body/createConnectedBodyAnatomyRuntime";
+import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const handle = createHumanResidentHandler<ConnectedBodyRequest, ConnectedBodyResult>({
-  prepare: Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, view]) =>
-    createConnectedBodyAnatomyRuntime(view.body, createConnectedBodySimpleWhole(head, view)),
+const handle = createHumanResidentHandler<
+  ConnectedBodyRequest,
+  ConnectedBodyResult
+>({
+  prepare: Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(
+    ([head, view]) =>
+      createConnectedBodyAnatomyRuntime(
+        view.body,
+        createConnectedBodySimpleWhole(head, view),
+      ),
   ),
   send: (reply) =>
     scope.postMessage(reply, {

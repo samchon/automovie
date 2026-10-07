@@ -95,14 +95,23 @@ export function validateHumanPersonSourcePartitions(
       parent: point.parent,
       coordinates: [...point.coordinates] as [number, number],
     })),
-    parentNormalDomains: record.parentNormalDomains === undefined ? undefined : [...record.parentNormalDomains],
-    normalParents: record.normalParents === undefined ? undefined : [...record.normalParents],
+    parentNormalDomains:
+      record.parentNormalDomains === undefined
+        ? undefined
+        : [...record.parentNormalDomains],
+    normalParents:
+      record.normalParents === undefined
+        ? undefined
+        : [...record.normalParents],
     samples: [...record.samples],
     parents: [...record.parents],
   });
   const captured = [copy(face), copy(body)];
   const source = captured[0];
-  const sampleCount = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
+  const sampleCount =
+    source.originalVertices +
+    source.intersections.length +
+    (source.refinements?.length ?? 0);
   const chart = createHumanPersonSourceChart(source);
   const preimage = createHumanPersonSourcePreimage(chart);
   validateHumanPersonSourceCoverage({

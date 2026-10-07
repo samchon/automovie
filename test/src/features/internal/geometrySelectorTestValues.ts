@@ -1,6 +1,6 @@
 import { AutoMovieGeometryQuery } from "@automovie/interface";
-import { geometrySelectorTestAsk as ask } from "./geometrySelectorTestAsk";
 
+import { geometrySelectorTestAsk as ask } from "./geometrySelectorTestAsk";
 
 /** Read measurement values and refuse an unexpected result kind. */
 export const geometrySelectorTestValues = (

@@ -66,7 +66,10 @@ export namespace IAutoMovieHumanBodyUnderwear {
     landmarks: IAutoMovieHumanBodyUnderwearLandmarks;
 
     /** The briefs of each style. */
-    briefs: Record<IAutoMovieHumanBodyUnderwear["style"], IAutoMovieHumanBodyUnderwearBriefs>;
+    briefs: Record<
+      IAutoMovieHumanBodyUnderwear["style"],
+      IAutoMovieHumanBodyUnderwearBriefs
+    >;
 
     /** The sports bra of `bra-and-briefs`. */
     bra: IAutoMovieHumanBodyUnderwearBra;

@@ -1,11 +1,11 @@
 import { autoMovieModelGaits, gaitMotion } from "@automovie/engine";
 import * as THREE from "three";
 
-import { applyPose } from "./applyPose";
 import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "./AUTOMOVIE_FORMATION_CYCLE_SAMPLES";
-import { formationCycleStride } from "./formationCycleStride";
-import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
+import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps";
+import { applyPose } from "./applyPose";
+import { formationCycleStride } from "./formationCycleStride";
 
 /**
  * Bake one runtime model's whole repertoire into rigid part-matrix tables.
@@ -24,7 +24,9 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
  * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Bakes the declared gait repertoire through the named-performer pose path so unit travel and turn can replay those same rigid-part motions.
  * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Bakes the declared gait repertoire through the named-performer pose path so unit travel and turn can replay those same rigid-part motions.
  */
-export const bakeFormationCycle = (input: IBakeFormationCycleProps): IAutoMovieFormationCycle | null => {
+export const bakeFormationCycle = (
+  input: IBakeFormationCycleProps,
+): IAutoMovieFormationCycle | null => {
   const skeleton = input.model.skeleton;
   const gaits = autoMovieModelGaits(input.model);
   if (skeleton === null || gaits.length === 0) return null;

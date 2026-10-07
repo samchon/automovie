@@ -37,11 +37,31 @@ export function resolveHumanBodyForearmParts(
   return (["left", "right"] as const).flatMap((side) => {
     const forearm = input.targets?.[`${side}UpperLimb`]?.forearm;
     return [
-      humanBodyUnavailablePart(`${side}Radius` as const, forearm?.radius, "missing-bone-landmark"),
-      humanBodyUnavailablePart(`${side}Ulna` as const, forearm?.ulna, "missing-bone-landmark"),
-      humanBodyUnavailablePart(`${side}Brachioradialis` as const, forearm?.brachioradialis, muscle),
-      humanBodyUnavailablePart(`${side}FlexorDigitorumSuperficialis` as const, forearm?.flexorDigitorumSuperficialis, muscle),
-      humanBodyUnavailablePart(`${side}ExtensorDigitorum` as const, forearm?.extensorDigitorum, muscle),
+      humanBodyUnavailablePart(
+        `${side}Radius` as const,
+        forearm?.radius,
+        "missing-bone-landmark",
+      ),
+      humanBodyUnavailablePart(
+        `${side}Ulna` as const,
+        forearm?.ulna,
+        "missing-bone-landmark",
+      ),
+      humanBodyUnavailablePart(
+        `${side}Brachioradialis` as const,
+        forearm?.brachioradialis,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}FlexorDigitorumSuperficialis` as const,
+        forearm?.flexorDigitorumSuperficialis,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}ExtensorDigitorum` as const,
+        forearm?.extensorDigitorum,
+        muscle,
+      ),
     ];
   });
 }

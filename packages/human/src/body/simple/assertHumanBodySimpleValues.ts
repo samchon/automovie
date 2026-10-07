@@ -37,7 +37,8 @@ export function assertHumanBodySimpleValues(
   const reader = createHumanBodyMeasurementReader(basis, shape);
   const misses = unknowns.flatMap((unknown) => {
     const value = unknown.read(reader, shape);
-    return value !== null && Math.abs(value - unknown.target) <= unknown.tolerance
+    return value !== null &&
+      Math.abs(value - unknown.target) <= unknown.tolerance
       ? []
       : [
           `${unknown.name} ${unknown.target} reads ${

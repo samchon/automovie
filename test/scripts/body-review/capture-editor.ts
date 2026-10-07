@@ -31,8 +31,8 @@ import { humanViewerStorage } from "../human-viewer/humanViewerStorage";
 import { readHumanViewerBasisIdentity } from "../human-viewer/readHumanViewerBasisIdentity";
 import { readHumanViewerDefaultBodyBasis } from "../human-viewer/readHumanViewerDefaultBodyBasis";
 import { buildCaptureRecord } from "../review/buildCaptureRecord";
-import { captureBodyFrames } from "./captureBodyFrames";
 import type { IBodyReviewState } from "./IBodyReviewState";
+import { captureBodyFrames } from "./captureBodyFrames";
 import { parseBodyCaptureArguments } from "./parseBodyCaptureArguments";
 import { standardBodyReviewStates } from "./standardBodyReviewDocuments";
 import { writeBodyFrames } from "./writeBodyFrames";
@@ -58,9 +58,10 @@ async function main(): Promise<void> {
     io: createNodeHumanViewerClientIo(root),
     origin,
   });
-  const basisId = candidate === null
-    ? (await readHumanViewerDefaultBodyBasis(origin)).id
-    : readHumanViewerBasisIdentity(fs.readFileSync(candidate));
+  const basisId =
+    candidate === null
+      ? (await readHumanViewerDefaultBodyBasis(origin)).id
+      : readHumanViewerBasisIdentity(fs.readFileSync(candidate));
   console.log("RENDERER", viewer.renderer);
   const { drawn } = await captureBodyFrames({
     viewer,

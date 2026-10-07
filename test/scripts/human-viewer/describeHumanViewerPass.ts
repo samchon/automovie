@@ -1,5 +1,6 @@
-import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { getHumanObservationPassDefinition } from "@automovie/playground/src/human/common/observation/getHumanObservationPassDefinition.ts";
+
+import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
  * Return the product observation owner's actual reading limit for every frame.
@@ -14,6 +15,8 @@ import { getHumanObservationPassDefinition } from "@automovie/playground/src/hum
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No document or part is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the legacy flat meaning, the authored albedo scope and the structural alpha-card limit.
  */
-export function describeHumanViewerPass(pass: HumanViewerAddress["pass"]): string {
+export function describeHumanViewerPass(
+  pass: HumanViewerAddress["pass"],
+): string {
   return getHumanObservationPassDefinition(pass).reading;
 }

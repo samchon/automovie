@@ -75,7 +75,9 @@ export function createHumanFaceOcularSurface(
     slope: inputProfile.slope,
   };
   const center: IAutoMovieVector3 = {
-    x: inputCenter.x, y: inputCenter.y, z: inputCenter.z,
+    x: inputCenter.x,
+    y: inputCenter.y,
+    z: inputCenter.z,
   };
   const axis = Vector3.normalize(axisDirection);
   const lateral = Vector3.normalize(
@@ -102,10 +104,19 @@ export function createHumanFaceOcularSurface(
   const capMetric = new HumanFaceOcularCapMetric(profile);
   const radiusFraction = Fraction.from(radius);
   const radiusSquare = Fraction.multiply(radiusFraction, radiusFraction);
-  const limbusSquare = Fraction.multiply(Fraction.from(limbus), Fraction.from(limbus));
-  const rimBounds = Fraction.sqrtBounds(Fraction.add(radiusSquare, Fraction.negate(limbusSquare)));
-  const interfaceError = HumanBinary64Arithmetic.nextUp(Math.max(
-    Math.abs(profile.rim - rimBounds[0]), Math.abs(profile.rim - rimBounds[1])));
+  const limbusSquare = Fraction.multiply(
+    Fraction.from(limbus),
+    Fraction.from(limbus),
+  );
+  const rimBounds = Fraction.sqrtBounds(
+    Fraction.add(radiusSquare, Fraction.negate(limbusSquare)),
+  );
+  const interfaceError = HumanBinary64Arithmetic.nextUp(
+    Math.max(
+      Math.abs(profile.rim - rimBounds[0]),
+      Math.abs(profile.rim - rimBounds[1]),
+    ),
+  );
   return {
     center: { ...center },
     axis: { ...axis },
@@ -139,15 +150,24 @@ export function createHumanFaceOcularSurface(
       const length = Math.hypot(rho, zeta);
       const meridianDirection = Vector3.normalize(Vector3.create(rho, 0, zeta));
       const majorInput = Math.max(rho, Math.abs(zeta));
-      const majorDirection = rho >= Math.abs(zeta)
-        ? meridianDirection.x : Math.abs(meridianDirection.z);
+      const majorDirection =
+        rho >= Math.abs(zeta)
+          ? meridianDirection.x
+          : Math.abs(meridianDirection.z);
       // The scaled normalization owner supplies its safely represented major
       // direction. Apply that common factor as exact rational arithmetic so
       // a tiny minor direction is not lost before multiplication by R.
-      const sphereFactor = majorInput === 0 ? Fraction.create(0n) :
-        Fraction.divide(Fraction.multiply(radiusFraction, Fraction.from(majorDirection)), Fraction.from(majorInput));
-      const sphereComponent = (component: number): number => Fraction.number(
-        Fraction.multiply(sphereFactor, Fraction.from(component)));
+      const sphereFactor =
+        majorInput === 0
+          ? Fraction.create(0n)
+          : Fraction.divide(
+              Fraction.multiply(radiusFraction, Fraction.from(majorDirection)),
+              Fraction.from(majorInput),
+            );
+      const sphereComponent = (component: number): number =>
+        Fraction.number(
+          Fraction.multiply(sphereFactor, Fraction.from(component)),
+        );
       const sphereRho = length === 0 ? 0 : sphereComponent(rho);
       const sphereZeta = length === 0 ? -radius : sphereComponent(zeta);
       const capFoot = capMetric.foot(rho, zeta);
@@ -217,8 +237,12 @@ export function createHumanFaceOcularSurface(
       const foot = useCap ? place(capR, capZ) : place(sphereRho, sphereZeta);
       const distance = Vector3.length(Vector3.subtract(point, foot));
       // Retain derived rim roundoff at the exact circle/cap interface.
-      const lowerDistance = Math.max(0, HumanBinary64Arithmetic.nextDown(
-        Math.min(capFoot.lowerDistanceMetres, sphereLower) - interfaceError));
+      const lowerDistance = Math.max(
+        0,
+        HumanBinary64Arithmetic.nextDown(
+          Math.min(capFoot.lowerDistanceMetres, sphereLower) - interfaceError,
+        ),
+      );
       const upperDistance = useCap
         ? HumanBinary64Arithmetic.nextUp(
             capFoot.upperDistanceMetres + capFoot.representationErrorMetres,

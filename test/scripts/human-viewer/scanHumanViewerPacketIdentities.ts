@@ -22,20 +22,28 @@ const STRUCTURE = [0x22, 0x7b, 0x7d, 0x5b, 0x5d] as const;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a malformed packet or non-string id instead of guessing an identity.
  * @evidence contracts/common.md#meaningful-documentation States what is read, why no object tree is built and what refuses.
  */
-export function scanHumanViewerPacketIdentities(text: Buffer): IHumanViewerPacketIdentities {
+export function scanHumanViewerPacketIdentities(
+  text: Buffer,
+): IHumanViewerPacketIdentities {
   // The next position of each structural byte, advanced lazily.
   const next = STRUCTURE.map((byte) => text.indexOf(byte, 0));
   const nearest = (from: number): number => {
     let best = -1;
     for (let index = 0; index < STRUCTURE.length; ++index) {
-      if (next[index] !== -1 && next[index]! < from) next[index] = text.indexOf(STRUCTURE[index]!, from);
-      if (next[index] !== -1 && (best === -1 || next[index]! < best)) best = next[index]!;
+      if (next[index] !== -1 && next[index]! < from)
+        next[index] = text.indexOf(STRUCTURE[index]!, from);
+      if (next[index] !== -1 && (best === -1 || next[index]! < best))
+        best = next[index]!;
     }
     return best;
   };
   /** The end quote of the string opening at `start`, skipping escaped quotes. */
   const close = (start: number): number => {
-    for (let at = text.indexOf(QUOTE, start + 1); at !== -1; at = text.indexOf(QUOTE, at + 1)) {
+    for (
+      let at = text.indexOf(QUOTE, start + 1);
+      at !== -1;
+      at = text.indexOf(QUOTE, at + 1)
+    ) {
       let slashes = 0;
       while (text[at - 1 - slashes] === BACKSLASH) ++slashes;
       if (slashes % 2 === 0) return at;
@@ -47,8 +55,14 @@ export function scanHumanViewerPacketIdentities(text: Buffer): IHumanViewerPacke
     let after = end + 1;
     while (after < text.length && text[after] !== 0x3a) ++after;
     ++after;
-    while (after < text.length && (text[after] === 0x20 || text[after] === 0x0a ||
-      text[after] === 0x0d || text[after] === 0x09)) ++after;
+    while (
+      after < text.length &&
+      (text[after] === 0x20 ||
+        text[after] === 0x0a ||
+        text[after] === 0x0d ||
+        text[after] === 0x09)
+    )
+      ++after;
     return text[after];
   };
   const keys: string[] = [];
@@ -76,7 +90,8 @@ export function scanHumanViewerPacketIdentities(text: Buffer): IHumanViewerPacke
           // must be a string; any other value kind would let a nested string
           // stand in for it.
           const kind = opening(end);
-          if (value === "id" && kind !== QUOTE) throw new Error("A packet needs a string id");
+          if (value === "id" && kind !== QUOTE)
+            throw new Error("A packet needs a string id");
           if (kind === QUOTE || kind === 0x7b || kind === 0x5b) {
             key = value;
             valueNext = true;
@@ -110,7 +125,8 @@ export function scanHumanViewerPacketIdentities(text: Buffer): IHumanViewerPacke
   if (depth !== 0) throw new Error("A packet is not closed");
   if (keys[0] !== "id") throw new Error("A packet must open with its id");
   const id = identities.get("id");
-  if (id === undefined || id === "") throw new Error("A packet needs a string id");
+  if (id === undefined || id === "")
+    throw new Error("A packet needs a string id");
   identities.delete("id");
   return { id, members: Object.fromEntries(identities) };
 }

@@ -74,36 +74,49 @@ const DAMPING = [1, 0.5, 0.25, 0.125];
  * @evidenceExclude contracts/anatomy.md#permitted-range Numerical offset intervals come from already admitted channel bounds and establish no new physiological range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority These are internal solve coordinates, not authored document fields.
  */
-export function solveHumanBodySimpleOffsets(input: IHumanBodySimpleOffsetsProblem): number[] | null {
+export function solveHumanBodySimpleOffsets(
+  input: IHumanBodySimpleOffsetsProblem,
+): number[] | null {
   if (input.initial === null) return null;
   const size = input.ranges.length;
   const trailing = input.secondary ?? 0;
   const count = input.initial.length - trailing;
-  const primary = (values: readonly number[]): number[] => values.slice(0, count);
-  const secondary = (values: readonly number[]): number[] => values.slice(count);
-  const met = (values: readonly number[]): boolean => input.met(primary(values));
+  const primary = (values: readonly number[]): number[] =>
+    values.slice(0, count);
+  const secondary = (values: readonly number[]): number[] =>
+    values.slice(count);
+  const met = (values: readonly number[]): boolean =>
+    input.met(primary(values));
   let t = input.ranges.map(() => 0);
   let residual = [...input.initial];
   if (trailing === 0 && met(residual)) return t;
   const merit = (values: readonly number[]): number =>
     values.reduce((sum, value) => sum + value * value, 0);
   // the primary residuals first; once they are met, the secondary ones while the primary stay met
-  const better = (next: readonly number[], current: readonly number[]): boolean =>
+  const better = (
+    next: readonly number[],
+    current: readonly number[],
+  ): boolean =>
     met(current)
       ? met(next) && merit(secondary(next)) < merit(secondary(current))
       : merit(primary(next)) < merit(primary(current));
-  const differences = (from: readonly number[], at: readonly number[]): number[][] | null => {
+  const differences = (
+    from: readonly number[],
+    at: readonly number[],
+  ): number[][] | null => {
     const columns: number[][] = [];
     for (let j = 0; j < size; j++) {
       const [low, high] = input.ranges[j];
       const amount = STEP * (high - low);
       const step = from[j] + amount > high ? -amount : amount;
-      const stepped = from.map((value, k) => k === j ? value + step : value);
+      const stepped = from.map((value, k) => (k === j ? value + step : value));
       const moved = input.evaluate(stepped);
       if (moved === null) return null;
       // Divide by the scalar actually representable after floating addition,
       // not the requested amount; preserve the original finite-difference map.
-      columns.push(moved.map((value, i) => (value - at[i]) / (stepped[j] - from[j])));
+      columns.push(
+        moved.map((value, i) => (value - at[i]) / (stepped[j] - from[j])),
+      );
     }
     return columns;
   };
@@ -116,7 +129,10 @@ export function solveHumanBodySimpleOffsets(input: IHumanBodySimpleOffsetsProble
     if (iteration === ITERATIONS) return done ? t : null;
     const step =
       size === residual.length && trailing === 0
-        ? solveLinear(jacobian, residual.map((value) => -value))
+        ? solveLinear(
+            jacobian,
+            residual.map((value) => -value),
+          )
         : leastDepartureStep(jacobian, t, residual, input, count, done);
     if (step === null) return done ? t : null;
     let accepted = false;
@@ -130,8 +146,11 @@ export function solveHumanBodySimpleOffsets(input: IHumanBodySimpleOffsetsProble
       const change = next.map((value, j) => value - t[j]);
       const previous = residual;
       // Strict reduction of deterministic readings implies a nonzero step.
-      jacobian = updateHumanBodySimpleJacobian(jacobian, change,
-        reading.map((value, index) => value - previous[index]));
+      jacobian = updateHumanBodySimpleJacobian(
+        jacobian,
+        change,
+        reading.map((value, index) => value - previous[index]),
+      );
       t = next;
       residual = reading;
       accepted = true;
@@ -163,8 +182,12 @@ function leastDepartureStep(
   count: number,
   pursue: boolean,
 ): number[] | null {
-  const goal = residual.map((value, i) => columns.reduce((sum, column, j) => sum + column[i] * t[j], 0) - value);
-  const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((sum, value, k) => sum + value * b[k], 0);
+  const goal = residual.map(
+    (value, i) =>
+      columns.reduce((sum, column, j) => sum + column[i] * t[j], 0) - value,
+  );
+  const dot = (a: readonly number[], b: readonly number[]): number =>
+    a.reduce((sum, value, k) => sum + value * b[k], 0);
   const fixed = new Map<number, number>();
   let x = [...t];
   for (let pass = 0; pass <= columns.length; pass++) {
@@ -173,46 +196,88 @@ function leastDepartureStep(
     const largest = Math.max(...raw);
     const scale = raw.map((value) => value / largest);
     const free = columns.map((_, j) => j).filter((j) => !fixed.has(j));
-    const right = goal.map((value, i) => [...fixed].reduce((sum, [j, bound]) => sum - columns[j][i] * bound, value));
+    const right = goal.map((value, i) =>
+      [...fixed].reduce(
+        (sum, [j, bound]) => sum - columns[j][i] * bound,
+        value,
+      ),
+    );
     // the free columns in scaled offsets u_j = scale_j x_j; row(i) is residual i's row over them
     const scaled = free.map((j) => columns[j].map((value) => value / scale[j]));
     const row = (i: number): number[] => scaled.map((column) => column[i]);
     // a primary residual no free offset reads is left where the fixed offsets put it
-    const reached = right.map((_, i) => i).filter((i) => i < count && scaled.some((column) => column[i] !== 0));
-    const later = pursue ? right.map((_, i) => i).filter((i) => i >= count) : [];
+    const reached = right
+      .map((_, i) => i)
+      .filter((i) => i < count && scaled.some((column) => column[i] !== 0));
+    const later = pursue
+      ? right.map((_, i) => i).filter((i) => i >= count)
+      : [];
     let u: number[] | null;
     if (free.length > reached.length) {
       // minimum norm over the reached primary rows: u = A1^T y with (A1 A1^T) y = right1
       const first = reached.map(row);
       const gram = first.map((a) => first.map((b) => dot(a, b)));
-      const y = solveLinear(gram, reached.map((i) => right[i]));
+      const y = solveLinear(
+        gram,
+        reached.map((i) => right[i]),
+      );
       if (y === null) return null;
-      const particular = free.map((_, k) => first.reduce((sum, a, r) => sum + a[k] * y[r], 0));
+      const particular = free.map((_, k) =>
+        first.reduce((sum, a, r) => sum + a[k] * y[r], 0),
+      );
       u = particular;
       if (later.length > 0) {
         // the secondary rows within the null space of the primary ones: P v = v - A1^T (A1 A1^T)^-1 A1 v
         const project = (v: readonly number[]): number[] | null => {
-          const weights = solveLinear(gram, first.map((a) => dot(a, v)));
-          return weights === null ? null : v.map((value, k) => value - first.reduce((sum, a, r) => sum + a[k] * weights[r], 0));
+          const weights = solveLinear(
+            gram,
+            first.map((a) => dot(a, v)),
+          );
+          return weights === null
+            ? null
+            : v.map(
+                (value, k) =>
+                  value -
+                  first.reduce((sum, a, r) => sum + a[k] * weights[r], 0),
+              );
         };
         const projected = later.map((i) => project(row(i)));
         if (projected.every((v) => v !== null)) {
           const rows = projected as number[][];
           const miss = later.map((i) => right[i] - dot(row(i), particular));
-          const z = solveLinear(rows.map((a) => rows.map((b) => dot(a, b))), miss);
+          const z = solveLinear(
+            rows.map((a) => rows.map((b) => dot(a, b))),
+            miss,
+          );
           // a secondary row the primary rows leave no room for is not pursued
-          if (z !== null) u = particular.map((value, k) => value + rows.reduce((sum, a, r) => sum + a[k] * z[r], 0));
+          if (z !== null)
+            u = particular.map(
+              (value, k) =>
+                value + rows.reduce((sum, a, r) => sum + a[k] * z[r], 0),
+            );
         }
       }
     } else {
       // least squares over the primary rows: (A1^T A1) u = A1^T right1
       const rows = right.map((_, i) => i).filter((i) => i < count);
-      const gram = scaled.map((a) => scaled.map((b) => rows.reduce((sum, i) => sum + a[i] * b[i], 0)));
-      u = free.length === 0 ? [] : solveLinear(gram, scaled.map((column) => rows.reduce((sum, i) => sum + column[i] * right[i], 0)));
+      const gram = scaled.map((a) =>
+        scaled.map((b) => rows.reduce((sum, i) => sum + a[i] * b[i], 0)),
+      );
+      u =
+        free.length === 0
+          ? []
+          : solveLinear(
+              gram,
+              scaled.map((column) =>
+                rows.reduce((sum, i) => sum + column[i] * right[i], 0),
+              ),
+            );
     }
     if (u === null) return null;
     const solved = u;
-    x = columns.map((_, j) => fixed.get(j) ?? solved[free.indexOf(j)] / scale[j]);
+    x = columns.map(
+      (_, j) => fixed.get(j) ?? solved[free.indexOf(j)] / scale[j],
+    );
     let crossed = false;
     for (const j of free) {
       const [low, high] = input.ranges[j];
@@ -230,9 +295,15 @@ function leastDepartureStep(
 }
 
 /** Partial-pivot elimination of a column-major system; unresolved pivots return null. */
-function solveLinear(columns: readonly (readonly number[])[], right: readonly number[]): number[] | null {
+function solveLinear(
+  columns: readonly (readonly number[])[],
+  right: readonly number[],
+): number[] | null {
   const size = right.length;
-  const rows = right.map((value, i) => [...columns.map((column) => column[i]), value]);
+  const rows = right.map((value, i) => [
+    ...columns.map((column) => column[i]),
+    value,
+  ]);
   for (let pivot = 0; pivot < size; pivot++) {
     let best = pivot;
     for (let row = pivot + 1; row < size; row++)
@@ -248,7 +319,8 @@ function solveLinear(columns: readonly (readonly number[])[], right: readonly nu
   const solution = new Array<number>(size).fill(0);
   for (let row = size - 1; row >= 0; row--) {
     let sum = rows[row][size];
-    for (let column = row + 1; column < size; column++) sum -= rows[row][column] * solution[column];
+    for (let column = row + 1; column < size; column++)
+      sum -= rows[row][column] * solution[column];
     solution[row] = sum / rows[row][row];
   }
   return solution;

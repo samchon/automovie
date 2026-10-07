@@ -1,5 +1,16 @@
-import type { IAutoMoviePerformedShot, IAutoMovieStagedSet, IAutoMovieCameraClearanceRuntime } from "@automovie/engine";
-import type { IAutoMovieCamera, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieTransform, IAutoMovieClip } from "@automovie/interface";
+import type {
+  IAutoMovieCameraClearanceRuntime,
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+} from "@automovie/engine";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieModel,
+  IAutoMovieSceneNode,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import type { IFilmCameraClearanceAdapterOverrides } from "./IFilmCameraClearanceAdapterOverrides";
 import type { IFilmCameraClearanceAdapterResult } from "./IFilmCameraClearanceAdapterResult";
 
@@ -30,7 +41,9 @@ export interface IFilmCameraClearanceDeformationInputs {
   propModel: IAutoMovieModel;
 
   /** Execute the same adapter against optional overridden inputs. */
-  inspectAdapter(over?: IFilmCameraClearanceAdapterOverrides): IFilmCameraClearanceAdapterResult;
+  inspectAdapter(
+    over?: IFilmCameraClearanceAdapterOverrides,
+  ): IFilmCameraClearanceAdapterResult;
 
   /** Original model registry producer. */
   runtimeModels(): IAutoMovieModel[];

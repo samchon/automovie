@@ -9,11 +9,17 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Distinguishes an authored value from an omitted one without inventing a default.
  * @author Samchon
  */
-export function readConnectedPersonInput(document: IAutoMovieHumanPersonDocument, path: readonly string[]): number | string | null | undefined {
+export function readConnectedPersonInput(
+  document: IAutoMovieHumanPersonDocument,
+  path: readonly string[],
+): number | string | null | undefined {
   let node: unknown = document;
   for (const key of path) {
-    if (typeof node !== "object" || node === null || !Object.hasOwn(node, key)) return undefined;
+    if (typeof node !== "object" || node === null || !Object.hasOwn(node, key))
+      return undefined;
     node = (node as Record<string, unknown>)[key];
   }
-  return typeof node === "number" || typeof node === "string" || node === null ? node : undefined;
+  return typeof node === "number" || typeof node === "string" || node === null
+    ? node
+    : undefined;
 }

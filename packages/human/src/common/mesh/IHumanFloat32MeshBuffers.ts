@@ -1,5 +1,3 @@
-
-
 /**
  * Owned mesh buffers crossing the shared preview and static-export precision boundary.
  * Positions and normals preserve the input local metre frame; UV0 remains

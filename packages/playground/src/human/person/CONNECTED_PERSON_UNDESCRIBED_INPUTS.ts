@@ -15,18 +15,74 @@ import type { IConnectedPersonUndescribedInput } from "./IConnectedPersonUndescr
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view States where each such input is edited on the person screen.
  * @author Samchon
  */
-export const CONNECTED_PERSON_UNDESCRIBED_INPUTS: IConnectedPersonUndescribedInput[] = [
-  { paths: "face.eyes.{left,right}.*", unit: "mm; central thickness in micrometres", edited: "Eyes, lashes and optics" },
-  { paths: "face.eyelids.{left,right}.<section>.{elevationMm,projectionMm}", unit: "mm", edited: "Eyes, lashes and optics" },
-  { paths: "face.ocularSurfaces.{left,right}.*", unit: "mm", edited: "Eyes, lashes and optics" },
-  { paths: "face.skinRelief.nasolabial.{left,right}.{restDepthMm,widthMm}", unit: "mm", edited: "Skin relief" },
-  { paths: "face.skinRelief.regions.<region>.{restOffsetMm,widthMm,lengthMm,elevationMm}", unit: "mm", edited: "Skin relief" },
-  { paths: "face.oral.{teeth,maxillary,mandibular,space,tongue}.*", unit: "mm", edited: "Oral assembly" },
-  { paths: "body.humeralHeads.{left,right}", unit: "mm", edited: "Humeral heads" },
-  { paths: "body.anatomy.surface.* (bound exterior targets)", unit: "mm", edited: "Body control group Anatomy" },
-  { paths: "body.shape.<channel> without a measurement rule", unit: "weight", edited: "Complete document only" },
-  { paths: "face.skin and legacy face.hair fields", unit: "legacy coordinate styling fields", edited: "Document JSON preserves these fields; named skinAppearance and hairTraits controls author appearance" },
-  { paths: "face.scalpHair (new population)", unit: "named styling records", edited: "Document JSON only; existing populations have named hairTraits controls and no new population is inferred" },
-  { paths: "face.materials.<material>.{pigment,density}", unit: "linear colour and coverage gain", edited: "Complete document only" },
-  { paths: "body.underwear, body.anatomicalInspection", unit: "closed choices", edited: "Complete document only" },
-];
+export const CONNECTED_PERSON_UNDESCRIBED_INPUTS: IConnectedPersonUndescribedInput[] =
+  [
+    {
+      paths: "face.eyes.{left,right}.*",
+      unit: "mm; central thickness in micrometres",
+      edited: "Eyes, lashes and optics",
+    },
+    {
+      paths: "face.eyelids.{left,right}.<section>.{elevationMm,projectionMm}",
+      unit: "mm",
+      edited: "Eyes, lashes and optics",
+    },
+    {
+      paths: "face.ocularSurfaces.{left,right}.*",
+      unit: "mm",
+      edited: "Eyes, lashes and optics",
+    },
+    {
+      paths: "face.skinRelief.nasolabial.{left,right}.{restDepthMm,widthMm}",
+      unit: "mm",
+      edited: "Skin relief",
+    },
+    {
+      paths:
+        "face.skinRelief.regions.<region>.{restOffsetMm,widthMm,lengthMm,elevationMm}",
+      unit: "mm",
+      edited: "Skin relief",
+    },
+    {
+      paths: "face.oral.{teeth,maxillary,mandibular,space,tongue}.*",
+      unit: "mm",
+      edited: "Oral assembly",
+    },
+    {
+      paths: "body.humeralHeads.{left,right}",
+      unit: "mm",
+      edited: "Humeral heads",
+    },
+    {
+      paths: "body.anatomy.surface.* (bound exterior targets)",
+      unit: "mm",
+      edited: "Body control group Anatomy",
+    },
+    {
+      paths: "body.shape.<channel> without a measurement rule",
+      unit: "weight",
+      edited: "Complete document only",
+    },
+    {
+      paths: "face.skin and legacy face.hair fields",
+      unit: "legacy coordinate styling fields",
+      edited:
+        "Document JSON preserves these fields; named skinAppearance and hairTraits controls author appearance",
+    },
+    {
+      paths: "face.scalpHair (new population)",
+      unit: "named styling records",
+      edited:
+        "Document JSON only; existing populations have named hairTraits controls and no new population is inferred",
+    },
+    {
+      paths: "face.materials.<material>.{pigment,density}",
+      unit: "linear colour and coverage gain",
+      edited: "Complete document only",
+    },
+    {
+      paths: "body.underwear, body.anatomicalInspection",
+      unit: "closed choices",
+      edited: "Complete document only",
+    },
+  ];

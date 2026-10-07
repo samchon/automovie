@@ -1,9 +1,10 @@
 import type { IAutoMovieHumanBodyGeneratedPart } from "../generated/IAutoMovieHumanBodyGeneratedPart";
 import type { IAutoMovieHumanBodySourcePartPayload } from "./IAutoMovieHumanBodySourcePartPayload";
 
-type SourcePart<Part extends IAutoMovieHumanBodyGeneratedPart> = Part extends IAutoMovieHumanBodyGeneratedPart
-  ? Pick<Part, "id" | "tissue"> & IAutoMovieHumanBodySourcePartPayload
-  : never;
+type SourcePart<Part extends IAutoMovieHumanBodyGeneratedPart> =
+  Part extends IAutoMovieHumanBodyGeneratedPart
+    ? Pick<Part, "id" | "tissue"> & IAutoMovieHumanBodySourcePartPayload
+    : never;
 
 /**
  * A coarse source part retaining the actual generated catalogue's id/tissue pair.
@@ -27,4 +28,5 @@ type SourcePart<Part extends IAutoMovieHumanBodyGeneratedPart> = Part extends IA
  * @evidenceExclude contracts/anatomy.md#parametric-authority This is immutable source output, not personal authoring input.
  * @author Samchon
  */
-export type IAutoMovieHumanBodySourcePart = SourcePart<IAutoMovieHumanBodyGeneratedPart>;
+export type IAutoMovieHumanBodySourcePart =
+  SourcePart<IAutoMovieHumanBodyGeneratedPart>;

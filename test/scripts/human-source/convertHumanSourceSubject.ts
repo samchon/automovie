@@ -25,8 +25,17 @@ export function convertHumanSourceSubject(
   const sex = shape.globalSexualDimorphism ?? 0;
   delete shape.globalAgeStructure;
   delete shape.globalSexualDimorphism;
-  const age = deriveHumanSourceSubjectAge(facts?.ageYears ?? undefined, facts?.ageApproximate === true, faceAge);
-  const record: IHumanSourceSubjectRecord = { id: face.id, age, macroGender: sex, converted: age.macroAge !== null };
+  const age = deriveHumanSourceSubjectAge(
+    facts?.ageYears ?? undefined,
+    facts?.ageApproximate === true,
+    faceAge,
+  );
+  const record: IHumanSourceSubjectRecord = {
+    id: face.id,
+    age,
+    macroGender: sex,
+    converted: age.macroAge !== null,
+  };
   if (age.macroAge === null) return { person: null, record };
   const bodyShape: Record<string, number> = {};
   if (age.macroAge !== 0) bodyShape.macroAge = age.macroAge;
@@ -37,7 +46,12 @@ export function convertHumanSourceSubject(
       name: face.name,
       population: "linked",
       face: { ...face, basis: bases.face, shape },
-      body: { id: "person-body", name: "neutral body", basis: bases.body, shape: bodyShape },
+      body: {
+        id: "person-body",
+        name: "neutral body",
+        basis: bases.body,
+        shape: bodyShape,
+      },
     },
     record,
   };

@@ -5,14 +5,14 @@ import { createHumanBodyBasisBuilder } from "../../basis/createHumanBodyBasisBui
 import { admitHumanBodyBasisDocument } from "../../document/admitHumanBodyBasisDocument";
 import { readHumanBodyShapedMeasurement } from "../../measure/readHumanBodyShapedMeasurement";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
-import { assembleHumanBodyGeneratedAnatomy } from "../generated/assembleHumanBodyGeneratedAnatomy";
 import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "../generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import type { IAutoMovieHumanBodyExteriorCandidateMeasurement } from "../generated/IAutoMovieHumanBodyExteriorCandidateMeasurement";
 import type { IAutoMovieHumanBodyExteriorCandidateSection } from "../generated/IAutoMovieHumanBodyExteriorCandidateSection";
-import { collectHumanBodyExteriorRequests } from "./collectHumanBodyExteriorRequests";
+import { assembleHumanBodyGeneratedAnatomy } from "../generated/assembleHumanBodyGeneratedAnatomy";
 import { HUMAN_BODY_EXTERIOR_TOLERANCE_METRES } from "./HUMAN_BODY_EXTERIOR_TOLERANCE_METRES";
 import type { IAutoMovieHumanBodyExteriorReference } from "./IAutoMovieHumanBodyExteriorReference";
 import type { IAutoMovieHumanBodyExteriorTargetSource } from "./IAutoMovieHumanBodyExteriorTargetSource";
+import { collectHumanBodyExteriorRequests } from "./collectHumanBodyExteriorRequests";
 
 /**
  * Compile one source into a builder that reports how a body document's
@@ -45,50 +45,112 @@ import type { IAutoMovieHumanBodyExteriorTargetSource } from "./IAutoMovieHumanB
  * @evidence contracts/anatomy.md#permitted-range Actual channel reach, the inverse tolerance and the pass limit refuse unsupported or contradictory targets without extrapolation.
  * @evidence contracts/anatomy.md#parametric-authority The body document supplies only named physical targets, never vertex or morph edits.
  */
-export function createHumanBodyExteriorTargetBuilder(input: IAutoMovieHumanBodyExteriorTargetSource) {
+export function createHumanBodyExteriorTargetBuilder(
+  input: IAutoMovieHumanBodyExteriorTargetSource,
+) {
   const basis = structuredClone(input.basis);
-  const reference = structuredClone(typia.assertEquals<IAutoMovieHumanBodyExteriorReference>(input.reference));
+  const reference = structuredClone(
+    typia.assertEquals<IAutoMovieHumanBodyExteriorReference>(input.reference),
+  );
   if (reference.basis !== basis.id)
-    throw new Error("Exterior source registration must belong to the exact compiled source basis.");
-  const build = createHumanBodyBasisBuilder(basis, { physicalSource: reference.incidence });
-  return (inputDocument: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyExteriorCandidateBuild => {
-    const document = admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly);
+    throw new Error(
+      "Exterior source registration must belong to the exact compiled source basis.",
+    );
+  const build = createHumanBodyBasisBuilder(basis, {
+    physicalSource: reference.incidence,
+  });
+  return (
+    inputDocument: IAutoMovieHumanBodyBasisDocument,
+  ): IAutoMovieHumanBodyExteriorCandidateBuild => {
+    const document = admitHumanBodyBasisDocument(
+      inputDocument,
+      basis.anatomicalAssembly,
+    );
     if (document.basis !== basis.id)
       throw new Error("Exterior request must name the exact compiled source.");
     const requested = collectHumanBodyExteriorRequests(document.anatomy);
     if (requested.length === 0)
-      throw new Error("missing-anatomical-input: the document's anatomy supplies no surface target the exterior answers.");
+      throw new Error(
+        "missing-anatomical-input: the document's anatomy supplies no surface target the exterior answers.",
+      );
     // the builder resolves the anatomy into the bound channels' weights
     const built = build(document);
-    const final = { surfaces: built.posedSurfaces.map((surface) => surface.positions), landmarks: built.landmarks };
-    const float32 = { ...final, surfaces: built.posedSurfaces.map((surface, index) => Array.from(float32MeshBuffers({
-      positions: surface.positions, normals: surface.normals, indices: basis.surfaces[index].indices, uvs: null, skin: null,
-    }).positions)) };
-    const fulfilled = requested.map((one): IAutoMovieHumanBodyExteriorCandidateMeasurement => {
-      let section: IAutoMovieHumanBodyExteriorCandidateSection | null = null;
-      const finalMetres = readHumanBodyShapedMeasurement(basis, final, one.rule);
-      // only a girth at a skin landmark has one station, so only its witness
-      // is the measured cut; a station stack would hand over every station
-      const float32Metres = readHumanBodyShapedMeasurement(basis, float32, one.rule, "level" in one.rule ? (witness) => { section = witness; } : undefined);
-      if (finalMetres === null || float32Metres === null)
-        throw new Error(`missing-tissue-boundary:anatomy.${one.binding.path} has no reading on the emitted skin`);
-      if (Math.abs(float32Metres - one.metres) > HUMAN_BODY_EXTERIOR_TOLERANCE_METRES)
-        throw new Error(`The emitted skin reads ${float32Metres} m for anatomy.${one.binding.path}, not ${one.metres}.`);
-      return {
-        path: "anatomy." + one.binding.path, rule: one.binding.rule,
-        ...(one.binding.side === undefined ? {} : { side: one.binding.side }),
-        protocol: one.binding.protocol, targetMetres: one.metres, finalMetres, float32Metres,
-        residualMetres: float32Metres - one.metres, section,
-      };
-    });
+    const final = {
+      surfaces: built.posedSurfaces.map((surface) => surface.positions),
+      landmarks: built.landmarks,
+    };
+    const float32 = {
+      ...final,
+      surfaces: built.posedSurfaces.map((surface, index) =>
+        Array.from(
+          float32MeshBuffers({
+            positions: surface.positions,
+            normals: surface.normals,
+            indices: basis.surfaces[index].indices,
+            uvs: null,
+            skin: null,
+          }).positions,
+        ),
+      ),
+    };
+    const fulfilled = requested.map(
+      (one): IAutoMovieHumanBodyExteriorCandidateMeasurement => {
+        let section: IAutoMovieHumanBodyExteriorCandidateSection | null = null;
+        const finalMetres = readHumanBodyShapedMeasurement(
+          basis,
+          final,
+          one.rule,
+        );
+        // only a girth at a skin landmark has one station, so only its witness
+        // is the measured cut; a station stack would hand over every station
+        const float32Metres = readHumanBodyShapedMeasurement(
+          basis,
+          float32,
+          one.rule,
+          "level" in one.rule
+            ? (witness) => {
+                section = witness;
+              }
+            : undefined,
+        );
+        if (finalMetres === null || float32Metres === null)
+          throw new Error(
+            `missing-tissue-boundary:anatomy.${one.binding.path} has no reading on the emitted skin`,
+          );
+        if (
+          Math.abs(float32Metres - one.metres) >
+          HUMAN_BODY_EXTERIOR_TOLERANCE_METRES
+        )
+          throw new Error(
+            `The emitted skin reads ${float32Metres} m for anatomy.${one.binding.path}, not ${one.metres}.`,
+          );
+        return {
+          path: "anatomy." + one.binding.path,
+          rule: one.binding.rule,
+          ...(one.binding.side === undefined ? {} : { side: one.binding.side }),
+          protocol: one.binding.protocol,
+          targetMetres: one.metres,
+          finalMetres,
+          float32Metres,
+          residualMetres: float32Metres - one.metres,
+          section,
+        };
+      },
+    );
     return {
       model: built.model,
       exterior: {
-        generatorRevision: "source-conditioned-exterior/2", status: "candidate-only",
+        generatorRevision: "source-conditioned-exterior/2",
+        status: "candidate-only",
         reference: { basis: basis.id, evaluation: reference.evaluation },
         requested: structuredClone(document),
         fulfilled,
-        anatomy: assembleHumanBodyGeneratedAnatomy({ ...(document.anatomy === undefined ? {} : { targets: document.anatomy }), basis }),
+        anatomy: assembleHumanBodyGeneratedAnatomy({
+          ...(document.anatomy === undefined
+            ? {}
+            : { targets: document.anatomy }),
+          basis,
+        }),
       },
     };
   };

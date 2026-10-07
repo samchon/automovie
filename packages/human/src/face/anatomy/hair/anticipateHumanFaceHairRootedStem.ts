@@ -91,7 +91,11 @@ export function anticipateHumanFaceHairRootedStem(
           Vector3.add(at, Vector3.scale(along, hit.distance)),
         );
         blocking = Vector3.normalize(
-          Vector3.create(reached.normal[0], reached.normal[1], reached.normal[2]),
+          Vector3.create(
+            reached.normal[0],
+            reached.normal[1],
+            reached.normal[2],
+          ),
         );
         break;
       }

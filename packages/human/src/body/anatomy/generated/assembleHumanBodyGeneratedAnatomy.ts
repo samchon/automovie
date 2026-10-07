@@ -43,13 +43,23 @@ export function assembleHumanBodyGeneratedAnatomy(
       answered.set(part.id, part);
     }
   return {
-    skin: { id: "skin", status: "unavailable", reason: "geometry-not-validated" },
+    skin: {
+      id: "skin",
+      status: "unavailable",
+      reason: "geometry-not-validated",
+    },
     parts: typia.assertEquals<IAutoMovieHumanBodyGeneratedAnatomy["parts"]>(
       Object.fromEntries(
-        typia.reflect.literals<AutoMovieHumanBodyPartId>().map((id) => [
-          id,
-          answered.get(id) ?? { id, status: "unavailable", reason: "geometry-not-validated" },
-        ]),
+        typia.reflect
+          .literals<AutoMovieHumanBodyPartId>()
+          .map((id) => [
+            id,
+            answered.get(id) ?? {
+              id,
+              status: "unavailable",
+              reason: "geometry-not-validated",
+            },
+          ]),
       ),
     ),
   };

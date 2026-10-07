@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ITtscCompilerTransformation } from "ttsc";
 import { createFilesystemPathIdentityContext } from "ttsc/path-identity";
+
 import { compareHumanSourceNames } from "./compareHumanSourceNames.ts";
 
 /**
@@ -24,33 +25,85 @@ export function assertHumanSourceCompilerObservations(
   selected: ReadonlySet<string>,
   realized: ReadonlySet<string>,
 ): void {
-  if (graph.inputObservations === undefined) throw new Error("Source producer graph requires predicate-preserving filesystem observations.");
+  if (graph.inputObservations === undefined)
+    throw new Error(
+      "Source producer graph requires predicate-preserving filesystem observations.",
+    );
   const identity = createFilesystemPathIdentityContext();
   const failures: string[] = [];
-  const byPath = new Map(Object.entries(graph.inputObservations).map(([file, proof]) => [path.resolve(project, file), proof]));
+  const byPath = new Map(
+    Object.entries(graph.inputObservations).map(([file, proof]) => [
+      path.resolve(project, file),
+      proof,
+    ]),
+  );
   for (const file of realized) {
     const proof = byPath.get(file);
-    if (proof?.readFile?.ok !== true || proof.realpath?.ok !== true) failures.push(`${path.relative(project, file)}: realized file lacks read/physical identity proof`);
+    if (proof?.readFile?.ok !== true || proof.realpath?.ok !== true)
+      failures.push(
+        `${path.relative(project, file)}: realized file lacks read/physical identity proof`,
+      );
   }
   for (const [name, expected] of Object.entries(graph.inputObservations)) {
     const file = path.resolve(project, name);
     if (!selected.has(file)) continue;
     let stat: fs.Stats | undefined;
-    try { stat = fs.statSync(file); } catch { stat = undefined; }
-    if (expected.fileExists !== undefined && expected.fileExists !== (stat?.isFile() ?? false)) failures.push(`${name}: fileExists`);
-    if (expected.directoryExists !== undefined && expected.directoryExists !== (stat?.isDirectory() ?? false)) failures.push(`${name}: directoryExists`);
-    if (expected.stat !== undefined && expected.stat !== (stat === undefined ? "missing" : stat.isDirectory() ? "directory" : "file")) failures.push(`${name}: stat`);
+    try {
+      stat = fs.statSync(file);
+    } catch {
+      stat = undefined;
+    }
+    if (
+      expected.fileExists !== undefined &&
+      expected.fileExists !== (stat?.isFile() ?? false)
+    )
+      failures.push(`${name}: fileExists`);
+    if (
+      expected.directoryExists !== undefined &&
+      expected.directoryExists !== (stat?.isDirectory() ?? false)
+    )
+      failures.push(`${name}: directoryExists`);
+    if (
+      expected.stat !== undefined &&
+      expected.stat !==
+        (stat === undefined
+          ? "missing"
+          : stat.isDirectory()
+            ? "directory"
+            : "file")
+    )
+      failures.push(`${name}: stat`);
     if (expected.readFile !== undefined) {
       let text: string | undefined;
-      try { text = fs.readFileSync(file, "utf8"); } catch { text = undefined; }
-      if (expected.readFile.ok !== (text !== undefined) ||
-        (expected.readFile.ok && text !== undefined && crypto.createHash("sha256").update(text).digest("hex") !== expected.readFile.hash)) failures.push(`${name}: readFile`);
+      try {
+        text = fs.readFileSync(file, "utf8");
+      } catch {
+        text = undefined;
+      }
+      if (
+        expected.readFile.ok !== (text !== undefined) ||
+        (expected.readFile.ok &&
+          text !== undefined &&
+          crypto.createHash("sha256").update(text).digest("hex") !==
+            expected.readFile.hash)
+      )
+        failures.push(`${name}: readFile`);
     }
     if (expected.realpath !== undefined) {
       let realpath: string | undefined;
-      try { realpath = fs.realpathSync.native(file); } catch { realpath = undefined; }
-      if (expected.realpath.ok !== (realpath !== undefined) ||
-        (expected.realpath.ok && realpath !== undefined && identity.resolve(realpath).key !== identity.resolve(expected.realpath.path).key)) failures.push(`${name}: realpath`);
+      try {
+        realpath = fs.realpathSync.native(file);
+      } catch {
+        realpath = undefined;
+      }
+      if (
+        expected.realpath.ok !== (realpath !== undefined) ||
+        (expected.realpath.ok &&
+          realpath !== undefined &&
+          identity.resolve(realpath).key !==
+            identity.resolve(expected.realpath.path).key)
+      )
+        failures.push(`${name}: realpath`);
     }
     if (expected.accessibleEntries !== undefined) {
       const files: string[] = [];
@@ -61,12 +114,28 @@ export function assertHumanSourceCompilerObservations(
             const child = fs.statSync(path.join(file, entry));
             if (child.isDirectory()) directories.push(entry);
             else if (child.isFile()) files.push(entry);
-          } catch { /* An inaccessible child is not an accessible entry. */ }
+          } catch {
+            /* An inaccessible child is not an accessible entry. */
+          }
         }
       }
-      if (JSON.stringify(files.sort(compareHumanSourceNames)) !== JSON.stringify([...expected.accessibleEntries.files].sort(compareHumanSourceNames)) ||
-        JSON.stringify(directories.sort(compareHumanSourceNames)) !== JSON.stringify([...expected.accessibleEntries.directories].sort(compareHumanSourceNames))) failures.push(`${name}: accessibleEntries`);
+      if (
+        JSON.stringify(files.sort(compareHumanSourceNames)) !==
+          JSON.stringify(
+            [...expected.accessibleEntries.files].sort(compareHumanSourceNames),
+          ) ||
+        JSON.stringify(directories.sort(compareHumanSourceNames)) !==
+          JSON.stringify(
+            [...expected.accessibleEntries.directories].sort(
+              compareHumanSourceNames,
+            ),
+          )
+      )
+        failures.push(`${name}: accessibleEntries`);
     }
   }
-  if (failures.length !== 0) throw new Error(`Source producer graph filesystem observations changed: ${failures.join(", ")}`);
+  if (failures.length !== 0)
+    throw new Error(
+      `Source producer graph filesystem observations changed: ${failures.join(", ")}`,
+    );
 }

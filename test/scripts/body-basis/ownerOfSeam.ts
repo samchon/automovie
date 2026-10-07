@@ -1,5 +1,3 @@
-
-
 /**
  * Which side a vertex both segments touch belongs to, by the bone that
  * dominates it: `-1` when the bone is `other`, `+1` otherwise.

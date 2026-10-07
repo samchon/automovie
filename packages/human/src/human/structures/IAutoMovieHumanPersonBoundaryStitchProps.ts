@@ -1,4 +1,7 @@
-import type { IAutoMovieMesh, IAutoMovieMeshPhysicalSource } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "./IAutoMovieHumanPersonSeam";
 

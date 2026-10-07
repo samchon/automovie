@@ -15,13 +15,19 @@ import type { IHumanViewerPersonKeyProps } from "./IHumanViewerPersonKeyProps";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Identity hashes the document as read and actual runtime digests without subject-specific invalidation.
  * @evidence contracts/common.md#meaningful-documentation Names numerical provenance and the display state that stays outside it.
  */
-export function humanViewerPersonKey(props: IHumanViewerPersonKeyProps): string {
-  return createHash("sha256").update(JSON.stringify([
-    props.document,
-    props.bases.face.digest,
-    props.bases.body.digest,
-    props.sources.face,
-    props.sources.body,
-    props.sources.person,
-  ])).digest("hex");
+export function humanViewerPersonKey(
+  props: IHumanViewerPersonKeyProps,
+): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify([
+        props.document,
+        props.bases.face.digest,
+        props.bases.body.digest,
+        props.sources.face,
+        props.sources.body,
+        props.sources.person,
+      ]),
+    )
+    .digest("hex");
 }

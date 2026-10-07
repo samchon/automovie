@@ -7,7 +7,10 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
  *
  * @evidence contracts/common.md#meaningful-documentation States the message's purpose.
  */
-export function announceHumanViewerAddress(address: HumanViewerAddress, stage: HumanViewerStage): void {
+export function announceHumanViewerAddress(
+  address: HumanViewerAddress,
+  stage: HumanViewerStage,
+): void {
   parent.postMessage(
     {
       type: "human:address",

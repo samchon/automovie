@@ -15,7 +15,11 @@ export function createHumanSourceBodyRecipes(
   const own = (name: string): IHumanSourceBodyRecipe => {
     let found = cache.get(name);
     if (found === undefined) {
-      found = { state: name, skin: field.delta(name), landmarks: field.landmarks(name) };
+      found = {
+        state: name,
+        skin: field.delta(name),
+        landmarks: field.landmarks(name),
+      };
       if (reader.state(name).kind === "body-macro") cache.set(name, found);
     }
     return found;
@@ -23,7 +27,8 @@ export function createHumanSourceBodyRecipes(
   return (name) => {
     if (!reader.has(name)) return null;
     const state = reader.state(name);
-    if (state.kind === "body-target" || state.kind === "body-macro") return own(name);
+    if (state.kind === "body-target" || state.kind === "body-macro")
+      return own(name);
     if (state.kind !== "body-macro-pair") return null;
     const [a, b] = state.recipe.endpoints as [string, string];
     const pair = own(name);
@@ -32,7 +37,9 @@ export function createHumanSourceBodyRecipes(
     return {
       state: name,
       skin: pair.skin.map((value, i) => value - first.skin[i] - second.skin[i]),
-      landmarks: pair.landmarks.map((value, i) => value - first.landmarks[i] - second.landmarks[i]),
+      landmarks: pair.landmarks.map(
+        (value, i) => value - first.landmarks[i] - second.landmarks[i],
+      ),
     };
   };
 }

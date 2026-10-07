@@ -13,17 +13,28 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps";
  * @evidence contracts/common.md#clear-and-simple-design Settling belongs to the host; this route publishes and answers.
  * @evidence contracts/common.md#meaningful-documentation States when it answers and what the answer holds.
  */
-export function serveHumanViewerRescan(props: IServeHumanViewerDataProps): boolean {
+export function serveHumanViewerRescan(
+  props: IServeHumanViewerDataProps,
+): boolean {
   if (props.url.pathname !== "/rescan") return false;
-  void props.settleInputs().then((settled) => {
-    props.publish(settled);
-    props.json({
-      documents: settled.documents.filter((entry) => entry.id.startsWith("file:")).map((entry) => entry.id),
-      rejected: settled.rejected,
+  void props
+    .settleInputs()
+    .then((settled) => {
+      props.publish(settled);
+      props.json({
+        documents: settled.documents
+          .filter((entry) => entry.id.startsWith("file:"))
+          .map((entry) => entry.id),
+        rejected: settled.rejected,
+      });
+    })
+    .catch((error: unknown) => {
+      props.response.statusCode = 500;
+      props.json({
+        error:
+          "Rescan failed: " +
+          (error instanceof Error ? error.message : String(error)),
+      });
     });
-  }).catch((error: unknown) => {
-    props.response.statusCode = 500;
-    props.json({ error: "Rescan failed: " + (error instanceof Error ? error.message : String(error)) });
-  });
   return true;
 }

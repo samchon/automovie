@@ -30,7 +30,11 @@ export interface IHumanFaceSkinChartTriangle {
   vertices: readonly [number, number, number];
 
   /** The three vertices in the one source-facet chart. */
-  corners: readonly [IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate];
+  corners: readonly [
+    IHumanFaceSkinChartCoordinate,
+    IHumanFaceSkinChartCoordinate,
+    IHumanFaceSkinChartCoordinate,
+  ];
 
   /** Oriented projected determinant; the seed orientation is positive. */
   determinant: IHumanExactFraction;

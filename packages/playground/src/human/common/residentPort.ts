@@ -15,7 +15,10 @@ export function createHumanResidentPort<Input, Output>(
       worker.onmessage = (event) => callback?.({ data: event.data });
     },
     set onerror(callback: HumanResidentPort<Input, Output>["onerror"]) {
-      worker.onerror = (event) => callback?.({ message: humanWorkerErrorMessage(event, "The face worker failed.") });
+      worker.onerror = (event) =>
+        callback?.({
+          message: humanWorkerErrorMessage(event, "The face worker failed."),
+        });
     },
     postMessage: (request) => worker.postMessage(request),
     terminate: () => worker.terminate(),

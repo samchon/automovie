@@ -30,8 +30,14 @@ export function createHumanFaceCornealMaterial(
   name: string,
   thicknessMetres: number,
 ): IAutoMovieMaterial {
-  if (id.trim() === "" || !Number.isFinite(thicknessMetres) || thicknessMetres <= 0)
-    throw new Error("Corneal rendering needs a material identity and supplied positive metric thickness.");
+  if (
+    id.trim() === "" ||
+    !Number.isFinite(thicknessMetres) ||
+    thicknessMetres <= 0
+  )
+    throw new Error(
+      "Corneal rendering needs a material identity and supplied positive metric thickness.",
+    );
   return {
     id,
     name,

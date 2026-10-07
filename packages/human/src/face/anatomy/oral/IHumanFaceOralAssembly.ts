@@ -1,6 +1,6 @@
 import type { IHumanFaceDynamicCollider } from "../../basis/IHumanFaceDynamicCollider";
-import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
 import type { IAutoMovieHumanFaceOralCrownSupport } from "../../structures/IAutoMovieHumanFaceOralCrownSupport";
+import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
 
 /** Shared generated oral surfaces and their original resident replacement.
  *

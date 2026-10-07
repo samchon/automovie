@@ -39,15 +39,25 @@ export function readHumanPersonRest(
   const faceSkin = compiled.generation.face.surfaces[compiled.faceProducerSkin];
   const bodySkin = compiled.generation.body.surfaces[compiled.bodyIndex];
   const halves = [
-    { indices: faceSkin.indices, samples: compiled.faceSource.samples, positions: rest.facePosed },
-    { indices: bodySkin.indices, samples: compiled.bodySource.samples, positions: rest.bodyPosed },
+    {
+      indices: faceSkin.indices,
+      samples: compiled.faceSource.samples,
+      positions: rest.facePosed,
+    },
+    {
+      indices: bodySkin.indices,
+      samples: compiled.bodySource.samples,
+      positions: rest.bodyPosed,
+    },
   ];
   const at = new Map<number, number[]>();
   let high = -Infinity;
   let low = Infinity;
   for (const half of halves)
     half.samples.forEach((sample, vertex) => {
-      const point = [0, 1, 2].map((axis) => Math.fround(half.positions[vertex * 3 + axis]));
+      const point = [0, 1, 2].map((axis) =>
+        Math.fround(half.positions[vertex * 3 + axis]),
+      );
       if (!at.has(sample)) at.set(sample, point);
       high = Math.max(high, point[1]);
       low = Math.min(low, point[1]);
@@ -65,10 +75,15 @@ export function readHumanPersonRest(
       }
       const [p, q, r] = ids.map((id) => at.get(id)!);
       volume +=
-        (p[0] * (q[1] * r[2] - q[2] * r[1]) - p[1] * (q[0] * r[2] - q[2] * r[0]) + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6;
+        (p[0] * (q[1] * r[2] - q[2] * r[1]) -
+          p[1] * (q[0] * r[2] - q[2] * r[0]) +
+          p[2] * (q[0] * r[1] - q[1] * r[0])) /
+        6;
     }
   for (const [edge, count] of edges)
     if (count !== 2)
-      throw new Error(`The person skin of ${compiled.generation.id} does not close: edge ${edge} has ${count} triangles.`);
+      throw new Error(
+        `The person skin of ${compiled.generation.id} does not close: edge ${edge} has ${count} triangles.`,
+      );
   return { statureMetres: high - low, volumeCubicMetres: volume };
 }

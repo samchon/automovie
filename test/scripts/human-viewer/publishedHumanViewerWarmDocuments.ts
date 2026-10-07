@@ -14,5 +14,7 @@ import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 export function publishedHumanViewerWarmDocuments<
   Document extends IHumanViewerCatalogueEntry,
 >(documents: readonly Document[]): Document[] {
-  return documents.filter((entry) => entry.domain !== "person" && !entry.id.startsWith("file:"));
+  return documents.filter(
+    (entry) => entry.domain !== "person" && !entry.id.startsWith("file:"),
+  );
 }

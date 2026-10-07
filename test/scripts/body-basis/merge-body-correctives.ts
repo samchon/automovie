@@ -4,10 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 
+import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
 import { assertBodyCorrectiveBasis } from "./assertBodyCorrectiveBasis";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { createBodyCorrectiveMergeReceipt } from "./createBodyCorrectiveMergeReceipt";
-import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
 import { mergeBodyCorrectives } from "./mergeBodyCorrectives";
 
 /**
@@ -52,11 +52,17 @@ const inputSha256 = bodyCorrectiveBasisDigest(input);
 let basis = input;
 const steps: object[] = [];
 for (const shardPath of shardPaths) {
-  const shard = JSON.parse(fs.readFileSync(shardPath, "utf8")) as IBodyCorrectiveShard & {
+  const shard = JSON.parse(
+    fs.readFileSync(shardPath, "utf8"),
+  ) as IBodyCorrectiveShard & {
     basis: string;
     basisSha256?: string;
   };
-  assertBodyCorrectiveBasis({ id: input.id, sha256: inputSha256 }, shard, shardPath);
+  assertBodyCorrectiveBasis(
+    { id: input.id, sha256: inputSha256 },
+    shard,
+    shardPath,
+  );
   const merged = mergeBodyCorrectives(basis, shard, revision);
   basis = merged.basis;
   steps.push({
@@ -88,4 +94,12 @@ if (receiptPath !== undefined)
       2,
     ) + "\n",
   );
-console.log("published", revision, "from", input.id, "in", steps.length, "steps");
+console.log(
+  "published",
+  revision,
+  "from",
+  input.id,
+  "in",
+  steps.length,
+  "steps",
+);

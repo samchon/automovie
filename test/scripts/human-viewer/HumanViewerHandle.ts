@@ -1,6 +1,7 @@
-import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+
+import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
  * Read-only browser observation protocol, shared by the page host and server.
@@ -43,7 +44,9 @@ export interface HumanViewerHandle {
   admission(): IAutoMovieHumanConstructionAdmission | null;
 
   /** Owner mapping readings from the constructed face; absence reports no reading. */
-  periocularMappings?(): IAutoMovieHumanFacePeriocularMappingReport[] | undefined;
+  periocularMappings?():
+    | IAutoMovieHumanFacePeriocularMappingReport[]
+    | undefined;
 
   /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
   png(): string;

@@ -1,11 +1,16 @@
-import type { IAutoMovieColor, IAutoMovieStageLight } from "@automovie/interface";
+import type {
+  IAutoMovieColor,
+  IAutoMovieStageLight,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts } from "./predicates";
 import type { IFilmStageLightBoundaryInputs } from "./IFilmStageLightBoundaryInputs";
+import { hasViolation, namedFacts } from "./predicates";
 
 /** Run the existing light numeric, color and discriminator boundary assertions in their original order. */
-export function assertFilmStageLightBoundaries(input: IFilmStageLightBoundaryInputs): void {
+export function assertFilmStageLightBoundaries(
+  input: IFilmStageLightBoundaryInputs,
+): void {
   const { stageLights, failure } = input;
   // 7. BOUNDARIES
   TestValidator.equals(

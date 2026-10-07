@@ -49,12 +49,16 @@ export function packConnectedBodyModel(
           ...(mesh.colors === undefined
             ? {}
             : { colors: new Float32Array(mesh.colors) }),
-          ...(mesh.physicalVertices === undefined ? {} : {
-            physicalVertices: {
-              sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-              vertices: mesh.physicalVertices.vertices.slice(),
-            },
-          }),
+          ...(mesh.physicalVertices === undefined
+            ? {}
+            : {
+                physicalVertices: {
+                  sources: mesh.physicalVertices.sources.map((source) => ({
+                    ...source,
+                  })),
+                  vertices: mesh.physicalVertices.vertices.slice(),
+                },
+              }),
           skin: null,
         },
       },

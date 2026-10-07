@@ -29,16 +29,31 @@ import type { IAutoMovieHumanPersonSkinPartProps } from "../structures/IAutoMovi
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function placeHumanPersonSkinPart(props: IAutoMovieHumanPersonSkinPartProps): IAutoMovieMesh {
-  const { mesh, sources, positions, normals, offset, samples, origin, domain } = props;
+export function placeHumanPersonSkinPart(
+  props: IAutoMovieHumanPersonSkinPartProps,
+): IAutoMovieMesh {
+  const { mesh, sources, positions, normals, offset, samples, origin, domain } =
+    props;
   if (mesh.physicalVertices === undefined)
-    throw new Error("Person physical registration needs both actual registered skin halves.");
+    throw new Error(
+      "Person physical registration needs both actual registered skin halves.",
+    );
   resolveAutoMovieMeshPhysicalVertices(mesh);
   sources.forEach((source, vertex) => {
     const reference = mesh.physicalVertices!.vertices[vertex];
-    const actual = reference === null ? undefined : mesh.physicalVertices!.sources[reference];
-    if (samples[source] === undefined || actual === undefined || actual.domain !== origin || actual.id !== samples[source])
-      throw new Error("Person physical registration needs the actual admitted canonical skin samples.");
+    const actual =
+      reference === null
+        ? undefined
+        : mesh.physicalVertices!.sources[reference];
+    if (
+      samples[source] === undefined ||
+      actual === undefined ||
+      actual.domain !== origin ||
+      actual.id !== samples[source]
+    )
+      throw new Error(
+        "Person physical registration needs the actual admitted canonical skin samples.",
+      );
   });
   const out: IAutoMovieMesh = {
     ...mesh,

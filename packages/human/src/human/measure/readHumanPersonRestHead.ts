@@ -1,7 +1,7 @@
+import type { IAutoMovieHumanHeadSkin } from "../../common/measure/IAutoMovieHumanHeadSkin";
 import { evaluateHumanPersonRestSkin } from "../build/evaluateHumanPersonRestSkin";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
-import type { IAutoMovieHumanHeadSkin } from "../../common/measure/IAutoMovieHumanHeadSkin";
 
 /**
  * The head view of a person's skin at rest, for the head rules: the face
@@ -38,4 +38,3 @@ export function readHumanPersonRestHead(
     skinRegions: face.skinRegions,
   };
 }
-

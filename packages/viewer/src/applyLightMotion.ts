@@ -1,6 +1,7 @@
 import { resolveShotLighting } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
+
 import { applyLightState } from "./applyLightState";
 
 /**

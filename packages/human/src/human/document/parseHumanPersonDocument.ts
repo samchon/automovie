@@ -1,5 +1,5 @@
-import { assertTextSize } from "../../common/document/assertTextSize";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
+import { assertTextSize } from "../../common/document/assertTextSize";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { admitHumanPersonDocument } from "./admitHumanPersonDocument";
 

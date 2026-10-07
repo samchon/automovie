@@ -1,6 +1,6 @@
-import { findHumanSkinLandmark } from "./findHumanSkinLandmark";
 import type { IAutoMovieHumanSkinLandmark } from "./IAutoMovieHumanSkinLandmark";
 import type { IAutoMovieHumanSkinLandmarkHolder } from "./IAutoMovieHumanSkinLandmarkHolder";
+import { findHumanSkinLandmark } from "./findHumanSkinLandmark";
 
 /**
  * A basis's named skin point, or a refusal naming the point and the basis

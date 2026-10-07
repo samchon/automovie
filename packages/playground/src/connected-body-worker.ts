@@ -7,20 +7,23 @@
  * The whole-person reader consumes this same loaded body and its companion
  * head rather than fetching another body during worker preparation.
  */
+import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
+import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { createConnectedBodyGenerationRuntime } from "./human/body/createConnectedBodyGenerationRuntime";
-import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
-import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const signal = (progress: string): void => {
   const message: IConnectedBodyProgress = { progress };
   scope.postMessage(message);
 };
-const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, view]) =>
+const prepared = Promise.all([
+  readConnectedHeadView(),
+  readConnectedBodyView(),
+]).then(([head, view]) =>
   createConnectedBodyGenerationRuntime(head, view, signal),
 );
 const handle = createHumanResidentHandler({

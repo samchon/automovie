@@ -40,13 +40,25 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function readHumanNostrilBasal(head: IAutoMovieHumanHeadSkin, margin: string): IAutoMovieHumanNostrilBasal {
+export function readHumanNostrilBasal(
+  head: IAutoMovieHumanHeadSkin,
+  margin: string,
+): IAutoMovieHumanNostrilBasal {
   const p = head.positions;
-  const points = humanHeadRegionVertices(head, [margin]).map((v) => [p[v * 3], p[v * 3 + 2]]);
-  if (points.length < 3) throw new Error(`The nostril margin ${margin} of ${head.id} has fewer than three points.`);
+  const points = humanHeadRegionVertices(head, [margin]).map((v) => [
+    p[v * 3],
+    p[v * 3 + 2],
+  ]);
+  if (points.length < 3)
+    throw new Error(
+      `The nostril margin ${margin} of ${head.id} has fewer than three points.`,
+    );
   const cx = points.reduce((s, q) => s + q[0], 0) / points.length;
   const cz = points.reduce((s, q) => s + q[1], 0) / points.length;
-  points.sort((a, b) => Math.atan2(a[1] - cz, a[0] - cx) - Math.atan2(b[1] - cz, b[0] - cx));
+  points.sort(
+    (a, b) =>
+      Math.atan2(a[1] - cz, a[0] - cx) - Math.atan2(b[1] - cz, b[0] - cx),
+  );
   let twice = 0;
   for (let i = 0; i < points.length; i++) {
     const a = points[i];
@@ -67,6 +79,8 @@ export function readHumanNostrilBasal(head: IAutoMovieHumanHeadSkin, margin: str
   const area = Math.abs(twice) / 2;
   const shortAxis = Math.max(...across) - Math.min(...across);
   if (area === 0 || longAxis === 0 || shortAxis === 0)
-    throw new Error(`The nostril margin ${margin} of ${head.id} has no nondegenerate basal sample polygon.`);
+    throw new Error(
+      `The nostril margin ${margin} of ${head.id} has no nondegenerate basal sample polygon.`,
+    );
   return { area, longAxis, shortAxis };
 }

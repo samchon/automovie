@@ -1,5 +1,6 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IAutoMovieHumanPersonHeadTransform } from "../structures/IAutoMovieHumanPersonHeadTransform";
 
 /**
@@ -41,7 +42,11 @@ export function moveHumanMeshRigidly(
   ): number[] => {
     const output = values.slice();
     for (let at = 0; at < output.length; at += 3) {
-      const moved = move({ x: output[at], y: output[at + 1], z: output[at + 2] });
+      const moved = move({
+        x: output[at],
+        y: output[at + 1],
+        z: output[at + 2],
+      });
       output[at] = moved.x;
       output[at + 1] = moved.y;
       output[at + 2] = moved.z;
@@ -53,12 +58,16 @@ export function moveHumanMeshRigidly(
     positions: apply(mesh.positions, transform.point),
     normals:
       mesh.normals === null ? null : apply(mesh.normals, transform.direction),
-    ...(mesh.physicalVertices === undefined ? {} : {
-      physicalVertices: {
-        sources: mesh.physicalVertices.sources.map((source) => ({ ...source })),
-        vertices: mesh.physicalVertices.vertices.slice(),
-      },
-    }),
+    ...(mesh.physicalVertices === undefined
+      ? {}
+      : {
+          physicalVertices: {
+            sources: mesh.physicalVertices.sources.map((source) => ({
+              ...source,
+            })),
+            vertices: mesh.physicalVertices.vertices.slice(),
+          },
+        }),
   };
   if (output.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(output);

@@ -20,25 +20,44 @@ import type { IHumanConstructionCheck } from "./IHumanConstructionCheck";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed condition remains a named refusal and changes no geometry, input or tolerance.
  * @evidence contracts/common.md#meaningful-documentation Documents retained causes and the ordinary builder publication boundary.
  */
-export function admitHumanConstruction(checks: readonly IHumanConstructionCheck[], onCheckCompleted?: (owner: string, accepted: boolean) => void): IAutoMovieHumanConstructionAdmission {
+export function admitHumanConstruction(
+  checks: readonly IHumanConstructionCheck[],
+  onCheckCompleted?: (owner: string, accepted: boolean) => void,
+): IAutoMovieHumanConstructionAdmission {
   const failures: IAutoMovieHumanConstructionAdmission["failures"] = [];
   const clearances: IAutoMovieHumanConstructionClearanceReading[] = [];
   const parts: IAutoMovieHumanConstructionPartReading[] = [];
   const report = (owner: string, error: unknown): void => {
-    failures.push({ owner, cause: error instanceof Error ? error.message : String(error) });
+    failures.push({
+      owner,
+      cause: error instanceof Error ? error.message : String(error),
+    });
   };
   for (const check of checks) {
     const priorFailures = failures.length;
     let refused = false;
-    try { check.assert(); }
-    catch (error) { refused = true; report(check.owner, error); }
+    try {
+      check.assert();
+    } catch (error) {
+      refused = true;
+      report(check.owner, error);
+    }
     // A reading that cannot be taken is a refusal of its own: an unmeasured
     // relation must not read as a measured pass. An owner that already
     // refused keeps its one cause.
-    try { if (check.read !== undefined) clearances.push(...check.read()); }
-    catch (error) { if (!refused) { refused = true; report(check.owner, error); } }
-    try { if (check.census !== undefined) parts.push(...check.census()); }
-    catch (error) { if (!refused) report(check.owner, error); }
+    try {
+      if (check.read !== undefined) clearances.push(...check.read());
+    } catch (error) {
+      if (!refused) {
+        refused = true;
+        report(check.owner, error);
+      }
+    }
+    try {
+      if (check.census !== undefined) parts.push(...check.census());
+    } catch (error) {
+      if (!refused) report(check.owner, error);
+    }
     // Completion is reported only after this owner's assert/read/census have
     // actually returned or their failures were retained. Observer errors are
     // caller failures and propagate instead of becoming anatomical refusals.

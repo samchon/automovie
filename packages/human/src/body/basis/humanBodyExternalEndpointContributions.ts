@@ -29,27 +29,61 @@ export function humanBodyExternalEndpointContributions(
   source: IAutoMovieHumanBodyEndpointSource,
 ): Set<string> {
   if (!equalHumanBodySourceValue(basis, source.body))
-    throw new Error("External endpoint source must contain the exact admitted body basis.");
-  const bodySkin = basis.surfaces.find(surface => surface.sourcePartition !== undefined);
-  if (source.partition.generation !== source.generation || bodySkin?.sourcePartition?.generation !== source.generation)
-    throw new Error("External endpoint contributions need both actual same-generation source partitions.");
-  const endpoints = new Set(basis.channels.flatMap(channel => channel.negative === null
-    ? [channel.positive] : [channel.positive, channel.negative]));
-  for (const corrective of basis.correctives ?? []) endpoints.add(corrective.target);
+    throw new Error(
+      "External endpoint source must contain the exact admitted body basis.",
+    );
+  const bodySkin = basis.surfaces.find(
+    (surface) => surface.sourcePartition !== undefined,
+  );
+  if (
+    source.partition.generation !== source.generation ||
+    bodySkin?.sourcePartition?.generation !== source.generation
+  )
+    throw new Error(
+      "External endpoint contributions need both actual same-generation source partitions.",
+    );
+  const endpoints = new Set(
+    basis.channels.flatMap((channel) =>
+      channel.negative === null
+        ? [channel.positive]
+        : [channel.positive, channel.negative],
+    ),
+  );
+  for (const corrective of basis.correctives ?? [])
+    endpoints.add(corrective.target);
   const resident = new Set<string>();
   const positionsRead = new Set<number[]>();
   for (const driver of source.drivers) {
-    if (!endpoints.has(driver.endpoint) || driver.channel.trim() === "" || driver.positive !== driver.endpoint)
-      throw new Error("External contribution needs its actual body endpoint and head driver: " + driver.endpoint);
+    if (
+      !endpoints.has(driver.endpoint) ||
+      driver.channel.trim() === "" ||
+      driver.positive !== driver.endpoint
+    )
+      throw new Error(
+        "External contribution needs its actual body endpoint and head driver: " +
+          driver.endpoint,
+      );
     for (const contribution of source.contributions[driver.endpoint] ?? []) {
-      if (contribution.id.trim() === "") throw new Error("External endpoint contribution needs its actual source member identity.");
+      if (contribution.id.trim() === "")
+        throw new Error(
+          "External endpoint contribution needs its actual source member identity.",
+        );
       if (!positionsRead.has(contribution.positions)) {
-        if (contribution.positions.length === 0 || contribution.positions.length % 3 !== 0 ||
-            !contribution.positions.every(Number.isFinite))
-          throw new Error("External endpoint contribution needs actual finite XYZ source geometry.");
+        if (
+          contribution.positions.length === 0 ||
+          contribution.positions.length % 3 !== 0 ||
+          !contribution.positions.every(Number.isFinite)
+        )
+          throw new Error(
+            "External endpoint contribution needs actual finite XYZ source geometry.",
+          );
         positionsRead.add(contribution.positions);
       }
-      assertSparseRows(contribution.rows, contribution.positions.length / 3, "external source " + contribution.id + " " + driver.endpoint);
+      assertSparseRows(
+        contribution.rows,
+        contribution.positions.length / 3,
+        "external source " + contribution.id + " " + driver.endpoint,
+      );
       resident.add(driver.endpoint);
     }
   }

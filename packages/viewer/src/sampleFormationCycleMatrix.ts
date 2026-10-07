@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake";
 

@@ -26,14 +26,17 @@ import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
-import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
+import type { IConnectedPersonMeasureMessage } from "./human/person/IConnectedPersonMeasureMessage";
 import type { IConnectedPersonWorkerMessage } from "./human/person/IConnectedPersonWorkerMessage";
 import { createConnectedPersonMeasureRuntime } from "./human/person/createConnectedPersonMeasureRuntime";
-import type { IConnectedPersonMeasureMessage } from "./human/person/IConnectedPersonMeasureMessage";
+import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const source = readConnectedPersonSourceUrls(scope.name || location.search, location.href);
+const source = readConnectedPersonSourceUrls(
+  scope.name || location.search,
+  location.href,
+);
 const signal = (stage: string): void => {
   const message: IConnectedBodyProgress = { progress: stage };
   scope.postMessage(message);
@@ -62,9 +65,11 @@ const answer = async (): Promise<void> => {
   try {
     for (;;) {
       const preview = previews.shift();
-      const measurement = preview === undefined ? measurements.shift() : undefined;
+      const measurement =
+        preview === undefined ? measurements.shift() : undefined;
       if (preview !== undefined) await handle(preview);
-      else if (measurement !== undefined) scope.postMessage(await measure(measurement));
+      else if (measurement !== undefined)
+        scope.postMessage(await measure(measurement));
       else return;
       // let requests that arrived during this one be queued before choosing
       await new Promise<undefined>((resolve) => {
@@ -76,7 +81,9 @@ const answer = async (): Promise<void> => {
   }
 };
 scope.onmessage = (
-  event: MessageEvent<IConnectedPersonWorkerMessage | IConnectedPersonMeasureMessage>,
+  event: MessageEvent<
+    IConnectedPersonWorkerMessage | IConnectedPersonMeasureMessage
+  >,
 ) => {
   if ("kind" in event.data) measurements.push(event.data);
   else previews.push(event.data);

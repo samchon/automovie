@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
-import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
+
 import type { IBodyCorrectivePublication } from "./IBodyCorrectivePublication";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 
 /** The corrective solver over one owned working basis. */
 export interface IBodyCorrectiveSession {

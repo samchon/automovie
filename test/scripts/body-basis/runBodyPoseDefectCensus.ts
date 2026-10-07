@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 
 import type { IBodyReviewState } from "../body-review/IBodyReviewState";
+import type { IBodyPoseCensusIdentity } from "./IBodyPoseCensusIdentity";
 import { assertBodyPoseCensusIdentity } from "./assertBodyPoseCensusIdentity";
 import { bodyPoseCensusRefusalMessage } from "./bodyPoseCensusRefusalMessage";
 import type { BodyPoseDefectZone } from "./bodyPoseDefectZone";
 import type { IBodyPoseDefectRow } from "./formatBodyPoseDefectTable";
-import type { IBodyPoseCensusIdentity } from "./IBodyPoseCensusIdentity";
 import { measureBodyPoseDefects } from "./measureBodyPoseDefects";
 
 /**

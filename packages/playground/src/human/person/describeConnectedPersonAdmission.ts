@@ -19,7 +19,8 @@ export function describeConnectedPersonAdmission(
   parts: number | undefined,
   admission: IAutoMovieHumanConstructionAdmission | undefined,
 ): IConnectedPersonAdmissionView | null {
-  if (document === undefined || parts === undefined || admission === undefined) return null;
+  if (document === undefined || parts === undefined || admission === undefined)
+    return null;
   return {
     mode,
     document: document.id,

@@ -33,7 +33,15 @@ export function findHumanPronasale(
 ): IAutoMovieVector3 {
   let best: IAutoMovieVector3 | undefined;
   for (const point of humanHeadPlanePoints(head, 0, sellion.x))
-    if (point.y < sellion.y && point.y > menton.y && (best === undefined || point.z > best.z)) best = point;
-  if (best === undefined) throw new Error(`The head view of ${head.id} has no midline nasal profile between sellion and menton.`);
+    if (
+      point.y < sellion.y &&
+      point.y > menton.y &&
+      (best === undefined || point.z > best.z)
+    )
+      best = point;
+  if (best === undefined)
+    throw new Error(
+      `The head view of ${head.id} has no midline nasal profile between sellion and menton.`,
+    );
   return best;
 }

@@ -39,9 +39,7 @@ export class HumanFaceOcularCapMetric {
 
   private readonly profile: ReturnType<typeof resolveHumanFaceOpticalProfile>;
 
-  constructor(
-    inputProfile: ReturnType<typeof resolveHumanFaceOpticalProfile>,
-  ) {
+  constructor(inputProfile: ReturnType<typeof resolveHumanFaceOpticalProfile>) {
     const profile: ReturnType<typeof resolveHumanFaceOpticalProfile> = {
       radius: inputProfile.radius,
       limbus: inputProfile.limbus,
@@ -180,7 +178,8 @@ export class HumanFaceOcularCapMetric {
       ...isolateHumanPolynomialRoots(polynomial),
       endpoint(1),
     ].sort((a, b) => a.parameter - b.parameter);
-    const height = (t: IHumanExactFraction): IHumanExactFraction => this.heightAtParameter(t);
+    const height = (t: IHumanExactFraction): IHumanExactFraction =>
+      this.heightAtParameter(t);
     const squaredInterval = (
       a: IHumanExactFraction,
       b: IHumanExactFraction,
@@ -259,7 +258,12 @@ export class HumanFaceOcularCapMetric {
    */
   private heightAtParameter(t: IHumanExactFraction): IHumanExactFraction {
     const q = Fraction.multiply(t, t);
-    return Fraction.add(this.a, Fraction.add(Fraction.multiply(this.b, q),
-      Fraction.multiply(this.c, Fraction.multiply(q, q))));
+    return Fraction.add(
+      this.a,
+      Fraction.add(
+        Fraction.multiply(this.b, q),
+        Fraction.multiply(this.c, Fraction.multiply(q, q)),
+      ),
+    );
   }
 }

@@ -29,12 +29,23 @@ export function renderConnectedBodyHeldMotions(
 ): void {
   const rows: HTMLElement[] = [];
   for (const joint of basis.joints) {
-    if (joint.shoulder !== undefined || joint.constraint === null || !joint.bone.toLowerCase().includes(query)) continue;
+    if (
+      joint.shoulder !== undefined ||
+      joint.constraint === null ||
+      !joint.bone.toLowerCase().includes(query)
+    )
+      continue;
     const constraint = joint.constraint;
-    const held = (["flexion", "abduction", "twist"] as const).filter((axis) => constraint[axis] === null);
+    const held = (["flexion", "abduction", "twist"] as const).filter(
+      (axis) => constraint[axis] === null,
+    );
     if (held.length > 0)
       rows.push(
-        createConnectedDisabledRow(dom, joint.bone, `The source rig holds ${joint.bone} on ${held.join(" and ")}; no such motion is offered.`),
+        createConnectedDisabledRow(
+          dom,
+          joint.bone,
+          `The source rig holds ${joint.bone} on ${held.join(" and ")}; no such motion is offered.`,
+        ),
       );
   }
   if (rows.length === 0) return;

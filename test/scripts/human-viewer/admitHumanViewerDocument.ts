@@ -17,7 +17,11 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
  * @evidence contracts/common.md#clear-and-simple-design One function maps a domain to its owner's admission.
  * @evidence contracts/common.md#meaningful-documentation States where admission runs, why, and the result's meaning.
  */
-export function admitHumanViewerDocument(domain: string, text: string, source?: IAutoMovieHumanBodyAnatomicalAssembly): string | null {
+export function admitHumanViewerDocument(
+  domain: string,
+  text: string,
+  source?: IAutoMovieHumanBodyAnatomicalAssembly,
+): string | null {
   try {
     const document: unknown = JSON.parse(text);
     if (domain === "face") admitHumanFaceBasisDocument(document);

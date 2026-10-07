@@ -28,19 +28,26 @@ export function writeConnectedPersonInput(
   seed: object | null = null,
   seedPath: readonly string[] = path.slice(0, -1),
 ): IAutoMovieHumanPersonDocument {
-  if (path.length === 0) throw new Error("A catalogue input needs a document path.");
+  if (path.length === 0)
+    throw new Error("A catalogue input needs a document path.");
   const next = structuredClone(document);
-  const chain: Record<string, unknown>[] = [next as unknown as Record<string, unknown>];
+  const chain: Record<string, unknown>[] = [
+    next as unknown as Record<string, unknown>,
+  ];
   for (const key of path.slice(0, -1)) {
     const parent = chain[chain.length - 1];
     const child = parent[key];
-    if (typeof child === "object" && child !== null) chain.push(child as Record<string, unknown>);
+    if (typeof child === "object" && child !== null)
+      chain.push(child as Record<string, unknown>);
     else if (value === undefined) return next;
     else {
       // the record that holds the value starts from its owner's default, when one exists
       const created: Record<string, unknown> =
-        seed !== null && chain.length === seedPath.length && seedPath.every((member, index) => path[index] === member)
-          ? structuredClone(seed) as Record<string, unknown> : {};
+        seed !== null &&
+        chain.length === seedPath.length &&
+        seedPath.every((member, index) => path[index] === member)
+          ? (structuredClone(seed) as Record<string, unknown>)
+          : {};
       parent[key] = created;
       chain.push(created);
     }
@@ -54,7 +61,10 @@ export function writeConnectedPersonInput(
   // prune the records this removal emptied, keeping each document's required members
   for (let depth = chain.length - 1; depth >= 1; --depth) {
     const key = path[depth - 1];
-    const required = depth === 1 ? key === "face" || key === "body" : depth === 2 && key === "shape";
+    const required =
+      depth === 1
+        ? key === "face" || key === "body"
+        : depth === 2 && key === "shape";
     if (required || Object.keys(chain[depth]).length !== 0) break;
     delete chain[depth - 1][key];
   }

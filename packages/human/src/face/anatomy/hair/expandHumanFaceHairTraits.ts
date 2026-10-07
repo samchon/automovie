@@ -1,4 +1,5 @@
 import typia from "typia";
+
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import type { IAutoMovieHumanFaceHairTraits } from "../../structures/IAutoMovieHumanFaceHairTraits";
@@ -32,54 +33,106 @@ export function expandHumanFaceHairTraits(
   input: IAutoMovieHumanFaceHair | null | undefined,
   edits: Record<string, IAutoMovieHumanFaceHairTraits>,
 ): IAutoMovieHumanFaceHair {
-  const traits = typia.assertEquals<Record<string, IAutoMovieHumanFaceHairTraits>>(edits);
+  const traits =
+    typia.assertEquals<Record<string, IAutoMovieHumanFaceHairTraits>>(edits);
   if (input === undefined || input === null)
-    throw new Error("Named hair traits require an existing numerical hairstyle.");
+    throw new Error(
+      "Named hair traits require an existing numerical hairstyle.",
+    );
   const result = structuredClone(input);
-  for (const id of Object.keys(traits).sort((a, b) => a < b ? -1 : a > b ? 1 : 0)) {
+  for (const id of Object.keys(traits).sort((a, b) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  )) {
     const layer = result.layers.find((candidate) => candidate.id === id);
-    if (layer === undefined) throw new Error("Named hair traits require a resident population: " + id);
+    if (layer === undefined)
+      throw new Error("Named hair traits require a resident population: " + id);
     const value = traits[id];
     if (value.lengths !== undefined) {
       const l = value.lengths;
-      layer.lengthAxes = [l.leftMm / 1000, l.rightMm / 1000, l.crownMm / 1000,
-        l.napeMm / 1000, l.frontMm / 1000, l.backMm / 1000];
+      layer.lengthAxes = [
+        l.leftMm / 1000,
+        l.rightMm / 1000,
+        l.crownMm / 1000,
+        l.napeMm / 1000,
+        l.frontMm / 1000,
+        l.backMm / 1000,
+      ];
     }
     if (value.hairline !== undefined) {
       const h = value.hairline;
-      layer.hairline = { front: h.frontDegrees * Math.PI / 180,
-        left: h.leftDegrees * Math.PI / 180, right: h.rightDegrees * Math.PI / 180,
-        back: h.backDegrees * Math.PI / 180 };
+      layer.hairline = {
+        front: (h.frontDegrees * Math.PI) / 180,
+        left: (h.leftDegrees * Math.PI) / 180,
+        right: (h.rightDegrees * Math.PI) / 180,
+        back: (h.backDegrees * Math.PI) / 180,
+      };
     }
-    if (value.comb !== undefined) layer.flow = value.comb === "back" ? [0, 0, -1] :
-      value.comb === "front" ? [0, 0, 1] : value.comb === "left" ? [1, 0, 0] :
-      value.comb === "right" ? [-1, 0, 0] : [0, -1, 0];
+    if (value.comb !== undefined)
+      layer.flow =
+        value.comb === "back"
+          ? [0, 0, -1]
+          : value.comb === "front"
+            ? [0, 0, 1]
+            : value.comb === "left"
+              ? [1, 0, 0]
+              : value.comb === "right"
+                ? [-1, 0, 0]
+                : [0, -1, 0];
     if (value.fringeScale !== undefined) layer.frontScale = value.fringeScale;
-    if (value.lengthVariation !== undefined) layer.lengthVariation = value.lengthVariation;
-    if (value.liftStrength !== undefined) layer.lift.strength = value.liftStrength;
-    if (value.liftHoldMm !== undefined) layer.lift.reach = value.liftHoldMm / 1000;
+    if (value.lengthVariation !== undefined)
+      layer.lengthVariation = value.lengthVariation;
+    if (value.liftStrength !== undefined)
+      layer.lift.strength = value.liftStrength;
+    if (value.liftHoldMm !== undefined)
+      layer.lift.reach = value.liftHoldMm / 1000;
     if (value.fallHoldMm === null) delete layer.fall;
-    else if (value.fallHoldMm !== undefined) layer.fall = { reach: value.fallHoldMm / 1000 };
+    else if (value.fallHoldMm !== undefined)
+      layer.fall = { reach: value.fallHoldMm / 1000 };
     if (value.part === null) delete layer.part;
     else if (value.part !== undefined) {
       const p = value.part;
-      const domain = basis.surfaces.find((s) => s.id === layer.surface)?.hairDomains?.find((d) => d.id === layer.domain);
-      if (domain === undefined) throw new Error("Named hair part requires its shared growth chart: " + id);
-      if (!Number.isFinite(p.offsetMm) || p.offsetMm < 0 || (p.side === "center" && p.offsetMm !== 0))
-        throw new Error("A named scalp part needs nonnegative offset; center requires zero.");
-      layer.part = { ...layer.part, normal: [1, 0, 0],
-        offset: domain.origin[0] + (p.side === "left" ? 1 : p.side === "right" ? -1 : 0) * p.offsetMm / 1000,
-        transitionWidth: p.transitionMm / 1000, bias: layer.part?.bias ?? [0, 0, 0],
-        strength: p.strength, reach: p.holdMm / 1000 };
+      const domain = basis.surfaces
+        .find((s) => s.id === layer.surface)
+        ?.hairDomains?.find((d) => d.id === layer.domain);
+      if (domain === undefined)
+        throw new Error(
+          "Named hair part requires its shared growth chart: " + id,
+        );
+      if (
+        !Number.isFinite(p.offsetMm) ||
+        p.offsetMm < 0 ||
+        (p.side === "center" && p.offsetMm !== 0)
+      )
+        throw new Error(
+          "A named scalp part needs nonnegative offset; center requires zero.",
+        );
+      layer.part = {
+        ...layer.part,
+        normal: [1, 0, 0],
+        offset:
+          domain.origin[0] +
+          ((p.side === "left" ? 1 : p.side === "right" ? -1 : 0) * p.offsetMm) /
+            1000,
+        transitionWidth: p.transitionMm / 1000,
+        bias: layer.part?.bias ?? [0, 0, 0],
+        strength: p.strength,
+        reach: p.holdMm / 1000,
+      };
     }
-    if (value.curl !== undefined) layer.curl = { mode: value.curl.mode,
-      angle: value.curl.angleDegrees * Math.PI / 180,
-      wavelength: value.curl.wavelengthMm / 1000, reach: value.curl.onsetMm / 1000 };
+    if (value.curl !== undefined)
+      layer.curl = {
+        mode: value.curl.mode,
+        angle: (value.curl.angleDegrees * Math.PI) / 180,
+        wavelength: value.curl.wavelengthMm / 1000,
+        reach: value.curl.onsetMm / 1000,
+      };
     if (value.gather === null) delete layer.gather;
-    else if (value.gather !== undefined) layer.gather = expandHumanFaceHairGather(value.gather);
+    else if (value.gather !== undefined)
+      layer.gather = expandHumanFaceHairGather(value.gather);
     if (value.tipWidth !== undefined) layer.taper.tipWidth = value.tipWidth;
     if (value.taperStart !== undefined) layer.taper.start = value.taperStart;
-    if (value.finish !== undefined) layer.finish = structuredClone(value.finish);
+    if (value.finish !== undefined)
+      layer.finish = structuredClone(value.finish);
   }
   assertHumanFaceHair(result);
   return result;

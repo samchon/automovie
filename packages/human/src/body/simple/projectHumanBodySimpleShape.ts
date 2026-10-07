@@ -1,8 +1,8 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
 import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
@@ -71,7 +71,10 @@ export function projectHumanBodySimpleShape(
   );
   // the mass and the fat fraction that sets its density depend on each other
   const volume = whole.volume(shape);
-  let massKilograms = measure.mass(volume, math.density(table.mass.fatFraction[0] * 100));
+  let massKilograms = measure.mass(
+    volume,
+    math.density(table.mass.fatFraction[0] * 100),
+  );
   for (let step = 0; step < MASS_ITERATIONS; step++) {
     const bodyMassIndex = massKilograms / (statureMetres * statureMetres);
     massKilograms = measure.mass(

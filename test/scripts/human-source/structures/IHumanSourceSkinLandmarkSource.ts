@@ -29,7 +29,10 @@ export interface IHumanSourceSkinLandmarkSource {
   citation: string;
 
   /** How the vertex was determined. */
-  status: "carried from the published body" | "definition, read from renders" | "named approximation";
+  status:
+    | "carried from the published body"
+    | "definition, read from renders"
+    | "named approximation";
 
   /** Neighbouring samples the reading compared, nearest alternative first. */
   neighbours: number[];

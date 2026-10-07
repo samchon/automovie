@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisChannel } from "../structures/shape/IAutoMovieHumanBodyBasisChannel";
 import type { IAutoMovieHumanBodyChannelReach } from "../structures/IAutoMovieHumanBodyChannelReach";
+import type { IAutoMovieHumanBodyBasisChannel } from "../structures/shape/IAutoMovieHumanBodyBasisChannel";
 
 /**
  * Read how far a channel can be evaluated on its basis.
@@ -41,7 +41,11 @@ export function humanBodyChannelReach(
     for (const corrective of basis.correctives ?? [])
       if (unavailable.has(corrective.target))
         for (const input of corrective.inputs)
-          if ("channel" in input && input.channel === channel.id && input.side === side) {
+          if (
+            "channel" in input &&
+            input.channel === channel.id &&
+            input.side === side
+          ) {
             const at = input.onset ?? 0;
             limit = Math.min(limit, at);
             limits.push(

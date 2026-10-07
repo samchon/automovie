@@ -11,12 +11,25 @@ export function intersectHumanSourceRay(
   origin: readonly number[],
   direction: readonly number[],
 ): IHumanSourceRayHit[] {
-  const cross = (a: readonly number[], b: readonly number[]): number[] => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const dot = (a: readonly number[], b: readonly number[]): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const corner = (v: number): number[] => [positions[3 * v], positions[3 * v + 1], positions[3 * v + 2]];
+  const cross = (a: readonly number[], b: readonly number[]): number[] => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+  const dot = (a: readonly number[], b: readonly number[]): number =>
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const corner = (v: number): number[] => [
+    positions[3 * v],
+    positions[3 * v + 1],
+    positions[3 * v + 2],
+  ];
   const hits: IHumanSourceRayHit[] = [];
   for (let k = 0; k < triangles.length; k += 3) {
-    const triangle: [number, number, number] = [triangles[k], triangles[k + 1], triangles[k + 2]];
+    const triangle: [number, number, number] = [
+      triangles[k],
+      triangles[k + 1],
+      triangles[k + 2],
+    ];
     const [a, b, c] = triangle.map(corner);
     const e1 = [0, 1, 2].map((i) => b[i] - a[i]);
     const e2 = [0, 1, 2].map((i) => c[i] - a[i]);
@@ -30,7 +43,14 @@ export function intersectHumanSourceRay(
     const v = dot(direction, q) / det;
     if (v < 0 || u + v > 1) continue;
     const t = dot(e2, q) / det;
-    if (t > 0) hits.push({ triangle, u, v, t, facing: dot(cross(e1, e2), direction) > 0 });
+    if (t > 0)
+      hits.push({
+        triangle,
+        u,
+        v,
+        t,
+        facing: dot(cross(e1, e2), direction) > 0,
+      });
   }
   return hits;
 }

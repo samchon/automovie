@@ -19,17 +19,42 @@ import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBod
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A material label or atlas surface cannot certify personal anatomy.
  * @evidence contracts/common.md#meaningful-documentation States legacy absence, refusal and the limits of readback authority.
  */
-export function readHumanBodyAtlasAssetCorrespondence(primitive: Primitive): IAutoMovieHumanBodyAtlasAssetCorrespondence | undefined {
+export function readHumanBodyAtlasAssetCorrespondence(
+  primitive: Primitive,
+): IAutoMovieHumanBodyAtlasAssetCorrespondence | undefined {
   const extras = primitive.getExtras();
   if (!Object.hasOwn(extras, "automovieAtlasInspection")) return undefined;
-  const qualification = typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(extras.automovieAtlasInspection);
+  const qualification =
+    typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(
+      extras.automovieAtlasInspection,
+    );
   const geometry = readHumanStaticPartCorrespondence(primitive);
-  const ids = geometry?.parts.filter((part) => /^(body:)?anatomical-atlas:/.test(part.id)).map((part) => part.id);
-  if (geometry === undefined || ids === undefined || ids.length === 0 || qualification.parts.length !== ids.length ||
-      qualification.parts.some((part, at) => part.id !== ids[at] || part.id !== (part.id.startsWith("body:") ? "body:" : "") + "anatomical-atlas:" + part.part ||
-        !isHumanBodyAtlasSourceRecorded(part.source) || part.registration.basis.trim() === "" || part.registration.protocol.trim() === "" ||
+  const ids = geometry?.parts
+    .filter((part) => /^(body:)?anatomical-atlas:/.test(part.id))
+    .map((part) => part.id);
+  if (
+    geometry === undefined ||
+    ids === undefined ||
+    ids.length === 0 ||
+    qualification.parts.length !== ids.length ||
+    qualification.parts.some(
+      (part, at) =>
+        part.id !== ids[at] ||
+        part.id !==
+          (part.id.startsWith("body:") ? "body:" : "") +
+            "anatomical-atlas:" +
+            part.part ||
+        !isHumanBodyAtlasSourceRecorded(part.source) ||
+        part.registration.basis.trim() === "" ||
+        part.registration.protocol.trim() === "" ||
         !/^[a-f0-9]{64}$/i.test(part.compiledMeshSha256) ||
-        Object.values(part.registration.shape).some((value) => !Number.isFinite(value))))
-    throw new Error("Atlas qualification must match its actual source members and reference provenance.");
+        Object.values(part.registration.shape).some(
+          (value) => !Number.isFinite(value),
+        ),
+    )
+  )
+    throw new Error(
+      "Atlas qualification must match its actual source members and reference provenance.",
+    );
   return { geometry, qualification: structuredClone(qualification) };
 }

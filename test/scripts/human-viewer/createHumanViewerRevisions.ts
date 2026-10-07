@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 
 import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevisionsProps";
-import { collectHumanViewerImports } from "./collectHumanViewerImports";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
+import { collectHumanViewerImports } from "./collectHumanViewerImports";
 
 /**
  * The revision digests of the viewer, each over only the files it truly
@@ -24,7 +24,9 @@ import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
  * reports whether each digest moved, so a caller reloads the page or drops a
  * cache only for a change that reaches it.
  */
-export function createHumanViewerRevisions(props: ICreateHumanViewerRevisionsProps) {
+export function createHumanViewerRevisions(
+  props: ICreateHumanViewerRevisionsProps,
+) {
   const texts = new Map<string, string | undefined>();
   const present = new Map<string, boolean>();
   const io = {
@@ -62,7 +64,13 @@ export function createHumanViewerRevisions(props: ICreateHumanViewerRevisionsPro
     const person = graph(props.entries.person);
     // A missing dependency still has a resolution candidate. Keep that path
     // watched so its repair can recover the failed source generation.
-    reached = new Set([...browser, ...face, ...body, ...person, ...present.keys()]);
+    reached = new Set([
+      ...browser,
+      ...face,
+      ...body,
+      ...person,
+      ...present.keys(),
+    ]);
     return {
       browser: createHash("sha256")
         .update(digest(browser) + props.bases())
@@ -79,13 +87,15 @@ export function createHumanViewerRevisions(props: ICreateHumanViewerRevisionsPro
     reaches: (file: string): boolean => reached.has(file),
     /** Every file any graph reaches, as of the last computation. */
     reached: (): string[] => [...reached],
-    changed: (files: readonly string[]): { moved: (keyof IHumanViewerRevisions)[] } => {
+    changed: (
+      files: readonly string[],
+    ): { moved: (keyof IHumanViewerRevisions)[] } => {
       for (const file of files) texts.delete(file);
       present.clear();
       const next = compute();
-      const moved = (Object.keys(next) as (keyof IHumanViewerRevisions)[]).filter(
-        (key) => next[key] !== current[key],
-      );
+      const moved = (
+        Object.keys(next) as (keyof IHumanViewerRevisions)[]
+      ).filter((key) => next[key] !== current[key]);
       current = next;
       return { moved };
     },

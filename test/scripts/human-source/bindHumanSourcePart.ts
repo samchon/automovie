@@ -19,22 +19,30 @@ export function bindHumanSourcePart(
   const count = published.positions.length / 3;
   const attachments = new Map<number, string>();
   for (const attachment of published.attachments ?? [])
-    for (let i = 0; i < attachment.rows.length; i += 2) attachments.set(attachment.rows[i], attachment.owner);
+    for (let i = 0; i < attachment.rows.length; i += 2)
+      attachments.set(attachment.rows[i], attachment.owner);
   const frameOf = (v: number): string => {
     const owner = attachments.get(v);
     if (owner === "leftEye") return "joint-l-eye";
     if (owner === "rightEye") return "joint-r-eye";
     return `${part.id}:${owner ?? "head"}`;
   };
-  const rigid = published.attachments !== undefined && published.attachments.length > 0;
+  const rigid =
+    published.attachments !== undefined && published.attachments.length > 0;
   const triangles: number[] = [];
   const weights: number[] = [];
   for (let v = 0; v < count; v++) {
-    const hit = nearest([published.positions[3 * v], published.positions[3 * v + 1], published.positions[3 * v + 2]]);
+    const hit = nearest([
+      published.positions[3 * v],
+      published.positions[3 * v + 1],
+      published.positions[3 * v + 2],
+    ]);
     triangles.push(hit.triangle);
     weights.push(...hit.weights);
   }
-  const frames = rigid ? Array.from({ length: count }, (_, v) => frameOf(v)) : [];
+  const frames = rigid
+    ? Array.from({ length: count }, (_, v) => frameOf(v))
+    : [];
   const members = new Map<string, number[]>();
   frames.forEach((frame, v) => {
     const list = members.get(frame);
@@ -43,7 +51,9 @@ export function bindHumanSourcePart(
   });
   const frameSources: Record<string, string> = {};
   for (const frame of members.keys())
-    frameSources[frame] = landmarkIds.includes(frame) ? `body landmark ${frame}` : "mean row of the skin points nearest to this frame's vertices";
+    frameSources[frame] = landmarkIds.includes(frame)
+      ? `body landmark ${frame}`
+      : "mean row of the skin points nearest to this frame's vertices";
   return {
     binding: {
       kind: rigid ? "rigid" : "surface",

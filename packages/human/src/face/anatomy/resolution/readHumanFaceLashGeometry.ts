@@ -31,25 +31,48 @@ export function readHumanFaceLashGeometry(
   quantity: "shaftCount" | "longestSampledCentrelineLength",
 ): number | IHumanFaceMeasurementGap {
   const mesh = context.lashMesh?.(side, row);
-  const gap = (cause: string): IHumanFaceMeasurementGap => ({ reason: `unread generated ${side} ${row} lashes: ${cause}` });
-  if (mesh === undefined || mesh === null) return gap("this build retains cards without individual shaft geometry");
+  const gap = (cause: string): IHumanFaceMeasurementGap => ({
+    reason: `unread generated ${side} ${row} lashes: ${cause}`,
+  });
+  if (mesh === undefined || mesh === null)
+    return gap("this build retains cards without individual shaft geometry");
   const vertices = mesh.positions.length / 3;
   if (vertices === 0 && mesh.indices?.length === 0) return 0;
-  if (!Number.isSafeInteger(vertices) || vertices % 117 !== 0 || !mesh.positions.every(Number.isFinite) || mesh.indices === null)
+  if (
+    !Number.isSafeInteger(vertices) ||
+    vertices % 117 !== 0 ||
+    !mesh.positions.every(Number.isFinite) ||
+    mesh.indices === null
+  )
     return gap("the row's complete finite tube lattice is not present");
   const parent = Array.from({ length: vertices }, (_, vertex) => vertex);
   const root = (vertex: number): number => {
     let current = vertex;
     while (parent[current] !== current) current = parent[current];
-    while (parent[vertex] !== current) { const next = parent[vertex]; parent[vertex] = current; vertex = next; }
+    while (parent[vertex] !== current) {
+      const next = parent[vertex];
+      parent[vertex] = current;
+      vertex = next;
+    }
     return current;
   };
   const used = new Set<number>();
   for (let at = 0; at < mesh.indices.length; at += 3) {
-    const a = mesh.indices[at], b = mesh.indices[at + 1], c = mesh.indices[at + 2];
-    if ([a, b, c].some(vertex => !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertices)) return gap("invalid triangle connectivity");
-    used.add(a); used.add(b); used.add(c);
-    parent[root(b)] = root(a); parent[root(c)] = root(a);
+    const a = mesh.indices[at],
+      b = mesh.indices[at + 1],
+      c = mesh.indices[at + 2];
+    if (
+      [a, b, c].some(
+        (vertex) =>
+          !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertices,
+      )
+    )
+      return gap("invalid triangle connectivity");
+    used.add(a);
+    used.add(b);
+    used.add(c);
+    parent[root(b)] = root(a);
+    parent[root(c)] = root(a);
   }
   const count = new Set([...used].map(root)).size;
   if (quantity === "shaftCount") return count;
@@ -59,11 +82,19 @@ export function readHumanFaceLashGeometry(
       const sum = Vector3.create();
       for (let angular = 0; angular < 8; angular++) {
         const at = 3 * (shaft * 117 + ring * 9 + angular);
-        sum.x += mesh.positions[at] / 8; sum.y += mesh.positions[at + 1] / 8; sum.z += mesh.positions[at + 2] / 8;
+        sum.x += mesh.positions[at] / 8;
+        sum.y += mesh.positions[at + 1] / 8;
+        sum.z += mesh.positions[at + 2] / 8;
       }
       return sum;
     });
-    const length = points.slice(1).reduce((sum, point, at) => sum + Vector3.length(Vector3.subtract(point, points[at])), 0);
+    const length = points
+      .slice(1)
+      .reduce(
+        (sum, point, at) =>
+          sum + Vector3.length(Vector3.subtract(point, points[at])),
+        0,
+      );
     longest = Math.max(longest, length * 1000);
   }
   return longest;

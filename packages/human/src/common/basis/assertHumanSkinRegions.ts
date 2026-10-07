@@ -23,19 +23,37 @@ import type { IAutoMovieHumanSkinRegionHolder } from "./IAutoMovieHumanSkinRegio
  * @evidenceExclude contracts/anatomy.md#permitted-range The conditions are topological, not anatomical.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function assertHumanSkinRegions(basis: IAutoMovieHumanSkinRegionHolder): void {
+export function assertHumanSkinRegions(
+  basis: IAutoMovieHumanSkinRegionHolder,
+): void {
   const regions = basis.skinRegions ?? {};
   for (const [name, region] of Object.entries(regions)) {
     if (name in Object.prototype)
-      throw new Error(`The basis ${basis.id} names a skin region after an inherited property: ${name}`);
+      throw new Error(
+        `The basis ${basis.id} names a skin region after an inherited property: ${name}`,
+      );
     const surface = basis.surfaces[region.surface];
-    if (surface === undefined) throw new Error(`The skin region ${name} of ${basis.id} is not on a declared surface.`);
-    if (region.vertices.length === 0) throw new Error(`The skin region ${name} of ${basis.id} lists no vertex.`);
+    if (surface === undefined)
+      throw new Error(
+        `The skin region ${name} of ${basis.id} is not on a declared surface.`,
+      );
+    if (region.vertices.length === 0)
+      throw new Error(
+        `The skin region ${name} of ${basis.id} lists no vertex.`,
+      );
     region.vertices.forEach((vertex, k) => {
-      if (!Number.isInteger(vertex) || vertex < 0 || vertex * 3 + 2 >= surface.positions.length)
-        throw new Error(`The skin region ${name} of ${basis.id} lists ${vertex}, which is not a vertex of its surface.`);
+      if (
+        !Number.isInteger(vertex) ||
+        vertex < 0 ||
+        vertex * 3 + 2 >= surface.positions.length
+      )
+        throw new Error(
+          `The skin region ${name} of ${basis.id} lists ${vertex}, which is not a vertex of its surface.`,
+        );
       if (k > 0 && vertex <= region.vertices[k - 1])
-        throw new Error(`The skin region ${name} of ${basis.id} does not list its vertices strictly increasing at ${vertex}.`);
+        throw new Error(
+          `The skin region ${name} of ${basis.id} does not list its vertices strictly increasing at ${vertex}.`,
+        );
     });
   }
   for (const [name, right] of Object.entries(regions)) {
@@ -46,6 +64,8 @@ export function assertHumanSkinRegions(basis: IAutoMovieHumanSkinRegionHolder): 
     const held = new Set(right.vertices);
     const shared = left.vertices.find((vertex) => held.has(vertex));
     if (shared !== undefined)
-      throw new Error(`The skin regions ${name} and ${mirror} of ${basis.id} share vertex ${shared}.`);
+      throw new Error(
+        `The skin regions ${name} and ${mirror} of ${basis.id} share vertex ${shared}.`,
+      );
   }
 }

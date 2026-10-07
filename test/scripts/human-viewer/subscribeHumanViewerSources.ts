@@ -13,13 +13,21 @@ import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerS
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Edits are admitted by the actual import graph and input boundaries without matching subjects or fixtures.
  * @evidence contracts/common.md#meaningful-documentation Defines local-input and generation-view rescans, publication ordering and watcher ownership.
  */
-export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesProps) {
+export function subscribeHumanViewerSources(
+  props: ISubscribeHumanViewerSourcesProps,
+) {
   const { source } = props;
   // The generation directory is watched, not its files: the views may not
   // exist yet, and their creation must reread the catalogue too.
   const generationDirectory = path.dirname(source.generationFiles.head);
-  props.add([source.inputsDirectory, ...source.watched, generationDirectory,
-    ...Object.values(source.basisFiles), source.documentsFile, source.subjectPeopleFile]);
+  props.add([
+    source.inputsDirectory,
+    ...source.watched,
+    generationDirectory,
+    ...Object.values(source.basisFiles),
+    source.documentsFile,
+    source.subjectPeopleFile,
+  ]);
   const changes = new Set<string>();
   let cancel: (() => void) | undefined;
   /** Batches whose digests are being computed. */
@@ -38,17 +46,23 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
       props.error(error);
     } finally {
       --applying;
-      if (applying === 0 && cancel === undefined && changes.size === 0) props.updating(false);
+      if (applying === 0 && cancel === undefined && changes.size === 0)
+        props.updating(false);
     }
   };
-  const schedule = props.schedule ?? ((run: () => void) => {
-    const timer = setTimeout(run, 100);
-    return () => clearTimeout(timer);
-  });
+  const schedule =
+    props.schedule ??
+    ((run: () => void) => {
+      const timer = setTimeout(run, 100);
+      return () => clearTimeout(timer);
+    });
   props.watch((_event, input) => {
     const file = path.resolve(input);
-    if (file.startsWith(source.inputsDirectory + path.sep) ||
-        Object.values(source.generationFiles).includes(file) || file === source.subjectPeopleFile) {
+    if (
+      file.startsWith(source.inputsDirectory + path.sep) ||
+      Object.values(source.generationFiles).includes(file) ||
+      file === source.subjectPeopleFile
+    ) {
       try {
         props.inputs();
       } catch (error) {
@@ -56,7 +70,9 @@ export function subscribeHumanViewerSources(props: ISubscribeHumanViewerSourcesP
       }
       return;
     }
-    const basis = Object.values(source.basisFiles).includes(file) || file === source.documentsFile;
+    const basis =
+      Object.values(source.basisFiles).includes(file) ||
+      file === source.documentsFile;
     if (!basis && !source.revisions.reaches(source.slash(file))) return;
     props.reached?.();
     props.updating(true);

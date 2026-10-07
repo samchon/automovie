@@ -1,5 +1,8 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieQuaternion, IAutoMovieFormationSlotMotion } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 /** Formation and banner inputs for the existing compiled shot scenarios.
  *

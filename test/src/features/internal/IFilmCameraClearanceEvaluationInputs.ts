@@ -1,5 +1,10 @@
 import type { evaluateCameraClearance } from "@automovie/engine";
-import type { IAutoMovieCameraClearanceEnvelope, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IFilmCameraClearanceBox } from "./IFilmCameraClearanceBox";
 import type { IFilmCameraClearanceEvaluationOverrides } from "./IFilmCameraClearanceEvaluationOverrides";
 
@@ -12,10 +17,15 @@ export interface IFilmCameraClearanceEvaluationInputs {
   box(center: IAutoMovieVector3, half?: number): IFilmCameraClearanceBox;
 
   /** Construct the original body and rig envelope. */
-  envelope(body?: IAutoMovieCameraClearanceEnvelope["body"], parentRig?: IAutoMovieCameraClearanceEnvelope["parentRig"]): IAutoMovieCameraClearanceEnvelope;
+  envelope(
+    body?: IAutoMovieCameraClearanceEnvelope["body"],
+    parentRig?: IAutoMovieCameraClearanceEnvelope["parentRig"],
+  ): IAutoMovieCameraClearanceEnvelope;
 
   /** Execute the original evaluator with optional overrides. */
-  evaluate(over?: IFilmCameraClearanceEvaluationOverrides): ReturnType<typeof evaluateCameraClearance>;
+  evaluate(
+    over?: IFilmCameraClearanceEvaluationOverrides,
+  ): ReturnType<typeof evaluateCameraClearance>;
 
   /** Read the original thrown-error fragment. */
   throws(closure: () => unknown, text: string): boolean;

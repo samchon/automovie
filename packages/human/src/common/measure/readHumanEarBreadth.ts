@@ -30,7 +30,10 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function readHumanEarBreadth(head: IAutoMovieHumanHeadSkin, region: string): IAutoMovieHumanHeadReading {
+export function readHumanEarBreadth(
+  head: IAutoMovieHumanHeadSkin,
+  region: string,
+): IAutoMovieHumanHeadReading {
   const vertices = humanHeadRegionVertices(head, [region]);
   const p = head.positions;
   let front = vertices[0];
@@ -42,5 +45,8 @@ export function readHumanEarBreadth(head: IAutoMovieHumanHeadSkin, region: strin
   const at = (v: number) => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
   const a = at(front);
   const b = at(back);
-  return { metres: Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), points: { preaurale: a, postaurale: b } };
+  return {
+    metres: Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z),
+    points: { preaurale: a, postaurale: b },
+  };
 }

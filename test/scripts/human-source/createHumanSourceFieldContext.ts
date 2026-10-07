@@ -33,26 +33,45 @@ export function createHumanSourceFieldContext(
   const basis: IAutoMovieHumanBodyBasis = {
     ...body,
     id: `${generation.id.slice(0, 12)}-field-producers`,
-    ...(Object.keys(bodyRows.unavailable).length === 0 ? {} : { unavailableTargets: Object.keys(bodyRows.unavailable) }),
-    surfaces: [{ ...surface, positions: Array.from(mesh.positions), indices: Array.from(mesh.indices), targets: bodyRows.p1Targets }],
+    ...(Object.keys(bodyRows.unavailable).length === 0
+      ? {}
+      : { unavailableTargets: Object.keys(bodyRows.unavailable) }),
+    surfaces: [
+      {
+        ...surface,
+        positions: Array.from(mesh.positions),
+        indices: Array.from(mesh.indices),
+        targets: bodyRows.p1Targets,
+      },
+    ],
   };
-  const landmarks = defineHumanSourceSkinLandmarks(body, generation, cut).skinLandmarks;
+  const landmarks = defineHumanSourceSkinLandmarks(
+    body,
+    generation,
+    cut,
+  ).skinLandmarks;
   return {
     mesh,
     twin,
     normals: computeHumanSourceSymmetricNormals(mesh, twin),
     smooth: createHumanSourceUniformSmoother(mesh.indices, n),
     diffuse: createHumanSourceHeatDiffusion(mesh),
-    evaluate: (shape) => Float64Array.from(evaluateHumanBodyShape(basis, humanBodyBasisWeights(basis, { shape })).surfaces[0]),
+    evaluate: (shape) =>
+      Float64Array.from(
+        evaluateHumanBodyShape(basis, humanBodyBasisWeights(basis, { shape }))
+          .surfaces[0],
+      ),
     rows: (name) => {
       const out = new Float64Array(3 * n);
       const rows = bodyRows.p1Targets[name] ?? [];
-      for (let i = 0; i < rows.length; i += 4) for (let c = 0; c < 3; c++) out[3 * rows[i] + c] = rows[i + 1 + c];
+      for (let i = 0; i < rows.length; i += 4)
+        for (let c = 0; c < 3; c++) out[3 * rows[i] + c] = rows[i + 1 + c];
       return out;
     },
     landmark: (name) => {
       const found = landmarks[name];
-      if (found === undefined) throw new Error(`The body view declares no skin landmark ${name}.`);
+      if (found === undefined)
+        throw new Error(`The body view declares no skin landmark ${name}.`);
       return found.vertex;
     },
   };

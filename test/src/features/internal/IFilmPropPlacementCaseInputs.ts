@@ -3,7 +3,11 @@ import type { FilmPropPlacementMutation } from "./FilmPropPlacementMutation";
 /** Original registry slot identities and addressed refusal reader. */
 export interface IFilmPropPlacementCaseInputs {
   /** Apply the existing fresh registry mutation and read its original refusal. */
-  violated(mutate: FilmPropPlacementMutation, path: string, message?: string): boolean;
+  violated(
+    mutate: FilmPropPlacementMutation,
+    path: string,
+    message?: string,
+  ): boolean;
 
   /** Original table slot in the shared registry. */
   TABLE: number;

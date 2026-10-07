@@ -33,7 +33,9 @@ export function readHumanFaceMeasurementLandmark(
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
   const landmark = findHumanSkinLandmark(context.basis, name);
   const surface =
-    landmark === undefined ? undefined : context.basis.surfaces[landmark.surface];
+    landmark === undefined
+      ? undefined
+      : context.basis.surfaces[landmark.surface];
   if (landmark === undefined || surface === undefined)
     return { reason: `missing landmark: ${name}` };
   return context.point(surface.id, landmark.vertex);

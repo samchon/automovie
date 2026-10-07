@@ -9,6 +9,9 @@ import { spawnSync } from "node:child_process";
  */
 export function killHumanViewerProcess(pid: number): void {
   if (process.platform === "win32")
-    spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" });
+    spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], {
+      windowsHide: true,
+      stdio: "ignore",
+    });
   else process.kill(pid, "SIGTERM");
 }

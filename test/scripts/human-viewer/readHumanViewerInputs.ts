@@ -1,19 +1,19 @@
 import { createHash } from "node:crypto";
 
-import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
-import type { IHumanViewerInputs } from "./IHumanViewerInputs";
 import { HumanViewerPendingInputError } from "./HumanViewerPendingInputError";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
 import type { IHumanViewerInputDocument } from "./IHumanViewerInputDocument";
 import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
+import type { IHumanViewerInputs } from "./IHumanViewerInputs";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
 import type { IReadHumanViewerInputsProps } from "./IReadHumanViewerInputsProps";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
 import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
 import { humanViewerPersonKey } from "./humanViewerPersonKey";
-import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis";
+import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis";
 import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases";
 import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration";
 
@@ -67,7 +67,9 @@ import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGe
  * are unchanged, so republishing the catalogue for an admission verdict does
  * not re-read and re-hash every input; only admission is applied again.
  */
-export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHumanViewerInputs {
+export function readHumanViewerInputs(
+  props: IReadHumanViewerInputsProps,
+): IHumanViewerInputs {
   const hash = (bytes: string | Uint8Array): string =>
     createHash("sha256").update(bytes).digest("hex");
   const available = new Set(props.io.names());
@@ -79,8 +81,13 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
   const accept = (entry: IHumanViewerCatalogueEntry): void => {
     const admission = props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
-    else rejected.push({ file, id: entry.id, reason: `${entry.id}: ${admission.reason ?? admission.state}`,
-      pending: admission.state === "pending" });
+    else
+      rejected.push({
+        file,
+        id: entry.id,
+        reason: `${entry.id}: ${admission.reason ?? admission.state}`,
+        pending: admission.state === "pending",
+      });
   };
   /** What every file's result depends on besides its own bytes and sidecars. */
   const shared = JSON.stringify([props.bases, props.generation, props.sources]);
@@ -88,18 +95,35 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
   const readFile = (input: string): IHumanViewerInputFileRead => {
     const name = input.slice(0, -".json".length);
     const facts = (sidecar: string): string =>
-      available.has(sidecar) ? JSON.stringify(props.sidecar(sidecar)) : "absent";
-    const signature = [props.io.stamp?.(input) ?? "", facts(`${name}.basis.json.gz`), facts(`${name}.person.json.gz`),
-      facts(`${name}.head.json.gz`), facts(`${name}.body.json.gz`),
-      shared].join("|");
+      available.has(sidecar)
+        ? JSON.stringify(props.sidecar(sidecar))
+        : "absent";
+    const signature = [
+      props.io.stamp?.(input) ?? "",
+      facts(`${name}.basis.json.gz`),
+      facts(`${name}.person.json.gz`),
+      facts(`${name}.head.json.gz`),
+      facts(`${name}.body.json.gz`),
+      shared,
+    ].join("|");
     const kept = props.memo?.get(input);
-    if (kept !== undefined && kept.signature === signature && props.io.stamp !== undefined) return kept;
+    if (
+      kept !== undefined &&
+      kept.signature === signature &&
+      props.io.stamp !== undefined
+    )
+      return kept;
     const entries: IHumanViewerCatalogueEntry[] = [];
     let refusal: string | null = null;
-    const offer = (entry: IHumanViewerCatalogueEntry): void => { entries.push(entry); };
+    const offer = (entry: IHumanViewerCatalogueEntry): void => {
+      entries.push(entry);
+    };
     try {
-      if (!/^[A-Za-z0-9._-]+$/.test(name)) throw new Error("Unsupported file name");
-      const parsed = JSON.parse(props.io.read(input).toString("utf8")) as unknown;
+      if (!/^[A-Za-z0-9._-]+$/.test(name))
+        throw new Error("Unsupported file name");
+      const parsed = JSON.parse(
+        props.io.read(input).toString("utf8"),
+      ) as unknown;
       const candidateFile = `${name}.basis.json.gz`;
       const packetFile = `${name}.person.json.gz`;
       const headFile = `${name}.head.json.gz`;
@@ -110,7 +134,9 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
         if (!available.has(sidecar)) return null;
         const facts = props.sidecar(sidecar);
         if (facts === null)
-          throw new HumanViewerPendingInputError(`${sidecar} is still being read; its documents appear when it is`);
+          throw new HumanViewerPendingInputError(
+            `${sidecar} is still being read; its documents appear when it is`,
+          );
         return facts;
       };
       const candidate = sidecarOf(candidateFile);
@@ -120,142 +146,233 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
       for (const document of many ? (parsed as unknown[]) : [parsed]) {
         const domain = classifyHumanViewerInput(document);
         if (domain !== "person" && packetFacts !== null)
-          throw new Error(`${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`);
+          throw new Error(
+            `${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`,
+          );
         if (domain !== "person" && domain !== "body" && split)
-          throw new Error("Split generation views belong to a person or body document, not a " + domain + " document.");
+          throw new Error(
+            "Split generation views belong to a person or body document, not a " +
+              domain +
+              " document.",
+          );
         const named = document as IHumanViewerInputDocument;
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
         if (domain === "body" && split) {
           if (candidate !== null || packetFacts !== null)
-            throw new Error("A paired body input selects split generation views alone.");
+            throw new Error(
+              "A paired body input selects split generation views alone.",
+            );
           if (!available.has(headFile) || !available.has(bodyFile))
-            throw new Error("A paired body candidate requires both " + headFile + " and " + bodyFile + ".");
+            throw new Error(
+              "A paired body candidate requires both " +
+                headFile +
+                " and " +
+                bodyFile +
+                ".",
+            );
           const headFacts = sidecarOf(headFile);
           const bodyFacts = sidecarOf(bodyFile);
           const generation = readHumanViewerPublishedGeneration({
             files: { head: headFile, body: bodyFile },
-            exists: (view) => available.has(view === "head" ? headFile : bodyFile),
-            facts: (view) => view === "head" ? headFacts : bodyFacts,
+            exists: (view) =>
+              available.has(view === "head" ? headFile : bodyFile),
+            facts: (view) => (view === "head" ? headFacts : bodyFacts),
           });
-          if ("reason" in generation) throw new Error("Paired body candidate: " + generation.reason);
+          if ("reason" in generation)
+            throw new Error("Paired body candidate: " + generation.reason);
           if (named.basis !== generation.body)
-            throw new Error("The body must name the exact body basis in its split generation views.");
+            throw new Error(
+              "The body must name the exact body basis in its split generation views.",
+            );
           offer({
             id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain,
             document,
             basis: `${humanViewerBasisTokens.candidateGeneration}:${name}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
-            key: hash(JSON.stringify(document) + generation.headDigest + generation.bodyDigest + props.sources.body + props.sources.person),
+            key: hash(
+              JSON.stringify(document) +
+                generation.headDigest +
+                generation.bodyDigest +
+                props.sources.body +
+                props.sources.person,
+            ),
           });
           continue;
         }
         if (domain === "person") {
           if (candidate !== null)
-            throw new Error("Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.");
+            throw new Error(
+              "Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.",
+            );
           const person = readHumanViewerPersonBases(document as object);
           if (split) {
             if (packetFacts !== null)
-              throw new Error("A person input must select one packet or split generation views, not both.");
+              throw new Error(
+                "A person input must select one packet or split generation views, not both.",
+              );
             if (!available.has(headFile) || !available.has(bodyFile))
-              throw new Error("A split person candidate requires both " + headFile + " and " + bodyFile + ".");
+              throw new Error(
+                "A split person candidate requires both " +
+                  headFile +
+                  " and " +
+                  bodyFile +
+                  ".",
+              );
             const headFacts = sidecarOf(headFile);
             const bodyFacts = sidecarOf(bodyFile);
             const generation = readHumanViewerPublishedGeneration({
               files: { head: headFile, body: bodyFile },
-              exists: (view) => available.has(view === "head" ? headFile : bodyFile),
-              facts: (view) => view === "head" ? headFacts : bodyFacts,
+              exists: (view) =>
+                available.has(view === "head" ? headFile : bodyFile),
+              facts: (view) => (view === "head" ? headFacts : bodyFacts),
             });
             if ("reason" in generation)
               throw new Error("Split person candidate: " + generation.reason);
-            if (person.face !== generation.face || person.body !== generation.body)
-              throw new Error("The person must name the exact face and body bases in its split generation views.");
+            if (
+              person.face !== generation.face ||
+              person.body !== generation.body
+            )
+              throw new Error(
+                "The person must name the exact face and body bases in its split generation views.",
+              );
             offer({
               id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
               document,
               basis: `${humanViewerBasisTokens.candidateGeneration}:${name}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`,
-              key: humanViewerPersonKey({ document,
-                bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
-                sources: props.sources }),
+              key: humanViewerPersonKey({
+                document,
+                bases: {
+                  face: { digest: generation.headDigest },
+                  body: { digest: generation.bodyDigest },
+                },
+                sources: props.sources,
+              }),
             });
             continue;
           }
           if (packetFacts !== null) {
             if (packetFacts.packet === null)
-              throw new Error(`${packetFile}: ${packetFacts.failure ?? "not a person packet"}`);
+              throw new Error(
+                `${packetFile}: ${packetFacts.failure ?? "not a person packet"}`,
+              );
             const digest = packetFacts.digest;
             const packet = packetFacts.packet;
             if (person.face !== packet.face)
-              throw new Error(`The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`);
+              throw new Error(
+                `The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`,
+              );
             if (person.body !== packet.body)
-              throw new Error(`The person names body basis ${person.body} but its packet ${packetFile} carries body basis ${packet.body}`);
+              throw new Error(
+                `The person names body basis ${person.body} but its packet ${packetFile} carries body basis ${packet.body}`,
+              );
             offer({
               id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
               document,
-              key: humanViewerPersonKey({ document,
-                bases: { face: { digest }, body: { digest } }, sources: props.sources }),
+              key: humanViewerPersonKey({
+                document,
+                bases: { face: { digest }, body: { digest } },
+                sources: props.sources,
+              }),
               basis: `${name}@${digest.slice(0, 12)}`,
             });
             continue;
           }
           const generation = props.generation;
-          if (generation !== null && person.face === generation.face && person.body === generation.body) {
+          if (
+            generation !== null &&
+            person.face === generation.face &&
+            person.body === generation.body
+          ) {
             offer({
               id: many ? `file:${name}/${named.id}` : `file:${name}`,
               domain: "person",
               document,
               basis: humanViewerPublishedGenerationBasis(generation),
-              key: humanViewerPersonKey({ document,
-                bases: { face: { digest: generation.headDigest }, body: { digest: generation.bodyDigest } },
-                sources: props.sources }),
+              key: humanViewerPersonKey({
+                document,
+                bases: {
+                  face: { digest: generation.headDigest },
+                  body: { digest: generation.bodyDigest },
+                },
+                sources: props.sources,
+              }),
             });
             continue;
           }
           if (person.face !== props.bases.face.id)
-            throw new Error(`The person names face basis ${person.face} but is built on ${props.bases.face.id}` +
-              (generation === null ? "" : ` (or, on the published person generation, ${generation.face} with body ${generation.body})`));
+            throw new Error(
+              `The person names face basis ${person.face} but is built on ${props.bases.face.id}` +
+                (generation === null
+                  ? ""
+                  : ` (or, on the published person generation, ${generation.face} with body ${generation.body})`),
+            );
           if (person.body !== props.bases.body.id)
-            throw new Error(`The person names body basis ${person.body} but is built on ${props.bases.body.id}`);
+            throw new Error(
+              `The person names body basis ${person.body} but is built on ${props.bases.body.id}`,
+            );
           offer({
             id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain: "person",
             document,
-            basis: humanViewerPublishedBasis(props.bases.face.digest, props.bases.body.digest),
-            key: humanViewerPersonKey({ document, bases: props.bases, sources: props.sources }),
+            basis: humanViewerPublishedBasis(
+              props.bases.face.digest,
+              props.bases.body.digest,
+            ),
+            key: humanViewerPersonKey({
+              document,
+              bases: props.bases,
+              sources: props.sources,
+            }),
           });
           continue;
         }
         if (candidate !== null && candidate.basis === null)
-          throw new Error(`${candidateFile}: ${candidate.failure ?? "not a basis"}`);
+          throw new Error(
+            `${candidateFile}: ${candidate.failure ?? "not a basis"}`,
+          );
         const generation = props.generation;
-        if (domain === "body" && candidate === null && generation !== null && named.basis === generation.body) {
+        if (
+          domain === "body" &&
+          candidate === null &&
+          generation !== null &&
+          named.basis === generation.body
+        ) {
           offer({
             id: many ? `file:${name}/${named.id}` : `file:${name}`,
             domain,
             document,
-            key: hash(JSON.stringify(document) + generation.headDigest + generation.bodyDigest + props.sources.body + props.sources.person),
+            key: hash(
+              JSON.stringify(document) +
+                generation.headDigest +
+                generation.bodyDigest +
+                props.sources.body +
+                props.sources.person,
+            ),
             basis: humanViewerPublishedGenerationBasis(generation),
           });
           continue;
         }
         const identity =
-          candidate === null
-            ? props.bases[domain].id
-            : candidate.basis!;
+          candidate === null ? props.bases[domain].id : candidate.basis!;
         if (named.basis !== identity)
           throw new Error(
             `The document names basis ${String(named.basis)} but is built on ${identity}`,
           );
-        const digest = candidate === null ? props.bases[domain].digest : candidate.digest;
+        const digest =
+          candidate === null ? props.bases[domain].digest : candidate.digest;
         const id = many ? `file:${name}/${named.id}` : `file:${name}`;
         offer({
           id,
           domain,
           document,
           key: hash(JSON.stringify(document) + digest + props.sources[domain]),
-          basis: candidate === null ? humanViewerPublishedBasis(digest) : `${name}@${digest.slice(0, 12)}`,
+          basis:
+            candidate === null
+              ? humanViewerPublishedBasis(digest)
+              : `${name}@${digest.slice(0, 12)}`,
         });
       }
     } catch (error) {
@@ -271,9 +388,14 @@ export function readHumanViewerInputs(props: IReadHumanViewerInputsProps): IHuma
     try {
       const read = readFile(file);
       for (const entry of read.entries) accept(entry);
-      if (read.refusal !== null) rejected.push({ file, reason: read.refusal, pending: false });
+      if (read.refusal !== null)
+        rejected.push({ file, reason: read.refusal, pending: false });
     } catch (error) {
-      rejected.push({ file, reason: error instanceof Error ? error.message : String(error), pending: true });
+      rejected.push({
+        file,
+        reason: error instanceof Error ? error.message : String(error),
+        pending: true,
+      });
     }
   }
   return { documents, rejected };

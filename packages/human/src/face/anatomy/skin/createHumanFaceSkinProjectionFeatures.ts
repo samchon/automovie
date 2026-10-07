@@ -1,8 +1,8 @@
+import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
+import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
 import type { IHumanFaceProjectedSkinCourseInput } from "./IHumanFaceProjectedSkinCourseInput";
 import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
 import type { IHumanFaceSkinProjectionFeatures } from "./IHumanFaceSkinProjectionFeatures";
-import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
-import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
 
 /**
  * Enumerate affine projections onto the actual vertices, finite edges and
@@ -56,22 +56,38 @@ export function createHumanFaceSkinProjectionFeatures(
     );
   const exactOrigin = origin.map((value) => Fraction.from(value)),
     exactScale = Fraction.from(scale);
-  const direction = end.map((value, axis) => Fraction.divide(
-    Fraction.subtract(Fraction.from(value), exactOrigin[axis]), exactScale,
-  ));
-  const point = (id: number): IHumanExactFraction[] => [0, 1, 2].map(
-    (axis) => Fraction.divide(Fraction.subtract(
-      Fraction.from(input.positions[3 * id + axis]), exactOrigin[axis],
-    ), exactScale),
+  const direction = end.map((value, axis) =>
+    Fraction.divide(
+      Fraction.subtract(Fraction.from(value), exactOrigin[axis]),
+      exactScale,
+    ),
   );
+  const point = (id: number): IHumanExactFraction[] =>
+    [0, 1, 2].map((axis) =>
+      Fraction.divide(
+        Fraction.subtract(
+          Fraction.from(input.positions[3 * id + axis]),
+          exactOrigin[axis],
+        ),
+        exactScale,
+      ),
+    );
   // Broad-phase boxes use ordinary coordinates before any rational feature
   // construction. Retained features alone pay for exact projection; these
   // approximations never enter the lower-envelope distance comparison.
-  const approximatePoint = (id: number): number[] => [0, 1, 2].map(
-    (axis) => (input.positions[3 * id + axis] - origin[axis]) / scale,
-  );
-  const dot = (a: readonly IHumanExactFraction[], b: readonly IHumanExactFraction[]): IHumanExactFraction =>
-    a.reduce((sum, value, axis) => Fraction.add(sum, Fraction.multiply(value, b[axis])), Fraction.create(0n));
+  const approximatePoint = (id: number): number[] =>
+    [0, 1, 2].map(
+      (axis) => (input.positions[3 * id + axis] - origin[axis]) / scale,
+    );
+  const dot = (
+    a: readonly IHumanExactFraction[],
+    b: readonly IHumanExactFraction[],
+  ): IHumanExactFraction =>
+    a.reduce(
+      (sum, value, axis) =>
+        Fraction.add(sum, Fraction.multiply(value, b[axis])),
+      Fraction.create(0n),
+    );
   const zero = [0, 0, 0].map(() => Fraction.create(0n)),
     one = Fraction.create(1n);
   const roundedDirection = direction.map(Fraction.number);
@@ -95,17 +111,23 @@ export function createHumanFaceSkinProjectionFeatures(
     velocity: IHumanExactFraction[],
     inequalities: IHumanExactFraction[][],
   ): void => {
-    let lower = Fraction.create(0n), upper = one;
+    let lower = Fraction.create(0n),
+      upper = one;
     for (const [a, b] of inequalities) {
       if (b.numerator === 0n) {
         if (a.numerator < 0n) return;
       } else {
         const boundary = Fraction.divide(Fraction.negate(a), b);
-        if (b.numerator > 0n && Fraction.compare(boundary, lower) > 0) lower = boundary;
-        if (b.numerator < 0n && Fraction.compare(boundary, upper) < 0) upper = boundary;
+        if (b.numerator > 0n && Fraction.compare(boundary, lower) > 0)
+          lower = boundary;
+        if (b.numerator < 0n && Fraction.compare(boundary, upper) < 0)
+          upper = boundary;
       }
     }
-    if (Fraction.compare(lower, upper) < 0 && Fraction.number(lower) < Fraction.number(upper))
+    if (
+      Fraction.compare(lower, upper) < 0 &&
+      Fraction.number(lower) < Fraction.number(upper)
+    )
       features.push({
         vertices: native,
         origin: start,
@@ -152,7 +174,9 @@ export function createHumanFaceSkinProjectionFeatures(
         ds = Fraction.divide(dot(direction, vector), squaredLength);
       emit(
         [ids[at], ids[next]],
-        a.map((value, axis) => Fraction.add(value, Fraction.multiply(vector[axis], s))),
+        a.map((value, axis) =>
+          Fraction.add(value, Fraction.multiply(vector[axis], s)),
+        ),
         vector.map((value) => Fraction.multiply(value, ds)),
         [
           [s, ds],
@@ -163,28 +187,62 @@ export function createHumanFaceSkinProjectionFeatures(
     const [a, b, c] = points;
     const u = b.map((value, axis) => Fraction.subtract(value, a[axis])),
       v = c.map((value, axis) => Fraction.subtract(value, a[axis]));
-    const uu = dot(u, u), uv = dot(u, v), vv = dot(v, v);
-    const determinant = Fraction.subtract(Fraction.multiply(uu, vv), Fraction.multiply(uv, uv));
+    const uu = dot(u, u),
+      uv = dot(u, v),
+      vv = dot(v, v);
+    const determinant = Fraction.subtract(
+      Fraction.multiply(uu, vv),
+      Fraction.multiply(uv, uv),
+    );
     if (!(determinant.numerator > 0n))
       throw new Error(
         "Skin projection native triangle has no representable plane.",
       );
     const w = a.map((value) => Fraction.negate(value)),
-      wu = dot(w, u), wv = dot(w, v), du = dot(direction, u), dv = dot(direction, v);
-    const solve = (first: IHumanExactFraction, second: IHumanExactFraction,
-      diagonal: IHumanExactFraction): IHumanExactFraction => Fraction.divide(
-      Fraction.subtract(Fraction.multiply(first, diagonal), Fraction.multiply(second, uv)), determinant,
-    );
-    const s = solve(wu, wv, vv), ds = solve(du, dv, vv),
-      t = solve(wv, wu, uu), dt = solve(dv, du, uu);
+      wu = dot(w, u),
+      wv = dot(w, v),
+      du = dot(direction, u),
+      dv = dot(direction, v);
+    const solve = (
+      first: IHumanExactFraction,
+      second: IHumanExactFraction,
+      diagonal: IHumanExactFraction,
+    ): IHumanExactFraction =>
+      Fraction.divide(
+        Fraction.subtract(
+          Fraction.multiply(first, diagonal),
+          Fraction.multiply(second, uv),
+        ),
+        determinant,
+      );
+    const s = solve(wu, wv, vv),
+      ds = solve(du, dv, vv),
+      t = solve(wv, wu, uu),
+      dt = solve(dv, du, uu);
     emit(
       ids,
-      a.map((value, axis) => Fraction.add(value, Fraction.add(Fraction.multiply(u[axis], s), Fraction.multiply(v[axis], t)))),
-      u.map((value, axis) => Fraction.add(Fraction.multiply(value, ds), Fraction.multiply(v[axis], dt))),
+      a.map((value, axis) =>
+        Fraction.add(
+          value,
+          Fraction.add(
+            Fraction.multiply(u[axis], s),
+            Fraction.multiply(v[axis], t),
+          ),
+        ),
+      ),
+      u.map((value, axis) =>
+        Fraction.add(
+          Fraction.multiply(value, ds),
+          Fraction.multiply(v[axis], dt),
+        ),
+      ),
       [
         [s, ds],
         [t, dt],
-        [Fraction.subtract(Fraction.subtract(one, s), t), Fraction.negate(Fraction.add(ds, dt))],
+        [
+          Fraction.subtract(Fraction.subtract(one, s), t),
+          Fraction.negate(Fraction.add(ds, dt)),
+        ],
       ],
     );
   }

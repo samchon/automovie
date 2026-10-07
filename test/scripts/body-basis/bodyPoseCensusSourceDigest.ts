@@ -23,5 +23,8 @@ export function bodyPoseCensusSourceDigest(
   const payload = [...files]
     .sort((a, b) => (a.path < b.path ? -1 : 1))
     .map((file) => [file.path, Buffer.from(file.bytes).toString("base64")]);
-  return crypto.createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(payload))
+    .digest("hex");
 }

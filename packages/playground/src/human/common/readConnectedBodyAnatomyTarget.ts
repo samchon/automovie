@@ -21,5 +21,7 @@ export function readConnectedBodyAnatomyTarget(
   }
   if (typeof node !== "object" || node === null) return undefined;
   const leaf = node as Record<string, unknown>;
-  return leaf.kind === "target" && typeof leaf.metres === "number" ? leaf.metres : undefined;
+  return leaf.kind === "target" && typeof leaf.metres === "number"
+    ? leaf.metres
+    : undefined;
 }

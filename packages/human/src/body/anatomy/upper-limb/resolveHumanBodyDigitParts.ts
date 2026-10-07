@@ -38,9 +38,21 @@ export function resolveHumanBodyDigitParts(
   return (["left", "right"] as const).flatMap((side) => {
     const hand = input.targets?.[`${side}UpperLimb`]?.hand;
     return [
-      humanBodyUnavailablePart(`${side}ThumbFirstMetacarpal` as const, hand?.thumb?.firstMetacarpal, reason),
-      humanBodyUnavailablePart(`${side}ThumbProximalPhalanx` as const, hand?.thumb?.proximalPhalanx, reason),
-      humanBodyUnavailablePart(`${side}ThumbDistalPhalanx` as const, hand?.thumb?.distalPhalanx, reason),
+      humanBodyUnavailablePart(
+        `${side}ThumbFirstMetacarpal` as const,
+        hand?.thumb?.firstMetacarpal,
+        reason,
+      ),
+      humanBodyUnavailablePart(
+        `${side}ThumbProximalPhalanx` as const,
+        hand?.thumb?.proximalPhalanx,
+        reason,
+      ),
+      humanBodyUnavailablePart(
+        `${side}ThumbDistalPhalanx` as const,
+        hand?.thumb?.distalPhalanx,
+        reason,
+      ),
       ...(
         [
           ["IndexFinger", "indexFinger"],
@@ -49,10 +61,26 @@ export function resolveHumanBodyDigitParts(
           ["LittleFinger", "littleFinger"],
         ] as const
       ).flatMap(([name, key]) => [
-        humanBodyUnavailablePart(`${side}${name}Metacarpal` as const, hand?.[key]?.metacarpal, reason),
-        humanBodyUnavailablePart(`${side}${name}ProximalPhalanx` as const, hand?.[key]?.proximalPhalanx, reason),
-        humanBodyUnavailablePart(`${side}${name}MiddlePhalanx` as const, hand?.[key]?.middlePhalanx, reason),
-        humanBodyUnavailablePart(`${side}${name}DistalPhalanx` as const, hand?.[key]?.distalPhalanx, reason),
+        humanBodyUnavailablePart(
+          `${side}${name}Metacarpal` as const,
+          hand?.[key]?.metacarpal,
+          reason,
+        ),
+        humanBodyUnavailablePart(
+          `${side}${name}ProximalPhalanx` as const,
+          hand?.[key]?.proximalPhalanx,
+          reason,
+        ),
+        humanBodyUnavailablePart(
+          `${side}${name}MiddlePhalanx` as const,
+          hand?.[key]?.middlePhalanx,
+          reason,
+        ),
+        humanBodyUnavailablePart(
+          `${side}${name}DistalPhalanx` as const,
+          hand?.[key]?.distalPhalanx,
+          reason,
+        ),
       ]),
     ];
   });

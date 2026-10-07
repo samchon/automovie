@@ -29,7 +29,9 @@ const normalizeRawJointAxes = (
   flexion: normalizeAxis(axes.flexion),
   abduction: normalizeAxis(axes.abduction),
   twist: normalizeAxis(axes.twist),
-  ...(axes.twistPlacement === undefined ? {} : { twistPlacement: axes.twistPlacement }),
+  ...(axes.twistPlacement === undefined
+    ? {}
+    : { twistPlacement: axes.twistPlacement }),
 });
 
 const normalizeAxis = (axis: IAutoMovieVector3): IAutoMovieVector3 =>

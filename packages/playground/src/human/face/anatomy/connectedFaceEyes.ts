@@ -112,7 +112,8 @@ export const connectedFaceEyes: IAutoMovieHumanFaceComponentTree.Node = {
     {
       id: "lashes",
       label: "Eyelashes",
-      description: "Source fibre cards follow both eyelids. Independent numerical shaft populations require registered anterior roots; count and free-shaft geometry are independent of card darkness.",
+      description:
+        "Source fibre cards follow both eyelids. Independent numerical shaft populations require registered anterior roots; count and free-shaft geometry are independent of card darkness.",
       channels: [],
       surfaces: ["Human.eyelashes01"],
       documentFields: ["lashes"],

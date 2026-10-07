@@ -27,20 +27,31 @@ export function readHumanBodyAtlasObj(text: string): IAutoMovieMesh {
       (kind === "v" ? positions : normals).push(...values);
     } else if (kind === "g" || kind === "usemtl") {
       if (labels.has(kind) || fields.length !== 1 || fields[0] === "")
-        throw new Error("Atlas OBJ requires one whole-surface " + kind + " label.");
+        throw new Error(
+          "Atlas OBJ requires one whole-surface " + kind + " label.",
+        );
       labels.add(kind);
     } else if (kind === "f") {
-      if (fields.length !== 3) throw new Error("Atlas OBJ requires source triangles.");
+      if (fields.length !== 3)
+        throw new Error("Atlas OBJ requires source triangles.");
       for (const corner of fields) {
         const match = /^(\d+)\/\/(\d+)$/.exec(corner);
         if (match === null || match[1] !== match[2])
-          throw new Error("Atlas OBJ corner normal correspondence is unsupported: " + corner);
+          throw new Error(
+            "Atlas OBJ corner normal correspondence is unsupported: " + corner,
+          );
         indices.push(Number(match[1]) - 1);
       }
     } else throw new Error("Atlas OBJ unsupported source record: " + kind);
   }
-  if (positions.length === 0 || normals.length !== positions.length || indices.length === 0 ||
-      indices.some((at) => !Number.isSafeInteger(at) || at < 0 || at >= positions.length / 3))
+  if (
+    positions.length === 0 ||
+    normals.length !== positions.length ||
+    indices.length === 0 ||
+    indices.some(
+      (at) => !Number.isSafeInteger(at) || at < 0 || at >= positions.length / 3,
+    )
+  )
     throw new Error("Atlas OBJ has empty or invalid indexed surface data.");
   return { positions, normals, indices, uvs: null, skin: null };
 }

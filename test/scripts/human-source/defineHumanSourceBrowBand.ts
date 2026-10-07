@@ -20,12 +20,25 @@ export function defineHumanSourceBrowBand(
 ): IAutoMovieHumanFacePeriocularBrowBand {
   const selection = HUMAN_SOURCE_BROW_BAND_SELECTION;
   const row = (vertices: readonly number[]): number[] =>
-    vertices.map((vertex) => nativeToFace(side === "left" ? vertex : mirror.twin[vertex]));
-  const upper = row(selection.upper), lower = row(selection.lower);
-  if (upper.length !== lower.length || new Set([...upper, ...lower]).size !== upper.length + lower.length)
-    throw new Error(`Periocular brow band: ${side} host boundaries are incomplete or overlap.`);
-  if (replaceVertices.length !== 62 || new Set(replaceVertices).size !== replaceVertices.length)
-    throw new Error(`Periocular brow band: ${side} source card replacement differs from its authored footprint.`);
+    vertices.map((vertex) =>
+      nativeToFace(side === "left" ? vertex : mirror.twin[vertex]),
+    );
+  const upper = row(selection.upper),
+    lower = row(selection.lower);
+  if (
+    upper.length !== lower.length ||
+    new Set([...upper, ...lower]).size !== upper.length + lower.length
+  )
+    throw new Error(
+      `Periocular brow band: ${side} host boundaries are incomplete or overlap.`,
+    );
+  if (
+    replaceVertices.length !== 62 ||
+    new Set(replaceVertices).size !== replaceVertices.length
+  )
+    throw new Error(
+      `Periocular brow band: ${side} source card replacement differs from its authored footprint.`,
+    );
   return {
     sourceId: selection.sourceId,
     generation,

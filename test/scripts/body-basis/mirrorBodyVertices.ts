@@ -10,9 +10,15 @@ export function mirrorBodyVertices(
   positions: number[],
   tolerance = MIRROR_TOLERANCE,
 ): number[] {
-  if (!Number.isFinite(tolerance) || !(tolerance > 0) || positions.length % 3 !== 0 ||
-      positions.some((value) => !Number.isFinite(value)))
-    throw new Error("Body mirror association requires finite triples and a positive tolerance.");
+  if (
+    !Number.isFinite(tolerance) ||
+    !(tolerance > 0) ||
+    positions.length % 3 !== 0 ||
+    positions.some((value) => !Number.isFinite(value))
+  )
+    throw new Error(
+      "Body mirror association requires finite triples and a positive tolerance.",
+    );
   const count = positions.length / 3;
   const cell = (value: number): number => Math.floor(value / tolerance);
   const grid = new Map<string, number[]>();
@@ -29,7 +35,11 @@ export function mirrorBodyVertices(
   }
   const partner: number[] = new Array<number>(count).fill(-1);
   for (let v = 0; v < count; v++) {
-    const target = [-positions[v * 3], positions[v * 3 + 1], positions[v * 3 + 2]];
+    const target = [
+      -positions[v * 3],
+      positions[v * 3 + 1],
+      positions[v * 3 + 2],
+    ];
     const middle = target.map(cell);
     let best = -1;
     let nearest = tolerance * tolerance;
@@ -43,7 +53,10 @@ export function mirrorBodyVertices(
               (positions[u * 3] - target[0]) ** 2 +
               (positions[u * 3 + 1] - target[1]) ** 2 +
               (positions[u * 3 + 2] - target[2]) ** 2;
-            if (apart < nearest || (apart === nearest && (best < 0 || u < best))) {
+            if (
+              apart < nearest ||
+              (apart === nearest && (best < 0 || u < best))
+            ) {
               nearest = apart;
               best = u;
             }

@@ -18,7 +18,9 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Neither input array is changed. This is a numeric
  * derivative of the current rig, not a measured tissue parameter.
  */
-export function humanBodySkinDownDirection(input: IHumanBodySkinDownInput): number[] {
+export function humanBodySkinDownDirection(
+  input: IHumanBodySkinDownInput,
+): number[] {
   const { positions, skinned, skin, joints, transforms, toeSplit } = input;
   const scale = positions.reduce(
     (largest, value) => Math.max(largest, Math.abs(value)),

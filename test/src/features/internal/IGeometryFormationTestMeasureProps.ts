@@ -1,6 +1,11 @@
-import type { IAutoMovieCompiledShotSource, IAutoMovieFormationDesign, IAutoMovieWorldDesign, IAutoMovieProductionDesign } from "@automovie/interface";
-import type { IGeometryFormationTestContract } from "./IGeometryFormationTestContract";
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFormationDesign,
+  IAutoMovieProductionDesign,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
 
+import type { IGeometryFormationTestContract } from "./IGeometryFormationTestContract";
 
 /** Current records and optional selectors for the existing formation measurements.
  *

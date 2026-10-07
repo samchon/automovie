@@ -27,8 +27,12 @@ export function mountConnectedFaceControls(
   props: IConnectedFaceControlsProps,
 ) {
   const dom = app.ownerDocument;
-  const container = app.querySelector<HTMLElement>('[data-role="basis-controls"]')!;
-  const kind = app.querySelector<HTMLSelectElement>('[data-role="control-kind"]')!;
+  const container = app.querySelector<HTMLElement>(
+    '[data-role="basis-controls"]',
+  )!;
+  const kind = app.querySelector<HTMLSelectElement>(
+    '[data-role="control-kind"]',
+  )!;
   const project =
     props.map === undefined
       ? undefined
@@ -68,46 +72,68 @@ export function mountConnectedFaceControls(
     const document = props.document();
     const simple = project !== undefined && level.value === "simple";
     kind.hidden = simple;
-    app.querySelector<HTMLElement>('[data-role="control-help"]')!.textContent = simple
-      ? "Simple edits preserve your fine adjustments, including differences between the two sides. Each range accounts for those adjustments. Values describe authored shapes, not physical measurements."
-      : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees, and jaw forward/lateral motion shows millimetres within this basis's endpoints. These limits are not universal clinical ranges.";
+    app.querySelector<HTMLElement>('[data-role="control-help"]')!.textContent =
+      simple
+        ? "Simple edits preserve your fine adjustments, including differences between the two sides. Each range accounts for those adjustments. Values describe authored shapes, not physical measurements."
+        : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees, and jaw forward/lateral motion shows millimetres within this basis's endpoints. These limits are not universal clinical ranges.";
     const query = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
-    const row = (target: HTMLElement): IAppendConnectedFaceControlRowProps => ({ target, simple, query,
-      change: props.change, refuse: props.refuse, render });
+    const row = (target: HTMLElement): IAppendConnectedFaceControlRowProps => ({
+      target,
+      simple,
+      query,
+      change: props.change,
+      refuse: props.refuse,
+      render,
+    });
     if (simple) {
       const projection = project(document.shape);
       let values: Record<string, number> = {};
       for (const control of projection.controls)
-        appendConnectedFaceControlRow({
-          ...control,
-          edit: (value) => {
-            const candidate = { ...values, [control.id]: value };
-            const shape = projection.resolve(candidate);
-            values = candidate;
-            return { ...structuredClone(props.document()), shape };
+        appendConnectedFaceControlRow(
+          {
+            ...control,
+            edit: (value) => {
+              const candidate = { ...values, [control.id]: value };
+              const shape = projection.resolve(candidate);
+              values = candidate;
+              return { ...structuredClone(props.document()), shape };
+            },
           },
-        }, row(container));
+          row(container),
+        );
       return;
     }
-    const channels = props.basis.channels.filter((channel) => channel.kind === kind.value);
+    const channels = props.basis.channels.filter(
+      (channel) => channel.kind === kind.value,
+    );
     const byId = new Map(channels.map((channel) => [channel.id, channel]));
-    const appendChannel = (channel: (typeof channels)[number], target: HTMLElement): void =>
-      appendConnectedFaceControlRow(createConnectedFaceChannelControl({
-        basis: props.basis,
-        channel,
-        scale: scales.get(channel.id)!,
-        group: anatomy?.channelPaths.get(channel.id)?.join(" "),
-        document,
-        latest: props.document,
-      }), row(target));
+    const appendChannel = (
+      channel: (typeof channels)[number],
+      target: HTMLElement,
+    ): void =>
+      appendConnectedFaceControlRow(
+        createConnectedFaceChannelControl({
+          basis: props.basis,
+          channel,
+          scale: scales.get(channel.id)!,
+          group: anatomy?.channelPaths.get(channel.id)?.join(" "),
+          document,
+          latest: props.document,
+        }),
+        row(target),
+      );
     if (anatomy === undefined)
       for (const channel of channels) appendChannel(channel, container);
     else
-      appendConnectedFaceComponentGroups(anatomy.root, container, (id, group) => {
-        const channel = byId.get(id);
-        if (channel !== undefined) appendChannel(channel, group);
-      });
+      appendConnectedFaceComponentGroups(
+        anatomy.root,
+        container,
+        (id, group) => {
+          const channel = byId.get(id);
+          if (channel !== undefined) appendChannel(channel, group);
+        },
+      );
   };
   kind.onchange = render;
   level.onchange = render;

@@ -26,7 +26,10 @@ export interface IAutoMovieHumanPersonReferenceFieldProps {
   plan: IAutoMovieHumanPersonSourcePartitionPlan;
 
   /** Per side (head, body), each vertex's binding, undefined for an unused vertex. */
-  bindings: readonly (readonly (IAutoMovieHumanPersonSourceStarBinding | undefined)[])[];
+  bindings: readonly (readonly (
+    | IAutoMovieHumanPersonSourceStarBinding
+    | undefined
+  )[])[];
 
   /**
    * The binding of a sample under a parent.
@@ -45,7 +48,10 @@ export interface IAutoMovieHumanPersonReferenceFieldProps {
    * @evidenceExclude contracts/anatomy.md#permitted-range The member admits nothing.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The member converts no input.
    */
-  bindingAt: (sample: number, parent: number) => IAutoMovieHumanPersonSourceStarBinding;
+  bindingAt: (
+    sample: number,
+    parent: number,
+  ) => IAutoMovieHumanPersonSourceStarBinding;
 
   /** Each parent's performed area vector, three numbers per parent corner slot. */
   parentAreas: readonly number[];

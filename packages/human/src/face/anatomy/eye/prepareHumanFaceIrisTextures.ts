@@ -1,5 +1,5 @@
-import { decodePng } from "../../../common/mesh/decodePng";
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
+import { decodePng } from "../../../common/mesh/decodePng";
 import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
 import { locateHumanFaceIrisDisc } from "./locateHumanFaceIrisDisc";
 import { rasterizeHumanFaceIrisTexels } from "./rasterizeHumanFaceIrisTexels";

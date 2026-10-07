@@ -22,7 +22,10 @@ import type { IAutoMovieHumanPersonMeasurement } from "../structures/IAutoMovieH
  *
  * @author Samchon
  */
-export const HUMAN_PERSON_MEASUREMENTS: Record<string, IAutoMovieHumanPersonMeasurement> = {
+export const HUMAN_PERSON_MEASUREMENTS: Record<
+  string,
+  IAutoMovieHumanPersonMeasurement
+> = {
   /**
    * Neck circumference: ANSUR II 6.4.63 (Hotzman et al., NATICK/TR-11/017,
    * p. 139). The tape goes around the neck at the drawn infrathyroid landmark

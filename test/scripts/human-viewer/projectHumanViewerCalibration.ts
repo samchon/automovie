@@ -41,7 +41,9 @@ export function projectHumanViewerCalibration(
     right[2] * forward[0] - right[0] * forward[2],
     right[0] * forward[1] - right[1] * forward[0],
   ];
-  const eye = camera.target.map((value, axis) => value + camera.distance * offset[axis]);
+  const eye = camera.target.map(
+    (value, axis) => value + camera.distance * offset[axis],
+  );
   const delta = point.map((value, axis) => value - eye[axis]);
   const dot = (a: number[], b: number[]): number =>
     a[0] * b[0] + a[1] * b[1] + a[2] * b[2];

@@ -1,18 +1,30 @@
-import { builtConnectorCarriagePlacements, builtConnectorGeometry, builtEnvironmentAdjacentSpaces, builtEnvironmentSpaceConnectors, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
+import {
+  builtConnectorCarriagePlacements,
+  builtConnectorGeometry,
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentSpaceConnectors,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, qclose, throwsError, vclose } from "../internal/predicates";
-import { builtConnectorOperationTestRuns as runs } from "../internal/builtConnectorOperationTestRuns";
-import { BUILT_CONNECTOR_OPERATION_TEST_STOREY as STOREY } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_STOREY";
-import { builtConnectorOperationTestCarAt as carAt } from "../internal/builtConnectorOperationTestCarAt";
+
 import { BUILT_CONNECTOR_OPERATION_TEST_CAR_REST as CAR_REST } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_CAR_REST";
 import { BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION";
-import { builtConnectorOperationTestYaw as yaw } from "../internal/builtConnectorOperationTestYaw";
-import { builtConnectorOperationTestAlphabetical as alphabetical } from "../internal/builtConnectorOperationTestAlphabetical";
+import { BUILT_CONNECTOR_OPERATION_TEST_STOREY as STOREY } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_STOREY";
 import { assertBuiltConnectorOperationTestRefusals } from "../internal/assertBuiltConnectorOperationTestRefusals";
+import { builtConnectorOperationTestAlphabetical as alphabetical } from "../internal/builtConnectorOperationTestAlphabetical";
+import { builtConnectorOperationTestCarAt as carAt } from "../internal/builtConnectorOperationTestCarAt";
 import { builtConnectorOperationTestRefusalPaths as refusalPaths } from "../internal/builtConnectorOperationTestRefusalPaths";
-
-
+import { builtConnectorOperationTestRuns as runs } from "../internal/builtConnectorOperationTestRuns";
+import { builtConnectorOperationTestYaw as yaw } from "../internal/builtConnectorOperationTestYaw";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * A run that moves is a run with named states, and the states have to be true.

@@ -1,4 +1,3 @@
-import { assertFilmStageLightBoundaries } from "../internal/assertFilmStageLightBoundaries";
 import { stageScene } from "@automovie/engine";
 import {
   IAutoMovieLight,
@@ -7,6 +6,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertFilmStageLightBoundaries } from "../internal/assertFilmStageLightBoundaries";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import {
   hasViolation,

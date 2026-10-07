@@ -12,8 +12,12 @@
  */
 import fs from "node:fs";
 
-import { faceMidlineTriangles, faceUnseenParts, measureFaceUnseen } from "./faceUnseenNorms";
 import { FACE_UNSEEN_INDICES } from "./faceUnseenIndices";
+import {
+  faceMidlineTriangles,
+  faceUnseenParts,
+  measureFaceUnseen,
+} from "./faceUnseenNorms";
 import { faceUnseenIntervals } from "./faceUnseenPopulation";
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareUnseenEnvelopeBasis } from "./prepareUnseenEnvelopeBasis";

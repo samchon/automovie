@@ -40,13 +40,27 @@ import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
  * @evidenceExclude contracts/anatomy.md#permitted-range The surface builder owns the limited offset observations; the admission consumer judges them.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
-export function createHumanBodySubcutaneousShell(surfaces: IHumanBodyLayerSurfaces, indices: readonly number[]): IAutoMovieMesh {
+export function createHumanBodySubcutaneousShell(
+  surfaces: IHumanBodyLayerSurfaces,
+  indices: readonly number[],
+): IAutoMovieMesh {
   const count = surfaces.dermis.length / 3;
-  if (count === 0 || surfaces.dermis.length % 3 !== 0 || surfaces.fascia.length !== surfaces.dermis.length ||
-      indices.length === 0 || indices.length % 3 !== 0 ||
-      ![surfaces.dermis, surfaces.fascia].every((values) => values.every(Number.isFinite)) ||
-      indices.some((index) => !Number.isSafeInteger(index) || index < 0 || index >= count))
-    throw new Error("The layer shell needs complete finite corresponding sheets and native indices.");
+  if (
+    count === 0 ||
+    surfaces.dermis.length % 3 !== 0 ||
+    surfaces.fascia.length !== surfaces.dermis.length ||
+    indices.length === 0 ||
+    indices.length % 3 !== 0 ||
+    ![surfaces.dermis, surfaces.fascia].every((values) =>
+      values.every(Number.isFinite),
+    ) ||
+    indices.some(
+      (index) => !Number.isSafeInteger(index) || index < 0 || index >= count,
+    )
+  )
+    throw new Error(
+      "The layer shell needs complete finite corresponding sheets and native indices.",
+    );
   const positions = [...surfaces.dermis, ...surfaces.fascia];
   const triangles: number[] = [];
   // An edge used once, in the direction its one triangle runs it, is a rim.
@@ -54,19 +68,35 @@ export function createHumanBodySubcutaneousShell(surfaces: IHumanBodyLayerSurfac
   const incidence = new Map<string, number>();
   for (let at = 0; at < indices.length; at += 3) {
     const [a, b, c] = [indices[at], indices[at + 1], indices[at + 2]];
-    if (a === b || b === c || c === a) throw new Error("The layer shell needs three distinct native corners per triangle.");
+    if (a === b || b === c || c === a)
+      throw new Error(
+        "The layer shell needs three distinct native corners per triangle.",
+      );
     triangles.push(a, b, c, count + a, count + c, count + b);
-    for (const [from, to] of [[a, b], [b, c], [c, a]]) {
+    for (const [from, to] of [
+      [a, b],
+      [b, c],
+      [c, a],
+    ]) {
       const key = Math.min(from, to) + ":" + Math.max(from, to);
       const uses = (incidence.get(key) ?? 0) + 1;
       incidence.set(key, uses);
       if (uses > 2 || rim.has(from + ":" + to))
-        throw new Error("The layer shell requires manifold oppositely oriented edge incidence.");
+        throw new Error(
+          "The layer shell requires manifold oppositely oriented edge incidence.",
+        );
       const opposite = to + ":" + from;
       if (rim.has(opposite)) rim.delete(opposite);
       else rim.set(from + ":" + to, [from, to]);
     }
   }
-  for (const [from, to] of rim.values()) triangles.push(to, from, count + from, to, count + from, count + to);
-  return { positions, normals: areaWeightedNormals(positions, triangles), indices: triangles, uvs: null, skin: null };
+  for (const [from, to] of rim.values())
+    triangles.push(to, from, count + from, to, count + from, count + to);
+  return {
+    positions,
+    normals: areaWeightedNormals(positions, triangles),
+    indices: triangles,
+    uvs: null,
+    skin: null,
+  };
 }

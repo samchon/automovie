@@ -1,7 +1,7 @@
 import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { admitHumanBodyBasisDocument } from "./admitHumanBodyBasisDocument";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * Load compact body edits without resolving an asset or photograph.

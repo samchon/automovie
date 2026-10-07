@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanPersonBodyView, IAutoMovieHumanPersonHeadView } from "@automovie/human";
+import type {
+  IAutoMovieHumanPersonBodyView,
+  IAutoMovieHumanPersonHeadView,
+} from "@automovie/human";
 
 /**
  * Inputs of `createConnectedPersonMeasureRuntime`: the views the resident

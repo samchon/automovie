@@ -24,12 +24,18 @@ const gzipAsync = promisify(gzip);
  * @evidence contracts/common.md#clear-and-simple-design One route owns cache transfer; payload admission is its own validator.
  * @evidence contracts/common.md#meaningful-documentation States the 204, 400, 404, 405 and 409 answers and the write path.
  */
-export function serveHumanViewerCache(props: IServeHumanViewerDataProps): boolean {
+export function serveHumanViewerCache(
+  props: IServeHumanViewerDataProps,
+): boolean {
   const { url, request, response } = props;
   if (!url.pathname.startsWith("/cache/")) return false;
   const key = url.pathname.slice(7);
-  if (!props.inventory.documents.some((document) =>
-    key === document.key + "-direct" || key === document.key + "-ao")) {
+  if (
+    !props.inventory.documents.some(
+      (document) =>
+        key === document.key + "-direct" || key === document.key + "-ao",
+    )
+  ) {
     response.statusCode = 409;
     props.json({ error: "Unknown or stale numerical cache identity" });
     return true;
@@ -41,7 +47,10 @@ export function serveHumanViewerCache(props: IServeHumanViewerDataProps): boolea
     const token = request.headers["x-human-generation"];
     if (!props.currentCode(typeof token === "string" ? token : null)) {
       response.statusCode = 409;
-      props.json({ error: "The writing page does not run the current source; its result is not cached" });
+      props.json({
+        error:
+          "The writing page does not run the current source; its result is not cached",
+      });
       return true;
     }
     const chunks: Buffer[] = [];
@@ -57,8 +66,11 @@ export function serveHumanViewerCache(props: IServeHumanViewerDataProps): boolea
         response.end();
       })().catch((error: unknown) => {
         response.statusCode = 400;
-        props.json({ error: "Invalid numerical cache payload: " +
-          (error instanceof Error ? error.message : String(error)) });
+        props.json({
+          error:
+            "Invalid numerical cache payload: " +
+            (error instanceof Error ? error.message : String(error)),
+        });
       });
     });
     return true;

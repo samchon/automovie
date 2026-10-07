@@ -1,4 +1,7 @@
-import type { IAutoMovieCameraClearanceEnvelope, IAutoMovieStage } from "@automovie/interface";
+import type {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieStage,
+} from "@automovie/interface";
 
 /** Original clearance envelope and staging input constructors. */
 export interface IFilmCameraClearanceStageInputs {
@@ -6,5 +9,7 @@ export interface IFilmCameraClearanceStageInputs {
   envelope(): IAutoMovieCameraClearanceEnvelope;
 
   /** Replace only the original stage camera envelope. */
-  stageWithClearance(clearance: IAutoMovieCameraClearanceEnvelope): IAutoMovieStage;
+  stageWithClearance(
+    clearance: IAutoMovieCameraClearanceEnvelope,
+  ): IAutoMovieStage;
 }

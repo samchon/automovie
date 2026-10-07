@@ -1,4 +1,7 @@
-import type { AutoMovieHumanFaceMeasurementReading, IAutoMovieHumanPersonDocument } from "@automovie/human";
+import type {
+  AutoMovieHumanFaceMeasurementReading,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 
 import type { IConnectedPersonFaceSolution } from "./IConnectedPersonFaceSolution";
 
@@ -26,13 +29,22 @@ export interface IConnectedPersonFaceAnatomyProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Read every registered face measurement on a person's face. */
-  read: (document: IAutoMovieHumanPersonDocument) => Promise<AutoMovieHumanFaceMeasurementReading[]>;
+  read: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => Promise<AutoMovieHumanFaceMeasurementReading[]>;
 
   /** Solve one face measurement target, in the measurement's unit. */
-  solve: (document: IAutoMovieHumanPersonDocument, measurement: string, target: number) => Promise<IConnectedPersonFaceSolution>;
+  solve: (
+    document: IAutoMovieHumanPersonDocument,
+    measurement: string,
+    target: number,
+  ) => Promise<IConnectedPersonFaceSolution>;
 
   /** Commit a person document under a ticket. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

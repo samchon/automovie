@@ -12,7 +12,10 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps the certified arrays so an unchanged mesh is not re-gated and a changed one always is.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Records a mesh that passed the gates so an unchanged later frame keeps its verdict.
  */
-export function createConnectedFaceMeshWitness(mesh: IAutoMovieMesh, closed: boolean): IConnectedFaceMeshWitness {
+export function createConnectedFaceMeshWitness(
+  mesh: IAutoMovieMesh,
+  closed: boolean,
+): IConnectedFaceMeshWitness {
   return {
     positions: mesh.positions.slice(),
     normals: mesh.normals?.slice() ?? null,

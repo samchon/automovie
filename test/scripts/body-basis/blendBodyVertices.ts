@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+
 import type { BodyBoneFrames } from "./BodyBoneFrames";
 import type { IBodyBoneJoint } from "./IBodyBoneJoint";
 import type { IBodyVertexBlend } from "./IBodyVertexBlend";
@@ -35,9 +36,14 @@ export function blendBodyVertices(
       }
     }
     const size = Math.hypot(real.x, real.y, real.z, real.w);
-    if (!(size > 0) || !Number.isFinite(size) ||
-        [dual.x, dual.y, dual.z, dual.w].some((value) => !Number.isFinite(value)))
-      throw new Error(`Body corrective vertex ${v} has an undefined dual-quaternion blend.`);
+    if (
+      !(size > 0) ||
+      !Number.isFinite(size) ||
+      [dual.x, dual.y, dual.z, dual.w].some((value) => !Number.isFinite(value))
+    )
+      throw new Error(
+        `Body corrective vertex ${v} has an undefined dual-quaternion blend.`,
+      );
     for (const key of ["x", "y", "z", "w"] as const) {
       real[key] /= size;
       dual[key] /= size;

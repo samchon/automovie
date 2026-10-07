@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
-import { createHumanWorker } from "../common/createHumanWorker";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+import { createHumanWorker } from "../common/createHumanWorker";
 import { createConnectedBodyPort } from "./connectedBodyPort";
 import { createConnectedBodyViewport } from "./connectedBodyViewport";
-import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 
 /**
  * A body page's viewport on its canvas: a WebGL renderer that keeps its
@@ -19,15 +19,26 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
  * @author Samchon
  */
 export function createConnectedBodyPageViewport<
-  Document extends IAutoMovieHumanBodyBasisDocument = IAutoMovieHumanBodyBasisDocument,
->(canvas: HTMLCanvasElement, serialize?: (document: Document) => string, worker?: () => Worker, source?: IAutoMovieHumanBodyAnatomicalAssembly) {
+  Document extends IAutoMovieHumanBodyBasisDocument =
+    IAutoMovieHumanBodyBasisDocument,
+>(
+  canvas: HTMLCanvasElement,
+  serialize?: (document: Document) => string,
+  worker?: () => Worker,
+  source?: IAutoMovieHumanBodyAnatomicalAssembly,
+) {
   return createConnectedBodyViewport<Document>({
     source,
     canvas,
     pixelRatio: devicePixelRatio,
-    renderer: new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }),
+    renderer: new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      preserveDrawingBuffer: true,
+    }),
     orbit: (camera) => new OrbitControls(camera, canvas),
-    worker: () => createConnectedBodyPort(worker?.() ?? createHumanWorker("worker=body")),
+    worker: () =>
+      createConnectedBodyPort(worker?.() ?? createHumanWorker("worker=body")),
     ...(serialize === undefined ? {} : { serialize }),
     loadTexture: (asset) => new THREE.TextureLoader().loadAsync(asset),
     observeResize: (resize) => {

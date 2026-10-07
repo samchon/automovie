@@ -1,4 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";

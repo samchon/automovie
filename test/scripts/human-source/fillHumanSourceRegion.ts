@@ -19,11 +19,20 @@ export function fillHumanSourceRegion(
   nativeToSource?: Int32Array,
 ): void {
   if (operator.length !== interior.length * boundary.length)
-    throw new Error("A fill operator does not match its interior and boundary populations.");
+    throw new Error(
+      "A fill operator does not match its interior and boundary populations.",
+    );
   const map = (native: number): number => {
-    const source = nativeToSource === undefined ? native : nativeToSource[native];
-    if (!Number.isSafeInteger(source) || source < 0 || 3 * source + 2 >= values.length)
-      throw new Error(`Fill support ${native} is retired or outside this source field.`);
+    const source =
+      nativeToSource === undefined ? native : nativeToSource[native];
+    if (
+      !Number.isSafeInteger(source) ||
+      source < 0 ||
+      3 * source + 2 >= values.length
+    )
+      throw new Error(
+        `Fill support ${native} is retired or outside this source field.`,
+      );
     return source;
   };
   const inside = interior.map(map);
@@ -32,7 +41,8 @@ export function fillHumanSourceRegion(
   for (let i = 0; i < inside.length; i++)
     for (let c = 0; c < 3; c++) {
       let sum = 0;
-      for (let j = 0; j < k; j++) sum += operator[i * k + j] * values[3 * around[j] + c];
+      for (let j = 0; j < k; j++)
+        sum += operator[i * k + j] * values[3 * around[j] + c];
       values[3 * inside[i] + c] = sum;
     }
 }

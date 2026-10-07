@@ -31,5 +31,4 @@ export interface IAutoMovieHumanFaceHairPart {
 
   /** Positive millimetres of arc length over which part influence decays. */
   holdMm: number;
-
 }

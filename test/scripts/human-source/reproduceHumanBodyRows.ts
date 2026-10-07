@@ -25,20 +25,26 @@ import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceRepro
  * the endpoint is zero on every bordering published vertex, the zero
  * extension is recorded as such.
  */
-export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSourceBodyReproduction {
+export function reproduceHumanBodyRows(
+  input: IHumanSourceBodyInput,
+): IHumanSourceBodyReproduction {
   const { body, cut, reader, field } = input;
   const surface = body.surfaces[0];
   const count = surface.positions.length / 3;
   const n = cut.originalVertices;
   const kept = cut.r16ToSource;
-  if (kept.length !== count) throw new Error("The body vertex map does not describe the published skin.");
+  if (kept.length !== count)
+    throw new Error(
+      "The body vertex map does not describe the published skin.",
+    );
   const r16Of = new Int32Array(n).fill(-1);
   kept.forEach((source, v) => (r16Of[source] = v));
   const p1Count = cut.p1BodySamples.length;
   const inP1 = new Uint8Array(n);
   for (const s of cut.p1BodySamples) if (s.a === s.b) inP1[s.a] = 1;
   const newOriginals: number[] = [];
-  for (let x = 0; x < n; x++) if (inP1[x] === 1 && r16Of[x] < 0) newOriginals.push(x);
+  for (let x = 0; x < n; x++)
+    if (inP1[x] === 1 && r16Of[x] < 0) newOriginals.push(x);
   const droppedR16: number[] = [];
   for (let v = 0; v < count; v++) if (inP1[kept[v]] === 0) droppedR16.push(v);
   const p1UnknownCandidates = new Uint8Array(p1Count);
@@ -56,7 +62,9 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
   }
 
   const recipeOf = createHumanSourceBodyRecipes(reader, field);
-  const correctiveTargets = new Set((body.correctives ?? []).map((c) => c.target));
+  const correctiveTargets = new Set(
+    (body.correctives ?? []).map((c) => c.target),
+  );
   const rows: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceLoss[] = [];
   const g1Targets: Record<string, number[]> = {};
@@ -67,18 +75,25 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
   for (const [name, published] of Object.entries(surface.targets)) {
     const d = denseHumanSourceRows(published, count);
     const recipe = recipeOf(name);
-    const rounded = recipe === null ? null : recipe.skin.map((x) => roundHalfEven(x, 6));
+    const rounded =
+      recipe === null ? null : recipe.skin.map((x) => roundHalfEven(x, 6));
     let regeneration: IHumanSourceReproductionError | null = null;
     if (rounded !== null) {
       const candidate = new Float64Array(3 * count);
       for (let v = 0; v < count; v++)
-        for (let c = 0; c < 3; c++) candidate[3 * v + c] = rounded[3 * kept[v] + c];
-      regeneration = measureHumanSourceError({ published: d, candidate, neutral: surface.positions });
+        for (let c = 0; c < 3; c++)
+          candidate[3 * v + c] = rounded[3 * kept[v] + c];
+      regeneration = measureHumanSourceError({
+        published: d,
+        candidate,
+        neutral: surface.positions,
+      });
     }
     const known = (x: number): boolean => r16Of[x] >= 0 || rounded !== null;
     const read = (x: number, out: Float64Array, weight: number): void => {
       const v = r16Of[x];
-      for (let c = 0; c < 3; c++) out[c] += weight * (v >= 0 ? d[3 * v + c] : rounded![3 * x + c]);
+      for (let c = 0; c < 3; c++)
+        out[c] += weight * (v >= 0 ? d[3 * v + c] : rounded![3 * x + c]);
     };
     const evaluate = (a: number, b: number, t: number): boolean => {
       value.fill(0);
@@ -101,7 +116,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
         unknownP1++;
         return;
       }
-      if (value[0] !== 0 || value[1] !== 0 || value[2] !== 0) p1.push(j, value[0], value[1], value[2]);
+      if (value[0] !== 0 || value[1] !== 0 || value[2] !== 0)
+        p1.push(j, value[0], value[1], value[2]);
     });
     let bandMagnitude = 0;
     let bandMoving = 0;
@@ -113,7 +129,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
       }
     const isUnavailable = unknownP1 > 0 && bandMoving > 0;
     if (isUnavailable) {
-      unavailable[name] = `${unknownP1} P1 body vertices have no source value; the endpoint moves ${bandMoving} bordering published vertices`;
+      unavailable[name] =
+        `${unknownP1} P1 body vertices have no source value; the endpoint moves ${bandMoving} bordering published vertices`;
       losses.push({
         basis: "body",
         surface: "Human",
@@ -121,7 +138,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
         kind: "unavailable-at-new-support",
         vertices: unknownP1,
         maximumMetres: bandMagnitude,
-        reason: "post-extraction field without a tracked producer; values at new neck vertices and cut samples need the producer reimplemented",
+        reason:
+          "post-extraction field without a tracked producer; values at new neck vertices and cut samples need the producer reimplemented",
       });
     }
     p1Targets[name] = p1;
@@ -134,10 +152,22 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
         g1Rows.push([kept[v], d[3 * v], d[3 * v + 1], d[3 * v + 2]]);
     if (rounded !== null)
       for (const x of newOriginals)
-        if (rounded[3 * x] !== 0 || rounded[3 * x + 1] !== 0 || rounded[3 * x + 2] !== 0)
-          g1Rows.push([x, rounded[3 * x], rounded[3 * x + 1], rounded[3 * x + 2]]);
+        if (
+          rounded[3 * x] !== 0 ||
+          rounded[3 * x + 1] !== 0 ||
+          rounded[3 * x + 2] !== 0
+        )
+          g1Rows.push([
+            x,
+            rounded[3 * x],
+            rounded[3 * x + 1],
+            rounded[3 * x + 2],
+          ]);
     cut.intersections.forEach((s, i) => {
-      if (evaluate(s.a, s.b, s.t) && (value[0] !== 0 || value[1] !== 0 || value[2] !== 0))
+      if (
+        evaluate(s.a, s.b, s.t) &&
+        (value[0] !== 0 || value[1] !== 0 || value[2] !== 0)
+      )
         g1Rows.push([n + i, value[0], value[1], value[2]]);
     });
     g1Rows.sort((x, y) => x[0] - y[0]);
@@ -160,7 +190,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
         kind: "p1-dropped-overlap",
         vertices: droppedMoving,
         maximumMetres: droppedMagnitude,
-        reason: "published body vertices above the frozen cut belong to the head partition; P1 drops them, P2 keeps them",
+        reason:
+          "published body vertices above the frozen cut belong to the head partition; P1 drops them, P2 keeps them",
       });
     rows.push({
       basis: "body",
@@ -172,7 +203,12 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
       regeneration,
       p2: null,
       p1: null,
-      newSupport: rounded !== null ? "regenerated" : isUnavailable ? "unavailable" : "not-needed",
+      newSupport:
+        rounded !== null
+          ? "regenerated"
+          : isUnavailable
+            ? "unavailable"
+            : "not-needed",
       note:
         rounded !== null
           ? "new support regenerated from the recipe"
@@ -197,7 +233,8 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
         kind: "not-regenerated-from-upstream",
         vertices: moving,
         maximumMetres: magnitude,
-        reason: "authored after extraction (r16 individuality, envelope, definition, pose or state correctives); value carried from the published body",
+        reason:
+          "authored after extraction (r16 individuality, envelope, definition, pose or state correctives); value carried from the published body",
       });
     }
   }
@@ -215,7 +252,10 @@ export function reproduceHumanBodyRows(input: IHumanSourceBodyInput): IHumanSour
       newOriginals: newOriginals.length,
       droppedPublishedVertices: droppedR16.length,
       bandPublishedVertices: band.size,
-      p1UnknownCandidateVertices: p1UnknownCandidates.reduce((a, b) => a + b, 0),
+      p1UnknownCandidateVertices: p1UnknownCandidates.reduce(
+        (a, b) => a + b,
+        0,
+      ),
     },
   };
 }

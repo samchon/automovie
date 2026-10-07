@@ -11,8 +11,12 @@ import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/c
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Fixes the initial inputs the editor's controls display before the first edit.
  * @author Samchon
  */
-export function createConnectedBodyInitialDocument(basis: string): IAutoMovieHumanBodyBasisDocument {
-  const cheek = createPortraitMaterials().find((material) => material.id === "skin")!.baseColor;
+export function createConnectedBodyInitialDocument(
+  basis: string,
+): IAutoMovieHumanBodyBasisDocument {
+  const cheek = createPortraitMaterials().find(
+    (material) => material.id === "skin",
+  )!.baseColor;
   return {
     id: "connected-body",
     name: "CC0 connected body",

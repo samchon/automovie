@@ -1,13 +1,15 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type { IAutoMovieSpaceShell } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { hasViolation, namedFacts } from "./predicates";
-import { builtSpaceShellTestWork as work } from "./builtSpaceShellTestWork";
-import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
 
+import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
+import { builtSpaceShellTestWork as work } from "./builtSpaceShellTestWork";
+import { hasViolation, namedFacts } from "./predicates";
 
 /** Validate the existing whole, malformed and inward box shell cases. */
-export const assertBuiltSpaceShellTestRefusals = (cube: IAutoMovieSpaceShell): void => {
+export const assertBuiltSpaceShellTestRefusals = (
+  cube: IAutoMovieSpaceShell,
+): void => {
   const refuse = (shell: IAutoMovieSpaceShell): boolean =>
     hasViolation(
       validateBuiltEnvironment({ environment: work({ shell }) }),

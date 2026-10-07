@@ -27,24 +27,37 @@ import { isHumanPersonSourceIndex } from "./isHumanPersonSourceIndex";
 export function createHumanPersonSourceChart(
   source: IAutoMovieHumanBasisSourcePartition,
 ): (sample: number) => IAutoMovieHumanPersonSourceChart {
-  const sampleCount = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
+  const sampleCount =
+    source.originalVertices +
+    source.intersections.length +
+    (source.refinements?.length ?? 0);
   const cache = new Map<number, IAutoMovieHumanPersonSourceChart>();
   return (sample) => {
     if (!isHumanPersonSourceIndex(sample, sampleCount))
-      throw new Error("Person source sample leaves its captured canonical domain.");
+      throw new Error(
+        "Person source sample leaves its captured canonical domain.",
+      );
     const cached = cache.get(sample);
     if (cached !== undefined) return cached;
     let result: IAutoMovieHumanPersonSourceChart;
-    if (sample < source.originalVertices) result = { originals: [sample, sample, sample], coordinates: [0, 0] };
+    if (sample < source.originalVertices)
+      result = { originals: [sample, sample, sample], coordinates: [0, 0] };
     else {
       const virtual = sample - source.originalVertices;
       if (virtual < source.intersections.length) {
         const point = source.intersections[virtual];
-        result = { originals: [point.a, point.b, point.a], coordinates: [point.t, 0] };
-      } else {
-        const point = source.refinements![virtual - source.intersections.length];
         result = {
-          originals: source.parentTriangles.slice(point.parent * 3, point.parent * 3 + 3) as [number, number, number],
+          originals: [point.a, point.b, point.a],
+          coordinates: [point.t, 0],
+        };
+      } else {
+        const point =
+          source.refinements![virtual - source.intersections.length];
+        result = {
+          originals: source.parentTriangles.slice(
+            point.parent * 3,
+            point.parent * 3 + 3,
+          ) as [number, number, number],
           coordinates: [...point.coordinates],
         };
       }

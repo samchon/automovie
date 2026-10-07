@@ -15,6 +15,9 @@ import type { AutoMovieHumanFaceOpticalSurface } from "./AutoMovieHumanFaceOptic
  * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological interval.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no shaping control.
  */
-export function humanFaceOpticalPartId(side: "left" | "right", surface: AutoMovieHumanFaceOpticalSurface): string {
+export function humanFaceOpticalPartId(
+  side: "left" | "right",
+  surface: AutoMovieHumanFaceOpticalSurface,
+): string {
   return "optics:" + side + ":" + surface;
 }

@@ -21,7 +21,16 @@ export interface HumanViewerWork {
   doc: string;
 
   /** The outstanding operation, or idle after a completed frame. */
-  phase: "loading" | "cache-read" | "build" | "numeric-reply" | "cache-write" | "prepare" | "draw" | "idle" | "failed";
+  phase:
+    | "loading"
+    | "cache-read"
+    | "build"
+    | "numeric-reply"
+    | "cache-write"
+    | "prepare"
+    | "draw"
+    | "idle"
+    | "failed";
 
   /** Latest actual numerical owner completion, when this transition reports one. */
   completed?: string;

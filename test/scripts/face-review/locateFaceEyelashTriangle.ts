@@ -25,13 +25,21 @@ import type { IEyelashCard } from "./prepareEyelashBasis";
 export function locateFaceEyelashTriangle(
   card: IEyelashCard,
   point: readonly [number, number],
-): { triangle: IEyelashCard["triangles"][number]; weights: [number, number, number] } | null {
+): {
+  triangle: IEyelashCard["triangles"][number];
+  weights: [number, number, number];
+} | null {
   for (const triangle of card.triangles) {
     const [a, b, c] = triangle.uv;
-    const denominator = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
+    const denominator =
+      (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
     if (denominator === 0) continue;
-    const u = ((b[1] - c[1]) * (point[0] - c[0]) + (c[0] - b[0]) * (point[1] - c[1])) / denominator;
-    const v = ((c[1] - a[1]) * (point[0] - c[0]) + (a[0] - c[0]) * (point[1] - c[1])) / denominator;
+    const u =
+      ((b[1] - c[1]) * (point[0] - c[0]) + (c[0] - b[0]) * (point[1] - c[1])) /
+      denominator;
+    const v =
+      ((c[1] - a[1]) * (point[0] - c[0]) + (a[0] - c[0]) * (point[1] - c[1])) /
+      denominator;
     const epsilon = -1e-9;
     if (u < epsilon || v < epsilon || u + v > 1 - epsilon) continue;
     return { triangle, weights: [u, v, 1 - u - v] };

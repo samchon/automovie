@@ -15,6 +15,9 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range The predicate admits indices, not anatomy.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The predicate converts no input.
  */
-export function isHumanPersonSourceIndex(value: number, count: number): boolean {
+export function isHumanPersonSourceIndex(
+  value: number,
+  count: number,
+): boolean {
   return Number.isSafeInteger(value) && value >= 0 && value < count;
 }

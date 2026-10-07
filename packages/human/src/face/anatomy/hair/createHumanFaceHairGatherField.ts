@@ -116,10 +116,7 @@ export function createHumanFaceHairGatherField(
   const tieTriangle = props.triangles.indexOf(anchorTriangle);
   if (tieTriangle < 0)
     throw new Error("A hair tie must belong to its shared scalp domain.");
-  const tie = props.indices.slice(
-    3 * anchorTriangle,
-    3 * anchorTriangle + 3,
-  );
+  const tie = props.indices.slice(3 * anchorTriangle, 3 * anchorTriangle + 3);
   for (const id of tie)
     distances.set(
       canonical(id),

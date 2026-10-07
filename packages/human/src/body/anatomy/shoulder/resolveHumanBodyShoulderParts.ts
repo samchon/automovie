@@ -38,13 +38,41 @@ export function resolveHumanBodyShoulderParts(
     const shoulder = input.targets?.[`${side}UpperLimb`]?.shoulder;
     const cuff = shoulder?.rotatorCuff;
     return [
-      humanBodyUnavailablePart(`${side}Clavicle` as const, shoulder?.clavicle, "missing-bone-landmark"),
-      humanBodyUnavailablePart(`${side}Scapula` as const, shoulder?.scapula, "missing-bone-landmark"),
-      humanBodyUnavailablePart(`${side}Deltoid` as const, shoulder?.deltoid, muscle),
-      humanBodyUnavailablePart(`${side}Supraspinatus` as const, cuff?.supraspinatus, muscle),
-      humanBodyUnavailablePart(`${side}Infraspinatus` as const, cuff?.infraspinatus, muscle),
-      humanBodyUnavailablePart(`${side}TeresMinor` as const, cuff?.teresMinor, muscle),
-      humanBodyUnavailablePart(`${side}Subscapularis` as const, cuff?.subscapularis, muscle),
+      humanBodyUnavailablePart(
+        `${side}Clavicle` as const,
+        shoulder?.clavicle,
+        "missing-bone-landmark",
+      ),
+      humanBodyUnavailablePart(
+        `${side}Scapula` as const,
+        shoulder?.scapula,
+        "missing-bone-landmark",
+      ),
+      humanBodyUnavailablePart(
+        `${side}Deltoid` as const,
+        shoulder?.deltoid,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Supraspinatus` as const,
+        cuff?.supraspinatus,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Infraspinatus` as const,
+        cuff?.infraspinatus,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}TeresMinor` as const,
+        cuff?.teresMinor,
+        muscle,
+      ),
+      humanBodyUnavailablePart(
+        `${side}Subscapularis` as const,
+        cuff?.subscapularis,
+        muscle,
+      ),
     ];
   });
 }

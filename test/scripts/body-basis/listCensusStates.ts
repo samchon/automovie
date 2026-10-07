@@ -1,5 +1,5 @@
-import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 import type { BodyCensusSets } from "./BodyCensusSets";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 
 /**
  * The census findings of the named sets as states, shape-only states first.
@@ -35,7 +35,9 @@ export function listCensusStates(
               : finding.name.split("@")[0],
         shape: { ...finding.document.shape },
         pose,
-        ...(finding.document.shoulders === undefined ? {} : { shoulders: shoulders.map((goal) => ({ ...goal })) }),
+        ...(finding.document.shoulders === undefined
+          ? {}
+          : { shoulders: shoulders.map((goal) => ({ ...goal })) }),
       });
     }
   const generality = (state: IBodyCorrectiveState): [number, number] => {

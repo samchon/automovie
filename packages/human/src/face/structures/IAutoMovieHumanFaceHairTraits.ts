@@ -1,9 +1,9 @@
-import type { IAutoMovieHumanFaceHairLengths } from "./IAutoMovieHumanFaceHairLengths";
-import type { IAutoMovieHumanFaceHairlineAngles } from "./IAutoMovieHumanFaceHairlineAngles";
 import type { IAutoMovieHumanFaceHairCurl } from "./IAutoMovieHumanFaceHairCurl";
-import type { IAutoMovieHumanFaceHairPart } from "./IAutoMovieHumanFaceHairPart";
 import type { IAutoMovieHumanFaceHairFinish } from "./IAutoMovieHumanFaceHairFinish";
 import type { IAutoMovieHumanFaceHairGather } from "./IAutoMovieHumanFaceHairGather";
+import type { IAutoMovieHumanFaceHairLengths } from "./IAutoMovieHumanFaceHairLengths";
+import type { IAutoMovieHumanFaceHairPart } from "./IAutoMovieHumanFaceHairPart";
+import type { IAutoMovieHumanFaceHairlineAngles } from "./IAutoMovieHumanFaceHairlineAngles";
 
 /**
  * Sparse named styling edits over one existing numerical hair population.

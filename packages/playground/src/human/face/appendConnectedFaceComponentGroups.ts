@@ -24,6 +24,7 @@ export function appendConnectedFaceComponentGroups(
   group.append(summary);
   parent.append(group);
   for (const id of node.channels) appendChannel(id, group);
-  for (const child of node.children) appendConnectedFaceComponentGroups(child, group, appendChannel);
+  for (const child of node.children)
+    appendConnectedFaceComponentGroups(child, group, appendChannel);
   if (group.querySelector(".row") === null) group.remove();
 }

@@ -31,9 +31,17 @@ export function readHumanFaceVertexToLandmark(
 ): number | IHumanFaceMeasurementGap {
   const point = readHumanFaceMeasurementLandmark(context, landmark);
   if ("reason" in point) return point;
-  const surface = context.basis.surfaces[context.basis.skinLandmarks![landmark].surface];
+  const surface =
+    context.basis.surfaces[context.basis.skinLandmarks![landmark].surface];
   const positions = context.surface(surface.id).positions;
   let top = 0;
-  for (let v = 1; v < positions.length / 3; v++) if (positions[v * 3 + 1] > positions[top * 3 + 1]) top = v;
-  return Math.hypot(positions[top * 3] - point.x, positions[top * 3 + 1] - point.y, positions[top * 3 + 2] - point.z) * 1000;
+  for (let v = 1; v < positions.length / 3; v++)
+    if (positions[v * 3 + 1] > positions[top * 3 + 1]) top = v;
+  return (
+    Math.hypot(
+      positions[top * 3] - point.x,
+      positions[top * 3 + 1] - point.y,
+      positions[top * 3 + 2] - point.z,
+    ) * 1000
+  );
 }

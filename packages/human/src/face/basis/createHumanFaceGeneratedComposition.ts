@@ -1,14 +1,14 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { buildHumanFaceOcularSurfaces } from "../anatomy/eye/buildHumanFaceOcularSurfaces";
-import { readHumanFaceOcularSurfaceSpace } from "../anatomy/eye/readHumanFaceOcularSurfaceSpace";
 import { createHumanFaceOpticalFinish } from "../anatomy/eye/createHumanFaceOpticalFinish";
 import { finishHumanFacePeriocularTissues } from "../anatomy/eye/finishHumanFacePeriocularTissues";
+import { readHumanFaceOcularSurfaceSpace } from "../anatomy/eye/readHumanFaceOcularSurfaceSpace";
 import { createHumanFaceLashFinish } from "../anatomy/lash/createHumanFaceLashFinish";
 import { createHumanFaceOralFinish } from "../anatomy/oral/createHumanFaceOralFinish";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 import type { IHumanFaceGeneratedCompositionInput } from "./IHumanFaceGeneratedCompositionInput";
+import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 
 /**
  * Compose generated optical, fibre and soft-tissue parts into one owned model.
@@ -107,15 +107,41 @@ export function createHumanFaceGeneratedComposition(
         "rest",
       );
       const performed = buildHumanFaceOcularSurfaces(
-          basis,
-          pose.positions,
-          document,
-          pose.optics,
-          model.materials,
-        );
+        basis,
+        pose.positions,
+        document,
+        pose.optics,
+        model.materials,
+      );
       append(performed, "Ocular surface");
-      checks.push(createHumanFaceClearanceCheck("ocular-rest", "Ocular rest surface penetrates or crosses its actual optical exterior", () => readHumanFaceOcularSurfaceSpace(basis, pose.reference!, resting.parts, pose.optics, "rest")));
-      checks.push(createHumanFaceClearanceCheck("ocular-performed", "Ocular performed surface penetrates or crosses its actual optical exterior", () => readHumanFaceOcularSurfaceSpace(basis, pose.positions, performed.parts, pose.optics, "performed")));
+      checks.push(
+        createHumanFaceClearanceCheck(
+          "ocular-rest",
+          "Ocular rest surface penetrates or crosses its actual optical exterior",
+          () =>
+            readHumanFaceOcularSurfaceSpace(
+              basis,
+              pose.reference!,
+              resting.parts,
+              pose.optics,
+              "rest",
+            ),
+        ),
+      );
+      checks.push(
+        createHumanFaceClearanceCheck(
+          "ocular-performed",
+          "Ocular performed surface penetrates or crosses its actual optical exterior",
+          () =>
+            readHumanFaceOcularSurfaceSpace(
+              basis,
+              pose.positions,
+              performed.parts,
+              pose.optics,
+              "performed",
+            ),
+        ),
+      );
     }
   };
 }

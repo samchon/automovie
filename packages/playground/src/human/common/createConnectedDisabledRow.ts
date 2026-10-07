@@ -7,7 +7,11 @@
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Draws the disabled label, number and reason row the editors use for unavailable channels.
  * @author Samchon
  */
-export function createConnectedDisabledRow(dom: Document, id: string, reason: string): HTMLElement {
+export function createConnectedDisabledRow(
+  dom: Document,
+  id: string,
+  reason: string,
+): HTMLElement {
   const row = dom.createElement("div");
   const label = dom.createElement("label");
   const input = dom.createElement("input");

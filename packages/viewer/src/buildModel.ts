@@ -1,8 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieModel } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieModel,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
+import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
 import { applyTransform } from "./applyTransform";
 import { buildGeometry } from "./buildGeometry";
 import { buildMaterial } from "./buildMaterial";

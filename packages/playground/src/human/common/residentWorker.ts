@@ -1,6 +1,6 @@
-import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
 import type { HumanResidentPort } from "./HumanResidentPort";
 import type { IHumanPendingResult } from "./IHumanPendingResult";
+import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
 
 /**
  * Keep one numerical worker alive across edits and correlate concurrent replies.
@@ -39,7 +39,9 @@ export function createHumanResidentWorker<Input, Output>(
     };
     current.onerror = (event) => {
       if (worker === current)
-        close(new Error(humanWorkerErrorMessage(event, "The face worker failed.")));
+        close(
+          new Error(humanWorkerErrorMessage(event, "The face worker failed.")),
+        );
     };
     return current;
   };

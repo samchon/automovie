@@ -29,4 +29,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
-export const HUMAN_BODY_DISTAL_TWIST_BONES: readonly AutoMovieHumanoidBone[] = ["leftLowerArm", "rightLowerArm"];
+export const HUMAN_BODY_DISTAL_TWIST_BONES: readonly AutoMovieHumanoidBone[] = [
+  "leftLowerArm",
+  "rightLowerArm",
+];

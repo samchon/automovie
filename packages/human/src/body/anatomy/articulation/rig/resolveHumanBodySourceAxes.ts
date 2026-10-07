@@ -1,11 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
+
 import type { IAutoMovieHumanBodyBoneTransform } from "../../../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
 import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
+import { hasHumanBodySourceLocalGoal } from "./hasHumanBodySourceLocalGoal";
 import { readHumanBodySourceAxis } from "./readHumanBodySourceAxis";
 import { readHumanBodySourcePublicPose } from "./readHumanBodySourcePublicPose";
-import { hasHumanBodySourceLocalGoal } from "./hasHumanBodySourceLocalGoal";
 
 /**
  * Carry one source bone through its parent and evaluate its local articulation.
@@ -30,48 +31,144 @@ export function resolveHumanBodySourceAxes(
   input: IAutoMovieHumanBodySourceRigInput,
   used: Set<string>,
 ): IAutoMovieHumanBodyBoneWorldRest {
-  const parentDelta = parent === undefined ? Quaternion.identity() : Quaternion.multiply(parent.posed.rotation, Quaternion.inverse(parent.rest.rotation));
-  const carry = (point: IAutoMovieHumanBodyBoneWorldRest["position"]) => parent === undefined ? { ...point } : Vector3.add(parent.posed.position, Quaternion.rotateVector(parentDelta, Vector3.subtract(point, parent.rest.position)));
+  const parentDelta =
+    parent === undefined
+      ? Quaternion.identity()
+      : Quaternion.multiply(
+          parent.posed.rotation,
+          Quaternion.inverse(parent.rest.rotation),
+        );
+  const carry = (point: IAutoMovieHumanBodyBoneWorldRest["position"]) =>
+    parent === undefined
+      ? { ...point }
+      : Vector3.add(
+          parent.posed.position,
+          Quaternion.rotateVector(
+            parentDelta,
+            Vector3.subtract(point, parent.rest.position),
+          ),
+        );
   if (node.joint.kind === "fixed")
-    return { position: carry(node.rest.position), rotation: Quaternion.multiply(parentDelta, node.rest.rotation) };
+    return {
+      position: carry(node.rest.position),
+      rotation: Quaternion.multiply(parentDelta, node.rest.rotation),
+    };
   if (node.joint.kind === "public-pose") {
     const joint = node.joint;
-    if (hasHumanBodySourceLocalGoal(node.id,joint.localAxes,input)) {
-      if ((input.authoredPose ?? input.pose).some((one) => one.bone === joint.bone && joint.supportedAxes.some((axis) => one[axis] !== null && one[axis] !== undefined)))
-        throw new Error("Anatomical local coordinates conflict with authored public pose: "+node.id);
-      if (joint.localFrame === undefined) throw new Error("Anatomical local axes lack their actual source joint frame: "+node.id);
-      return resolveHumanBodySourceAxes({...node,joint:{kind:"axes",frame:joint.localFrame,axes:joint.localAxes!}},parent,input,used);
+    if (hasHumanBodySourceLocalGoal(node.id, joint.localAxes, input)) {
+      if (
+        (input.authoredPose ?? input.pose).some(
+          (one) =>
+            one.bone === joint.bone &&
+            joint.supportedAxes.some(
+              (axis) => one[axis] !== null && one[axis] !== undefined,
+            ),
+        )
+      )
+        throw new Error(
+          "Anatomical local coordinates conflict with authored public pose: " +
+            node.id,
+        );
+      if (joint.localFrame === undefined)
+        throw new Error(
+          "Anatomical local axes lack their actual source joint frame: " +
+            node.id,
+        );
+      return resolveHumanBodySourceAxes(
+        {
+          ...node,
+          joint: {
+            kind: "axes",
+            frame: joint.localFrame,
+            axes: joint.localAxes!,
+          },
+        },
+        parent,
+        input,
+        used,
+      );
     }
-    const projection = joint.reference ?? node.projections.find((one) => one.bone === joint.bone);
+    const projection =
+      joint.reference ??
+      node.projections.find((one) => one.bone === joint.bone);
     if (projection === undefined)
-      throw new Error("Anatomical public pose lacks its same-node projection: " + node.id);
-    const publicTurn = readHumanBodySourcePublicPose(joint,input,used);
-    const rotation = Quaternion.multiply(projection.rotation, Quaternion.multiply(publicTurn, Quaternion.inverse(projection.rotation)));
-    const origin = projection.site === undefined ? Vector3.create(0, 0, 0) : node.sites.find((one) => one.id === projection.site)!.position;
-    const moved = Vector3.add(node.rest.position, Quaternion.rotateVector(node.rest.rotation,
-      Vector3.subtract(origin, Quaternion.rotateVector(rotation, origin))));
-    return {position: carry(moved), rotation: Quaternion.multiply(parentDelta, Quaternion.multiply(node.rest.rotation, rotation))};
+      throw new Error(
+        "Anatomical public pose lacks its same-node projection: " + node.id,
+      );
+    const publicTurn = readHumanBodySourcePublicPose(joint, input, used);
+    const rotation = Quaternion.multiply(
+      projection.rotation,
+      Quaternion.multiply(publicTurn, Quaternion.inverse(projection.rotation)),
+    );
+    const origin =
+      projection.site === undefined
+        ? Vector3.create(0, 0, 0)
+        : node.sites.find((one) => one.id === projection.site)!.position;
+    const moved = Vector3.add(
+      node.rest.position,
+      Quaternion.rotateVector(
+        node.rest.rotation,
+        Vector3.subtract(origin, Quaternion.rotateVector(rotation, origin)),
+      ),
+    );
+    return {
+      position: carry(moved),
+      rotation: Quaternion.multiply(
+        parentDelta,
+        Quaternion.multiply(node.rest.rotation, rotation),
+      ),
+    };
   }
   if (node.joint.kind !== "axes")
-    throw new Error("Ordered source coordinates require an axes joint: " + node.id);
+    throw new Error(
+      "Ordered source coordinates require an axes joint: " + node.id,
+    );
   let rotation = Quaternion.identity();
   let translation = Vector3.create(0, 0, 0);
   for (const axis of node.joint.axes) {
-    const delta = readHumanBodySourceAxis(node.id, axis, input, used) - axis.neutral;
+    const delta =
+      readHumanBodySourceAxis(node.id, axis, input, used) - axis.neutral;
     if (axis.kind === "rotation") {
       const turn = Quaternion.fromAxisAngle(axis.direction, delta);
       const origin = axis.origin ?? Vector3.create(0, 0, 0);
-      translation = Vector3.add(translation, Quaternion.rotateVector(rotation,
-        Vector3.subtract(origin, Quaternion.rotateVector(turn, origin))));
+      translation = Vector3.add(
+        translation,
+        Quaternion.rotateVector(
+          rotation,
+          Vector3.subtract(origin, Quaternion.rotateVector(turn, origin)),
+        ),
+      );
       rotation = Quaternion.multiply(rotation, turn);
-    } else translation = Vector3.add(translation, Quaternion.rotateVector(rotation, Vector3.scale(axis.direction, delta)));
+    } else
+      translation = Vector3.add(
+        translation,
+        Quaternion.rotateVector(rotation, Vector3.scale(axis.direction, delta)),
+      );
   }
   const joint = node.joint.frame;
-  const inJoint = Quaternion.rotateVector(Quaternion.inverse(joint.rotation), Vector3.subtract(node.rest.position, joint.position));
-  const changed = Vector3.add(joint.position, Quaternion.rotateVector(joint.rotation, Vector3.add(translation, Quaternion.rotateVector(rotation, inJoint))));
-  const restRelative = Quaternion.multiply(Quaternion.inverse(joint.rotation), node.rest.rotation);
+  const inJoint = Quaternion.rotateVector(
+    Quaternion.inverse(joint.rotation),
+    Vector3.subtract(node.rest.position, joint.position),
+  );
+  const changed = Vector3.add(
+    joint.position,
+    Quaternion.rotateVector(
+      joint.rotation,
+      Vector3.add(translation, Quaternion.rotateVector(rotation, inJoint)),
+    ),
+  );
+  const restRelative = Quaternion.multiply(
+    Quaternion.inverse(joint.rotation),
+    node.rest.rotation,
+  );
   return {
     position: carry(changed),
-    rotation: Quaternion.multiply(parentDelta, Quaternion.multiply(joint.rotation, Quaternion.multiply(rotation, restRelative))),
+    rotation: Quaternion.multiply(
+      parentDelta,
+      Quaternion.multiply(
+        joint.rotation,
+        Quaternion.multiply(rotation, restRelative),
+      ),
+    ),
   };
 }

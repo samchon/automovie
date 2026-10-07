@@ -10,7 +10,10 @@ import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry"
  * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Preserves the generated-versus-adopted cycle alternative without duplicating representation structure.
  * @author Samchon
  */
-export interface IAutoMovieInstancedModelRepresentation<Cycle extends IAutoMovieFormationCycle | null = IAutoMovieFormationCycle | null> extends IAutoMovieInstancedGeometry {
+export interface IAutoMovieInstancedModelRepresentation<
+  Cycle extends IAutoMovieFormationCycle | null =
+    IAutoMovieFormationCycle | null,
+> extends IAutoMovieInstancedGeometry {
   /**
    * Baked rigid-part matrix table, or null for the static representation.
    * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Supplies only the cycle actually available to the selected tier.

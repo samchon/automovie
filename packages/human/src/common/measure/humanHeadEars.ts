@@ -22,5 +22,8 @@ import { humanHeadEar } from "./humanHeadEar";
  * @author Samchon
  */
 export function humanHeadEars(head: IAutoMovieHumanHeadSkin): Set<number> {
-  return new Set([...humanHeadEar(head, "ear-right").triangles, ...humanHeadEar(head, "ear-left").triangles]);
+  return new Set([
+    ...humanHeadEar(head, "ear-right").triangles,
+    ...humanHeadEar(head, "ear-left").triangles,
+  ]);
 }

@@ -1,14 +1,12 @@
-import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
-import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
-import {
-  IAutoMoviePerformedShot,
-} from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
+import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
 import { namedFacts } from "../internal/predicates";
 
 /** True when the refusal at `path` states every fragment. */
@@ -459,10 +457,12 @@ export const test_film_perform_shot_positional_target = (): void => {
     );
 
   const sampledAt: number[] = [];
-  const livePerform = createFilmPositionalTargetPerformer((_target, seconds) => {
-    sampledAt.push(seconds);
-    return { x: 1, y: 1.4, z: 1 };
-  });
+  const livePerform = createFilmPositionalTargetPerformer(
+    (_target, seconds) => {
+      sampledAt.push(seconds);
+      return { x: 1, y: 1.4, z: 1 };
+    },
+  );
   TestValidator.equals(
     "a live bone locomote target resolves at the action start",
     livePerform([

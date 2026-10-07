@@ -46,8 +46,8 @@ import {
   unposeHumanFaceSurface,
 } from "@automovie/human";
 
-import { denseRows, sparseRows } from "./articulatedResiduals";
 import type { IContactBasisInput } from "./IContactBasisInput";
+import { denseRows, sparseRows } from "./articulatedResiduals";
 import { findLipMargin } from "./findLipMargin";
 import { findSeamPair } from "./findSeamPair";
 import { roundedMillimetres } from "./roundedMillimetres";
@@ -180,7 +180,10 @@ export function prepareContactBasis(input: IContactBasisInput) {
     const rows = sparseRows(companion, decimals);
     if (rows.length === 0) delete one.targets[closureChannel.positive];
     else one.targets[closureChannel.positive] = rows;
-    decomposed[one.id] = { maxDeltaMm: roundedMillimetres(maxDelta), rows: rows.length / 4 };
+    decomposed[one.id] = {
+      maxDeltaMm: roundedMillimetres(maxDelta),
+      rows: rows.length / 4,
+    };
   }
   const removedCorrectives: { id: string; maxMm: number }[] = [];
   basis.correctives = (basis.correctives ?? []).filter((corrective) => {
@@ -194,7 +197,10 @@ export function prepareContactBasis(input: IContactBasisInput) {
         max = Math.max(max, Math.hypot(rows[i + 1], rows[i + 2], rows[i + 3]));
       delete one.targets[corrective.target];
     }
-    removedCorrectives.push({ id: corrective.id, maxMm: roundedMillimetres(max) });
+    removedCorrectives.push({
+      id: corrective.id,
+      maxMm: roundedMillimetres(max),
+    });
     return false;
   });
   if (basis.correctives.length === 0) delete basis.correctives;

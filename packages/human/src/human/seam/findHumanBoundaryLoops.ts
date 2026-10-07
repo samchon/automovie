@@ -27,9 +27,7 @@
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
-export function findHumanBoundaryLoops(
-  indices: readonly number[],
-): number[][] {
+export function findHumanBoundaryLoops(indices: readonly number[]): number[][] {
   if (indices.length % 3 !== 0)
     throw new Error("A triangle list needs a multiple of three indices.");
   let vertexCount = 0;
@@ -53,7 +51,9 @@ export function findHumanBoundaryLoops(
     if (held.has(to * vertexCount + from)) continue;
     if (next.has(from))
       throw new Error(
-        "Two boundary edges leave the vertex " + from + " (a pinched boundary).",
+        "Two boundary edges leave the vertex " +
+          from +
+          " (a pinched boundary).",
       );
     next.set(from, to);
   }
@@ -68,7 +68,9 @@ export function findHumanBoundaryLoops(
       loop.push(at);
       const following = next.get(at);
       if (following === undefined)
-        throw new Error("The boundary at the vertex " + at + " does not close.");
+        throw new Error(
+          "The boundary at the vertex " + at + " does not close.",
+        );
       at = following;
     }
     if (at !== start)

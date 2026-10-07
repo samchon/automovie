@@ -1,4 +1,8 @@
-import type { AutoMovieHumanFaceMeasurementReading, IAutoMovieHumanFaceAnatomicalRequest, IAutoMovieHumanFaceMeasurementMeasured } from "@automovie/human";
+import type {
+  AutoMovieHumanFaceMeasurementReading,
+  IAutoMovieHumanFaceAnatomicalRequest,
+  IAutoMovieHumanFaceMeasurementMeasured,
+} from "@automovie/human";
 import { HUMAN_FACE_MEASUREMENTS } from "@automovie/human/face/anatomy/resolution/HUMAN_FACE_MEASUREMENTS";
 
 import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAnatomyProps";
@@ -28,7 +32,9 @@ import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAna
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Displays registry units and source qualifications without changing document values, and submits observations and solvable targets through the supplied person transaction.
  * @author Samchon
  */
-export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnatomyProps) {
+export function mountConnectedPersonFaceAnatomy(
+  props: IConnectedPersonFaceAnatomyProps,
+) {
   const groups = new Map<string, (typeof HUMAN_FACE_MEASUREMENTS)[number][]>();
   for (const measurement of HUMAN_FACE_MEASUREMENTS) {
     const group = measurement.id.split(".")[0];
@@ -37,17 +43,21 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
   }
   const readings = new Map<string, HTMLElement>();
   const controls = new Map<string, (HTMLInputElement | HTMLButtonElement)[]>();
-  const units: Record<IAutoMovieHumanFaceMeasurementMeasured["unit"], string> = {
-    millimetres: "mm",
-    "square-millimetres": "mm²",
-    degrees: "°",
-    "cubic-centimetres": "cm³",
-    count: "count",
-  };
-  const unit = (name: IAutoMovieHumanFaceMeasurementMeasured["unit"]): string => units[name];
+  const units: Record<IAutoMovieHumanFaceMeasurementMeasured["unit"], string> =
+    {
+      millimetres: "mm",
+      "square-millimetres": "mm²",
+      degrees: "°",
+      "cubic-centimetres": "cm³",
+      count: "count",
+    };
+  const unit = (name: IAutoMovieHumanFaceMeasurementMeasured["unit"]): string =>
+    units[name];
   const commit = async (
     text: string,
-    next: () => Promise<Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]>,
+    next: () => Promise<
+      Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]
+    >,
   ): Promise<void> => {
     const ticket = props.reserve();
     props.busy(text);
@@ -87,11 +97,16 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
         apply.onclick = () => {
           const target = Number(number.value.trim());
           if (number.value.trim() === "" || !Number.isFinite(target)) {
-            props.refuse(new Error(`A finite ${measurement.id} target is required.`));
+            props.refuse(
+              new Error(`A finite ${measurement.id} target is required.`),
+            );
             return;
           }
-          void commit(`Solving ${measurement.id}…`, async () =>
-            (await props.solve(props.current(), measurement.id, target)).document,
+          void commit(
+            `Solving ${measurement.id}…`,
+            async () =>
+              (await props.solve(props.current(), measurement.id, target))
+                .document,
           );
         };
         number.disabled = true;
@@ -117,17 +132,24 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
     const text = observations.value.trim();
     void commit("Applying face observations…", async () => {
       const document = structuredClone(props.current());
-      const anatomical: IAutoMovieHumanFaceAnatomicalRequest = { ...document.face.anatomical };
+      const anatomical: IAutoMovieHumanFaceAnatomicalRequest = {
+        ...document.face.anatomical,
+      };
       if (text === "") delete anatomical.observations;
       else anatomical.observations = JSON.parse(text);
       const face = { ...document.face };
-      if (anatomical.targets === undefined && anatomical.observations === undefined) delete face.anatomical;
+      if (
+        anatomical.targets === undefined &&
+        anatomical.observations === undefined
+      )
+        delete face.anatomical;
       else face.anatomical = anatomical;
       return { ...document, face };
     });
   };
   const observationMeaning = props.dom.createElement("small");
-  observationMeaning.textContent = "Observation JSON stores measured records with their original protocol. It is separate from the numerical styling targets above and supplies no missing anatomical support.";
+  observationMeaning.textContent =
+    "Observation JSON stores measured records with their original protocol. It is separate from the numerical styling targets above and supplies no missing anatomical support.";
   props.container.append(observationMeaning, observations, applyObservations);
   let generation = 0;
   return {
@@ -136,7 +158,8 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
       const person = props.current();
       const recorded = person.face.anatomical?.observations;
       if (props.dom.activeElement !== observations)
-        observations.value = recorded === undefined ? "" : JSON.stringify(recorded);
+        observations.value =
+          recorded === undefined ? "" : JSON.stringify(recorded);
       void (async (): Promise<void> => {
         let values: AutoMovieHumanFaceMeasurementReading[] | undefined;
         let failure = "";
@@ -147,14 +170,18 @@ export function mountConnectedPersonFaceAnatomy(props: IConnectedPersonFaceAnato
         }
         if (current !== generation) return;
         const targets = new Map(
-          (person.face.anatomical?.targets ?? []).map((target) => [target.measurement, target.value]),
+          (person.face.anatomical?.targets ?? []).map((target) => [
+            target.measurement,
+            target.value,
+          ]),
         );
         for (const [id, element] of readings) {
           const value = values?.find((entry) => entry.measurement === id);
           const target = targets.has(id) ? `; target ${targets.get(id)}` : "";
           // a target is offered only while the face can read the measurement
           for (const control of controls.get(id) ?? [])
-            control.disabled = value === undefined || value.status !== "measured";
+            control.disabled =
+              value === undefined || value.status !== "measured";
           element.textContent =
             value === undefined
               ? "Current: unreadable — " + failure

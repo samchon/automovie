@@ -34,5 +34,4 @@ export interface IAutoMovieHumanFaceHairLengths {
 
   /** Positive posterior axial length, millimetres. */
   backMm: number;
-
 }

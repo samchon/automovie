@@ -28,6 +28,15 @@ export function readHumanBodySkinPoint(
 ): IAutoMovieVector3 | null {
   const point = findHumanSkinLandmark(basis, name);
   const positions = point === undefined ? undefined : surfaces[point.surface];
-  if (point === undefined || positions === undefined || point.vertex * 3 + 2 >= positions.length) return null;
-  return { x: positions[point.vertex * 3], y: positions[point.vertex * 3 + 1], z: positions[point.vertex * 3 + 2] };
+  if (
+    point === undefined ||
+    positions === undefined ||
+    point.vertex * 3 + 2 >= positions.length
+  )
+    return null;
+  return {
+    x: positions[point.vertex * 3],
+    y: positions[point.vertex * 3 + 1],
+    z: positions[point.vertex * 3 + 2],
+  };
 }

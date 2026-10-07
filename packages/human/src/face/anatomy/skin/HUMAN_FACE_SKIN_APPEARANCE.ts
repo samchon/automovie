@@ -20,48 +20,42 @@ import type { IAutoMovieHumanFaceStylingDescriptor } from "../../structures/IAut
  * @evidenceExclude contracts/anatomy.md#permitted-range These are numerical styling domains rather than physiological bounds.
  * @evidenceExclude contracts/anatomy.md#parametric-authority Metadata adds no authoring input.
  */
-export const HUMAN_FACE_SKIN_APPEARANCE: readonly IAutoMovieHumanFaceStylingDescriptor[] = [
-  {
-    "path": [
-      "gain",
-      "0"
-    ],
-    "label": "Skin red gain",
-    "unit": "ratio",
-    "minimum": 0,
-    "maximum": null,
-    "qualification": "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity."
-  },
-  {
-    "path": [
-      "gain",
-      "1"
-    ],
-    "label": "Skin green gain",
-    "unit": "ratio",
-    "minimum": 0,
-    "maximum": null,
-    "qualification": "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity."
-  },
-  {
-    "path": [
-      "gain",
-      "2"
-    ],
-    "label": "Skin blue gain",
-    "unit": "ratio",
-    "minimum": 0,
-    "maximum": null,
-    "qualification": "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity."
-  },
-  {
-    "path": [
-      "strength"
-    ],
-    "label": "Regional gain strength",
-    "unit": "ratio",
-    "minimum": 0,
-    "maximum": 1,
-    "qualification": "Zero preserves source appearance. Membership belongs to a registered continuous skin area."
-  }
-];
+export const HUMAN_FACE_SKIN_APPEARANCE: readonly IAutoMovieHumanFaceStylingDescriptor[] =
+  [
+    {
+      path: ["gain", "0"],
+      label: "Skin red gain",
+      unit: "ratio",
+      minimum: 0,
+      maximum: null,
+      qualification:
+        "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity.",
+    },
+    {
+      path: ["gain", "1"],
+      label: "Skin green gain",
+      unit: "ratio",
+      minimum: 0,
+      maximum: null,
+      qualification:
+        "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity.",
+    },
+    {
+      path: ["gain", "2"],
+      label: "Skin blue gain",
+      unit: "ratio",
+      minimum: 0,
+      maximum: null,
+      qualification:
+        "Authored linear RGB reflectance gain, not pigment concentration. White is neutral; the existing albedo gate refuses values beyond material capacity.",
+    },
+    {
+      path: ["strength"],
+      label: "Regional gain strength",
+      unit: "ratio",
+      minimum: 0,
+      maximum: 1,
+      qualification:
+        "Zero preserves source appearance. Membership belongs to a registered continuous skin area.",
+    },
+  ];

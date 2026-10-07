@@ -9,6 +9,8 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
  * @evidence contracts/common.md#clear-and-simple-design One builder serves people and bodies whose constructor consumes the same paired generation.
  * @evidence contracts/common.md#meaningful-documentation States what the token names and why.
  */
-export function humanViewerPublishedGenerationBasis(generation: IHumanViewerPublishedGeneration): string {
+export function humanViewerPublishedGenerationBasis(
+  generation: IHumanViewerPublishedGeneration,
+): string {
   return `${humanViewerBasisTokens.publishedGeneration}@${generation.headDigest.slice(0, 12)}.${generation.bodyDigest.slice(0, 12)}`;
 }

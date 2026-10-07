@@ -39,11 +39,19 @@ export function readHumanFacePupilCentre(
   const iris = context.opticalMesh?.(side, "iris");
   if (iris !== undefined && iris !== null) {
     const count = iris.positions.length / 3;
-    if (!Number.isSafeInteger(count) || count < 3 || !iris.positions.every(Number.isFinite))
-      return { reason: "unread generated iris: incomplete or nonfinite final positions" };
-    const center = [0, 1, 2].map(axis => {
+    if (
+      !Number.isSafeInteger(count) ||
+      count < 3 ||
+      !iris.positions.every(Number.isFinite)
+    )
+      return {
+        reason:
+          "unread generated iris: incomplete or nonfinite final positions",
+      };
+    const center = [0, 1, 2].map((axis) => {
       let sum = 0;
-      for (let vertex = 0; vertex < count; vertex++) sum += iris.positions[3 * vertex + axis];
+      for (let vertex = 0; vertex < count; vertex++)
+        sum += iris.positions[3 * vertex + axis];
       return sum / count;
     });
     return { x: center[0], y: center[1], z: center[2] };

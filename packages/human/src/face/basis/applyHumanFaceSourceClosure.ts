@@ -62,66 +62,104 @@ export function applyHumanFaceSourceClosure(
     throw new Error("Face source closure needs its matching performed layout.");
   const valid = (v: number): boolean =>
     Number.isSafeInteger(v) && v >= 0 && v < plan.vertices;
-  const closed = selected.slice(), contact = new Set<number>();
+  const closed = selected.slice(),
+    contact = new Set<number>();
   if (plan.contactPairs.length === 0)
     throw new Error("Face source closure needs registered contact pairs.");
   for (let i = 0; i < plan.contactPairs.length; i++) {
     const pair = plan.contactPairs[i];
-    if (pair === undefined || pair.length !== 2 || ![pair[0], pair[1]].every(valid))
+    if (
+      pair === undefined ||
+      pair.length !== 2 ||
+      ![pair[0], pair[1]].every(valid)
+    )
       throw new Error("Face source closure names an absent contact point.");
     const [a, b] = pair;
     if (contact.has(a) || contact.has(b))
       throw new Error("Face source closure repeats contact point ownership.");
-    contact.add(a); contact.add(b);
+    contact.add(a);
+    contact.add(b);
     for (let axis = 0; axis < 3; axis++) {
       const mean = interpolateHumanBasisSourceTriangle(
-          [selected[a * 3 + axis], selected[b * 3 + axis], selected[a * 3 + axis]],
-          [0.5, 0],
-        );
+        [
+          selected[a * 3 + axis],
+          selected[b * 3 + axis],
+          selected[a * 3 + axis],
+        ],
+        [0.5, 0],
+      );
       closed[a * 3 + axis] = mean;
       closed[b * 3 + axis] = mean;
     }
   }
-  if (plan.representativePair.length !== 2 || !plan.contactPairs.some(pair =>
-    pair[0] === plan.representativePair[0] && pair[1] === plan.representativePair[1]))
+  if (
+    plan.representativePair.length !== 2 ||
+    !plan.contactPairs.some(
+      (pair) =>
+        pair[0] === plan.representativePair[0] &&
+        pair[1] === plan.representativePair[1],
+    )
+  )
     throw new Error("Face source closure representative must be registered.");
   const transitions = new Set<number>();
   for (let i = 0; i < plan.rows.length; i++) {
     const row = plan.rows[i];
     if (
-      row === undefined || !valid(row.vertex) || contact.has(row.vertex) ||
+      row === undefined ||
+      !valid(row.vertex) ||
+      contact.has(row.vertex) ||
       transitions.has(row.vertex)
     )
       throw new Error("Face source closure has an invalid transition owner.");
     transitions.add(row.vertex);
     if (row.coefficients.length === 0)
-      throw new Error("Face source closure needs nonempty driver coefficients.");
+      throw new Error(
+        "Face source closure needs nonempty driver coefficients.",
+      );
     const drivers = new Set<number>();
     for (let j = 0; j < row.coefficients.length; j++) {
       const entry = row.coefficients[j];
       if (
-        entry === undefined || entry.length !== 2 || !contact.has(entry[0]) ||
-        drivers.has(entry[0]) || !Number.isFinite(entry[1]) || entry[1] <= 0
+        entry === undefined ||
+        entry.length !== 2 ||
+        !contact.has(entry[0]) ||
+        drivers.has(entry[0]) ||
+        !Number.isFinite(entry[1]) ||
+        entry[1] <= 0
       )
-        throw new Error("Face source closure needs unique positive supported drivers.");
+        throw new Error(
+          "Face source closure needs unique positive supported drivers.",
+        );
       drivers.add(entry[0]);
     }
     for (let axis = 0; axis < 3; axis++) {
       let movement = 0;
       for (const [driver, coefficient] of row.coefficients)
-        movement += coefficient * (closed[driver * 3 + axis] - selected[driver * 3 + axis]);
-      closed[row.vertex * 3 + axis] = selected[row.vertex * 3 + axis] + movement;
+        movement +=
+          coefficient *
+          (closed[driver * 3 + axis] - selected[driver * 3 + axis]);
+      closed[row.vertex * 3 + axis] =
+        selected[row.vertex * 3 + axis] + movement;
       if (!Number.isFinite(closed[row.vertex * 3 + axis]))
-        throw new Error("Face source closure exceeded finite endpoint arithmetic.");
+        throw new Error(
+          "Face source closure exceeded finite endpoint arithmetic.",
+        );
     }
   }
   const output = new Map<string, number[]>();
   for (const [id, values] of open) {
     const endpoint = id === plan.surface ? closed : prior.get(id)!;
     const result = values.map((value, i) =>
-      weight === 0 ? value : weight === 1 ? endpoint[i] : value + weight * (endpoint[i] - value));
-    if (result.some(value => !Number.isFinite(value)))
-      throw new Error("Face source closure exceeded finite request arithmetic.");
+      weight === 0
+        ? value
+        : weight === 1
+          ? endpoint[i]
+          : value + weight * (endpoint[i] - value),
+    );
+    if (result.some((value) => !Number.isFinite(value)))
+      throw new Error(
+        "Face source closure exceeded finite request arithmetic.",
+      );
     output.set(id, result);
   }
   return output;

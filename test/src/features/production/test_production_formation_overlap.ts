@@ -1,9 +1,9 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createFormationOverlapScenario } from "../internal/createFormationOverlapScenario";
 import { assertFormationModelColumns } from "../internal/assertFormationModelColumns";
 import { assertFormationSamplingLimits } from "../internal/assertFormationSamplingLimits";
+import { createFormationOverlapScenario } from "../internal/createFormationOverlapScenario";
 import { namedFacts } from "../internal/predicates";
 
 const scenario = createFormationOverlapScenario();

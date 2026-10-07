@@ -9,16 +9,19 @@
  * returns new region parts and the unsplit posed surfaces for underwear, and
  * does not establish collision-free or anatomically valid contact.
  */
+import {
+  autoMovieRenderDigest,
+  canonicalizeAutoMovieJson,
+} from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { autoMovieRenderDigest, canonicalizeAutoMovieJson } from "@automovie/engine";
 
-import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IHumanBodySurfacePartsInput } from "./IHumanBodySurfacePartsInput";
 import type { IAutoMovieHumanBodyPosedSurface } from "../structures/IAutoMovieHumanBodyPosedSurface";
+import type { IHumanBodySurfacePartsInput } from "./IHumanBodySurfacePartsInput";
 import { createHumanBodyPosedSurface } from "./createHumanBodyPosedSurface";
 import { createHumanBodySurfaceRegionParts } from "./createHumanBodySurfaceRegionParts";
 import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
@@ -44,7 +47,10 @@ import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
  * @evidenceExclude contracts/anatomy.md#permitted-range Pose and source admission remain independent of this incidence registration.
  * @evidenceExclude contracts/anatomy.md#parametric-authority This internal source registration is not a numerical body sculpt input.
  */
-export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, physicalSource?: "native-indexed" | "source-partition") {
+export function createHumanBodySurfaceParts(
+  basis: IAutoMovieHumanBodyBasis,
+  physicalSource?: "native-indexed" | "source-partition",
+) {
   // Compilation captures incidence before performance and UV gathering. The
   // instance is supplied by each admitted document, never a generation alone.
   const registrations = basis.surfaces.map((surface) => {
@@ -52,18 +58,49 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, phy
     const source = surface.sourcePartition;
     if (physicalSource === "native-indexed") {
       if (source !== undefined)
-        throw new Error("Native indexed registration cannot relabel a declared canonical source partition.");
-      const fingerprint = autoMovieRenderDigest(canonicalizeAutoMovieJson({ positions: surface.positions, indices: surface.indices }));
+        throw new Error(
+          "Native indexed registration cannot relabel a declared canonical source partition.",
+        );
+      const fingerprint = autoMovieRenderDigest(
+        canonicalizeAutoMovieJson({
+          positions: surface.positions,
+          indices: surface.indices,
+        }),
+      );
       return {
-        identity: canonicalizeAutoMovieJson({ mode: "native-indexed", basis: basis.id, surface: surface.id, fingerprint }),
-        samples: Array.from({ length: surface.positions.length / 3 }, (_, vertex) => vertex),
+        identity: canonicalizeAutoMovieJson({
+          mode: "native-indexed",
+          basis: basis.id,
+          surface: surface.id,
+          fingerprint,
+        }),
+        samples: Array.from(
+          { length: surface.positions.length / 3 },
+          (_, vertex) => vertex,
+        ),
       };
     }
     if (source === undefined || source.generation.trim() === "")
-      throw new Error("Physical source-partition registration needs the actual canonical source record.");
-    const extent = source.originalVertices + source.intersections.length + (source.refinements?.length ?? 0);
-    if (!Number.isSafeInteger(source.originalVertices) || source.originalVertices < 3 || !Number.isSafeInteger(extent) || source.samples.length !== surface.positions.length / 3 || source.samples.some((sample) => !Number.isSafeInteger(sample) || sample < 0 || sample >= extent))
-      throw new Error("Physical source-partition samples must match the actual preUV surface and safe canonical domain.");
+      throw new Error(
+        "Physical source-partition registration needs the actual canonical source record.",
+      );
+    const extent =
+      source.originalVertices +
+      source.intersections.length +
+      (source.refinements?.length ?? 0);
+    if (
+      !Number.isSafeInteger(source.originalVertices) ||
+      source.originalVertices < 3 ||
+      !Number.isSafeInteger(extent) ||
+      source.samples.length !== surface.positions.length / 3 ||
+      source.samples.some(
+        (sample) =>
+          !Number.isSafeInteger(sample) || sample < 0 || sample >= extent,
+      )
+    )
+      throw new Error(
+        "Physical source-partition samples must match the actual preUV surface and safe canonical domain.",
+      );
     return { identity: source.generation, samples: Array.from(source.samples) };
   });
   const posedSurface = basis.surfaces.map((surface) =>
@@ -77,7 +114,8 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, phy
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored
     const restShape =
-      posed && basis.surfaces.some(
+      posed &&
+      basis.surfaces.some(
         (surface) => surface.sag !== undefined || surface.mush !== undefined,
       )
         ? restAll()
@@ -122,10 +160,16 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis, phy
           skinMaterial: skin,
           colors: coloured === null ? null : coloured.colors[index],
           reliefWeights,
-          physical: registrations[index] === undefined ? undefined : {
-            domain: humanPhysicalSourceDomain(document.id, registrations[index]!.identity),
-            samples: registrations[index]!.samples,
-          },
+          physical:
+            registrations[index] === undefined
+              ? undefined
+              : {
+                  domain: humanPhysicalSourceDomain(
+                    document.id,
+                    registrations[index]!.identity,
+                  ),
+                  samples: registrations[index]!.samples,
+                },
         });
       },
     );

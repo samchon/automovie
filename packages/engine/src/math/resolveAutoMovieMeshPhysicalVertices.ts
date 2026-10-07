@@ -47,9 +47,12 @@ export function resolveAutoMovieMeshPhysicalVertices(
   const keys: string[] = [];
   for (const source of metadata.sources) {
     if (
-      source === undefined || source === null ||
-      typeof source.domain !== "string" || source.domain.trim().length === 0 ||
-      !Number.isSafeInteger(source.id) || source.id < 0
+      source === undefined ||
+      source === null ||
+      typeof source.domain !== "string" ||
+      source.domain.trim().length === 0 ||
+      !Number.isSafeInteger(source.id) ||
+      source.id < 0
     )
       refuse("sources need nonblank domains and nonnegative safe integer IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
@@ -63,7 +66,8 @@ export function resolveAutoMovieMeshPhysicalVertices(
     const reference = metadata.vertices[vertex];
     if (
       reference !== null &&
-      (!Number.isSafeInteger(reference) || reference! < 0 ||
+      (!Number.isSafeInteger(reference) ||
+        reference! < 0 ||
         reference! >= keys.length)
     )
       refuse(`vertices[${vertex}] must be null or a resident source reference`);

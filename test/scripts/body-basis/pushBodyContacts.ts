@@ -1,12 +1,11 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
-import type { IBodyContactPush } from "./IBodyContactPush";
 
-import type { BodyContactBones } from "./BodyContactBones";
-import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
-import { segmentBodyPositions } from "./segmentBodyPositions";
 import type { BodyBoneFrames } from "./BodyBoneFrames";
+import type { BodyContactBones } from "./BodyContactBones";
+import type { IBodyContactPush } from "./IBodyContactPush";
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 import { blendBodyVertices } from "./blendBodyVertices";
 import { carryToPosed } from "./carryToPosed";
 import { carryToRest } from "./carryToRest";
@@ -15,6 +14,7 @@ import {
   resolveBodyCrease,
   resolveBodyPair,
 } from "./resolveBodyContactPair";
+import { segmentBodyPositions } from "./segmentBodyPositions";
 
 /** Sweeps over a state's crossing pairs before the solve is handed back. */
 const SWEEPS = 5;

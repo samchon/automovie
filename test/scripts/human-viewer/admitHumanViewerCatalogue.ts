@@ -22,7 +22,12 @@ export function admitHumanViewerCatalogue(
   doc: string,
 ): HumanViewerCatalogue {
   if (refreshed.revision === current.revision) return refreshed;
-  if (!current.documents.some((entry) => entry.id === doc) && refreshed.documents.some((entry) => entry.id === doc))
-    throw new Error("The document inventory belongs to a newer source generation");
+  if (
+    !current.documents.some((entry) => entry.id === doc) &&
+    refreshed.documents.some((entry) => entry.id === doc)
+  )
+    throw new Error(
+      "The document inventory belongs to a newer source generation",
+    );
   return current;
 }

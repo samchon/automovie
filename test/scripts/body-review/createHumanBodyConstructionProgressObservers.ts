@@ -1,13 +1,15 @@
-import { performance } from "node:perf_hooks";
-import type { IAutoMovieHumanFaceConstructionProgress } from "@automovie/human/face/structures/IAutoMovieHumanFaceConstructionProgress";
 import type { IHumanBodyConstructionProgress } from "@automovie/human/body/structures/IHumanBodyConstructionProgress";
+import type { IAutoMovieHumanFaceConstructionProgress } from "@automovie/human/face/structures/IAutoMovieHumanFaceConstructionProgress";
 import type { AutoMovieHumanPersonConstructionStage } from "@automovie/human/human/structures/AutoMovieHumanPersonConstructionStage";
 import type { IAutoMovieHumanPersonGeneration } from "@automovie/human/human/structures/IAutoMovieHumanPersonGeneration";
 import type { IAutoMovieHumanPersonGenerationBuilderProps } from "@automovie/human/human/structures/IAutoMovieHumanPersonGenerationBuilderProps";
+import { performance } from "node:perf_hooks";
 
 type ConstructionProgressOwner = "person" | "face" | "body";
-type ConstructionProgress = AutoMovieHumanPersonConstructionStage |
-  IAutoMovieHumanFaceConstructionProgress | IHumanBodyConstructionProgress;
+type ConstructionProgress =
+  | AutoMovieHumanPersonConstructionStage
+  | IAutoMovieHumanFaceConstructionProgress
+  | IHumanBodyConstructionProgress;
 
 /**
  * Report the normal construction owner's existing completed-stage events.
@@ -23,11 +25,23 @@ type ConstructionProgress = AutoMovieHumanPersonConstructionStage |
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No heartbeat, profiler injection or alternate construction path supplies a stage.
  * @evidence contracts/common.md#meaningful-documentation States event authority, elapsed-time overlap and failure behavior.
  */
-export function createHumanBodyConstructionProgressObservers(generation: IAutoMovieHumanPersonGeneration): IAutoMovieHumanPersonGenerationBuilderProps {
+export function createHumanBodyConstructionProgressObservers(
+  generation: IAutoMovieHumanPersonGeneration,
+): IAutoMovieHumanPersonGenerationBuilderProps {
   const started = performance.now();
-  const write = (owner: ConstructionProgressOwner, completed: ConstructionProgress): void => {
-    console.log(JSON.stringify({ stage: "construction-progress", generation: generation.id,
-      owner, elapsedMs: performance.now() - started, completed }));
+  const write = (
+    owner: ConstructionProgressOwner,
+    completed: ConstructionProgress,
+  ): void => {
+    console.log(
+      JSON.stringify({
+        stage: "construction-progress",
+        generation: generation.id,
+        owner,
+        elapsedMs: performance.now() - started,
+        completed,
+      }),
+    );
   };
   return {
     generation,

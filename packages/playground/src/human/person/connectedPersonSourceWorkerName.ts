@@ -11,8 +11,12 @@ import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Carries source identity selection outside numerical edit requests.
  * @author Samchon
  */
-export function connectedPersonSourceWorkerName(source: IConnectedPersonSourceUrls | undefined): string {
+export function connectedPersonSourceWorkerName(
+  source: IConnectedPersonSourceUrls | undefined,
+): string {
   return new URLSearchParams(
-    source === undefined ? { worker: "person" } : { worker: "person", headSource: source.head, bodySource: source.body },
+    source === undefined
+      ? { worker: "person" }
+      : { worker: "person", headSource: source.head, bodySource: source.body },
   ).toString();
 }

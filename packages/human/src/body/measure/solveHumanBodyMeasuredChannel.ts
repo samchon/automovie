@@ -1,11 +1,11 @@
+import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
+import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
 import type { IAutoMovieHumanBodyMeasuredChannelProps } from "../structures/IAutoMovieHumanBodyMeasuredChannelProps";
 import type { IAutoMovieHumanBodyMeasuredChannelSolution } from "../structures/IAutoMovieHumanBodyMeasuredChannelSolution";
-import { humanSkinLandmark } from "../../common/basis/humanSkinLandmark";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
+import { humanBodyChannelReach } from "./humanBodyChannelReach";
 import { humanBodyChannelReading } from "./humanBodyChannelReading";
 import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
-import { invertHumanMeasurement } from "../../common/measure/invertHumanMeasurement";
-import { humanBodyChannelReach } from "./humanBodyChannelReach";
 import { orientHumanBodyMeasurement } from "./orientHumanBodyMeasurement";
 
 /**

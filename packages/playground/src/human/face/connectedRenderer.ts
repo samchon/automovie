@@ -38,7 +38,9 @@ import { needsConnectedFaceClosedSurface } from "./needsConnectedFaceClosedSurfa
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Updates resident geometry while sharing the viewer's material and texture interpretation.
  */
-export function createConnectedFaceRenderer(props: IConnectedFaceRendererProps) {
+export function createConnectedFaceRenderer(
+  props: IConnectedFaceRendererProps,
+) {
   let active: IConnectedFaceResident | undefined;
   const release = (resident: IConnectedFaceResident): void => {
     if (resident.released) return;
@@ -86,7 +88,10 @@ export function createConnectedFaceRenderer(props: IConnectedFaceRendererProps) 
       });
       if (
         active !== undefined &&
-        sameHumanPreviewValue(active.structure, connectedFaceStructure(model, meshes, null))
+        sameHumanPreviewValue(
+          active.structure,
+          connectedFaceStructure(model, meshes, null),
+        )
       )
         return { resident: active, model, meshes, witnesses };
       const textures = new AutoMovieTextureCache(async (asset) => {

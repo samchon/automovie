@@ -23,7 +23,11 @@ export async function showHumanViewerReference(
   const info = (await (
     await fetch("/reference-info?" + new URLSearchParams({ doc: address.doc }))
   ).json()) as IHumanViewerReferenceInfo;
-  const comparison = planHumanViewerReference(info.available, address.ref, address.opacity);
+  const comparison = planHumanViewerReference(
+    info.available,
+    address.ref,
+    address.opacity,
+  );
   let composition: IHumanViewerComposition | null = null;
   reference.style.display = comparison.enabled ? "block" : "none";
   reference.style.clipPath = "";
@@ -64,11 +68,19 @@ export async function showHumanViewerReference(
     shown === null || !address.landmarks
       ? null
       : (() => {
-          const layout = layoutHumanViewerReference(shown.mode, shown.size,
-            shown.opacity, { width: reference.naturalWidth, height: reference.naturalHeight },
-            info.landmarks);
-          return { width: layout.width, height: layout.height,
-            radius: layout.markerRadius, markers: layout.markers };
+          const layout = layoutHumanViewerReference(
+            shown.mode,
+            shown.size,
+            shown.opacity,
+            { width: reference.naturalWidth, height: reference.naturalHeight },
+            info.landmarks,
+          );
+          return {
+            width: layout.width,
+            height: layout.height,
+            radius: layout.markerRadius,
+            markers: layout.markers,
+          };
         })(),
   );
   return composition;

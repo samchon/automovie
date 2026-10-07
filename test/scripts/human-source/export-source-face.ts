@@ -12,4 +12,8 @@ import { exportHumanSourceFaceProjection } from "./exportHumanSourceFaceProjecti
 const [head, output] = process.argv.slice(2);
 if (head === undefined || output === undefined)
   throw new Error("Usage: export-source-face.ts HEAD FACE_OUTPUT");
-console.log("[human-source]", "face projection", JSON.stringify(exportHumanSourceFaceProjection(head, output)));
+console.log(
+  "[human-source]",
+  "face projection",
+  JSON.stringify(exportHumanSourceFaceProjection(head, output)),
+);

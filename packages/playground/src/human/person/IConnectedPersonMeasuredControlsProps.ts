@@ -28,7 +28,10 @@ export interface IConnectedPersonMeasuredControlsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Read a person measurement on a person's final skin at rest, metres. */
-  read: (document: IAutoMovieHumanPersonDocument, channel: string) => Promise<number>;
+  read: (
+    document: IAutoMovieHumanPersonDocument,
+    channel: string,
+  ) => Promise<number>;
 
   /** Solve a person measurement for a target in metres. */
   solve: (
@@ -38,7 +41,10 @@ export interface IConnectedPersonMeasuredControlsProps {
   ) => Promise<IConnectedPersonMeasuredSolution>;
 
   /** Commit a person document under a ticket. */
-  change: (document: IAutoMovieHumanPersonDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanPersonDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

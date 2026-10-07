@@ -28,5 +28,7 @@ export interface IHumanFaceSkinChart {
   project(point: readonly number[]): IHumanFaceSkinChartCoordinate;
 
   /** Lift ordered chart chords to native pieces or report unsupported source. */
-  compile(guide: readonly IHumanFaceSkinChartCoordinate[]): IHumanFaceSkinChartSpan[];
+  compile(
+    guide: readonly IHumanFaceSkinChartCoordinate[],
+  ): IHumanFaceSkinChartSpan[];
 }

@@ -10,7 +10,9 @@ import type { IHumanSourceReproductionRow } from "./structures/IHumanSourceRepro
  * changed the published value, so the row is carried and listed as not
  * regenerated, with the residual kept as the size of that later change.
  */
-export function classifyHumanSourceRows(rows: readonly IHumanSourceReproductionRow[]): IHumanSourceClassification {
+export function classifyHumanSourceRows(
+  rows: readonly IHumanSourceReproductionRow[],
+): IHumanSourceClassification {
   const out: IHumanSourceReproductionRow[] = [];
   const losses: IHumanSourceClassification["losses"] = [];
   for (const row of rows) {
@@ -18,7 +20,10 @@ export function classifyHumanSourceRows(rows: readonly IHumanSourceReproductionR
       out.push(row);
       continue;
     }
-    const tolerance = row.role === "weights" || row.role === "attachment" ? humanSourceWeightTolerance : humanSourcePositionTolerance;
+    const tolerance =
+      row.role === "weights" || row.role === "attachment"
+        ? humanSourceWeightTolerance
+        : humanSourcePositionTolerance;
     if (row.regeneration.maximumMetres <= tolerance) {
       out.push(row);
       continue;

@@ -18,7 +18,8 @@ export function createHumanSourceSkinPointRow(
     if (map === undefined) {
       map = new Map();
       const rows = generation.targets[name] ?? [];
-      for (let i = 0; i < rows.length; i += 4) map.set(rows[i], rows.slice(i + 1, i + 4));
+      for (let i = 0; i < rows.length; i += 4)
+        map.set(rows[i], rows.slice(i + 1, i + 4));
       cache.set(name, map);
     }
     return map;
@@ -30,7 +31,8 @@ export function createHumanSourceSkinPointRow(
     for (let k = 0; k < 3; k++) {
       const g = skin.triangles[3 * triangle + k];
       const value = map.get(g) ?? [0, 0, 0];
-      for (let c = 0; c < 3; c++) out[c] += weights[k] * (value[c] - (g >= n ? anchor[c] : 0));
+      for (let c = 0; c < 3; c++)
+        out[c] += weights[k] * (value[c] - (g >= n ? anchor[c] : 0));
     }
     return out;
   };

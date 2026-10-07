@@ -8,13 +8,18 @@ export function createPhysicalMesh(
   domain = "fixture-instance",
 ): IAutoMovieMesh {
   return {
-    positions: positions.slice(), indices: indices?.slice() ?? null,
-    normals: null, uvs: null, skin: null,
-    ...(ids === undefined ? {} : {
-      physicalVertices: {
-        sources: ids.map((id) => ({ domain, id })),
-        vertices: ids.map((_id, index) => index),
-      },
-    }),
+    positions: positions.slice(),
+    indices: indices?.slice() ?? null,
+    normals: null,
+    uvs: null,
+    skin: null,
+    ...(ids === undefined
+      ? {}
+      : {
+          physicalVertices: {
+            sources: ids.map((id) => ({ domain, id })),
+            vertices: ids.map((_id, index) => index),
+          },
+        }),
   };
 }

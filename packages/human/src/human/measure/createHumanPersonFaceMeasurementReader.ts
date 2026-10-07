@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { createHumanFaceMeasurementContext } from "../../face/anatomy/resolution/createHumanFaceMeasurementContext";
-import { readHumanFaceMeasurements } from "../../face/anatomy/resolution/readHumanFaceMeasurements";
 import { humanFaceOpticalPartId } from "../../face/anatomy/eye/humanFaceOpticalPartId";
 import { humanFaceLashPartId } from "../../face/anatomy/lash/humanFaceLashPartId";
+import { createHumanFaceMeasurementContext } from "../../face/anatomy/resolution/createHumanFaceMeasurementContext";
+import { readHumanFaceMeasurements } from "../../face/anatomy/resolution/readHumanFaceMeasurements";
 import type { AutoMovieHumanFaceMeasurementReading } from "../../face/structures/AutoMovieHumanFaceMeasurementReading";
 import { meshOfHumanPart } from "../build/meshOfHumanPart";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
@@ -57,21 +57,43 @@ import { readHumanPersonOralDentalPositions } from "./readHumanPersonOralDentalP
  */
 export function createHumanPersonFaceMeasurementReader(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
-): (input: IAutoMovieHumanPersonFaceMeasurementInput) => AutoMovieHumanFaceMeasurementReading[] {
+): (
+  input: IAutoMovieHumanPersonFaceMeasurementInput,
+) => AutoMovieHumanFaceMeasurementReading[] {
   const basis = compiled.generation.face;
-  const surfaces = new Map(basis.surfaces.map((surface) => [surface.id, surface]));
-  return ({ model, document, head, reference, oral, sourceRegions, browReplacements }) => {
+  const surfaces = new Map(
+    basis.surfaces.map((surface) => [surface.id, surface]),
+  );
+  return ({
+    model,
+    document,
+    head,
+    reference,
+    oral,
+    sourceRegions,
+    browReplacements,
+  }) => {
     if (document.face.basis !== basis.id || model.id !== document.id)
-      throw new Error("Person face measurements need the model and document of the compiled generation's evaluation.");
+      throw new Error(
+        "Person face measurements need the model and document of the compiled generation's evaluation.",
+      );
     const inverse = Quaternion.inverse(head.rotation);
     const origin = head.point({ x: 0, y: 0, z: 0 });
     const parts = new Map(model.parts.map((part) => [part.id, part]));
     const canonicalPositions = (world: readonly number[]): number[] => {
       const output = new Array<number>(world.length);
       for (let at = 0; at < world.length; at += 3) {
-        const local = Quaternion.rotateVector(inverse, Vector3.subtract({
-          x: Math.fround(world[at]), y: Math.fround(world[at + 1]), z: Math.fround(world[at + 2]),
-        }, origin));
+        const local = Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(
+            {
+              x: Math.fround(world[at]),
+              y: Math.fround(world[at + 1]),
+              z: Math.fround(world[at + 2]),
+            },
+            origin,
+          ),
+        );
         output[at] = Math.fround(local.x);
         output[at + 1] = Math.fround(local.y);
         output[at + 2] = Math.fround(local.z);
@@ -83,57 +105,108 @@ export function createHumanPersonFaceMeasurementReader(
       if (normals !== null)
         for (let at = 0; at < normals.length; at += 3) {
           const local = Quaternion.rotateVector(inverse, {
-            x: Math.fround(normals[at]), y: Math.fround(normals[at + 1]), z: Math.fround(normals[at + 2]),
+            x: Math.fround(normals[at]),
+            y: Math.fround(normals[at + 1]),
+            z: Math.fround(normals[at + 2]),
           });
           normals[at] = Math.fround(local.x);
           normals[at + 1] = Math.fround(local.y);
           normals[at + 2] = Math.fround(local.z);
         }
-      return { ...mesh, positions: canonicalPositions(mesh.positions), normals };
+      return {
+        ...mesh,
+        positions: canonicalPositions(mesh.positions),
+        normals,
+      };
     };
     const posed = new Map<string, number[]>();
     for (const surface of basis.surfaces)
-      posed.set(surface.id, new Array<number>(surface.positions.length).fill(Number.NaN));
+      posed.set(
+        surface.id,
+        new Array<number>(surface.positions.length).fill(Number.NaN),
+      );
     const seen = new Set<string>();
     for (const region of sourceRegions) {
       const surface = surfaces.get(region.surface);
       const part = parts.get("face:" + region.part);
-      if (surface === undefined || !surface.regions.some((one) => one.id === region.part) ||
-          part === undefined || seen.has(region.part))
-        throw new Error("Final face source correspondence needs its actual native region exactly once: " + region.part + ".");
+      if (
+        surface === undefined ||
+        !surface.regions.some((one) => one.id === region.part) ||
+        part === undefined ||
+        seen.has(region.part)
+      )
+        throw new Error(
+          "Final face source correspondence needs its actual native region exactly once: " +
+            region.part +
+            ".",
+        );
       seen.add(region.part);
       const mesh = meshOfHumanPart(part);
       if (mesh.positions.length !== region.sources.length * 3)
-        throw new Error("Final face source correspondence differs from the retained render population: " + region.part + ".");
+        throw new Error(
+          "Final face source correspondence differs from the retained render population: " +
+            region.part +
+            ".",
+        );
       const canonical = canonicalPositions(mesh.positions);
       const positions = posed.get(region.surface)!;
       region.sources.forEach((source, vertex) => {
-        if (!Number.isSafeInteger(source) || source < 0 || source * 3 + 2 >= positions.length)
-          throw new Error("Final face source correspondence names a nonresident native vertex: " + region.part + ".");
-        for (let axis = 0; axis < 3; axis++) positions[source * 3 + axis] = canonical[vertex * 3 + axis];
+        if (
+          !Number.isSafeInteger(source) ||
+          source < 0 ||
+          source * 3 + 2 >= positions.length
+        )
+          throw new Error(
+            "Final face source correspondence names a nonresident native vertex: " +
+              region.part +
+              ".",
+          );
+        for (let axis = 0; axis < 3; axis++)
+          positions[source * 3 + axis] = canonical[vertex * 3 + axis];
       });
     }
     if (oral !== undefined) {
-      const surface = basis.surfaces.find(one => one.id === oral.dentalSurface);
+      const surface = basis.surfaces.find(
+        (one) => one.id === oral.dentalSurface,
+      );
       if (surface === undefined)
-        throw new Error("Final oral correspondence names an absent basis dental surface: " + oral.dentalSurface + ".");
-      posed.set(surface.id, readHumanPersonOralDentalPositions(
-        model, document.face.id, oral, surface.positions.length, canonicalPositions,
-      ));
+        throw new Error(
+          "Final oral correspondence names an absent basis dental surface: " +
+            oral.dentalSurface +
+            ".",
+        );
+      posed.set(
+        surface.id,
+        readHumanPersonOralDentalPositions(
+          model,
+          document.face.id,
+          oral,
+          surface.positions.length,
+          canonicalPositions,
+        ),
+      );
     }
     const context = createHumanFaceMeasurementContext(basis, posed, {
       oral,
       brows: { replacements: browReplacements },
-      reference: reference === undefined ? undefined : new Map(
-        [...reference].map(([id, positions]) => [id, canonicalPositions(positions)]),
-      ),
+      reference:
+        reference === undefined
+          ? undefined
+          : new Map(
+              [...reference].map(([id, positions]) => [
+                id,
+                canonicalPositions(positions),
+              ]),
+            ),
     });
     context.opticalMesh = (side, role) => {
       const id = "face:" + humanFaceOpticalPartId(side, role);
       const part = parts.get(id);
       if (part === undefined) {
         if (document.face.eyes !== undefined)
-          throw new Error(`The final person omits requested generated optical part ${id}.`);
+          throw new Error(
+            `The final person omits requested generated optical part ${id}.`,
+          );
         return null;
       }
       return canonicalMesh(meshOfHumanPart(part));
@@ -145,13 +218,21 @@ export function createHumanPersonFaceMeasurementReader(
       const part = parts.get(id);
       if (part !== undefined) return canonicalMesh(meshOfHumanPart(part));
       if (profile.strandCount !== 0)
-        throw new Error(`The final person omits requested generated lash part ${id}.`);
+        throw new Error(
+          `The final person omits requested generated lash part ${id}.`,
+        );
       const registration = basis.periocular?.[side].lashes;
       if (registration === undefined)
-        throw new Error(`The zero lash population ${id} has no source-row registration.`);
-      const source = "face:" + (row === "upper" ? registration.upperRegion : registration.lowerRegion);
+        throw new Error(
+          `The zero lash population ${id} has no source-row registration.`,
+        );
+      const source =
+        "face:" +
+        (row === "upper" ? registration.upperRegion : registration.lowerRegion);
       if (parts.has(source))
-        throw new Error(`The zero lash population ${id} still carries source row ${source}.`);
+        throw new Error(
+          `The zero lash population ${id} still carries source row ${source}.`,
+        );
       return { positions: [], indices: [], normals: [], uvs: null, skin: null };
     };
     return readHumanFaceMeasurements(context, document.face.anatomical);

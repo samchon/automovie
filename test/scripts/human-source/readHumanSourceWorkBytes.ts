@@ -9,9 +9,20 @@ import type { IHumanSourceGenerationInput } from "./structures/IHumanSourceGener
  * The logical work namespace is independent of the execution directory.
  * Acquisition establishes rights; this read establishes compilation content.
  */
-export function readHumanSourceWorkBytes(inputs: IHumanSourceGenerationInput[], work: string, relative: string, role: string): Buffer {
+export function readHumanSourceWorkBytes(
+  inputs: IHumanSourceGenerationInput[],
+  work: string,
+  relative: string,
+  role: string,
+): Buffer {
   const bytes = fs.readFileSync(path.join(work, relative));
   const sha256 = crypto.createHash("sha256").update(bytes).digest("hex");
-  inputs.push({ role, path: `work/${relative}`, revision: null, bytes: bytes.length, sha256 });
+  inputs.push({
+    role,
+    path: `work/${relative}`,
+    revision: null,
+    bytes: bytes.length,
+    sha256,
+  });
   return bytes;
 }

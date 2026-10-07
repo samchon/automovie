@@ -37,8 +37,15 @@ export function createHumanBodyExteriorFollower(
 ): (points: readonly number[], displacement: readonly number[]) => number[] {
   const count = skin.length / 3;
   const neighbours = Math.min(binding.neighbours, count);
-  if (!Number.isInteger(binding.neighbours) || binding.neighbours < 1 || !(binding.power > 0) || count < 1)
-    throw new Error("An exterior binding needs a positive neighbour count, a positive power and a skin.");
+  if (
+    !Number.isInteger(binding.neighbours) ||
+    binding.neighbours < 1 ||
+    !(binding.power > 0) ||
+    count < 1
+  )
+    throw new Error(
+      "An exterior binding needs a positive neighbour count, a positive power and a skin.",
+    );
   const low = [Infinity, Infinity, Infinity];
   const high = [-Infinity, -Infinity, -Infinity];
   for (let at = 0; at < skin.length; at++) {
@@ -46,17 +53,36 @@ export function createHumanBodyExteriorFollower(
     high[at % 3] = Math.max(high[at % 3], skin[at]);
   }
   // About four vertices per cell of the skin's bounding volume.
-  const cell = Math.max(Math.cbrt(((high[0] - low[0]) * (high[1] - low[1]) * (high[2] - low[2]) * 4) / count), 1e-6);
-  const size = [0, 1, 2].map((axis) => Math.floor((high[axis] - low[axis]) / cell) + 1);
-  const cellOf = (value: number, axis: number): number => Math.min(size[axis] - 1, Math.max(0, Math.floor((value - low[axis]) / cell)));
+  const cell = Math.max(
+    Math.cbrt(
+      ((high[0] - low[0]) * (high[1] - low[1]) * (high[2] - low[2]) * 4) /
+        count,
+    ),
+    1e-6,
+  );
+  const size = [0, 1, 2].map(
+    (axis) => Math.floor((high[axis] - low[axis]) / cell) + 1,
+  );
+  const cellOf = (value: number, axis: number): number =>
+    Math.min(
+      size[axis] - 1,
+      Math.max(0, Math.floor((value - low[axis]) / cell)),
+    );
   const buckets = new Map<number, number[]>();
   for (let vertex = 0; vertex < count; vertex++) {
-    const key = (cellOf(skin[vertex * 3], 0) * size[1] + cellOf(skin[vertex * 3 + 1], 1)) * size[2] + cellOf(skin[vertex * 3 + 2], 2);
+    const key =
+      (cellOf(skin[vertex * 3], 0) * size[1] +
+        cellOf(skin[vertex * 3 + 1], 1)) *
+        size[2] +
+      cellOf(skin[vertex * 3 + 2], 2);
     const bucket = buckets.get(key);
     if (bucket === undefined) buckets.set(key, [vertex]);
     else bucket.push(vertex);
   }
-  const remembered = new WeakMap<readonly number[], [Int32Array, Float64Array]>();
+  const remembered = new WeakMap<
+    readonly number[],
+    [Int32Array, Float64Array]
+  >();
   const search = (points: readonly number[]): [Int32Array, Float64Array] => {
     const total = points.length / 3;
     const chosen = new Int32Array(total * neighbours);
@@ -64,20 +90,57 @@ export function createHumanBodyExteriorFollower(
     const nearest = new Int32Array(neighbours);
     const distance = new Float64Array(neighbours);
     for (let point = 0; point < total; point++) {
-      const [x, y, z] = [points[point * 3], points[point * 3 + 1], points[point * 3 + 2]];
+      const [x, y, z] = [
+        points[point * 3],
+        points[point * 3 + 1],
+        points[point * 3 + 2],
+      ];
       const home = [cellOf(x, 0), cellOf(y, 1), cellOf(z, 2)];
       // How far outside the lattice the point lies; shells are measured from the clamped home cell.
-      const outside = Math.hypot(...[x, y, z].map((value, axis) => Math.max(low[axis] - value, 0, value - high[axis] - cell)));
+      const outside = Math.hypot(
+        ...[x, y, z].map((value, axis) =>
+          Math.max(low[axis] - value, 0, value - high[axis] - cell),
+        ),
+      );
       let found = 0;
       for (let shell = 0; shell < Math.max(...size); shell++) {
-        if (found === neighbours && Math.max((shell - 1) * cell, outside) > Math.sqrt(distance[found - 1])) break;
-        for (let i = Math.max(0, home[0] - shell); i <= Math.min(size[0] - 1, home[0] + shell); i++)
-          for (let j = Math.max(0, home[1] - shell); j <= Math.min(size[1] - 1, home[1] + shell); j++)
-            for (let k = Math.max(0, home[2] - shell); k <= Math.min(size[2] - 1, home[2] + shell); k++) {
-              if (Math.max(Math.abs(i - home[0]), Math.abs(j - home[1]), Math.abs(k - home[2])) !== shell) continue;
-              for (const vertex of buckets.get((i * size[1] + j) * size[2] + k) ?? []) {
-                const squared = (skin[vertex * 3] - x) ** 2 + (skin[vertex * 3 + 1] - y) ** 2 + (skin[vertex * 3 + 2] - z) ** 2;
-                if (found === neighbours && squared >= distance[found - 1]) continue;
+        if (
+          found === neighbours &&
+          Math.max((shell - 1) * cell, outside) > Math.sqrt(distance[found - 1])
+        )
+          break;
+        for (
+          let i = Math.max(0, home[0] - shell);
+          i <= Math.min(size[0] - 1, home[0] + shell);
+          i++
+        )
+          for (
+            let j = Math.max(0, home[1] - shell);
+            j <= Math.min(size[1] - 1, home[1] + shell);
+            j++
+          )
+            for (
+              let k = Math.max(0, home[2] - shell);
+              k <= Math.min(size[2] - 1, home[2] + shell);
+              k++
+            ) {
+              if (
+                Math.max(
+                  Math.abs(i - home[0]),
+                  Math.abs(j - home[1]),
+                  Math.abs(k - home[2]),
+                ) !== shell
+              )
+                continue;
+              for (const vertex of buckets.get(
+                (i * size[1] + j) * size[2] + k,
+              ) ?? []) {
+                const squared =
+                  (skin[vertex * 3] - x) ** 2 +
+                  (skin[vertex * 3 + 1] - y) ** 2 +
+                  (skin[vertex * 3 + 2] - z) ** 2;
+                if (found === neighbours && squared >= distance[found - 1])
+                  continue;
                 let slot = found < neighbours ? found++ : neighbours - 1;
                 while (slot > 0 && distance[slot - 1] > squared) {
                   distance[slot] = distance[slot - 1];
@@ -91,7 +154,10 @@ export function createHumanBodyExteriorFollower(
       }
       let sum = 0;
       for (let slot = 0; slot < found; slot++) {
-        const weight = distance[slot] === 0 ? Infinity : distance[slot] ** (-binding.power / 2);
+        const weight =
+          distance[slot] === 0
+            ? Infinity
+            : distance[slot] ** (-binding.power / 2);
         weights[point * neighbours + slot] = weight;
         chosen[point * neighbours + slot] = nearest[slot];
         sum += weight;
@@ -99,18 +165,28 @@ export function createHumanBodyExteriorFollower(
       for (let slot = 0; slot < found; slot++) {
         const at = point * neighbours + slot;
         // A point on a skin vertex takes that vertex alone.
-        weights[at] = sum === Infinity ? (weights[at] === Infinity ? 1 : 0) : weights[at] / sum;
+        weights[at] =
+          sum === Infinity
+            ? weights[at] === Infinity
+              ? 1
+              : 0
+            : weights[at] / sum;
       }
       if (sum === Infinity) {
         let coincident = 0;
-        for (let slot = 0; slot < found; slot++) coincident += weights[point * neighbours + slot];
-        for (let slot = 0; slot < found; slot++) weights[point * neighbours + slot] /= coincident;
+        for (let slot = 0; slot < found; slot++)
+          coincident += weights[point * neighbours + slot];
+        for (let slot = 0; slot < found; slot++)
+          weights[point * neighbours + slot] /= coincident;
       }
     }
     return [chosen, weights];
   };
   return (points, displacement) => {
-    if (displacement.length !== skin.length) throw new Error("Skin displacement does not address this skin's vertices.");
+    if (displacement.length !== skin.length)
+      throw new Error(
+        "Skin displacement does not address this skin's vertices.",
+      );
     let found = remembered.get(points);
     if (found === undefined) {
       found = search(points);
@@ -121,7 +197,8 @@ export function createHumanBodyExteriorFollower(
     for (let at = 0; at < chosen.length; at++) {
       const point = Math.floor(at / neighbours) * 3;
       const vertex = chosen[at] * 3;
-      for (let axis = 0; axis < 3; axis++) moved[point + axis] += weights[at] * displacement[vertex + axis];
+      for (let axis = 0; axis < 3; axis++)
+        moved[point + axis] += weights[at] * displacement[vertex + axis];
     }
     return moved;
   };

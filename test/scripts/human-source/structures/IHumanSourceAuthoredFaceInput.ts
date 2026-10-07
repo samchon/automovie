@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
+
 import type { IHumanSourceAuthoredSkin } from "./IHumanSourceAuthoredSkin.ts";
 
 /** Current source geometry/rows and historical metadata whose exact lineage survives.

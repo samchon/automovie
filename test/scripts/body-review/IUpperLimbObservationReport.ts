@@ -1,12 +1,16 @@
-import type { IUpperLimbObservationMeasurement } from "./IUpperLimbObservationMeasurement";
+import type { IAutoMovieHumanBodyBuild } from "@automovie/human";
+
 import type { IUpperLimbHairContactObservation } from "./IUpperLimbHairContactObservation";
 import type { IUpperLimbObservationIdentity } from "./IUpperLimbObservationIdentity";
-import type { IAutoMovieHumanBodyBuild } from "@automovie/human";
+import type { IUpperLimbObservationMeasurement } from "./IUpperLimbObservationMeasurement";
 
 /** Current document, input identity and consumer readings of one upper limb observation. */
 export interface IUpperLimbObservationReport extends IUpperLimbObservationIdentity {
   /** Actual solved body document, shaped rest landmarks and final public frames; positions remain metres rather than report scalar millimetres. */
-  bodyWitness: Pick<IAutoMovieHumanBodyBuild, "evaluatedDocument" | "landmarks" | "bones">;
+  bodyWitness: Pick<
+    IAutoMovieHumanBodyBuild,
+    "evaluatedDocument" | "landmarks" | "bones"
+  >;
   /** Final Float32 one-skin correspondence and final posed rig readings. */
   performed: readonly IUpperLimbObservationMeasurement[];
 

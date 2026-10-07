@@ -10,7 +10,10 @@ import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult"
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps geometry availability separate from admission and committed edit state.
  * @author Samchon
  */
-export interface IConnectedBodyConstructionResult extends Omit<IConnectedBodyPreviewResult, "operation"> {
+export interface IConnectedBodyConstructionResult extends Omit<
+  IConnectedBodyPreviewResult,
+  "operation"
+> {
   /** Distinguishes a draft construction reply from a committed preview. */
   operation: "construct";
 

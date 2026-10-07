@@ -44,7 +44,10 @@ export interface IHumanFaceHairLaunch {
   contact: Pick<IHumanFaceHairContact, "sample" | "clearance" | "epsilon">;
 
   /** Ray index over the same collider. */
-  raycaster: Pick<ReturnType<typeof createAutoMovieMeshRayCaster>, "nearestHit">;
+  raycaster: Pick<
+    ReturnType<typeof createAutoMovieMeshRayCaster>,
+    "nearestHit"
+  >;
 
   /** The root's original support and proximity reader. */
   rootBoundary: IHumanFaceHairRootSupport;

@@ -7,7 +7,9 @@ import type { IAutoMovieHumanBodyGeneratedMaterialPart } from "./IAutoMovieHuman
 type GeneratedMaterialPart<
   Id extends string,
   Tissue extends string,
-> = Id extends string ? IAutoMovieHumanBodyGeneratedMaterialPart<Id, Tissue> : never;
+> = Id extends string
+  ? IAutoMovieHumanBodyGeneratedMaterialPart<Id, Tissue>
+  : never;
 
 /**
  * A resolved internal anatomical part with material and closed identity.
@@ -53,7 +55,10 @@ export type IAutoMovieHumanBodyGeneratedPart =
       >,
       "cartilage"
     >
-  | GeneratedMaterialPart<`${AutoMovieHumanBodySide}BreastFibroglandular`, "fibroglandular">
+  | GeneratedMaterialPart<
+      `${AutoMovieHumanBodySide}BreastFibroglandular`,
+      "fibroglandular"
+    >
   | GeneratedMaterialPart<
       "subcutaneousAdipose" | "abdominalVisceralAdipose",
       "adipose"

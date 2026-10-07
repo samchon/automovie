@@ -14,12 +14,25 @@ import type { IAutoMovieHumanBodyArticularAssetCorrespondence } from "./IAutoMov
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A material name or a resolved bone label cannot replace candidate provenance.
  * @evidence contracts/common.md#meaningful-documentation States absence, refusal and the distinction from clinical validity.
  */
-export function readHumanBodyArticularAssetCorrespondence(primitive: Primitive): IAutoMovieHumanBodyArticularAssetCorrespondence | undefined {
+export function readHumanBodyArticularAssetCorrespondence(
+  primitive: Primitive,
+): IAutoMovieHumanBodyArticularAssetCorrespondence | undefined {
   const extras = primitive.getExtras();
   if (!Object.hasOwn(extras, "automovieArticularInspection")) return undefined;
-  const qualification = typia.assertEquals<IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"]>(extras.automovieArticularInspection);
+  const qualification = typia.assertEquals<
+    IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"]
+  >(extras.automovieArticularInspection);
   const geometry = readHumanStaticPartCorrespondence(primitive);
-  if (geometry === undefined || qualification.reference.basis.trim() === "" || qualification.parts.length !== geometry.parts.length || qualification.parts.some((part, index) => part.id !== geometry.parts[index].id))
-    throw new Error("Articular qualification must match its actual source part partition.");
+  if (
+    geometry === undefined ||
+    qualification.reference.basis.trim() === "" ||
+    qualification.parts.length !== geometry.parts.length ||
+    qualification.parts.some(
+      (part, index) => part.id !== geometry.parts[index].id,
+    )
+  )
+    throw new Error(
+      "Articular qualification must match its actual source part partition.",
+    );
   return { geometry, qualification: structuredClone(qualification) };
 }

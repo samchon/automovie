@@ -157,7 +157,9 @@ function closeCluster(props: {
     // exactly rho from it
     const away = subtract(seed, sample);
     const clearance = Math.hypot(away[0], away[1], away[2]);
-    const centre = sample.map((value, k) => value + (rho * away[k]) / clearance);
+    const centre = sample.map(
+      (value, k) => value + (rho * away[k]) / clearance,
+    );
     const toCentre = subtract(centre, x);
     const distance = Math.hypot(toCentre[0], toCentre[1], toCentre[2]);
     // the ball resting on the vertex along its own normal: where it stays
@@ -170,7 +172,8 @@ function closeCluster(props: {
       rest,
     );
     const poke = rho - Math.hypot(...subtract(rest, touch));
-    const weight = smoothstep((distance - rho) / ease) * smoothstep(poke / ease);
+    const weight =
+      smoothstep((distance - rho) / ease) * smoothstep(poke / ease);
     let position = x;
     if (weight > 0) {
       // the closing surface's point nearest to x, and the ball's outward normal

@@ -1,9 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { humanFaceHairFrame } from "./humanFaceHairFrame";
-
 import type { ICreateHumanFaceHairTailSpreadProps } from "./ICreateHumanFaceHairTailSpreadProps";
+import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
  * Derive one lock's radial velocity after a scalp tie. The tie entry fixes its

@@ -1,11 +1,12 @@
-import { measureHumanSection } from "./measureHumanSection";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IAutoMovieHumanHeadCircumferenceMeasurement } from "./IAutoMovieHumanHeadCircumferenceMeasurement";
 import type { IAutoMovieHumanHeadReading } from "./IAutoMovieHumanHeadReading";
 import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
 import { findHumanOpisthocranion } from "./findHumanOpisthocranion";
 import { humanHeadEar } from "./humanHeadEar";
 import { humanHeadPoint } from "./humanHeadPoint";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { measureHumanSection } from "./measureHumanSection";
 
 /**
  * Read head circumference on a head view at rest: the tape girth of the
@@ -48,9 +49,14 @@ export function readHumanHeadCircumference(
   rule: IAutoMovieHumanHeadCircumferenceMeasurement,
 ): IAutoMovieHumanHeadReading {
   const glabella = humanHeadPoint(head, rule.glabella);
-  const opisthocranion = findHumanOpisthocranion(head, glabella, humanHeadPoint(head, rule.tragion).y);
+  const opisthocranion = findHumanOpisthocranion(
+    head,
+    glabella,
+    humanHeadPoint(head, rule.tragion).y,
+  );
   // the plane y = glabella.y + slope * (z - glabella.z) holds the X axis; a positive slope lowers it at the back
-  const slopeTo = (point: IAutoMovieVector3): number => (glabella.y - point.y) / (glabella.z - point.z);
+  const slopeTo = (point: IAutoMovieVector3): number =>
+    (glabella.y - point.y) / (glabella.z - point.z);
   // the tape is not lower in front than at the back: a plane that would rise behind is held level
   let slope = Math.max(0, slopeTo(opisthocranion));
   let clearance: IAutoMovieVector3 | undefined;
@@ -58,26 +64,44 @@ export function readHumanHeadCircumference(
     for (const t of humanHeadEar(head, name).triangles)
       for (let k = 0; k < 3; k++) {
         const v = head.indices[t * 3 + k];
-        const point = { x: head.positions[v * 3], y: head.positions[v * 3 + 1], z: head.positions[v * 3 + 2] };
-        if (!(point.z < glabella.z)) throw new Error(`The ear ${name} of ${head.id} reaches in front of the glabella.`);
+        const point = {
+          x: head.positions[v * 3],
+          y: head.positions[v * 3 + 1],
+          z: head.positions[v * 3 + 2],
+        };
+        if (!(point.z < glabella.z))
+          throw new Error(
+            `The ear ${name} of ${head.id} reaches in front of the glabella.`,
+          );
         if (slopeTo(point) < slope) {
           if (slopeTo(point) < 0)
-            throw new Error(`The ear ${name} of ${head.id} rises above the glabella, so no tape passes above it level in front.`);
+            throw new Error(
+              `The ear ${name} of ${head.id} rises above the glabella, so no tape passes above it level in front.`,
+            );
           slope = slopeTo(point);
           clearance = point;
         }
       }
   const size = Math.hypot(1, slope);
-  const plane = { point: glabella, normal: { x: 0, y: 1 / size, z: -slope / size } };
+  const plane = {
+    point: glabella,
+    normal: { x: 0, y: 1 / size, z: -slope / size },
+  };
   const back = clearance ?? opisthocranion;
   const section = measureHumanSection(head.positions, head.indices, plane, {
     x: glabella.x,
     y: (glabella.y + back.y) / 2,
     z: (glabella.z + back.z) / 2,
   });
-  if (section === null) throw new Error(`The head circumference plane of ${head.id} closes no loop.`);
+  if (section === null)
+    throw new Error(
+      `The head circumference plane of ${head.id} closes no loop.`,
+    );
   return {
     metres: section.girth,
-    points: clearance === undefined ? { glabella, opisthocranion } : { glabella, opisthocranion, "ear-clearance": clearance },
+    points:
+      clearance === undefined
+        ? { glabella, opisthocranion }
+        : { glabella, opisthocranion, "ear-clearance": clearance },
   };
 }

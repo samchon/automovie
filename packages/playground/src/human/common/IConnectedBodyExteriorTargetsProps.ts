@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyBasisDocument,
+} from "@automovie/human";
 
 /**
  * What the anatomical target rows render into and call: the container, the
@@ -35,7 +38,10 @@ export interface IConnectedBodyExteriorTargetsProps {
   isCurrent: (ticket: number) => boolean;
 
   /** Commit a body document under a ticket; the builder solves its anatomy. */
-  change: (document: IAutoMovieHumanBodyBasisDocument, ticket: number) => Promise<boolean>;
+  change: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    ticket: number,
+  ) => Promise<boolean>;
 
   /** Show a busy status. */
   busy: (text: string) => void;

@@ -35,7 +35,9 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  */
 export function createHumanPersonSourceSkin(
   props: IAutoMovieHumanPersonSourceSkinProps,
-): (input: IAutoMovieHumanPersonSourceSkinInput) => IAutoMovieHumanPersonSourceSkin {
+): (
+  input: IAutoMovieHumanPersonSourceSkinInput,
+) => IAutoMovieHumanPersonSourceSkin {
   const {
     faceCount,
     faceRegions,
@@ -50,7 +52,10 @@ export function createHumanPersonSourceSkin(
   return ({ face, body }) => {
     const bones = new Map(body.bones.map((one) => [one.bone, one]));
     const head = createHumanPersonHeadTransform({
-      anchor: { neutral: neutralAnchor, shaped: humanPersonEyeCentre(body.landmarks) },
+      anchor: {
+        neutral: neutralAnchor,
+        shaped: humanPersonEyeCentre(body.landmarks),
+      },
       rest: bones.get("head")!.rest,
       posed: bones.get("head")!.posed,
     });

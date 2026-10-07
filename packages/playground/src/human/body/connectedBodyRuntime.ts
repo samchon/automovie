@@ -5,28 +5,31 @@
  * export, while a different committed document is evaluated independently
  * of an in-flight draft.
  */
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodySimpleWhole } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodySimpleWhole,
+} from "@automovie/human";
 import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
-import { createHumanBodySegmenter } from "@automovie/human/body/measure/createHumanBodySegmenter";
-import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
-import { createHumanBodyAtlasExportQualification } from "@automovie/human/body/export/createHumanBodyAtlasExportQualification";
-import { createHumanBodyAssemblyExportQualification } from "@automovie/human/body/export/createHumanBodyAssemblyExportQualification";
-import { measureHumanBodyGroundSupport } from "@automovie/human/body/measure/measureHumanBodyGroundSupport";
 import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { createHumanBodyAssemblyExportQualification } from "@automovie/human/body/export/createHumanBodyAssemblyExportQualification";
+import { createHumanBodyAtlasExportQualification } from "@automovie/human/body/export/createHumanBodyAtlasExportQualification";
+import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
+import { createHumanBodySegmenter } from "@automovie/human/body/measure/createHumanBodySegmenter";
+import { measureHumanBodyGroundSupport } from "@automovie/human/body/measure/measureHumanBodyGroundSupport";
 import { stepHumanBodyArmsDown } from "@automovie/human/body/measure/stepHumanBodyArmsDown";
 import { assertTextSize } from "@automovie/human/common/document/assertTextSize";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
-import type { IConnectedBodyRuntimeCachedBuild } from "./IConnectedBodyRuntimeCachedBuild";
-import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
-import { packConnectedBodyModel } from "./connectedBodyGeometry";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
+import type { IConnectedBodyRuntimeCachedBuild } from "./IConnectedBodyRuntimeCachedBuild";
+import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
+import { packConnectedBodyModel } from "./connectedBodyGeometry";
+import { describeConnectedBodyConstructionProgress } from "./describeConnectedBodyConstructionProgress";
 import { readConnectedBodyContacts } from "./readConnectedBodyContacts";
 import { readConnectedBodyFemoralHeads } from "./readConnectedBodyFemoralHeads";
 import { readConnectedBodyHumeralHeads } from "./readConnectedBodyHumeralHeads";
-import { describeConnectedBodyConstructionProgress } from "./describeConnectedBodyConstructionProgress";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -52,13 +55,20 @@ export function createConnectedBodyRuntime(
   whole: IAutoMovieHumanBodySimpleWhole,
   options: IConnectedBodyRuntimeOptions = {},
 ) {
-  const evaluate = createHumanBodyBasisBuilder(basis, options.progress === undefined ? options.builderOptions : {
-    ...options.builderOptions,
-    observeProgress: (progress) => {
-      options.builderOptions?.observeProgress?.(progress);
-      options.progress!(describeConnectedBodyConstructionProgress(progress));
-    },
-  });
+  const evaluate = createHumanBodyBasisBuilder(
+    basis,
+    options.progress === undefined
+      ? options.builderOptions
+      : {
+          ...options.builderOptions,
+          observeProgress: (progress) => {
+            options.builderOptions?.observeProgress?.(progress);
+            options.progress!(
+              describeConnectedBodyConstructionProgress(progress),
+            );
+          },
+        },
+  );
   const segment = createHumanBodySegmenter(basis);
   const sliceMs = options.sliceMs ?? 25;
   const yieldThread =
@@ -76,12 +86,20 @@ export function createConnectedBodyRuntime(
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
     const mine = ++received;
-    if (request.operation === "construct" || request.operation === "exportConstruction")
-      throw new Error("Whole-person construction drafts belong to the person generation runtime.");
+    if (
+      request.operation === "construct" ||
+      request.operation === "exportConstruction"
+    )
+      throw new Error(
+        "Whole-person construction drafts belong to the person generation runtime.",
+      );
     assertTextSize(request.document);
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
-    const document = parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
+    const document = parseHumanBodyBasisDocument(
+      request.document,
+      basis.anatomicalAssembly,
+    );
     if (request.operation === "armsDown") {
       // the same slicing as a contact reading: a step at a time, abandoned
       // when a later request supersedes it
@@ -110,9 +128,19 @@ export function createConnectedBodyRuntime(
       last?.document === request.document ? last.built : evaluate(document);
     last = { document: request.document, built };
     if (request.operation === "export") {
-      const { glb } = await exportHumanBody(built.model, undefined, undefined,
-        await createHumanBodyAtlasExportQualification(basis, built.evaluatedDocument),
-        await createHumanBodyAssemblyExportQualification(basis, built.evaluatedDocument));
+      const { glb } = await exportHumanBody(
+        built.model,
+        undefined,
+        undefined,
+        await createHumanBodyAtlasExportQualification(
+          basis,
+          built.evaluatedDocument,
+        ),
+        await createHumanBodyAssemblyExportQualification(
+          basis,
+          built.evaluatedDocument,
+        ),
+      );
       return { operation: "export", glb };
     }
     const model = packConnectedBodyModel(built.model);
@@ -122,11 +150,30 @@ export function createConnectedBodyRuntime(
         : null;
     let anatomy: IConnectedBodyPreviewResult["anatomy"] = null;
     if (request.anatomy && crossings !== null)
-      anatomy = readConnectedBodyHumeralHeads({ basis, whole, document, built, crossings });
+      anatomy = readConnectedBodyHumeralHeads({
+        basis,
+        whole,
+        document,
+        built,
+        crossings,
+      });
     const femoralHeads =
-      request.anatomy && crossings !== null ? readConnectedBodyFemoralHeads({ basis, whole, document, built, crossings }) : null;
+      request.anatomy && crossings !== null
+        ? readConnectedBodyFemoralHeads({
+            basis,
+            whole,
+            document,
+            built,
+            crossings,
+          })
+        : null;
     const groundSupport = request.anatomy
-      ? measureHumanBodyGroundSupport(basis, built.posedSurfaces.map((surface) => surface.positions), built.landmarks, built.groundPlaneHeightMetres)
+      ? measureHumanBodyGroundSupport(
+          basis,
+          built.posedSurfaces.map((surface) => surface.positions),
+          built.landmarks,
+          built.groundPlaneHeightMetres,
+        )
       : null;
     return {
       operation: "preview",

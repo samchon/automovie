@@ -25,7 +25,11 @@ export function humanSkinRegion(
   name: string,
 ): IAutoMovieHumanSkinRegion {
   const regions = basis.skinRegions;
-  const region = regions !== undefined && Object.hasOwn(regions, name) ? regions[name] : undefined;
-  if (region === undefined) throw new Error(`The basis ${basis.id} declares no skin region ${name}.`);
+  const region =
+    regions !== undefined && Object.hasOwn(regions, name)
+      ? regions[name]
+      : undefined;
+  if (region === undefined)
+    throw new Error(`The basis ${basis.id} declares no skin region ${name}.`);
   return region;
 }

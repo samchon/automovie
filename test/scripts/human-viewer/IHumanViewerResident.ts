@@ -1,6 +1,6 @@
-import type * as THREE from "three";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+import type * as THREE from "three";
 
 /**
  * One document kept drawn-ready in the page: its stage, its group and what it

@@ -1,8 +1,8 @@
+import type { IAutoMovieHumanFacePeriocularAttachmentCharts } from "./IAutoMovieHumanFacePeriocularAttachmentCharts";
+import type { IAutoMovieHumanFacePeriocularDisplacementPatch } from "./IAutoMovieHumanFacePeriocularDisplacementPatch";
 import type { IAutoMovieHumanFacePeriocularMedialBed } from "./IAutoMovieHumanFacePeriocularMedialBed";
 import type { IAutoMovieHumanFacePeriocularStation } from "./IAutoMovieHumanFacePeriocularStation";
 import type { IAutoMovieHumanFacePeriocularTarsalExtent } from "./IAutoMovieHumanFacePeriocularTarsalExtent";
-import type { IAutoMovieHumanFacePeriocularAttachmentCharts } from "./IAutoMovieHumanFacePeriocularAttachmentCharts";
-import type { IAutoMovieHumanFacePeriocularDisplacementPatch } from "./IAutoMovieHumanFacePeriocularDisplacementPatch";
 
 /**
  * Shared licensed skin cage for coarse lid sections and attached tissue shells.

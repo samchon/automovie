@@ -1,9 +1,14 @@
-import type { IFilmChairRingInput } from "../internal/IFilmChairRingInput";
-import type { IFilmChairRing } from "../internal/IFilmChairRing";
-import { assertFilmPropSupportFaces } from "../internal/assertFilmPropSupportFaces";
-import { assertFilmPropPassagesAndAnchors } from "../internal/assertFilmPropPassagesAndAnchors";
-import type { IFilmPropPatchInput } from "../internal/IFilmPropPatchInput";
-import { IAutoMoviePropSupportFace, footprintRing, propAnchorFrame, propBoundsOverlap, propClearanceBounds, propOccupancyBounds, propSpaceContainsBounds, propSupportFace, validatePropPlacements } from "@automovie/engine";
+import {
+  IAutoMoviePropSupportFace,
+  footprintRing,
+  propAnchorFrame,
+  propBoundsOverlap,
+  propClearanceBounds,
+  propOccupancyBounds,
+  propSpaceContainsBounds,
+  propSupportFace,
+  validatePropPlacements,
+} from "@automovie/engine";
 import {
   IAutoMoviePropBox,
   IAutoMoviePropSpec,
@@ -11,6 +16,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmChairRing } from "../internal/IFilmChairRing";
+import type { IFilmChairRingInput } from "../internal/IFilmChairRingInput";
+import type { IFilmPropPatchInput } from "../internal/IFilmPropPatchInput";
+import { assertFilmPropPassagesAndAnchors } from "../internal/assertFilmPropPassagesAndAnchors";
+import { assertFilmPropSupportFaces } from "../internal/assertFilmPropSupportFaces";
 import { createModel } from "../internal/fixtures";
 import {
   namedFacts,
@@ -368,9 +378,25 @@ export const test_film_prop_placement_utility = (): void => {
     },
   );
 
-  assertFilmPropPassagesAndAnchors({ environment, box, UNIT, tableTop, bearing, tipped, patch });
+  assertFilmPropPassagesAndAnchors({
+    environment,
+    box,
+    UNIT,
+    tableTop,
+    bearing,
+    tipped,
+    patch,
+  });
 
-  assertFilmPropSupportFaces({ environment, box, UNIT, tableTop, bearing, tipped, patch });
+  assertFilmPropSupportFaces({
+    environment,
+    box,
+    UNIT,
+    tableTop,
+    bearing,
+    tipped,
+    patch,
+  });
 
   const first = chairRing({ count: 12, seed: 7 });
   const again = chairRing({ count: 12, seed: 7 });

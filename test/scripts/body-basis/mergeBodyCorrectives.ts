@@ -1,13 +1,13 @@
+import { storeHumanBodyCorrectiveRows } from "@automovie/human/body/basis/storeHumanBodyCorrectiveRows";
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisCorrective";
-import { storeHumanBodyCorrectiveRows } from "@automovie/human/body/basis/storeHumanBodyCorrectiveRows";
 
+import type { IBodyCorrectiveMerge } from "./IBodyCorrectiveMerge";
+import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
 import { isSidedBodyCorrective } from "./isSidedBodyCorrective";
 import { mirrorBodyCorrective } from "./mirrorBodyCorrective";
 import { mirrorBodyVertices } from "./mirrorBodyVertices";
 import { symmetrizeBodyRows } from "./symmetrizeBodyRows";
-import type { IBodyCorrectiveMerge } from "./IBodyCorrectiveMerge";
-import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
 
 /**
  * Publish a solve shard onto a basis: remove the correctives the shard
@@ -54,7 +54,10 @@ export function mergeBodyCorrectives(
   const added: string[] = [];
   const mirrored: string[] = [];
   const symmetrized: string[] = [];
-  const claim = (corrective: IAutoMovieHumanBodyBasisCorrective, rows: number[]): void => {
+  const claim = (
+    corrective: IAutoMovieHumanBodyBasisCorrective,
+    rows: number[],
+  ): void => {
     if (taken.has(corrective.id))
       throw new Error("A corrective already carries the id " + corrective.id);
     taken.add(corrective.id);

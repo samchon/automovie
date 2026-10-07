@@ -27,17 +27,27 @@ export async function fetchHumanViewerCandidateGeneration(
 ): Promise<[IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView]> {
   const prefix = humanViewerBasisTokens.candidateGeneration + ":";
   if (!token.startsWith(prefix))
-    throw new Error("A split generation token needs its candidate-generation prefix.");
+    throw new Error(
+      "A split generation token needs its candidate-generation prefix.",
+    );
   const name = token.slice(prefix.length, token.lastIndexOf("@"));
   if (!/^[A-Za-z0-9._-]+$/.test(name))
     throw new Error("A split generation token must name one input file stem.");
   const [head, body] = humanViewerBasisDigests(token, prefix + name, 2);
   return [
     await readConnectedFaceAsset<IAutoMovieHumanPersonHeadView>({
-      read: () => fetch("/basis/person/head?candidate=" + encodeURIComponent(name + "@" + head)),
+      read: () =>
+        fetch(
+          "/basis/person/head?candidate=" +
+            encodeURIComponent(name + "@" + head),
+        ),
     }),
     await readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
-      read: () => fetch("/basis/person/body?candidate=" + encodeURIComponent(name + "@" + body)),
+      read: () =>
+        fetch(
+          "/basis/person/body?candidate=" +
+            encodeURIComponent(name + "@" + body),
+        ),
     }),
   ];
 }

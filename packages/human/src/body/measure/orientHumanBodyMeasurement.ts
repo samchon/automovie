@@ -65,7 +65,13 @@ export function orientHumanBodyMeasurement(
   if (rule.kind === "skin-distance" || rule.kind === "skin-height")
     return { ...rule, from: mirror(rule.from), to: mirror(rule.to) };
   if (rule.kind === "skin-reach")
-    return { ...rule, from: mirror(rule.from), to: mirror(rule.to), origin: mirror(rule.origin), bones: rule.bones.map(mirrorBone) };
+    return {
+      ...rule,
+      from: mirror(rule.from),
+      to: mirror(rule.to),
+      origin: mirror(rule.origin),
+      bones: rule.bones.map(mirrorBone),
+    };
   if (rule.kind === "extent")
     return {
       ...rule,
@@ -74,6 +80,16 @@ export function orientHumanBodyMeasurement(
       bones: rule.bones.map(mirrorBone),
     };
   if ("level" in rule)
-    return { ...rule, from: mirror(rule.from), to: mirror(rule.to), level: mirror(rule.level) };
-  return { ...rule, from: mirror(rule.from), to: mirror(rule.to), range: [...rule.range] };
+    return {
+      ...rule,
+      from: mirror(rule.from),
+      to: mirror(rule.to),
+      level: mirror(rule.level),
+    };
+  return {
+    ...rule,
+    from: mirror(rule.from),
+    to: mirror(rule.to),
+    range: [...rule.range],
+  };
 }

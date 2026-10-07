@@ -1,3 +1,4 @@
+import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
 import type { IHumanFaceProjectedSkinCourse } from "./IHumanFaceProjectedSkinCourse";
 import type { IHumanFaceProjectedSkinCourseInput } from "./IHumanFaceProjectedSkinCourseInput";
 import type { IHumanFaceProjectedSkinSpan } from "./IHumanFaceProjectedSkinSpan";
@@ -7,7 +8,6 @@ import type { IHumanFaceSkinProjectionInterval } from "./IHumanFaceSkinProjectio
 import { createHumanFaceSkinProjectionEnvelope } from "./createHumanFaceSkinProjectionEnvelope";
 import { createHumanFaceSkinProjectionFeatures } from "./createHumanFaceSkinProjectionFeatures";
 import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCourse";
-import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
 
 /**
  * Compile a free guide's continuous nearest projection onto the immutable
@@ -81,11 +81,22 @@ export function compileHumanFaceProjectedSkinCourse(
     for (const interval of envelope) {
       const feature = interval.feature;
       const at = (parameter: number): number[] =>
-        feature.origin.map(
-          (value, axis) =>
-            Fraction.number(Fraction.add(Fraction.from(features.origin[axis]),
-              Fraction.multiply(Fraction.from(features.scale), Fraction.add(value,
-                Fraction.multiply(Fraction.from(parameter), feature.velocity[axis]))))),
+        feature.origin.map((value, axis) =>
+          Fraction.number(
+            Fraction.add(
+              Fraction.from(features.origin[axis]),
+              Fraction.multiply(
+                Fraction.from(features.scale),
+                Fraction.add(
+                  value,
+                  Fraction.multiply(
+                    Fraction.from(parameter),
+                    feature.velocity[axis],
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
       const start = at(interval.lower),
         end = at(interval.upper);
@@ -110,36 +121,71 @@ export function compileHumanFaceProjectedSkinCourse(
         if (separation > threshold)
           throw new Error(
             "Skin guide nearest projection has no continuous native-feature transition. " +
-              JSON.stringify({
-                units: { positions: "head-frame metres", local: "normalized coordinates", interval: "dimensionless guide parameter" },
-                segment,
-                current: {
-                  kind: ["vertex", "edge", "face"][feature.vertices.length - 1],
-                  vertices: feature.vertices,
-                  nativePositions: feature.vertices.map(id => input.positions.slice(3 * id, 3 * id + 3)),
-                  validity: [feature.lower, feature.upper],
-                  interval: [interval.lower, interval.upper],
-                  affineOrigin: feature.origin, affineVelocity: feature.velocity,
-                  normalizationOrigin: features.origin, normalizationScale: features.scale,
-                  freeDirection: features.direction, start, end,
-                  guide: [input.guide[segment], input.guide[segment + 1]],
+              JSON.stringify(
+                {
+                  units: {
+                    positions: "head-frame metres",
+                    local: "normalized coordinates",
+                    interval: "dimensionless guide parameter",
+                  },
+                  segment,
+                  current: {
+                    kind: ["vertex", "edge", "face"][
+                      feature.vertices.length - 1
+                    ],
+                    vertices: feature.vertices,
+                    nativePositions: feature.vertices.map((id) =>
+                      input.positions.slice(3 * id, 3 * id + 3),
+                    ),
+                    validity: [feature.lower, feature.upper],
+                    interval: [interval.lower, interval.upper],
+                    affineOrigin: feature.origin,
+                    affineVelocity: feature.velocity,
+                    normalizationOrigin: features.origin,
+                    normalizationScale: features.scale,
+                    freeDirection: features.direction,
+                    start,
+                    end,
+                    guide: [input.guide[segment], input.guide[segment + 1]],
+                  },
+                  previous: {
+                    segment: previousSegment,
+                    kind: ["vertex", "edge", "face"][
+                      previousFeature.vertices.length - 1
+                    ],
+                    vertices: previousFeature.vertices,
+                    nativePositions: previousFeature.vertices.map((id) =>
+                      input.positions.slice(3 * id, 3 * id + 3),
+                    ),
+                    validity: [previousFeature.lower, previousFeature.upper],
+                    interval: [
+                      previousInterval?.lower,
+                      previousInterval?.upper,
+                    ],
+                    affineOrigin: previousFeature.origin,
+                    affineVelocity: previousFeature.velocity,
+                    normalizationOrigin: previousContext?.origin,
+                    normalizationScale: previousContext?.scale,
+                    freeDirection: previousContext?.direction,
+                    end: previous.end,
+                    guide:
+                      previousSegment === undefined
+                        ? undefined
+                        : [
+                            input.guide[previousSegment],
+                            input.guide[previousSegment + 1],
+                          ],
+                  },
+                  sharedNativeCornerGuardPassed: true,
+                  separationMetres: separation,
+                  arithmeticScaleMetres: arithmeticScale,
+                  thresholdMetres: threshold,
+                  multiplier: 128,
+                  binary64Epsilon: Number.EPSILON,
                 },
-                previous: {
-                  segment: previousSegment,
-                  kind: ["vertex", "edge", "face"][previousFeature.vertices.length - 1],
-                  vertices: previousFeature.vertices,
-                  nativePositions: previousFeature.vertices.map(id => input.positions.slice(3 * id, 3 * id + 3)),
-                  validity: [previousFeature.lower, previousFeature.upper],
-                  interval: [previousInterval?.lower, previousInterval?.upper],
-                  affineOrigin: previousFeature.origin, affineVelocity: previousFeature.velocity,
-                  normalizationOrigin: previousContext?.origin, normalizationScale: previousContext?.scale,
-                  freeDirection: previousContext?.direction, end: previous.end,
-                  guide: previousSegment === undefined ? undefined : [input.guide[previousSegment], input.guide[previousSegment + 1]],
-                },
-                sharedNativeCornerGuardPassed: true,
-                separationMetres: separation, arithmeticScaleMetres: arithmeticScale,
-                thresholdMetres: threshold, multiplier: 128, binary64Epsilon: Number.EPSILON,
-              }, (_key, value: unknown) => typeof value === "bigint" ? value.toString() : value),
+                (_key, value: unknown) =>
+                  typeof value === "bigint" ? value.toString() : value,
+              ),
           );
       }
       const lengthMetres = Math.hypot(

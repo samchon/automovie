@@ -50,13 +50,17 @@ export function createHumanPersonBandFaceView(
   for (const rows of Object.values(band.bodyFaceTargets))
     for (let i = 0; i < rows.length; i += 4) support.add(rows[i]);
   for (const attachment of band.bodyAttachments)
-    for (let i = 0; i < attachment.rows.length; i += 2) support.add(attachment.rows[i]);
+    for (let i = 0; i < attachment.rows.length; i += 2)
+      support.add(attachment.rows[i]);
 
   const uvOf = new Map<string, number[]>();
   for (const region of body.regions)
     if (region.uvs !== null)
       for (let t = 0; t < region.indices.length; t += 3)
-        uvOf.set(region.indices.slice(t, t + 3).join(","), region.uvs.slice(t * 2, t * 2 + 6));
+        uvOf.set(
+          region.indices.slice(t, t + 3).join(","),
+          region.uvs.slice(t * 2, t * 2 + 6),
+        );
 
   const local = new Map<number, number>();
   const bodyVertices: number[] = [];
@@ -86,20 +90,39 @@ export function createHumanPersonBandFaceView(
     const order: number[] = [];
     for (let i = 0; i < rows.length; i += stride) order.push(i);
     order.sort((a, b) => local.get(rows[a])! - local.get(rows[b])!);
-    return order.flatMap((i) => [local.get(rows[i])!, ...rows.slice(i + 1, i + stride)]);
+    return order.flatMap((i) => [
+      local.get(rows[i])!,
+      ...rows.slice(i + 1, i + stride),
+    ]);
   };
   const targets: Record<string, number[]> = {};
-  for (const [name, rows] of Object.entries(band.bodyFaceTargets)) targets[name] = move(rows, 4);
+  for (const [name, rows] of Object.entries(band.bodyFaceTargets))
+    targets[name] = move(rows, 4);
   const surface = {
     id: BAND_SURFACE,
-    positions: bodyVertices.flatMap((vertex) => [0, 1, 2].map((axis) => body.positions[vertex * 3 + axis])),
+    positions: bodyVertices.flatMap((vertex) =>
+      [0, 1, 2].map((axis) => body.positions[vertex * 3 + axis]),
+    ),
     indices,
     targets,
-    attachments: band.bodyAttachments.map((attachment) => ({ owner: attachment.owner, rows: move(attachment.rows, 2) })),
-    regions: [{ id: BAND_SURFACE, material: HUMAN_PERSON_SEAM.skinMaterial, indices, uvs: textured ? uvs : null }],
+    attachments: band.bodyAttachments.map((attachment) => ({
+      owner: attachment.owner,
+      rows: move(attachment.rows, 2),
+    })),
+    regions: [
+      {
+        id: BAND_SURFACE,
+        material: HUMAN_PERSON_SEAM.skinMaterial,
+        indices,
+        uvs: textured ? uvs : null,
+      },
+    ],
   };
   return {
-    basis: { ...generation.face, surfaces: [...generation.face.surfaces, surface] },
+    basis: {
+      ...generation.face,
+      surfaces: [...generation.face.surfaces, surface],
+    },
     surface: BAND_SURFACE,
     bodyVertices,
   };

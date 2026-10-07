@@ -1,7 +1,7 @@
-import type { IHumanFacePeriocularGrid } from "./IHumanFacePeriocularGrid";
-import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
 import type { IHumanFaceSkinFrame } from "../../skin/IHumanFaceSkinFrame";
 import type { IHumanFaceSkinSeat } from "../../skin/IHumanFaceSkinSeat";
+import type { IHumanFacePeriocularGrid } from "./IHumanFacePeriocularGrid";
+import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
 
 /** Actual source sampler buffers and generated sheets for one mapping reading.
  *

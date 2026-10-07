@@ -1,4 +1,9 @@
-import { Quaternion, decomposeJointRotation, jointToQuaternion, validatePose } from "@automovie/engine";
+import {
+  Quaternion,
+  decomposeJointRotation,
+  jointToQuaternion,
+  validatePose,
+} from "@automovie/engine";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
@@ -36,29 +41,71 @@ import type { IHumanBodySourceReferenceGoalContext } from "./IHumanBodySourceRef
  * @evidence contracts/anatomy.md#permitted-range Requested goals retain the existing source envelope owner; the shared caller additionally enforces converted and post-pelvis actual ranges.
  * @evidence contracts/anatomy.md#parametric-authority Named source motion degrees are converted without asking for editable vertices, axes or geometry.
  */
-export function resolveHumanBodySourceReferenceGoals(input: IHumanBodySourceReferenceGoalContext): IAutoMovieHumanBodyBasisDocument {
+export function resolveHumanBodySourceReferenceGoals(
+  input: IHumanBodySourceReferenceGoalContext,
+): IAutoMovieHumanBodyBasisDocument {
   const { basis, document, rig } = input;
   if ((document.thighGoals ?? []).length === 0) return document;
   const goals = document.thighGoals!;
-  const violations = validatePose({ pose: { skeleton: rig.skeleton.id, root: null, joints: goals }, skeleton: rig.skeleton }).items;
+  const violations = validatePose({
+    pose: { skeleton: rig.skeleton.id, root: null, joints: goals },
+    skeleton: rig.skeleton,
+  }).items;
   if (violations.length > 0)
-    throw new Error("Body source-reference goal exceeds its source authoring envelope: " + JSON.stringify(violations));
+    throw new Error(
+      "Body source-reference goal exceeds its source authoring envelope: " +
+        JSON.stringify(violations),
+    );
   const bones = new Map(input.baseline.map((bone) => [bone.bone, bone]));
   const converted: IAutoMovieJointPose[] = goals.map((goal) => {
-    const contract = basis.joints.find((joint) => joint.bone === goal.bone)?.sourceReferenceGoal;
+    const contract = basis.joints.find(
+      (joint) => joint.bone === goal.bone,
+    )?.sourceReferenceGoal;
     if (contract === undefined)
-      throw new Error("Body source-reference goal needs an explicit declaration in this exact basis revision: " + goal.bone);
+      throw new Error(
+        "Body source-reference goal needs an explicit declaration in this exact basis revision: " +
+          goal.bone,
+      );
     const reference = bones.get(contract.reference)!;
     const thighRest = rig.rest.get(goal.bone)!;
     const referenceRest = rig.rest.get(contract.reference)!;
-    const travel = Quaternion.multiply(reference.worldRotation, Quaternion.inverse(referenceRest.rotation));
-    const target = Quaternion.normalize(Quaternion.multiply(travel,
-      Quaternion.multiply(thighRest.rotation, jointToQuaternion(goal, rig.axes[goal.bone], rig.frames[goal.bone]))));
-    const sourceJoint = rig.skeleton.bones.find((bone) => bone.bone === goal.bone)!;
+    const travel = Quaternion.multiply(
+      reference.worldRotation,
+      Quaternion.inverse(referenceRest.rotation),
+    );
+    const target = Quaternion.normalize(
+      Quaternion.multiply(
+        travel,
+        Quaternion.multiply(
+          thighRest.rotation,
+          jointToQuaternion(goal, rig.axes[goal.bone], rig.frames[goal.bone]),
+        ),
+      ),
+    );
+    const sourceJoint = rig.skeleton.bones.find(
+      (bone) => bone.bone === goal.bone,
+    )!;
     const parent = bones.get(sourceJoint.parent!)!;
-    const local = Quaternion.multiply(Quaternion.inverse(parent.worldRotation), target);
-    const articulation = Quaternion.multiply(Quaternion.inverse(sourceJoint.rest.rotation), local);
-    return { bone: goal.bone, ...decomposeJointRotation(articulation, rig.axes[goal.bone], rig.frames[goal.bone]) };
+    const local = Quaternion.multiply(
+      Quaternion.inverse(parent.worldRotation),
+      target,
+    );
+    const articulation = Quaternion.multiply(
+      Quaternion.inverse(sourceJoint.rest.rotation),
+      local,
+    );
+    return {
+      bone: goal.bone,
+      ...decomposeJointRotation(
+        articulation,
+        rig.axes[goal.bone],
+        rig.frames[goal.bone],
+      ),
+    };
   });
-  return { ...document, thighGoals: undefined, pose: [...(document.pose ?? []), ...converted] };
+  return {
+    ...document,
+    thighGoals: undefined,
+    pose: [...(document.pose ?? []), ...converted],
+  };
 }

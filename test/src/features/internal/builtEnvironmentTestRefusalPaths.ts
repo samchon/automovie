@@ -1,7 +1,7 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { builtEnvironmentTestBuilding as building } from "./builtEnvironmentTestBuilding";
 
+import { builtEnvironmentTestBuilding as building } from "./builtEnvironmentTestBuilding";
 
 /**
  * The exact violation paths one mutation produces, so a refusal is pinned to

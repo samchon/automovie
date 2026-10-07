@@ -22,7 +22,9 @@ const DEFAULT_PORT = 5175;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a malformed port instead of falling back silently to the default.
  * @evidence contracts/common.md#meaningful-documentation States the default, the per-port file names and why the module is import-free.
  */
-export function humanViewerInstance(value: string | undefined): IHumanViewerInstance {
+export function humanViewerInstance(
+  value: string | undefined,
+): IHumanViewerInstance {
   if (value === undefined || value === "")
     return {
       port: DEFAULT_PORT,
@@ -34,7 +36,9 @@ export function humanViewerInstance(value: string | undefined): IHumanViewerInst
     };
   const port = /^[0-9]+$/.test(value) ? Number(value) : Number.NaN;
   if (!Number.isInteger(port) || port < 1024 || port > 65535)
-    throw new Error(`HUMAN_VIEWER_PORT must be an integer from 1024 to 65535, not ${JSON.stringify(value)}`);
+    throw new Error(
+      `HUMAN_VIEWER_PORT must be an integer from 1024 to 65535, not ${JSON.stringify(value)}`,
+    );
   if (port === DEFAULT_PORT) return humanViewerInstance(undefined);
   return {
     port,

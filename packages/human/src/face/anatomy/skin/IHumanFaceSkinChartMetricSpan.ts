@@ -1,5 +1,5 @@
-import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 import type { IHumanFaceProjectedSkinSpan } from "./IHumanFaceProjectedSkinSpan";
+import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 
 /**
  * A native chart interval and its physical arc station.
@@ -21,4 +21,5 @@ import type { IHumanFaceProjectedSkinSpan } from "./IHumanFaceProjectedSkinSpan"
  * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal curve input.
  * @author Samchon
  */
-export interface IHumanFaceSkinChartMetricSpan extends IHumanFaceSkinChartSpan, IHumanFaceProjectedSkinSpan {}
+export interface IHumanFaceSkinChartMetricSpan
+  extends IHumanFaceSkinChartSpan, IHumanFaceProjectedSkinSpan {}

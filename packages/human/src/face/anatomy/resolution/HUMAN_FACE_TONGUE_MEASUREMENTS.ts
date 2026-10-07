@@ -13,32 +13,42 @@ import { readHumanFaceSurfaceVolume } from "./readHumanFaceSurfaceVolume";
  *
  * @author Samchon
  */
-export const HUMAN_FACE_TONGUE_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
-  {
-    id: "tongue.volume",
-    unit: "cubic-centimetres",
-    channels: [],
-    read: (context) =>
-      context.basis.contact === undefined
-        ? { reason: "missing registration: the tongue passage surface" }
-        : readHumanFaceSurfaceVolume(context, context.basis.contact.passage.surface),
-  },
-  {
-    id: "tongue.tipToValleculaLength",
-    unit: "millimetres",
-    channels: [],
-    read: () => ({ reason: "missing landmark: vallecula on the tongue surface" }),
-  },
-  {
-    id: "tongue.posteriorBaseCoronal.width",
-    unit: "millimetres",
-    channels: [],
-    read: () => ({ reason: "missing landmark: the start of the posterior tongue base" }),
-  },
-  {
-    id: "tongue.posteriorBaseCoronal.height",
-    unit: "millimetres",
-    channels: [],
-    read: () => ({ reason: "missing landmark: the start of the posterior tongue base" }),
-  },
-];
+export const HUMAN_FACE_TONGUE_MEASUREMENTS: readonly IHumanFaceMeasurement[] =
+  [
+    {
+      id: "tongue.volume",
+      unit: "cubic-centimetres",
+      channels: [],
+      read: (context) =>
+        context.basis.contact === undefined
+          ? { reason: "missing registration: the tongue passage surface" }
+          : readHumanFaceSurfaceVolume(
+              context,
+              context.basis.contact.passage.surface,
+            ),
+    },
+    {
+      id: "tongue.tipToValleculaLength",
+      unit: "millimetres",
+      channels: [],
+      read: () => ({
+        reason: "missing landmark: vallecula on the tongue surface",
+      }),
+    },
+    {
+      id: "tongue.posteriorBaseCoronal.width",
+      unit: "millimetres",
+      channels: [],
+      read: () => ({
+        reason: "missing landmark: the start of the posterior tongue base",
+      }),
+    },
+    {
+      id: "tongue.posteriorBaseCoronal.height",
+      unit: "millimetres",
+      channels: [],
+      read: () => ({
+        reason: "missing landmark: the start of the posterior tongue base",
+      }),
+    },
+  ];

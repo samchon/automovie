@@ -36,10 +36,17 @@ export function readHumanFaceHeadSkin(
   const basis = context.basis;
   const points = basis.skinLandmarks ?? {};
   const areas = basis.skinRegions ?? {};
-  for (const name of landmarks) if (!Object.hasOwn(points, name)) return { reason: `missing landmark: ${name}` };
-  for (const name of regions) if (!Object.hasOwn(areas, name)) return { reason: `missing region: ${name}` };
+  for (const name of landmarks)
+    if (!Object.hasOwn(points, name))
+      return { reason: `missing landmark: ${name}` };
+  for (const name of regions)
+    if (!Object.hasOwn(areas, name))
+      return { reason: `missing region: ${name}` };
   const named = Object.values(points)[0];
-  if (named === undefined) return { reason: "missing landmark: any skin landmark naming the skin surface" };
+  if (named === undefined)
+    return {
+      reason: "missing landmark: any skin landmark naming the skin surface",
+    };
   const surface = basis.surfaces[named.surface];
   const skin = context.surface(surface.id);
   return {

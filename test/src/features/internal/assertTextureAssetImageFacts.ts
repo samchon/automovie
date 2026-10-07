@@ -1,4 +1,7 @@
-import type { IAutoMovieTextureImageFacts, validateTextureAssets } from "@automovie/engine";
+import type {
+  IAutoMovieTextureImageFacts,
+  validateTextureAssets,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import type { ITextureAssetClosureOverrides } from "./ITextureAssetClosureOverrides";
@@ -8,7 +11,9 @@ import { hasViolation, namedFacts } from "./predicates";
  * The source facts reader and original supported/refused cases retain their order.
  */
 export const assertTextureAssetImageFacts = (
-  closure: (props: ITextureAssetClosureOverrides) => ReturnType<typeof validateTextureAssets>,
+  closure: (
+    props: ITextureAssetClosureOverrides,
+  ) => ReturnType<typeof validateTextureAssets>,
   facts: (asset: string) => IAutoMovieTextureImageFacts | undefined,
 ): void => {
   TestValidator.equals(
@@ -110,5 +115,4 @@ export const assertTextureAssetImageFacts = (
       exactBudgetAccepted: true,
     },
   );
-
 };

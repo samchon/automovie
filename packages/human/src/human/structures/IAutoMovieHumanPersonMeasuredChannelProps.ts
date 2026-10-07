@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonCompiledGeneration } from "./IAutoMovieHumanPersonCompiledGeneration";
+import type { IAutoMovieHumanPersonDocument } from "./IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPersonGenerationBuild";
 
 /**
@@ -43,7 +43,9 @@ export interface IAutoMovieHumanPersonMeasuredChannelProps {
    * @evidenceExclude contracts/anatomy.md#permitted-range The member admits nothing.
    * @evidenceExclude contracts/anatomy.md#parametric-authority The member converts no input.
    */
-  build: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild;
+  build: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => IAutoMovieHumanPersonGenerationBuild;
 
   /** The person to solve from; only its body channel changes. */
   document: IAutoMovieHumanPersonDocument;

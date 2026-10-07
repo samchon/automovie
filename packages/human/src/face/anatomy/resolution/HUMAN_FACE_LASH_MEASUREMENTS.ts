@@ -52,20 +52,31 @@ export const HUMAN_FACE_LASH_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
       };
     },
   },
-  ...(["left", "right"] as const).flatMap(side => (["upper", "lower"] as const).flatMap(row => ([
-    {
-      id: `eyelash.${side}.${row}.shaftCount`,
-      unit: "count" as const,
-      channels: [],
-      qualification: "Connected components of generated free-shaft geometry; not a measured biological follicle population.",
-      read: (context: Parameters<typeof readHumanFaceLashGeometry>[0]) => readHumanFaceLashGeometry(context, side, row, "shaftCount"),
-    },
-    {
-      id: `eyelash.${side}.${row}.longestSampledCentrelineLength`,
-      unit: "millimetres" as const,
-      channels: [],
-      qualification: "Float32 sampled tube centreline length, a tessellation-dependent lower approximation to the analytic arc; not a caliper protocol.",
-      read: (context: Parameters<typeof readHumanFaceLashGeometry>[0]) => readHumanFaceLashGeometry(context, side, row, "longestSampledCentrelineLength"),
-    },
-  ]))),
+  ...(["left", "right"] as const).flatMap((side) =>
+    (["upper", "lower"] as const).flatMap((row) => [
+      {
+        id: `eyelash.${side}.${row}.shaftCount`,
+        unit: "count" as const,
+        channels: [],
+        qualification:
+          "Connected components of generated free-shaft geometry; not a measured biological follicle population.",
+        read: (context: Parameters<typeof readHumanFaceLashGeometry>[0]) =>
+          readHumanFaceLashGeometry(context, side, row, "shaftCount"),
+      },
+      {
+        id: `eyelash.${side}.${row}.longestSampledCentrelineLength`,
+        unit: "millimetres" as const,
+        channels: [],
+        qualification:
+          "Float32 sampled tube centreline length, a tessellation-dependent lower approximation to the analytic arc; not a caliper protocol.",
+        read: (context: Parameters<typeof readHumanFaceLashGeometry>[0]) =>
+          readHumanFaceLashGeometry(
+            context,
+            side,
+            row,
+            "longestSampledCentrelineLength",
+          ),
+      },
+    ]),
+  ),
 ];

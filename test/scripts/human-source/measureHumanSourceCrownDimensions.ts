@@ -23,30 +23,62 @@ import type { IHumanSourceCrownDimension } from "./structures/IHumanSourceCrownD
  * port-centre extrema are geometric source dimensions, not that protocol or
  * population's measured heights; its mean cannot replace an unknown here.
  */
-export function measureHumanSourceCrownDimensions(face: IAutoMovieHumanFaceBasis): IHumanSourceCrownDimension[] {
-  const dental = face.surfaces.find((surface) => surface.id === "Human.teeth_base");
-  if (dental === undefined) throw new Error("Crown dimensions need the source dental surface.");
+export function measureHumanSourceCrownDimensions(
+  face: IAutoMovieHumanFaceBasis,
+): IHumanSourceCrownDimension[] {
+  const dental = face.surfaces.find(
+    (surface) => surface.id === "Human.teeth_base",
+  );
+  if (dental === undefined)
+    throw new Error("Crown dimensions need the source dental surface.");
   const positions = dental.positions;
-  const centre = (vertices: readonly number[]): number[] => [0, 1, 2].map((axis) =>
-    vertices.reduce((sum, vertex) => sum + positions[3 * vertex + axis], 0) / vertices.length);
-  return readHumanFaceOralCrowns(face).map((crown): IHumanSourceCrownDimension => {
-    const cervical = centre(crown.cervical), body = centre(crown.vertices);
-    const axis = body.map((value, at) => value - cervical[at]);
-    const rank = Math.hypot(...axis);
-    if (!(rank > 0) || !Number.isFinite(rank)) throw new Error(`Crown ${crown.id} has no finite rooted source axis.`);
-    const unit = axis.map((value) => value / rank);
-    const projection = (vertex: number): number => unit.reduce((sum, value, at) =>
-      sum + value * (positions[3 * vertex + at] - cervical[at]), 0);
-    const extreme = crown.vertices.reduce((best, vertex) =>
-      projection(vertex) > projection(best) ? vertex : best);
-    const height = projection(extreme);
-    if (!(height > 0) || !Number.isFinite(height)) throw new Error(`Crown ${crown.id} has no positive source projection height.`);
-    const ring = crown.cervical.map(projection);
-    const all = crown.vertices.map(projection);
-    const minimum = Math.min(...all), maximum = Math.max(...all);
-    return { crown: crown.id, cervicalCentreMetres: cervical, crownAxis: unit,
-      heightMetres: height, crownAxisRangeMetres: [minimum, maximum], axialSpanMetres: maximum - minimum,
-      cervicalAxisRangeMetres: [Math.min(...ring), Math.max(...ring)], extremeVertex: extreme,
-      qualification: "Source cervical-centroid to crown extreme along its centroid axis; no gingival-margin, buccal-cusp or clinical long-axis correspondence." };
-  });
+  const centre = (vertices: readonly number[]): number[] =>
+    [0, 1, 2].map(
+      (axis) =>
+        vertices.reduce(
+          (sum, vertex) => sum + positions[3 * vertex + axis],
+          0,
+        ) / vertices.length,
+    );
+  return readHumanFaceOralCrowns(face).map(
+    (crown): IHumanSourceCrownDimension => {
+      const cervical = centre(crown.cervical),
+        body = centre(crown.vertices);
+      const axis = body.map((value, at) => value - cervical[at]);
+      const rank = Math.hypot(...axis);
+      if (!(rank > 0) || !Number.isFinite(rank))
+        throw new Error(`Crown ${crown.id} has no finite rooted source axis.`);
+      const unit = axis.map((value) => value / rank);
+      const projection = (vertex: number): number =>
+        unit.reduce(
+          (sum, value, at) =>
+            sum + value * (positions[3 * vertex + at] - cervical[at]),
+          0,
+        );
+      const extreme = crown.vertices.reduce((best, vertex) =>
+        projection(vertex) > projection(best) ? vertex : best,
+      );
+      const height = projection(extreme);
+      if (!(height > 0) || !Number.isFinite(height))
+        throw new Error(
+          `Crown ${crown.id} has no positive source projection height.`,
+        );
+      const ring = crown.cervical.map(projection);
+      const all = crown.vertices.map(projection);
+      const minimum = Math.min(...all),
+        maximum = Math.max(...all);
+      return {
+        crown: crown.id,
+        cervicalCentreMetres: cervical,
+        crownAxis: unit,
+        heightMetres: height,
+        crownAxisRangeMetres: [minimum, maximum],
+        axialSpanMetres: maximum - minimum,
+        cervicalAxisRangeMetres: [Math.min(...ring), Math.max(...ring)],
+        extremeVertex: extreme,
+        qualification:
+          "Source cervical-centroid to crown extreme along its centroid axis; no gingival-margin, buccal-cusp or clinical long-axis correspondence.",
+      };
+    },
+  );
 }

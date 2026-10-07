@@ -1,11 +1,16 @@
-import type { IAutoMovieVector3, IAutoMovieConvexSpaceCell, IAutoMovieTransform, IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { BUILT_CONNECTOR_TEST_NO_ROTATION as NO_ROTATION } from "./BUILT_CONNECTOR_TEST_NO_ROTATION";
-import { createModel } from "./fixtures";
-import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "./BUILT_CONNECTOR_TEST_HELIX_TURNS";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { BUILT_CONNECTOR_TEST_HELIX_RADIUS as HELIX_RADIUS } from "./BUILT_CONNECTOR_TEST_HELIX_RADIUS";
 import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "./BUILT_CONNECTOR_TEST_HELIX_RISE";
+import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "./BUILT_CONNECTOR_TEST_HELIX_TURNS";
+import { BUILT_CONNECTOR_TEST_NO_ROTATION as NO_ROTATION } from "./BUILT_CONNECTOR_TEST_NO_ROTATION";
 import { builtConnectorTestYaw as yaw } from "./builtConnectorTestYaw";
-
+import { createModel } from "./fixtures";
 
 const box = (
   id: string,
@@ -23,13 +28,11 @@ const box = (
   ],
 });
 
-
 const place = (x = 0, y = 0, z = 0): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: NO_ROTATION,
   scale: { x: 1, y: 1, z: 1 },
 });
-
 
 /**
  * Four spaces joined by every connector family this stage must express.

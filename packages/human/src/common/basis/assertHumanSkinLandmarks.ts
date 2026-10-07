@@ -20,10 +20,14 @@ import type { IAutoMovieHumanSkinLandmarkHolder } from "./IAutoMovieHumanSkinLan
  * @evidenceExclude contracts/anatomy.md#permitted-range The conditions are topological, not anatomical.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
-export function assertHumanSkinLandmarks(basis: IAutoMovieHumanSkinLandmarkHolder): void {
+export function assertHumanSkinLandmarks(
+  basis: IAutoMovieHumanSkinLandmarkHolder,
+): void {
   for (const [name, point] of Object.entries(basis.skinLandmarks ?? {})) {
     if (name in Object.prototype)
-      throw new Error(`The basis ${basis.id} names a skin landmark after an inherited property: ${name}`);
+      throw new Error(
+        `The basis ${basis.id} names a skin landmark after an inherited property: ${name}`,
+      );
     const surface = basis.surfaces[point.surface];
     if (
       surface === undefined ||
@@ -31,6 +35,8 @@ export function assertHumanSkinLandmarks(basis: IAutoMovieHumanSkinLandmarkHolde
       point.vertex < 0 ||
       point.vertex * 3 + 2 >= surface.positions.length
     )
-      throw new Error(`The skin landmark ${name} of ${basis.id} is not a vertex of a declared surface.`);
+      throw new Error(
+        `The skin landmark ${name} of ${basis.id} is not a vertex of a declared surface.`,
+      );
   }
 }

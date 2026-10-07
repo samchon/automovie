@@ -1,6 +1,6 @@
-import type { IAutoMovieHumanFaceBasisSurface } from "../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
+import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
+import type { IAutoMovieHumanFaceBasisSurface } from "../structures/IAutoMovieHumanFaceBasisSurface";
 
 /**
  * Compose resident pigmentation and fibre gains on one skin surface.
@@ -40,8 +40,13 @@ export function createHumanFaceSurfaceColours(
   for (const gains of [regions, fibres]) {
     if (gains === undefined) continue;
     if (gains.length !== surface.positions.length)
-      throw new Error("Skin gains need the complete matching resident population.");
-    colours = colours === undefined ? [...gains] : colours.map((value, at) => value * gains[at]);
+      throw new Error(
+        "Skin gains need the complete matching resident population.",
+      );
+    colours =
+      colours === undefined
+        ? [...gains]
+        : colours.map((value, at) => value * gains[at]);
   }
   return colours;
 }

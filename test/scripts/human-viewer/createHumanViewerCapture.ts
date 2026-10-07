@@ -25,7 +25,9 @@ import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses software rendering instead of returning its frame.
  * @evidence contracts/common.md#meaningful-documentation States refusals, generation selection, discard and the telemetry kept.
  */
-export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) {
+export function createHumanViewerCapture(
+  props: ICreateHumanViewerCaptureProps,
+) {
   let phases: IHumanViewerPhases = {};
   let lastRender: IHumanViewerLastRender | null = null;
   const lastBuild: Record<string, IHumanViewerDomainBuild | undefined> = {};
@@ -35,43 +37,82 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
     capture: async (address: HumanViewerAddress): Promise<Buffer> => {
       const renderer = props.renderer();
       if (renderer.trim() === "")
-        throw new HumanViewerStartingError("The viewer is starting (" + props.startup() + "), retry");
+        throw new HumanViewerStartingError(
+          "The viewer is starting (" + props.startup() + "), retry",
+        );
       if (!judgeViewerRenderer(renderer).real)
         throw new Error("A real GPU is required: " + renderer);
       // The page reloaded and has no drawable generation yet: say so at once
       // instead of waiting on a bridge the page does not have.
       if (props.readyRevision() === "")
-        throw new HumanViewerStartingError("No source generation is ready (" + props.startup() + "), retry");
+        throw new HumanViewerStartingError(
+          "No source generation is ready (" + props.startup() + "), retry",
+        );
       const inventory = props.inventory();
       const ready = props.readyRevision();
       const selectedRevision = ready;
       const started = performance.now();
-      const shownDomain = inventory.documents.find((entry) => entry.id === address.doc)?.domain;
+      const shownDomain = inventory.documents.find(
+        (entry) => entry.id === address.doc,
+      )?.domain;
       // Room for the build's transient copies is made before it starts.
       // Every stage is bounded by its progress, so no wait, known or not,
       // holds the shared queue for good.
       const stages = props.stages;
       if (shownDomain !== undefined)
-        await stages.run("room", address.doc, humanViewerStageBounds.serverMs,
-          () => props.lifetime.run(() => props.makeRoom(shownDomain)));
-      const result = await stages.run("page", address.doc, humanViewerStageBounds.pageMs,
-        () => props.lifetime.run(() => readHumanViewerCapture(props.page(), address, props.pageRevision())));
+        await stages.run(
+          "room",
+          address.doc,
+          humanViewerStageBounds.serverMs,
+          () => props.lifetime.run(() => props.makeRoom(shownDomain)),
+        );
+      const result = await stages.run(
+        "page",
+        address.doc,
+        humanViewerStageBounds.pageMs,
+        () =>
+          props.lifetime.run(() =>
+            readHumanViewerCapture(props.page(), address, props.pageRevision()),
+          ),
+      );
       if (shownDomain !== undefined) props.learnRoom(shownDomain);
       if (props.readyRevision() !== selectedRevision)
-        throw new Error("Source changed during capture; the mixed revision was discarded");
+        throw new Error(
+          "Source changed during capture; the mixed revision was discarded",
+        );
       // Inside the queue slot, so no capture shows a resident while it is released.
-      await stages.run("trim", address.doc, humanViewerStageBounds.serverMs, () => props.lifetime.run(() => props.trim()));
+      await stages.run(
+        "trim",
+        address.doc,
+        humanViewerStageBounds.serverMs,
+        () => props.lifetime.run(() => props.trim()),
+      );
       const decoded = performance.now();
       const bytes = Buffer.from(result.png.split(",")[1], "base64");
       const reading = describeHumanViewerCapture({
-        doc: address.doc, ao: address.ao, built: result.built, buildMs: result.buildMs,
-        showMs: result.showMs, pngMs: result.pngMs, spans: result.spans, started,
-        waited: result.waited, decoded, finished: performance.now(), wallTime: Date.now(),
+        doc: address.doc,
+        ao: address.ao,
+        built: result.built,
+        buildMs: result.buildMs,
+        showMs: result.showMs,
+        pngMs: result.pngMs,
+        spans: result.spans,
+        started,
+        waited: result.waited,
+        decoded,
+        finished: performance.now(),
+        wallTime: Date.now(),
         pendingEditAt,
       });
       phases = reading.phases;
-      const domain = inventory.documents.find((entry) => entry.id === address.doc)?.domain;
-      if (reading.lastBuild !== null && reading.build !== null && domain !== undefined) {
+      const domain = inventory.documents.find(
+        (entry) => entry.id === address.doc,
+      )?.domain;
+      if (
+        reading.lastBuild !== null &&
+        reading.build !== null &&
+        domain !== undefined
+      ) {
         lastBuild[domain] = reading.lastBuild;
         builds[address.doc] = reading.build;
       }
@@ -96,6 +137,10 @@ export function createHumanViewerCapture(props: ICreateHumanViewerCaptureProps) 
     build: (): string => lastRender?.build ?? "unknown",
 
     /** Telemetry for `/health`. */
-    status: (): IHumanViewerCaptureStatus => ({ lastRender, lastBuild, builds }),
+    status: (): IHumanViewerCaptureStatus => ({
+      lastRender,
+      lastBuild,
+      builds,
+    }),
   };
 }

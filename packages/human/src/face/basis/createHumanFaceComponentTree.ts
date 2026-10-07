@@ -1,7 +1,15 @@
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceComponentTree } from "../structures/IAutoMovieHumanFaceComponentTree";
 
-const DOCUMENT_FIELDS = ["hair", "iris", "skin", "materials", "eyes", "lashes", "anatomical"] as const;
+const DOCUMENT_FIELDS = [
+  "hair",
+  "iris",
+  "skin",
+  "materials",
+  "eyes",
+  "lashes",
+  "anatomical",
+] as const;
 
 /**
  * Compile one application's authored anatomical hierarchy against its exact

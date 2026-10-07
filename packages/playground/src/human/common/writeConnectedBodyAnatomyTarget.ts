@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyAnatomicalMeasurements, IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyAnatomicalMeasurements,
+  IAutoMovieHumanBodyBasisDocument,
+} from "@automovie/human";
 
 /**
  * Return a copy of a body document whose `anatomy` states one surface target
@@ -21,13 +24,17 @@ export function writeConnectedBodyAnatomyTarget(
   metres: number | undefined,
 ): IAutoMovieHumanBodyBasisDocument {
   const next = structuredClone(document);
-  const root: Record<string, unknown> = (next.anatomy as Record<string, unknown> | undefined) ?? {};
+  const root: Record<string, unknown> =
+    (next.anatomy as Record<string, unknown> | undefined) ?? {};
   const keys = path.split(".");
   const trail: Record<string, unknown>[] = [root];
   for (const key of keys.slice(0, -1)) {
     const parent = trail[trail.length - 1];
     const child = parent[key];
-    const node = typeof child === "object" && child !== null ? (child as Record<string, unknown>) : {};
+    const node =
+      typeof child === "object" && child !== null
+        ? (child as Record<string, unknown>)
+        : {};
     parent[key] = node;
     trail.push(node);
   }
@@ -36,7 +43,8 @@ export function writeConnectedBodyAnatomyTarget(
   else trail[trail.length - 1][leaf] = { kind: "target", metres };
   // remove the branches the clear left empty, innermost first
   for (let depth = trail.length - 1; depth > 0; depth--)
-    if (Object.keys(trail[depth]).length === 0) delete trail[depth - 1][keys[depth - 1]];
+    if (Object.keys(trail[depth]).length === 0)
+      delete trail[depth - 1][keys[depth - 1]];
   if (Object.keys(root).length === 0) delete next.anatomy;
   else next.anatomy = root as IAutoMovieHumanBodyAnatomicalMeasurements;
   return next;

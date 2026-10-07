@@ -9,11 +9,17 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
  * @evidence contracts/common.md#clear-and-simple-design One wrapper adds only the hash update to the committed handle.
  * @evidence contracts/common.md#meaningful-documentation States the forwarding and the one addition.
  */
-export function createHumanViewerHostHandle(viewer: HumanViewerHandle): HumanViewerHandle {
+export function createHumanViewerHostHandle(
+  viewer: HumanViewerHandle,
+): HumanViewerHandle {
   return {
     show: async (address) => {
       await viewer.show(address);
-      history.replaceState(null, "", "#" + serializeHumanViewerAddress(address));
+      history.replaceState(
+        null,
+        "",
+        "#" + serializeHumanViewerAddress(address),
+      );
     },
     parts: () => viewer.parts(),
     renderer: () => viewer.renderer(),

@@ -53,13 +53,21 @@ export function stepHumanFaceHairRootedStem(
   const step = Math.min(props.step, props.length - props.travelled);
   const before = first
     ? props.initial
-    : humanFaceHairFrame.direction(Vector3.subtract(p, points[points.length - 2]));
+    : humanFaceHairFrame.direction(
+        Vector3.subtract(p, points[points.length - 2]),
+      );
   const lookahead = first
     ? undefined
     : anticipateHumanFaceHairRootedStem({
         point: p,
-        heading: steerHumanFaceHairRootedStep({ point: p, before, normal, step,
-          contact, budget }),
+        heading: steerHumanFaceHairRootedStep({
+          point: p,
+          before,
+          normal,
+          step,
+          contact,
+          budget,
+        }),
         before,
         normal,
         step,
@@ -105,13 +113,23 @@ export function stepHumanFaceHairRootedStem(
           },
           interval,
         };
-      const turned = aimHumanFaceHairRootedStem({ before, normal, blocking, step });
+      const turned = aimHumanFaceHairRootedStem({
+        before,
+        normal,
+        blocking,
+        step,
+      });
       if (turned.x === along.x && turned.y === along.y && turned.z === along.z)
         throw new HumanFaceHairStemRefusalError(
           "A rooted hair stem cannot leave the concave skin between triangles " +
-            hit.triangle + " and " + blocked.triangle + " within its construction turn at (" +
-            [p.x, p.y, p.z].map((v) => v.toFixed(4)).join(", ") + ") m, clearance " +
-            hit.signedDistance.toExponential(2) + " m.",
+            hit.triangle +
+            " and " +
+            blocked.triangle +
+            " within its construction turn at (" +
+            [p.x, p.y, p.z].map((v) => v.toFixed(4)).join(", ") +
+            ") m, clearance " +
+            hit.signedDistance.toExponential(2) +
+            " m.",
           describeHumanFaceHairStemRefusal({
             points,
             rootNormal: props.rootNormal,

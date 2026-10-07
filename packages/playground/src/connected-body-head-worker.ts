@@ -11,22 +11,42 @@
  */
 import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./human/body/ConnectedBodyResult";
+import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { createConnectedBodyHeadPerson } from "./human/body/createConnectedBodyHeadPerson";
-import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.all([readConnectedHeadView(), readConnectedBodyView()]).then(([head, body]) => {
+const prepared = Promise.all([
+  readConnectedHeadView(),
+  readConnectedBodyView(),
+]).then(([head, body]) => {
   const evaluate = createConnectedPersonRuntime([head, body]);
-  return async (request: ConnectedBodyRequest): Promise<ConnectedBodyResult> => {
-    if (request.operation !== "preview") throw new Error("The body editor's head worker answers previews only.");
-    const result = await evaluate({ ...request, document: createConnectedBodyHeadPerson(head, request.document, body.body.anatomicalAssembly) });
-    if (result.operation !== "preview") throw new Error("Expected a person preview.");
-    return { ...result, model: { ...result.model, parts: result.model.parts.filter((part) => part.id.startsWith("face:")) } };
+  return async (
+    request: ConnectedBodyRequest,
+  ): Promise<ConnectedBodyResult> => {
+    if (request.operation !== "preview")
+      throw new Error("The body editor's head worker answers previews only.");
+    const result = await evaluate({
+      ...request,
+      document: createConnectedBodyHeadPerson(
+        head,
+        request.document,
+        body.body.anatomicalAssembly,
+      ),
+    });
+    if (result.operation !== "preview")
+      throw new Error("Expected a person preview.");
+    return {
+      ...result,
+      model: {
+        ...result.model,
+        parts: result.model.parts.filter((part) => part.id.startsWith("face:")),
+      },
+    };
   };
 });
 const handle = createHumanResidentHandler({

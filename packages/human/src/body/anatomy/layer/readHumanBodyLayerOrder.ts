@@ -48,23 +48,50 @@ import type { IHumanBodyLayerOrderInput } from "./IHumanBodyLayerOrderInput";
  * @evidence contracts/anatomy.md#permitted-range Outside vertices refuse this vertex-only condition; unknown side also prevents a completed non-refusal, with its unavailable reason kept distinct from observed outside geometry.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The reader defines no authoring input.
  */
-export function readHumanBodyLayerOrder(input: IHumanBodyLayerOrderInput): IAutoMovieHumanConstructionClearanceReading[] {
+export function readHumanBodyLayerOrder(
+  input: IHumanBodyLayerOrderInput,
+): IAutoMovieHumanConstructionClearanceReading[] {
   if (!Number.isFinite(input.toleranceMetres) || input.toleranceMetres < 0)
     throw new Error("Layer order needs a finite nonnegative tolerance.");
-  const rounded = (mesh: IAutoMovieMesh): IAutoMovieMesh => ({ ...mesh, positions: mesh.positions.map(Math.fround) });
-  if (input.references.length === 0) throw new Error("Layer order needs at least one reference sheet.");
-  const sheets = input.references.map((reference) => createAutoMovieSignedMeshQuery(rounded(reference.mesh), { boundary: "open" }));
+  const rounded = (mesh: IAutoMovieMesh): IAutoMovieMesh => ({
+    ...mesh,
+    positions: mesh.positions.map(Math.fround),
+  });
+  if (input.references.length === 0)
+    throw new Error("Layer order needs at least one reference sheet.");
+  const sheets = input.references.map((reference) =>
+    createAutoMovieSignedMeshQuery(rounded(reference.mesh), {
+      boundary: "open",
+    }),
+  );
   const against = input.references.map((reference) => reference.name).join("+");
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const part of input.model.parts) {
-    if (!part.id.startsWith(input.subjectPrefix) || input.excluded.includes(part.id)) continue;
+    if (
+      !part.id.startsWith(input.subjectPrefix) ||
+      input.excluded.includes(part.id)
+    )
+      continue;
     const reading: IAutoMovieHumanConstructionClearanceReading = {
-      owner: "body-layer-order", state: "rest", subject: part.id, against,
-      judged: true, refused: false, toleranceMetres: input.toleranceMetres,
-      vertices: 0, insideVertices: 0, outsideVertices: 0, boundaryVertices: 0,
-      minimumSignedMetres: null, maximumSignedMetres: null, worstVertex: null, worstPoint: null,
-      outermostVertex: null, outermostPoint: null,
-      crossings: null, unavailable: null,
+      owner: "body-layer-order",
+      state: "rest",
+      subject: part.id,
+      against,
+      judged: true,
+      refused: false,
+      toleranceMetres: input.toleranceMetres,
+      vertices: 0,
+      insideVertices: 0,
+      outsideVertices: 0,
+      boundaryVertices: 0,
+      minimumSignedMetres: null,
+      maximumSignedMetres: null,
+      worstVertex: null,
+      worstPoint: null,
+      outermostVertex: null,
+      outermostPoint: null,
+      crossings: null,
+      unavailable: null,
     };
     readings.push(reading);
     if (part.geometry.type !== "mesh") {
@@ -73,11 +100,22 @@ export function readHumanBodyLayerOrder(input: IHumanBodyLayerOrderInput): IAuto
       continue;
     }
     const positions = part.geometry.mesh.positions;
-    if (positions.length === 0 || positions.length % 3 !== 0 || !positions.every((value) => Number.isFinite(Math.fround(value))))
-      throw new Error("Layer order needs complete finite Float32 subject positions: " + part.id);
+    if (
+      positions.length === 0 ||
+      positions.length % 3 !== 0 ||
+      !positions.every((value) => Number.isFinite(Math.fround(value)))
+    )
+      throw new Error(
+        "Layer order needs complete finite Float32 subject positions: " +
+          part.id,
+      );
     reading.vertices = positions.length / 3;
     for (let vertex = 0; vertex < reading.vertices; vertex++) {
-      const point = [Math.fround(positions[vertex * 3]), Math.fround(positions[vertex * 3 + 1]), Math.fround(positions[vertex * 3 + 2])];
+      const point = [
+        Math.fround(positions[vertex * 3]),
+        Math.fround(positions[vertex * 3 + 1]),
+        Math.fround(positions[vertex * 3 + 2]),
+      ];
       let signed: number | null = null;
       let nearest = Infinity;
       for (const sheet of sheets) {
@@ -93,19 +131,27 @@ export function readHumanBodyLayerOrder(input: IHumanBodyLayerOrderInput): IAuto
       if (signed > input.toleranceMetres) reading.outsideVertices++;
       else if (signed < -input.toleranceMetres) reading.insideVertices++;
       // Keep the shared minimum locator and the actual outermost witness.
-      if (reading.minimumSignedMetres === null || signed < reading.minimumSignedMetres) {
+      if (
+        reading.minimumSignedMetres === null ||
+        signed < reading.minimumSignedMetres
+      ) {
         reading.minimumSignedMetres = signed;
         reading.worstVertex = vertex;
         reading.worstPoint = point;
       }
-      if (reading.maximumSignedMetres === null || signed > reading.maximumSignedMetres) {
+      if (
+        reading.maximumSignedMetres === null ||
+        signed > reading.maximumSignedMetres
+      ) {
         reading.maximumSignedMetres = signed;
         reading.outermostVertex = vertex;
         reading.outermostPoint = point;
       }
     }
-    if (reading.boundaryVertices > 0) reading.unavailable = "open-reference-rim-side-unknown";
-    reading.refused = reading.outsideVertices > 0 || reading.boundaryVertices > 0;
+    if (reading.boundaryVertices > 0)
+      reading.unavailable = "open-reference-rim-side-unknown";
+    reading.refused =
+      reading.outsideVertices > 0 || reading.boundaryVertices > 0;
   }
   return readings;
 }

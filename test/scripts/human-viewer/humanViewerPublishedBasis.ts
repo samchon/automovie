@@ -11,8 +11,17 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
  * @evidence contracts/common.md#clear-and-simple-design One formula serves every published-basis document kind.
  * @evidence contracts/common.md#meaningful-documentation States the token forms and how they are checked.
  */
-export function humanViewerPublishedBasis(...digests: readonly string[]): string {
-  if (digests.length === 0 || digests.some((digest) => !/^[0-9a-f]{12,}$/.test(digest)))
+export function humanViewerPublishedBasis(
+  ...digests: readonly string[]
+): string {
+  if (
+    digests.length === 0 ||
+    digests.some((digest) => !/^[0-9a-f]{12,}$/.test(digest))
+  )
     throw new Error("A published basis token needs one or two hex digests");
-  return humanViewerBasisTokens.published + "@" + digests.map((digest) => digest.slice(0, 12)).join(".");
+  return (
+    humanViewerBasisTokens.published +
+    "@" +
+    digests.map((digest) => digest.slice(0, 12)).join(".")
+  );
 }

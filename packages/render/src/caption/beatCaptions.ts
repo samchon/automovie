@@ -1,7 +1,10 @@
-import type { IAutoMovieScript, IAutoMovieScriptNode } from "@automovie/interface";
+import type {
+  IAutoMovieScript,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
 
-import type { IAutoMovieBeatCaption } from "./IAutoMovieBeatCaption";
 import { screenplaySceneSlug } from "../screenplay/screenplaySceneSlug";
+import type { IAutoMovieBeatCaption } from "./IAutoMovieBeatCaption";
 
 /**
  * Per-beat caption + enclosing scene slug from the screenplay tree: the join

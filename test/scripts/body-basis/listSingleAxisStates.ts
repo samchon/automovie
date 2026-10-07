@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 
 /**
@@ -25,9 +26,7 @@ export function listSingleAxisStates(
         const samples = [
           ...new Set(
             [0.5, 1].map((fraction) =>
-              side === "positive"
-                ? fraction * range.max
-                : fraction * range.min,
+              side === "positive" ? fraction * range.max : fraction * range.min,
             ),
           ),
         ].filter((angle) =>

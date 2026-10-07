@@ -1,12 +1,12 @@
-import { createFilmClearanceStage as stageWithClearance } from "../internal/createFilmClearanceStage";
-import { assertFilmCameraClearanceStage } from "../internal/assertFilmCameraClearanceStage";
-import { assertFilmCameraClearanceDeformation } from "../internal/assertFilmCameraClearanceDeformation";
-import type { IFilmCameraClearanceAdapterOverrides } from "../internal/IFilmCameraClearanceAdapterOverrides";
-import type { IFilmCameraClearanceAdapterResult } from "../internal/IFilmCameraClearanceAdapterResult";
-import { assertFilmCameraClearanceArtifacts } from "../internal/assertFilmCameraClearanceArtifacts";
-import { assertFilmCameraClearanceEvaluation } from "../internal/assertFilmCameraClearanceEvaluation";
-import type { IFilmCameraClearanceEvaluationOverrides } from "../internal/IFilmCameraClearanceEvaluationOverrides";
-import { ViolationCollector, compileCameraClearanceReports, compileDefinedShot, defineShot, evaluateCameraClearance, performShot, stageScene } from "@automovie/engine";
+import {
+  ViolationCollector,
+  compileCameraClearanceReports,
+  compileDefinedShot,
+  defineShot,
+  evaluateCameraClearance,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import {
   IAutoMovieCameraClearanceEnvelope,
   IAutoMovieShotProgram,
@@ -15,6 +15,14 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmCameraClearanceAdapterOverrides } from "../internal/IFilmCameraClearanceAdapterOverrides";
+import type { IFilmCameraClearanceAdapterResult } from "../internal/IFilmCameraClearanceAdapterResult";
+import type { IFilmCameraClearanceEvaluationOverrides } from "../internal/IFilmCameraClearanceEvaluationOverrides";
+import { assertFilmCameraClearanceArtifacts } from "../internal/assertFilmCameraClearanceArtifacts";
+import { assertFilmCameraClearanceDeformation } from "../internal/assertFilmCameraClearanceDeformation";
+import { assertFilmCameraClearanceEvaluation } from "../internal/assertFilmCameraClearanceEvaluation";
+import { assertFilmCameraClearanceStage } from "../internal/assertFilmCameraClearanceStage";
+import { createFilmClearanceStage as stageWithClearance } from "../internal/createFilmClearanceStage";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -42,9 +50,7 @@ const envelope = (
   parentRig: IAutoMovieCameraClearanceEnvelope["parentRig"] = null,
 ): IAutoMovieCameraClearanceEnvelope => ({ body, parentRig });
 
-const evaluate = (
-  over: IFilmCameraClearanceEvaluationOverrides = {},
-) =>
+const evaluate = (over: IFilmCameraClearanceEvaluationOverrides = {}) =>
   evaluateCameraClearance({
     camera: "camera-main",
     envelope: over.envelope ?? envelope(),
@@ -69,8 +75,6 @@ const throws = (closure: () => unknown, text: string): boolean => {
     return error instanceof Error && error.message.includes(text);
   }
 };
-
-
 
 const runtimeModels = () => [
   { ...createModel(), id: "stickman" },
@@ -106,7 +110,13 @@ const runtimeModels = () => [
  *     trusted as endpoint-bounded motion.
  */
 export const test_film_camera_clearance = (): void => {
-  assertFilmCameraClearanceEvaluation({ identity, box, envelope, evaluate, throws });
+  assertFilmCameraClearanceEvaluation({
+    identity,
+    box,
+    envelope,
+    evaluate,
+    throws,
+  });
 
   assertFilmCameraClearanceStage({ envelope, stageWithClearance });
 
@@ -341,7 +351,19 @@ export const test_film_camera_clearance = (): void => {
           item.expected.includes('obstacle "static-prop"'),
       ),
   );
-  const hostileCoercionMotion = assertFilmCameraClearanceDeformation({ performed, clearStage, heroCamera, sourceNode, movingNode, propModel, inspectAdapter, runtimeModels, identity, offClockCameraMotion, runtime: baseAdapterProps.runtime });
+  const hostileCoercionMotion = assertFilmCameraClearanceDeformation({
+    performed,
+    clearStage,
+    heroCamera,
+    sourceNode,
+    movingNode,
+    propModel,
+    inspectAdapter,
+    runtimeModels,
+    identity,
+    offClockCameraMotion,
+    runtime: baseAdapterProps.runtime,
+  });
 
   const rigCamera = {
     ...heroCamera,

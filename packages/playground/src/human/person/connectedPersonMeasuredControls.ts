@@ -22,7 +22,9 @@ import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMe
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reads each person measurement on the final skin at rest and solves it along its body channel.
  * @author Samchon
  */
-export function mountConnectedPersonMeasuredControls(props: IConnectedPersonMeasuredControlsProps) {
+export function mountConnectedPersonMeasuredControls(
+  props: IConnectedPersonMeasuredControlsProps,
+) {
   const mm = (metres: number): string => (metres * 1000).toFixed(1) + " mm";
   const readings = new Map<string, HTMLElement>();
   let generation = 0;
@@ -35,8 +37,12 @@ export function mountConnectedPersonMeasuredControls(props: IConnectedPersonMeas
     const reading = props.dom.createElement("small");
     const note = props.dom.createElement("small");
     row.className = "row";
-    const site = rule.kind === "girth" ? "girth across the neck cut" : "stature, floor to the top of the head";
-    label.textContent = channel.replace(/([a-z])([A-Z])/gu, "$1 $2") + " (" + site + ", mm)";
+    const site =
+      rule.kind === "girth"
+        ? "girth across the neck cut"
+        : "stature, floor to the top of the head";
+    label.textContent =
+      channel.replace(/([a-z])([A-Z])/gu, "$1 $2") + " (" + site + ", mm)";
     number.id = "person-control-" + channel;
     number.type = "number";
     number.step = "0.1";
@@ -58,7 +64,11 @@ export function mountConnectedPersonMeasuredControls(props: IConnectedPersonMeas
       const targetMetres = Number(requested) / 1000;
       props.busy("Solving " + channel + " on the whole person…");
       try {
-        const solved = await props.solve(structuredClone(props.current()), channel, targetMetres);
+        const solved = await props.solve(
+          structuredClone(props.current()),
+          channel,
+          targetMetres,
+        );
         if (!props.isCurrent(ticket)) return;
         const success = await props.change(solved.document, ticket);
         if (success && props.isCurrent(ticket))

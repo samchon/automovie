@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
 import type { IHumanFaceHairLaunch } from "./IHumanFaceHairLaunch";
+import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
 import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
@@ -54,12 +54,20 @@ export function launchHumanFaceHairCurve(
 ): IHumanFaceHairStationStep {
   const direction = humanFaceHairFrame.direction(props.exitDirection);
   const { clearance, epsilon, sample } = props.contact;
-  const { low, bound, rootHit, pointAt, spend } = createHumanFaceHairExteriorInterval({
-    root: props.root, direction, maximum: props.length, originOnSkin: true,
-    contact: props.contact, raycaster: props.raycaster, rootBoundary: props.rootBoundary, budget: props.budget,
-  });
+  const { low, bound, rootHit, pointAt, spend } =
+    createHumanFaceHairExteriorInterval({
+      root: props.root,
+      direction,
+      maximum: props.length,
+      originOnSkin: true,
+      contact: props.contact,
+      raycaster: props.raycaster,
+      rootBoundary: props.rootBoundary,
+      budget: props.budget,
+    });
   const before = pointAt(low);
-  const distinct = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean => a.x !== b.x || a.y !== b.y || a.z !== b.z;
+  const distinct = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
+    a.x !== b.x || a.y !== b.y || a.z !== b.z;
   const target = clearance - epsilon;
   let travel = low;
   let distance = rootHit.signedDistance;
@@ -71,11 +79,15 @@ export function launchHumanFaceHairCurve(
   while (true) {
     let next = travel + (target - distance);
     if (next >= bound)
-      throw new Error("Hair length or surface reentry blocks its emergence clearance.");
+      throw new Error(
+        "Hair length or surface reentry blocks its emergence clearance.",
+      );
     let point = pointAt(next);
     if (!(next > travel) || !distinct(point, previous)) {
       if (!distinct(pointAt(bound), previous))
-        throw new Error("Hair length or surface reentry leaves no distinct clearance point.");
+        throw new Error(
+          "Hair length or surface reentry leaves no distinct clearance point.",
+        );
       const floating = new Float64Array([Math.max(0, next)]);
       const integer = new BigUint64Array(floating.buffer);
       let left = integer[0];
@@ -90,15 +102,16 @@ export function launchHumanFaceHairCurve(
         else left = middle;
       }
       if (right === end)
-        throw new Error("Hair length or surface reentry blocks its first distinct clearance point.");
+        throw new Error(
+          "Hair length or surface reentry blocks its first distinct clearance point.",
+        );
       integer[0] = right;
       next = floating[0];
       point = pointAt(next);
     }
     spend();
     const hit = sample(point);
-    if (hit.signedDistance >= target)
-      return { point, distance: next };
+    if (hit.signedDistance >= target) return { point, distance: next };
     travel = next;
     distance = hit.signedDistance;
     previous = point;

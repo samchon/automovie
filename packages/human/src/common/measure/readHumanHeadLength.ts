@@ -28,9 +28,17 @@ export function readHumanHeadLength(
   rule: IAutoMovieHumanHeadLengthMeasurement,
 ): IAutoMovieHumanHeadReading {
   const glabella = humanHeadPoint(head, rule.glabella);
-  const opisthocranion = findHumanOpisthocranion(head, glabella, humanHeadPoint(head, rule.tragion).y);
+  const opisthocranion = findHumanOpisthocranion(
+    head,
+    glabella,
+    humanHeadPoint(head, rule.tragion).y,
+  );
   return {
-    metres: Math.hypot(opisthocranion.x - glabella.x, opisthocranion.y - glabella.y, opisthocranion.z - glabella.z),
+    metres: Math.hypot(
+      opisthocranion.x - glabella.x,
+      opisthocranion.y - glabella.y,
+      opisthocranion.z - glabella.z,
+    ),
     points: { glabella, opisthocranion },
   };
 }

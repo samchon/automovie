@@ -16,12 +16,11 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { applyExpression } from "./applyExpression";
-import { applyPose } from "./applyPose";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
 import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement";
-
 import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig";
+import { applyExpression } from "./applyExpression";
+import { applyPose } from "./applyPose";
 
 /** One joint's three solver states, retained in this player's spring map. */
 interface IAxisSprings {

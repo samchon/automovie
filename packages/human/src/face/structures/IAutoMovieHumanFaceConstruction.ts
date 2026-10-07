@@ -1,8 +1,9 @@
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
-import type { IAutoMovieHumanFacePeriocularMappingReport } from "./IAutoMovieHumanFacePeriocularMappingReport";
 import type { IHumanFaceResidentSourceRegion } from "../basis/IHumanFaceResidentSourceRegion";
+import type { IAutoMovieHumanFacePeriocularMappingReport } from "./IAutoMovieHumanFacePeriocularMappingReport";
 
 /**
  * All requested face geometry and its separate, unchanged admission outcome.

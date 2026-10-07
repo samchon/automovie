@@ -23,13 +23,16 @@ export const appendMeshTopology = (
   collector: ViolationCollector,
   expectClosed: boolean,
 ): void => {
-  let physical: ReturnType<typeof resolveAutoMovieMeshPhysicalVertices> | undefined;
+  let physical:
+    | ReturnType<typeof resolveAutoMovieMeshPhysicalVertices>
+    | undefined;
   if (mesh.physicalVertices !== undefined) {
     try {
       physical = resolveAutoMovieMeshPhysicalVertices(mesh);
     } catch (error) {
       collector.push(
-        "topology", `${path}.physicalVertices`,
+        "topology",
+        `${path}.physicalVertices`,
         String(error),
         mesh.physicalVertices,
       );
@@ -73,8 +76,7 @@ export const appendMeshTopology = (
     const ga = coordinate.vertices[indices[i]!]!,
       gb = coordinate.vertices[indices[i + 1]!]!,
       gc = coordinate.vertices[indices[i + 2]!]!;
-    if (ga === gb || gb === gc || gc === ga)
-      continue;
+    if (ga === gb || gb === gc || gc === ga) continue;
     const a = vertices[indices[i]!]!;
     const b = vertices[indices[i + 1]!]!;
     const c = vertices[indices[i + 2]!]!;

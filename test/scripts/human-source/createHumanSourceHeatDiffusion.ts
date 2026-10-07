@@ -15,20 +15,32 @@ const RELATIVE_RESIDUAL = 1e-12;
  * gradients to a relative residual of 1e-12; a solve that does not converge
  * refuses.
  */
-export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (field: Float64Array, lengthMetres: number) => Float64Array {
+export function createHumanSourceHeatDiffusion(
+  mesh: IHumanSourceSurfaceMesh,
+): (field: Float64Array, lengthMetres: number) => Float64Array {
   const { positions: p, indices } = mesh;
   const n = p.length / 3;
   const held = findHumanSourceBoundaryVertices(indices, n);
   const mass = new Float64Array(n);
   const weights = new Map<number, number>();
-  const pair = (a: number, b: number): number => (a < b ? a * n + b : b * n + a);
+  const pair = (a: number, b: number): number =>
+    a < b ? a * n + b : b * n + a;
   for (let t = 0; t < indices.length; t += 3) {
     const corner = [indices[t], indices[t + 1], indices[t + 2]];
     const at = (v: number): number[] => [p[3 * v], p[3 * v + 1], p[3 * v + 2]];
     const q = corner.map(at);
-    const sub = (a: number[], b: number[]): number[] => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-    const cross = (a: number[], b: number[]): number[] => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-    const dot = (a: number[], b: number[]): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const sub = (a: number[], b: number[]): number[] => [
+      a[0] - b[0],
+      a[1] - b[1],
+      a[2] - b[2],
+    ];
+    const cross = (a: number[], b: number[]): number[] => [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
+    const dot = (a: number[], b: number[]): number =>
+      a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     const area = 0.5 * Math.hypot(...cross(sub(q[1], q[0]), sub(q[2], q[0])));
     for (const v of corner) mass[v] += area / 3;
     for (let k = 0; k < 3; k++) {
@@ -42,7 +54,10 @@ export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (
       weights.set(key, (weights.get(key) ?? 0) + 0.5 * cot);
     }
   }
-  const rows: IHumanSourceHeatDiffusionNeighbour[][] = Array.from({ length: n }, () => []);
+  const rows: IHumanSourceHeatDiffusionNeighbour[][] = Array.from(
+    { length: n },
+    () => [],
+  );
   for (const [key, w] of weights) {
     const a = Math.floor(key / n);
     const b = key % n;
@@ -80,7 +95,8 @@ export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (
     const ax = new Float64Array(n);
     apply(x, ax);
     for (let i = 0; i < n; i++) r[i] = b[i] - ax[i];
-    const precondition = (i: number): number => (held[i] === 1 ? 0 : 1 / (mass[i] + t * diagonal[i]));
+    const precondition = (i: number): number =>
+      held[i] === 1 ? 0 : 1 / (mass[i] + t * diagonal[i]);
     const z = new Float64Array(n);
     for (let i = 0; i < n; i++) z[i] = precondition(i) * r[i];
     const d = Float64Array.from(z);
@@ -116,11 +132,17 @@ export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (
       rz = rzNext;
       for (let i = 0; i < n; i++) d[i] = z[i] + beta * d[i];
     }
-    if (!converged) throw new Error(`Heat diffusion over ${lengthMetres} m did not converge.`);
+    if (!converged)
+      throw new Error(
+        `Heat diffusion over ${lengthMetres} m did not converge.`,
+      );
     for (let i = 0; i < n; i++) if (held[i] === 1) x[i] = field[i];
     return x;
   };
 }
 
 /** Named local transport for createHumanSourceHeatDiffusion; member meaning remains with its calculation owner. */
-interface IHumanSourceHeatDiffusionNeighbour { j: number; w: number }
+interface IHumanSourceHeatDiffusionNeighbour {
+  j: number;
+  w: number;
+}

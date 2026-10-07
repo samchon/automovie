@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyToePose } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyToePose,
+} from "@automovie/human";
 
 /**
  * Inputs of `renderBodyToeRayControls`.

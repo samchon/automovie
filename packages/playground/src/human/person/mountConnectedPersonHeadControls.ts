@@ -29,10 +29,16 @@ import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadCo
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps the committed person when the solve is refused or superseded.
  * @author Samchon
  */
-export function mountConnectedPersonHeadControls(props: IConnectedPersonHeadControlsProps) {
+export function mountConnectedPersonHeadControls(
+  props: IConnectedPersonHeadControlsProps,
+) {
   const mm = (metres: number): string => (metres * 1000).toFixed(1) + " mm";
-  const label = (name: string): string => name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
-  const names = [...HUMAN_PERSON_HEAD_SOLVE.measurements, ...HUMAN_PERSON_HEAD_SOLVE.secondary];
+  const label = (name: string): string =>
+    name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
+  const names = [
+    ...HUMAN_PERSON_HEAD_SOLVE.measurements,
+    ...HUMAN_PERSON_HEAD_SOLVE.secondary,
+  ];
   const inputs = new Map<string, HTMLInputElement>();
   const readings = new Map<string, HTMLElement>();
   let generation = 0;
@@ -61,7 +67,8 @@ export function mountConnectedPersonHeadControls(props: IConnectedPersonHeadCont
   apply.textContent = "Solve head";
   const note = props.dom.createElement("small");
   note.textContent =
-    "Solved on face channels " + HUMAN_PERSON_HEAD_SOLVE.channels.join(", ") +
+    "Solved on face channels " +
+    HUMAN_PERSON_HEAD_SOLVE.channels.join(", ") +
     ", least departure from the standard head. Circumference and cranial shape need qualification on this source generation. " +
     "Earlier source observations found posterior depth and breadth faults; they do not establish this source's current result. " +
     "Every channel value the solve sets is reported.";
@@ -80,17 +87,27 @@ export function mountConnectedPersonHeadControls(props: IConnectedPersonHeadCont
     }
     props.busy("Solving the head…");
     try {
-      const solved = await props.solve(structuredClone(props.current()), targets);
+      const solved = await props.solve(
+        structuredClone(props.current()),
+        targets,
+      );
       if (!props.isCurrent(ticket)) return;
       const success = await props.change(solved.document, ticket);
       if (!success || !props.isCurrent(ticket)) return;
       const lines = names
         .filter((name) => targets[name] !== undefined)
-        .map((name) => `${label(name)} ${mm(targets[name])} → ${mm(solved.readings[name])} (${((solved.readings[name] - targets[name]) * 1000).toFixed(2)} mm)`);
+        .map(
+          (name) =>
+            `${label(name)} ${mm(targets[name])} → ${mm(solved.readings[name])} (${((solved.readings[name] - targets[name]) * 1000).toFixed(2)} mm)`,
+        );
       const channels = HUMAN_PERSON_HEAD_SOLVE.channels
-        .map((id) => `${id} ${(solved.document.face.shape[id] ?? 0).toFixed(3)}`)
+        .map(
+          (id) => `${id} ${(solved.document.face.shape[id] ?? 0).toFixed(3)}`,
+        )
         .join(", ");
-      props.report(`Head solved: ${lines.join("; ")}. Departure ${mm(solved.departureMetres)}. Channels: ${channels}.`);
+      props.report(
+        `Head solved: ${lines.join("; ")}. Departure ${mm(solved.departureMetres)}. Channels: ${channels}.`,
+      );
     } catch (error) {
       if (props.isCurrent(ticket)) props.refuse(error);
     }
@@ -108,7 +125,8 @@ export function mountConnectedPersonHeadControls(props: IConnectedPersonHeadCont
         }
         if (current !== generation) return;
         for (const [name, reading] of readings)
-          reading.textContent = "Current: " + (values === undefined ? failure : mm(values[name]));
+          reading.textContent =
+            "Current: " + (values === undefined ? failure : mm(values[name]));
       })();
     },
   };

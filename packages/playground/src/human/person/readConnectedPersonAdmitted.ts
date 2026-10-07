@@ -12,12 +12,19 @@
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the measurement worker on admitted documents only.
  * @author Samchon
  */
-export function readConnectedPersonAdmitted<Arguments extends unknown[], Reading>(
+export function readConnectedPersonAdmitted<
+  Arguments extends unknown[],
+  Reading,
+>(
   isDraft: () => boolean,
   read: (...input: Arguments) => Promise<Reading>,
 ): (...input: Arguments) => Promise<Reading> {
   return (...input) =>
     isDraft()
-      ? Promise.reject(new Error("not read: the displayed person is a draft its owner did not accept"))
+      ? Promise.reject(
+          new Error(
+            "not read: the displayed person is a draft its owner did not accept",
+          ),
+        )
       : read(...input);
 }

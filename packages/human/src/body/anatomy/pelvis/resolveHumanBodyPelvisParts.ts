@@ -44,34 +44,86 @@ export function resolveHumanBodyPelvisParts(
   return [
     humanBodyUnavailablePart("sacrum", pelvis?.sacrum, "missing-bone-landmark"),
     humanBodyUnavailablePart("coccyx", pelvis?.coccyx, "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftCoxalBone", [pelvis?.leftCoxalBone, breadth], "missing-bone-landmark"),
-    humanBodyUnavailablePart("rightCoxalBone", [pelvis?.rightCoxalBone, breadth], "missing-bone-landmark"),
-    humanBodyUnavailablePart("leftSacrotuberousLigament", pelvis?.leftSacrotuberousLigament, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("rightSacrotuberousLigament", pelvis?.rightSacrotuberousLigament, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("leftGluteusMaximus", pelvis?.leftHip?.gluteusMaximus, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("rightGluteusMaximus", pelvis?.rightHip?.gluteusMaximus, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("leftGluteusMedius", pelvis?.leftHip?.gluteusMedius, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("rightGluteusMedius", pelvis?.rightHip?.gluteusMedius, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("leftGluteusMinimus", pelvis?.leftHip?.gluteusMinimus, "missing-tissue-boundary"),
-    humanBodyUnavailablePart("rightGluteusMinimus", pelvis?.rightHip?.gluteusMinimus, "missing-tissue-boundary"),
+    humanBodyUnavailablePart(
+      "leftCoxalBone",
+      [pelvis?.leftCoxalBone, breadth],
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "rightCoxalBone",
+      [pelvis?.rightCoxalBone, breadth],
+      "missing-bone-landmark",
+    ),
+    humanBodyUnavailablePart(
+      "leftSacrotuberousLigament",
+      pelvis?.leftSacrotuberousLigament,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "rightSacrotuberousLigament",
+      pelvis?.rightSacrotuberousLigament,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "leftGluteusMaximus",
+      pelvis?.leftHip?.gluteusMaximus,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "rightGluteusMaximus",
+      pelvis?.rightHip?.gluteusMaximus,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "leftGluteusMedius",
+      pelvis?.leftHip?.gluteusMedius,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "rightGluteusMedius",
+      pelvis?.rightHip?.gluteusMedius,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "leftGluteusMinimus",
+      pelvis?.leftHip?.gluteusMinimus,
+      "missing-tissue-boundary",
+    ),
+    humanBodyUnavailablePart(
+      "rightGluteusMinimus",
+      pelvis?.rightHip?.gluteusMinimus,
+      "missing-tissue-boundary",
+    ),
     humanBodyUnavailablePart(
       "leftPsoasMajor",
-      [pelvis?.leftHip?.iliopsoas?.psoasMajor, pelvis?.leftHip?.iliopsoas?.combinedMuscleVolume],
+      [
+        pelvis?.leftHip?.iliopsoas?.psoasMajor,
+        pelvis?.leftHip?.iliopsoas?.combinedMuscleVolume,
+      ],
       "missing-tissue-boundary",
     ),
     humanBodyUnavailablePart(
       "rightPsoasMajor",
-      [pelvis?.rightHip?.iliopsoas?.psoasMajor, pelvis?.rightHip?.iliopsoas?.combinedMuscleVolume],
+      [
+        pelvis?.rightHip?.iliopsoas?.psoasMajor,
+        pelvis?.rightHip?.iliopsoas?.combinedMuscleVolume,
+      ],
       "missing-tissue-boundary",
     ),
     humanBodyUnavailablePart(
       "leftIliacus",
-      [pelvis?.leftHip?.iliopsoas?.iliacus, pelvis?.leftHip?.iliopsoas?.combinedMuscleVolume],
+      [
+        pelvis?.leftHip?.iliopsoas?.iliacus,
+        pelvis?.leftHip?.iliopsoas?.combinedMuscleVolume,
+      ],
       "missing-tissue-boundary",
     ),
     humanBodyUnavailablePart(
       "rightIliacus",
-      [pelvis?.rightHip?.iliopsoas?.iliacus, pelvis?.rightHip?.iliopsoas?.combinedMuscleVolume],
+      [
+        pelvis?.rightHip?.iliopsoas?.iliacus,
+        pelvis?.rightHip?.iliopsoas?.combinedMuscleVolume,
+      ],
       "missing-tissue-boundary",
     ),
   ];

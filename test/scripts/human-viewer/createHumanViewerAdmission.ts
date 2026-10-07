@@ -30,7 +30,9 @@ import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no schema of its own, refuses with the owner's reason, and never polls.
  * @evidence contracts/common.md#meaningful-documentation States the pending states, the request and retry policy, failure handling and growth bound.
  */
-export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionProps) {
+export function createHumanViewerAdmission(
+  props: ICreateHumanViewerAdmissionProps,
+) {
   const verdicts = new Map<string, IHumanViewerKeyedAdmission>();
   const waiting = new Map<string, IHumanViewerKeyedAdmission>();
   const asking = new Map<string, string>();
@@ -51,40 +53,77 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
       // A failed page never admits anything: the document is refused with the
       // cause until the viewer is restarted, instead of pending forever.
       if (page.state === "failed")
-        return { state: "refused",
-          reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.mts ensure` };
+        return {
+          state: "refused",
+          reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.mts ensure`,
+        };
       const held = waiting.get(entry.id);
       if (held !== undefined && held.key === entry.key) return held.admission;
       if (asking.get(entry.id) !== entry.key) {
         asking.set(entry.id, entry.key);
         waiting.delete(entry.id);
-        const request: Promise<void> = props.admit(entry.domain, JSON.stringify(entry.document), entry.basis)
+        const request: Promise<void> = props
+          .admit(entry.domain, JSON.stringify(entry.document), entry.basis)
           .then((reply): IHumanViewerAdmissionOutcome => {
-            if (typeof reply.available !== "boolean" || (reply.reason !== null && typeof reply.reason !== "string"))
-              throw new Error("The viewer returned an incompatible admission envelope");
+            if (
+              typeof reply.available !== "boolean" ||
+              (reply.reason !== null && typeof reply.reason !== "string")
+            )
+              throw new Error(
+                "The viewer returned an incompatible admission envelope",
+              );
             return !reply.available
-            ? { verdict: false, admission: { state: "pending", reason: unavailable() } }
-            : { verdict: true, admission: reply.reason === null
-              ? { state: "admitted", reason: null } : { state: "refused", reason: reply.reason } };
+              ? {
+                  verdict: false,
+                  admission: { state: "pending", reason: unavailable() },
+                }
+              : {
+                  verdict: true,
+                  admission:
+                    reply.reason === null
+                      ? { state: "admitted", reason: null }
+                      : { state: "refused", reason: reply.reason },
+                };
           })
-          .catch((error: unknown): IHumanViewerAdmissionOutcome => ({ verdict: false, admission: { state: "pending",
-            reason: "awaiting admission: the request could not run (" +
-              (error instanceof Error ? error.message : String(error)) + "); asked again when a viewer frame loads" } }))
+          .catch(
+            (error: unknown): IHumanViewerAdmissionOutcome => ({
+              verdict: false,
+              admission: {
+                state: "pending",
+                reason:
+                  "awaiting admission: the request could not run (" +
+                  (error instanceof Error ? error.message : String(error)) +
+                  "); asked again when a viewer frame loads",
+              },
+            }),
+          )
           .then((outcome) => {
             // A newer key started its own request; this answer is outdated.
             if (asking.get(entry.id) !== entry.key) return;
             asking.delete(entry.id);
-            (outcome.verdict ? verdicts : waiting).set(entry.id, { key: entry.key, admission: outcome.admission });
+            (outcome.verdict ? verdicts : waiting).set(entry.id, {
+              key: entry.key,
+              admission: outcome.admission,
+            });
             props.changed();
           })
           .catch((error: unknown) => {
-            console.error("Admission result could not be published for " + entry.id + ": " +
-              (error instanceof Error ? error.message : String(error)));
+            console.error(
+              "Admission result could not be published for " +
+                entry.id +
+                ": " +
+                (error instanceof Error ? error.message : String(error)),
+            );
           })
-          .finally(() => { inFlight.delete(request); });
+          .finally(() => {
+            inFlight.delete(request);
+          });
         inFlight.add(request);
       }
-      return { state: "pending", reason: "awaiting admission by the viewer page" };
+      return {
+        state: "pending",
+        reason: "awaiting admission by the viewer page",
+      };
     },
 
     /** Forget why documents wait, so the next catalogue reading asks the page again; returns how many waited. */
@@ -106,7 +145,11 @@ export function createHumanViewerAdmission(props: ICreateHumanViewerAdmissionPro
     status: (): IHumanViewerAdmissionStatus => ({
       asking: inFlight.size,
       waiting: waiting.size,
-      reasons: [...new Set([...waiting.values()].map((held) => held.admission.reason ?? ""))],
+      reasons: [
+        ...new Set(
+          [...waiting.values()].map((held) => held.admission.reason ?? ""),
+        ),
+      ],
     }),
   };
 }

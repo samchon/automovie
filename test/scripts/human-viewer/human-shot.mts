@@ -39,7 +39,9 @@ const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
 const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
 const request = parseHumanShotRequest(process.argv.slice(2));
 const context: IHumanShotContext = {
-  directory, root, storage,
+  directory,
+  root,
+  storage,
   origin: instance.origin,
   port: instance.port,
   record: path.join(storage, instance.record),
@@ -80,15 +82,19 @@ async function main(): Promise<void> {
   // or ends at once with the reason, so it cannot outlive its answer.
   if (health === null || health === undefined) {
     const silence = describeHumanShotSilence(context, health === null);
-    console.error(silence.answer === "absent"
-      ? `No human viewer listens on port ${instance.port}; start one with ` +
-        "`human-shot.mts ensure` as an attached background job (with the same HUMAN_VIEWER_PORT)"
-      : silence.meaning);
+    console.error(
+      silence.answer === "absent"
+        ? `No human viewer listens on port ${instance.port}; start one with ` +
+            "`human-shot.mts ensure` as an attached background job (with the same HUMAN_VIEWER_PORT)"
+        : silence.meaning,
+    );
     process.exitCode = silence.answer === "absent" ? 3 : 4;
     return;
   }
   if (!health.ready) {
-    console.error(`The human viewer on port ${instance.port} is not ready yet: ${JSON.stringify(health)}`);
+    console.error(
+      `The human viewer on port ${instance.port} is not ready yet: ${JSON.stringify(health)}`,
+    );
     process.exitCode = 3;
     return;
   }
@@ -97,7 +103,11 @@ async function main(): Promise<void> {
 void main().catch((error: unknown) => {
   const owner = owned?.pid;
   if (owner) killHumanViewerProcess(owner);
-  console.error(describeHumanViewerError(error) +
-    (owner ? `; stopped the server this client started (pid ${owner}), output in ${context.logFile}` : ""));
+  console.error(
+    describeHumanViewerError(error) +
+      (owner
+        ? `; stopped the server this client started (pid ${owner}), output in ${context.logFile}`
+        : ""),
+  );
   process.exitCode = 1;
 });

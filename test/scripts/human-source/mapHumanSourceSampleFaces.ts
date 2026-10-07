@@ -12,8 +12,13 @@ import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
  * by their corner set against `faces`; a subdivided quad without exactly one
  * base corner refuses.
  */
-export function mapHumanSourceSampleFaces(sample: IHumanSourceSample, faces: readonly number[][], baseVertices: number): number[][] {
-  const key = (corners: readonly number[]): string => [...corners].sort((a, b) => a - b).join(",");
+export function mapHumanSourceSampleFaces(
+  sample: IHumanSourceSample,
+  faces: readonly number[][],
+  baseVertices: number,
+): number[][] {
+  const key = (corners: readonly number[]): string =>
+    [...corners].sort((a, b) => a - b).join(",");
   const faceOf = new Map(faces.map((face, f) => [key(face), f]));
   const facesOfVertex = new Map<number, number[]>();
   faces.forEach((face, f) => {
@@ -24,10 +29,19 @@ export function mapHumanSourceSampleFaces(sample: IHumanSourceSample, faces: rea
   });
   const corners = new Map<number, Set<number>>();
   for (let p = 0; p < sample.loopStart.length; p++) {
-    const quad = Array.from({ length: sample.loopTotal[p] }, (_, k) => sample.loopVertex[sample.loopStart[p] + k]);
+    const quad = Array.from(
+      { length: sample.loopTotal[p] },
+      (_, k) => sample.loopVertex[sample.loopStart[p] + k],
+    );
     const at = quad.findIndex((v) => v < baseVertices);
-    if (quad.length !== 4 || at < 0 || quad.filter((v) => v < baseVertices).length !== 1)
-      throw new Error(`Subdivided polygon ${p} does not hold exactly one base corner.`);
+    if (
+      quad.length !== 4 ||
+      at < 0 ||
+      quad.filter((v) => v < baseVertices).length !== 1
+    )
+      throw new Error(
+        `Subdivided polygon ${p} does not hold exactly one base corner.`,
+      );
     const corner = quad[at];
     for (const k of [1, 2, 3]) {
       const v = quad[(at + k) % 4];
@@ -44,10 +58,15 @@ export function mapHumanSourceSampleFaces(sample: IHumanSourceSample, faces: rea
     const around = [...(corners.get(v) ?? [])];
     if (around.length === 2) {
       const [a, b] = around;
-      out.push((facesOfVertex.get(a) ?? []).filter((f) => faces[f].includes(b)));
+      out.push(
+        (facesOfVertex.get(a) ?? []).filter((f) => faces[f].includes(b)),
+      );
     } else {
       const f = faceOf.get(key(around));
-      if (f === undefined) throw new Error(`Sample ${v} lies in no base face (corners ${around.join(",")}).`);
+      if (f === undefined)
+        throw new Error(
+          `Sample ${v} lies in no base face (corners ${around.join(",")}).`,
+        );
       out.push([f]);
     }
   }
