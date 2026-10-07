@@ -85,8 +85,6 @@ export interface IAutoMovieCaptureFrame {
 /**
  * Result of producing one actual current evidence frame.
  *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `IAutoMovieCaptureFrame` as the portable data boundary for the agent host evidence requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `IAutoMovieCaptureFrame` for the spec authoring host evidence output system contract.
  */
 export namespace IAutoMovieCaptureFrame {
   /**

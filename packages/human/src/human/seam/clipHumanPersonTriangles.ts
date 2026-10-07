@@ -1,6 +1,25 @@
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
 
 /**
+ * A clipped vertex identity with its region-local corner interpolation stencil.
+ *
+ * @author Samchon
+ */
+interface IClippedCorner {
+  /** Original or appended shared vertex index. */
+  vertex: number;
+
+  /** First source-corner index within the region's packed triangles. */
+  a: number;
+
+  /** Second source-corner index within the same packed triangles. */
+  b: number;
+
+  /** Dimensionless fraction from a towards b. */
+  t: number;
+}
+
+/**
  * Clip source triangles against a frozen vertex-sampled scalar cut.
  * The seam and its region consumer share this topology owner. Positive margins
  * are removed; zero belongs to the retained side. Intersections are registered
@@ -27,14 +46,14 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
 export function clipHumanPersonTriangles(
   sources: readonly number[],
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
-): { vertex: number; a: number; b: number; t: number }[] {
+): IClippedCorner[] {
   const edges = new Map(
     cut.intersections.map(({ a, b, t }, index) => [
       `${a}/${b}`,
       { vertex: cut.margins.length + index, t },
     ]),
   );
-  const result: { vertex: number; a: number; b: number; t: number }[] = [];
+  const result: IClippedCorner[] = [];
   for (let offset = 0; offset < sources.length; offset += 3) {
     const polygon: typeof result = [];
     for (let corner = 0; corner < 3; corner++) {
@@ -66,12 +85,12 @@ export function clipHumanPersonTriangles(
           t: 0,
         });
     }
-    const unique = polygon.filter(
+    const uniqueCorners = polygon.filter(
       (one, at) =>
         polygon.findIndex((other) => other.vertex === one.vertex) === at,
     );
-    for (let corner = 1; corner + 1 < unique.length; corner++)
-      result.push(unique[0], unique[corner], unique[corner + 1]);
+    for (let corner = 1; corner + 1 < uniqueCorners.length; corner++)
+      result.push(uniqueCorners[0], uniqueCorners[corner], uniqueCorners[corner + 1]);
   }
   return result;
 }
