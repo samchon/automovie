@@ -1,6 +1,6 @@
 # `@automovie/evidence`
 
-This package turns one generated production's kind, population scope, branch stages, and additive claims into an `@ttsc/evidence` graph. Layers complete at `evidence`; `review` remains a compatible declaration. It validates project-owned physical documents, source populations, topology, and exact contract inventory before returning configuration. The production keeps its decisions and content in its own tracked files.
+This package turns one generated production's kind, population scope, branch stages, and additive claims into a production graph consumed by `@wrtnlabs/evidence`. Layers complete at `evidence`; `review` remains a compatible declaration. It validates project-owned physical documents, source populations, topology, and exact contract inventory before returning configuration. The production keeps its decisions and content in its own tracked files.
 
 ## Construction, discovery, and naturalness
 
@@ -63,6 +63,13 @@ For an existing production, reread the obligation at its actual contributors and
 | `isAutoMovieEvidenceIdentityFile` | Admit that manifest as one regular, non-symlink file, separately from the enumerated-population judgment. |
 | `inspectAutoMovieEvidenceTopology` | Inspect the provider, consumer, status, and reason matrix. |
 | `inspectAutoMovieEvidenceReviewAlarms` | Report repeated review frames and pasted target questions for substantive rereading. |
-| `evidence` | Re-export the native lint plugin for the project's typed configuration. |
+| `createAutoMovieStandaloneEvidenceConfig` | Preserve graph selection and policy while anchoring compiler project roots and normalizing severity aliases for standalone evaluation. |
+| `evidence` | Re-export the native source-guard plugin for compatibility; graph evaluation uses the standalone CLI. |
 
 The factory and production readers consume the same exported declaration. Additive claims extend the shared graph without replacing its populations, cardinality, topology, or physical-input guards. All shared targets live in the project's installed `docs` inventory, and all production-specific targets remain in its flat `docs/contracts` directory.
+
+## Independent checks
+
+`pnpm run build` compiles the library with correctness lint. `pnpm run evidence` runs the standalone repository graph, then its native documentation and todo guards. Generated productions run `npm run lint` for TypeScript and `npm run evidence` for their authored graph and source todo guard. Their sole production declaration remains `lint.config.ts`; the CLI selects it explicitly.
+
+The standalone evaluator accepts named severity levels. `createAutoMovieStandaloneEvidenceConfig` converts numeric levels and `warn` and resolves roots from the explicit production location without changing claim or reference policy. TypeScript references use explicit `root` and `files`; compiler-only package populations must be authored in that standalone form.

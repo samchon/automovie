@@ -5,7 +5,12 @@
   "main": "src/index.ts",
   "exports": { ".": "./src/index.ts", "./package.json": "./package.json" },
   "bin": { "automovie-mcp": "lib/bin.js", "automovie-reference": "lib/reference-bin.js" },
-  "scripts": { "build": "rimraf lib && ttsc", "prepack": "pnpm run build" },
+  "scripts": {
+    "build": "rimraf lib && ttsc",
+    "prepack": "pnpm run build",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+  },
   "author": "Samchon",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/samchon/automovie" },
@@ -25,11 +30,12 @@
     "zod": "catalog:reference"
   },
   "devDependencies": {
-    "@ttsc/evidence": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript",
+    "@ttsc/evidence": "catalog:samchon",
+    "@ttsc/lint": "catalog:samchon",
     "@types/mdast": "catalog:reference",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:samchon",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

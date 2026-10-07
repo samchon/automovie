@@ -40,4 +40,4 @@ Naturalness does not require a larger body. Eligible language size may rise or f
 
 Before opening shot source work, update the machine screenplay index's screenplay-level and per-scene document paths to their exact final counterparts. Preserve its scene identifiers, authority fields, treatment pointers, and locks. Shot source lineage and the compiler's index-derived owner must name the same final unit; retaining a construction path in that index cannot answer a final owner edge.
 
-Run `npx --no-install automovie toc --check` and `npm run lint`. Read the complete final population without contracts or evidence annotations, using a reader edition when requested. Hand the completed naturalness population to shot and film-source realization under [Evidence staging](../evidence-graph/staging.md#transitions).
+Run `npx --no-install automovie toc --check` and both `npm run lint` and `npm run evidence`. Read the complete final population without contracts or evidence annotations, using a reader edition when requested. Hand the completed naturalness population to shot and film-source realization under [Evidence staging](../evidence-graph/staging.md#transitions).

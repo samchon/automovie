@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
-
 import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
 import type { IFindLipMarginPairsProps } from "./IFindLipMarginPairsProps";
 import type { IFindLipMarginPairsResult } from "./IFindLipMarginPairsResult";

@@ -3,7 +3,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { resolveAutoMovieCatalogVersion } from "../src/resolveAutoMovieCatalogVersion";
+import { resolveAutoMovieTemplateDependencyVersions } from "../src/resolveAutoMovieTemplateDependencyVersions";
+
+interface IWorkspaceManifestVersion {
+  version: string;
+}
 
 const NEWLINE = String.fromCharCode(10);
 
@@ -13,101 +17,32 @@ const ROOT = resolve(HERE, "../../..");
 const packageVersion = (relative: string): string => {
   const manifest = JSON.parse(
     readFileSync(resolve(ROOT, relative, "package.json"), "utf8"),
-  ) as { version: string };
+  ) as IWorkspaceManifestVersion;
   return `^${manifest.version}`;
 };
 
 const workspaceYaml = (): string =>
   readFileSync(resolve(ROOT, "pnpm-workspace.yaml"), "utf8");
 
-/**
- * Resolve one catalog entry out of a workspace manifest given as text.
- *
- * Split from the read so the rule this repository owns -- mapping scope,
- * scalar and alias resolution, and explicit refusals -- can be driven
- * over a manifest written for the case, rather than only over the one manifest
- * this repository happens to hold today. Asserting against that manifest would
- * pin its current versions and say nothing about the parser: bumping a
- * dependency would break the test, and breaking the parser would not.
- */
-export const readCatalogVersion = (props: {
-  catalog: string;
-  dep: string;
-  workspace: string;
-}): string =>
-  resolveAutoMovieCatalogVersion({
-    catalog: props.catalog,
-    dependency: props.dep,
-    workspace: props.workspace,
+/** Read each workspace input once before resolving the scaffold placeholders. */
+const resolveTemplateVersions = (): Record<string, string> =>
+  resolveAutoMovieTemplateDependencyVersions({
+    workspace: workspaceYaml(),
+    packages: {
+      archetypes: packageVersion("packages/archetypes"),
+      cli: packageVersion("packages/cli"),
+      engine: packageVersion("packages/engine"),
+      evidence: packageVersion("packages/evidence"),
+      human: packageVersion("packages/human"),
+      ingest: packageVersion("packages/ingest"),
+      interface: packageVersion("packages/interface"),
+      mcp: packageVersion("packages/mcp"),
+      production: packageVersion("packages/production"),
+      render: packageVersion("packages/render"),
+      template: packageVersion("packages/template"),
+      viewer: packageVersion("packages/viewer"),
+    },
   });
-
-const catalogVersion = (catalog: string, dep: string): string =>
-  readCatalogVersion({ catalog, dep, workspace: workspaceYaml() });
-
-/**
- * Freeze one catalog range to the exact version used by a shipped runtime
- * graph.
- */
-const exactCatalogVersion = (catalog: string, dep: string): string =>
-  catalogVersion(catalog, dep).replace(/^[~^]/, "");
-
-/**
- * The scaffold's `{{version:*}}` values. `WORKSPACE_TEMPLATE_VERSION_KEYS`
- * names the subset a workspace-local consumer overrides with `workspace:^`.
- */
-export const resolveTemplateVersions = (): Record<string, string> => ({
-  archetypes: packageVersion("packages/archetypes"),
-  cli: packageVersion("packages/cli"),
-  engine: packageVersion("packages/engine"),
-  evidence: packageVersion("packages/evidence"),
-  human: packageVersion("packages/human"),
-  ingest: packageVersion("packages/ingest"),
-  interface: packageVersion("packages/interface"),
-  mcp: packageVersion("packages/mcp"),
-  production: packageVersion("packages/production"),
-  render: packageVersion("packages/render"),
-  template: packageVersion("packages/template"),
-  viewer: packageVersion("packages/viewer"),
-  huggingFaceTransformers: exactCatalogVersion(
-    "media",
-    "@huggingface/transformers",
-  ),
-  h264Mp4Encoder: catalogVersion("media", "h264-mp4-encoder"),
-  kokoroJs: exactCatalogVersion("media", "kokoro-js"),
-  libopusWasm: catalogVersion("media", "libopus-wasm"),
-  mp4box: catalogVersion("media", "mp4box"),
-  onnxruntimeNode: exactCatalogVersion("media", "onnxruntime-node"),
-  playwright: catalogVersion("media", "playwright"),
-  pngjs: catalogVersion("media", "pngjs"),
-  pngjsTypes: catalogVersion("media", "@types/pngjs"),
-  three: catalogVersion("three", "three"),
-  threeTypes: catalogVersion("three", "@types/three"),
-  vite: catalogVersion("vite", "vite"),
-  nodeTypes: catalogVersion("utils", "@types/node"),
-  ttsc: catalogVersion("typescript", "ttsc"),
-  ttscLint: catalogVersion("typescript", "@ttsc/lint"),
-  typescript: catalogVersion("typescript", "typescript"),
-});
-
-/**
- * The `{{version:*}}` keys that name a package published from this monorepo. A
- * workspace-linked project replaces these with `workspace:^` so it consumes the
- * working tree instead of npm.
- */
-export const WORKSPACE_TEMPLATE_VERSION_KEYS = Object.freeze([
-  "archetypes",
-  "cli",
-  "engine",
-  "evidence",
-  "human",
-  "ingest",
-  "interface",
-  "mcp",
-  "production",
-  "render",
-  "template",
-  "viewer",
-]);
 
 /**
  * The generated module body, from the versions this repository resolved.
@@ -116,7 +51,7 @@ export const WORKSPACE_TEMPLATE_VERSION_KEYS = Object.freeze([
  * already prettier-canonical: `JSON.stringify` quotes its keys and the
  * repository's own `format:check` would flag the result of every sync.
  */
-export const renderAutoMovieTemplateVersionsModule = (
+const renderAutoMovieTemplateVersionsModule = (
   versions: Readonly<Record<string, string>>,
 ): string =>
   [
