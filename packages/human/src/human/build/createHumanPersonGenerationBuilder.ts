@@ -10,6 +10,7 @@ import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHuma
 import { admitHumanPersonDocument } from "../document/admitHumanPersonDocument";
 import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
+import { dressHumanPersonBody } from "./dressHumanPersonBody";
 import { createHumanPersonFaceMeasurementReader } from "../measure/createHumanPersonFaceMeasurementReader";
 import type { IAutoMovieHumanPersonConstruction } from "../structures/IAutoMovieHumanPersonConstruction";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
@@ -77,6 +78,11 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  *    model at export precision, undoing the actual head carry into the
  *    registry's canonical measurement frame. Internal reference evaluations
  *    publish no measurement; omission adds no measurement work.
+ *
+ * The final person's garment reads the formed skin and common normal field.
+ * Its source compiler and rest coverage are shared with the independent body
+ * garment. The returned body retains its own evaluation, so the two outputs
+ * do not mix a pre-formation skin with a post-formation garment.
  *
  * There is no cut evaluation, collar conform, boundary subdivision or normal
  * fairing. What a seam stage absorbed is not hidden: where the two
@@ -257,6 +263,10 @@ export function createHumanPersonGenerationBuilder(
             },
     });
 
+    const dressedBody = dressHumanPersonBody({
+      prepared: preparedBody, body, surface: bodyIndex,
+      positions: bodyPosed, normals, faceVertices: faceCount,
+    });
     const domain = humanPhysicalSourceDomain(document.id, generation.id);
     const placed = face.parts
       .filter((part) => part.id !== bandSurface)
@@ -309,7 +319,7 @@ export function createHumanPersonGenerationBuilder(
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
       prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
-    for (const part of body.model.parts) {
+    for (const part of dressedBody.model.parts) {
       const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
       parts.push(
@@ -344,7 +354,7 @@ export function createHumanPersonGenerationBuilder(
           ...material,
           id: "face:" + material.id,
         })),
-        ...body.model.materials.map((material) => ({
+        ...dressedBody.model.materials.map((material) => ({
           ...material,
           id: "body:" + material.id,
         })),

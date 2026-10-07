@@ -11,11 +11,13 @@ import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHuma
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
+import { dressHumanPersonBody } from "./dressHumanPersonBody";
 import { clipHumanPersonMesh } from "../seam/clipHumanPersonMesh";
 import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
 import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
 import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
 import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
+import { measureHumanBoundaryDisplacement } from "../seam/measureHumanBoundaryDisplacement";
 import type { IAutoMovieHumanPersonBuild } from "../structures/IAutoMovieHumanPersonBuild";
 import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
@@ -66,6 +68,11 @@ import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
  * 5. The current face producer's actual emitted hair parts are kept off the
  *    posed body at the clearance the hair document asked of the head
  *    (`clearHumanPersonHair`).
+ *
+ * The final person's garment reads the collar-conformed skin and common
+ * normals. Its source compiler and rest coverage are shared with the body's
+ * own garment, while the returned `body` keeps its independent before-collar
+ * result. Those two supported outputs are not one interchangeable skin.
  *
  * The seam's source loops are derived once from the neutral surfaces. Each
  * evaluation owns the posed Float32 boundary partition and may emit a
@@ -223,7 +230,8 @@ export function createHumanPersonBuilder(
       document,
       faceMaterials: faceBasis.materials,
     });
-    const body = buildBody(bodyDocument);
+    const preparedBody = buildBody.prepare(bodyDocument);
+    const body = preparedBody.finish();
     const faceDocument = deriveHumanPersonFace(document);
     const currentFace = buildFace(faceDocument);
     const face = currentFace.model;
@@ -269,6 +277,10 @@ export function createHumanPersonBuilder(
                   },
           });
 
+    const dressedBody = dressHumanPersonBody({
+      prepared: preparedBody, body, surface: bodySkin.index,
+      positions: bodyPosed, normals, faceVertices: faceCount,
+    });
     const physicalDomain =
       physicalSource === undefined
         ? undefined
@@ -390,7 +402,7 @@ export function createHumanPersonBuilder(
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
       prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
-    for (const part of body.model.parts) {
+    for (const part of dressedBody.model.parts) {
       const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
       if (sources === undefined) {
@@ -427,18 +439,9 @@ export function createHumanPersonBuilder(
 
     // how far the two documents' necks disagreed: the most the body's own
     // collar had to move to lie on the face's
-    let collarShift = 0;
-    for (const vertex of seam.bodyLoop) {
-      const own = bodyBeforeCollar;
-      collarShift = Math.max(
-        collarShift,
-        Math.hypot(
-          bodyPosed[vertex * 3] - own[vertex * 3],
-          bodyPosed[vertex * 3 + 1] - own[vertex * 3 + 1],
-          bodyPosed[vertex * 3 + 2] - own[vertex * 3 + 2],
-        ),
-      );
-    }
+    const collarShift = measureHumanBoundaryDisplacement(
+      seam.bodyLoop, bodyBeforeCollar, bodyPosed,
+    );
 
     const model: IAutoMovieModel = {
       id: document.id,
@@ -450,7 +453,7 @@ export function createHumanPersonBuilder(
           ...material,
           id: "face:" + material.id,
         })),
-        ...body.model.materials.map((material) => ({
+        ...dressedBody.model.materials.map((material) => ({
           ...material,
           id: "body:" + material.id,
         })),
