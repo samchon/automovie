@@ -6,7 +6,8 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "ttsc --noEmit && ttsc -p tsconfig.scripts.json --noEmit && ttsc -p scripts/human-viewer/tsconfig.json --noEmit && ttsc -p scripts/human-viewer/tsconfig.browser.json --noEmit",
-    "start": "ttsx src/index.ts"
+    "start": "ttsx src/index.ts",
+    "evidence": "evidence"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -41,8 +42,8 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
-    "@ttsc/lint": "catalog:typescript",
-    "@ttsc/unplugin": "0.30.4",
+    "@ttsc/lint": "catalog:samchon",
+    "@ttsc/unplugin": "catalog:samchon",
     "@types/jsdom": "^21.1.7",
     "@types/node": "catalog:utils",
     "@types/pngjs": "catalog:media",
@@ -51,9 +52,11 @@
     "jsdom": "26.1.0",
     "mp4box": "catalog:media",
     "playwright": "catalog:media",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon"
   }
 }

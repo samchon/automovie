@@ -2,16 +2,16 @@ import {
   type AutoMovieProductionLanguage,
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
+  createAutoMovieStandaloneEvidenceConfig,
   createAutoMovieProductionPrincipleClaim,
   createBlankAutoMovieProductionEvidence,
-  evidence,
 } from "@automovie/evidence";
-import type { ITtscLintConfig } from "@ttsc/lint";
+import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 import { fileURLToPath } from "node:url";
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
- * contract declaration consumed by graph lint and final
+ * contract declaration consumed by standalone evidence evaluation and final
  * production review.
  *
  * Select the production shape, then advance one construction layer at a time
@@ -60,41 +60,5 @@ export const productionEvidence = {
 
 const graph = createAutoMovieEvidenceConfig(productionEvidence);
 
-export default {
-  format: {
-    severity: "off",
-    semi: true,
-    singleQuote: false,
-    arrowParens: "always",
-    bracketSpacing: true,
-    quoteProps: "as-needed",
-    trailingComma: "all",
-    printWidth: 80,
-    tabWidth: 2,
-    useTabs: false,
-    endOfLine: "lf",
-    sortImports: { order: ["<THIRD_PARTY_MODULES>", "^[./]"] },
-    jsDoc: true,
-  },
-  plugins: { evidence },
-  rules: {
-    "evidence/graph": ["error", graph],
-    "evidence/todo": "error",
-    eqeqeq: "error",
-    "no-debugger": "error",
-    "no-duplicate-imports": "error",
-    "no-fallthrough": "error",
-    "no-self-compare": "error",
-    "no-var": "error",
-    "prefer-const": "error",
-    "typescript/await-thenable": "error",
-    "typescript/ban-ts-comment": "error",
-    "typescript/no-explicit-any": "error",
-    "typescript/no-floating-promises": "error",
-    "typescript/no-misused-promises": "error",
-    "typescript/no-unnecessary-type-constraint": "error",
-    "typescript/prefer-as-const": "error",
-    "typescript/require-array-sort-compare": "error",
-    "typescript/switch-exhaustiveness-check": "error",
-  },
-} satisfies ITtscLintConfig;
+/** Standalone evidence evaluation consumes the sole production declaration. */
+export default createAutoMovieStandaloneEvidenceConfig(graph, productionEvidence.location) satisfies IEvidenceConfig;

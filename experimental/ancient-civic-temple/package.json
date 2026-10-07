@@ -34,7 +34,7 @@
     "plugins": [
       {
         "transform": "@ttsc/lint",
-        "configFile": "lint.config.ts"
+        "configFile": "source.lint.config.ts"
       }
     ]
   },
@@ -48,7 +48,9 @@
     "viewer": "tsx src/viewer/server.cts",
     "self-check": "tsx src/review/self-check.cts",
     "test": "tsx --test src/review/tests/*.test.ts",
-    "audit": "tsx src/review/audit-all.cts"
+    "audit": "tsx src/review/audit-all.cts",
+    "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -64,11 +66,13 @@
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
     "@automovie/template": "workspace:^",
-    "@ttsc/lint": "^0.29.0",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "^22.19.17",
     "@types/three": "catalog:three",
-    "ttsc": "^0.29.0",
+    "ttsc": "catalog:samchon",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon"
   }
 }

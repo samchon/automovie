@@ -6,7 +6,7 @@ Keep deterministic producers pure over declared typed inputs, units and seeds. S
 
 Read the selected kind, active design and source branches, and exact graph-selected owners before execution. A source export implements its reviewed design address. A helper does not become a design owner merely because its code is under `src`; the evidence declaration selects that relationship.
 
-Keep package and compiler settings in `package.json`. The source compiler checks the complete source program, including any command or browser modules the production authors. Select the execution tooling required by those modules and keep its entry points under the source root. A browser producer must not import Node-only modules at runtime.
+Keep package and source-compiler settings in `package.json`. The independent evidence guard configuration only selects its lint plugin over that same program under [Ownership](../../../README.md#ownership). The source compiler checks the complete source program, including any command or browser modules the production authors. Select the execution tooling required by those modules and keep its entry points under the source root. A browser producer must not import Node-only modules at runtime.
 
 Validate the typed result at its consuming package boundary. Preserve identity, ranges, references, deterministic geometry, actor and object motion, camera and event timing, and the declared result population. An invalid input or result must remain a diagnostic rather than being replaced by an empty successful output.
 

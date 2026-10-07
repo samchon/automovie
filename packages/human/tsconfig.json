@@ -1,5 +1,14 @@
 {
   "extends": "../../config/tsconfig.json",
-  "compilerOptions": { "rootDir": "src", "outDir": "lib" },
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ]
+  },
   "include": ["src"]
 }

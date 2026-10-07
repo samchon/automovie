@@ -13,7 +13,9 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "start": "ttsx src/bin.ts",
-    "prepack": "pnpm run build"
+    "prepack": "pnpm run build",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "keywords": [
     "automovie",
@@ -54,11 +56,12 @@
     "@automovie/template": "workspace:^"
   },
   "devDependencies": {
-    "@ttsc/evidence": "catalog:typescript",
+    "@ttsc/evidence": "catalog:samchon",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript"
+    "@ttsc/lint": "catalog:samchon",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

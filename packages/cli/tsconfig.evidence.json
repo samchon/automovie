@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "evidence.guard.config.ts"
+      }
+    ]
+  }
+}

@@ -5,10 +5,11 @@
   "description": "Coding-agent-native deterministic filmmaking: tracked authoring, compilation, rendering, review, and delivery.",
   "packageManager": "pnpm@10.6.4",
   "scripts": {
-    "build": "pnpm --filter=./docs --filter=./packages/** -r build",
+    "build": "pnpm --filter=./packages/** -r build",
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
-    "format:check": "prettier --check \"**/*.{ts,cts,mts}\""
+    "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
+    "evidence": "pnpm --filter=./docs --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence"
   },
   "keywords": [
     "coding-agent",
@@ -25,13 +26,14 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
-    "@ttsc/evidence": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript",
+    "@ttsc/evidence": "catalog:samchon",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
+    "@wrtnlabs/evidence": "catalog:samchon",
     "prettier": "catalog:typescript",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript",
-    "typescript-compiler": "npm:typescript@5.9.3",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:samchon",
+    "typescript": "catalog:typescript",
+    "typescript-compiler": "npm:typescript@5.9.3"
   }
 }

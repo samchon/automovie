@@ -6,7 +6,13 @@
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ]
   },
   "include": ["src", "studies"]
 }
