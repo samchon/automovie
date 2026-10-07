@@ -19,3 +19,6 @@ export * from "./scaffoldPublication";
 export * from "./templateVersions";
 export * from "./validateAutoMovieSkillRouters";
 export * from "./writeFiles";
+export * from "./IAutoMovieWorkspacePackageVersions";
+export * from "./IAutoMovieTemplateDependencyVersionsProps";
+export * from "./resolveAutoMovieTemplateDependencyVersions";

@@ -9,16 +9,28 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build"
+    "prepack": "pnpm run build",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
-  "keywords": ["automovie", "evidence", "traceability"],
+  "keywords": [
+    "automovie",
+    "evidence",
+    "traceability"
+  ],
   "author": "Samchon",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/samchon/automovie"
   },
-  "files": ["lib", "src", "package.json", "LICENSE", "README.md"],
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
   "publishConfig": {
     "access": "public",
     "main": "lib/index.js",
@@ -32,13 +44,14 @@
     }
   },
   "dependencies": {
-    "@ttsc/evidence": "catalog:typescript",
-    "typescript-compiler": "npm:typescript@5.9.3"
+    "@ttsc/evidence": "catalog:samchon",
+    "typescript-compiler": "npm:typescript@5.9.3",
+    "@wrtnlabs/evidence": "catalog:samchon"
   },
   "devDependencies": {
-    "@ttsc/lint": "catalog:typescript",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:samchon"
   }
 }

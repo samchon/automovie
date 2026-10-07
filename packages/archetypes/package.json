@@ -9,7 +9,9 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build"
+    "prepack": "pnpm run build",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "keywords": [],
   "author": "Samchon",
@@ -33,9 +35,11 @@
   },
   "devDependencies": {
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript"
+    "@ttsc/lint": "catalog:samchon",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon"
   },
   "dependencies": {
     "@automovie/engine": "workspace:^",

@@ -287,3 +287,7 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 ## 좌표·각도 규약
 
 `@automovie/interface` README의 규약을 따른다(y-up, 미터, 의미 각도). 본 로컬 회전 합성 규약은 `kinematics/jointToQuaternion.ts` JSDoc 참조.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

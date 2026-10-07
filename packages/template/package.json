@@ -11,7 +11,9 @@
     "prepare": "pnpm run build:versions",
     "build:versions": "ttsx --no-plugins build/resolveTemplateVersions.ts",
     "build": "pnpm run build:versions && rimraf lib && ttsc",
-    "prepack": "pnpm run build"
+    "prepack": "pnpm run build",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "keywords": [
     "automovie",
@@ -63,8 +65,8 @@
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
     "@huggingface/transformers": "catalog:media",
-    "@ttsc/evidence": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript",
+    "@ttsc/evidence": "catalog:samchon",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
@@ -75,8 +77,9 @@
     "pngjs": "catalog:media",
     "rimraf": "catalog:utils",
     "three": "catalog:three",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

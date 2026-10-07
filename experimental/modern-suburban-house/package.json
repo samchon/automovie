@@ -32,7 +32,7 @@
     "plugins": [
       {
         "transform": "@ttsc/lint",
-        "configFile": "lint.config.ts"
+        "configFile": "source.lint.config.ts"
       }
     ],
     "allowJs": true,
@@ -50,7 +50,9 @@
     "check:spaces": "tsx src/measurements/check.cts --layer=spaces",
     "regression:1952-repair": "tsx src/measurements/scene-regression.cts",
     "check:models": "tsx src/measurements/check.cts --layer=models",
-    "check:settings": "tsx src/measurements/check.cts --layer=settings"
+    "check:settings": "tsx src/measurements/check.cts --layer=settings",
+    "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -66,11 +68,13 @@
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
     "@automovie/template": "workspace:^",
-    "@ttsc/lint": "^0.29.0",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "^22.19.17",
-    "ttsc": "^0.29.0",
+    "ttsc": "catalog:samchon",
     "typescript": "^7.0.2",
     "@types/three": "^0.186.0",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon"
   }
 }

@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "scripts": {
     "build": "ttsc --noEmit",
-    "lint": "ttsc --noEmit"
+    "lint": "ttsc --noEmit",
+    "evidence": "evidence"
   },
   "devDependencies": {
-    "@ttsc/evidence": "catalog:typescript",
-    "@ttsc/lint": "catalog:typescript",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "@ttsc/evidence": "catalog:samchon",
+    "@ttsc/lint": "catalog:samchon",
+    "ttsc": "catalog:samchon",
+    "typescript": "catalog:typescript",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

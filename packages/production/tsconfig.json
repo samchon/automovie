@@ -6,7 +6,13 @@
     "types": ["node"],
     "sourceMap": false,
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ]
   },
   "include": ["src"]
 }

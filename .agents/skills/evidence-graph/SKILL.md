@@ -1,6 +1,6 @@
 ---
 name: evidence-graph
-description: Defines automovie's committed trace from product requirements through package-independent system specifications to public TypeScript exports, plus the separate reusable generated-production contract targets under packages/template/scaffold/docs and packages/template/language-contracts. Covers their distinct @ttsc/evidence populations, citations, exclusions, README participation, stable anchors, and repository-triangle review. Use before adding, moving, or reviewing those contract sources, changing public-export evidence JSDoc, or adding or reshaping repository evidence lint configuration. For a generated production's graph, also use the evidence-graph skill that ships in the scaffold. Do not use this for frame-review evidence, design-reference evidence, or provenance records that do not use @ttsc/evidence.
+description: Defines automovie's committed trace from product requirements through package-independent system specifications to public TypeScript exports, plus the separate reusable generated-production contract targets under packages/template/scaffold/docs and packages/template/language-contracts. Covers their distinct @wrtnlabs/evidence populations, citations, exclusions, README participation, stable anchors, and repository-triangle review. Use before adding, moving, or reviewing those contract sources, changing public-export evidence JSDoc, or adding or reshaping repository evidence configuration. For a generated production's graph, also use the evidence-graph skill that ships in the scaffold. Do not use this for frame-review evidence, design-reference evidence, or provenance records that do not use @evidence tags.
 ---
 
 # Evidence Graph
@@ -46,7 +46,8 @@ Do not set `uniqueEvidence` on a specification reference to manufacture an owner
 
 | Owner | Responsibility |
 | --- | --- |
-| Native `@ttsc/evidence` | Evaluate the graph relationships, documentation carriers and declared unrealized work configured through `evidence/graph`, `evidence/documented` and `evidence/todo` in each active lint project. Its published configuration and diagnostics are the dependency contract. |
+| Standalone `@wrtnlabs/evidence` | Evaluate the relationships in each active `evidence.config.ts`, or the production declaration selected by `--config lint.config.ts`. Its published configuration and diagnostics are the dependency contract. |
+| Native `@ttsc/evidence` source guards | Run `evidence/documented`, `evidence/singular`, and `evidence/todo` through each applicable `evidence.guard.config.ts` and `tsconfig.evidence.json`. Graph evaluation is disabled in this lane. |
 | AutoMovie product validation | Enforce the generated production's declaration, physical population boundaries, contract inventory, stages and topology through [`@automovie/evidence`](../../../packages/evidence/src/createAutoMovieEvidenceConfig.ts). These are production input invariants, separate from this repository's graph. |
 | Semantic Self-Review | Read the actual carrier, target, reason, exclusions and downstream behavior, and confirm complete carrier selection, README participation, stable identities, both citation families and the triangle against what the implementation does. |
 
@@ -59,18 +60,18 @@ Select the complete public export population for the repository triangle. Implem
 Derive each complete carrier population from a source-tree glob rather than a fixed path list, so new declarations enter a defined domain by default.
 
 - Write each whole-population exclusion as a negative pattern beside the positive one and document its reason. For the repository triangle, three reasons are accepted: a barrel re-exports declarations that already answer at their definition, a process entry point is not a contract carrier, and a generated file is not authored.
-- Derive a domain-partitioned population by subtraction. A specialized claim names the stable files of its domain, and one residual claim starts from the complete glob and subtracts those assignments, so a new source answers for the residual domain until someone assigns it elsewhere. `@ttsc/evidence` evaluates patterns left to right and a later positive pattern re-admits what an earlier negative removed, so add a file back after the spread.
+- Derive a domain-partitioned population by subtraction. A specialized claim names the stable files of its domain, and one residual claim starts from the complete glob and subtracts those assignments, so a new source answers for the residual domain until someone assigns it elsewhere. `@wrtnlabs/evidence` evaluates patterns left to right and a later positive pattern re-admits what an earlier negative removed, so add a file back after the spread.
 - Selection alone establishes nothing about what a carrier implements. Self-Review inspects every changed public carrier against its actual contract under the triangle above, and any unpaid relationship it records names the exact reviewed population and revision.
 
 ## Package participation
 
-`@automovie/production` and `@automovie/playground` carry the same `evidence/graph`, `evidence/documented` and `evidence/todo` obligations as the other public packages. Production owns the builder, project store, capture, inspection and render-job contracts it implements, and playground owns the durable prototype-view surface it exports. A smaller application surface never excuses a public export from requirement and specification traceability.
+`@automovie/production` and `@automovie/playground` carry the same standalone graph, `evidence/documented` and `evidence/todo` obligations as the other public packages. Production owns the builder, project store, capture, inspection and render-job contracts it implements, and playground owns the durable prototype-view surface it exports. A smaller application surface never excuses a public export from requirement and specification traceability.
 
 A package that the [project skill](../project/SKILL.md#layout) lists as answering the [contracts skill](../contracts/SKILL.md) is outside this triangle.
 
 ## Split independently payable units
 
-`evidence/graph` proves that a unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail or be implemented independently, give each its own H3 with a stable anchor and let the native triangle validate it directly.
+The standalone graph proves that a unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail or be implemented independently, give each its own H3 with a stable anchor and let the native triangle validate it directly.
 
 Create no second fragment grammar, carrier tag or ownership ledger. Such records duplicate the Markdown unit and source citation identities and drift when either changes. If several packages implement one inseparable unit, every positive citation must implement the complete unit, and if none does, the unit is too broad and must be split before it is cited.
 
@@ -115,7 +116,7 @@ The generated-production graph is separate. Its completion stage is `evidence`, 
 ## Change workflow
 
 1. Read the documentation skill and update `.wiki/` as the decision develops. Read the project skill for scope, the development skill for source or test changes, the scaffold skill when the shared contract inventory changes, and the scaffold's shipped evidence-graph skill when a production's own graph is involved.
-2. Inspect the current typed `lint.config.ts` files, workspace scripts and CI workflows, the applicable product validators and their logic tests, the active `@ttsc/evidence` documentation and declarations, and every affected citation. An archived branch or earlier decision is not the active implementation.
+2. Inspect the current typed graph and source-guard configuration files, workspace scripts and CI workflows, the applicable product validators and their logic tests, the active `@wrtnlabs/evidence` and source-guard documentation and declarations, and every affected citation. An archived branch or earlier decision is not the active implementation.
 3. Classify each statement as requirement, specification, package usage, public API contract, research or working knowledge before choosing its home.
 4. Describe each claim-reference pair as one sentence before configuring it. If the sentence does not match the selected files and symbol kinds, correct the population.
 5. Add or revise the contract text, stable anchors and positive citations together, keeping direct requirement and specification citations on every affected public source symbol.
@@ -130,7 +131,7 @@ The generated-production graph is separate. Its completion stage is `evidence`, 
 
 ## Verify
 
-Run the configured `ttsc --noEmit` or package build for every affected claim project. When the repository docs workspace exists, run its declared lint script, and when package source citations change, run the owning package build.
+Run `pnpm run evidence` for the complete configured population, or the owning package's `evidence` script for a narrow observation. Build and evidence are independent gates; run the owning package build when its source changes.
 
 For a graph-configuration change, inspect the actual roots, globs, exclusions, symbol selectors and relationship options beside the selected contracts and exports, and confirm the claim includes the intended README roles and every affected carrier. Record the observation's revision, selected population and native diagnostic apart from the semantic review result.
 

@@ -33,3 +33,7 @@ Audio 쪽도 같은 규칙을 따른다. `decodeProductionAudioAsset`은 넘겨�
 파일 시스템 접근, 브라우저 실행, 자산 다운로드는 host 책임이다. 이 패키지의 역할은 외부 media 자산과 engine 자료구조 사이의 재현 가능한 수입 seam을 작게 유지하는 것이다.
 
 Family별 경계는 좁게 유지한다. glTF-family inspector는 audio container를 받지 않고, audio decoder는 3D 문서를 받지 않는다. Mix, cue timing, loudness, 그리고 delivery profile 검증은 여기서 하지 않는다: 그것들은 engine mixer와 production delivery 층이 소유하고, 이 패키지는 그들이 소비하는 입력 사실만 만든다.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

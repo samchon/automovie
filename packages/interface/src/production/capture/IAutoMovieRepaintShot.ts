@@ -66,8 +66,6 @@ export interface IAutoMovieRepaintShot {
 /**
  * Result of one optional diffusion rendition request.
  *
- * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IAutoMovieRepaintShot` as the portable data boundary for the repaint reference roles requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IAutoMovieRepaintShot` for the asset spec repaint controls references system contract.
  */
 export namespace IAutoMovieRepaintShot {
   /**

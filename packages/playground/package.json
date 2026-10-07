@@ -17,7 +17,9 @@
     "shots": "ttsx --no-plugins scripts/capture-shots.ts --",
     "preview": "vite preview --port 4173 --strictPort",
     "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.cts --",
-    "observe:person": "ttsx --no-plugins scripts/observe-connected-person.cts --"
+    "observe:person": "ttsx --no-plugins scripts/observe-connected-person.cts --",
+    "evidence": "evidence && pnpm run evidence:guards",
+    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -40,9 +42,11 @@
     "h264-mp4-encoder": "catalog:media",
     "playwright-core": "catalog:media",
     "pngjs": "catalog:media",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "vite": "catalog:vite",
-    "@ttsc/lint": "catalog:typescript"
+    "@ttsc/lint": "catalog:samchon",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon"
   }
 }
