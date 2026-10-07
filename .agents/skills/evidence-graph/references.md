@@ -24,7 +24,7 @@ Do not list the contract anchors that currently cite a source. Those relationshi
 | W3C Data Quality Vocabulary | https://www.w3.org/TR/vocab-dqv/ | Dataset quality measurements, annotations, and provenance links |
 | W3C Data on the Web Best Practices | https://www.w3.org/TR/dwbp/#dataProvenance | Publishing provenance, quality, version, and reuse information with data |
 | NARA, Citing the Records of Congress | https://www.archives.gov/legislative/research/citation.html | Retrievable citation of records, files, series, record groups, and repositories |
-| `@ttsc/evidence`, Claims and References | https://ttsc.dev/docs/evidence/claims/ | Ordinary coverage, checklists, exclusions, host selection, and references |
+| `@wrtnlabs/evidence`, Claims and References | https://github.com/wrtnlabs/evidence#readme | Ordinary coverage, checklists, exclusions, host selection, and references |
 | Google DeepMind, specification gaming | https://deepmind.google/blog/specification-gaming-the-flip-side-of-ai-ingenuity/ | Difference between satisfying a literal test and achieving the intended outcome |
 
 ## Settings, worlds, people, and access

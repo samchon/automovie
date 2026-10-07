@@ -38,13 +38,14 @@
     "three": "catalog:three"
   },
   "devDependencies": {
-    "@ttsc/lint": "catalog:typescript",
+    "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
     "@types/three": "catalog:three",
     "gh-pages": "^6.3.0",
-    "ttsc": "catalog:typescript",
+    "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "vite": "catalog:vite",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

@@ -11,7 +11,6 @@ import { portraitHairShape } from "./configuration";
 import { referenceControlNet } from "./controlNet";
 import { buildFittedReferencePortrait } from "./fittedModel";
 import { buildPortraitHairProxy } from "./hairProxy";
-import type { portraitReview } from "./review";
 
 /**
  * Assemble this one reference face from independently inspectable anatomical
@@ -48,7 +47,7 @@ import type { portraitReview } from "./review";
  * @evidence src/subjects/generated-korean-girl-01/review.md#reference Supplies the geometry compared against the photograph in its recorded camera pose.
  * @evidence src/subjects/generated-korean-girl-01/review.md#clay Supplies the shared surface inspected independently of its material colours.
  * @evidence src/subjects/generated-korean-girl-01/review.md#component-replacement Assembles the component selections exercised by the replacement tests; fresh alternate-assembly captures remain pending for this revision.
- * @evidence {@link portraitReview} Retains the construction review carrier for this assembled face; its written observations do not accept the likeness.
+ * @evidence ./review.ts#portraitReview Retains the construction review carrier for this assembled face; its written observations do not accept the likeness.
  */
 export function buildReferencePortrait(
   assembly:

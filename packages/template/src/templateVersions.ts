@@ -35,5 +35,7 @@ export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {
   nodeTypes: "^22.19.17",
   ttsc: "^0.30.4",
   ttscLint: "^0.30.4",
+  evidenceCli: "^0.3.1",
+  evidenceLint: "^0.30.4",
   typescript: "^7.0.2",
 };

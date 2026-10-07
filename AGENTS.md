@@ -49,7 +49,7 @@ The self-contained harness every generated project inherits (`packages/template`
 
 ### [Evidence Graph](.agents/skills/evidence-graph/SKILL.md)
 
-The requirement, specification and public-source triangle, and the scaffold contract corpus. Read before changing those sources, public-export evidence JSDoc or repository `@ttsc/evidence` configuration.
+The requirement, specification and public-source triangle, and the scaffold contract corpus. Read before changing those sources, public-export evidence JSDoc or repository graph and source-guard configuration.
 
 ### [Review](.agents/skills/review/SKILL.md)
 

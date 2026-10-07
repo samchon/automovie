@@ -114,17 +114,15 @@ scope.onmessage = async (
           )
         : domain === "face"
           ? await humanViewerResidentRuntime(face, identity, () =>
-              sources
-                .face(basis)
-                .then((asset) =>
-                  createConnectedFaceRuntime({
-                    basis: asset,
-                    progress: (progress) =>
-                      observeProgress(
-                        describeConnectedPersonFaceProgress(progress),
-                      ),
-                  }),
-                ),
+              sources.face(basis).then((asset) =>
+                createConnectedFaceRuntime({
+                  basis: asset,
+                  progress: (progress) =>
+                    observeProgress(
+                      describeConnectedPersonFaceProgress(progress),
+                    ),
+                }),
+              ),
             )
           : await humanViewerResidentRuntime(body, identity, () =>
               sources

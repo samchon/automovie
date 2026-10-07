@@ -82,14 +82,12 @@ export const test_production_library_contribution_findings = (): void => {
     );
     TestValidator.equals(
       "every carrier finding retains its source target and tier",
-      input.diagnostics
-        .slice(1)
-        .map(({ category, phase, path, target }) => ({
-          category,
-          phase,
-          path,
-          target,
-        })),
+      input.diagnostics.slice(1).map(({ category, phase, path, target }) => ({
+        category,
+        phase,
+        path,
+        target,
+      })),
       Array.from({ length: 3 }, () => ({
         category: severity,
         phase: "source" as const,

@@ -1,15 +1,13 @@
-import type * as Human from "@automovie/human";
-
 /**
  * Detailed numerical editor source inspection.
  * Earlier inspections are retained; domain ownership does not imply a new
  * anatomical range or rendered improvement. The root carrier retains this domain.
  *
- * @evidence {@link Human.humanFaceDetailChannels} Maps the editor's detailed scalar inventory to real profile fields.
- * @evidence {@link Human.humanFaceDetailValue} Reads the displayed scalar from the resolved common or side-specific anatomical profile.
- * @evidence {@link Human.IAutoMovieHumanFaceDetailChannel} Describes one detailed numerical control and its anatomical owner, inherited neutral and attachment.
- * @evidence {@link Human.setHumanFaceDetail} Writes or clears one precise override without flattening inherited part settings.
- * @evidence {@link Human.setHumanFaceHairLayerDetail} Edits one explicitly named additional profile without re-entering its guide array or changing the legacy owner.
+ * @evidence ../../../packages/human/src/face/channels/humanFaceDetailChannels.ts#humanFaceDetailChannels Maps the editor's detailed scalar inventory to real profile fields.
+ * @evidence ../../../packages/human/src/face/editor/humanFaceDetailValue.ts#humanFaceDetailValue Reads the displayed scalar from the resolved common or side-specific anatomical profile.
+ * @evidence ../../../packages/human/src/face/structures/IAutoMovieHumanFaceDetailChannel.ts#IAutoMovieHumanFaceDetailChannel Describes one detailed numerical control and its anatomical owner, inherited neutral and attachment.
+ * @evidence ../../../packages/human/src/face/editor/setHumanFaceDetail.ts#setHumanFaceDetail Writes or clears one precise override without flattening inherited part settings.
+ * @evidence ../../../packages/human/src/face/editor/setHumanFaceHairLayerDetail.ts#setHumanFaceHairLayerDetail Edits one explicitly named additional profile without re-entering its guide array or changing the legacy owner.
  *
  * @remarks
  * Internal domain inspection under the public inventory above. These owners

@@ -29,3 +29,7 @@ package root은 브라우저 번들이 그대로 가져갈 수 있다. Node 전�
 ## 경계
 
 실제 브라우저 실행, ffmpeg 실행, wasm encoder 선택, 파일 시스템 경로 정책은 host 책임이다. 이 패키지의 역할은 engine/viewer/playground 사이의 재현 가능한 render seam을 작게 유지하는 것이다. root entry는 Node built-in에 도달하지 않고, Node codec·filesystem edge는 `./node` entry에만 있다.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

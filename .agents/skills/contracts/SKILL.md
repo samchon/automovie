@@ -5,7 +5,7 @@ description: Defines the implementation acknowledgments that maintained source d
 
 # Implementation Contracts
 
-The common principles govern implementation and review. Modeling and anatomy chapters ask the declarations that own those responsibilities for concrete grounds, carried by `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The owning package's `lint.config.ts` selects native checklist obligations, and the [review skill](../review/SKILL.md) judges their truth. Selected chapters still require an answer; keep it specific to the declaration's responsibility instead of repeating generic self-assessments. Changing those obligations requires a separately verified configuration change.
+The common principles govern implementation and review. Modeling and anatomy chapters ask the declarations that own those responsibilities for concrete grounds, carried by `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The owning package's `evidence.config.ts` selects standalone checklist obligations, and the [review skill](../review/SKILL.md) judges their truth. Selected chapters still require an answer; keep it specific to the declaration's responsibility instead of repeating generic self-assessments. Changing those obligations requires a separately verified configuration change.
 
 Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
 

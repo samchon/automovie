@@ -1,7 +1,16 @@
 {
   "extends": "../config/tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ]
   },
-  "include": ["lint.config.ts"]
+  "include": [
+    "lint.config.ts",
+    "evidence.config.ts"
+  ]
 }

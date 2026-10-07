@@ -123,3 +123,7 @@ skeleton ids rather than deriving them.
 
 스캐폴드는 이 중 어느 것도 상속하지 않는다. 생성된 프로젝트가 받는 것은 기법을 가르치는
 예제이지, 호출할 수 있는 카탈로그가 아니다.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

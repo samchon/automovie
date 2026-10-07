@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.scripts.json",
-  "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"] },
+  "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"], "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../lint.config.ts" }] },
   "include": ["*.ts", "page.mts", "host.mts", "index.mts", "parts.mts", "numerical-worker.mts", "createHumanViewerNumericalPort.mts"]
 }

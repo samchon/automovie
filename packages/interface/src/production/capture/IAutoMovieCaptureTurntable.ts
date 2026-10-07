@@ -70,8 +70,6 @@ export interface IAutoMovieCaptureTurntable {
  * exact view set, and reproducing it by hand is where a reviewer silently
  * skipped the angle that would have shown the defect.
  *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `IAutoMovieCaptureTurntable` as the portable data boundary for the agent host evidence requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `IAutoMovieCaptureTurntable` for the spec authoring host evidence output system contract.
  * @author Samchon
  */
 export namespace IAutoMovieCaptureTurntable {

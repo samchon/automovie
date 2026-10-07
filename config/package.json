@@ -3,7 +3,8 @@
   "name": "@automovie/config",
   "version": "0.1.0",
   "devDependencies": {
-    "@ttsc/lint": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "@ttsc/lint": "catalog:samchon",
+    "typescript": "catalog:typescript",
+    "@wrtnlabs/evidence": "catalog:samchon"
   }
 }

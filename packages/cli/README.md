@@ -35,6 +35,7 @@ The shortest blank-project check is:
 ```bash
 npm install --package-lock=false
 npm run lint
+npm run evidence
 ```
 
 The blank scaffold provides source lint and authoring documents. It ships no authored production, viewer stub, optional tooling payload, or persisted project-state workflow. A coding agent adds the project's actual source and requested viewing or rendering integration when that work is needed.
@@ -42,3 +43,7 @@ The blank scaffold provides source lint and authoring documents. It ships no aut
 ## API
 
 The package exports the CLI runner, closed command-argument parser and dispatcher, scaffold next-step text, and bounded Markdown observation helpers. Production values and runtime composition belong to the project's authored source and the public engine, ingest, production, render, and viewer APIs that consume them; this CLI does not load a second persisted production-state store.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.

@@ -27,3 +27,9 @@ The scaffold supplies no production content, viewer stub, template variant, or p
 ## Public API
 
 `renderScaffold` returns a deterministic project-relative file map for initial installation. `publishFiles` validates and freezes that complete candidate, then returns a receipt naming every completed file and the first refused or parent-bound partial effect; `writeFiles` preserves the throwing compatibility API. New slots are created through Koffi-backed POSIX `openat` or Windows `NtCreateFile` parent-handle-relative adapters, so neither creation nor verification follows a successor child pathname. The package also exports the scaffold snapshot helpers used by those operations. It supplies no post-install instruction regenerator or updater.
+
+## Development checks
+
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+
+`resolveAutoMovieTemplateDependencyVersions` interprets supplied workspace version ranges and catalog text without filesystem access. The build script acquires those inputs and emits the scaffold's version placeholders, including the standalone evidence CLI and native source guards.

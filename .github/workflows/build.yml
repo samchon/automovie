@@ -28,3 +28,4 @@ jobs:
           path: node_modules/.cache/ttsc
           key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run build
+      - run: pnpm run evidence

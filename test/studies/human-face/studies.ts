@@ -24,7 +24,6 @@ import michaelGambon from "./michael-gambon.json";
 import miriamMargolyes from "./miriam-margolyes.json";
 import ohSeungYoon from "./oh-seung-yoon.json";
 import parkEunBin from "./park-eun-bin.json";
-import type { humanFaceStudyReview } from "./review";
 import rupertGrint from "./rupert-grint.json";
 import yooSeungHo from "./yoo-seung-ho.json";
 
@@ -60,7 +59,7 @@ import yooSeungHo from "./yoo-seung-ho.json";
  * @evidence studies/human-face/review.md#park-eun-bin Supplies the park-eun-bin replay document whose selected source, rendered artifact and nine inspected views are recorded here.
  * @evidence studies/human-face/review.md#rupert-grint Supplies the rupert-grint replay document whose selected source, rendered artifact and nine inspected views are recorded here.
  * @evidence studies/human-face/review.md#yoo-seung-ho Connects this study's partial optical adoption to the four changed construction controls, exact replay, 27 directly inspected views, retained limitations and preceding artifact-specific observations.
- * @evidence {@link humanFaceStudyReview} Retains the shared construction-source inspection for these independent numerical face documents.
+ * @evidence ./review.ts#humanFaceStudyReview Retains the shared construction-source inspection for these independent numerical face documents.
  */
 export const humanFaceStudyDocuments: Readonly<Record<string, unknown>> = {
   "alan-rickman": alanRickman,
