@@ -14,8 +14,9 @@
  * pose, 900 pixels square; `OCCLUSION=off` bakes no ambient occlusion. The
  * record lists the renderer the server reported, the pose file's SHA-256, each
  * capture with its camera, and the documents the numerical builder refused,
- * and holds no image bytes. Frames stay under the given directory (use a path
- * inside `.shots`), and a software renderer refuses on the server before any
+ * and holds no image bytes. Frames stay under the caller's explicit OUTPUT
+ * directory in an ignored local tree, independently of mutable viewer storage,
+ * and a software renderer refuses on the server before any
  * frame is drawn.
  */
 import { createHash } from "node:crypto";
@@ -23,24 +24,34 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { IHumanViewerRefusedModel } from "./IHumanViewerRefusedModel";
+import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument";
 import { connectHumanViewer } from "./connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "./createNodeHumanViewerClientIo";
+import { humanViewerInstance } from "./humanViewerInstance";
 import { resolveHumanViewerPose } from "./resolveHumanViewerPose";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../..",
+);
 
 async function main(): Promise<void> {
   const [study, output, poseFile] = process.argv.slice(2);
   if (study === undefined || output === undefined || poseFile === undefined)
-    throw new Error("Supply a study directory, an output directory and a pose file.");
+    throw new Error(
+      "Supply a study directory, an output directory and a pose file.",
+    );
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
-    origin: "http://127.0.0.1:5175",
+    origin: humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin,
   });
-  const label = "study-" + path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
+  const label =
+    "study-" +
+    path.basename(path.resolve(output)).replace(/[^A-Za-z0-9._-]/g, "-");
   const documents = JSON.parse(
     fs.readFileSync(path.join(study, "subjects.json"), "utf8"),
-  ) as { id: string }[];
+  ) as IHumanViewerSubjectDocument[];
   const candidate = path.join(study, "basis.json.gz");
   await viewer.drop({
     label,
@@ -52,7 +63,7 @@ async function main(): Promise<void> {
   const occlusion = process.env.OCCLUSION !== "off";
   fs.mkdirSync(output, { recursive: true });
   const captures: Record<string, unknown>[] = [];
-  const refused: { model: string; reason: string }[] = [];
+  const refused: IHumanViewerRefusedModel[] = [];
   for (const document of documents) {
     const subject = document.id.replace(/-connected$/u, "");
     if (poses[subject] === undefined) continue;
@@ -75,6 +86,9 @@ async function main(): Promise<void> {
       model: subject,
       view: "reference-yaw",
       file,
+      revision: frame.revision,
+      renderer: frame.renderer,
+      sha256: createHash("sha256").update(frame.bytes).digest("hex"),
       camera: { yaw, pitch, distance, target: [x, y, z], fov },
     });
     console.log(subject, "captured");

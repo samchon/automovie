@@ -1,9 +1,9 @@
-import {
-  type IAutoMovieHumanBodyShoulderPose,
-  humanBodyShoulderPoseFromDirection,
-  humanBodyShoulderTtRotation,
-} from "@automovie/human";
 import { Quaternion, Vector3 } from "@automovie/engine";
+import { humanBodyShoulderPoseFromDirection } from "@automovie/human/body/basis/humanBodyShoulderPoseFromDirection";
+import { humanBodyShoulderTtRotation } from "@automovie/human/body/basis/humanBodyShoulderTtRotation";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
+
+import type { IBodyShoulderInterpolationInput } from "./IBodyShoulderInterpolationInput";
 
 /**
  * Sample the shortest physical orientation path from a shaped rest to a TT goal.
@@ -17,25 +17,51 @@ import { Quaternion, Vector3 } from "@automovie/engine";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint representations remain exact; no pose preset or photograph supplies a path.
  * @evidence contracts/common.md#meaningful-documentation States actual sampler authority, endpoint admission and intermediate range validation.
  */
-export function interpolateBodyShoulderPose(input: {
-  from: IAutoMovieHumanBodyShoulderPose;
-  to: IAutoMovieHumanBodyShoulderPose;
-  fraction: number;
-}): IAutoMovieHumanBodyShoulderPose {
-  if (!Number.isFinite(input.fraction) || input.fraction < 0 || input.fraction > 1)
+export function interpolateBodyShoulderPose(
+  input: IBodyShoulderInterpolationInput,
+): IAutoMovieHumanBodyShoulderPose {
+  if (
+    !Number.isFinite(input.fraction) ||
+    input.fraction < 0 ||
+    input.fraction > 1
+  )
     throw new Error("A shoulder sample fraction must be finite and in [0,1].");
   if (input.from.bone !== input.to.bone)
     throw new Error("A shoulder sample needs the same humerus at both ends.");
   if (input.fraction === 0) return { ...input.from };
   if (input.fraction === 1) return { ...input.to };
-  const rotation = Quaternion.normalize(Quaternion.slerp(
-    humanBodyShoulderTtRotation(input.from), humanBodyShoulderTtRotation(input.to), input.fraction,
-  ));
+  const rotation = Quaternion.normalize(
+    Quaternion.slerp(
+      humanBodyShoulderTtRotation(input.from),
+      humanBodyShoulderTtRotation(input.to),
+      input.fraction,
+    ),
+  );
   const direction = Quaternion.rotateVector(rotation, Vector3.create(0, -1, 0));
-  const tilt = humanBodyShoulderPoseFromDirection({ bone: input.to.bone, direction });
-  const torsion = Quaternion.multiply(rotation, Quaternion.inverse(humanBodyShoulderTtRotation(tilt)));
-  const signed = 2 * Math.atan2(torsion.x * direction.x + torsion.y * direction.y + torsion.z * direction.z, torsion.w) * 180 / Math.PI;
+  const tilt = humanBodyShoulderPoseFromDirection({
+    bone: input.to.bone,
+    direction,
+  });
+  const torsion = Quaternion.multiply(
+    rotation,
+    Quaternion.inverse(humanBodyShoulderTtRotation(tilt)),
+  );
+  const signed =
+    (2 *
+      Math.atan2(
+        torsion.x * direction.x +
+          torsion.y * direction.y +
+          torsion.z * direction.z,
+        torsion.w,
+      ) *
+      180) /
+    Math.PI;
   const side = input.to.bone === "leftUpperArm" ? 1 : -1;
-  const wrap = (degrees: number): number => ((degrees + 180) % 360 + 360) % 360 - 180;
-  return { ...tilt, plane: wrap(tilt.plane), axialRotation: wrap(-side * signed) };
+  const wrap = (degrees: number): number =>
+    ((((degrees + 180) % 360) + 360) % 360) - 180;
+  return {
+    ...tilt,
+    plane: wrap(tilt.plane),
+    axialRotation: wrap(-side * signed),
+  };
 }

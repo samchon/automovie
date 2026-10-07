@@ -4,21 +4,14 @@
  * while the worker and admitted basis stay alive. Export asks for the caller's
  * committed document without canceling a preview transaction.
  */
-import {
-  type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanPersonDocument,
-  serializeHumanBodyBasisDocument,
-} from "@automovie/human";
-
-import {
-  type HumanResidentPort,
-  createHumanResidentWorker,
-} from "../common/residentWorker";
 import type {
-  ConnectedBodyRequest,
-  ConnectedBodyResult,
-} from "./connectedBodyProtocol";
-import type { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+
+import { createHumanResidentWorker } from "../common/residentWorker";
+import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps";
 
 /** Keep one worker alive across edits and separate exported bytes from frames.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Withdraws stale edits and prepares only the latest numerical body for publication.
@@ -30,12 +23,7 @@ export function createConnectedBodyPreview<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: {
-  worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
-  renderer: ReturnType<typeof createConnectedBodyRenderer>;
-  /** Text of a document for the worker; a body document unless the stage draws people. */
-  serialize?: (document: Document) => string;
-}) {
+>(props: IConnectedBodyPreviewProps<Document>) {
   const serialize =
     props.serialize ??
     ((document: Document) =>
@@ -52,11 +40,7 @@ export function createConnectedBodyPreview<
   };
   return {
     cancel,
-    build: async (
-      document: Document,
-      measure = false,
-      anatomy = false,
-    ) => {
+    build: async (document: Document, measure = false, anatomy = false) => {
       cancel();
       const ticket = generation;
       const request = worker.request({
@@ -80,8 +64,53 @@ export function createConnectedBodyPreview<
         parts: result.model.parts.length,
         crossings: result.crossings,
         anatomy: result.anatomy,
+        femoralHeads: result.femoralHeads,
+        groundSupport: result.groundSupport,
         extras: result.extras,
+        anatomicalRequest: result.anatomicalRequest,
+        exteriorCandidate: result.exteriorCandidate,
       };
+    },
+    construct: async (document: Document) => {
+      cancel();
+      const ticket = generation;
+      const request = worker.request({
+        operation: "construct",
+        document: serialize(document),
+      });
+      withdraw = request.cancel;
+      const result = await request.result;
+      if (result.operation !== "construct")
+        throw new Error("Expected a full construction draft.");
+      const frame = await props.renderer.prepare(result.model);
+      if (ticket !== generation) {
+        props.renderer.dispose(frame);
+        throw new Error("Superseded while preparing construction geometry.");
+      }
+      withdraw = undefined;
+      return {
+        model: {
+          frame,
+          parts: result.model.parts.length,
+          crossings: result.crossings,
+          anatomy: result.anatomy,
+          extras: result.extras,
+          groundSupport: result.groundSupport,
+          femoralHeads: result.femoralHeads,
+          anatomicalRequest: result.anatomicalRequest,
+          exteriorCandidate: result.exteriorCandidate,
+        },
+        admission: result.admission,
+      };
+    },
+    exportConstruction: async (document: Document) => {
+      const result = await worker.request({
+        operation: "exportConstruction",
+        document: serialize(document),
+      }).result;
+      if (result.operation !== "exportConstruction")
+        throw new Error("Expected a guarded construction asset.");
+      return { glb: result.glb, admission: result.admission };
     },
     export: async (document: Document) => {
       const result = await worker.request({
@@ -95,7 +124,7 @@ export function createConnectedBodyPreview<
     armsDown: async (document: IAutoMovieHumanBodyBasisDocument) => {
       const result = await worker.request({
         operation: "armsDown",
-        document: serializeHumanBodyBasisDocument(document),
+        document: serializeHumanBodyBasisDocument(document, props.source),
       }).result;
       if (result.operation !== "armsDown")
         throw new Error("Expected a solved arms-down pose.");

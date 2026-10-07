@@ -91,7 +91,8 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !nonnegative(layer.clearance) ||
       !direction(layer.flow) ||
       !nonnegative(layer.lift.strength) ||
-      !positive(layer.lift.reach)
+      !positive(layer.lift.reach) ||
+      (layer.fall !== undefined && !positive(layer.fall.reach))
     )
       throw new Error(
         "Hair roots, lengths, steps and flow need finite admitted numerical fields.",

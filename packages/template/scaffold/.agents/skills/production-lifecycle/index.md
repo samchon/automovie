@@ -6,7 +6,7 @@ You are authoring one production: this project. Read `AGENTS.md`, `lint.config.t
 
 Before first-version drafting while a layer is disabled, follow the contract skill from `AGENTS.md` and read the exact inventory selected by `lint.config.ts`. Apply unit-level principles from the beginning, but defer population-distribution and post-draft questions until their complete selected population exists. A contract annotation records work already done and never substitutes for authorship.
 
-Select the production kind and settle complete settings before downstream work. Activate the next applicable layer through [Evidence staging](../evidence-graph/staging.md#transitions), author one coherent version, complete its evidence and author inspection, then hand it to its child. A later finding returns to the earliest semantic owner, propagates through every affected descendant, and renews their evidence and actual-output inspection.
+Select the production kind and settle settings before downstream work. Author each applicable layer through [Evidence staging](../evidence-graph/staging.md#transitions) and the [lifecycle handoff](#handoff). Route a defect exposed by its child through [Upstream revision](upstream-revision.md).
 
 Apply this procedure without subject-matter shortcuts. Historical, biographical, familiar, externally documented, or technically standardized material still needs explicit project canon, selected design owners, source realization, and current review. External knowledge supports an owner; it never replaces one.
 
@@ -20,15 +20,7 @@ Choose exactly one shape in `lint.config.ts`. [Production kinds](production-kind
 
 Follow the [static-document update policy](../../../README.md#static-document-updates) when editing installed instructions or adopting upstream changes. Production facts remain in `lint.config.ts` and their canonical document and source owners; changing a fact does not require rebuilding an instruction file or a parallel inventory.
 
-Start the coding-agent session from this project root. Codex loads `AGENTS.md`; Claude Code follows `CLAUDE.md -> @AGENTS.md`.
-
 Follow [Ownership](../../../README.md#ownership) for the project source and file boundary; client registration is not a production step.
-
-### Read-only authored reference
-
-Use ordinary file navigation to read authored Markdown and inspect its explicit anchors. An optional installed reference provider may offer annotation-free views, but it does not own authoring or evidence review.
-
-Use normal source tools to edit files and inspect TypeScript, contracts, accounts, configuration, and evidence annotations. Comment-free reference results are not evidence audits or complete review reads, and neither they nor a reader edition pays an authoring or observation obligation.
 
 ### Interrupted maintenance
 
@@ -57,14 +49,14 @@ Map, model, space, material, instance, motion, and system design plus TypeScript
 
 Research owns external source identity, used portion, authority, uncertainty, and affected production decisions. Settings owns production facts, identities, capabilities, limits, access, units, and delivery conditions. Treatments own detailed narrative development, scripts own executable physical progression and consequential exchange, construction screenplays own complete visible and audible audience content, final screenplays own expression only, and briefs own one bounded delivery/shot/observation hierarchy.
 
-Correct the earliest owner when a later layer exposes a defect, propagate the consequence, and renew every affected review. Every subject a later layer stages, animates, voices, or observes has a settings owner before that use, including extras, crowds, machines, and institutions. Backcast the literal cast after every downstream draft or revision.
+Every subject a later layer stages, animates, voices, or observes has a settings owner before that use, including extras, crowds, machines, and institutions. [Subject canon](settings.md#subject-canon) owns the downstream cast audit.
 
 ## Working memory and reader editions
 
 Use the ignored `.wiki/` for local ideas, research, questions, and continuity aids. Nothing there binds the production; promote every retained fact or decision into its canonical `docs` owner and never commit `.wiki`.
 
-When a reader edition is requested, bind the selected authored population into a Markdown artifact without changing its canonical files. Select construction or final explicitly, preserve visible prose, headings, and ordered groups, and omit evidence comments and citation anchors. Read the complete edition as an audience; formatting it does not pay authorship or review obligations.
+When a reader edition is requested, bind the selected authored population into a Markdown artifact without changing its canonical files. Select construction or final explicitly, preserve visible prose, headings, and ordered groups, and omit evidence comments and citation anchors. Read the complete edition as an audience. An edition or other annotation-free reference view does not replace the complete annotated reads evidence inspection requires, and formatting it pays no authorship, review or observation obligation.
 
 ## Handoff
 
-Before handing a completed lifecycle layer to evidence staging or source authorship, run [Author process Self-Review](../review-verification/self-review.md). That procedure owns the complete-round rule; this handoff adds only the lifecycle boundary at which it applies.
+Close a lifecycle layer or repair through [Evidence staging](../evidence-graph/staging.md#transitions), combining its evidence, applicable actual-output inspection, and [Author process Self-Review](../review-verification/self-review.md) in one coherent completion boundary before its child consumes it. The phase documents add artifact-specific acceptance conditions; staging and Self-Review own the shared completion procedure.

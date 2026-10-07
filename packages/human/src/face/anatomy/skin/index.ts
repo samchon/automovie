@@ -1,4 +1,7 @@
 export * from "./assertPortraitSkinTopology";
+export * from "./applyHumanFaceNasolabialRelief";
+export * from "./applyHumanFaceRegionalRelief";
+export * from "./humanFaceSkinReliefIdentity";
 export * from "./blendPortraitSkin";
 export * from "./createPortraitSkinColour";
 export * from "./createPortraitColourField";
@@ -10,3 +13,6 @@ export * from "./reservePortraitSkin";
 export * from "./resolvePortraitSkinShape";
 export * from "./solvePortraitSkinSystem";
 export * from "./structures";
+export * from "./createHumanFaceSkinRegionGains";
+export * from "./HUMAN_FACE_SKIN_APPEARANCE";
+export * from "./HUMAN_FACE_SKIN_REGION_APPEARANCE";

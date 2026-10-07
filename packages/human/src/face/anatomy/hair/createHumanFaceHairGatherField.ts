@@ -1,6 +1,8 @@
 import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairGatherFieldProps } from "./IHumanFaceHairGatherFieldProps";
+
 /**
  * Follow the current scalp toward one attached tie rather than steering a hair
  * through the head along the Euclidean chord to it. Growth-domain triangle
@@ -16,7 +18,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * The input's connected, oriented domain and resident indices are admitted by
  * the basis. A disconnected graph or degenerate gradient arithmetic refuses;
  * input arrays remain caller-owned. The returned closure owns the compiled
- * query and immutable gradient vectors for one evaluated face.
+ * query and immutable gradient vectors for one evaluated face, together with
+ * the tie triangle and a private copy of its point. Replacing caller buffers
+ * or moving the caller anchor does not alter this compiled field.
  *
  * @evidence contracts/common.md#principled-implementation Distances from the
  *   tie triangle's vertices are propagated by Dijkstra over the growth domain's
@@ -63,12 +67,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function createHumanFaceHairGatherField(props: {
-  positions: readonly number[];
-  indices: readonly number[];
-  triangles: readonly number[];
-  anchor: { point: IAutoMovieVector3; triangle: number };
-}): (point: IAutoMovieVector3) => IAutoMovieVector3 {
+export function createHumanFaceHairGatherField(
+  props: IHumanFaceHairGatherFieldProps,
+): (point: IAutoMovieVector3) => IAutoMovieVector3 {
+  const anchorTriangle = props.anchor.triangle;
+  const anchorPoint: IAutoMovieVector3 = {
+    x: props.anchor.point.x,
+    y: props.anchor.point.y,
+    z: props.anchor.point.z,
+  };
   const at = (id: number): IAutoMovieVector3 =>
     Vector3.create(
       props.positions[3 * id],
@@ -106,17 +113,14 @@ export function createHumanFaceHairGatherField(props: {
     }
   }
   const distances = new Map([...edges.keys()].map((id) => [id, Infinity]));
-  const tieTriangle = props.triangles.indexOf(props.anchor.triangle);
+  const tieTriangle = props.triangles.indexOf(anchorTriangle);
   if (tieTriangle < 0)
     throw new Error("A hair tie must belong to its shared scalp domain.");
-  const tie = props.indices.slice(
-    3 * props.anchor.triangle,
-    3 * props.anchor.triangle + 3,
-  );
+  const tie = props.indices.slice(3 * anchorTriangle, 3 * anchorTriangle + 3);
   for (const id of tie)
     distances.set(
       canonical(id),
-      Vector3.length(Vector3.subtract(at(id), props.anchor.point)),
+      Vector3.length(Vector3.subtract(at(id), anchorPoint)),
     );
   const remaining = new Set(edges.keys());
   while (remaining.size > 0) {
@@ -179,7 +183,7 @@ export function createHumanFaceHairGatherField(props: {
     // vertex of the tie triangle, not at an interior barycentric tie. In that
     // triangle use the exact tangent toward the anchor, or every strand could
     // orbit the nearest vertex and leave without ever entering the tie radius.
-    const direct = Vector3.subtract(props.anchor.point, point);
+    const direct = Vector3.subtract(anchorPoint, point);
     const normal = Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2]);
     const tangent = Vector3.subtract(
       direct,

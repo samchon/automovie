@@ -1,3 +1,4 @@
+import type { IHumanBasisRegionCorners } from "../structures/IHumanBasisRegionCorners";
 import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
 
 /**
@@ -28,15 +29,10 @@ import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it numbers the corners the region already has.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary between parts.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed form; the regions it numbers are observed by their owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
-export function humanBasisRegionCorners(region: IHumanMaterialRegion): {
-  sources: number[];
-  indices: number[];
-  uvs: number[] | null;
-} {
+export function humanBasisRegionCorners(
+  region: IHumanMaterialRegion,
+): IHumanBasisRegionCorners {
   const vertices = new Map<string, number>();
   const sources: number[] = [];
   const indices: number[] = [];

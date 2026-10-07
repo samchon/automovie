@@ -16,6 +16,8 @@ A primitive is a compact parametric recipe. An explicit mesh may be imported, ba
 
 Transforming or merging meshes is not a Boolean union. Concatenating intersecting closed solids can preserve their separate triangles while leaving internal faces and a non-manifold visual result. Use separate parts when that is the reviewed representation. If the result requires a true union, difference, remesh, or another operation AutoMovie does not contract, stop, record the missing capability, and revise the representation or product boundary explicitly.
 
+When a generator owns physical source incidence, it may emit `IAutoMovieMesh.physicalVertices`. Read the installed type and engine resolver contract before assigning source pairs. A domain names an actual physical instance's equivalence context; attribute aliases share its point ID, while contact between different points does not create identity. Reusing the same pair in separately placed operands asserts one point in their common frame. Merge preserves original pairs and nullable legacy entries; legacy vertices still weld from current coordinates after deformation. A generator that creates new vertices must register their actual source correspondence or refuse that operation. Use `createMeshPhysicalPartitionMatcher` only to reuse an earlier topology admission with unchanged connectivity and identity meaning. Physical correspondence never replaces independent area, orientation, crossing or representation-precision checks.
+
 ## Consequence ledger
 
 For each operation, account for all fields it receives and all consumers it affects:

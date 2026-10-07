@@ -7,11 +7,10 @@
  * by content, because a server may hand over the gzip bytes or, with a
  * `Content-Encoding` header, bytes the browser has already inflated.
  */
+import type { ConnectedFaceRequest } from "./human/common/ConnectedFaceRequest";
+import type { IHumanResidentRequest } from "./human/common/IHumanResidentRequest";
 import { readConnectedFaceAsset } from "./human/common/connectedAsset";
-import {
-  type ConnectedFaceRequest,
-  createConnectedFaceRuntime,
-} from "./human/common/connectedRuntime";
+import { createConnectedFaceRuntime } from "./human/common/connectedRuntime";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
@@ -35,7 +34,7 @@ const handle = createHumanResidentHandler({
   },
 });
 scope.onmessage = (
-  event: MessageEvent<{ id: number; input: ConnectedFaceRequest }>,
+  event: MessageEvent<IHumanResidentRequest<ConnectedFaceRequest>>,
 ) => {
   void handle(event.data);
 };

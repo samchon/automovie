@@ -279,9 +279,7 @@ function correctivePlan(basis: IAutoMovieHumanBodyBasis): {
         "shoulder" in input
           ? input.shoulder +
             "|" +
-            JSON.stringify(
-              corrective.inputs.filter((_, other) => other !== at),
-            )
+            JSON.stringify(corrective.inputs.filter((_, other) => other !== at))
           : null,
       ),
     ),

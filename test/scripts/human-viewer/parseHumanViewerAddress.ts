@@ -1,4 +1,3 @@
-
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { humanViewerChoices } from "./humanViewerChoices";
 import { parseHumanViewerLight } from "./parseHumanViewerLight";
@@ -18,6 +17,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const fields = new URLSearchParams(input.replace(/^[#?]/, ""));
   const allowed = [
     "doc",
+    "operation",
     "parts",
     "hide",
     "zoom",
@@ -43,6 +43,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
       throw new Error(`Repeated display field: ${key}`);
   }
   const view = fields.get("view") ?? "front";
+  const operation = fields.get("operation") ?? "preview";
+  if (operation !== "preview" && operation !== "construct")
+    throw new Error("Unknown human operation: " + operation);
   const pass = fields.get("pass") ?? "beauty";
   if (!(humanViewerChoices.views as readonly string[]).includes(view))
     throw new Error(`Unknown view: ${view}`);
@@ -90,9 +93,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
       throw new Error(
         "look requires yaw, pitch, distance, target x, y, z and an optional field of view",
       );
-    look = (
-      values.length === 6 ? [...values, 28] : values
-    ) as NonNullable<HumanViewerAddress["look"]>;
+    look = (values.length === 6 ? [...values, 28] : values) as NonNullable<
+      HumanViewerAddress["look"]
+    >;
   }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
@@ -127,6 +130,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     throw new Error("hide must contain mesh names");
   return {
     doc,
+    operation: operation as HumanViewerAddress["operation"],
     parts: parts === null ? [] : parts.split(","),
     hide: hide === null ? [] : hide.split(","),
     zoom: number("zoom", 1, 0.2, 8),

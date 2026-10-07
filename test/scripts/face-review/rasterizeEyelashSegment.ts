@@ -45,15 +45,21 @@ export function rasterizeEyelashSegment(input: {
   const nx = -dy / length;
   const ny = dx / length;
   const polygon: [number, number][] = [
-    [start[0] + nx * widthStart / 2, start[1] + ny * widthStart / 2],
-    [end[0] + nx * widthEnd / 2, end[1] + ny * widthEnd / 2],
-    [end[0] - nx * widthEnd / 2, end[1] - ny * widthEnd / 2],
-    [start[0] - nx * widthStart / 2, start[1] - ny * widthStart / 2],
+    [start[0] + (nx * widthStart) / 2, start[1] + (ny * widthStart) / 2],
+    [end[0] + (nx * widthEnd) / 2, end[1] + (ny * widthEnd) / 2],
+    [end[0] - (nx * widthEnd) / 2, end[1] - (ny * widthEnd) / 2],
+    [start[0] - (nx * widthStart) / 2, start[1] - (ny * widthStart) / 2],
   ];
   const lowX = Math.max(0, Math.floor(Math.min(...polygon.map((p) => p[0]))));
-  const highX = Math.min(size - 1, Math.ceil(Math.max(...polygon.map((p) => p[0]))) - 1);
+  const highX = Math.min(
+    size - 1,
+    Math.ceil(Math.max(...polygon.map((p) => p[0]))) - 1,
+  );
   const lowY = Math.max(0, Math.floor(Math.min(...polygon.map((p) => p[1]))));
-  const highY = Math.min(size - 1, Math.ceil(Math.max(...polygon.map((p) => p[1]))) - 1);
+  const highY = Math.min(
+    size - 1,
+    Math.ceil(Math.max(...polygon.map((p) => p[1]))) - 1,
+  );
   for (let y = lowY; y <= highY; ++y)
     for (let x = lowX; x <= highX; ++x) {
       let clipped = clip(polygon, 0, x, true);
@@ -64,7 +70,9 @@ export function rasterizeEyelashSegment(input: {
       // of large atlas coordinates when the covered area is very small.
       const twice = clipped.reduce((sum, point, index) => {
         const next = clipped[(index + 1) % clipped.length];
-        return sum + (point[0] - x) * (next[1] - y) - (point[1] - y) * (next[0] - x);
+        return (
+          sum + (point[0] - x) * (next[1] - y) - (point[1] - y) * (next[0] - x)
+        );
       }, 0);
       const area = Math.abs(twice) / 2;
       if (area === 0) continue;
@@ -75,18 +83,26 @@ export function rasterizeEyelashSegment(input: {
 
 /** Convex polygon intersection with one closed axis-aligned half-plane. */
 function clip(
-  polygon: [number, number][], axis: 0 | 1, boundary: number, above: boolean,
+  polygon: [number, number][],
+  axis: 0 | 1,
+  boundary: number,
+  above: boolean,
 ): [number, number][] {
   const output: [number, number][] = [];
   if (polygon.length === 0) return output;
   let previous = polygon[polygon.length - 1];
-  let wasInside = above ? previous[axis] >= boundary : previous[axis] <= boundary;
+  let wasInside = above
+    ? previous[axis] >= boundary
+    : previous[axis] <= boundary;
   for (const point of polygon) {
     const inside = above ? point[axis] >= boundary : point[axis] <= boundary;
     if (inside !== wasInside) {
-      const fraction = (boundary - previous[axis]) / (point[axis] - previous[axis]);
-      output.push([previous[0] + fraction * (point[0] - previous[0]),
-        previous[1] + fraction * (point[1] - previous[1])]);
+      const fraction =
+        (boundary - previous[axis]) / (point[axis] - previous[axis]);
+      output.push([
+        previous[0] + fraction * (point[0] - previous[0]),
+        previous[1] + fraction * (point[1] - previous[1]),
+      ]);
     }
     if (inside) output.push(point);
     previous = point;

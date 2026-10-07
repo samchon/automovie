@@ -6,3 +6,5 @@ description: Defines this generated project's self-contained contract inventory 
 # Evidence graph
 
 Read [the complete evidence procedure](index.md), then its routed target, local-contract, upstream, or staging document before changing the graph. [Production lifecycle](../production-lifecycle/SKILL.md) owns authorship, and [contract index](../contract/SKILL.md) owns the canonical questions rather than their evidence mechanics.
+
+When editing shared or language targets, read [Editing the shared contract inventory](contract-inventory.md).

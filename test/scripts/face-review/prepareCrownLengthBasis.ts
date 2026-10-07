@@ -4,8 +4,8 @@ import type {
   IAutoMovieHumanFaceControlMap,
 } from "@automovie/human";
 
-import { meshComponents } from "./prepareGingivaBasis";
 import { createDentalCrownAxis } from "./createDentalCrownAxis";
+import { meshComponents } from "./prepareGingivaBasis";
 
 /**
  * The maxillary crowns nearest the midline lengthened cervically to their

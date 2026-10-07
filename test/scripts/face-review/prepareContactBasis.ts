@@ -46,8 +46,9 @@ import {
   unposeHumanFaceSurface,
 } from "@automovie/human";
 
-import { denseRows, sparseRows } from "./articulatedResiduals";
 import type { IContactBasisInput } from "./IContactBasisInput";
+import { denseRows, sparseRows } from "./articulatedResiduals";
+import { findLipMargin } from "./findLipMargin";
 import { findSeamPair } from "./findSeamPair";
 import { roundedMillimetres } from "./roundedMillimetres";
 import { sealCrownRings } from "./sealCrownRings";
@@ -98,6 +99,13 @@ export function prepareContactBasis(input: IContactBasisInput) {
     axis: jaw.axis,
     pivot,
     bandMetres: input.midlineBandMetres,
+  });
+  const margin = findLipMargin({
+    surface: lipSurface,
+    region: lipRegion.indices,
+    axis: jaw.axis,
+    stationMetres: input.marginStationMetres,
+    central: { upper: lips.upper, lower: lips.lower },
   });
   const incisorSurface = surface(input.incisors.surface);
   const incisors = findSeamPair({
@@ -172,7 +180,10 @@ export function prepareContactBasis(input: IContactBasisInput) {
     const rows = sparseRows(companion, decimals);
     if (rows.length === 0) delete one.targets[closureChannel.positive];
     else one.targets[closureChannel.positive] = rows;
-    decomposed[one.id] = { maxDeltaMm: roundedMillimetres(maxDelta), rows: rows.length / 4 };
+    decomposed[one.id] = {
+      maxDeltaMm: roundedMillimetres(maxDelta),
+      rows: rows.length / 4,
+    };
   }
   const removedCorrectives: { id: string; maxMm: number }[] = [];
   basis.correctives = (basis.correctives ?? []).filter((corrective) => {
@@ -186,7 +197,10 @@ export function prepareContactBasis(input: IContactBasisInput) {
         max = Math.max(max, Math.hypot(rows[i + 1], rows[i + 2], rows[i + 3]));
       delete one.targets[corrective.target];
     }
-    removedCorrectives.push({ id: corrective.id, maxMm: roundedMillimetres(max) });
+    removedCorrectives.push({
+      id: corrective.id,
+      maxMm: roundedMillimetres(max),
+    });
     return false;
   });
   if (basis.correctives.length === 0) delete basis.correctives;
@@ -221,6 +235,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
     budgets: Map<string, number>,
   ): NonNullable<IAutoMovieHumanFaceBasis["contact"]> => ({
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
+    margin: margin.margin,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -246,12 +261,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const openingFrame = measureHumanFaceAperture(
     basis,
     contactWith(new Map(input.soft.map((entry) => [entry.surface, 1]))),
-    neutral,
-    evaluateHumanFaceRest(basis, {
-      weights: new Map([[referenceChannel.id, 1]]),
-      activations: [],
-    }),
-    neutral,
+    neutral.surfaces,
     resolveHumanFaceArticulation(
       basis.articulation,
       new Map(),
@@ -339,6 +349,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   }));
   basis.contact = {
     lips: { surface: input.lips.surface, upper: lips.upper, lower: lips.lower },
+    margin: margin.margin,
     incisors: {
       surface: input.incisors.surface,
       upper: incisors.upper,
@@ -381,9 +392,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const apertures = measureHumanFaceAperture(
     basis,
     basis.contact,
-    neutral,
-    referenced,
-    neutral,
+    neutral.surfaces,
     resolveHumanFaceArticulation(
       basis.articulation,
       new Map(),
@@ -393,9 +402,7 @@ export function prepareContactBasis(input: IContactBasisInput) {
   const reference = measureHumanFaceAperture(
     basis,
     basis.contact,
-    neutral,
-    referenced,
-    referenced,
+    referenced.surfaces,
     referenceMotions,
   );
   return {
@@ -408,6 +415,12 @@ export function prepareContactBasis(input: IContactBasisInput) {
       lips: { ...lips, gapMm: roundedMillimetres(lips.gapMetres) },
       incisors: { ...incisors, gapMm: roundedMillimetres(incisors.gapMetres) },
       midlineBandMm: roundedMillimetres(input.midlineBandMetres),
+      margin: {
+        stationMm: roundedMillimetres(input.marginStationMetres),
+        commissureLimitMm: roundedMillimetres(margin.limitMetres),
+        upper: margin.margin.upper,
+        lower: margin.margin.lower,
+      },
       colliders: colliders.map((collider) => ({
         surface: collider.surface,
         sealedRings: collider.sealedRings.length,

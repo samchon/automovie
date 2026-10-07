@@ -8,7 +8,12 @@ const { planAutoMovieGeneratedPublication } = loadSourceModule<{
   planAutoMovieGeneratedPublication(
     props: ReturnType<typeof createGeneratedPublicationReader>,
   ): Array<{ path: string; content: Uint8Array | string | null }>;
-}>(path.resolve(__dirname, "../../../../packages/production/src/production/planAutoMovieGeneratedPublication.ts"));
+}>(
+  path.resolve(
+    __dirname,
+    "../../../../packages/production/src/production/planAutoMovieGeneratedPublication.ts",
+  ),
+);
 
 /**
  * A refused observation never yields a plan or disguises its original cause.
@@ -19,10 +24,26 @@ const { planAutoMovieGeneratedPublication } = loadSourceModule<{
  * 2. No policy path treats an unreadable member or ownership record as absent.
  */
 export const test_production_generated_publication_refusal = (): void => {
-  for (const boundary of ["resolveMember", "exists", "readMember", "readManifest"] as const) {
-    const world = createGeneratedPublicationReader({ previous: null, files: new Map([["ship", new Uint8Array([1])]]), resident: new Map([["ship", new Uint8Array([1])]]), serializedManifest: "ownership\n", manifest: new Uint8Array() });
+  for (const boundary of [
+    "resolveMember",
+    "exists",
+    "readMember",
+    "readManifest",
+  ] as const) {
+    const world = createGeneratedPublicationReader({
+      previous: null,
+      files: new Map([["ship", new Uint8Array([1])]]),
+      resident: new Map([["ship", new Uint8Array([1])]]),
+      serializedManifest: "ownership\n",
+      manifest: new Uint8Array(),
+    });
     const failure = new Error(`The ${boundary} observation is refused.`);
-    const refused = { ...world, [boundary]: () => { throw failure; } };
+    const refused = {
+      ...world,
+      [boundary]: () => {
+        throw failure;
+      },
+    };
     let caught: unknown;
     let returned = false;
     try {
@@ -31,7 +52,13 @@ export const test_production_generated_publication_refusal = (): void => {
     } catch (error) {
       caught = error;
     }
-    TestValidator.predicate("no plan follows a refused observation", returned === false);
-    TestValidator.predicate("observation failure retains the exact cause", caught === failure);
+    TestValidator.predicate(
+      "no plan follows a refused observation",
+      returned === false,
+    );
+    TestValidator.predicate(
+      "observation failure retains the exact cause",
+      caught === failure,
+    );
   }
 };

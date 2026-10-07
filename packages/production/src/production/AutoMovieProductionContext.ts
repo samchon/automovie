@@ -7,12 +7,12 @@ import {
 import { AutoMovieProductionBuilder } from "./AutoMovieProductionBuilder";
 import { AutoMovieProductionOracleService } from "./AutoMovieProductionOracleService";
 import { AutoMovieProductionProject } from "./AutoMovieProductionProject";
+import type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionContextOptions";
 import {
   findAutoMovieProjectRoot,
   openAutoMovieProduction,
 } from "./openAutoMovieProduction";
 import type { AutoMovieModelArchetypeRegistry } from "./productionArchetypes";
-import type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionContextOptions";
 import { resolveAutoMovieProductionContextOptions } from "./resolveAutoMovieProductionContextOptions";
 
 export type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionContextOptions";
@@ -74,14 +74,25 @@ export class AutoMovieProductionContext {
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence,
   );
   public constructor(
-    input?: IAutoMovieProductionContextOptions | AutoMovieProductionFrameCapture,
+    input?:
+      | IAutoMovieProductionContextOptions
+      | AutoMovieProductionFrameCapture,
     projectRoot?: string,
     productionId?: string,
     archetypes?: AutoMovieModelArchetypeRegistry,
     authoringEvidence?: IAutoMovieProductionEvidence,
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence,
   ) {
-    const options = resolveAutoMovieProductionContextOptions({ input, legacy: { projectRoot, productionId, archetypes, authoringEvidence, currentAuthoringEvidence } });
+    const options = resolveAutoMovieProductionContextOptions({
+      input,
+      legacy: {
+        projectRoot,
+        productionId,
+        archetypes,
+        authoringEvidence,
+        currentAuthoringEvidence,
+      },
+    });
     validateProductionId(options.productionId);
     this.root = findAutoMovieProjectRoot(options.projectRoot);
     this.capture = options.capture;

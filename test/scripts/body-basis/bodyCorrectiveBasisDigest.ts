@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import crypto from "node:crypto";
 
 /**
@@ -22,5 +22,8 @@ import crypto from "node:crypto";
 export function bodyCorrectiveBasisDigest(
   basis: IAutoMovieHumanBodyBasis,
 ): string {
-  return crypto.createHash("sha256").update(JSON.stringify(basis)).digest("hex");
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(basis))
+    .digest("hex");
 }

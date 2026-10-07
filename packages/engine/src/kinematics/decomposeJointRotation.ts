@@ -1,15 +1,36 @@
-import { IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  type IAutoMovieAngleRange,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
+import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
+import { jointRomOvershoot } from "./jointRomOvershoot";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 const RAD2DEG = 180 / Math.PI;
 const QUATERNION_AXES = ["x", "y", "z", "w"] as const;
+
+/** Choose an admitted full-turn alias when one exists; never clamp an angle. */
+const periodicAngle = (
+  angle: number,
+  range: IAutoMovieAngleRange | null,
+): number => {
+  const minimum = range?.min ?? 0;
+  const maximum = range?.max ?? 0;
+  if (angle >= minimum && angle <= maximum) return angle;
+  const first = Math.ceil((minimum - angle) / 360);
+  const last = Math.floor((maximum - angle) / 360);
+  return first > last
+    ? angle
+    : angle + 360 * Math.max(first, Math.min(last, 0));
+};
 
 const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
   for (const axis of QUATERNION_AXES) {
@@ -28,14 +49,17 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * reach a goal as quaternions, then lowers them back into the
  * flexion/abduction/twist a pose carries.
  *
- * The extraction diagonalises the fixed composition `q = qTwist · qAbduction ·
- * qFlexion`. Changing basis by `M = [flexAxis | abdAxis | twistAxis]` turns it
- * into the standard `Rz(twist)·Ry(abduction)·Rx(flexion)` sequence, whose
- * closed-form ZYX extraction is well known, computed here as dot products of
- * the axes with the rotated axes, so no matrix is built. Gimbal lock (abduction
- * ≈ ±90°, the arm straight up or down) collapses flexion into twist; the
- * extraction pins flexion to 0 and folds the freedom into twist, which still
- * reconstructs the same rotation.
+ * The extraction diagonalises the composition the axes declare
+ * ({@link IAutoMovieJointAxes.twistPlacement}). Changing basis by `M =
+ * [flexAxis | abdAxis | twistAxis]` turns a proximal twist's `q = qTwist ·
+ * qAbduction · qFlexion` into the standard `Rz(twist)·Ry(abduction)·Rx(flexion)`
+ * sequence (a ZYX extraction) and a distal twist's `q = qAbduction · qFlexion ·
+ * qTwist` into `Ry(abduction)·Rx(flexion)·Rz(twist)` (a YXZ extraction). Both
+ * closed forms are computed as dot products of the axes with the rotated axes,
+ * so no matrix is built. Gimbal lock collapses two angles into one: for a
+ * proximal twist at abduction ≈ ±90° the extraction pins flexion to 0, and for
+ * a distal twist at flexion ≈ ±90° it pins abduction to 0, folding the freedom
+ * into twist; either still reconstructs the same rotation.
  *
  * A **left-handed** axis triple (the default clinical basis is one: `flexAxis ×
  * abdAxis = −twistAxis`) would flip the twist sense; the extraction detects the
@@ -47,6 +71,15 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * of `jointToQuaternion`'s `frame` map, so `jointToQuaternion(decompose(q,
  * axes, f), axes, f)` still round-trips.
  *
+ * With an effective `domain`, the inverse also considers the rotation order's
+ * second chart: proximal (f+180, 180-a, t+180) or distal
+ * (180-f, a+180, t+180) in the right-handed basis. Handed twist and clinical
+ * sign/neutral are restored before checking the caller's unchanged ROM.
+ * Full-turn aliases can enter the same declared intervals, including +180
+ * endpoints. The lowest actual ROM overshoot wins, with the original principal
+ * chart retained on a tie. A refusal remains a refusal when neither chart is
+ * permitted; selection never repairs a quaternion by clamping its coordinates.
+ *
  * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Recovers the rig-basis semantic controls encoded by a solved quaternion.
  * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Converts a solved quaternion back into the semantic controls consumed by the ROM graph.
  * @author Samchon
@@ -55,17 +88,16 @@ export const decomposeJointRotation = (
   q: IAutoMovieQuaternion,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
-): { flexion: number; abduction: number; twist: number } => {
+  domain?: IAutoMovieJointRotationDomain,
+): IAutoMovieResolvedJointAngles => {
   assertFiniteQuaternion(q);
   const basis = normalizeJointAxes(axes, "decomposeJointRotation axes");
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const lift = (rig: {
-    flexion: number;
-    abduction: number;
-    twist: number;
-  }): { flexion: number; abduction: number; twist: number } => ({
+  const clinical = (
+    rig: IAutoMovieResolvedJointAngles,
+  ): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,
@@ -79,12 +111,83 @@ export const decomposeJointRotation = (
       ? 1
       : -1;
   const twistAxis = Vector3.scale(basis.twist, handed);
+  const lift = (
+    rig: IAutoMovieResolvedJointAngles,
+  ): IAutoMovieResolvedJointAngles => {
+    const principal = clinical(rig);
+    if (domain === undefined || domain.constraint === null) return principal;
+    const constraint = domain.constraint;
+    const align = (
+      candidate: IAutoMovieResolvedJointAngles,
+    ): IAutoMovieResolvedJointAngles => ({
+      flexion: periodicAngle(candidate.flexion, constraint.flexion),
+      abduction: periodicAngle(candidate.abduction, constraint.abduction),
+      twist: periodicAngle(candidate.twist, constraint.twist),
+    });
+    const alternate = clinical({
+      flexion:
+        basis.twistPlacement === "distal"
+          ? 180 - rig.flexion
+          : rig.flexion + 180,
+      abduction:
+        basis.twistPlacement === "distal"
+          ? rig.abduction + 180
+          : 180 - rig.abduction,
+      twist: rig.twist + 180 * handed,
+    });
+    let selected = principal;
+    let overshoot = jointRomOvershoot(
+      { bone: domain.bone, ...selected },
+      constraint,
+    );
+    for (const candidate of [align(principal), align(alternate)]) {
+      const next = jointRomOvershoot(
+        { bone: domain.bone, ...candidate },
+        constraint,
+      );
+      if (next < overshoot) {
+        selected = candidate;
+        overshoot = next;
+      }
+    }
+    return selected;
+  };
 
   const Rf = Quaternion.rotateVector(q, basis.flexion);
   const Ra = Quaternion.rotateVector(q, basis.abduction);
   const Rt = Quaternion.rotateVector(q, twistAxis);
 
   // Entries of R' = Mᵀ R M (M = [flex|abd|twist]): R'[i][j] = axisᵢ · (R axisⱼ).
+  if (basis.twistPlacement === "distal") {
+    // R = Ry(a)·Rx(f)·Rz(t): R12 = −sin f, R02 = sin a cos f, R22 = cos a cos f,
+    // R10 = cos f sin t, R11 = cos f cos t (row i: basis axis i, column j:
+    // basis axis j rotated)
+    const r12 = Vector3.dot(basis.abduction, Rt);
+    if (r12 < -0.999999 || r12 > 0.999999) {
+      // with abduction pinned to 0, R = Rx(±90°)·Rz(t): R00 = cos t, R01 = −sin t
+      const r00 = Vector3.dot(basis.flexion, Rf);
+      const r01 = Vector3.dot(basis.flexion, Ra);
+      return lift({
+        flexion: r12 < 0 ? 90 : -90,
+        abduction: 0,
+        twist: handed * Math.atan2(-r01, r00) * RAD2DEG,
+      });
+    }
+    return lift({
+      flexion: Math.asin(Math.max(-1, Math.min(1, -r12))) * RAD2DEG,
+      abduction:
+        Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) *
+        RAD2DEG,
+      twist:
+        handed *
+        Math.atan2(
+          Vector3.dot(basis.abduction, Rf),
+          Vector3.dot(basis.abduction, Ra),
+        ) *
+        RAD2DEG,
+    });
+  }
+
   const m00 = Vector3.dot(basis.flexion, Rf);
   const m10 = Vector3.dot(basis.abduction, Rf);
   const m20 = Vector3.dot(twistAxis, Rf);

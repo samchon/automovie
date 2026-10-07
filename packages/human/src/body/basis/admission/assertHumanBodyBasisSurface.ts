@@ -65,13 +65,23 @@ export function assertHumanBodyBasisSurface(
         "Body basis connectivity must be a valid oriented surface: " +
           surface.id,
       );
-    if (surface.mush !== undefined && !(
-      Number.isSafeInteger(surface.mush.iterations) && surface.mush.iterations > 0 &&
-      surface.mush.blendWidth > 0 && surface.mush.blendWidth <= 1 &&
-      Number.isSafeInteger(surface.mush.spreadRings) && surface.mush.spreadRings >= 0 &&
-      surface.mush.spreadDecay >= 0 && surface.mush.spreadDecay < 1
-    ))
-      throw new Error("Body surface mush needs positive safe whole sweeps, a blend width in (0,1], safe whole spread rings and a decay in [0,1): " + surface.id);
+    if (
+      surface.mush !== undefined &&
+      !(
+        Number.isSafeInteger(surface.mush.iterations) &&
+        surface.mush.iterations > 0 &&
+        surface.mush.blendWidth > 0 &&
+        surface.mush.blendWidth <= 1 &&
+        Number.isSafeInteger(surface.mush.spreadRings) &&
+        surface.mush.spreadRings >= 0 &&
+        surface.mush.spreadDecay >= 0 &&
+        surface.mush.spreadDecay < 1
+      )
+    )
+      throw new Error(
+        "Body surface mush needs positive safe whole sweeps, a blend width in (0,1], safe whole spread rings and a decay in [0,1): " +
+          surface.id,
+      );
     if (surface.sag !== undefined) {
       const { lean, gain, sweeps, softness } = surface.sag;
       const channel = (id: string) =>

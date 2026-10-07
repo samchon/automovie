@@ -31,6 +31,13 @@ import {
   faceLikenessScleraColour,
 } from "./faceLikenessColour";
 import {
+  FACE_LIKENESS_BLENDSHAPES,
+  type IFaceLikenessColourPair,
+  type IFaceLikenessComparison,
+  type IFaceLikenessObservation,
+  type IFaceLikenessPair,
+} from "./faceLikenessComparison";
+import {
   type FaceLikenessPoint,
   faceLikenessEyeAperture,
   faceLikenessLandmarkResidual,
@@ -48,17 +55,9 @@ import {
   warpFaceLikenessMask,
 } from "./faceLikenessMasks";
 import {
-  FACE_LIKENESS_BLENDSHAPES,
-  type IFaceLikenessColourPair,
-  type IFaceLikenessComparison,
-  type IFaceLikenessObservation,
-  type IFaceLikenessPair,
-} from "./faceLikenessComparison";
-import {
   faceLikenessTeethLengths,
   measureFaceLikenessTeeth,
 } from "./faceLikenessTeeth";
-
 
 /** Compare one subject's photograph with its portrait and frame captures. */
 export function compareFaceLikeness(props: {

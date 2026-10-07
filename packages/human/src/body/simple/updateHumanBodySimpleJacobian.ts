@@ -49,20 +49,36 @@ export function updateHumanBodySimpleJacobian(
   const length = step.reduce((sum, value) => sum + value * value, 0);
   const rescale = length < MINIMUM_NORMAL || !Number.isFinite(length);
   if (rescale) {
-    const largest = step.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 0);
-    if (largest === 0) throw new Error("A Jacobian secant update needs a nonzero step.");
+    const largest = step.reduce(
+      (maximum, value) => Math.max(maximum, Math.abs(value)),
+      0,
+    );
+    if (largest === 0)
+      throw new Error("A Jacobian secant update needs a nonzero step.");
   }
   const rows = delta.map((value, row) => {
     const products = columns.map((column, index) => column[row] * step[index]);
     const predicted = products.reduce((sum, product) => sum + product, 0);
     const error = value - predicted;
-    const corrections = step.map((component) => error * component / length);
-    const exceptional = rescale || !Number.isFinite(error) ||
+    const corrections = step.map((component) => (error * component) / length);
+    const exceptional =
+      rescale ||
+      !Number.isFinite(error) ||
       (value !== 0 && error === -predicted) ||
-      products.some((product, index) => !Number.isFinite(product) ||
-        (columns[index][row] !== 0 && step[index] !== 0 && Math.abs(product) < MINIMUM_NORMAL)) ||
-      corrections.some((correction, index) => !Number.isFinite(correction) ||
-        (error !== 0 && step[index] !== 0 && Math.abs(error * step[index]) < MINIMUM_NORMAL));
+      products.some(
+        (product, index) =>
+          !Number.isFinite(product) ||
+          (columns[index][row] !== 0 &&
+            step[index] !== 0 &&
+            Math.abs(product) < MINIMUM_NORMAL),
+      ) ||
+      corrections.some(
+        (correction, index) =>
+          !Number.isFinite(correction) ||
+          (error !== 0 &&
+            step[index] !== 0 &&
+            Math.abs(error * step[index]) < MINIMUM_NORMAL),
+      );
     return exceptional
       ? exactSecantRow(columns, step, value, row)
       : columns.map((column, index) => column[row] + corrections[index]);
@@ -86,12 +102,14 @@ function exactSecantRow(
   const direction = step.map(binaryInteger);
   const norm = direction.reduce((sum, value) => sum + value * value, 0n);
   const previous = columns.map((column) => binaryInteger(column[row]));
-  const error = (binaryInteger(delta) << 1074n) - previous.reduce(
-    (sum, value, index) => sum + value * direction[index], 0n,
+  const error =
+    (binaryInteger(delta) << 1074n) -
+    previous.reduce((sum, value, index) => sum + value * direction[index], 0n);
+  return previous.map((value, index) =>
+    direction[index] === 0n
+      ? columns[index][row]
+      : roundedBinaryRatio(value * norm + error * direction[index], norm),
   );
-  return previous.map((value, index) => direction[index] === 0n
-    ? columns[index][row]
-    : roundedBinaryRatio(value * norm + error * direction[index], norm));
 }
 
 /** Read a finite binary64 value as its exact signed integer multiple of 2^-1074. */
@@ -101,9 +119,10 @@ function binaryInteger(value: number): bigint {
   const bits = view.getBigUint64(0);
   const exponent = Number((bits >> 52n) & 2047n);
   const fraction = bits & ((1n << 52n) - 1n);
-  const magnitude = exponent === 0
-    ? fraction
-    : ((1n << 52n) | fraction) << BigInt(exponent - 1);
+  const magnitude =
+    exponent === 0
+      ? fraction
+      : ((1n << 52n) | fraction) << BigInt(exponent - 1);
   return value < 0 ? -magnitude : magnitude;
 }
 
@@ -122,10 +141,15 @@ function roundedBinaryRatio(numerator: bigint, denominator: bigint): number {
   const divisor = denominator << BigInt(shift);
   const significand = magnitude / divisor;
   const remainder = magnitude % divisor;
-  const rounded = significand + (2n * remainder > divisor ||
-    (2n * remainder === divisor && significand % 2n !== 0n) ? 1n : 0n);
-  const result = shift < 52
-    ? Number(rounded) * Number.MIN_VALUE * 2 ** shift
-    : Number(rounded) * 2 ** (shift - 1074);
+  const rounded =
+    significand +
+    (2n * remainder > divisor ||
+    (2n * remainder === divisor && significand % 2n !== 0n)
+      ? 1n
+      : 0n);
+  const result =
+    shift < 52
+      ? Number(rounded) * Number.MIN_VALUE * 2 ** shift
+      : Number(rounded) * 2 ** (shift - 1074);
   return negative ? -result : result;
 }

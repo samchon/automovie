@@ -1,12 +1,12 @@
-import {
-  BODY_POSE_DEFECT_ZONES,
-  type BodyPoseDefectZone,
-} from "./bodyPoseDefectZone";
 import { BODY_POSE_FOLD_DEGREES } from "./BODY_POSE_FOLD_DEGREES";
 import { BODY_POSE_SHRINK_RATIO } from "./BODY_POSE_SHRINK_RATIO";
 import { BODY_POSE_STRETCH_RATIO } from "./BODY_POSE_STRETCH_RATIO";
 import type { IBodyPoseDefects } from "./IBodyPoseDefects";
 import type { IBodyPoseZoneDefects } from "./IBodyPoseZoneDefects";
+import {
+  BODY_POSE_DEFECT_ZONES,
+  type BodyPoseDefectZone,
+} from "./bodyPoseDefectZone";
 
 /**
  * Read what a pose did to a connected skin, by comparing it triangle by

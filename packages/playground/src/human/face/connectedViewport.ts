@@ -31,8 +31,13 @@ export function createConnectedFaceViewport(
   return {
     ...stage,
     ...preview,
-    publish: (model: Model): void =>
-      stage.publish(renderer.publish(model.frame)),
-    dispose: (model: Model): void => renderer.dispose(model.frame),
+    publish: (model: Model): void => {
+      stage.restoreObservation();
+      stage.publish(renderer.publish(model.frame));
+    },
+    dispose: (model: Model): void => {
+      stage.restoreObservation();
+      renderer.dispose(model.frame);
+    },
   };
 }

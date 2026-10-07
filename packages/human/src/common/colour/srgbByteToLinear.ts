@@ -21,9 +21,6 @@
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing; the textures it helps recolour are observed under their owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines and converts no input a caller shapes a human form through.
  */
 export function srgbByteToLinear(byte: number): number {
   const encoded = byte / 255;

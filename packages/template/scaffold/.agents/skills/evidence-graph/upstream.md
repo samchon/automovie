@@ -13,7 +13,7 @@ Parent differentiation remains separate. It asks what layer-owned decision the c
 - One shared file serves one inheriting population, with one H1 and one fixed-anchor H2. The question is asked once per unit, not once per defect kind.
 - The target states what this population's own work can expose in its parents: layout tests dimensions and interfaces, material binding tests stable surfaces, motion tests writable domains and limits, narrative realization tests whether its parent survives staging, and source implementation tests whether reviewed design is executable without invention.
 - Name target and finding together. "Revised settings" or "implemented design" records nothing; identify the parent target, what this unit exposed, and the repair made there.
-- Never supply a missing capability, limit, participant, refusal, interface, dimension, source basis, or acceptance condition in the child. Return to the earliest owner, repair it, propagate the result, and then resume the child.
+- [Upstream revision](../production-lifecycle/upstream-revision.md) owns earliest-owner repair, child preservation, propagation, renewed observation, and resumption. The upstream answer records that result; it does not authorize a missing parent decision in the child.
 
 ## Coverage and exclusion
 
@@ -29,8 +29,8 @@ Run the pass immediately after one inheriting unit reaches a complete draft and 
 
 1. Resolve every actual parent through the unit's lineage citations and read those parent units in full.
 2. Exercise the child at its layer's concrete boundary: derive, lay out, bind, populate, move, couple, stage, realize, implement, assemble, or observe it as applicable.
-3. For each mismatch, identify the earliest parent that owns the missing or contradictory decision, repair it there, and propagate the repair through every affected descendant.
+3. Route each mismatch through [Upstream revision](../production-lifecycle/upstream-revision.md), preserving the child and repairing its earliest parent owner.
 4. Rerun the child boundary test. Record a positive answer when a repair occurred; otherwise record the concrete parent decisions that the completed test found sufficient.
-5. Renew every review invalidated by the parent change. A downstream review cannot remain current merely because its prose still parses.
+5. Close the affected boundary through [Author process Self-Review](../review-verification/self-review.md).
 
-When another agent owns the parent, stop the dependent unit, send the exact target, finding, earliest owner, affected descendants, and required recheck, and resume only after that repair is integrated. Discovery and research remain separate decisions: upstream may reveal a missing reusable rule or missing current fact, but it routes those findings to their owners instead of absorbing their workflows.
+When another agent owns the parent, send the exact target, finding, earliest owner, affected descendants, and required recheck. The upstream-revision procedure controls the dependent unit's stop and resumption. Discovery and research remain separate decisions: upstream may reveal a missing reusable rule or missing current fact, but it routes those findings to their owners instead of absorbing their workflows.

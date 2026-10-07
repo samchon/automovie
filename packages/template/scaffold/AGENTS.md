@@ -56,13 +56,13 @@ Use [Evidence staging](.agents/skills/evidence-graph/staging.md) when declaring 
 
 Keep one semantic owner for every rule. This entry point owns production-wide attitude and skill routing; skills own procedures; contract documents own binding questions; authored documents own production decisions. Link to an owner instead of copying its procedure or completion condition. [Production documents](docs/README.md) maps the document populations.
 
-Write instructions for both people and agents. Give each paragraph one job, preserve the context and failure boundaries needed to act correctly, and keep each prose paragraph on one source line. Use descriptive, unnumbered headings and plain language. Before accepting an instruction change, read its linked callers for missing links, contradictory rules, and duplicate ownership under [contract change and review](.agents/skills/evidence-graph/contract-targets.md#change-and-review).
+Write instructions for both people and agents. Give each paragraph one job, preserve the context and failure boundaries needed to act correctly, and keep each prose paragraph on one source line. Use descriptive, unnumbered headings and plain language. Before accepting an instruction change, read its linked callers for missing links, contradictory rules, and duplicate ownership under [contract change and review](.agents/skills/evidence-graph/contract-inventory.md#change-and-review).
 
 ### AGENTS.md
 
 This is the shared entry point for Codex and Claude Code. Codex reads `AGENTS.md`; Claude Code follows `CLAUDE.md -> @AGENTS.md`. Keep its H2 sections to `Attitude`, `Skills`, and `Maintenance`, with global behavioral rules only in `Attitude`.
 
-Update this entry point when a skill scope, route, or production-wide rule changes. [Static-document updates](README.md#static-document-updates) owns the installed files and their version control; [Project instructions](.agents/skills/production-lifecycle/index.md#project-instructions) owns loading this project's entry point while authoring.
+Update this entry point when a skill scope, route, or production-wide rule changes. [Static-document updates](README.md#static-document-updates) owns the installed files and their version control. Start authoring from this project root and verify that the session loads this installed entry point.
 
 ### Skills
 

@@ -25,5 +25,7 @@ export const inspectAutoMovieCaptionReadability = (
   profiles: readonly IAutoMovieCaptionReadabilityProfile[],
 ): IAutoMovieCaptionReadabilityReport =>
   inspectAutoMovieCaptionReadabilityWithRuntime(
-    timeline, profiles, autoMovieCaptionReadabilityRuntime,
+    timeline,
+    profiles,
+    autoMovieCaptionReadabilityRuntime,
   );

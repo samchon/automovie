@@ -8,10 +8,11 @@ import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
+import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
 /**
  * Build brow fibres against the actual refined skin. Boundary vertices define
@@ -60,17 +61,18 @@ import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
  */
 export function buildPortraitEyebrow(
   skin: IControlMesh,
-  binding: { side: "left" | "right"; upper: number[]; lower: number[] },
+  binding: IPortraitEyebrowBinding,
   fibres: number,
   input: IPortraitEyebrowProfile = portraitEyebrowProfile,
 ): IAutoMovieModelPart[] {
   const shape = structuredClone(input);
   assertPortraitEyebrowProfile(shape, fibres);
   if (fibres === 0) return [];
-  const flow =
-    shape.flow === undefined
-      ? undefined
-      : createPortraitEyebrowFlow(shape.flow);
+  const {
+    flow,
+    rootBand,
+    endFade: ends,
+  } = resolvePortraitEyebrowPlacement(shape);
   if (
     (binding.side !== "left" && binding.side !== "right") ||
     binding.upper.length < 2 ||
@@ -134,9 +136,7 @@ export function buildPortraitEyebrow(
       b = catmullRomPoint(top, u);
     // Distribute roots within the authored band, then use its complete flow or
     // the basic upward/outward sweep. Density is independent of fibre radius.
-    const rootBand = shape.rootBand ?? [0.1, 0.22];
     const anatomical = binding.side === "left" ? u : 1 - u;
-    const ends = shape.endFade ?? [0, 0];
     const fade = (distance: number, reach: number): number => {
       if (reach === 0) return 1;
       const t = Math.min(1, distance / reach);

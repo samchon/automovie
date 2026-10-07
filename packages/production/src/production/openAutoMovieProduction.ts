@@ -1,6 +1,3 @@
-import { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
-export { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
-export { AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION } from "./AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION";
 import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
 import {
   AutoMovieProductionFrameCapture,
@@ -21,10 +18,14 @@ import { AutoMovieProductionProject } from "./AutoMovieProductionProject";
 import { compareCodeUnits } from "./contentIdentity";
 import { createAutoMovieProductionSourceStatus } from "./createAutoMovieProductionSourceStatus";
 import { readAutoMovieFilmTimeline } from "./filmTimeline";
+import { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
 import type { AutoMovieModelArchetypeRegistry } from "./productionArchetypes";
 import { productionRenderTargetFingerprint } from "./renderIdentity";
 import { resolveAutoMovieTimedAuthoringKind } from "./timedAuthoringKind";
 import type { IAutoMovieProductionDesignGraph } from "./validateProductionDesign";
+
+export { inspectAutoMovieCaptionReadability } from "./inspectAutoMovieCaptionReadability";
+export { AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION } from "./AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION";
 
 /**
  * What makes a directory the root of one generated production project.

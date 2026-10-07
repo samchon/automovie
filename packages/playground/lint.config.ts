@@ -9,7 +9,64 @@ const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
  * body adapter answers for the body contract from the moment it exists.
  */
 const bodySources = ["src/human/body/**/*.ts"];
-const faceSources = ["src/human/**/*.ts", "!src/human/body/**/*.ts"];
+/**
+ * The person editor and the body-reach helpers it shares with the body editor.
+ * A person is the one-skin assembly of a face and a body, and the product
+ * documents state its contract only through the facial- and body-authoring
+ * documents, so these sources answer for both families. The person folder is
+ * derived by folder; the shared reach helpers are named because they live in
+ * the common folder beside face-only helpers.
+ */
+const personSources = [
+  "src/human/person/**/*.ts",
+  "src/human/common/connectedBodyReach.ts",
+  "src/human/common/IConnectedBodyReach.ts",
+  "src/human/common/annotateConnectedBodyReach.ts",
+  "src/human/common/renderConnectedBodyUnavailableChannels.ts",
+  "src/human/common/createConnectedDisabledRow.ts",
+  "src/human/common/IConnectedBodyExteriorTargetsProps.ts",
+  "src/human/common/renderConnectedBodyExteriorTargets.ts",
+  "src/human/common/renderConnectedBodyExteriorGaps.ts",
+  "src/human/common/renderConnectedBodyUnavailableParts.ts",
+  "src/human/common/renderConnectedBodyUnmeasuredChannels.ts",
+  "src/human/common/renderConnectedBodyHeldMotions.ts",
+  "src/human/common/readConnectedBodyAnatomyTarget.ts",
+  "src/human/common/writeConnectedBodyAnatomyTarget.ts",
+];
+const faceSources = [
+  "src/human/**/*.ts",
+  "!src/human/body/**/*.ts",
+  ...personSources.map((pattern) => "!" + pattern),
+];
+const authoring = (layer: "requirements" | "specifications") => {
+  const roots =
+    layer === "requirements"
+      ? [
+          "requirements/actors/facial-authoring",
+          "requirements/actors/body-authoring",
+        ]
+      : [
+          "specifications/asset-and-representation/facial-authoring",
+          "specifications/asset-and-representation/body-authoring",
+        ];
+  return [
+    {
+      type: "markdown" as const,
+      root: "../../docs",
+      files: roots.map((folder) => folder + "/**/README.md"),
+      symbol: "h1" as const,
+    },
+    {
+      type: "markdown" as const,
+      root: "../../docs",
+      files: roots.flatMap((folder) => [
+        folder + "/**/*.md",
+        "!" + folder + "/**/README.md",
+      ]),
+      symbol: "h3" as const,
+    },
+  ];
+};
 
 /**
  * The private playground still carries a real deterministic-prototype contract.
@@ -26,6 +83,20 @@ const faceSources = ["src/human/**/*.ts", "!src/human/body/**/*.ts"];
  */
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
+    {
+      name: "person application implements face and body editor requirements",
+      type: "typescript",
+      files: personSources,
+      symbol: ["type", "function", "property"],
+      reference: authoring("requirements"),
+    },
+    {
+      name: "person application implements face and body editor specifications",
+      type: "typescript",
+      files: personSources,
+      symbol: ["type", "function", "property"],
+      reference: authoring("specifications"),
+    },
     {
       name: "face application implements anatomical editor requirements",
       type: "typescript",

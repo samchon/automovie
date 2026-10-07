@@ -1,3 +1,5 @@
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
+
 /**
  * The automatic warm population promised by the viewer: published faces and
  * standard body states. Hand-written inputs and assembled people remain
@@ -10,7 +12,9 @@
  * @evidence contracts/common.md#meaningful-documentation States which registered inputs remain explicitly requested work and why registration is not automatic warm authorization.
  */
 export function publishedHumanViewerWarmDocuments<
-  Document extends { id: string; domain: "face" | "body" | "person" },
+  Document extends IHumanViewerCatalogueEntry,
 >(documents: readonly Document[]): Document[] {
-  return documents.filter((entry) => entry.domain !== "person" && !entry.id.startsWith("file:"));
+  return documents.filter(
+    (entry) => entry.domain !== "person" && !entry.id.startsWith("file:"),
+  );
 }

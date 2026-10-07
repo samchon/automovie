@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
+import type { IAutoMovieHumanBasisSourcePartition } from "../../../common/basis/IAutoMovieHumanBasisSourcePartition";
+import type { IAutoMovieHumanSkinBinding } from "../../../common/basis/IAutoMovieHumanSkinBinding";
+import type { IAutoMovieHumanBodyBasisRegion } from "./IAutoMovieHumanBodyBasisRegion";
 import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
+import type { IAutoMovieHumanBodyBasisSurfaceSag } from "./IAutoMovieHumanBodyBasisSurfaceSag";
+import type { IAutoMovieHumanBodyNailsOverlay } from "./IAutoMovieHumanBodyNailsOverlay";
+import type { IAutoMovieHumanBodySurfaceRelief } from "./IAutoMovieHumanBodySurfaceRelief";
+import type { IAutoMovieHumanBodyToeSplit } from "./IAutoMovieHumanBodyToeSplit";
+import type { IAutoMovieHumanBodyVeinsOverlay } from "./IAutoMovieHumanBodyVeinsOverlay";
 
 /**
  * One connected skin surface in the common right-handed Y-up, Z-forward
@@ -29,6 +35,9 @@ export interface IAutoMovieHumanBodyBasisSurface {
   /** Shared flat XYZ positions, before material or UV seam splitting. */
   positions: number[];
 
+  /** Optional shared-source cell lineage for a consuming face/body assembly. */
+  sourcePartition?: IAutoMovieHumanBasisSourcePartition;
+
   /** Oriented triangles over those shared vertex identities. */
   indices: number[];
 
@@ -36,14 +45,7 @@ export interface IAutoMovieHumanBodyBasisSurface {
   targets: Record<string, number[]>;
 
   /** An exact partition of the surface triangles, preserving oriented triples. */
-  regions: {
-    id: string;
-    material: string;
-    indices: number[];
-
-    /** Flat UV pairs per triangle corner, or null for untextured geometry. */
-    uvs: number[] | null;
-  }[];
+  regions: IAutoMovieHumanBodyBasisRegion[];
 
   /**
    * Four influences per shared vertex, glTF style: `boneIndices[4v..4v+3]`
@@ -55,11 +57,14 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * vertices can receive different transforms; neither distance to a
    * shared anatomical joint nor local tissue volume is thereby preserved.
    */
-  skin: {
-    joints: AutoMovieHumanoidBone[];
-    boneIndices: number[];
-    weights: number[];
-  };
+  skin: IAutoMovieHumanSkinBinding;
+
+  /**
+   * Optional division of this surface's toes weight among the toe ray
+   * phalanges (`IAutoMovieHumanBodyToeSplit`); requires the basis's
+   * `toeRays`. Omission skins the toes with the one toes bone.
+   */
+  toeSplit?: IAutoMovieHumanBodyToeSplit;
 
   /** Optional numerical rest-detail filter after skinning, before sag. */
   mush?: IAutoMovieHumanBodyBasisSurfaceMush;
@@ -76,16 +81,7 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * the change of gravity's direction (-Y) in its skin's frame, smoothed
    * over `sweeps` half-steps with the open boundary held.
    */
-  sag?: {
-    lean: Record<string, number>;
-    gain: number;
-    sweeps: number;
-    softness: {
-      base: number;
-      channels: Record<string, number>;
-      range: [number, number];
-    };
-  };
+  sag?: IAutoMovieHumanBodyBasisSurfaceSag;
 
   /**
    * The skin's anatomical relief, or absent for none: a tangent-space
@@ -95,7 +91,7 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * `material`. A document's skin detail binds it under the tiled
    * micro-relief.
    */
-  relief?: { material: string; texture: string };
+  relief?: IAutoMovieHumanBodySurfaceRelief;
 
   /**
    * Surface layers over this surface's UV layout for the skin material,
@@ -124,21 +120,7 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * A material takes one nails layer at most and four layers in all.
    */
   overlays?: (
-    | {
-        kind: "nails";
-        material: string;
-        color: string;
-        normal?: string;
-        roughness: number;
-        cheek?: { r: number; g: number; b: number };
-      }
-    | {
-        kind: "veins";
-        material: string;
-        color: string;
-        normal?: string;
-        vertices: number[];
-        attenuation: number;
-      }
+    | IAutoMovieHumanBodyNailsOverlay
+    | IAutoMovieHumanBodyVeinsOverlay
   )[];
 }

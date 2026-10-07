@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
-
 import { clipHumanPersonTriangles } from "./clipHumanPersonTriangles";
 
 /**
@@ -32,18 +31,31 @@ export function createHumanPersonCut(
   if (margins.some((value) => !Number.isFinite(value)))
     throw new Error("Person clipping needs finite scalar samples.");
   const cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]> = {
-    margins: [...margins], intersections: [], indices: [],
+    margins: [...margins],
+    intersections: [],
+    indices: [],
   };
   const edges = new Set<string>();
   for (let offset = 0; offset < indices.length; offset += 3)
     for (let corner = 0; corner < 3; corner++) {
-      const a = Math.min(indices[offset + corner], indices[offset + (corner + 1) % 3]);
-      const b = Math.max(indices[offset + corner], indices[offset + (corner + 1) % 3]);
-      if ((margins[a] <= 0) === (margins[b] <= 0) || margins[a] === 0 || margins[b] === 0) continue;
+      const a = Math.min(
+        indices[offset + corner],
+        indices[offset + ((corner + 1) % 3)],
+      );
+      const b = Math.max(
+        indices[offset + corner],
+        indices[offset + ((corner + 1) % 3)],
+      );
+      if (
+        margins[a] <= 0 === margins[b] <= 0 ||
+        margins[a] === 0 ||
+        margins[b] === 0
+      )
+        continue;
       const key = `${a}/${b}`;
       if (edges.has(key)) continue;
       edges.add(key);
-      const t = (margins[a] / 2) / (margins[a] / 2 - margins[b] / 2);
+      const t = margins[a] / 2 / (margins[a] / 2 - margins[b] / 2);
       if (!Number.isFinite(t) || !(t > 0 && t < 1))
         throw new Error("Person clipping exceeded finite edge arithmetic.");
       cut.intersections.push({ a, b, t });

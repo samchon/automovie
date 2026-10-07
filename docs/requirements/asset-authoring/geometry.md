@@ -14,6 +14,8 @@ Box, sphere, cylinder 같은 기본 형상뿐 아니라 돌출, 회전, sweep, l
 
 ### 위상과 표면 역할 {#asset-geometry-topology}
 
+실제 source point의 속성별 복제와 서로 다른 point의 접촉을 구별할 수 있어야 한다. 저작자는 render vertex에 실제 physical instance와 source incidence의 대응을 명시할 수 있으며, 같은 point의 UV·normal alias는 같은 위치-grid에 남아야 한다. 대응을 생략한 정점은 기존의 현재 좌표 기반 위상을 유지한다. 조합은 원본 source identity와 이 legacy 의미를 보존하고, 새 정점을 만드는 연산은 대응을 재등록하거나 명시적으로 거부해야 한다. Source identity는 퇴화·교차·방향 검사를 면제하지 않는다.
+
 Face, edge, loop, opening, inside, outside와 named region을 구분하여 재료, collision, deformation, pattern과 attachment가 같은 형상을 참조할 수 있어야 한다. 각 연산은 position, index, normal, UV, skin, 안정된 part·surface 범위와 bound를 보존·재생성·생략·거부하는 결과를 명시해야 한다.
 
 ### 조합 가능한 연산 {#asset-composable-geometry-operations}

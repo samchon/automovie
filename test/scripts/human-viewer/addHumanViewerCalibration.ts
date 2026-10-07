@@ -3,17 +3,18 @@ import * as THREE from "three";
 import { humanViewerCalibrationRig } from "./humanViewerCalibrationRig";
 
 /** The name that identifies the rig inside a displayed model group. */
-export const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
+const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
 
 /**
  * Put the hand-typed calibration spheres into a displayed model group, or
  * take them out. Any earlier rig is removed first, so the cached group never
  * carries two and a frame without `calibrate` never carries one. The spheres
- * use unlit basic materials that opt out of tone mapping, so lighting and
- * tone cannot move a pixel off its sphere's pure colour. The rig is added after the camera is
- * framed, so it never changes the framing it is meant to check.
+ * use unlit basic materials that opt out of tone mapping and global material
+ * overrides. The auxiliary group is excluded from subject parts, bounds,
+ * isolation and manual outline replacements by the product observation owner.
+ * The rig is added after camera framing and never changes that measured basis.
  *
- * @evidence contracts/common.md#principled-implementation Basic materials ignore lights and the group is mutated only by name-keyed removal and addition.
+ * @evidence contracts/common.md#principled-implementation Basic materials preserve the independent colour keys under global overrides and the auxiliary group stays outside subject operations.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the rig's presence in a group.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds fixed independent geometry and never alters the subject or its numerical cache.
  * @evidence contracts/common.md#meaningful-documentation States ordering with framing, lighting independence and removal.
@@ -37,12 +38,14 @@ export function addHumanViewerCalibration(
   if (!present) return null;
   const rig = new THREE.Group();
   rig.name = HUMAN_VIEWER_CALIBRATION_NAME;
+  rig.userData.humanObservationAuxiliary = true;
   for (const marker of humanViewerCalibrationRig) {
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(marker.radius, 16, 12),
       new THREE.MeshBasicMaterial({
         // The studio tone-maps every lit surface; the rig opts out so its colours stay pure.
         toneMapped: false,
+        allowOverride: false,
         color: new THREE.Color(
           marker.color[0] / 255,
           marker.color[1] / 255,
@@ -51,7 +54,11 @@ export function addHumanViewerCalibration(
       }),
     );
     mesh.name = marker.name;
-    mesh.position.set(marker.position[0], marker.position[1], marker.position[2]);
+    mesh.position.set(
+      marker.position[0],
+      marker.position[1],
+      marker.position[2],
+    );
     rig.add(mesh);
   }
   root.add(rig);

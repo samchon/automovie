@@ -45,7 +45,7 @@ const prepared = prepareLipSealBasis({
       }),
     ),
   ],
-  lips: (basis.json).contact!.lips,
+  lips: basis.json.contact!.lips,
 });
 writeFaceBasisRevision({
   io: fs,

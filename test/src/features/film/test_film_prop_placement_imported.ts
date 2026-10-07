@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createImportedPropSpec } from "../internal/createImportedPropSpec";
 import { createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 import { inSpace, propEnvironment } from "./propPlacementFixtures";
-import { createImportedPropSpec } from "./test_film_prop_imported_appearance";
 
 const CHAIR = 0;
 const LAMP = 1;

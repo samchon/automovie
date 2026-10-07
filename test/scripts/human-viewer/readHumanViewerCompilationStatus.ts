@@ -13,10 +13,16 @@ export function readHumanViewerCompilationStatus(read: () => string): {
   goodAt: string | null;
 } {
   try {
-    const value = JSON.parse(read()) as { error?: unknown; goodAt?: unknown } | null;
-    if (value === null || typeof value !== "object" ||
-        !(value.error === null || typeof value.error === "string") ||
-        !(value.goodAt === null || typeof value.goodAt === "string"))
+    const value = JSON.parse(read()) as {
+      error?: unknown;
+      goodAt?: unknown;
+    } | null;
+    if (
+      value === null ||
+      typeof value !== "object" ||
+      !(value.error === null || typeof value.error === "string") ||
+      !(value.goodAt === null || typeof value.goodAt === "string")
+    )
       return { error: null, goodAt: null };
     return { error: value.error, goodAt: value.goodAt };
   } catch {

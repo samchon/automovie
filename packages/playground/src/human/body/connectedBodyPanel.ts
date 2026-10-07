@@ -6,35 +6,41 @@
  * The package validates controls, forms and
  * skins the model and exports it; camera and clay state never enter the
  * document, and neither does the face shown beside the body.
+ *
+ * The body is a person generation's body view, which may declare unavailable
+ * source targets. The panel reads what it can evaluate once through
+ * `connectedBodyReach`: measurements, groups and controls use that
+ * reach, a channel limited by an unavailable corrective states where its
+ * reach ends and why, and a channel with an unavailable endpoint is listed
+ * disabled with the target named. A request past the reach is refused by
+ * name and the committed body stays.
  */
-import type { IAutoMovieModelCrossing } from "@automovie/engine";
-import {
-  HUMAN_BODY_SIMPLE_POSTURE,
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanBodySimpleShape,
-  createHumanFaceEditor,
-  humanBodySimplePosture,
-  measureHumanBodyBasisChannels,
-  parseHumanBodyBasisDocument,
-  resolveHumanBodyCouplings,
-  serializeHumanBodyBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { HUMAN_BODY_SIMPLE_POSTURE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_POSTURE";
+import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
+import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
+import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
+import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { connectedBodyReach } from "../common/connectedBodyReach";
+import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
+import type { IConnectedBodyPanelModel } from "./IConnectedBodyPanelModel";
+import type { IConnectedBodyPanelProps } from "./IConnectedBodyPanelProps";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
 import { createBodyContactWatch } from "./bodyContactWatch";
+import { bodyFemoralReading } from "./bodyFemoralReading";
+import { bodyGroundReading } from "./bodyGroundReading";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
-import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
-import { renderBodyPoseControls } from "./bodyPoseControls";
-import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
-import { renderBodyShoulderControls } from "./bodyShoulderControls";
+import { renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
-import type { ConnectedBodyResult } from "./connectedBodyProtocol";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
+import { renderConnectedBodyControls } from "./renderConnectedBodyControls";
+import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
 
 /**
  * Mount the body's shape, measurement and pose controls around an injected
@@ -57,72 +63,28 @@ import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel selects the document's style, while the package builder owns the garment's anatomical cut and posed skin attachment.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The panel evaluates no underwear region, clip or lift.
  */
-export function mountConnectedBodyPanel<
-  Model extends {
-    parts: number;
-    crossings?: IAutoMovieModelCrossing[] | null;
-    anatomy?: Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"];
-    extras?: Record<string, unknown>;
-  },
->(
+export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   app: HTMLElement,
-  props: {
-    basis: IAutoMovieHumanBodyBasis;
-    initial: IAutoMovieHumanBodyBasisDocument;
-    poses: BodyPosePreset[];
-    viewport: (canvas: HTMLCanvasElement) => {
-      build: (
-        document: IAutoMovieHumanBodyBasisDocument,
-        measure?: boolean,
-        anatomy?: boolean,
-      ) => Promise<Model>;
-      cancel: () => void;
-      publish: (model: Model) => void;
-      dispose: (model: Model) => void;
-      export: (
-        document: IAutoMovieHumanBodyBasisDocument,
-      ) => Promise<Uint8Array<ArrayBuffer>>;
-      fitView: () => void;
-      cameraView: (degrees: number) => void;
-      setClay: (enabled: boolean) => void;
-      setShadows: (enabled: boolean) => void;
-      /** Solve the arms-down preset on a document's body, off the page. */
-      armsDown?: (
-        document: IAutoMovieHumanBodyBasisDocument,
-      ) => Promise<
-        Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">
-      >;
-    };
-    /** Seat the companion face on the published body, or hide it. */
-    seat: (model: Model | null) => void;
-    /** The simple tier, solved off the page's thread. */
-    simple: {
-      expand: (
-        simple: IAutoMovieHumanBodySimpleShape,
-        over: Record<string, number>,
-      ) => Promise<Record<string, number>>;
-      project: (
-        shape: Record<string, number>,
-      ) => Promise<IAutoMovieHumanBodySimpleShape>;
-      solveMeasurement: (
-        shape: Record<string, number>,
-        channel: string,
-        targetMetres: number,
-      ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
-    };
-    download: (filename: string, bytes: BlobPart, mime: string) => void;
-  },
+  props: IConnectedBodyPanelProps<Model>,
 ) {
   const dom = app.ownerDocument;
+  // Unavailable source targets are shown, never hidden (renderConnectedBodyControls).
+  const reach = connectedBodyReach(props.basis);
   const scales = new Map(
-    measureHumanBodyBasisChannels(props.basis, { measuredOnly: true }).map(
+    measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
       (scale) => [scale.id, scale],
     ),
   );
-  const groups = bodyMeasuredGroups(props.basis.channels, scales);
+  const groups = bodyMeasuredGroups(reach.basis.channels, scales);
   app.innerHTML = connectedBodyPanelMarkup(groups);
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
+  const controlKind = app.querySelector<HTMLSelectElement>(
+    '[data-role="control-kind"]',
+  )!;
+  const basisControls = app.querySelector<HTMLElement>(
+    '[data-role="basis-controls"]',
+  )!;
   const underwear = mountBodyUnderwearSelect(dom, element("editing"));
   const viewport = props.viewport(element<HTMLCanvasElement>("body-canvas"));
   let editor:
@@ -130,9 +92,7 @@ export function mountConnectedBodyPanel<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
       >
     | undefined;
-  const humeral: {
-    controls?: ReturnType<typeof renderBodyHumeralHeadControls>;
-  } = {};
+  const humeral: IConnectedBodyHumeralSlot = {};
   let draft = structuredClone(props.initial);
   const intents = createBodyIntentGate();
   // Typed measurement targets are UI drafts. A committed pose rebuilds rows
@@ -164,7 +124,10 @@ export function mountConnectedBodyPanel<
   });
   const show = (model: Model): void => {
     viewport.publish(model);
-    props.seat(element<HTMLInputElement>("face").checked ? model : null);
+    props.seat(
+      element<HTMLInputElement>("face").checked ? model : null,
+      editor?.snapshot().document ?? draft,
+    );
   };
   const refresh = (): void => {
     const state = editor!.snapshot();
@@ -177,10 +140,18 @@ export function mountConnectedBodyPanel<
     element<HTMLButtonElement>("body-undo").disabled = !state.canUndo;
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
-      serializeHumanBodyBasisDocument(state.document);
+      serializeHumanBodyBasisDocument(
+        state.document,
+        props.basis.anatomicalAssembly,
+      );
     underwear.value = state.document.underwear?.style ?? "";
     humeral.controls?.refresh(state.document.humeralHeads);
-    void simple.refresh(state.document.shape);
+    void simple.refresh({
+      shape: state.document.shape,
+      ...(state.document.anatomy === undefined
+        ? {}
+        : { anatomy: state.document.anatomy }),
+    });
     renderControls();
   };
   const change = async (
@@ -205,102 +176,42 @@ export function mountConnectedBodyPanel<
   ): Promise<void> => {
     try {
       if (intents.isCurrent(ticket))
-        await change(parseHumanBodyBasisDocument(text), ticket);
+        await change(
+          parseHumanBodyBasisDocument(text, props.basis.anatomicalAssembly),
+          ticket,
+        );
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  const renderControls = (): void => {
-    const kind = element<HTMLSelectElement>("control-kind").value;
-    const query = element<HTMLInputElement>("control-search")
-      .value.toLowerCase()
-      .replace(/\s/g, "");
-    const container = element("basis-controls");
-    container.replaceChildren();
-    if (kind === "pose") {
-      const picker = dom.createElement("select");
-      picker.id = "pose-bone";
-      picker.setAttribute("aria-label", "Joint");
-      for (const joint of props.basis.joints)
-        if (joint.bone.toLowerCase().includes(query)) {
-          const option = dom.createElement("option");
-          option.value = joint.bone;
-          option.textContent =
-            joint.bone +
-            (draft.pose?.some((one) => one.bone === joint.bone) ||
-            draft.shoulders?.some((one) => one.bone === joint.bone)
-              ? " ●"
-              : "");
-          picker.append(option);
-        }
-      picker.value = bone;
-      if (picker.value !== bone && picker.options.length > 0) {
-        bone = picker.options[0].value as AutoMovieHumanoidBone;
-        picker.value = bone;
-      }
-      picker.onchange = () => {
-        bone = picker.value as AutoMovieHumanoidBone;
-        renderControls();
-      };
-      const rows = dom.createElement("div");
-      container.append(picker, rows);
-      if (bone === "leftUpperArm" || bone === "rightUpperArm") {
-        const joint = props.basis.joints.find((one) => one.bone === bone)!;
-        if (joint.shoulder === undefined)
-          throw new Error(
-            "An upper arm needs thorax-relative shoulder coordinates.",
-          );
-        renderBodyShoulderControls({
-          dom,
-          container: rows,
-          bone,
-          shoulder: joint.shoulder,
-          shoulders: draft.shoulders ?? [],
-          currentShoulders: () => draft.shoulders ?? [],
-          onChange: (shoulders) => {
-            void change({ ...structuredClone(draft), shoulders });
-          },
-        });
-        return;
-      }
-      renderBodyPoseControls({
-        dom,
-        container: rows,
-        basis: props.basis,
-        bone,
-        pose: draft.pose ?? [],
-        currentPose: () => draft.pose ?? [],
-        coupled: resolveHumanBodyCouplings(
-          props.basis,
-          draft.pose ?? [],
-          draft.shoulders ?? [],
-        ).contributions,
-        onChange: (pose) => {
-          void change({ ...structuredClone(draft), pose });
-        },
-      });
-      return;
-    }
-    renderBodyMeasuredControls({
+  const renderControls = (): void =>
+    renderConnectedBodyControls({
       dom,
-      container,
+      container: basisControls,
+      kind: () => controlKind.value,
+      query: () =>
+        element<HTMLInputElement>("body-control-search")
+          .value.toLowerCase()
+          .replace(/\s/g, ""),
       basis: props.basis,
+      reach,
       scales,
-      kind,
-      query,
       drafts: measurementDrafts,
+      bone: () => bone,
+      select: (selected) => {
+        bone = selected;
+      },
       current: () => draft,
+      change,
       reserve: withdraw,
       isCurrent: intents.isCurrent,
       solve: props.simple.solveMeasurement,
-      change: (next, ticket) => change(next, ticket),
       busy: (text) => status(text, "building"),
       report: (text) => {
         element("body-status").textContent += String.fromCharCode(10) + text;
       },
       refuse,
     });
-  };
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = viewport.fitView;
@@ -321,15 +232,15 @@ export function mountConnectedBodyPanel<
       };
     void change(next);
   };
-  element<HTMLSelectElement>("control-kind").onchange = renderControls;
+  controlKind.onchange = renderControls;
   const search = dom.createElement("input");
-  search.id = "control-search";
+  search.id = "body-control-search";
   search.type = "search";
   search.placeholder = "Find a control: waist, hip, shoulder, knee…";
   search.setAttribute("aria-label", "Find a body control");
   search.style.width = "100%";
   search.oninput = renderControls;
-  element("basis-controls").before(search);
+  basisControls.before(search);
   for (const action of ["undo", "redo", "reset"] as const)
     element("body-" + action).onclick = async () => {
       const ticket = withdraw();
@@ -349,7 +260,11 @@ export function mountConnectedBodyPanel<
     container: element("simple-controls"),
     expand: props.simple.expand,
     project: props.simple.project,
-    current: () => draft.shape,
+    wholeSource: props.simple.wholeSource,
+    current: () => ({
+      shape: draft.shape,
+      ...(draft.anatomy === undefined ? {} : { anatomy: draft.anatomy }),
+    }),
     reserveIntent: withdraw,
     currentIntent: intents.currentTicket,
     isCurrentIntent: intents.isCurrent,
@@ -371,6 +286,12 @@ export function mountConnectedBodyPanel<
     },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
+    onPreparing: (active) =>
+      setConnectedBodyPreparing(
+        dom,
+        "the simple-tier reader (whole person with the standard head)",
+        active,
+      ),
     onDraftChanged: () =>
       status("Simple body draft changed; apply again.", "ready"),
   });
@@ -402,7 +323,7 @@ export function mountConnectedBodyPanel<
     const document = editor!.snapshot().document;
     props.download(
       document.id + ".json",
-      serializeHumanBodyBasisDocument(document),
+      serializeHumanBodyBasisDocument(document, props.basis.anatomicalAssembly),
       "application/json",
     );
   };
@@ -431,11 +352,18 @@ export function mountConnectedBodyPanel<
       );
       const reading = posed.crossings;
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
+      const femoral = bodyFemoralReading(posed.femoralHeads);
+      const ground = bodyGroundReading(posed.groundSupport);
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
       const text = contacts.describe(reading);
       status(
-        [text ?? "This build does not supply a crossing reading.", anatomy]
+        [
+          text ?? "This build does not supply a crossing reading.",
+          anatomy,
+          femoral,
+          ground,
+        ]
           .filter((line) => line !== null)
           .join("\n"),
         text === null ? "error" : "ready",

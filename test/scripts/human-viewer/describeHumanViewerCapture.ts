@@ -32,18 +32,33 @@ export function describeHumanViewerCapture(props: {
     buildMs: props.built === 0 ? 0 : props.buildMs,
     pngMs: props.pngMs,
     spans: props.spans ?? {},
-    otherMs: Math.max(0, props.showMs - Object.values(props.spans ?? {}).reduce((sum, ms) => sum + ms, 0)),
+    otherMs: Math.max(
+      0,
+      props.showMs -
+        Object.values(props.spans ?? {}).reduce((sum, ms) => sum + ms, 0),
+    ),
     decodeMs: props.finished - props.decoded,
   };
   return {
     phases,
-    lastRender: { doc: props.doc, ms: props.finished - props.started,
-      build: props.built === 0 ? "cache" as const : "built" as const,
-      sinceEditMs: props.pendingEditAt === null ? null : props.wallTime - props.pendingEditAt,
-      phases },
-    lastBuild: props.built === 0 ? null : { doc: props.doc, ms: props.buildMs },
-    build: props.built === 0 ? null : {
-      ms: props.buildMs, ao: props.ao, at: new Date(props.wallTime).toISOString(),
+    lastRender: {
+      doc: props.doc,
+      ms: props.finished - props.started,
+      build: props.built === 0 ? ("cache" as const) : ("built" as const),
+      sinceEditMs:
+        props.pendingEditAt === null
+          ? null
+          : props.wallTime - props.pendingEditAt,
+      phases,
     },
+    lastBuild: props.built === 0 ? null : { doc: props.doc, ms: props.buildMs },
+    build:
+      props.built === 0
+        ? null
+        : {
+            ms: props.buildMs,
+            ao: props.ao,
+            at: new Date(props.wallTime).toISOString(),
+          },
   };
 }

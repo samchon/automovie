@@ -1,43 +1,13 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import { storeHumanBodyCorrectiveRows } from "@automovie/human/body/basis/storeHumanBodyCorrectiveRows";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisCorrective } from "@automovie/human/body/structures/shape/IAutoMovieHumanBodyBasisCorrective";
 
-import {
-  isSidedBodyCorrective,
-  mirrorBodyCorrective,
-  mirrorBodyVertices,
-  symmetrizeBodyRows,
-} from "./mirrorBodyCorrective";
-
-type Corrective = NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number];
-
-/** The correctives a solve run published, as the solver shard holds them. */
-export interface IBodyCorrectiveShard {
-  /** Correctives removed from the working basis before the solve. */
-  dropped: string[];
-
-  /** The correctives solved, in acceptance order. */
-  correctives: Corrective[];
-
-  /** Their rest rows by id, `[vertex, x, y, z]` repeated. */
-  rows: Record<string, number[]>;
-}
-
-/** What a merge did, for the receipt. */
-export interface IBodyCorrectiveMerge {
-  basis: IAutoMovieHumanBodyBasis;
-  dropped: string[];
-  added: string[];
-  mirrored: string[];
-  symmetrized: string[];
-}
-
-/** Rows are stored to this many decimals, 10 micrometres. */
-const STORED_DECIMALS = 5;
-
-const stored = (rows: number[]): number[] =>
-  rows.map((one) => {
-    const scale = 10 ** STORED_DECIMALS;
-    return Number((Math.round(one * scale) / scale).toFixed(STORED_DECIMALS));
-  });
+import type { IBodyCorrectiveMerge } from "./IBodyCorrectiveMerge";
+import type { IBodyCorrectiveShard } from "./IBodyCorrectiveShard";
+import { isSidedBodyCorrective } from "./isSidedBodyCorrective";
+import { mirrorBodyCorrective } from "./mirrorBodyCorrective";
+import { mirrorBodyVertices } from "./mirrorBodyVertices";
+import { symmetrizeBodyRows } from "./symmetrizeBodyRows";
 
 /**
  * Publish a solve shard onto a basis: remove the correctives the shard
@@ -53,6 +23,10 @@ const stored = (rows: number[]): number[] =>
  * is a dropped id the basis does not carry, so a merge can not silently
  * replace or miss a corrective. The revision id and the basis' other fields
  * are the caller's: this returns the basis under `id`.
+ * Source dependency markers retain their order for every remaining declared
+ * target. Removing a target removes its marker; replacing a corrective with
+ * the same target never certifies that target's source as complete. A legacy
+ * basis without dependency metadata keeps that absence.
  *
  * The neutral surface is the one `mirrorBodyVertices` pairs; a vertex without
  * a mirror in a corrective's rows throws. The input basis is not mutated.
@@ -80,7 +54,10 @@ export function mergeBodyCorrectives(
   const added: string[] = [];
   const mirrored: string[] = [];
   const symmetrized: string[] = [];
-  const claim = (corrective: Corrective, rows: number[]): void => {
+  const claim = (
+    corrective: IAutoMovieHumanBodyBasisCorrective,
+    rows: number[],
+  ): void => {
     if (taken.has(corrective.id))
       throw new Error("A corrective already carries the id " + corrective.id);
     taken.add(corrective.id);
@@ -93,10 +70,13 @@ export function mergeBodyCorrectives(
       claim(corrective, rows);
       added.push(corrective.id);
       const mirror = mirrorBodyCorrective(corrective, rows, partner, channels);
-      claim(mirror.corrective, stored(mirror.rows));
+      claim(mirror.corrective, storeHumanBodyCorrectiveRows(mirror.rows));
       mirrored.push(mirror.corrective.id);
     } else {
-      claim(corrective, stored(symmetrizeBodyRows(rows, partner)));
+      claim(
+        corrective,
+        storeHumanBodyCorrectiveRows(symmetrizeBodyRows(rows, partner)),
+      );
       added.push(corrective.id);
       symmetrized.push(corrective.id);
     }
@@ -110,9 +90,23 @@ export function mergeBodyCorrectives(
         kept.push(...rows.slice(at, at + 4));
     targets[name] = kept;
   }
+  const dependencies =
+    basis.unavailableTargets === undefined
+      ? {}
+      : {
+          unavailableTargets: basis.unavailableTargets.filter(
+            (target) =>
+              basis.channels.some(
+                (channel) =>
+                  channel.positive === target || channel.negative === target,
+              ) ||
+              correctives.some((corrective) => corrective.target === target),
+          ),
+        };
   return {
     basis: {
       ...basis,
+      ...dependencies,
       id,
       correctives,
       surfaces: [{ ...surface, targets }, ...basis.surfaces.slice(1)],

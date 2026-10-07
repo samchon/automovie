@@ -1,8 +1,8 @@
-import { Vector3, type createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { humanFaceHairContact } from "./humanFaceHairContact";
-import type { createHumanFaceHairRootBoundary } from "./createHumanFaceHairRootBoundary";
+import type { IHumanFaceHairLaunch } from "./IHumanFaceHairLaunch";
+import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
+import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
@@ -49,73 +49,25 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits numerical surface and metric premises, not an anatomical range.
  * @evidenceExclude contracts/anatomy.md#parametric-authority It adds no caller authoring input; root, direction and collider are derived by their existing owners.
  */
-export function launchHumanFaceHairCurve(props: {
-  root: IAutoMovieVector3;
-  exitDirection: IAutoMovieVector3;
-  length: number;
-  contact: Pick<ReturnType<typeof humanFaceHairContact>, "sample" | "clearance" | "epsilon">;
-  raycaster: Pick<ReturnType<typeof createAutoMovieMeshRayCaster>, "nearestHit">;
-  rootBoundary: {
-    triangles: readonly number[];
-    distance: ReturnType<typeof createHumanFaceHairRootBoundary>["distance"];
-  };
-  /** Caller-owned lock budget, also consumed by the subsequent metric walk. */
-  budget: { remaining: number };
-}): { point: IAutoMovieVector3; distance: number } {
+export function launchHumanFaceHairCurve(
+  props: IHumanFaceHairLaunch,
+): IHumanFaceHairStationStep {
   const direction = humanFaceHairFrame.direction(props.exitDirection);
   const { clearance, epsilon, sample } = props.contact;
-  if (!Number.isSafeInteger(props.budget.remaining) || props.budget.remaining < 0)
-    throw new Error("Hair integration budget must be a nonnegative safe integer.");
-  if (!Number.isFinite(props.length) || props.length <= epsilon)
-    throw new Error("Hair length cannot accommodate its emergence clearance.");
-  const spend = (): void => {
-    if (props.budget.remaining === 0)
-      throw new Error("Numerical hair exhausted its shared metric integration budget.");
-    props.budget.remaining--;
-  };
-  spend();
-  const rootHit = sample(props.root);
-  if (Math.abs(rootHit.signedDistance) > epsilon)
-    throw new Error("A hair emergence root must lie on its current collider.");
-  const origin = [props.root.x, props.root.y, props.root.z];
-  const along = [direction.x, direction.y, direction.z];
-  const pointAt = (travel: number) => Vector3.add(props.root, Vector3.scale(direction, travel));
+  const { low, bound, rootHit, pointAt, spend } =
+    createHumanFaceHairExteriorInterval({
+      root: props.root,
+      direction,
+      maximum: props.length,
+      originOnSkin: true,
+      contact: props.contact,
+      raycaster: props.raycaster,
+      rootBoundary: props.rootBoundary,
+      budget: props.budget,
+    });
+  const before = pointAt(low);
   const distinct = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
     a.x !== b.x || a.y !== b.y || a.z !== b.z;
-  let low = 0;
-  const findBound = (): number => {
-    let minimum = 0;
-    while (true) {
-      spend();
-      const hit = props.raycaster.nearestHit(origin, along, props.length, minimum);
-      if (hit === null) return props.length;
-      if (!props.rootBoundary.triangles.includes(hit.triangle)) return hit.distance;
-      spend();
-      const rootDistance = props.rootBoundary.distance(hit.triangle, origin);
-      const point = pointAt(hit.distance);
-      spend();
-      const hitDistance = props.rootBoundary.distance(hit.triangle, [point.x, point.y, point.z]);
-      if (rootDistance > epsilon || hitDistance > epsilon) return hit.distance;
-      low = Math.max(low, hit.distance);
-      if (low === props.length) return props.length;
-      // Travels are nonnegative finite binary64 values. Incrementing their
-      // unsigned bit pattern excludes this hit without inventing a tolerance,
-      // moving the root, or skipping a nearby but distinct inward crossing.
-      const bits = new Float64Array([Math.max(0, hit.distance)]);
-      const integer = new BigUint64Array(bits.buffer);
-      integer[0] += 1n;
-      minimum = bits[0];
-    }
-  };
-  const bound = findBound();
-  const middle = low + (bound - low) / 2;
-  const before = pointAt(low);
-  const witness = pointAt(middle);
-  if (!(middle > low && middle < bound) || !distinct(witness, before) || !distinct(witness, pointAt(bound)))
-    throw new Error("Hair length or surface reentry leaves no representable exterior interval.");
-  spend();
-  if (!(sample(witness).signedDistance > epsilon))
-    throw new Error("A hair emergence ray needs an unambiguous outward exterior interval.");
   const target = clearance - epsilon;
   let travel = low;
   let distance = rootHit.signedDistance;
@@ -127,11 +79,15 @@ export function launchHumanFaceHairCurve(props: {
   while (true) {
     let next = travel + (target - distance);
     if (next >= bound)
-      throw new Error("Hair length or surface reentry blocks its emergence clearance.");
+      throw new Error(
+        "Hair length or surface reentry blocks its emergence clearance.",
+      );
     let point = pointAt(next);
     if (!(next > travel) || !distinct(point, previous)) {
       if (!distinct(pointAt(bound), previous))
-        throw new Error("Hair length or surface reentry leaves no distinct clearance point.");
+        throw new Error(
+          "Hair length or surface reentry leaves no distinct clearance point.",
+        );
       const floating = new Float64Array([Math.max(0, next)]);
       const integer = new BigUint64Array(floating.buffer);
       let left = integer[0];
@@ -146,15 +102,16 @@ export function launchHumanFaceHairCurve(props: {
         else left = middle;
       }
       if (right === end)
-        throw new Error("Hair length or surface reentry blocks its first distinct clearance point.");
+        throw new Error(
+          "Hair length or surface reentry blocks its first distinct clearance point.",
+        );
       integer[0] = right;
       next = floating[0];
       point = pointAt(next);
     }
     spend();
     const hit = sample(point);
-    if (hit.signedDistance >= target)
-      return { point, distance: next };
+    if (hit.signedDistance >= target) return { point, distance: next };
     travel = next;
     distance = hit.signedDistance;
     previous = point;

@@ -1,10 +1,11 @@
-import {
-  Vector3,
-  type createAutoMovieSignedMeshQuery,
-} from "@automovie/engine";
+import { type IAutoMovieMeshQueryBudget, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
+import type { IHumanFaceHairContactSample } from "./IHumanFaceHairContactSample";
+import type { IHumanFaceHairContactSource } from "./IHumanFaceHairContactSource";
+import type { IHumanFaceHairFreeWitness } from "./IHumanFaceHairFreeWitness";
+import type { IHumanFaceHairRetraction } from "./IHumanFaceHairRetraction";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 
@@ -90,22 +91,9 @@ const requireDirection = humanFaceHairFrame.direction;
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function humanFaceHairContact(props: {
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;
-  root: IAutoMovieVector3;
-  length: number;
-  query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
-}): {
-  clearance: number;
-  step: number;
-  epsilon: number;
-  sample: (p: IAutoMovieVector3) => ReturnType<typeof props.query>;
-  outward: (
-    p: IAutoMovieVector3,
-    hit: ReturnType<typeof props.query>,
-  ) => IAutoMovieVector3;
-  project: (p: IAutoMovieVector3) => IAutoMovieVector3;
-} {
+export function humanFaceHairContact(
+  props: IHumanFaceHairContactSource,
+): IHumanFaceHairContact {
   const { layer, query } = props;
   const h = layer.samplingStep;
   const epsilon =
@@ -124,9 +112,7 @@ export function humanFaceHairContact(props: {
   // next, so the last query is kept: the same coordinates give the same hit,
   // because the query is deterministic in its point. The hit is shared and
   // read only.
-  let sampled:
-    | { point: IAutoMovieVector3; hit: ReturnType<typeof query> }
-    | undefined;
+  let sampled: IHumanFaceHairContactSample | undefined;
   const sample = (p: IAutoMovieVector3): ReturnType<typeof query> => {
     if (
       sampled !== undefined &&
@@ -151,7 +137,7 @@ export function humanFaceHairContact(props: {
             hit.signedDistance < 0 ? -1 : 1,
           ),
         );
-  let witness: { point: IAutoMovieVector3; free: number } | undefined;
+  let witness: IHumanFaceHairFreeWitness | undefined;
   const project = (input: IAutoMovieVector3): IAutoMovieVector3 => {
     if (
       witness !== undefined &&
@@ -180,5 +166,51 @@ export function humanFaceHairContact(props: {
       "Numerical hair contact did not converge on the closed surface.",
     );
   };
-  return { clearance, step: h, epsilon, sample, outward, project };
+  const retract = (
+    input: IAutoMovieVector3,
+    offset: number,
+    budget: IAutoMovieMeshQueryBudget,
+  ): IHumanFaceHairRetraction => {
+    if (!Number.isFinite(offset) || offset < clearance - epsilon)
+      throw new Error(
+        "Hair offset retraction requires the unchanged free clearance.",
+      );
+    if (
+      budget === undefined ||
+      budget === null ||
+      !Number.isSafeInteger(budget.remaining) ||
+      budget.remaining < 0
+    )
+      throw new Error(
+        "Hair offset retraction requires its safe-integer shared budget.",
+      );
+    const read = (point: IAutoMovieVector3): ReturnType<typeof sample> => {
+      if (budget.remaining === 0)
+        throw new Error(
+          "Hair offset retraction exhausted its shared geometry budget.",
+        );
+      budget.remaining--;
+      return sample(point);
+    };
+    let point = input;
+    for (let attempt = 0; attempt < 64; attempt++) {
+      const hit = read(point);
+      const normal = outward(point, hit);
+      const candidate = Vector3.add(
+        Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
+        Vector3.scale(normal, offset),
+      );
+      const measured = read(candidate);
+      if (
+        measured.signedDistance >= clearance - epsilon &&
+        Math.abs(measured.signedDistance - offset) <= epsilon
+      )
+        return { point: candidate, normal };
+      point = candidate;
+    }
+    throw new Error(
+      "Hair offset retraction did not converge on its closed surface.",
+    );
+  };
+  return { clearance, step: h, epsilon, sample, outward, project, retract };
 }

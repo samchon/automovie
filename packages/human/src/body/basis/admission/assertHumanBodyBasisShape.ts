@@ -12,6 +12,14 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
  * record-safe endpoint name population for later surface and landmark
  * correspondence.
  * It does not certify muscle physiology or collision-free combinations.
+ * Source-unavailable target IDs must name this same declared population once;
+ * a renamed or removed target invalidates its old dependency token. This
+ * admission never fills a missing field or declares an absent status complete.
+ *
+ * @evidence contracts/common.md#principled-implementation Finite envelopes and explicit reciprocal sides establish the channel reference population, after which source dependency tokens must be unique members of that same population; no unavailable field is invented or admitted as a zero field.
+ * @evidence contracts/common.md#clear-and-simple-design One endpoint set is shared by target admission and unavailable-token validation, with the existing record-safe identity owner checking uniqueness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dependency validation is uniform over declared targets; absent metadata preserves legacy behavior without being interpreted as proof of complete source preparation.
+ * @evidence contracts/common.md#meaningful-documentation States the shape-stage responsibility, later correspondence admission and the stale-token and availability limits.
  */
 export function assertHumanBodyBasisShape(
   basis: IAutoMovieHumanBodyBasis,
@@ -120,5 +128,12 @@ export function assertHumanBodyBasisShape(
     endpoints.add(corrective.target);
   }
   assertHumanBodyUniqueIds([...endpoints], "endpoint identities");
+  const unavailable = basis.unavailableTargets ?? [];
+  assertHumanBodyUniqueIds(unavailable, "unavailable source target identities");
+  for (const target of unavailable)
+    if (!endpoints.has(target))
+      throw new Error(
+        "Unavailable body source target is not declared: " + target,
+      );
   return endpoints;
 }

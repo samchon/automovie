@@ -1,32 +1,10 @@
-import {
-  HUMAN_OBSERVATION_PASSES,
-  type HumanObservationPass,
-} from "@automovie/playground/src/human/common/observation/HumanObservationPass";
+import { HUMAN_OBSERVATION_PASSES } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
 import {
   HUMAN_OBSERVATION_VIEWS,
   type HumanObservationView,
 } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
-/** What one body capture run was asked to draw. */
-export interface IBodyCaptureRequest {
-  /** Run name; frames land in `.shots/body-review/editor-<name>/`. */
-  name: string;
-
-  /** State names to draw, or null for every state of the document source. */
-  states: string[] | null;
-
-  /** Views, in the order drawn. */
-  views: HumanObservationView[];
-
-  /** Passes, in the order drawn. */
-  passes: HumanObservationPass[];
-
-  /** A JSON file of `{ state: { shape, pose } }` that replaces the standard states, or null. */
-  documents: string | null;
-
-  /** A candidate basis file (`.json` or `.json.gz`) served to the editor in place of the shipped one, or null. */
-  basis: string | null;
-}
+import type { IBodyCaptureRequest } from "./IBodyCaptureRequest";
 
 /** The six horizon views a body review needs by default, without the poles. */
 const DEFAULT_VIEWS: HumanObservationView[] = [

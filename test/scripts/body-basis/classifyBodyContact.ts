@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import type { BodyContactBones } from "./bodyContactPlanes";
+import type { BodyContactBones } from "./BodyContactBones";
 
 /**
  * Whether a crossing pair is contact the pose owes and not a fold the tissue

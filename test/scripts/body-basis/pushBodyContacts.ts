@@ -1,40 +1,23 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import type {
-  IAutoMovieHumanBodyBasis,
-  IAutoMovieHumanBodyBuild,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBuild } from "@automovie/human/body/structures/IAutoMovieHumanBodyBuild";
 
-import type { BodyContactBones } from "./bodyContactPlanes";
-import {
-  type IBodyCorrectiveWorld,
-  segmentBodyPositions,
-} from "./bodyCorrectiveWorld";
-import {
-  type BodyBoneFrames,
-  blendBodyVertices,
-  carryToPosed,
-  carryToRest,
-} from "./carryBodyDisplacement";
+import type { BodyBoneFrames } from "./BodyBoneFrames";
+import type { BodyContactBones } from "./BodyContactBones";
+import type { IBodyContactPush } from "./IBodyContactPush";
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
+import { blendBodyVertices } from "./blendBodyVertices";
+import { carryToPosed } from "./carryToPosed";
+import { carryToRest } from "./carryToRest";
 import {
   type IBodyContactWork,
   resolveBodyCrease,
   resolveBodyPair,
 } from "./resolveBodyContactPair";
+import { segmentBodyPositions } from "./segmentBodyPositions";
 
 /** Sweeps over a state's crossing pairs before the solve is handed back. */
 const SWEEPS = 5;
-
-/** What one push produced. */
-export interface IBodyContactPush {
-  /** Rest-space rows by basis vertex, the corrective's payload before storage. */
-  rest: Map<number, number[]>;
-
-  /** The same displacements in the posed frame. */
-  posed: Map<number, number[]>;
-
-  /** One line per pair solved, for the record. */
-  log: string[];
-}
 
 /**
  * Push the crossing segments of one posed body apart and carry the result to

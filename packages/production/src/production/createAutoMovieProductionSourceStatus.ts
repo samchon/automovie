@@ -57,9 +57,8 @@ export const createAutoMovieProductionSourceStatus = (props: {
 }): (() => IAutoMovieBuildProjectOutput) => {
   const runtime = props.runtime ?? {
     listFiles,
-    moduleCache: () => createRequire(
-      path.join(props.project.root, "package.json"),
-    ).cache,
+    moduleCache: () =>
+      createRequire(path.join(props.project.root, "package.json")).cache,
   };
   return retainAutoMovieProductionSourceStatus({
     acquire: (documents) =>

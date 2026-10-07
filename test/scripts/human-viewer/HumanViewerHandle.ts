@@ -1,3 +1,6 @@
+import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
+import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
@@ -37,6 +40,17 @@ export interface HumanViewerHandle {
   /** Last committed display selection. */
   address(): HumanViewerAddress;
 
+  /** Actual construction checks, null for an admitted normal preview. */
+  admission(): IAutoMovieHumanConstructionAdmission | null;
+
+  /** Owner mapping readings from the constructed face; absence reports no reading. */
+  periocularMappings?():
+    | IAutoMovieHumanFacePeriocularMappingReport[]
+    | undefined;
+
   /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
   png(): string;
+
+  /** Release the least recently used resident other than the one shown; false when none is left. */
+  evict(): boolean;
 }

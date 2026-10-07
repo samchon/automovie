@@ -1,9 +1,7 @@
 import { createHash } from "node:crypto";
 
-import type { IBodyObservationUnit } from "./IBodyObservationUnit";
-
-/** The manifest's schema version; a reader refuses one it does not know. */
-export const OBSERVATION_MANIFEST_SCHEMA = 1;
+import type { IBodyObservationManifestProps } from "./IBodyObservationManifestProps";
+import { OBSERVATION_MANIFEST_SCHEMA } from "./OBSERVATION_MANIFEST_SCHEMA";
 
 /**
  * The record of one observation run, stable enough for a contract answer to
@@ -29,22 +27,7 @@ export const OBSERVATION_MANIFEST_SCHEMA = 1;
  *
  * @param input The unit, the run identity and what was drawn.
  */
-export function buildObservationManifest(input: {
-  unit: IBodyObservationUnit;
-  revision: string;
-  basisId: string;
-  renderer: string;
-  humanBuildFresh: boolean;
-  drawn: {
-    state: string;
-    view: string;
-    pass: string;
-    file: string;
-    bytes: Uint8Array;
-    isolate: string[] | null;
-  }[];
-  refused: { state: string; reason: string }[];
-}) {
+export function buildObservationManifest(input: IBodyObservationManifestProps) {
   return {
     schema: OBSERVATION_MANIFEST_SCHEMA,
     kind: "body" as const,

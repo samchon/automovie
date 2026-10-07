@@ -1,4 +1,13 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Human development viewport</title>
 <style>html,body{margin:0;background:#1c252e;color:#eee;font:14px sans-serif}#display{position:relative;width:900px;height:900px}canvas{width:100%;height:100%;display:block}#status{position:fixed;bottom:0;background:#222;padding:6px;z-index:3}nav{position:fixed;right:0;top:0;width:260px;max-height:100vh;overflow:auto;background:#222}a{color:#cde;display:block;padding:4px}#reference{position:absolute;inset:0;pointer-events:none;display:none;object-fit:contain;width:100%;height:100%}</style>
-</head><body><div id="display"><canvas id="canvas"></canvas><img id="reference"><svg id="landmarks" style="position:absolute;inset:0;pointer-events:none;width:100%;height:100%;display:none"></svg></div><div id="status">Preparing GPU viewer</div><script type="module" src="/page.mts"></script></body></html>
+</head><body><div id="display"><canvas id="canvas"></canvas><img id="reference"><svg id="landmarks" style="position:absolute;inset:0;pointer-events:none;width:100%;height:100%;display:none"></svg></div><div id="status">Preparing GPU viewer</div><script>
+// A module that fails to load or throws while evaluating never reaches the
+// page's own error report, and a candidate that never reports would block
+// the host's next generation; the capture-phase listener also sees failed
+// script elements, which do not bubble.
+addEventListener("error", (event) => {
+  parent.postMessage({ type: "human:error", error: "The viewport could not start: " +
+    (event.message || (event.target && event.target.src) || "a module did not load") }, location.origin);
+}, true);
+</script><script type="module" src="/page.mts"></script></body></html>

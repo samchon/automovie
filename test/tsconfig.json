@@ -3,6 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "rootDir": ".",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
     "resolveJsonModule": true,
     "types": ["node"]
   },

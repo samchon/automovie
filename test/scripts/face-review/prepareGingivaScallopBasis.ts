@@ -5,14 +5,14 @@ import {
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
 
+import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
+import { measureDentalClinicalHeight } from "./measureDentalClinicalHeight";
 import {
   faceClinicalCrowns,
   faceFrontRaster,
   faceFrontVisible,
   meshComponents,
 } from "./prepareGingivaBasis";
-import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
-import { measureDentalClinicalHeight } from "./measureDentalClinicalHeight";
 
 /**
  * A gum vertex's rise: linear in its x between the anterior crowns' zenith
@@ -218,14 +218,27 @@ export function prepareGingivaScallopBasis(input: {
     throw new Error("The front view shows fewer than six maxillary crowns.");
   const moving = new Set([...component.keys()].filter(upperGum));
   const clinical = (positions: readonly number[], crown: number) => {
-    const measured = measureDentalClinicalHeight(positions, basis.id, input.registrations?.get(crown), moving);
+    const measured = measureDentalClinicalHeight(
+      positions,
+      basis.id,
+      input.registrations?.get(crown),
+      moving,
+    );
     if (!(measured.metresPerUpShift > 0))
-      throw new Error("A clinical gingival zenith must follow the maxillary gum in the cervical direction.");
+      throw new Error(
+        "A clinical gingival zenith must follow the maxillary gum in the cervical direction.",
+      );
     return measured;
   };
-  const initial = new Map(anterior.map(([crown]) => [crown, clinical(original, crown)]));
+  const initial = new Map(
+    anterior.map(([crown]) => [crown, clinical(original, crown)]),
+  );
   const wish = anterior.map(([crown], rank) =>
-    Math.max(0, (input.norms[Math.floor(rank / 2)]! - initial.get(crown)!.heightMetres) / initial.get(crown)!.metresPerUpShift),
+    Math.max(
+      0,
+      (input.norms[Math.floor(rank / 2)]! - initial.get(crown)!.heightMetres) /
+        initial.get(crown)!.metresPerUpShift,
+    ),
   );
   const ceilings = upperCrowns.map((crown) => {
     const xs = rings.get(crown)!.map((vertex) => P[3 * vertex]!);
@@ -263,14 +276,18 @@ export function prepareGingivaScallopBasis(input: {
   let zenith = wish.map((one, rank) => Math.min(one, own[rank]!));
   let { knots, moved } = scallop(zenith);
   for (let pass = 0; pass < 8; ++pass) {
-    const shown = new Map(anterior.map(([crown]) => [crown, clinical(moved, crown)]));
+    const shown = new Map(
+      anterior.map(([crown]) => [crown, clinical(moved, crown)]),
+    );
     const next = anterior.map(([crown], rank) =>
       Math.min(
         own[rank]!,
         zenith[rank]! +
           Math.max(
             0,
-            (input.norms[Math.floor(rank / 2)]! - shown.get(crown)!.heightMetres) / shown.get(crown)!.metresPerUpShift,
+            (input.norms[Math.floor(rank / 2)]! -
+              shown.get(crown)!.heightMetres) /
+              shown.get(crown)!.metresPerUpShift,
           ),
       ),
     );

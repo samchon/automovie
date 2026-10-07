@@ -1,89 +1,38 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
+import type { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "./Vector3";
-
-const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
-
-/**
- * The exact closest pair of points on segments `a→b` and `c→d`, the clamped
- * segment-segment solver (Ericson, _Real-Time Collision Detection_ §5.1.9),
- * minimising `|P1(s) − P2(t)|` over `s, t ∈ [0, 1]`.
- *
- * The predecessor took the smallest of the four endpoint-to-segment distances,
- * which is only an upper bound on the true distance: two segments crossing
- * through each other's **interior** (an X, the commonest self-intersection: an
- * arm sweeping through a torso) report each endpoint a full segment-width away
- * while the real distance is zero, so the forced self-intersection check (and
- * the body-collision warning) missed the overlap entirely. This solves for the
- * interior-closest parameters directly.
- *
- * Degenerate inputs stay total (the #685 discipline): a zero-length segment
- * collapses to its start via the `A/E ≤ ε` point branches, and parallel
- * segments (`denom = 0`) pin `s = 0` and clamp `t`, so no division ever hits a
- * zero denominator.
- *
- * @author Samchon
- */
-const closestSegmentPair = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  c: IAutoMovieVector3,
-  d: IAutoMovieVector3,
-): { pointA: IAutoMovieVector3; pointB: IAutoMovieVector3 } => {
-  const d1 = Vector3.subtract(b, a); // direction of segment 1
-  const d2 = Vector3.subtract(d, c); // direction of segment 2
-  const r = Vector3.subtract(a, c);
-  const A = Vector3.dot(d1, d1); // squared length of segment 1, >= 0
-  const E = Vector3.dot(d2, d2); // squared length of segment 2, >= 0
-  const F = Vector3.dot(d2, r);
-
-  let s: number;
-  let t: number;
-  if (A <= Number.EPSILON && E <= Number.EPSILON) {
-    // both segments collapse to points
-    s = 0;
-    t = 0;
-  } else if (A <= Number.EPSILON) {
-    // segment 1 is a point: project it onto segment 2
-    s = 0;
-    t = clamp01(F / E);
-  } else {
-    const C = Vector3.dot(d1, r);
-    if (E <= Number.EPSILON) {
-      // segment 2 is a point: project it onto segment 1
-      t = 0;
-      s = clamp01(-C / A);
-    } else {
-      const B = Vector3.dot(d1, d2);
-      const denom = A * E - B * B; // >= 0 (Cauchy-Schwarz)
-      // non-parallel: the unconstrained closest s; parallel (denom 0) pins s=0
-      s = denom > Number.EPSILON ? clamp01((B * F - C * E) / denom) : 0;
-      t = (B * s + F) / E;
-      // t fell outside [0,1]: pin it to the near end and re-solve s for that end
-      if (t < 0) {
-        t = 0;
-        s = clamp01(-C / A);
-      } else if (t > 1) {
-        t = 1;
-        s = clamp01((B - C) / A);
-      }
-    }
-  }
-  return {
-    pointA: Vector3.add(a, Vector3.scale(d1, s)),
-    pointB: Vector3.add(c, Vector3.scale(d2, t)),
-  };
-};
+import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 
 /**
- * Closest points between two segments and their distance, the exact clamped
- * solver ({@link closestSegmentPair}), the same pair
- * {@link segmentSegmentDistance} measures, so a contact normal derived from the
- * pair agrees with the distance that flagged the contact.
+ * Closest witnesses on bounded segments in one metre coordinate frame.
+ * Inputs are unchanged; each result owns its points. segmentSegmentDistance
+ * consumes this same calculation, including its precision and failure contract.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Returns the two witnesses that explain the measured separation between contact features.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Returns the two witnesses that explain the measured separation between contact features.
+ * Minimise |r+s*u-t*v| over [0,1]^2. The four boundary minima and the minimum
+ * on the clipped stationary line u.(r+s*u-t*v)=0 contain a global minimiser.
+ * On that line the residual is affine: project its origin onto that residual
+ * segment without dividing by |u|^2*|v|^2-(u.v)^2. This avoids cancellation and
+ * the absolute parallel threshold that lost small interior closest pairs.
+ * The constrained-quadratic construction follows Eberly, Robust Computation
+ * of Distance Between Line Segments (2023), sections 2 and 4; here the clipped
+ * stationary line is minimised by its residual segment directly.
+ *
+ * Local differences are scaled by their largest component before dot products.
+ * Math.hypot retains tiny residual lengths without squaring them to zero.
+ * Exact zero-length segments remain points. Nonfinite coordinates, overflowed
+ * differences, a nonzero span whose scaled squared length underflows, or an
+ * unrepresentable witness distance refuse rather than fabricate separation.
+ * Binary64 witnesses still round: this is not an exact contact predicate or a
+ * certified distance lower bound. Callers own their precision allowance and
+ * represented-output verification.
+ * Equal computed residual distances choose the lowest first-segment parameter,
+ * then the lowest second parameter. Reversing a segment changes that canonical
+ * orientation on a nonunique minimum; it does not change the separation.
+ *
+ * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
+ * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Returns paired contact witnesses and their shared separation without an absolute scale-dependent parallel cutoff.
+ * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Minimises the bounded contact-feature quadratic and measures the separation of the same owned witnesses used for a contact normal.
  * @author Samchon
  */
 export const closestPointsBetweenSegments = (
@@ -92,9 +41,110 @@ export const closestPointsBetweenSegments = (
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
 ): IAutoMovieClosestSegmentPoints => {
-  const pair = closestSegmentPair(a, b, c, d);
-  return {
-    ...pair,
-    distance: Vector3.length(Vector3.subtract(pair.pointA, pair.pointB)),
+  const rawU = Vector3.subtract(b, a);
+  const rawV = Vector3.subtract(d, c);
+  const rawR = Vector3.subtract(a, c);
+  const values = [a, b, c, d, rawU, rawV, rawR].flatMap((p) => [p.x, p.y, p.z]);
+  if (!values.every(Number.isFinite))
+    throw new Error(
+      "Segment proximity requires finite coordinates and differences.",
+    );
+  const scale = Math.max(
+    ...[rawU, rawV, rawR].flatMap((p) => [
+      Math.abs(p.x),
+      Math.abs(p.y),
+      Math.abs(p.z),
+    ]),
+  );
+  if (scale === 0) return { pointA: { ...a }, pointB: { ...c }, distance: 0 };
+  const scaled = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: p.x / scale,
+    y: p.y / scale,
+    z: p.z / scale,
+  });
+  const u = scaled(rawU),
+    v = scaled(rawV),
+    r = scaled(rawR);
+  const A = Vector3.dot(u, u),
+    B = Vector3.dot(u, v),
+    E = Vector3.dot(v, v);
+  const C = Vector3.dot(u, r),
+    F = Vector3.dot(v, r);
+  if (
+    (A === 0 && Math.hypot(rawU.x, rawU.y, rawU.z) > 0) ||
+    (E === 0 && Math.hypot(rawV.x, rawV.y, rawV.z) > 0)
+  )
+    throw new Error(
+      "Segment proximity cannot represent a nonzero scaled span.",
+    );
+  let s = 0,
+    t = 0,
+    best = Math.hypot(r.x, r.y, r.z);
+  const offer = (alongA: number, alongB: number): void => {
+    const residual = Vector3.subtract(
+      Vector3.add(r, Vector3.scale(u, alongA)),
+      Vector3.scale(v, alongB),
+    );
+    const distance = Math.hypot(residual.x, residual.y, residual.z);
+    if (
+      distance < best ||
+      (distance === best && (alongA < s || (alongA === s && alongB < t)))
+    ) {
+      best = distance;
+      s = alongA;
+      t = alongB;
+    }
   };
+  if (E > 0) {
+    offer(0, clampAutoMovieUnitInterval(F / E));
+    offer(1, clampAutoMovieUnitInterval((F + B) / E));
+  }
+  if (A > 0) {
+    offer(clampAutoMovieUnitInterval(-C / A), 0);
+    offer(clampAutoMovieUnitInterval((B - C) / A), 1);
+  }
+  if (A > 0 && E > 0) {
+    if (B === 0)
+      offer(
+        clampAutoMovieUnitInterval(-C / A),
+        clampAutoMovieUnitInterval(F / E),
+      );
+    else {
+      const first = C / B,
+        last = (C + A) / B;
+      const low = Math.max(0, Math.min(first, last));
+      const high = Math.min(1, Math.max(first, last));
+      if (low <= high) {
+        const s0 = clampAutoMovieUnitInterval((B * low - C) / A);
+        const s1 = clampAutoMovieUnitInterval((B * high - C) / A);
+        const residual = Vector3.subtract(
+          Vector3.add(r, Vector3.scale(u, s0)),
+          Vector3.scale(v, low),
+        );
+        const delta = Vector3.subtract(
+          Vector3.scale(u, s1 - s0),
+          Vector3.scale(v, high - low),
+        );
+        const length = Math.hypot(delta.x, delta.y, delta.z);
+        if (length > 0) {
+          const unit = {
+            x: delta.x / length,
+            y: delta.y / length,
+            z: delta.z / length,
+          };
+          const fraction = clampAutoMovieUnitInterval(
+            -Vector3.dot(residual, unit) / length,
+          );
+          offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
+        }
+      }
+    }
+  }
+  const pointA = Vector3.add(a, Vector3.scale(rawU, s));
+  const pointB = Vector3.add(c, Vector3.scale(rawV, t));
+  const difference = Vector3.subtract(pointA, pointB);
+  const distance = Math.hypot(difference.x, difference.y, difference.z);
+  if (!Number.isFinite(distance))
+    throw new Error("Segment proximity cannot represent its witness distance.");
+  return { pointA, pointB, distance };
 };

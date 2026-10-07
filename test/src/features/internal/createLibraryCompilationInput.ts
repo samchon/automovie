@@ -1,19 +1,32 @@
-import { validateAutoMovieEnvironmentContext, validateBuiltEnvironment, validateModel } from "@automovie/engine";
+import {
+  validateAutoMovieEnvironmentContext,
+  validateBuiltEnvironment,
+  validateModel,
+} from "@automovie/engine";
 import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
-import type { IAutoMovieAssetProvenance, IAutoMovieDerivedArtifactSource, IAutoMovieDiagnostic, IAutoMovieGeneratedManifest, IAutoMovieLibraryContribution } from "@automovie/interface";
+import type {
+  IAutoMovieAssetProvenance,
+  IAutoMovieDerivedArtifactSource,
+  IAutoMovieDiagnostic,
+  IAutoMovieGeneratedManifest,
+  IAutoMovieLibraryContribution,
+} from "@automovie/interface";
 import {
   AutoMovieProductionInputRaceError,
-  collectLibrarySourceRegistrations,
-  type buildLibrarySource,
   type AutoMovieProductionProject,
   type IAutoMovieFingerprintField,
   type IAutoMovieProductionContentInput,
+  type buildLibrarySource,
+  collectLibrarySourceRegistrations,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { createLibraryCompletionEvidence, libraryCompletionBinding } from "./createLibraryCompletionEvidence";
+import {
+  createLibraryCompletionEvidence,
+  libraryCompletionBinding,
+} from "./createLibraryCompletionEvidence";
 
 interface ILibraryCompilationState {
   evidence: IAutoMovieProductionEvidence;
@@ -40,10 +53,19 @@ interface ILibraryCompilationState {
 
 interface ILibraryCompilationInput {
   props: {
-    project: Pick<AutoMovieProductionProject,
-      "root" | "productionId" | "revision" | "readSource" | "commitGenerated" |
-      "confirmCurrentSnapshot" | "generatedManifest" | "generatedRoot" |
-      "trackedStatePath" | "readGeneratedFile">;
+    project: Pick<
+      AutoMovieProductionProject,
+      | "root"
+      | "productionId"
+      | "revision"
+      | "readSource"
+      | "commitGenerated"
+      | "confirmCurrentSnapshot"
+      | "generatedManifest"
+      | "generatedRoot"
+      | "trackedStatePath"
+      | "readGeneratedFile"
+    >;
     runtime: {
       readDerived: (enabled: boolean) => ILibraryCompilationState["derived"];
       evaluateSource: typeof buildLibrarySource;
@@ -77,53 +99,97 @@ export const createLibraryCompilationInput = (): ILibraryCompilationInput => {
   });
   const evidence = createLibraryCompletionEvidence([binding]);
   const state: ILibraryCompilationState = {
-    evidence, source, contribution: { models: [], environments: [], contexts: [] },
-    generated: null, generatedBytes: new Map(),
-    derived: { artifacts: {}, fields: [], diagnostics: [], assets: [], content: [] },
-    sourceReads: 0, evaluations: 0, listings: 0, confirmations: 0,
-    derivedReads: [], committed: null,
+    evidence,
+    source,
+    contribution: { models: [], environments: [], contexts: [] },
+    generated: null,
+    generatedBytes: new Map(),
+    derived: {
+      artifacts: {},
+      fields: [],
+      diagnostics: [],
+      assets: [],
+      content: [],
+    },
+    sourceReads: 0,
+    evaluations: 0,
+    listings: 0,
+    confirmations: 0,
+    derivedReads: [],
+    committed: null,
   };
   const project = {
     root: evidence.root,
     productionId: "harbor",
     revision: () => 4,
     readSource: (sourcePath: string) => {
-      TestValidator.equals("source acquisition uses the selected graph member", sourcePath, binding.sourcePath);
+      TestValidator.equals(
+        "source acquisition uses the selected graph member",
+        sourcePath,
+        binding.sourcePath,
+      );
       state.sourceReads += 1;
       return Buffer.from(state.source);
     },
     generatedManifest: () => state.generated,
     generatedRoot: () => path.join(evidence.root, "generated", "harbor"),
-    trackedStatePath: (relative: string) => path.join(evidence.root, "state", relative),
+    trackedStatePath: (relative: string) =>
+      path.join(evidence.root, "state", relative),
     readGeneratedFile: (relative: string): Uint8Array => {
       const value = state.generatedBytes.get(relative);
-      if (value === undefined) throw new Error(`Generated member "${relative}" does not exist.`);
+      if (value === undefined)
+        throw new Error(`Generated member "${relative}" does not exist.`);
       return value;
     },
-    confirmCurrentSnapshot: (inputCurrent: () => boolean, expectedRevision?: number) => {
+    confirmCurrentSnapshot: (
+      inputCurrent: () => boolean,
+      expectedRevision?: number,
+    ) => {
       state.confirmations += 1;
-      TestValidator.equals("confirmation uses the acquired revision", expectedRevision, 4);
-      if (state.confirmationFailure !== undefined) throw state.confirmationFailure;
-      if (inputCurrent() === false) throw new AutoMovieProductionInputRaceError("The acquired library input changed.");
+      TestValidator.equals(
+        "confirmation uses the acquired revision",
+        expectedRevision,
+        4,
+      );
+      if (state.confirmationFailure !== undefined)
+        throw state.confirmationFailure;
+      if (inputCurrent() === false)
+        throw new AutoMovieProductionInputRaceError(
+          "The acquired library input changed.",
+        );
       return 4;
     },
-    commitGenerated: (...publication: Parameters<AutoMovieProductionProject["commitGenerated"]>) => {
-      TestValidator.equals("publication uses the acquired revision", publication[3], 4);
-      if (state.publicationFailure !== undefined) throw state.publicationFailure;
-      if (publication[2]!() === false) throw new AutoMovieProductionInputRaceError("The acquired library input changed.");
+    commitGenerated: (
+      ...publication: Parameters<AutoMovieProductionProject["commitGenerated"]>
+    ) => {
+      TestValidator.equals(
+        "publication uses the acquired revision",
+        publication[3],
+        4,
+      );
+      if (state.publicationFailure !== undefined)
+        throw state.publicationFailure;
+      if (publication[2]!() === false)
+        throw new AutoMovieProductionInputRaceError(
+          "The acquired library input changed.",
+        );
       state.committed = publication;
       return 9;
     },
   };
   const evaluateSource: typeof buildLibrarySource = (request) => {
-      state.evaluations += 1;
-      return collectLibrarySourceRegistrations({
-        path: request.path, context: request.context, admit: request.admit,
-        load: () => ({ delivery: {
+    state.evaluations += 1;
+    return collectLibrarySourceRegistrations({
+      path: request.path,
+      context: request.context,
+      admit: request.admit,
+      load: () => ({
+        delivery: {
           design: "docs/settings/delivery.md#delivery",
           build: () => state.contribution,
-        } }),
-      });
+        },
+      }),
+    });
   };
   const runtime = {
     readDerived: (enabled: boolean) => {
@@ -133,7 +199,9 @@ export const createLibraryCompilationInput = (): ILibraryCompilationInput => {
     evaluateSource,
     listGenerated: (root: string) => {
       state.listings += 1;
-      return [...state.generatedBytes.keys()].map((relative) => path.join(root, relative));
+      return [...state.generatedBytes.keys()].map((relative) =>
+        path.join(root, relative),
+      );
     },
     validators: {
       environment: validateBuiltEnvironment,
@@ -143,9 +211,13 @@ export const createLibraryCompilationInput = (): ILibraryCompilationInput => {
   };
   return {
     props: {
-      project, runtime, input: { scope: "source" as const }, materialize: true,
+      project,
+      runtime,
+      input: { scope: "source" as const },
+      materialize: true,
       authoringEvidence: evidence,
-      currentAuthoringEvidence: (): IAutoMovieProductionEvidence => state.evidence,
+      currentAuthoringEvidence: (): IAutoMovieProductionEvidence =>
+        state.evidence,
     },
     state,
   };

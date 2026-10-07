@@ -9,17 +9,22 @@ import path from "node:path";
 
 import { loadSourceModule } from "../internal/loadSourceModule";
 
-const modulePath = (name: string): string => path.resolve(
-  __dirname, "../../../../packages/production/src/production", name,
-);
+const modulePath = (name: string): string =>
+  path.resolve(
+    __dirname,
+    "../../../../packages/production/src/production",
+    name,
+  );
 const { createAutoMovieProductionSourceStatus } = loadSourceModule<{
   createAutoMovieProductionSourceStatus(props: {
     project: object;
-    builder: { lintSource(): {
-      output: IAutoMovieBuildProjectOutput;
-      documents: Array<{ path: string; content: string | null }>;
-      revisionBound: boolean;
-    } };
+    builder: {
+      lintSource(): {
+        output: IAutoMovieBuildProjectOutput;
+        documents: Array<{ path: string; content: string | null }>;
+        revisionBound: boolean;
+      };
+    };
     runtime: {
       listFiles: (root: string) => string[];
       moduleCache: () => Readonly<Record<string, unknown>>;
@@ -28,7 +33,8 @@ const { createAutoMovieProductionSourceStatus } = loadSourceModule<{
 }>(modulePath("createAutoMovieProductionSourceStatus.ts"));
 const { currentAutoMovieProductionBuildInputFingerprint } = loadSourceModule<{
   currentAutoMovieProductionBuildInputFingerprint(
-    project: object, scope: "source",
+    project: object,
+    scope: "source",
   ): AutoMovieContentDigest | null;
 }>(modulePath("productionBuildIdentity.ts"));
 
@@ -50,32 +56,48 @@ const { currentAutoMovieProductionBuildInputFingerprint } = loadSourceModule<{
 export const test_production_source_status_runtime = (): void => {
   const root = path.resolve("source-status-runtime-input");
   const graph: IAutoMovieProductionDesignGraph = {
-    production: null, models: new Map(), world: null,
-    formations: new Map(), shots: new Map(), acceptance: new Map(),
+    production: null,
+    models: new Map(),
+    world: null,
+    formations: new Map(),
+    shots: new Map(),
+    acceptance: new Map(),
   };
   let revision = 7;
   let evaluations = 0;
   let listings = 0;
   let cacheReads = 0;
   let refused = false;
-  const cause = new Error("The generated population observation is unavailable.");
+  const cause = new Error(
+    "The generated population observation is unavailable.",
+  );
   const project = {
-    root, productionId: "harbor",
+    root,
+    productionId: "harbor",
     revision: () => revision,
     graph: () => graph,
-    readSource: (file: string): Uint8Array => { throw new Error(`Source "${file}" does not exist.`); },
+    readSource: (file: string): Uint8Array => {
+      throw new Error(`Source "${file}" does not exist.`);
+    },
     contentInputs: () => [],
     manifest: () => ({}),
     screenplayIndex: () => null,
     generatedManifest: (): IAutoMovieGeneratedManifest => manifest,
     generatedRoot: () => path.join(root, "generated", "harbor"),
   };
-  const fingerprint = currentAutoMovieProductionBuildInputFingerprint(project, "source");
-  TestValidator.predicate("the arranged input has a complete fingerprint", fingerprint !== null);
+  const fingerprint = currentAutoMovieProductionBuildInputFingerprint(
+    project,
+    "source",
+  );
+  TestValidator.predicate(
+    "the arranged input has a complete fingerprint",
+    fingerprint !== null,
+  );
   const manifest: IAutoMovieGeneratedManifest = {
     version: 1,
     builder: { packageVersion: "unit", protocolVersion: "1" },
-    inputFingerprint: fingerprint!, files: [],
+    inputFingerprint: fingerprint!,
+    files: [],
   };
   const status = createAutoMovieProductionSourceStatus({
     project,
@@ -83,14 +105,24 @@ export const test_production_source_status_runtime = (): void => {
       lintSource: () => {
         evaluations += 1;
         return {
-          documents: [], revisionBound: false,
+          documents: [],
+          revisionBound: false,
           output: {
-            success: refused === false, revision,
+            success: refused === false,
+            revision,
             builder: { version: "unit", inputFingerprint: fingerprint! },
-            diagnostics: refused ? [{
-              code: "generated-path-outside", category: "error", phase: "compile",
-              target: "generated-root", path: null, message: cause.message,
-            }] : [],
+            diagnostics: refused
+              ? [
+                  {
+                    code: "generated-path-outside",
+                    category: "error",
+                    phase: "compile",
+                    target: "generated-root",
+                    path: null,
+                    message: cause.message,
+                  },
+                ]
+              : [],
             materialized: [],
           },
         };
@@ -102,23 +134,62 @@ export const test_production_source_status_runtime = (): void => {
         if (refused) throw cause;
         return [];
       },
-      moduleCache: () => { cacheReads += 1; return {}; },
+      moduleCache: () => {
+        cacheReads += 1;
+        return {};
+      },
     },
   });
   const answers = Array.from({ length: 5 }, () => status());
-  TestValidator.equals("five unchanged queries run one gate with fresh observations", { evaluations, listings, cacheReads, successes: answers.map((answer) => answer.success) }, {
-    evaluations: 1, listings: 6, cacheReads: 1, successes: [true, true, true, true, true],
-  });
+  TestValidator.equals(
+    "five unchanged queries run one gate with fresh observations",
+    {
+      evaluations,
+      listings,
+      cacheReads,
+      successes: answers.map((answer) => answer.success),
+    },
+    {
+      evaluations: 1,
+      listings: 6,
+      cacheReads: 1,
+      successes: [true, true, true, true, true],
+    },
+  );
   revision += 1;
-  TestValidator.equals("revision-only publication preserves a proven unbound answer", { revision: status().revision, evaluations }, { revision: 8, evaluations: 1 });
+  TestValidator.equals(
+    "revision-only publication preserves a proven unbound answer",
+    { revision: status().revision, evaluations },
+    { revision: 8, evaluations: 1 },
+  );
   refused = true;
   const failures = [status(), status()];
-  TestValidator.equals("an unreadable population never reuses prior success", { evaluations, successes: failures.map((answer) => answer.success), causes: failures.map((answer) => answer.diagnostics[0]!.message) }, {
-    evaluations: 3, successes: [false, false], causes: [cause.message, cause.message],
-  });
+  TestValidator.equals(
+    "an unreadable population never reuses prior success",
+    {
+      evaluations,
+      successes: failures.map((answer) => answer.success),
+      causes: failures.map((answer) => answer.diagnostics[0]!.message),
+    },
+    {
+      evaluations: 3,
+      successes: [false, false],
+      causes: [cause.message, cause.message],
+    },
+  );
   refused = false;
   const recovered = [status(), status()];
-  TestValidator.equals("recovery establishes one new retained answer", { evaluations, cacheReads, successes: recovered.map((answer) => answer.success) }, {
-    evaluations: 4, cacheReads: 4, successes: [true, true],
-  });
+  TestValidator.equals(
+    "recovery establishes one new retained answer",
+    {
+      evaluations,
+      cacheReads,
+      successes: recovered.map((answer) => answer.success),
+    },
+    {
+      evaluations: 4,
+      cacheReads: 4,
+      successes: [true, true],
+    },
+  );
 };

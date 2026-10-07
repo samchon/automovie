@@ -8,5 +8,5 @@
     "rootDir": "../..",
     "types": ["node"]
   },
-  "include": ["human-viewer-control.mts"]
+  "include": ["human-viewer-control.mts", "human-viewer-launcher.mts"]
 }

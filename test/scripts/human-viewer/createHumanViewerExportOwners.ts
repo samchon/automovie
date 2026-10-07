@@ -10,7 +10,8 @@ interface IExports {
 
 const DECLARED =
   /\bexport\s+(?:declare\s+)?(?:default\s+)?(?:abstract\s+)?(?:async\s+)?(?:function\*?|class|const|let|var|interface|type|enum|namespace)\s+([\w$]+)/g;
-const LISTED = /\bexport\s+(?:type\s+)?\{([^}]*)\}\s*(?:from\s*["']([^"']+)["'])?/g;
+const LISTED =
+  /\bexport\s+(?:type\s+)?\{([^}]*)\}\s*(?:from\s*["']([^"']+)["'])?/g;
 const STARRED = /\bexport\s+\*\s*(?:as\s+([\w$]+)\s*)?from\s*["']([^"']+)["']/g;
 
 /**

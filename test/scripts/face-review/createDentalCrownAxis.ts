@@ -21,11 +21,15 @@ export function createDentalCrownAxis(
   const vector = [0, 1, 2].map((axis) => cervical[axis] - incisal[axis]);
   const scale = Math.max(...vector.map(Math.abs));
   if (!(scale > 0) || !Number.isFinite(scale))
-    throw new Error("A dental crown axis needs distinct finite reference points and a representable length.");
+    throw new Error(
+      "A dental crown axis needs distinct finite reference points and a representable length.",
+    );
   const scaled = vector.map((value) => value / scale);
   const scaledLength = Math.hypot(...scaled);
   const length = scale * scaledLength;
   if (!Number.isFinite(length))
-    throw new Error("A dental crown axis needs distinct finite reference points and a representable length.");
+    throw new Error(
+      "A dental crown axis needs distinct finite reference points and a representable length.",
+    );
   return { unit: scaled.map((value) => value / scaledLength), length };
 }

@@ -2,24 +2,24 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
-  IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
-import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
+import { getConstraint } from "../rom/getConstraint";
+import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import type { IPreparedChainPlant } from "./IPreparedChainPlant";
+import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import { resolveBoneMap } from "./resolveBoneMap";
+import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
  * Fit one two-bone chain onto a world-space target without leaving the rig's
@@ -40,27 +40,9 @@ import { resolveBoneMap } from "./resolveBoneMap";
  * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Chooses the closest legal articulated solve under the rig's ROM controls.
  * @author Samchon
  */
-export const fitChainToTarget = (props: {
-  /** Rig whose ROM and rest transforms constrain the solve. */
-  skeleton: IAutoMovieSkeleton;
-  /** Current authored pose; returned unchanged when no candidate improves it. */
-  pose: IAutoMoviePose;
-  /** Ordered root, mid, and end-effector bones of one descendant chain. */
-  chain: IAutoMoviePlantChain;
-  /** World-space position the end effector should reach. */
-  target: IAutoMovieVector3;
-  /** Pre-indexed topology belonging to `skeleton`. */
-  topology: IAutoMovieSkeletonTopology;
-  /** Optional clinical axes used consistently by IK, ROM, and FK. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  /** Optional clinical rest frames used consistently by IK, ROM, and FK. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  /**
-   * Prior corrected pose used only to stabilize equal-residual bend branches;
-   * its root and non-chain joints do not replace the current pose.
-   */
-  referencePose?: IAutoMoviePose;
-}): IAutoMoviePose => {
+export const fitChainToTarget = (
+  props: IFitChainToTargetProps,
+): IAutoMoviePose => {
   const prepared = prepareChainPlant(props);
   if (prepared === null) return props.pose;
   const solve = (
@@ -107,11 +89,7 @@ export const fitChainToTarget = (props: {
       props.jointAxes?.[bone],
       props.restFrames?.[bone],
     );
-  let best: {
-    pose: IAutoMoviePose;
-    residual: number;
-    continuity: number;
-  } = {
+  let best: IPlantCandidate = {
     pose: props.pose,
     residual: distance(authored),
     continuity:
@@ -240,7 +218,7 @@ export const fitChainToTarget = (props: {
   }
 
   const segments = 32;
-  const sweep: Array<{ angle: number } & IPlantCandidateScore> = [];
+  const sweep: IPlantBendCandidate[] = [];
   for (let index = 0; index < segments; ++index) {
     const angle = (2 * Math.PI * index) / segments;
     sweep.push({ angle, ...consider(solve(normalAt(angle))!) });
@@ -282,6 +260,25 @@ const PLANT_CONTINUITY_EPSILON = 1e-12;
 interface IPlantCandidateScore {
   residual: number;
   continuity: number;
+}
+
+/** Best actual pose and its unchanged contact/continuity scores. */
+interface IPlantCandidate extends IPlantCandidateScore {
+  pose: IAutoMoviePose;
+}
+
+/** Bend-plane parameter beside the contact/continuity scores it produced. */
+interface IPlantBendCandidate extends IPlantCandidateScore {
+  angle: number;
+}
+
+/** Selected clinical joints read through the same prepared chain and frames. */
+interface IResolvedPreparedEffectorProps extends Pick<
+  ISolvePreparedChainPlantProps,
+  "prepared" | "jointAxes" | "restFrames"
+> {
+  upper: IAutoMovieJointPose;
+  lower: IAutoMovieJointPose;
 }
 
 const plantResidualBucket = (residual: number): number =>
@@ -336,26 +333,13 @@ const jointRotationDistance = (
   return angle * angle;
 };
 
-interface IPreparedChainPlant {
-  chain: IAutoMoviePlantChain;
-  upper: IAutoMovieResolvedBone;
-  lower: IAutoMovieResolvedBone;
-  end: IAutoMovieVector3;
-  hinge: IAutoMovieVector3;
-  lowerOffset: IAutoMovieVector3;
-  lowerRotation: ReturnType<typeof Quaternion.identity>;
-  effectorOffset: IAutoMovieVector3;
-}
-
 /** Resolve the pose-invariant chain data once for a bend-plane search. */
-const prepareChainPlant = (props: {
-  skeleton: IAutoMovieSkeleton;
-  pose: IAutoMoviePose;
-  chain: IAutoMoviePlantChain;
-  topology: IAutoMovieSkeletonTopology;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): IPreparedChainPlant | null => {
+const prepareChainPlant = (
+  props: Pick<
+    IFitChainToTargetProps,
+    "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
+  >,
+): IPreparedChainPlant | null => {
   const { chain } = props;
   // The limb at rest under the current parent pose: zero its own articulation
   // so the recovered world rotations carry the torso pose but not the limb's.
@@ -390,6 +374,22 @@ const prepareChainPlant = (props: {
     chain,
     upper,
     lower,
+    upperDomain: {
+      bone: chain.upper,
+      constraint: getConstraint(
+        chain.upper,
+        props.skeleton.bones.find((bone) => bone.bone === chain.upper)
+          ?.constraint ?? null,
+      ),
+    },
+    lowerDomain: {
+      bone: chain.lower,
+      constraint: getConstraint(
+        chain.lower,
+        props.skeleton.bones.find((bone) => bone.bone === chain.lower)
+          ?.constraint ?? null,
+      ),
+    },
     end: effector.worldPosition,
     hinge: Quaternion.rotateVector(
       lower.worldRotation,
@@ -422,58 +422,10 @@ const isDescendant = (
       isDescendant(topology, child.bone, descendant),
   );
 
-/** Solve one bend normal against chain data prepared once per target. */
-const solvePreparedChainPlant = (props: {
-  prepared: IPreparedChainPlant;
-  target: IAutoMovieVector3;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  bendNormal?: IAutoMovieVector3;
-}): {
-  upper: IAutoMovieJointPose;
-  lower: IAutoMovieJointPose;
-  hinge: IAutoMovieVector3;
-} | null => {
-  const { chain, upper, lower } = props.prepared;
-
-  const articulation = twoBoneChainArticulation({
-    upper,
-    lower,
-    end: props.prepared.end,
-    target: props.target,
-    bendNormal: props.bendNormal,
-  });
-  if (articulation === null) return null;
-
-  return {
-    hinge: props.prepared.hinge,
-    upper: {
-      bone: chain.upper,
-      ...decomposeJointRotation(
-        articulation.upper,
-        props.jointAxes?.[chain.upper],
-        props.restFrames?.[chain.upper],
-      ),
-    },
-    lower: {
-      bone: chain.lower,
-      ...decomposeJointRotation(
-        articulation.lower,
-        props.jointAxes?.[chain.lower],
-        props.restFrames?.[chain.lower],
-      ),
-    },
-  };
-};
-
 /** FK only the prepared chain after its two candidate joints are clamped. */
-const resolvedPreparedEffector = (props: {
-  prepared: IPreparedChainPlant;
-  upper: IAutoMovieJointPose;
-  lower: IAutoMovieJointPose;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): IAutoMovieVector3 => {
+const resolvedPreparedEffector = (
+  props: IResolvedPreparedEffectorProps,
+): IAutoMovieVector3 => {
   const upperRotation = Quaternion.multiply(
     props.prepared.upper.worldRotation,
     jointToQuaternion(

@@ -1,11 +1,13 @@
-import { IAutoMovieMesh, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieValidation } from "@automovie/interface";
 
+import type { IAutoMovieMeshTopologyValidationProps } from "./IAutoMovieMeshTopologyValidationProps";
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
  * Validate a mesh's Tier-5 topology (the codified `"topology"` violation kind,
- * previously declared but never emitted). It welds vertices by position and
+ * previously declared but never emitted). It resolves physical correspondence
+ * when declared and welds legacy vertices by current position, then
  * checks the two invariants EVERY valid triangle mesh must satisfy, regardless
  * of whether it is a closed solid or an open surface:
  *
@@ -23,24 +25,20 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * The check assumes structurally-valid buffers (positions a multiple of 3,
  * indices whole triangles in range); on malformed input it returns without a
  * topology verdict, leaving the structural report to {@link validateModel}'s
- * mesh checks. Tessellated primitives are watertight by construction and pass;
- * the beneficiary is externally-sourced or hand-built mesh geometry validated
+ * mesh checks. Malformed explicit physical correspondence is always a named
+ * refusal, including on an otherwise malformed mesh. Coordinate-collapsed
+ * triangles remain redundant; this topology verdict does not certify area or
+ * absence of geometric intersections. Tessellated primitives are watertight
+ * by construction and pass; the beneficiary is imported or authored mesh geometry validated
  * through `validateModel`.
  *
  * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateMeshTopology` reports non-manifold edges and inconsistent shared-edge winding at the standalone mesh root.
  * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateMeshTopology` preserves each welded edge identity and observed incidence count or orientation beside the topology constraint.
  * @author Samchon
  */
-export const validateMeshTopology = (props: {
-  /** Mesh to check. */
-  mesh: IAutoMovieMesh;
-
-  /** JSON path of the mesh being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** When set, a boundary (open) edge is also an error: the mesh must close. */
-  expectClosed?: boolean;
-}): IAutoMovieValidation => {
+export const validateMeshTopology = (
+  props: IAutoMovieMeshTopologyValidationProps,
+): IAutoMovieValidation => {
   const collector = new ViolationCollector();
   appendMeshTopology(
     props.mesh,

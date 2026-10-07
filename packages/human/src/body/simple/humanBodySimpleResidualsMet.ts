@@ -27,6 +27,9 @@ export function humanBodySimpleResidualsMet(
   residuals: readonly number[],
   unknowns: readonly Pick<IHumanBodySimpleUnknown, "target" | "tolerance">[],
 ): boolean {
-  return residuals.every((value, index) => Number.isFinite(value) &&
-    Math.abs(value * unknowns[index].target) <= unknowns[index].tolerance);
+  return residuals.every(
+    (value, index) =>
+      Number.isFinite(value) &&
+      Math.abs(value * unknowns[index].target) <= unknowns[index].tolerance,
+  );
 }

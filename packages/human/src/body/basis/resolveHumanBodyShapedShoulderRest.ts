@@ -41,7 +41,10 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 export function resolveHumanBodyShapedShoulderRest(
   basis: IAutoMovieHumanBodyBasis,
   landmarks: Record<string, IAutoMovieVector3>,
-): Map<IAutoMovieHumanBodyShoulderPose["bone"], IAutoMovieHumanBodyShoulderPose> {
+): Map<
+  IAutoMovieHumanBodyShoulderPose["bone"],
+  IAutoMovieHumanBodyShoulderPose
+> {
   const { rest } = resolveHumanBodySkeleton(basis, landmarks);
   const result = new Map<
     IAutoMovieHumanBodyShoulderPose["bone"],
@@ -56,7 +59,10 @@ export function resolveHumanBodyShapedShoulderRest(
       joint.bone,
       humanBodyShoulderPoseFromDirection({
         bone: joint.bone,
-        direction: Quaternion.rotateVector(arm.rotation, Vector3.create(0, 1, 0)),
+        direction: Quaternion.rotateVector(
+          arm.rotation,
+          Vector3.create(0, 1, 0),
+        ),
       }),
     );
   }

@@ -18,6 +18,10 @@
 
 ### 기하 입력 {#asset-spec-geometry-inputs}
 
+<!-- @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology 실제 source-point incidence와 접촉을 구분하는 정점 대응을 입력으로 보존한다. -->
+
+`IAutoMovieMesh.physicalVertices`는 선택적 `{ sources: { domain: string; id: number }[]; vertices: (number | null)[] }` 대응이다. `vertices`는 render vertex당 하나인 dense 배열이고 숫자는 `sources`의 정수 인덱스다. Table의 domain은 공백이 아닌 문자열, ID는 음이 아닌 safe integer다. 같은 `(domain,id)`는 실제 physical instance의 같은 point이며 UV·normal alias를 연결한다. 서로 다른 pair는 같은 좌표에서도 연결되지 않는다. Domain은 biological source나 normal island 이름이 아니며, placement가 다른 두 메시에서 같은 pair를 쓰는 것은 공통 프레임에서 같은 실제 point라는 선언이다. Table 순서와 중복 row는 identity 의미가 없고 원본 pair가 계보를 소유한다. `null`과 metadata 생략은 현재 좌표 기반 legacy welding을 뜻한다. 명시한 alias는 기존 nanometre grid에서 일치해야 하며 source incidence의 사실성은 producer가 소유한다.
+
 <!-- @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry 기본 형상과 자유 형상을 같은 자산 구성 안에서 사용할 수 있어야 한다. -->
 <!-- @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions 실제 치수와 좌표 기준을 명시해야 한다. -->
 
@@ -26,6 +30,8 @@
 원시 메시의 선택적 정점색은 위치와 같은 정점 순서를 갖는 선형 RGB 세 성분이며 각 값은 유한한 [0,1] 범위다. 재질과 texture의 base colour에 곱하고 알파나 조명은 변경하지 않는다. 생략은 흰색 곱셈이며 별도 버퍼를 요구하지 않는다. 변환과 정점 대응이 유지되는 변형에서는 색이 정점을 따라가고, 결합은 유색 member가 있을 때만 무색 member를 흰색으로 채워 유색 정보를 유지한다. 정적 GLB는 이를 COLOR_0 VEC3 Float32로 보존한다. 선택적 부조 가중치(`reliefWeights`)는 정점마다 하나인 유한한 0 이상의 배율로, 그 메시를 그리는 재질의 법선 map(`normalTexture`) 기울기에만 곱하며 detail 법선 map과 덧층의 기울기는 바꾸지 않는다. 관절이 굽어 피부가 늘어나면 펴지는 주름처럼 표면을 따라 깊어지거나 옅어지는 부조를 위한 것이다. 생략은 1이며 버퍼를 요구하지 않는다. 변환은 가중치를 복사하고, 결합은 가중치가 있는 member가 있을 때만 없는 member를 1로 채운다. 길이가 정점 수와 다르거나 음수·비유한 값이면 거부한다. glTF에는 비준된 대응 속성이 없어 정적 GLB는 이를 생략한다.
 
 ### 조합 연산과 위상 불변식 {#asset-spec-geometry-operations-topology}
+
+변환과 변형은 physical source 대응을 복사하고 출력 alias 일치를 확인한다. 정점별 influence가 같은 physical point를 갈라놓으면 거부한다. 결합은 원본 `(domain,id)`를 보존하면서 table 참조만 재번호화하므로 결합 결과를 원본 operand와 다시 결합해도 같은 source point가 유지된다. 서로 다른 domain과 동일 domain의 서로 다른 ID는 분리되고, 동일 pair의 다른 현재 위치는 거부된다. Legacy-only 결합은 대응을 만들지 않으며 mixed 결합은 bare 정점을 `null`로 보존한다. Legacy 코호트는 결합 뒤와 이후 변형에서도 현재 좌표로 다시 weld한다. 절단·분할·재표본화처럼 정점을 만드는 연산은 새 incidence 대응을 재등록하거나 해당 입력을 명시적으로 거부해야 한다. 위상 검사는 source 대응을 사용하되 좌표-collapse, 실제 면적, winding, 교차와 표현 정밀도 손실의 독립 검사를 대체하지 않는다.
 
 <!-- @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations 기하 연산을 재사용 가능한 순서로 조합할 수 있어야 한다. -->
 <!-- @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology 위상과 표면 역할이 후속 편집과 검증에서 유지되어야 한다. -->

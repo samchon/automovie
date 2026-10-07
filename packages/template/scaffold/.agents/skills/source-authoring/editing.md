@@ -4,7 +4,7 @@ Editing authors time and relation. The EDL is not a dump of every rendered shot;
 
 ## Choose the cut
 
-Start with the dramatic change. Cut when the outgoing image has delivered its value and the incoming image can redirect attention. Hold when anticipation, discomfort, observation, or performance needs duration. Remove time when no meaningful state changes.
+Choose each cut and hold from its authored dramatic change.
 
 Use Walter Murch's priority order when criteria conflict:
 
@@ -17,27 +17,15 @@ Use Walter Murch's priority order when criteria conflict:
 
 Protect higher priorities first. This does not license arbitrary discontinuity: identify what a lower-rule break buys, ensure the viewer can still follow what matters, and declare it in style intent when the shot contract requires.
 
-## Coverage selection
+## Coverage and rhythm
 
-Choose the angle that best carries the current beat, not the angle that was hardest to produce. Alternate scale or point of view when it changes information or emotional access. Avoid cutting among near-duplicates that add no meaning.
-
-Maintain action direction, pose phase, eyeline, prop state, light, and ambience across a continuous event. A cutaway can compress time or bridge a continuity gap only if it is narratively motivated and does not invent a contradictory state.
-
-## Rhythm
-
-Rhythm emerges from shot duration, internal movement, dialogue, sound envelope, and expectation. Fast cutting cannot rescue inert shots; a long take is not automatically contemplative. Shape acceleration and deceleration against the sequence's dramatic curve. Leave room before important information to focus attention and after it to register consequence.
+Select source intervals that carry the authored beat and preserve its action, pose, eyeline, prop, light and ambience continuity. Timing and transition choices must retain required information and consequences.
 
 Evaluate cuts at the exact reduced rational delivery frame rate and snap edits to that production frame grid. A decimal `fps` is only a display projection and must never be used to reconstruct a fractional clock. Map destination audio samples, WebVTT milliseconds, and MP4 ticks from the same integer frame boundaries with the shared nearest-half-up rule. Check source interval bounds, exact output frames, and transition overlap. A transition consumes time from both sides and must not erase the action or line it is meant to connect.
 
 ## EDL discipline
 
-Each edit decision names the source shot, source offset, source duration, destination interval, transition, and audiovisual intent. Preserve source offsets for L-cuts, J-cuts, dialogue overlap, ambience continuity, and action matching. Do not retime a semantic event without updating acceptance and sound consequences.
-
-Prefer a direct cut by default. Dissolve for relation, passage, memory, or tonal blend; fade for boundary or closure; motivated wipes or graphic matches only when their visible form serves the film. Transition variety is not a goal.
-
-## Audio-led edits
-
-Use a J-cut when incoming sound prepares or pulls the viewer into the next image. Use an L-cut when outgoing sound preserves reaction, continuity, or emotional residue. Keep dialogue intelligible and avoid phase or ambience jumps. Sound edits still obey source ownership and exact timeline offsets.
+Each edit decision names the source shot, source offset, source duration, destination interval, transition, and audiovisual intent. Preserve sound source ownership and exact source offsets across L-cuts, J-cuts, dialogue overlap, ambience continuity, and action matching. Do not retime a semantic event without updating acceptance and sound consequences.
 
 ## Measure the boundary
 
@@ -51,15 +39,6 @@ Order the beats by the timeline rather than by whatever order the compiled shots
 
 Pass the current producer's shot results to `validateFilmContinuity` in actual timeline order. Preserve repeated occurrences and their source-time intervals. A missing shot is a missing input to repair, not an empty array to skip. Read warnings as well as failures before recording a continuity observation.
 
-## Review pass
-
-Watch once without stopping for story and emotion, once with the frame ruler for continuity and event timing, and once listening without looking for dialogue, ambience, rhythm, and accidental silence. Inspect every boundary in both directions. Sequence review owns local cut logic; film review owns the accumulated pace and narrative completion.
-
 ## Look at the cut
 
-An edit is judged across boundaries, so evidence is taken on both sides of each one.
-
-1. Capture the outgoing and incoming shots at the exact frames a cut joins, and one frame either side.
-2. State what you saw of the local cut logic, and then of the whole assembly, in the evidence citations on the film source that claims the edit is realized.
-
-Sequence review owns the boundary; film review owns the arc. Completing one never completes the other.
+Follow [Capture](../review-verification/capture.md) and [Production review](../review-verification/review.md). Watch once without stopping for story and emotion, once with the frame ruler for continuity and event timing, and once listening without looking for dialogue, ambience, rhythm, and accidental silence. Inspect each cut's outgoing and incoming exact frames plus an adjacent frame on each side. Sequence review owns local cut logic; film review owns the accumulated pace and narrative completion.

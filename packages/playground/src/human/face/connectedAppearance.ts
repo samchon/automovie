@@ -1,8 +1,4 @@
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-} from "@automovie/human";
-
+import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 import { mountConnectedFaceFibres } from "./connectedFibres";
 import { mountConnectedFaceHair } from "./connectedHair";
 import { mountConnectedFaceIris } from "./connectedIris";
@@ -19,12 +15,7 @@ import { mountConnectedFacePigmentation } from "./connectedPigmentation";
  */
 export function mountConnectedFaceAppearance(
   app: HTMLElement,
-  props: {
-    basis: IAutoMovieHumanFaceBasis;
-    document: () => IAutoMovieHumanFaceBasisDocument;
-    change: (document: IAutoMovieHumanFaceBasisDocument) => Promise<void>;
-    refuse: (error: unknown) => void;
-  },
+  props: IConnectedFaceAppearanceProps,
 ) {
   const dom = app.ownerDocument;
   const section = dom.createElement("details");
@@ -42,7 +33,7 @@ export function mountConnectedFaceAppearance(
   }
   const entries = dom.createElement("div");
   section.append(summary, select, entries);
-  app.querySelector("#basis-controls")!.after(section);
+  app.querySelector('[data-role="basis-controls"]')!.after(section);
   const refresh = (): void => {
     entries.replaceChildren();
     const material = props.basis.materials.find(

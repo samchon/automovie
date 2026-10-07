@@ -17,7 +17,10 @@
  */
 import * as THREE from "three";
 
-import type { IPortraitWebModel, IPortraitWebOptions } from "./IPortraitWebModel";
+import type {
+  IPortraitWebModel,
+  IPortraitWebOptions,
+} from "./IPortraitWebModel";
 import { portraitWebAlphaTest } from "./portraitWebAlphaTest";
 import { portraitWebHairMaskPart } from "./portraitWebHairMaskPart";
 import { portraitWebHairMaskPixels } from "./portraitWebHairMaskPixels";
@@ -58,7 +61,10 @@ const camera = new THREE.PerspectiveCamera(28, 1, 0.01, 10);
 const loader = new THREE.TextureLoader();
 let group: THREE.Group | null = null;
 const markers = new THREE.Group();
-const marker = (color: number, position: [number, number, number]): THREE.Mesh => {
+const marker = (
+  color: number,
+  position: [number, number, number],
+): THREE.Mesh => {
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.006, 12, 12),
     new THREE.MeshBasicMaterial({ color }),

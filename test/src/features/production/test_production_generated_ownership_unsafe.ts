@@ -1,10 +1,14 @@
-import type { AutoMovieContentDigest, IAutoMovieDiagnostic, IAutoMovieGeneratedManifest } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieDiagnostic,
+  IAutoMovieGeneratedManifest,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { loadSourceModule } from "../internal/loadSourceModule";
+
 import { createGeneratedOwnershipReader } from "../internal/createGeneratedOwnershipReader";
+import { loadSourceModule } from "../internal/loadSourceModule";
 
 const { inspectAutoMovieGeneratedOwnership } = loadSourceModule<{
   inspectAutoMovieGeneratedOwnership(props: {
@@ -13,7 +17,12 @@ const { inspectAutoMovieGeneratedOwnership } = loadSourceModule<{
     expected: IAutoMovieGeneratedManifest;
     repairDeclaredFiles: boolean;
   }): IAutoMovieDiagnostic[];
-}>(path.resolve(__dirname, "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership.ts"));
+}>(
+  path.resolve(
+    __dirname,
+    "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership.ts",
+  ),
+);
 
 const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
   `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
@@ -31,7 +40,14 @@ export const test_production_generated_ownership_unsafe = (): void => {
     version: 1,
     builder: { packageVersion: "unit", protocolVersion: "1" },
     inputFingerprint: digest(new Uint8Array([5])),
-    files: [{ path: "models/ship.json", owner: "builder", digest: digest(new Uint8Array([17])), sourceTargets: ["model:ship"] }],
+    files: [
+      {
+        path: "models/ship.json",
+        owner: "builder",
+        digest: digest(new Uint8Array([17])),
+        sourceTargets: ["model:ship"],
+      },
+    ],
   };
   const failures: readonly unknown[] = [
     new Error("The owned member is a link outside the root."),
@@ -39,10 +55,33 @@ export const test_production_generated_ownership_unsafe = (): void => {
   ];
   for (const repairDeclaredFiles of [false, true])
     for (const failure of failures) {
-      const world = createGeneratedOwnershipReader({ manifest: expected, files: [], read: () => { throw failure; } });
-      TestValidator.equals("unsafe reads preserve their diagnostic and cannot repair", inspectAutoMovieGeneratedOwnership({ ...world, expected, repairDeclaredFiles }), [{
-        code: "generated-path-outside", category: "error", phase: "compile", target: "models/ship.json", path: "generated/harbor/models/ship.json",
-        message: failure instanceof Error ? failure.message : 'Generated file "models/ship.json" is unsafe. Remove the link before running the builder.',
-      }]);
+      const world = createGeneratedOwnershipReader({
+        manifest: expected,
+        files: [],
+        read: () => {
+          throw failure;
+        },
+      });
+      TestValidator.equals(
+        "unsafe reads preserve their diagnostic and cannot repair",
+        inspectAutoMovieGeneratedOwnership({
+          ...world,
+          expected,
+          repairDeclaredFiles,
+        }),
+        [
+          {
+            code: "generated-path-outside",
+            category: "error",
+            phase: "compile",
+            target: "models/ship.json",
+            path: "generated/harbor/models/ship.json",
+            message:
+              failure instanceof Error
+                ? failure.message
+                : 'Generated file "models/ship.json" is unsafe. Remove the link before running the builder.',
+          },
+        ],
+      );
     }
 };
