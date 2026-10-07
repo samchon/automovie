@@ -33,13 +33,6 @@ export interface IAutoMovieHumanBodyBasisBuilderOptions {
    */
   physicalSource?: "native-indexed" | "source-partition";
 
-  /**
-   * Defer garment construction until a composition supplies its final skin
-   * through the prepared build's dress operation. Omission preserves the
-   * standalone body garment. This affects construction order, not authoring.
-   */
-  deferUnderwear?: boolean;
-
   /** Actual same-generation head source carrying body endpoint contributions.
    * The builder verifies body equality, both source partitions and each actual
    * driver row. This is source geometry, never permission to accept missing rows.

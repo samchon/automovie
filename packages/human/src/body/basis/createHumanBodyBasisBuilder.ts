@@ -266,7 +266,7 @@ export function createHumanBodyBasisBuilder(
     const sourcePartOffset = parts.length;
     const sourceMaterialOffset = materials.length;
     // the underwear, cut from the posed skin after every skin region
-    if (document.underwear !== undefined && admittedOptions?.deferUnderwear !== true) {
+    if (document.underwear !== undefined) {
       const dressed = (dress ??= createHumanBodyUnderwear(basis))({
         underwear: document.underwear,
         rest: restAll(),
