@@ -1,4 +1,4 @@
-import { IAutoMovieQuaternion } from "@automovie/interface";
+import { IAutoMovieQuaternion, type IAutoMovieAngleRange } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -8,9 +8,21 @@ import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+import type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
+import { jointRomOvershoot } from "./jointRomOvershoot";
 
 const RAD2DEG = 180 / Math.PI;
 const QUATERNION_AXES = ["x", "y", "z", "w"] as const;
+
+/** Choose an admitted full-turn alias when one exists; never clamp an angle. */
+const periodicAngle = (angle: number, range: IAutoMovieAngleRange | null): number => {
+  const minimum = range?.min ?? 0;
+  const maximum = range?.max ?? 0;
+  if (angle >= minimum && angle <= maximum) return angle;
+  const first = Math.ceil((minimum - angle) / 360);
+  const last = Math.floor((maximum - angle) / 360);
+  return first > last ? angle : angle + 360 * Math.max(first, Math.min(last, 0));
+};
 
 const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
   for (const axis of QUATERNION_AXES) {
@@ -51,6 +63,15 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * of `jointToQuaternion`'s `frame` map, so `jointToQuaternion(decompose(q,
  * axes, f), axes, f)` still round-trips.
  *
+ * With an effective `domain`, the inverse also considers the rotation order's
+ * second chart: proximal (f+180, 180-a, t+180) or distal
+ * (180-f, a+180, t+180) in the right-handed basis. Handed twist and clinical
+ * sign/neutral are restored before checking the caller's unchanged ROM.
+ * Full-turn aliases can enter the same declared intervals, including +180
+ * endpoints. The lowest actual ROM overshoot wins, with the original principal
+ * chart retained on a tie. A refusal remains a refusal when neither chart is
+ * permitted; selection never repairs a quaternion by clamping its coordinates.
+ *
  * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Recovers the rig-basis semantic controls encoded by a solved quaternion.
  * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Converts a solved quaternion back into the semantic controls consumed by the ROM graph.
  * @author Samchon
@@ -59,13 +80,14 @@ export const decomposeJointRotation = (
   q: IAutoMovieQuaternion,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
+  domain?: IAutoMovieJointRotationDomain,
 ): IAutoMovieResolvedJointAngles => {
   assertFiniteQuaternion(q);
   const basis = normalizeJointAxes(axes, "decomposeJointRotation axes");
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const lift = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
+  const clinical = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,
@@ -79,6 +101,28 @@ export const decomposeJointRotation = (
       ? 1
       : -1;
   const twistAxis = Vector3.scale(basis.twist, handed);
+  const lift = (rig: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => {
+    const principal = clinical(rig);
+    if (domain === undefined || domain.constraint === null) return principal;
+    const constraint = domain.constraint;
+    const align = (candidate: IAutoMovieResolvedJointAngles): IAutoMovieResolvedJointAngles => ({
+      flexion: periodicAngle(candidate.flexion, constraint.flexion),
+      abduction: periodicAngle(candidate.abduction, constraint.abduction),
+      twist: periodicAngle(candidate.twist, constraint.twist),
+    });
+    const alternate = clinical({
+      flexion: basis.twistPlacement === "distal" ? 180 - rig.flexion : rig.flexion + 180,
+      abduction: basis.twistPlacement === "distal" ? rig.abduction + 180 : 180 - rig.abduction,
+      twist: rig.twist + 180 * handed,
+    });
+    let selected = principal;
+    let overshoot = jointRomOvershoot({ bone: domain.bone, ...selected }, constraint);
+    for (const candidate of [align(principal), align(alternate)]) {
+      const next = jointRomOvershoot({ bone: domain.bone, ...candidate }, constraint);
+      if (next < overshoot) { selected = candidate; overshoot = next; }
+    }
+    return selected;
+  };
 
   const Rf = Quaternion.rotateVector(q, basis.flexion);
   const Ra = Quaternion.rotateVector(q, basis.abduction);
