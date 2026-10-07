@@ -1,17 +1,8 @@
-import {
-  type IAutoMovieHumanFaceBasisDocument,
-  serializeHumanFaceBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import { serializeHumanFaceBasisDocument } from "@automovie/human/face/document/serializeHumanFaceBasisDocument";
 
-import type {
-  ConnectedFaceRequest,
-  ConnectedFaceResult,
-} from "../common/connectedRuntime";
-import {
-  type HumanResidentPort,
-  createHumanResidentWorker,
-} from "../common/residentWorker";
-import type { createConnectedFaceRenderer } from "./connectedRenderer";
+import { createHumanResidentWorker } from "../common/residentWorker";
+import type { IConnectedFacePreviewProps } from "./IConnectedFacePreviewProps";
 
 /**
  * Build connected preview candidates through a resident numerical worker.
@@ -21,10 +12,7 @@ import type { createConnectedFaceRenderer } from "./connectedRenderer";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Prevents cancelled numerical or texture results from becoming the displayed face.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates preview transactions from explicit asynchronous file export.
  */
-export function createConnectedFacePreview(props: {
-  worker: () => HumanResidentPort<ConnectedFaceRequest, ConnectedFaceResult>;
-  renderer: ReturnType<typeof createConnectedFaceRenderer>;
-}) {
+export function createConnectedFacePreview(props: IConnectedFacePreviewProps) {
   const worker = createHumanResidentWorker(props.worker);
   let generation = 0;
   let withdraw: (() => void) | undefined;
@@ -64,6 +52,42 @@ export function createConnectedFacePreview(props: {
         articulation: result.articulation,
         contact: result.contact,
         crossings: result.crossings,
+      };
+    },
+    /** Prepare the complete construction while retaining its independent admission verdict. */
+    construct: async (
+      document: IAutoMovieHumanFaceBasisDocument,
+      occlusion = false,
+    ) => {
+      cancel();
+      const ticket = generation;
+      const request = worker.request({
+        operation: "construct",
+        document: serializeHumanFaceBasisDocument(document),
+        occlusion,
+      });
+      withdraw = request.cancel;
+      const result = await request.result;
+      if (result.operation !== "construct")
+        throw new Error("Expected a whole numerical face construction.");
+      const frame = await props.renderer.prepare(result.model);
+      if (ticket !== generation) {
+        props.renderer.dispose(frame);
+        throw new Error(
+          "Superseded while preparing face construction geometry.",
+        );
+      }
+      withdraw = undefined;
+      return {
+        model: {
+          frame,
+          parts: result.model.parts.length,
+          articulation: result.articulation,
+          contact: result.contact,
+          crossings: result.crossings,
+        },
+        admission: result.admission,
+        periocularMappings: result.periocularMappings,
       };
     },
     export: async (

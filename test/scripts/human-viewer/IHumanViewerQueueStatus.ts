@@ -1,4 +1,5 @@
 import type { HumanViewerLane } from "./HumanViewerLane";
+
 /** What the server reports about its request queue. */
 export interface IHumanViewerQueueStatus {
   /** Requests accepted and not yet started, per lane. */

@@ -220,4 +220,3 @@ export function faceUnseenIntervals(): Record<
     }),
   ) as Record<FaceUnseenReading, [number, number]>;
 }
-

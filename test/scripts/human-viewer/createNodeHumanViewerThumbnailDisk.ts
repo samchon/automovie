@@ -7,7 +7,10 @@ import type { IHumanViewerThumbnailDisk } from "./createHumanViewerThumbnailStor
 export function createNodeHumanViewerThumbnailDisk(
   fs: {
     existsSync(path: string): boolean;
-    readdirSync(path: string, options: { withFileTypes: true }): { name: string }[];
+    readdirSync(
+      path: string,
+      options: { withFileTypes: true },
+    ): { name: string }[];
     statSync(path: string): { mtimeMs: number };
     rmSync(path: string, options: { recursive: true; force: true }): void;
   },

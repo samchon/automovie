@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IHumanBodyPosedSurfaceInput } from "./IHumanBodyPosedSurfaceInput";
 import { createHumanBodySurfaceMush } from "./createHumanBodySurfaceMush";
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { humanBodySkinDownDirection } from "./humanBodySkinDownDirection";
@@ -29,13 +29,7 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
 export function createHumanBodyPosedSurface(
   surface: Surface,
   joints: IAutoMovieHumanBodyBasis["joints"],
-): (input: {
-  shaped: number[];
-  transforms: Parameters<typeof skinHumanBodySurface>[3];
-  rest: number[] | null;
-  lean: () => number[];
-  document: IAutoMovieHumanBodyBasisDocument;
-}) => number[] {
+): (input: IHumanBodyPosedSurfaceInput) => number[] {
   const sag =
     surface.sag === undefined
       ? null
@@ -50,16 +44,23 @@ export function createHumanBodyPosedSurface(
       surface.skin,
       joints,
       transforms,
+      surface.toeSplit,
     );
     const filtered =
       mush === null || rest === null
         ? skinned
         : (() => {
             const neutral = skinHumanBodySurface(
-              rest, surface.skin, joints, transforms,
+              rest,
+              surface.skin,
+              joints,
+              transforms,
+              surface.toeSplit,
             );
             const restored = mush(rest, neutral);
-            return skinned.map((value, i) => value + (restored[i] - neutral[i]));
+            return skinned.map(
+              (value, i) => value + (restored[i] - neutral[i]),
+            );
           })();
     if (sag === null || rest === null) return filtered;
     const declared = surface.sag!;
@@ -83,6 +84,9 @@ export function createHumanBodyPosedSurface(
         skin: surface.skin,
         joints,
         transforms,
+        ...(surface.toeSplit === undefined
+          ? {}
+          : { toeSplit: surface.toeSplit }),
       }),
       softness,
     });

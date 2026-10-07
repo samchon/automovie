@@ -1,0 +1,26 @@
+{
+  "qualification": "Canonical neutral source-envelope differences0; explicit authored ear/nasal source remains separate. This is not a clinical normal or reconstructed person.",
+  "cranial": {
+    "vaultBreadthOffsetMillimetres": 0,
+    "vaultHeightOffsetMillimetres": 0,
+    "occipitalProjectionOffsetMillimetres": 0,
+    "foreheadInclinationOffsetDegrees": 0,
+    "temporalBreadthOffsetMillimetres": 0
+  },
+  "facial": {
+    "leftMalarProjectionOffsetMillimetres": 0,
+    "rightMalarProjectionOffsetMillimetres": 0,
+    "leftBuccalHollowOffsetMillimetres": 0,
+    "rightBuccalHollowOffsetMillimetres": 0,
+    "leftMandibularBreadthOffsetMillimetres": 0,
+    "rightMandibularBreadthOffsetMillimetres": 0,
+    "chinProjectionOffsetMillimetres": 0,
+    "chinHeightOffsetMillimetres": 0
+  },
+  "cervical": {
+    "anteriorFullnessOffsetMillimetres": 0,
+    "posteriorFullnessOffsetMillimetres": 0,
+    "cervicomentalProjectionOffsetMillimetres": 0,
+    "cervicalJointSpanOffsetMillimetres": 0
+  }
+}

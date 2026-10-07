@@ -1,9 +1,11 @@
-import type { AutoMovieProductionLanguage } from "@automovie/evidence";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import type { IAutoMovieScaffoldProps } from "./IAutoMovieScaffoldProps";
+import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
 import { renderAutoMovieLanguageContracts } from "./renderAutoMovieLanguageContracts";
-import { renderTemplate } from "./renderTemplate";
+import { renderScaffoldEntries } from "./renderScaffoldEntries";
+import { scaffoldAssetDirectory } from "./scaffoldAssetDirectory";
 import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./templateVersions";
 import {
   validateAutoMovieInstructionDocumentLinks,
@@ -11,217 +13,10 @@ import {
 } from "./validateAutoMovieSkillRouters";
 
 /**
- * Project-owned values interpolated into the scaffold's `{{...}}` tokens.
- *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Keeps the generated project's portable identity in explicit source input.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Carries that portable identity into deterministic scaffold derivation.
- * @author Samchon
- */
-export interface IAutoMovieScaffoldProps {
-  /**
-   * The created project's package name (replaces `{{name}}`).
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Restricts the name to a portable project identity rather than a host-private path.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes the project identity an explicit source input to scaffold derivation.
-   */
-  name: string;
-  /** Exact language contract installed into `docs/language`. */
-  language: AutoMovieProductionLanguage;
-}
-
-/**
- * One authored scaffold input before its path and bytes are rendered.
- *
- * Keeping the source-relative identity until the complete candidate is
- * validated lets the renderer name both owners of a colliding output instead
- * of silently retaining whichever one happened to be assigned last.
- *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Keeps every authored scaffold source distinct until its portable output identity is proved.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Carries source identity beside the bytes and path derived from that source.
- * @author Samchon
- */
-export interface IAutoMovieScaffoldSourceEntry {
-  /**
-   * Text bytes before line-ending normalization and template rendering.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Makes the authored scaffold text an explicit portable input.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Supplies the exact source text to deterministic derivation.
-   */
-  content: string;
-  /**
-   * Scaffold-root-relative source path before stand-in renaming and rendering.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Preserves the project-relative owner of every rendered file.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Retains source identity until output injectivity is validated.
-   */
-  relative: string;
-}
-
-/**
- * Normalize `\r\n` → `\n` so the scaffold emits identical bytes on every host
- * (a Windows checkout with `core.autocrlf` would otherwise ship CRLF and drift
- * from the scaffold's own `lf` convention). The tree is text-only, so this is
- * unconditionally safe.
- */
-const normalizeLineEndings = (content: string): string =>
-  content.replaceAll("\r\n", "\n");
-
-/** POSIX-slash a path so map keys are host-independent. */
-const toPosix = (value: string): string => value.split(path.sep).join("/");
-
-/**
- * The rendered key for one scaffold-relative path.
- *
- * Path segments receive the same strict substitution and unknown-token failure
- * as file payloads. No shipped path carries a token today — authored content
- * directories are named for their owner rather than for the production — but a path is rendered
- * through the same gate as its content so a templated one can never be shipped
- * verbatim by having taken a quieter route.
- */
-const renderKey = (
-  relative: string,
-  variables: Readonly<Record<string, string>>,
-): string => {
-  const dir = path.dirname(relative);
-  const base = path.basename(relative);
-  return renderTemplate(
-    toPosix(dir === "." ? base : path.join(dir, base)),
-    variables,
-  );
-};
-
-/**
- * Directory names the scaffold never ships, whatever a host leaves there.
- *
- * A generated project installs its own dependencies and builds its own
- * caches, so anything under these names is a working artifact of whoever ran a
- * tool inside the scaffold directory rather than something the scaffold means
- * to hand over. Naming them here is what makes the shipped set a fact the code
- * decides instead of a fact the disk decides.
- */
-const UNSHIPPED_DIRECTORIES = new Set([".cache", ".git", "node_modules"]);
-
-/**
- * Compiler outputs are never authored scaffold inputs.
- *
- * All executable scaffold sources are TypeScript under src. A prior local
- * compilation must not add emitted modules, maps or declarations to the next
- * generated project. There are no filename-specific JavaScript exceptions.
- */
-const UNSHIPPED_FILES =
-  /(?:\.(?:c|m)?js(?:\.map)?|\.d\.(?:c|m)?ts|\.tsbuildinfo)$/u;
-
-/**
- * Every shipped file under `root`, root-relative, in deterministic sorted
- * order.
- *
- * Walking without exclusions made the scaffold's contents whatever happened to
- * be sitting in its directory: a `ttsc` lint cache under
- * `scaffold/node_modules/.cache` rode into every generated project, and did it
- * silently, because a clean CI checkout has no such directory and the gate
- * never saw it.
- */
-const listFiles = (root: string): string[] => {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    // Code-unit order, not localeCompare: the file listing must be identical
-    // on every host (localeCompare varies with host locale/ICU build).
-    const entries = fs
-      .readdirSync(dir, { withFileTypes: true })
-      .sort((a, b) => Number(a.name > b.name) - Number(a.name < b.name));
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (UNSHIPPED_DIRECTORIES.has(entry.name)) continue;
-        walk(full);
-      } else if (entry.isFile()) {
-        const relative = path.relative(root, full);
-        if (UNSHIPPED_FILES.test(entry.name) === false) out.push(relative);
-      }
-    }
-  };
-  walk(root);
-  return out;
-};
-
-/**
- * Render an explicit source inventory only after proving that every source has
- * one distinct output path.
- *
- * The returned object has no prototype, so names such as `__proto__` remain
- * ordinary enumerable file identities. Exact output collisions are reported
- * from sorted source identities, making the refusal independent of traversal
- * order.
- *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Produces one deterministic portable file identity for every authored scaffold source.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Rejects a derivation that would merge two distinct source identities into one output.
- * @author Samchon
- */
-export const renderScaffoldEntries = (
-  entries: readonly IAutoMovieScaffoldSourceEntry[],
-  variables: Readonly<Record<string, string>>,
-): Record<string, string> => {
-  const rendered = entries.map((entry) => ({
-    content: renderTemplate(normalizeLineEndings(entry.content), variables),
-    relative: renderKey(entry.relative, variables),
-    source: toPosix(entry.relative),
-  }));
-  const ordered = [...rendered].sort((left, right) =>
-    left.relative < right.relative
-      ? -1
-      : left.relative > right.relative
-        ? 1
-        : left.source < right.source
-          ? -1
-          : left.source > right.source
-            ? 1
-            : 0,
-  );
-  for (let index = 1; index < ordered.length; index++) {
-    const previous = ordered[index - 1]!;
-    const current = ordered[index]!;
-    if (previous.relative === current.relative)
-      throw new Error(
-        `scaffold sources collide at rendered path "${current.relative}": "${previous.source}", "${current.source}"`,
-      );
-  }
-  const files = Object.create(null) as Record<string, string>;
-  for (const entry of rendered)
-    Object.defineProperty(files, entry.relative, {
-      configurable: true,
-      enumerable: true,
-      value: entry.content,
-      writable: true,
-    });
-  return files;
-};
-
-/**
- * Absolute path to the bundled scaffold assets, resolved relative to this module
- * so it works both from `src` (ttsx, in development) and the published `lib`
- * (the `scaffold/` folder ships alongside).
- *
- * `moduleDirectory` defaults to this module's own, which is the only value any
- * caller passes. It is a parameter so that the missing-assets refusal is an
- * ordinary case over an ordinary input rather than a branch reachable only by
- * moving the shipped directory out from under a running test. A guard whose
- * failure sentence has never been produced is a guard nobody has read.
- *
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Exposes the capability-oriented scaffold as the input to deterministic scaffold rendering.
- */
-export const scaffoldAssetDirectory = (
-  moduleDirectory: string = __dirname,
-): string => {
-  const directory = path.resolve(moduleDirectory, "..", "scaffold");
-  if (!fs.existsSync(directory))
-    throw new Error(`scaffold assets are missing: ${directory}`);
-  return directory;
-};
-
-/**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map:
  * read every asset, normalize line endings, substitute `{{name}}` and the
- * catalog-resolved `{{version:*}}` tokens without renaming authored filenames.
+ * catalog-resolved `{{version:*}}` tokens, and restore the root pack-safe
+ * `_gitignore` stand-in to the installed `.gitignore` identity.
  *
  * The map is deliberately not written to disk here (that is {@link writeFiles}'s
  * job). Callers can inspect the returned candidate or pass it directly to the
@@ -384,7 +179,7 @@ export const renderScaffold = (
   ).map(([relative, content]) => ({ content, relative }));
   const files = renderScaffoldEntries(
     [
-      ...listFiles(root).map((relative) => ({
+      ...listAutoMovieScaffoldFiles(root).map((relative) => ({
         content: fs.readFileSync(path.join(root, relative), "utf8"),
         relative,
       })),

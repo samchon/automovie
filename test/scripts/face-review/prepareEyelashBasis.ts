@@ -262,7 +262,11 @@ export const faceEyelashLift = (
   if (patch === null) return null;
   const [u, v, w] = patch.weights;
   const [p, q, r] = patch.triangle.xyz;
-  return [0, 1, 2].map((axis) => u * p[axis] + v * q[axis] + w * r[axis]) as [number, number, number];
+  return [0, 1, 2].map((axis) => u * p[axis] + v * q[axis] + w * r[axis]) as [
+    number,
+    number,
+    number,
+  ];
 };
 
 /**
@@ -356,18 +360,32 @@ export function drawEyelashTexture(props: {
       const samples = Math.max(2, Math.ceil(span));
       const coverage = new Map<number, number>();
       let previousPixel: [number, number] = [x0, y0];
-      let previousWidth = norm.diameter * 1e-3 * size /
-        faceEyelashTransverseScale(card, start, [end[0] - start[0], end[1] - start[1]]);
+      let previousWidth =
+        (norm.diameter * 1e-3 * size) /
+        faceEyelashTransverseScale(card, start, [
+          end[0] - start[0],
+          end[1] - start[1],
+        ]);
       for (let s = 1; s <= samples; ++s) {
         const t = s / samples;
         const cx = x0 + (x1 - x0) * t;
         const cy = y0 + (y1 - y0) * t;
-        const transverse = faceEyelashTransverseScale(card, [cx / size, cy / size],
-          [end[0] - start[0], end[1] - start[1]]);
-        const width = norm.diameter * 1e-3 * size / transverse * (1 - 0.9 * t);
+        const transverse = faceEyelashTransverseScale(
+          card,
+          [cx / size, cy / size],
+          [end[0] - start[0], end[1] - start[1]],
+        );
+        const width =
+          ((norm.diameter * 1e-3 * size) / transverse) * (1 - 0.9 * t);
         const pixel: [number, number] = [cx, cy];
-        rasterizeEyelashSegment({ start: previousPixel, end: pixel,
-          widthStart: previousWidth, widthEnd: width, size, coverage });
+        rasterizeEyelashSegment({
+          start: previousPixel,
+          end: pixel,
+          widthStart: previousWidth,
+          widthEnd: width,
+          size,
+          coverage,
+        });
         previousPixel = pixel;
         previousWidth = width;
       }

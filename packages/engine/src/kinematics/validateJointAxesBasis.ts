@@ -73,6 +73,17 @@ export const validateJointAxesBasis = (
     }
   }
 
+  if (
+    axes.twistPlacement !== undefined &&
+    axes.twistPlacement !== "proximal" &&
+    axes.twistPlacement !== "distal"
+  )
+    issues.push({
+      path: `${path}.twistPlacement`,
+      expected: `must be "proximal" or "distal", but was ${String(axes.twistPlacement)}`,
+      value: axes.twistPlacement,
+    });
+
   return issues;
 };
 
@@ -82,6 +93,9 @@ const normalizeRawJointAxes = (
   flexion: normalizeAxis(axes.flexion),
   abduction: normalizeAxis(axes.abduction),
   twist: normalizeAxis(axes.twist),
+  ...(axes.twistPlacement === undefined
+    ? {}
+    : { twistPlacement: axes.twistPlacement }),
 });
 
 const normalizeAxis = (axis: IAutoMovieVector3): IAutoMovieVector3 =>

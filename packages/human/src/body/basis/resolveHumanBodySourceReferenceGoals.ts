@@ -1,0 +1,111 @@
+import {
+  Quaternion,
+  decomposeJointRotation,
+  jointToQuaternion,
+  validatePose,
+} from "@automovie/engine";
+import type { IAutoMovieJointPose } from "@automovie/interface";
+
+import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IHumanBodySourceReferenceGoalContext } from "./IHumanBodySourceReferenceGoalContext";
+
+/**
+ * Convert explicit source-reference goals into the existing source pose.
+ *
+ * The shared document-rig owner supplies one shaped rig and its ordinary
+ * pre-pelvis FK/TT result. Capability admission has proved that goal motion
+ * cannot change its reference or rig anchors. The reference's rest-to-current
+ * travel transports each thigh rest, then the existing joint quaternion owner
+ * applies the requested axes/signs/neutral. The existing inverse reads that
+ * world target in its source parent frame, yielding the raw coordinate used
+ * by correctives, coordination and skinning. Nothing reinterprets legacy pose.
+ *
+ * The original document remains the saved authority. This internal document
+ * removes goals and adds their converted source rows; explicit zero is kept.
+ * The source joint's existing envelope conservatively admits requested goals,
+ * and the caller admits converted and final actual parent coordinates too.
+ * Values use the engine's finite/gimbal conventions, not a certified angular
+ * interval or an individual's clinical registration or motion capacity.
+ *
+ * @evidence contracts/common.md#principled-implementation Composes actual reference travel, the supplied shaped thigh rest and jointToQuaternion, then reads the same skeleton parent/local rest through decomposeJointRotation. Converted raw degrees remain the existing corrective and curve authority.
+ * @evidence contracts/common.md#clear-and-simple-design One indexed supplied FK result and one pass over explicit goals; no skin generation, second skeleton or mutable document state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No source ID or hand-copied angle formula solves the request; unsupported declarations and requested source envelopes refuse rather than clamp.
+ * @evidence contracts/common.md#meaningful-documentation Names the prepared-rig precondition, target composition, effective-document purpose and source-rig numerical meaning.
+ * @evidence contracts/modeling.md#parameter-channels Goals use the thigh's existing source axes/signs/neutral in degrees; their raw representation alone drives the existing performance pipeline.
+ * @evidence contracts/modeling.md#spatial-conventions Source-reference travel is current world times inverse rest world; removing source parent world and local rest yields the existing local articulation convention.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Constructs no part.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries Defines no tissue boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The builder and editor observe the converted performance.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no personal measurement or clinical frame.
+ * @evidence contracts/anatomy.md#permitted-range Requested goals retain the existing source envelope owner; the shared caller additionally enforces converted and post-pelvis actual ranges.
+ * @evidence contracts/anatomy.md#parametric-authority Named source motion degrees are converted without asking for editable vertices, axes or geometry.
+ */
+export function resolveHumanBodySourceReferenceGoals(
+  input: IHumanBodySourceReferenceGoalContext,
+): IAutoMovieHumanBodyBasisDocument {
+  const { basis, document, rig } = input;
+  if ((document.thighGoals ?? []).length === 0) return document;
+  const goals = document.thighGoals!;
+  const violations = validatePose({
+    pose: { skeleton: rig.skeleton.id, root: null, joints: goals },
+    skeleton: rig.skeleton,
+  }).items;
+  if (violations.length > 0)
+    throw new Error(
+      "Body source-reference goal exceeds its source authoring envelope: " +
+        JSON.stringify(violations),
+    );
+  const bones = new Map(input.baseline.map((bone) => [bone.bone, bone]));
+  const converted: IAutoMovieJointPose[] = goals.map((goal) => {
+    const contract = basis.joints.find(
+      (joint) => joint.bone === goal.bone,
+    )?.sourceReferenceGoal;
+    if (contract === undefined)
+      throw new Error(
+        "Body source-reference goal needs an explicit declaration in this exact basis revision: " +
+          goal.bone,
+      );
+    const reference = bones.get(contract.reference)!;
+    const thighRest = rig.rest.get(goal.bone)!;
+    const referenceRest = rig.rest.get(contract.reference)!;
+    const travel = Quaternion.multiply(
+      reference.worldRotation,
+      Quaternion.inverse(referenceRest.rotation),
+    );
+    const target = Quaternion.normalize(
+      Quaternion.multiply(
+        travel,
+        Quaternion.multiply(
+          thighRest.rotation,
+          jointToQuaternion(goal, rig.axes[goal.bone], rig.frames[goal.bone]),
+        ),
+      ),
+    );
+    const sourceJoint = rig.skeleton.bones.find(
+      (bone) => bone.bone === goal.bone,
+    )!;
+    const parent = bones.get(sourceJoint.parent!)!;
+    const local = Quaternion.multiply(
+      Quaternion.inverse(parent.worldRotation),
+      target,
+    );
+    const articulation = Quaternion.multiply(
+      Quaternion.inverse(sourceJoint.rest.rotation),
+      local,
+    );
+    return {
+      bone: goal.bone,
+      ...decomposeJointRotation(
+        articulation,
+        rig.axes[goal.bone],
+        rig.frames[goal.bone],
+      ),
+    };
+  });
+  return {
+    ...document,
+    thighGoals: undefined,
+    pose: [...(document.pose ?? []), ...converted],
+  };
+}

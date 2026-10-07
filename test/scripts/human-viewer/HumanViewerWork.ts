@@ -21,7 +21,25 @@ export interface HumanViewerWork {
   doc: string;
 
   /** The outstanding operation, or idle after a completed frame. */
-  phase: "loading" | "cache-read" | "build" | "numeric-reply" | "cache-write" | "prepare" | "draw" | "idle" | "failed";
+  phase:
+    | "loading"
+    | "cache-read"
+    | "build"
+    | "numeric-reply"
+    | "cache-write"
+    | "prepare"
+    | "draw"
+    | "idle"
+    | "failed";
+
+  /** Latest actual numerical owner completion, when this transition reports one. */
+  completed?: string;
+
+  /** Worker monotonic milliseconds from request start; not added to page spans. */
+  completionElapsedMs?: number;
+
+  /** Worker monotonic milliseconds since its preceding completion. */
+  completionStageMs?: number;
 
   /** Wall-clock milliseconds at this transition. */
   at: number;
@@ -34,4 +52,10 @@ export interface HumanViewerWork {
 
   /** Textures retained by the shared WebGL renderer. */
   textures: number;
+
+  /** Documents the page keeps drawn-ready. */
+  residents: number;
+
+  /** Bytes of arrays those residents keep alive, the quantity their cache is bounded by. */
+  residentBytes: number;
 }

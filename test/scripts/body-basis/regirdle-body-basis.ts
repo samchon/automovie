@@ -1,4 +1,5 @@
-import { type IAutoMovieHumanBodyBasis, createHumanBodyBasisBuilder } from "@automovie/human";
+import { createHumanBodyBasisBuilder } from "@automovie/human/body/basis/createHumanBodyBasisBuilder";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
@@ -24,23 +25,48 @@ import { regirdleHumanBodyBasis } from "./regirdleHumanBodyBasis";
  */
 const options = readBodyBasisSidecarArguments(process.argv.slice(2));
 const basisPath = fs.realpathSync(path.resolve(options.basis));
-const outputPath = path.join(fs.realpathSync(path.dirname(path.resolve(options.output))), path.basename(options.output));
-const receiptPath = path.join(fs.realpathSync(path.dirname(path.resolve(options.receipt))), path.basename(options.receipt));
-const canonical = (file: string): string => process.platform === "win32" ? file.toLowerCase() : file;
+const outputPath = path.join(
+  fs.realpathSync(path.dirname(path.resolve(options.output))),
+  path.basename(options.output),
+);
+const receiptPath = path.join(
+  fs.realpathSync(path.dirname(path.resolve(options.receipt))),
+  path.basename(options.receipt),
+);
+const canonical = (file: string): string =>
+  process.platform === "win32" ? file.toLowerCase() : file;
 assertBodyBasisSidecarPaths({
-  source: canonical(basisPath), output: canonical(outputPath), receipt: canonical(receiptPath),
-  published: canonical(fs.realpathSync("studies/human-body/connected-basis/basis.json.gz")),
+  source: canonical(basisPath),
+  output: canonical(outputPath),
+  receipt: canonical(receiptPath),
+  published: canonical(
+    fs.realpathSync("studies/human-body/connected-basis/basis.json.gz"),
+  ),
   root: canonical(fs.realpathSync("../.shots") + path.sep),
 });
-const input = JSON.parse(zlib.gunzipSync(fs.readFileSync(basisPath)).toString("utf8")) as IAutoMovieHumanBodyBasis;
+const input = JSON.parse(
+  zlib.gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
+) as IAutoMovieHumanBodyBasis;
 createHumanBodyBasisBuilder(input);
 const candidate = regirdleHumanBodyBasis({
-  input, revision: options.revision, expectedSha256: options.expectedSha256,
-  onsetDegrees: options.onsetDegrees, fullDegrees: options.fullDegrees,
+  input,
+  revision: options.revision,
+  expectedSha256: options.expectedSha256,
+  onsetDegrees: options.onsetDegrees,
+  fullDegrees: options.fullDegrees,
 });
 createHumanBodyBasisBuilder(candidate.basis);
-const payload = zlib.gzipSync(Buffer.from(JSON.stringify(candidate.basis)), { level: 9 });
-const receipt = { ...candidate.receipt, inputPath: basisPath, outputPath, receiptPath };
+const payload = zlib.gzipSync(Buffer.from(JSON.stringify(candidate.basis)), {
+  level: 9,
+});
+const receipt = {
+  ...candidate.receipt,
+  inputPath: basisPath,
+  outputPath,
+  receiptPath,
+};
 fs.writeFileSync(outputPath, payload, { flag: "wx" });
-fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, 2) + "\n", { flag: "wx" });
+fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, 2) + "\n", {
+  flag: "wx",
+});
 console.log(JSON.stringify(receipt, null, 2));

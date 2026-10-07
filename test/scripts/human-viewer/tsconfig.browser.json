@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.scripts.json",
+  "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"] },
+  "include": ["*.ts", "page.mts", "host.mts", "index.mts", "parts.mts", "numerical-worker.mts", "createHumanViewerNumericalPort.mts"]
+}

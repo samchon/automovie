@@ -1,18 +1,10 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import type { IAutoMovieSignedMeshQueryHit } from "./IAutoMovieSignedMeshQueryHit";
+import type { IAutoMovieSignedMeshQueryOptions } from "./IAutoMovieSignedMeshQueryOptions";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-
-/** A nearest geometric feature and its oriented distance in mesh-local metres. */
-interface Hit {
-  point: number[];
-  normal: number[];
-  distance2: number;
-  triangle: number;
-  feature: "face" | "edge" | "vertex";
-  boundary: boolean;
-}
 
 /** The running nearest feature of one query, rewritten in place as it improves. */
 interface Best {
@@ -21,7 +13,7 @@ interface Best {
   normal: number[];
   distance2: number;
   triangle: number;
-  feature: Hit["feature"];
+  feature: IAutoMovieSignedMeshQueryHit["feature"];
   boundary: boolean;
 }
 
@@ -31,6 +23,15 @@ interface Edge {
   normal: number[];
   count: number;
   balance: number;
+}
+
+interface TriangleSegment {
+  from: number;
+  to: number;
+  point: number[];
+  direction: number[];
+  length2: number;
+  edge: Edge;
 }
 
 interface Triangle {
@@ -43,14 +44,7 @@ interface Triangle {
   bb: number;
   abac: number;
   determinant: number;
-  segments: {
-    from: number;
-    to: number;
-    point: number[];
-    direction: number[];
-    length2: number;
-    edge: Edge;
-  }[];
+  segments: TriangleSegment[];
   low: number[];
   high: number[];
   /** Box centre per axis, measured once for the hierarchy's median splits. */
@@ -135,16 +129,8 @@ const unit = (vector: readonly number[]): number[] => {
  */
 export function createAutoMovieSignedMeshQuery(
   mesh: IAutoMovieMesh,
-  options?: { boundary?: "closed" | "open" },
-): (point: readonly number[]) => {
-  point: number[];
-  normal: number[];
-  distance: number;
-  signedDistance: number;
-  triangle: number;
-  feature: "face" | "edge" | "vertex";
-  boundary: boolean;
-} {
+  options?: IAutoMovieSignedMeshQueryOptions,
+): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
   const indices = triangleIndicesOf(mesh, "Signed mesh queries");
   if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
     throw new Error("Signed mesh queries need a nonempty finite surface.");
@@ -184,7 +170,15 @@ export function createAutoMovieSignedMeshQuery(
     const determinant = aa * bb - abac * abac;
     if (!(determinant > 0) || !Number.isFinite(determinant))
       throw new Error(
-        "Signed mesh triangle arithmetic must have finite positive rank.",
+        "Signed mesh triangle arithmetic must have finite positive rank: triangle " +
+          at / 3 +
+          ", vertices " +
+          source.join(",") +
+          ", determinant " +
+          determinant +
+          ", points " +
+          JSON.stringify(points) +
+          ".",
       );
     const segments: Triangle["segments"] = [];
     for (let corner = 0; corner < 3; corner++) {
@@ -447,7 +441,7 @@ const consider = (
     cy = 0,
     cz = 0,
     normal: number[] = t.normal,
-    feature: Hit["feature"] = "edge",
+    feature: IAutoMovieSignedMeshQueryHit["feature"] = "edge",
     boundary = false;
   for (const segment of t.segments) {
     const sx = segment.point[0],

@@ -31,7 +31,6 @@ export function faceSupportFaultTriangles(props: {
 }): Set<number> {
   const measured = measureFaceSupportFaults(props);
   const out = new Set(measured.turned);
-  for (const pair of measured.crossings)
-    for (const t of pair) out.add(t);
+  for (const pair of measured.crossings) for (const t of pair) out.add(t);
   return out;
 }

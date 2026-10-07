@@ -1,8 +1,6 @@
-import type { IAutoMovieMaterial } from "@automovie/interface";
-
 import type { IAutoMovieHumanBodyBasisDocument } from "../../body/structures/IAutoMovieHumanBodyBasisDocument";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
-import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
+import type { IDeriveHumanPersonBodyProps } from "./IDeriveHumanPersonBodyProps";
 
 /**
  * The body document a person evaluates: the person's body with the skin
@@ -38,11 +36,9 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
  * @evidenceExclude contracts/anatomy.md#permitted-range The range of the channels is the body basis's rule, restated here so the refusal names the person.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input; it removes the body's duplicate of one.
  */
-export function deriveHumanPersonBody(props: {
-  document: IAutoMovieHumanPersonDocument;
-  /** The face basis's materials, the source of the skin colour before overrides. */
-  faceMaterials: readonly IAutoMovieMaterial[];
-}): IAutoMovieHumanBodyBasisDocument {
+export function deriveHumanPersonBody(
+  props: IDeriveHumanPersonBodyProps,
+): IAutoMovieHumanBodyBasisDocument {
   const { document, faceMaterials } = props;
   if (document.body.skinColour !== undefined)
     throw new Error(
@@ -57,8 +53,8 @@ export function deriveHumanPersonBody(props: {
         HUMAN_PERSON_SEAM.skinMaterial +
         "' to take the person's skin colour from.",
     );
-  const override = document.face.materials?.[HUMAN_PERSON_SEAM.skinMaterial]
-    ?.color;
+  const override =
+    document.face.materials?.[HUMAN_PERSON_SEAM.skinMaterial]?.color;
   const cheek = {
     r: override?.r ?? skin.baseColor.r,
     g: override?.g ?? skin.baseColor.g,

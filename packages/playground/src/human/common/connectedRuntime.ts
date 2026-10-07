@@ -1,12 +1,14 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import {
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceContactSummary,
-  createHumanFaceBasisBuilder,
-  exportHumanFace,
-  parseHumanFaceBasisDocument,
-  summarizeHumanFaceArticulation,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceContactSummary } from "@automovie/human";
+import { createHumanFaceBasisBuilder } from "@automovie/human/face/basis/createHumanFaceBasisBuilder";
+import { readHumanFacePartCensus } from "@automovie/human/face/basis/readHumanFacePartCensus";
+import { summarizeHumanFaceArticulation } from "@automovie/human/face/basis/summarizeHumanFaceArticulation";
+import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
+import { createHumanFaceOralExportQualification } from "@automovie/human/face/export/createHumanFaceOralExportQualification";
+import { exportHumanFace } from "@automovie/human/face/export/exportHumanFace";
+
+import type { ConnectedFaceRequest } from "./ConnectedFaceRequest";
+import type { IConnectedFaceRuntimeProps } from "./IConnectedFaceRuntimeProps";
 
 /**
  * The ambient occlusion a preview or export bakes when asked: 32 rays a
@@ -25,38 +27,69 @@ const FACE_OCCLUSION = { rays: 32, size: 1024 };
  * millimetres beside the optional crossing census. A request may ask for the
  * face's ambient occlusion, baked from the evaluated geometry into its
  * materials (`bakeHumanFaceOcclusion`).
+ * Explicit construction inspection calls the same builder's construction
+ * entry and preserves its whole model and admission report. A refused draft
+ * does not publish the builder's success-only contact observation and never
+ * serves as an admitted preview or export.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Preserves one admitted document's geometry across preview and export.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates numerical evaluation from file encoding in a resident worker.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Asks the builder to bake the face's ambient occlusion when a preview or export requests it.
  */
-export function createConnectedFaceRuntime(props: {
-  basis: IAutoMovieHumanFaceBasis;
-}) {
+export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
   let contact: IAutoMovieHumanFaceContactSummary | null = null;
   const observe = (summary: IAutoMovieHumanFaceContactSummary | null) => {
     contact = summary;
   };
-  const evaluate = createHumanFaceBasisBuilder(props.basis, { observe });
+  const evaluate = createHumanFaceBasisBuilder(props.basis, {
+    observe,
+    observeConstructionProgress: props.progress,
+  });
   // The builder that also bakes the face's ambient occlusion, made on the
   // first request that asks for it.
   let occluded: ReturnType<typeof createHumanFaceBasisBuilder> | undefined;
-  return async (request: {
-    document: string;
-    operation: "preview" | "export";
-    measure?: boolean;
-    occlusion?: boolean;
-  }) => {
+  return async (request: ConnectedFaceRequest) => {
     const document = parseHumanFaceBasisDocument(request.document);
-    const model =
+    const builder =
       request.occlusion === true
         ? (occluded ??= createHumanFaceBasisBuilder(props.basis, {
             observe,
+            observeConstructionProgress: props.progress,
             occlusion: FACE_OCCLUSION,
-          }))(document)
-        : evaluate(document);
+          }))
+        : evaluate;
+    if (request.operation === "construct") {
+      const construction = builder.construct(document);
+      return {
+        operation: "construct" as const,
+        model: construction.model,
+        admission: {
+          ...construction.admission,
+          parts:
+            construction.admission.parts ??
+            readHumanFacePartCensus(construction.model),
+        },
+        periocularMappings: construction.periocularMappings,
+        articulation: summarizeHumanFaceArticulation(props.basis, document),
+        // Construction publishes no success-only contact observer. Its
+        // complete measured relations remain in the owner's admission.
+        contact: null,
+        crossings:
+          request.measure === true
+            ? measureAutoMovieModelCrossings(construction.model)
+            : null,
+      };
+    }
+    const model = builder(document);
     if (request.operation === "export") {
-      const { glb } = await exportHumanFace(model);
+      const { glb } = await exportHumanFace(
+        model,
+        await createHumanFaceOralExportQualification(
+          props.basis,
+          document,
+          model,
+        ),
+      );
       return { operation: "export" as const, glb };
     }
     return {
@@ -69,13 +102,3 @@ export function createConnectedFaceRuntime(props: {
     };
   };
 }
-
-/** Numerical requests admitted by the connected runtime. */
-export type ConnectedFaceRequest = Parameters<
-  ReturnType<typeof createConnectedFaceRuntime>
->[0];
-
-/** File bytes and resident previews are distinct reply alternatives. */
-export type ConnectedFaceResult = Awaited<
-  ReturnType<ReturnType<typeof createConnectedFaceRuntime>>
->;

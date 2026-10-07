@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
@@ -45,7 +45,8 @@ const extra = JSON.parse(option("--extra-shapes") ?? "{}") as Record<
 const basis = JSON.parse(
   gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
-const only = option("--only") === undefined ? null : new RegExp(option("--only")!);
+const only =
+  option("--only") === undefined ? null : new RegExp(option("--only")!);
 const states = listBodyHipStates(basis, angles, extra).filter(
   (state) =>
     (only === null || only.test(state.name)) &&

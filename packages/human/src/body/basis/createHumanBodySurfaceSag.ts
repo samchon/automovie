@@ -1,4 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisSurfaceSag } from "../structures/surface/IAutoMovieHumanBodyBasisSurfaceSag";
+import type { IHumanBodySurfaceSagInput } from "./IHumanBodySurfaceSagInput";
 
 type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
 
@@ -34,16 +36,8 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  */
 export function createHumanBodySurfaceSag(
   surface: Surface,
-  sag: NonNullable<Surface["sag"]>,
-): (props: {
-  /** The document's shape at the rest pose, the lean shape, and the skinned positions. */
-  rest: number[];
-  lean: number[];
-  skinned: number[];
-  /** Per vertex, where the skin's rest `down` points after the pose (unit, basis frame). */
-  hanging: number[];
-  softness: number;
-}) => number[] {
+  sag: IAutoMovieHumanBodyBasisSurfaceSag,
+): (props: IHumanBodySurfaceSagInput) => number[] {
   const count = surface.positions.length / 3;
   const sets = Array.from({ length: count }, () => new Set<number>());
   const edges = new Map<string, number>();

@@ -15,7 +15,11 @@ import type {
  */
 export function createJointPoseRow(
   bone: string,
-  angles: { flexion?: number | null; abduction?: number | null; twist?: number | null },
+  angles: {
+    flexion?: number | null;
+    abduction?: number | null;
+    twist?: number | null;
+  },
 ): IAutoMovieJointPose {
   return {
     bone: bone as AutoMovieHumanoidBone,

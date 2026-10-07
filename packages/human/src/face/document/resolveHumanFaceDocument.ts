@@ -1,13 +1,13 @@
 import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
 import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
-import { portraitFacialFrameWidthLimit } from "../anatomy/cranium/portraitFacialFrameWidthLimit";
 import { portraitCranialChinHeight } from "../anatomy/cranium/portraitCranialChinHeight";
+import { portraitFacialFrameWidthLimit } from "../anatomy/cranium/portraitFacialFrameWidthLimit";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
-import { resolvePortraitNeckShape } from "../anatomy/cranium/resolvePortraitNeckShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
-import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
+import { resolvePortraitNeckShape } from "../anatomy/cranium/resolvePortraitNeckShape";
 import { portraitEarSampling } from "../anatomy/ear/portraitEarSampling";
+import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { resolvePortraitSkinShape } from "../anatomy/skin/resolvePortraitSkinShape";
 import { assertPortraitTongueWithinArch } from "../anatomy/tongue/assertPortraitTongueWithinArch";

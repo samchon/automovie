@@ -49,7 +49,7 @@ export const HUMAN_BODY_UNDERWEAR: IAutoMovieHumanBodyUnderwear.ITable = {
     },
   },
   bra: {
-    nipple: { surface: 0, vertex: 21898 },
+    nipple: "nipple-left",
     bottom: 0.55,
     front: 0.45,
     back: 0.1,

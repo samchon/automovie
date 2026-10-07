@@ -36,10 +36,14 @@ export function createHumanBodySkinPoreSampler(input: {
   const { seed, tileMillimetres, perSquareCentimetre } = input;
   if (
     !Number.isFinite(seed) ||
-    !Number.isFinite(tileMillimetres) || tileMillimetres <= 0 ||
-    !Number.isFinite(perSquareCentimetre) || perSquareCentimetre < 0
+    !Number.isFinite(tileMillimetres) ||
+    tileMillimetres <= 0 ||
+    !Number.isFinite(perSquareCentimetre) ||
+    perSquareCentimetre < 0
   )
-    throw new Error("Skin pore sampling needs finite seed, positive tile side and nonnegative density.");
+    throw new Error(
+      "Skin pore sampling needs finite seed, positive tile side and nonnegative density.",
+    );
   const area = (tileMillimetres / 10) ** 2;
   if (!Number.isFinite(area) || area <= 0)
     throw new Error("Skin pore sampling needs a finite positive tile area.");
@@ -55,13 +59,17 @@ export function createHumanBodySkinPoreSampler(input: {
     count,
     at: (index) => {
       if (!Number.isSafeInteger(index) || index < 0 || index >= count)
-        throw new Error("Skin pore sampling needs an index inside its population.");
+        throw new Error(
+          "Skin pore sampling needs an index inside its population.",
+        );
       const longer = index < longerPopulation;
       const width = columns + (longer ? 1 : 0);
       const local = longer ? index : index - longerPopulation;
       const row = Math.floor(local / width) + (longer ? 0 : longerRows);
       const column = local % width;
-      const before = longer ? row * width : longerPopulation + (row - longerRows) * width;
+      const before = longer
+        ? row * width
+        : longerPopulation + (row - longerRows) * width;
       return [
         ((column + seededValue(seed, 7, column, row, 1)) / width) % 1,
         ((before + seededValue(seed, 7, column, row, 2) * width) / count) % 1,

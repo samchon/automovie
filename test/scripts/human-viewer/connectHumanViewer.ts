@@ -1,6 +1,12 @@
-import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
+import type { HumanViewerPartsResponse } from "./HumanViewerPartsResponse";
+import type { IConnectHumanViewerProps } from "./IConnectHumanViewerProps";
+import type { IHumanShotHealth } from "./IHumanShotHealth";
+import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue";
 import type { IHumanViewerClient } from "./IHumanViewerClient";
+import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
+import type { IHumanViewerErrorBody } from "./IHumanViewerErrorBody";
 import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
+
 /**
  * Connect to the resident development viewer and return a client over it.
  *
@@ -11,12 +17,14 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
  * accepted and the files it rejected, so a document the numerical builder's
  * basis check refuses is reported here and not as a blank frame later. A frame
  * is the PNG the server drew on its real GPU; a refusal comes back as `ok:
- * false` with the server's reason. Pure over `io`.
+ * false` with the server's reason. A frame the server marks stale, drawn by
+ * the last good generation while the current source failed or is still
+ * rebuilding, is also `ok: false`: it is not an observation of the current
+ * source, so no record may count it as one. Pure over `io`.
  */
-export async function connectHumanViewer(props: {
-  io: IHumanViewerClientIo;
-  origin: string;
-}): Promise<IHumanViewerClient> {
+export async function connectHumanViewer(
+  props: IConnectHumanViewerProps,
+): Promise<IHumanViewerClient> {
   const { origin } = props;
   // A loaded server resets kept-alive sockets; every route is safe to ask again.
   const io: IHumanViewerClientIo = {
@@ -24,18 +32,20 @@ export async function connectHumanViewer(props: {
     fetch: (url) =>
       retryHumanViewerFetch(() => props.io.fetch(url), {
         attempts: 3,
-        pause: (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }),
+        pause: (ms) =>
+          new Promise<undefined>((resolve) => {
+            setTimeout(resolve, ms);
+          }),
       }),
   };
   const health = await io.fetch(origin + "/health");
-  const status = (await health.json()) as {
-    service?: string;
-    ready?: boolean;
-    renderer?: string;
-    revision?: string;
-  };
+  const status = (await health.json()) as Partial<IHumanShotHealth>;
   if (status.service !== "automovie-human-viewer")
     throw new Error("The port belongs to another program");
+  if (io.storage !== undefined && status.storage !== io.storage)
+    throw new Error(
+      `The resident viewer does not serve the selected storage ${io.storage}; it reports ${status.storage ?? "no storage identity"}`,
+    );
   if (status.ready !== true)
     throw new Error(
       "The resident viewer is not ready; start it with human-shot.mts ensure.",
@@ -45,25 +55,48 @@ export async function connectHumanViewer(props: {
     revision: status.revision ?? "",
     drop: async ({ label, documents, candidateBasis }) => {
       if (!/^[A-Za-z0-9._-]+$/.test(label))
-        throw new Error("An input label uses letters, digits, dots, dashes and underscores");
+        throw new Error(
+          "An input label uses letters, digits, dots, dashes and underscores",
+        );
       if (candidateBasis !== undefined && candidateBasis !== null)
         io.copyInput(label + ".basis.json.gz", candidateBasis);
       io.writeInput(label + ".json", JSON.stringify(documents));
-      const scan = (await (await io.fetch(origin + "/rescan")).json()) as {
-        rejected: { file: string; reason: string }[];
-      };
-      const refused = scan.rejected.find((entry) => entry.file === label + ".json");
-      if (refused !== undefined) throw new Error(refused.reason);
+      // A refusal fails the drop with its reason. A pending input is one the
+      // server says will be decided (its page is still starting): it is asked
+      // about again, and what it waits for is reported whenever that changes.
+      // A page that failed for good refuses instead, so this never waits on
+      // a page that cannot answer.
+      let waiting = "";
+      for (;;) {
+        const scan = (await (
+          await io.fetch(origin + "/rescan")
+        ).json()) as Pick<IHumanViewerCatalogue, "rejected">;
+        const entries = scan.rejected.filter(
+          (entry) => entry.file === label + ".json",
+        );
+        const refused = entries.find((entry) => !entry.pending);
+        if (refused !== undefined) throw new Error(refused.reason);
+        if (entries.length === 0) return;
+        const reason = entries.map((entry) => entry.reason).join("; ");
+        if (reason !== waiting) io.report(`waiting for ${label}: ${reason}`);
+        waiting = reason;
+        await new Promise<undefined>((resolve) => {
+          setTimeout(resolve, 1000);
+        });
+      }
     },
     parts: async (fields) => {
       const response = await io.fetch(
         origin + "/parts?" + new URLSearchParams(fields).toString(),
       );
       if (!response.ok)
-        throw new Error(((await response.json()) as { error: string }).error);
-      return ((await response.json()) as { name: string }[]).map(
-        (part) => part.name,
-      );
+        throw new Error(
+          ((await response.json()) as IHumanViewerErrorBody).error,
+        );
+      const parts = (await response.json()) as HumanViewerPartsResponse;
+      return Array.isArray(parts)
+        ? parts.map((part) => part.name)
+        : parts.parts;
     },
     render: async (fields) => {
       const response = await io.fetch(
@@ -72,12 +105,30 @@ export async function connectHumanViewer(props: {
       if (!response.ok)
         return {
           ok: false,
-          error: ((await response.json()) as { error: string }).error,
+          error: ((await response.json()) as IHumanViewerErrorBody).error,
+        };
+      if (response.headers.get("x-human-stale") === "true")
+        return {
+          ok: false,
+          error: `Stale frame: drawn by revision ${response.headers.get("x-human-revision") ?? "unknown"}, not the current source`,
+        };
+      const revision = response.headers.get("x-human-revision");
+      const renderer = response.headers.get("x-renderer");
+      if (
+        !revision ||
+        !renderer ||
+        response.headers.get("x-human-stale") !== "false"
+      )
+        return {
+          ok: false,
+          error:
+            "The render response does not identify a current source revision and renderer",
         };
       return {
         ok: true,
         bytes: Buffer.from(await response.arrayBuffer()),
-        renderer: response.headers.get("x-renderer") ?? status.renderer ?? "",
+        renderer,
+        revision,
       };
     },
   };

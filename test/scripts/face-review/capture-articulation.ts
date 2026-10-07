@@ -30,7 +30,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { judgeViewerRenderer } from "../human-viewer/judgeViewerRenderer";
-import type { IPortraitWebModel, IPortraitWebOptions } from "./web/IPortraitWebModel";
+import type {
+  IPortraitWebModel,
+  IPortraitWebOptions,
+} from "./web/IPortraitWebModel";
 import {
   type IPortraitWebPose,
   portraitWebCapturePose,
@@ -80,7 +83,8 @@ async function main(): Promise<void> {
   const [input, output, viewList, poseFile] = process.argv.slice(2);
   if (input === undefined || output === undefined)
     throw new Error("Supply the census directory and an output directory.");
-  const views = viewList === undefined ? Object.keys(VIEWS) : viewList.split(",");
+  const views =
+    viewList === undefined ? Object.keys(VIEWS) : viewList.split(",");
   const poseBytes = poseFile === undefined ? null : fs.readFileSync(poseFile);
   const poses = (
     poseBytes === null ? null : JSON.parse(poseBytes.toString("utf8"))
@@ -101,8 +105,12 @@ async function main(): Promise<void> {
     args: ["--use-gl=angle", "--ignore-gpu-blocklist"],
   });
   try {
-    const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
-    page.on("pageerror", (error) => console.error("page error:", error.message));
+    const page = await browser.newPage({
+      viewport: { width: 900, height: 900 },
+    });
+    page.on("pageerror", (error) =>
+      console.error("page error:", error.message),
+    );
     await page.goto(`${server.resolvedUrls!.local[0]}articulation-viewer.html`);
     await page.waitForFunction(() => typeof window.show === "function");
     const renderer = await page.evaluate(() => window.RENDERER);
@@ -124,7 +132,11 @@ async function main(): Promise<void> {
       for (const view of views) {
         const options =
           view === "reference-yaw" || view === "reference-yaw-hair-mask"
-            ? portraitWebCapturePose(poses, model.id, view.endsWith("hair-mask"))
+            ? portraitWebCapturePose(
+                poses,
+                model.id,
+                view.endsWith("hair-mask"),
+              )
             : VIEWS[view];
         if (options === undefined) throw new Error("Unknown view: " + view);
         const result = await page.evaluate(

@@ -1,59 +1,61 @@
 /// <reference lib="webworker" />
 /**
- * A worker that owns the body editor's simple tier: it loads the shipped
- * body basis once and answers expansion, projection and one measured detailed
+ * A worker that owns the body editor's simple tier: it loads the body
+ * partition view of the published person generation once and answers expansion, projection and one measured detailed
  * channel target. Each runs the package's measured inversions (dozens of full
  * shape evaluations), which would hold the page's main thread for seconds,
- * so they run here and the page stays responsive while they solve.
+ * so they run here and the page stays responsive while they solve. Every
+ * inversion brackets within the reach the panel shows
+ * (`connectedBodyReach`), so a target past an unavailable source
+ * target is refused by name instead of evaluating it. Stature and mass are
+ * read on the whole person (`createConnectedBodySimpleWhole`), with the head
+ * the page shows. Its whole-person reader and detailed-channel reach share
+ * the same loaded body view.
  */
-import {
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanBodySimpleShape,
-  expandHumanBodySimpleShape,
-  projectHumanBodySimpleShape,
-  solveHumanBodyMeasuredChannel,
-} from "@automovie/human";
+import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
+import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";
+import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
+import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import type { IBodySimpleExpandMessage } from "./human/body/IBodySimpleExpandMessage";
+import type { IBodySimpleProjectMessage } from "./human/body/IBodySimpleProjectMessage";
+import type { IBodySimpleSolveMessage } from "./human/body/IBodySimpleSolveMessage";
+import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
+import { connectedBodyReach } from "./human/common/connectedBodyReach";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-  read: () =>
-    fetch(
-      new URL(
-        "../../../test/studies/human-body/connected-basis/basis.json.gz",
-        import.meta.url,
-      ),
-    ),
-});
+const prepared = Promise.all([
+  readConnectedHeadView(),
+  readConnectedBodyView(),
+]).then(
+  ([head, view]) =>
+    [
+      connectedBodyReach(view.body).basis,
+      createConnectedBodySimpleWhole(head, view),
+    ] as const,
+);
 
 scope.onmessage = async (
   event: MessageEvent<
-    | {
-        id: number;
-        kind: "expand";
-        simple: IAutoMovieHumanBodySimpleShape;
-        /** The detailed shape to keep the residue of; absent for a fresh body. */
-        over?: Record<string, number>;
-      }
-    | { id: number; kind: "project"; shape: Record<string, number> }
-    | {
-        id: number;
-        kind: "solveMeasurement";
-        shape: Record<string, number>;
-        channel: string;
-        targetMetres: number;
-      }
+    | IBodySimpleExpandMessage
+    | IBodySimpleProjectMessage
+    | IBodySimpleSolveMessage
   >,
 ) => {
   const request = event.data;
   try {
-    const basis = await prepared;
+    const [basis, whole] = await prepared;
     const result =
       request.kind === "expand"
-        ? expandHumanBodySimpleShape(basis, request.simple, request.over)
+        ? expandHumanBodySimpleShape(basis, whole, request.simple, request.over)
         : request.kind === "project"
-          ? projectHumanBodySimpleShape(basis, request.shape)
+          ? projectHumanBodySimpleShape(
+              basis,
+              whole,
+              resolveHumanBodyAnatomy(basis, request.shape, request.anatomy),
+            )
           : solveHumanBodyMeasuredChannel({
               basis,
               shape: request.shape,

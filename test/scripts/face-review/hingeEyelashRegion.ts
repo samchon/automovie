@@ -108,20 +108,39 @@ export function hingeEyelashRegion(props: {
   for (const starts of pieces.values()) {
     const indices = starts.flatMap((t) => [I[t]!, I[t + 1]!, I[t + 2]!]);
     const pieceUvs = starts.flatMap((t) => [
-      uvs[2 * t]!, uvs[2 * t + 1]!, uvs[2 * t + 2]!, uvs[2 * t + 3]!, uvs[2 * t + 4]!, uvs[2 * t + 5]!,
+      uvs[2 * t]!,
+      uvs[2 * t + 1]!,
+      uvs[2 * t + 2]!,
+      uvs[2 * t + 3]!,
+      uvs[2 * t + 4]!,
+      uvs[2 * t + 5]!,
     ]);
-    const [card] = faceEyelashCards({ positions: P, indices, uvs: pieceUvs, skin: props.skin });
+    const [card] = faceEyelashCards({
+      positions: P,
+      indices,
+      uvs: pieceUvs,
+      skin: props.skin,
+    });
     const at = new Map<string, Vec>();
     for (const triangle of card!.triangles)
       triangle.uv.forEach((uv, k) => at.set(uv.join(","), triangle.xyz[k]!));
     const columns = Math.min(card!.root.length, card!.tip.length);
-    const root = card!.root.slice(0, columns).map((uv) => at.get(uv.join(","))!);
+    const root = card!.root
+      .slice(0, columns)
+      .map((uv) => at.get(uv.join(","))!);
     const tip = card!.tip.slice(0, columns).map((uv) => at.get(uv.join(","))!);
-    const chord = (c: number): number => eyelashSagittalAngle(sub(tip[c]!, root[c]!));
-    const before = (chord(Math.floor((columns - 1) / 2)) + chord(Math.ceil((columns - 1) / 2))) / 2;
+    const chord = (c: number): number =>
+      eyelashSagittalAngle(sub(tip[c]!, root[c]!));
+    const before =
+      (chord(Math.floor((columns - 1) / 2)) +
+        chord(Math.ceil((columns - 1) / 2))) /
+      2;
     const delta = props.target - before;
     const axis = (c: number): Vec => {
-      const t = sub(root[Math.min(columns - 1, c + 1)]!, root[Math.max(0, c - 1)]!);
+      const t = sub(
+        root[Math.min(columns - 1, c + 1)]!,
+        root[Math.max(0, c - 1)]!,
+      );
       const length = Math.hypot(...t);
       const unit = t.map((v) => v / length) as Vec;
       return unit[0] < 0 ? (unit.map((v) => -v) as Vec) : unit;
@@ -134,8 +153,18 @@ export function hingeEyelashRegion(props: {
       for (let c = 0; c < columns; ++c) {
         const a = card!.root[c]!;
         const d = [card!.tip[c]![0] - a[0], card!.tip[c]![1] - a[1]];
-        const along = Math.min(1, Math.max(0, ((uv[0]! - a[0]) * d[0]! + (uv[1]! - a[1]) * d[1]!) / (d[0]! ** 2 + d[1]! ** 2)));
-        const distance = Math.hypot(uv[0]! - a[0] - along * d[0]!, uv[1]! - a[1] - along * d[1]!);
+        const along = Math.min(
+          1,
+          Math.max(
+            0,
+            ((uv[0]! - a[0]) * d[0]! + (uv[1]! - a[1]) * d[1]!) /
+              (d[0]! ** 2 + d[1]! ** 2),
+          ),
+        );
+        const distance = Math.hypot(
+          uv[0]! - a[0] - along * d[0]!,
+          uv[1]! - a[1] - along * d[1]!,
+        );
         if (distance < nearest) {
           nearest = distance;
           best = c;
@@ -153,16 +182,25 @@ export function hingeEyelashRegion(props: {
         if (seen.has(vertex)) return;
         seen.add(vertex);
         const c = column([pieceUvs[2 * i]!, pieceUvs[2 * i + 1]!]);
-        members[c]!.push(sub([P[3 * vertex]!, P[3 * vertex + 1]!, P[3 * vertex + 2]!], root[c]!));
+        members[c]!.push(
+          sub(
+            [P[3 * vertex]!, P[3 * vertex + 1]!, P[3 * vertex + 2]!],
+            root[c]!,
+          ),
+        );
       });
     }
     // The chord's frontal component along the margin's inward normal at column
     // c after a turn of `degrees`; at most zero means it leaves the margin.
     const across = (c: number, degrees: number): number => {
-      const t = sub(root[Math.min(columns - 1, c + 1)]!, root[Math.max(0, c - 1)]!);
+      const t = sub(
+        root[Math.min(columns - 1, c + 1)]!,
+        root[Math.max(0, c - 1)]!,
+      );
       const length = Math.hypot(t[0], t[1]);
       const normal = [-t[1] / length, t[0] / length];
-      const sign = Math.sign(normal[1]!) === props.inward || normal[1] === 0 ? 1 : -1;
+      const sign =
+        Math.sign(normal[1]!) === props.inward || normal[1] === 0 ? 1 : -1;
       return Math.max(
         ...members[c]!.map((offset) => {
           const v = rotate(offset, axis(c), degrees);
@@ -190,11 +228,25 @@ export function hingeEyelashRegion(props: {
       if (moved.has(vertex)) return;
       const c = column([pieceUvs[2 * i]!, pieceUvs[2 * i + 1]!]);
       const hinge = root[c]!;
-      const turned = rotate(sub([P[3 * vertex]!, P[3 * vertex + 1]!, P[3 * vertex + 2]!], hinge), axis(c), turns[c]!);
-      moved.set(vertex, [hinge[0] + turned[0], hinge[1] + turned[1], hinge[2] + turned[2]]);
+      const turned = rotate(
+        sub([P[3 * vertex]!, P[3 * vertex + 1]!, P[3 * vertex + 2]!], hinge),
+        axis(c),
+        turns[c]!,
+      );
+      moved.set(vertex, [
+        hinge[0] + turned[0],
+        hinge[1] + turned[1],
+        hinge[2] + turned[2],
+      ]);
     });
-    const middle = [Math.floor((columns - 1) / 2), Math.ceil((columns - 1) / 2)];
-    const after = (turnedChord(middle[0]!, turns[middle[0]!]!) + turnedChord(middle[1]!, turns[middle[1]!]!)) / 2;
+    const middle = [
+      Math.floor((columns - 1) / 2),
+      Math.ceil((columns - 1) / 2),
+    ];
+    const after =
+      (turnedChord(middle[0]!, turns[middle[0]!]!) +
+        turnedChord(middle[1]!, turns[middle[1]!]!)) /
+      2;
     const limited = turns.filter((turn) => turn !== delta).length;
     cards.push({ columns, before, after, delta, limited });
   }

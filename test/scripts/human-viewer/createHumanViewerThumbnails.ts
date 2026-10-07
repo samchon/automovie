@@ -70,20 +70,25 @@ export function createHumanViewerThumbnails(props: {
             ((await response.json()) as { error?: string }).error ??
               response.statusText,
           );
-        return { bytes: await response.blob(), authority: planHumanViewerThumbnailRevision(
-          props.revision(), response.headers.get("X-Human-Revision"),
-          response.headers.get("X-Human-Stale") === "true",
-        ) };
+        return {
+          bytes: await response.blob(),
+          authority: planHumanViewerThumbnailRevision(
+            props.revision(),
+            response.headers.get("X-Human-Revision"),
+            response.headers.get("X-Human-Stale") === "true",
+          ),
+        };
       });
-      if (bytes.authority.cache) await store?.put(
-        name,
-        new Response(bytes.bytes, {
-          headers: {
-            "Content-Type": "image/png",
-            "X-Revision": bytes.authority.revision!,
-          },
-        }),
-      );
+      if (bytes.authority.cache)
+        await store?.put(
+          name,
+          new Response(bytes.bytes, {
+            headers: {
+              "Content-Type": "image/png",
+              "X-Revision": bytes.authority.revision!,
+            },
+          }),
+        );
       image.src = URL.createObjectURL(bytes.bytes);
       image.classList.toggle("stale", bytes.authority.stale);
     } catch (failure) {
@@ -112,7 +117,13 @@ export function createHumanViewerThumbnails(props: {
         const image = document.createElement("img");
         image.alt = "";
         frame.replaceChildren(image);
-        void paint(card, image, frame, card.dataset.key!, card.dataset.thumbnail!);
+        void paint(
+          card,
+          image,
+          frame,
+          card.dataset.key!,
+          card.dataset.thumbnail!,
+        );
       }
     },
     { rootMargin: "0px" },

@@ -8,7 +8,9 @@ import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
+import type { IPortraitSurfaceEdge } from "./structures/IPortraitSurfaceEdge";
 import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
+import type { IPortraitSurfaceNeighbour } from "./structures/IPortraitSurfaceNeighbour";
 
 /**
  * Apply anatomical layers after refinement and before shared normals/material
@@ -91,10 +93,7 @@ export function applyPortraitSurfaceLayers(
   // Count undirected edges on the complete skin, before material separation.
   // A one-face edge is an intentional free rim, so colour seams do not become
   // artificial deformation barriers. Edge lengths use construction millimetres.
-  const edges = new Map<
-    string,
-    { a: number; b: number; count: number; length: number }
-  >();
+  const edges = new Map<string, IPortraitSurfaceEdge>();
   for (let i = 0; i < mesh.indices.length; i += 3)
     for (let corner = 0; corner < 3; corner++) {
       const a = mesh.indices[i + corner],
@@ -115,7 +114,7 @@ export function applyPortraitSurfaceLayers(
         });
     }
   const neighbours = mesh.positions.map(
-    () => [] as { vertex: number; length: number }[],
+    () => [] as IPortraitSurfaceNeighbour[],
   );
   const distances = new Float64Array(mesh.positions.length).fill(Infinity);
   const queued = new Uint8Array(mesh.positions.length),

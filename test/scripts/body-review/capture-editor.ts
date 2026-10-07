@@ -5,10 +5,10 @@
  *   pnpm exec ttsx -P tsconfig.scripts.json scripts/body-review/capture-editor.ts <name> [--states a,b] [--views v,w] [--passes p,q] [--documents file.json] [--basis file.json.gz]
  *
  * Run from `test/` with the viewer up (`human-shot.mts ensure`). Frames land in
- * `.shots/body-review/editor-<name>/<state>__<view>__<pass>.png` and
+ * `<resolved viewer storage>/body-review/editor-<name>/<state>__<view>__<pass>.png` and
  * `captures.json` beside them lists every frame with its SHA-256, the device
  * string the viewer reported, the source revision and whether the build was
- * fresh (the viewer builds the working tree it serves, so it always is); no
+ * current (the client refuses the viewer's stale frames); no
  * image bytes are in the record. The directory is ignored and nothing here is
  * committed: renders never go into the repository.
  *
@@ -16,23 +16,25 @@
  * document the numerical builder refuses stops this run with the refusal text,
  * and the viewer refuses a software renderer before it draws. States default to
  * `standardBodyReviewStates`; `--documents` replaces them with a hand-written
- * file, and `--basis` builds them on a candidate basis (its identity must match
- * the published one) in place of the shipped basis for this run.
+ * file, and `--basis` builds them on its explicitly selected candidate basis.
+ * Without a candidate, the admitted catalogue's standard body selects the
+ * published generation view. A document's explicit basis declaration remains
+ * its own authority and must agree with the selected published or candidate input.
  */
 import fs from "node:fs";
 import path from "node:path";
 
 import { connectHumanViewer } from "../human-viewer/connectHumanViewer";
 import { createNodeHumanViewerClientIo } from "../human-viewer/createNodeHumanViewerClientIo";
+import { humanViewerInstance } from "../human-viewer/humanViewerInstance";
+import { humanViewerStorage } from "../human-viewer/humanViewerStorage";
 import { readHumanViewerBasisIdentity } from "../human-viewer/readHumanViewerBasisIdentity";
+import { readHumanViewerDefaultBodyBasis } from "../human-viewer/readHumanViewerDefaultBodyBasis";
 import { buildCaptureRecord } from "../review/buildCaptureRecord";
-import { readSourceRevision } from "../review/readSourceRevision";
+import type { IBodyReviewState } from "./IBodyReviewState";
 import { captureBodyFrames } from "./captureBodyFrames";
 import { parseBodyCaptureArguments } from "./parseBodyCaptureArguments";
-import {
-  type IBodyReviewState,
-  standardBodyReviewStates,
-} from "./standardBodyReviewDocuments";
+import { standardBodyReviewStates } from "./standardBodyReviewDocuments";
 import { writeBodyFrames } from "./writeBodyFrames";
 
 async function main(): Promise<void> {
@@ -46,25 +48,25 @@ async function main(): Promise<void> {
   for (const name of names)
     if (all[name] === undefined) throw new Error(`Unknown state "${name}".`);
   const output = path.join(
-    root,
-    ".shots/body-review",
+    humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT),
+    "body-review",
     `editor-${request.name}`,
   );
   const candidate = request.basis === null ? null : path.resolve(request.basis);
+  const origin = humanViewerInstance(process.env.HUMAN_VIEWER_PORT).origin;
   const viewer = await connectHumanViewer({
     io: createNodeHumanViewerClientIo(root),
-    origin: "http://127.0.0.1:5175",
+    origin,
   });
+  const basisId =
+    candidate === null
+      ? (await readHumanViewerDefaultBodyBasis(origin)).id
+      : readHumanViewerBasisIdentity(fs.readFileSync(candidate));
   console.log("RENDERER", viewer.renderer);
   const { drawn } = await captureBodyFrames({
     viewer,
     label: `editor-${request.name}`,
-    basisId: readHumanViewerBasisIdentity(
-      fs.readFileSync(
-        candidate ??
-          path.join(root, "test/studies/human-body/connected-basis/basis.json.gz"),
-      ),
-    ),
+    basisId,
     candidateBasis: candidate,
     onRefused: "throw",
     frames: names.flatMap((name) =>
@@ -85,9 +87,9 @@ async function main(): Promise<void> {
     JSON.stringify(
       buildCaptureRecord({
         kind: "body",
-        renderer: viewer.renderer,
-        revision: readSourceRevision(root),
-        humanBuildFresh: true,
+        renderer: drawn[0]?.renderer ?? viewer.renderer,
+        revision: drawn[0]?.revision ?? viewer.revision,
+        humanBuildFresh: drawn.length > 0,
         frames: drawn,
       }),
       null,

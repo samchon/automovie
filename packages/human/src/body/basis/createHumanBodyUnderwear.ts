@@ -1,14 +1,11 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMaterial,
-  IAutoMovieModel,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_UNDERWEAR } from "../constants/HUMAN_BODY_UNDERWEAR";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
+import type { IAutoMovieHumanBodyUnderwearParts } from "../structures/IAutoMovieHumanBodyUnderwearParts";
+import type { IAutoMovieHumanBodyUnderwearProps } from "../structures/IAutoMovieHumanBodyUnderwearProps";
 import { closeHumanBodyUnderwearCreases } from "./closeHumanBodyUnderwearCreases";
 import { createHumanBodyUnderwearCoverage } from "./createHumanBodyUnderwearCoverage";
 import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
@@ -39,8 +36,8 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
  * The compiled closure caches the uncovered weight per vertex, which depends
  * on the basis alone; a basis material with the table's material id is
  * refused on compilation, and a colour outside [0,1], a missing landmark or a
- * nipple vertex outside its surface when a document asks for the style that
- * reads it. The body builder (`createHumanBodyBasisBuilder`) is the consumer: it
+ * skin landmark the basis does not declare when a document asks for the style
+ * that reads it. The body builder (`createHumanBodyBasisBuilder`) is the consumer: it
  * compiles this once per basis, calls it after skinning and soft-tissue sag
  * with the document's body at rest and its posed surfaces, and appends the
  * parts after the skin's regions, which is why the segment partition and the
@@ -62,11 +59,9 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,
   table: IAutoMovieHumanBodyUnderwear.ITable = HUMAN_BODY_UNDERWEAR,
-): (props: {
-  underwear: IAutoMovieHumanBodyUnderwear;
-  rest: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> };
-  posed: { positions: number[]; normals: number[] }[];
-}) => { material: IAutoMovieMaterial; parts: IAutoMovieModel["parts"] } {
+): (
+  props: IAutoMovieHumanBodyUnderwearProps,
+) => IAutoMovieHumanBodyUnderwearParts {
   if (basis.materials.some((material) => material.id === table.material))
     throw new Error(
       "Body underwear needs a material id the basis does not use: " +
@@ -97,6 +92,7 @@ export function createHumanBodyUnderwear(
     const coverage = createHumanBodyUnderwearCoverage({
       table,
       style: underwear.style,
+      basis,
       rest,
     });
     // the posed skin of every surface, which the closing reads

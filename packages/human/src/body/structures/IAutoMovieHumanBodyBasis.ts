@@ -1,9 +1,14 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
+import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
+import type { IAutoMovieHumanBodyAtlasPartResource } from "../anatomy/atlas/IAutoMovieHumanBodyAtlasPartResource";
 import type { IAutoMovieHumanBodyBasisCoupling } from "./rig/IAutoMovieHumanBodyBasisCoupling";
 import type { IAutoMovieHumanBodyBasisJoint } from "./rig/IAutoMovieHumanBodyBasisJoint";
 import type { IAutoMovieHumanBodyBasisLandmarks } from "./rig/IAutoMovieHumanBodyBasisLandmarks";
 import type { IAutoMovieHumanBodyBasisPelvifemoral } from "./rig/IAutoMovieHumanBodyBasisPelvifemoral";
+import type { IAutoMovieHumanBodyToeRay } from "./rig/IAutoMovieHumanBodyToeRay";
 import type { IAutoMovieHumanBodyBasisChannel } from "./shape/IAutoMovieHumanBodyBasisChannel";
 import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHumanBodyBasisCorrective";
 import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
@@ -32,8 +37,11 @@ import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanB
  * (`createHumanBodyBasisBuilder`).
  *
  * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
- * must move at least one resident skin vertex or landmark. A surface or the
- * landmark set may omit rows for an endpoint it does not move. The current r16
+ * must move at least one resident skin vertex or landmark in a standalone
+ * body. A person may supply the exact same-generation head source with actual
+ * endpoint driver contributions; its constructor verifies those external rows
+ * separately. A surface or the landmark set omits rows for an endpoint it does
+ * not move. The current r16
  * study has 1,859 declared endpoints on skin and 183 with landmark rows;
  * only those 183 also reposition rig points. Changes to geometry, endpoints,
  * landmarks, joints or weights require a new basis identity.
@@ -60,8 +68,35 @@ export interface IAutoMovieHumanBodyBasis {
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
 
+  /**
+   * Offline acquired bone surfaces with rights and exact reference placement.
+   * Default builds omit them; document `anatomicalInspection` selects their
+   * named IDs. These reference atlas surfaces certify no clinical resolution
+   * or personal skin/tissue registration and cannot be scaled to another shape.
+   */
+  anatomicalCandidates?: IAutoMovieHumanBodyAtlasPartResource[];
+
+  /**
+   * One registered anatomical rest graph and acquired/authored tissue surfaces.
+   * Every source part consumes that graph's actual posed result; this source
+   * does not change independently validated clinical resolution. Registration
+   * names this exact basis/shape and is not inferred from a part's bbox.
+   */
+  anatomicalAssembly?: IAutoMovieHumanBodyAnatomicalAssembly;
+
   /** Ordered dimensionless shape controls. */
   channels: IAutoMovieHumanBodyBasisChannel[];
+
+  /**
+   * Declared targets whose source dependencies remain incomplete on this
+   * revision. Their retained rows are not a complete field: any nonzero
+   * channel gain or corrective activation refuses before applying rows.
+   * Zero activation can replay the neutral without treating missing source
+   * values as zero. IDs must belong to the declared target population and
+   * be unique. Omission preserves legacy behavior and certifies no source,
+   * anatomical, cohort or contact validity.
+   */
+  unavailableTargets?: string[];
 
   /** Authored corrective driver and endpoint. */
   correctives?: IAutoMovieHumanBodyBasisCorrective[];
@@ -70,11 +105,37 @@ export interface IAutoMovieHumanBodyBasis {
   landmarks: IAutoMovieHumanBodyBasisLandmarks;
 
   /**
+   * Named points of the skin, each a vertex of one surface. Measurement
+   * rules and the underwear name a skin point (`nipple-left`,
+   * `neck-anterior-midline`) instead of a vertex number, which belongs to
+   * one basis's topology; a consumer naming a point this basis does not
+   * declare refuses by that name. Omission declares none.
+   */
+  skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
+
+  /**
+   * Named areas of the skin, each a set of vertices of one surface, for
+   * measurement rules that keep a feature out of a search (none on the
+   * shipped body yet).
+   * Rules name an area instead of listing vertices, which belong to one
+   * basis's topology; a rule naming an area this basis does not declare
+   * refuses by that name. Omission declares none.
+   */
+  skinRegions?: Record<string, IAutoMovieHumanSkinRegion>;
+
+  /**
    * The skeleton as data: one entry per humanoid slot the body carries, in an
    * order where every parent precedes its children. The builder projects these
    * onto `IAutoMovieSkeleton` after the shape has moved the landmarks.
    */
   joints: IAutoMovieHumanBodyBasisJoint[];
+
+  /**
+   * Optional toe ray phalanges beyond the humanoid set, parent before child
+   * (`IAutoMovieHumanBodyToeRay`). Omission keeps one toes bone per foot, and
+   * documents posing rays refuse by name.
+   */
+  toeRays?: IAutoMovieHumanBodyToeRay[];
 
   /** Declared clinical joint coupling. */
   couplings?: IAutoMovieHumanBodyBasisCoupling[];

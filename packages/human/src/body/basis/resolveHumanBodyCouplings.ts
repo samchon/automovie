@@ -1,11 +1,10 @@
 import { swingConeAngle } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
+import type { IHumanBodyCouplingResult } from "./IHumanBodyCouplingResult";
+import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 
 /**
@@ -43,8 +42,10 @@ import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemor
  * forward kinematics and the corrective ramps read. The rhythm's additions
  * (the root's posterior tilt, the lumbar joint's and the hips' pelvic-relative
  * change, `resolveHumanBodyPelvifemoralRhythm`) join the contribution list
- * for the editor; the builder applies them to the pose it validates and
- * turns the pelvis by the tilt.
+ * for the editor as coordination increments. The builder turns the pelvis
+ * by that tilt, then reads and validates the actual changed parent-relative
+ * coordinates through its shared pose resolver. Combined clinical totals
+ * need not equal those scalar additions.
  *
  * The sum is not judged here. A duplicate joint in the document stays
  * duplicated (its first entry receives the addition), an unknown joint stays
@@ -72,18 +73,7 @@ export function resolveHumanBodyCouplings(
     IAutoMovieHumanBodyShoulderPose["bone"],
     IAutoMovieHumanBodyShoulderPose
   > = new Map(),
-): {
-  /** The document's joints with every nonzero coupled ordinate added; the document's own entries when nothing is coupled. */
-  joints: IAutoMovieJointPose[];
-
-  /** Each nonzero addition, in coupling order, for the editor to show beside the joint row. */
-  contributions: {
-    coupling: string;
-    bone: AutoMovieHumanoidBone;
-    axis: "flexion" | "abduction" | "twist";
-    degrees: number;
-  }[];
-} {
+): IHumanBodyCouplingResult {
   const neutral = new Map(
     basis.joints.map((joint) => [joint.bone, joint.neutral]),
   );
@@ -109,7 +99,7 @@ export function resolveHumanBodyCouplings(
             coupling.source.bone as IAutoMovieHumanBodyShoulderPose["bone"],
           )?.elevation ??
           shoulder.neutral.elevation);
-    const degrees = evaluateCurve(coupling.curve, elevation);
+    const degrees = evaluateHumanBodyRhythmCurve(coupling.curve, elevation);
     if (degrees === 0) continue;
     const { bone, axis } = coupling.output;
     const index = joints.findIndex((joint) => joint.bone === bone);
@@ -132,30 +122,4 @@ export function resolveHumanBodyCouplings(
       ...resolveHumanBodyPelvifemoralRhythm(basis, joints).contributions,
     ],
   };
-}
-
-/**
- * The piecewise-linear curve at one elevation: zero at and below the first
- * knot (the first ordinate is zero and the first knot sits at or above the
- * source's rest elevation by admission, so the curve is continuous there and
- * the rest adds nothing), linear inside the bracketing segment, the last
- * ordinate held past the last knot. Admission guarantees at least two knots
- * strictly increasing in elevation, so every segment has a nonzero width.
- * The nanodegree tolerance at the first knot absorbs the cone formula's float
- * error at a rest angle (`2 acos(cos 10)` lands above 20 by one ulp), so a
- * curve authored to start exactly at the rest elevation adds nothing at rest.
- * An elevation on a knot reads that knot as the start of the next segment (a
- * zero offset, the knot's own ordinate) or as the held last ordinate, never
- * as the end of the segment before it, whose interpolation can round past
- * the ordinate by an ulp and turn one admitted on the range's end into one
- * the pose validator refuses.
- */
-function evaluateCurve(curve: [number, number][], elevation: number): number {
-  if (!(elevation > curve[0][0] + 1e-9)) return 0;
-  for (let i = 1; i < curve.length; i++) {
-    const [x0, y0] = curve[i - 1];
-    const [x1, y1] = curve[i];
-    if (elevation < x1) return y0 + ((y1 - y0) * (elevation - x0)) / (x1 - x0);
-  }
-  return curve[curve.length - 1][1];
 }

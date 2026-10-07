@@ -6,3 +6,5 @@ description: Defines Self-Review, evidence review, viewer inspection, capture, m
 # Review verification
 
 Read [the complete review procedure](index.md), then the routed Self-Review, evidence review, capture, inspection, measurement, debugging, or recording document before claiming or committing a result. [Evidence graph](../evidence-graph/SKILL.md) owns contract state and [source authoring](../source-authoring/SKILL.md) owns production implementation.
+
+When developing or reviewing the evidence harness, read [Evidence harness verification](evidence-harness.md).

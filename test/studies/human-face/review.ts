@@ -1,4 +1,5 @@
 import type * as Human from "@automovie/human";
+import { readHumanMeshPhysicalVertices } from "@automovie/human";
 
 import type { humanFaceAnatomySchemaReview } from "./anatomy-schema-review";
 import type { humanFaceConnectedReview } from "./connected-review";
@@ -233,9 +234,11 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.writeHumanFaceDetail} Writes one admitted detail edit into the document the editor owns.
  * @evidence {@link humanFaceFibreReview} Retains inspection of the connected fibre pigment path separately from photographic likeness.
  * @evidence {@link humanFaceIrisReview} Retains inspection of the connected iris pigment path separately from photographic likeness.
+ * @evidence {@link Human.readHumanMeshPhysicalVertices} Read version-one JSON source pairs and unnormalized Uint16 VEC2 low/high words for 32-bit references, with zero retaining legacy incidence and opaque IDs remaining exact JSON integers. Actual Float32 XYZ, unsigned triangles, reference bounds, malformed/orphan presence, alias-grid agreement and owned recovery are admitted. Positive writer/readback, low/high boundary, transformed/remerge, part-option independence and refusal cases inspect this transport; actual face GLB, whole C1 assembly, independent asset-standard validation and clinical acceptance remain separate.
  */
 export const humanFaceStudyReview = {
   inputs: "inputs.md",
   observations: "review.md",
   likeness: "unaccepted",
+  physicalSourceReadback: readHumanMeshPhysicalVertices,
 };

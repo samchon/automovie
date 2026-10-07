@@ -5,46 +5,83 @@
  * plain Node, with no `ttsx` project check, so it still works while the working
  * tree has a type error that would stop `human-shot.mts` from starting.
  * Stopping kills the recorded process tree and removes the record; nothing is
- * ever selected by name.
+ * ever selected by name. `HUMAN_VIEWER_PORT` selects the viewer (default 5175)
+ * and its process record. Status without a health answer says whether the
+ * port refused (absent, exit 3) or accepted without answering (exit 4).
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { IHumanShotHealth } from "./IHumanShotHealth.ts";
+import type { IHumanViewerRecord } from "./IHumanViewerRecord.ts";
+import { describeHumanViewerSilence } from "./describeHumanViewerSilence.ts";
+import { humanViewerErrorCode } from "./humanViewerErrorCode.ts";
+import { humanViewerInstance } from "./humanViewerInstance.ts";
+import { humanViewerProtocol } from "./humanViewerProtocol.ts";
+import { humanViewerStorage } from "./humanViewerStorage.ts";
 import { planHumanViewerControl } from "./planHumanViewerControl.ts";
 
 const command = process.argv[2];
 if (command !== "status" && command !== "stop")
   throw new Error("usage: human-viewer-control.mts <status|stop>");
-const record = path.resolve(
+const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../../.shots/human-viewer/server.json",
+  "../../..",
 );
-let health: { pid: number; ready: boolean } | null | undefined;
+const record = path.join(
+  humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT),
+  instance.record,
+);
+const PROBE_MS = 2000;
+let health: IHumanShotHealth | null | undefined;
 try {
-  const response = await fetch("http://127.0.0.1:5175/health", {
-    signal: AbortSignal.timeout(2000),
+  const response = await fetch(instance.origin + "/health", {
+    signal: AbortSignal.timeout(PROBE_MS),
   });
-  const body = (await response.json()) as {
-    service: string;
-    pid: number;
-    ready: boolean;
-  };
+  const body = (await response.json()) as IHumanShotHealth;
   health = body.service === "automovie-human-viewer" ? body : undefined;
 } catch (error) {
-  health =
-    (error as { cause?: { code?: string } }).cause?.code === "ECONNREFUSED"
-      ? null
-      : undefined;
+  health = humanViewerErrorCode(error) === "ECONNREFUSED" ? null : undefined;
 }
+if (
+  health !== null &&
+  health !== undefined &&
+  process.env.HUMAN_VIEWER_STORAGE_ROOT &&
+  health.storage !==
+    humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT)
+)
+  throw new Error(
+    `Port ${instance.port} does not serve the selected viewer storage; it reports ${health.storage ?? "no storage identity"}`,
+  );
 const saved = fs.existsSync(record)
-  ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
+  ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
   : null;
 const plan = planHumanViewerControl(command, health, saved);
-if (plan.action === "report") {
+if (plan.action === "report" && (health === null || health === undefined)) {
+  let alive = false;
+  if (saved !== null)
+    try {
+      process.kill(saved.pid, 0);
+      alive = true;
+    } catch {
+      alive = false;
+    }
+  const silence = describeHumanViewerSilence({
+    refused: health === null,
+    port: instance.port,
+    probeMs: PROBE_MS,
+    recordedPid: saved?.pid ?? null,
+    recordedAlive: alive,
+  });
+  console.log(JSON.stringify(silence));
+  process.exitCode = silence.answer === "absent" ? 3 : 4;
+} else if (plan.action === "report") {
   console.log(JSON.stringify(health ?? { ready: false }));
-  process.exitCode = plan.exitCode;
+  process.exitCode =
+    health?.protocol === humanViewerProtocol ? plan.exitCode : 3;
 } else if (plan.action === "absent") console.log("human-viewer absent");
 else if (plan.action === "refuse") {
   console.error(plan.reason);

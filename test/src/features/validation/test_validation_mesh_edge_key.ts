@@ -25,7 +25,11 @@ export const test_validation_mesh_edge_key = (): void => {
     for (let high = 0; high < 7; ++high) {
       const expected = Number(BigInt(low) * 7n + BigInt(high));
       TestValidator.equals("exact integer pair", key(low, high), expected);
-      TestValidator.equals("deterministic query", key(low, high), key(low, high));
+      TestValidator.equals(
+        "deterministic query",
+        key(low, high),
+        key(low, high),
+      );
       keys.add(key(low, high));
     }
   TestValidator.equals("all ordered pairs are distinct", keys.size, 7 * 7);
@@ -70,7 +74,11 @@ export const test_validation_mesh_edge_key = (): void => {
     fallback(large - 3, large - 1) !== fallback(large - 1, large - 3),
   );
   createMeshEdgeKey(0);
-  TestValidator.equals("one identity prepares exactly", createMeshEdgeKey(1)(0, 0), 0);
+  TestValidator.equals(
+    "one identity prepares exactly",
+    createMeshEdgeKey(1)(0, 0),
+    0,
+  );
   const maximum = Number.MAX_SAFE_INTEGER;
   const maximumKey = createMeshEdgeKey(maximum);
   TestValidator.equals(
@@ -81,6 +89,9 @@ export const test_validation_mesh_edge_key = (): void => {
   for (const count of [-1, 0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1])
     TestValidator.predicate(
       "invalid population refused",
-      throwsError(() => createMeshEdgeKey(count), "nonnegative safe vertex count"),
+      throwsError(
+        () => createMeshEdgeKey(count),
+        "nonnegative safe vertex count",
+      ),
     );
 };

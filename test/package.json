@@ -5,7 +5,7 @@
   "description": "automovie test program: exhaustive deterministic engine validation",
   "main": "src/index.ts",
   "scripts": {
-    "build": "ttsc --noEmit && ttsc -p tsconfig.scripts.json --noEmit && ttsc -p scripts/human-viewer/tsconfig.json --noEmit",
+    "build": "ttsc --noEmit && ttsc -p tsconfig.scripts.json --noEmit && ttsc -p scripts/human-viewer/tsconfig.json --noEmit && ttsc -p scripts/human-viewer/tsconfig.browser.json --noEmit",
     "start": "ttsx src/index.ts"
   },
   "author": "Samchon",

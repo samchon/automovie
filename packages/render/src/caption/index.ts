@@ -1,4 +1,6 @@
+export * from "./IAutoMovieBeatCaption";
 export * from "./autoMovieCaptionLanguageComparisonKey";
+export * from "./beatCaptions";
 export * from "./canonicalProductionWebVtt";
 export * from "./canonicalizeAutoMovieCaptionText";
 export * from "./inspectAutoMovieCaptionReadabilityWithRuntime";

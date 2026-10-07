@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairDirectionInput } from "./IHumanFaceHairDirectionInput";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairPartSide } from "./humanFaceHairPartSide";
@@ -12,7 +12,10 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Evaluate a dimensionless static styling field for the metric curve integrator.
  * Inputs use the neutral head frame and metres; the caller supplies unit surface
  * normals and admitted layer parameters. Parting depends on root position and
- * decays along the lock. Outward lift then augments the normalized comb field;
+ * decays along the lock. An optional fall hands the combed direction over to
+ * the head's downward axis by exp(-d / reach) of arc length before the inward
+ * part is removed, so a lock still on the head slides down along the scalp.
+ * Outward lift then augments the normalized comb field;
  * wave or helical modulation rotates that axis by the authored angular field.
  * Contact projection belongs to the integrator and may change this desired
  * direction. This is a kinematic field, without an elastic energy or gravity
@@ -65,13 +68,9 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function evaluateHumanFaceHairDirection(props: {
-  layer: IAutoMovieHumanFaceHair.Layer;
-  root: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-  distance: number;
-  phase: number;
-}): IAutoMovieVector3 {
+export function evaluateHumanFaceHairDirection(
+  props: IHumanFaceHairDirectionInput,
+): IAutoMovieVector3 {
   const { layer, root, normal, distance } = props;
   let aim = Vector3.create(...layer.flow);
   const part = layer.part;
@@ -93,6 +92,14 @@ export function evaluateHumanFaceHairDirection(props: {
         tangent,
         influence * part.strength * Math.exp(-distance / part.reach),
       ),
+    );
+  }
+  // The comb hands over to hanging along the head's downward axis.
+  if (layer.fall !== undefined) {
+    const held = Math.exp(-distance / layer.fall.reach);
+    aim = Vector3.add(
+      Vector3.scale(Vector3.normalize(aim), held),
+      Vector3.create(0, held - 1, 0),
     );
   }
   // Remove only inward comb velocity. An exactly cancelled field is a real

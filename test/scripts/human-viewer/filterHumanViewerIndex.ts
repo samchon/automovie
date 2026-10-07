@@ -10,10 +10,14 @@ export function filterHumanViewerIndex(
   entries: readonly IHumanViewerIndexEntry[],
   filter: { text: string; domain: "all" | "face" | "body" | "person" },
 ): IHumanViewerIndexEntry[] {
-  const words = filter.text.toLowerCase().split(/\s+/).filter((word) => word !== "");
+  const words = filter.text
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word !== "");
   return entries.filter((entry) => {
     if (filter.domain !== "all" && entry.domain !== filter.domain) return false;
-    const haystack = `${entry.label} ${entry.id} ${entry.section}`.toLowerCase();
+    const haystack =
+      `${entry.label} ${entry.id} ${entry.section}`.toLowerCase();
     return words.every((word) => haystack.includes(word));
   });
 }

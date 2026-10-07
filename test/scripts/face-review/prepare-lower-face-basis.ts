@@ -34,7 +34,7 @@ const prepared = prepareLowerFaceBasis({
   revision,
   channel: "chinHeight",
   skin: "Human",
-  lips: (basis.json).contact!.lips,
+  lips: basis.json.contact!.lips,
   norms: [
     {
       label: "North American White men",

@@ -9,7 +9,7 @@
  */
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import { HUMAN_BODY_SKIN_SCATTERING } from "../../constants/HUMAN_BODY_SKIN_SCATTERING";
+import { applyHumanSkinFinish } from "../../../common/skin/applyHumanSkinFinish";
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
@@ -71,12 +71,9 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
     // the skin's colour by site, from the cheek the face wears: the material
     // takes the largest albedo and its regions the multipliers of it
     const skin = HUMAN_BODY_SKIN_SITES.material;
-    // skin is translucent: its material carries the measured scattering
-    // distance, which a renderer blurs the diffuse response over
-    if (materialMap.has(skin))
-      materialMap.get(skin)!.subsurfaceRadius = {
-        ...HUMAN_BODY_SKIN_SCATTERING,
-      };
+    // skin is translucent: its material takes the scattering distance from
+    // the source-owned skin finish
+    applyHumanSkinFinish(materials);
     const cheek = document.skinColour?.cheek;
     if (
       cheek !== undefined &&

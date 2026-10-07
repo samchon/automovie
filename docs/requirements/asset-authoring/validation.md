@@ -6,6 +6,8 @@
 
 ### 형상 검증 {#asset-geometry-validation}
 
+명시한 physical source 대응의 정점 수·table 참조·domain·ID와 현재 alias 위치를 검증하고, 잘못된 대응을 좌표 welding으로 대체하지 않아야 한다. 서로 다른 source point의 접촉은 그 자체로 shared edge를 만들지 않으며, 실제로 같은 edge에 세 면이 붙거나 같은 방향으로 반복되는 위상은 계속 거부한다. 대응의 변경과 legacy 정점의 현재 좌표 partition 변경은 이전 위상 판정을 재사용할 근거를 무효화한다.
+
 Degenerate surface, non-finite coordinate, inverted orientation, invalid solid, unintended self-intersection과 missing region을 탐지해야 한다.
 
 ### 동작 가능성 검증 {#asset-rig-validation}

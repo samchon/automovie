@@ -1,16 +1,14 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
+import { type BodyCensusSets } from "./BodyCensusSets";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
-import { createBodyCorrectiveShardMetadata } from "./createBodyCorrectiveShardMetadata";
 import { createBodyCorrectiveSession } from "./createBodyCorrectiveSession";
-import {
-  type BodyCensusSets,
-  listCensusStates,
-  listSingleAxisStates,
-} from "./listBodyCorrectiveStates";
+import { createBodyCorrectiveShardMetadata } from "./createBodyCorrectiveShardMetadata";
+import { listCensusStates } from "./listCensusStates";
+import { listSingleAxisStates } from "./listSingleAxisStates";
 
 /**
  * Solve crossing states of the connected body basis into pose correctives and
@@ -60,8 +58,10 @@ const basisPath = option("--basis");
 const set = option("--set");
 if (basisPath === undefined || set === undefined)
   throw new Error("Give --basis <in.gz> and --set single|<census set>.");
-const only = option("--only") === undefined ? null : new RegExp(option("--only")!);
-const drop = option("--drop") === undefined ? null : new RegExp(option("--drop")!);
+const only =
+  option("--only") === undefined ? null : new RegExp(option("--only")!);
+const drop =
+  option("--drop") === undefined ? null : new RegExp(option("--drop")!);
 const side = option("--side");
 if (side !== undefined && side !== "left")
   throw new Error("--side takes left.");
@@ -105,7 +105,9 @@ const states = (
           JSON.parse(
             fs.readFileSync(
               option("--census") ??
-                path.resolve("studies/human-body/connected-basis/census-receipt.json"),
+                path.resolve(
+                  "studies/human-body/connected-basis/census-receipt.json",
+                ),
               "utf8",
             ),
           ) as { sets: BodyCensusSets }

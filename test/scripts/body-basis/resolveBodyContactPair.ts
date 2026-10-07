@@ -1,13 +1,11 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { type BodyContactBones } from "./BodyContactBones";
 import { bodyContactBudget } from "./bodyContactBudget";
 import { crossedCorners } from "./bodyContactGeometry";
-import {
-  type BodyContactBones,
-  chooseContactPlane,
-  ownerOfSeam,
-} from "./bodyContactPlanes";
+import { chooseContactPlane } from "./chooseContactPlane";
 import { isBoneThroughSkin } from "./classifyBodyContact";
+import { ownerOfSeam } from "./ownerOfSeam";
 import { relaxBodyCrease } from "./relaxBodyCrease";
 import type { IBodyStanding } from "./solveBodyContact";
 import { solveBodyContactBest } from "./solveBodyContactBest";

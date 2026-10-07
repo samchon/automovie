@@ -23,15 +23,23 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no user input.
  */
 export function humanPersonCutBoneWeights<T extends string>(
-  skin: { joints: readonly T[]; boneIndices: readonly number[]; weights: readonly number[] },
+  skin: {
+    joints: readonly T[];
+    boneIndices: readonly number[];
+    weights: readonly number[];
+  },
   vertex: number,
   cut?: IAutoMovieHumanPersonSeam["cut"],
 ): Map<T, number> {
-  const stencil = cut === undefined || vertex < cut.margins.length
-    ? { a: vertex, b: vertex, t: 0 }
-    : cut.intersections[vertex - cut.margins.length];
+  const stencil =
+    cut === undefined || vertex < cut.margins.length
+      ? { a: vertex, b: vertex, t: 0 }
+      : cut.intersections[vertex - cut.margins.length];
   const result = new Map<T, number>();
-  for (const [endpoint, share] of [[stencil.a, 1 - stencil.t], [stencil.b, stencil.t]])
+  for (const [endpoint, share] of [
+    [stencil.a, 1 - stencil.t],
+    [stencil.b, stencil.t],
+  ])
     for (let slot = 0; slot < 4; slot++) {
       const weight = share * skin.weights[endpoint * 4 + slot];
       if (weight === 0) continue;

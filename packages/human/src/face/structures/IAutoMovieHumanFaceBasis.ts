@@ -1,5 +1,18 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import type { IAutoMovieHumanSkinLandmark } from "../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanSkinRegion } from "../../common/basis/IAutoMovieHumanSkinRegion";
+import type { IAutoMovieHumanFaceBasisArticulation } from "./IAutoMovieHumanFaceBasisArticulation";
+import type { IAutoMovieHumanFaceBasisChannel } from "./IAutoMovieHumanFaceBasisChannel";
+import type { IAutoMovieHumanFaceBasisContact } from "./IAutoMovieHumanFaceBasisContact";
+import type { IAutoMovieHumanFaceBasisCorrective } from "./IAutoMovieHumanFaceBasisCorrective";
+import type { IAutoMovieHumanFaceBasisLandmarks } from "./IAutoMovieHumanFaceBasisLandmarks";
+import type { IAutoMovieHumanFaceBasisSurface } from "./IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceNasalContour } from "./IAutoMovieHumanFaceNasalContour";
+import type { IAutoMovieHumanFaceOpticalSupport } from "./IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFaceOralSupport } from "./IAutoMovieHumanFaceOralSupport";
+import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocular";
+
 /**
  * An immutable, externally authored connected facial surface and its endpoints.
  * The caller supplies licensed geometry; this package supplies no person's mesh.
@@ -16,32 +29,30 @@ export interface IAutoMovieHumanFaceBasis {
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
 
+  /**
+   * Optional producer-qualified native optical registration, independent of skin
+   * source partitions. Supplied numerical optics require the matching side's
+   * exact source/chart witnesses. Omission retains the legacy authored globes.
+   * These records qualify geometric placement, not clinical ocular dimensions
+   * or an observed eyelid margin.
+   */
+  opticalSupport?: IAutoMovieHumanFaceOpticalSupport[];
+
+  /**
+   * Optional producer-qualified periocular registration: the brows, lashes,
+   * globes, lid margins and canthi of each eye. Eye-region consumers read roles
+   * from it; without it they refuse by name rather than match asset names.
+   */
+  periocular?: IAutoMovieHumanFacePeriocular;
+
+  /** Producer-qualified native crown/cervical correspondence, independent of skin partition IDs. */
+  oralSupport?: IAutoMovieHumanFaceOralSupport;
+
+  /** Producer-qualified ordered nasal source contours; clinical aperture remains distinct. */
+  nasalContours?: IAutoMovieHumanFaceNasalContour[];
+
   /** Ordered controls. Evaluation follows this order, never object insertion order. */
-  channels: {
-    /** Anatomical or performance name unique within this basis. */
-    id: string;
-
-    /** Optional authored sign/shape meaning; it does not certify a biological range. */
-    description?: string;
-
-    /** Identity edits and transient performance remain separate in saved documents. */
-    kind: "shape" | "expression";
-
-    /**
-     * Finite source-authoring envelope, including zero; weights are refused
-     * rather than clamped. This bounds interpolation of authored endpoints,
-     * not population anatomy. A measured parameter needs a landmark mapping
-     * and population-appropriate norms before such a claim is possible.
-     */
-    minimum: number;
-    maximum: number;
-
-    /** Endpoint applied with abs(weight) on the positive side. */
-    positive: string;
-
-    /** Negative-side endpoint, or null for a nonnegative control. */
-    negative: string | null;
-  }[];
+  channels: IAutoMovieHumanFaceBasisChannel[];
 
   /**
    * Combination correctives, evaluated after the channels that drive them.
@@ -74,47 +85,29 @@ export interface IAutoMovieHumanFaceBasis {
    * linear prior is. Nothing here infers a corrective; the endpoint it applies
    * has to be authored like any other.
    */
-  correctives?: {
-    /** Name unique within this basis, distinct from every channel id. */
-    id: string;
+  correctives?: IAutoMovieHumanFaceBasisCorrective[];
 
-    /**
-     * The driving sides. Each names a channel and which of its two endpoints
-     * this corrective answers for, because a signed channel reaches two
-     * different faces and a combination of one is not a combination of the
-     * other.
-     */
-    inputs: {
-      channel: string;
-      side: "positive" | "negative";
+  /**
+   * Named points of the skin, each a vertex of one surface, for measurement
+   * rules that read a drawn landmark. The person head rules
+   * (`HUMAN_HEAD_MEASUREMENTS`) read `glabella`, `sellion`, `menton`
+   * and `tragion-right` on the head view. Rules name a point instead of
+   * numbering a vertex, which belongs to one basis's topology; a rule naming
+   * a point this basis does not declare refuses by that name. Omission
+   * declares none.
+   */
+  skinLandmarks?: Record<string, IAutoMovieHumanSkinLandmark>;
 
-      /**
-       * The driver weight this input is fully present at, in (0,1]; omitted
-       * is 1. Below it the factor rises linearly from zero at `between[0]`;
-       * above it, when the peak is under one, it falls linearly to zero at
-       * `between[1]`, so an in-between corrective is absent from the full
-       * pose it was not solved for.
-       */
-      peak?: number;
-
-      /**
-       * The driver weights on either side of the peak at which this input
-       * fades to nothing, `[below, above]` with `below < peak <= above`;
-       * omitted is `[0, 1]`. Two in-betweens on one driver whose tents both
-       * span the whole envelope fire into each other's poses, and a tongue
-       * solved at three quarters was measured to re-cross at a half that had
-       * been clear; naming the neighbouring peaks as the span is what makes
-       * each in-between whole at its own weight and absent at its neighbours'.
-       */
-      between?: [number, number];
-    }[];
-
-    /** Authored gain in (0,1]; the product of a rig row's authored weights. */
-    weight: number;
-
-    /** Endpoint name, resolved in each surface's targets like any other. */
-    target: string;
-  }[];
+  /**
+   * Named areas of the skin, each a set of vertices of one surface, for
+   * measurement rules that keep a feature out of a search. The person head
+   * rules keep `ear-right` and `ear-left` out of the head breadth's euryon
+   * search and out of the head circumference's plane
+   * (`HUMAN_HEAD_MEASUREMENTS`). Rules name an area instead of listing
+   * vertices, which belong to one basis's topology; a rule naming an area
+   * this basis does not declare refuses by that name. Omission declares none.
+   */
+  skinRegions?: Record<string, IAutoMovieHumanSkinRegion>;
 
   /**
    * Named points that move with the shape and define the joints: the
@@ -126,15 +119,7 @@ export interface IAutoMovieHumanFaceBasis {
    * position is identity, its motion is articulation. Required whenever
    * `articulation` is declared.
    */
-  landmarks?: {
-    ids: string[];
-
-    /** Flat XYZ per landmark, in the basis frame. */
-    positions: number[];
-
-    /** Sparse rows per endpoint name, strictly increasing by landmark. */
-    targets: Record<string, number[]>;
-  };
+  landmarks?: IAutoMovieHumanFaceBasisLandmarks;
 
   /**
    * The articulated performance the basis evaluates before tissue detail:
@@ -175,62 +160,7 @@ export interface IAutoMovieHumanFaceBasis {
    * whatever the source authored in the residual rows. Omission of the whole
    * field keeps a purely linear basis.
    */
-  articulation?: {
-    jaw: {
-      /** Landmark id of the source jaw pivot. */
-      pivot: string;
-
-      /** Metre offset from that landmark to the condylar axis point. */
-      axisOffset: [number, number, number];
-
-      /** Unit rotation axis; a positive angle opens the mouth. */
-      axis: [number, number, number];
-
-      opening: {
-        channel: string;
-        /** Rotation at weight one, in degrees. */
-        degrees: number;
-        /** Mandibular translation at weight one, in metres, coupled linearly with the angle. */
-        translation: [number, number, number];
-      };
-
-      protrusion: {
-        channel: string;
-        /** Mandibular translation at weight one, in metres. */
-        translation: [number, number, number];
-      };
-
-      laterotrusion: {
-        left: { channel: string; translation: [number, number, number] };
-        right: { channel: string; translation: [number, number, number] };
-      };
-
-      /** Supported magnitude of the summed opening and protrusion translation, in metres. */
-      translationLimitMetres: number;
-    };
-
-    eyes: {
-      /** Attachment owner name, `leftEye` or `rightEye`. */
-      id: string;
-
-      /** Landmark id of the globe's rotation centre. */
-      center: string;
-
-      /**
-       * Gaze channels; each rotates about `axis` by `degrees * weight` and
-       * translates the globe by `translation * weight`, the small eccentric
-       * shift the source authored with its lids (the ocular literature
-       * reports a varying, eccentric centre of rotation; the preparation
-       * records each channel's figure and bounds it).
-       */
-      gaze: {
-        channel: string;
-        axis: [number, number, number];
-        degrees: number;
-        translation: [number, number, number];
-      }[];
-    }[];
-  };
+  articulation?: IAutoMovieHumanFaceBasisArticulation;
 
   /**
    * The coupled oral contact the basis evaluates after articulation: lip
@@ -245,10 +175,14 @@ export interface IAutoMovieHumanFaceBasis {
    * along the basis frame's vertical (made perpendicular to the mandibular
    * axis) are the interlabial and interincisal apertures. `closure` is the channel
    * whose rows were decomposed as a delta at `reference` weight one (the
-   * ARKit sense of a lip closure over an open jaw): the builder applies them
-   * scaled by the ratio of the current aperture to the reference aperture,
-   * so weight one seals the lips at any opening and the seal never overshoots
-   * a half-open jaw. `passage` names the tongue surface and its protrusion
+   * ARKit sense of a lip closure over an open jaw). Legacy replay scales that
+   * native companion by the authored aperture ratio. A prepared `sourceSpan`
+   * instead reads fixed native closure-zero/one states, replays their source
+   * points, forms the registered closed endpoint and applies the requested
+   * weight once before rigid contact. Its registered representative supplies
+   * the final interlabial reading; the native pair still owns companion gain.
+   * Source registration and final geometry/contact observation establish seal,
+   * rather than native aperture scaling alone. `passage` names the tongue surface and its protrusion
    * channel: a tongue past the incisal plane must be thinner, over the slab
    * about that plane, than both apertures, because a constant-volume muscular
    * hydrostat cannot be pressed through closed teeth or sealed lips.
@@ -268,97 +202,10 @@ export interface IAutoMovieHumanFaceBasis {
    * refusal here. Omission keeps the articulated basis without contact
    * evaluation.
    */
-  contact?: {
-    /** Vermilion seam midline vertices on one surface, upper then lower. */
-    lips: { surface: string; upper: number; lower: number };
-
-    /** Incisal edge midline vertices on one surface, upper then lower. */
-    incisors: { surface: string; upper: number; lower: number };
-
-    /** Aperture-coupled closure channel and the opening channel it was decomposed against. */
-    closure: { channel: string; reference: string };
-
-    /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
-    passage: { surface: string; channel: string; slabMetres: number };
-
-    /** Rigid colliders (dental arches, globes): closure triangles over resident vertices, the sheet reach and the covering tissue's least thickness, in metres. */
-    colliders: {
-      surface: string;
-      closure: number[];
-      reachMetres: number;
-      coverMetres?: number;
-    }[];
-
-    /** Soft surfaces held outside the colliders, each with the metres it may be pushed before refusal. */
-    soft: { surface: string; budgetMetres: number }[];
-
-    /** Metres of new penetration tolerated before a push or refusal, absorbing row rounding. */
-    toleranceMetres: number;
-  };
+  contact?: IAutoMovieHumanFaceBasisContact;
 
   /** Connected skin and separately attached components, in the same head frame. */
-  surfaces: {
-    id: string;
-
-    /** Shared flat XYZ positions, before material or UV seam splitting. */
-    positions: number[];
-
-    /** Oriented triangles over those shared vertex identities. */
-    indices: number[];
-
-    /** Sparse [vertex, dx, dy, dz] rows, strictly increasing by vertex per endpoint. */
-    targets: Record<string, number[]>;
-
-    /**
-     * Optional shared anatomical hair-growth domains. Triangle ordinals refer
-     * to this surface's complete indices, before material or UV separation.
-     * Each nonempty domain has unique ascending ordinals and a finite neutral
-     * chart origin in metres. These regions are common to every identity.
-     */
-    hairDomains?: {
-      id: string;
-      origin: [number, number, number];
-      triangles: number[];
-    }[];
-
-    /**
-     * Optional oriented triangles over resident vertices closing an otherwise
-     * open contact surface. They participate only in numerical hair collision
-     * queries, never visible geometry. The completed surface must be embedded,
-     * closed and outward oriented; deformation must preserve those premises.
-     * This is shared collision topology, not personal offsets or a fitted mesh.
-     */
-    hairContactClosure?: number[];
-
-    /**
-     * Optional sparse attachment of this surface's vertices to the articulated
-     * owners of `articulation` (`jaw`, `leftEye`, `rightEye`). Rows are
-     * `[vertex, weight]` pairs, strictly increasing by vertex, with each weight
-     * in (0, 1] and the weights of one vertex over all owners summing to at
-     * most one; the remainder is the cranium, which the head frame holds
-     * still. A vertex bound to one owner with weight one moves as that bone,
-     * which is what makes a tooth or a globe rigid without a post-hoc fit, and
-     * a blended vertex takes the weighted mean of its owners' rigid images.
-     * Weights are shared basis data measured from the source, never a
-     * person's sculpt. Omission or an empty list attaches the whole surface to
-     * the cranium.
-     */
-    attachments?: {
-      /** An owner `articulation` declares: `jaw`, or an eye's `id`. */
-      owner: string;
-      rows: number[];
-    }[];
-
-    /** An exact partition of the surface triangles, preserving oriented triples. */
-    regions: {
-      id: string;
-      material: string;
-      indices: number[];
-
-      /** Flat UV pairs per triangle corner, or null for untextured geometry. */
-      uvs: number[] | null;
-    }[];
-  }[];
+  surfaces: IAutoMovieHumanFaceBasisSurface[];
 
   /** Resident finishes; the existing static face exporter owns texture admission. */
   materials: IAutoMovieMaterial[];

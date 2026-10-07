@@ -7,9 +7,17 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
+import type { IHumanViewerFaceDocumentsMemo } from "./IHumanViewerFaceDocumentsMemo";
+import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles";
+import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead";
+import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo";
+import { createHumanViewerRevisionsWorker } from "./createHumanViewerRevisionsWorker";
+import { createHumanViewerSidecarFacts } from "./createHumanViewerSidecarFacts";
+import { createNodeHumanViewerResolveIo } from "./createNodeHumanViewerResolveIo";
+import { humanViewerStorage } from "./humanViewerStorage";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
+import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration";
 
 /**
  * Open the published input and source revision owners for one server directory.
@@ -23,7 +31,14 @@ import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
  */
 export function createHumanViewerSource(directory: string) {
   const root = path.resolve(directory, "../../..");
-  const storage = path.join(root, ".shots/human-viewer");
+  const storage = humanViewerStorage(
+    root,
+    process.env.HUMAN_VIEWER_STORAGE_ROOT,
+  );
+  const referenceDirectory = path.join(
+    humanViewerStorage(root, undefined),
+    "references",
+  );
   const basisFiles = {
     face: path.join(
       root,
@@ -34,6 +49,16 @@ export function createHumanViewerSource(directory: string) {
       "test/studies/human-body/connected-basis/basis.json.gz",
     ),
   };
+  /** The published one-skin person generation views, read off the request path. */
+  /** The source owner's subject people on the published generation. */
+  const subjectPeopleFile = path.join(
+    root,
+    "test/studies/human-person/subjects.json",
+  );
+  const generationFiles: IHumanViewerGenerationFiles = {
+    head: path.join(root, "test/studies/human-person/generation/head.json.gz"),
+    body: path.join(root, "test/studies/human-person/generation/body.json.gz"),
+  };
   const documentsFile = path.join(
     root,
     "test/studies/human-face/connected-basis/global-face/subjects.json",
@@ -43,18 +68,21 @@ export function createHumanViewerSource(directory: string) {
   const rootPath = slash(root);
   const playground = (file: string): string =>
     `${rootPath}/packages/playground/src/human/${file}`;
-  const readText = (file: string): string | undefined => {
-    try {
-      return fs.readFileSync(file, "utf8");
-    } catch {
-      return undefined;
-    }
-  };
   /** Digest and identity of a large input file, recomputed only when it changes on disk. */
   const basisOf = createHumanViewerBasisMemo({
-    stamp: (file) => { const stat = fs.statSync(file); return `${stat.mtimeMs}:${stat.size}`; },
+    stamp: (file) => {
+      const stat = fs.statSync(file);
+      return `${stat.mtimeMs}:${stat.size}`;
+    },
     read: (file) => fs.readFileSync(file),
   });
+  /** Each input file's entries, kept while the file and what it depends on are unchanged. */
+  const inputsMemo = new Map<string, IHumanViewerInputFileRead>();
+  /** The face documents, kept while the subject list, face basis and face source are unchanged. */
+  const faceMemo: IHumanViewerFaceDocumentsMemo = {
+    signature: null,
+    value: null,
+  };
   /** The published bases and subject list: inputs no import graph names. */
   const basisDigest = (): string =>
     [...Object.values(basisFiles), documentsFile]
@@ -63,7 +91,7 @@ export function createHumanViewerSource(directory: string) {
   let bases = basisDigest();
   // Each digest covers only what its build imports, so an edit to the eye never
   // invalidates a body document and a test or screen invalidates nothing.
-  const revisions = createHumanViewerRevisions({
+  const revisions = createHumanViewerRevisionsWorker({
     root: rootPath,
     entries: {
       browser: ["page.mts", "host.mts", "scene.html", "view.html"].map(
@@ -76,6 +104,7 @@ export function createHumanViewerSource(directory: string) {
       body: [
         playground("common/connectedAsset.ts"),
         playground("body/connectedBodyRuntime.ts"),
+        playground("body/createConnectedBodyGenerationRuntime.ts"),
       ],
       person: [
         playground("common/connectedAsset.ts"),
@@ -90,27 +119,93 @@ export function createHumanViewerSource(directory: string) {
       "test/package.json",
     ].map((file) => `${rootPath}/${file}`),
     bases: () => bases,
-    io: {
-      exists: (file) => fs.existsSync(file) && fs.statSync(file).isFile(),
-      read: readText,
-    },
+    io: createNodeHumanViewerResolveIo(),
+    worker: path.join(directory, "revisions-worker.mts"),
   });
-  const watched = [
-    "human",
-    "engine",
-    "interface",
-    "viewer",
-    "playground",
-  ].map((name) => path.join(root, "packages", name, "src"));
+  const watched = ["human", "engine", "interface", "viewer", "playground"].map(
+    (name) => path.join(root, "packages", name, "src"),
+  );
   watched.push(directory);
+  // Candidate sidecars are read off the request path; when one becomes known
+  // the host republishes its catalogue through the registered listener.
+  let sidecarListener = (): void => {};
+  // The host binds the page's admission once its page exists.
+  let admission: IReadHumanViewerCatalogueProps["admission"];
+  const sidecars = createHumanViewerSidecarFacts({
+    stamp: (name) => {
+      const stat = fs.statSync(path.join(inputsDirectory, name));
+      return `${stat.mtimeMs}:${stat.size}`;
+    },
+    stream: (name) => fs.createReadStream(path.join(inputsDirectory, name)),
+    changed: () => sidecarListener(),
+    kind: (name) =>
+      name.endsWith(".person.json.gz")
+        ? "person"
+        : name.endsWith(".head.json.gz") || name.endsWith(".body.json.gz")
+          ? "view"
+          : "basis",
+  });
+  const views = createHumanViewerSidecarFacts({
+    stamp: (file) => {
+      const stat = fs.statSync(file);
+      return `${stat.mtimeMs}:${stat.size}`;
+    },
+    stream: (file) => fs.createReadStream(file),
+    changed: () => sidecarListener(),
+    kind: () => "view",
+  });
+  const generation = () =>
+    readHumanViewerPublishedGeneration({
+      files: {
+        head: path.relative(root, generationFiles.head).replaceAll("\\", "/"),
+        body: path.relative(root, generationFiles.body).replaceAll("\\", "/"),
+      },
+      exists: (view) => fs.existsSync(generationFiles[view]),
+      facts: (view) => views.facts(generationFiles[view]),
+    });
   const catalogue = () =>
     readHumanViewerCatalogue({
       basisFiles,
       documentsFile,
+      subjectPeopleFile,
       inputsDirectory,
+      inputsMemo,
+      faceMemo,
       basisOf,
       revisions: revisions.current(),
+      sidecar: sidecars.facts,
+      generation,
+      admission,
     });
-  return { root, storage, basisFiles, documentsFile, inputsDirectory, slash,
-    revisions, watched, catalogue, refreshBases: () => { bases = basisDigest(); } };
+  return {
+    root,
+    storage,
+    referenceDirectory,
+    basisFiles,
+    generationFiles,
+    documentsFile,
+    subjectPeopleFile,
+    inputsDirectory,
+    slash,
+    revisions,
+    watched,
+    catalogue,
+    refreshBases: () => {
+      bases = basisDigest();
+    },
+    /** Register the host's republication for sidecars whose facts became known. */
+    sidecarsChanged: (listener: () => void): void => {
+      sidecarListener = listener;
+    },
+    /** The sidecar reader, whose reads a rescan waits for. */
+    sidecars,
+    /** The generation view reader, whose reads a rescan waits for too. */
+    views,
+    /** Bind the page owner's document admission. */
+    admitWith: (
+      judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>,
+    ): void => {
+      admission = judge;
+    },
+  };
 }

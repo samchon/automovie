@@ -28,6 +28,11 @@ export function createHumanViewerSpans(now: () => number) {
       }
     },
 
+    /** Add a duration measured elsewhere to the stage `name`. */
+    add: (name: string, ms: number): void => {
+      totals[name] = (totals[name] ?? 0) + ms;
+    },
+
     /** The milliseconds recorded per stage since the last reset. */
     snapshot: (): Record<string, number> => ({ ...totals }),
   };

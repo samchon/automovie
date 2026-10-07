@@ -1,0 +1,34 @@
+{
+  "qualification": "Explicit source prototype differences and private support convention; no clinical cartilage acquisition or personal reconstruction.",
+  "foldSupportMillimetres": 2.5,
+  "right": {
+    "helixRimProjectionOffsetMillimetres": 0.6,
+    "antihelixProjectionOffsetMillimetres": 0.8,
+    "superiorCrusProjectionOffsetMillimetres": 0.5,
+    "inferiorCrusProjectionOffsetMillimetres": 0.5,
+    "cymbaFloorRecessionOffsetMillimetres": 0.6,
+    "cavumFloorRecessionOffsetMillimetres": 0.8,
+    "tragusProjectionOffsetMillimetres": 0.5,
+    "antitragusProjectionOffsetMillimetres": 0.5,
+    "lobuleHeightOffsetMillimetres": 1,
+    "lobuleBreadthOffsetMillimetres": 1,
+    "pinnaSectionThicknessOffsetMillimetres": 0.3,
+    "retroauricularSulcusRecessionOffsetMillimetres": 0.6,
+    "pinnaInclinationOffsetDegrees": 0
+  },
+  "left": {
+    "helixRimProjectionOffsetMillimetres": 0.8,
+    "antihelixProjectionOffsetMillimetres": 0.6,
+    "superiorCrusProjectionOffsetMillimetres": 0.4,
+    "inferiorCrusProjectionOffsetMillimetres": 0.6,
+    "cymbaFloorRecessionOffsetMillimetres": 0.5,
+    "cavumFloorRecessionOffsetMillimetres": 0.7,
+    "tragusProjectionOffsetMillimetres": 0.4,
+    "antitragusProjectionOffsetMillimetres": 0.6,
+    "lobuleHeightOffsetMillimetres": 0.5,
+    "lobuleBreadthOffsetMillimetres": 0.5,
+    "pinnaSectionThicknessOffsetMillimetres": 0.3,
+    "retroauricularSulcusRecessionOffsetMillimetres": 0.6,
+    "pinnaInclinationOffsetDegrees": 0
+  }
+}

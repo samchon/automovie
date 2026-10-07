@@ -1,0 +1,25 @@
+{
+  "schema": "automovie-source-guide-recipe/1",
+  "revision": "d2ccb51cc531e71b3eab67960a4142138b9510ec",
+  "headPath": "test/studies/human-person/generation/head.json.gz",
+  "headSha256": "205aea10003031abbea07716dc2f552a9b757448c525dc1709b8443d748a920f",
+  "manifestPath": "test/studies/human-person/generation/g1-manifest.json",
+  "manifestSha256": "aa1e5afb57474e9e911b1ce4a0f82d3c03d304822115ecffc9fe1e296947f27f",
+  "baseLandmarks": [
+    "glabella",
+    "menton",
+    "subnasale",
+    "cheilion-left",
+    "tragion-left"
+  ],
+  "nasalLandmarks": [
+    "sellion",
+    "alar-curvature-left",
+    "alar-curvature-right"
+  ],
+  "earRegions": ["ear-right", "ear-left"],
+  "sampleRegions": ["cymba-conchae-right", "cymba-conchae-left", "cavum-conchae-right", "cavum-conchae-left", "lobule-right", "lobule-left", "naris-margin-right", "naris-margin-left"],
+  "mirrorPath": "upstream/mpfb2/src/mpfb/data/mesh_metadata/hm08.mirror",
+  "mirrorSha256": "679f80f101d89b3d9dbebef7c12b4e0498c8f0eb2adcb7ed4dae849ed245149e",
+  "qualification": "Fixed licensed historical source correspondence and explicit named chart selections. No clinical landmark acquisition, population fit or original nasal socket selection recipe is established."
+}

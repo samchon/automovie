@@ -1,5 +1,4 @@
 import {
-  DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   IAutoMovieActionSynthesizer,
@@ -12,76 +11,17 @@ import {
   sampleMotion,
   stageScene,
 } from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
-import {
-  IDENTITY_TRANSFORM,
-  createSkeleton,
-  joint,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
+import { FILM_ATTACH_JOINT_AXES as CUSTOM_JOINT_AXES } from "../internal/FILM_ATTACH_JOINT_AXES";
+import { createFilmAttachRaisedMotion } from "../internal/createFilmAttachRaisedMotion";
+import { createFilmAttachScript as scriptOf } from "../internal/createFilmAttachScript";
+import { createFilmAttachStage as stagingOf } from "../internal/createFilmAttachStage";
+import { filmAttachSynthesizer as synth } from "../internal/filmAttachSynthesizer";
+import { makePerformanceWrite } from "../internal/filmFixtures";
+import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
-
-const CUSTOM_JOINT_AXES = {
-  ...HUMANOID_JOINT_AXES,
-  leftUpperArm: DEFAULT_JOINT_AXES,
-};
-
-/** A launch/attach produces no actor pose: those animate objects, not the rig. */
-const synth: IAutoMovieActionSynthesizer = (action, actor) =>
-  action.verb === "launch" || action.verb === "attachTo"
-    ? null
-    : validSynthesizer(action, actor);
-
-const scriptOf = () =>
-  makeScriptWrite({
-    cast: [
-      { node: "knight", character: "the knight", modelRef: "stickman" },
-      { node: "sword", character: "the sword", modelRef: null },
-      { node: "shield", character: "the shield", modelRef: null },
-    ],
-    beats: [
-      {
-        id: "beat-1",
-        name: "the salute",
-        summary: "the knight raises the sword",
-        durationHint: 2,
-      },
-    ],
-  });
-
-const stagingOf = () =>
-  makeStagingWrite({
-    actors: [
-      { node: "knight", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
-      { node: "sword", position: { x: 0.75, y: 1.4, z: 0 }, facingDeg: 0 },
-      { node: "shield", position: { x: 0, y: 1.4, z: 0 }, facingDeg: 0 },
-    ],
-    cameras: [
-      {
-        node: "cam-main",
-        position: { x: 3, y: 1.6, z: 3 },
-        lookAt: { kind: "node", node: "knight" },
-        fovDeg: 45,
-        near: 0.1,
-        far: 1000,
-        depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-      },
-    ],
-  });
 
 /**
  * Wires the `attachTo` verb through the PERFORMANCE consumer: the coupled prop
@@ -241,19 +181,7 @@ export const test_film_perform_shot_attach = (): void => {
   );
 
   // 2. custom jointAxes and restFrames reach the baked objectMotion FK.
-  const raisedMotion: IAutoMovieMotion = makeMotion(
-    [
-      keyframe(
-        0,
-        makePose([joint("leftUpperArm", { flexion: 60, abduction: 180 })]),
-      ),
-      keyframe(
-        1,
-        makePose([joint("leftUpperArm", { flexion: 60, abduction: 180 })]),
-      ),
-    ],
-    1,
-  );
+  const raisedMotion = createFilmAttachRaisedMotion();
   const clinicalSynth: IAutoMovieActionSynthesizer = (action, actor) =>
     actor === "knight" && action.verb === "gesture"
       ? raisedMotion

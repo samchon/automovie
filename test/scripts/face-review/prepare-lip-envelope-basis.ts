@@ -12,14 +12,13 @@
  * two standard deviations (`prepareLipEnvelopeBasis`).
  */
 import fs from "node:fs";
-/** ls-sto, sto-li and ch-ch as [mean, SD] in millimetres. */
-;
 
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareLipEnvelopeBasis } from "./prepareLipEnvelopeBasis";
 import { readFaceBasisStudy } from "./readFaceBasisStudy";
 import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
+/** ls-sto, sto-li and ch-ch as [mean, SD] in millimetres. */
 const NORMS: Record<
   string,
   { upper: [number, number]; lower: [number, number]; width: [number, number] }

@@ -16,10 +16,24 @@ export function assertBodyBasisSidecarPaths(input: {
   receipt: string;
   root: string;
 }): void {
-  if (input.root.length === 0 || !input.output.startsWith(input.root) || !input.receipt.startsWith(input.root))
+  if (
+    input.root.length === 0 ||
+    !input.output.startsWith(input.root) ||
+    !input.receipt.startsWith(input.root)
+  )
     throw new Error("Candidate and receipt must stay inside the sidecar root.");
   if (input.output === input.root || input.receipt === input.root)
-    throw new Error("Sidecar outputs must name artifacts, not the root itself.");
-  if (input.output === input.source || input.output === input.published || input.receipt === input.source || input.receipt === input.published || input.output === input.receipt)
-    throw new Error("Sidecar outputs cannot overwrite an input, published basis or each other.");
+    throw new Error(
+      "Sidecar outputs must name artifacts, not the root itself.",
+    );
+  if (
+    input.output === input.source ||
+    input.output === input.published ||
+    input.receipt === input.source ||
+    input.receipt === input.published ||
+    input.output === input.receipt
+  )
+    throw new Error(
+      "Sidecar outputs cannot overwrite an input, published basis or each other.",
+    );
 }

@@ -1,9 +1,8 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-
 import { linearInterpolate } from "../../mesh/linearInterpolate";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
+import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
 import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueShape";
 
 /**
@@ -34,10 +33,9 @@ import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueSh
  */
 export const createPortraitOcularTissues = (
   input: IPortraitOcularTissueShape,
-): ((boundary: IPortraitOcularTissueBoundary) => {
-  corner: IAutoMovieMesh | null;
-  lowerMargin: IAutoMovieMesh | null;
-}) => {
+): ((
+  boundary: IPortraitOcularTissueBoundary,
+) => IPortraitOcularTissueMeshes) => {
   const shape = { ...input };
   if (
     Object.values(shape).some((value) => !Number.isFinite(value) || value < 0)

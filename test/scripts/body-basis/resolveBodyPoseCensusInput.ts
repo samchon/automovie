@@ -14,5 +14,7 @@ export function resolveBodyPoseCensusInput(input: {
   shipped: string;
   resolveExplicit: (path: string) => string;
 }): string {
-  return input.selected === undefined ? input.shipped : input.resolveExplicit(input.selected);
+  return input.selected === undefined
+    ? input.shipped
+    : input.resolveExplicit(input.selected);
 }

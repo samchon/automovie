@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieModelObject } from "./buildModel";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
 
 /** VRM preset names the viewer resets and drives every expression frame. */
 const AUTOMOVIE_EXPRESSION_PRESETS = [
@@ -210,10 +210,7 @@ const applyMorphTargets = (
   weights: ReadonlyMap<string, number>,
 ): void => {
   root.traverse((object) => {
-    const mesh = object as THREE.Mesh & {
-      morphTargetDictionary?: Record<string, number>;
-      morphTargetInfluences?: number[];
-    };
+    const mesh = object as THREE.Mesh;
     if (
       mesh.isMesh !== true ||
       mesh.morphTargetDictionary === undefined ||

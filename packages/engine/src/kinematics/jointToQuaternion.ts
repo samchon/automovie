@@ -32,11 +32,19 @@ const readAngle = (
  * **Axis convention** (bone-local frame, applied in this fixed order): flexion
  * about {@link IAutoMovieJointAxes.flexion} (default local **X**, sagittal),
  * abduction about `abduction` (default **Z**, frontal), twist about `twist`
- * (default **Y**, the bone's long axis). Composition order is twist ∘ abduction
- * ∘ flexion (flexion first in the bone's own frame, then abduction, then axial
- * twist):
+ * (default **Y**, the bone's long axis). The composition order follows the
+ * joint's declared {@link IAutoMovieJointAxes.twistPlacement}. A proximal
+ * twist (the default, as the head turns below its nodding joint) turns the
+ * swing axes with it:
  *
  *     q = qTwist * qAbduction * qFlexion;
+ *
+ * A distal twist (as the forearm pronates beyond the elbow's hinge) turns the
+ * moved segment about its own long axis before the same swing, so the swing
+ * alone decides where the segment points and a pose without twist is the
+ * same rotation in either placement:
+ *
+ *     q = qAbduction * qFlexion * qTwist;
  *
  * `axes` overrides the default basis per bone so a rig keeps flexion
  * anatomically correct regardless of how its rest frame is oriented (a T-pose
@@ -74,5 +82,7 @@ export const jointToQuaternion = (
     basis.twist,
     readAngle(joint, "twist", frame?.twist),
   );
-  return Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
+  return basis.twistPlacement === "distal"
+    ? Quaternion.multiply(qAbduction, Quaternion.multiply(qFlexion, qTwist))
+    : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
 };

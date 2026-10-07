@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
+import type { IAutoMovieHumanBodyChannelMeasurement } from "./IAutoMovieHumanBodyChannelMeasurement";
 
 /**
  * How far one unit of a body channel moves the skin, and what it measures.
@@ -34,12 +35,5 @@ export interface IAutoMovieHumanBodyChannelScale {
    * A rule the surface cannot answer (no section loop, a landmark the basis
    * lacks) reports null values rather than a number.
    */
-  measurement: {
-    /** Rule identity from `HUMAN_BODY_MEASUREMENTS`. */
-    id: string;
-    kind: "girth" | "distance" | "height" | "breadth";
-    neutral: number | null;
-    positive: number | null;
-    negative: number | null;
-  } | null;
+  measurement: IAutoMovieHumanBodyChannelMeasurement | null;
 }

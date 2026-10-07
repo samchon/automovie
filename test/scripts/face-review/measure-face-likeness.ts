@@ -25,11 +25,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { type IFaceLikenessComparison } from "./faceLikenessComparison";
 import {
   compareFaceLikeness,
   summarizeFaceLikeness,
 } from "./faceLikenessCompare";
+import { type IFaceLikenessComparison } from "./faceLikenessComparison";
 import { identifyFaceLikeness } from "./faceLikenessIdentify";
 import {
   type IFaceLikenessCaptures,

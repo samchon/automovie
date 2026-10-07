@@ -24,10 +24,11 @@ export interface IHumanViewerPhases {
   buildMs?: number;
 
   /**
-   * Page milliseconds per named stage of `showMs` (cache read, cache decode,
-   * numerical worker, cache write). They can overlap nothing and are summed by
-   * name, so `otherMs` is the remainder: resident construction, textures and
-   * drawing, which the page does not time separately.
+   * Page milliseconds per named stage of `showMs`: document loading, cache
+   * read, cache decode, numerical worker, cache write, model preparation
+   * (`prepareMs`: geometry gates, textures and resident construction) and
+   * drawing. They overlap nothing and are summed by name, so `otherMs` is the
+   * small remainder the page reports no stage for.
    */
   spans?: Record<string, number>;
 

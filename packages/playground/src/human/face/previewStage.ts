@@ -85,7 +85,9 @@ export function createHumanPreviewStage(props: {
     roots: () => (active === undefined ? [] : [active]),
     clay,
     height: () => canvas.getBoundingClientRect().height,
-    invalidateShadows: () => { renderer.shadowMap.needsUpdate = true; },
+    invalidateShadows: () => {
+      renderer.shadowMap.needsUpdate = true;
+    },
   });
   const {
     cameraView,
@@ -120,6 +122,8 @@ export function createHumanPreviewStage(props: {
   renderer.setAnimationLoop(render);
 
   return {
+    /** Restore display-owned materials before the numerical owner releases a resident. */
+    restoreObservation: observation.restore,
     publish,
     fitView,
     cameraView,

@@ -1,5 +1,5 @@
-import { BODY_POSE_DEFECT_ZONES } from "./bodyPoseDefectZone";
 import type { IBodyPoseDefects } from "./IBodyPoseDefects";
+import { BODY_POSE_DEFECT_ZONES } from "./bodyPoseDefectZone";
 
 /** One census row: a named shape and pose, and either its defects or the builder's refusal. */
 export interface IBodyPoseDefectRow {

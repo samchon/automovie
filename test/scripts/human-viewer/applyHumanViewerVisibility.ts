@@ -31,7 +31,9 @@ export function applyHumanViewerVisibility(
   const light = address.light ?? null;
   if (stage.setLightDirection === undefined) {
     if (light !== null)
-      throw new Error("Light direction overrides require a Body or Person viewport");
+      throw new Error(
+        "Light direction overrides require a Body or Person viewport",
+      );
   } else stage.setLightDirection(light);
   stage.setShadows(address.shadows ?? true);
   stage.observe.pass(address.pass);

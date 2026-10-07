@@ -1,5 +1,14 @@
-import { validateAutoMovieEnvironmentContext, validateBuiltEnvironment, validateModel } from "@automovie/engine";
-import type { IAutoMovieDiagnostic, IAutoMovieEnvironmentContext, IAutoMovieLibraryContribution, IAutoMovieModel } from "@automovie/interface";
+import {
+  validateAutoMovieEnvironmentContext,
+  validateBuiltEnvironment,
+  validateModel,
+} from "@automovie/engine";
+import type {
+  IAutoMovieDiagnostic,
+  IAutoMovieEnvironmentContext,
+  IAutoMovieLibraryContribution,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 /**
  * One compilation attempt's contribution, identity maps and domain validators.
@@ -11,14 +20,20 @@ import type { IAutoMovieDiagnostic, IAutoMovieEnvironmentContext, IAutoMovieLibr
  * without changing or patching an engine implementation.
  */
 export const createLibraryContributionAdmissionInput = (
-  contribution: IAutoMovieLibraryContribution & { contexts: IAutoMovieEnvironmentContext[] },
+  contribution: IAutoMovieLibraryContribution & {
+    contexts: IAutoMovieEnvironmentContext[];
+  },
 ) => ({
   contextOwner: new Map<string, string>(),
   environmentOwner: new Map<string, string>(),
   modelOwner: new Map<string, string>(),
   models: new Map<string, IAutoMovieModel>(),
   diagnostics: [] as IAutoMovieDiagnostic[],
-  registration: { design: "docs/models/ship.md#ship", export: "ship", contribution },
+  registration: {
+    design: "docs/models/ship.md#ship",
+    export: "ship",
+    contribution,
+  },
   source: "src/models/ship.ts",
   target: "library:models:docs/models/ship.md#ship",
   validators: {

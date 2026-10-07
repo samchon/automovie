@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairRootPopulation } from "./IHumanFaceHairRootPopulation";
+import type { IHumanFaceHairRootSamplingProps } from "./IHumanFaceHairRootSamplingProps";
+import type { IHumanFaceHairSampledRoot } from "./IHumanFaceHairSampledRoot";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
@@ -24,6 +26,9 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  * The polar mask can only remove roots from the shared domain. One million
  * candidates is a construction budget; exhaustion refuses the request rather
  * than inventing roots outside the domain. Arrays are copied on compilation.
+ * Positive-area admission is separate from direction normalization. The shared
+ * vector owner scales finite extreme components before normalization, so a
+ * positive subnormal area does not become an overflowing inverse-area factor.
  *
  * The sampler also reports the share of the domain its own acceptance covers:
  * candidates follow the neutral domain's area measure, so their accepted share
@@ -79,12 +84,9 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function createHumanFaceHairRoots(props: {
-  positions: readonly number[];
-  indices: readonly number[];
-  triangles: readonly number[];
-  origin: readonly [number, number, number];
-}) {
+export function createHumanFaceHairRoots(
+  props: IHumanFaceHairRootSamplingProps,
+) {
   const origin = Vector3.create(...props.origin);
   let area = 0;
   const triangles = props.triangles.map((triangle) => {
@@ -111,7 +113,7 @@ export function createHumanFaceHairRoots(props: {
       ids,
       points,
       area,
-      normal: Vector3.scale(cross, 1 / magnitude),
+      normal: Vector3.normalize(cross),
     };
   });
   if (!Number.isFinite(area) || area <= 0)
@@ -121,23 +123,8 @@ export function createHumanFaceHairRoots(props: {
       IAutoMovieHumanFaceHair.Layer,
       "count" | "seed" | "hairline" | "rootRegion"
     >,
-  ): {
-    roots: {
-      sequence: number;
-      triangle: number;
-      weights: [number, number, number];
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    }[];
-    share: number;
-  } => {
-    const roots: {
-      sequence: number;
-      triangle: number;
-      weights: [number, number, number];
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    }[] = [];
+  ): IHumanFaceHairRootPopulation => {
+    const roots: IHumanFaceHairSampledRoot[] = [];
     let candidates = 0;
     for (
       let candidate = 1;

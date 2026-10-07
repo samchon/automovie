@@ -1,3 +1,4 @@
+import { IAutoMovieMeshPhysicalVertices } from "./IAutoMovieMeshPhysicalVertices";
 import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
 
 /**
@@ -29,6 +30,25 @@ export interface IAutoMovieMesh {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `positions` for the asset spec geometry inputs system contract.
    */
   positions: number[];
+
+  /**
+   * Optional physical source correspondence, aligned with render vertices.
+   * A numeric entry in `vertices` references `sources`; `null` retains current
+   * position welding. Omission makes every vertex position-derived.
+   * Source IDs are nonnegative safe integers and domains are nonblank strings
+   * naming an actual physical instance's equivalence context. Equal domain/ID
+   * pairs identify one point duplicated for attributes; contact alone never
+   * identifies two points. Every alias must occupy the same topology-grid cell.
+   * Domains are not biological-source names or normal islands. Reusing one
+   * pair across placed meshes asserts the same actual point in their shared
+   * frame. A producer owns incidence and must rebind newly created vertices.
+   * The table survives composition; indices into it have no physical meaning.
+   * This correspondence supplies topology, not geometry-validity exemptions.
+   *
+   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Distinguishes actual source-point aliases from coordinate contact while retaining position-derived vertices.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Carries source domain/ID lineage and nullable current-position correspondence per render vertex.
+   */
+  physicalVertices?: IAutoMovieMeshPhysicalVertices;
 
   /**
    * Flat vertex normals `[x,y,z,...]`, aligned to `positions`. `null` if

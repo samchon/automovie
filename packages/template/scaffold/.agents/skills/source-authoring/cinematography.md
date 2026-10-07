@@ -2,21 +2,9 @@
 
 Cinematography converts dramatic priority into viewpoint, scale, light, movement, and duration. Begin with what the viewer must feel and know at the end of the shot. Choose geometry only after that answer.
 
-## Shot size as meaning
+## Framing intent
 
-- Extreme wide makes environment, formation, distance, or isolation dominant.
-- Wide shows full action, relation to ground, and blocking.
-- Medium balances gesture with face and supports dialogue exchange.
-- Close-up gives micro-expression, object detail, or decision narrative weight.
-- Extreme close-up isolates a decisive fragment and withholds context.
-
-Changing size changes meaning. A close-up is not merely a wide shot with less margin. Motivate the transition through discovery, pressure, intimacy, rupture, or release.
-
-## Lens and distance
-
-Focal length and camera distance work together. A long lens at distance compresses depth and separates a subject from the environment; a near wide lens exaggerates depth and motion and can distort faces or props. Keep the intended subject scale while testing how perspective affects spatial truth.
-
-Use headroom, lead room, frame edges, negative space, and foreground layers deliberately. Preserve silhouettes at the delivery raster. Depth requires readable overlap, scale change, atmosphere, light separation, or motion parallax, not just different numeric z values.
+Declare the information, subject scale and spatial relation each viewpoint must deliver. Preserve required silhouettes at the delivery raster and judge lens, distance and depth separation against that authored intent.
 
 ## Clip range and depth precision
 
@@ -26,19 +14,9 @@ Choose `minimumDepthBits` from the actual draw framebuffer capability the delive
 
 This contract is standard fixed-point perspective depth. Before every draw, the viewer requires exact source-to-rendered near/far parity, refuses logarithmic or reversed projection as a different metric, and queries the currently bound draw framebuffer's real `DEPTH_BITS`; a lower capability is a refusal rather than a degraded frame. A successful engine report therefore does not replace viewer verification, and a remembered renderer specification does not replace the live pre-draw observation.
 
-## Continuity grammar
+## Continuity and camera motion
 
-Establish the axis of action before cutting across it. Place successive cameras on one side of the 180-degree line so screen direction remains stable. When a crossing serves the story, declare the violation in style intent and reorient the viewer through a neutral-on-axis shot, visible camera move, subject movement, or a clear new establishing view.
-
-Eyeline matching is a geometric promise: the look vector, camera side, subject screen position, and target placement must agree. Screen direction carries action across shots even when the camera changes. A left-to-right advance followed by unexplained right-to-left motion reads as reversal.
-
-Match on action by overlapping authored motion and choosing a cut where direction, pose, velocity, and contact read as one event. Do not rely on equal timestamps alone.
-
-## Camera motion
-
-Pan or tilt to reveal, follow, compare, or withhold. Dolly changes spatial relation and perspective; zoom changes framing without moving through space. Truck, pedestal, orbit, crane, and handheld each imply different observation and energy. Every move needs a subject, start state, end state, and dramatic reason. A motion that only proves the camera can move is noise.
-
-Ease camera starts and stops unless impact calls for discontinuity. Coordinate subject motion and camera motion so one does not accidentally cancel or amplify the other. Check minimum distance, target visibility, occlusion, raster bounds, and motion speed through the engine and acceptance gates.
+Declare required action-axis, eyeline, screen-direction and match-on-action continuity. A motivated violation enters `styleIntent` and must remain legible. Give a camera move its subject, start, end and purpose; check minimum distance, target visibility, occlusion, raster bounds and speed through acceptance.
 
 A beat authors that move with a `frame` action naming the live camera, and it is the one declaration that outranks the staged camera. Staging chooses the side the lens watches from; the action keeps that bearing and solves the distance from its declared framing and its subject, so a camera staged forty metres out for an establishing wide is pulled to whatever distance a medium of one figure demands. Both declarations are legitimate together, and the action is the one that renders. A beat with no `frame` action locks the camera off exactly where staging put it.
 
@@ -76,7 +54,7 @@ Continuity rules are tools, not moral law. Break eyeline, axis, framing, exposur
 
 The compile reads the edit and says what it found. An undeclared crossing, jump cut, eyeline break, screen-direction reversal, shot-size jump, or re-establish is reported as a warning naming both shots either side of the cut, so a break you meant to make and a break you did not are told apart by whether you declared it. A declaration that excepted nothing is reported too (`grammar-style-intent-unmatched`), because an intent covering a cut the reader never objected to is a note about a film that no longer exists. Declare the crossing itself as `axis-cross`; the other intents are named for the rule they excuse. None of this refuses a compile: the edit is yours, and the builder's job is to make sure you know what it looks like.
 
-That read measures the subject the camera was solved for, from the same box, and it takes a shot size from whichever axis the subject fills more of: its share of the frame's height, or its share of the frame's width. Because the solve stands at the further of the two fits, a mass the frame holds by its width fills less of the frame's height than its declared framing implies, so a height-only read would report a size no camera delivered and then ask you to move in until the ends of the mass left the frame. A subject with nothing horizontal to measure, the one [Contract targets](../evidence-graph/contract-targets.md) describes as keeping a vertical segment at its root, is read vertically exactly as it always was.
+Read the installed `classifyGrammarShotSize` contract for the occupancy metric. The grammar measures the same resolved subject box as the camera solve and uses the greater of height and width occupancy; a body with no horizontal extent is read vertically. A height-only estimate can misclassify a wide subject and drive its ends out of frame.
 
 When a cut trades spatial or screen continuity for dramatic value, follow [Editing: Choose the cut](editing.md#choose-the-cut) for the priority order and the required justification. Cinematography supplies the actual viewpoint and continuity observations to that decision.
 
@@ -86,10 +64,4 @@ For each beat, design an establishing or orienting view when geography matters, 
 
 ## Look at the frames
 
-A camera number is a claim about a frame; only the frame settles it. Capture at the production raster and never at a smaller one, because a downgraded frame can never discharge a required view.
-
-1. Capture the shot target at every review time the contract declares, in `beauty`.
-2. Capture in a structural pass when the question is occlusion, silhouette separation, or depth rather than appearance.
-3. State what those frames showed about composition, staging, and continuity in the evidence citation on the shot source that claims the scene is realized.
-
-Judge from what came back, not from what the solve intended. `captured:false` is a refusal, not a frame.
+Follow [Capture](../review-verification/capture.md) for the observation basis and [Production review](../review-verification/review.md) for judgment. Inspect beauty at every shot-contract review time and the delivery raster; use structural passes additionally for geometric questions. Camera solves and staged numbers do not establish the delivered composition.

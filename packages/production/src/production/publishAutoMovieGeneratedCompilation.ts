@@ -1,4 +1,7 @@
-import type { IAutoMovieBuildProjectOutput, IAutoMovieDiagnostic } from "@automovie/interface";
+import type {
+  IAutoMovieBuildProjectOutput,
+  IAutoMovieDiagnostic,
+} from "@automovie/interface";
 
 import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 import type { AutoMovieProductionProject } from "./AutoMovieProductionProject";
@@ -58,7 +61,8 @@ export const publishAutoMovieGeneratedCompilation = (props: {
       props.publication.inputRevision,
     );
   } catch (error) {
-    if (error instanceof AutoMovieProductionInputRaceError === false) throw error;
+    if (error instanceof AutoMovieProductionInputRaceError === false)
+      throw error;
     return createAutoMovieBuildInputRaceFailure({
       diagnostics: props.diagnostics,
       inputFingerprint: props.inputFingerprint,

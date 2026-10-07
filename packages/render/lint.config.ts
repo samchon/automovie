@@ -45,6 +45,11 @@ const topicReferences = (
  */
 const allSources = ["src/**/*.ts", "!src/**/index.ts"];
 
+const screenplaySources = [
+  "src/screenplay/**/*.ts",
+  "!src/screenplay/index.ts",
+];
+
 const captionSources = [
   "src/caption/**/*.ts",
   "!src/caption/index.ts",
@@ -85,7 +90,7 @@ const mediaSources = [
 const renderSources = [
   ...allSources,
   "!src/node/exportModelToGLB.ts",
-  "!src/screenplay.ts",
+  "!src/screenplay/**",
 ];
 
 /**
@@ -120,7 +125,7 @@ const graph: ITtscEvidenceGraphConfig = {
     {
       name: "screenplay and caption text implement narrative requirements",
       type: "typescript",
-      files: ["src/screenplay.ts", ...captionSources],
+      files: [...screenplaySources, ...captionSources],
       symbol: ["type", "function", "property"],
       reference: topicReferences([
         "requirements/story",
@@ -130,7 +135,7 @@ const graph: ITtscEvidenceGraphConfig = {
     {
       name: "screenplay text implements narrative specifications",
       type: "typescript",
-      files: ["src/screenplay.ts"],
+      files: screenplaySources,
       symbol: ["type", "function", "property"],
       reference: topicReferences(["specifications/narrative-and-intent"]),
     },

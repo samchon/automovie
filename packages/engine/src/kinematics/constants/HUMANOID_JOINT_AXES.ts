@@ -14,6 +14,12 @@ import { IAutoMovieJointAxes } from "../IAutoMovieJointAxes";
  * jack), `twist` rotates it about its length. Legs and spine already align with
  * the default basis, so they are omitted (and fall back to it).
  *
+ * The forearm's twist is pronation and supination, which happens beyond the
+ * elbow's hinge, so the lower arms declare a distal twist
+ * (`AutoMovieJointTwistPlacement`): twisting a bent forearm turns it about its
+ * own length and leaves where it points unchanged. Every other bone keeps the
+ * proximal default.
+ *
  * Opt in by passing this to {@link resolvePose} / `applyPose`; a bone absent
  * from the table uses {@link DEFAULT_JOINT_AXES}.
  *
@@ -39,7 +45,9 @@ export const HUMANOID_JOINT_AXES: Partial<
     "rightLowerArm",
     "rightHand",
   ];
+  const forearm: IAutoMovieJointAxes = { ...arm, twistPlacement: "distal" };
   const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
-  for (const s of slots) table[s] = arm;
+  for (const s of slots)
+    table[s] = s === "leftLowerArm" || s === "rightLowerArm" ? forearm : arm;
   return table;
 })();

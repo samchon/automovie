@@ -4,80 +4,187 @@
  * per domain; it delegates every preview to the unchanged product runtime.
  * Models cross the structured-clone boundary, never reference photographs.
  */
-import type {
-  IAutoMovieHumanBodyBasis,
-  IAutoMovieHumanFaceBasis,
-} from "@automovie/human";
 import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
-import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
+import { createConnectedBodyGenerationRuntime } from "@automovie/playground/src/human/body/createConnectedBodyGenerationRuntime";
 import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
+import { describeConnectedPersonFaceProgress } from "@automovie/playground/src/human/person/describeConnectedPersonFaceProgress";
+
+import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgress";
+import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
+import type { IHumanViewerPersistenceCommand } from "./IHumanViewerPersistenceCommand";
+import { admitHumanViewerDocument } from "./admitHumanViewerDocument";
+import { createHumanViewerHeadlessWhole } from "./createHumanViewerHeadlessWhole";
+import { createHumanViewerNumericalSources } from "./createHumanViewerNumericalSources";
+import { createHumanViewerPersistence } from "./createHumanViewerPersistence";
+import { humanViewerProtocol } from "./humanViewerProtocol";
+import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime";
+import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const face = new Map<string, Promise<ReturnType<typeof createConnectedFaceRuntime>>>();
-const body = new Map<string, Promise<ReturnType<typeof createConnectedBodyRuntime>>>();
-const person = new Map<string, Promise<ReturnType<typeof createConnectedPersonRuntime>>>();
-/** The published basis, or the candidate a hand-written document was dropped beside. */
-const basisUrl = (domain: string, candidate: string | undefined): string =>
-  `/basis/${domain}` +
-  (candidate === undefined ? "" : `?candidate=${encodeURIComponent(candidate)}`);
-/**
- * One resident runtime per domain: a candidate basis replaces the last one
- * instead of accumulating tens of megabytes per candidate.
- */
-const runtimeOf = <T,>(
-  cache: Map<string, Promise<T>>,
-  identity: string,
-  create: () => Promise<T>,
-): Promise<T> => {
-  let found = cache.get(identity);
-  if (found === undefined) {
-    cache.clear();
-    found = create();
-    cache.set(identity, found);
-  }
-  return found;
-};
+// announce the compile generations this worker's human modules ran, so the page can refuse a mixed-compile candidate
+scope.postMessage({
+  type: "compiles",
+  compiles: readHumanViewerCompiles(),
+  protocol: humanViewerProtocol,
+});
+const face = new Map<
+  string,
+  Promise<ReturnType<typeof createConnectedFaceRuntime>>
+>();
+const body = new Map<
+  string,
+  Promise<ReturnType<typeof createConnectedBodyRuntime>>
+>();
+const person = new Map<
+  string,
+  Promise<ReturnType<typeof createConnectedPersonRuntime>>
+>();
+const sources = createHumanViewerNumericalSources();
+const persistence = createHumanViewerPersistence((value) =>
+  scope.postMessage(value),
+);
+// identities whose resident runtime has produced at least one model; a runtime that has not is released on failure
+const productive = new Set<string>();
+const residents = { person, face, body } as const;
+// Display builds are serialized by the page. Admission-only requests emit no
+// construction events. Cached runtimes call the current build's relay.
+let relayProgress: (stage: string) => void = () => undefined;
+const observeProgress = (stage: string): void => relayProgress(stage);
 scope.onmessage = async (
-  event: MessageEvent<{
-    id: number;
-    domain: "face" | "body" | "person";
-    basis?: string;
-    input: { document: string; occlusion?: boolean };
-  }>,
+  event: MessageEvent<
+    IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand
+  >,
 ) => {
+  if ("persistence" in event.data) {
+    if (event.data.persistence === "flush") persistence.flush();
+    else if (event.data.id !== undefined) persistence.discard(event.data.id);
+    return;
+  }
   const { id, domain, basis, input } = event.data;
-  const identity = domain + ":" + (basis ?? "");
+  const identity = domain + ":" + basis;
   try {
+    if (input.operation === "admit") {
+      const source =
+        domain === "body"
+          ? await sources.body(basis)
+          : domain === "person"
+            ? await sources.person(basis)
+            : undefined;
+      const bodyBasis =
+        source === undefined
+          ? undefined
+          : Array.isArray(source)
+            ? source[1].body
+            : "body" in source
+              ? source.body
+              : source;
+      scope.postMessage({
+        id,
+        admission: true,
+        reason: admitHumanViewerDocument(
+          domain,
+          input.document,
+          bodyBasis?.anatomicalAssembly,
+        ),
+      });
+      return;
+    }
+    const requestStarted = performance.now();
+    let previousCompletion = requestStarted;
+    relayProgress = (stage) => {
+      const now = performance.now();
+      const progress: IHumanViewerNumericalProgress = {
+        type: "progress",
+        id,
+        stage,
+        elapsedMs: now - requestStarted,
+        stageMs: now - previousCompletion,
+      };
+      previousCompletion = now;
+      scope.postMessage(progress);
+    };
+    persistence.preempt();
     const runtime =
       domain === "person"
-        ? await runtimeOf(person, identity, async () =>
-            createConnectedPersonRuntime({
-              face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-                read: () => fetch(basisUrl("face", undefined)),
-              }),
-              body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-                read: () => fetch(basisUrl("body", undefined)),
-              }),
+        ? await humanViewerResidentRuntime(person, identity, async () =>
+            createConnectedPersonRuntime(await sources.person(basis), {
+              progress: observeProgress,
             }),
           )
         : domain === "face"
-        ? await runtimeOf(face, identity, () =>
-            readConnectedFaceAsset({
-              read: () => fetch(basisUrl(domain, basis)),
-            }).then((asset) => createConnectedFaceRuntime({ basis: asset })),
-          )
-        : await runtimeOf(body, identity, () =>
-            readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-              read: () => fetch(basisUrl(domain, basis)),
-            }).then(createConnectedBodyRuntime),
-          );
+          ? await humanViewerResidentRuntime(face, identity, () =>
+              sources
+                .face(basis)
+                .then((asset) =>
+                  createConnectedFaceRuntime({
+                    basis: asset,
+                    progress: (progress) =>
+                      observeProgress(
+                        describeConnectedPersonFaceProgress(progress),
+                      ),
+                  }),
+                ),
+            )
+          : await humanViewerResidentRuntime(body, identity, () =>
+              sources
+                .body(basis)
+                .then((asset) =>
+                  Array.isArray(asset)
+                    ? createConnectedBodyGenerationRuntime(
+                        asset[0],
+                        asset[1],
+                        observeProgress,
+                      )
+                    : createConnectedBodyRuntime(
+                        asset,
+                        createHumanViewerHeadlessWhole(asset.id),
+                        { progress: observeProgress },
+                      ),
+                ),
+            );
     const start = performance.now();
-    const value = await runtime({
+    const constructionOwner =
+      input.operation !== "construct"
+        ? undefined
+        : domain === "person"
+          ? person.get(identity)
+          : domain === "face"
+            ? face.get(identity)
+            : undefined;
+    if (input.operation === "construct" && constructionOwner === undefined)
+      throw new Error(
+        "Construction requires the loaded face or paired person runtime.",
+      );
+    const previewRequest = {
       ...input,
-      operation: "preview",
+      operation: "preview" as const,
       measure: false,
-    });
+    };
+    const value =
+      constructionOwner !== undefined
+        ? domain === "person"
+          ? await (
+              await person.get(identity)!
+            )(
+              { operation: "construct", document: input.document },
+              observeProgress,
+            )
+          : await (
+              await face.get(identity)!
+            )({
+              operation: "construct",
+              document: input.document,
+              occlusion: input.occlusion,
+            })
+        : domain === "person"
+          ? await (
+              await person.get(identity)!
+            )(previewRequest, observeProgress)
+          : await runtime(previewRequest);
+    productive.add(identity);
+    if (event.data.cache !== undefined && value.operation === "preview")
+      persistence.stage({ ...event.data.cache, id, value });
     scope.postMessage({
       id,
       success: true,
@@ -85,6 +192,8 @@ scope.onmessage = async (
       buildMs: performance.now() - start,
     });
   } catch (error) {
+    // a runtime that has never built a model cannot be reused, so its memory is released
+    if (!productive.has(identity)) residents[domain].delete(identity);
     scope.postMessage({
       id,
       success: false,

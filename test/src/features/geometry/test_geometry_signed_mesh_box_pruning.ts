@@ -57,7 +57,8 @@ const closest = (p: Vec, a: Vec, b: Vec, c: Vec): Vec => {
 export const test_geometry_signed_mesh_box_pruning = (): void => {
   const cells: number[][] = [];
   for (let x = 0; x < 4; x++)
-    for (let y = 0; y < 4; y++) for (let z = 0; z < 2; z++) cells.push([x, y, z]);
+    for (let y = 0; y < 4; y++)
+      for (let z = 0; z < 2; z++) cells.push([x, y, z]);
   const mesh = createSignedVoxelUnion(cells);
   const sample = createAutoMovieSignedMeshQuery(mesh);
   const exhaustive = (p: Vec): { least: number; at: number[] } => {
@@ -92,7 +93,8 @@ export const test_geometry_signed_mesh_box_pruning = (): void => {
     lattice.every(check),
   );
   const walk: Vec[] = [];
-  for (let k = 0; k < 60; k++) walk.push([-1 + 0.1 * k, 1.3 + 0.01 * k, 2.6 - 0.05 * k]);
+  for (let k = 0; k < 60; k++)
+    walk.push([-1 + 0.1 * k, 1.3 + 0.01 * k, 2.6 - 0.05 * k]);
   TestValidator.predicate(
     "a walking sequence matches as well",
     walk.every(check),

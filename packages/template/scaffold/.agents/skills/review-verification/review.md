@@ -44,21 +44,9 @@ Follow [Rendered realization review](../evidence-graph/staging.md#rendered-reali
 
 Inspect a layer's complete evidence population at `evidence` under [Semantic evidence inspection](semantic-review.md). It owns the literal target and host pass, both population axes, repair, and post-edit invalidation. No new companion row or separate production reviewer is required; optional legacy metadata does not substitute for the author's inspection.
 
-For a citation, read the complete target scope and host with necessary upstream context, decide whether the host truly realizes or depends on the target, repair any disagreement, and make its acknowledgement reason describe the host's actual relationship.
-
-For a principle item, read the item in full and reread the complete selected H2, H3, or H4 host with its necessary parent and descendant context, asking only that question of that unit. Repair that unit if it fails. One item receives one check on every selected unit; do not reuse a review sentence across items or units.
-
-For an obligation item, read the complete target and its actual authored H2 or source-export contributors. Confirm that together they fulfill the required role. When the target requires a population comparison, inspect that population and the authored or aggregate owner that records the conclusion. Repeat for each selected layer.
-
 Apply the same obligation review to shared and production-local targets. The live `manifest.localBindings` identifies eligible hosts, contract `targets`, and authored `population`; `localAudits` identifies first-pilot audits. [Production-specific claims](../evidence-graph/staging.md#production-specific-claims) owns migration.
 
-At the start and end of an evidence Self-Review, read `readAutoMovieProductionEvidence(...).reviewAlarms`. A repeated reason frame is a prompt to exchange the sentences across sibling hosts and reread each relationship; a literal target Review question in a reason requires replacing that paste with the host-specific comparison result. These alarms are observations, not corpus-tuned rejection thresholds or automatic verdicts. Confirm `questionPasteChecked` is true so a missing target population cannot masquerade as a clean question-paste pass, resolve every sound finding, and restart the complete review round after any edit.
-
 Trace direct treatment coverage at every script and construction-screenplay file, H2, H3, and H4 host. Then verify exact script-file lineage and same-depth script-to-construction-screenplay lineage. For each selected naturalness pass, compare the complete final population with construction and verify exact file and same-depth unit lineage, frozen content, naturalness answers, and audience-language performance. A parent citation cannot stand in for a missing child relationship, and a generated index cannot stand in for the authored unit that owns it.
-
-For an exclusion, read the target and complete claim population, find the actual owner or concrete scope fact that makes the target absent, and remove the exclusion when the production owes missing work. “Checked,” “confirmed,” and “not applicable” do not record a review.
-
-Historical companion rows and fingerprints supply no completion or freshness gate. Read every exact required image, interval, subject view, and complete-population result against the current source basis before accepting a visual relationship. [Evidence staging](../evidence-graph/staging.md) owns compatibility behavior.
 
 For a film or brief, judge the models the actual delivery consumes. Unused source cannot substitute for missing delivered content.
 

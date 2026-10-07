@@ -1,52 +1,36 @@
 import { validateModel } from "@automovie/engine";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
-import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
-import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
-import { skinHumanBodySurface } from "../../body/basis/skinHumanBodySurface";
-import type { IAutoMovieHumanBodyBasis } from "../../body/structures/IAutoMovieHumanBodyBasis";
-import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
-import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
+import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
+import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
-import { conformHumanPersonCollar } from "../seam/conformHumanPersonCollar";
-import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
-import { createHumanPersonFaceSkin } from "../seam/createHumanPersonFaceSkin";
-import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
 import { clipHumanPersonMesh } from "../seam/clipHumanPersonMesh";
-import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
+import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
 import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
+import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
+import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import type { IAutoMovieHumanPersonBuild } from "../structures/IAutoMovieHumanPersonBuild";
+import type { IAutoMovieHumanPersonBuilderProps } from "../structures/IAutoMovieHumanPersonBuilderProps";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
-import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
+import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
+import { createHumanPersonSourceNormals } from "./createHumanPersonSourceNormals";
+import { createHumanPersonSourceSkin } from "./createHumanPersonSourceSkin";
+import { findHumanPersonSkinSurface } from "./findHumanPersonSkinSurface";
+import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
 import { meshOfHumanPart } from "./meshOfHumanPart";
 import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
-import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
+import { placeHumanPersonMixedSourceMesh } from "./placeHumanPersonMixedSourceMesh";
+import { prefixHumanPersonPart } from "./prefixHumanPersonPart";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
-
-/** The one connected skin surface of a basis: the surface that draws the skin material. */
-const skinSurfaceOf = <
-  T extends { id: string; regions: { id: string; material: string }[] },
->(
-  surfaces: T[],
-): { index: number; surface: T } => {
-  const index = surfaces.findIndex((surface) =>
-    surface.regions.some(
-      (region) => region.material === HUMAN_PERSON_SEAM.skinMaterial,
-    ),
-  );
-  if (index < 0)
-    throw new Error(
-      "A basis needs a surface that draws the '" +
-        HUMAN_PERSON_SEAM.skinMaterial +
-        "' material.",
-    );
-  return { index, surface: surfaces[index] };
-};
+import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
 
 /**
  * Compile a face basis and a body basis into a builder of whole people.
@@ -64,11 +48,22 @@ const skinSurfaceOf = <
  *    nonlinear posing. The collar follows the face's neck
  *    (`conformHumanPersonCollar`); the scalar cut retains lower portions of
  *    crossing triangles without exposing a staircase through original rows.
- * 4. Normals are computed over the joined clipped skin adjacency. Each
- *    render part reads its vertices through its region's corner table, then
+ * 4. Two source-partitioned skins evaluate one performed original-parent
+ *    normal field through their canonical affine samples
+ *    (`createHumanPersonSourceNormals`). A partial or incompatible source
+ *    generation refuses; neither label alone nor neutral normals are reused.
+ *    Fixed normalTransport cells instead transport the final mouthClose-zero
+ *    ancestral field. That reference retains the same shape, other expression
+ *    and body build and goes through the same final face skin/cut/collar owner.
+ *    Legacy bases without either record retain joined-adjacency fairing.
+ *    Each render part reads its vertices through its region's corner table, then
  *    both boundaries are subdivided onto one union of their samples
  *    (`stitchHumanPersonBoundary`) with shared interpolated unit normals.
- * 5. Generated hair (the face parts no basis region draws) is kept off the
+ *    Actual registered skins rebind their admitted canonical IDs into one
+ *    person-instance source domain. Partial correspondence and unregistered
+ *    new physical cut/subdivision points refuse; metadata cannot disappear
+ *    to recover a position-welded topology. Legacy absence stays absent.
+ * 5. The current face producer's actual emitted hair parts are kept off the
  *    posed body at the clearance the hair document asked of the head
  *    (`clearHumanPersonHair`).
  *
@@ -79,6 +74,8 @@ const skinSurfaceOf = <
  * skin `skin`). The joint is the two skins' shared polyline and emits no
  * zero-area ribbon part. Everything is metres in the shared Y-up, Z-forward
  * frame, posed.
+ * Source-bound cell populations may not be cut again without new lineage;
+ * their complete original-parent coverage is part of their compiled contract.
  * The person builder owns no anatomy: it does not validate that the head is a
  * plausible size for the stature, that the face's neck matches the body's
  * measured neck girth; those are separate relations a person document does
@@ -97,28 +94,69 @@ const skinSurfaceOf = <
  * @evidenceExclude contracts/anatomy.md#permitted-range The builder bounds no anatomical quantity; the two documents' ranges are their owners'.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes two documents of named inputs and adds none.
  */
-export function createHumanPersonBuilder(props: {
-  face: IAutoMovieHumanFaceBasis;
-  body: IAutoMovieHumanBodyBasis;
-  occlusion?: { rays: number; size: number };
-}): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
+export function createHumanPersonBuilder(
+  props: IAutoMovieHumanPersonBuilderProps,
+): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
   const { face: faceBasis, body: bodyBasis } = props;
-  const buildFace = createHumanFaceBasisBuilder(faceBasis, {
-    occlusion: props.occlusion,
-  });
-  const buildBody = createHumanBodyBasisBuilder(bodyBasis);
+  const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
 
-  const faceSkin = skinSurfaceOf(faceBasis.surfaces);
-  const bodySkin = skinSurfaceOf(bodyBasis.surfaces);
+  const faceSkin = findHumanPersonSkinSurface(faceBasis.surfaces);
+  const bodySkin = findHumanPersonSkinSurface(bodyBasis.surfaces);
+  const sourceNormals = createHumanPersonSourceNormals({
+    face: faceSkin.surface,
+    body: bodySkin.surface,
+  });
+  // The normal constructor has admitted the common geometric source packet.
+  // Capture its identities now; physical incidence never reads normal islands.
+  const physicalSource =
+    sourceNormals === undefined
+      ? undefined
+      : {
+          generation: faceSkin.surface.sourcePartition!.generation,
+          face: faceSkin.surface.sourcePartition!.samples.slice(),
+          body: bodySkin.surface.sourcePartition!.samples.slice(),
+        };
+  const buildBody = createHumanBodyBasisBuilder(
+    bodyBasis,
+    physicalSource === undefined
+      ? undefined
+      : { physicalSource: "source-partition" },
+  );
+  // Source corner aliases separate shading incidence, not physical skin
+  // topology. The seam reads one vertex per canonical sample; emitted parts
+  // and the normal consumer retain every authored corner alias.
+  const faceSamples = faceSkin.surface.sourcePartition?.samples;
+  const faceSampleVertices = new Map(
+    faceSamples?.map((sample, vertex) => [sample, vertex]),
+  );
+  const faceRepresentatives = new Map<number, number>();
+  if (faceSamples !== undefined)
+    for (const vertex of faceSkin.surface.indices) {
+      const sample = faceSamples[vertex];
+      if (!faceRepresentatives.has(sample))
+        faceRepresentatives.set(sample, vertex);
+    }
   const seam = createHumanPersonSeam({
-    face: { basis: faceBasis.id, surface: faceSkin.surface },
+    face: {
+      basis: faceBasis.id,
+      surface:
+        faceSamples === undefined
+          ? faceSkin.surface
+          : {
+              ...faceSkin.surface,
+              indices: faceSkin.surface.indices.map(
+                (vertex) => faceRepresentatives.get(faceSamples[vertex])!,
+              ),
+            },
+    },
     body: { basis: bodyBasis.id, surface: bodySkin.surface },
   });
   // the skin the mandible carries, whose lowest vertex ends the face's neck
   const jawVertices: number[] = [];
   const jaw = faceSkin.surface.attachments?.find((one) => one.owner === "jaw");
   for (let i = 0; jaw !== undefined && i < jaw.rows.length; i += 2)
-    if (jaw.rows[i + 1] > HUMAN_PERSON_SEAM.jawShare) jawVertices.push(jaw.rows[i]);
+    if (jaw.rows[i + 1] > HUMAN_PERSON_SEAM.jawShare)
+      jawVertices.push(jaw.rows[i]);
   const faceCount = faceSkin.surface.positions.length / 3;
   const cut = seam.cut!;
   const bodyKept = cut.indices;
@@ -137,11 +175,6 @@ export function createHumanPersonBuilder(props: {
     ...bodyKept.map((vertex) => vertex + faceCount),
     ...ribbonGlobal,
   ];
-  const faceRegionIds = new Set(
-    faceBasis.surfaces.flatMap((surface) =>
-      surface.regions.map((region) => region.id),
-    ),
-  );
   const faceRegions = new Map(
     faceSkin.surface.regions.map((region) => [
       region.id,
@@ -154,65 +187,99 @@ export function createHumanPersonBuilder(props: {
       humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
     ]),
   );
-  const headLandmark = bodyBasis.landmarks.ids.indexOf("joint-head");
-  const neutralHead = {
-    x: bodyBasis.landmarks.positions[headLandmark * 3],
-    y: bodyBasis.landmarks.positions[headLandmark * 3 + 1],
-    z: bodyBasis.landmarks.positions[headLandmark * 3 + 2],
-  };
+  const neutralAnchor = humanPersonEyeCentre(
+    Object.fromEntries(
+      bodyBasis.landmarks.ids.map((id, at) => [
+        id,
+        {
+          x: bodyBasis.landmarks.positions[at * 3],
+          y: bodyBasis.landmarks.positions[at * 3 + 1],
+          z: bodyBasis.landmarks.positions[at * 3 + 2],
+        },
+      ]),
+    ),
+  );
+
+  const evaluateSkin = createHumanPersonSourceSkin({
+    faceCount,
+    faceRegions,
+    bodyBasis,
+    bodySkin,
+    seam,
+    neutralBody,
+    jawVertices,
+    neutralAnchor,
+  });
 
   return (document) => {
-    const body = buildBody(
-      deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials }),
-    );
+    if (
+      document.headShape !== undefined &&
+      Object.keys(document.headShape).length !== 0
+    )
+      throw new Error(
+        "Head numerical fields unavailable without shared source generation registration.",
+      );
+    const bodyDocument = deriveHumanPersonBody({
+      document,
+      faceMaterials: faceBasis.materials,
+    });
+    const body = buildBody(bodyDocument);
     const faceDocument = deriveHumanPersonFace(document);
-    const face = buildFace(faceDocument);
-    const bones = new Map(body.bones.map((one) => [one.bone, one]));
-    const head = createHumanPersonHeadTransform({
-      neutral: neutralHead,
-      rest: bones.get("head")!.rest,
-      posed: bones.get("head")!.posed,
-    });
+    const currentFace = buildFace(faceDocument);
+    const face = currentFace.model;
+    const skin = evaluateSkin({ face, body });
+    const { face: facePosed, body: bodyPosed, bodyBeforeCollar, head } = skin;
+    // Omission is zero at the face document owner. A source without this
+    // expression channel must not receive an invented unsupported control.
+    const referenceExpression = { ...faceDocument.expression };
+    delete referenceExpression.mouthClose;
+    const reference =
+      faceSkin.surface.sourcePartition?.normalTransport === undefined
+        ? undefined
+        : evaluateSkin({
+            face: buildFace({
+              ...faceDocument,
+              expression: referenceExpression,
+            }).model,
+            body,
+          });
+    const normals =
+      sourceNormals === undefined
+        ? fairHumanSeamNormals({
+            indices: joinedIndices,
+            normals: areaWeightedNormals(
+              [...facePosed, ...bodyPosed],
+              joinedIndices,
+            ),
+            seeds: seamSeeds,
+            rings: HUMAN_PERSON_SEAM.fairRings,
+          })
+        : sourceNormals({
+            face: facePosed,
+            body: bodyPosed,
+            bodyIndices: bodyKept,
+            reference:
+              reference === undefined
+                ? undefined
+                : {
+                    generation: faceSkin.surface.sourcePartition!.generation,
+                    face: reference.face,
+                    body: reference.body,
+                    bodyIndices: bodyKept,
+                  },
+          });
 
-    // the face skin's shared vertices, read back from its render parts
-    const raw = new Array<number>(faceCount * 3).fill(0);
-    for (const part of face.parts) {
-      const sources = faceRegions.get(part.id);
-      if (sources === undefined) continue;
-      const { positions } = meshOfHumanPart(part);
-      sources.forEach((source, vertex) => {
-        for (let axis = 0; axis < 3; axis++)
-          raw[source * 3 + axis] = positions[vertex * 3 + axis];
-      });
-    }
-    const faceWeights = createHumanPersonFaceSkin({
-      seam,
-      face: raw,
-      body: neutralBody,
-      bodySkin: bodySkin.surface.skin,
-      jawVertices,
-    });
-    const facePosed = skinHumanBodySurface(
-      raw.map((value, at) => value + [head.shift.x, head.shift.y, head.shift.z][at % 3]),
-      faceWeights,
-      bodyBasis.joints,
-      bones,
-    );
-    const bodyBeforeCollar = evaluateHumanPersonCut(body.posedSurfaces[bodySkin.index].positions, cut);
-    const bodyPosed = conformHumanPersonCollar({
-      seam,
-      face: facePosed,
-      body: bodyBeforeCollar,
-    });
-    const normals = fairHumanSeamNormals({
-      indices: joinedIndices,
-      normals: areaWeightedNormals(
-        [...facePosed, ...bodyPosed],
-        joinedIndices,
-      ),
-      seeds: seamSeeds,
-      rings: HUMAN_PERSON_SEAM.fairRings,
-    });
+    const physicalDomain =
+      physicalSource === undefined
+        ? undefined
+        : humanPhysicalSourceDomain(document.id, physicalSource.generation);
+    const physicalBoundary =
+      physicalSource === undefined
+        ? undefined
+        : seam.faceLoop.map((source) => ({
+            domain: physicalDomain!,
+            id: physicalSource.face[source],
+          }));
 
     const read = (
       mesh: IAutoMovieMesh,
@@ -220,11 +287,57 @@ export function createHumanPersonBuilder(props: {
       positions: readonly number[],
       offset: number,
     ): IAutoMovieMesh => {
-      const out = { ...mesh, positions: mesh.positions.slice(), normals: [] as number[] };
+      const out = {
+        ...mesh,
+        positions: mesh.positions.slice(),
+        normals: [] as number[],
+      };
+      if (physicalSource === undefined) {
+        if (mesh.physicalVertices !== undefined)
+          throw new Error(
+            "Person physical registration needs both compatible registered skin halves.",
+          );
+      } else {
+        if (mesh.physicalVertices === undefined)
+          throw new Error(
+            "Person physical registration needs both actual registered skin halves.",
+          );
+        resolveAutoMovieMeshPhysicalVertices(mesh);
+        const samples =
+          offset === 0 ? physicalSource.face : physicalSource.body;
+        const origin = humanPhysicalSourceDomain(
+          offset === 0 ? faceDocument.id : bodyDocument.id,
+          physicalSource.generation,
+        );
+        sources.forEach((source, vertex) => {
+          const reference = mesh.physicalVertices!.vertices[vertex];
+          const actual =
+            reference === null
+              ? undefined
+              : mesh.physicalVertices!.sources[reference];
+          if (
+            samples[source] === undefined ||
+            actual === undefined ||
+            actual.domain !== origin ||
+            actual.id !== samples[source]
+          )
+            throw new Error(
+              "Person physical registration needs the actual admitted canonical skin samples.",
+            );
+        });
+        out.physicalVertices = {
+          sources: mesh.physicalVertices.sources.map((source) => ({
+            ...source,
+            domain: source.domain === origin ? physicalDomain! : source.domain,
+          })),
+          vertices: mesh.physicalVertices.vertices.slice(),
+        };
+      }
       sources.forEach((source, vertex) => {
         for (let axis = 0; axis < 3; axis++) {
           out.positions[vertex * 3 + axis] = positions[source * 3 + axis];
-          out.normals[vertex * 3 + axis] = normals[(source + offset) * 3 + axis];
+          out.normals[vertex * 3 + axis] =
+            normals[(source + offset) * 3 + axis];
         }
       });
       return out;
@@ -239,7 +352,19 @@ export function createHumanPersonBuilder(props: {
           type: "mesh" as const,
           mesh:
             sources === undefined
-              ? moveHumanMeshRigidly(mesh, head)
+              ? physicalSource === undefined
+                ? moveHumanMeshRigidly(mesh, head)
+                : placeHumanPersonMixedSourceMesh({
+                    mesh,
+                    head,
+                    samples: faceSampleVertices,
+                    positions: facePosed,
+                    origin: humanPhysicalSourceDomain(
+                      faceDocument.id,
+                      physicalSource.generation,
+                    ),
+                    domain: physicalDomain!,
+                  })
               : stitchHumanPersonBoundary({
                   mesh: read(mesh, sources, facePosed, 0),
                   sources,
@@ -247,6 +372,7 @@ export function createHumanPersonBuilder(props: {
                   seam,
                   face: facePosed,
                   faceNormals: normals,
+                  physicalBoundary,
                 }),
         },
       };
@@ -254,25 +380,32 @@ export function createHumanPersonBuilder(props: {
     // generated hair: kept off the shoulders once the body has been posed
     clearHumanPersonHair({
       parts: placed,
-      isGenerated: (id) => !faceRegionIds.has(id),
-      layers: faceDocument.hair?.layers ?? [],
+      isGenerated: (id) => currentFace.hairPartIds.has(id),
+      layers:
+        resolveHumanFaceAppearanceDocument(faceBasis, faceDocument).hair
+          ?.layers ?? [],
       positions: bodyPosed,
       indices: bodyKept,
     });
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
-      prefixed("face", part, meshOfHumanPart(part)),
+      prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
     for (const part of body.model.parts) {
       const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
       if (sources === undefined) {
-        parts.push(prefixed("body", part, mesh));
+        parts.push(prefixHumanPersonPart("body", part, mesh));
         continue;
       }
       const clipped = clipHumanPersonMesh(mesh, sources, cut);
-      const retained = read(clipped.mesh, clipped.sources, bodyPosed, faceCount);
+      const retained = read(
+        clipped.mesh,
+        clipped.sources,
+        bodyPosed,
+        faceCount,
+      );
       parts.push(
-        prefixed(
+        prefixHumanPersonPart(
           "body",
           part,
           dropHumanMeshTriangles(
@@ -284,6 +417,7 @@ export function createHumanPersonBuilder(props: {
               face: facePosed,
               faceNormals: normals,
               bodyBeforeCollar,
+              physicalBoundary,
             }),
             () => false,
           ),
@@ -347,20 +481,5 @@ export function createHumanPersonBuilder(props: {
         collarShiftMetres: collarShift,
       },
     };
-  };
-}
-
-/** A part under its owner's prefix, on its own material's prefixed id. */
-function prefixed(
-  owner: "face" | "body",
-  part: IAutoMovieModel["parts"][number],
-  mesh: IAutoMovieMesh,
-): IAutoMovieModel["parts"][number] {
-  return {
-    ...part,
-    id: owner + ":" + part.id,
-    name: owner + ":" + part.name,
-    material: owner + ":" + part.material,
-    geometry: { type: "mesh", mesh },
   };
 }

@@ -1,3 +1,4 @@
+import { HUMAN_SKIN_FINISH } from "../../common/skin/HUMAN_SKIN_FINISH";
 import type { IAutoMovieHumanBodySkinSites } from "../structures/IAutoMovieHumanBodySkinSites";
 
 /**
@@ -32,7 +33,7 @@ import type { IAutoMovieHumanBodySkinSites } from "../structures/IAutoMovieHuman
  * coefficients of determination are in the body study's skin-sites receipt.
  */
 export const HUMAN_BODY_SKIN_SITES: IAutoMovieHumanBodySkinSites = {
-  material: "skin",
+  material: HUMAN_SKIN_FINISH.material,
   sites: {
     // inner arm, 16 group means, R² 0.98 / 0.97 / 0.97
     protected: [

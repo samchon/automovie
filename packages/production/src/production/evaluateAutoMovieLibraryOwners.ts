@@ -1,9 +1,16 @@
 import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
-import type { IAutoMovieDiagnostic, IAutoMovieLibraryBuildContext, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieDiagnostic,
+  IAutoMovieLibraryBuildContext,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import { admitAutoMovieLibraryContribution } from "./admitAutoMovieLibraryContribution";
 import { admitAutoMovieLibrarySettingsContribution } from "./admitAutoMovieLibrarySettingsContribution";
-import { digestAutoMovieBytes, normalizeAutoMovieSource } from "./contentIdentity";
+import {
+  digestAutoMovieBytes,
+  normalizeAutoMovieSource,
+} from "./contentIdentity";
 import type { IAutoMovieMaterializedLibraryResult } from "./materializeProduction";
 import { errorMessage } from "./productionBuildDiagnostics";
 import type { buildLibrarySource } from "./productionSourceBuild";
@@ -54,7 +61,9 @@ export const evaluateAutoMovieLibraryOwners = (props: {
   evaluate: typeof buildLibrarySource;
 
   /** Domain validators shared with the builder's native compilation path. */
-  validators: Parameters<typeof admitAutoMovieLibraryContribution>[0]["validators"];
+  validators: Parameters<
+    typeof admitAutoMovieLibraryContribution
+  >[0]["validators"];
 }): {
   results: IAutoMovieMaterializedLibraryResult[];
   registeredBy: ReadonlyMap<string, string>;
@@ -70,25 +79,36 @@ export const evaluateAutoMovieLibraryOwners = (props: {
   for (const source of props.sources) {
     let text: string;
     try {
-      text = Buffer.from(normalizeAutoMovieSource(props.readSource(source))).toString("utf8");
+      text = Buffer.from(
+        normalizeAutoMovieSource(props.readSource(source)),
+      ).toString("utf8");
     } catch (error) {
       diagnostics.push({
-        code: "source-path-missing", category: "error", phase: "source",
-        target: `library-source:${source}`, path: source,
+        code: "source-path-missing",
+        category: "error",
+        phase: "source",
+        target: `library-source:${source}`,
+        path: source,
         message: `Library source "${source}" is selected by a reviewed source binding but cannot be read (${errorMessage(error)}). Restore the exact tracked file or correct the binding before compiling.`,
       });
       continue;
     }
     const sourceDigest = digestAutoMovieBytes(Buffer.from(text, "utf8"));
     const compiled = props.evaluate({
-      path: source, source: text, sourceRoot: props.root,
+      path: source,
+      source: text,
+      sourceRoot: props.root,
       context: (design) => props.contexts.get(design) ?? null,
-      admit: (exportName, design) => resolveAutoMovieSourceOwnerBinding({
-        bindings: props.bindings,
-        branch: props.sourceBranches.get(design)!,
-        sourcePath: source, exportName, owner: design, sourceDigest,
-        requireReviewed: props.requireReviewed,
-      }),
+      admit: (exportName, design) =>
+        resolveAutoMovieSourceOwnerBinding({
+          bindings: props.bindings,
+          branch: props.sourceBranches.get(design)!,
+          sourcePath: source,
+          exportName,
+          owner: design,
+          sourceDigest,
+          requireReviewed: props.requireReviewed,
+        }),
     });
     diagnostics.push(...compiled.diagnostics);
     for (const registration of compiled.registrations) {
@@ -97,23 +117,42 @@ export const evaluateAutoMovieLibraryOwners = (props: {
       const previous = registeredBy.get(registration.design);
       if (previous !== undefined) {
         diagnostics.push({
-          code: "source-registration-mismatch", category: "error", phase: "source",
-          target, path: source,
+          code: "source-registration-mismatch",
+          category: "error",
+          phase: "source",
+          target,
+          path: source,
           message: `Library design owner "${registration.design}" is registered by both "${previous}" and "${source}#${registration.export}". Keep one source export per reviewed H2; two registrations make the published artifact depend on file order.`,
         });
         continue;
       }
       registeredBy.set(registration.design, `${source}#${registration.export}`);
-      const accepted = context.branch === "productionSources"
-        ? admitAutoMovieLibrarySettingsContribution({ diagnostics, registration, source, target })
-        : admitAutoMovieLibraryContribution({
-            diagnostics, contextOwner, environmentOwner, modelOwner, models,
-            registration, source, target, validators: props.validators,
-          });
+      const accepted =
+        context.branch === "productionSources"
+          ? admitAutoMovieLibrarySettingsContribution({
+              diagnostics,
+              registration,
+              source,
+              target,
+            })
+          : admitAutoMovieLibraryContribution({
+              diagnostics,
+              contextOwner,
+              environmentOwner,
+              modelOwner,
+              models,
+              registration,
+              source,
+              target,
+              validators: props.validators,
+            });
       if (accepted === false) continue;
       results.push({
-        branch: context.branch, owner: registration.design, source,
-        export: registration.export, sourceDigest,
+        branch: context.branch,
+        owner: registration.design,
+        source,
+        export: registration.export,
+        sourceDigest,
         contribution: registration.contribution,
       });
     }

@@ -1,4 +1,8 @@
-import { FaceAnthropometryPoint, IFaceAnthropometryIndex } from "./IFaceAnthropometryIndex";
+import {
+  FaceAnthropometryPoint,
+  IFaceAnthropometryIndex,
+} from "./IFaceAnthropometryIndex";
+
 /**
  * Frontal facial anthropometry read through the face landmark detector, and
  * the shared shape control each index is paired with.
@@ -135,7 +139,6 @@ import { FaceAnthropometryPoint, IFaceAnthropometryIndex } from "./IFaceAnthropo
  * Pure: reads caller-owned points and returns new values.
  */
 
-
 /**
  * Each channel's weight under one index's control value: `channels` scaled
  * by their gains for a positive value, `negative` at its magnitude for a
@@ -172,7 +175,6 @@ export const FACE_ANTHROPOMETRY_UPPER_EDGE = 468;
 
 /** The landmark index a caller gives the lower incisal edge, as the upper. */
 export const FACE_ANTHROPOMETRY_LOWER_EDGE = 469;
-
 
 /** Every index of one set of landmarks; null where a landmark is absent. */
 export function measureFaceAnthropometry(

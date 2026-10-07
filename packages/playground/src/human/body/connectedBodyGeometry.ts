@@ -3,15 +3,16 @@
  * Uint32 preview arrays. This matches the GLB precision boundary before a
  * buffer is transferred. The GLB exporter separately validates merged
  * material groups, while this boundary validates each mesh the GPU receives.
+ * Declared physical source-pair/null arrays are copied as structured data,
+ * preserving opaque safe integer IDs through postMessage without narrowing
+ * them to GPU precision. Omission keeps the original preview payload.
  */
 import { validateMeshTopology } from "@automovie/engine";
-import { float32MeshBuffers } from "@automovie/human";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type {
-  ConnectedBodyModel,
-  ConnectedBodyPart,
-} from "./connectedBodyProtocol";
+import type { ConnectedBodyModel } from "./ConnectedBodyModel";
+import type { ConnectedBodyPart } from "./ConnectedBodyPart";
 
 /** Validate and pack the local meshes before ownership moves to the page.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the exact posed surface shown by the body editor.
@@ -48,6 +49,16 @@ export function packConnectedBodyModel(
           ...(mesh.colors === undefined
             ? {}
             : { colors: new Float32Array(mesh.colors) }),
+          ...(mesh.physicalVertices === undefined
+            ? {}
+            : {
+                physicalVertices: {
+                  sources: mesh.physicalVertices.sources.map((source) => ({
+                    ...source,
+                  })),
+                  vertices: mesh.physicalVertices.vertices.slice(),
+                },
+              }),
           skin: null,
         },
       },

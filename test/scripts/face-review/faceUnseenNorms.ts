@@ -67,8 +67,8 @@ import {
   faceMidsagittalSection,
   faceProfileLandmarks,
 } from "./faceMidsagittal";
-import { faceVermilionRatios } from "./prepareLipEnvelopeBasis";
 import type { FaceUnseenReading } from "./faceUnseenIndices";
+import { faceVermilionRatios } from "./prepareLipEnvelopeBasis";
 
 /**
  * The parts of a basis surface the unseen readings are taken over, found

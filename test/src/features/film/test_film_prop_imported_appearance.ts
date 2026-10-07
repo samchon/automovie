@@ -2,90 +2,16 @@ import { forgeProp } from "@automovie/engine";
 import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
+import { assertFilmImportedLodClosure } from "../internal/assertFilmImportedLodClosure";
+import { createImportedPropSpec } from "../internal/createImportedPropSpec";
+import { filmImportedPropDigest as digest } from "../internal/filmImportedPropDigest";
 import { createSkeleton } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 import { createDoorPropSpec } from "./test_film_forge_prop";
 
-/** A well-formed sealed digest, distinct per byte identity. */
-const digest = (fill: string): `sha256:${string}` =>
-  `sha256:${fill.repeat(64).slice(0, 64)}`;
-
-const HERO_BYTES = "assets/chair.glb";
-const SIDECAR_BYTES = "assets/chair-albedo.png";
-
-/**
- * A chair whose pixels come from a registered glTF and whose meaning does not.
- *
- * The model is shaped exactly as the builder materializes a registered
- * external appearance: `imported` origin, the manifest-owned bytes in `asset`,
- * the sealed digest closure, and one registered collision proxy standing in for
- * the visible primitives. Everything the engine measures or simulates is
- * authored here on top of that: the seat's `stack-top` face, the body it
- * weighs, and (in the placement suite) the relations and keep-out volumes it
- * claims.
- */
-export const createImportedPropSpec = (): IAutoMoviePropSpec => ({
-  node: "chair",
-  modelRef: "chair-recipe",
-  model: {
-    id: "chair",
-    name: "imported recipe chair-recipe",
-    origin: "imported",
-    skeleton: null,
-    body: { mass: 6, centerOfMass: null, friction: 0.5, restitution: 0.05 },
-    affordances: [
-      {
-        id: "seat",
-        kind: "stack-top",
-        frame: {
-          translation: { x: 0, y: 0.45, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
-        },
-        extent: [
-          { x: -0.2, y: 0, z: -0.2 },
-          { x: 0.2, y: 0, z: -0.2 },
-          { x: 0.2, y: 0, z: 0.2 },
-          { x: -0.2, y: 0, z: 0.2 },
-        ],
-      },
-    ],
-    materials: [],
-    parts: [
-      {
-        id: "registered-collision-proxy",
-        name: "registered collision proxy",
-        geometry: {
-          type: "primitive",
-          shape: { type: "box", width: 0.5, height: 0.9, depth: 0.5 },
-        },
-        material: null,
-        attachedBone: null,
-        transform: null,
-      },
-    ],
-    asset: HERO_BYTES,
-    profiles: [],
-    imported: {
-      profile: "gltf-static-v1",
-      lod: [
-        {
-          level: "hero",
-          asset: HERO_BYTES,
-          digest: digest("a"),
-          profile: "gltf-static-v1",
-          humanoidBones: [],
-        },
-      ],
-      assets: [
-        { path: HERO_BYTES, digest: digest("a") },
-        { path: SIDECAR_BYTES, digest: digest("b") },
-      ],
-      humanoidBones: [],
-    },
-  },
-  articulation: null,
-});
+const HERO_BYTES = FILM_IMPORTED_PROP_BYTES.hero;
+const SIDECAR_BYTES = FILM_IMPORTED_PROP_BYTES.sidecar;
 
 /** Forge a fresh imported chair after one mutation, so cases never compound. */
 const refuses = (
@@ -407,154 +333,13 @@ export const test_film_prop_imported_appearance = (): void => {
     },
   );
 
-  TestValidator.equals(
-    "the LOD closure answers for its own levels and for the hero",
-    namedFacts([
-      [
-        "duplicatedLevel",
-        () =>
-          refuses(
-            (spec) =>
-              spec.model.imported!.lod.push({
-                ...spec.model.imported!.lod[0]!,
-              }),
-            "$input.model.imported.lod[1].level",
-            "is declared twice",
-          ),
-      ],
-      [
-        "levelProfileDisagreement",
-        () =>
-          refuses(
-            (spec) =>
-              (spec.model.imported!.lod[0]!.profile = "gltf-humanoid-v1"),
-            "$input.model.imported.lod[0].profile",
-            "every level of one appearance shares its profile",
-          ),
-      ],
-      [
-        "malformedLevelDigest",
-        () =>
-          refuses(
-            (spec) => (spec.model.imported!.lod[0]!.digest = "sha256:"),
-            "$input.model.imported.lod[0].digest",
-            "64 lowercase hexadecimal digits",
-          ),
-      ],
-      [
-        "levelDisagreesWithTheLedgerDigest",
-        () =>
-          refuses(
-            (spec) => (spec.model.imported!.lod[0]!.digest = digest("c")),
-            "$input.model.imported.lod[0].digest",
-            "while the sealed ledger carries",
-          ),
-      ],
-      [
-        "aMalformedDigestIsNotAlsoALedgerDisagreement",
-        () => {
-          const spec = createImportedPropSpec();
-          spec.model.imported!.lod[0]!.digest = "sha256:";
-          const result = forgeProp(spec);
-          return (
-            result.success === false &&
-            result.violations.every(
-              (item) =>
-                !item.expected.includes("while the sealed ledger carries"),
-            )
-          );
-        },
-      ],
-      [
-        "levelOutsideTheLedger",
-        () =>
-          refuses(
-            (spec) =>
-              spec.model.imported!.lod.push({
-                level: "far",
-                asset: "assets/chair-far.glb",
-                digest: digest("d"),
-                profile: "gltf-static-v1",
-                humanoidBones: [],
-              }),
-            "$input.model.imported.lod[1].asset",
-            "the sealed byte ledger does not cover",
-          ),
-      ],
-      [
-        "noHeroAtAll",
-        () =>
-          refuses(
-            (spec) => (spec.model.imported!.lod = []),
-            "$input.model.imported.lod",
-            "needs a hero LOD",
-          ),
-      ],
-      [
-        "aNonHeroLevelIsStillNotAHero",
-        () =>
-          refuses(
-            (spec) => (spec.model.imported!.lod[0]!.level = "near"),
-            "$input.model.imported.lod",
-            "needs a hero LOD",
-          ),
-      ],
-      [
-        "heroBindingOtherBytes",
-        () =>
-          refuses(
-            (spec) => (spec.model.imported!.lod[0]!.asset = SIDECAR_BYTES),
-            "$input.model.imported.lod",
-            "one appearance is one set of bytes",
-          ),
-      ],
-      [
-        "aNullAssetIsNotAlsoAHeroMismatch",
-        () => {
-          const spec = createImportedPropSpec();
-          spec.model.asset = null;
-          const result = forgeProp(spec);
-          return (
-            result.success === false &&
-            result.violations.every(
-              (item) =>
-                !item.expected.includes("one appearance is one set of bytes"),
-            )
-          );
-        },
-      ],
-      [
-        "aSecondSealedLevelIsAccepted",
-        () =>
-          tolerated((spec) => {
-            spec.model.imported!.assets.push({
-              path: "assets/chair-far.glb",
-              digest: digest("e"),
-            });
-            spec.model.imported!.lod.push({
-              level: "far",
-              asset: "assets/chair-far.glb",
-              digest: digest("e"),
-              profile: "gltf-static-v1",
-              humanoidBones: [],
-            });
-          }),
-      ],
-    ]),
-    {
-      duplicatedLevel: true,
-      levelProfileDisagreement: true,
-      malformedLevelDigest: true,
-      levelDisagreesWithTheLedgerDigest: true,
-      aMalformedDigestIsNotAlsoALedgerDisagreement: true,
-      levelOutsideTheLedger: true,
-      noHeroAtAll: true,
-      aNonHeroLevelIsStillNotAHero: true,
-      heroBindingOtherBytes: true,
-      aNullAssetIsNotAlsoAHeroMismatch: true,
-      aSecondSealedLevelIsAccepted: true,
-    },
-  );
+  assertFilmImportedLodClosure({
+    createImportedPropSpec,
+    refuses,
+    tolerated,
+    digest,
+    SIDECAR_BYTES,
+  });
 
   TestValidator.equals(
     "every other prop contract still holds over an imported appearance",

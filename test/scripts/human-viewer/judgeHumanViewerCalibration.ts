@@ -26,7 +26,10 @@ export type HumanViewerCalibrationVerdict =
  */
 export function judgeHumanViewerCalibration(
   size: number,
-  expected: Record<string, { x: number; y: number; depth: number; radiusPx: number }>,
+  expected: Record<
+    string,
+    { x: number; y: number; depth: number; radiusPx: number }
+  >,
   found: Record<string, { count: number; x: number | null; y: number | null }>,
   tolerancePx: number,
 ): {

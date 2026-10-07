@@ -5,10 +5,8 @@ import {
   intersectsPerspectiveFrustumBox,
   nodeSubjectBox,
   nodeSubjectExtent,
-  performShot,
   realizeShotContract,
   resolveCameraAt,
-  stageScene,
 } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
@@ -16,18 +14,18 @@ import type {
   IAutoMovieClip,
   IAutoMovieFormationDesign,
   IAutoMovieModel,
-  IAutoMovieShotContract,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
+import type { IFilmCameraClearanceBox } from "../internal/IFilmCameraClearanceBox";
+import type { IFilmFacadeGrade } from "../internal/IFilmFacadeGrade";
+import type { IFilmFacadeSubject } from "../internal/IFilmFacadeSubject";
+import { createFilmFacadeContract } from "../internal/createFilmFacadeContract";
+import { createFilmFacadeTransform as transform } from "../internal/createFilmFacadeTransform";
+import { createFilmFacadeYaw as yaw } from "../internal/createFilmFacadeYaw";
+import { performFilmFacade } from "../internal/performFilmFacade";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 const NODE = "civic/west-facade";
@@ -41,25 +39,6 @@ const FOV_Y = 40;
 const ASPECT = 16 / 9;
 const HALF_Y = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
 const HALF_X = HALF_Y * ASPECT;
-
-const transform = (
-  x: number,
-  y: number,
-  z: number,
-  rotation: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 },
-): IAutoMovieTransform => ({
-  translation: { x, y, z },
-  rotation,
-  scale: { x: 1, y: 1, z: 1 },
-});
-
-/** A yaw of `deg` about +Y, the only rotation staging gives a set piece. */
-const yaw = (deg: number): IAutoMovieTransform["rotation"] => ({
-  x: 0,
-  y: Math.sin(((deg / 2) * Math.PI) / 180),
-  z: 0,
-  w: Math.cos(((deg / 2) * Math.PI) / 180),
-});
 
 /**
  * A facade authored the way a building element is: the element origin sits
@@ -148,11 +127,7 @@ const worldBox = (model: IAutoMovieModel, placement: IAutoMovieTransform) =>
   );
 
 /** Compile the one-entry move a `full` framing on this subject produces. */
-const solve = (subject: {
-  base: IAutoMovieVector3;
-  height: number;
-  radius?: number;
-}): IAutoMovieClip =>
+const solve = (subject: IFilmFacadeSubject): IAutoMovieClip =>
   compileCameraMove({
     clipId: "clip",
     camera: camera(),
@@ -161,31 +136,14 @@ const solve = (subject: {
     aspect: ASPECT,
   })!;
 
-const contract = (): IAutoMovieShotContract => ({
-  id: "shot-facade",
-  beat: "beat",
-  source: { module: "src/shots/facade.ts", export: "shot" },
-  durationSeconds: 2,
-  participants: [],
-  opening: [],
-  closing: [],
-  camera: {
-    intent: "hold the west facade",
-    requiredSubjects: [NODE],
-    maxOcclusionRatio: 1,
-  },
-  events: [],
-  reviewFrames: [{ id: "mid", time: 1, passes: ["beauty"] }],
-});
-
 /** Grade the contract for one staged model under one solved camera. */
 const grade = (
   model: IAutoMovieModel,
   placement: IAutoMovieTransform,
   cameraMotion: IAutoMovieClip,
-): { readable: number[]; refused: boolean } => {
+): IFilmFacadeGrade => {
   const result = realizeShotContract({
-    contract: contract(),
+    contract: createFilmFacadeContract(NODE),
     production: null,
     frameFormat: { width: 1920, height: 1080 },
     world: null,
@@ -255,75 +213,6 @@ const solvedDistance = (
     0,
   ).position;
   return Math.hypot(eye.x - aim.x, eye.y - aim.y, eye.z - aim.z);
-};
-
-/**
- * The whole shot builder resolving the same subject: a set piece staged at the
- * origin and framed `full` by the camera the fixture stages, so what reaches
- * {@link compileCameraMove} is `performShot`'s own reading rather than one the
- * test rebuilt beside it.
- */
-const performFacade = (model: IAutoMovieModel): IAutoMovieClip | null => {
-  const script = makeScriptWrite({
-    cast: [
-      { node: "west-facade", character: "the west facade", modelRef: model.id },
-    ],
-    beats: [
-      {
-        id: "beat-1",
-        name: "the approach",
-        summary: "the facade holds the frame",
-        durationHint: 2,
-      },
-    ],
-  });
-  const staged = stageScene(
-    script,
-    makeStagingWrite({
-      actors: [
-        { node: "west-facade", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
-      ],
-      cameras: [
-        {
-          node: "cam",
-          position: { x: 0, y: 2, z: 200 },
-          lookAt: { kind: "node", node: "west-facade" },
-          fovDeg: FOV_Y,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (staged.success !== true) throw new Error("staging fixture must succeed");
-  const result = performShot({
-    script,
-    staged,
-    performance: makePerformanceWrite({
-      beat: "beat-1",
-      draft: [
-        {
-          verb: "frame",
-          actor: "cam",
-          start: 0,
-          duration: "auto",
-          framing: "full",
-          move: "static",
-          on: { kind: "node", node: "west-facade" },
-        },
-      ],
-      revise: { review: "the facade reads.", final: null },
-      duration: 2,
-    }),
-    synthesize: validSynthesizer,
-    // A set piece carries no rig, which is why its height had to be measured
-    // from geometry in the first place.
-    skeleton: () => null,
-    models: [model],
-    frameFormat: { width: 1920, height: 1080 },
-  });
-  return result.success === true ? result.shot.cameraMotion : null;
 };
 
 /**
@@ -424,7 +313,7 @@ export const test_film_camera_node_subject_width = (): void => {
   // 3. a yawed element is boxed where it stands.
   TestValidator.equals(
     "a quarter-turned set piece fills the footprint its yaw gives it",
-    ((): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+    ((): IFilmCameraClearanceBox => {
       const box = worldBox(model, transform(100, 0, 5, yaw(90)));
       const round = (value: number): number => Math.round(value * 1e6) / 1e6;
       return {
@@ -547,7 +436,7 @@ export const test_film_camera_node_subject_width = (): void => {
   );
 
   // 9. the shot builder itself resolves the subject that way.
-  const performed = performFacade(model);
+  const performed = performFilmFacade(model, FOV_Y);
   TestValidator.equals(
     "performShot frames a set piece from the box it draws",
     namedFacts([

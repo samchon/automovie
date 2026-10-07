@@ -1,39 +1,19 @@
 import { reviewVisualRead } from "@automovie/engine";
 import {
   IAutoMovieCamera,
-  IAutoMovieClip,
   IAutoMovieInteractionEvent,
   IAutoMovieMotion,
   IAutoMovieScene,
   IAutoMovieSceneNode,
   IAutoMovieShot,
-  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
+import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
+import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
+import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisualReadTransform";
 import { namedFacts } from "../internal/predicates";
-
-const IDENTITY_Q = { x: 0, y: 0, z: 0, w: 1 };
-const t3 = (x: number, y: number, z: number): IAutoMovieTransform => ({
-  translation: { x, y, z },
-  rotation: IDENTITY_Q,
-  scale: { x: 1, y: 1, z: 1 },
-});
-
-/** A camera at the origin looking down world −Z (identity rotation). */
-const camera = (over: Partial<IAutoMovieCamera> = {}): IAutoMovieCamera => ({
-  id: "cam",
-  transform: t3(0, 0, 0),
-  fovY: 60,
-  near: 0.1,
-  far: 100,
-  ...over,
-  depthPrecision: over.depthPrecision ?? {
-    minimumDepthBits: 24,
-    maximumStepMeters: 100,
-  },
-});
 
 const node = (id: string): IAutoMovieSceneNode => ({
   id,
@@ -41,23 +21,6 @@ const node = (id: string): IAutoMovieSceneNode => ({
   transform: t3(0, 0, 0),
   motion: null,
   pose: null,
-});
-
-/** A static actor whose world root sits at (x, y, z). The node is at origin. */
-const rootMotion = (
-  id: string,
-  x: number,
-  y: number,
-  z: number,
-): IAutoMovieMotion => ({
-  ...makeMotion(
-    [
-      keyframe(0, makePose([], t3(x, y, z))),
-      keyframe(1, makePose([], t3(x, y, z))),
-    ],
-    1,
-  ),
-  id,
 });
 
 const scene = (cam: IAutoMovieCamera): IAutoMovieScene => ({
@@ -93,14 +56,6 @@ const framing = (
     motions: [actor],
     sampleRate: 1,
   });
-
-const camMotion = (tracks: IAutoMovieClip["tracks"]): IAutoMovieClip => ({
-  id: "cam-move",
-  name: null,
-  duration: 1,
-  loop: false,
-  tracks,
-});
 
 const hitEvent = (
   over: Partial<IAutoMovieInteractionEvent> = {},

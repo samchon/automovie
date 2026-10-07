@@ -1,5 +1,5 @@
-import type { BodyPoseDefectZone } from "./bodyPoseDefectZone";
 import type { IBodyPoseZoneDefects } from "./IBodyPoseZoneDefects";
+import type { BodyPoseDefectZone } from "./bodyPoseDefectZone";
 
 /**
  * One skin's pose-defect measurements against its own shaped rest.

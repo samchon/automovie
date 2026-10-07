@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 
 import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
-import type { IBodyCorrectiveWorld } from "./bodyCorrectiveWorld";
+import type { IBodyCorrectiveWorld } from "./IBodyCorrectiveWorld";
 import { interpolateBodyShoulderPose } from "./interpolateBodyShoulderPose";
 
 /**
@@ -25,22 +26,53 @@ export function bodyCorrectiveDocument(
   shoulderRest: readonly IAutoMovieHumanBodyShoulderPose[] = [],
 ): IAutoMovieHumanBodyBasisDocument {
   return {
-    id: "solve", name: "solve", basis,
-    shape: Object.fromEntries(Object.entries(state.shape).map(([channel, weight]) => [channel, u === 1 ? weight : u * weight])),
+    id: "solve",
+    name: "solve",
+    basis,
+    shape: Object.fromEntries(
+      Object.entries(state.shape).map(([channel, weight]) => [
+        channel,
+        u === 1 ? weight : u * weight,
+      ]),
+    ),
     pose: state.pose.map((joint) => ({
-      bone: joint.bone, flexion: null, abduction: null, twist: null,
-      ...Object.fromEntries((["flexion", "abduction", "twist"] as const)
-        .filter((axis) => joint[axis] !== null)
-        .map((axis) => {
-          const rest = world.neutral.get(joint.bone)![axis];
-          return [axis, t === 1 ? joint[axis]! : rest + t * (joint[axis]! - rest)];
-        })),
+      bone: joint.bone,
+      flexion: null,
+      abduction: null,
+      twist: null,
+      ...Object.fromEntries(
+        (["flexion", "abduction", "twist"] as const)
+          .filter((axis) => joint[axis] !== null)
+          .map((axis) => {
+            const rest = world.neutral.get(joint.bone)![axis];
+            return [
+              axis,
+              t === 1 ? joint[axis]! : rest + t * (joint[axis]! - rest),
+            ];
+          }),
+      ),
     })),
-    ...(state.shoulders === undefined ? {} : { shoulders: t === 0 ? [] : state.shoulders.map((goal) => {
-      if (t === 1) return { ...goal };
-      const from = shoulderRest.find((rest) => rest.bone === goal.bone);
-      if (from === undefined) throw new Error("A TT sample needs the same shaped rest: " + goal.bone);
-      return interpolateBodyShoulderPose({ from, to: goal, fraction: t });
-    }) }),
+    ...(state.shoulders === undefined
+      ? {}
+      : {
+          shoulders:
+            t === 0
+              ? []
+              : state.shoulders.map((goal) => {
+                  if (t === 1) return { ...goal };
+                  const from = shoulderRest.find(
+                    (rest) => rest.bone === goal.bone,
+                  );
+                  if (from === undefined)
+                    throw new Error(
+                      "A TT sample needs the same shaped rest: " + goal.bone,
+                    );
+                  return interpolateBodyShoulderPose({
+                    from,
+                    to: goal,
+                    fraction: t,
+                  });
+                }),
+        }),
   };
 }

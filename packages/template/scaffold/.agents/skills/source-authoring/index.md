@@ -2,7 +2,7 @@
 
 Read `AGENTS.md`, `lint.config.ts`, `docs/README.md`, the completed design owner, and its active source branch before writing source. Source implements completed decisions; it does not invent a missing model, space, material, motion, subject, or delivery contract. Return a newly exposed decision to its earliest document owner first.
 
-Keep time in seconds, space in right-handed Y-up metres, and randomness in explicit seeds. Shot and film build functions use no clock, network, process, filesystem, or unseeded randomness. Derive production content from its completed owners rather than importing demonstration content.
+Keep time in seconds and space in right-handed Y-up metres. [Compilation](compilation.md) owns deterministic execution; derive production content from its completed owners.
 
 ## Core routes
 
@@ -30,6 +30,4 @@ Read only the craft that the current source change reaches:
 
 ## Source execution and verification
 
-Implement completed design decisions as typed values and functions in their source owners. Follow [Ownership](ownership.md) for the boundary between authoring inputs and outputs, and [Compilation](compilation.md) for execution.
-
-Correct authored source, rerun its consumers, and renew affected observations and evidence. Run the declared source lint while authoring and the applicable execution command when its inputs are ready. A clean compile proves structure, not appearance; inspect rendered claims under [Review verification](../review-verification/SKILL.md).
+Close a coherent source change through [Author process Self-Review](../review-verification/self-review.md) before dependent work consumes it. That owner combines the applicable checks and current observations; [Review verification](../review-verification/SKILL.md) routes final acceptance.

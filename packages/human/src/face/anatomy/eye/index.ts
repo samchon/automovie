@@ -27,3 +27,7 @@ export * from "./posePortraitOpticalMesh";
 export * from "./rasterizeHumanFaceIrisTexels";
 export * from "./resolvePortraitEyeInputs";
 export * from "./structures";
+export * from "./readHumanFaceOcularSurfaceSpace";
+export * from "./createHumanFacePeriocularDefaults";
+export * from "./buildHumanFaceMedialBedSurface";
+export * from "./applyHumanFaceEyelidPhenotypes";

@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import type { ServerResponse } from "node:http";
 import path from "node:path";
 
+import type { IServeHumanViewerReferenceProps } from "./IServeHumanViewerReferenceProps";
 import { resolveHumanViewerReference } from "./resolveHumanViewerReference";
 
 /**
@@ -18,22 +18,16 @@ import { resolveHumanViewerReference } from "./resolveHumanViewerReference";
  * `references/body` and are matched by its manifest. Returns whether the
  * request was one of the routes, so the caller can fall through otherwise.
  */
-export function serveHumanViewerReference(props: {
-  url: URL;
-  response: ServerResponse;
-  root: string;
-  storage: string;
-  documents: readonly string[];
-  json: (value: unknown) => void;
-}): boolean {
-  const { url, response, root, storage, json } = props;
+export function serveHumanViewerReference(
+  props: IServeHumanViewerReferenceProps,
+): boolean {
+  const { url, response, root, referenceDirectory: directory, json } = props;
   if (
     url.pathname !== "/reference-info" &&
     url.pathname !== "/reference" &&
     url.pathname !== "/reference-index"
   )
     return false;
-  const directory = path.join(storage, "references");
   const resolve = (doc: string) =>
     resolveHumanViewerReference(doc, {
       list: (folder) => {
@@ -91,8 +85,8 @@ export function serveHumanViewerReference(props: {
         ? "image/webp"
         : "image/jpeg",
   );
-  fs.createReadStream(path.join(directory, reference.folder, reference.file)).pipe(
-    response,
-  );
+  fs.createReadStream(
+    path.join(directory, reference.folder, reference.file),
+  ).pipe(response);
   return true;
 }

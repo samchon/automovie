@@ -2,9 +2,17 @@ import {
   createAutoMovieSignedMeshQuery,
   solveAutoMovieQuadraticProgram,
 } from "@automovie/engine";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
+import type { IHumanFaceContactBounds } from "./IHumanFaceContactBounds";
+import type { IHumanFaceContactColliderState } from "./IHumanFaceContactColliderState";
+import type { IHumanFaceContactFloor } from "./IHumanFaceContactFloor";
+import type { IHumanFaceContactGeometry } from "./IHumanFaceContactGeometry";
+import type { IHumanFaceContactHit } from "./IHumanFaceContactHit";
+import type { IHumanFaceContactWitness } from "./IHumanFaceContactWitness";
+import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
 
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 
@@ -82,6 +90,7 @@ export function resolveHumanFaceContact(
   contact: Contact,
   posed: Map<string, number[]>,
   shaped: ReadonlyMap<string, readonly number[]>,
+  generated?: ReadonlyMap<string, readonly IHumanFaceDynamicCollider[]>,
 ): IAutoMovieHumanFaceContactSummary["resolved"] {
   const surfaces = new Map(
     basis.surfaces.map((surface) => [surface.id, surface]),
@@ -90,17 +99,56 @@ export function resolveHumanFaceContact(
     id: string,
     closure: readonly number[],
     positions: readonly number[],
-  ) => {
-    const query = createAutoMovieSignedMeshQuery(
-      {
-        positions: positions as number[],
-        indices: [...surfaces.get(id)!.indices, ...closure],
-        normals: null,
-        uvs: null,
-        skin: null,
-      },
-      { boundary: "open" },
-    );
+    mesh?: IAutoMovieMesh,
+    label: string = id,
+    pointIds?: readonly string[],
+  ): IHumanFaceContactGeometry => {
+    let query: ReturnType<typeof createAutoMovieSignedMeshQuery>;
+    try {
+      query = createAutoMovieSignedMeshQuery(
+        {
+          positions: positions as number[],
+          indices:
+            mesh === undefined
+              ? [...surfaces.get(id)!.indices, ...closure]
+              : mesh.indices,
+          normals: null,
+          uvs: null,
+          skin: null,
+        },
+        { boundary: "open" },
+      );
+    } catch (error) {
+      const original =
+        mesh === undefined ? surfaces.get(id)?.positions : undefined;
+      let changedCoordinates = 0,
+        maximumChangeMetres = 0;
+      if (original !== undefined && original.length === positions.length)
+        positions.forEach((value, at) => {
+          if (value !== original[at]) changedCoordinates++;
+          maximumChangeMetres = Math.max(
+            maximumChangeMetres,
+            Math.abs(value - original[at]),
+          );
+        });
+      throw new Error(
+        "Face contact collider " +
+          label +
+          (original === undefined
+            ? ""
+            : "; changed source coordinates " +
+              changedCoordinates +
+              ", maximum change " +
+              maximumChangeMetres +
+              " m") +
+          ": " +
+          (error instanceof Error ? error.message : String(error)) +
+          (pointIds === undefined
+            ? ""
+            : "; physical point identities " + JSON.stringify(pointIds)),
+        { cause: error },
+      );
+    }
     const low = [Infinity, Infinity, Infinity];
     const high = [-Infinity, -Infinity, -Infinity];
     for (let at = 0; at < positions.length; at += 3)
@@ -110,22 +158,59 @@ export function resolveHumanFaceContact(
       }
     return { query, low, high };
   };
-  const colliders = contact.colliders.map((collider) => ({
-    reach: collider.reachMetres,
-    cover: collider.coverMetres ?? 0,
-    now: compile(
-      collider.surface,
-      collider.closure,
-      posed.get(collider.surface)!,
-    ),
-    rest: compile(
-      collider.surface,
-      collider.closure,
-      shaped.get(collider.surface)!,
-    ),
-  }));
+  const colliders: IHumanFaceContactColliderState[] = contact.colliders.flatMap(
+    (collider) => {
+      const replacements = generated?.get(collider.surface);
+      if (replacements !== undefined) {
+        if (replacements.length === 0)
+          throw new Error(
+            "Generated contact replacement must retain at least one exterior.",
+          );
+        return replacements.map((replacement) => ({
+          reach: collider.reachMetres,
+          cover: collider.coverMetres ?? 0,
+          now: compile(
+            collider.surface,
+            [],
+            replacement.posed.positions,
+            replacement.posed,
+            (replacement.id ?? collider.surface) + ":performed",
+            replacement.pointIds,
+          ),
+          rest: compile(
+            collider.surface,
+            [],
+            replacement.rest.positions,
+            replacement.rest,
+            (replacement.id ?? collider.surface) + ":rest",
+            replacement.pointIds,
+          ),
+        }));
+      }
+      return [
+        {
+          reach: collider.reachMetres,
+          cover: collider.coverMetres ?? 0,
+          now: compile(
+            collider.surface,
+            collider.closure,
+            posed.get(collider.surface)!,
+            undefined,
+            collider.surface + ":performed",
+          ),
+          rest: compile(
+            collider.surface,
+            collider.closure,
+            shaped.get(collider.surface)!,
+            undefined,
+            collider.surface + ":rest",
+          ),
+        },
+      ];
+    },
+  );
   const near = (
-    box: { low: number[]; high: number[] },
+    box: IHumanFaceContactBounds,
     reach: number,
     p: readonly number[],
   ): boolean =>
@@ -156,27 +241,34 @@ export function resolveHumanFaceContact(
       members.push(vertex);
     }
     const pushes = new Map<number, number[]>();
-    const floors = new Map<number, { collider: typeof colliders[number]; floor: number; signed: number }[]>();
-    const rowsOf = new Map<number, ContactFloor[]>();
+    const floors = new Map<number, IHumanFaceContactWitness[]>();
+    const rowsOf = new Map<number, IHumanFaceContactFloor[]>();
     // The first refusal reading of one welded point, or null when every
     // original floor holds there within the declared tolerance and the net
     // budget. A directly corrected point refuses on it; a spread-only
     // neighbour that has one keeps its original place instead.
     const fault = (vertex: number): string | null => {
       const point = positions.slice(3 * vertex, 3 * vertex + 3);
-      const travel = Math.hypot(...point.map((value, axis) => value - original[3 * vertex + axis]));
+      const travel = Math.hypot(
+        ...point.map((value, axis) => value - original[3 * vertex + axis]),
+      );
       if (!Number.isFinite(travel) || travel > soft.budgetMetres)
         return `${soft.surface} has an unverified net contact move of ${mm(travel)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`;
       for (const witness of floors.get(vertex)!) {
         const hit = witness.collider.now.query(point);
-        if (!near(witness.collider.now, witness.collider.reach, point) ||
-            hit.boundary || hit.distance > witness.collider.reach) {
+        if (
+          !near(witness.collider.now, witness.collider.reach, point) ||
+          hit.boundary ||
+          hit.distance > witness.collider.reach
+        ) {
           // The sheet reads no side here, but the distance to a surface is
           // 1-Lipschitz: a move shorter than the original outside reading
           // cannot cross the surface, and clearance cannot fall by more than
           // the move. That bound proves the floor without the side reading.
-          if (witness.signed > travel &&
-              witness.floor - (witness.signed - travel) <= contact.toleranceMetres)
+          if (
+            witness.signed > travel &&
+            witness.floor - (witness.signed - travel) <= contact.toleranceMetres
+          )
             continue;
           return `${soft.surface} contact floor cannot be verified at vertex ${vertex}: the corrected point leaves the oriented sheet's reach or meets its rim.`;
         }
@@ -193,8 +285,8 @@ export function resolveHumanFaceContact(
     for (const members of groups.values()) {
       const vertex = members[0];
       const p = positions.slice(3 * vertex, 3 * vertex + 3);
-      const known: { collider: typeof colliders[number]; floor: number; signed: number }[] = [];
-      const rows: ContactFloor[] = [];
+      const known: IHumanFaceContactWitness[] = [];
+      const rows: IHumanFaceContactFloor[] = [];
       for (const collider of colliders) {
         if (!near(collider.now, collider.reach, p)) continue;
         const hit = collider.now.query(p);
@@ -224,9 +316,15 @@ export function resolveHumanFaceContact(
       if (!rows.some((row) => row.minimum > contact.toleranceMetres)) continue;
       let push: number[];
       try {
-        push = contactCorrection(rows, soft.budgetMetres, contact.toleranceMetres);
+        push = contactCorrection(
+          rows,
+          soft.budgetMetres,
+          contact.toleranceMetres,
+        );
       } catch (error) {
-        throw new Error(`${soft.surface} contact correction at vertex ${vertex} has no verified witness within its ${mm(soft.budgetMetres)} mm net tissue budget: ${String(error)}`);
+        throw new Error(
+          `${soft.surface} contact correction at vertex ${vertex} has no verified witness within its ${mm(soft.budgetMetres)} mm net tissue budget: ${String(error)}`,
+        );
       }
       pushes.set(vertex, push);
       for (const member of members)
@@ -313,27 +411,27 @@ export function resolveHumanFaceContact(
  * limit.
  */
 function signedGradient(
-  hit: {
-    point: number[];
-    normal: number[];
-    distance: number;
-    signedDistance: number;
-    feature: string;
-  },
+  hit: IHumanFaceContactHit,
   query: readonly number[],
 ): number[] {
   if (hit.feature === "face" || !(hit.distance > 0)) return hit.normal;
   const side = hit.signedDistance < 0 ? -1 : 1;
-  return query.map((value, axis) => (side * (value - hit.point[axis])) / hit.distance);
+  return query.map(
+    (value, axis) => (side * (value - hit.point[axis])) / hit.distance,
+  );
 }
 
-/** Original unit-gradient affine floors in the posed point's metre frame. */
-type ContactFloor = { normal: readonly number[]; minimum: number };
-
 /** Whether every affine floor reads at least its minimum minus the slack. */
-function holds(rows: readonly ContactFloor[], vector: readonly number[], slack: number): boolean {
-  return rows.every((row) =>
-    row.normal.reduce((sum, value, axis) => sum + value * vector[axis], 0) >= row.minimum - slack);
+function holds(
+  rows: readonly IHumanFaceContactFloor[],
+  vector: readonly number[],
+  slack: number,
+): boolean {
+  return rows.every(
+    (row) =>
+      row.normal.reduce((sum, value, axis) => sum + value * vector[axis], 0) >=
+      row.minimum - slack,
+  );
 }
 
 /**
@@ -353,17 +451,35 @@ function holds(rows: readonly ContactFloor[], vector: readonly number[], slack: 
  * convex, outside a convex feature, and actual signed geometry is checked by
  * the caller before committing any move.
  */
-function contactCorrection(rows: readonly ContactFloor[], budget: number, tolerance: number): number[] {
+function contactCorrection(
+  rows: readonly IHumanFaceContactFloor[],
+  budget: number,
+  tolerance: number,
+): number[] {
   const needed = rows.filter((row) => row.minimum > tolerance);
-  const largest = needed.reduce((a, b) => a.minimum >= b.minimum ? a : b);
+  const largest = needed.reduce((a, b) => (a.minimum >= b.minimum ? a : b));
   const direct = largest.normal.map((value) => value * largest.minimum);
   if (Math.hypot(...direct) <= budget && holds(rows, direct, 0)) return direct;
   // A required positive displacement with zero budget already refused above.
   const vector =
-    contactProjection(rows, [0, 0, 0], budget, tolerance, rows.map((row) => row.minimum)) ??
-    contactProjection(rows, [0, 0, 0], budget, tolerance, rows.map((row) => row.minimum - tolerance / 2));
+    contactProjection(
+      rows,
+      [0, 0, 0],
+      budget,
+      tolerance,
+      rows.map((row) => row.minimum),
+    ) ??
+    contactProjection(
+      rows,
+      [0, 0, 0],
+      budget,
+      tolerance,
+      rows.map((row) => row.minimum - tolerance / 2),
+    );
   if (vector === null)
-    throw new Error("The simultaneous contact solve returned no verified displacement.");
+    throw new Error(
+      "The simultaneous contact solve returned no verified displacement.",
+    );
   return vector;
 }
 
@@ -377,7 +493,7 @@ function contactCorrection(rows: readonly ContactFloor[], budget: number, tolera
  * refused after the solve.
  */
 function contactProjection(
-  rows: readonly ContactFloor[],
+  rows: readonly IHumanFaceContactFloor[],
   target: readonly number[],
   budget: number,
   tolerance: number,
@@ -386,16 +502,26 @@ function contactProjection(
   // A smoothing target is half a mean of pushes that each fit the budget.
   if (rows.length === 0) return [...target];
   const result = solveAutoMovieQuadraticProgram({
-    diagonal: [1, 1, 1], linear: target.map((value) => -value / budget),
-    rows: rows.flatMap((row, at) => lowers[at] > -budget ? [{
-      indices: [0, 1, 2], weights: [...row.normal],
-      lower: lowers[at] / budget, upper: null,
-    }] : []),
+    diagonal: [1, 1, 1],
+    linear: target.map((value) => -value / budget),
+    rows: rows.flatMap((row, at) =>
+      lowers[at] > -budget
+        ? [
+            {
+              indices: [0, 1, 2],
+              weights: [...row.normal],
+              lower: lowers[at] / budget,
+              upper: null,
+            },
+          ]
+        : [],
+    ),
   });
   if (result.status !== 1) return null;
   const vector = result.primal.map((value) => value * budget);
   // NaN cannot satisfy an affine comparison; an infinite norm exceeds the
   // admitted finite budget. These checks also reject nonfinite native output.
-  if (!holds(rows, vector, tolerance) || !(Math.hypot(...vector) <= budget)) return null;
+  if (!holds(rows, vector, tolerance) || !(Math.hypot(...vector) <= budget))
+    return null;
   return vector;
 }

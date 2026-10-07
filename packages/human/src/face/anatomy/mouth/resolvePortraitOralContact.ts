@@ -39,16 +39,14 @@ export function resolvePortraitOralContact(
 ): IAutoMovieModelPart[] {
   const has = (id: string): boolean => parts.some((part) => part.id === id);
   if (!has("lips")) return parts;
-  return ["tooth-upper-arch", "tooth-lower-arch"]
-    .filter(has)
-    .reduce(
-      (resolved, enamel) =>
-        applyPortraitOralContact(resolved, {
-          lips: "lips",
-          enamel,
-          cavity: has("oral-cavity") ? "oral-cavity" : undefined,
-          clearance: 0,
-        }),
-      parts,
-    );
+  return ["tooth-upper-arch", "tooth-lower-arch"].filter(has).reduce(
+    (resolved, enamel) =>
+      applyPortraitOralContact(resolved, {
+        lips: "lips",
+        enamel,
+        cavity: has("oral-cavity") ? "oral-cavity" : undefined,
+        clearance: 0,
+      }),
+    parts,
+  );
 }

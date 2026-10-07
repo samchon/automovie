@@ -4,6 +4,7 @@ import {
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
+
 import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
 import { measureDentalClinicalHeight } from "./measureDentalClinicalHeight";
 
@@ -301,17 +302,31 @@ export function prepareGingivaBasis(input: {
   if (anterior.length < 6)
     throw new Error("The front view shows fewer than six maxillary crowns.");
   const normOf = (rank: number) => input.norms[Math.floor(rank / 2)]!;
-  const moving = new Set([...component.keys()].filter((vertex) => upperGum.has(component[vertex]!)));
+  const moving = new Set(
+    [...component.keys()].filter((vertex) => upperGum.has(component[vertex]!)),
+  );
   const clinical = (positions: readonly number[], crown: number) => {
-    const measured = measureDentalClinicalHeight(positions, basis.id, input.registrations?.get(crown), moving);
+    const measured = measureDentalClinicalHeight(
+      positions,
+      basis.id,
+      input.registrations?.get(crown),
+      moving,
+    );
     if (!(measured.metresPerUpShift > 0))
-      throw new Error("A clinical gingival zenith must follow the maxillary gum in the cervical direction.");
+      throw new Error(
+        "A clinical gingival zenith must follow the maxillary gum in the cervical direction.",
+      );
     return measured;
   };
-  const initial = new Map(anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]));
+  const initial = new Map(
+    anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]),
+  );
   const byNorm =
     anterior.reduce(
-      (sum, [crown], rank) => sum + (normOf(rank) - initial.get(crown)!.heightMetres) / initial.get(crown)!.metresPerUpShift,
+      (sum, [crown], rank) =>
+        sum +
+        (normOf(rank) - initial.get(crown)!.heightMetres) /
+          initial.get(crown)!.metresPerUpShift,
       0,
     ) / anterior.length;
   const original = teeth.positions.slice();
@@ -375,7 +390,9 @@ export function prepareGingivaBasis(input: {
   let movedVertices = 0;
   for (let v = 0; v < vertices; ++v)
     if (upperGum.has(component[v]!)) ++movedVertices;
-  const after = new Map(anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]));
+  const after = new Map(
+    anterior.map(([crown]) => [crown, clinical(teeth.positions, crown)]),
+  );
   const source = basis.id;
   basis.id = revision;
   const build = createHumanFaceBasisBuilder(basis);

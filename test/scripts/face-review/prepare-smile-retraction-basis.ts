@@ -20,10 +20,12 @@
  * full weight (no fault added to the smiled source) and read again at the
  * norm's weight.
  */
-import { type IAutoMovieHumanFaceBasis, createHumanFaceBasisBuilder } from "@automovie/human";
+import {
+  type IAutoMovieHumanFaceBasis,
+  createHumanFaceBasisBuilder,
+} from "@automovie/human";
 import fs from "node:fs";
 
-import { faceSupportFaults } from "./faceSupportFaults";
 import {
   faceMidsagittalLandmarks,
   faceMidsagittalProfile,
@@ -31,6 +33,7 @@ import {
   faceProfileLandmarks,
 } from "./faceMidsagittal";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
+import { faceSupportFaults } from "./faceSupportFaults";
 import { faceMidlineTriangles } from "./faceUnseenNorms";
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareSmileRetractionBasis } from "./prepareSmileRetractionBasis";

@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { ICreateHumanFaceHairTailSpreadProps } from "./ICreateHumanFaceHairTailSpreadProps";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
@@ -63,16 +64,9 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  *   tail axis, a cross-section radius and a reach in metres; the per-lock offset
  *   is derived from the lock's sequence values, so no input places a strand.
  */
-export function createHumanFaceHairTailSpread(props: {
-  axis: IAutoMovieVector3;
-  anchor: IAutoMovieVector3;
-  entry: IAutoMovieVector3;
-  root: IAutoMovieVector3;
-  phase: number;
-  radialFraction: number;
-  radius: number;
-  reach: number;
-}): (distance: number) => IAutoMovieVector3 {
+export function createHumanFaceHairTailSpread(
+  props: ICreateHumanFaceHairTailSpreadProps,
+): (distance: number) => IAutoMovieVector3 {
   const axis = humanFaceHairFrame.direction(props.axis);
   const transverse = (point: IAutoMovieVector3): IAutoMovieVector3 => {
     const offset = Vector3.subtract(point, props.anchor);

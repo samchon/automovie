@@ -1,6 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
-import { float32MeshBuffers } from "@automovie/human";
-import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import type { IAutoMovieModel } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
   buildModel,
@@ -9,90 +9,16 @@ import {
 import * as THREE from "three";
 
 import { prepareHumanPreview } from "../common/previewScene";
-
-type Resident = {
-  group: THREE.Group;
-  signature: string;
-  meshes: THREE.Mesh[];
-  witnesses: MeshWitness[];
-  textures: AutoMovieTextureCache;
-  released: boolean;
-};
-type Frame = {
-  resident: Resident;
-  model: IAutoMovieModel;
-  meshes: IAutoMovieMesh[];
-  witnesses: MeshWitness[];
-};
-
-type MeshWitness = {
-  positions: readonly number[];
-  normals: readonly number[] | null;
-  indices: readonly number[] | null;
-  uvs: readonly number[] | null;
-  closed: boolean;
-};
-
-/** Exact source arrays certified by the Float32 and manifold gates. */
-function witnessOf(mesh: IAutoMovieMesh, closed: boolean): MeshWitness {
-  return {
-    positions: mesh.positions.slice(),
-    normals: mesh.normals?.slice() ?? null,
-    indices: mesh.indices?.slice() ?? null,
-    uvs: mesh.uvs?.slice() ?? null,
-    closed,
-  };
-}
-
-/**
- * Equality is exact rather than a hash: equal input arrays and the same
- * closure obligation have the same Float32 conversion and topology verdict.
- * Vertex colours are omitted because neither geometry gate reads them; the
- * numerical model admission and GPU material preparation still do.
- */
-function matchesWitness(
-  mesh: IAutoMovieMesh,
-  closed: boolean,
-  witness: MeshWitness | undefined,
-): boolean {
-  if (witness === undefined || closed !== witness.closed) return false;
-  const same = (
-    values: readonly number[] | null,
-    previous: readonly number[] | null,
-  ): boolean =>
-    values === null || previous === null
-      ? values === previous
-      : values.length === previous.length &&
-        values.every((value, index) => value === previous[index]);
-  return (
-    same(mesh.positions, witness.positions) &&
-    same(mesh.normals, witness.normals) &&
-    same(mesh.indices, witness.indices) &&
-    same(mesh.uvs, witness.uvs)
-  );
-}
-
-/** Material thickness determines whether an otherwise open surface must seal. */
-function needsClosedSurface(
-  model: IAutoMovieModel,
-  part: IAutoMovieModel["parts"][number],
-): boolean {
-  return model.materials.some(
-    (material) =>
-      material.id === part.material && (material.thickness ?? 0) > 0,
-  );
-}
-
-/** Geometry and materials belong to the group; the cache owns its textures. */
-function disposeGroup(group: THREE.Group): void {
-  const materials = new Set<THREE.Material>();
-  for (const child of group.children) {
-    const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
-    mesh.geometry.dispose();
-    materials.add(mesh.material);
-  }
-  for (const material of materials) material.dispose();
-}
+import { releaseHumanPreviewGroup } from "../common/releaseHumanPreviewGroup";
+import { sameHumanPreviewValue } from "../common/sameHumanPreviewValue";
+import type { IConnectedFaceFrame } from "./IConnectedFaceFrame";
+import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness";
+import type { IConnectedFaceRendererProps } from "./IConnectedFaceRendererProps";
+import type { IConnectedFaceResident } from "./IConnectedFaceResident";
+import { connectedFaceStructure } from "./connectedFaceStructure";
+import { createConnectedFaceMeshWitness } from "./createConnectedFaceMeshWitness";
+import { matchesConnectedFaceMeshWitness } from "./matchesConnectedFaceMeshWitness";
+import { needsConnectedFaceClosedSurface } from "./needsConnectedFaceClosedSurface";
 
 /**
  * Stage numerical frames before changing any displayed GPU buffer.
@@ -112,27 +38,26 @@ function disposeGroup(group: THREE.Group): void {
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Updates resident geometry while sharing the viewer's material and texture interpretation.
  */
-export function createConnectedFaceRenderer(props: {
-  loadTexture: (asset: string) => Promise<THREE.Texture>;
-  maxAnisotropy: number;
-}) {
-  let active: Resident | undefined;
-  const release = (resident: Resident): void => {
+export function createConnectedFaceRenderer(
+  props: IConnectedFaceRendererProps,
+) {
+  let active: IConnectedFaceResident | undefined;
+  const release = (resident: IConnectedFaceResident): void => {
     if (resident.released) return;
     resident.released = true;
-    disposeGroup(resident.group);
+    releaseHumanPreviewGroup(resident.group);
     void resident.textures.dispose();
   };
-  const dispose = (frame: Frame): void => {
+  const dispose = (frame: IConnectedFaceFrame): void => {
     if (frame.resident !== active) release(frame.resident);
   };
   return {
-    prepare: async (model: IAutoMovieModel): Promise<Frame> => {
+    prepare: async (model: IAutoMovieModel): Promise<IConnectedFaceFrame> => {
       // The connected compiler emits static resident meshes. Refuse a different
       // model kind instead of accidentally updating a rig or primitive in place.
       if (model.skeleton !== null)
         throw new Error("Connected previews require static resident meshes.");
-      const witnesses: MeshWitness[] = [];
+      const witnesses: IConnectedFaceMeshWitness[] = [];
       const meshes = model.parts.map((part, index) => {
         if (
           part.geometry.type !== "mesh" ||
@@ -141,9 +66,9 @@ export function createConnectedFaceRenderer(props: {
         )
           throw new Error("Connected previews require static resident meshes.");
         const mesh = part.geometry.mesh;
-        const closed = needsClosedSurface(model, part);
+        const closed = needsConnectedFaceClosedSurface(model, part);
         const previous = active?.witnesses[index];
-        if (matchesWitness(mesh, closed, previous)) {
+        if (matchesConnectedFaceMeshWitness(mesh, closed, previous)) {
           witnesses.push(previous!);
           return mesh;
         }
@@ -158,24 +83,16 @@ export function createConnectedFaceRenderer(props: {
             "Connected Float32 geometry must preserve its required topology: " +
               part.id,
           );
-        witnesses.push(witnessOf(mesh, closed));
+        witnesses.push(createConnectedFaceMeshWitness(mesh, closed));
         return mesh;
       });
-      const signature = JSON.stringify({
-        materials: model.materials,
-        parts: model.parts.map((part, index) => {
-          const mesh = meshes[index];
-          return {
-            ...part,
-            geometry: {
-              ...mesh,
-              positions: mesh.positions.length,
-              normals: mesh.normals?.length,
-            },
-          };
-        }),
-      });
-      if (active?.signature === signature)
+      if (
+        active !== undefined &&
+        sameHumanPreviewValue(
+          active.structure,
+          connectedFaceStructure(model, meshes, null),
+        )
+      )
         return { resident: active, model, meshes, witnesses };
       const textures = new AutoMovieTextureCache(async (asset) => {
         const texture = await props.loadTexture(asset);
@@ -193,7 +110,7 @@ export function createConnectedFaceRenderer(props: {
         return {
           resident: {
             group,
-            signature,
+            structure: connectedFaceStructure(model, meshes, witnesses),
             textures,
             released: false,
             witnesses,
@@ -206,12 +123,12 @@ export function createConnectedFaceRenderer(props: {
           witnesses,
         };
       } catch (error) {
-        if (group !== undefined) disposeGroup(group);
+        if (group !== undefined) releaseHumanPreviewGroup(group);
         await textures.dispose();
         throw error;
       }
     },
-    publish: (frame: Frame): THREE.Group => {
+    publish: (frame: IConnectedFaceFrame): THREE.Group => {
       if (frame.resident.released)
         throw new Error("This prepared face has been released.");
       if (
@@ -228,9 +145,9 @@ export function createConnectedFaceRenderer(props: {
         const part = frame.model.parts[index];
         if (
           part === undefined ||
-          !matchesWitness(
+          !matchesConnectedFaceMeshWitness(
             mesh,
-            needsClosedSurface(frame.model, part),
+            needsConnectedFaceClosedSurface(frame.model, part),
             frame.witnesses[index],
           )
         )
@@ -239,7 +156,7 @@ export function createConnectedFaceRenderer(props: {
               (part?.id ?? index),
           );
       }
-      // Every buffer has matching shape because the signature contains its
+      // Every buffer has matching shape because the reuse structure holds its
       // lengths and static topology. No asynchronous work occurs during commit.
       for (const [index, mesh] of frame.meshes.entries()) {
         const geometry = frame.resident.meshes[index].geometry;

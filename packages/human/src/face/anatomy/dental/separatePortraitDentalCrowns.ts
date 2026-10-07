@@ -41,7 +41,8 @@ export function separatePortraitDentalCrowns(
     "x",
     contactGap / 1000,
   ).map((mesh, index) => {
-    const shift = (mesh.positions[0] - crowns[index].positions[0] / 1000) * 1000;
+    const shift =
+      (mesh.positions[0] - crowns[index].positions[0] / 1000) * 1000;
     return {
       ...mesh,
       positions: crowns[index].positions.map((value, axis) =>

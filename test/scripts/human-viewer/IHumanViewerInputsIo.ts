@@ -16,4 +16,7 @@ export interface IHumanViewerInputsIo {
   names(): string[];
   /** Bytes of one enumerated document or candidate-basis file. */
   read(name: string): Buffer;
+
+  /** The file's version stamp (modification time and size); without it no result is reused. */
+  stamp?(name: string): string;
 }

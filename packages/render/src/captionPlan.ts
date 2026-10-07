@@ -5,11 +5,11 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
+import { beatCaptions } from "./caption/beatCaptions";
 import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
 } from "./captionSidecar";
-import { beatCaptions } from "./screenplay";
 
 /**
  * Plan the caption sidecar: lay the cut onto the output clock

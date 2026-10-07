@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IHumanBodySkinDownInput } from "./IHumanBodySkinDownInput";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
 
 /**
@@ -18,14 +18,10 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Neither input array is changed. This is a numeric
  * derivative of the current rig, not a measured tissue parameter.
  */
-export function humanBodySkinDownDirection(input: {
-  positions: number[];
-  skinned: number[];
-  skin: IAutoMovieHumanBodyBasis["surfaces"][number]["skin"];
-  joints: Parameters<typeof skinHumanBodySurface>[2];
-  transforms: Parameters<typeof skinHumanBodySurface>[3];
-}): number[] {
-  const { positions, skinned, skin, joints, transforms } = input;
+export function humanBodySkinDownDirection(
+  input: IHumanBodySkinDownInput,
+): number[] {
+  const { positions, skinned, skin, joints, transforms, toeSplit } = input;
   const scale = positions.reduce(
     (largest, value) => Math.max(largest, Math.abs(value)),
     1,
@@ -36,6 +32,7 @@ export function humanBodySkinDownDirection(input: {
     skin,
     joints,
     transforms,
+    toeSplit,
   );
   return below.map((value, i) => (value - skinned[i]) / step);
 }

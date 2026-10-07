@@ -1,0 +1,3968 @@
+{
+ "generation": "5e8b6c597fa5c82aeb166cf57898c13c39814f66e3ef9370e7a8eff49964efae",
+ "upstream": [
+  {
+   "name": "mpfb2",
+   "consumed": true,
+   "locator": "https://github.com/makehumancommunity/mpfb2/archive/817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5.zip",
+   "revision": "817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5",
+   "archiveSha256": "4cff096cde30087d91abdbabd7aa084b557039e083587cd94b5a2b49e0c16e4d",
+   "contentSha256": "9406299e22f3e0600d2e0b838522064f1e01dc856ec2cce77caadbea0ab524d9",
+   "licenses": {
+    "LICENSE.md": "5cefb60680cb9efd4550a2e65d719021cfbec9dad3658481d11d48ae863ce04d",
+    "LICENSE.ASSETS.md": "f6089cba01cb570a24712b41ab8a586ccd3cc5ef53dc266ca50b95c288956d2c",
+    "LICENSE.CODE.md": "26c03bc049c15fc5b9e52d791a06f1a6bc32f89edc8f8c701ab0aadf66e85b82"
+   },
+   "rights": {
+    "data": "CC0-1.0 (bundled graphical assets, LICENSE.ASSETS.md)",
+    "code": "GPL-3.0-or-later (LICENSE.CODE.md); executed offline inside Blender only, never copied into this repository"
+   }
+  },
+  {
+   "name": "mpfb-extra-targets",
+   "consumed": true,
+   "locator": "https://github.com/makehumancommunity/extra-targets/archive/7eaba3453134385bb5ea9811ef0b33b85b4b556d.zip",
+   "revision": "7eaba3453134385bb5ea9811ef0b33b85b4b556d",
+   "archiveSha256": "913d104d2e80e7f15c3284c8ad83fc0c3e10e37aa3bc5bc4a7620326645afe01",
+   "contentSha256": "36bb45c884db878df04fa2d31340df5a53a8657f22a441377d89da8ce811d556",
+   "licenses": {
+    "LICENSE": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+   },
+   "rights": {
+    "data": "CC0-1.0 (LICENSE)"
+   }
+  },
+  {
+   "name": "makehuman",
+   "consumed": true,
+   "locator": "https://github.com/makehumancommunity/makehuman/archive/a8bc2d54ff0ac92e78ff71431b1023eda42bf482.zip",
+   "revision": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+   "archiveSha256": "1604d6b35925c8b1c0a7a5e8be8d1f01a53ca8dd80e07dea95c1ba84b192e9b5",
+   "contentSha256": "6ed6c1d2b14a033ce7d16cd081791937dcb26e5cc5436f10b5f6c9c145dab0c6",
+   "licenses": {
+    "LICENSE.md": "edd99571ca62698f78c943fd4fffb159a413c315fa0d4819d3cec5cadaf8b4f1",
+    "LICENSE.ASSETS.md": "f6089cba01cb570a24712b41ab8a586ccd3cc5ef53dc266ca50b95c288956d2c",
+    "LICENSE.CODE.md": "32a0a7381bbcb97b043b34595a1f440557d5cfe904f4d91770b0abb465e8db25"
+   },
+   "rights": {
+    "data": "CC0-1.0 (bundled graphics, LICENSE.ASSETS.md)",
+    "code": "AGPL-3.0-or-later (LICENSE.CODE.md); not executed: only the CC0 low-poly eye MHCLO/OBJ data is read, by MPFB"
+   }
+  },
+  {
+   "name": "makehuman-system-assets",
+   "consumed": true,
+   "locator": "https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
+   "revision": "archive identity by container digest; no upstream revision id",
+   "archiveSha256": "b542127a8e25547c7c29c19f2d1d2adb9a664c80396ecd694095dbc8028a0107",
+   "contentSha256": "67613e4d3313046d55402e231be2c60e9e5ce2111cfb16adb915c675893e8617",
+   "licenses": {},
+   "rights": {
+    "data": "CC0-1.0 per asset header (2020-09 release, Data Collection AB / Joel Palmius / Jonas Hauquier attribution in each MHCLO/MHMAT)"
+   }
+  }
+ ],
+ "inputs": [
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_BODY_CONVENTION.ts",
+   "revision": null,
+   "bytes": 474,
+   "sha256": "5b62aadc8967e284431a3392f35b29089f72aae2f77dd7c17092bb172826886b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_DEFINITION_PRODUCER.ts",
+   "revision": null,
+   "bytes": 1395,
+   "sha256": "cc5079eb4579f2f3958a7b7cdcbf09522d3c46ba47b6c428f8726fe5b0c4fac2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_ENVELOPE_PRODUCER.ts",
+   "revision": null,
+   "bytes": 2962,
+   "sha256": "3030733fff8c41dbf26254f27a37708e4943e75e7dbe12191101e13fc0afe74f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_EYE_CONVENTION.ts",
+   "revision": null,
+   "bytes": 571,
+   "sha256": "2aba64cc74e53d312c4ff092d72b7df349e8eb13de65665fe88bc2102d64d363"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_EYE_SIDES.ts",
+   "revision": null,
+   "bytes": 595,
+   "sha256": "fa2cab08a4692cf2d56ec594493c529e8619b903b8bc629086d64e01dd13844f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_HEAD_CONVENTION.ts",
+   "revision": null,
+   "bytes": 498,
+   "sha256": "0c98fc58d3aa4d351518cb8ee9042cb344366d29b6e9064398bb8e0d05cd5030"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_HEAD_LANDMARK_TEXTS.ts",
+   "revision": null,
+   "bytes": 9757,
+   "sha256": "69e8071591a5c47e172d0d727bc0d1d353de15a34d1df634ec87e74e95257543"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_POSE_PRODUCER.ts",
+   "revision": null,
+   "bytes": 1174,
+   "sha256": "05ad699e08653a3fef214ef6173f8c7855f0f206149d7c6fb2460fa90375b704"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_READ_LANDMARKS.ts",
+   "revision": null,
+   "bytes": 2845,
+   "sha256": "df65cce209b11efa03213805c888cdc190b021fdca38e573837a09d63cd1b8c9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_READ_MARGINS.ts",
+   "revision": null,
+   "bytes": 1219,
+   "sha256": "dcbe0a1d5f674a69de249cda2a4d52bc626ed91d96886ab5ea9af9c6c7780906"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_READ_REGIONS.ts",
+   "revision": null,
+   "bytes": 1549,
+   "sha256": "dd8ce15702ab6b55ee35f14b3c37fd1b2f5e45ea21118515b93ec319153dfafb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_REPORTED_ENDPOINTS.ts",
+   "revision": null,
+   "bytes": 284,
+   "sha256": "48187600ba06606002f4bcd3db70935402a5cacebab7ad4e28599006b3b87987"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_SKIN_LANDMARKS.ts",
+   "revision": null,
+   "bytes": 4392,
+   "sha256": "b4286eb175522064dd735c705201b66133cb2fad43d7ade12d03505787e53745"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/HUMAN_SOURCE_TOE_BONES.ts",
+   "revision": null,
+   "bytes": 1074,
+   "sha256": "9b065d0767f6f3277d954d56ef04da70195b31586c7961779a413eea83fd30d2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/addressHumanSourceRegion.ts",
+   "revision": null,
+   "bytes": 1216,
+   "sha256": "72516cdd221dfe6cb077d797899cb1ed6eace03e946e876c4fef5ba6e1ca9bc2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/admit-source-generation.ts",
+   "revision": null,
+   "bytes": 2177,
+   "sha256": "5bad2209f753914f6d8215f6ff6c6ba02d54cdf5f77f176faf34c4df05dfb513"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/admitHumanSourceP1.ts",
+   "revision": null,
+   "bytes": 2520,
+   "sha256": "e9b82f7b7928c25bcfa88b96d7afa30fa55b36896fd11d96e11d14c0dc126e1a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/admitHumanSourcePersonViews.ts",
+   "revision": null,
+   "bytes": 1737,
+   "sha256": "96556441c7181bd3efc25ccfc40c21ea0d4995f285b34ec7fb8716baece19844"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/assembleHumanSourceGeneration.ts",
+   "revision": null,
+   "bytes": 9595,
+   "sha256": "f8bc7bd900d5a147e87128b4ec1b427ee354b38af0ba586e8573d27d27887dc0"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/assembleHumanSourceP1.ts",
+   "revision": null,
+   "bytes": 6470,
+   "sha256": "0ec6687e379ecffc57e66e14c69383f3f37e2564f62d6853a1d0d24837718e07"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/assertHumanSourceMirroredFill.ts",
+   "revision": null,
+   "bytes": 739,
+   "sha256": "038aa323d78b39288d920740fe0ef4a9e3fb7b5ba9fa093b73b86758b819a5bb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/bindHumanSourcePart.ts",
+   "revision": null,
+   "bytes": 2784,
+   "sha256": "31b2f2409b786fb5b92a14b53a7967b1862a9751b07581ea01bcd4e38706dc1c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/bindHumanSourceParts.ts",
+   "revision": null,
+   "bytes": 6673,
+   "sha256": "7c742b5de7786923db79c040f6706b806fe9a595347f73e550ec3f29a5a45390"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/buildHumanSourceCut.ts",
+   "revision": null,
+   "bytes": 11633,
+   "sha256": "6f1e8f160deec7087caa3c11af2dbb2fb7f53beec3fcc051931e3dcec617594f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/buildHumanSourceLipMarginChain.ts",
+   "revision": null,
+   "bytes": 4428,
+   "sha256": "1c8062faba4b69f60f16a8810c934cb36e86e7a7a1c3c3d6c800ebb531dbca7c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/buildHumanSourceP1BodyMesh.ts",
+   "revision": null,
+   "bytes": 885,
+   "sha256": "19ff3b65629309bb947c33d3f8d079789e58d6c32b1f3ffe89e521cc7945a69e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/buildHumanSourceTopology.ts",
+   "revision": null,
+   "bytes": 1632,
+   "sha256": "b67b3574966223768401478cd0a60c8ddeb4cd594546e7ddbad4ed844964a8fb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/checkHumanSourcePartRefit.ts",
+   "revision": null,
+   "bytes": 2685,
+   "sha256": "72c6984be437f6203b72d56ebad1524fbaa50982028b91b6a32261d5b5c8c2f7"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/classifyHumanSourceRows.ts",
+   "revision": null,
+   "bytes": 2015,
+   "sha256": "161f28a3091193c22ad48e3681c01925c7d97cb0c56e85bb15526e05605d3097"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/closestHumanSourceTriangle.ts",
+   "revision": null,
+   "bytes": 4279,
+   "sha256": "6c51cc1d1fae15407adb0615895f88a631508ede5a7d682b5602ece1ce092d98"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/collectHumanSourceDrivers.ts",
+   "revision": null,
+   "bytes": 1619,
+   "sha256": "9af36f0a2438846888e4e5463899ff0e679c112ad67ccd863270541b5c35b39c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/compareHumanSourceBodyStage.ts",
+   "revision": null,
+   "bytes": 3455,
+   "sha256": "79d4d17af9b0191950ea1faf3ba0ff4dec62e4178d9e6ee3996822290b7e40a9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/compile-source-generation.ts",
+   "revision": null,
+   "bytes": 961,
+   "sha256": "43898cf62a03c12f346ed95a1d3b3b7da33b391d21c770b03ed25abee6e67220"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/compileHumanSourceGeneration.ts",
+   "revision": null,
+   "bytes": 18192,
+   "sha256": "396e45708d671b6f7c826948b15e28055005226395ebdf28981c6f3efe43f21a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/computeHumanSourceSymmetricNormals.ts",
+   "revision": null,
+   "bytes": 1390,
+   "sha256": "797c0f550293c7a355068ed04d3e8ab86d85c9f963eca541815afa1c80cc8057"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/convert-subject-people.ts",
+   "revision": null,
+   "bytes": 2325,
+   "sha256": "8c67d4746ee0375a097fb534323b00cca41329c31628ece39a56fc2cb89d8577"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/convertHumanSourceSubject.ts",
+   "revision": null,
+   "bytes": 2187,
+   "sha256": "ffe65c54b91666a664057b7e929d1b84a29b35511b37a88ee4bdad47a71bddeb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceAdmissionDocument.ts",
+   "revision": null,
+   "bytes": 748,
+   "sha256": "6883fdfe78841c06abceb194506e520a34c83327616679963d80591dbeb9ccd2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceAdmissionLog.ts",
+   "revision": null,
+   "bytes": 771,
+   "sha256": "ddc702adc0531b5eb7074e7438e1fd27d31c2155f5dd598f5630b84aaef9891a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceAnchorCarry.ts",
+   "revision": null,
+   "bytes": 1285,
+   "sha256": "7b58942d36ca7a461123b89a6a19e0afd270c25858e062577e6df50145d502fb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceBodyField.ts",
+   "revision": null,
+   "bytes": 3035,
+   "sha256": "43c92c27a67391db81ea06435356fbdcf201e6307ad3594f4d62435ce343f1de"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceBodyRecipes.ts",
+   "revision": null,
+   "bytes": 1650,
+   "sha256": "49d1675bd8fa3ee06ad10027cc3eef77a7a6b41f468457c84827a30d37bbe883"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceDeltaReader.ts",
+   "revision": null,
+   "bytes": 1757,
+   "sha256": "0a7889727aead2cbfc758a17afd3e72a6fc0b53bf561b5b2723a738ddf663f75"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceFieldContext.ts",
+   "revision": null,
+   "bytes": 3179,
+   "sha256": "b333f6fc1ef9b680c775f659974142915b2f1f8af6a2c70e7c92ec5651b062e9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceHeatDiffusion.ts",
+   "revision": null,
+   "bytes": 5125,
+   "sha256": "ca44e4a9fb444bd8052396fa2fd2ea70aca7ba2f610c14e69ac3728c54dfe5e3"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourcePartRow.ts",
+   "revision": null,
+   "bytes": 1861,
+   "sha256": "779e113b6ed86d17d582f140ef665e5406febbc4582961651f97b2204e7c6013"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceSkinPointRow.ts",
+   "revision": null,
+   "bytes": 1424,
+   "sha256": "b04dcb7bc2bdc7a2a593e4ece70a132b942983e7d5b356b846a2695e4e33abce"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/createHumanSourceUniformSmoother.ts",
+   "revision": null,
+   "bytes": 1302,
+   "sha256": "81e470a8711dfe41094be21ed930698b89d2e35129fe59dee9320445bce666a4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceBand.ts",
+   "revision": null,
+   "bytes": 8419,
+   "sha256": "98a9d91c16eba1630675d6c40be95aaf51a3c31efe4306894b9ab2d23fb78055"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceHeadLandmarks.ts",
+   "revision": null,
+   "bytes": 5927,
+   "sha256": "e35abaa3676d7979401c64ebf6683f43f789ffe7cf5f26069cfc1a8ec28ec9e5"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceHeadRegions.ts",
+   "revision": null,
+   "bytes": 3185,
+   "sha256": "9a403e9fd8d724a6042b5345051c4f3bfb3e32a2c1ab1a8215fe38c4bad6f30e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceMacros.ts",
+   "revision": null,
+   "bytes": 13415,
+   "sha256": "f5a05a9eebab97120649e5cbb07c7f46b711ac9c40e3fe32d77b1543971ab1fd"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceOpticalSupport.ts",
+   "revision": null,
+   "bytes": 9322,
+   "sha256": "c301e3ca6623bf7df9f3d1e9406e10ecdf4692b4113fb381c31571e836054efa"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourcePeriocular.ts",
+   "revision": null,
+   "bytes": 6777,
+   "sha256": "6e718c59862e4e3d5bfd97a1d6e85c59df8d2c63165663678ab46dd0963a2115"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceSkinLandmarks.ts",
+   "revision": null,
+   "bytes": 4336,
+   "sha256": "7934239a84f758d8e6a90f1b80b9a4059f157a821d2b917b1ae79dd75794a42f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/defineHumanSourceToeRays.ts",
+   "revision": null,
+   "bytes": 2619,
+   "sha256": "fae2e2812634a2cef6027c199f6ae54c5da0996f55ed2880caa550b12c722b6c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/denseHumanSourceRows.ts",
+   "revision": null,
+   "bytes": 631,
+   "sha256": "3a002ec0fb8852e482f176ef6086015d9e708a37156506acb51968c54d42faa4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/deriveHumanSourceSubjectAge.ts",
+   "revision": null,
+   "bytes": 2227,
+   "sha256": "90a4f39b8290d9ba76fead60c0c803d940d5dc013a6cddfb40af4a5e8c21abf4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/fillHumanSourceNippleRegion.ts",
+   "revision": null,
+   "bytes": 1067,
+   "sha256": "c50190213f84a3de67a4ee261d98f853f17ea29964023aad0d22dc47283d7a4a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/fillHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 2518,
+   "sha256": "9650e9dbcefef3ff1aeb842d437b7660f517f5f3ae0528071f4d6a1347028f0a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/findHumanSourceBoundaryVertices.ts",
+   "revision": null,
+   "bytes": 673,
+   "sha256": "12b10a993b8c4ae786579ad23611a6fb19a509b44da597ea0b12168f6919a10e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/findHumanSourceLipMarginPairs.ts",
+   "revision": null,
+   "bytes": 4048,
+   "sha256": "2b398e8ccad839657182901007c81e00671b0f44774179dff816bfbc9d4a9bb2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/findHumanSourceShortestPath.ts",
+   "revision": null,
+   "bytes": 1323,
+   "sha256": "3d69e6263ac80eba55d02911217bc3130b4b40363c6123c3ef91bec5554e02da"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/humanSourceBodyBones.ts",
+   "revision": null,
+   "bytes": 1623,
+   "sha256": "782a57b1ad07f35abeab2ea616e6fef7b3135459e8ee8c382a950fd4d1cb0c61"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/humanSourcePositionTolerance.ts",
+   "revision": null,
+   "bytes": 288,
+   "sha256": "51f3a796efc535ad4b6ef61fe8c632e27f815fa22fc02dc4db0ec48f1fe4572c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/humanSourceWeightTolerance.ts",
+   "revision": null,
+   "bytes": 335,
+   "sha256": "784cc2508d931ccf26cd247ea5a48898b2ec750e08736e47d01de09b4afbf05d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/intersectHumanSourceRay.ts",
+   "revision": null,
+   "bytes": 1687,
+   "sha256": "1825cd2b4e293e7b51ed94be09f5fa90a4eef834f0854c448c09f5017e8f1b14"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mapHumanSourceSampleFaces.ts",
+   "revision": null,
+   "bytes": 2489,
+   "sha256": "0088f893ddcda03d892b0cce7e5557e373f0a4baa32f2d9fd118e028e1b893de"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/markHumanSourceHeadOnly.ts",
+   "revision": null,
+   "bytes": 605,
+   "sha256": "567fadb8d9aa5be0790e5aeee0e6317416f5af928f1cea1a183edceaf8c1f6ae"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/markHumanSourceSide.ts",
+   "revision": null,
+   "bytes": 647,
+   "sha256": "558abf36206da7089af4826bc9035f131331a14b9fdfaa62ad17e22e4a8beaa9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/measureHumanSourceCarry.ts",
+   "revision": null,
+   "bytes": 14872,
+   "sha256": "ffb0c3d63ed2c82b7e53d36e16548458f279dfd6ed2d73452d218622564a5c8c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/measureHumanSourceDistanceToSet.ts",
+   "revision": null,
+   "bytes": 1546,
+   "sha256": "02b7a87de69f5079f132d3a8eb22cfaf7faac4770384c90fd4940cfc1a2a9efb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/measureHumanSourceError.ts",
+   "revision": null,
+   "bytes": 1706,
+   "sha256": "2f266de3c15ea1248bdeacb7d7e88b9e76a87fcec2a357d720ef8143f51e977b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/measureHumanSourcePartMotion.ts",
+   "revision": null,
+   "bytes": 1074,
+   "sha256": "08c3a552874a538581f91231042aac3d9d2874a61a75981a25cb619f52d01cb9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mirrorHumanSourceLandmark.ts",
+   "revision": null,
+   "bytes": 939,
+   "sha256": "c9bae5d0f94be8e17100818c51fa7784bd16f6aeb16078e487ea1c4f8a728102"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mirrorHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 634,
+   "sha256": "37ce621b5dbe2c4e7dca342f4e8c56729ecc4f7ac9ca0854f323cb691abff013"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mirrorHumanSourceSurface.ts",
+   "revision": null,
+   "bytes": 1791,
+   "sha256": "a574b7d667becbdf49113c6ebc301dbcf72060267e50001bcb9ba59260500840"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/__init__.py",
+   "revision": null,
+   "bytes": 1027,
+   "sha256": "df5aac7059ef7bdc1b30b9ad4c3a866e9ab1f97e7f4fec686ef831c4f68f5af1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/catalogue.py",
+   "revision": null,
+   "bytes": 6453,
+   "sha256": "60eeecd9fa55f6acf586cf402dd75fc8bd445ccbddee77adc9bc525a53816426"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/flatten.py",
+   "revision": null,
+   "bytes": 2299,
+   "sha256": "112b6508a82e584031e22742792b1a9d784af14cda1112a15183a47f466fcf90"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/landmarks.py",
+   "revision": null,
+   "bytes": 1088,
+   "sha256": "688a59bdb19949cb6a35f076c2e47d25f4565d125fa0614ca6aaf82f8e6463f5"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/parts.py",
+   "revision": null,
+   "bytes": 3766,
+   "sha256": "aca54625067001a79b266192bff440ad63e73b0c162744f69365fb3eaaa522e0"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/session.py",
+   "revision": null,
+   "bytes": 9349,
+   "sha256": "11562814d850fa4341aee35d3e48b2c24254d1810df52738423e57b1f97d2905"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/mpfb_generation/store.py",
+   "revision": null,
+   "bytes": 2623,
+   "sha256": "d571bbc050b234e95344614d8dd7ad9f4889b3bf3e609a2bf6f45e7e16bf919e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/pickHumanSourceExtremum.ts",
+   "revision": null,
+   "bytes": 1349,
+   "sha256": "2c5cb853216539b87ff9af893765ce43ed9ea8546bdeab01a5074d6a4dc78713"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/prepare-mpfb-profile.py",
+   "revision": null,
+   "bytes": 6706,
+   "sha256": "4765c5f5899dcbad1ee52e9d41ad03920c3b9ad740bac6042943738df9ed128a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/produceHumanSourceDefinition.ts",
+   "revision": null,
+   "bytes": 5540,
+   "sha256": "f248902efc43a0bcf41d64557c122a2b07ea0dcd9ec8d3b76a59f275e6095dd2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/produceHumanSourceEnvelope.ts",
+   "revision": null,
+   "bytes": 4991,
+   "sha256": "65bd80ece3595304d816ecb3c5508c549e5518c5e2704af94fdf9ba12767eab1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/pruneHumanSourceWeights.ts",
+   "revision": null,
+   "bytes": 1163,
+   "sha256": "87a131092201c67a0090901bc0c03c7e2dedf0ee3ba2eacf71dc4e144a344838"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceBaseFaces.ts",
+   "revision": null,
+   "bytes": 625,
+   "sha256": "234844a30d3e0d436ea007e4e705ee28b194c36f61a681b42897ac44b5259682"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceInput.ts",
+   "revision": null,
+   "bytes": 1457,
+   "sha256": "16e49edea27a170a618d2423cfebaf68347c0660ef5cd4434e514d5a4d8c8c7b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceLandmarkRow.ts",
+   "revision": null,
+   "bytes": 516,
+   "sha256": "572a56b83c90bb153a4e527d3dc160c2cc2e82f28d7645f3cdd1f32a58235ee5"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceMirror.ts",
+   "revision": null,
+   "bytes": 1213,
+   "sha256": "c7b5089099f75efab4f4993106e703f0c52b803cd4da4d186145b7cd6ae0755e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/readHumanSourceSample.ts",
+   "revision": null,
+   "bytes": 2485,
+   "sha256": "cbccecd2b7c219aa8b769e4f9ae44b244a8c3b59962b3625cfa24385aea33f0b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/recordHumanSourceRigidGap.ts",
+   "revision": null,
+   "bytes": 1766,
+   "sha256": "fd1c3845fae73dcb3c21cfd9e204ef3d27493b6611bd3317d092b2a5726cd530"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/regenerate-source-generation.ts",
+   "revision": null,
+   "bytes": 2885,
+   "sha256": "2c96d44b337ed1b7deddb06fb62980482418965c1ee7b8df093c453f6e9b1721"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/regenerateHumanSourceBodyFields.ts",
+   "revision": null,
+   "bytes": 4064,
+   "sha256": "201037bea592618befd44d4299c2a9265fbec0f06938d3a0cbca12a6952e1f57"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/regenerateHumanSourceFaceLandmarks.ts",
+   "revision": null,
+   "bytes": 1695,
+   "sha256": "e3f5eb1b8412861d94a2340635d9abe96a989cb083c7786948de7e02e2c04d6e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/regenerateHumanSourcePose.ts",
+   "revision": null,
+   "bytes": 4431,
+   "sha256": "a53dd07a7d0d669ce0b717fa5d8fcca02da185e7bf2553095accc8b78c4c3eca"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/registerHumanSourceTeeth.ts",
+   "revision": null,
+   "bytes": 5632,
+   "sha256": "7c3a6d548bc5169394c9ddc37a6e214d174b5866fad44d5d49f24f9172fa0d84"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/reproduceHumanBodyRig.ts",
+   "revision": null,
+   "bytes": 7775,
+   "sha256": "f83705409b82fff8068afe90a62af2594f5dff440509250f53bcab2fce6ca9d3"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/reproduceHumanBodyRows.ts",
+   "revision": null,
+   "bytes": 9415,
+   "sha256": "6a21c00585b63e71b8b960dc049e098b4c6f0c4a8692ba41dee0d0f8bcd206aa"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/reproduceHumanFaceRows.ts",
+   "revision": null,
+   "bytes": 12302,
+   "sha256": "74b4489a7030650fe423aff3b50bc0be968369250b2be510002aaaa01e1b555e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/roundHalfEven.ts",
+   "revision": null,
+   "bytes": 703,
+   "sha256": "71be160a8caf92f30a55c9326275b5f0fb65623b4732d0b6c44f4dd6eb336ba8"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/sample-mpfb-generation.py",
+   "revision": null,
+   "bytes": 8991,
+   "sha256": "12ec6aee7dc8637b9190becaed3cac66900101c61637b7895bc4f912cd668fd8"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceGlabella.ts",
+   "revision": null,
+   "bytes": 1263,
+   "sha256": "68ec9ebdbe45136253dd0fa9c565dcda64f1b82910d1ee16fcca6992b5fe087c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceMenton.ts",
+   "revision": null,
+   "bytes": 1371,
+   "sha256": "8c17e805b7fe1bcfd4268ae341a05660471fb258c6cecf25e431fe6ee4a987c9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceMouthLandmarks.ts",
+   "revision": null,
+   "bytes": 3506,
+   "sha256": "b975eeab73dc1c2334a3ec2dda2f00ad3b76785343d39dd8c247403a21d3b4d9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourcePronasale.ts",
+   "revision": null,
+   "bytes": 650,
+   "sha256": "f08eee83bbf47fcba127ed55c94a427e33e3c23fb7278c22fbf499fcbbeacf66"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceReadLandmark.ts",
+   "revision": null,
+   "bytes": 976,
+   "sha256": "004a7c13ccc6d8d9f1ab92846b801e3089b7791abda2158e31c91f682a1f2fa2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/selectHumanSourceSellion.ts",
+   "revision": null,
+   "bytes": 896,
+   "sha256": "fbb36413817dba235d074e01b37142a2be9547731b8998264c1563b0e412e4ff"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/smoothstepHumanSourceFade.ts",
+   "revision": null,
+   "bytes": 386,
+   "sha256": "f3b96667c43c554b185f40b8268e7144e9c3545ff76195a3ab53edceb4115961"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/splitHumanSourcePersonViews.ts",
+   "revision": null,
+   "bytes": 8577,
+   "sha256": "40575764a6ed19d04c33e2b1561b081b3ac58daa71b929c1bbf6c02466d4649e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/splitHumanSourceSurfaceSides.ts",
+   "revision": null,
+   "bytes": 841,
+   "sha256": "3033091f3493b2b142a92c1a77a09eebd1353a91d1a9e0d694a2f101413fa541"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/splitHumanSourceToes.ts",
+   "revision": null,
+   "bytes": 4935,
+   "sha256": "76ccdd0c74f5727bce30fb9d47af455c315ff85b97f0769ba06a6fa235141b21"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAcquisition.ts",
+   "revision": null,
+   "bytes": 300,
+   "sha256": "41408281d14ea85731bfb247fd05c7272edc29682893ca32f7df4963531426a1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAcquisitionSource.ts",
+   "revision": null,
+   "bytes": 344,
+   "sha256": "f1d84c7730d888bcd061a480f878a0da2e6c808193bde1dfb5be781b401cd51e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAdmissionCase.ts",
+   "revision": null,
+   "bytes": 258,
+   "sha256": "1bb21b8b38898fa5eb4e5746433c01f6e026f2c1dfb426e85e8c687c5216a425"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAdmissionDocumentInput.ts",
+   "revision": null,
+   "bytes": 628,
+   "sha256": "09bb2b6db8286f74430e4778eff2a12f16c8db41d6e4f8fe13120ce2a6541740"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAdmissionLog.ts",
+   "revision": null,
+   "bytes": 514,
+   "sha256": "1a196f13bcb361beb0061cdda89b3c40a898b661b27e6920254063898f482c35"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceAssemblyInput.ts",
+   "revision": null,
+   "bytes": 1469,
+   "sha256": "c7685f762088adb38cfceb57d907db98620790a0f3e9c0aeed9848dcdf7cb88f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBandExtension.ts",
+   "revision": null,
+   "bytes": 318,
+   "sha256": "8d39d5168aa8142bac5b972cdaf2cc2f490c40a968364c0538efe11dd4125abb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBandInput.ts",
+   "revision": null,
+   "bytes": 689,
+   "sha256": "cdf5e9e887f36402a66e369128f0e74205dacdd06c673eec0e73b97d3e36151c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyField.ts",
+   "revision": null,
+   "bytes": 578,
+   "sha256": "c15f7aa6d83e9c308c781777f89c0aae7ac82ec66b535865f0aecf90c917487b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyInput.ts",
+   "revision": null,
+   "bytes": 701,
+   "sha256": "dd736055f1e8f1b9727ad85843d04b5abdb1c3bb9a0e1c60dccdb1cc31de18fe"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyLandmark.ts",
+   "revision": null,
+   "bytes": 1264,
+   "sha256": "db7c5b663c9be6b19bf424f54f83db95bcc9e3616973c5e62cc6e542c00fb98c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyLandmarks.ts",
+   "revision": null,
+   "bytes": 535,
+   "sha256": "276748ca6ef2d3b836ddc9622be295af3c7fb5f11706862f3ef68013d9897872"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyRecipe.ts",
+   "revision": null,
+   "bytes": 466,
+   "sha256": "af6663c2fb6eba14a32a0206794e9e5670a9e858cdbc1c2c26dcf6c6efb0e71b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBodyReproduction.ts",
+   "revision": null,
+   "bytes": 966,
+   "sha256": "8782fa07eda2f4154ed3529448a8f9419f51f2f445fb6bd0bec0a726f2a6f216"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceBoundPart.ts",
+   "revision": null,
+   "bytes": 896,
+   "sha256": "7b8f49b4a84e343cbf3f3754573536c7972bb506f8f28c2a8643678f526d3eaa"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceCarryInput.ts",
+   "revision": null,
+   "bytes": 915,
+   "sha256": "4bbc6b6fc20e1d0f7376b3c7102c1383bffa6cd0d3060f3cc2f15c04171054ce"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceChannelSide.ts",
+   "revision": null,
+   "bytes": 260,
+   "sha256": "342898e53faece9115968e78d31fb33ce3891130f1d0544100443ccca490b0a4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceChinReceipt.ts",
+   "revision": null,
+   "bytes": 181,
+   "sha256": "13808d5c7e8edb7bff21d05413c9c12907d8085c1b1ce3335cbc46a09242d126"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceClassification.ts",
+   "revision": null,
+   "bytes": 372,
+   "sha256": "60f31bddebeeaaffec46712d442b13041a5791b1bd56fed59076872f696b5140"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceCut.ts",
+   "revision": null,
+   "bytes": 1193,
+   "sha256": "60a88ef159af6860557e8ca03d26cee0e4f90be925432675bff7b425a73c8b59"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceCutInput.ts",
+   "revision": null,
+   "bytes": 1074,
+   "sha256": "131b04afca88fde7be64c5b09badcf27848afd8fa9145f6323f4586c32f0bcd0"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceCutSample.ts",
+   "revision": null,
+   "bytes": 416,
+   "sha256": "e995b0d1e7d8474e5c2068448b9e2271ddb41735bfee32f00777d4a26e23ecd4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceDefinitionProducer.ts",
+   "revision": null,
+   "bytes": 1291,
+   "sha256": "72329b109e40ce5de8b89b403e969e149cabf2208e210b53bcc2ddb90c43f29a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceDeltaReader.ts",
+   "revision": null,
+   "bytes": 526,
+   "sha256": "4565cee0a6c33ba1c0f9d51425da9b92f27b3b69aab4dd46aaf0d63006508fca"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceDriverInput.ts",
+   "revision": null,
+   "bytes": 1054,
+   "sha256": "cc065ec45d249aa10de87b67ced0b3f8b9fb36156b38654e8973704fd3fe9ce6"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceEnvelopeProducer.ts",
+   "revision": null,
+   "bytes": 704,
+   "sha256": "185d9c99e3b3f861ba39fc845b0d7f3f20e8998b3177295ef1d2707eb7e13b9e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceEnvelopeSide.ts",
+   "revision": null,
+   "bytes": 724,
+   "sha256": "b071095b15aec47c216b38f51b2890bdb2969f2a677a2a72ea9f706a1c686105"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceErrorInput.ts",
+   "revision": null,
+   "bytes": 304,
+   "sha256": "36b4551d5d85f0ee8a6d97d066b8fe9b42fca3338b87198fd0fe32e45b07c490"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceExtractionFrame.ts",
+   "revision": null,
+   "bytes": 186,
+   "sha256": "3a9bf13d98ae0237741e4512fc9a4d785d5295116420fd49cc0ed6401ca5467a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceExtractionReceipt.ts",
+   "revision": null,
+   "bytes": 280,
+   "sha256": "5f93805c9bd81ae1c43ed793c2ebe0e8ac9fe32adcc3297327fb69122dfa775f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceEyeSide.ts",
+   "revision": null,
+   "bytes": 721,
+   "sha256": "e2bd40f392b6b0657aa7b5a2ef100e6e4fd536a862c05b9567ea778eab9e59ff"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFaceExtractionReceipt.ts",
+   "revision": null,
+   "bytes": 209,
+   "sha256": "a55c0704042b12599b1d7f6503ea72ccc70519fd5aa04572895ce3aa61c15969"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFaceInput.ts",
+   "revision": null,
+   "bytes": 1029,
+   "sha256": "9c1ee80ca017bd09a1df794ad18fdce7073e5a593ea9d47f3ccd3155a728edd6"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFaceReproduction.ts",
+   "revision": null,
+   "bytes": 746,
+   "sha256": "19f4cf40120e49ad02767708ec36bfa67dd2a52b2c241486e482caeee1ea8112"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFieldContext.ts",
+   "revision": null,
+   "bytes": 1221,
+   "sha256": "3ca094a85d8db5271d86962e450668f317bcfea4712560bb65c1ab10dee277b2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFieldInput.ts",
+   "revision": null,
+   "bytes": 1006,
+   "sha256": "bcd6fd22edcf99f2ceda9215be92d0844ba28113bbf99a5e3055069d4177cfa2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFieldRegeneration.ts",
+   "revision": null,
+   "bytes": 673,
+   "sha256": "6b1d3c1f8b85528047e066f43fdf6ea5862f4a951e41d8491db772cde5361101"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceFieldResult.ts",
+   "revision": null,
+   "bytes": 466,
+   "sha256": "a6e8bd448799631c5f438877f5ca9228edf59b9f839968df787e8e77710f9bb6"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGeneration.ts",
+   "revision": null,
+   "bytes": 4441,
+   "sha256": "448881f88956f39673d8b07017f1c83933333c46d90707d19ced39e032b87a9e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationAlias.ts",
+   "revision": null,
+   "bytes": 556,
+   "sha256": "e516a4b3b0f1b2879a067c2955562cace04ada065a0a8c9c979cc12bdb2e2d5f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationAnchor.ts",
+   "revision": null,
+   "bytes": 507,
+   "sha256": "b10b5d63838e14a8d08a1860a262bebc70ff67afe6471ef90720277a5acd1e7c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationAttachment.ts",
+   "revision": null,
+   "bytes": 354,
+   "sha256": "71b5c4d28dbe2b7d2f062e78f58f4d600c584197fd58f6af8f30c36749342076"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationBand.ts",
+   "revision": null,
+   "bytes": 1115,
+   "sha256": "ee78e17ce8fe1b363fdd9c89dc6bac66e902f1377fcaca40059e9a4b537c3a6c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationBandTarget.ts",
+   "revision": null,
+   "bytes": 772,
+   "sha256": "b8686192bc7a200cea2526d4ca53900c03547fac9493dbf498823b2f448bdac2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationChannel.ts",
+   "revision": null,
+   "bytes": 520,
+   "sha256": "5896cff6821f596d03b0698f52c4c08623e6a2f302adb6d3e1598c0969f70b1e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationCorrective.ts",
+   "revision": null,
+   "bytes": 702,
+   "sha256": "e752075a85390925a89b80718596f37559d2f1238c8410d0da93b6a87389ca7b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationCorrectiveInput.ts",
+   "revision": null,
+   "bytes": 251,
+   "sha256": "0635b7ba649be1f9e1e659889e52167f1df46dcb0eb98ccb1b6301c642ea7d6e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationGap.ts",
+   "revision": null,
+   "bytes": 414,
+   "sha256": "ea98d5fddca5266b4320f6e48b3895d16151bea2e65d6561093697e8381e896d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationInput.ts",
+   "revision": null,
+   "bytes": 389,
+   "sha256": "0bacead556436dc79bc0ceaf7983ed956ada75cd8ce0d0a98f5a966bdd971a9e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationLandmarks.ts",
+   "revision": null,
+   "bytes": 389,
+   "sha256": "855d89bd659984888f446801c3e2f33bdcb0951c4ac1ecac0dda7697e5e8454e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationPart.ts",
+   "revision": null,
+   "bytes": 1418,
+   "sha256": "2c9bcf3f34e1286491186fd3d9aa3acc2369203451ff5c456e7febd75dedcb8b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationPartBinding.ts",
+   "revision": null,
+   "bytes": 1133,
+   "sha256": "970102e37343a67c42d4ad4131a505acb949a1f217cc0523c4460b310ae228c5"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationPartition.ts",
+   "revision": null,
+   "bytes": 509,
+   "sha256": "06871f908cc7e685ce7237e8b0317ac4e5015680bcf3586e8b9ee0c07e8dc39c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationSkin.ts",
+   "revision": null,
+   "bytes": 1076,
+   "sha256": "50a63fe5a924542d44d35d814226c9d802343bd8d7cbd03663cb32222bd32e80"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationStamp.ts",
+   "revision": null,
+   "bytes": 413,
+   "sha256": "51ab008230b7b6f7c328a348c4ba4af3b70391a69e25dae8fc6b77064acfa70c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationUpstream.ts",
+   "revision": null,
+   "bytes": 565,
+   "sha256": "b1a94fdfcb3e7539abfb327f80f816b52d13ea11a287ca5a9c1ddf6a22182f97"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceGenerationWeights.ts",
+   "revision": null,
+   "bytes": 374,
+   "sha256": "bd21aaf14aa6031aadac631adbad0fb280942a5962234e182625a7b767f59c09"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmark.ts",
+   "revision": null,
+   "bytes": 1672,
+   "sha256": "4ce1bdead452e477e4f3687df89a4dd323effa23e55883a3350beb651af523e4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarkInput.ts",
+   "revision": null,
+   "bytes": 1036,
+   "sha256": "cb8414f5e54ae41638256884ca3a7c44ea5b20b0efd20e246fc18a5c44629aaf"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarkText.ts",
+   "revision": null,
+   "bytes": 587,
+   "sha256": "68ab753461223246aad60b937e2fe921da2407a7d7d4d16e34b9ab81919caa24"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadLandmarks.ts",
+   "revision": null,
+   "bytes": 527,
+   "sha256": "4af846de38ed7784e6dd6ce820ebe3554d2f7be9b02bd2ee47cb2efc15a7505b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegion.ts",
+   "revision": null,
+   "bytes": 1318,
+   "sha256": "5a438fbf164d34f5037fa603878bd27b9f2d61a20fab1b1f59f794696816ff99"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegionInput.ts",
+   "revision": null,
+   "bytes": 636,
+   "sha256": "75f22a6c9872821d95e2944634ba82ca5d3d2ee58e1a0725a1f1d8b0768f6078"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceHeadRegions.ts",
+   "revision": null,
+   "bytes": 513,
+   "sha256": "fe0cb65d88c3d1f5469fc6d8801fcb7d6a82cbc226b2fdd1c76bc70549d0f0cd"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLandmarkCandidate.ts",
+   "revision": null,
+   "bytes": 429,
+   "sha256": "3eab1acd110bef7a162021ae7f04c5c5b9ad2fd096a1d8afbc29b05c68c6b16d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLandmarkNeighbour.ts",
+   "revision": null,
+   "bytes": 269,
+   "sha256": "5289d0830f8173eb8b5ea2ee1995e43a761e29facda3b793274bfdd104783b87"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLandmarkPick.ts",
+   "revision": null,
+   "bytes": 436,
+   "sha256": "14d305eb6504dd33a964d2e20d91d3e91a26d8a7a1bee555a0f4c4d459187b14"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLipMargin.ts",
+   "revision": null,
+   "bytes": 698,
+   "sha256": "6e647fa33af2c793eaf904e05841bf9815782ed7bd7d52ae2ea93c62d60481dc"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLipMarginChain.ts",
+   "revision": null,
+   "bytes": 546,
+   "sha256": "27a7caba8e9551f98ff39ac22d07c57395e8a0f54d3a086586ce0c8f18479cff"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLipMarginPair.ts",
+   "revision": null,
+   "bytes": 431,
+   "sha256": "4408838c6ad22914185ffadc65326f4847a0b3c95b7d845204feeb2b5d8cd5fc"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceLoss.ts",
+   "revision": null,
+   "bytes": 662,
+   "sha256": "83908f688c1fe575a554706630ebc4c3a50032d1f9ebeb6092c6a1facd02232e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMacroDefinition.ts",
+   "revision": null,
+   "bytes": 365,
+   "sha256": "3e5f3f046d5380e71fca705b5be0061f242bf7e3faf685c768d6cfa2338ecca4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMacroInput.ts",
+   "revision": null,
+   "bytes": 947,
+   "sha256": "53fba231bff2446f9b3b1e1ae16f76c25924947fe525d327839e0e1cf4e8be3b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceMirror.ts",
+   "revision": null,
+   "bytes": 399,
+   "sha256": "0553f1ab23dd5fd981cbfa746d948e54dac0dfc20f6c659ea689c578c2ec77a6"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceOpticalInput.ts",
+   "revision": null,
+   "bytes": 595,
+   "sha256": "b2741f40dcd17fda6fef432016670a5a7cdc563816104c92cf706d709d513fc4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceOpticalRegistration.ts",
+   "revision": null,
+   "bytes": 479,
+   "sha256": "38bdca9f0bf91900599f29d913787d1d4ca16452dcbbd5600223fb617c4c37e2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceP1.ts",
+   "revision": null,
+   "bytes": 787,
+   "sha256": "347b3c9198ea9a966e76eafd69c29fd0f2328e264c2138659a57e504846aee07"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceP1Input.ts",
+   "revision": null,
+   "bytes": 1880,
+   "sha256": "eb42e8e7c095fdc61d40f1e7b7b41f9fa09ad796355a512861365b8a988fb6cf"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePartInput.ts",
+   "revision": null,
+   "bytes": 1109,
+   "sha256": "c75d8326b824cf0a892ac3b28c5cf32e0707519fbecc7fa265189579a491e855"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePartRekey.ts",
+   "revision": null,
+   "bytes": 532,
+   "sha256": "24a2ae10fc302aaa8370968c604fef935524b5a94bb1fca26fc902078b85288d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePeriocularInput.ts",
+   "revision": null,
+   "bytes": 859,
+   "sha256": "3e2ef702b27254ee8f02fc4b6338397962eb3462068b6dd022a08970042b441a"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePeriocularRegistration.ts",
+   "revision": null,
+   "bytes": 497,
+   "sha256": "e1990d1560e2c5896b8a82230a2d10e1e3b6ff2422b0aa663098ef51ebc93da9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePersonViews.ts",
+   "revision": null,
+   "bytes": 536,
+   "sha256": "79b4382554c3117144988d226cb74a8ffbba11e30f0d1119e7f41bf64a80d0ab"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePersonViewsInput.ts",
+   "revision": null,
+   "bytes": 544,
+   "sha256": "becdccee6d897c44994fc1a23b074c0ca32889b51a163864c7d5a0c7b34b5823"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePoseProducer.ts",
+   "revision": null,
+   "bytes": 563,
+   "sha256": "64fbb6ba252da3f3d1ca1ce43a71b0bad7cb180b36874c3f5c92216cb4d364a1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePoseRegeneration.ts",
+   "revision": null,
+   "bytes": 683,
+   "sha256": "205d8dec134d1fbf6ba41dd5b6ff4b5b3f01c2385821a8441836e36e42ecdb88"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourcePublishedBodyVertex.ts",
+   "revision": null,
+   "bytes": 336,
+   "sha256": "16583f8265ab7f66204e8d8c1b38e823e3b0f2bcf897ec38f47c71293f1e9a49"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRayHit.ts",
+   "revision": null,
+   "bytes": 694,
+   "sha256": "f800341735c2ef6b511c01ebdd47b843a4661a1791f165a836b2f5d813df422b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReadLandmark.ts",
+   "revision": null,
+   "bytes": 586,
+   "sha256": "4ea89cbfd1b6dc6383dc44f50771a28ba1f44ad7fd0c31f7d8aaa2ca53065d64"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReadRegion.ts",
+   "revision": null,
+   "bytes": 595,
+   "sha256": "f614e6bafd854d2dd7744abf511b8570c0fa96d52596fdb1e904818787df9383"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRecropReceipt.ts",
+   "revision": null,
+   "bytes": 201,
+   "sha256": "1cfbab9a0c0d0cb8ad654ceb4361e8a3ba7b052dae2292d1aa38a1fc882d8d74"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRefitInput.ts",
+   "revision": null,
+   "bytes": 902,
+   "sha256": "fe28db287bd1508afb9ff543801eb04781a903b7611c0e41be7e351a6e48bda9"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRegionFill.ts",
+   "revision": null,
+   "bytes": 478,
+   "sha256": "e70de9fcddd6887ee345e7f49b49b7af297056e1f82f5c5e887f4f90906bce5d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReproductionError.ts",
+   "revision": null,
+   "bytes": 644,
+   "sha256": "093686a4afaaad0bba12659d35dd41f066ee2affbef9496a504c3ca1c416a4ee"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReproductionReport.ts",
+   "revision": null,
+   "bytes": 593,
+   "sha256": "117a59272f54a13763ee6dadd2b70a88563b69c42e50228a5d264757639a1953"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceReproductionRow.ts",
+   "revision": null,
+   "bytes": 1750,
+   "sha256": "0d8a1414a53bdeb7418353b1b469735dcfb11da594083e67123ad0214ff230cb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRigBone.ts",
+   "revision": null,
+   "bytes": 454,
+   "sha256": "87c51f1c5a0358494c675b85078f35d2c378743576bfc33da317258a2e8f1597"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRigBoneEnd.ts",
+   "revision": null,
+   "bytes": 183,
+   "sha256": "b6fb3f9ef56e5cd0f3757987e04b11b608428ca8c685abceefdd0fef0133ca2d"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRigInput.ts",
+   "revision": null,
+   "bytes": 446,
+   "sha256": "41f306d66bc2530cbe40ccf4dd2570d7a8091f9b85656596a2ce3c5ff4cb71e1"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRigReproduction.ts",
+   "revision": null,
+   "bytes": 610,
+   "sha256": "6af5a9eb7390d3af72fddd68deeed0f5bd5bc31649932d7cd258af2c3ac26bdb"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceRigidGap.ts",
+   "revision": null,
+   "bytes": 515,
+   "sha256": "e5417f4b326a455bed77c820504a21324133410aeb09dc26cb7451fd2091949b"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSample.ts",
+   "revision": null,
+   "bytes": 1174,
+   "sha256": "fd4d5a6e8cd6fa195130353689635a7634d65f50575735206fca12dc7fca5f31"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSampleFile.ts",
+   "revision": null,
+   "bytes": 164,
+   "sha256": "a9912eab417fac6ae8bfc3ca5cb3b39b74a70eda1d7653c875fbef04ccedbede"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSampleManifest.ts",
+   "revision": null,
+   "bytes": 885,
+   "sha256": "da95b0876b7ab9350e75572745f912c062b50f8f0c312afef1e400b955f8bc42"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSamplePart.ts",
+   "revision": null,
+   "bytes": 350,
+   "sha256": "726cba688ed3fee3b6f5690ca8f14d7b96a3f6115ca7556da04a9808208a03a2"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSampleState.ts",
+   "revision": null,
+   "bytes": 602,
+   "sha256": "77a8d31bd29f47bc7400cf5d280c94cae9493130ae46800a28848ac463e13cc6"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSampleVertex.ts",
+   "revision": null,
+   "bytes": 293,
+   "sha256": "9f8e42c5aba143a5b90e2d8aa3cd2b2301bb4feccf32329e19a4e62dc8c9ded0"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSampleWeights.ts",
+   "revision": null,
+   "bytes": 629,
+   "sha256": "5d82407e3675194318019c1c70f7806bf13d38649ddf02dbeaa25923d164c7b3"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSkinLandmarkSource.ts",
+   "revision": null,
+   "bytes": 1551,
+   "sha256": "df1da274cc4f679846cc0f14526fe80c9faed08a5c1d1e825c7e4fcb74266017"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceStageInput.ts",
+   "revision": null,
+   "bytes": 791,
+   "sha256": "4fc908761711e3bef9028d046280dbb6f19b792e3bbc77ca94c85d05a36c6ee8"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSubjectAge.ts",
+   "revision": null,
+   "bytes": 597,
+   "sha256": "53b7c2f89feb392278db5ae927b4bb01930524bc8a23de5f06778f87c41692f7"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSubjectBases.ts",
+   "revision": null,
+   "bytes": 258,
+   "sha256": "1ed96f9c60d44d41c42d5186a1fda438f367a0ee9d16c23f4c7cb6691c2bd759"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSubjectConversion.ts",
+   "revision": null,
+   "bytes": 506,
+   "sha256": "69efda57baa99a23e578e911388bff3ee918bf2c17df62e2a5fbcc2d4e13b5b4"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSubjectFacts.ts",
+   "revision": null,
+   "bytes": 384,
+   "sha256": "c10d2a3f894164d928a3bb3850bdb9b40c05dd6f5967b2824c02089801070f9e"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSubjectRecord.ts",
+   "revision": null,
+   "bytes": 572,
+   "sha256": "482527219ebe2d4084e3a755895a37a407f1a4ff3d0de7737020829cea914975"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceSurfaceMesh.ts",
+   "revision": null,
+   "bytes": 316,
+   "sha256": "55e40ab2aeb702318fe063f142534d180179f355e5b160fe49d6e819895cc2af"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceToeSplit.ts",
+   "revision": null,
+   "bytes": 483,
+   "sha256": "0d308a3a7edc134787c7c798b8d9d5da8532853f022529c8cc81a0ea729b2f60"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceToothRegistration.ts",
+   "revision": null,
+   "bytes": 455,
+   "sha256": "1542467ea314d2ee7fca287274696e2283149717589b3e5ec44bff4565ac3a6c"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceTopology.ts",
+   "revision": null,
+   "bytes": 466,
+   "sha256": "031c73c569d6c4efe6cb4a768e6b763fb2c81006ca28b8a30de5fdb5d7c5ba73"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceTriangleHit.ts",
+   "revision": null,
+   "bytes": 318,
+   "sha256": "6b60a1a5a663df2290334951f4dbbe730e69cf3ba75d4043e9e606b3443df7b8"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceUpstreamLock.ts",
+   "revision": null,
+   "bytes": 304,
+   "sha256": "557c2f88146c575f2850e2ccf84dbbda5573de07597f6de083edc7e2ad6d0dce"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/structures/IHumanSourceUpstreamLockSource.ts",
+   "revision": null,
+   "bytes": 388,
+   "sha256": "5637365956a64a1af4eaf4d5252ffed03477cd8d22763c23178fd8701613fb0f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/traceHumanSourceMidlineProfile.ts",
+   "revision": null,
+   "bytes": 2117,
+   "sha256": "af70044f7cc1cfac96cc89b6c87458c574a1eeb5fe9b2058537bdc2df6a30e40"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/upstream-lock.json",
+   "revision": null,
+   "bytes": 4715,
+   "sha256": "0450ad773974f9741356efcf22d48c803f44f8011526052baf929f7ed6ea769f"
+  },
+  {
+   "role": "producer",
+   "path": "test/scripts/human-source/writeHumanSourceArtifacts.ts",
+   "revision": null,
+   "bytes": 3194,
+   "sha256": "fb820b11f4c742e8600904dfae13f0e26f4cab241733099e5100dc4dd3911c36"
+  },
+  {
+   "role": "published face basis",
+   "path": "test/studies/human-face/connected-basis/global-face/basis.json.gz",
+   "revision": null,
+   "bytes": 27199043,
+   "sha256": "01ca86bf39a054ffe7d18cc59f89cb80e6392f359e9ca65e0cbf86720b4d2d67"
+  },
+  {
+   "role": "published body basis",
+   "path": "test/studies/human-body/connected-basis/basis.json.gz",
+   "revision": null,
+   "bytes": 30755117,
+   "sha256": "f400370006c681fa48a2657068720ddccefe14a0b693b006a81dc0cd119669e5"
+  },
+  {
+   "role": "face recrop receipt",
+   "path": "test/studies/human-face/connected-basis/global-face/preparation-receipt.json",
+   "revision": null,
+   "bytes": 361,
+   "sha256": "fa777f135142ecf86bb5598a510b48821177db0da5d492db671663cfb8c80b17"
+  },
+  {
+   "role": "body extraction receipt",
+   "path": "test/studies/human-body/connected-basis/extraction-receipt.json",
+   "revision": null,
+   "bytes": 113725,
+   "sha256": "03504aa0155be1bcc2daf312bb943617a61c55d4bba9ac7e5d1e99cad4dcf0fe"
+  },
+  {
+   "role": "lower-face chin bake receipt",
+   "path": "test/studies/human-face/connected-basis/global-face/lower-face-receipt.json",
+   "revision": null,
+   "bytes": 1818,
+   "sha256": "97d710abb7ecf02039e78e434b39bd54a58b710937023f2c094fe94c851f88ff"
+  },
+  {
+   "role": "face extraction receipt",
+   "path": "test/studies/human-face/connected-basis/global-face/extraction-receipt.json",
+   "revision": null,
+   "bytes": 1199,
+   "sha256": "3f7a21b04c1c4ece3c3017a96f8f609588cfbd73ca3e9db1fa408e0176fe1dbd"
+  },
+  {
+   "role": "pre-recrop face (face extraction output)",
+   "path": "test/studies/human-face/connected-basis/global-face/basis.json.gz",
+   "revision": "0c75de1e377a7901ce4a8dd942d4718f27d32d8b",
+   "bytes": 20327627,
+   "sha256": "b924c18cedda6e118888e80bd1e0c4d6c21474dd7e71f3276c60264a982a4635"
+  },
+  {
+   "role": "face the published body was cut against",
+   "path": "test/studies/human-face/connected-basis/global-face/basis.json.gz",
+   "revision": "bfbb0f885",
+   "bytes": 20382262,
+   "sha256": "5201ba8edb6857e36e02aa62c6ccb2f22758211aa5a63b1e6d30a99e65bf728f"
+  },
+  {
+   "role": "historical body stage",
+   "path": "test/studies/human-body/connected-basis/basis.json.gz",
+   "revision": "a457f3715",
+   "bytes": 27752919,
+   "sha256": "35e124fb07ae73c4f0a583365b524193377ed79d385d4f69e0b83928f8bd19b2"
+  },
+  {
+   "role": "historical body stage",
+   "path": "test/studies/human-body/connected-basis/basis.json.gz",
+   "revision": "0fd0878d5",
+   "bytes": 35173192,
+   "sha256": "77121a785028af921c3d7a5ef4463597bbb4e85a8f8998b6452062f760a57e76"
+  },
+  {
+   "role": "historical body stage",
+   "path": "test/studies/human-body/connected-basis/basis.json.gz",
+   "revision": "bf045a5a4",
+   "bytes": 31444993,
+   "sha256": "57e7065138fb3eb26a6595ea33e41fe763212c18906e006160298bd2638034ab"
+  },
+  {
+   "role": "historical body stage",
+   "path": "test/studies/human-body/connected-basis/basis.json.gz",
+   "revision": "4fedb6b96",
+   "bytes": 30921638,
+   "sha256": "29077710da593a97fe8c75c332e04d94d04968e24eac66227756db0f7d9a53a0"
+  }
+ ],
+ "sample": {
+  "blender": "5.1.2",
+  "numpy": "2.3.4",
+  "extension": "version = \"2.0.17\"; blender_version_min = \"4.2.0\"",
+  "flatten-boundary.i32": "a73ca2241413fe79b86cb08d01faa44027faa1bf6d173f2d570c515f290b4955",
+  "flatten-interior.i32": "9d391648fc9d878e7a6aae06cc80140a86436fbce17f8d24939935dea0ff7552",
+  "flatten-operator.f64": "47bb0093808e304af7b7d9011547d2f4fc77268178bf3f90d9d52660341af057",
+  "landmarks-neutral.f64": "e3e3d1ef824b43980e8bd6255b01c4c1f086b899dbebbe11c6d468771f76f714",
+  "landmarks.f64": "1d0b174c6f1ee7a55db472320e63685f9e62d00374b614a86365bce32f1fca54",
+  "loop-start.i32": "ea80fb86071ebad534623aecd00b42735cbe5a345a41754e9fd1bae1df1e8dee",
+  "loop-total.i32": "f40462074d94b0375ae11cf02cf3fc07e6b46bbbccda29655917c2599d988c97",
+  "loop-uv.f64": "087e2eb979b1fec8a4532b2ebe6603b70ef83a6c52d8162f75af5f4d10365541",
+  "loop-vertex.i32": "2c1f14d8321e23ea0dc2fec3cde85a69fe401c336dd31b35e210a9b7542fcc0c",
+  "neutral.f64": "121bd78349d8c14a40260f9acecdd5636b5e0619065a87df879c635d0271e2ed",
+  "part-0-level-0.f64": "2891d11c3440887218ab3592179daddddbcf0024daf532ce31a9f7da67487e06",
+  "part-0-level-1.f64": "84a751d59d0ebdd10f44d8c3a43e01ce00a8b71ae451c8ad045cf4a225d53cfc",
+  "part-0-level-2.f64": "6bcc952979546fcf148cb44ca42bd3ec2d017b1ac18a1730db6889cc95d614b5",
+  "part-1-level-0.f64": "cbd205d8ee803845d2aeda539a19a4764f4e3f63234f5174617766bd48bbcc93",
+  "part-1-level-1.f64": "ee7ecdb025addabfc061e7338fb7a0a725dfac71e99cf417cbee3c1e79d33aff",
+  "part-1-level-2.f64": "3d9b24cf715445b236fbb3c9f4be09aad0d9d0356d832d22267882f1954054bd",
+  "part-2-level-0.f64": "f6db53720dc1fa5200d915f8a693b6cd13148486c374e6d34c7d7b91cf47be2d",
+  "part-2-level-1.f64": "93b8f3d81e2e58113ebee1d7a9f2348b57efddc73bb41f69334bf4f2ee4cf254",
+  "part-2-level-2.f64": "6beb74742cff9a6ce4e68d58583323a3fbf029dee28299c7fc6e49f03f1eaa0b",
+  "part-3-level-0.f64": "e76bc805cdeb99a0f9387395acc13660c6f638920e5fa72e38c3d2cbc164d98d",
+  "part-3-level-1.f64": "4b4a2ba6545cc52cf18631863e63dbfb3a7a87e5b8d6e76d258f7c9da1505933",
+  "part-3-level-2.f64": "8f8d52b43ad9577c2094153df3f132fd155aec773b8b7509f98d5afd4bcc5817",
+  "part-4-level-0.f64": "57ecc46f861ee41cd3b672777cc3a75ab99b84470da2ae288875e7140a379065",
+  "part-4-level-1.f64": "21d9d5bcff5ca1d0c5bb4e593e9ce7e1d723c920f689489c35492c4b0b0a1a48",
+  "part-4-level-2.f64": "331eeef106498f2a15d64805e99e2208fca4843072550a956cd9ee37c2e102db",
+  "rows.f64": "ffa87c4d3c3eafb04b213e29c62c92e133a628c29ba0c6bf4c9032cbd359a819",
+  "rows.i32": "7da06e5aeb09a5c4975500526591184bf2532dbf834c2109a3dbabcbe484af04",
+  "weights.json": "a8fbb012f0aa84a7ad0e6f0682926990e03cf15d1cb877172d8ffb00dbf06214"
+ },
+ "headLandmarks": [
+  {
+   "name": "glabella",
+   "definition": "The most anterior point on the frontal bone midway between the bony browridges.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.14, p. 36",
+   "status": "named approximation",
+   "rule": "largest z among head midline vertices (hm08.mirror 'm') whose neutral height lies within the eyebrow card's neutral vertical extent; the card's extent stands in for the browridge height",
+   "vertex": 227,
+   "viewVertex": 751,
+   "position": [
+    2.9103830456733704e-11,
+    0.051012277603149414,
+    0.14389370381832123
+   ],
+   "candidates": [
+    {
+     "vertex": 227,
+     "position": [
+      2.9103830456733704e-11,
+      0.051012277603149414,
+      0.14389370381832123
+     ],
+     "value": 0.14389370381832123
+    },
+    {
+     "vertex": 220,
+     "position": [
+      0,
+      0.045362234115600586,
+      0.14325261116027832
+     ],
+     "value": 0.14325261116027832
+    },
+    {
+     "vertex": 5389,
+     "position": [
+      1.0913936421275139e-11,
+      0.050726890563964844,
+      -0.04649440199136734
+     ],
+     "value": -0.04649440199136734
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "sellion",
+   "definition": "The point of the deepest depression of the nasal bones at the top of the nose.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.35, p. 59",
+   "status": "definition",
+   "rule": "smallest z on the outer midline profile from glabella to pronasale, end points excluded; the profile is the shortest path over base-mesh midline edges (hm08.mirror 'm'), and pronasale is the most anterior midline vertex above the mouth joint",
+   "vertex": 132,
+   "viewVertex": 463,
+   "position": [
+    0,
+    0.03416299819946289,
+    0.14131557941436768
+   ],
+   "candidates": [
+    {
+     "vertex": 132,
+     "position": [
+      0,
+      0.03416299819946289,
+      0.14131557941436768
+     ],
+     "value": 0.14131557941436768
+    },
+    {
+     "vertex": 136,
+     "position": [
+      0,
+      0.03713536262512207,
+      0.1415538191795349
+     ],
+     "value": 0.1415538191795349
+    },
+    {
+     "vertex": 133,
+     "position": [
+      0,
+      0.031153321266174316,
+      0.1415787935256958
+     ],
+     "value": 0.1415787935256958
+    },
+    {
+     "vertex": 169,
+     "position": [
+      0,
+      0.040705204010009766,
+      0.14226695895195007
+     ],
+     "value": 0.14226695895195007
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "menton",
+   "definition": "The inferior point of the mandible in the midsagittal plane (bottom of the chin).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.23, p. 45",
+   "status": "named approximation",
+   "rule": "lowest head midline vertex whose jaw attachment weight is one within storage, with the jaw closed; skin that moves entirely with the mandible stands in for the mandible, because the midline profile keeps descending from the chin into the neck",
+   "vertex": 5296,
+   "viewVertex": 5568,
+   "position": [
+    0,
+    -0.08520004698671714,
+    0.13083842396736145
+   ],
+   "candidates": [
+    {
+     "vertex": 5296,
+     "position": [
+      0,
+      -0.08520004698671714,
+      0.13083842396736145
+     ],
+     "value": -0.08520004698671714
+    },
+    {
+     "vertex": 5225,
+     "position": [
+      0,
+      -0.08350162147028739,
+      0.1340332329273224
+     ],
+     "value": -0.08350162147028739
+    },
+    {
+     "vertex": 5171,
+     "position": [
+      0,
+      -0.08104998089427606,
+      0.1368430107831955
+     ],
+     "value": -0.08104998089427606
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "gnathion",
+   "definition": "The lowest median point on the lower border of the mandible (Farkas).",
+   "citation": "Farkas 1994; same point as menton (ANSUR II 5.2.23)",
+   "status": "named approximation",
+   "rule": "same vertex as menton (same point as menton, ANSUR II 5.2.23): the Farkas gnathion and the ANSUR menton name one skin point",
+   "vertex": 5296,
+   "viewVertex": 5568,
+   "position": [
+    0,
+    -0.08520004698671714,
+    0.13083842396736145
+   ],
+   "candidates": [
+    {
+     "vertex": 5296,
+     "position": [
+      0,
+      -0.08520004698671714,
+      0.13083842396736145
+     ],
+     "value": -0.08520004698671714
+    },
+    {
+     "vertex": 5225,
+     "position": [
+      0,
+      -0.08350162147028739,
+      0.1340332329273224
+     ],
+     "value": -0.08350162147028739
+    },
+    {
+     "vertex": 5171,
+     "position": [
+      0,
+      -0.08104998089427606,
+      0.1368430107831955
+     ],
+     "value": -0.08104998089427606
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "tragion-right",
+   "definition": "The superior point on the juncture of the cartilaginous flap (tragus) of the ear with the head.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.42, p. 66",
+   "status": "definition, read from renders",
+   "rule": "uppermost vertex of the anterior tragus–head juncture, chosen by reading rendered frames of the neutral right ear (frame path); the compared neighbours and the reading ambiguity of about 0.4 mm are listed with the candidates",
+   "vertex": 5477,
+   "viewVertex": 6604,
+   "position": [
+    -0.07033476233482361,
+    0.012275934219360352,
+    0.05597802251577377
+   ],
+   "candidates": [
+    {
+     "vertex": 5477,
+     "position": [
+      -0.07033476233482361,
+      0.012275934219360352,
+      0.05597802251577377
+     ],
+     "value": 0.012275934219360352
+    },
+    {
+     "vertex": 5699,
+     "position": [
+      -0.06944955140352249,
+      0.01194000244140625,
+      0.053164854645729065
+     ],
+     "value": 0.01194000244140625
+    },
+    {
+     "vertex": 5610,
+     "position": [
+      -0.07026863843202591,
+      0.01192331314086914,
+      0.054477039724588394
+     ],
+     "value": 0.01192331314086914
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 0.4 mm the reading cannot separate the chosen vertex from the compared neighbours 5699, 5610 (nearest first); read on: right ear of the neutral generation person: side, front and three-quarter, normal and clay, candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "subnasale",
+   "definition": "The point where the nasal septum merges with the upper cutaneous lip in the mid-sagittal plane; curve definition: the point of maximal curvature on the mid-line curve at the base of the nasal septum.",
+   "citation": "Katina et al. 2016, J Anat, Table 2",
+   "status": "definition, read from renders",
+   "rule": "corner where the midline profile turns from the columella slope into the upper lip, read on rendered frames of the neutral nose (frame path)",
+   "vertex": 343,
+   "viewVertex": 1162,
+   "position": [
+    -3.637978807091713e-12,
+    -0.014339447021484375,
+    0.14948484301567078
+   ],
+   "candidates": [
+    {
+     "vertex": 343,
+     "position": [
+      -3.637978807091713e-12,
+      -0.014339447021484375,
+      0.14948484301567078
+     ],
+     "value": -0.014339447021484375
+    },
+    {
+     "vertex": 5072,
+     "position": [
+      -1.4551915228366852e-11,
+      -0.01661825180053711,
+      0.1494762897491455
+     ],
+     "value": -0.01661825180053711
+    },
+    {
+     "vertex": 317,
+     "position": [
+      3.637978807091713e-12,
+      -0.012366533279418945,
+      0.15058349072933197
+     ],
+     "value": -0.012366533279418945
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 2.3 mm the reading cannot separate the chosen vertex from the compared neighbours 5072, 317 (nearest first); read on: neutral person nose, side clay with midline candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "alar-curvature-right",
+   "definition": "The facial insertion of each alar base (alare crest); Farkas ac is the most posterior-lateral point of the alar base curve.",
+   "citation": "Katina et al. 2016, J Anat, Table 2",
+   "status": "definition, read from renders",
+   "rule": "most posterior point of the alar mass boundary, read on rendered frames of the neutral nose (frame path)",
+   "vertex": 5051,
+   "viewVertex": 4845,
+   "position": [
+    -0.0175827294588089,
+    -0.004760265350341797,
+    0.13937115669250488
+   ],
+   "candidates": [
+    {
+     "vertex": 5051,
+     "position": [
+      -0.0175827294588089,
+      -0.004760265350341797,
+      0.13937115669250488
+     ],
+     "value": -0.004760265350341797
+    },
+    {
+     "vertex": 5139,
+     "position": [
+      -0.018637603148818016,
+      -0.0047397613525390625,
+      0.13834230601787567
+     ],
+     "value": -0.0047397613525390625
+    },
+    {
+     "vertex": 288,
+     "position": [
+      -0.01728581264615059,
+      -0.008642911911010742,
+      0.13987207412719727
+     ],
+     "value": -0.008642911911010742
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 1.5 mm the reading cannot separate the chosen vertex from the compared neighbours 5139, 288 (nearest first); read on: neutral person nose, front three-quarter normal and side clay with alar groove candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "subalare-right",
+   "definition": "The point where the lower border of the alar base meets the skin of the upper lip (Farkas).",
+   "citation": "Farkas 1994 (secondary summary)",
+   "status": "definition, read from renders",
+   "rule": "lowest point where the alar boundary meets the upper lip, read on rendered frames of the neutral nose (frame path); Limit: the Farkas definition was confirmed only from a secondary summary; the Farkas (1994) original was not read",
+   "vertex": 358,
+   "viewVertex": 1143,
+   "position": [
+    -0.015289596281945705,
+    -0.011426568031311035,
+    0.1421613246202469
+   ],
+   "candidates": [
+    {
+     "vertex": 358,
+     "position": [
+      -0.015289596281945705,
+      -0.011426568031311035,
+      0.1421613246202469
+     ],
+     "value": -0.011426568031311035
+    },
+    {
+     "vertex": 286,
+     "position": [
+      -0.013579726219177246,
+      -0.010043978691101074,
+      0.14313443005084991
+     ],
+     "value": -0.010043978691101074
+    },
+    {
+     "vertex": 288,
+     "position": [
+      -0.01728581264615059,
+      -0.008642911911010742,
+      0.13987207412719727
+     ],
+     "value": -0.008642911911010742
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 1.5 mm the reading cannot separate the chosen vertex from the compared neighbours 286, 288 (nearest first); read on: neutral person nose, front three-quarter normal with alar groove candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "otobasion-superius-right",
+   "definition": "The highest point where the ear attaches to the head (Farkas).",
+   "citation": "Farkas 1994",
+   "status": "definition, read from renders",
+   "rule": "highest vertex of the read ear attachment loop, read on rendered frames of the neutral right ear (frame path); Earlier rejected as a helix-top (highest point of the ear) candidate because it lies on temporal skin, not the ear; the definition here is the highest point of the ear's attachment line, and 5767 is a vertex of the read attachment loop, so the two readings agree",
+   "vertex": 5767,
+   "viewVertex": 7635,
+   "position": [
+    -0.07026438415050507,
+    0.03791022300720215,
+    0.052941665053367615
+   ],
+   "candidates": [
+    {
+     "vertex": 5767,
+     "position": [
+      -0.07026438415050507,
+      0.03791022300720215,
+      0.052941665053367615
+     ],
+     "value": 0.03791022300720215
+    },
+    {
+     "vertex": 5755,
+     "position": [
+      -0.06987327337265015,
+      0.03713810443878174,
+      0.056890036910772324
+     ],
+     "value": 0.03713810443878174
+    },
+    {
+     "vertex": 5756,
+     "position": [
+      -0.07120100696794357,
+      0.037592172622680664,
+      0.04853932186961174
+     ],
+     "value": 0.037592172622680664
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 1.0 mm the reading cannot separate the chosen vertex from the compared neighbours 5755, 5756 (nearest first); read on: neutral person right ear, side and front three-quarter clay with attachment loop candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "otobasion-inferius-right",
+   "definition": "The point of attachment of the ear lobe to the cheek, which determines the lower border of the ear insertion; curve definition: the final point at the preauricular end of the ear rim curve.",
+   "citation": "Katina et al. 2016, J Anat, Table 2",
+   "status": "definition, read from renders",
+   "rule": "lowest point of the lobe-cheek notch on the attachment loop, read on rendered frames of the neutral right ear (frame path)",
+   "vertex": 5761,
+   "viewVertex": 6371,
+   "position": [
+    -0.0667354166507721,
+    -0.012719154357910156,
+    0.0546870119869709
+   ],
+   "candidates": [
+    {
+     "vertex": 5761,
+     "position": [
+      -0.0667354166507721,
+      -0.012719154357910156,
+      0.0546870119869709
+     ],
+     "value": -0.012719154357910156
+    },
+    {
+     "vertex": 5768,
+     "position": [
+      -0.06640800833702087,
+      -0.012412786483764648,
+      0.05027338117361069
+     ],
+     "value": -0.012412786483764648
+    },
+    {
+     "vertex": 5752,
+     "position": [
+      -0.06656023114919662,
+      -0.01028454303741455,
+      0.05873663350939751
+     ],
+     "value": -0.01028454303741455
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Within 1.0 mm the reading cannot separate the chosen vertex from the compared neighbours 5768, 5752 (nearest first); read on: neutral person right ear, front three-quarter clay with attachment loop candidates marked.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "labiale-superius",
+   "definition": "The midpoint of the upper vermilion line.",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "most anterior midline (|x| < 0.6 mm) vermilion border vertex above the central contact pair; the border is every vertex shared by a lips and a skin triangle, so the inner mucosal border is passed over by being posterior",
+   "vertex": 362,
+   "viewVertex": 6111,
+   "position": [
+    -1.8189894035458565e-11,
+    -0.022138237953186035,
+    0.1521371304988861
+   ],
+   "candidates": [
+    {
+     "vertex": 362,
+     "position": [
+      -1.8189894035458565e-11,
+      -0.022138237953186035,
+      0.1521371304988861
+     ],
+     "value": 0.1521371304988861
+    },
+    {
+     "vertex": 571,
+     "position": [
+      9.549694368615746e-12,
+      -0.024191737174987793,
+      0.1417156606912613
+     ],
+     "value": 0.1417156606912613
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "labiale-inferius",
+   "definition": "The midpoint of the lower vermilion line.",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "most anterior midline (|x| < 0.6 mm) vermilion border vertex below the central contact pair",
+   "vertex": 5337,
+   "viewVertex": 2965,
+   "position": [
+    0,
+    -0.04674438977409976,
+    0.14475223422050476
+   ],
+   "candidates": [
+    {
+     "vertex": 5337,
+     "position": [
+      0,
+      -0.04674438977409976,
+      0.14475223422050476
+     ],
+     "value": 0.14475223422050476
+    },
+    {
+     "vertex": 574,
+     "position": [
+      2.9103830456733704e-11,
+      -0.041214942932128906,
+      0.141982302069664
+     ],
+     "value": 0.141982302069664
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "cheilion-left",
+   "definition": "The point where the upper and lower lips meet at the left commissure.",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "lateral-most lips-region vertex on the face's left (+X)",
+   "vertex": 7302,
+   "viewVertex": 9183,
+   "position": [
+    0.026431992650032043,
+    -0.032529234886169434,
+    0.12743662297725677
+   ],
+   "candidates": [
+    {
+     "vertex": 7302,
+     "position": [
+      0.026431992650032043,
+      -0.032529234886169434,
+      0.12743662297725677
+     ],
+     "value": 0.026431992650032043
+    },
+    {
+     "vertex": 31830,
+     "position": [
+      0.026184266433119774,
+      -0.030747652053833008,
+      0.12766972184181213
+     ],
+     "value": 0.026184266433119774
+    },
+    {
+     "vertex": 36004,
+     "position": [
+      0.026101579889655113,
+      -0.034333229064941406,
+      0.12762227654457092
+     ],
+     "value": 0.026101579889655113
+    },
+    {
+     "vertex": 38517,
+     "position": [
+      0.026025045663118362,
+      -0.03283357620239258,
+      0.12841655313968658
+     ],
+     "value": 0.026025045663118362
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "cheilion-right",
+   "definition": "The point where the upper and lower lips meet at the right commissure.",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "lateral-most lips-region vertex on the face's right (-X)",
+   "vertex": 561,
+   "viewVertex": 1390,
+   "position": [
+    -0.026431992650032043,
+    -0.032529354095458984,
+    0.12743662297725677
+   ],
+   "candidates": [
+    {
+     "vertex": 561,
+     "position": [
+      -0.026431992650032043,
+      -0.032529354095458984,
+      0.12743662297725677
+     ],
+     "value": -0.026431992650032043
+    },
+    {
+     "vertex": 13493,
+     "position": [
+      -0.026184266433119774,
+      -0.030747532844543457,
+      0.12766972184181213
+     ],
+     "value": -0.026184266433119774
+    },
+    {
+     "vertex": 17528,
+     "position": [
+      -0.026101578027009964,
+      -0.034333229064941406,
+      0.12762227654457092
+     ],
+     "value": -0.026101578027009964
+    },
+    {
+     "vertex": 13494,
+     "position": [
+      -0.02602504752576351,
+      -0.03283333778381348,
+      0.12841656804084778
+     ],
+     "value": -0.02602504752576351
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "crista-philtri-left",
+   "definition": "The point on the left elevated margin of the philtrum just above the vermilion line (the Cupid's-bow peak).",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "highest upper vermilion border vertex 2 to 12 mm left of the midline",
+   "vertex": 7117,
+   "viewVertex": 13742,
+   "position": [
+    0.004626598674803972,
+    -0.021493196487426758,
+    0.15157020092010498
+   ],
+   "candidates": [
+    {
+     "vertex": 7117,
+     "position": [
+      0.004626598674803972,
+      -0.021493196487426758,
+      0.15157020092010498
+     ],
+     "value": -0.021493196487426758
+    },
+    {
+     "vertex": 28471,
+     "position": [
+      0.005967582110315561,
+      -0.021506071090698242,
+      0.1513081192970276
+     ],
+     "value": -0.021506071090698242
+    },
+    {
+     "vertex": 32989,
+     "position": [
+      0.003358240704983473,
+      -0.021668672561645508,
+      0.15180380642414093
+     ],
+     "value": -0.021668672561645508
+    },
+    {
+     "vertex": 7116,
+     "position": [
+      0.007389544043689966,
+      -0.02168416976928711,
+      0.15093868970870972
+     ],
+     "value": -0.02168416976928711
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "crista-philtri-right",
+   "definition": "The point on the right elevated margin of the philtrum just above the vermilion line (the Cupid's-bow peak).",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "highest upper vermilion border vertex 2 to 12 mm right of the midline",
+   "vertex": 356,
+   "viewVertex": 6081,
+   "position": [
+    -0.004626598674803972,
+    -0.02149343490600586,
+    0.15157021582126617
+   ],
+   "candidates": [
+    {
+     "vertex": 356,
+     "position": [
+      -0.004626598674803972,
+      -0.02149343490600586,
+      0.15157021582126617
+     ],
+     "value": -0.02149343490600586
+    },
+    {
+     "vertex": 23411,
+     "position": [
+      -0.005967581644654274,
+      -0.021506190299987793,
+      0.1513081192970276
+     ],
+     "value": -0.021506190299987793
+    },
+    {
+     "vertex": 27991,
+     "position": [
+      -0.003358240704983473,
+      -0.021668672561645508,
+      0.15180380642414093
+     ],
+     "value": -0.021668672561645508
+    },
+    {
+     "vertex": 355,
+     "position": [
+      -0.007389544043689966,
+      -0.02168416976928711,
+      0.1509387046098709
+     ],
+     "value": -0.02168416976928711
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "stomion",
+   "definition": "The point where the upper and lower lips meet in the midline with the lips closed.",
+   "citation": "3D Facial Norms (Weinberg et al. 2016) landmark definitions, lips apposed",
+   "status": "definition",
+   "rule": "upper vertex of the face's central contact pair (contact.lips.upper)",
+   "vertex": 20054,
+   "viewVertex": 15892,
+   "position": [
+    -9.094947017729282e-12,
+    -0.0327831506729126,
+    0.14575202763080597
+   ],
+   "candidates": [
+    {
+     "vertex": 20054,
+     "position": [
+      -9.094947017729282e-12,
+      -0.0327831506729126,
+      0.14575202763080597
+     ],
+     "value": -0.0327831506729126
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "tragion-left",
+   "definition": "The superior point on the juncture of the cartilaginous flap (tragus) of the ear with the head.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.42, p. 66",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of tragion-right",
+   "vertex": 12076,
+   "viewVertex": 14260,
+   "position": [
+    0.07033476233482361,
+    0.012275934219360352,
+    0.05597802251577377
+   ],
+   "candidates": [
+    {
+     "vertex": 12076,
+     "position": [
+      0.07033476233482361,
+      0.012275934219360352,
+      0.05597802251577377
+     ],
+     "value": 0.012275934219360352
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of tragion-right; the reading's ambiguity is recorded there.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "alar-curvature-left",
+   "definition": "The facial insertion of each alar base (alare crest); Farkas ac is the most posterior-lateral point of the alar base curve.",
+   "citation": "Katina et al. 2016, J Anat, Table 2",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of alar-curvature-right",
+   "vertex": 11669,
+   "viewVertex": 12542,
+   "position": [
+    0.0175827294588089,
+    -0.0047605037689208984,
+    0.13937115669250488
+   ],
+   "candidates": [
+    {
+     "vertex": 11669,
+     "position": [
+      0.0175827294588089,
+      -0.0047605037689208984,
+      0.13937115669250488
+     ],
+     "value": -0.0047605037689208984
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of alar-curvature-right; the reading's ambiguity is recorded there.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "subalare-left",
+   "definition": "The point where the lower border of the alar base meets the skin of the upper lip (Farkas).",
+   "citation": "Farkas 1994 (secondary summary)",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of subalare-right; Limit: the Farkas definition was confirmed only from a secondary summary; the Farkas (1994) original was not read",
+   "vertex": 7119,
+   "viewVertex": 8942,
+   "position": [
+    0.01528959535062313,
+    -0.011426568031311035,
+    0.1421613097190857
+   ],
+   "candidates": [
+    {
+     "vertex": 7119,
+     "position": [
+      0.01528959535062313,
+      -0.011426568031311035,
+      0.1421613097190857
+     ],
+     "value": -0.011426568031311035
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of subalare-right; the reading's ambiguity is recorded there.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "otobasion-superius-left",
+   "definition": "The highest point where the ear attaches to the head (Farkas).",
+   "citation": "Farkas 1994",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of otobasion-superius-right",
+   "vertex": 12364,
+   "viewVertex": 15289,
+   "position": [
+    0.07026439160108566,
+    0.03791022300720215,
+    0.052941661328077316
+   ],
+   "candidates": [
+    {
+     "vertex": 12364,
+     "position": [
+      0.07026439160108566,
+      0.03791022300720215,
+      0.052941661328077316
+     ],
+     "value": 0.03791022300720215
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of otobasion-superius-right; the reading's ambiguity is recorded there.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "otobasion-inferius-left",
+   "definition": "The point of attachment of the ear lobe to the cheek, which determines the lower border of the ear insertion; curve definition: the final point at the preauricular end of the ear rim curve.",
+   "citation": "Katina et al. 2016, J Anat, Table 2",
+   "status": "definition, read from renders",
+   "rule": "exact mirror twin (hm08.mirror) of otobasion-inferius-right",
+   "vertex": 12358,
+   "viewVertex": 14028,
+   "position": [
+    0.06673542410135269,
+    -0.012719035148620605,
+    0.0546870082616806
+   ],
+   "candidates": [
+    {
+     "vertex": 12358,
+     "position": [
+      0.06673542410135269,
+      -0.012719035148620605,
+      0.0546870082616806
+     ],
+     "value": -0.012719035148620605
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral head. When the shape changes, the definition's extremum can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of otobasion-inferius-right; the reading's ambiguity is recorded there.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  }
+ ],
+ "headRegions": [
+  {
+   "name": "ear-right",
+   "definition": "The right external ear, bounded by its attachment to the head.",
+   "status": "definition, read from renders",
+   "rule": "base faces reached from the seed without crossing the read attachment loop, proved not to reach the outside vertex; region vertices are those faces' corners less the loop (the loop is scalp), and a subdivided sample belongs when every base face it lies on is on the ear side",
+   "loop": [
+    5755,
+    5767,
+    5756,
+    5758,
+    5748,
+    5760,
+    5751,
+    5766,
+    5747,
+    5749,
+    5757,
+    5770,
+    5764,
+    5762,
+    5753,
+    5768,
+    5761,
+    5752,
+    5731,
+    5414,
+    5436,
+    5458,
+    5465,
+    5456,
+    5477,
+    5468,
+    5570,
+    5471,
+    5470,
+    5448,
+    5426,
+    5738
+   ],
+   "closed": true,
+   "seed": 5413,
+   "outside": 860,
+   "baseVertices": 281,
+   "viewVertices": 1153,
+   "frames": "right ear of the neutral generation person: side, back, front, below and above, clay and normal, loop marked",
+   "citation": "the head-region owner's frame reading of the CC0 MakeHuman base mesh (hm08); no published definition is cited",
+   "ambiguity": "Not quantified: the loop is the owner's reading of the attachment on the recorded frames, and no alternative loop was recorded.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "ear-left",
+   "definition": "The left external ear, bounded by its attachment to the head.",
+   "status": "definition, read from renders",
+   "rule": "base faces reached from the seed without crossing the read attachment loop, proved not to reach the outside vertex; region vertices are those faces' corners less the loop (the loop is scalp), and a subdivided sample belongs when every base face it lies on is on the ear side",
+   "loop": [
+    12352,
+    12364,
+    12353,
+    12355,
+    12345,
+    12357,
+    12348,
+    12363,
+    12344,
+    12346,
+    12354,
+    12367,
+    12361,
+    12359,
+    12350,
+    12365,
+    12358,
+    12349,
+    12328,
+    12013,
+    12035,
+    12057,
+    12064,
+    12055,
+    12076,
+    12067,
+    12167,
+    12070,
+    12069,
+    12047,
+    12025,
+    12335
+   ],
+   "closed": true,
+   "seed": 12012,
+   "outside": 7565,
+   "baseVertices": 281,
+   "viewVertices": 1153,
+   "frames": "right ear of the neutral generation person: side, back, front, below and above, clay and normal, loop marked (left: mirror twins of the right reading)",
+   "citation": "the head-region owner's frame reading of the CC0 MakeHuman base mesh (hm08); no published definition is cited",
+   "ambiguity": "Not quantified: the loop is the owner's reading of the attachment on the recorded frames, and no alternative loop was recorded.",
+   "convention": "View vertices index the head view's skin surface 0 (the face's `Human`); `vertex` and loop rows are generation skin samples (base-mesh vertices keep their index). Positions are neutral metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  }
+ ],
+ "teeth": {
+  "surface": "Human.teeth_base",
+  "convention": "Region rows are vertex IDs of the face's `Human.teeth_base` surface; centroids are neutral head-frame metres (right-handed Y-up, Z-forward, +X the anatomical left); tooth codes follow ISO 3950 with the anatomical sides.",
+  "rule": "32 components of 63 vertices; upper/lower within each mutual nearest antagonist pair in the horizontal plane, the higher centroid being upper; right/left by the sign of x; within a quadrant ordered from the midline by the centroid angle about the mean centroid, measured from +Z; ISO 3950 quadrants 1 upper right, 2 upper left, 3 lower left, 4 lower right",
+  "toothComponents": 32,
+  "otherComponents": [
+   876,
+   976
+  ],
+  "registered": 32,
+  "refused": [],
+  "gingivaAndPalate": "not separated in the CC0 mesh; not written (absent registration)"
+ },
+ "marginChain": {
+  "rule": "anchors = 2 mm station pairs and the central contact pair; stops = negative join, anchors by along, positive join; consecutive stops joined by the shortest 3D path over the component's lips triangles within the limit; first occurrences kept",
+  "limitMetres": 0.021432002876201305,
+  "stationMetres": 0.002,
+  "anchors": 21,
+  "upperVertices": 44,
+  "lowerVertices": 37,
+  "joins": {
+   "upper": [
+    16170,
+    16865
+   ],
+   "lower": [
+    16159,
+    16854
+   ]
+  }
+ },
+ "periocular": {
+  "convention": "Margin rows index the face skin surface `Human` (the head view's surface 0); brow, lash and globe rows index their own named surfaces; optical rows are native `Human.low-poly` vertex IDs. Positions, axes and the reference are neutral head-frame metres and unit vectors in the right-handed Y-up, Z-forward frame, so +X is the anatomical left; left and right are anatomical sides, never read from asset names.",
+  "margins": {
+   "source": "HUMAN_SOURCE_READ_MARGINS (left, base mesh vertices; right = mirror twins in the same order)",
+   "frames": "neutral person eyes, front clay and normal with margin candidates marked"
+  },
+  "brows": {
+   "surface": "Human.eyebrow001",
+   "rule": "split by the sign of x (+X left)",
+   "left": 62,
+   "right": 62
+  },
+  "lashes": {
+   "surface": "Human.eyelashes01",
+   "upperRegion": "Human.eyelashes01/Human.eyelashes01",
+   "lowerRegion": "Human.eyelashes01/Human.eyelashes01.lower",
+   "rule": "split by the sign of x (+X left)",
+   "left": 125,
+   "right": 125
+  },
+  "globe": {
+   "surface": "Human.low-poly",
+   "owners": [
+    "leftEye",
+    "rightEye"
+   ]
+  },
+  "canthi": {
+   "rule": "extreme of the joined margin rows on the head-frame x axis; left eye medial minimum and lateral maximum, right eye reversed",
+   "limit": "The canthus is the x-axis extreme of the joined registered margin rows on the final skin, so it follows an edit that moves which row vertex is the corner; a corner moved beyond the registered rows is not found, and the head-frame x axis stands in for the palpebral fissure axis."
+  },
+  "left": {
+   "upper": [
+    11064,
+    10882,
+    10884,
+    11010,
+    11008,
+    11093,
+    10835,
+    10837,
+    11000,
+    11027,
+    11057,
+    11078,
+    10993,
+    10991
+   ],
+   "lower": [
+    11064,
+    11085,
+    11104,
+    11044,
+    11046,
+    11015,
+    10973,
+    10975,
+    13584,
+    10982,
+    10984,
+    11071,
+    11073,
+    11051,
+    11021,
+    10991
+   ],
+   "neutralMedial": 11064,
+   "neutralLateral": 10991
+  },
+  "right": {
+   "upper": [
+    3359,
+    3178,
+    3176,
+    3302,
+    3304,
+    3386,
+    3131,
+    3129,
+    3295,
+    3322,
+    3352,
+    3373,
+    3285,
+    3287
+   ],
+   "lower": [
+    3359,
+    3380,
+    3399,
+    3340,
+    3338,
+    3310,
+    3269,
+    3267,
+    5921,
+    3278,
+    3276,
+    3367,
+    3365,
+    3346,
+    3316,
+    3287
+   ],
+   "neutralMedial": 3359,
+   "neutralLateral": 3287
+  }
+ },
+ "opticalSupport": [
+  {
+   "owner": "leftEye",
+   "convention": "Margin rows index the face skin surface `Human` (the head view's surface 0); brow, lash and globe rows index their own named surfaces; optical rows are native `Human.low-poly` vertex IDs. Positions, axes and the reference are neutral head-frame metres and unit vectors in the right-handed Y-up, Z-forward frame, so +X is the anatomical left; left and right are anatomical sides, never read from asset names.",
+   "rule": "axis from joint-l-eye toward joint-l-eye-target; origin joint-l-eye; anterior = the one facing component triangle the axis line meets",
+   "vertices": 705,
+   "triangles": 1376,
+   "hits": [
+    {
+     "triangle": [
+      685,
+      689,
+      686
+     ],
+     "t": 0.01507348483031992,
+     "facing": true
+    }
+   ],
+   "anterior": {
+    "triangle": [
+     685,
+     689,
+     686
+    ],
+    "u": 0.9422424829038603,
+    "v": 0.013121290952462774,
+    "t": 0.01507348483031992
+   },
+   "lineError": 1.3028060638452653e-18,
+   "referenceDegrees": 94.38220672687386,
+   "targets": [
+    "africanAncestry.positive",
+    "asianAncestry.positive",
+    "europeanAncestry.positive",
+    "faceAgeStructure.positive",
+    "headDepth.negative",
+    "headDepth.positive",
+    "headHeight.negative",
+    "headHeight.positive",
+    "headWidth.negative",
+    "headWidth.positive",
+    "leftEyeBagVolume.negative",
+    "leftEyeDepth.back",
+    "leftEyeDepth.forward",
+    "leftEyeElevation.negative",
+    "leftEyeElevation.positive",
+    "leftEyeLateralPosition.negative",
+    "leftEyeLateralPosition.positive",
+    "macro/age-child",
+    "macro/age-child+height-max",
+    "macro/age-child+muscle-min",
+    "macro/age-old",
+    "macro/age-old+height-max",
+    "macro/age-old+height-min",
+    "macro/gender-female",
+    "macro/gender-female+age-child",
+    "macro/gender-female+age-old",
+    "macro/gender-female+height-max",
+    "macro/gender-female+height-min",
+    "macro/gender-male",
+    "macro/gender-male+age-child",
+    "macro/gender-male+age-old",
+    "macro/gender-male+height-max",
+    "macro/gender-male+height-min",
+    "macro/height-max",
+    "macro/height-min",
+    "macro/muscle-max+height-max",
+    "macro/muscle-max+height-min",
+    "macro/muscle-min+height-max",
+    "macro/muscle-min+height-min",
+    "macro/weight-max+height-max",
+    "macro/weight-max+height-min",
+    "macro/weight-min+height-max",
+    "macro/weight-min+height-min",
+    "population.africanAncestry.age-negative",
+    "population.africanAncestry.age-positive",
+    "population.africanAncestry.sex-negative",
+    "population.africanAncestry.sex-negative.age-negative",
+    "population.africanAncestry.sex-negative.age-positive",
+    "population.africanAncestry.sex-positive",
+    "population.africanAncestry.sex-positive.age-negative",
+    "population.africanAncestry.sex-positive.age-positive",
+    "population.asianAncestry.age-negative",
+    "population.asianAncestry.age-positive",
+    "population.asianAncestry.sex-negative",
+    "population.asianAncestry.sex-negative.age-negative",
+    "population.asianAncestry.sex-negative.age-positive",
+    "population.asianAncestry.sex-positive",
+    "population.asianAncestry.sex-positive.age-negative",
+    "population.asianAncestry.sex-positive.age-positive",
+    "population.europeanAncestry.age-negative",
+    "population.europeanAncestry.age-positive",
+    "population.europeanAncestry.sex-negative",
+    "population.europeanAncestry.sex-negative.age-negative",
+    "population.europeanAncestry.sex-negative.age-positive",
+    "population.europeanAncestry.sex-positive",
+    "population.europeanAncestry.sex-positive.age-negative",
+    "population.europeanAncestry.sex-positive.age-positive"
+   ]
+  },
+  {
+   "owner": "rightEye",
+   "convention": "Margin rows index the face skin surface `Human` (the head view's surface 0); brow, lash and globe rows index their own named surfaces; optical rows are native `Human.low-poly` vertex IDs. Positions, axes and the reference are neutral head-frame metres and unit vectors in the right-handed Y-up, Z-forward frame, so +X is the anatomical left; left and right are anatomical sides, never read from asset names.",
+   "rule": "axis from joint-r-eye toward joint-r-eye-target; origin joint-r-eye; anterior = the one facing component triangle the axis line meets",
+   "vertices": 705,
+   "triangles": 1376,
+   "hits": [
+    {
+     "triangle": [
+      1392,
+      1391,
+      1395
+     ],
+     "t": 0.015073478701191557,
+     "facing": true
+    }
+   ],
+   "anterior": {
+    "triangle": [
+     1392,
+     1391,
+     1395
+    ],
+    "u": 0.012912981544209919,
+    "v": 0.942453806967037,
+    "t": 0.015073478701191557
+   },
+   "lineError": 5.431588454656214e-19,
+   "referenceDegrees": 94.38220672687386,
+   "targets": [
+    "africanAncestry.positive",
+    "asianAncestry.positive",
+    "europeanAncestry.positive",
+    "faceAgeStructure.positive",
+    "headDepth.negative",
+    "headDepth.positive",
+    "headHeight.negative",
+    "headHeight.positive",
+    "headWidth.negative",
+    "headWidth.positive",
+    "macro/age-child",
+    "macro/age-child+height-max",
+    "macro/age-child+muscle-min",
+    "macro/age-old",
+    "macro/age-old+height-max",
+    "macro/age-old+height-min",
+    "macro/gender-female",
+    "macro/gender-female+age-child",
+    "macro/gender-female+age-old",
+    "macro/gender-female+height-max",
+    "macro/gender-female+height-min",
+    "macro/gender-male",
+    "macro/gender-male+age-child",
+    "macro/gender-male+age-old",
+    "macro/gender-male+height-max",
+    "macro/gender-male+height-min",
+    "macro/height-max",
+    "macro/height-min",
+    "macro/muscle-max+height-max",
+    "macro/muscle-max+height-min",
+    "macro/muscle-min+height-max",
+    "macro/muscle-min+height-min",
+    "macro/weight-max+height-max",
+    "macro/weight-max+height-min",
+    "macro/weight-min+height-max",
+    "macro/weight-min+height-min",
+    "population.africanAncestry.age-negative",
+    "population.africanAncestry.age-positive",
+    "population.africanAncestry.sex-negative",
+    "population.africanAncestry.sex-negative.age-negative",
+    "population.africanAncestry.sex-negative.age-positive",
+    "population.africanAncestry.sex-positive",
+    "population.africanAncestry.sex-positive.age-negative",
+    "population.africanAncestry.sex-positive.age-positive",
+    "population.asianAncestry.age-negative",
+    "population.asianAncestry.age-positive",
+    "population.asianAncestry.sex-negative",
+    "population.asianAncestry.sex-negative.age-negative",
+    "population.asianAncestry.sex-negative.age-positive",
+    "population.asianAncestry.sex-positive",
+    "population.asianAncestry.sex-positive.age-negative",
+    "population.asianAncestry.sex-positive.age-positive",
+    "population.europeanAncestry.age-negative",
+    "population.europeanAncestry.age-positive",
+    "population.europeanAncestry.sex-negative",
+    "population.europeanAncestry.sex-negative.age-negative",
+    "population.europeanAncestry.sex-negative.age-positive",
+    "population.europeanAncestry.sex-positive",
+    "population.europeanAncestry.sex-positive.age-negative",
+    "population.europeanAncestry.sex-positive.age-positive",
+    "rightEyeBagVolume.negative",
+    "rightEyeDepth.back",
+    "rightEyeDepth.forward",
+    "rightEyeElevation.negative",
+    "rightEyeElevation.positive",
+    "rightEyeLateralPosition.negative",
+    "rightEyeLateralPosition.positive"
+   ]
+  }
+ ],
+ "bodyLandmarks": [
+  {
+   "name": "nipple-left",
+   "definition": "The centre of the left nipple-areola complex.",
+   "citation": "published body basis r16 bust level and bra vertex",
+   "status": "carried from the published body",
+   "sample": 32133,
+   "viewVertex": 20328,
+   "position": [
+    0.10199,
+    -0.310902,
+    0.145616
+   ],
+   "neighbours": [],
+   "limit": "The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "neck-anterior-midline",
+   "definition": "The front midline point of the neck-circumference ruler ring.",
+   "citation": "MakeHuman plugins/0_modeling_a_measurement.py, measure-neck-circ ruler",
+   "status": "carried from the published body",
+   "sample": 803,
+   "viewVertex": 115,
+   "position": [
+    0,
+    -0.12034386744162869,
+    0.074452616
+   ],
+   "neighbours": [],
+   "limit": "The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "stylion-right",
+   "definition": "The inferior point of the bottom of the radius.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.36",
+   "status": "named approximation",
+   "sample": 24319,
+   "viewVertex": 10201,
+   "position": [
+    -0.44325608,
+    -0.494140744,
+    0.205903769
+   ],
+   "neighbours": [
+    {
+     "sample": 37680,
+     "position": [
+      -0.444659144,
+      -0.49110508,
+      0.203363344
+     ]
+    },
+    {
+     "sample": 43757,
+     "position": [
+      -0.440980405,
+      -0.496122003,
+      0.204400986
+     ]
+    },
+    {
+     "sample": 3771,
+     "position": [
+      -0.441972524,
+      -0.492829919,
+      0.202311486
+     ]
+    },
+    {
+     "sample": 43783,
+     "position": [
+      -0.439046234,
+      -0.48543644,
+      0.19357726
+     ]
+    }
+   ],
+   "limit": "The skin has no radial styloid relief, so the wrist joint-centre plane stands in for the styloid's height; read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "stylion-left",
+   "definition": "The inferior point of the bottom of the radius.",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.36",
+   "status": "named approximation; exact position mirror of stylion-right",
+   "sample": 36048,
+   "viewVertex": 28559,
+   "position": [
+    0.44325611,
+    -0.494140744,
+    0.205903754
+   ],
+   "neighbours": [],
+   "limit": "The skin has no radial styloid relief, so the wrist joint-centre plane stands in for the styloid's height; read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "metacarpale-ii-right",
+   "definition": "The most lateral point of the right metacarpophalangeal joint II (at the base of the index finger).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.24",
+   "status": "definition, read from renders",
+   "sample": 3160,
+   "viewVertex": 7472,
+   "position": [
+    -0.466334164,
+    -0.535956204,
+    0.272813916
+   ],
+   "neighbours": [
+    {
+     "sample": 14273,
+     "position": [
+      -0.463619947,
+      -0.538225114,
+      0.272685736
+     ]
+    },
+    {
+     "sample": 43619,
+     "position": [
+      -0.465626031,
+      -0.540232778,
+      0.275559157
+     ]
+    },
+    {
+     "sample": 34330,
+     "position": [
+      -0.46727556,
+      -0.54194206,
+      0.278219193
+     ]
+    },
+    {
+     "sample": 34174,
+     "position": [
+      -0.468256533,
+      -0.538435757,
+      0.275837243
+     ]
+    }
+   ],
+   "limit": "Read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "metacarpale-ii-left",
+   "definition": "The most lateral point of the left metacarpophalangeal joint II (at the base of the index finger).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.24",
+   "status": "definition, read from renders; exact position mirror of metacarpale-ii-right",
+   "sample": 9828,
+   "viewVertex": 25831,
+   "position": [
+    0.466334134,
+    -0.535956144,
+    0.272813946
+   ],
+   "neighbours": [],
+   "limit": "Read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "metacarpale-v-right",
+   "definition": "The most medial point of the right metacarpophalangeal joint V (at the base of the little finger).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.25",
+   "status": "definition, read from renders",
+   "sample": 42892,
+   "viewVertex": 7356,
+   "position": [
+    -0.503376603,
+    -0.581173301,
+    0.216268897
+   ],
+   "neighbours": [
+    {
+     "sample": 37506,
+     "position": [
+      -0.505037248,
+      -0.579338074,
+      0.216324449
+     ]
+    },
+    {
+     "sample": 27461,
+     "position": [
+      -0.501724541,
+      -0.582465947,
+      0.216773123
+     ]
+    },
+    {
+     "sample": 20744,
+     "position": [
+      -0.502259672,
+      -0.579858363,
+      0.215408057
+     ]
+    },
+    {
+     "sample": 3122,
+     "position": [
+      -0.504035056,
+      -0.577827871,
+      0.215349779
+     ]
+    }
+   ],
+   "limit": "Read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "metacarpale-v-left",
+   "definition": "The most medial point of the left metacarpophalangeal joint V (at the base of the little finger).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.25",
+   "status": "definition, read from renders; exact position mirror of metacarpale-v-right",
+   "sample": 49511,
+   "viewVertex": 25720,
+   "position": [
+    0.503376603,
+    -0.581173182,
+    0.216268882
+   ],
+   "neighbours": [],
+   "limit": "Read on the rest A-pose with slightly flexed fingers, not ANSUR's palm-down posture. The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": null,
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "midpatella-right",
+   "definition": "The anterior point halfway between the top and bottom of the patella (the kneecap).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.26",
+   "status": "definition, read from renders",
+   "sample": 4624,
+   "viewVertex": 12782,
+   "position": [
+    -0.142880872,
+    -1.0458799,
+    0.088405661
+   ],
+   "neighbours": [
+    {
+     "sample": 31157,
+     "position": [
+      -0.141826376,
+      -1.033899784,
+      0.092837475
+     ]
+    },
+    {
+     "sample": 14455,
+     "position": [
+      -0.135906354,
+      -1.047574699,
+      0.086203225
+     ]
+    },
+    {
+     "sample": 31156,
+     "position": [
+      -0.13317962,
+      -1.024242043,
+      0.094964281
+     ]
+    },
+    {
+     "sample": 14459,
+     "position": [
+      -0.143994778,
+      -1.057699353,
+      0.083497569
+     ]
+    }
+   ],
+   "limit": "The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Vertical position uncertain by about +/-10 mm: the lateral contour shows no distinct patellar prominence, so the point was read as the centre of the patellar dome in the front normal frame.",
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  },
+  {
+   "name": "midpatella-left",
+   "definition": "The anterior point halfway between the top and bottom of the patella (the kneecap).",
+   "citation": "Hotzman et al. 2011, NATICK/TR-11/017, 5.2.26",
+   "status": "definition, read from renders; exact position mirror of midpatella-right",
+   "sample": 11242,
+   "viewVertex": 31225,
+   "position": [
+    0.142880857,
+    -1.0458799,
+    0.088405661
+   ],
+   "neighbours": [],
+   "limit": "The vertex is fixed on the neutral body. When the shape changes, the definition's point can move to another vertex, and a fixed vertex does not follow that move.",
+   "ambiguity": "Exact mirror twin of midpatella-right; the reading's ambiguity is recorded there.",
+   "convention": "`viewVertex` indexes the body view's skin surface 0; `sample` and neighbours are generation skin samples (base-mesh vertices keep their index). Positions are neutral rest-pose metres in the right-handed Y-up, Z-forward frame the face and body share, so +X is the anatomical left; a sided name is the anatomical side."
+  }
+ ],
+ "fieldProducers": [
+  {
+   "revision": "definition-g1",
+   "method": "lean muscular body minus lean average-muscle body built through the body view, along symmetric area-weighted normals; band-passed by uniform-Laplacian sweeps f <- (f + neighbour mean)/2 (high sweeps less low sweeps), gain, made bilaterally symmetric; smoothstep fade within the fade length of the nipple-areola centres (skin landmark nipple-left and its mirror twin) and the crotch cut; zero on the support of each relief endpoint with the same smoothstep fade outward (each owns its muscle's relief); split over the breast mound by the cupsize endpoint's normalized length smoothed by the high sweeps; along the normals only; nipple region refilled; stored at 10 micrometres",
+   "kept": "input difference, sweep smoother and counts, gain, smoothstep fade length, symmetry: checked against the r6 receipt's arithmetic on the r5 surface (rms 0.016 mm away from the regions the receipt leaves undetermined)",
+   "chosen": {
+    "reliefStepAside": "zero on the support of each relief endpoint, smoothstep fade over the fade length outward; the receipt's 'stepping aside' does not determine a rule, and the endpoint that owns a muscle's relief should carry it alone",
+    "breastSplit": "weight is the cupsize-max endpoint's length over its maximum, smoothed by the high sweeps and clamped to [0, 1]; chest and musculature come from the same run",
+    "nippleCentres": "the body view's nipple-left skin landmark and its mirror twin, replacing the r6 coordinates recovered from that revision's neutral"
+   },
+   "parameters": {
+    "revision": "definition-g1",
+    "muscular": {
+     "macroMuscle": 1,
+     "macroWeight": -1
+    },
+    "lean": {
+     "macroWeight": -1
+    },
+    "highSweeps": 4,
+    "lowSweeps": 200,
+    "gain": 1,
+    "fadeMetres": 0.04,
+    "nipple": "nipple-left",
+    "crotch": [
+     0,
+     -0.742266297,
+     0.011295066
+    ],
+    "relief": [
+     "stomach/abs-definition-incr",
+     "arms/l-deltoid-definition-incr",
+     "arms/r-deltoid-definition-incr",
+     "torso/scapular-definition-incr"
+    ],
+    "breast": "macro/cupsize-max",
+    "musculature": "muscle/definition-incr",
+    "chest": "muscle/chest-definition-incr",
+    "storageMetres": 0.00001
+   },
+   "readings": {
+    "steppedAsideVertices": 4996,
+    "reliefSupportVertices": 3046
+   }
+  },
+  {
+   "revision": "envelope-g1",
+   "method": "per extended side: endpoint motion = implicit heat diffusion of the endpoint vector over the motion length; residual thickness along symmetric area-weighted normals; detail = thickness less its diffusion over the thickness length; corrective row = -(end - node) * detail * normal, ramped from the node to the end; mirror-averaged; nipple region refilled; stored at 10 micrometres",
+   "kept": "structure, cotangent Laplacian with lumped mass, diffusion lengths 150 and 40 mm, each side's end (envelope-detail-receipt.json)",
+   "chosen": {
+    "stepLength": "t = L^2 / 2, the heat kernel's variance 2t equal to a Gaussian's sigma^2 with sigma = L",
+    "heldBoundary": "Dirichlet: open-boundary vertices keep their input value",
+    "surface": "the body view's neutral and symmetric normals",
+    "symmetry": "mirror average of the corrective rows",
+    "detailFraction": "this run's reading is rms detail over rms thickness on the endpoint's support; the receipt's own definition is not recorded, so the two are listed side by side and not fitted"
+   },
+   "parameters": {
+    "motionMetres": 0.15,
+    "thicknessMetres": 0.04,
+    "node": 1,
+    "storageMetres": 0.00001
+   },
+   "sides": [
+    {
+     "id": "envelope/measureShoulderDist.positive",
+     "endpoint": "torso/measure-shoulder-dist-incr",
+     "end": 2,
+     "supportVertices": 18618,
+     "detailFraction": 0.518209075476171,
+     "worstRemovedAtEndMillimetres": 7.799584319591316,
+     "receiptDetailFraction": 0.059,
+     "receiptWorstRemovedAtEndMillimetres": 8
+    },
+    {
+     "id": "envelope/measureShoulderDist.negative",
+     "endpoint": "torso/measure-shoulder-dist-decr",
+     "end": 2,
+     "supportVertices": 19954,
+     "detailFraction": 0.48003174313527985,
+     "worstRemovedAtEndMillimetres": 3.3835781155872584,
+     "receiptDetailFraction": 0.054,
+     "receiptWorstRemovedAtEndMillimetres": 3.5
+    },
+    {
+     "id": "envelope/measureWaistCirc.positive",
+     "endpoint": "torso/measure-waist-circ-incr",
+     "end": 3.5,
+     "supportVertices": 3818,
+     "detailFraction": 0.15728262718540292,
+     "worstRemovedAtEndMillimetres": 7.261778749114521,
+     "receiptDetailFraction": 0.095,
+     "receiptWorstRemovedAtEndMillimetres": 7.1
+    },
+    {
+     "id": "envelope/measureWaistCirc.negative",
+     "endpoint": "torso/measure-waist-circ-decr",
+     "end": 2,
+     "supportVertices": 3818,
+     "detailFraction": 0.15728343651408283,
+     "worstRemovedAtEndMillimetres": 2.9047105382358493,
+     "receiptDetailFraction": 0.095,
+     "receiptWorstRemovedAtEndMillimetres": 2.8
+    },
+    {
+     "id": "envelope/measureBustCirc.positive",
+     "endpoint": "torso/measure-bust-circ-incr",
+     "end": 1.25,
+     "supportVertices": 5508,
+     "detailFraction": 0.1914804325334914,
+     "worstRemovedAtEndMillimetres": 1.458768272671958,
+     "receiptDetailFraction": 0.109,
+     "receiptWorstRemovedAtEndMillimetres": 1.4
+    },
+    {
+     "id": "envelope/measureBustCirc.negative",
+     "endpoint": "torso/measure-bust-circ-decr",
+     "end": 2,
+     "supportVertices": 5498,
+     "detailFraction": 0.2357071363059444,
+     "worstRemovedAtEndMillimetres": 8.5500643398225,
+     "receiptDetailFraction": 0.137,
+     "receiptWorstRemovedAtEndMillimetres": 8.8
+    },
+    {
+     "id": "envelope/stomachPregnant.positive",
+     "endpoint": "stomach/stomach-pregnant-incr",
+     "end": 2,
+     "supportVertices": 1859,
+     "detailFraction": 0.22842130995695917,
+     "worstRemovedAtEndMillimetres": 15.592785941801184,
+     "receiptDetailFraction": 0.141,
+     "receiptWorstRemovedAtEndMillimetres": 16
+    },
+    {
+     "id": "envelope/macroMuscle.positive",
+     "endpoint": "macro/muscle-max",
+     "end": 2,
+     "supportVertices": 16631,
+     "detailFraction": 0.4083652205736824,
+     "worstRemovedAtEndMillimetres": 5.8004459567459286,
+     "receiptDetailFraction": 0.186,
+     "receiptWorstRemovedAtEndMillimetres": 5.9
+    },
+    {
+     "id": "envelope/macroWeight.positive",
+     "endpoint": "macro/weight-max",
+     "end": 9,
+     "supportVertices": 16606,
+     "detailFraction": 0.22182740755913286,
+     "worstRemovedAtEndMillimetres": 36.79555402415649,
+     "receiptDetailFraction": 0.111,
+     "receiptWorstRemovedAtEndMillimetres": 39.4
+    },
+    {
+     "id": "envelope/macroWeight.negative",
+     "endpoint": "macro/weight-min",
+     "end": 2.5,
+     "supportVertices": 16618,
+     "detailFraction": 0.2821977276473276,
+     "worstRemovedAtEndMillimetres": 6.528026121062511,
+     "receiptDetailFraction": 0.144,
+     "receiptWorstRemovedAtEndMillimetres": 7.3
+    }
+   ]
+  },
+  {
+   "revision": "pose-g1",
+   "method": "repository contact solver (createBodyCorrectiveSession) on the body view without the dropped correctives, merged with exact mirrors at 10 micrometres (mergeBodyCorrectives)",
+   "solverChange": "the published round-9 correctives came from an earlier solver; the current one bisects the onset over the whole shape, prices pushes by per-pair tissue budgets and queues a still-crossing ramp midpoint as its own state, so the same state yields its own correctives",
+   "dropped": [
+    "pose/leftUpperArm.tt(120,120,0)",
+    "pose/rightUpperArm.tt(120,120,0)"
+   ],
+   "created": [
+    "state/shoulders:leftUpperArm.tt(120,120,0)",
+    "state/shoulders:leftUpperArm.tt(120,120,0)@0.61328125",
+    "state/shoulders:rightUpperArm.tt(120,120,0)",
+    "state/shoulders:rightUpperArm.tt(120,120,0)@0.61328125"
+   ],
+   "states": [
+    "shoulders:leftUpperArm.tt(120,120,0)"
+   ],
+   "records": [
+    {
+     "group": "shoulders:leftUpperArm.tt(120,120,0)",
+     "state": "shoulders:leftUpperArm.tt(120,120,0)",
+     "angle": 1,
+     "weight": 1,
+     "outcome": "repaired; the midpoint of the joint ramp still crosses and is queued",
+     "crossing": {
+      "id": "state/shoulders:leftUpperArm.tt(120,120,0)",
+      "onset": 0.484375,
+      "full": 1,
+      "weight": 1,
+      "pairs": [
+       {
+        "part": "upperChest",
+        "other": "leftUpperArm",
+        "triangles": 10,
+        "otherTriangles": 13
+       },
+       {
+        "part": "leftUpperArm",
+        "other": "leftUpperArm",
+        "triangles": 11,
+        "otherTriangles": 11
+       }
+      ],
+      "vertices": 440,
+      "mostPosed": 0.004269966625080069,
+      "log": [
+       "upperChestxleftUpperArm[surface]:ok:surface@1",
+       "[leftUpperArm]relax:ok@5"
+      ],
+      "verification": [
+       {
+        "t": 1,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": []
+        }
+       },
+       {
+        "t": 0.7421875,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": [
+          {
+           "part": "upperChest",
+           "other": "leftUpperArm",
+           "triangles": 62,
+           "otherTriangles": 68
+          },
+          {
+           "part": "leftUpperArm",
+           "other": "leftUpperArm",
+           "triangles": 42,
+           "otherTriangles": 42
+          }
+         ]
+        }
+       },
+       {
+        "t": 1,
+        "u": 0.5,
+        "sample": {
+         "kind": "not-sampled"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "group": "shoulders:leftUpperArm.tt(120,120,0)",
+     "state": "shoulders:leftUpperArm.tt(120,120,0)@0.7421875",
+     "angle": 0.7421875,
+     "weight": 1,
+     "outcome": "beyond the budget",
+     "crossing": {
+      "id": "state/shoulders:leftUpperArm.tt(120,120,0)@0.7421875",
+      "onset": 0.484375,
+      "full": 0.7421875,
+      "weight": 1,
+      "pairs": [
+       {
+        "part": "upperChest",
+        "other": "leftUpperArm",
+        "triangles": 62,
+        "otherTriangles": 68
+       },
+       {
+        "part": "leftUpperArm",
+        "other": "leftUpperArm",
+        "triangles": 42,
+        "otherTriangles": 42
+       }
+      ],
+      "vertices": 1061,
+      "mostPosed": 0.03444215612453506,
+      "log": [],
+      "verification": [
+       {
+        "t": 0.7421875,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": [
+          {
+           "part": "upperChest",
+           "other": "leftUpperArm",
+           "triangles": 19,
+           "otherTriangles": 28
+          },
+          {
+           "part": "leftUpperArm",
+           "other": "leftUpperArm",
+           "triangles": 24,
+           "otherTriangles": 24
+          }
+         ]
+        }
+       },
+       {
+        "t": 0.61328125,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": [
+          {
+           "part": "upperChest",
+           "other": "leftUpperArm",
+           "triangles": 22,
+           "otherTriangles": 33
+          }
+         ]
+        }
+       },
+       {
+        "t": 0.7421875,
+        "u": 0.5,
+        "sample": {
+         "kind": "not-sampled"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "group": "shoulders:leftUpperArm.tt(120,120,0)",
+     "state": "shoulders:leftUpperArm.tt(120,120,0)@0.61328125",
+     "angle": 0.61328125,
+     "weight": 1,
+     "outcome": "repaired",
+     "crossing": {
+      "id": "state/shoulders:leftUpperArm.tt(120,120,0)@0.61328125",
+      "onset": 0.484375,
+      "full": 0.61328125,
+      "weight": 1,
+      "pairs": [
+       {
+        "part": "upperChest",
+        "other": "leftUpperArm",
+        "triangles": 99,
+        "otherTriangles": 84
+       },
+       {
+        "part": "leftUpperArm",
+        "other": "leftUpperArm",
+        "triangles": 36,
+        "otherTriangles": 36
+       }
+      ],
+      "vertices": 1254,
+      "mostPosed": 0.04415185620376541,
+      "log": [
+       "upperChestxleftUpperArm[surface]:ok:surface@1",
+       "[leftUpperArm]relax:ok@0"
+      ],
+      "verification": [
+       {
+        "t": 0.61328125,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": []
+        }
+       },
+       {
+        "t": 0.548828125,
+        "u": 1,
+        "sample": {
+         "kind": "measured",
+         "pairs": []
+        }
+       },
+       {
+        "t": 0.61328125,
+        "u": 0.5,
+        "sample": {
+         "kind": "not-sampled"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "group": "shoulders:leftUpperArm.tt(120,120,0)",
+     "state": "shoulders:leftUpperArm.tt(120,120,0)",
+     "angle": 1,
+     "weight": 1,
+     "outcome": "clear",
+     "crossing": null
+    }
+   ]
+  }
+ ],
+ "outputs": {
+  "body.json.gz": {
+   "bytes": 31739608,
+   "sha256": "97e66985fdc6ade8b76927080099c6e08db13f437f11736a7d19b4b00a1899f5"
+  },
+  "g1-generation.json.gz": {
+   "bytes": 57367511,
+   "sha256": "dc6ee9ea3de8b20f1e6c06840e4b835f1359b09f8836a59b01157618a1e6994e"
+  },
+  "head.json.gz": {
+   "bytes": 30665580,
+   "sha256": "205aea10003031abbea07716dc2f552a9b757448c525dc1709b8443d748a920f"
+  },
+  "p1-body-basis.json.gz": {
+   "bytes": 30404745,
+   "sha256": "3c945f65987ccd63551fcf94117dee9e0be4285e23620ecea80bc0a18d6bdf0a"
+  },
+  "p1-face-basis.json.gz": {
+   "bytes": 27881370,
+   "sha256": "22b8f4d0e72e3c618278c4b0b10e99250d46f97cd91fd06cddec5cbea22260f9"
+  },
+  "reproduction-rows.tsv": {
+   "bytes": 588391,
+   "sha256": "2bf73c639d8bfeb7037aa583c33564f18e3c3bbad2a1f9d4844a3dc17d61c9c4"
+  },
+  "reproduction.json": {
+   "bytes": 2908438,
+   "sha256": "8603d71bf02e0b1244876327fefc7ead1f4af7dce205f950f5a3fec5c28b2af8"
+  }
+ }
+}

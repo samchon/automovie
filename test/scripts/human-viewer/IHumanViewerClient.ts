@@ -1,4 +1,6 @@
 import type { HumanViewerRender } from "./HumanViewerRender";
+import type { IHumanViewerDropProps } from "./IHumanViewerDropProps";
+
 /** A connected resident viewer. */
 export interface IHumanViewerClient {
   /** The graphics device string the server reported when it was ready. */
@@ -12,13 +14,9 @@ export interface IHumanViewerClient {
    * with an optional candidate basis they are built against. Refuses with the
    * server's reason when it rejects the file.
    */
-  drop(props: {
-    label: string;
-    documents: { id: string }[];
-    candidateBasis?: string | null;
-  }): Promise<void>;
+  drop(props: IHumanViewerDropProps): Promise<void>;
 
-  /** Render one address (the display fields of the address grammar). */
+  /** Render one address, preserving its response revision and device authority. */
   render(fields: Record<string, string>): Promise<HumanViewerRender>;
 
   /**

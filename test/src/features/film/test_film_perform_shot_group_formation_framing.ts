@@ -2,17 +2,18 @@ import {
   DEFAULT_SUBJECT_HEIGHT,
   materializeCompiledFormation,
   performShot,
-  productionRuntimeModelId,
   stageScene,
 } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   IAutoMovieFormationMotion,
-  IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
+import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
+import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -42,32 +43,7 @@ const DURATION = 2;
  * floor at zero and its top at {@link MEMBER_HEIGHT}. Every number below is read
  * off that rather than out of the measurement under test.
  */
-const memberModel: IAutoMovieModel = {
-  id: productionRuntimeModelId("member"),
-  name: null,
-  origin: "generated",
-  parts: [
-    {
-      id: "body",
-      name: null,
-      geometry: {
-        type: "primitive",
-        shape: { type: "box", width: 0.4, height: MEMBER_HEIGHT, depth: 0.4 },
-      },
-      material: null,
-      attachedBone: null,
-      transform: {
-        translation: { x: 0, y: MEMBER_HEIGHT / 2, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
-    },
-  ],
-  skeleton: null,
-  body: null,
-  materials: [],
-  asset: null,
-};
+const memberModel = createFilmFormationMemberModel(MEMBER_HEIGHT);
 
 /** One compiled unit of `count` members in a single rank, on the origin. */
 const unit = (id: string, count: number) =>
@@ -165,11 +141,7 @@ const staged = (() => {
   return result;
 })();
 
-const frame = (props: {
-  nodes?: string[];
-  formations?: string[];
-  move?: "static" | "follow";
-}): IAutoMovieActionCall => ({
+const frame = (props: IFilmFormationFrameInput): IAutoMovieActionCall => ({
   verb: "frame",
   actor: "cam",
   start: 0,
@@ -183,12 +155,7 @@ const frame = (props: {
   },
 });
 
-const perform = (props: {
-  action: IAutoMovieActionCall;
-  formations?: readonly ReturnType<typeof unit>[];
-  models?: readonly IAutoMovieModel[];
-  formationMotions?: readonly IAutoMovieFormationMotion[];
-}) =>
+const perform = (props: IFilmFormationPerformanceInput) =>
   performShot({
     script,
     staged,

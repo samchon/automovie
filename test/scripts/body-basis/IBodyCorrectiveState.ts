@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 /** One owned census/axis state, with complete TT goals independent of Euler rows. */

@@ -4,7 +4,10 @@ import type {
   IAutoMovieHumanFaceControlMap,
 } from "@automovie/human";
 
-import { type IHingedEyelashCard, hingeEyelashRegion } from "./hingeEyelashRegion";
+import {
+  type IHingedEyelashCard,
+  hingeEyelashRegion,
+} from "./hingeEyelashRegion";
 
 /** One lid's lash region and the central sagittal angle its cards should have, degrees from the upward vertical. */
 export interface IEyelashOrientationLid {
@@ -47,7 +50,12 @@ export function prepareLashOrientationBasis(input: {
   receipt: {
     source: string;
     revision: string;
-    lids: { region: string; target: number; cards: IHingedEyelashCard[]; vertices: number }[];
+    lids: {
+      region: string;
+      target: number;
+      cards: IHingedEyelashCard[];
+      vertices: number;
+    }[];
   };
 } {
   const basis = structuredClone(input.basis);
@@ -56,7 +64,9 @@ export function prepareLashOrientationBasis(input: {
   const surface = basis.surfaces.find((one) => one.id === input.surface);
   const skin = basis.surfaces.find((one) => one.id === input.skin);
   if (surface === undefined || skin === undefined)
-    throw new Error("A lash orientation revision needs its lash and skin surfaces.");
+    throw new Error(
+      "A lash orientation revision needs its lash and skin surfaces.",
+    );
   const lids = input.lids.map((lid) => {
     const region = surface.regions.find((one) => one.id === lid.region);
     if (region === undefined || region.uvs === null)
@@ -64,7 +74,9 @@ export function prepareLashOrientationBasis(input: {
     const own = new Set(region.indices);
     for (const other of surface.regions)
       if (other !== region && other.indices.some((vertex) => own.has(vertex)))
-        throw new Error(`Region ${lid.region} shares vertices with ${other.id}.`);
+        throw new Error(
+          `Region ${lid.region} shares vertices with ${other.id}.`,
+        );
     const { moved, cards } = hingeEyelashRegion({
       positions: surface.positions,
       indices: region.indices,
@@ -73,13 +85,22 @@ export function prepareLashOrientationBasis(input: {
       target: lid.target,
       ...(lid.inward === undefined ? {} : { inward: lid.inward }),
     });
-    for (const [vertex, point] of moved) surface.positions.splice(3 * vertex, 3, ...point);
-    return { region: lid.region, target: lid.target, cards, vertices: moved.size };
+    for (const [vertex, point] of moved)
+      surface.positions.splice(3 * vertex, 3, ...point);
+    return {
+      region: lid.region,
+      target: lid.target,
+      cards,
+      vertices: moved.size,
+    };
   });
   basis.id = input.revision;
   return {
     basis,
-    documents: input.documents.map((document) => ({ ...document, basis: input.revision })),
+    documents: input.documents.map((document) => ({
+      ...document,
+      basis: input.revision,
+    })),
     controls: { ...input.controls, basis: input.revision },
     receipt: { source: input.basis.id, revision: input.revision, lids },
   };

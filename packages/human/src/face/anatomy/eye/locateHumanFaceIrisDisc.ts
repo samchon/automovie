@@ -92,7 +92,9 @@ export function locateHumanFaceIrisDisc(
     throw new Error("An iris disc needs sclera vertices behind the cornea.");
   const sphere = fitSphere(sclera);
   if (2 * sphere.radius < HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000)
-    throw new Error("The globe diameter cannot be smaller than the absolute iris diameter.");
+    throw new Error(
+      "The globe diameter cannot be smaller than the absolute iris diameter.",
+    );
   const axis = protrusionAxis(positions, sphere);
   const up: [number, number, number] =
     Math.abs(axis[1]) > 0.999 ? [1, 0, 0] : [0, 1, 0];
@@ -102,7 +104,9 @@ export function locateHumanFaceIrisDisc(
     radius: sphere.radius,
     axis,
     reference,
-    limbus: Math.asin(HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000 / (2 * sphere.radius)),
+    limbus: Math.asin(
+      HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000 / (2 * sphere.radius),
+    ),
     pupil: Math.asin(HUMAN_FACE_PUPIL_DIAMETER_MM / 1000 / (2 * sphere.radius)),
     painted: Math.asin(
       HUMAN_FACE_LIMBAL_DIAMETER_MM / HUMAN_FACE_GLOBE_DIAMETER_MM,

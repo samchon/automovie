@@ -94,7 +94,12 @@
  * @evidenceExclude requirements/asset-authoring/materials-and-textures.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
  * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
  * @evidenceExclude requirements/asset-authoring/README.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-bounds-state-motion The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-proxy-lineage The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-selection The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-transition-stability The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
+ * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-stale-refusal The viewer consumes compiled asset representation records; general asset authoring, lineage and admission remain upstream.
  * @evidenceExclude requirements/asset-authoring/rig-and-state.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
  * @evidenceExclude requirements/asset-authoring/validation.md The viewer materializes compiled assets; authoring, validation, provenance, and refusal remain upstream.
  * @evidenceExclude requirements/external-inputs/adoption-modes-and-composition.md#external-adoption-group-composition The viewer consumes adopted runtime assets; ingestion, identity mapping, trust, and refusal remain in ingest and compilation.

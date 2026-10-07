@@ -1,0 +1,62 @@
+{
+  "schema": "automovie-nasal-source-normal-axis/1",
+  "sourceBasis": "01f7247cdfcdce6f4f20b9123073f28a4f520710ee6129ac680cee01a60f58f3",
+  "frame": "Blender metres; +X left, +Z up, -Y anterior",
+  "states": 744,
+  "sampleInputs": {
+    "neutral.f64": {
+      "bytes": 1284336,
+      "sha256": "121bd78349d8c14a40260f9acecdd5636b5e0619065a87df879c635d0271e2ed"
+    },
+    "rows.i32": {
+      "bytes": 34294580,
+      "sha256": "7da06e5aeb09a5c4975500526591184bf2532dbf834c2109a3dbabcbe484af04"
+    },
+    "rows.f64": {
+      "bytes": 205767480,
+      "sha256": "ffa87c4d3c3eafb04b213e29c62c92e133a628c29ba0c6bf4c9032cbd359a819"
+    },
+    "loop-start.i32": {
+      "bytes": 214048,
+      "sha256": "ea80fb86071ebad534623aecd00b42735cbe5a345a41754e9fd1bae1df1e8dee"
+    },
+    "loop-total.i32": {
+      "bytes": 214048,
+      "sha256": "f40462074d94b0375ae11cf02cf3fc07e6b46bbbccda29655917c2599d988c97"
+    },
+    "loop-vertex.i32": {
+      "bytes": 856192,
+      "sha256": "2c1f14d8321e23ea0dc2fec3cde85a69fe401c336dd31b35e210a9b7542fcc0c"
+    }
+  },
+  "socketSha256": "acae87acc05a9deb77ea8823d3492afd033b67c7647fe1ffd5c6082c9dfa9454",
+  "axes": [
+    {
+      "side": "right",
+      "outwardAxisBlender": [
+        -0.400472298380145,
+        -0.26452710865859375,
+        -0.8772954730390718
+      ],
+      "minimumNativeNormalDot": 0.012820443070931432,
+      "nativeFacetConstraints": 193440
+    },
+    {
+      "side": "left",
+      "outwardAxisBlender": [
+        0.4007870386071911,
+        -0.2645765922517524,
+        -0.8771368060439193
+      ],
+      "minimumNativeNormalDot": 0.012815375776219455,
+      "nativeFacetConstraints": 193440
+    }
+  ],
+  "qualification": "source-family normal-cone fit; neither clinical nasal axis nor airway acquisition",
+  "pending": [
+    "translated3D cap/wall selfintersection",
+    "host/paired-clearance",
+    "full provider replay",
+    "sameperson SDK/F32/GPU"
+  ]
+}

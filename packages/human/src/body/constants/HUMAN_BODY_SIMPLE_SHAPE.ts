@@ -8,8 +8,8 @@ import { HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL } from "./simple-shape/HUMAN_BODY_SIMPL
 import { HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF";
 import { HUMAN_BODY_SIMPLE_SHAPE_NECK } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_NECK";
 import { HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT";
-import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION";
 import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_ARM_LENGTH } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_ARM_LENGTH";
+import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION";
 import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL";
 import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT";
 import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE } from "./simple-shape/HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE";
@@ -40,7 +40,7 @@ import { HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_RIGHT } from "./simple-shape/HUMA
  * Babuccu et al. 2004 found weight, not age, explained the adult groups in
  * their female sample (doi:10.1007/s00266-004-4010-9). Gluteal mass and
  * pelvic tone muscle raises and age
- * takes, the adolescent maturity before which training builds no muscle, the
+ * takes, the authored adolescent ramp for the training contribution, the
  * redistribution of fat from the limbs to the trunk with age, the WHO
  * android/gynoid split by sex, Deurenberg's age-specific body fat estimates
  * from BMI, age and sex, and the body fat bands below which the rectus,
@@ -97,46 +97,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     { parameter: "calfMetres", channel: "measureCalfCirc" },
   ],
   /**
-   * Stature is the basis's height rule (its clip ring above the ground) plus
-   * the head above the ring, measured on the face basis this body is cut
-   * from: crown 0.1388 m over the ring's highest vertex at -0.0808 m
-   * (`mpfb-connected-head-2026-09-17-clipped`).
-   */
-  stature: { headAboveRingMetres: 0.2196 },
-  /**
-   * Body mass from the skin volume: density from the body fat fraction by
-   * Siri's equation `fat = 4.95 / density - 4.50`, and the head and neck
-   * segment, which lies above the ring. Jensen's 1989 polynomial regression
-   * (12 boys ages 4–20, 89 annual observations) supplies its child share;
-   * Dempster's adult table as given by Winter supplies 8.1% for adults. The
-   * Jensen curve (R² 0.76, regression error 0.0094 fraction) gives 8.1158%
-   * at 15, almost the adult value. The small 15–16 interpolation joins
-   * distinct study populations for a continuous
-   * editor response; it is an authored bridge, not a measured growth curve.
-   * The boy-only pediatric data also approximate girls here. Segment
-   * boundaries may not coincide exactly with this basis's clip ring.
-   * Source: https://doi.org/10.1016/0021-9290(89)90004-3, Table 1.
+   * Body mass from the whole person's closed skin volume
+   * (`IAutoMovieHumanBodySimpleWhole.volume`) at a density from the body fat
+   * fraction by Siri's equation `fat = 4.95 / density - 4.50`. The volume
+   * includes the head and neck, so no segment share is added.
    */
   mass: {
     siri: { numerator: 4.95, offset: 4.5 },
-    headAndNeck: {
-      pediatric: {
-        intercept: 0.27881,
-        ageYearsCoefficient: -0.021152,
-        ageYearsSquaredCoefficient: 0.00053168,
-      },
-      adultFraction: 0.081,
-      transitionAgeYears: [15, 16],
-      // Both segments end at the suprasternal notch and C7, but this basis's
-      // clip ring stands 9 to 11 cm above the sternoclavicular joint, so the
-      // skin keeps that neck. Measured on 24 simple-tier bodies (both sexes,
-      // 11 to 70 years, body mass index 18 to 32) it is 1.7 to 3.0 % of the
-      // volume, 2.35 % at an index of 24 and inversely with the index, with
-      // little dependence on age or sex; the volume share stands for the
-      // mass share (the difference, about a tenth of a point, is the neck's
-      // density against the body's and the head outside the volume)
-      keptNeck: { fraction: 0.0235, bodyMassIndex: 24 },
-    },
     /** The fat fraction the density model is trusted over. */
     fatFraction: [0.05, 0.5],
   },

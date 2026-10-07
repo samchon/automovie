@@ -1,4 +1,4 @@
-import { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
+import type { IPortraitEyebrowFlowSection } from "./IPortraitEyebrowFlowSection";
 
 /**
  * Complete medial-to-lateral flow witnesses. Lower and upper describe the two
@@ -18,14 +18,5 @@ import { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
  */
 export interface IPortraitEyebrowFlowProfile {
   /** Strictly increasing complete witnesses, including medial zero and lateral one. */
-  sections: readonly {
-    /** Medial-to-lateral progress along the brow in [0,1], independent of head-X side. */
-    at: number;
-
-    /** Endpoint of a fibre rooted at the lower end of the root band. */
-    lower: IPortraitEyebrowFlowDirection;
-
-    /** Endpoint of a fibre rooted at the upper end of the root band. */
-    upper: IPortraitEyebrowFlowDirection;
-  }[];
+  sections: readonly IPortraitEyebrowFlowSection[];
 }

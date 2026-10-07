@@ -1,3 +1,11 @@
+import type { IAutoMovieHumanBodyLandmarkDistance } from "./IAutoMovieHumanBodyLandmarkDistance";
+import type { IAutoMovieHumanBodyLevelSection } from "./IAutoMovieHumanBodyLevelSection";
+import type { IAutoMovieHumanBodySkinExtent } from "./IAutoMovieHumanBodySkinExtent";
+import type { IAutoMovieHumanBodySkinLandmarkDistance } from "./IAutoMovieHumanBodySkinLandmarkDistance";
+import type { IAutoMovieHumanBodySkinLandmarkHeight } from "./IAutoMovieHumanBodySkinLandmarkHeight";
+import type { IAutoMovieHumanBodySkinReach } from "./IAutoMovieHumanBodySkinReach";
+import type { IAutoMovieHumanBodyStationSection } from "./IAutoMovieHumanBodyStationSection";
+
 /**
  * A measurement rule the body basis evaluates on its shaped surface.
  *
@@ -13,47 +21,20 @@
  * landmark instead (`level`, a vertex of the basis surface such as the
  * nipple for the bust) has the one plane through that vertex, so the girth
  * follows the landmark wherever the shape moves it. A `distance` is the straight distance between two
- * landmarks. A `height` is the vertical distance from the surface's lowest
- * point to the mean of its clip-ring vertices, the body's stand-in for stature
- * while the head belongs to another basis. A `breadth` is the X extent of the
+ * landmarks. A `breadth` is the X extent of the
  * section loop found by a girth rule, which is how a front-chest width is read
- * on a mesh that has no chest-corner landmarks.
+ * on a mesh that has no chest-corner landmarks. An `extent` is the caliper
+ * reading between the extreme skin points of a region of dominantly weighted
+ * bones, along or across a horizontal landmark axis, such as a foot's length
+ * or breadth, whose extremes move with the shape.
  *
  * @author Samchon
  */
 export type IAutoMovieHumanBodyMeasurement =
-  | {
-      kind: "girth" | "breadth";
-      /** Landmark ids of the segment the sections walk along. */
-      from: string;
-      to: string;
-      /** Fractions of the segment, inclusive, sampled at `steps` evenly spaced planes. */
-      range: [number, number];
-      steps: number;
-      /**
-       * Take the largest or the smallest value over the sampled planes, or
-       * the value on the plane whose loop reaches furthest back (the least
-       * Z; the body faces +Z), where ANSUR takes the buttock circumference.
-       */
-      pick: "max" | "min" | "rearmost";
-      /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
-      horizontal: boolean;
-    }
-  | {
-      kind: "girth" | "breadth";
-      /** Landmark ids of the segment; the loop nearest its point on the plane is kept. */
-      from: string;
-      to: string;
-      /** The skin landmark the one plane passes through: a vertex of one basis surface. */
-      level: { surface: number; vertex: number };
-      /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
-      horizontal: boolean;
-    }
-  | {
-      kind: "distance";
-      from: string;
-      to: string;
-    }
-  | {
-      kind: "height";
-    };
+  | IAutoMovieHumanBodyStationSection
+  | IAutoMovieHumanBodyLevelSection
+  | IAutoMovieHumanBodyLandmarkDistance
+  | IAutoMovieHumanBodySkinExtent
+  | IAutoMovieHumanBodySkinLandmarkDistance
+  | IAutoMovieHumanBodySkinReach
+  | IAutoMovieHumanBodySkinLandmarkHeight;

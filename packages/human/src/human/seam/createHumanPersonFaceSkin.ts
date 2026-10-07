@@ -1,11 +1,11 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
-import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
-import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
-import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
 import { createHumanLoopHeight } from "./createHumanLoopHeight";
+import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
+import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
+import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
 
 /**
  * Four-influence skin weights for the face's skin surface, so that its neck is
@@ -101,9 +101,16 @@ export function createHumanPersonFaceSkin(props: {
   // Caller-authored seams without a cut retain their original angular lookup.
   // Generated cuts use the ordered shared face correspondence rather than
   // requiring a clipped native body contour to be a radial graph.
-  const bracket = seam.cut === undefined
-    ? createHumanLoopAzimuth(seam.bodyLoop.map((vertex) => point(body, vertex)), seam.axis).bracket
-    : createHumanLoopParameterLookup(seam.collar.follow.map(({ edge, fraction }) => edge + fraction), seam.faceLoop.length);
+  const bracket =
+    seam.cut === undefined
+      ? createHumanLoopAzimuth(
+          seam.bodyLoop.map((vertex) => point(body, vertex)),
+          seam.axis,
+        ).bracket
+      : createHumanLoopParameterLookup(
+          seam.collar.follow.map(({ edge, fraction }) => edge + fraction),
+          seam.faceLoop.length,
+        );
   const joints: AutoMovieHumanoidBone[] = ["head"];
   const boneOf = (bone: AutoMovieHumanoidBone): number => {
     let index = joints.indexOf(bone);
@@ -131,17 +138,16 @@ export function createHumanPersonFaceSkin(props: {
     }
     const smooth = t * t * t * (10 - 15 * t + 6 * t * t);
     const projected = projectHumanLoopPoint(facePoints, p);
-    const { low, high, along } = bracket(seam.cut === undefined ? angle : projected.edge + projected.fraction);
+    const { low, high, along } = bracket(
+      seam.cut === undefined ? angle : projected.edge + projected.fraction,
+    );
     const mixed = new Map<AutoMovieHumanoidBone, number>([["head", smooth]]);
     for (const [loop, share] of [
       [low, 1 - along],
       [high, along],
     ] as const)
       for (const [bone, weight] of bodyWeights(seam.bodyLoop[loop]))
-        mixed.set(
-          bone,
-          (mixed.get(bone) ?? 0) + (1 - smooth) * share * weight,
-        );
+        mixed.set(bone, (mixed.get(bone) ?? 0) + (1 - smooth) * share * weight);
     const kept = [...mixed]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)

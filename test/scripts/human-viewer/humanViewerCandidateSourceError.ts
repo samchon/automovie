@@ -13,5 +13,7 @@ export function humanViewerCandidateSourceError(health: {
   compilation?: { error: string | null };
   sourceError: string | null;
 }): string | null {
-  return health.compilation === undefined ? health.sourceError : health.compilation.error;
+  return health.compilation === undefined
+    ? health.sourceError
+    : health.compilation.error;
 }

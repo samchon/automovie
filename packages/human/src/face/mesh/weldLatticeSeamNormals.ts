@@ -25,17 +25,13 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidenceExclude contracts/modeling.md#spatial-conventions The function moves and converts no position; only unit normals are recomputed.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function welds shading within one mesh and builds no boundary between parts.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part; the pinna builder that calls it observes the result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a human form.
  */
 export function weldLatticeSeamNormals(
   mesh: IAutoMovieMesh,
   columns: number,
   rows: number,
 ): IAutoMovieMesh {
-  if (mesh.normals === null || mesh.normals === undefined)
-    return { ...mesh };
+  if (mesh.normals === null || mesh.normals === undefined) return { ...mesh };
   const width = columns + 1;
   if (mesh.normals.length !== 3 * width * (rows + 1))
     throw new Error("The lattice's normals must match its columns and rows.");
@@ -43,7 +39,9 @@ export function weldLatticeSeamNormals(
   for (let row = 0; row <= rows; row++) {
     const a = 3 * row * width,
       b = a + 3 * columns;
-    const sum = [0, 1, 2].map((axis) => mesh.normals![a + axis] + mesh.normals![b + axis]);
+    const sum = [0, 1, 2].map(
+      (axis) => mesh.normals![a + axis] + mesh.normals![b + axis],
+    );
     const length = Math.hypot(...sum);
     if (length === 0) continue;
     for (let axis = 0; axis < 3; axis++) {

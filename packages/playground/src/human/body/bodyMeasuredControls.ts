@@ -1,9 +1,7 @@
-import {
-  HUMAN_BODY_ANSUR_II_REFERENCE,
-  type IAutoMovieHumanBodyBasis,
-  type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanBodyChannelScale,
-} from "@automovie/human";
+import { HUMAN_BODY_ANSUR_II_REFERENCE } from "@automovie/human/body/constants/HUMAN_BODY_ANSUR_II_REFERENCE";
+
+import type { IBodyMeasuredControlsProps } from "./IBodyMeasuredControlsProps";
+import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
 
 /**
  * Edit only detailed controls with a defined body measurement in millimetres.
@@ -12,7 +10,9 @@ import {
  * displacement is an internal morph, not an anatomical parameter to ask a
  * person to sculpt. This panel offers exterior girth, breadth and height or
  * landmark distance when `HUMAN_BODY_MEASUREMENTS` supplies a rule and the
- * loaded basis can evaluate it. A basis envelope is the supported asset reach,
+ * loaded basis can evaluate it (`bodyMeasuredChannel`); a one-sided channel
+ * that only answers an anatomical target is the person editor's Anatomy
+ * group's row, never a second row here. A basis envelope is the supported asset reach,
  * not a clinical normal range. Four comparable tapes also show the 1st–99th
  * percentiles of the ANSUR II 17–58-year-old soldier sample; the entry remains
  * editable outside that descriptive population band. The worker inverts the
@@ -25,46 +25,19 @@ import {
  * cannot erase a measurement the user is still entering. Only a successful
  * solve changes the body document; this draft map is never serialized.
  */
-export function renderBodyMeasuredControls(props: {
-  dom: Document;
-  container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  scales: Map<string, IAutoMovieHumanBodyChannelScale>;
-  kind: string;
-  query: string;
-  drafts: Map<string, string>;
-  current: () => IAutoMovieHumanBodyBasisDocument;
-  reserve: () => number;
-  isCurrent: (ticket: number) => boolean;
-  solve: (
-    shape: Record<string, number>,
-    channel: string,
-    targetMetres: number,
-  ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
-  change: (
-    document: IAutoMovieHumanBodyBasisDocument,
-    ticket: number,
-  ) => Promise<boolean>;
-  busy: (text: string) => void;
-  report: (text: string) => void;
-  refuse: (error: unknown) => void;
-}): void {
+export function renderBodyMeasuredControls(
+  props: IBodyMeasuredControlsProps,
+): void {
   const mm = (metres: number | null): string =>
     metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
   const interval = (band: readonly [number, number]): string =>
     `${band[0].toFixed(1)}–${band[1].toFixed(1)} mm`;
-  for (const channel of props.basis.channels.filter((one) => {
-    const measurement = props.scales.get(one.id)?.measurement;
-    return (
+  for (const channel of props.basis.channels.filter(
+    (one) =>
       one.group === props.kind &&
       one.id.toLowerCase().includes(props.query) &&
-      measurement !== null &&
-      measurement !== undefined &&
-      measurement.neutral !== null &&
-      measurement.positive !== null &&
-      (one.negative === null || measurement.negative !== null)
-    );
-  })) {
+      bodyMeasuredChannel(one, props.scales.get(one.id)),
+  )) {
     const measurement = props.scales.get(channel.id)!.measurement!;
     const row = props.dom.createElement("div");
     const label = props.dom.createElement("label");
@@ -76,7 +49,7 @@ export function renderBodyMeasuredControls(props: {
     label.textContent =
       channel.id.replace(/([a-z])([A-Z])/gu, "$1 $2") +
       ` (${measurement.kind}, mm)`;
-    number.id = "control-" + channel.id;
+    number.id = "body-control-" + channel.id;
     number.type = "number";
     number.step = "0.1";
     number.placeholder = "Target mm";
@@ -115,7 +88,7 @@ export function renderBodyMeasuredControls(props: {
       }
     };
     entry.append(number, apply);
-    note.id = "scale-" + channel.id;
+    note.id = "body-scale-" + channel.id;
     const reference = HUMAN_BODY_ANSUR_II_REFERENCE.get(channel.id);
     const population =
       reference === undefined

@@ -100,3 +100,13 @@ frame paths, encoded MP4 path, and a pixel probe for sampled dissolve frames.
 pnpm render:sequence
 pnpm render:sequence -- --fps 12 --out .shots/_render-see/film-sequence.mp4
 ```
+
+## Observing the connected person editor
+
+`observe:person` drives the real `connected-person.html` page through a list of user actions and records what the page shows after each one: the status line and its state, which buttons are disabled, the working document, the admission report as displayed, the files the page downloaded with their SHA-256, and how long each step took. It asserts nothing; the record is read by a person. Serve the page first (`vite` or `vite preview`), set `CHROME` to a GPU-backed Chromium, and close the page when the observation is done.
+
+```bash
+pnpm observe:person -- record.json base=http://127.0.0.1:4173 load=person.json set=face/shape/noseWidth:0.3 click=undo click=glb
+```
+
+The header of `scripts/observe-connected-person.cts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.

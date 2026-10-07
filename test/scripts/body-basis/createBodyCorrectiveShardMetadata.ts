@@ -11,8 +11,9 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller computes the fingerprint with the shared digest owner; this function introduces no second hashing formula or historical bypass.
  * @evidence contracts/common.md#meaningful-documentation States the real consumer, capture before corrective removal, caller-owned verified input and the limits of provenance.
  */
-export function createBodyCorrectiveShardMetadata(
-  input: { id: string; sha256: string },
-): { basis: string; basisSha256: string } {
+export function createBodyCorrectiveShardMetadata(input: {
+  id: string;
+  sha256: string;
+}): { basis: string; basisSha256: string } {
   return { basis: input.id, basisSha256: input.sha256 };
 }

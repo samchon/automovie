@@ -4,10 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
- * `closestPointsBetweenSegments` returns the closest pair (and distance)
- * between two segments using the four-candidate endpoint approximation shared
- * with the distance check, so a contact normal derived from the pair agrees
- * with the distance that flagged it.
+ * Bounded segment witnesses describe the same separation used by scalar
+ * distance checks. Facing endpoints and exact contact have independent
+ * known witnesses, including zero distance where a normal needs a fallback.
  *
  * Scenarios:
  *

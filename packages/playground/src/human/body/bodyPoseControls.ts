@@ -1,14 +1,15 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import { getConstraint } from "@automovie/engine";
+import { HUMAN_BODY_MOTION_GAPS } from "@automovie/human/body/constants/HUMAN_BODY_MOTION_GAPS";
+import type { IAutoMovieJointPose } from "@automovie/interface";
+
+import type { IBodyPoseControlsProps } from "./IBodyPoseControlsProps";
 
 const AXES = ["flexion", "abduction", "twist"] as const;
 
 /**
  * Render the joint controls of the body editor: one bone at a time, its
- * three clinical axes as sliders bounded by the basis's ranges, the rest
+ * three clinical axes as sliders bounded by the engine's effective override
+ * or default ranges, the rest
  * angle marked, an absent angle meaning the rest.
  *
  * The values are clinical degrees, which is what the document stores and
@@ -22,8 +23,11 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * corrective changes a pose means that addition is printed rather than
  * folded into the slider: `coupled` is the package's own evaluation of the
  * draft (`resolveHumanBodyCouplings(basis, pose).contributions`), so each
- * driven axis states the degrees it gains, the coupling that adds them and
- * the total the builder validates. The slider keeps the document's angle and
+ * driven axis states its declared coordination increment and the coupling.
+ * The separate clinical reading states all three coordinates of the current
+ * draft's actual source-rig frames; a pelvis turn can change more than its
+ * flexion. A scalar increment is not that combined clinical total.
+ * The slider keeps the document's angle and
  * its range, and a total past the range is refused by the build as the
  * status line reports, never clamped here.
  * `pose` paints the current rows, while `currentPose` reads the latest draft
@@ -32,29 +36,14 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * another bone's edit.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each joint's clinical flexion, abduction and twist to bounded inputs that state the rest angle and refuse nothing the range admits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads ranges and rest angles from the admitted basis, writes only moved joints into the document's sparse pose and prints each coupled addition beside its axis.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads effective override/default ranges through the engine's constraint owner and neutral angles from the admitted basis, writes only moved joints into the sparse pose, and displays declared coordination separately from the current draft's resolved source-rig coordinates.
  */
-export const renderBodyPoseControls = (props: {
-  dom: Document;
-  container: HTMLElement;
-  basis: IAutoMovieHumanBodyBasis;
-  bone: AutoMovieHumanoidBone;
-  pose: readonly IAutoMovieJointPose[];
-  /** Read the latest draft at event time, including edits still building. */
-  currentPose?: () => readonly IAutoMovieJointPose[];
-  /** The package's coupled additions for this draft; absent when the caller evaluated none. */
-  coupled?: readonly {
-    coupling: string;
-    bone: AutoMovieHumanoidBone;
-    axis: "flexion" | "abduction" | "twist";
-    degrees: number;
-  }[];
-  onChange: (pose: IAutoMovieJointPose[]) => void;
-}): void => {
+export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
   const { dom, container, basis } = props;
   container.replaceChildren();
   const joint = basis.joints.find((one) => one.bone === props.bone);
   if (joint === undefined) return;
+  const constraint = getConstraint(joint.bone, joint.constraint);
   const current = props.pose.find((one) => one.bone === props.bone);
   const write = (axis: (typeof AXES)[number], value: number | null): void => {
     const pose = props.currentPose?.() ?? props.pose;
@@ -73,7 +62,7 @@ export const renderBodyPoseControls = (props: {
     props.onChange(moved ? [...rest, next] : rest);
   };
   for (const axis of AXES) {
-    const range = joint.constraint?.[axis] ?? null;
+    const range = constraint?.[axis] ?? null;
     const row = dom.createElement("div"),
       label = dom.createElement("label"),
       entry = dom.createElement("div"),
@@ -90,7 +79,7 @@ export const renderBodyPoseControls = (props: {
     slider.id = number.id + "-slider";
     label.htmlFor = number.id;
     slider.setAttribute("aria-label", label.textContent + " slider");
-    const held = joint.constraint !== null && range === null;
+    const held = constraint !== null && range === null;
     const value = current?.[axis] ?? joint.neutral[axis];
     if (held) {
       number.min = "0";
@@ -99,7 +88,9 @@ export const renderBodyPoseControls = (props: {
       slider.max = number.max;
       number.disabled = true;
       slider.disabled = number.disabled;
-      note.textContent = "held: this joint does not move on this axis";
+      note.textContent =
+        "held: this joint does not move on this axis" +
+        motionGap(props.bone, axis);
     } else if (range !== null) {
       number.min = String(range.min);
       slider.min = number.min;
@@ -107,17 +98,21 @@ export const renderBodyPoseControls = (props: {
       slider.max = number.max;
       note.textContent =
         `clinical range ${range.min}° to ${range.max}°, rest ${joint.neutral[axis].toFixed(2)}°` +
-        (joint.constraint?.swingDeg !== undefined &&
-        joint.constraint?.swingDeg !== null &&
+        (constraint?.swingDeg !== undefined &&
+        constraint?.swingDeg !== null &&
         axis !== "twist"
-          ? `, combined swing within ${joint.constraint.swingDeg}°`
-          : "");
+          ? `, combined swing within ${constraint.swingDeg}°`
+          : "") +
+        motionGap(props.bone, axis);
     } else {
       number.min = "-180";
       slider.min = number.min;
       number.max = "180";
       slider.max = number.max;
-      note.textContent = "the root turns freely";
+      note.textContent =
+        joint.parent === null
+          ? "the root turns freely"
+          : "this joint has no source-rig range";
     }
     number.value = String(value);
     slider.value = number.value;
@@ -135,6 +130,7 @@ export const renderBodyPoseControls = (props: {
     rest.textContent = "Rest";
     rest.onclick = () => write(axis, null);
     entry.append(slider, number, rest);
+    row.append(label, entry, note);
     const addition = (props.coupled ?? []).find(
       (one) => one.bone === props.bone && one.axis === axis,
     );
@@ -142,12 +138,29 @@ export const renderBodyPoseControls = (props: {
       const coupled = dom.createElement("output");
       coupled.id = number.id + "-coupled";
       coupled.setAttribute("for", number.id);
-      coupled.textContent =
-        `coupled ${addition.degrees < 0 ? "" : "+"}${addition.degrees.toFixed(1)}° by ${addition.coupling}` +
-        `, total ${(value + addition.degrees).toFixed(1)}°`;
-      entry.append(coupled);
+      coupled.textContent = `coupled ${addition.degrees < 0 ? "" : "+"}${addition.degrees.toFixed(1)}° by ${addition.coupling}`;
+      coupled.style.display = "block";
+      row.append(coupled);
     }
-    row.append(label, entry, note);
+    const actual = props.clinical?.find((one) => one.bone === props.bone);
+    if (actual !== undefined) {
+      const reading = dom.createElement("output");
+      reading.id = number.id + "-clinical";
+      reading.setAttribute("for", number.id);
+      reading.textContent =
+        actual[axis] === null
+          ? `resolved source-rig ${axis} unavailable`
+          : `resolved source-rig ${axis} ${actual[axis].toFixed(6)}°`;
+      reading.style.display = "block";
+      row.append(reading);
+    }
     container.append(row);
   }
+};
+
+/** The named anatomical gap of a lower-limb axis, as a sentence suffix, or empty. */
+const motionGap = (bone: string, axis: string): string => {
+  const gap =
+    HUMAN_BODY_MOTION_GAPS[`${bone.replace(/^(left|right)/u, "")}.${axis}`];
+  return gap === undefined ? "" : ". " + gap;
 };

@@ -22,7 +22,9 @@ export function assertBodyCorrectiveBasis(
   label: string,
 ): void {
   if (shard.basisSha256 === undefined)
-    throw new Error(`${label}: the corrective shard has no input basis digest; solve it again.`);
+    throw new Error(
+      `${label}: the corrective shard has no input basis digest; solve it again.`,
+    );
   if (shard.basis !== input.id)
     throw new Error(
       `${label}: the corrective shard was solved on ${shard.basis}, not on ${input.id}.`,

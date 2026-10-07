@@ -1,4 +1,5 @@
-import type { HumanResidentPort } from "./residentWorker";
+import type { HumanResidentPort } from "./HumanResidentPort";
+import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
 
 /**
  * Adapt native worker callbacks to the typed resident request transport.
@@ -14,7 +15,10 @@ export function createHumanResidentPort<Input, Output>(
       worker.onmessage = (event) => callback?.({ data: event.data });
     },
     set onerror(callback: HumanResidentPort<Input, Output>["onerror"]) {
-      worker.onerror = (event) => callback?.({ message: event.message });
+      worker.onerror = (event) =>
+        callback?.({
+          message: humanWorkerErrorMessage(event, "The face worker failed."),
+        });
     },
     postMessage: (request) => worker.postMessage(request),
     terminate: () => worker.terminate(),

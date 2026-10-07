@@ -19,6 +19,9 @@
  *   -1 below the face's end (a body younger than the face's youngest is drawn
  *   with the face's youngest head, as the study's mapping holds it).
  *
+ * By that macro the body's node is 10 years (MakeHuman's child node) and the
+ * face's 13 years.
+ *
  * The values are the two studies' published node positions, read from the body
  * study README (`macroAge`, child node 0.1875) and the face study's
  * population mapping; the age macro itself is the source's, not a measured
