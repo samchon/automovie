@@ -1,3 +1,4 @@
+import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo";
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
 import type { IHumanViewerRevisionsEntries } from "./IHumanViewerRevisionsEntries";
 
@@ -21,5 +22,5 @@ export interface ICreateHumanViewerRevisionsProps {
   bases: () => string;
 
   /** File access: existence and text, undefined for an unreadable file. */
-  io: IHumanViewerResolveIo & { read(file: string): string | undefined };
+  io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo;
 }

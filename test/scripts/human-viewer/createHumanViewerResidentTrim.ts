@@ -41,7 +41,7 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
   /** The page heap when the current capture started. */
   let started = 0;
   /** Release page residents while the sum plus `extra` exceeds `bound`; returns how many were released. */
-  const release = async (extra: number, bound: number): Promise<{ evicted: number; page: number; workers: number }> => {
+  const release = async (extra: number, bound: number): Promise<IHumanViewerResidentRelease> => {
     let reading = await sum(true);
     let evicted = 0;
     while (reading.page + reading.workers + extra > bound && await props.evict()) {
@@ -50,7 +50,7 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
     }
     return { evicted, ...reading };
   };
-  const sum = async (collect: boolean): Promise<{ page: number; workers: number }> => {
+  const sum = async (collect: boolean): Promise<IHumanViewerResidentHeapSum> => {
     const [page, workers] = await Promise.all([props.page(collect), props.workers(collect)]);
     return { page: page.usedSize, workers: workers.reduce((total, worker) => total + worker.usage.usedSize, 0) };
   };
@@ -107,3 +107,9 @@ export function createHumanViewerResidentTrim(props: ICreateHumanViewerResidentT
     status: (): IHumanViewerResidentTrimReading | null => last,
   };
 }
+
+/** Named local transport for createHumanViewerResidentTrim; member meaning remains with its calculation owner. */
+interface IHumanViewerResidentRelease { evicted: number; page: number; workers: number }
+
+/** Named local transport for createHumanViewerResidentTrim; member meaning remains with its calculation owner. */
+interface IHumanViewerResidentHeapSum { page: number; workers: number }

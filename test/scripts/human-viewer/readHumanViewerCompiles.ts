@@ -5,5 +5,8 @@
  * @evidence contracts/common.md#meaningful-documentation States the source of the answer.
  */
 export function readHumanViewerCompiles(): string[] {
-  return [...((globalThis as { __humanViewerCompiles?: Set<string> }).__humanViewerCompiles ?? [])];
+  return [...((globalThis as IHumanViewerCompileGlobals).__humanViewerCompiles ?? [])];
 }
+
+/** Named local transport for readHumanViewerCompiles; member meaning remains with its calculation owner. */
+interface IHumanViewerCompileGlobals { __humanViewerCompiles?: Set<string> }

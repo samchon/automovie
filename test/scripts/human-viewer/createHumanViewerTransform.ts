@@ -34,9 +34,12 @@ export function createHumanViewerTransform<Result>(
         return undefined;
       return transform(file, source);
     },
-    watchChange: (id: string, change: { event: string }): void => {
+    watchChange: (id: string, change: IHumanViewerWatchChange): void => {
       if (affects(id, change.event)) reset();
     },
     closeBundle: reset,
   };
 }
+
+/** Named local transport for createHumanViewerTransform; member meaning remains with its calculation owner. */
+interface IHumanViewerWatchChange { event: string }

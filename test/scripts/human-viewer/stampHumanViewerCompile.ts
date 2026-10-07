@@ -9,6 +9,6 @@
  * @evidence contracts/common.md#meaningful-documentation States what is recorded, where and why.
  */
 export function stampHumanViewerCompile(code: string, compile: string): string {
-  return code + "\n;((globalThis as { __humanViewerCompiles?: Set<string> }).__humanViewerCompiles ??= new Set()).add(" +
+  return code + "\ninterface IHumanViewerCompileGlobals { __humanViewerCompiles?: Set<string>; }\n;((globalThis as IHumanViewerCompileGlobals).__humanViewerCompiles ??= new Set()).add(" +
     JSON.stringify(compile) + ");\n";
 }

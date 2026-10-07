@@ -21,7 +21,7 @@ export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandid
       released ??= (async () => {
         controller.abort();
         try {
-          const answer = (await (await fetch("/generation/label?" + new URLSearchParams({ token }))).json()) as { label?: string | null };
+          const answer = (await (await fetch("/generation/label?" + new URLSearchParams({ token }))).json()) as IHumanViewerCandidateHoldLabel;
           return typeof answer.label === "string" ? answer.label : null;
         } catch {
           return null;
@@ -31,3 +31,6 @@ export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandid
     },
   };
 }
+
+/** Named local transport for openHumanViewerCandidateHold; member meaning remains with its calculation owner. */
+interface IHumanViewerCandidateHoldLabel { label?: string | null }

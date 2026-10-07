@@ -33,7 +33,7 @@ export function readHumanViewerGenerationSubjects(props: IReadHumanViewerGenerat
   }
   const { generation } = props;
   for (const document of parsed.people) {
-    const id = (document as { id?: unknown }).id;
+    const id = (document as IHumanViewerGenerationIdentity).id;
     if (typeof id !== "string" || !id.startsWith("person:")) {
       result.rejected.push({ file: props.file, pending: false, reason: "a subject person needs an id starting with person:" });
       continue;
@@ -58,3 +58,6 @@ export function readHumanViewerGenerationSubjects(props: IReadHumanViewerGenerat
   }
   return result;
 }
+
+/** Named local transport for readHumanViewerGenerationSubjects; member meaning remains with its calculation owner. */
+interface IHumanViewerGenerationIdentity { id?: unknown }

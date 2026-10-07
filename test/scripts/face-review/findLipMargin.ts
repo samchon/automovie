@@ -1,3 +1,6 @@
+import type { IFindLipMarginProps } from "./IFindLipMarginProps";
+import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
+import type { IFindLipMarginResult } from "./IFindLipMarginResult";
 import type {
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanFaceLipMargin,
@@ -18,13 +21,7 @@ import { findLipMarginPairs } from "./findLipMarginPairs";
  * the fissure with no break between anchors or before the join; the station
  * spacing fixes only the anchors, never which vertices between them close.
  */
-export function findLipMargin(props: {
-  surface: IAutoMovieHumanFaceBasis["surfaces"][number];
-  region: readonly number[];
-  axis: readonly [number, number, number];
-  stationMetres: number;
-  central: { upper: number; lower: number };
-}): { margin: IAutoMovieHumanFaceLipMargin; limitMetres: number } {
+export function findLipMargin(props: IFindLipMarginProps): IFindLipMarginResult {
   const { surface, region, axis } = props;
   const { pairs, limitMetres } = findLipMarginPairs(props);
   const p = surface.positions;

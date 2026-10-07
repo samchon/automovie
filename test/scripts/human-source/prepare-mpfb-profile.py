@@ -26,6 +26,7 @@ with `BLENDER_USER_RESOURCES=<work>/blender-profile` changes no global Blender
 setting. Nothing is written inside the repository.
 """
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -96,8 +97,9 @@ def main():
     archives = argument(arguments, "--archives")
     work = argument(arguments, "--work")
     observe = "--observe" in arguments
-    with open(lock_path, encoding="utf-8") as file:
-        lock = json.load(file)
+    with open(lock_path, "rb") as file:
+        lock_bytes = file.read()
+    lock = json.loads(lock_bytes.decode("utf-8"))
     if os.path.exists(work):
         raise SystemExit("Work directory already exists: " + work)
     os.makedirs(os.path.join(work, "upstream"))
@@ -115,8 +117,10 @@ def main():
                 shutil.copyfileobj(response, file)
             os.replace(path + ".part", path)
             downloaded = True
-        observed = {"name": source["name"], "downloaded": downloaded, "archiveBytes": os.path.getsize(path), "archiveSha256": file_sha256(path)}
-        with zipfile.ZipFile(path) as archive:
+        with open(path, "rb") as file:
+            archive_bytes = file.read()
+        observed = {"name": source["name"], "downloaded": downloaded, "archiveBytes": len(archive_bytes), "archiveSha256": sha256(archive_bytes)}
+        with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
             if source.get("entries") is not None:
                 rows = sorted((name, sha256(archive.read(name))) for name in source["entries"])
             else:
@@ -142,7 +146,7 @@ def main():
     if os.path.isdir(mpfb):
         shutil.copytree(mpfb, os.path.join(work, "blender-profile", "extensions", "user_default", "mpfb"))
     with open(os.path.join(work, "acquisition.json"), "w", encoding="utf-8", newline="\n") as file:
-        json.dump({"lock": lock_path, "lockSha256": file_sha256(lock_path), "observeOnly": observe, "sources": record}, file, indent=1)
+        json.dump({"lock": lock_path, "lockSha256": sha256(lock_bytes), "observeOnly": observe, "sources": record}, file, indent=1)
         file.write("\n")
     log("acquisition written", work)
 

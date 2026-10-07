@@ -43,7 +43,8 @@ const SEARCH_RESOLUTION_METRES = 0.00001;
  * low-resolution crowns carry no cusp anatomy and the reading validates no
  * intercuspation, guidance or clinical occlusion.
  *
- * Nothing is edited here; `authorHumanSourceOcclusion` applies the result.
+ * Nothing is edited here; the source-generation census consumes this report.
+ * Posterior occlusion authoring has its own problem, search and placement owners.
  */
 export function solveHumanSourceOcclusion(face: IAutoMovieHumanFaceBasis): IHumanSourceOcclusionReceipt {
   const dental = face.surfaces.find((surface) => surface.id === "Human.teeth_base");

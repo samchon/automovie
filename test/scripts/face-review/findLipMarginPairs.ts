@@ -1,3 +1,5 @@
+import type { IFindLipMarginPairsProps } from "./IFindLipMarginPairsProps";
+import type { IFindLipMarginPairsResult } from "./IFindLipMarginPairsResult";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
 
 import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
@@ -18,12 +20,7 @@ import type { IFaceLipMarginAnchor } from "./IFaceLipMarginAnchor";
  * direction (basis Y-up without its axis component) within half a station.
  * The station spacing is a stated sampling convention.
  */
-export function findLipMarginPairs(props: {
-  surface: IAutoMovieHumanFaceBasis["surfaces"][number];
-  region: readonly number[];
-  axis: readonly [number, number, number];
-  stationMetres: number;
-}): { pairs: IFaceLipMarginAnchor[]; limitMetres: number } {
+export function findLipMarginPairs(props: IFindLipMarginPairsProps): IFindLipMarginPairsResult {
   const { surface, region, axis, stationMetres } = props;
   const p = surface.positions;
   const raisedLength = Math.hypot(-axis[0] * axis[1], 1 - axis[1] * axis[1], -axis[2] * axis[1]);

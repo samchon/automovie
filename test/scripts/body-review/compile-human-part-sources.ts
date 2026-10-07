@@ -26,8 +26,9 @@ import { readHumanBodyAtlasObj } from "./readHumanBodyAtlasObj";
 const [inventoryFile, rawDirectory, output] = process.argv.slice(2);
 if (!inventoryFile || !rawDirectory || !output)
   throw new Error("Expected INVENTORY RAW_DIRECTORY OUTPUT.");
+const inventoryBytes = fs.readFileSync(inventoryFile);
 const inventory = typia.assert<IHumanBodyPartSourceInventory>(
-  JSON.parse(fs.readFileSync(inventoryFile, "utf8")),
+  JSON.parse(inventoryBytes.toString("utf8")),
 );
 if (new Set(inventory.parts.map((part) => part.id)).size !== inventory.parts.length)
   throw new Error("Anatomical source inventory repeats a declared part.");
@@ -97,7 +98,7 @@ for (const part of inventory.parts) {
 }
 const receipt = {
   version: 1,
-  inventorySha256: createHash("sha256").update(fs.readFileSync(inventoryFile)).digest("hex"),
+  inventorySha256: createHash("sha256").update(inventoryBytes).digest("hex"),
   coordinateProtocol: "one common (x,z,-y)/1000 rigid axis/unit conversion; no per-part translation",
   rights: { currentLicense: "CC-BY-4.0", currentLicenseUri: "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html", embeddedNotice: "preserved per original file; CC-BY-SA-2.1-JP", acquisition: "BodyParts3D 4.0 MRI-derived illustrator atlas, not a personal scan" },
   declaredParts: inventory.parts.length,

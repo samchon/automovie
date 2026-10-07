@@ -14,6 +14,7 @@ CC BY 4.0 notice and the embedded CC BY-SA 2.1 JP notice differ, so rights
 qualification remains unknown and these inputs remain campaign candidates.
 """
 import argparse
+import io
 import hashlib
 import json
 from pathlib import Path
@@ -69,7 +70,7 @@ def main():
     rows = [line.split("\t") for line in table_bytes.decode().splitlines()]
     output.mkdir(parents=True, exist_ok=True)
     parts = []
-    with zipfile.ZipFile(archive) as zipped:
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as zipped:
         for part, (label, members) in MEMBERS.items():
             sources = []
             for member in members:

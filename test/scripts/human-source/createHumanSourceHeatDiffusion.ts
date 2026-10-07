@@ -42,7 +42,7 @@ export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (
       weights.set(key, (weights.get(key) ?? 0) + 0.5 * cot);
     }
   }
-  const rows: { j: number; w: number }[][] = Array.from({ length: n }, () => []);
+  const rows: IHumanSourceHeatDiffusionNeighbour[][] = Array.from({ length: n }, () => []);
   for (const [key, w] of weights) {
     const a = Math.floor(key / n);
     const b = key % n;
@@ -121,3 +121,6 @@ export function createHumanSourceHeatDiffusion(mesh: IHumanSourceSurfaceMesh): (
     return x;
   };
 }
+
+/** Named local transport for createHumanSourceHeatDiffusion; member meaning remains with its calculation owner. */
+interface IHumanSourceHeatDiffusionNeighbour { j: number; w: number }

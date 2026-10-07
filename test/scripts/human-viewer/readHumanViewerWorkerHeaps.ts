@@ -56,7 +56,7 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
             };
             const listen = (event: IHumanViewerTargetMessage): void => {
               if (event.sessionId !== sessionId) return;
-              const reply = JSON.parse(event.message) as { id?: number; result?: T; error?: { message: string } };
+              const reply = JSON.parse(event.message) as IHumanViewerWorkerReply<T>;
               if (reply.id !== id) return;
               done();
               if (reply.error !== undefined) reject(new Error(reply.error.message));
@@ -99,3 +99,9 @@ export async function readHumanViewerWorkerHeaps(browser: Browser, collect: bool
     await root.detach().catch(() => undefined);
   }
 }
+
+/** Named local transport for readHumanViewerWorkerHeaps; member meaning remains with its calculation owner. */
+interface IHumanViewerWorkerReply<T> { id?: number; result?: T; error?: IHumanViewerWorkerError }
+
+/** Named local transport for readHumanViewerWorkerHeaps; member meaning remains with its calculation owner. */
+interface IHumanViewerWorkerError { message: string }
