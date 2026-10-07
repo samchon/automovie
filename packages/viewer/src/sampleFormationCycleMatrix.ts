@@ -10,8 +10,8 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * mixes back into the first so the cycle closes. Measurement scripts, tests,
  * and reviewers get the exact number a frame drew instead of a screenshot.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Reads the same neighbouring rigid-part samples and periodic blend as the vertex shader for the selected member cycle position.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Reads the same neighbouring rigid-part samples and periodic blend as the vertex shader for the selected member cycle position.
  */
 export const sampleFormationCycleMatrix = (
   cycle: IAutoMovieFormationCycle,

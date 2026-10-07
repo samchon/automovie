@@ -9,7 +9,7 @@
  * neighbouring steps, so the sampling rate bounds interpolation error rather
  * than the visible frame rate.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Fixes the temporal resolution of the shared gait matrix table that travel-driven cycle interpolation reads.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Fixes the temporal resolution of the shared gait matrix table that travel-driven cycle interpolation reads.
  */
 export const AUTOMOVIE_FORMATION_CYCLE_SAMPLES = 32;

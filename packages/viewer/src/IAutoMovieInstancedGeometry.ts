@@ -7,7 +7,7 @@ import type * as THREE from "three";
  * its result's consumer, while the adopted-object entry borrows host materials
  * whose lifetime remains with that host.
  *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Carries the flattened representation used by a selected instanced tier.
+ * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Carries the flattened representation used by a selected instanced tier.
  * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Keeps merged rest geometry and its ordered material groups together.
  * @author Samchon
  */
@@ -15,7 +15,7 @@ export interface IAutoMovieInstancedGeometry {
   /**
    * Owned merged buffer with part-index and normalized colour/relief attributes.
    *
-   * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Supplies the shared geometry drawn by instances of one prototype tier.
+   * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Supplies the shared geometry drawn by instances of one prototype tier.
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Retains a single rest-space representation rather than per-member geometry.
    */
   geometry: THREE.BufferGeometry;
@@ -24,7 +24,7 @@ export interface IAutoMovieInstancedGeometry {
    * Source material objects in rigid-part order, matching the merged groups;
    * flattening does not clone or dispose these borrowed material objects.
    *
-   * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Keeps each flattened group associated with its source material.
+   * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Keeps each flattened group associated with its source material.
    * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Preserves the material order used by the prototype representation.
    */
   materials: THREE.Material[];

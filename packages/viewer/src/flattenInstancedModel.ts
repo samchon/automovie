@@ -23,7 +23,7 @@ import { flattenRigidParts } from "./flattenRigidParts";
  * ({@link bakeFormationCycle}); a model that declares no gait, or carries no
  * skeleton to move, returns a null cycle and renders exactly as before.
  *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Flattens the generated model into the representation selected for instanced display.
+ * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Flattens the generated model into the representation selected for instanced display.
  * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Implements the logical-to-display representation boundary.
  */
 export const flattenInstancedModel = (

@@ -8,7 +8,7 @@ import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry"
  * mixed colour and relief presence on the owned clones while retaining the
  * original material objects. No source buffers or materials are mutated.
  *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Constructs the rigid geometry accepted for one instanced prototype representation.
+ * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Constructs the rigid geometry accepted for one instanced prototype representation.
  * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Shares one part-order and attribute-normalization owner between generated and adopted prototypes.
  */
 

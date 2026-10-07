@@ -12,8 +12,8 @@ import type { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * A model with no skeleton, or with no profile that locomotes, has no cycle at
  * all and keeps standing exactly as it did before.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Uses the first declared model gait as the fallback repertoire member before a formation cue selects another.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Uses the first declared model gait as the fallback repertoire member before a formation cue selects another.
  */
 export const formationCycleGait = (
   model: IAutoMovieModel,

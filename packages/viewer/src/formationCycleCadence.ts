@@ -20,8 +20,8 @@ import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence";
  * A take that carries a body nowhere is played on its own period instead, which
  * is the difference between a crowd standing at ease and a crowd frozen.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Folds each cue interval using its take stride or idle period, retaining accumulated translation and radius-scaled turn across gait changes.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Folds each cue interval using its take stride or idle period, retaining accumulated translation and radius-scaled turn across gait changes.
  */
 export const formationCycleCadence = (
   cycle: IAutoMovieFormationCycle,

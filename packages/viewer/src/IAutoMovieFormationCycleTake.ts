@@ -8,16 +8,16 @@ import type * as THREE from "three";
  * of the cycle itself: how far one turn of it carries a body, and how long one
  * turn of it lasts when nothing carries the body at all.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Pairs a declared gait matrix table with its measured stride and idle period so cadence uses that take own distance-to-phase conversion.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Pairs a declared gait matrix table with its measured stride and idle period so cadence uses that take own distance-to-phase conversion.
  * @author Samchon
  */
 export interface IAutoMovieFormationCycleTake {
   /**
    * Name of the gait this take was baked from.
    *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Keeps the declared gait identity used by cue repertoire selection.
+   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Keeps the declared gait identity used by cue repertoire selection.
    */
   gait: string;
 
@@ -37,16 +37,16 @@ export interface IAutoMovieFormationCycleTake {
    * with nothing to plant. Such a take is played on {@link periodSeconds}
    * instead, which is the only honest reading of a cycle no ground drives.
    *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Supplies the measured ground travel per cycle used to convert translation and arc distance into phase.
+   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Supplies the measured ground travel per cycle used to convert translation and arc distance into phase.
    */
   strideMeters: number;
 
   /**
    * Seconds one turn takes when no ground drives it: the gait's own period.
    *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Supplies time-driven cycle advance when the take has no ground-travel stride.
+   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Supplies time-driven cycle advance when the take has no ground-travel stride.
    */
   periodSeconds: number;
 
@@ -57,16 +57,16 @@ export interface IAutoMovieFormationCycleTake {
    * the rest-to-posed matrix of `part` at `sample`. The bottom row is implied
    * rather than stored: a rigid part never shears the homogeneous coordinate.
    *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Retains the rest-to-posed rows used by the CPU reader for the same cycle motion.
+   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Retains the rest-to-posed rows used by the CPU reader for the same cycle motion.
    */
   matrices: Float32Array;
 
   /**
    * GPU-side view of {@link matrices}.
    *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Supplies the GPU view of those same rows for member-phase replay.
+   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Supplies the GPU view of those same rows for member-phase replay.
    */
   texture: THREE.DataTexture;
 }

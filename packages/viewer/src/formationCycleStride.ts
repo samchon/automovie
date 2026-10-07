@@ -20,8 +20,8 @@ import type * as THREE from "three";
  * parts returns zero: nothing is carried anywhere, and the caller plays such a
  * cycle on its own declared period.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Derives a ground-distance scale from the baked lowest part track so travel and turn advance the gait rather than slide its rest pose.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Derives a ground-distance scale from the baked lowest part track so travel and turn advance the gait rather than slide its rest pose.
  */
 export const formationCycleStride = (
   tracks: ReadonlyArray<readonly THREE.Vector3[]>,

@@ -15,8 +15,8 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
  * the other way round. Normals are rotated by the same matrix, which keeps the
  * shading and the silhouette shells honest about the moving surface.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Applies the formation's resolved turn and speed response here.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Materializes that response in the group-motion cycle state.
+ * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Composes unit advance and member-radius turn distance in the shader before applying the shared rigid-part motion.
+ * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Composes unit advance and member-radius turn distance in the shader before applying the shared rigid-part motion.
  */
 export const applyFormationCycleMaterial = (
   material: THREE.Material,
