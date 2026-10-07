@@ -1,6 +1,8 @@
 import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairGatherFieldProps } from "./IHumanFaceHairGatherFieldProps";
+
 /**
  * Follow the current scalp toward one attached tie rather than steering a hair
  * through the head along the Euclidean chord to it. Growth-domain triangle
@@ -63,12 +65,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.
  */
-export function createHumanFaceHairGatherField(props: {
-  positions: readonly number[];
-  indices: readonly number[];
-  triangles: readonly number[];
-  anchor: { point: IAutoMovieVector3; triangle: number };
-}): (point: IAutoMovieVector3) => IAutoMovieVector3 {
+export function createHumanFaceHairGatherField(
+  props: IHumanFaceHairGatherFieldProps,
+): (point: IAutoMovieVector3) => IAutoMovieVector3 {
   const at = (id: number): IAutoMovieVector3 =>
     Vector3.create(
       props.positions[3 * id],

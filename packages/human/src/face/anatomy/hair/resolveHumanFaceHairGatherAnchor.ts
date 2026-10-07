@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairGatherAnchor } from "./IHumanFaceHairGatherAnchor";
+import type { IResolveHumanFaceHairGatherAnchorProps } from "./IResolveHumanFaceHairGatherAnchorProps";
+
 /**
  * Attach a numerical gathering point to the current scalp without storing a
  * personal vertex or guide. The source growth domain supplies neutral triangles
@@ -63,19 +66,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *   barycentric weights are derived and never given, so no input names a vertex,
  *   curve or strand.
  */
-export function resolveHumanFaceHairGatherAnchor(props: {
-  origin: IAutoMovieVector3;
-  positions: readonly number[];
-  current: readonly number[];
-  indices: readonly number[];
-  triangles: readonly number[];
-  polar: number;
-  azimuth: number;
-}): {
-  point: IAutoMovieVector3;
-  triangle: number;
-  weights: [number, number, number];
-} {
+export function resolveHumanFaceHairGatherAnchor(
+  props: IResolveHumanFaceHairGatherAnchorProps,
+): IHumanFaceHairGatherAnchor {
   const direction = Vector3.create(
     Math.sin(props.polar) * Math.sin(props.azimuth),
     Math.cos(props.polar),

@@ -1,3 +1,5 @@
+import type { IHumanFaceHairContactSurface } from "./IHumanFaceHairContactSurface";
+
 /**
  * A surface closed for hair contact: its current positions with one centre
  * vertex appended per loop, and its triangles followed by a fan from each
@@ -63,7 +65,7 @@ export function closeHumanFaceHairContact(
   positions: readonly number[],
   indices: readonly number[],
   loops: readonly (readonly [number, number][])[],
-): { positions: number[]; indices: number[] } {
+): IHumanFaceHairContactSurface {
   const out = [...positions];
   const triangles = [...indices];
   const at = (v: number) => [0, 1, 2].map((k) => out[3 * v + k]!);

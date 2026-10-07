@@ -1,11 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { createHumanFaceHairTailSpread } from "./createHumanFaceHairTailSpread";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
+
+import type { ICreateHumanFaceHairGatherStageProps } from "./ICreateHumanFaceHairGatherStageProps";
 
 const requireDirection = humanFaceHairFrame.direction;
 
@@ -48,16 +49,9 @@ const requireDirection = humanFaceHairFrame.direction;
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; assertHumanFaceHair owns admission of the gather fields.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The inputs are named angles, a radius, a strength and a tail direction that the document already names and admits; no input places a strand.
  */
-export function createHumanFaceHairGatherStage(props: {
-  layer: IAutoMovieHumanFaceHair.Layer;
-  /** Neutral chart position of the root, the frame the fields are read in. */
-  reference: IAutoMovieVector3;
-  /** Posed root the lock grows from. */
-  root: IAutoMovieVector3;
-  sequence: number;
-  anchor?: IAutoMovieVector3;
-  gatherDirection?: (point: IAutoMovieVector3) => IAutoMovieVector3;
-}) {
+export function createHumanFaceHairGatherStage(
+  props: ICreateHumanFaceHairGatherStageProps,
+) {
   const { layer } = props;
   const gather = layer.gather;
   if (
