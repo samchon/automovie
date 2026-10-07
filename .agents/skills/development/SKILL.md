@@ -83,6 +83,8 @@ Run the narrowest command that proves the change first, then a broader one when 
 
 Use the canonical acceptance configuration rather than excluding failing consumers. A scratch configuration is diagnostic evidence only. Keep the whole test project type-clean and verify that every file a committed consumer needs is tracked.
 
+Before a validation run, identify its actual inputs, required write freeze, execution owner and release condition. Within the task's existing permissions, authorize that owner to complete the existing after-run input comparison, preserve raw results including failures, and record the release immediately after exit in the same execution sequence. Report the result and release through the first available communication call, without waiting for another decision or approval exchange. Keep unrelated writers running; narrowing a freeze requires evidence about actual imports, input authority and future reads. Report unverified input stability as a limitation rather than accepting the run. The review skill's [input-invalidation rule](../review/SKILL.md#review-records-belong-to-the-procedure) owns reuse of recorded mechanical results.
+
 When a runtime or transform fails despite correct source, check for emitted artifacts beside that source before changing logic. A loader can prefer stale JavaScript that lacks the configured transform. Use the owning project command and `--noEmit` for diagnostic type checks; preserve other sessions' files while inspecting that shadowing.
 
 - **Bug fix**: name the failing case and expected behavior, and add a repro test that fails before the fix and passes after.
