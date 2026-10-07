@@ -6,7 +6,8 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "rootDir": "../..",
-    "types": ["node"]
+    "types": ["node"],
+    "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../lint.config.ts" }]
   },
   "include": ["human-viewer-control.mts", "human-viewer-launcher.mts"]
 }

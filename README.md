@@ -77,6 +77,8 @@ pnpm run evidence
 pnpm run test
 ```
 
+The build CI workflow runs `pnpm run build` followed by `pnpm run evidence` as separate steps for pull requests and pushes to `master`.
+
 Requirements:
 
 - Node.js 22 or newer
