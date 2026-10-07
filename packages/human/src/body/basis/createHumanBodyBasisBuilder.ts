@@ -71,6 +71,8 @@ import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
  * exterior. Ordinary calls prepare and complete against the body's own rest
  * skin. Preparation owns one admitted document snapshot, so later caller edits
  * cannot combine already evaluated skin with different anatomy or placement.
+ * Its dress operation reuses that admitted choice and compiled garment owner
+ * on the composition's final native skin; no second body evaluation is needed.
  * The optional physicalSource constructor mode registers actual native
  * indexed incidence or declared canonical source samples before UV gathering.
  * Omission preserves the existing model and metadata absence. Registration
@@ -264,7 +266,7 @@ export function createHumanBodyBasisBuilder(
     const sourcePartOffset = parts.length;
     const sourceMaterialOffset = materials.length;
     // the underwear, cut from the posed skin after every skin region
-    if (document.underwear !== undefined) {
+    if (document.underwear !== undefined && admittedOptions?.deferUnderwear !== true) {
       const dressed = (dress ??= createHumanBodyUnderwear(basis))({
         underwear: document.underwear,
         rest: restAll(),
@@ -313,6 +315,12 @@ export function createHumanBodyBasisBuilder(
     const { model: skinModel, ...skin } = placedSkin;
     return {
       skin: { ...skin, skinModel },
+      dress: (posed, rest) => document.underwear === undefined ? undefined :
+        (dress ??= createHumanBodyUnderwear(basis))({
+          underwear: document.underwear,
+          rest: rest ?? restAll(),
+          posed,
+        }),
       finish: (exteriorRestReference) => {
         const assembly =
           sourceRigResult === undefined

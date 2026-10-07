@@ -1,3 +1,4 @@
+import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 import type { IAutoMovieHumanBodyLayerThicknessField } from "./IAutoMovieHumanBodyLayerThicknessField";
 
 /**
@@ -30,4 +31,11 @@ export interface IHumanBodyLayerSurfacesInput {
 
   /** Thickness field addressed by the same vertex ordinals. */
   field: IAutoMovieHumanBodyLayerThicknessField;
+
+  /**
+   * Actual continued exterior and native-origin incidence, when the consumer
+   * forms a whole person. Omission reads the standalone body's own skin.
+   * Its origin coordinates must equal the native positions supplied here.
+   */
+  exterior?: IHumanBodyLayerExterior;
 }

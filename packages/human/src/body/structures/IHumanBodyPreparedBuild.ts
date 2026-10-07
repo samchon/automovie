@@ -1,3 +1,6 @@
+import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
+import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
+import type { IAutoMovieHumanBodyUnderwearParts } from "./IAutoMovieHumanBodyUnderwearParts";
 import type { IHumanBodyExteriorRestReference } from "../anatomy/binding/IHumanBodyExteriorRestReference";
 import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
 import type { IHumanBodySkinEvaluation } from "./IHumanBodySkinEvaluation";
@@ -32,4 +35,15 @@ export interface IHumanBodyPreparedBuild {
 
   /** Construct the full source assembly against its one selected exterior authority. */
   finish(reference?: IHumanBodyExteriorRestReference): IAutoMovieHumanBodyBuild;
+
+  /**
+   * Build this admitted document's garment on the consumer's final native
+   * skin. Omitted rest retains the prepared shape's rest coverage reference;
+   * a supplied rest uses the same native surface order in the common frame.
+   * No garment choice returns undefined. The source document remains owned.
+   */
+  dress(
+    posed: IAutoMovieHumanBodyPosedSurface[],
+    rest?: IAutoMovieHumanBodyUnderwearRest,
+  ): IAutoMovieHumanBodyUnderwearParts | undefined;
 }
