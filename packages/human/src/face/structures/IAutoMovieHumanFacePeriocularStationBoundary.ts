@@ -9,7 +9,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One boundary record belongs to its existing station and enclosing cage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate proximity or nearest path supplies identity.
  * @evidence contracts/common.md#meaningful-documentation Separates native knots, coarse columns and canonical sample addresses.
- * @evidence contracts/modeling.md#shared-boundaries Tissue and attached shafts consume the same source-published course.
+ * @evidence contracts/modeling.md#shared-boundaries The station record keeps its native cycle, coarse anchor offsets and canonical sample identities together for shared addressing.
  * @evidence contracts/modeling.md#spatial-conventions Vertices and offsets are ordinals; canonical source samples are separate identifiers, not metres.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Registers a boundary on an existing skin part.
  * @evidenceExclude contracts/modeling.md#parameter-channels Adds no personal numerical channel.
