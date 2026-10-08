@@ -8,9 +8,10 @@ import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBod
 /**
  * The plain default underwear a body document may wear.
  *
- * It is not cloth: the builder cuts the posed skin's own triangles inside
- * the garment's regions and lifts them a few millimetres along the posed
- * normals, so the underwear follows every shape and pose the skin does. The
+ * The builder cuts the posed skin's own triangles inside the garment's
+ * regions. A positive span restores that connected material to its qualified
+ * exterior-ball envelope before applying the offset along transported fitted
+ * normals. Failed restoration or lift refuses construction. The garment's
  * regions are rules on the body's joint landmarks and named skin points,
  * never vertex lists for one person or one basis (`HUMAN_BODY_UNDERWEAR`).
  *
@@ -44,15 +45,20 @@ export namespace IAutoMovieHumanBodyUnderwear {
     /** Fabric roughness in [0,1]. */
     roughness: number;
 
-    /** Lift of the fabric off the skin along the posed normal, metres. */
+    /**
+     * Signed normal offset from the cut or restored material surface, metres.
+     * Restoration transports supplied posed normals to its fitted mesh before
+     * applying this same offset. Zero span retains the supplied cut normals.
+     */
     offsetMetres: number;
 
     /**
-     * Width of the widest skin crease the fabric bridges instead of following
-     * it down, metres (twice the radius of the ball the fabric cannot bend
-     * tighter than); zero lays the fabric on the skin everywhere. Creases
-     * narrower than three fifths of it are always bridged, wider ones
-     * never are, and wider concavities keep their depth.
+     * Diameter of the exterior balls used for connected crease restoration,
+     * metres. Positive span restores the original cut material to that shared
+     * scalar envelope before its normal offset; failed or nonconvergent
+     * restoration refuses the garment. Zero disables restoration and still
+     * applies offsetMetres. This geometric condition supplies no fabric
+     * bending-radius or fixed crease-width bridging guarantee.
      */
     spanMetres: number;
 

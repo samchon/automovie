@@ -1,3 +1,4 @@
+import type { IHumanBodyUnderwearFitObservation } from "./IHumanBodyUnderwearFitObservation";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
@@ -15,10 +16,12 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
  *
  * The garment is the skin itself lifted off the body: every surface's
  * triangles are kept where a coverage field is positive and clipped where it
- * changes sign (`cutHumanBodyUnderwearSurface`), carried across every skin
- * crease narrower than the table's `spanMetres`
- * (`closeHumanBodyUnderwearCreases`), and lifted `offsetMetres` along the
- * skin's normals (the closing surface's where it bridged). Because it is made
+ * changes sign (`cutHumanBodyUnderwearSurface`). The connected fitting owner
+ * restores that material to its qualified exterior-ball envelope while
+ * preserving the actual normal lift's local conditions, then emits the table's
+ * unchanged `offsetMetres` lift. Failure to restore those conditions refuses
+ * the construction; the cut itself need not be an already feasible garment.
+ * Because it is made
  * of the posed skin, the underwear follows every shape, pose, corrective and
  * soft-tissue sag the skin does, with no cloth simulation and nothing authored
  * per person.
@@ -28,10 +31,10 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
  * `createHumanBodyUnderwearCoverage` owns its rules. A vertex half of whose
  * skin belongs to the table's uncovered bones or their descendants is outside,
  * so the bra's arm holes follow the arm's skin. A surface with no kept
- * triangle emits no part. Normals are recomputed on the lifted surface, and a
- * bridged vertex takes its normal from the closing surface, where the
- * collapsed triangles of a crease's floor carry none; the posed skin's normals
- * must be nonzero wherever a triangle is kept.
+ * triangle emits no part. Shading normals are recomputed on the lifted surface;
+ * moved vertices retain the fitting owner's transported source normal. Original
+ * material faces and normal sums must remain finite and nonzero. The fitting
+ * and lift conditions establish neither global nonintersection nor appearance.
  *
  * The compiled closure caches the uncovered weight per vertex, which depends
  * on the basis alone; a basis material with the table's material id is
@@ -41,10 +44,11 @@ import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
  * compiles this once per basis, calls it after skinning and soft-tissue sag
  * with the document's body at rest and its posed surfaces, and appends the
  * parts after the skin's regions, which is why the segment partition and the
- * contact reading, which read the skin, leave them out. Closing the creases
- * costs a fraction of a build and only when a document wears underwear.
+ * contact reading, which read the skin, leave them out. Fitting runs only when
+ * a document wears underwear; its shared material-sized work bound and actual
+ * failures belong to the connected fitter.
  *
- * @evidence contracts/common.md#principled-implementation Cutting a triangle mesh by a per-vertex field, then lifting it along the vertex normals, keeps the garment made of the skin's own triangulation, so it follows every shape and pose the skin does; the coverage field is read at rest so its edges stay on one place of the skin, and the closing bridges creases the way cloth that cannot bend tighter than a radius does. The offset is a constant thickness along the normal, exact for a flat skin and an approximation where the skin curves tighter than the offset.
+ * @evidence contracts/common.md#principled-implementation Rest-frame coverage preserves material attachment while posed native incidence supplies the connected cut. The fitting owner restores the original ball field and actual transported-normal lift together; this caller consumes those accepted buffers without inventing cloth mechanics or a bending-radius guarantee.
  * @evidence contracts/common.md#clear-and-simple-design The function compiles the per-basis arm weights and orchestrates, per call, the field, the cut and the closing in that order; each of the three has its own file and owner, and only the material and the parts are assembled here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex list, person or fixture is named: the garment is rules on the body's landmarks and the skin's own triangles, and the closing is a general geometric operation. Nothing patches another module.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the garment is made of, in which state each input is read, what is refused and the consumer that calls it.
@@ -85,7 +89,7 @@ export function createHumanBodyUnderwear(
           weights[v] += surface.skin.weights[v * 4 + k];
     return weights;
   });
-  return ({ underwear, rest, posed }) => {
+  return ({ underwear, rest, posed, observeFitting }) => {
     const color = underwear.color ?? table.color;
     if (![color.r, color.g, color.b].every((value) => value >= 0 && value <= 1))
       throw new Error("Body underwear needs a colour in [0,1].");
@@ -100,6 +104,7 @@ export function createHumanBodyUnderwear(
       positions: posed[index].positions,
       indices: surface.indices,
     }));
+    const fitting: IHumanBodyUnderwearFitObservation[] = [];
     const meshes = basis.surfaces.map((surface, index) => {
       const at = rest.surfaces[index];
       const field = new Float64Array(at.length / 3);
@@ -119,11 +124,15 @@ export function createHumanBodyUnderwear(
       });
       const closed = closeHumanBodyUnderwearCreases({
         skin,
+        observeFitting: observeFitting === undefined ? undefined
+          : (stage, details) => observeFitting(stage, { ...details, garmentSurface: surface.id }),
+        indices: cut.indices,
         points: cut.points,
         normals: cut.normals,
         offsetMetres: table.offsetMetres,
         spanMetres: table.spanMetres,
       });
+      fitting.push(...closed.fitting ?? []);
       const shaded = areaWeightedNormals(closed.positions, cut.indices);
       for (let v = 0; v < closed.bridged.length; v++) {
         const weight = closed.bridged[v];
@@ -145,6 +154,7 @@ export function createHumanBodyUnderwear(
       };
     });
     return {
+      fitting,
       material: {
         id: table.material,
         name: table.material,

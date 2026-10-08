@@ -1,3 +1,4 @@
+import type { IHumanBodyUnderwearFitObservation } from "../basis/IHumanBodyUnderwearFitObservation";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
 /**
@@ -6,6 +7,9 @@ import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyUnderwearParts {
+  /** Actual fitting readings returned beside the material and parts. */
+  fitting?: IHumanBodyUnderwearFitObservation[];
+
   /** The garment's material. */
   material: IAutoMovieMaterial;
 

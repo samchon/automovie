@@ -6,6 +6,7 @@ import { createHumanBodyExteriorFollower } from "../binding/createHumanBodyExter
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IHumanBodyAnatomicalAssemblyParts } from "./IHumanBodyAnatomicalAssemblyParts";
 import type { IHumanBodyAnatomicalAssemblyPartsInput } from "./IHumanBodyAnatomicalAssemblyPartsInput";
+import { carryHumanBodyNeutralSourceRig } from "./carryHumanBodyNeutralSourceRig";
 import { carryHumanBodySourceFields } from "./carryHumanBodySourceFields";
 import { createHumanBodySourceResidentMesh } from "./createHumanBodySourceResidentMesh";
 import { dataSourceShapes } from "./dataSourceShapes";
@@ -53,7 +54,8 @@ function followerOf(
  * displacement from the neutral skin, by that binding's rule, and are then
  * posed. An assembly without one still refuses any other shape.
  * A neutral whole-person consumer can supply its joined exterior reference;
- * all internal parts then follow that one head/body displacement field.
+ * all internal parts, held rest origins and shared attachment sites then
+ * follow that one head/body displacement field.
  *
  * @evidence contracts/common.md#principled-implementation All tissues consume the same posed times inverse rest graph and source attachment identities.
  * @evidence contracts/common.md#clear-and-simple-design One replay pass admits source registration, attachment cardinality and weighted geometry.
@@ -73,6 +75,7 @@ export function createHumanBodyAnatomicalAssemblyParts(
   input: IHumanBodyAnatomicalAssemblyPartsInput,
 ): IHumanBodyAnatomicalAssemblyParts {
   const output: IHumanBodyAnatomicalAssemblyParts = {
+    rig: input.rig,
     parts: [],
     materials: [],
     quantities: [],
@@ -147,6 +150,11 @@ export function createHumanBodyAnatomicalAssemblyParts(
     follow === undefined
       ? assembly.parts
       : carryHumanBodySourceFields(assembly.parts, follow);
+  const rig =
+    follow !== undefined && assembly.mode === "neutral-only"
+      ? carryHumanBodyNeutralSourceRig(input.rig, follow)
+      : input.rig;
+  output.rig = rig;
   const sourceShapes = dataSourceShapes(
     { parts: sourceParts },
     input.document.anatomy,
@@ -173,7 +181,7 @@ export function createHumanBodyAnatomicalAssemblyParts(
     for (const attachment of part.attachments)
       if (
         attachment.account.trim() === "" ||
-        input.rig.sites.get(attachment.bone)?.has(attachment.site) !== true
+        rig.sites.get(attachment.bone)?.has(attachment.site) !== true
       )
         refuse(
           "attachment-site-unavailable:" +
@@ -220,7 +228,7 @@ export function createHumanBodyAnatomicalAssemblyParts(
       )
         refuse("invalid-source-surface-binding:" + surface.id);
       const transforms = binding.bones.map((bone) => {
-        const transform = input.rig.bones.get(bone);
+        const transform = rig.bones.get(bone);
         if (transform === undefined) refuse("source-bone-unavailable:" + bone);
         return {
           ...transform!,

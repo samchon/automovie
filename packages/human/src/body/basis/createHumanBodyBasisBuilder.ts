@@ -120,7 +120,11 @@ export function createHumanBodyBasisBuilder(
       stage: IHumanBodyConstructionProgress["stage"],
       details?: Pick<
         IHumanBodyConstructionProgress,
-        "part" | "path" | "completed" | "total"
+        "part" | "path" | "completed" | "total" | "garmentFitting" |
+        "garmentSurface" | "garmentComponent" | "garmentPhase" | "garmentRound" |
+        "garmentWorkUsed" | "garmentWorkBound" | "garmentVariables" | "garmentRows" |
+        "garmentEntries" | "garmentMinimumNonzeroCoefficient" | "garmentMaximumCoefficient" |
+        "garmentFieldResidualMetres" | "garmentGeometryFailures" | "garmentFittingRound" | "garmentProposal"
       >,
     ): void =>
       admittedOptions?.observeProgress?.({
@@ -270,9 +274,15 @@ export function createHumanBodyBasisBuilder(
     if (document.underwear !== undefined) {
       const dressed = (dress ??= createHumanBodyUnderwear(basis))({
         underwear: document.underwear,
+        observeFitting: admittedOptions?.observeProgress === undefined ? undefined
+          : (stage, details) => progress(stage, details),
         rest: restAll(),
         posed: posedSurfaces,
       });
+      if (admittedOptions?.observeProgress !== undefined)
+        progress("garment-evaluated", {
+          garmentFitting: structuredClone(dressed.fitting ?? []),
+        });
       materials.push(dressed.material);
       parts.push(...dressed.parts);
     }
@@ -316,12 +326,21 @@ export function createHumanBodyBasisBuilder(
     const { model: skinModel, ...skin } = placedSkin;
     return {
       skin: { ...skin, skinModel },
-      dress: (posed, rest) => document.underwear === undefined ? undefined :
-        (dress ??= createHumanBodyUnderwear(basis))({
+      dress: (posed, rest) => {
+        if (document.underwear === undefined) return undefined;
+        const dressed = (dress ??= createHumanBodyUnderwear(basis))({
           underwear: document.underwear,
+          observeFitting: admittedOptions?.observeProgress === undefined ? undefined
+            : (stage, details) => progress(stage, details),
           rest: rest ?? restAll(),
           posed,
-        }),
+        });
+        if (admittedOptions?.observeProgress !== undefined)
+          progress("garment-evaluated", {
+            garmentFitting: structuredClone(dressed.fitting ?? []),
+          });
+        return dressed;
+      },
       finish: (exteriorRestReference, layers) => {
         const assembly =
           sourceRigResult === undefined
@@ -363,7 +382,7 @@ export function createHumanBodyBasisBuilder(
           model: completeModel,
           ...(assembly === undefined
             ? {}
-            : { anatomicalQuantities: assembly.quantities }),
+            : { anatomicalRig: assembly.rig, anatomicalQuantities: assembly.quantities }),
         };
         const placed = document.groundPlacement === undefined
           ? build
