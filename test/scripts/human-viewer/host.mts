@@ -1,6 +1,7 @@
 /**
  * Keep the committed viewport visible while a source generation prepares off
- * screen. Only a completed numerical build and GPU finish authorize the swap.
+ * screen. Interactive swaps require a completed model and GPU finish; the
+ * resident service can publish a source-proven bridge before selecting a model.
  * Failed candidates leave the old frame and an error; the old source digest
  * prevents HTTP capture of it as new work. Iframe removal releases its worker
  * and WebGL context, including all scene residents. The page hash holds the
@@ -220,6 +221,7 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   );
   void refreshCatalogue()
     .then(() => {
+      if (resident) return;
       controls.show(handle.address(), handle.parts());
       return loadPhoto(handle.address().doc);
     })

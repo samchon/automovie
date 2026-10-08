@@ -183,10 +183,10 @@ const evaluate = async (
           ? person.get(identity)
           : domain === "face"
             ? face.get(identity)
-            : undefined;
+            : body.get(identity);
     if (input.operation === "construct" && constructionOwner === undefined)
       throw new Error(
-        "Construction requires the loaded face or paired person runtime.",
+        "Construction requires the loaded product runtime.",
       );
     const previewRequest = {
       ...input,
@@ -207,12 +207,16 @@ const evaluate = async (
               { operation: "construct", document: input.document },
               observeProgress,
             )
-          : await (
+          : domain === "face" ? await (
               await face.get(identity)!
             )({
               operation: "construct",
               document: input.document,
               occlusion: input.occlusion,
+            })
+          : await (await body.get(identity)!)({
+              operation: "construct",
+              document: input.document,
             })
         : domain === "person"
           ? await (

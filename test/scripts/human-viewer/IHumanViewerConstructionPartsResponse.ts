@@ -2,7 +2,7 @@ import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
 
 /**
- * Face or whole-person construction inspection from the normal parts route.
+ * Face, Body or whole-person construction inspection from the normal parts route.
  * Mesh names describe the generated instance while the independent admission
  * report states whether the owner's physical checks accepted that instance.
  * Drawing or listing parts does not change the report.

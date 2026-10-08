@@ -86,7 +86,7 @@ Object.assign(window, {
 });
 parent.postMessage({ type: "human:admission" }, location.origin);
 let catalogue: HumanViewerCatalogue;
-let current: HumanViewerAddress;
+let current: HumanViewerAddress | undefined;
 /** Resident key of the frame on screen, which a trim never releases. */
 let shownKey = "";
 /** The photograph layer of the frame on screen, null while none is shown. */
@@ -116,8 +116,6 @@ const buildResident = (
   operation: "preview" | "construct",
 ): Promise<IHumanViewerResident<HumanViewerStage>> => {
   const host = createHumanViewerViewportHost(canvas, renderer, loader);
-  if (operation === "construct" && selected.domain === "body")
-    throw new Error("The body domain has no construction inspection entry.");
   if (selected.domain === "face")
     return buildHumanViewerFaceResident({
       host,
@@ -141,6 +139,7 @@ const buildResident = (
     host,
     document: selected.document,
     worker,
+    operation,
   });
 };
 
@@ -214,7 +213,10 @@ let queue = Promise.resolve();
 const apply = (address: HumanViewerAddress): Promise<void> => {
   const next = queue
     .then(() => show(address))
-    .then(() => announceHumanViewerAddress(current, active));
+    .then(() => {
+      if (current === undefined) throw new Error("No model has been displayed.");
+      announceHumanViewerAddress(current, active);
+    });
   queue = next.catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : String(error);
   });
@@ -232,14 +234,16 @@ async function main(): Promise<void> {
   // A worker that cannot load (a module it imports is missing or broken)
   // fails this candidate at once; the first show would otherwise wait on it
   // forever and never release the host's hold.
-  // The first address is the host's last one; a document that cannot be
-  // shown there does not keep this generation from becoming ready.
-  await showHumanViewerFirstAddress(
-    parseHumanViewerAddress(location.hash),
-    apply,
-    loaded,
-    (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
-  );
+  // Interactive pages retain their first-document behavior. A resident
+  // service proves code and hardware before any model is explicitly requested.
+  if (residentCapture) await loaded;
+  else
+    await showHumanViewerFirstAddress(
+      parseHumanViewerAddress(location.hash),
+      apply,
+      loaded,
+      (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
+    );
   // Publish one browser compile with a separately checked, same-source Node realm.
   assertHumanViewerSingleCompile(
     readHumanViewerCompiles(),
@@ -253,18 +257,27 @@ async function main(): Promise<void> {
   Object.assign(window, {
     __humanViewer: {
       show: apply,
-      parts: () => active.observe.parts(),
-      renderer: () => String(active.renderer()),
+      parts: () => current === undefined ? [] : active.observe.parts(),
+      renderer: () => {
+        const gl = renderer.getContext();
+        const device = gl.getExtension("WEBGL_debug_renderer_info");
+        return String(gl.getParameter(device?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER));
+      },
       revision: () => catalogue.revision,
       builds: numerical.builds,
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
-      address: () => current,
+      address: () => {
+        if (current === undefined) throw new Error("No model has been displayed.");
+        return current;
+      },
       admission: () => residents.get(shownKey)?.admission ?? null,
       exportConstruction: async () => {
-        const selected = catalogue.documents.find((entry) => entry.id === current.doc);
+        const address = current;
+        if (address === undefined) throw new Error("No model has been displayed.");
+        const selected = catalogue.documents.find((entry) => entry.id === address.doc);
         const resident = residents.get(shownKey);
-        if (selected?.domain !== "person" || current.operation !== "construct" ||
+        if (selected?.domain !== "person" || address.operation !== "construct" ||
             resident?.exportConstruction === undefined)
           throw new Error("Static construction export requires the displayed paired Person construction.");
         try {
@@ -275,6 +288,7 @@ async function main(): Promise<void> {
       },
       periocularMappings: () => residents.get(shownKey)?.periocularMappings,
       png: () => {
+        if (current === undefined) throw new Error("No model has been displayed.");
         const png = readHumanViewerPng({
           stage: active,
           renderer,
@@ -290,10 +304,12 @@ async function main(): Promise<void> {
   });
   parent.postMessage({ type: "human:ready" }, location.origin);
   // A human orbit is display-only. Finish on demand and while the pointer moves.
-  canvas.addEventListener("pointermove", () => active.finish());
-  canvas.addEventListener("wheel", () =>
-    requestAnimationFrame(() => active.finish()),
-  );
+  canvas.addEventListener("pointermove", () => {
+    if (current !== undefined) active.finish();
+  });
+  canvas.addEventListener("wheel", () => {
+    if (current !== undefined) requestAnimationFrame(() => active.finish());
+  });
 }
 if (import.meta.hot) import.meta.hot.accept();
 void main().catch((error: unknown) => {

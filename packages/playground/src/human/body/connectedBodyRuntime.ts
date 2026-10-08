@@ -86,12 +86,9 @@ export function createConnectedBodyRuntime(
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
     const mine = ++received;
-    if (
-      request.operation === "construct" ||
-      request.operation === "exportConstruction"
-    )
+    if (request.operation === "exportConstruction")
       throw new Error(
-        "Whole-person construction drafts belong to the person generation runtime.",
+        "Construction asset export belongs to the person generation runtime.",
       );
     assertTextSize(request.document);
     // Canonical parsing is required even when the text matches the cache: a
@@ -100,6 +97,26 @@ export function createConnectedBodyRuntime(
       request.document,
       basis.anatomicalAssembly,
     );
+    if (request.operation === "construct") {
+      // Construction retains the layer owner's refusal, while the normal
+      // callable below still admits preview/export. This result never writes
+      // their accepted-build cache, even when its limited layer checks pass.
+      const constructed = evaluate.construct(document);
+      if (constructed.layerAdmission === undefined)
+        throw new Error(
+          "Body construction inspection needs the registered layer admission report.",
+        );
+      return {
+        operation: "construct",
+        model: packConnectedBodyModel(constructed.model),
+        admission: constructed.layerAdmission,
+        crossings: null,
+        anatomy: null,
+        femoralHeads: null,
+        groundSupport: null,
+        extras: { bones: constructed.bones, landmarks: constructed.landmarks },
+      };
+    }
     if (request.operation === "armsDown") {
       // the same slicing as a contact reading: a step at a time, abandoned
       // when a later request supersedes it

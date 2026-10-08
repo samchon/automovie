@@ -150,9 +150,9 @@ export function createHumanViewerResidency(
       timeout: 600000,
       waitUntil: "domcontentloaded",
     });
-    // The first generation needs the whole human package compiled and the
-    // standard document drawn; while source edits keep invalidating compiles
-    // it cannot finish, and a failed candidate waits for the next edit. Both
+    // The resident generation proves its checked source and actual hardware
+    // context before any document is requested. Source edits can invalidate
+    // preparation, and a failed candidate waits for the next edit. Both
     // states are reported (phase, compiles in server.log, errors in /health),
     // so the wait is observable rather than bounded by an arbitrary deadline.
     if (first) props.phase("waiting for the first source generation");
