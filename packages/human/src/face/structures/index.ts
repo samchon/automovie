@@ -1,4 +1,5 @@
 export * from "./IAutoMovieHumanFaceBasis";
+export * from "./IAutoMovieHumanFacePeriocularStationBoundary";
 export type * from "./IAutoMovieHumanFaceFacialHair";
 export type * from "./IAutoMovieHumanFaceFacialHairProfile";
 export type * from "./IAutoMovieHumanFaceFacialHairSite";

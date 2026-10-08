@@ -2,11 +2,13 @@ import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/
 
 import { compileHumanSourceMaterialPatch } from "./compileHumanSourceMaterialPatch.ts";
 import { registerHumanSourceMaterialCharts } from "./registerHumanSourceMaterialCharts.ts";
+import { registerHumanSourcePeriocularBoundaryCourses } from "./registerHumanSourcePeriocularBoundaryCourses.ts";
 
 /**
  * Compile the source-native material registrations before reference evaluation.
  * Source geometry, endpoints, station order and values remain unchanged.
- * Landmark courses and brows receive their own registered disks; medial beds
+ * Anterior station rows retain every native boundary knot. Landmark courses
+ * and brows receive their own registered disks; medial beds
  * receive native ordered boundaries and the same original host-triangle
  * correspondence consumed by tissue. The returned counts describe actual
  * compiled metadata and supply no model, clinical or rendered acceptance.
@@ -16,7 +18,7 @@ export function compileHumanSourceNativeRegistration(
   basis: IAutoMovieHumanFaceBasis,
 ): Record<string, number> {
   registerHumanSourceMaterialCharts(basis);
-  const counts: Record<string, number> = {};
+  const counts: Record<string, number> = registerHumanSourcePeriocularBoundaryCourses(basis);
   for (const surface of basis.surfaces)
     for (const [domain, chart] of Object.entries(surface.materialCharts ?? {})) {
       counts[`${surface.id}:${domain}:vertices`] = chart.vertices.length;
