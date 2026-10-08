@@ -1,4 +1,4 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
@@ -56,6 +56,13 @@ export function readHumanFacePeriocularTissueSpace(
       "Periocular tissue space needs its source contact tolerance.",
     );
   const owner = "periocular-" + state;
+  const transforms = new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
+    parts.map((part) => [part, {
+      translation: part.publication.origin,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    }]),
+  );
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   const skins = new Map<"left" | "right", IAutoMovieMesh>();
   for (const side of ["left", "right"] as const) {
@@ -123,7 +130,8 @@ export function readHumanFacePeriocularTissueSpace(
           against: skinId + ":beneath",
           judged: true,
           forbidden: "outside",
-          mesh: part.mesh,
+          mesh: part.publication.mesh,
+          meshTransform: transforms.get(part),
           exterior: skins.get(side)!,
           boundary: "open",
           toleranceMetres: tolerance,
@@ -137,7 +145,8 @@ export function readHumanFacePeriocularTissueSpace(
           subject: id(selected[at]),
           against: "optics:" + side,
           judged: true,
-          mesh: selected[at].mesh,
+          mesh: selected[at].publication.mesh,
+          meshTransform: transforms.get(selected[at]),
           exterior: optical,
           boundary: "closed",
           toleranceMetres: tolerance,
@@ -153,8 +162,10 @@ export function readHumanFacePeriocularTissueSpace(
             subject: id(selected[at]),
             against: id(selected[other]),
             judged: true,
-            mesh: selected[at].mesh,
-            exterior: selected[other].mesh,
+            mesh: selected[at].publication.mesh,
+            meshTransform: transforms.get(selected[at]),
+            exterior: selected[other].publication.mesh,
+            exteriorTransform: transforms.get(selected[other]),
             boundary: "closed",
             toleranceMetres: tolerance,
           }),
@@ -164,8 +175,10 @@ export function readHumanFacePeriocularTissueSpace(
             subject: id(selected[other]),
             against: id(selected[at]),
             judged: true,
-            mesh: selected[other].mesh,
-            exterior: selected[at].mesh,
+            mesh: selected[other].publication.mesh,
+            meshTransform: transforms.get(selected[other]),
+            exterior: selected[at].publication.mesh,
+            exteriorTransform: transforms.get(selected[at]),
             boundary: "closed",
             toleranceMetres: tolerance,
             crossingIndices: null,

@@ -4,12 +4,14 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
+import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IAutoMovieHumanConstructionPartReading } from "../../common/structures/IAutoMovieHumanConstructionPartReading";
 
 /**
  * Take the census of every mesh part of a constructed face model.
  *
- * Coordinates are rounded to Float32 first, the precision the model emits.
+ * Local coordinates are rounded to Float32, then the actual part TRS restores
+ * the owning model frame without a second Float32 rounding.
  * Counts come from the engine topology instrument, which welds coincident
  * coordinates only for legacy meshes. Explicit physical metadata retains its
  * source incidence, so attribute aliases share source edges while distinct
@@ -24,7 +26,7 @@ import type { IAutoMovieHumanConstructionPartReading } from "../../common/struct
  * @evidence contracts/common.md#clear-and-simple-design One pass over the model parts with one record each.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every mesh part is read; none is filtered by identity.
  * @evidence contracts/common.md#meaningful-documentation States precision, welding and why a boundary count is not a verdict.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the head frame on Float32 coordinates.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame metres reconstructed from actual local Float32 buffers and part TRS.
  * @evidence contracts/modeling.md#emitted-geometry Reports the emitted counts of each part as constructed.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing part identities.
  * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
@@ -40,7 +42,8 @@ export function readHumanFacePartCensus(
   const readings: IAutoMovieHumanConstructionPartReading[] = [];
   for (const part of model.parts) {
     if (part.geometry.type !== "mesh") continue;
-    const positions = part.geometry.mesh.positions.map(Math.fround);
+    const mesh = readHumanLocalMeshWorld(part.geometry.mesh, part.transform);
+    const positions = mesh.positions;
     const minimum = [Infinity, Infinity, Infinity];
     const maximum = [-Infinity, -Infinity, -Infinity];
     for (let at = 0; at < positions.length; at += 3)
@@ -48,7 +51,6 @@ export function readHumanFacePartCensus(
         minimum[axis] = Math.min(minimum[axis], positions[at + axis]);
         maximum[axis] = Math.max(maximum[axis], positions[at + axis]);
       }
-    const mesh = { ...part.geometry.mesh, positions };
     const topology = inspectAutoMovieMeshTopology(mesh);
     readings.push({
       subject: part.id,

@@ -63,7 +63,9 @@ export function readHumanFaceAssemblyClearances(
       | "subject"
       | "against"
       | "mesh"
+      | "meshTransform"
       | "exterior"
+      | "exteriorTransform"
       | "boundary"
       | "vertices"
       | "crossingIndices"
@@ -149,6 +151,7 @@ export function readHumanFaceAssemblyClearances(
         subject: part.id,
         against: skinId,
         mesh: part.geometry.mesh,
+        meshTransform: part.transform,
         exterior: skin,
         boundary: "open",
         ...(part.id.startsWith("numerical-hair:")
@@ -192,22 +195,29 @@ export function readHumanFaceAssemblyClearances(
         : undefined;
     const twin = twinId === undefined ? undefined : twins.get(twinId);
     if (twin === undefined || twin.geometry.type !== "mesh") continue;
-    const source = twin.geometry.mesh;
-    const indices = [...(source.indices ?? [])];
-    for (let at = 0; at < indices.length; at += 3)
-      [indices[at + 1], indices[at + 2]] = [indices[at + 2], indices[at + 1]];
+    const transform = twin.transform ?? {
+      translation: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    };
+    // Reflection D across X composes as D*R*S = (D*R*D)*(D*S).
+    // Its proper quaternion is [qx,-qy,-qz,qw]; the existing mesh transform
+    // owner handles the negative X scale's winding reversal exactly once.
     read({
       subject: part.id,
       against: "mirror:" + twin.id,
       mesh: part.geometry.mesh,
-      exterior: {
-        positions: source.positions.map((value, at) =>
-          at % 3 === 0 ? -value : value,
-        ),
-        indices,
-        normals: null,
-        uvs: null,
-        skin: null,
+      meshTransform: part.transform,
+      exterior: twin.geometry.mesh,
+      exteriorTransform: {
+        translation: { ...transform.translation, x: -transform.translation.x },
+        rotation: {
+          x: transform.rotation.x,
+          y: -transform.rotation.y,
+          z: -transform.rotation.z,
+          w: transform.rotation.w,
+        },
+        scale: { ...transform.scale, x: -transform.scale.x },
       },
       boundary: "open",
       crossingIndices: null,

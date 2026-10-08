@@ -1,5 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
+import { createHumanLocalModelPart } from "../../../common/mesh/createHumanLocalModelPart";
+
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeriocularTissuePart";
 
@@ -14,7 +16,7 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing source finishes refuse rather than silently selecting the first skin material.
  * @evidence contracts/common.md#meaningful-documentation Names the coarse appearance convention and exact geometry reuse.
  * @evidence contracts/modeling.md#part-identity-and-grouping Stable side and tissue role IDs identify all generated members.
- * @evidence contracts/modeling.md#spatial-conventions Copies existing head-frame meshes without conversion.
+ * @evidence contracts/modeling.md#spatial-conventions Publishes the producer's local mesh with its compensating ordinary part translation; internal head-frame geometry remains unchanged.
  * @evidenceExclude contracts/modeling.md#emitted-geometry Copies already generated and Float32-admitted shell meshes without choosing another geometry population.
  * @evidenceExclude contracts/modeling.md#parameter-channels Introduces no shape, performance or anatomical control.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The shell generator owns capped boundaries; finishing preserves them exactly.
@@ -53,14 +55,14 @@ export function finishHumanFacePeriocularTissues(
     finish.doubleSided = false;
     finish.baseColor.a = 1;
     result.materials.push(finish);
-    result.parts.push({
+    result.parts.push(createHumanLocalModelPart({
       id,
       name: id,
       material: id,
-      geometry: { type: "mesh", mesh: structuredClone(part.mesh) },
+      geometry: { type: "mesh", mesh: part.mesh },
       attachedBone: null,
       transform: null,
-    });
+    }, part.publication));
   }
   return result;
 }

@@ -9,6 +9,7 @@ import type { humanFaceBasisWeights } from "../../basis/humanFaceBasisWeights";
 import { resolveHumanFaceArticulation } from "../../basis/resolveHumanFaceArticulation";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceLashes } from "../../structures/IAutoMovieHumanFaceLashes";
+import { readHumanFacePeriocularStationBoundary } from "../eye/readHumanFacePeriocularStationBoundary";
 import type { IHumanFaceOpticalAssembly } from "../eye/structures/IHumanFaceOpticalAssembly";
 import { createHumanFaceSkinChart } from "../skin/createHumanFaceSkinChart";
 import { createHumanFaceSkinChartCourse } from "../skin/createHumanFaceSkinChartCourse";
@@ -22,11 +23,11 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  *
  * Roots sample equal arc-length stations on the producer's registered skin
  * row, excluding its endpoints. With a source material disk, each consecutive
- * pair of registered anterior anchors is lifted through the disk's actual
- * native facets before arc length is measured. An anchor pair need not be a
- * resident edge, so its free spatial chord is not used as skin. The ordered
- * material chords are a source correspondence convention, not measured
- * follicle trajectories. Legacy sources without a disk retain the original
+ * pair of registered anterior anchors follows the published native boundary,
+ * retaining every knot before arc length is measured. An anchor pair need not
+ * be one resident edge; neither its spatial nor its material chord replaces
+ * that source course. The ordered boundary is an authored convention, not measured
+ * follicle trajectories. Legacy sources without either registration retain the original
  * polygonal row and its ordinary contact refusals.
  * The local anterior direction runs from the
  * actual generated globe centre to the root; without independent optics the
@@ -163,9 +164,16 @@ export function buildHumanFaceLashRows(
             lengths[segment] = 0;
         });
       const sourceChart = registration.cage?.attachmentCharts?.[row];
+      if (anterior?.boundary !== undefined && sourceChart === undefined)
+        throw new Error(`Attached ${side} ${row} native boundary needs its registered material disk.`);
       const host = basis.surfaces.find(
         (candidate) => candidate.id === registration.margins.surface,
       );
+      const nativeSegments = sourceChart === undefined || anterior === undefined || host === undefined
+        ? undefined
+        : readHumanFacePeriocularStationBoundary(anterior, host, roots);
+      if (sourceChart !== undefined && nativeSegments === undefined)
+        throw new Error(`Attached ${side} ${row} lashes need the published anterior native boundary for their material disk.`);
       const chart = sourceChart === undefined
         ? undefined
         : createHumanFaceSkinChart({
@@ -179,10 +187,9 @@ export function buildHumanFaceLashRows(
       const courses = lengths.map((length, segment) =>
         chart === undefined || length === 0
           ? undefined
-          : createHumanFaceSkinChartCourse(chart.compile([
-              chart.coordinate(roots[segment]),
-              chart.coordinate(roots[segment + 1]),
-            ])),
+          : createHumanFaceSkinChartCourse(chart.compile(
+              nativeSegments![segment].map((vertex) => chart.coordinate(vertex)),
+            )),
       );
       courses.forEach((course, segment) => {
         if (course !== undefined) lengths[segment] = course.totalLengthMetres;

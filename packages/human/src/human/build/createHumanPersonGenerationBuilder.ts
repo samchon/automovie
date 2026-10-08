@@ -6,6 +6,7 @@ import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBas
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
+import { placeHumanLocalModelPart } from "../../common/mesh/placeHumanLocalModelPart";
 import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { resolveHumanFaceHairLayers } from "../../face/basis/resolveHumanFaceHairLayers";
 import { admitHumanPersonDocument } from "../document/admitHumanPersonDocument";
@@ -274,15 +275,9 @@ export function createHumanPersonGenerationBuilder(
     const domain = humanPhysicalSourceDomain(document.id, generation.id);
     const placed = face.parts
       .filter((part) => part.id !== bandSurface)
-      .map((part) => {
-        const mesh = meshOfHumanPart(part);
+      .map((part) => placeHumanLocalModelPart(part, (mesh) => {
         const sources = faceRegions.get(part.id);
-        return {
-          ...part,
-          geometry: {
-            type: "mesh" as const,
-            mesh:
-              sources === undefined
+        return sources === undefined
                 ? placeHumanPersonMixedSourceMesh({
                     mesh,
                     head,
@@ -308,10 +303,8 @@ export function createHumanPersonGenerationBuilder(
                       generation.id,
                     ),
                     domain,
-                  }),
-          },
-        };
-      });
+                  });
+      }));
     clearHumanPersonHair({
       parts: placed,
       isGenerated: (id) => currentFace.hairPartIds.includes(id),

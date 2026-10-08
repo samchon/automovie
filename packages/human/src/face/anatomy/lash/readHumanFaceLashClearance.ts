@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type { IAutoMovieHumanConstructionRootInsertionWitness } from "../../../common/structures/IAutoMovieHumanConstructionRootInsertionWitness";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import { readHumanFaceOpticalExterior } from "../eye/readHumanFaceOpticalExterior";
@@ -22,6 +23,10 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * whose nearest skin feature is the open rim,
  * or a non-coplanar crossing refuses. Each row is reported whole, with its
  * counts and extrema, where the admission used to stop at the first shaft.
+ * The first reported free-skin pair retains the exact strict point, root ring
+ * and distance that its unchanged insertion predicate read. Triangle-pair keys
+ * associate that observation with the shared instrument's original witness;
+ * recording it never selects another intersection or changes the verdict.
  *
  * A shaft is 13 rings of 9 shading vertices (117) and 12 bands of 48 indices
  * (576), the layout `buildHumanFaceLashRows` emits.
@@ -128,30 +133,48 @@ export function readHumanFaceLashClearance(
           ),
         }),
       );
-    readings.push(
-      measureHumanFaceClearance({
-        owner,
-        state: "performed",
-        subject,
-        against: id + ":free-skin",
-        judged: true,
-        mesh: row.mesh,
-        exterior: skin,
-        boundary: "open",
-        toleranceMetres: tolerance,
-        vertices: freeVertices,
-        acceptTransversePoint: (point, triangle) => {
-          const insertion = insertions[Math.floor(triangle / (576 / 3))];
-          return (
-            Math.hypot(
-              point[0] - insertion.centre[0],
-              point[1] - insertion.centre[1],
-              point[2] - insertion.centre[2],
-            ) > insertion.radius
-          );
-        },
-      }),
-    );
+    const classified = new Map<
+      string,
+      IAutoMovieHumanConstructionRootInsertionWitness
+    >();
+    const freeSkin = measureHumanFaceClearance({
+      owner,
+      state: "performed",
+      subject,
+      against: id + ":free-skin",
+      judged: true,
+      mesh: row.mesh,
+      exterior: skin,
+      boundary: "open",
+      toleranceMetres: tolerance,
+      vertices: freeVertices,
+      acceptTransversePoint: (point, triangle, other) => {
+        const shaft = Math.floor(triangle / (576 / 3));
+        const insertion = insertions[shaft];
+        const distance = Math.hypot(
+          point[0] - insertion.centre[0],
+          point[1] - insertion.centre[1],
+          point[2] - insertion.centre[2],
+        );
+        const free = distance > insertion.radius;
+        const key = triangle + ":" + other;
+        if (free)
+          classified.set(key, {
+            point: [...point],
+            shaft,
+            centre: [...insertion.centre],
+            radiusMetres: insertion.radius,
+            distanceMetres: distance,
+          });
+        return free;
+      },
+    });
+    const witness = freeSkin.crossingWitness;
+    if (witness !== undefined && witness !== null)
+      witness.rootInsertion = classified.get(
+        witness.subjectTriangle + ":" + witness.referenceTriangle,
+      )!;
+    readings.push(freeSkin);
   }
   return readings;
 }

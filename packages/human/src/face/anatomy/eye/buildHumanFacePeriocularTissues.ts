@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
+import { createHumanLocalMeshFrame } from "../../../common/mesh/createHumanLocalMeshFrame";
+import type { IHumanLocalMeshFrame } from "../../../common/mesh/IHumanLocalMeshFrame";
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFacePeriocularTissues } from "../../structures/IAutoMovieHumanFacePeriocularTissues";
@@ -12,7 +13,6 @@ import { buildHumanFacePeriocularBand } from "./buildHumanFacePeriocularBand";
 import { createHumanFaceConformingSheet } from "./createHumanFaceConformingSheet";
 import { createHumanFacePeriocularIndexedShell } from "./createHumanFacePeriocularIndexedShell";
 import { createHumanFacePeriocularShellMesh } from "./createHumanFacePeriocularShellMesh";
-import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
 import { readHumanFacePeriocularMapping } from "./readHumanFacePeriocularMapping";
 import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
 import type { IHumanFacePeriocularBand } from "./structures/IHumanFacePeriocularBand";
@@ -37,9 +37,14 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * Legacy bases without this registration retain spatial nearest-point seating
  * and its geometric refusals; that path does not guarantee a regular patch.
  *
- * Both faces read the actual host triangles along the band. The band is resampled finer
- * than the cage (four cells per cage column, eight along the band) and every
- * vertex reads its actual skin triangle and interpolated normal.
+ * Both faces read the actual host triangles along the band. Registered bands
+ * retain every anterior native knot and four cells per native edge; legacy
+ * bands retain four cells per coarse interval. A registered band triangulates
+ * its complete near/far/end boundary once, then divides those material
+ * triangles into eight barycentric intervals before exact native clipping.
+ * Native facets further refine that domain without a second density factor.
+ * Legacy bands keep eight row intervals.
+ * Every vertex reads its actual skin triangle and interpolated normal.
  * Both shell faces are fixed offsets from that skin. The exterior supplies
  * the pointwise room reading including the authored tear film, rather
  * than lifting a deficient shell through its covering skin.
@@ -63,6 +68,10 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * projections after their room reading, and each completed tissue part. Side,
  * tissue and native host identify the work without carrying buffers or an
  * acceptance verdict. Exceptions propagate before a pose can be cached.
+ * Incidence and Float32 refusals retain original grid samples and near/far
+ * source identities. Incidence reports every refused edge's native and grid
+ * parents; Float32 retains the completed overlay. Reporting changes neither
+ * the mapping nor the shell and performs no second geometric query.
  *
  * @evidence contracts/common.md#principled-implementation Both lamellae retain the supplied offset and thickness along actual host normals; globe room and transverse intersections are separate admission readings because a normal-offset surface can fold at insufficient local feature size. Orientation is fixed by enclosed-volume sign.
  * @evidence contracts/common.md#clear-and-simple-design One generator owns both lamella constructions, shell topology and Float32 output admission; the ocular surface and the seat constant supply the globe frame.
@@ -71,7 +80,7 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * @evidence contracts/modeling.md#part-identity-and-grouping Each side emits independently selected tarsal, orbicularis, septal-support and conjunctival shells under stable tissue identities.
  * @evidence contracts/modeling.md#shared-boundaries The lamellae share the actual posed skin host and ocular exterior. Independently authored offsets need not meet; their joins and intersections are admitted against the emitted geometry.
  * @evidence contracts/modeling.md#spatial-conventions Millimetres convert once to head-frame metres; both tissue faces are offset along the host skin normal and their room is read against the ocular exterior.
- * @evidence contracts/modeling.md#emitted-geometry Posterior bands emit (4 * (columns - 1) + 1) by 9 points per sheet because the floor requires cells small against the exterior's curvature; anterior strips keep the cage station grid, which the skin already resolves.
+ * @evidence contracts/modeling.md#emitted-geometry Registered posterior bands retain every near native knot with four cells per native edge, every coarse far target and both finite end edges; original material triangles retain eight barycentric intervals before exact native common refinement. Legacy bands keep four cells per coarse interval and eight row intervals. Anterior strips keep the cage station grid.
  * @evidence contracts/modeling.md#parameter-channels Inward offset and thickness remain independent numerical construction inputs for each tissue and side.
  * @evidence contracts/anatomy.md#anatomical-source Layer identities and order follow Ferreira 2020; that the posterior lamella lies on the globe rests on descriptive statements, not a measured gap; thicknesses are authored inputs, the tear-film floor is the seat constant's conventional value, and the tarsal extent is the cage's registration or its crease-row convention.
  * @evidence contracts/anatomy.md#permitted-range Positive finite dimensions and complete station rows are required, and each shell's room is recorded for admission; this is a geometric domain, not a clinical interval.
@@ -253,12 +262,39 @@ export function buildHumanFacePeriocularTissues(
           }
       }
       const actualBand = mappingBand;
+      const sourceBandFailure = (error: unknown): Error => new Error(
+        (error instanceof Error ? error.message : String(error)) +
+        " source-band:" + JSON.stringify({
+          side,
+          tissue,
+          stride,
+          height,
+          columns,
+          sourceColumns: actualBand?.sourceColumns,
+          nearBoundary: actualBand?.nearBoundary,
+          nearSourceSamples: actualBand?.nearBoundary?.map((vertex) => host.sourcePartition?.samples[vertex]),
+          farBoundary: actualBand?.farBoundary,
+          materialBoundary: actualBand?.boundary,
+          collapsedColumns: [...collapsedColumns],
+          arcs: upper ? cage.tarsalExtent?.upperArcMetres : cage.tarsalExtent?.lowerArcMetres,
+          medialBed: upper ? cage.medialBed?.upperColumns : cage.medialBed?.lowerColumns,
+          inwardOffsetMm: profile.inwardOffsetMm,
+          thicknessMm: profile.thicknessMm,
+          hostSamples,
+          conforming: actualBand?.conforming,
+        }),
+      );
       if (actualBand?.chart !== undefined) {
-        actualBand.conforming ??= createHumanFaceConformingSheet({
-          chart: actualBand.chart,
-          samples: actualBand.samples,
-          topology: createHumanFacePeriocularTopology(actualBand),
-        });
+        try {
+          actualBand.conforming ??= createHumanFaceConformingSheet({
+            chart: actualBand.chart,
+            samples: actualBand.samples,
+            boundary: actualBand.boundary ?? [],
+            refinement: actualBand.height - 1,
+          });
+        } catch (error) {
+          throw sourceBandFailure(error);
+        }
         actualBand.conformingFrames ??= actualBand.conforming.vertices.map(
           (vertex) => skinHost.frame(vertex.seat),
         );
@@ -295,30 +331,11 @@ export function buildHumanFacePeriocularTissues(
               indices: actualBand.conforming.indices,
               boundary: actualBand.conforming.boundaryEdges,
             });
+      let publication: IHumanLocalMeshFrame;
       try {
-        float32MeshBuffers(mesh, "periocular:" + side + ":" + tissue);
+        publication = createHumanLocalMeshFrame(mesh, "periocular:" + side + ":" + tissue);
       } catch (error) {
-        throw new Error(
-          (error instanceof Error ? error.message : String(error)) +
-            " source-band:" +
-            JSON.stringify({
-              side,
-              tissue,
-              stride,
-              height,
-              columns,
-              collapsedColumns: [...collapsedColumns],
-              arcs: upper
-                ? cage.tarsalExtent?.upperArcMetres
-                : cage.tarsalExtent?.lowerArcMetres,
-              medialBed: upper
-                ? cage.medialBed?.upperColumns
-                : cage.medialBed?.lowerColumns,
-              inwardOffsetMm: profile.inwardOffsetMm,
-              thicknessMm: profile.thicknessMm,
-              hostSamples,
-            }),
-        );
+        throw sourceBandFailure(error);
       }
       const sampledBand = mappingBand;
       let mappingReading: IHumanFacePeriocularMappingReading | undefined;
@@ -328,6 +345,7 @@ export function buildHumanFacePeriocularTissues(
         generation: cage.generation,
         sourceId: cage.sourceId,
         mesh,
+        publication,
         fit: { stations, shortStations, minimumMarginMetres },
         ...(sampledBand === undefined
           ? {}
@@ -350,6 +368,7 @@ export function buildHumanFacePeriocularTissues(
                     ).flatMap((frame) => frame.point),
                     outer,
                     inner,
+                    publicationOrigin: publication.origin,
                     material:
                       sampledBand.conforming !== undefined
                         ? sampledBand.conforming.vertices.flatMap(

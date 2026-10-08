@@ -3,8 +3,9 @@ import {
   measureAutoMovieMeshCrossings,
   triangleIndicesOf,
 } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
+import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import type { IHumanFaceClearanceReference } from "./IHumanFaceClearanceReference";
 import type { IHumanFaceClearanceRequest } from "./IHumanFaceClearanceRequest";
@@ -16,8 +17,10 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  *
  * The instrument is the pair the face admissions already used: the engine's
  * signed mesh query for vertices and its triangle crossing census for faces a
- * vertex test cannot see. Both meshes are rounded to Float32 first, because
- * that is the precision the model emits and the exporter writes. Every queried
+ * vertex test cannot see. Both meshes are rounded to Float32 in their actual
+ * publication frames, then their ordinary part TRS restores head-frame metres.
+ * Omitted TRS retains the original head-frame identity. Reconstructed world
+ * positions are not rounded a second time. Every queried
  * vertex is read; nothing stops at the first vertex past the tolerance, so the
  * record holds the counts and the extrema of the complete population.
  * The engine's shared incidence reader expands an unindexed mesh into its
@@ -42,8 +45,8 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * unreached and enter no inside/outside count. Without a reach, an open reference reports a side
  * for every vertex, which is valid only when the subject stays close to it.
  *
- * Uncertainty of the vertex reading is the Float32 rounding of both meshes,
- * at most half a unit in the last place of each coordinate. The reference is
+ * Uncertainty includes Float32 rounding of both local meshes, transported by
+ * their declared TRS; it is not global-coordinate Float32 rounding. The reference is
  * the tessellated surface, so a reading against a curved exterior also carries
  * that surface's chord error, which this instrument does not know.
  *
@@ -51,7 +54,7 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * @evidence contracts/common.md#clear-and-simple-design One instrument serves every face relation; owners differ only in the request they build.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The tolerance is the caller's, no part or side is special-cased, and a relation that cannot be read is reported as unavailable instead of passing.
  * @evidence contracts/common.md#meaningful-documentation States the instrument, precision, refusal rule and the uncertainty it does and does not cover.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the head frame, read on Float32 coordinates.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame metres reconstructed from actual local Float32 coordinates and their publication TRS.
  * @evidence contracts/modeling.md#shared-boundaries Measures the state of a boundary between two parts; it constructs nothing and its record names both sides.
  * @evidence contracts/modeling.md#rendered-observation A numerical helper; the part owners owe the rendered observation.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing parts.
@@ -88,21 +91,21 @@ export function measureHumanFaceClearance(
     crossings: null,
     unavailable: null,
   };
-  const precise = (mesh: IAutoMovieMesh): IAutoMovieMesh => ({
-    ...mesh,
-    positions: mesh.positions.map(Math.fround),
-    indices: triangleIndicesOf(mesh, "Face clearance"),
-  });
+  const precise = (mesh: IAutoMovieMesh, transform?: IAutoMovieTransform | null): IAutoMovieMesh => {
+    const placed = readHumanLocalMeshWorld(mesh, transform);
+    return { ...placed, indices: triangleIndicesOf(placed, "Face clearance") };
+  };
   try {
     if (!Number.isFinite(tolerance) || tolerance < 0)
       throw new Error("clearance needs a finite nonnegative tolerance");
-    const subject = precise(request.mesh);
+    const subject = precise(request.mesh, request.meshTransform);
     // One construction reads many subjects against the same few references,
     // so the rounded reference and its compiled query are kept per mesh
     // object. A reference mesh is never modified after it is first read.
     let compiled = references.get(request.exterior);
-    if (compiled === undefined) {
-      compiled = { mesh: precise(request.exterior), queries: new Map() };
+    const transform = JSON.stringify(request.exteriorTransform ?? null);
+    if (compiled === undefined || compiled.transform !== transform) {
+      compiled = { mesh: precise(request.exterior, request.exteriorTransform), transform, queries: new Map() };
       references.set(request.exterior, compiled);
     }
     const exterior = compiled.mesh;

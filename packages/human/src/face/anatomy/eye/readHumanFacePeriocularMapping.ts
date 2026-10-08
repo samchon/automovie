@@ -1,5 +1,7 @@
 import { measureAutoMovieMeshCrossings } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+import { readHumanLocalMeshWorld } from "../../../common/mesh/readHumanLocalMeshWorld";
 
 import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
 import type { IHumanFacePeriocularCrossingWitness } from "./structures/IHumanFacePeriocularCrossingWitness";
@@ -12,7 +14,8 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
  * otherwise the same source quotient and cell diagonal as its shell supply
  * incidence. No old grid reconstruction substitutes for a conformed sheet.
  * Signed UV areas read Float64 material construction; spatial crossings read
- * Float32 buffers with the existing engine instrument used by part census.
+ * local Float32 buffers restored by the same publication origin, with the
+ * existing engine instrument used by part census.
  * These observations add no condition or tolerance to physical admission.
  * Missing legacy UV coordinates stay unknown rather than reading as zero folds.
  * Original offset crossing witnesses retain their producer attachments; no
@@ -22,7 +25,7 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
  * @evidence contracts/common.md#clear-and-simple-design The emitted cell incidence and original arrays are supplied by their construction owner; source-only observations can be reused within that immutable band.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled triangle or failed relation is removed and no physical admission condition is replaced by the report.
  * @evidence contracts/common.md#meaningful-documentation Separates mathematical mapping readings from clinical acceptance and reports absent source UV as unknown.
- * @evidence contracts/modeling.md#spatial-conventions Material areas are dimensionless; all spatial buffers are head-frame metres rounded to Float32 exactly as part census.
+ * @evidence contracts/modeling.md#spatial-conventions Material areas are dimensionless; spatial buffers restore actual local Float32 coordinates into head-frame metres exactly as part census.
  */
 export function readHumanFacePeriocularMapping(
   input: IHumanFacePeriocularMappingInput,
@@ -37,17 +40,23 @@ export function readHumanFacePeriocularMapping(
         [a, c, d],
       ])
         if (new Set(corners).size === 3) indices.push(...corners);
-  const sheet = (positions: number[]): IAutoMovieMesh => ({
-    positions: positions.map(Math.fround),
+  const sheet = (positions: number[], origin?: IAutoMovieVector3): IAutoMovieMesh => readHumanLocalMeshWorld({
+    positions: origin === undefined ? positions : positions.map(
+      (value, at) => value - [origin.x, origin.y, origin.z][at % 3],
+    ),
     indices,
     normals: null,
     uvs: null,
     skin: null,
+  }, origin === undefined ? undefined : {
+    translation: origin,
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    scale: { x: 1, y: 1, z: 1 },
   });
   const skin =
     input.sourceReading === undefined ? sheet(input.skin) : undefined;
-  const outer = sheet(input.outer),
-    inner = sheet(input.inner);
+  const outer = sheet(input.outer, input.publicationOrigin),
+    inner = sheet(input.inner, input.publicationOrigin);
   const crossings = (a: IAutoMovieMesh, b: IAutoMovieMesh) =>
     measureAutoMovieMeshCrossings(a, b).filter((hit) => !hit.coplanar);
   const outerHits = crossings(outer, outer),

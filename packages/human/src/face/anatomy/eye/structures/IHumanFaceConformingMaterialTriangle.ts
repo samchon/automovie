@@ -20,16 +20,17 @@ import type { HumanFaceConformingMaterialArithmetic as Arithmetic } from "../Hum
 type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 
 /**
- * One original triangle, retaining corner IDs, exact coordinates and a conservative material box.
+ * One material triangle, retaining construction and original-parent incidence,
+ * exact coordinates and an exact common-unit bounding box.
  *
- * @evidence contracts/common.md#principled-implementation Separate exact points and a binary64 box distinguish topological predicates from broad-phase rejection.
+ * @evidence contracts/common.md#principled-implementation Exact integer points and their coordinate extrema permit conservative rejection without rounding a refined point's bounds inward.
  * @evidence contracts/common.md#clear-and-simple-design One record carries original incidence and its read-only rejection box.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Original corner IDs survive broad-phase preparation.
  * @evidence contracts/common.md#meaningful-documentation Explains why bounding coordinates cannot replace exact incidence predicates.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The MaterialTriangle witness does not define an anatomical part.
  * @evidenceExclude contracts/modeling.md#parameter-channels The MaterialTriangle witness adds no authoring channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The MaterialTriangle witness does not choose a mesh population.
- * @evidence contracts/modeling.md#spatial-conventions Exact points and binary64 bounds describe the same dimensionless original UV frame.
+ * @evidence contracts/modeling.md#spatial-conventions Points and bounds share the same dimensionless common integer material unit.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The MaterialTriangle witness does not construct a part join.
  * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes the shell; this MaterialTriangle witness carries no independent rendered form.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The MaterialTriangle witness supplies no anatomical measurement.
@@ -41,9 +42,15 @@ export interface IHumanFaceConformingMaterialTriangle {
   /** Original source or canonical grid vertex IDs. */
   corners: [number, number, number];
 
+  /** Canonical construction keys of those same corners. */
+  keys: [string, string, string];
+
+  /** Original domain triangle before material refinement; original triangles name themselves. */
+  originalCorners: [number, number, number];
+
   /** Exact original coordinates; every denominator is one. */
   points: [MaterialPoint, MaterialPoint, MaterialPoint];
 
-  /** Original UV minima then maxima, used only for rejection. */
-  bounds: [number, number, number, number];
+  /** Exact common-unit minima then maxima, used only for rejection. */
+  bounds: [bigint, bigint, bigint, bigint];
 }

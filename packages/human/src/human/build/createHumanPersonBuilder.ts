@@ -7,6 +7,7 @@ import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { placeHumanLocalModelPart } from "../../common/mesh/placeHumanLocalModelPart";
 import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
 import { resolveHumanFaceHairLayers } from "../../face/basis/resolveHumanFaceHairLayers";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
@@ -358,15 +359,9 @@ export function createHumanPersonBuilder(
       return out;
     };
 
-    const placed = face.parts.map((part) => {
-      const mesh = meshOfHumanPart(part);
+    const placed = face.parts.map((part) => placeHumanLocalModelPart(part, (mesh) => {
       const sources = faceRegions.get(part.id);
-      return {
-        ...part,
-        geometry: {
-          type: "mesh" as const,
-          mesh:
-            sources === undefined
+      return sources === undefined
               ? physicalSource === undefined
                 ? moveHumanMeshRigidly(mesh, head)
                 : placeHumanPersonMixedSourceMesh({
@@ -390,10 +385,8 @@ export function createHumanPersonBuilder(
                   face: facePosed,
                   faceNormals: normals,
                   physicalBoundary,
-                }),
-        },
-      };
-    });
+                });
+    }));
     // generated hair: kept off the shoulders once the body has been posed
     clearHumanPersonHair({
       parts: placed,

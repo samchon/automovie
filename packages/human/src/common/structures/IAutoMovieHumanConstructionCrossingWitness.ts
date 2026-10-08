@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanConstructionRootInsertionWitness } from "./IAutoMovieHumanConstructionRootInsertionWitness";
+
 /**
  * One witnessed crossing of a measured relation: the first subject triangle
  * that a reference triangle crosses transversally, with the coordinates of
@@ -32,4 +34,7 @@ export interface IAutoMovieHumanConstructionCrossingWitness {
 
   /** Corners of the reference triangle. */
   referencePoints: number[];
+
+  /** Actual free-root classification of this same crossing pair, when its owner excludes a closed insertion ball. These are the predicate's Float32-mesh witness and measured root values in model metres, not a larger permitted insertion region. */
+  rootInsertion?: IAutoMovieHumanConstructionRootInsertionWitness;
 }

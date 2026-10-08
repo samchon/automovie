@@ -42,17 +42,17 @@ type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
 
 /**
- * Own one convex source/grid intersection, its retained boundary cuts and
- * its ear triangulation. The sheet owner retains whole-grid coverage and
- * remaps shared cuts before requesting ears, preserving construction order.
+ * Own an ordered simple material outline and each convex source/domain
+ * intersection, retaining boundary cuts through exact ear triangulation.
+ * The sheet owner retains whole-region coverage and shared cut assembly.
  *
- * @evidence contracts/common.md#principled-implementation Inclusive exact containment, original edge crossings and convex hull ordering define the common refinement of two source triangles.
+ * @evidence contracts/common.md#principled-implementation Inclusive exact containment, original edge crossings and convex hull ordering define the common refinement of original material and native host triangles.
  * @evidence contracts/common.md#clear-and-simple-design Polygon construction, ear emission and original edge identity share one geometric owner; whole-sheet assembly stays with its consumer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No epsilon weld, discarded cut, altered offset or anatomical-name exception determines intersection.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes per-polygon geometry from whole-grid coverage and final shell admission.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes per-polygon geometry from whole-region coverage and final shell admission.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines existing source triangles rather than defining another anatomical part.
  * @evidenceExclude contracts/modeling.md#parameter-channels Introduces no authoring channel.
- * @evidence contracts/modeling.md#emitted-geometry Ear population follows the actual convex overlay and keeps every original boundary cut.
+ * @evidence contracts/modeling.md#emitted-geometry Ear population follows the validated simple outline and actual convex overlays, retaining every original boundary cut.
  * @evidence contracts/modeling.md#spatial-conventions All predicates remain in the existing dimensionless common material frame.
  * @evidence contracts/modeling.md#shared-boundaries Original undirected edges and retained cuts give adjacent source/grid pieces identical boundary incidence.
  * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes its final metric offset shells.
@@ -94,6 +94,80 @@ export class HumanFaceConformingPolygon {
   }
 
   /**
+   * Validate the complete ordered outline before triangulating its concave interior.
+   * Only the whole cycle's winding is normalized; individual faces are not repaired.
+   *
+   * @evidence contracts/common.md#principled-implementation Exact segment incidence refuses self-crossing, retraced edges and coincident distinct boundary vertices before simple-polygon ear construction.
+   * @evidence contracts/common.md#clear-and-simple-design One ordered cycle supplies both the material region and its downstream refinement.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No convex hull, tolerance, union mask or removed boundary sample changes the requested region.
+   * @evidence contracts/common.md#meaningful-documentation States whole-cycle orientation and the difference between outline validation and triangle intersection.
+   * @evidence contracts/modeling.md#emitted-geometry Every original outline sample remains in the triangulated incidence.
+   * @evidence contracts/modeling.md#shared-boundaries Both offset sheets consume this one validated material region.
+   * @evidence contracts/modeling.md#spatial-conventions Predicates use exact dimensionless homogeneous material coordinates.
+   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines an existing tissue domain.
+   * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
+   * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes its offset shell.
+   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
+   * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological range.
+   * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
+   */
+  static outline(cuts: MaterialCut[]): IHumanFaceConformingPolygon {
+    if (
+      cuts.length < 3 ||
+      new Set(cuts.map((cut) => cut.key)).size !== cuts.length
+    )
+      throw new Error(
+        "A material outline needs distinct ordered boundary identities.",
+      );
+    const between = (
+      a: MaterialPoint,
+      b: MaterialPoint,
+      p: MaterialPoint,
+    ): boolean =>
+      Arithmetic.orientation(a, b, p) === 0n &&
+      [0, 1].every((axis) => {
+        const fromA = p[axis] * a[2] - a[axis] * p[2];
+        const fromB = p[axis] * b[2] - b[axis] * p[2];
+        return (
+          fromA === 0n ||
+          fromB === 0n ||
+          (fromA < 0n) !== (fromB < 0n)
+        );
+      });
+    for (let i = 0; i < cuts.length; i++) {
+      const a = cuts[i].point;
+      const b = cuts[(i + 1) % cuts.length].point;
+      const c = cuts[(i + 2) % cuts.length].point;
+      if (between(a, b, c) || between(b, c, a))
+        throw new Error("A material outline cannot retrace a boundary edge.");
+      for (let j = i + 1; j < cuts.length; j++) {
+        if (j === i + 1 || (i === 0 && j === cuts.length - 1)) continue;
+        const c = cuts[j].point;
+        const d = cuts[(j + 1) % cuts.length].point;
+        const abC = Arithmetic.orientation(a, b, c);
+        const abD = Arithmetic.orientation(a, b, d);
+        const cdA = Arithmetic.orientation(c, d, a);
+        const cdB = Arithmetic.orientation(c, d, b);
+        if (
+          between(a, b, c) || between(a, b, d) ||
+          between(c, d, a) || between(c, d, b) ||
+          (abC !== 0n && abD !== 0n && cdA !== 0n && cdB !== 0n &&
+            (abC < 0n) !== (abD < 0n) && (cdA < 0n) !== (cdB < 0n))
+        )
+          throw new Error(
+            "A material outline needs a simple noncrossing boundary.",
+          );
+      }
+    }
+    const area = polygonArea(cuts);
+    if (area[0] === 0n)
+      throw new Error("A material outline needs nonzero area.");
+    return area[0] > 0n
+      ? { cuts: [...cuts], area }
+      : { cuts: [...cuts].reverse(), area: [-area[0], area[1]] };
+  }
+
+  /**
    * Name an undirected edge from its two original incidence IDs.
    *
    * @evidence contracts/common.md#principled-implementation Sorting IDs makes opposite edge directions address the same original edge.
@@ -115,7 +189,7 @@ export class HumanFaceConformingPolygon {
   }
 
   /**
-   * Triangulate a positive convex polygon without removing its collinear boundary vertices.
+   * Triangulate a positive simple polygon without removing its collinear boundary vertices.
    *
    * @evidence contracts/common.md#principled-implementation A strictly positive ear with no other remaining point inside or on it preserves a valid polygon triangulation.
    * @evidence contracts/common.md#clear-and-simple-design One shrinking index cycle records the actual emitted triangle incidence.
@@ -167,7 +241,7 @@ export class HumanFaceConformingPolygon {
       }
       if (!removed)
         throw new Error(
-          "A conforming convex polygon needs a nondegenerate triangulation.",
+          "A conforming simple polygon needs a nondegenerate triangulation.",
         );
     }
     if (
@@ -243,7 +317,7 @@ function intersect(
     if (!cuts.has(key)) cuts.set(key, { key, point });
   };
   grid.points.forEach((point, at) => {
-    if (inside(point, host)) insert(`g:${grid.corners[at]}`, point);
+    if (inside(point, host)) insert(grid.keys[at], point);
   });
   host.points.forEach((point, at) => {
     if (inside(point, grid)) insert(sourceKey(host.corners[at]), point);
@@ -271,17 +345,16 @@ function intersect(
       if (t < 0n || t > denominator || u < 0n || u > denominator) continue;
       const key =
         t === 0n
-          ? `g:${grid.corners[i]}`
+          ? grid.keys[i]
           : t === denominator
-            ? `g:${grid.corners[(i + 1) % 3]}`
+            ? grid.keys[(i + 1) % 3]
             : u === 0n
               ? sourceKey(host.corners[j])
               : u === denominator
                 ? sourceKey(host.corners[(j + 1) % 3])
-                : `x:g:${HumanFaceConformingPolygon.edge(
-                    grid.corners[i],
-                    grid.corners[(i + 1) % 3],
-                  )}:h:${HumanFaceConformingPolygon.edge(
+                : `x:m:${JSON.stringify([
+                    grid.keys[i], grid.keys[(i + 1) % 3],
+                  ].sort((a, b) => a < b ? -1 : a > b ? 1 : 0))}:h:${HumanFaceConformingPolygon.edge(
                     hostIds[host.corners[j]],
                     hostIds[host.corners[(j + 1) % 3]],
                   )}`;
@@ -354,7 +427,7 @@ function hull(cuts: MaterialCut[]): MaterialCut[] {
 /**
  * Sum exact oriented fan areas before deciding source-disk coverage.
  *
- * @evidence contracts/common.md#principled-implementation A convex polygon's oriented fan sums its twice-area; homogeneous denominator products preserve exact rational units.
+ * @evidence contracts/common.md#principled-implementation A simple polygon's signed fan sums its twice-area; homogeneous denominator products preserve exact rational units.
  * @evidence contracts/common.md#clear-and-simple-design The rational addition owner is shared with whole-grid coverage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No small-area cutoff omits a positive intersection polygon.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes an exact zero-dimensional intersection from a finite surface patch.
