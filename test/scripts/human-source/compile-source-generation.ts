@@ -2,7 +2,7 @@
  * Compile source generation G1 from one sampled work directory and its
  * authored head stages (#2689), from the test CWD:
  *
- *   ttsx -P tsconfig.human-source.json --no-plugins scripts/human-source/compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]] [--oral-evaluations N] [--tongue-evaluations N]
+ *   ttsx -P tsconfig.human-source.json scripts/human-source/compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]] [--oral-evaluations N] [--tongue-evaluations N]
  *
  * `--inspection-checkpoint DIRECTORY` explicitly composes a failed-qualified
  * completed-eye checkpoint through the same binding and registration owners.
@@ -23,7 +23,14 @@
  * and PROVIDER, and needs the provider pair.
  *
  * Use it to recompile an existing work directory after a compiler change;
- * `compileHumanSourceGeneration` owns the stage order.
+ * `compileHumanSourceGeneration` owns the stage order. After final head-row
+ * and optical support registration, its shared attachment producer prepares
+ * normal bootstrap appearance and all registered native tarsal extents before
+ * writing either product view or P1 face. The manifest records that numerical
+ * support witness and keeps source, inspection and clinical qualification
+ * separate. An explicit numerical context can also use the same owner through
+ * `compile-source-attachment-charts.ts`, followed by the normal immutable
+ * `project-source-face-metadata.ts` projection into its original head.
  */
 import path from "node:path";
 

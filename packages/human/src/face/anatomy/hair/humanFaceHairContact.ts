@@ -13,7 +13,8 @@ const requireDirection = humanFaceHairFrame.direction;
 
 /**
  * The surface contact one hair curve keeps: its clearance (half a sampling
- * step and the requested clearance, plus a rounding allowance scaled to the
+ * step and the requested clearance, plus terminal-shaft radius when present,
+ * and a rounding allowance scaled to the
  * root, length and step) and a projection that
  * moves a point outside the closed collider to exactly that clearance along
  * the nearest feature, repeating until it holds. Guides call the projection
@@ -35,7 +36,9 @@ const requireDirection = humanFaceHairFrame.direction;
  * between them. A curve that is not integrated has to be held to the same
  * chord to inherit that guarantee.
  *
- * The clearance is the fibre's own, not the rendered ribbon's: half a step is
+ * Legacy ribbon clearance is the fibre's own, not its coverage width. A physical
+ * terminal shaft adds its unchanged radius before integration, so its outer
+ * surface can retain the same requested gap without reducing calibre. Half a step is
  * what a straight segment between two projected stations may sag by, and the
  * requested clearance is the free distance the document asks its hair to keep.
  * A ribbon is far wider than the fibre path it stands for, and paying for that
@@ -106,8 +109,9 @@ export function humanFaceHairContact(
       props.length,
       h,
       layer.clearance,
+      (layer.terminalShaftDiameter ?? 0) / 2,
     );
-  const clearance = h / 2 + layer.clearance + 2 * epsilon;
+  const clearance = h / 2 + layer.clearance + (layer.terminalShaftDiameter ?? 0) / 2 + 2 * epsilon;
   // The projection of a step returns the very point the integrator samples
   // next, so the last query is kept: the same coordinates give the same hit,
   // because the query is deterministic in its point. The hit is shared and

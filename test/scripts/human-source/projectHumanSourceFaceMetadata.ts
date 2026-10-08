@@ -7,12 +7,15 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
+import { readHumanSourceProtectedHairDomains } from "./readHumanSourceProtectedHairDomains.ts";
+import { registerHumanSourceFacialHairDomains } from "./registerHumanSourceFacialHairDomains.ts";
 import type { IHumanSourceFaceMetadataProjectionReceipt } from "./structures/IHumanSourceFaceMetadataProjectionReceipt.ts";
 
 /**
  * Put one compiled face attachment registration into its original head host.
  * Exact serialized equality after removing only attachment-chart and native
- * displacement, clipped medial material and skin-course registrations proves
+ * displacement, clipped medial material, skin courses and source-authored
+ * terminal-growth registrations proves
  * every other face value is unchanged. All head fields are
  * preserved directly, including id, aliases, drivers and headSkin. Input
  * bytes remain immutable and a fresh destination is required. This metadata
@@ -79,6 +82,16 @@ export function projectHumanSourceFaceMetadata(
       if (chart.generation !== surface.sourcePartition?.generation ||
           chart.surface !== surface.id)
         throw new Error("Head metadata projection has a different-source skin course disk.");
+  // Verify every existing terminal territory against this actual source before
+  // excluding that owned registration from the preserved-content comparison.
+  // Legacy attachment-only candidates have no terminal registration to verify.
+  const facialRegistered = face.surfaces.some((surface) =>
+    surface.hairDomains?.some((domain) => domain.facialHairSite !== undefined),
+  );
+  if (!facialRegistered && head.face.surfaces.some((surface) =>
+    surface.hairDomains?.some((domain) => domain.facialHairSite !== undefined),
+  )) throw new Error("Head metadata projection cannot retire existing terminal growth registrations.");
+  if (facialRegistered) registerHumanSourceFacialHairDomains(face);
   const stripSide = (
     side: IAutoMovieHumanFacePeriocularSide,
   ): IAutoMovieHumanFacePeriocularSide => ({
@@ -99,7 +112,11 @@ export function projectHumanSourceFaceMetadata(
   const preserved = (value: IAutoMovieHumanFaceBasis): string =>
     JSON.stringify({
       ...value,
-      surfaces: value.surfaces.map((surface) => ({ ...surface, materialCharts: undefined })),
+      surfaces: value.surfaces.map((surface) => ({
+        ...surface,
+        materialCharts: undefined,
+        hairDomains: readHumanSourceProtectedHairDomains(surface),
+      })),
       periocular:
         value.periocular === undefined
           ? undefined
@@ -136,7 +153,7 @@ export function projectHumanSourceFaceMetadata(
     outputHeadSha256: sha(outputBytes),
     outputHeadBytes: outputBytes.length,
     qualification:
-      "Lossless host-owned face attachment/displacement/medial material/skin-course metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices and head identity/aliases/drivers/headSkin are preserved. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
+      "Lossless host-owned face attachment/displacement/medial material/skin-course metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices, original untagged scalp domains and head identity/aliases/drivers/headSkin are preserved. Source terminal territories are independently recomputed and verified; their clinical population is unknown. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
   };
   publishHumanSourceFiles({
     directory: path.dirname(path.resolve(outputFile)),

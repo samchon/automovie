@@ -1,6 +1,6 @@
 /**
  * Project a source face's attachment metadata into its immutable head host:
- * ttsx -P tsconfig.human-source.json --no-plugins scripts/human-source/project-source-face-metadata.ts HEAD_GZIP FACE_GZIP OUTPUT_HEAD
+ * ttsx -P tsconfig.human-source.json scripts/human-source/project-source-face-metadata.ts HEAD_GZIP FACE_GZIP OUTPUT_HEAD
  *
  * Output is a new candidate plus its exact-content receipt; tracked inputs and
  * root geometry are read only. Person admission remains with normal consumers.

@@ -45,7 +45,7 @@ const direction = (values: readonly number[]): boolean =>
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
  *   no primitive.
  * @evidence contracts/modeling.md#spatial-conventions It checks the units the
- *   interface declares (metres, radians, dimensionless weights and linear RGB)
+ *   interface declares (metres, authored emergence degrees, other field radians, dimensionless weights and linear RGB)
  *   and converts nothing.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
  *   no surface and joins no neighbouring part.
@@ -89,6 +89,8 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !positive(layer.samplingStep) ||
       layer.samplingStep > 0.005 ||
       !nonnegative(layer.clearance) ||
+      (layer.terminalShaftDiameter !== undefined && !positive(layer.terminalShaftDiameter)) ||
+      (layer.emergenceAngleDegrees !== undefined && (!positive(layer.emergenceAngleDegrees) || layer.emergenceAngleDegrees > 90)) ||
       !direction(layer.flow) ||
       !nonnegative(layer.lift.strength) ||
       !positive(layer.lift.reach) ||

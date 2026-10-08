@@ -4,6 +4,8 @@ import type { IAutoMovieHumanConstructionAdmission } from "../../common/structur
 import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceResidentSourceRegion } from "../basis/IHumanFaceResidentSourceRegion";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "./IAutoMovieHumanFacePeriocularMappingReport";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
 
 /**
  * All requested face geometry and its separate, unchanged admission outcome.
@@ -26,6 +28,12 @@ export interface IAutoMovieHumanFaceConstruction {
 
   /** Actual generated hair identities needed by the person's existing carry. */
   hairPartIds: readonly string[];
+
+  /** Actual emitted per-part station layout and profile clearance, retained with the model's owned hair. */
+  hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout>;
+
+  /** Exact registered material skin seats, keyed by physical domain then ID. */
+  materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
 
   /** Exact retained native region correspondence from this model's own gather. */
   sourceRegions: readonly IHumanFaceResidentSourceRegion[];

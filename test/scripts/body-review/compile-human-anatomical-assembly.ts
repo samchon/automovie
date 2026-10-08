@@ -52,6 +52,9 @@
  * so cranial containment and complete person appearance stay unverified.
  * This stage writes body-layer-order.json and body readback; joint centres
  * and person-layer-order.json belong to whole-person construction.
+ * The layer-registration stage derives a recipe-bound candidate, runs the
+ * existing thickness producer on its actual view and publishes registered
+ * paired inputs, retaining source and producer receipts without constructing.
  */
 import {
   inspectAutoMovieMeshTopology,
@@ -85,11 +88,12 @@ if (
   stage !== "source-admission" &&
   stage !== "layer-order" &&
   stage !== "layer-surfaces" &&
+  stage !== "layer-registration" &&
   stage !== "body-only" &&
   stage !== "full"
 )
   throw new Error(
-    "The optional production stage is source-admission, layer-surfaces, layer-order, body-only or full.",
+    "The optional production stage is source-admission, layer-surfaces, layer-registration, layer-order, body-only or full.",
   );
 if (stage === "layer-surfaces" && layerFieldFile === undefined)
   throw new Error("The layer-surfaces stage needs a layer thickness field.");
@@ -108,7 +112,9 @@ if (stage === "layer-surfaces") {
 }
 const { plan, head, body, originalAssembly, assembly, candidate, document,
   assemblyBytes, sourceRefusals, layerField, skinIndices, declared, ids, candidateId } =
-  readHumanBodyAnatomicalCompileInputs(assemblyFile, planFile, output, layerFieldFile, shapeFile);
+  readHumanBodyAnatomicalCompileInputs(assemblyFile, planFile, output, layerFieldFile, shapeFile,
+    stage === "layer-registration" ? "layer-registration" : undefined);
+if (stage === "layer-registration") process.exit(0);
 const hash = (bytes: string | Uint8Array): string =>
   createHash("sha256").update(bytes).digest("hex");
 
@@ -188,7 +194,7 @@ if (stage === "source-admission") {
         physicalSource: "source-partition",
         endpointSource: createHumanPersonBodyEndpointSource(generation),
         observeProgress: progress.observeBodyConstructionProgress,
-      })(
+      }).construct(
         deriveHumanPersonBody({ document, faceMaterials: head.face.materials }),
       );
       artifacts.writeConstructedModel("body", build.model);
@@ -211,6 +217,8 @@ if (stage === "source-admission") {
             candidateId,
             sourceAssemblySha256: hash(assemblyBytes),
             bodyParts: build.model.parts.map((part) => part.id),
+            layerObservations: build.layerObservations,
+            layerAdmission: build.layerAdmission,
             actualSourceIds: ids,
             originalMemberRefusals: sourceRefusals,
             qualification:
@@ -245,7 +253,7 @@ if (stage === "source-admission") {
             "Body unit only; missing head skin and person assembly are unverified",
         }),
       );
-      process.exitCode = refused === 0 ? 0 : 1;
+      process.exitCode = refused === 0 && build.layerAdmission?.accepted !== false ? 0 : 1;
       return;
     }
     const personBuild =
@@ -270,6 +278,9 @@ if (stage === "source-admission") {
           bodyParts: bodyBuild.model.parts.map((part) => part.id),
           personParts: personBuild.model.parts.map((part) => part.id),
           admission: personBuild.admission,
+          faceAdmission: personBuild.faceAdmission,
+          bodyLayerObservations: bodyBuild.layerObservations,
+          bodyLayerAdmission: bodyBuild.layerAdmission,
           meaning:
             "Complete normal person construction; rejected admission remains rejected and quality checks follow",
         },
@@ -378,7 +389,7 @@ if (stage === "source-admission") {
     );
     if (stage === "layer-order") {
       process.exitCode =
-        bodyLayerRefusals === 0 && personLayerRefusals === 0 ? 0 : 1;
+        personBuild.admission.accepted && bodyLayerRefusals === 0 && personLayerRefusals === 0 ? 0 : 1;
       return;
     }
     await artifacts.writeBodyAsset(bodyBuild, candidate);

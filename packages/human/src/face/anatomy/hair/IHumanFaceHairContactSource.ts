@@ -27,8 +27,8 @@ import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFa
  * @author Samchon
  */
 export interface IHumanFaceHairContactSource {
-  /** Sampling step and requested clearance of the admitted layer. */
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;
+  /** Sampling step, requested surface gap and optional physical shaft diameter of the admitted layer. */
+  layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance" | "terminalShaftDiameter">;
 
   /** The curve's root, scaling the rounding allowance. */
   root: IAutoMovieVector3;

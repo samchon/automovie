@@ -6,6 +6,8 @@ import type {
 
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IHumanBodySourceQuantityReading } from "../anatomy/assembly/IHumanBodySourceQuantityReading";
+import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
+import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";
@@ -71,6 +73,20 @@ export interface IAutoMovieHumanBodyBuild {
    * omission means this basis has no evaluated anatomical assembly.
    */
   anatomicalQuantities?: readonly IHumanBodySourceQuantityReading[];
+
+  /**
+   * Each registered skin's original limited offset observations on the final
+   * construction. Omission means no field was constructed, not accepted tissue.
+   * These native populations remain separate from the face's part census.
+   */
+  layerObservations?: readonly IHumanBodyLayerObservation[];
+
+  /**
+   * Limited skin-layer admission, separate from face and source containment.
+   * Rejected constructions retain their actual model for explicit inspection;
+   * ordinary body/person calls refuse them. Omission denotes no layer field.
+   */
+  layerAdmission?: IAutoMovieHumanConstructionAdmission;
 
   /** Shaped landmark positions by id, after channels and correctives. */
   landmarks: Record<string, IAutoMovieVector3>;

@@ -1,6 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../face/structures/IAutoMovieHumanFaceHair";
+import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
 import type { IHumanPersonHairContactProps } from "./IHumanPersonHairContactProps";
 
 /**
@@ -46,6 +47,13 @@ export interface IAutoMovieHumanPersonHairClearanceProps {
    * @evidenceExclude contracts/anatomy.md#parametric-authority IAutoMovieHumanPersonHairClearanceProps.isGenerated defines no input through which a caller shapes a human form.
    */
   isGenerated: (id: string) => boolean;
+
+  /**
+   * This emission's geometry-owned per-part stations, source seats and gaps.
+   * A supplied map must cover every actual generated part. Absence is only
+   * the existing ribbon transport and does not support terminal shafts.
+   */
+  contactLayouts?: ReadonlyMap<string, IHumanFaceHairContactLayout>;
 
   /** The hair document's layers, or none. */
   layers: readonly Pick<

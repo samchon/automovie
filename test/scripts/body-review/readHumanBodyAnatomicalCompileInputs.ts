@@ -16,13 +16,8 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import typia from "typia";
 import type { IHumanBodyAnatomicalCompilePlan } from "./IHumanBodyAnatomicalCompilePlan";
 import type { IHumanBodyAnatomicalCompileInputs } from "./IHumanBodyAnatomicalCompileInputs";
-
-/** Native layer preparation reads the exterior before its anatomy exists. */
-type NativeLayerInputs = Pick<IHumanBodyAnatomicalCompileInputs,
-  "plan" | "head" | "body" | "layerFieldSha256" | "skinIndices"> & {
-  /** Required basis-addressed field; preparation cannot infer thickness. */
-  layerField: IAutoMovieHumanBodyLayerThicknessField;
-};
+import { registerHumanBodySkinLayers } from "./registerHumanBodySkinLayers";
+import type { INativeHumanBodyLayerCompileInputs } from "./INativeHumanBodyLayerCompileInputs";
 
 /**
  * Admit the exact original source, rig and plan before deriving a candidate.
@@ -41,13 +36,14 @@ export function readHumanBodyAnatomicalCompileInputs(
   layerFieldFile: string | undefined,
   shapeFile: string | undefined,
   stage: "layer-surfaces",
-): NativeLayerInputs;
+): INativeHumanBodyLayerCompileInputs;
 export function readHumanBodyAnatomicalCompileInputs(
   assemblyFile: string,
   planFile: string,
   output: string,
   layerFieldFile: string | undefined,
   shapeFile: string | undefined,
+  stage?: "layer-registration",
 ): IHumanBodyAnatomicalCompileInputs;
 export function readHumanBodyAnatomicalCompileInputs(
   assemblyFile: string,
@@ -55,8 +51,10 @@ export function readHumanBodyAnatomicalCompileInputs(
   output: string,
   layerFieldFile: string | undefined,
   shapeFile: string | undefined,
-  stage?: "layer-surfaces",
-): IHumanBodyAnatomicalCompileInputs | NativeLayerInputs {
+  stage?: "layer-surfaces" | "layer-registration",
+): IHumanBodyAnatomicalCompileInputs | INativeHumanBodyLayerCompileInputs {
+  if (stage === "layer-registration" && layerFieldFile !== undefined)
+    throw new Error("Layer registration produces a field from its actual candidate view; a supplied field cannot replace it.");
   const planBytes = fs.readFileSync(planFile);
   const plan = typia.assertEquals<IHumanBodyAnatomicalCompilePlan>(
     JSON.parse(planBytes.toString("utf8")),
@@ -160,14 +158,19 @@ export function readHumanBodyAnatomicalCompileInputs(
             surface.id,
         );
 
-  const candidateId =
-    body.body.id +
+  const registered = body.body.anatomicalAssembly !== undefined;
+  if (registered && JSON.stringify(body.body.anatomicalAssembly) !== JSON.stringify(originalAssembly))
+    throw new Error("Published body assembly differs from its supplied registered source.");
+  const candidateId = registered && stage !== "layer-registration" ? body.body.id : body.body.id +
     "/anatomical-" +
     hash(
       JSON.stringify({
         originalBody: hash(JSON.stringify(body.body)),
         assembly: hash(assemblyBytes),
         plan: hash(planBytes),
+        layerRecipe: stage === "layer-registration" ? hash(fs.readFileSync(
+          path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
+        )) : undefined,
       }),
     ).slice(0, 16);
   const assembly = { ...originalAssembly, basis: candidateId };
@@ -186,6 +189,12 @@ export function readHumanBodyAnatomicalCompileInputs(
     throw new Error(
       "Derived source assembly altered the original skin/rig/shape payload.",
     );
+  if (stage === "layer-registration")
+    registerHumanBodySkinLayers({
+      candidate, body, output,
+      producer: path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
+    });
+  fs.writeFileSync(path.join(output, "registered-source-assembly.json"), JSON.stringify(assembly));
   const person = parseHumanPersonDocument(
     fs.readFileSync(resolve(plan.personDocument), "utf8"),
     originalAssembly,

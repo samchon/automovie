@@ -1,3 +1,5 @@
+import { Vector3 } from "@automovie/engine";
+
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
@@ -12,9 +14,13 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * owner reads the combed field from the neutral chart; the current
  * barycentric seat, signed query, ray caster and root-star distance reader must
  * share one closed collider snapshot. The emergence owner supplies the desired
- * unit root tangent at the caller's exit elevation `degrees`, chosen from the
- * root's cited range; the integrator grows its curved boundary transition
+ * unit root tangent at the caller's exit elevation `degrees`, either an
+ * admitted authored target or the existing scalp placement interval. The
+ * integrator grows its curved boundary transition
  * before starting the free walk. All positions and lengths are head-frame metres.
+ * An authored non-normal elevation needs a tangential field; a singular field
+ * refuses rather than replacing that target with normal emergence. The legacy
+ * scalp fallback remains with the unchanged generic emergence owner.
  *
  * The returned stage and contact belong to this lock; the supplied remaining
  * budget is admitted here and mutated by the owning metric walker. Both guide
@@ -59,14 +65,15 @@ export function createHumanFaceHairCurveStart(
   if (!Number.isFinite(length) || length <= contact.epsilon)
     throw new Error("Hair length cannot accommodate its rooted transition.");
   const budget = props.budget;
+  const normal = humanFaceHairFrame.direction(props.normal);
+  const field = stage.direction(props.root, normal, 0);
+  if (layer.emergenceAngleDegrees !== undefined && degrees < 90 &&
+      Vector3.length(Vector3.subtract(field, Vector3.scale(normal, Vector3.dot(field, normal)))) === 0)
+    throw new Error("An authored non-normal hair emergence requires a nonzero tangential styling direction.");
   const direction = humanFaceHairEmergence({
     normal: props.normal,
     degrees,
-    field: stage.direction(
-      props.root,
-      humanFaceHairFrame.direction(props.normal),
-      0,
-    ),
+    field,
   });
   return { stage, length, contact, budget, direction };
 }

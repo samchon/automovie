@@ -1,4 +1,6 @@
 import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
+import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "../../face/structures/IHumanFaceMaterialAttachment";
 import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
@@ -50,6 +52,8 @@ export function createHumanPersonFaceBuilder(
   ) => void,
 ) {
   let emitted: readonly string[] = [];
+  let hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout> = new Map();
+  let materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>> = new Map();
   let reference: ReadonlyMap<string, readonly number[]> | undefined;
   let oral: IHumanFaceOralMeasurementRegistration | undefined;
   const build = createHumanFaceBasisBuilder(basis, {
@@ -58,6 +62,12 @@ export function createHumanPersonFaceBuilder(
     ...(census ? { census: true } : {}),
     observeHairParts: (ids) => {
       emitted = ids;
+    },
+    observeHairContactLayouts: (layouts) => {
+      hairContactLayouts = layouts;
+    },
+    observeMaterialAttachments: (attachments) => {
+      materialAttachments = attachments;
     },
     ...(readMeasurementStates
       ? {
@@ -83,8 +93,9 @@ export function createHumanPersonFaceBuilder(
   ): IAutoMovieHumanPersonFaceBuild => {
     reference = undefined;
     oral = undefined;
+    materialAttachments = new Map();
     const model = build(document);
-    return { model, hairPartIds: new Set(emitted), reference, oral };
+    return { model, hairPartIds: new Set(emitted), hairContactLayouts, materialAttachments, reference, oral };
   };
   return Object.assign(evaluate, {
     construct: (

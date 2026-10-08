@@ -1,6 +1,6 @@
 /**
  * Compile material attachment registrations from an existing source face:
- * ttsx -P tsconfig.human-source.json --no-plugins scripts/human-source/compile-source-attachment-charts.ts FACE_GZIP NUMERICAL_DOCUMENT OUTPUT_DIRECTORY
+ * ttsx -P tsconfig.human-source.json scripts/human-source/compile-source-attachment-charts.ts FACE_GZIP NUMERICAL_DOCUMENT OUTPUT_DIRECTORY
  *
  * The input source is immutable. This normal asset-preparation stage emits
  * the exact source face plus its material charts and a byte receipt, not a
@@ -8,8 +8,6 @@
  * generation stay unchanged; receipt identity distinguishes this metadata
  * candidate until the complete source producer publishes its coherent pair.
  */
-import { humanFaceBasisWeights } from "@automovie/human/face/basis/humanFaceBasisWeights";
-import { prepareHumanFaceReference } from "@automovie/human/face/basis/prepareHumanFaceReference";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
@@ -18,13 +16,9 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-import { compileHumanSourceNativeRegistration } from "./compileHumanSourceNativeRegistration.ts";
-import { extendHumanSourcePeriocularAttachmentCharts } from "./extendHumanSourcePeriocularAttachmentCharts.ts";
-import { extendHumanSourceBrowMaterialSupport } from "./extendHumanSourceBrowMaterialSupport.ts";
-import { prepareHumanSourceBootstrapMaterialReference } from "./prepareHumanSourceBootstrapMaterialReference.ts";
+import { compileHumanSourceAttachmentRegistration } from "./compileHumanSourceAttachmentRegistration.ts";
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
 import { readHumanSourceProducerClosure } from "./readHumanSourceProducerClosure.ts";
-import type { IHumanSourceAttachmentCoverage } from "./structures/IHumanSourceAttachmentCoverage.ts";
 
 const [inputFile, documentFile, outputDirectory] = process.argv.slice(2);
 if (
@@ -58,76 +52,8 @@ const document = JSON.parse(
 ) as IAutoMovieHumanFaceBasisDocument;
 const sha = (value: Buffer): string =>
   crypto.createHash("sha256").update(value).digest("hex");
-const geometryIdentity = (): string => sha(Buffer.from(JSON.stringify(
-  basis.surfaces.map((surface) => ({ ...surface, materialCharts: undefined })),
-)));
-const originalGeometry = geometryIdentity();
-const coverage: Record<string, IHumanSourceAttachmentCoverage[]> = {};
-// Native material clipping consumes immutable host geometry, not the full
-// numerical reference. Discover its source-domain refusal before expensive
-// independent relief preparation; successful publication still requires all.
-const counts = compileHumanSourceNativeRegistration(basis);
-console.log(
-  "[human-source] native medial patches complete",
-  JSON.stringify(counts),
-);
-console.log("[human-source] numerical reference preparation begins");
-const prepared = prepareHumanFaceReference({
-  basis,
-  state: humanFaceBasisWeights(basis, document),
-  geometry: document,
-});
-const reference = prepared.complete();
-if (reference === undefined || prepared.optics === undefined)
-  throw new Error(
-    "Source continuation requires the actual numerical document's prepared reference and independent optics.",
-  );
-console.log("[human-source] numerical reference preparation complete");
-Object.assign(counts, extendHumanSourceBrowMaterialSupport({
-  basis,
-  references: [
-    prepareHumanSourceBootstrapMaterialReference(basis),
-    { document, positions: reference },
-  ],
-}));
-console.log("[human-source] finite brow guide support complete", JSON.stringify(counts));
-for (const side of ["left", "right"] as const) {
-  const cage = basis.periocular?.[side]?.cage;
-  if (cage === undefined) continue;
-  const host = basis.surfaces.find((surface) => surface.id === cage.surface);
-  if (
-    host?.sourcePartition === undefined ||
-    host.sourcePartition.generation !== cage.generation
-  )
-    throw new Error(
-      "Attachment chart requires same-generation actual host samples.",
-    );
-  const exterior = prepared.optics.find((eye) => eye.side === side)?.exterior
-      .rest,
-    positions = reference.get(cage.surface);
-  if (exterior === undefined || positions === undefined)
-    throw new Error(
-      "Source support lacks its actual reference exterior or skin.",
-    );
-  const expanded = extendHumanSourcePeriocularAttachmentCharts({
-    host,
-    cage,
-    reference: positions,
-    exterior,
-  });
-  cage.attachmentCharts = expanded.charts;
-  coverage[side] = expanded.coverage;
-  counts[`${side}:outerDualDepth`] = expanded.outerDualDepth;
-  for (const lid of ["upper", "lower"] as const) {
-    const chart = cage.attachmentCharts[lid];
-    counts[`${side}:${lid}:vertices`] = chart.vertices.length;
-    counts[`${side}:${lid}:triangles`] = chart.sourceTriangles.length;
-  }
-}
-if (Object.keys(counts).length === 0)
-  throw new Error("Source face has no material attachment cage.");
-if (geometryIdentity() !== originalGeometry)
-  throw new Error("Attachment preparation changed original geometry or source field values.");
+const registration = compileHumanSourceAttachmentRegistration({ basis, document });
+const { counts, coverage } = registration;
 if (sha(fs.readFileSync(inputFile)) !== sha(inputBytes))
   throw new Error("Attachment source changed during compilation.");
 if (sha(fs.readFileSync(documentFile)) !== sha(documentBytes))
@@ -139,7 +65,9 @@ const receipt = {
   numericalDocumentSha256: sha(documentBytes),
   outputSha256: sha(outputBytes),
   sourceFace: basis.id,
-  preservedSourceGeometrySha256: originalGeometry,
+  preservedSourceGeometrySha256: registration.preservedSourceGeometrySha256,
+  numericalContextSha256: registration.numericalContextSha256,
+  facialHair: registration.facialHair,
   counts,
   coverage,
   producerInputs: producer.inputs,

@@ -10,6 +10,8 @@ import { fitHumanFaceHairRibbonRows } from "./fitHumanFaceHairRibbonRows";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { selectHumanFaceHairStations } from "./selectHumanFaceHairStations";
+import { buildHumanFaceHairShaftMesh } from "./buildHumanFaceHairShaftMesh";
+import type { IHumanFaceHairContactStation } from "./IHumanFaceHairContactStation";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 
@@ -20,7 +22,10 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Root tangent and finite stem curvature therefore survive as actual rows.
  * UV v and taper use cumulative metric over every original station.
  *
- * Width is the density owner's coverage proxy, not an authored shaft diameter.
+ * Legacy width is the density owner's coverage proxy, not an authored shaft diameter.
+ * A layer with explicit terminalShaftDiameter delegates to the physical shaft
+ * owner using the same curves, native registrations and separation readers.
+ * Actual station membership is published by whichever representation emits it.
  * The old zero-width root fan is represented explicitly by positive stem rows:
  * a stem row's half width is capped by its own positive signed skin gap. The
  * 1-Lipschitz distance ball keeps that whole transverse row nonpenetrating.
@@ -126,9 +131,11 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  */
 export function buildHumanFaceHairMesh(
   curves: IAutoMovieHumanFaceHairCurve[],
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance">,
+  layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance" | "terminalShaftDiameter">,
   props: IHumanFaceHairMeshContext,
 ): IAutoMovieMesh {
+  if (layer.terminalShaftDiameter !== undefined)
+    return buildHumanFaceHairShaftMesh(curves, layer.terminalShaftDiameter, layer.clearance, props);
   if (
     props.separation === undefined ||
     props.separation === null ||
@@ -343,6 +350,7 @@ export function buildHumanFaceHairMesh(
     });
     positions.push(points[0].x, points[0].y, points[0].z);
     uvs.push(0.5, 0);
+    const contactStations: IHumanFaceHairContactStation[] = [{ vertices: [offset], radius: 0, arcLength: 0 }];
     for (let order = 1; order < fittedRows.length; order++) {
       const rowData = fittedRows[order];
       for (const side of [-1, 1]) {
@@ -354,10 +362,12 @@ export function buildHumanFaceHairMesh(
         uvs.push((side + 1) / 2, rowData.v);
       }
       const row = offset + 2 * order - 1;
+      contactStations.push({ vertices: [row, row + 1], radius: rowData.radius, arcLength: rowData.v * curve.length });
       if (order === 1) indices.push(offset, row, row + 1);
       else indices.push(row - 2, row, row - 1, row - 1, row, row + 1);
     }
     props.progress?.(ordinal);
+    props.observeContactCurve?.({ attachment: props.attachments[ordinal], stations: contactStations });
   });
   const point = (id: number) =>
     Vector3.create(

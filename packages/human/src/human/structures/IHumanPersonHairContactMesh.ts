@@ -1,5 +1,7 @@
+import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
+
 /**
- * One actual ribbon or card mesh in the person's shared metre frame.
+ * One actual ribbon or terminal-shaft mesh in the person's shared metre frame.
  *
  * @evidence contracts/common.md#principled-implementation Readonly coordinates and their indexed faces retain the producer's actual mesh without authoring a substitute surface.
  * @evidence contracts/common.md#clear-and-simple-design The coordinate and triangle populations travel together to the one body-contact consumer.
@@ -23,4 +25,11 @@ export interface IHumanPersonHairContactMesh {
 
   /** Oriented triangle indices into the same vertex population. */
   readonly indices: readonly number[];
+
+  /**
+   * Geometry-owned actual station membership and this part's requested gap.
+   * Omission retains the legacy ribbon-only interpretation; a terminal shaft
+   * must carry its producer's layout instead of being interpreted as pairs.
+   */
+  readonly layout?: IHumanFaceHairContactLayout;
 }

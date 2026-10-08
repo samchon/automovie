@@ -274,6 +274,6 @@ export const HUMAN_FACE_OBSERVATION_RULES: readonly IHumanFaceObservationRule[] 
     {
       path: "facialHair",
       outcome: "observed",
-      reason: "kept for the record; no facial-hair producer exists",
+      reason: "kept for the record; the numerical document owns emitted terminal-shaft targets independently of observed density",
     },
   ];

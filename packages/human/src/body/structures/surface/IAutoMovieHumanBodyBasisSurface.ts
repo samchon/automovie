@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanSkinBinding } from "../../../common/basis/IAutoMovieHumanSkinBinding";
+import type { IAutoMovieHumanBodyLayerThicknessField } from "../../anatomy/layer/IAutoMovieHumanBodyLayerThicknessField";
 import type { IAutoMovieHumanBodyBasisRegion } from "./IAutoMovieHumanBodyBasisRegion";
 import type { IAutoMovieHumanBodyBasisSurfaceMush } from "./IAutoMovieHumanBodyBasisSurfaceMush";
 import type { IAutoMovieHumanBodyBasisSurfaceSag } from "./IAutoMovieHumanBodyBasisSurfaceSag";
@@ -37,6 +38,14 @@ export interface IAutoMovieHumanBodyBasisSurface {
 
   /** Optional shared-source cell lineage for a consuming face/body assembly. */
   sourcePartition?: IAutoMovieHumanBasisSourcePartition;
+
+  /**
+   * Offline skin and subcutaneous thickness at these exact native vertices.
+   * The field addresses this body basis and preserves its anchors and authored
+   * population qualification. Omission generates no inner layer geometry.
+   * A document never supplies or edits these per-vertex source arrays.
+   */
+  layerThickness?: IAutoMovieHumanBodyLayerThicknessField;
 
   /** Oriented triangles over those shared vertex identities. */
   indices: number[];

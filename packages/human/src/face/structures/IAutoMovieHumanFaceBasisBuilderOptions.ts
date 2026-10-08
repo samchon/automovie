@@ -1,4 +1,6 @@
 import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
 import type { AutoMovieHumanFaceMeasurementReading } from "./AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceConstructionProgress } from "./IAutoMovieHumanFaceConstructionProgress";
 import type { IAutoMovieHumanFaceContactSummary } from "./IAutoMovieHumanFaceContactSummary";
@@ -87,6 +89,28 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
    * @evidenceExclude contracts/anatomy.md#parametric-authority observeHairParts does not shape a person.
    */
   observeHairParts?: (ids: readonly string[]) => void;
+
+  /**
+   * Owned actual per-part curve/station geometry and profile gaps from this admitted emission.
+   *
+   * @evidence contracts/common.md#principled-implementation Published after this exact model passes admission, with a detached layout copy.
+   * @evidence contracts/common.md#clear-and-simple-design One observer transports the same geometry-owned layout returned by construction.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed admission supplies no success-only contact layout.
+   * @evidence contracts/common.md#meaningful-documentation States admission timing and detached geometry ownership.
+   */
+  observeHairContactLayouts?: (layouts: ReadonlyMap<string, IHumanFaceHairContactLayout>) => void;
+
+  /**
+   * Receive owned material skin attachments only after this model passes admission.
+   *
+   * @evidence contracts/common.md#principled-implementation The exact source reader's registered physical domain/ID and ordered parents/weights accompany the same admitted model through a detached copy.
+   * @evidence contracts/common.md#clear-and-simple-design One callback carries the same material correspondence returned by construction.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed admission publishes no attachment and coordinates never choose a replacement source seat.
+   * @evidence contracts/common.md#meaningful-documentation States successful publication and detached source ownership.
+   */
+  observeMaterialAttachments?: (
+    attachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>,
+  ) => void;
 
   /**
    * Receive every registered face measurement read on each admitted model's

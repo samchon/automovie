@@ -13,6 +13,8 @@ import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanF
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import type { IHumanFaceHairHostQueries } from "./IHumanFaceHairHostQueries";
 import type { IHumanFaceHairSourceSurface } from "./IHumanFaceHairSourceSurface";
+import type { IHumanFaceHairContactLayout } from "./IHumanFaceHairContactLayout";
+import type { IHumanFaceHairContactCurve } from "./IHumanFaceHairContactCurve";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { buildHumanFaceHairMesh } from "./buildHumanFaceHairMesh";
 import { closeHumanFaceHairContact } from "./closeHumanFaceHairContact";
@@ -89,10 +91,11 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
  *   defines no channel and reads the hairstyle document's fields without varying
  *   a form; the document type owns their meaning.
  * @evidence contracts/modeling.md#emitted-geometry Each layer emits one mesh
- *   whose ribbons are its requested count, at most 1024, and whose stations
+ *   whose scalp ribbons or calibrated terminal shafts are its requested count, at most 1024, and whose stations
  *   follow the curve and not the number of authored features; the assembled
  *   station total is capped at a million and refuses beyond it. The mesher
- *   retains root and launch and derives ribbon rows from the remaining bends.
+ *   retains root and launch and derives the actual representation's rows from
+ *   the curve; its contact layout preserves those exact vertex groups and calibre.
  * @evidence contracts/modeling.md#spatial-conventions Basis positions, origins
  *   and current positions are metres in the head frame, roots move from neutral
  *   barycentric seats to current points, the closure cap is built on current
@@ -202,6 +205,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
     assertHumanFaceHair(hair);
     const parts: IAutoMovieModelPart[] = [],
       materials: IAutoMovieMaterial[] = [];
+    const contactLayouts = new Map<string, IHumanFaceHairContactLayout>();
     const queries = new Map<string, IHumanFaceHairHostQueries>();
     let stations = 0;
     const spend = (count: number): void => {
@@ -386,8 +390,8 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         return grown;
       });
       const id = "numerical-hair:" + layer.id;
-      const material = createPortraitHairMaterial(
-        {
+      const contactCurves: IHumanFaceHairContactCurve[] = [];
+      const base: IAutoMovieMaterial = {
           id,
           name: id,
           baseColor: {
@@ -403,8 +407,9 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           emissive: null,
           baseColorTexture: null,
           doubleSided: true,
-        },
-        {
+        };
+      const material = layer.terminalShaftDiameter === undefined ? createPortraitHairMaterial(
+        base, {
           seed: layer.seed,
           fibres: layer.finish.fibres,
           coverage: layer.finish.coverage,
@@ -412,7 +417,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           fibreShadeStrength: layer.finish.shade,
           grey: layer.finish.grey,
         },
-      );
+      ) : base;
       materials.push(material);
       parts.push({
         id,
@@ -423,10 +428,10 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         geometry: {
           type: "mesh",
           mesh: buildHumanFaceHairMesh(curves, layer, {
-            widths: humanFaceHairDensity({
+            widths: layer.terminalShaftDiameter === undefined ? humanFaceHairDensity({
               roots: seats.map((seat) => seat.seated),
               area,
-            }),
+            }) : curves.map(() => layer.terminalShaftDiameter!),
             query,
             separation,
             budgets,
@@ -437,11 +442,18 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
             })),
             progress: progress === undefined ? undefined : (ordinal) =>
               progress("hair:" + layer.id + ":ribbon:" + ordinal),
+            observeContactCurve: (curve) => { contactCurves.push(curve); },
           }),
         },
       });
+      contactLayouts.set(id, {
+        surface: layer.surface, domain: layer.domain,
+        representation: layer.terminalShaftDiameter === undefined ? "ribbon" : "terminal-shaft",
+        clearance: layer.clearance + layer.samplingStep / 2,
+        curves: contactCurves,
+      });
       progress?.("hair:" + layer.id + ":layer-mesh");
     }
-    return { parts, materials };
+    return { parts, materials, contactLayouts, stationCount: stations };
   };
 }

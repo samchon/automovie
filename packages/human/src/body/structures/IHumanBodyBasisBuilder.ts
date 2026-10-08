@@ -29,6 +29,12 @@ export interface IHumanBodyBasisBuilder {
   /** Build the complete body with its own rest exterior authority. */
   (document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild;
 
+  /**
+   * Complete the same construction with original layer refusal observations.
+   * This explicitly inspectable result is not an accepted editor state.
+   */
+  construct(document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild;
+
   /** Prepare exterior and pose so a person can determine its complete exterior first. */
   prepare(document: IAutoMovieHumanBodyBasisDocument): IHumanBodyPreparedBuild;
 }

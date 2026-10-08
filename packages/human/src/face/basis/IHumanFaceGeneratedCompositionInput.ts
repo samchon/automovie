@@ -4,6 +4,7 @@ import type { IHumanConstructionCheck } from "../../common/basis/IHumanConstruct
 import type { IHumanFaceBrowAssembly } from "../anatomy/brow/IHumanFaceBrowAssembly";
 import type { IHumanFaceLashRow } from "../anatomy/lash/structures/IHumanFaceLashRow";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IHumanFaceMaterialAttachment } from "../structures/IHumanFaceMaterialAttachment";
 import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
 
 /** One owned model composition with exact geometry stages and the current finish lookup.
@@ -26,4 +27,7 @@ export interface IHumanFaceGeneratedCompositionInput {
   model: IAutoMovieModel;
   /** Extended together with model materials for the same build's AO publication. */
   materialMap: Map<string, IAutoMovieMaterial>;
+
+  /** Same build's exact material-point attachments for downstream Person placement. */
+  materialAttachments: Map<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
 }

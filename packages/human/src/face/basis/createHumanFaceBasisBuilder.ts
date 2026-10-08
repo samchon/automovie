@@ -32,6 +32,8 @@ import { createHumanFaceConstructionEntries } from "./createHumanFaceConstructio
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceGeneratedComposition } from "./createHumanFaceGeneratedComposition";
 import { createHumanFaceHairComposition } from "./createHumanFaceHairComposition";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "../structures/IHumanFaceMaterialAttachment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { createHumanFaceResidentParts } from "./createHumanFaceResidentParts";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -381,6 +383,7 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
+    const materialAttachments = new Map<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>();
     composeGenerated({
       document,
       pose,
@@ -389,6 +392,7 @@ export function createHumanFaceBasisBuilder(
       model,
       materialMap,
       checks,
+      materialAttachments,
     });
     geometryProgress("generated-composition");
     // Admission reads these on the delivered model, after hair is composed.
@@ -430,10 +434,13 @@ export function createHumanFaceBasisBuilder(
       for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
     if (bakeOcclusion !== undefined) geometryProgress("occlusion");
-    const hairPartIds = composeHair(document, evaluated, pose, model, geometryProgress);
+    const hairContactLayouts = new Map<string, IHumanFaceHairContactLayout>();
+    const hairPartIds = composeHair(document, evaluated, pose, model, geometryProgress, hairContactLayouts);
     const value = {
       model,
       hairPartIds,
+      hairContactLayouts,
+      materialAttachments,
       reference: pose.reference,
       oral: oralRegistration,
       sourceRegions,

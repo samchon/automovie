@@ -29,6 +29,6 @@ export interface IHumanPersonHairContactProps {
   /** Actual generated hair meshes in the same frame. */
   readonly hair: readonly IHumanPersonHairContactMesh[];
 
-  /** The hair document's requested body clearance, metres. */
+  /** Legacy ribbon gap in metres; emitted layouts retain their own part gaps. */
   readonly clearance: number;
 }

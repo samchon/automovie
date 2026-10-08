@@ -14,11 +14,13 @@ import type { Region } from "./Region";
  * Every length includes its root-to-strip transition. Sampling step is a
  * numerical accuracy setting, distinct from painted fibres and lock count.
  *
- * A ribbon has no authored width. It stands for the whole neighbourhood of
+ * A legacy scalp ribbon has no authored width. It stands for the whole neighbourhood of
  * one root, so its width is the side of the scalp that root is responsible
  * for, which the population measures from its own local density. Thinner
  * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
- * ribbon, and the `clearance` below is the fibre path's, not the ribbon's.
+ * ribbon. Optional terminalShaftDiameter instead selects individual calibrated
+ * shafts; contact adds their radius to the centreline gap and the mesh keeps
+ * that calibre. This separate geometry meaning leaves legacy ribbon fields unchanged.
  *
  * @evidence contracts/common.md#principled-implementation The existing root population record retains every metric styling field and shared-source identity without a second layer definition.
  * @evidence contracts/common.md#clear-and-simple-design This named file owns the sole Layer field definition; a separate compatibility alias preserves its existing public namespace.
@@ -27,7 +29,7 @@ import type { Region } from "./Region";
  * @evidence contracts/modeling.md#part-identity-and-grouping One id names one independently styled population on a registered surface/domain; IAutoMovieHumanFaceHair groups these records and createHumanFaceHairBuilder names their generated parts.
  * @evidence contracts/modeling.md#parameter-channels Regional lengths, population count, guide fraction, direction fields and appearance remain distinct styling quantities; wavelength depends on sampling step and gathering requires fully integrated guides as assertHumanFaceHair checks.
  * @evidenceExclude contracts/modeling.md#emitted-geometry This input carries count and sampling controls; createHumanFaceHairBuilder and buildHumanFaceHairMesh own allocation, ribbon topology and the aggregate station budget.
- * @evidence contracts/modeling.md#spatial-conventions Lengths and clearances are metres, polar fields are radians, coefficients and RGB are dimensionless; region coordinates use the neutral head frame and named scalp styling converts mm/degrees in expandHumanFaceScalpHair.
+ * @evidence contracts/modeling.md#spatial-conventions Lengths and clearances are metres, polar fields are radians, explicit emergence is degrees, coefficients and RGB are dimensionless; region coordinates use the neutral head frame and named scalp styling converts mm/degrees in expandHumanFaceScalpHair.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The record constructs no root or contact surface; the builder's source-domain, seating and root-boundary owners bind generated hair to the live scalp.
  * @evidenceExclude contracts/modeling.md#rendered-observation This input has no independent displayed output; createHumanFaceHairBuilder and the connected face assembly owe current hair/scalp observations, which are not established by these tags.
  * @evidence contracts/anatomy.md#anatomical-source Registered growth domains come from the shared source; lock counts, field lengths and painted-fibre appearance are authored styling conventions, not follicle counts, tissue mechanics or biological density measurements.
@@ -66,6 +68,20 @@ export interface Layer {
    * populations such as a fringe; it is not a biological density estimate.
    */
   rootRegion?: Region;
+
+  /**
+   * Optional individual terminal-shaft diameter in model metres.
+   * Omission preserves density-coverage scalp ribbons. Presence selects an
+   * individual shaft cross-section, never a density-proxy width or follicle norm.
+   */
+  terminalShaftDiameter?: number;
+
+  /**
+   * Optional authored emergence elevation above the skin tangent plane, in
+   * (0,90] degrees. Presence keeps that exact target; omission preserves the
+   * existing scalp placement interval. This field defines no clinical norm.
+   */
+  emergenceAngleDegrees?: number;
 
   /**
    * Positive centreline lengths in metres at the six neutral chart axes,

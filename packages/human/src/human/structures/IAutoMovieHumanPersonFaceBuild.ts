@@ -1,6 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
+import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "../../face/structures/IHumanFaceMaterialAttachment";
 
 /**
  * One successful face-producer call used by the person evaluator. The model,
@@ -31,6 +33,12 @@ export interface IAutoMovieHumanPersonFaceBuild {
 
   /** Copied semantic identities of hair emitted by this call. */
   hairPartIds: ReadonlySet<string>;
+
+  /** Owned geometry-produced per-part station membership and clearance from this same call. */
+  hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout>;
+
+  /** This emission's exact material seats, keyed by physical domain and ID. */
+  materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
 
   /** Owned source-neutral reference snapshot, when requested and available. */
   reference?: ReadonlyMap<string, readonly number[]>;

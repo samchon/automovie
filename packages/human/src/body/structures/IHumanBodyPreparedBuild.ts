@@ -33,8 +33,16 @@ export interface IHumanBodyPreparedBuild {
   /** Exterior and pose state available before any internal target solve. */
   skin: IHumanBodySkinEvaluation;
 
-  /** Construct the full source assembly against its one selected exterior authority. */
-  finish(reference?: IHumanBodyExteriorRestReference): IAutoMovieHumanBodyBuild;
+  /**
+   * Construct the full source assembly against its selected exterior authority.
+   * Default completion constructs registered layers after final root placement.
+   * A person uses `defer` until its actual render skin carries joined physical
+   * incidence, then completes layers through `appendHumanBodyLayers` once.
+   */
+  finish(
+    reference?: IHumanBodyExteriorRestReference,
+    layers?: "defer",
+  ): IAutoMovieHumanBodyBuild;
 
   /**
    * Build this admitted document's garment on the consumer's final native

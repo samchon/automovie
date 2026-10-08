@@ -88,6 +88,7 @@ export function createHumanFaceGeneratedComposition(
           pose.oral,
           pose.jawMotion,
           model.materials,
+          input.materialAttachments,
         ),
         "Oral",
       );

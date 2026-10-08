@@ -7,6 +7,7 @@ import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
+import { resolveHumanFaceHairLayers } from "../../face/basis/resolveHumanFaceHairLayers";
 import { admitHumanPersonDocument } from "../document/admitHumanPersonDocument";
 import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
@@ -20,6 +21,7 @@ import type { IAutoMovieHumanPersonGenerationBuilder } from "../structures/IAuto
 import type { IAutoMovieHumanPersonGenerationBuilderProps } from "../structures/IAutoMovieHumanPersonGenerationBuilderProps";
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
 import { compileHumanPersonGeneration } from "./compileHumanPersonGeneration";
+import { completeHumanPersonBodyLayers } from "./completeHumanPersonBodyLayers";
 import { createHumanPersonBodyEndpointSource } from "./createHumanPersonBodyEndpointSource";
 import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
@@ -81,8 +83,9 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  *
  * The final person's garment reads the formed skin and common normal field.
  * Its source compiler and rest coverage are shared with the independent body
- * garment. The returned body retains its own evaluation, so the two outputs
- * do not mix a pre-formation skin with a post-formation garment.
+ * garment. Without a registered skin-layer field, the returned body retains
+ * its independent evaluation. With a field, it carries the final formed body
+ * skin, garment and layers together, so those outputs share one exterior.
  *
  * There is no cut evaluation, collar conform, boundary subdivision or normal
  * fairing. What a seam stage absorbed is not hidden: where the two
@@ -226,6 +229,7 @@ export function createHumanPersonGenerationBuilder(
             evaluated: [...facePosed, ...bodyPosed],
           }
         : undefined,
+      "defer",
     );
     // A fixed normal transport reads the mouthClose-zero reference of the same
     // shape, other expression and body; omission is zero at the face owner.
@@ -289,6 +293,8 @@ export function createHumanPersonGenerationBuilder(
                       generation.id,
                     ),
                     domain,
+                    surface: faceProducer.surfaces[compiled.faceProducerSkin].id,
+                    materialAttachments: currentFace.materialAttachments,
                   })
                 : placeHumanPersonSkinPart({
                     mesh,
@@ -309,9 +315,10 @@ export function createHumanPersonGenerationBuilder(
     clearHumanPersonHair({
       parts: placed,
       isGenerated: (id) => currentFace.hairPartIds.includes(id),
+      contactLayouts: currentFace.hairContactLayouts,
       layers:
-        resolveHumanFaceAppearanceDocument(faceProducer, faceDocument).hair
-          ?.layers ?? [],
+        resolveHumanFaceHairLayers(faceProducer,
+          resolveHumanFaceAppearanceDocument(faceProducer, faceDocument)),
       positions: bodyPosed,
       indices: bodySkin.indices,
       observe: props.observeHairContact,
@@ -344,6 +351,17 @@ export function createHumanPersonGenerationBuilder(
         ),
       );
     }
+    const hasLayers = bodyBasis.surfaces.some((surface) => surface.layerThickness !== undefined);
+    const completedBody = hasLayers
+      ? completeHumanPersonBodyLayers({
+          basis: bodyBasis, body: dressedBody, parts, domain, instance: document.id,
+          surface: bodyIndex, faceRegions, bodyRegions, normals, faceVertices: faceCount,
+        })
+      : dressedBody;
+    parts.push(...completedBody.model.parts.slice(dressedBody.model.parts.length).map((part) =>
+      prefixHumanPersonPart("body", part, meshOfHumanPart(part)),
+    ));
+    const failures = [...currentFace.admission.failures, ...(completedBody.layerAdmission?.failures ?? [])];
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,
@@ -354,7 +372,7 @@ export function createHumanPersonGenerationBuilder(
           ...material,
           id: "face:" + material.id,
         })),
-        ...dressedBody.model.materials.map((material) => ({
+        ...completedBody.model.materials.map((material) => ({
           ...material,
           id: "body:" + material.id,
         })),
@@ -428,9 +446,10 @@ export function createHumanPersonGenerationBuilder(
       );
     }
     return {
-      admission: currentFace.admission,
+      admission: { ...currentFace.admission, accepted: failures.length === 0, failures },
+      faceAdmission: currentFace.admission,
       model,
-      body,
+      body: hasLayers ? completedBody : body,
       bones: [
         ...body.bones,
         ...resolveHumanPersonFaceBones({

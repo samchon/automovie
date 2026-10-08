@@ -4,12 +4,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRequest";
 
 /**
- * The direction one hair leaves the scalp in: the surface normal tilted toward
- * the growth field by the exit elevation the caller chose from the root's
- * cited range (`humanFaceHairEmergenceRange`). The convention is that range's
+ * The direction one hair leaves the skin in: the surface normal tilted toward
+ * the growth field by the admitted authored exit elevation or the legacy scalp
+ * range (`humanFaceHairEmergenceRange`). The scalp convention is that range's
  * lower end; a root rises toward the range top only when its stem provably
  * cannot clear the skin from the lower end. The azimuth is always the field's,
- * since the cited guide gives no tolerance for where hair is combed.
+ * preserving the authored comb direction in either representation.
  *
  * The tilt is toward the field's tangential part, which is where that hair is
  * combed; a field with no tangential part leaves the hair on its normal, since
@@ -26,11 +26,11 @@ import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRe
  *   field with no tangential part has no direction to lie down in and leaves the
  *   hair on its normal, which is stated.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the
- *   exit direction; the cited angles and their hairline blend belong to
- *   humanFaceHairEmergenceRange, so no second copy exists.
+ *   exit direction; authored angle admission and the legacy scalp interval
+ *   have their existing separate owners, so no second range copy exists.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
  *   case for a subject or style: the direction depends only on the normal, the
- *   field and the elevation chosen inside the cited range.
+ *   field and the admitted elevation supplied by the integrator.
  * @evidence contracts/common.md#meaningful-documentation The comment states
  *   what is returned, where the elevation comes from, why the azimuth is fixed
  *   and who owns what happens after emergence.
@@ -48,10 +48,8 @@ import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRe
  * @evidenceExclude contracts/modeling.md#rendered-observation The function
  *   owns no part, group or joint and displays nothing; the builder that owns the
  *   assembled hair is where the result is observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The cited angles and
- *   their source belong to humanFaceHairEmergenceRange.
- * @evidenceExclude contracts/anatomy.md#permitted-range The range owner bounds
- *   the elevation; this function applies it.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The legacy scalp interval has its own cited owner; authored targets assert no clinical norm.
+ * @evidenceExclude contracts/anatomy.md#permitted-range Layer admission or the legacy scalp interval owns elevation admission; this function applies it.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.

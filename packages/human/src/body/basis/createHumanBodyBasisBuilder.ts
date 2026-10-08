@@ -4,6 +4,7 @@ import typia from "typia";
 
 import { createHumanBodyAnatomicalAssemblyParts } from "../anatomy/assembly/createHumanBodyAnatomicalAssemblyParts";
 import { createHumanBodyAtlasParts } from "../anatomy/atlas/createHumanBodyAtlasParts";
+import { appendHumanBodyLayers } from "../anatomy/layer/appendHumanBodyLayers";
 import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -321,7 +322,7 @@ export function createHumanBodyBasisBuilder(
           rest: rest ?? restAll(),
           posed,
         }),
-      finish: (exteriorRestReference) => {
+      finish: (exteriorRestReference, layers) => {
         const assembly =
           sourceRigResult === undefined
             ? undefined
@@ -364,14 +365,20 @@ export function createHumanBodyBasisBuilder(
             ? {}
             : { anatomicalQuantities: assembly.quantities }),
         };
-        return document.groundPlacement === undefined
+        const placed = document.groundPlacement === undefined
           ? build
           : placeHumanBodyOnGround({ basis, build });
+        return layers === "defer" ? placed : appendHumanBodyLayers(basis, placed);
       },
     };
   };
-  return Object.assign(
-    (document: IAutoMovieHumanBodyBasisDocument) => prepare(document).finish(),
-    { prepare },
-  );
+  const construct = (document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild =>
+    prepare(document).finish();
+  const build = (document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild => {
+    const result = construct(document);
+    if (result.layerAdmission?.accepted === false)
+      throw new Error(result.layerAdmission.failures[0].cause);
+    return result;
+  };
+  return Object.assign(build, { prepare, construct });
 }

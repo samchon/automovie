@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceFacialHairSite } from "./IAutoMovieHumanFaceFacialHairSite";
+
 /**
  * One shared anatomical hair-growth domain on a face basis surface.
  *
@@ -23,6 +25,9 @@
 export interface IAutoMovieHumanFaceHairDomain {
   /** Domain identity a hair layer selects. */
   id: string;
+
+  /** Optional source-authored facial anatomical site; no numerical document selects personal triangles. */
+  facialHairSite?: IAutoMovieHumanFaceFacialHairSite;
 
   /** Finite neutral chart origin, XYZ metres. */
   origin: [number, number, number];

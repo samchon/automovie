@@ -8,6 +8,7 @@ import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorn
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { resolveHumanFaceAppearanceDocument } from "../../face/basis/resolveHumanFaceAppearanceDocument";
+import { resolveHumanFaceHairLayers } from "../../face/basis/resolveHumanFaceHairLayers";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
@@ -105,6 +106,8 @@ export function createHumanPersonBuilder(
   props: IAutoMovieHumanPersonBuilderProps,
 ): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonBuild {
   const { face: faceBasis, body: bodyBasis } = props;
+  if (bodyBasis.surfaces.some((surface) => surface.layerThickness !== undefined))
+    throw new Error("Person skin layers require a shared source generation with actual final native incidence.");
   const buildFace = createHumanPersonFaceBuilder(faceBasis, props.occlusion);
 
   const faceSkin = findHumanPersonSkinSurface(faceBasis.surfaces);
@@ -376,6 +379,8 @@ export function createHumanPersonBuilder(
                       physicalSource.generation,
                     ),
                     domain: physicalDomain!,
+                    surface: faceSkin.surface.id,
+                    materialAttachments: currentFace.materialAttachments,
                   })
               : stitchHumanPersonBoundary({
                   mesh: read(mesh, sources, facePosed, 0),
@@ -393,9 +398,10 @@ export function createHumanPersonBuilder(
     clearHumanPersonHair({
       parts: placed,
       isGenerated: (id) => currentFace.hairPartIds.has(id),
+      contactLayouts: currentFace.hairContactLayouts,
       layers:
-        resolveHumanFaceAppearanceDocument(faceBasis, faceDocument).hair
-          ?.layers ?? [],
+        resolveHumanFaceHairLayers(faceBasis,
+          resolveHumanFaceAppearanceDocument(faceBasis, faceDocument)),
       positions: bodyPosed,
       indices: bodyKept,
     });
