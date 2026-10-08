@@ -5,6 +5,7 @@ import { serveHumanViewerCapture } from "./serveHumanViewerCapture.mjs";
 import { serveHumanViewerData } from "./serveHumanViewerData.mjs";
 import { serveHumanViewerGeneration } from "./serveHumanViewerGeneration";
 import { serveHumanViewerHeap } from "./serveHumanViewerHeap";
+import { serveHumanViewerNumerical } from "./serveHumanViewerNumerical";
 
 /**
  * Route HTTP requests through their existing domain owners before Vite serves
@@ -23,6 +24,7 @@ export function createHumanViewerMiddleware(
       response.end(JSON.stringify(value));
     };
     if (url.pathname === "/health") return json(props.health());
+    if (serveHumanViewerNumerical({ url, request, response, service: props.numerical })) return;
     if (serveHumanViewerGeneration({ ...props.generation, url, response, json })) return;
     if (url.pathname === "/heap")
       return serveHumanViewerHeap({ ...props.heap, response, json });

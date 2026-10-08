@@ -2,8 +2,8 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
-import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport";
-import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene";
+import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport.ts";
+import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene.ts";
 
 import type { IBuildHumanViewerBodyResidentProps } from "./IBuildHumanViewerBodyResidentProps";
 import type { IHumanViewerResident } from "./IHumanViewerResident";

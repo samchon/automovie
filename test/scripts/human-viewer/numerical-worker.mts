@@ -1,14 +1,13 @@
-/// <reference lib="webworker" />
 /**
- * Numerical-only resident worker. The basis is fetched and admitted lazily once
+ * Checked Node numerical process, isolated from the browser renderer. The basis is fetched and admitted lazily once
  * per domain; it delegates every preview to the unchanged product runtime.
- * Models cross the structured-clone boundary, never reference photographs.
+ * Original models cross advanced IPC and the lossless HTTP codec, never reference photographs.
  */
-import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
-import { createConnectedBodyGenerationRuntime } from "@automovie/playground/src/human/body/createConnectedBodyGenerationRuntime";
-import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
-import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
-import { describeConnectedPersonFaceProgress } from "@automovie/playground/src/human/person/describeConnectedPersonFaceProgress";
+import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime.ts";
+import { createConnectedBodyGenerationRuntime } from "@automovie/playground/src/human/body/createConnectedBodyGenerationRuntime.ts";
+import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime.ts";
+import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime.ts";
+import { describeConnectedPersonFaceProgress } from "@automovie/playground/src/human/person/describeConnectedPersonFaceProgress.ts";
 
 import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgress";
 import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
@@ -19,13 +18,47 @@ import { createHumanViewerNumericalSources } from "./createHumanViewerNumericalS
 import { createHumanViewerPersistence } from "./createHumanViewerPersistence";
 import { humanViewerProtocol } from "./humanViewerProtocol";
 import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime";
-import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
+import { readHumanViewerNodeAuthority } from "./readHumanViewerNodeAuthority";
+import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData";
+import type { HumanViewerNumericalMessage } from "./HumanViewerNumericalMessage";
 
-const scope = self as unknown as DedicatedWorkerGlobalScope;
-// announce the compile generations this worker's human modules ran, so the page can refuse a mixed-compile candidate
-scope.postMessage({
-  type: "compiles",
-  compiles: readHumanViewerCompiles(),
+if (process.send === undefined) throw new Error("The numerical entry requires its owned process IPC channel.");
+const send = process.send.bind(process);
+const port = {
+  postMessage: (message: HumanViewerNumericalMessage): void => { send(message); },
+};
+const startup = await new Promise<IHumanViewerNodeWorkerData>((resolve, reject) => {
+  process.once("message", (value: unknown) => {
+    try {
+      if (value === null || typeof value !== "object" ||
+          !("type" in value) || value.type !== "initialize" ||
+          !("input" in value) || value.input === null || typeof value.input !== "object")
+        throw new Error("The checked numerical process requires its explicit host initialization.");
+      const input = value.input;
+      if (!("origin" in input) || typeof input.origin !== "string" ||
+          !("revision" in input) || typeof input.revision !== "string" ||
+          !("entry" in input) || typeof input.entry !== "string" ||
+          !("inputs" in input) || input.inputs === null || typeof input.inputs !== "object")
+        throw new Error("Node initialization has no original source, entry or input witness.");
+      const inputs: Record<string, string> = {};
+      for (const [file, digest] of Object.entries(input.inputs)) {
+        if (typeof digest !== "string") throw new Error("A Node input witness must retain its byte digest.");
+        inputs[file] = digest;
+      }
+      resolve({ origin: input.origin, revision: input.revision, entry: input.entry, inputs });
+    } catch (cause) {
+      reject(cause instanceof Error ? cause : new Error(String(cause)));
+    }
+  });
+  // The checked entry has installed its startup receiver before the host sends
+  // data. This handshake is not numerical readiness or source qualification.
+  send("initialize");
+});
+const authority = readHumanViewerNodeAuthority(startup);
+// Public checked Node loading has its own source authority, not a browser stamp.
+port.postMessage({
+  type: "ready",
+  authority,
   protocol: humanViewerProtocol,
 });
 const face = new Map<
@@ -40,9 +73,10 @@ const person = new Map<
   string,
   Promise<ReturnType<typeof createConnectedPersonRuntime>>
 >();
-const sources = createHumanViewerNumericalSources();
+const sources = createHumanViewerNumericalSources(startup.origin);
 const persistence = createHumanViewerPersistence((value) =>
-  scope.postMessage(value),
+  port.postMessage(value),
+  startup.origin,
 );
 // identities whose resident runtime has produced at least one model; a runtime that has not is released on failure
 const productive = new Set<string>();
@@ -51,17 +85,15 @@ const residents = { person, face, body } as const;
 // construction events. Cached runtimes call the current build's relay.
 let relayProgress: (stage: string) => void = () => undefined;
 const observeProgress = (stage: string): void => relayProgress(stage);
-scope.onmessage = async (
-  event: MessageEvent<
-    IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand
-  >,
-) => {
-  if ("persistence" in event.data) {
-    if (event.data.persistence === "flush") persistence.flush();
-    else if (event.data.id !== undefined) persistence.discard(event.data.id);
+const evaluate = async (
+  data: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand,
+): Promise<void> => {
+  if ("persistence" in data) {
+    if (data.persistence === "flush") persistence.flush();
+    else if (data.id !== undefined) persistence.discard(data.id);
     return;
   }
-  const { id, domain, basis, input } = event.data;
+  const { id, domain, basis, input } = data;
   const identity = domain + ":" + basis;
   try {
     if (input.operation === "admit") {
@@ -79,7 +111,7 @@ scope.onmessage = async (
             : "body" in source
               ? source.body
               : source;
-      scope.postMessage({
+      port.postMessage({
         id,
         admission: true,
         reason: admitHumanViewerDocument(
@@ -102,7 +134,7 @@ scope.onmessage = async (
         stageMs: now - previousCompletion,
       };
       previousCompletion = now;
-      scope.postMessage(progress);
+      port.postMessage(progress);
     };
     persistence.preempt();
     const runtime =
@@ -181,9 +213,9 @@ scope.onmessage = async (
             )(previewRequest, observeProgress)
           : await runtime(previewRequest);
     productive.add(identity);
-    if (event.data.cache !== undefined && value.operation === "preview")
-      persistence.stage({ ...event.data.cache, id, value });
-    scope.postMessage({
+    if (data.cache !== undefined && value.operation === "preview")
+      persistence.stage({ ...data.cache, id, value });
+    port.postMessage({
       id,
       success: true,
       value,
@@ -192,10 +224,15 @@ scope.onmessage = async (
   } catch (error) {
     // a runtime that has never built a model cannot be reused, so its memory is released
     if (!productive.has(identity)) residents[domain].delete(identity);
-    scope.postMessage({
+    port.postMessage({
       id,
       success: false,
       error: error instanceof Error ? error.message : String(error),
     });
   }
 };
+
+let serial: Promise<void> = Promise.resolve();
+process.on("message", (data: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand) => {
+  serial = serial.then(() => evaluate(data));
+});

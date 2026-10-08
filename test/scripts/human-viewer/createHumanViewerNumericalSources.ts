@@ -2,8 +2,8 @@ import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasis,
 } from "@automovie/human";
-import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
-import type { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
+import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset.ts";
+import type { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime.ts";
 
 import { fetchHumanViewerCandidateGeneration } from "./fetchHumanViewerCandidateGeneration";
 import { fetchHumanViewerPublishedGeneration } from "./fetchHumanViewerPublishedGeneration";
@@ -25,7 +25,7 @@ import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source, document or verdict is synthesized or read from numerical model caches.
  * @evidence contracts/common.md#meaningful-documentation States shared source ownership and latest-asset retention.
  */
-export function createHumanViewerNumericalSources() {
+export function createHumanViewerNumericalSources(origin = "") {
   const tokens = humanViewerBasisTokens;
   const pairs = new Map<
     string,
@@ -43,14 +43,14 @@ export function createHumanViewerNumericalSources() {
   const pair = (basis: string) =>
     humanViewerResidentRuntime(pairs, basis, () =>
       basis.startsWith(tokens.publishedGeneration + "@")
-        ? fetchHumanViewerPublishedGeneration(basis)
-        : fetchHumanViewerCandidateGeneration(basis),
+        ? fetchHumanViewerPublishedGeneration(basis, origin)
+        : fetchHumanViewerCandidateGeneration(basis, origin),
     );
   return {
     face: (basis: string) =>
       humanViewerResidentRuntime(faces, basis, () =>
         readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-          read: () => fetch(humanViewerBasisUrl("face", basis)),
+          read: () => fetch(origin + humanViewerBasisUrl("face", basis)),
         }),
       ),
     body: (basis: string) =>
@@ -58,9 +58,9 @@ export function createHumanViewerNumericalSources() {
         ? pair(basis)
         : humanViewerResidentRuntime(bodies, basis, () =>
             basis.startsWith(tokens.publishedGenerationBody + "@")
-              ? fetchHumanViewerPublishedGenerationBody(basis)
+              ? fetchHumanViewerPublishedGenerationBody(basis, origin)
               : readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-                  read: () => fetch(humanViewerBasisUrl("body", basis)),
+                  read: () => fetch(origin + humanViewerBasisUrl("body", basis)),
                 }),
           ),
     person: (basis: string) =>
@@ -68,10 +68,10 @@ export function createHumanViewerNumericalSources() {
         ? pair(basis)
         : humanViewerResidentRuntime(people, basis, () =>
             basis.startsWith(tokens.published + "@")
-              ? fetchHumanViewerPublishedPair(basis)
+              ? fetchHumanViewerPublishedPair(basis, origin)
               : readConnectedFaceAsset<
                   Parameters<typeof createConnectedPersonRuntime>[0]
-                >({ read: () => fetch(humanViewerBasisUrl("person", basis)) }),
+                >({ read: () => fetch(origin + humanViewerBasisUrl("person", basis)) }),
           ),
   };
 }

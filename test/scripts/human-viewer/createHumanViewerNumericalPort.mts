@@ -9,11 +9,13 @@ import type { IHumanViewerPendingBuild } from "./IHumanViewerPendingBuild";
 import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
 import { humanViewerProtocol } from "./humanViewerProtocol";
 import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
+import { createHumanViewerNumericalEndpoint } from "./createHumanViewerNumericalEndpoint";
+import type { IHumanViewerNodeAuthority } from "./IHumanViewerNodeAuthority";
 
 type Result = ConnectedFaceResult | ConnectedBodyResult;
 
 /**
- * The page's numerical transport: one worker that evaluates documents with
+ * The page's numerical transport: one owned Node process that evaluates documents with
  * the unchanged product runtimes, behind the server's digest cache. A product
  * viewport asks through `port`; the transport reads `/cache/<key>` first and,
  * on a miss, builds in the worker and delivers the model immediately. After
@@ -32,10 +34,7 @@ export function createHumanViewerNumericalPort(
   props: ICreateHumanViewerNumericalPortProps,
 ) {
   const { work, spans } = props;
-  const worker = new Worker(
-    new URL("./numerical-worker.mts", import.meta.url),
-    { type: "module" },
-  );
+  const worker = createHumanViewerNumericalEndpoint();
   const pending = new Map<number, IHumanViewerPendingBuild>();
   const admissions = new Map<number, IHumanViewerPendingAdmission>();
   let sequence = 0;
@@ -43,26 +42,26 @@ export function createHumanViewerNumericalPort(
   let buildMs = 0;
   let persistence: unknown = null;
   const token = readHumanViewerFrameToken(location.search);
-  /** The compiles the worker ran, announced once its modules have loaded. */
-  let announceCompiles: (compiles: string[]) => void = () => {};
+  /** Actual Node authority, announced only after its checked modules loaded. */
+  let announceCompiles: (authority: IHumanViewerNodeAuthority) => void = () => {};
   let rejectCompiles: (error: Error) => void = () => {};
-  const workerCompiles = new Promise<string[]>((resolve, reject) => {
+  const workerCompiles = new Promise<IHumanViewerNodeAuthority>((resolve, reject) => {
     announceCompiles = resolve;
     rejectCompiles = reject;
   });
   // Observed so an early worker failure is not an unhandled rejection.
   workerCompiles.catch(() => undefined);
   worker.onmessage = ({ data }) => {
-    if (data.type === "progress") {
+    if ("type" in data && data.type === "progress") {
       if (pending.has(data.id)) work("build", data);
       return;
     }
-    if (data.type === "persistence") {
+    if ("type" in data && data.type === "persistence") {
       persistence = data;
       console.info("HUMAN_CACHE " + JSON.stringify(data));
       return;
     }
-    if (data.type === "compiles") {
+    if ("type" in data && data.type === "ready") {
       if (data.protocol !== humanViewerProtocol) {
         workerFailure = new Error(
           "The numerical worker runs an incompatible viewer protocol",
@@ -76,13 +75,14 @@ export function createHumanViewerNumericalPort(
         worker.terminate();
         return;
       }
-      announceCompiles(data.compiles);
+      announceCompiles(data.authority);
       return;
     }
+    if ("type" in data) return;
     const admission = admissions.get(data.id);
     if (admission !== undefined) {
       admissions.delete(data.id);
-      if (data.admission === true) admission.resolve(data.reason);
+      if (data.admission === true && data.reason !== undefined) admission.resolve(data.reason);
       else admission.reject(new Error(data.error));
       return;
     }
@@ -90,11 +90,11 @@ export function createHumanViewerNumericalPort(
     pending.delete(data.id);
     if (request === undefined) return;
     work("numeric-reply");
-    if (data.success) {
+    if (data.success && data.value !== undefined) {
       ++builds;
       buildMs = data.buildMs ?? 0;
       request.resolve(data.value);
-    } else request.reject(new Error(data.error));
+    } else request.reject(new Error(data.error ?? "The Node numerical reply has no result."));
   };
   /** Why the worker can no longer answer, or null while it can. */
   let workerFailure: Error | null = null;
@@ -117,21 +117,26 @@ export function createHumanViewerNumericalPort(
       domain: string,
       document: string,
       basis: string,
-    ): Promise<string | null> =>
-      new Promise((resolve, reject) => {
-        if (workerFailure !== null) {
-          reject(workerFailure);
-          return;
-        }
+    ): Promise<string | null> => {
+      if (domain !== "face" && domain !== "body" && domain !== "person")
+        return Promise.reject(new Error("Document admission needs an existing numerical domain."));
+      if (workerFailure !== null) return Promise.reject(workerFailure);
+      return new Promise((resolve, reject) => {
         const id = ++sequence;
         admissions.set(id, { resolve, reject });
-        worker.postMessage({
-          id,
-          domain,
-          basis,
-          input: { document, operation: "admit" },
-        });
-      }),
+        try {
+          worker.postMessage({
+            id,
+            domain,
+            basis,
+            input: { document, operation: "admit" },
+          });
+        } catch (cause) {
+          admissions.delete(id);
+          reject(cause instanceof Error ? cause : new Error(String(cause)));
+        }
+      });
+    },
     /** A product worker port for one catalogue document. */
     port: <Input, Output>(
       selected: HumanViewerCatalogue["documents"][number],
@@ -159,6 +164,19 @@ export function createHumanViewerNumericalPort(
         },
         postMessage: ({ id, input }) => {
           if (stopped) return;
+          if (typeof input !== "object" || input === null ||
+              !("document" in input) || typeof input.document !== "string") {
+            transport.onmessage?.({ data: { id, success: false, error: "A numerical request needs its original document text." } });
+            return;
+          }
+          const inputDocument = input.document;
+          const operation = "operation" in input ? input.operation : undefined;
+          if (operation !== undefined && operation !== "preview" &&
+              operation !== "construct" && operation !== "admit") {
+            transport.onmessage?.({ data: { id, success: false, error: "The numerical viewport received an unsupported operation." } });
+            return;
+          }
+          const inputOperation = operation;
           const key = selected.key + (ao ? "-ao" : "-direct");
           // A catalogue digest authorizes only its actual immutable document.
           // Changed requests still build normally but cannot read or write
@@ -205,7 +223,11 @@ export function createHumanViewerNumericalPort(
                     id: workerId,
                     domain: selected.domain,
                     basis: selected.basis,
-                    input: { ...input, occlusion: ao },
+                    input: {
+                      document: inputDocument,
+                      operation: inputOperation,
+                      occlusion: ao,
+                    },
                     cache:
                       cacheable && token !== null ? { key, token } : undefined,
                   });
@@ -275,8 +297,8 @@ export function createHumanViewerNumericalPort(
     /** Duration of the most recent worker build, in milliseconds. */
     buildMs: (): number => buildMs,
 
-    /** The compile generations whose human modules the worker ran, once it announced them. */
-    compiles: (): Promise<string[]> => workerCompiles,
+    /** Actual Node source and compiler receipt, distinct from browser stamps. */
+    authority: (): Promise<IHumanViewerNodeAuthority> => workerCompiles,
 
     /** Flush optional persistence only after the completed display or PNG read. */
     persist: (): void => worker.postMessage({ persistence: "flush" }),

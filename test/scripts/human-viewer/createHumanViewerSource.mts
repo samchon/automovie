@@ -94,7 +94,7 @@ export function createHumanViewerSource(directory: string) {
   const revisions = createHumanViewerRevisionsWorker({
     root: rootPath,
     entries: {
-      browser: ["page.mts", "host.mts", "scene.html", "view.html"].map(
+      browser: ["page.mts", "host.mts", "scene.html", "view.html", "numerical-worker.mts"].map(
         (name) => `${slash(directory)}/${name}`,
       ),
       face: [

@@ -223,7 +223,7 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
 async function main(): Promise<void> {
   // The host's hold ends when this page and its worker have loaded their
   // modules; the build and drawing that follow no longer read source.
-  const loaded = numerical.compiles();
+  const loaded = numerical.authority();
   void loaded
     .then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
     .catch(() => undefined);
@@ -240,10 +240,11 @@ async function main(): Promise<void> {
     loaded,
     (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
   );
-  // Publish only a generation whose page and worker ran one compile.
+  // Publish one browser compile with a separately checked, same-source Node realm.
   assertHumanViewerSingleCompile(
     readHumanViewerCompiles(),
-    await numerical.compiles(),
+    await numerical.authority(),
+    catalogue.revision,
   );
   await checkHumanViewerCandidateSource();
   addEventListener("hashchange", () => {

@@ -48,6 +48,9 @@ import { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationSt
 import { startHumanViewerServer } from "./startHumanViewerServer.mjs";
 import { humanViewerCompileGate } from "./vite.config.mjs";
 import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
+import { createHumanViewerNodeService } from "./createHumanViewerNodeService";
+import { readHumanViewerNodeInputs } from "./readHumanViewerNodeInputs";
+import { createRequire } from "node:module";
 import { warmHumanViewerRevision } from "./warmHumanViewerRevision";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -72,6 +75,23 @@ const source = createHumanViewerSource(directory);
 const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } =
   source;
 let inventory = catalogue();
+const numericalRequire = createRequire(import.meta.url);
+const numerical = createHumanViewerNodeService({
+  origin: instance.origin,
+  directory,
+  revision: () => inventory.revision,
+  inputs: () => readHumanViewerNodeInputs(root, source.watched, [
+    "pnpm-lock.yaml", "pnpm-workspace.yaml", "config/tsconfig.json",
+    "test/package.json", "test/tsconfig.json", "test/tsconfig.scripts.json",
+    "test/scripts/human-viewer/tsconfig.json", "test/lint.config.ts",
+    numericalRequire.resolve("ttsc/register"), numericalRequire.resolve("ttsc/package.json"),
+    numericalRequire.resolve("devalue"),
+    ...["human", "engine", "interface", "viewer", "playground"].flatMap((name) => [
+      path.join(root, "packages", name, "package.json"),
+      path.join(root, "packages", name, "tsconfig.json"),
+    ]),
+  ].map((file) => path.resolve(root, file))),
+});
 const controller = createHumanViewerCatalogueController({
   source,
   publish: (next) => {
@@ -193,14 +213,11 @@ const sourceStatus = () =>
     fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"),
   );
 /**
- * The renderer's JS heap limit, page and worker isolates together. They share
- * one 4 GiB pointer cage; the page died at 1766 MB page plus 1840–1881 MB
- * worker (about 3.6 GB). Measured on pid 35436: the worker holds 440 MB with
- * the face runtime, 810 MB with face and body, about 1.5–1.6 GB with all three
- * domains; a person build adds about 140 MB to it and a person resident
- * 25–27 MB to the page. 2.8 GB keeps 0.8 GB below the observed failure for a
- * build's transient copies, and still leaves the page about 1.2 GB (some
- * forty-five people) beside a fully loaded worker.
+ * The retained renderer heap policy predates the separate Node numerical
+ * processes. It bounds browser page resources and any actual browser workers
+ * reported by CDP; Node process heaps are outside this renderer measurement.
+ * Resident geometry and decode copies still occupy the browser's heap, so
+ * moving computation does not remove this guard or change its existing limit.
  */
 const RENDERER_HEAP_LIMIT = 2.8e9;
 const residentTrim = createHumanViewerResidentTrim({
@@ -305,6 +322,7 @@ async function main(): Promise<void> {
         holding: windows.holding,
         stage: stages.current,
       }),
+    numerical,
     generation: { windows },
     heap: {
       readLiveHeap: () => residency.readLiveHeap(),
@@ -366,7 +384,7 @@ async function main(): Promise<void> {
         pruneThumbnails();
       },
       error: residency.error,
-      reached: () => windows.edited(),
+      reached: () => { windows.edited(); void numerical.shutdown(); },
     },
     inventory: () => inventory,
     openPage: residency.open,
@@ -377,7 +395,7 @@ async function main(): Promise<void> {
       pruneThumbnails();
       warmReadiness.hardware();
     },
-    closeRenderer: residency.close,
+    closeRenderer: async () => { await numerical.shutdown(); await residency.close(); },
   });
 }
 void main().catch((error: unknown) => {
