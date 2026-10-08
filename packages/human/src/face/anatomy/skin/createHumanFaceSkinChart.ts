@@ -16,6 +16,9 @@ import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
  * adjacency are fixed by the source generation. Identity or performance changes
  * only the host frame, never the material inverse or selected sheet. The first
  * registered anchor's first incident disk facet supplies the walking seed.
+ * A part-owned registration, such as an existing lid cage disk, can be supplied
+ * directly instead of duplicating it in the surface's named material domains.
+ * Both routes require the same source generation, sample identities and winding.
  *
  * A finite metre displacement advances the actual shape-only reference point.
  * The existing native nearest owner registers that guide on the reference skin
@@ -50,7 +53,7 @@ export function createHumanFaceSkinChart(
   const domain = input.domain;
   const supports = [...input.supportVertices];
   const source = input.surface;
-  const registered = source.materialCharts?.[domain];
+  const registered = input.registration ?? source.materialCharts?.[domain];
   if (registered === undefined || supports.length === 0 ||
     supports.some((vertex) => !registered.vertices.includes(vertex)))
     throw new Error("A skin course needs its registered material disk covering every native anchor: " + domain);
