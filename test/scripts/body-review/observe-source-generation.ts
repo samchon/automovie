@@ -15,33 +15,27 @@
  * reads the entire population. Actual/neutral builds also export the same
  * production public rest, axes and evaluated-document witness for source
  * authoring. Previous output readings are preserved and never silently mixed.
- * STATE_NAME=source-neutral-frame reads neutral landmark/rig source through
- * the same public helpers without constructing a model. Actual neutral skin
- * crossings are reported separately from this source registration witness.
+ * Neutral source states use their publication owner without building a model.
  */
-import { measureAutoMovieMeshCrossings } from "@automovie/engine";
-import { evaluateHumanBodyLandmarks } from "@automovie/human/body/basis/evaluateHumanBodyLandmarks";
-import { humanBodyBasisWeights } from "@automovie/human/body/basis/humanBodyBasisWeights";
 import { resolveHumanBodySkeleton } from "@automovie/human/body/basis/resolveHumanBodySkeleton";
 import { gltfMaterialExtensions } from "@automovie/human/common/export/gltfMaterialExtensions";
 import { createHumanPersonGenerationBuilder } from "@automovie/human/human/build/createHumanPersonGenerationBuilder";
-import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { meshOfHumanPart } from "@automovie/human/human/build/meshOfHumanPart";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 import { exportHumanPerson } from "@automovie/human/human/export/exportHumanPerson";
-import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human/human/structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonGeneration } from "@automovie/human/human/structures/IAutoMovieHumanPersonGeneration";
 import type { IAutoMovieHumanPersonGenerationBuild } from "@automovie/human/human/structures/IAutoMovieHumanPersonGenerationBuild";
-import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { WebIO } from "@gltf-transform/core";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
+import { gzipSync } from "node:zlib";
 
+import { readHumanSourceObservationGeneration } from "./readHumanSourceObservationGeneration";
+import { writeHumanSourceNeutralObservation } from "./writeHumanSourceNeutralObservation";
 import { standardBodyReviewStates } from "./standardBodyReviewDocuments";
 
 /** One actual numerical authoring state, in the original document's units. */
@@ -95,31 +89,12 @@ interface ISourceEvaluation {
   model?: IAutoMovieModel;
 }
 
-/** Exact compressed source bytes that the production builder received. */
-interface ISourceGenerationInput {
-  generation: IAutoMovieHumanPersonGeneration;
-  files: Record<string, string>;
-}
-
 const sha = (bytes: Uint8Array | string): string =>
   createHash("sha256").update(bytes).digest("hex");
 const floats = (values: readonly number[]): Float32Array =>
   Float32Array.from(values);
 const floatSha = (values: readonly number[]): string =>
   sha(new Uint8Array(floats(values).buffer));
-const readGeneration = (directory: string): ISourceGenerationInput => {
-  const files: Record<string, string> = {};
-  const read = <T>(name: string): T => {
-    const bytes = fs.readFileSync(path.join(directory, name));
-    files[name] = sha(bytes);
-    return JSON.parse(gunzipSync(bytes).toString("utf8")) as T;
-  };
-  const generation = joinHumanPersonGeneration(
-    read<IAutoMovieHumanPersonHeadView>("head.json.gz"),
-    read<IAutoMovieHumanPersonBodyView>("body.json.gz"),
-  );
-  return { generation, files };
-};
 const forGeneration = (
   document: IAutoMovieHumanPersonDocument,
   generation: IAutoMovieHumanPersonGeneration,
@@ -217,8 +192,8 @@ async function main(): Promise<void> {
     process.argv.slice(2);
   if (!baselineDirectory || !candidateDirectory || !personFile || !output)
     throw new Error("Expected BASELINE CANDIDATE PERSON_JSON OUTPUT.");
-  const baselineInput = readGeneration(baselineDirectory);
-  const candidateInput = readGeneration(candidateDirectory);
+  const baselineInput = readHumanSourceObservationGeneration(baselineDirectory);
+  const candidateInput = readHumanSourceObservationGeneration(candidateDirectory);
   const baseline = baselineInput.generation;
   const candidate = candidateInput.generation;
   const inputBytes = fs.readFileSync(personFile, "utf8");
@@ -227,97 +202,13 @@ async function main(): Promise<void> {
   const actual = parseHumanPersonDocument(
     Array.isArray(people) ? JSON.stringify(people[0]) : inputBytes,
   );
-  if (stateName === "source-neutral-frame") {
-    const document = forGeneration(actual, candidate);
-    if (
-      Object.keys(document.body.shape).length !== 0 ||
-      (document.body.pose ?? []).length !== 0 ||
-      (document.body.shoulders ?? []).length !== 0 ||
-      (document.body.toes ?? []).length !== 0 ||
-      (document.body.anatomicalMotion ?? []).length !== 0
-    )
-      throw new Error(
-        "Source-neutral-frame needs the actual saved body-neutral input with no performance request.",
-      );
-    const before = JSON.stringify(document);
-    const weights = humanBodyBasisWeights(candidate.body, document.body);
-    const landmarks = evaluateHumanBodyLandmarks(candidate.body, weights);
-    const rig = resolveHumanBodySkeleton(candidate.body, landmarks);
-    const surface = candidate.body.surfaces[0];
-    const mesh: IAutoMovieMesh = {
-      positions: surface.positions,
-      indices: surface.indices,
-      normals: null,
-      uvs: null,
-      skin: null,
-    };
-    const crossings = measureAutoMovieMeshCrossings(mesh, mesh, {
-      allPairs: true,
-    });
-    fs.mkdirSync(output, { recursive: true });
-    const target = path.join(
+  if (stateName === "source-neutral-frame" || stateName === "source-paired-exterior") {
+    writeHumanSourceNeutralObservation(
+      candidateInput,
+      forGeneration(actual, candidate),
+      sha(inputBytes),
       output,
-      `${candidate.id}-source-neutral-frame.json`,
-    );
-    if (fs.existsSync(target))
-      throw new Error(
-        "Source-frame observation preserves its previous output.",
-      );
-    fs.writeFileSync(
-      target,
-      JSON.stringify(
-        {
-          generation: candidate.id,
-          bodyBasis: candidate.body.id,
-          bodyInputSha256: candidateInput.files,
-          sourcePersonInputSha256: sha(inputBytes),
-          document,
-          documentSha256: sha(serializeHumanPersonDocument(document)),
-          coordinateFrame:
-            "canonical body/source metres; +X left, +Y up, +Z anterior; no model placement or ground translation",
-          bodySourceState: {
-            shape: document.body.shape,
-            pose: weights.pose,
-            weights: [...weights.weights],
-            activations: weights.activations,
-          },
-          landmarks,
-          sourceJointDefinitions: candidate.body.joints,
-          sourceToeRays: candidate.body.toeRays,
-          skeleton: rig.skeleton,
-          sourceResolvedRest: [...rig.rest],
-          sourceAxes: rig.axes,
-          sourceRestFrames: rig.frames,
-          sourceGeometryObservation: {
-            crossingPairs: crossings.length,
-            geometryAdmission:
-              crossings.length === 0
-                ? "not run"
-                : "neutral self-crossing observed",
-          },
-          modelBuilt: false,
-          callerUnchanged: before === JSON.stringify(document),
-          runtime: {
-            pid: process.pid,
-            execPath: process.execPath,
-            version: process.version,
-          },
-          qualification:
-            "Actual neutral source-frame evaluation by public weights/landmark/skeleton owners. Geometry admission and normal model construction are separate; no accepted model, clinical joint centre, pose support, GLB or GPU result is claimed.",
-        },
-        null,
-        2,
-      ),
-    );
-    console.log(
-      "source-neutral-frame",
-      candidate.id,
-      rig.rest.size,
-      "rest",
-      Object.keys(landmarks).length,
-      "landmarks",
-      crossings.length,
-      "ordered source crossings",
+      stateName,
     );
     return;
   }
