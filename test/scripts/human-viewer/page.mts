@@ -261,6 +261,18 @@ async function main(): Promise<void> {
       spans: () => spans.snapshot(),
       address: () => current,
       admission: () => residents.get(shownKey)?.admission ?? null,
+      exportConstruction: async () => {
+        const selected = catalogue.documents.find((entry) => entry.id === current.doc);
+        const resident = residents.get(shownKey);
+        if (selected?.domain !== "person" || current.operation !== "construct" ||
+            resident?.exportConstruction === undefined)
+          throw new Error("Static construction export requires the displayed paired Person construction.");
+        try {
+          return await resident.exportConstruction();
+        } finally {
+          work("idle");
+        }
+      },
       periocularMappings: () => residents.get(shownKey)?.periocularMappings,
       png: () => {
         const png = readHumanViewerPng({

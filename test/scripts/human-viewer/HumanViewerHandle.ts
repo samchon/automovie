@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+import type { IConnectedBodyConstructionExportResult } from "@automovie/playground/src/human/body/IConnectedBodyConstructionExportResult";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 
@@ -42,6 +43,9 @@ export interface HumanViewerHandle {
 
   /** Actual construction checks, null for an admitted normal preview. */
   admission(): IAutoMovieHumanConstructionAdmission | null;
+
+  /** Encode the displayed Person construction, preserving rejected admission. */
+  exportConstruction(): Promise<IConnectedBodyConstructionExportResult>;
 
   /** Owner mapping readings from the constructed face; absence reports no reading. */
   periocularMappings?():

@@ -1,6 +1,6 @@
 /**
  * The GPU routes of the resident viewer: `/render`, `/parts`, `/sheet`,
- * `/compare` and `/warm`. Each request is admitted before it waits (a bad
+ * `/compare`, `/warm` and explicit `/export-construction`. Each request is admitted before it waits (a bad
  * lane or an unknown document is refused at once), then runs as one queue
  * entry in its lane and is retried on the settled generation when only a
  * generation change interrupted it.
@@ -28,7 +28,7 @@ import { sendHumanViewerPng } from "./sendHumanViewerPng";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail";
 
-const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm"];
+const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-construction"];
 
 /**
  * Answer one GPU route, or return false when the path is not one. A bulk
@@ -38,6 +38,10 @@ const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm"];
  * renderer, the pass's reading limit, its queue position and wait, and
  * whether the model was cached or built. A frame whose generation changed
  * while it was drawn is refused, never answered as current.
+ * `/export-construction` encodes the displayed paired Person through its
+ * product viewport and returns binary GLB with the original admission headers.
+ * The full admission remains available from `/parts` on the same construction;
+ * exporting a refused draft never turns it into an admitted preview.
  *
  * @evidence contracts/common.md#principled-implementation Admission precedes queueing, and only generation-change refusals are retried on the settled generation.
  * @evidence contracts/common.md#clear-and-simple-design One handler owns the GPU routes; capture, queue and page state stay with their owners.
@@ -108,6 +112,12 @@ function dispatchHumanViewerCapture(
       return true;
     }
   }
+  if (url.pathname === "/export-construction" &&
+      !inventory.documents.some((entry) => entry.id === url.searchParams.get("doc") && entry.domain === "person")) {
+    response.statusCode = 422;
+    json({ error: "Construction export requires a registered paired Person document." });
+    return true;
+  }
   if (url.pathname === "/render" && lane === "bulk") {
     const file = props.thumbnailFile(url.search);
     if (file !== null && fs.existsSync(file)) {
@@ -155,6 +165,7 @@ function dispatchHumanViewerCapture(
           }
           const current = props.inventory();
           const fields = new URLSearchParams(url.search);
+          if (url.pathname === "/export-construction") fields.set("operation", "construct");
           fields.delete("lane");
           const axes = fields.get("axes");
           fields.delete("axes");
@@ -253,6 +264,47 @@ function dispatchHumanViewerCapture(
             describeHumanViewerPass(address.pass),
           );
           response.setHeader("X-Human-Build", props.capture.build());
+          if (url.pathname === "/export-construction") {
+            const asset = await request.run(() =>
+              props.lifetime.run(() => props.page().evaluate(async () => {
+                const result = await (window as unknown as IHumanViewerWindow)
+                  .__humanViewer.exportConstruction();
+                // FileReader carries bytes through the browser bridge without
+                // expanding one GLB into a JavaScript array of numbers.
+                const dataUrl = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result !== "string") {
+                      reject(new Error("The exported construction has no binary data URL."));
+                      return;
+                    }
+                    resolve(reader.result);
+                  };
+                  reader.onerror = () => reject(reader.error ?? new Error("Construction byte transfer failed."));
+                  reader.readAsDataURL(new Blob([result.glb], { type: "model/gltf-binary" }));
+                });
+                return { dataUrl, admission: result.admission };
+              })),
+            );
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            response.setHeader(
+              "X-Human-Stale",
+              String(selectedRevision !== props.inventory().revision),
+            );
+            request.check();
+            const prefix = "data:model/gltf-binary;base64,";
+            if (!asset.dataUrl.startsWith(prefix))
+              throw new Error("Construction export did not return its binary GLB.");
+            const glb = Buffer.from(asset.dataUrl.slice(prefix.length), "base64");
+            response.setHeader("X-Human-Construction-Accepted", String(asset.admission.accepted));
+            response.setHeader("X-Human-Construction-Failures", String(asset.admission.failures.length));
+            response.setHeader("Content-Type", "model/gltf-binary");
+            response.setHeader("Content-Disposition", 'attachment; filename="human-construction.glb"');
+            response.setHeader("Content-Length", String(glb.length));
+            response.end(glb);
+            return;
+          }
           if (address.operation === "construct") {
             const admission = await request.run(() =>
               props.lifetime.run(() =>

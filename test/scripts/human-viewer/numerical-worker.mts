@@ -122,6 +122,8 @@ const evaluate = async (
       });
       return;
     }
+    if (input.operation === "exportConstruction" && domain !== "person")
+      throw new Error("Construction asset inspection requires the paired person runtime.");
     const requestStarted = performance.now();
     let previousCompletion = requestStarted;
     relayProgress = (stage) => {
@@ -192,7 +194,12 @@ const evaluate = async (
       measure: false,
     };
     const value =
-      constructionOwner !== undefined
+      input.operation === "exportConstruction"
+        ? await (await person.get(identity)!)(
+            { operation: "exportConstruction", document: input.document },
+            observeProgress,
+          )
+        : constructionOwner !== undefined
         ? domain === "person"
           ? await (
               await person.get(identity)!

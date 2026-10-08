@@ -172,7 +172,7 @@ export function createHumanViewerNumericalPort(
           const inputDocument = input.document;
           const operation = "operation" in input ? input.operation : undefined;
           if (operation !== undefined && operation !== "preview" &&
-              operation !== "construct" && operation !== "admit") {
+              operation !== "construct" && operation !== "exportConstruction" && operation !== "admit") {
             transport.onmessage?.({ data: { id, success: false, error: "The numerical viewport received an unsupported operation." } });
             return;
           }
@@ -235,12 +235,13 @@ export function createHumanViewerNumericalPort(
             );
           void (async () => {
             // The persisted codec owns admitted previews only. Construction
-            // carries its complete admission report directly from the worker.
+            // and its explicit static export carry their complete admission
+            // report directly from the worker, outside the preview codec.
             if (
               typeof input === "object" &&
               input !== null &&
               "operation" in input &&
-              input.operation === "construct"
+              (input.operation === "construct" || input.operation === "exportConstruction")
             ) {
               const value = await build();
               if (stopped) return;

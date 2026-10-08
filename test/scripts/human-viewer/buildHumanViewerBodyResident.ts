@@ -58,6 +58,10 @@ export async function buildHumanViewerBodyResident<
     return {
       stage,
       admission: construction?.admission,
+      exportConstruction: async () => ({
+        operation: "exportConstruction",
+        ...(await stage.exportConstruction(props.document)),
+      }),
       resize: props.host.resize,
       group,
       release: () => {

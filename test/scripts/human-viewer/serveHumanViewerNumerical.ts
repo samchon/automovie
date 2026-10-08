@@ -65,7 +65,7 @@ export function serveHumanViewerNumerical(props: IServeHumanViewerNumericalProps
           throw new Error("The numerical request has no original domain, source or document.");
         const operation = "operation" in value.input ? value.input.operation : undefined;
         const occlusion = "occlusion" in value.input ? value.input.occlusion : undefined;
-        if (operation !== undefined && operation !== "preview" && operation !== "construct" && operation !== "admit")
+        if (operation !== undefined && operation !== "preview" && operation !== "construct" && operation !== "exportConstruction" && operation !== "admit")
           throw new Error("The numerical request operation is unsupported.");
         if (occlusion !== undefined && typeof occlusion !== "boolean")
           throw new Error("Numerical occlusion must retain its boolean request meaning.");
