@@ -160,6 +160,12 @@ export default defineConfig({
       : served.port,
     strictPort: true,
     hmr: launched ? { clientPort: served.port } : undefined,
+    // Package-local tool output is not an authored compiler input. In
+    // particular, evidence's disposable tsconfig must not trigger Vite's
+    // built-in whole-page reload while a numerical model is being evaluated.
+    watch: {
+      ignored: ["**/packages/*/.tmp/**"],
+    },
     fs: { allow: [path.resolve(directory, "../../..")] },
   },
 });

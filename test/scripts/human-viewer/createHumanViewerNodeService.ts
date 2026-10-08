@@ -17,6 +17,10 @@ import type { IHumanViewerNodeInitialization } from "./IHumanViewerNodeInitializ
  * Models and their complete admission cross the existing product boundary;
  * source bytes and revision must still match when a realm becomes ready.
  * Closing the event stream terminates its process, including synchronous work.
+ * The child owns its checked loader and dependency emit. Host-only Node
+ * startup options and a ttsx runtime manifest must not select the host's
+ * previously compiled dependencies in a later numerical generation.
+ *
  * @evidence contracts/common.md#principled-implementation Public ttsc/register refuses a bad owning project; source witnesses and actual readiness establish the realm independently of browser stamps.
  * @evidence contracts/common.md#clear-and-simple-design One owned process per event session has its own public-loader cache identity and preserves runtime residency without blocking the HTTP/GPU host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Executes original product requests, with no preview reclassification or private loader mutation.
@@ -47,7 +51,11 @@ export function createHumanViewerNodeService(props: ICreateHumanViewerNodeServic
       const id = randomUUID();
       const revision = props.revision();
       const inputs = props.inputs();
+      const environment = Object.fromEntries(Object.entries(process.env).filter(
+        ([name]) => !["NODE_OPTIONS", "TTSX_RUNTIME_MANIFEST"].includes(name.toUpperCase()),
+      ));
       const worker = fork(entry, [], {
+        env: environment,
         execArgv: ["--require", require.resolve("ttsc/register")],
         serialization: "advanced",
         stdio: ["ignore", "inherit", "pipe", "ipc"],
