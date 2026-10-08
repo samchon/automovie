@@ -19,6 +19,7 @@ import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
 import { applyHumanFaceSourceClosure } from "./applyHumanFaceSourceClosure";
 import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
+import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
 import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
@@ -35,8 +36,10 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * posing and source refinement replay. With independent optics, the lid cage of
  * each eye is then seated on that eye's analytic exterior in the rest and the
  * performed state (`seatHumanFaceLidCage`). A compiled source span reads fixed
- * closure-zero/one native stages with the same other inputs, forms its endpoint
- * after replay and applies the request once. Native closure scales its rows by
+ * closure-zero and, for a nonzero request, closure-one native stages with the
+ * same other inputs, forms its endpoint after replay and applies the request
+ * once. Zero requests retain structural source-plan admission and owned map
+ * and array copies without solving an unrequested endpoint. Native closure scales its rows by
  * `measureHumanFaceClosureRatio`, so closure weight one brings the central lip
  * pair to margin contact and a fraction closes that fraction of the current
  * aperture. Rigid contact, final aperture/passage and normals then read the
@@ -74,6 +77,7 @@ export function createHumanFaceBasisPoseEvaluator(
   state: ReturnType<typeof humanFaceBasisWeights>,
   shape: IAutoMovieHumanFaceBasisDocument["shape"],
   geometry?: IHumanFacePoseGeometry,
+  progress?: (owner: string) => void,
 ) => IHumanFacePoseResult {
   for (const surface of basis.surfaces)
     if (
@@ -106,7 +110,7 @@ export function createHumanFaceBasisPoseEvaluator(
       );
   }
   const poseNative = createHumanFaceNativePose(basis);
-  return (state, shape, geometry) => {
+  return (state, shape, geometry, progress) => {
     const checks: IHumanFacePoseResult["checks"][number][] = [];
     const { skinRelief, oral } = geometry ?? {};
     const periocularTissues = createHumanFacePeriocularDefaults(
@@ -130,22 +134,34 @@ export function createHumanFaceBasisPoseEvaluator(
     const native = poseNative(
       sourceSpan === undefined ? state : fixed(0),
       geometry,
+      progress,
     );
+    const closureWeight = contact === undefined ? 0 : (state.weights.get(contact.closure.channel) ?? 0);
     const posed =
       sourceSpan === undefined
         ? native.posed
-        : applyHumanFaceSourceClosure(
+        : closureWeight === 0
+          ? (() => {
+              assertHumanFaceSourceClosurePlan(sourceSpan, native.posed);
+              return new Map([...native.posed].map(([id, positions]) => [id, [...positions]]));
+            })()
+          : applyHumanFaceSourceClosure(
             sourceSpan,
             native.posed,
-            poseNative(fixed(1), geometry).posed,
-            state.weights.get(contact!.closure.channel) ?? 0,
+            poseNative(fixed(1), geometry, progress === undefined ? undefined :
+              (owner) => progress("closure-endpoint:" + owner)).posed,
+            closureWeight,
           );
+    if (sourceSpan !== undefined)
+      progress?.(closureWeight === 0 ? "pose:source-closure-zero" : "pose:source-closure-endpoint");
     const preparation = prepareHumanFaceReference({
       basis,
       state,
       geometry,
       native,
+      progress,
     });
+    progress?.("pose:reference-preparation");
     const shaped = preparation.shaped;
     // The lid margin is seated on the generated ocular exterior before any
     // stage reads the skin, so contact, tissue and every measurement see one
@@ -169,6 +185,7 @@ export function createHumanFaceBasisPoseEvaluator(
           basis.surfaces[host].indices,
         ),
       );
+      progress?.("pose:lid-seat:" + eye.side + ":" + cage.surface);
     }
     const oralAssembly =
       oral === undefined
@@ -198,6 +215,7 @@ export function createHumanFaceBasisPoseEvaluator(
                 jaw,
               );
             })();
+    if (oralAssembly !== undefined) progress?.("pose:oral-assembly");
     if (skinRelief !== undefined) {
       if (preparation.materialReference === undefined)
         throw new Error("Skin relief needs its same shape-only material reference.");
@@ -209,8 +227,10 @@ export function createHumanFaceBasisPoseEvaluator(
       );
       for (const [id, positions] of relieved)
         if (positions !== posed.get(id)) posed.set(id, [...positions]);
+      progress?.("pose:skin-relief");
     }
     const reference = preparation.complete();
+    progress?.("pose:reference-complete");
     let summary: IAutoMovieHumanFaceContactSummary | null = null;
     const generated = new Map<string, IHumanFaceDynamicCollider[]>();
     for (const eye of optics ?? []) {
@@ -323,6 +343,7 @@ export function createHumanFaceBasisPoseEvaluator(
                 contact.margin,
                 basis.articulation!.jaw.axis,
                 native.up!,
+                basis.surfaces.find((surface) => surface.id === contact.lips.surface)!,
               ),
             }),
         ...(sourceSpan === undefined
@@ -331,6 +352,7 @@ export function createHumanFaceBasisPoseEvaluator(
               sourceNativeInterlabialMetres: authoredLips.gap,
             }),
       };
+      progress?.("pose:contact-passage");
     }
     const finalOral =
       oralAssembly === undefined
@@ -341,12 +363,14 @@ export function createHumanFaceBasisPoseEvaluator(
             posed,
             native.motions!.get("jaw")!,
           );
+    if (finalOral !== undefined) progress?.("pose:oral-ports");
     const normals = new Map(
       basis.surfaces.map((surface) => [
         surface.id,
         areaWeightedNormals(posed.get(surface.id)!, surface.indices),
       ]),
     );
+    progress?.("pose:normals");
     const tissues =
       periocularTissues === undefined
         ? undefined
@@ -373,7 +397,9 @@ export function createHumanFaceBasisPoseEvaluator(
               ),
               exteriors("rest"),
               periocularTissues,
+              progress === undefined ? undefined : (owner) => progress("rest:" + owner),
             );
+            progress?.("pose:periocular-rest");
             checks.push(
               createHumanFaceClearanceCheck(
                 "periocular-rest",
@@ -394,7 +420,9 @@ export function createHumanFaceBasisPoseEvaluator(
               normals,
               exteriors("posed"),
               periocularTissues,
+              progress === undefined ? undefined : (owner) => progress("posed:" + owner),
             );
+            progress?.("pose:periocular-performed");
             checks.push(
               createHumanFaceClearanceCheck(
                 "periocular-performed",

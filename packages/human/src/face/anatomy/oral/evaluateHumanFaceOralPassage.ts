@@ -6,6 +6,7 @@ import {
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { measureHumanFaceTongueSection } from "../../basis/measureHumanFaceTongueSection";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceTonguePassageSummary } from "../../structures/IAutoMovieHumanFaceTonguePassageSummary";
 import type { IHumanFaceOralPassageProps } from "./IHumanFaceOralPassageProps";
 
@@ -22,6 +23,7 @@ import type { IHumanFaceOralPassageProps } from "./IHumanFaceOralPassageProps";
  * certificate, constant-volume mechanics or pharyngeal reconstruction. Source
  * baseline crossings are retained by exact triangle-pair identity rather than
  * forgiven by an aggregate count. Absent crowns supply no query or crossing.
+ *
  * @evidence contracts/common.md#principled-implementation Actual lip chains bound the measured tongue triangle/slab section, while complete present-crown crossing witnesses compare stable actual incidence against the same shaped reference.
  * @evidence contracts/common.md#clear-and-simple-design One generated oral passage owner separates geometric passage from unavailable clinical incisal measurements.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No virtual tooth, inferred missing incisal edge, measured zero, added tolerance or aggregate crossing exemption enters.
@@ -45,18 +47,18 @@ export function evaluateHumanFaceOralPassage(
   const sourceTongue = basis.surfaces.find(
     (surface) => surface.id === contact.passage.surface,
   );
+  const sourceSkin = basis.surfaces.find((surface) => surface.id === contact.lips.surface);
   if (
     skin === undefined ||
     tongue === undefined ||
     tongueRest === undefined ||
-    sourceTongue === undefined
+    sourceTongue === undefined || sourceSkin === undefined
   )
     throw new Error(
       "Generated oral passage needs actual performed and shape-only tongue geometry.",
     );
-  const lower = contact.margin.lower.map((vertex) =>
-    Vector3.create(...skin.slice(3 * vertex, 3 * vertex + 3)),
-  );
+  const ports = readHumanFaceLipMarginPoints(sourceSkin, contact.margin, skin);
+  const lower = ports.lower.map((entry) => entry.point);
   const origin = Vector3.scale(
     lower.reduce(
       (sum, point) => Vector3.add(sum, point),
@@ -84,12 +86,8 @@ export function evaluateHumanFaceOralPassage(
       Vector3.dot(delta, forward),
     ];
   };
-  const upper = contact.margin.upper.map((vertex) =>
-    projected(skin.slice(3 * vertex, 3 * vertex + 3)),
-  );
-  const bottom = contact.margin.lower.map((vertex) =>
-    projected(skin.slice(3 * vertex, 3 * vertex + 3)),
-  );
+  const upper = ports.upper.map(({ point }) => projected([point.x, point.y, point.z]));
+  const bottom = ports.lower.map(({ point }) => projected([point.x, point.y, point.z]));
   if (
     (upper[upper.length - 1][0] - upper[0][0]) *
       (bottom[bottom.length - 1][0] - bottom[0][0]) >

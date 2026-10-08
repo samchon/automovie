@@ -29,6 +29,10 @@ import type { IHumanFaceOcularCellCorner } from "./structures/IHumanFaceOcularCe
  * must bind them to its actual document/source/side instance before publication;
  * this cached geometry carries no generation-only instance domain. Drawing's
  * outer profile and contact's hull are sampled once, not independently fitted.
+ * The deviation reader optionally reports each outer cell only after its actual
+ * metric bound returned. Its branch and cell ordinal identify that certificate,
+ * not a displayed inner shell or an anatomical validity claim. Observer errors
+ * propagate; no timer, geometry buffer or estimated progress is emitted.
  *
  * @evidence contracts/common.md#principled-implementation Shares generated outer points and interface normals between drawing and contact; inner shell, open iris and reversed backing are explicit rendering approximations.
  * @evidence contracts/common.md#clear-and-simple-design One lattice and one point owner produce named meshes plus a closed collider hull.
@@ -273,6 +277,7 @@ export function buildHumanFaceOpticalGeometry(
   const hullVertices = new Map(hull.physicalPoints.map((id, at) => [id, at]));
   const readDeviation = (
     currentFrame: ReturnType<typeof resolveHumanFaceOpticalFrame>,
+    progress?: (branch: "cap" | "sphere", cell: number) => void,
   ): number => {
     let maximum = 0;
     for (const [branch, triangles, parameters] of [
@@ -307,6 +312,7 @@ export function buildHumanFaceOpticalGeometry(
           maximum,
           metric.bound(branch, currentFrame, corners),
         );
+        progress?.(branch, at / 3);
       }
     return maximum;
   };

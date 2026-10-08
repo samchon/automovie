@@ -6,7 +6,7 @@
  * the lips surface: each margin chain vertex's solved contact gain, blending to
  * `ratio` away from the fissure.
  *
- * @evidence contracts/common.md#principled-implementation The per-vertex field is exact at every margin chain vertex, so the margin closes at weight one.
+ * @evidence contracts/common.md#principled-implementation The field applies to actual resident endpoint rows; native material seats constrain their shared support jointly and actual posed apertures establish contact, while legacy fixed-point approximation retains its convergence limitation.
  * @evidence contracts/common.md#clear-and-simple-design The central gain and one array for the lips surface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The field is computed per state, never stored per person.
  * @evidence contracts/common.md#meaningful-documentation States where each gain applies.

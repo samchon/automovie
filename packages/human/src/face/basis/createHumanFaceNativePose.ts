@@ -8,6 +8,7 @@ import type { IHumanFaceNativePose } from "./IHumanFaceNativePose";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import { createHumanFaceClosureGain } from "./createHumanFaceClosureGain";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
+import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import type { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
@@ -20,7 +21,11 @@ import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
  * the one source articulation/refinement owner. Shape-only reference omits oral
  * transient performance. Closure needs the lip aperture and source opening
  * direction, so no absent incisor is read merely to construct this stage.
+ * A zero closure request reads the same central ratio without solving the
+ * unrequested closure-one margin field. Nonzero requests retain that field.
+ * Optional progress reports completed owners and propagates observer failures.
  * The final evaluator owns source-span blending, assembly/contact and normals.
+ *
  * @evidence contracts/common.md#principled-implementation Shared rest arrays and shape-only identity feed the existing closure, joint and refinement owners in the original order.
  * @evidence contracts/common.md#clear-and-simple-design One cohesive native stage owns pre-articulation identity and source companion evaluation; final spatial admission stays downstream.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ghost incisor, second jaw transform or clinical default supplies closure identity.
@@ -40,6 +45,7 @@ export function createHumanFaceNativePose(
 ): (
   state: ReturnType<typeof humanFaceBasisWeights>,
   geometry?: IHumanFacePoseGeometry,
+  progress?: (owner: string) => void,
 ) => IHumanFaceNativePose {
   const closure = new Set(
     basis.contact === undefined ? [] : [basis.contact.closure.channel],
@@ -50,9 +56,10 @@ export function createHumanFaceNativePose(
       .map((channel) => channel.id),
   );
   const contact = basis.contact;
-  return (state, geometry) => {
+  return (state, geometry, progress) => {
     const { oral, eyelids, eyelidPhenotypes } = geometry ?? {};
     const rest = evaluateHumanFaceRest(basis, state, closure);
+    progress?.("native:rest");
     if (eyelids !== undefined) {
       const lidRest = applyHumanFaceLidSections(
         basis,
@@ -97,6 +104,7 @@ export function createHumanFaceNativePose(
             state.weights,
             rest.landmarks,
           ).motions;
+    if (motions !== undefined) progress?.("native:articulation");
     let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
     let up: IAutoMovieVector3 | undefined;
     let closureRatio = 0;
@@ -155,19 +163,21 @@ export function createHumanFaceNativePose(
         });
       }
       up = resolveHumanFaceApertureUp(basis.articulation!.jaw.axis);
-      const gains = createHumanFaceClosureGain(
-        basis,
-        contact,
-        rest.surfaces,
-        motions!,
-        up,
-      );
-      closureRatio = gains.ratio;
       const weight = state.weights.get(contact.closure.channel) ?? 0;
-      const endpoint = basis.channels.find(
-        (channel) => channel.id === contact.closure.channel,
-      )!.positive;
-      if (weight !== 0)
+      if (weight === 0) {
+        closureRatio = measureHumanFaceClosureRatio(
+          basis, contact, rest.surfaces, motions!, up, contact.lips,
+        );
+        progress?.("native:closure-ratio");
+      } else {
+        const gains = createHumanFaceClosureGain(
+          basis, contact, rest.surfaces, motions!, up,
+        );
+        closureRatio = gains.ratio;
+        progress?.("native:closure-field");
+        const endpoint = basis.channels.find(
+          (channel) => channel.id === contact.closure.channel,
+        )!.positive;
         basis.surfaces.forEach((surface, index) => {
           const rows = surface.targets[endpoint];
           if (rows === undefined) return;
@@ -179,6 +189,8 @@ export function createHumanFaceNativePose(
               positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
           }
         });
+        progress?.("native:closure-application");
+      }
     }
     const posed = new Map<string, number[]>();
     basis.surfaces.forEach((surface, index) => {
@@ -195,6 +207,7 @@ export function createHumanFaceNativePose(
             : rest.surfaces[index],
         ),
       );
+      progress?.("native:replay:" + surface.id);
     });
     return { posed, shaped, up, closureRatio, motions };
   };

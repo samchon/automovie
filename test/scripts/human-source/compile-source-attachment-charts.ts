@@ -20,6 +20,8 @@ import zlib from "node:zlib";
 
 import { compileHumanSourceNativeRegistration } from "./compileHumanSourceNativeRegistration.ts";
 import { extendHumanSourcePeriocularAttachmentCharts } from "./extendHumanSourcePeriocularAttachmentCharts.ts";
+import { extendHumanSourceBrowMaterialSupport } from "./extendHumanSourceBrowMaterialSupport.ts";
+import { prepareHumanSourceBootstrapMaterialReference } from "./prepareHumanSourceBootstrapMaterialReference.ts";
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
 import { readHumanSourceProducerClosure } from "./readHumanSourceProducerClosure.ts";
 import type { IHumanSourceAttachmentCoverage } from "./structures/IHumanSourceAttachmentCoverage.ts";
@@ -56,6 +58,10 @@ const document = JSON.parse(
 ) as IAutoMovieHumanFaceBasisDocument;
 const sha = (value: Buffer): string =>
   crypto.createHash("sha256").update(value).digest("hex");
+const geometryIdentity = (): string => sha(Buffer.from(JSON.stringify(
+  basis.surfaces.map((surface) => ({ ...surface, materialCharts: undefined })),
+)));
+const originalGeometry = geometryIdentity();
 const coverage: Record<string, IHumanSourceAttachmentCoverage[]> = {};
 // Native material clipping consumes immutable host geometry, not the full
 // numerical reference. Discover its source-domain refusal before expensive
@@ -77,6 +83,14 @@ if (reference === undefined || prepared.optics === undefined)
     "Source continuation requires the actual numerical document's prepared reference and independent optics.",
   );
 console.log("[human-source] numerical reference preparation complete");
+Object.assign(counts, extendHumanSourceBrowMaterialSupport({
+  basis,
+  references: [
+    prepareHumanSourceBootstrapMaterialReference(basis),
+    { document, positions: reference },
+  ],
+}));
+console.log("[human-source] finite brow guide support complete", JSON.stringify(counts));
 for (const side of ["left", "right"] as const) {
   const cage = basis.periocular?.[side]?.cage;
   if (cage === undefined) continue;
@@ -112,6 +126,8 @@ for (const side of ["left", "right"] as const) {
 }
 if (Object.keys(counts).length === 0)
   throw new Error("Source face has no material attachment cage.");
+if (geometryIdentity() !== originalGeometry)
+  throw new Error("Attachment preparation changed original geometry or source field values.");
 if (sha(fs.readFileSync(inputFile)) !== sha(inputBytes))
   throw new Error("Attachment source changed during compilation.");
 if (sha(fs.readFileSync(documentFile)) !== sha(documentBytes))
@@ -123,6 +139,7 @@ const receipt = {
   numericalDocumentSha256: sha(documentBytes),
   outputSha256: sha(outputBytes),
   sourceFace: basis.id,
+  preservedSourceGeometrySha256: originalGeometry,
   counts,
   coverage,
   producerInputs: producer.inputs,

@@ -1,5 +1,6 @@
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
 import type { IAutoMovieHumanFaceSourceClosurePlan } from "../structures/IAutoMovieHumanFaceSourceClosurePlan";
+import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
 
 /**
  * Form one source-registered closed endpoint after native posing and replay.
@@ -34,10 +35,9 @@ export function applyHumanFaceSourceClosure(
   prior: ReadonlyMap<string, readonly number[]>,
   weight: number,
 ): Map<string, number[]> {
-  if (plan.generation.trim() === "" || plan.surface.trim() === "")
-    throw new Error("Face source closure needs its generation and surface.");
   if (!Number.isFinite(weight) || weight < 0 || weight > 1)
     throw new Error("Face source closure needs a request weight in [0,1].");
+  assertHumanFaceSourceClosurePlan(plan, open);
   if (open.size !== prior.size)
     throw new Error("Face source closure needs matching performed surfaces.");
   for (const [id, values] of open) {
@@ -52,33 +52,11 @@ export function applyHumanFaceSourceClosure(
       if (!Number.isFinite(values[i]) || !Number.isFinite(endpoint[i]))
         throw new Error("Face source closure needs dense finite positions.");
   }
-  const selected = prior.get(plan.surface);
-  if (
-    !Number.isSafeInteger(plan.vertices) ||
-    plan.vertices < 3 ||
-    selected === undefined ||
-    selected.length !== plan.vertices * 3
-  )
-    throw new Error("Face source closure needs its matching performed layout.");
-  const valid = (v: number): boolean =>
-    Number.isSafeInteger(v) && v >= 0 && v < plan.vertices;
-  const closed = selected.slice(),
-    contact = new Set<number>();
-  if (plan.contactPairs.length === 0)
-    throw new Error("Face source closure needs registered contact pairs.");
+  const selected = prior.get(plan.surface)!;
+  const closed = selected.slice();
   for (let i = 0; i < plan.contactPairs.length; i++) {
     const pair = plan.contactPairs[i];
-    if (
-      pair === undefined ||
-      pair.length !== 2 ||
-      ![pair[0], pair[1]].every(valid)
-    )
-      throw new Error("Face source closure names an absent contact point.");
     const [a, b] = pair;
-    if (contact.has(a) || contact.has(b))
-      throw new Error("Face source closure repeats contact point ownership.");
-    contact.add(a);
-    contact.add(b);
     for (let axis = 0; axis < 3; axis++) {
       const mean = interpolateHumanBasisSourceTriangle(
         [
@@ -92,46 +70,8 @@ export function applyHumanFaceSourceClosure(
       closed[b * 3 + axis] = mean;
     }
   }
-  if (
-    plan.representativePair.length !== 2 ||
-    !plan.contactPairs.some(
-      (pair) =>
-        pair[0] === plan.representativePair[0] &&
-        pair[1] === plan.representativePair[1],
-    )
-  )
-    throw new Error("Face source closure representative must be registered.");
-  const transitions = new Set<number>();
   for (let i = 0; i < plan.rows.length; i++) {
     const row = plan.rows[i];
-    if (
-      row === undefined ||
-      !valid(row.vertex) ||
-      contact.has(row.vertex) ||
-      transitions.has(row.vertex)
-    )
-      throw new Error("Face source closure has an invalid transition owner.");
-    transitions.add(row.vertex);
-    if (row.coefficients.length === 0)
-      throw new Error(
-        "Face source closure needs nonempty driver coefficients.",
-      );
-    const drivers = new Set<number>();
-    for (let j = 0; j < row.coefficients.length; j++) {
-      const entry = row.coefficients[j];
-      if (
-        entry === undefined ||
-        entry.length !== 2 ||
-        !contact.has(entry[0]) ||
-        drivers.has(entry[0]) ||
-        !Number.isFinite(entry[1]) ||
-        entry[1] <= 0
-      )
-        throw new Error(
-          "Face source closure needs unique positive supported drivers.",
-        );
-      drivers.add(entry[0]);
-    }
     for (let axis = 0; axis < 3; axis++) {
       let movement = 0;
       for (const [driver, coefficient] of row.coefficients)

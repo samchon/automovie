@@ -1,4 +1,5 @@
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
@@ -119,10 +120,11 @@ export function applyHumanFaceNasolabialRelief(
       throw new Error(
         "Nasolabial relief needs the same skin's registered complete lip margin.",
       );
-    const held = new Set([
-      ...basis.contact.margin.upper,
-      ...basis.contact.margin.lower,
-    ]);
+    const margin = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+    // Holding actual nonzero native support keeps the material contact course
+    // invariant under this separately authored persistent relief field.
+    const held = new Set([...margin.upper, ...margin.lower].flatMap((point) =>
+      point.vertices.filter((_, axis) => point.weights[axis] !== 0)));
     for (const row of rows.filter((item) => item.ala.surface === index)) {
       held.add(row.ala.vertex);
       held.add(row.corner.vertex);

@@ -20,6 +20,9 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * owner with the complete current weights. No radius or axis is refitted from
  * an aperture or a performed globe. This is an authored optical construction;
  * it supplies neither measured corneal tissue nor clinical shape intervals.
+ * The optional observer reports completed mesh construction and each actual
+ * exterior-cell certificate in its rest or performed state. It carries only
+ * owner identities; observer exceptions abort instead of returning a partial assembly.
  *
  * @evidence contracts/common.md#principled-implementation The profile supplies exact interface geometry, the source chart supplies placement, and one existing rigid motion acts on positions and directions without scaling.
  * @evidence contracts/common.md#clear-and-simple-design One assembly connects the existing profile, frame, geometry and articulation owners.
@@ -36,6 +39,7 @@ export function buildHumanFaceOpticalAssembly(
   basis: IAutoMovieHumanFaceBasis,
   state: ReturnType<typeof humanFaceBasisWeights>,
   eyes: IAutoMovieHumanFaceEyes,
+  progress?: (owner: string) => void,
 ): IHumanFaceOpticalAssembly[] {
   if (basis.articulation === undefined)
     throw new Error("Independent optics need their source articulation owner.");
@@ -73,7 +77,13 @@ export function buildHumanFaceOpticalAssembly(
       profile.apex,
     );
     const geometry = buildHumanFaceOpticalGeometry(profile, frame);
-    const restDeviation = geometry.readDeviation(frame);
+    progress?.("optics:" + side + ":geometry");
+    const restDeviation = geometry.readDeviation(
+      frame,
+      progress === undefined ? undefined : (branch, cell) =>
+        progress("optics:" + side + ":rest:" + branch + ":cell:" + cell),
+    );
+    progress?.("optics:" + side + ":rest-certified");
     const restHull = structuredClone(geometry.hull.mesh);
     const motion = motions.get(owner)!;
     const pose = (mesh: IAutoMovieMesh): void => {
@@ -124,7 +134,13 @@ export function buildHumanFaceOpticalAssembly(
       lateral: Quaternion.rotateVector(motion.rotation, frame.lateral),
       up: Quaternion.rotateVector(motion.rotation, frame.up),
     };
-    const posedDeviation = geometry.readDeviation(posedFrame);
+    progress?.("optics:" + side + ":posed-mesh");
+    const posedDeviation = geometry.readDeviation(
+      posedFrame,
+      progress === undefined ? undefined : (branch, cell) =>
+        progress("optics:" + side + ":performed:" + branch + ":cell:" + cell),
+    );
+    progress?.("optics:" + side + ":performed-certified");
     return {
       side,
       surface: support.surface,

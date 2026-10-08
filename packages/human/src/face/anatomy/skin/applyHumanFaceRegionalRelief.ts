@@ -1,4 +1,5 @@
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
@@ -66,9 +67,10 @@ export function applyHumanFaceRegionalRelief(
     throw new Error(
       "Regional skin relief needs registered connected head skin and complete lip ports.",
     );
+  const margin = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
   const held = new Set([
-    ...basis.contact.margin.upper,
-    ...basis.contact.margin.lower,
+    ...[...margin.upper, ...margin.lower].flatMap((point) =>
+      point.vertices.filter((_, axis) => point.weights[axis] !== 0)),
     ...Object.values(basis.skinLandmarks ?? {})
       .filter((landmark) => landmark.surface === glabella.surface)
       .map((landmark) => landmark.vertex),

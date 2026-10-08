@@ -59,6 +59,10 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * Layer order follows Ferreira et al. 2020 (PMC7139934). Supplied offsets and
  * thicknesses are authored geometric dimensions. These shells do not rotate
  * with the globe.
+ * An optional observer reports completed band construction, actual ocular
+ * projections after their room reading, and each completed tissue part. Side,
+ * tissue and native host identify the work without carrying buffers or an
+ * acceptance verdict. Exceptions propagate before a pose can be cached.
  *
  * @evidence contracts/common.md#principled-implementation Both lamellae retain the supplied offset and thickness along actual host normals; globe room and transverse intersections are separate admission readings because a normal-offset surface can fold at insufficient local feature size. Orientation is fixed by enclosed-volume sign.
  * @evidence contracts/common.md#clear-and-simple-design One generator owns both lamella constructions, shell topology and Float32 output admission; the ocular surface and the seat constant supply the globe frame.
@@ -79,6 +83,7 @@ export function buildHumanFacePeriocularTissues(
   normals: ReadonlyMap<string, readonly number[]>,
   surfaces: ReadonlyMap<"left" | "right", IHumanFaceOcularSurface>,
   input: IAutoMovieHumanFacePeriocularTissues,
+  progress?: (owner: string) => void,
 ): IHumanFacePeriocularTissuePart[] {
   const tear = HUMAN_FACE_LID_SEAT.tearFilmMetres;
   const parts: IHumanFacePeriocularTissuePart[] = [];
@@ -167,6 +172,7 @@ export function buildHumanFacePeriocularTissues(
         stations++;
         if (margin < 0) shortStations++;
         minimumMarginMetres = Math.min(minimumMarginMetres, margin);
+        progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":projection:" + stations);
       };
       if (tissue.endsWith("TarsalBody") || tissue.endsWith("Conjunctiva")) {
         mappingBand = bandsByLid.get(upper);
@@ -181,6 +187,7 @@ export function buildHumanFacePeriocularTissues(
             side,
             tissue,
           });
+          progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":band");
           bandsByLid.set(upper, mappingBand);
         }
         stride = mappingBand.stride;
@@ -366,6 +373,7 @@ export function buildHumanFacePeriocularTissues(
               },
             }),
       });
+      progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":tissue");
     }
   }
   return parts;

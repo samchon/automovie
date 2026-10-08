@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../../structures/IAutoMovieHumanFaceRigidMotion";
@@ -46,6 +47,7 @@ export function connectHumanFaceOralLipPorts(
       "Oral soft wall needs the actual final source lip ports and canonical skin correspondence.",
     );
   const joined: IHumanFaceOralPart[] = [];
+  const ports = readHumanFaceLipMarginPoints(surface, contact.margin, lip);
   const stations = (points: readonly number[][]): number[] => {
     const distances = [0];
     for (let k = 1; k < points.length; k++)
@@ -85,13 +87,9 @@ export function connectHumanFaceOralLipPorts(
       );
       return [placed.x, placed.y, placed.z];
     });
-    const margin = mandibular ? contact.margin.lower : contact.margin.upper;
-    const lipPoints = margin.map((vertex) =>
-      lip.slice(3 * vertex, 3 * vertex + 3),
-    );
-    const lipIds = margin.map(
-      (vertex) => "skin:" + surface.sourcePartition!.samples[vertex],
-    );
+    const margin = mandibular ? ports.lower : ports.upper;
+    const lipPoints = margin.map(({ point }) => [point.x, point.y, point.z]);
+    const lipIds = margin.map((point) => point.identity);
     if (lipPoints[0][0] > lipPoints[lipPoints.length - 1][0]) {
       lipPoints.reverse();
       lipIds.reverse();

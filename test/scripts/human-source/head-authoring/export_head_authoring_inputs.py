@@ -7,6 +7,10 @@ their authored authority and missing original recipe; publication does not
 turn them into acquired anatomy or excuse their source maintenance debt.
 Run with --source DIRECTORY --head-guides COMPONENT --ear-guides COMPONENT --socket-guides COMPONENT
 --out NEW_DIRECTORY, then pass that directory as the authoring --source.
+An explicit --raw-profiles directory supplies original profile bytes when
+maintained code and recipes live elsewhere. Every original profile must still
+match the existing source manifest's byte authority; formatted or changed
+profile data cannot acquire the original authority through this option.
 """
 
 import argparse
@@ -26,6 +30,7 @@ def _main():
     parser = argparse.ArgumentParser()
     for name in ("source", "head-guides", "ear-guides", "socket-guides", "out"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--raw-profiles", type=Path)
     args = parser.parse_args()
     if args.out.exists() and any(args.out.iterdir()):
         raise ValueError("Source manifest export requires a new immutable component output directory.")
@@ -71,13 +76,18 @@ def _export(args, publication):
                     "nasalExteriorGuide": args.head_guides / "head-source-guide-nasal.json",
                     "earGuide": args.ear_guides / "ear-source-guide.json",
                     "nasalSocket": args.socket_guides / "nasal-socket-ports.json"}
+    profile_root = args.raw_profiles if args.raw_profiles is not None else args.source
+    originals = {}
+    for name, original_profile in authored["profiles"].items():
+        preserved = entry(profile_root / original_profile["path"])
+        if preserved["sha256"] != original_profile["sha256"]:
+            raise ValueError("Original raw profile differs from its existing receipt: " + name)
+        originals[name] = preserved
     superseded = {}
     for name in replacements:
         original_profile = authored["profiles"][name]
-        file = args.source / original_profile["path"]
-        preserved = entry(file)
-        if preserved["sha256"] != original_profile["sha256"]:
-            raise ValueError("Superseded raw profile differs from its original receipt: " + name)
+        file = profile_root / original_profile["path"]
+        preserved = originals[name]
         profile_payload = file.read_bytes()
         observed.expect(file, len(profile_payload), hashlib.sha256(profile_payload).hexdigest())
         value = json.loads(profile_payload)
@@ -89,14 +99,13 @@ def _export(args, publication):
                             "currentConsumption": "Replaced as an active profile; explicit legacy source-input manifests may still address the original artifact.",
                             "directExportConsumers": ["export_nasal_socket_guide.py: pinned preserved-cut correspondence"] if name == "nasalSocket" else [],
                             "qualification": "Original raw derived guide retained unchanged. An absent native generation remains unknown; source basis and authored cuts do not establish clinical anatomy."}
-    profiles = {name: entry(args.source / item["path"]) for name, item in authored["profiles"].items()
-                if name not in replacements}
+    profiles = {name: item for name, item in originals.items() if name not in replacements}
     profiles.update({name: entry(file) for name, file in replacements.items()})
     recipes = {name: entry(args.source / item["path"]) for name, item in authored["recipe"].items()}
     maintained = {file.resolve() for file in args.source.glob("*.py")}
-    retired_profiles = {(args.source / authored["profiles"][name]["path"]).resolve() for name in replacements}
+    original_profiles = {(args.source / item["path"]).resolve() for item in authored["profiles"].values()}
     maintained.update((args.source / item["path"]).resolve() for item in authored["files"]
-                      if (args.source / item["path"]).resolve() not in retired_profiles)
+                      if (args.source / item["path"]).resolve() not in original_profiles)
     maintained.update(root.parent / name for name in ("SourceInputObservation.py", "SourcePublication.py", "read_source_publication.py",
                                                     "compile-head-trait-endpoints.py", "replay-head-source-provider.py"))
     maintained.update(root / name for name in ("SourceAuthoringInputObservation.py", "read_source_profile.py", "export_ear_source_guide.py", "read_ear_port.py"))

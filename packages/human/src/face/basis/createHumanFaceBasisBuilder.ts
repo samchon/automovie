@@ -237,7 +237,12 @@ export function createHumanFaceBasisBuilder(
         : new Set(["leftEye", "rightEye"]),
     );
     applyHumanSkinFinish(materials);
-    const pose = evaluatePose(state, document.shape, document);
+    const pose = evaluatePose(
+      state,
+      document.shape,
+      document,
+      options?.observeConstructionProgress === undefined ? undefined : geometryProgress,
+    );
     geometryProgress("pose");
     const checks = [...pose.checks];
     checks.push({

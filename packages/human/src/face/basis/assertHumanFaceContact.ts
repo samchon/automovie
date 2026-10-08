@@ -1,6 +1,7 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
 
 /**
  * Admit a basis's coupled oral contact declaration before any document is
@@ -66,14 +67,27 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   if (contact.margin !== undefined) {
     const count =
       (surfaces.get(contact.lips.surface)?.positions.length ?? 0) / 3;
-    const chains = [contact.margin.upper, contact.margin.lower];
+    const surface = surfaces.get(contact.lips.surface)!;
+    const read = readHumanFaceLipMarginPoints(surface, contact.margin, surface.positions);
+    const chains = [read.upper, read.lower];
     const all = chains.flat();
+    const keys = chains.map((chain) => chain.map((point) =>
+      contact.margin!.kind === "material" ? point.identity : point.nativeVertex));
+    const repeated = keys.some((chain) => new Set(chain).size !== chain.length);
+    const shared = keys[0].some((identity, upperAt) => {
+      const lowerAt = keys[1].indexOf(identity);
+      if (lowerAt < 0) return false;
+      // A native source course may name its one real commissure in both
+      // corresponding endpoints; legacy vertex chains keep their old guard.
+      return contact.margin!.kind !== "material" ||
+        !((upperAt === 0 && lowerAt === 0) ||
+          (upperAt === keys[0].length - 1 && lowerAt === keys[1].length - 1)) ||
+        chains[0][upperAt].nativeVertex === null || chains[1][lowerAt].nativeVertex === null;
+    });
     if (
       chains.some((chain) => chain.length < 2) ||
-      all.some(
-        (vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
-      ) ||
-      new Set(all).size !== all.length
+      all.some((point) => point.vertices.some((vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count)) ||
+      repeated || shared
     )
       throw new Error(
         "Facial contact lip margin needs two chains of at least two distinct resident vertices of the lips surface.",
