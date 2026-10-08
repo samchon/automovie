@@ -47,6 +47,16 @@
  * make and is recorded here, not checked. Layer surfaces must then belong to
  * the target basis. Pass - for LAYER to give a target plan without a layer.
  * This step publishes nothing; the output is a campaign candidate.
+ *
+ * Pass static-source for LAYER when ASSEMBLY is the complete output of the
+ * static bone/depot producers and REGISTRATION names joined-source-receipt.json.
+ * The existing depot join is shipped as join_registered_neutral_depots.py in
+ * this directory; run it with ASSEMBLY DEPOTS SOURCE_BODY TARGET_BODY OUTPUT
+ * before sealing its source-assembly-before-node-digest.json here.
+ * PLAN then names their actual current target views and saved document. This
+ * mode seals Node object digests and enrols every consumed source file without
+ * moving geometry, copying a different body's registration or constructing
+ * anatomy. The normal typed compiler still admits the resulting whole source.
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -58,6 +68,10 @@ const layerDirectory = layerArgument === "-" ? undefined : layerArgument;
 if (!assemblyFile || !planFile || !registrationDirectory || !output)
   throw new Error("Expected ASSEMBLY PLAN REGISTRATION OUTPUT.");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+if (layerArgument === "static-source") {
+  finalizeStaticSources();
+  process.exit(0);
+}
 const receiptBytes = fs.readFileSync(path.join(registrationDirectory, "registration-receipt.json"));
 const receipt = JSON.parse(receiptBytes);
 const revision = "body-anatomy-registration/" + sha(receiptBytes);
@@ -68,6 +82,114 @@ const plan = JSON.parse(planBytes.toString("utf8"));
 if (receipt.targetBodyBasis !== assembly.basis)
   throw new Error("Registration and assembly name different body bases.");
 fs.mkdirSync(output, { recursive: true });
+
+/** Seal actual target-static payloads; the source producers own all geometry. */
+function finalizeStaticSources() {
+  if (targetPlanFile !== undefined)
+    throw new Error("Static source registration takes its actual target plan directly.");
+  const root = process.cwd();
+  const directory = path.dirname(path.resolve(planFile));
+  const resolve = (file) => path.resolve(directory, file);
+  const input = fs.readFileSync(assemblyFile);
+  const planBytes = fs.readFileSync(planFile);
+  const receiptBytes = fs.readFileSync(registrationDirectory);
+  const assembly = JSON.parse(input);
+  const plan = JSON.parse(planBytes);
+  const receipt = JSON.parse(receiptBytes);
+  const bodyBytes = fs.readFileSync(resolve(plan.bodyView));
+  const headBytes = fs.readFileSync(resolve(plan.headView));
+  const body = JSON.parse(gunzipSync(bodyBytes));
+  const head = JSON.parse(gunzipSync(headBytes));
+  const document = JSON.parse(fs.readFileSync(resolve(plan.personDocument), "utf8"));
+  if (assembly.mode !== "neutral-only" || plan.mode !== "neutral-only" ||
+      assembly.basis !== body.body.id || body.id !== head.id ||
+      assembly.generation !== assembly.rig.generation ||
+      receipt.generation !== assembly.generation ||
+      receipt.sourceAssemblyOutputSha256 !== sha(input) ||
+      receipt.currentTargetBodySha256 !== sha(bodyBytes) ||
+      document.body.basis !== body.body.id || document.face.basis !== head.face.id ||
+      JSON.stringify(assembly.shape) !== JSON.stringify(plan.shape))
+    throw new Error("Static source, target views, document and producer receipt disagree.");
+  if (receipt.parts !== assembly.parts.length ||
+      receipt.members !== assembly.parts.reduce((sum, part) => sum + part.surfaces.length, 0) ||
+      new Set(assembly.parts.map((part) => part.id)).size !== assembly.parts.length)
+    throw new Error("Static source lost or repeated a producer-declared part or member.");
+  const sources = new Map();
+  const enrol = (file, expected) => {
+    const absolute = path.resolve(file);
+    const digest = sha(fs.readFileSync(absolute));
+    if (digest !== expected.toLowerCase())
+      throw new Error("Actual static source bytes changed: " + file);
+    const previous = sources.get(absolute);
+    if (previous !== undefined && previous !== digest)
+      throw new Error("One static source has conflicting digests: " + file);
+    sources.set(absolute, digest);
+  };
+  for (const [file, digest] of Object.entries(receipt.sourceInputs))
+    enrol(path.resolve(root, file), digest);
+  for (const source of plan.rawInputs) enrol(resolve(source.file), source.sha256);
+  const preparation = JSON.parse(fs.readFileSync(resolve(plan.sourcePreparationReceipt), "utf8"));
+  if (!Array.isArray(preparation.sourceGaps))
+    throw new Error("Static source registration needs the complete original refusal population.");
+  const expectedParts = new Set(preparation.parts);
+  if (expectedParts.size !== preparation.parts.length || expectedParts.size !== assembly.parts.length ||
+      assembly.parts.some((part) => !expectedParts.has(part.id)))
+    throw new Error("Static source does not preserve the original preparation's complete identity population.");
+  for (const [file, digest] of Object.entries(preparation.originalInputs))
+    enrol(path.resolve(root, file), digest);
+  const members = [];
+  for (const part of assembly.parts) {
+    const ids = new Set();
+    for (const surface of part.surfaces) {
+      if (ids.has(surface.id)) throw new Error("Static source repeats a member: " + part.id);
+      ids.add(surface.id);
+      enrol(path.resolve(root, surface.source.uri), surface.source.sha256);
+      const digest = sha(JSON.stringify(surface.mesh));
+      if (surface.compiledMeshSha256 !== "" && surface.compiledMeshSha256.toLowerCase() !== digest)
+        throw new Error("Static source object digest differs: " + part.id + "/" + surface.id);
+      surface.compiledMeshSha256 = digest;
+      members.push({ part: part.id, member: surface.id, sourceSha256: surface.source.sha256,
+        compiledMeshSha256: digest, vertices: surface.mesh.positions.length / 3,
+        triangles: surface.mesh.indices.length / 3 });
+    }
+  }
+  for (const depot of receipt.depots) {
+    const part = assembly.parts.find((candidate) => candidate.id === depot.part);
+    const surface = part?.surfaces.find((candidate) => candidate.id === depot.member);
+    if (surface === undefined || JSON.stringify(surface.source) !== JSON.stringify(depot.source) ||
+        surface.mesh.positions.length / 3 !== depot.vertices || surface.mesh.indices.length !== depot.indices)
+      throw new Error("Static depot payload differs from its producer receipt: " + depot.part);
+  }
+  // Exclusive output preserves a prior successful or rejected registration epoch.
+  fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
+  fs.mkdirSync(output);
+  const rebase = (file) => path.relative(path.resolve(output), resolve(file)).replaceAll("\\", "/");
+  const next = {};
+  for (const [key, value] of Object.entries(plan)) {
+    if (["rawInputs", "rig", "shape", "mode"].includes(key)) continue;
+    next[key] = typeof value === "string" ? rebase(value) : Array.isArray(value) ? value.map(rebase) : value;
+  }
+  next.shape = plan.shape;
+  next.mode = plan.mode;
+  next.rig = "source-rig.json";
+  next.rawInputs = [...sources].map(([file, sha256]) => ({
+    file: path.relative(path.resolve(output), file).replaceAll("\\", "/"), sha256,
+  }));
+  const bytes = JSON.stringify(assembly);
+  fs.writeFileSync(path.join(output, "source-assembly.json"), bytes);
+  fs.writeFileSync(path.join(output, "source-rig.json"), JSON.stringify(assembly.rig));
+  fs.writeFileSync(path.join(output, "compile-plan.json"), JSON.stringify(next, null, 2));
+  fs.writeFileSync(path.join(output, "join-receipt.json"), JSON.stringify({
+    generation: assembly.generation, targetGeneration: body.id, bodyBasis: assembly.basis,
+    inputAssemblySha256: sha(input), inputPlanSha256: sha(planBytes), producerReceiptSha256: sha(receiptBytes),
+    producerSha256: sha(fs.readFileSync(import.meta.filename)), assemblySha256: sha(bytes),
+    headSha256: sha(headBytes), bodySha256: sha(bodyBytes), members, rawInputCount: sources.size,
+    originalMemberRefusals: preparation.sourceGaps,
+    meaning: "Actual target-static producer payloads sealed with Node object identity; no geometry changed, anatomy/runtime/quality/publication admission remains separate",
+  }, null, 2));
+  console.log(JSON.stringify({ generation: assembly.generation, parts: assembly.parts.length,
+    members: members.length, rawInputs: sources.size, mode: "static-source" }));
+}
 
 /** Area-weighted unit vertex normals of an indexed triangle surface. */
 function normalsOf(positions, indices) {

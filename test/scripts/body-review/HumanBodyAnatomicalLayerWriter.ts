@@ -29,7 +29,7 @@ export class HumanBodyAnatomicalLayerWriter {
   ) {}
 
   /** Every measured limited offset condition must permit reference use. */
-  refuses(surfaces: IHumanBodyLayerSurfaces): boolean {
+  static refuses(surfaces: IHumanBodyLayerSurfaces): boolean {
     return surfaces.beyondReachVertices > 0 || surfaces.unmeasuredReachVertices > 0 ||
       surfaces.invertedTriangles > 0 || surfaces.dermalInvertedTriangles > 0;
   }
@@ -176,7 +176,7 @@ export class HumanBodyAnatomicalLayerWriter {
       path.join(this.output, name + "-layer-surface-observations.json"),
       JSON.stringify(surfaces),
     );
-    if (this.refuses(surfaces))
+    if (HumanBodyAnatomicalLayerWriter.refuses(surfaces))
       throw new Error(
         "Evaluated layer references have unavailable reach or reported offset refusals; observations are retained before signed-sheet use.",
       );
@@ -227,8 +227,20 @@ export class HumanBodyAnatomicalLayerWriter {
     );
   }
 
-  /** Offline registration reads the one native offset rule without a fabricated head. */
-  writeNative(positions: readonly number[], basis: string, fieldSha256: string | undefined): number {
+  /**
+   * Prepare native layer sources before an anatomical assembly is registered.
+   * Inputs are original metre positions, native triangle indices and the
+   * basis-addressed thickness field. Bootstrap and registered construction
+   * share this offset and refusal archive without a placeholder assembly.
+   */
+  static writeNative(
+    output: string,
+    positions: readonly number[],
+    skinIndices: readonly number[],
+    field: IAutoMovieHumanBodyLayerThicknessField,
+    basis: string,
+    fieldSha256: string | undefined,
+  ): number {
   // Static entry imports and all original input admission above are complete.
   // The remaining synchronous path consumes only the loaded layer/mesh owners;
   // it never constructs a face or lazily imports a source module.
@@ -244,19 +256,19 @@ export class HumanBodyAnatomicalLayerWriter {
   );
   const surfaces = createHumanBodyLayerSurfaces({
     positions: positions,
-    indices: this.skinIndices,
-    field: this.field!,
+    indices: skinIndices,
+    field,
   });
   fs.writeFileSync(
-    path.join(this.output, "layer-surface-observations.json"),
+    path.join(output, "layer-surface-observations.json"),
     JSON.stringify(surfaces),
   );
   const shell = JSON.stringify(
-    createHumanBodySubcutaneousShell(surfaces, this.skinIndices),
+    createHumanBodySubcutaneousShell(surfaces, skinIndices),
   );
-  fs.writeFileSync(path.join(this.output, "subcutaneous-shell.mesh.json"), shell);
+  fs.writeFileSync(path.join(output, "subcutaneous-shell.mesh.json"), shell);
   fs.writeFileSync(
-    path.join(this.output, "layer-surfaces.json"),
+    path.join(output, "layer-surfaces.json"),
     JSON.stringify({
       basis: basis,
       fieldSha256: fieldSha256,
@@ -287,6 +299,6 @@ export class HumanBodyAnatomicalLayerWriter {
       qualification: surfaces.qualification,
     }),
   );
-  return this.refuses(surfaces) ? 1 : 0;
+  return HumanBodyAnatomicalLayerWriter.refuses(surfaces) ? 1 : 0;
   }
 }

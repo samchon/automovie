@@ -41,6 +41,9 @@
  * layer-surfaces writes the neutral dermal and fascial faces and the
  * subcutaneous shell of the plan's body basis for the offline registration
  * producer, which consumes them instead of recomputing the offset.
+ * That preparation reads the actual paired views and native thickness before
+ * anatomical admission: pass - for ASSEMBLY when registration does not yet
+ * exist. Other stages retain their complete source, rig and mesh admission.
  * An optional sixth argument names a JSON record of shape channel weights
  * for the document, to read the same layer order on a shaped body.
  * The body-only stage uses the normal body builder with the actual paired
@@ -94,16 +97,22 @@ if (stage === "layer-surfaces" && layerFieldFile === undefined)
 // before any input or archive record can be replaced by this attempt.
 fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
 fs.mkdirSync(output);
+if (stage === "layer-surfaces") {
+  const native = readHumanBodyAnatomicalCompileInputs(
+    assemblyFile, planFile, output, layerFieldFile, shapeFile, stage,
+  );
+  process.exit(HumanBodyAnatomicalLayerWriter.writeNative(
+    output, native.body.body.surfaces[0].positions, native.skinIndices,
+    native.layerField, native.body.body.id, native.layerFieldSha256,
+  ));
+}
 const { plan, head, body, originalAssembly, assembly, candidate, document,
-  assemblyBytes, sourceRefusals, layerField, layerFieldSha256, skinIndices, declared, ids, candidateId } =
+  assemblyBytes, sourceRefusals, layerField, skinIndices, declared, ids, candidateId } =
   readHumanBodyAnatomicalCompileInputs(assemblyFile, planFile, output, layerFieldFile, shapeFile);
 const hash = (bytes: string | Uint8Array): string =>
   createHash("sha256").update(bytes).digest("hex");
 
 const layers = new HumanBodyAnatomicalLayerWriter(output, assembly, layerField, skinIndices);
-
-if (stage === "layer-surfaces")
-  process.exit(layers.writeNative(body.body.surfaces[0].positions, body.body.id, layerFieldSha256));
 
 const sourceAdmission = originalAssembly.parts.flatMap((part) =>
   part.surfaces.map((surface) => ({

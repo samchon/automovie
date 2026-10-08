@@ -6,6 +6,7 @@ import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
+import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
 import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
 import { createHash } from "node:crypto";
@@ -16,11 +17,22 @@ import typia from "typia";
 import type { IHumanBodyAnatomicalCompilePlan } from "./IHumanBodyAnatomicalCompilePlan";
 import type { IHumanBodyAnatomicalCompileInputs } from "./IHumanBodyAnatomicalCompileInputs";
 
+/** Native layer preparation reads the exterior before its anatomy exists. */
+type NativeLayerInputs = Pick<IHumanBodyAnatomicalCompileInputs,
+  "plan" | "head" | "body" | "layerFieldSha256" | "skinIndices"> & {
+  /** Required basis-addressed field; preparation cannot infer thickness. */
+  layerField: IAutoMovieHumanBodyLayerThicknessField;
+};
+
 /**
  * Admit the exact original source, rig and plan before deriving a candidate.
  * Hash and typed identity refusals precede publication. Candidate construction
  * changes only assembly registration and preserves the original exterior.
  * Output tuples retain rejected construction independently of its acceptance.
+ * The layer-surfaces preparation stage admits the actual typed partition views
+ * and native thickness field before opening a future anatomical assembly. Its
+ * source byte receipt identifies only those consumed inputs; it neither registers
+ * parts nor claims source/rig admission for the later construction stages.
  */
 export function readHumanBodyAnatomicalCompileInputs(
   assemblyFile: string,
@@ -28,7 +40,23 @@ export function readHumanBodyAnatomicalCompileInputs(
   output: string,
   layerFieldFile: string | undefined,
   shapeFile: string | undefined,
-): IHumanBodyAnatomicalCompileInputs {
+  stage: "layer-surfaces",
+): NativeLayerInputs;
+export function readHumanBodyAnatomicalCompileInputs(
+  assemblyFile: string,
+  planFile: string,
+  output: string,
+  layerFieldFile: string | undefined,
+  shapeFile: string | undefined,
+): IHumanBodyAnatomicalCompileInputs;
+export function readHumanBodyAnatomicalCompileInputs(
+  assemblyFile: string,
+  planFile: string,
+  output: string,
+  layerFieldFile: string | undefined,
+  shapeFile: string | undefined,
+  stage?: "layer-surfaces",
+): IHumanBodyAnatomicalCompileInputs | NativeLayerInputs {
   const planBytes = fs.readFileSync(planFile);
   const plan = typia.assertEquals<IHumanBodyAnatomicalCompilePlan>(
     JSON.parse(planBytes.toString("utf8")),
@@ -45,6 +73,34 @@ export function readHumanBodyAnatomicalCompileInputs(
   const body = typia.assertEquals<IAutoMovieHumanPersonBodyView>(
     JSON.parse(gunzipSync(originalBodyBytes).toString("utf8")),
   );
+  const layerFieldBytes =
+    layerFieldFile === undefined ? undefined : fs.readFileSync(layerFieldFile);
+  const layerFieldSha256 =
+    layerFieldBytes === undefined ? undefined : hash(layerFieldBytes);
+  const layerField =
+    layerFieldBytes === undefined
+      ? undefined
+      : typia.assertEquals<IAutoMovieHumanBodyLayerThicknessField>(
+          JSON.parse(layerFieldBytes.toString("utf8")),
+        );
+  if (layerField !== undefined && layerField.basis !== body.body.id)
+    throw new Error("Layer thickness field addresses another body basis.");
+  const skinIndices = body.body.surfaces[0].indices;
+  if (stage === "layer-surfaces") {
+    if (layerField === undefined)
+      throw new Error("The layer-surfaces stage needs a layer thickness field.");
+    joinHumanPersonGeneration(head, body);
+    fs.writeFileSync(path.join(output, "layer-input-receipt.json"), JSON.stringify({
+      generation: body.id,
+      bodyBasis: body.body.id,
+      planSha256: hash(planBytes),
+      headSha256: hash(headBytes),
+      bodySha256: hash(originalBodyBytes),
+      fieldSha256: layerFieldSha256,
+      qualification: "Native source layer preparation only; anatomical assembly and construction admission not run",
+    }, null, 2));
+    return { plan, head, body, layerField, layerFieldSha256, skinIndices };
+  }
   const assemblyBytes = fs.readFileSync(assemblyFile);
   const originalAssembly =
     typia.assertEquals<IAutoMovieHumanBodyAnatomicalAssembly>(
@@ -190,19 +246,5 @@ export function readHumanBodyAnatomicalCompileInputs(
       2,
     ),
   );
-  const layerFieldBytes =
-    layerFieldFile === undefined ? undefined : fs.readFileSync(layerFieldFile);
-  const layerFieldSha256 =
-    layerFieldBytes === undefined ? undefined : hash(layerFieldBytes);
-  const layerField =
-    layerFieldBytes === undefined
-      ? undefined
-      : typia.assertEquals<IAutoMovieHumanBodyLayerThicknessField>(
-          JSON.parse(layerFieldBytes.toString("utf8")),
-        );
-  if (layerField !== undefined && layerField.basis !== body.body.id)
-    throw new Error("Layer thickness field addresses another body basis.");
-  const skinIndices = body.body.surfaces[0].indices;
-
   return { plan, head, body, originalAssembly, assembly, candidate, document, assemblyBytes, sourceRefusals, layerField, layerFieldSha256, skinIndices, declared, ids, candidateId };
 }
