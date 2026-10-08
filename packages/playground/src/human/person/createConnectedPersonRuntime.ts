@@ -156,6 +156,7 @@ export function createConnectedPersonRuntime(
       bodyBasis,
       built.body.evaluatedDocument,
       "body:",
+      built.body.layerObservations,
     );
     progress("assembly-qualified");
     const oral = await createHumanFaceOralExportQualification(

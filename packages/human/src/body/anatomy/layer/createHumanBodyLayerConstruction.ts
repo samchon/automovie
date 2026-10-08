@@ -1,4 +1,5 @@
 import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
+import { autoMovieRenderDigest } from "@automovie/engine";
 
 import { humanPhysicalSourceDomain } from "../../../common/basis/humanPhysicalSourceDomain";
 import type { IAutoMovieHumanConstructionFailure } from "../../../common/structures/IAutoMovieHumanConstructionFailure";
@@ -21,6 +22,9 @@ import { createHumanBodySubcutaneousShell } from "./createHumanBodySubcutaneousS
  * domains distinguish the two sheets; each sheet and its shell occurrence
  * share the same native point. Offsets are made in the supplied final frame,
  * after the consumer's root placement, and never moved a second time here.
+ * An admitted native source registration assigns these same members to the
+ * single subcutaneous owner and records their actual final mesh identities.
+ * The original geometry, skin scalar inspection finish and refusals remain.
  *
  * @evidence contracts/common.md#principled-implementation Calls the existing offset and shell owners once and retains their complete limited observations.
  * @evidence contracts/common.md#clear-and-simple-design Three named parts and one observation retain geometry and admission separately.
@@ -41,6 +45,9 @@ export function createHumanBodyLayerConstruction(
 ): IHumanBodyLayerConstruction {
   if (input.field.basis !== input.basis || input.surface.trim() === "")
     throw new Error("Native layer construction needs its exact basis and surface.");
+  if (input.nativeSource !== undefined && (input.nativeSource.surface !== input.surface ||
+      input.nativeSource.fieldDigest !== autoMovieRenderDigest(JSON.stringify(input.field))))
+    throw new Error("Native subcutaneous construction needs its registered field and actual surface.");
   const surfaces = createHumanBodyLayerSurfaces(input);
   const count = input.positions.length / 3;
   const domains = ["dermal", "fascial"].map((sheet) =>
@@ -58,7 +65,9 @@ export function createHumanBodyLayerConstruction(
   }
   const rim = shell.indices!.slice(input.indices.length * 2);
   const populations = [outer, inner, rim];
-  const names = ["dermal-face", "fascial-face", "subcutaneous-rim"];
+  const names = ["dermal-face", "fascial-face", "subcutaneous-rim"] as const;
+  const prefix = input.nativeSource === undefined ? "skin-layer:" + input.surface + ":" :
+    "native-subcutaneous:" + input.nativeSource.id + "/" + input.surface + "/";
   const meshes: IAutoMovieMesh[] = populations.map((indices) =>
     indices.length === 0 ? { ...shell, indices: [] } :
       createHumanBodySourceResidentMesh({ ...shell, indices }).mesh,
@@ -81,7 +90,7 @@ export function createHumanBodyLayerConstruction(
   const { dermis, fascia, normals, ...observations } = surfaces;
   return {
     parts: meshes.flatMap((mesh, index) => mesh.indices!.length === 0 ? [] : [{
-      id: "skin-layer:" + input.surface + ":" + names[index],
+      id: prefix + names[index],
       name: names[index],
       geometry: { type: "mesh", mesh },
       material: material.id,
@@ -97,7 +106,24 @@ export function createHumanBodyLayerConstruction(
       nativeTriangles: input.indices.length / 3,
       fieldQualification: input.field.qualification,
       subcutaneousShellParts: names.flatMap((name, index) => populations[index].length === 0 ? [] :
-        ["skin-layer:" + input.surface + ":" + name]),
+        [prefix + name]),
+      ...(input.nativeSource === undefined ? {} : { nativeSubcutaneous: {
+        basis: input.basis,
+        instance: input.instance,
+        source: structuredClone(input.nativeSource),
+        exteriorDigest: autoMovieRenderDigest(JSON.stringify({
+          positions: input.exterior?.mesh.positions ?? input.positions,
+          indices: input.exterior?.mesh.indices ?? input.indices,
+        })),
+        anchors: structuredClone(input.field.anchors),
+        fieldQualification: input.field.qualification,
+        members: meshes.flatMap((mesh, index) => mesh.indices!.length === 0 ? [] : [{
+          id: prefix + names[index],
+          role: names[index],
+          meshDigest: autoMovieRenderDigest(JSON.stringify(mesh)),
+        }]),
+        clinical: "unavailable" as const,
+      } }),
     },
     admission: { accepted: failures.length === 0, failures },
   };

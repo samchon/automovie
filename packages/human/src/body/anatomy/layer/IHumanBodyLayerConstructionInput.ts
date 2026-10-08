@@ -1,4 +1,5 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
+import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "../assembly/IAutoMovieHumanBodyNativeSubcutaneousSource";
 
 import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInput";
 
@@ -33,4 +34,7 @@ export interface IHumanBodyLayerConstructionInput extends IHumanBodyLayerSurface
 
   /** Existing resident skin finish supplying scalar inspection appearance. */
   material: IAutoMovieMaterial;
+
+  /** Present when this calculation supplies the source assembly's single SAT owner. */
+  nativeSource?: IAutoMovieHumanBodyNativeSubcutaneousSource;
 }

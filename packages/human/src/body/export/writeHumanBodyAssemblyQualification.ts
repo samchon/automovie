@@ -12,6 +12,8 @@ import { readHumanBodyAssemblyAssetCorrespondence } from "./readHumanBodyAssembl
  * grouping. This adapter joins every anatomical member exactly once before
  * the same Document is serialized; it does not recreate a mesh or certify
  * personal anatomy.
+ * Native SAT members use their explicit calculation record and actual generic
+ * intervals; they never receive an acquired static-mesh qualification.
  *
  * @evidence contracts/common.md#principled-implementation Qualification binds actual primitive member intervals in the same Document instance used by the writer.
  * @evidence contracts/common.md#clear-and-simple-design One bijective source join precedes the existing static serialization.
@@ -34,24 +36,36 @@ export function writeHumanBodyAssemblyQualification(
       (primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
     )
     .filter((part) => /^(?:body:)?anatomical-source:/.test(part.id));
+  const nativeMembers = new Map(qualification.nativeSubcutaneous?.members.map((part) => [part.id, part]) ?? []);
+  const nativeActual = primitives.flatMap((primitive) => readHumanStaticPartCorrespondence(primitive)?.parts ?? [])
+    .filter((part) => /^(?:body:)?native-subcutaneous:/.test(part.id));
   if (
     members.size !== qualification.parts.length ||
     actual.length !== members.size ||
-    actual.some((part) => !members.has(part.id))
+    actual.some((part) => !members.has(part.id)) ||
+    (qualification.nativeSubcutaneous !== undefined && qualification.parts.some((part) => part.part === qualification.nativeSubcutaneous!.source.id)) ||
+    (qualification.nativeSubcutaneous !== undefined && nativeMembers.size === 0) ||
+    nativeMembers.size !== (qualification.nativeSubcutaneous?.members.length ?? 0) ||
+    nativeActual.length !== nativeMembers.size || nativeActual.some((part) => !nativeMembers.has(part.id))
   )
     throw new Error(
       "Coarse anatomical report must qualify every actual source member exactly once.",
     );
   for (const primitive of primitives) {
-    const parts = (
-      readHumanStaticPartCorrespondence(primitive)?.parts ?? []
-    ).filter((part) => members.has(part.id));
-    if (parts.length === 0) continue;
+    const geometry = readHumanStaticPartCorrespondence(primitive)?.parts ?? [];
+    const parts = geometry.filter((part) => members.has(part.id));
+    const native = geometry.filter((part) => nativeMembers.has(part.id));
+    if (parts.length === 0 && native.length === 0) continue;
+    const { nativeSubcutaneous, ...staticQualification } = qualification;
     primitive.setExtras({
       ...primitive.getExtras(),
       automovieAnatomicalAssembly: {
-        ...qualification,
+        ...staticQualification,
         parts: parts.map((part) => members.get(part.id)!),
+        ...(native.length === 0 ? {} : { nativeSubcutaneous: {
+          ...nativeSubcutaneous!,
+          members: native.map((part) => nativeMembers.get(part.id)!),
+        } }),
       },
     });
     readHumanBodyAssemblyAssetCorrespondence(primitive);

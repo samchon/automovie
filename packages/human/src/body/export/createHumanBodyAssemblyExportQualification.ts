@@ -2,6 +2,7 @@ import { createHumanBodySourceResidentMesh } from "../anatomy/assembly/createHum
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHumanBodyAssemblyQualification";
+import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
 
 /**
  * Bind every actual coarse source surface's receipt to its static export ID.
@@ -10,6 +11,9 @@ import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHuman
  * retains these source receipts independently of its Float32 representation.
  * Missing assembly returns no namespace. Rights and authored registration do
  * not certify clinical resolution, personal fit or independent anatomy.
+ * A registered native SAT owner additionally requires the layer constructor's
+ * actual final observation. Its field/exterior/member provenance is retained
+ * separately from original acquired or authored static mesh digests.
  *
  * @evidence contracts/common.md#principled-implementation Actual source geometry digest and exact member identities bind provenance before the shared writer groups primitives.
  * @evidence contracts/common.md#clear-and-simple-design One source walk prepares body or prefixed person qualification.
@@ -20,6 +24,7 @@ export async function createHumanBodyAssemblyExportQualification(
   basis: IAutoMovieHumanBodyBasis,
   document: IAutoMovieHumanBodyBasisDocument,
   prefix: "" | "body:" = "",
+  layers: readonly IHumanBodyLayerObservation[] | undefined = undefined,
 ): Promise<IAutoMovieHumanBodyAssemblyQualification | undefined> {
   const assembly = basis.anatomicalAssembly;
   if (assembly === undefined) return undefined;
@@ -41,6 +46,16 @@ export async function createHumanBodyAssemblyExportQualification(
     ...(assembly.mode === undefined ? {} : { mode: assembly.mode }),
     parts: [],
   };
+  if (assembly.nativeSubcutaneous !== undefined) {
+    const native = layers?.flatMap((layer) => layer.nativeSubcutaneous === undefined ? [] : [layer.nativeSubcutaneous]) ?? [];
+    if (native.length !== 1 || native[0].basis !== basis.id ||
+        JSON.stringify(native[0].source) !== JSON.stringify(assembly.nativeSubcutaneous))
+      throw new Error("Native subcutaneous export needs the actual final boundary calculation and its registered source.");
+    qualification.nativeSubcutaneous = {
+      ...structuredClone(native[0]),
+      members: native[0].members.map((member) => ({ ...member, id: prefix + member.id })),
+    };
+  }
   for (const part of assembly.parts)
     for (const surface of part.surfaces) {
       const bytes = new TextEncoder().encode(JSON.stringify(surface.mesh));

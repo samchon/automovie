@@ -408,6 +408,7 @@ if (stage === "source-admission") {
         candidate,
         personBuild.body.evaluatedDocument,
         "body:",
+        personBuild.body.layerObservations,
       ),
       await createHumanFaceOralExportQualification(
         head.face,
@@ -420,7 +421,7 @@ if (stage === "source-admission") {
     fs.writeFileSync(
       path.join(output, "person-readback.json"),
       JSON.stringify(
-        await artifacts.readback(personAsset.glb, personBuild.model, "body:"),
+        await artifacts.readback(personAsset.glb, personBuild.model, "body:", personBuild.body.layerObservations),
         null,
         2,
       ),

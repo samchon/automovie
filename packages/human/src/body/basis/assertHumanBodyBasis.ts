@@ -1,5 +1,6 @@
 import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
 import { assertHumanSkinRegions } from "../../common/basis/assertHumanSkinRegions";
+import { assertHumanBodyNativeSubcutaneousSource } from "../anatomy/layer/assertHumanBodyNativeSubcutaneousSource";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyEndpointSource } from "../structures/IAutoMovieHumanBodyEndpointSource";
 import { assertHumanBodyBasisEndpoints } from "./admission/assertHumanBodyBasisEndpoints";
@@ -30,6 +31,7 @@ export function assertHumanBodyBasis(
   assertHumanBodyBasisIdentity(basis);
   const endpoints = assertHumanBodyBasisShape(basis);
   const resident = assertHumanBodyBasisSurface(basis, endpoints);
+  assertHumanBodyNativeSubcutaneousSource(basis);
   if (endpointSource !== undefined)
     for (const endpoint of humanBodyExternalEndpointContributions(
       basis,

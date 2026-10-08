@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanBodyAssemblyPartQualification } from "./IAutoMovieHumanBodyAssemblyPartQualification";
+import type { IAutoMovieHumanBodyNativeSubcutaneousQualification } from "./IAutoMovieHumanBodyNativeSubcutaneousQualification";
 
 /** Coarse source assembly qualification, independently of clinical anatomical resolution. @author Samchon */
 export interface IAutoMovieHumanBodyAssemblyQualification {
@@ -19,4 +20,7 @@ export interface IAutoMovieHumanBodyAssemblyQualification {
   registration: string;
   /** Exact source member provenance in each carrying primitive's actual interval order. */
   parts: IAutoMovieHumanBodyAssemblyPartQualification[];
+
+  /** Native SAT calculation and actual members, independently of static source meshes. */
+  nativeSubcutaneous?: IAutoMovieHumanBodyNativeSubcutaneousQualification;
 }

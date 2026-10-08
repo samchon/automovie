@@ -3,17 +3,23 @@ import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/
 import { createHumanBodyAtlasExportQualification } from "@automovie/human/body/export/createHumanBodyAtlasExportQualification";
 import { createHumanBodyAssemblyExportQualification } from "@automovie/human/body/export/createHumanBodyAssemblyExportQualification";
 import { exportHumanBody } from "@automovie/human/body/export/exportHumanBody";
-import { inspectAutoMovieMeshTopology, validateMeshTopology, validateModel } from "@automovie/engine";
+import { autoMovieRenderDigest, inspectAutoMovieMeshTopology, validateMeshTopology, validateModel } from "@automovie/engine";
 import type { IAutoMovieHumanGltfExport } from "@automovie/human/common/export/IAutoMovieHumanGltfExport";
 import { gltfMaterialExtensions } from "@automovie/human/common/export/gltfMaterialExtensions";
 import { readHumanBodyAssemblyAssetCorrespondence } from "@automovie/human/body/export/readHumanBodyAssemblyAssetCorrespondence";
 import type { IHumanBodyLayerReference } from "@automovie/human/body/anatomy/layer/IHumanBodyLayerReference";
-import type { IAutoMovieModel } from "@automovie/interface";
-import { WebIO } from "@gltf-transform/core";
+import type { IHumanBodyLayerObservation } from "@automovie/human/body/anatomy/layer/IHumanBodyLayerObservation";
+import type { IAutoMovieHumanStaticPartInterval } from "@automovie/human/common/export/IAutoMovieHumanStaticPartInterval";
+import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import { type Primitive, WebIO } from "@gltf-transform/core";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
+
+import type { IHumanBodyAnatomicalAssetReadback } from "./IHumanBodyAnatomicalAssetReadback";
+import type { IHumanBodyAnatomicalSourceMemberReadback } from "./IHumanBodyAnatomicalSourceMemberReadback";
+import type { IHumanBodyNativeSubcutaneousMemberReadback } from "./IHumanBodyNativeSubcutaneousMemberReadback";
 
 /**
  * Preserve actual construction archives and read the exporter-written Float32
@@ -76,61 +82,62 @@ export class HumanBodyAnatomicalArtifactWriter {
     );
   }
 
+  /** Read one actual accessor interval and require exact Float32 mesh replay. */
+  private readMember(
+    primitive: Primitive,
+    interval: IAutoMovieHumanStaticPartInterval,
+    model: IAutoMovieModel,
+    emittedDigest?: string,
+  ): IAutoMovieMesh {
+    const source = model.parts.find((part) => part.id === interval.id);
+    if (source === undefined || source.geometry.type !== "mesh")
+      throw new Error("Actual source interval has no constructed mesh: " + interval.id);
+    const mesh = source.geometry.mesh;
+    if (emittedDigest !== undefined && autoMovieRenderDigest(JSON.stringify(mesh)) !== emittedDigest)
+      throw new Error("Native source qualification differs from its actual emitted mesh: " + interval.id);
+    const actual = primitive.getAttribute("POSITION")!.getArray()!;
+    const assetIndices = primitive.getIndices()!.getArray()!;
+    if (interval.vertexCount * 3 !== mesh.positions.length ||
+        interval.indexCount !== (mesh.indices?.length ?? mesh.positions.length / 3))
+      throw new Error("Actual source accessor population differs: " + interval.id);
+    const positions: number[] = [], indices: number[] = [];
+    for (let at = 0; at < interval.vertexCount * 3; at++) {
+      const value = actual[interval.vertexOffset * 3 + at];
+      if (value !== Math.fround(mesh.positions[at]))
+        throw new Error("Actual static accessor differs from its posed source member: " + interval.id);
+      positions.push(value);
+    }
+    for (let at = 0; at < interval.indexCount; at++) {
+      const value = assetIndices[interval.indexOffset + at] - interval.vertexOffset;
+      if (value !== (mesh.indices?.[at] ?? at))
+        throw new Error("Actual static index differs from its posed source member: " + interval.id);
+      indices.push(value);
+    }
+    return { ...mesh, positions, indices };
+  }
+
   async readback(
     bytes: Uint8Array,
     model: IAutoMovieModel,
     prefix: "" | "body:",
-  ) {
+    layers: readonly IHumanBodyLayerObservation[] = [],
+  ): Promise<IHumanBodyAnatomicalAssetReadback> {
     const decoded = await new WebIO()
       .registerExtensions(gltfMaterialExtensions)
       .readBinary(bytes);
-    const readings = [];
+    const readings: IHumanBodyAnatomicalSourceMemberReadback[] = [];
+    const nativeReadings: IHumanBodyNativeSubcutaneousMemberReadback[] = [];
     for (const primitive of decoded
       .getRoot()
       .listMeshes()
       .flatMap((mesh) => mesh.listPrimitives())) {
       const record = readHumanBodyAssemblyAssetCorrespondence(primitive);
       if (record === undefined) continue;
-      const actual = primitive.getAttribute("POSITION")!.getArray()!;
       for (const account of record.qualification.parts) {
         const interval = record.geometry.parts.find(
           (part) => part.id === account.id,
         )!;
-        const source = model.parts.find((part) => part.id === account.id)!;
-        if (source.geometry.type !== "mesh")
-          throw new Error(
-            "Actual source assembly member is not its mesh: " + source.id,
-          );
-        let maximumFloat32ReplayDifference = 0;
-        for (let at = 0; at < interval.vertexCount * 3; at++)
-          maximumFloat32ReplayDifference = Math.max(
-            maximumFloat32ReplayDifference,
-            Math.abs(
-              actual[interval.vertexOffset * 3 + at] -
-                Math.fround(source.geometry.mesh.positions[at]),
-            ),
-          );
-        if (maximumFloat32ReplayDifference !== 0)
-          throw new Error(
-            "Actual static accessor differs from its posed source member: " +
-              source.id,
-          );
-        const assetIndices = primitive.getIndices()!.getArray()!;
-        const positions: number[] = [];
-        for (
-          let at = interval.vertexOffset * 3;
-          at < (interval.vertexOffset + interval.vertexCount) * 3;
-          at++
-        )
-          positions.push(actual[at]);
-        const indices: number[] = [];
-        for (
-          let at = interval.indexOffset;
-          at < interval.indexOffset + interval.indexCount;
-          at++
-        )
-          indices.push(assetIndices[at] - interval.vertexOffset);
-        const float32Mesh = { ...source.geometry.mesh, positions, indices };
+        const float32Mesh = this.readMember(primitive, interval, model);
         const float32Topology = inspectAutoMovieMeshTopology(float32Mesh);
         const float32Admission = validateMeshTopology({
           mesh: float32Mesh,
@@ -146,12 +153,27 @@ export class HumanBodyAnatomicalArtifactWriter {
             : { sourceVertices: account.sourceVertices }),
           vertices: interval.vertexCount,
           indices: interval.indexCount,
-          maximumFloat32ReplayDifference,
+          maximumFloat32ReplayDifference: 0,
           float32Topology,
           float32Admission,
           qualification: account.qualification,
           source: account.source,
           clinical: account.clinical,
+        });
+      }
+      const native = record.qualification.nativeSubcutaneous;
+      for (const member of native?.members ?? []) {
+        const interval = record.geometry.parts.find((part) => part.id === member.id)!;
+        const mesh = this.readMember(primitive, interval, model, member.meshDigest);
+        nativeReadings.push({
+          ...member,
+          nativeSource: native!.source,
+          finalExteriorDigest: native!.exteriorDigest,
+          vertices: interval.vertexCount,
+          indices: interval.indexCount,
+          maximumFloat32ReplayDifference: 0,
+          float32Topology: inspectAutoMovieMeshTopology(mesh),
+          meaning: "One disjoint boundary member can be open; the exporter validates their complete carrying material primitive. Original layer failures remain separate.",
         });
       }
     }
@@ -162,6 +184,11 @@ export class HumanBodyAnatomicalArtifactWriter {
       throw new Error(
         "Static readback omitted an actual source assembly member.",
       );
+    const expectedNative = layers.flatMap((layer) => layer.nativeSubcutaneous?.members.map((member) => prefix + member.id) ?? []);
+    if (nativeReadings.length !== expectedNative.length ||
+        new Set(nativeReadings.map((reading) => reading.id)).size !== nativeReadings.length ||
+        expectedNative.some((id) => !nativeReadings.some((reading) => reading.id === id)))
+      throw new Error("Static readback omitted an actual native subcutaneous boundary member.");
     const refused = readings.filter(
       (reading) => !reading.float32Admission.success,
     );
@@ -181,6 +208,7 @@ export class HumanBodyAnatomicalArtifactWriter {
     return {
       glbSha256: this.hash(bytes),
       sourceMembers: readings,
+      nativeSubcutaneousMembers: nativeReadings,
       qualification:
         "actual static source interval and Float32 replay only; anatomy/clearance/GPU not certified",
     };
@@ -235,12 +263,14 @@ export class HumanBodyAnatomicalArtifactWriter {
       await createHumanBodyAssemblyExportQualification(
         candidate,
         build.evaluatedDocument,
+        "",
+        build.layerObservations,
       ),
     );
     this.writeAsset("body", asset);
     fs.writeFileSync(
       path.join(this.output, "body-readback.json"),
-      JSON.stringify(await this.readback(asset.glb, build.model, ""), null, 2),
+      JSON.stringify(await this.readback(asset.glb, build.model, "", build.layerObservations), null, 2),
     );
   }
 

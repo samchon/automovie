@@ -1,4 +1,5 @@
 import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
+import type { IAutoMovieHumanBodyNativeSubcutaneousQualification } from "../../export/IAutoMovieHumanBodyNativeSubcutaneousQualification";
 
 /**
  * Native layer observations of one evaluated skin, separate from face admission.
@@ -40,4 +41,7 @@ export interface IHumanBodyLayerObservation extends Omit<
 
   /** Disjoint outer, inner and nonempty rim members composing the actual subcutaneous shell. */
   subcutaneousShellParts: readonly string[];
+
+  /** Single native SAT provenance and actual members, separate from static atlas sources. */
+  nativeSubcutaneous?: IAutoMovieHumanBodyNativeSubcutaneousQualification;
 }

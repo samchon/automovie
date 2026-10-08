@@ -63,6 +63,8 @@ export function appendHumanBodyLayers(
       indices: surface.indices,
       field,
       exterior,
+      nativeSource: basis.anatomicalAssembly?.nativeSubcutaneous?.surface === surface.id
+        ? basis.anatomicalAssembly.nativeSubcutaneous : undefined,
     });
     parts.push(...layer.parts);
     materials.push(layer.material);

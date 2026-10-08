@@ -141,8 +141,11 @@ export function readHumanBodyAnatomicalCompileInputs(
       "Source assembly plan differs from its actual registered shape.",
     );
   const declared = new Set(typia.reflect.literals<AutoMovieHumanBodyPartId>());
-  const ids = originalAssembly.parts.map((part) => part.id);
-  if (new Set(ids).size !== ids.length || ids.some((id) => !declared.has(id)))
+  const originalIds = [
+    ...originalAssembly.parts.map((part) => part.id),
+    ...(originalAssembly.nativeSubcutaneous === undefined ? [] : [originalAssembly.nativeSubcutaneous.id]),
+  ];
+  if (new Set(originalIds).size !== originalIds.length || originalIds.some((id) => !declared.has(id)))
     throw new Error("Source assembly repeats or invents an anatomical owner.");
   for (const part of originalAssembly.parts)
     for (const surface of part.surfaces)
@@ -171,6 +174,9 @@ export function readHumanBodyAnatomicalCompileInputs(
         layerRecipe: stage === "layer-registration" ? hash(fs.readFileSync(
           path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
         )) : undefined,
+        layerRegistrationRecipe: stage === "layer-registration" ? hash(fs.readFileSync(
+          path.resolve(__dirname, "registerHumanBodySkinLayers.ts"),
+        )) : undefined,
       }),
     ).slice(0, 16);
   const assembly = { ...originalAssembly, basis: candidateId };
@@ -195,6 +201,11 @@ export function readHumanBodyAnatomicalCompileInputs(
       producer: path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
     });
   fs.writeFileSync(path.join(output, "registered-source-assembly.json"), JSON.stringify(assembly));
+  fs.writeFileSync(path.join(output, "registered-source-rig.json"), JSON.stringify(assembly.rig));
+  const ids = [
+    ...assembly.parts.map((part) => part.id),
+    ...(assembly.nativeSubcutaneous === undefined ? [] : [assembly.nativeSubcutaneous.id]),
+  ];
   const person = parseHumanPersonDocument(
     fs.readFileSync(resolve(plan.personDocument), "utf8"),
     originalAssembly,

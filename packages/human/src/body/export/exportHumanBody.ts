@@ -59,6 +59,9 @@ export async function exportHumanBody(
   atlas?: IAutoMovieHumanBodyAtlasQualification,
   assembly?: IAutoMovieHumanBodyAssemblyQualification,
 ): Promise<IAutoMovieHumanGltfExport> {
+  if (assembly?.nativeSubcutaneous === undefined &&
+      model.parts.some((part) => part.id.startsWith("native-subcutaneous:")))
+    throw new Error("Native subcutaneous export needs its actual field/exterior/member qualification.");
   if (
     atlas === undefined &&
     model.parts.some((part) => /^anatomical-atlas:/.test(part.id))

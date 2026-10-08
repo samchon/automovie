@@ -139,6 +139,8 @@ export function createConnectedBodyRuntime(
         await createHumanBodyAssemblyExportQualification(
           basis,
           built.evaluatedDocument,
+          "",
+          built.layerObservations,
         ),
       );
       return { operation: "export", glb };

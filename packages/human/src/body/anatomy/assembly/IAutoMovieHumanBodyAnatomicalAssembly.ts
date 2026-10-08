@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodySourceRig } from "../articulation/rig/IAutoMovieHumanBodySourceRig";
 import type { IAutoMovieHumanBodyExteriorBinding } from "../binding/IAutoMovieHumanBodyExteriorBinding";
 import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
+import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "./IAutoMovieHumanBodyNativeSubcutaneousSource";
 
 /**
  * One registered anatomical source graph and its coarse tissue geometry.
@@ -56,6 +57,14 @@ export interface IAutoMovieHumanBodyAnatomicalAssembly {
   rig: IAutoMovieHumanBodySourceRig;
   /** Actual acquired/authored boundary members, retaining each closed id/tissue pair. */
   parts: readonly IAutoMovieHumanBodySourcePart[];
+
+  /**
+   * Registered native field owning the subcutaneous boundary on the final
+   * exterior. Its logical identity must not also occur in static parts.
+   * Omission preserves the earlier independently supplied static parts.
+   */
+  nativeSubcutaneous?: IAutoMovieHumanBodyNativeSubcutaneousSource;
+
   /** Reproducible common registration, named references and unresolved limits. */
   registration: string;
 }
