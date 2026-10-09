@@ -47,6 +47,7 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle) {
     spans: () => viewer.spans(),
     address: () => viewer.address(),
     admission: () => viewer.admission(),
+    rigReading: () => viewer.rigReading?.(),
     exportConstruction: () => run(() => viewer.exportConstruction()),
     periocularMappings: () => viewer.periocularMappings?.(),
     png: () => viewer.png(),

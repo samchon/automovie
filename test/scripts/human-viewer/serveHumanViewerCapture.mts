@@ -215,6 +215,11 @@ function dispatchHumanViewerCapture(
                 ms: performance.now() - before,
               });
             }
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            request.check();
+            response.setHeader("X-Human-Revision", selectedRevision);
+            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
             return json({ revision: selectedRevision, warmed });
           } else if (url.pathname === "/compare") {
             if (against === null)
@@ -306,6 +311,43 @@ function dispatchHumanViewerCapture(
             return;
           }
           if (address.operation === "construct") {
+            if (url.pathname === "/parts") {
+              // Read the completed resident's identity, admission and values
+              // together. A page or selection changed after capture refuses.
+              const readings = await request.run(() =>
+                props.lifetime.run(() =>
+                  props.page().evaluate(() => {
+                    const viewer = (window as unknown as IHumanViewerWindow)
+                      .__humanViewer;
+                    return {
+                      revision: viewer.revision(),
+                      address: viewer.address(),
+                      admission: viewer.admission(),
+                      parts: viewer.parts(),
+                      periocularMappings: viewer.periocularMappings?.(),
+                      rigReading: viewer.rigReading?.(),
+                    };
+                  }),
+                ),
+              );
+              if (readings.revision !== selectedRevision ||
+                  props.readyRevision() !== selectedRevision)
+                throw new Error("Source changed during request");
+              if (serializeHumanViewerAddress(readings.address) !==
+                  serializeHumanViewerAddress(address))
+                throw new Error("Displayed selection changed during construction observation.");
+              if (readings.admission === null)
+                throw new Error("Construction observation is missing its admission report.");
+              request.check();
+              response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
+              response.setHeader("X-Human-Construction-Accepted", String(readings.admission.accepted));
+              response.setHeader("X-Human-Construction-Failures", String(readings.admission.failures.length));
+              const parts: IHumanViewerConstructionPartsResponse = {
+                ...readings,
+                admission: readings.admission,
+              };
+              return json(parts);
+            }
             const admission = await request.run(() =>
               props.lifetime.run(() =>
                 props
@@ -329,25 +371,6 @@ function dispatchHumanViewerCapture(
               "X-Human-Construction-Failures",
               String(admission.failures.length),
             );
-            if (url.pathname === "/parts") {
-              const readings = await request.run(() =>
-                props.lifetime.run(() =>
-                  props.page().evaluate(() => {
-                    const viewer = (window as unknown as IHumanViewerWindow)
-                      .__humanViewer;
-                    return {
-                      parts: viewer.parts(),
-                      periocularMappings: viewer.periocularMappings?.(),
-                    };
-                  }),
-                ),
-              );
-              const parts: IHumanViewerConstructionPartsResponse = {
-                admission,
-                ...readings,
-              };
-              return json(parts);
-            }
           }
           response.setHeader(
             "X-Render-Ms",
@@ -365,6 +388,10 @@ function dispatchHumanViewerCapture(
                   ),
               ),
             );
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            request.check();
+            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
             return json(
               parts.map((name) => ({
                 name,
@@ -381,7 +408,12 @@ function dispatchHumanViewerCapture(
             const file = props.thumbnailFile(url.search);
             if (file !== null) await writeHumanViewerThumbnail(file, png);
           }
+          if (props.readyRevision() !== selectedRevision)
+            throw new Error("Source changed during request");
           request.check();
+          // Final async work may have observed an inventory edit while the
+          // same last-good page remains drawable. Label that page truthfully.
+          response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
           const before = performance.now();
           response.setHeader("Content-Type", "image/png");
           response.end(png);

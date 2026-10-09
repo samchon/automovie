@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
 import type { IConnectedBodyConstructionExportResult } from "@automovie/playground/src/human/body/IConnectedBodyConstructionExportResult";
+import type { IConnectedBodyRigReading } from "@automovie/playground/src/human/body/IConnectedBodyRigReading";
 import type * as THREE from "three";
 
 /**
@@ -17,6 +18,9 @@ export interface IHumanViewerResident<Stage> {
 
   /** Actual construction admission, never inferred from drawing success. */
   admission?: IAutoMovieHumanConstructionAdmission;
+
+  /** Existing placement readings accompanying this resident's actual construction. */
+  rigReading?: IConnectedBodyRigReading;
 
   /** Encode this resident's original document through its product viewport. */
   exportConstruction?: () => Promise<IConnectedBodyConstructionExportResult>;

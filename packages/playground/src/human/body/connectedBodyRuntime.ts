@@ -30,6 +30,7 @@ import { describeConnectedBodyConstructionProgress } from "./describeConnectedBo
 import { readConnectedBodyContacts } from "./readConnectedBodyContacts";
 import { readConnectedBodyFemoralHeads } from "./readConnectedBodyFemoralHeads";
 import { readConnectedBodyHumeralHeads } from "./readConnectedBodyHumeralHeads";
+import { readConnectedBodyRigReading } from "./readConnectedBodyRigReading";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -115,6 +116,7 @@ export function createConnectedBodyRuntime(
         femoralHeads: null,
         groundSupport: null,
         extras: { bones: constructed.bones, landmarks: constructed.landmarks },
+        rigReading: readConnectedBodyRigReading(constructed),
       };
     }
     if (request.operation === "armsDown") {

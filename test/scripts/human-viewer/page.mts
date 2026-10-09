@@ -272,6 +272,7 @@ async function main(): Promise<void> {
         return current;
       },
       admission: () => residents.get(shownKey)?.admission ?? null,
+      rigReading: () => residents.get(shownKey)?.rigReading,
       exportConstruction: async () => {
         const address = current;
         if (address === undefined) throw new Error("No model has been displayed.");

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readConnectedBodyRigReading } from "@automovie/playground/src/human/body/readConnectedBodyRigReading";
 
 import type { IHumanBodyConstructionRigReading } from "./IHumanBodyConstructionRigReading";
 import type { IWriteHumanBodyConstructionRigReadingProps } from "./IWriteHumanBodyConstructionRigReadingProps";
@@ -22,29 +23,10 @@ export function writeHumanBodyConstructionRigReading(
   props: IWriteHumanBodyConstructionRigReadingProps,
 ): void {
   const body = props.person?.body ?? props.body;
-  const source = body.anatomicalRig;
   const reading: IHumanBodyConstructionRigReading = {
-    modelId: (props.person?.model ?? body.model).id,
+    ...readConnectedBodyRigReading(body, (props.person?.model ?? body.model).id, props.person?.bones),
     generation: props.generation,
     sourceAssemblySha256: props.sourceAssemblySha256,
-    bodyDocument: body.evaluatedDocument,
-    bodySkeleton: body.skeleton,
-    bodyBones: body.bones,
-    bodyLandmarks: body.landmarks,
-    personBones: props.person?.bones,
-    ...(source === undefined
-      ? {}
-      : {
-          anatomicalBones: Array.from(source.bones, ([bone, transform]) => ({
-            bone,
-            ...transform,
-          })),
-          anatomicalProjections: Array.from(
-            source.projections,
-            ([bone, transform]) => ({ bone, ...transform }),
-          ),
-        }),
-    groundPlaneHeightMetres: body.groundPlaneHeightMetres,
   };
   fs.writeFileSync(
     path.join(props.directory, "rig-reading.json"),
