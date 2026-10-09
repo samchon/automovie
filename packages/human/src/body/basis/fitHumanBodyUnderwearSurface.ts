@@ -1,7 +1,7 @@
 import { assembleAutoMovieQuadraticProgram, solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
 
 import { HumanMeshNormalDomainError } from "../../common/mesh/HumanMeshNormalDomainError";
-import { createHumanBodyUnderwearLiftLinearizer } from "./createHumanBodyUnderwearLiftLinearizer";
+import { createHumanBodyUnderwearFittingLinearizer } from "./createHumanBodyUnderwearFittingLinearizer";
 import { createHumanBodyUnderwearSurfaceEvaluator } from "./createHumanBodyUnderwearSurfaceEvaluator";
 import type { IHumanBodyUnderwearFitObservation } from "./IHumanBodyUnderwearFitObservation";
 import type { IHumanBodyUnderwearFittingProposal } from "./IHumanBodyUnderwearFittingProposal";
@@ -18,7 +18,8 @@ import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrial
  * Phase I obtains an L1 feasibility proposal, then a proximal proposal scaled
  * by its actual full-affine decrease and normalized point/edge step metric.
  * Rejected proposals resolve the same model at increased numerical curvature,
- * rather than halving one fixed target toward bitwise equality. The anchored model
+ * while accepted proposals reduce curvature down to the first problem-derived
+ * positive coefficient, retained within this material invocation. The anchored model
  * must majorize actual complete merit; original strict feasibility
  * alone admits physical geometry. Native calls and actual trials share one work bound. The original
  * nonlinear field and transported-normal lift are evaluated after every step;
@@ -70,7 +71,8 @@ export function fitHumanBodyUnderwearSurface(
       } catch (error) { callbackFailed = true; throw error; }
     },
   });
-  const linearizeLift = createHumanBodyUnderwearLiftLinearizer(input);
+  const linearize = createHumanBodyUnderwearFittingLinearizer(input,
+    (reason, current) => fail(reason, current));
   const edges: IHumanBodyUnderwearMaterialEdge[] = [], seen = new Set<string>();
   const used = new Uint8Array(count);
   for (let t = 0; t < indices.length; t += 3) for (let k = 0; k < 3; k++) {
@@ -134,42 +136,6 @@ export function fitHumanBodyUnderwearSurface(
     if (!feasible(final)) fail("Garment final geometry fails an original actual condition", final);
     if (observations.length !== 0) observations[observations.length - 1].trialFailures = trialFailures;
     return { positions: final.base, evaluation: final, observations };
-  };
-  const linearize = (current: IHumanBodyUnderwearSurfaceEvaluation): IHumanBodyUnderwearFittingLinearization => {
-    const lift = linearizeLift(current);
-    const nonlinear: IAutoMovieQuadraticRow[] = [];
-    const elasticGroups: number[] = [];
-    let elasticCount = 0;
-    let violationSum = 0;
-    for (let v = 0; v < count; v++) {
-      const at = current.base.slice(v * 3, v * 3 + 3), reading = envelope.read(at);
-      if (!Number.isFinite(reading.distance) || !reading.gradient.every(Number.isFinite))
-        fail("Garment Phase I has no finite original field linearization", current);
-      const value = (reading.distance - rho) / rho;
-      violationSum += Math.max(0, value);
-      if (reading.distance === 0) continue;
-      let upper = -value;
-      for (let k = 0; k < 3; k++)
-        upper += reading.gradient[k] * (at[k] - points[v * 3 + k]) / rho;
-      nonlinear.push({ indices: [v * 3, v * 3 + 1, v * 3 + 2],
-        weights: reading.gradient, lower: null, upper });
-      elasticGroups.push(elasticCount++);
-    }
-    const liftValues = new Map<string, number>();
-    const liftGroups = new Map<string, number>();
-    for (const row of lift.rows) {
-      const key = row.kind + ":" + row.triangle + ":" + row.corner;
-      liftValues.set(key, Math.min(liftValues.get(key) ?? Infinity, row.value));
-      if (!liftGroups.has(key)) liftGroups.set(key, elasticCount++);
-      let upper = row.value;
-      const weights = row.gradient.map((value) => -rho * value);
-      for (let k = 0; k < row.indices.length; k++)
-        upper += weights[k] * (current.base[row.indices[k]] - points[row.indices[k]]) / rho;
-      nonlinear.push({ indices: row.indices, weights, lower: null, upper });
-      elasticGroups.push(liftGroups.get(key)!);
-    }
-    for (const value of liftValues.values()) violationSum += Math.max(0, -value);
-    return { rows: nonlinear, elasticGroups, elasticCount, lift, violationSum };
   };
   const spend = (current: IHumanBodyUnderwearSurfaceEvaluation,
     model: IHumanBodyUnderwearFittingLinearization): void => {
@@ -384,6 +350,7 @@ export function fitHumanBodyUnderwearSurface(
     return finish(current);
   let model = linearize(current);
   let coefficient: number | undefined;
+  let minimumCoefficient: number | undefined;
   while (!feasible(current)) {
     if (model.lift.unavailable.length > 0)
       fail("Garment infeasible-start restoration has unavailable actual lift derivatives", current, model);
@@ -393,6 +360,7 @@ export function fitHumanBodyUnderwearSurface(
     let previous: IHumanBodyUnderwearFittingProposal | null = null;
     for (;;) {
       const proposal = phaseOneTarget(current, model, selected, coefficient);
+      minimumCoefficient = minimumCoefficient ?? proposal.coefficient;
       if (!proposal.base.every(Number.isFinite))
         fail("Garment affine restoration produced unavailable candidate coordinates: " + JSON.stringify(proposal), current, model);
       if (!(proposal.metricSquared > 0) || !Number.isFinite(proposal.metricSquared) ||
@@ -445,7 +413,8 @@ export function fitHumanBodyUnderwearSurface(
             failure = "Garment failed agreement has no finite representably increasing model curvature: " + String(required) + " -> " + String(nextCoefficient);
         }
       }
-      proposal.nextCoefficient = nextCoefficient;
+      proposal.nextCoefficient = accepted
+        ? Math.max(minimumCoefficient, proposal.coefficient / 2) : nextCoefficient;
       if (failure !== null) { proposal.decision = "failed-model"; proposal.failureReason = failure; }
       const { base, normalizedCoordinates, ...scalars } = proposal;
       input.observeFitting?.("garment-proposal-evaluated", {
@@ -455,7 +424,7 @@ export function fitHumanBodyUnderwearSurface(
         garmentGeometryFailures: trial?.violations.length,
       });
       if (failure !== null) fail(failure + ": " + JSON.stringify(proposal), current, model);
-      coefficient = accepted ? proposal.coefficient : nextCoefficient;
+      coefficient = proposal.nextCoefficient;
       if (accepted) { current = trial!; model = trialModel!; break; }
       previous = proposal;
     }

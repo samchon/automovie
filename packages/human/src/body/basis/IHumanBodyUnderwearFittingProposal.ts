@@ -52,7 +52,7 @@ export interface IHumanBodyUnderwearFittingProposal {
   derivativeUnavailable: number | null;
   /** Actual line parameter; Phase I evaluates each newly optimized proposal in full. */
   step: number;
-  /** Next numerical coefficient after a rejected agreement, absent after acceptance. */
+  /** Proposed next material-local coefficient: halved above the first problem-derived positive floor after acceptance, or increased after rejection. A failureReason prevents adoption of an unsuccessful attempt. */
   nextCoefficient?: number;
   /** Exact owned terminal model failure; absent on ordinary rejection or acceptance. */
   failureReason?: string;
