@@ -4,9 +4,19 @@
 
 - Ground anatomy in scientific evidence. State assumptions and uncertainty. Preserve source provenance and rights.
 - Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
-- Develop connected anatomy. Verify each part with its neighbors through geometry and current hardware renders.
+- Develop anatomy as connected parts.
 - Distinguish numerical, clinical and visual judgments. Missing or refused results remain unverified.
 - Preserve the last valid state when an operation fails.
+
+## Visual debugging
+
+Follow [3D modeling](../3d-modeling/SKILL.md) for measurement and [viewer verification](../viewer-verification/SKILL.md) for rendered observation.
+
+- Inspect the current final geometry through its actual consumer with a hardware renderer. Enlarge the affected region and inspect it at use distance.
+- Inspect opposing views and assembled neighbors in the required states.
+- Measure landmarks, distances and angles on the same geometry that renders. State units, coordinate frames and measurement uncertainty; validate quantitative readings.
+- Compare the render with the engine's resolved geometry to distinguish viewer faults from engine or data faults.
+- Compare before and after under matching conditions. After each correction, render again and read the output directly. Accept demonstrated effects and record unobserved results separately.
 
 ## Supervision
 
