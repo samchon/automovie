@@ -33,12 +33,16 @@ type PartPlan = {
  * three-way tie). The resulting compact part indices, output correspondence,
  * original source ordinals and joint order depend only on the admitted basis.
  * They are reused across poses and shape edits; the returned evaluator checks
- * the builder's corner order and each render vertex against the same build's
+ * the builder's original source-region corner order and each vertex against the same build's
  * connected posed skin, then copies that skin's metre positions and normals
  * into fresh parts. It never caches posed geometry or mutates input.
  * Both this plan and the render region use `humanBodyGpuRegion` for the
  * Float32 UV identity, so numerically different source corners that upload
  * as the same UV never create a false extra seam here.
+ * A garment-partitioned render model carries its same-evaluation pre-garment
+ * sourceSkinModel explicitly. That model supplies the original region table;
+ * every population, incidence, position and normal check still runs against
+ * the same posedSurfaces. Omission keeps the original render-model contract.
  *
  * This segmentation names contact witnesses, including self-contact inside
  * one dominant-bone region. A dominant skin weight is a rig attachment,
@@ -147,7 +151,8 @@ export function createHumanBodySegmenter(basis: IAutoMovieHumanBodyBasis): (
   }
   plans.sort((a, b) => a.bone - b.bone || a.region - b.region);
   return (built) => {
-    if (built.model.parts.length < regionCount)
+    const sourceModel = built.sourceSkinModel ?? built.model;
+    if (sourceModel.parts.length < regionCount)
       throw new Error(
         "The segment partition needs every built surface region.",
       );
@@ -162,7 +167,7 @@ export function createHumanBodySegmenter(basis: IAutoMovieHumanBodyBasis): (
         throw new Error(
           "The segment partition needs every connected posed skin surface.",
         );
-      const part = built.model.parts[region.index];
+      const part = sourceModel.parts[region.index];
       const geometry = part.geometry;
       if (geometry.type !== "mesh")
         throw new Error("A built body part must be a resident mesh.");
@@ -217,6 +222,6 @@ export function createHumanBodySegmenter(basis: IAutoMovieHumanBodyBasis): (
         transform: null,
       };
     });
-    return { model: { ...built.model, parts }, sources };
+    return { model: { ...sourceModel, parts }, sources };
   };
 }

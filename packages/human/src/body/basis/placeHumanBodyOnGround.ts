@@ -1,4 +1,5 @@
 import { validateModel } from "@automovie/engine";
+import type { IAutoMovieModel } from "@automovie/interface";
 
 import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
@@ -16,6 +17,8 @@ import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMo
  * rest landmarks stay fixed; posed bones, unsplit skin and every static part
  * receive that one translation so the person builder carries the head with
  * the same body. No weight, friction, balance or physiological claim follows.
+ * A supplied pre-garment sourceSkinModel receives that same translation;
+ * contact must not compare its old frame with the placed posedSurfaces.
  *
  * @evidence contracts/common.md#principled-implementation Subtracting the minimum final foot gap from every performed Y coordinate puts that minimum on the same fixed horizontal plane without changing relative geometry.
  * @evidence contracts/common.md#clear-and-simple-design One existing final-surface instrument determines one translation shared by the model, skin and posed bone frames.
@@ -65,9 +68,9 @@ export function placeHumanBodyOnGround(
       position: { ...bone.posed.position, y: bone.posed.position.y + shift },
     },
   });
-  const model = {
-    ...build.model,
-    parts: build.model.parts.map((part) => {
+  const translateModel = (input: IAutoMovieModel): IAutoMovieModel => ({
+    ...input,
+    parts: input.parts.map((part) => {
       if (
         part.geometry.type !== "mesh" ||
         part.transform !== null ||
@@ -87,7 +90,8 @@ export function placeHumanBodyOnGround(
         },
       };
     }),
-  };
+  });
+  const model = translateModel(build.model);
   const validation = validateModel({ model });
   if (!validation.success)
     throw new Error(
@@ -98,6 +102,9 @@ export function placeHumanBodyOnGround(
     ...build,
     groundPlaneHeightMetres,
     model,
+    ...(build.sourceSkinModel === undefined ? {} : {
+      sourceSkinModel: translateModel(build.sourceSkinModel),
+    }),
     posedSurfaces: build.posedSurfaces.map((surface) => ({
       ...surface,
       positions: translate(surface.positions),

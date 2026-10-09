@@ -3,6 +3,8 @@ import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/res
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
+import { composeHumanPersonUnderwearParts } from "./composeHumanPersonUnderwearParts";
+import { createHumanPersonBodyRegionParts } from "./createHumanPersonBodyRegionParts";
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
@@ -14,9 +16,7 @@ import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
 import { dressHumanPersonBody } from "./dressHumanPersonBody";
-import { clipHumanPersonMesh } from "../seam/clipHumanPersonMesh";
 import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
-import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
 import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
 import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import { measureHumanBoundaryDisplacement } from "../seam/measureHumanBoundaryDisplacement";
@@ -235,7 +235,7 @@ export function createHumanPersonBuilder(
       faceMaterials: faceBasis.materials,
     });
     const preparedBody = buildBody.prepare(bodyDocument);
-    const body = preparedBody.finish();
+    const body = preparedBody.finish(undefined, undefined, "defer");
     const faceDocument = deriveHumanPersonFace(document);
     const currentFace = buildFace(faceDocument);
     const face = currentFace.model;
@@ -281,9 +281,8 @@ export function createHumanPersonBuilder(
                   },
           });
 
-    const dressedBody = dressHumanPersonBody({
-      prepared: preparedBody, body, surface: bodySkin.index,
-      positions: bodyPosed, normals, faceVertices: faceCount,
+    const { body: dressedBody, garment } = dressHumanPersonBody({
+      prepared: preparedBody, body,
     });
     const physicalDomain =
       physicalSource === undefined
@@ -401,40 +400,13 @@ export function createHumanPersonBuilder(
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
       prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
-    for (const part of dressedBody.model.parts) {
-      const mesh = meshOfHumanPart(part);
-      const sources = bodyRegions.get(part.id);
-      if (sources === undefined) {
-        parts.push(prefixHumanPersonPart("body", part, mesh));
-        continue;
-      }
-      const clipped = clipHumanPersonMesh(mesh, sources, cut);
-      const retained = read(
-        clipped.mesh,
-        clipped.sources,
-        bodyPosed,
-        faceCount,
-      );
-      parts.push(
-        prefixHumanPersonPart(
-          "body",
-          part,
-          dropHumanMeshTriangles(
-            stitchHumanPersonBoundary({
-              mesh: retained,
-              sources: clipped.sources,
-              side: "body",
-              seam,
-              face: facePosed,
-              faceNormals: normals,
-              bodyBeforeCollar,
-              physicalBoundary,
-            }),
-            () => false,
-          ),
-        ),
-      );
-    }
+    const bodyRegionParts = createHumanPersonBodyRegionParts({
+      parts: dressedBody.model.parts, regions: bodyRegions, garment,
+      surface: bodySkin.index, cut,
+      place: (mesh, sources) => read(mesh, sources, bodyPosed, faceCount),
+      stitch: { seam, face: facePosed, faceNormals: normals, bodyBeforeCollar, physicalBoundary },
+    });
+    parts.push(...bodyRegionParts.parts);
 
     // how far the two documents' necks disagreed: the most the body's own
     // collar had to move to lie on the face's
@@ -442,11 +414,14 @@ export function createHumanPersonBuilder(
       seam.bodyLoop, bodyBeforeCollar, bodyPosed,
     );
 
+    const renderedParts = composeHumanPersonUnderwearParts({
+      parts, garment, regions: bodyRegionParts.garmentFields,
+    });
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,
       origin: "imported",
-      parts,
+      parts: renderedParts,
       materials: [
         ...face.materials.map((material) => ({
           ...material,
@@ -469,7 +444,7 @@ export function createHumanPersonBuilder(
       );
     return {
       model,
-      body,
+      body: preparedBody.wear(body),
       bones: [
         ...body.bones,
         ...resolveHumanPersonFaceBones({

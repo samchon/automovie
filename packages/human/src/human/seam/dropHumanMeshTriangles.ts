@@ -20,6 +20,8 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * corner table.
  * Physical source rows are copied and survivor references follow this same
  * compaction; unused source rows remain valid without renaming any source ID.
+ * An optional survivor receipt carries internal material fields through that
+ * exact renumbering; it adds no vertex, face or changed numerical operation.
  *
  * @evidence contracts/common.md#principled-implementation Removing every triangle with a marked corner and then the unreferenced vertices, with one renumbering applied to every parallel attribute array, is the standard compaction of an indexed mesh and keeps each attribute attached to its vertex.
  * @evidence contracts/common.md#clear-and-simple-design One pass marks the surviving triangles, one renumbers the vertices, and each attribute array is gathered by the same table.
@@ -38,6 +40,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 export function dropHumanMeshTriangles(
   mesh: IAutoMovieMesh,
   drop: (vertex: number) => boolean,
+  receiveSurvivors?: (vertices: readonly number[]) => void,
 ): IAutoMovieMesh {
   if (mesh.indices === null)
     throw new Error("Dropping triangles needs an indexed mesh.");
@@ -69,6 +72,7 @@ export function dropHumanMeshTriangles(
     });
     return output;
   };
+  receiveSurvivors?.(survivors);
   return {
     positions: gather(mesh.positions, 3),
     normals: mesh.normals === null ? null : gather(mesh.normals, 3),

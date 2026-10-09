@@ -8,10 +8,10 @@ import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBod
 /**
  * The plain default underwear a body document may wear.
  *
- * The builder cuts the posed skin's own triangles inside the garment's
- * regions. A positive span restores that connected material to its qualified
- * exterior-ball envelope before applying the offset along transported fitted
- * normals. Failed restoration or lift refuses construction. The garment's
+ * The builder partitions the final skin into complementary exposed-skin and
+ * fabric material regions. This basic garment has zero geometric thickness;
+ * it adds no normal offset, crease restoration or independent cloth surface.
+ * Actual source topology, normals and final mesh admission remain applicable. The garment's
  * regions are rules on the body's joint landmarks and named skin points,
  * never vertex lists for one person or one basis (`HUMAN_BODY_UNDERWEAR`).
  *
@@ -44,23 +44,6 @@ export namespace IAutoMovieHumanBodyUnderwear {
 
     /** Fabric roughness in [0,1]. */
     roughness: number;
-
-    /**
-     * Signed normal offset from the cut or restored material surface, metres.
-     * Restoration transports supplied posed normals to its fitted mesh before
-     * applying this same offset. Zero span retains the supplied cut normals.
-     */
-    offsetMetres: number;
-
-    /**
-     * Diameter of the exterior balls used for connected crease restoration,
-     * metres. Positive span restores the original cut material to that shared
-     * scalar envelope before its normal offset; failed or nonconvergent
-     * restoration refuses the garment. Zero disables restoration and still
-     * applies offsetMetres. This geometric condition supplies no fabric
-     * bending-radius or fixed crease-width bridging guarantee.
-     */
-    spanMetres: number;
 
     /**
      * Bones whose skin is never covered, with every bone below them: a

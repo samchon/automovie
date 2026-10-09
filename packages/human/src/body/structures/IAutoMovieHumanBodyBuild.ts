@@ -45,6 +45,17 @@ export interface IAutoMovieHumanBodyBuild {
   /** Posed static model: skinless parts, no skeleton, validated as a resident model. */
   model: IAutoMovieModel;
 
+  /**
+   * The same evaluation's source-region model before a garment material split.
+   * Contact segmentation checks its original UV/source population against
+   * posedSurfaces with the same strict incidence, position and normal guards.
+   * It retains the evaluated frame, material identities and physical sources;
+   * no geometry is regenerated. Omission means model still has that original
+   * region population. This derived record is not another authored document
+   * and is never appended to the rendered or exported model.
+   */
+  sourceSkinModel?: IAutoMovieModel;
+
   /** Posed connected skin per basis surface, before render/material splitting. */
   posedSurfaces: IAutoMovieHumanBodyPosedSurface[];
 

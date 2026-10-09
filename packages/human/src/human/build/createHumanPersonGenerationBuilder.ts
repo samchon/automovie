@@ -4,6 +4,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
+import { composeHumanPersonUnderwearParts } from "./composeHumanPersonUnderwearParts";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { placeHumanLocalModelPart } from "../../common/mesh/placeHumanLocalModelPart";
@@ -109,7 +110,7 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  * @evidence contracts/modeling.md#part-identity-and-grouping The person is a group of the two partitions' parts under `face:` and `body:` prefixes; the boundary introduces no third skin identity.
  * @evidence contracts/modeling.md#spatial-conventions One metre, Y-up, +Z-forward frame; the neutral-to-shaped conversion of the head is the head transform's named shift.
  * @evidence contracts/modeling.md#shared-boundaries Every shared sample has one rest value and one skinning row, so both halves read the same position, and one source normal field gives both the same normal.
- * @evidence contracts/modeling.md#emitted-geometry Emits the partition views' own triangles; no triangle is clipped, subdivided or dropped.
+ * @evidence contracts/modeling.md#emitted-geometry Skin assembly retains the partition views' incidence; requested underwear then splits its covered and uncovered render regions through the shared material-partition owner.
  * @evidenceExclude contracts/modeling.md#parameter-channels The evaluator consumes the partitions' channels through their owners and defines none.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The evaluator carries no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The partitions' owners admit their documents.
@@ -231,6 +232,7 @@ export function createHumanPersonGenerationBuilder(
           }
         : undefined,
       "defer",
+      "defer",
     );
     // A fixed normal transport reads the mouthClose-zero reference of the same
     // shape, other expression and body; omission is zero at the face owner.
@@ -268,9 +270,8 @@ export function createHumanPersonGenerationBuilder(
             },
     });
 
-    const dressedBody = dressHumanPersonBody({
-      prepared: preparedBody, body, surface: bodyIndex,
-      positions: bodyPosed, normals, faceVertices: faceCount,
+    const { body: dressedBody, garment } = dressHumanPersonBody({
+      prepared: preparedBody, body,
     });
     const domain = humanPhysicalSourceDomain(document.id, generation.id);
     const placed = face.parts
@@ -319,9 +320,12 @@ export function createHumanPersonGenerationBuilder(
     const parts: IAutoMovieModel["parts"] = placed.map((part) =>
       prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
+    const garmentFields = new Map<string, { field: readonly number[]; sources: readonly number[] }>();
     for (const part of dressedBody.model.parts) {
       const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
+      const garmentRegion = garment?.regions.get(part.id);
+      if (garmentRegion !== undefined) garmentFields.set("body:" + part.id, garmentRegion);
       parts.push(
         prefixHumanPersonPart(
           "body",
@@ -355,11 +359,13 @@ export function createHumanPersonGenerationBuilder(
       prefixHumanPersonPart("body", part, meshOfHumanPart(part)),
     ));
     const failures = [...currentFace.admission.failures, ...(completedBody.layerAdmission?.failures ?? [])];
+    // Layer/source readings use the original joined skin before its material split.
+    const renderedParts = composeHumanPersonUnderwearParts({ parts, garment, regions: garmentFields });
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,
       origin: "imported",
-      parts,
+      parts: renderedParts,
       materials: [
         ...face.materials.map((material) => ({
           ...material,
@@ -442,7 +448,7 @@ export function createHumanPersonGenerationBuilder(
       admission: { ...currentFace.admission, accepted: failures.length === 0, failures },
       faceAdmission: currentFace.admission,
       model,
-      body: hasLayers ? completedBody : body,
+      body: preparedBody.wear(hasLayers ? completedBody : body),
       bones: [
         ...body.bones,
         ...resolveHumanPersonFaceBones({

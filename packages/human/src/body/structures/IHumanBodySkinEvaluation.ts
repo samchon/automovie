@@ -9,6 +9,9 @@ import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
  * one joined skin. No anatomical quantity has been solved and `skinModel`
  * contains the prepared skin and its existing exterior parts only; it is not
  * a completed anatomical body model or a replacement for the normal builder.
+ * The completed clothed build's optional sourceSkinModel is a different stage:
+ * its source regions are retained after assembly and placement, before the
+ * final garment material split. Preparation carries only its own skinModel.
  *
  * @evidence contracts/common.md#principled-implementation Skin and pose precede the complete person exterior, which precedes the internal source target solve.
  * @evidence contracts/common.md#clear-and-simple-design The existing body evaluation fields are retained while the unfinished anatomical model and quantities are excluded.
@@ -28,7 +31,7 @@ import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
  */
 export interface IHumanBodySkinEvaluation extends Omit<
   IAutoMovieHumanBodyBuild,
-  "model" | "anatomicalQuantities"
+  "model" | "anatomicalQuantities" | "sourceSkinModel"
 > {
   /** Validated exterior-only model, before internal anatomical parts are constructed. */
   skinModel: IAutoMovieModel;

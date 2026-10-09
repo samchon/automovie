@@ -1,4 +1,3 @@
-import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
 import type { IAutoMovieHumanBodyUnderwearParts } from "./IAutoMovieHumanBodyUnderwearParts";
 import type { IHumanBodyExteriorRestReference } from "../anatomy/binding/IHumanBodyExteriorRestReference";
@@ -38,20 +37,25 @@ export interface IHumanBodyPreparedBuild {
    * Default completion constructs registered layers after final root placement.
    * A person uses `defer` until its actual render skin carries joined physical
    * incidence, then completes layers through `appendHumanBodyLayers` once.
+   * The separate garment defer preserves original region corner correspondence
+   * until the Person's final skin placement and layer readings are complete.
    */
   finish(
     reference?: IHumanBodyExteriorRestReference,
     layers?: "defer",
+    garment?: "defer",
   ): IAutoMovieHumanBodyBuild;
 
   /**
-   * Build this admitted document's garment on the consumer's final native
-   * skin. Omitted rest retains the prepared shape's rest coverage reference;
+   * Prepare the admitted garment's rest coverage for its final skin consumer.
+   * Omitted rest retains the prepared shape's rest coverage reference;
    * a supplied rest uses the same native surface order in the common frame.
    * No garment choice returns undefined. The source document remains owned.
    */
   dress(
-    posed: IAutoMovieHumanBodyPosedSurface[],
     rest?: IAutoMovieHumanBodyUnderwearRest,
   ): IAutoMovieHumanBodyUnderwearParts | undefined;
+
+  /** Compose the same garment on a completed, still-undressed standalone Body. */
+  wear(build: IAutoMovieHumanBodyBuild): IAutoMovieHumanBodyBuild;
 }

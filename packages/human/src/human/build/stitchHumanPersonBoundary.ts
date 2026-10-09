@@ -16,6 +16,8 @@ import { assertHumanPersonSubdivision } from "./assertHumanPersonSubdivision";
  * has no intervening ribbon of numerically collinear triangles. Boundary
  * points and unit normals come from the evaluated face loop on both sides.
  * UVs, colour and relief remain the region's own, interpolated along its edge.
+ * An optional source-scalar receipt follows the same actual appended parent
+ * weights, after its attributes are produced; absence leaves geometry intact.
  * Boundary samples with exactly equal Float32 XYZ values share one parameter,
  * with face corners registered first. This owns the renderer's precision
  * partition before subdividing: distinct samples that the output format
@@ -222,6 +224,7 @@ export function stitchHumanPersonBoundary(
       output.colors.push(...weighted(output.colors, 3));
     if (output.reliefWeights !== undefined)
       output.reliefWeights.push(...weighted(output.reliefWeights, 1));
+    props.appendSourceScalar?.(vertex, vertices, weights);
     return vertex;
   };
   const edgePoints = (a: number, b: number): number[] | undefined => {

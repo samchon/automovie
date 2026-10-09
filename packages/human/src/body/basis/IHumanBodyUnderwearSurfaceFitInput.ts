@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyUnderwearProps } from "../structures/IAutoMovieHumanBodyUnderwearProps";
+import type { IHumanBodyConstructionProgress } from "../structures/IHumanBodyConstructionProgress";
 import type { IHumanBodyUnderwearEnvelope } from "./IHumanBodyUnderwearEnvelope";
 
 /**
@@ -10,8 +10,26 @@ export interface IHumanBodyUnderwearSurfaceFitInput {
   /** Complete original cut positions in posed skin metres. */
   points: readonly number[];
 
-  /** This invocation's existing construction observer, with the same synchronous failure semantics. */
-  observeFitting?: IAutoMovieHumanBodyUnderwearProps["observeFitting"];
+  /**
+   * This legacy crease-fit invocation's synchronous scalar observer, independent
+   * of the basic skin-material garment. Omission creates no progress readings;
+   * callback exceptions abort this same fit. It is not an authored document field.
+   */
+  observeFitting?: (
+    stage: Extract<IHumanBodyConstructionProgress["stage"],
+      "garment-component-read" | "garment-envelope-evaluated" |
+      "garment-initial-evaluated" | "garment-affine-program-assembled" |
+      "garment-native-round-completed" |
+      "garment-candidate-normals-evaluated" |
+      "garment-candidate-vertices-evaluated" |
+      "garment-candidate-faces-evaluated" |
+      "garment-candidate-evaluated" | "garment-proposal-evaluated">,
+    details: Pick<IHumanBodyConstructionProgress,
+      "completed" | "total" | "garmentSurface" | "garmentComponent" | "garmentPhase" | "garmentRound" |
+      "garmentWorkUsed" | "garmentWorkBound" | "garmentVariables" | "garmentRows" |
+      "garmentEntries" | "garmentMinimumNonzeroCoefficient" | "garmentMaximumCoefficient" |
+      "garmentFieldResidualMetres" | "garmentGeometryFailures" | "garmentFittingRound" | "garmentProposal">,
+  ) => void;
 
   /** Actual supplied outward directions at the original material samples. */
   normals: readonly number[];

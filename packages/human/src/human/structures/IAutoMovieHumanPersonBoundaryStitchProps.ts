@@ -51,4 +51,7 @@ export interface IAutoMovieHumanPersonBoundaryStitchProps {
 
   /** Canonical physical pairs aligned with the registered face loop. */
   physicalBoundary?: readonly IAutoMovieMeshPhysicalSource[];
+
+  /** Carry an internal source scalar through each actual appended stencil. */
+  appendSourceScalar?: (vertex: number, parents: readonly number[], weights: readonly number[]) => void;
 }

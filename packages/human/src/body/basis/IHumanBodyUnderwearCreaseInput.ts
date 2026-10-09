@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyUnderwearProps } from "../structures/IAutoMovieHumanBodyUnderwearProps";
+import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSurfaceFitInput";
 import type { IHumanBodyUnderwearSkinSurface } from "./IHumanBodyUnderwearSkinSurface";
 
 /** Actual posed skin, cut garment and existing garment table lengths. */
@@ -13,7 +13,7 @@ export interface IHumanBodyUnderwearCreaseInput {
   points: readonly number[];
 
   /** This invocation's existing construction observer, with the same synchronous failure semantics. */
-  observeFitting?: IAutoMovieHumanBodyUnderwearProps["observeFitting"];
+  observeFitting?: IHumanBodyUnderwearSurfaceFitInput["observeFitting"];
 
   /** Supplied outward directions at those exact material samples. */
   normals: readonly number[];
