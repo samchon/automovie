@@ -9,18 +9,22 @@
  * It requires PROVIDER/REPLAY and excludes oral fitting options. Its output
  * remains inspection-only with the full lip refusal recorded, not publication.
  *
- * WORK is a directory prepared by `prepare-mpfb-profile.py` and sampled by
- * `sample-mpfb-generation.py` (`acquisition.json`, `upstream/`, `sample/`);
- * `sample-source-generation.ts` runs both. OUTPUT is a new directory.
+ * WORK is a complete acquired native source (`acquisition.json`, `upstream/`,
+ * `sample/`). Normal `sample-source-generation.ts` verifies and imports the
+ * preserved licensed bytes through TypeScript, retaining original acquisition
+ * and sample provenance without fresh MPFB extraction. OUTPUT is new.
  *
  * PROVIDER is the authored head provider directory (its packet, neutral and
- * joints) and REPLAY the complete output of `replay-head-source-provider.py`
+ * joints) produced by `author-head-source-provider.ts` and
+ * `prepare-head-source-provider.ts`. REPLAY is the complete output of
+ * `replay-head-source-provider.ts`
  * over this same sample. They are given together or omitted together: with
  * them the compiler builds the current authored root and also writes its
  * source stage to `OUTPUT-source-stage`; without them it compiles the native
  * sampled skin only. TRAITS is the output directory of
- * `compile-head-trait-endpoints.py` over the same sample, authoring directory
- * and PROVIDER, and needs the provider pair.
+ * `compile-head-trait-endpoints.ts` over the same sample, authoring directory
+ * and PROVIDER, and needs the provider pair. Dimensional precision endpoints
+ * are optional, not a prerequisite for the acquired coarse neutral.
  *
  * Use it to recompile an existing work directory after a compiler change;
  * `compileHumanSourceGeneration` owns the stage order. After final head-row

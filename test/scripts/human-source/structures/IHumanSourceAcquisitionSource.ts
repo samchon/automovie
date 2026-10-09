@@ -1,5 +1,7 @@
 /**
- * One source as `prepare-mpfb-profile.py` observed it in a work directory.
+ * One acquired upstream source's preserved content, license and container facts.
+ * The normal TS importer rechecks actual file and license bytes against the
+ * pinned lock. Historical download state is retained, not newly claimed.
  *
  * @author Samchon
  */

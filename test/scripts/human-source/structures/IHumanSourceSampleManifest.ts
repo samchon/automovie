@@ -3,11 +3,12 @@ import type { IHumanSourceSamplePart } from "./IHumanSourceSamplePart.ts";
 import type { IHumanSourceSampleState } from "./IHumanSourceSampleState.ts";
 
 /**
- * `manifest.json` of one Blender sampling run (`sample-mpfb-generation.py`).
+ * `manifest.json` of one complete acquired native source sample.
  * Coordinates in every referenced file are Blender metres, Z up, facing -Y.
- * The manifest holds content and pinned tool versions only, so a rerun that
- * samples the same bytes writes the same manifest; the run clock lives in the
- * sampler's separate `run-environment.json`.
+ * The normal TS importer preserves these original content and tool records.
+ * Blender, extension and NumPy fields describe historical acquisition, not
+ * execution by the importer. Original host evidence stays separately in
+ * `run-environment.json`; no fresh extraction is inferred.
  *
  * @author Samchon
  */

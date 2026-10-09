@@ -1,11 +1,12 @@
 /**
- * What filling one product-excluded skin region did to the source neutral.
+ * The original sampled nipple product-exclusion's effect on the source neutral.
+ * Genital fill or anatomy registration is outside the normal source contract.
  *
  * @author Samchon
  */
 export interface IHumanSourceExcludedRegionReceipt {
   /** Which excluded region. */
-  region: "nipple" | "genital";
+  region: "nipple";
 
   /** Sampler files that define the region and its operator. */
   operator: string[];
