@@ -171,9 +171,12 @@ export function readHumanBodyAnatomicalCompileInputs(
         originalBody: hash(JSON.stringify(body.body)),
         assembly: hash(assemblyBytes),
         plan: hash(planBytes),
-        layerRecipe: stage === "layer-registration" ? hash(fs.readFileSync(
-          path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
-        )) : undefined,
+        layerRecipe: stage === "layer-registration" ? hash(JSON.stringify([
+          "author-body-layer-thickness.ts", "authorHumanBodyLayerThicknessField.ts",
+          "IHumanBodyLayerThicknessReceipt.ts", "readHumanBodyLayerThicknessAnchors.ts",
+        ].map((file) => [file, hash(fs.readFileSync(
+          path.resolve(__dirname, "../human-source/body-layer", file),
+        ))]))) : undefined,
         layerRegistrationRecipe: stage === "layer-registration" ? hash(fs.readFileSync(
           path.resolve(__dirname, "registerHumanBodySkinLayers.ts"),
         )) : undefined,
@@ -198,7 +201,7 @@ export function readHumanBodyAnatomicalCompileInputs(
   if (stage === "layer-registration")
     registerHumanBodySkinLayers({
       candidate, body, output,
-      producer: path.resolve(__dirname, "../human-source/body-anatomy/author_layer_thickness.py"),
+      producer: path.resolve(__dirname, "../human-source/body-layer/author-body-layer-thickness.ts"),
     });
   fs.writeFileSync(path.join(output, "registered-source-assembly.json"), JSON.stringify(assembly));
   fs.writeFileSync(path.join(output, "registered-source-rig.json"), JSON.stringify(assembly.rig));

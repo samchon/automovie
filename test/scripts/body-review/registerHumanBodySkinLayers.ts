@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import typia from "typia";
+import type { IHumanBodyLayerThicknessReceipt } from "../human-source/body-layer/IHumanBodyLayerThicknessReceipt.ts";
 
 import type { IRegisterHumanBodySkinLayersProps } from "./IRegisterHumanBodySkinLayersProps";
 
@@ -13,7 +14,7 @@ import type { IRegisterHumanBodySkinLayersProps } from "./IRegisterHumanBodySkin
  * Register a field produced from the actual derived body's native view.
  *
  * This normal production step writes its candidate view before invoking the
- * maintained Python producer. It consumes the exact generated field and keeps
+ * maintained TypeScript producer through its normal ttsx entry. It consumes the exact generated field and keeps
  * the producer's original receipt; no basis string or scalar is retargeted.
  * The body's identity already includes this producer's recipe digest. Adding
  * the field retains every original skin, shape, weight, rig and material row.
@@ -41,7 +42,15 @@ export function registerHumanBodySkinLayers(props: IRegisterHumanBodySkinLayersP
   const viewFile = path.join(props.output, "layer-native-input.body.json.gz");
   fs.writeFileSync(viewFile, viewBytes);
   const fieldOutput = path.join(props.output, "native-field");
-  const result = spawnSync("python", [props.producer, viewFile, fieldOutput], { windowsHide: true, encoding: "utf8" });
+  const ttscPackage = require.resolve("ttsc/package.json");
+  const bin: unknown = JSON.parse(fs.readFileSync(ttscPackage, "utf8")).bin;
+  if (bin === null || typeof bin !== "object" || !("ttsx" in bin) || typeof bin.ttsx !== "string")
+    throw new Error("Native thickness production needs the installed normal ttsx entry.");
+  const launcher = path.resolve(path.dirname(ttscPackage), bin.ttsx);
+  const project = path.resolve(__dirname, "../..");
+  const result = spawnSync(process.execPath, [launcher, "-P", path.join(path.dirname(props.producer), "tsconfig.json"), props.producer, viewFile, fieldOutput], {
+    cwd: project, windowsHide: true, encoding: "utf8",
+  });
   fs.writeFileSync(path.join(props.output, "layer-producer.stdout.log"), result.stdout ?? "");
   fs.writeFileSync(path.join(props.output, "layer-producer.stderr.log"), result.stderr ?? "");
   fs.writeFileSync(path.join(props.output, "layer-producer-execution.json"), JSON.stringify({
@@ -53,14 +62,24 @@ export function registerHumanBodySkinLayers(props: IRegisterHumanBodySkinLayersP
   const fieldBytes = fs.readFileSync(path.join(fieldOutput, "layer-thickness-field.json"));
   const field = typia.assertEquals<IAutoMovieHumanBodyLayerThicknessField>(JSON.parse(fieldBytes.toString("utf8")));
   const receiptBytes = fs.readFileSync(path.join(fieldOutput, "layer-thickness-receipt.json"));
-  const receipt: unknown = JSON.parse(receiptBytes.toString("utf8"));
-  if (receipt === null || typeof receipt !== "object" ||
-      !("bodyViewSha256" in receipt) || receipt.bodyViewSha256 !== hash(viewBytes) ||
+  const receipt = typia.assertEquals<IHumanBodyLayerThicknessReceipt>(JSON.parse(receiptBytes.toString("utf8")));
+  const repository = path.resolve(__dirname, "../../..");
+  const expectedRecipes: Record<string, string> = {};
+  for (const file of [
+    "author-body-layer-thickness.ts", "authorHumanBodyLayerThicknessField.ts",
+    "IHumanBodyLayerThicknessReceipt.ts", "readHumanBodyLayerThicknessAnchors.ts",
+  ]) {
+    const absolute = path.join(path.dirname(props.producer), file);
+    expectedRecipes[path.relative(repository, absolute).replaceAll("\\", "/")] = hash(fs.readFileSync(absolute));
+  }
+  if (Object.keys(receipt.recipes).length !== Object.keys(expectedRecipes).length ||
+      Object.entries(expectedRecipes).some(([file, digest]) => receipt.recipes[file] !== digest) ||
+      receipt.bodyViewSha256 !== hash(viewBytes) ||
       hash(fs.readFileSync(viewFile)) !== hash(viewBytes) ||
-      !("fieldSha256" in receipt) || receipt.fieldSha256 !== hash(fieldBytes) ||
-      !("producerSha256" in receipt) || receipt.producerSha256 !== hash(fs.readFileSync(props.producer)) ||
-      !("basis" in receipt) || receipt.basis !== props.candidate.id || field.basis !== props.candidate.id ||
-      !("vertices" in receipt) || receipt.vertices !== props.candidate.surfaces[0].positions.length / 3)
+      receipt.fieldSha256 !== hash(fieldBytes) ||
+      receipt.producerSha256 !== hash(fs.readFileSync(props.producer)) ||
+      receipt.basis !== props.candidate.id || field.basis !== props.candidate.id ||
+      receipt.vertices !== props.candidate.surfaces[0].positions.length / 3)
     throw new Error("Native layer receipt does not bind the actual view, field, producer and basis.");
   props.candidate.surfaces = props.candidate.surfaces.map((surface) => ({ ...surface, layerThickness: field }));
   assembly.parts = originalParts.filter((part) => part.id !== "subcutaneousAdipose");
