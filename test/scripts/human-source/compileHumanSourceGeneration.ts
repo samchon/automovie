@@ -26,6 +26,10 @@ import type { IHumanSourceGenerationOptions } from "./structures/IHumanSourceGen
  * Explicit completed-eye inspection uses verified checkpoint geometry through
  * these same owners and retains its full-stage refusal; ordinary compilation
  * still requires every source-neutral authoring stage to succeed.
+ * Attachment preparation requires an existing explicit-eye numerical document.
+ * Its unchanged source identity and scalar values are pinned before generation
+ * composition and checked again before publication. Parsing admits its schema
+ * and optical feasibility; it does not admit the new host, model or clinical fit.
  * Tracked published bases are read only.
  */
 export function compileHumanSourceGeneration(
@@ -38,6 +42,7 @@ export function compileHumanSourceGeneration(
   oralEvaluations?: number,
   tongueEvaluations?: number,
   inspectionCheckpoint?: string,
+  attachmentDocument?: string,
 ): string {
   if (
     inspectionCheckpoint !== undefined &&
@@ -53,6 +58,7 @@ export function compileHumanSourceGeneration(
   const options: IHumanSourceGenerationOptions = {
     work, output, repository, provider, replay, traitsDirectory,
     oralEvaluations, tongueEvaluations, inspectionCheckpoint,
+    attachmentDocument,
   };
   const inputs = prepareHumanSourceGenerationInputs(options);
   const prepared = replayHumanSourceGeneration(options, inputs);

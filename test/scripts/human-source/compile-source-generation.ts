@@ -2,7 +2,12 @@
  * Compile source generation G1 from one sampled work directory and its
  * authored head stages (#2689), from the test CWD:
  *
- *   ttsx -P tsconfig.human-source.json scripts/human-source/compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]] [--oral-evaluations N] [--tongue-evaluations N]
+ *   ttsx -P tsconfig.human-source.json scripts/human-source/compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]] --attachment-document FACE_DOCUMENT [--oral-evaluations N] [--tongue-evaluations N]
+ *
+ * FACE_DOCUMENT is an existing numerical face document with explicit eyes.
+ * Its original fields and basis identity are retained, its exact bytes enter
+ * generation identity, and publication rechecks them. Normal document parsing
+ * admits scalar/optical feasibility only, not this new host or a clinical model.
  *
  * `--inspection-checkpoint DIRECTORY` explicitly composes a failed-qualified
  * completed-eye checkpoint through the same binding and registration owners.
@@ -29,10 +34,11 @@
  * Use it to recompile an existing work directory after a compiler change;
  * `compileHumanSourceGeneration` owns the stage order. After final head-row
  * and optical support registration, its shared attachment producer prepares
- * normal bootstrap appearance and all registered native tarsal extents before
+ * the supplied numerical context and all registered native tarsal extents before
  * writing either product view or P1 face. The manifest records that numerical
  * support witness and keeps source, inspection and clinical qualification
- * separate. An explicit numerical context can also use the same owner through
+ * separate. The ordinary brow bootstrap remains an additional support witness.
+ * An explicit numerical context can also use the same owner through
  * `compile-source-attachment-charts.ts`, followed by the normal immutable
  * `project-source-face-metadata.ts` projection into its original head.
  */
@@ -44,17 +50,21 @@ const arguments_ = process.argv.slice(2);
 let oralEvaluations: number | undefined;
 let tongueEvaluations: number | undefined;
 let inspectionCheckpoint: string | undefined;
+let attachmentDocument: string | undefined;
 for (const option of [
   "--oral-evaluations",
   "--tongue-evaluations",
   "--inspection-checkpoint",
+  "--attachment-document",
 ]) {
   const at = arguments_.indexOf(option);
   if (at === -1) continue;
   if (at + 1 >= arguments_.length || arguments_.indexOf(option, at + 1) !== -1)
-    throw new Error(option + " requires one unique evaluation budget.");
+    throw new Error(option + " requires one unique value.");
   if (option === "--inspection-checkpoint")
     inspectionCheckpoint = path.resolve(arguments_[at + 1]);
+  else if (option === "--attachment-document")
+    attachmentDocument = path.resolve(arguments_[at + 1]);
   else if (option === "--oral-evaluations")
     oralEvaluations = Number(arguments_[at + 1]);
   else tongueEvaluations = Number(arguments_[at + 1]);
@@ -65,7 +75,7 @@ const [work, output, provider, replay, traits] = arguments_.map((p) =>
 );
 if (work === undefined || output === undefined)
   throw new Error(
-    "Usage: compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]]",
+    "Usage: compile-source-generation.ts WORK OUTPUT [PROVIDER REPLAY [TRAITS]] --attachment-document FACE_DOCUMENT",
   );
 compileHumanSourceGeneration(
   work,
@@ -77,4 +87,5 @@ compileHumanSourceGeneration(
   oralEvaluations,
   tongueEvaluations,
   inspectionCheckpoint,
+  attachmentDocument,
 );

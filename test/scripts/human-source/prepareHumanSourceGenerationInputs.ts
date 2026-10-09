@@ -11,6 +11,7 @@ import { defineHumanSourceToeRays } from "./defineHumanSourceToeRays.ts";
 import { readHumanSourceAcquisition } from "./readHumanSourceAcquisition.ts";
 import { readHumanSourceBaseFaces } from "./readHumanSourceBaseFaces.ts";
 import { readHumanSourceInput } from "./readHumanSourceInput.ts";
+import { readHumanSourceAttachmentDocument } from "./readHumanSourceAttachmentDocument.ts";
 import { readHumanSourceMirror } from "./readHumanSourceMirror.ts";
 import { readHumanSourceProducerClosure } from "./readHumanSourceProducerClosure.ts";
 import { readHumanSourceSample } from "./readHumanSourceSample.ts";
@@ -36,6 +37,8 @@ const RIGID_FACE_SHA256 = "5201ba8edb6857e36e02aa62c6ccb2f22758211aa5a63b1e6d30a
  * Read pinned acquisition, source inputs and original oral authoring.
  * Each immutable file enters the owned input record before replay; optional
  * shared crown/tongue authoring preserves its existing budgets and refusals.
+ * The existing attachment document retains its original basis identity and
+ * enters the same raw-byte record before the new host identity is composed.
  */
 export function prepareHumanSourceGenerationInputs(
   options: IHumanSourceGenerationOptions,
@@ -83,6 +86,10 @@ export function prepareHumanSourceGenerationInputs(
   );
 
   const inputs: IHumanSourceGenerationInput[] = [];
+  const attachmentDocument = readHumanSourceAttachmentDocument(
+    options.attachmentDocument,
+    inputs,
+  );
   inputs.push({
     role: "verified current acquisition lock",
     path: "test/scripts/human-source/upstream-lock.json",
@@ -302,7 +309,7 @@ export function prepareHumanSourceGenerationInputs(
   log("inputs read", inputs.length);
 
   return {
-    acquisitionReading, producer, inputs, upstream, sample, face, body,
+    acquisitionReading, producer, inputs, attachmentDocument, upstream, sample, face, body,
     faceSha256, preparation, extraction, lowerFace, fineHead, rigidFace,
     rig, baseFaces, mirror, toeRays, oralSourceSha256, oralAuthoring, tongueAuthoring,
   };

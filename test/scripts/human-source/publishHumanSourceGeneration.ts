@@ -20,7 +20,7 @@ export function publishHumanSourceGeneration(
   options: IHumanSourceGenerationOptions,
   source: IHumanSourceCompiledGeneration,
 ): void {
-  const { work, output, provider, replay, traitsDirectory, inspectionCheckpoint, repository } = options;
+  const { work, output, provider, replay, traitsDirectory, inspectionCheckpoint, repository, attachmentDocument } = options;
   const { face, body, inputs, producer, acquisitionReading, authored, oralAuthoring,
     tongueAuthoring, cut, fields, generation, p1, views, sampleRecord, head, regions,
     sampleSelections, periocular, optical, rowEdits, poseReceipt, reproduction, attachment } = source;
@@ -35,6 +35,7 @@ export function publishHumanSourceGeneration(
     traitsDirectory,
     inspectionCheckpoint,
     repository,
+    attachmentDocument,
   );
   if (fs.existsSync(output))
     throw new Error(`Compile output already exists: ${output}`);
@@ -90,7 +91,11 @@ export function publishHumanSourceGeneration(
             opticalSupport: optical.records,
             attachmentRegistration: {
               ...attachment,
-              referenceConvention: "Normal empty-shape/expression appearance resolver bootstrap; authored defaults are support witnesses, not clinical norms. Runtime retains current-reference checks.",
+              document: source.attachmentDocument,
+              documentInput: inputs.find((input) => input.path === "attachment-document/input"),
+              hostFace: views.head.face.id,
+              hostGeneration: generation.id,
+              referenceConvention: "Original admitted numerical document on this newly registered host, plus the unchanged ordinary empty-shape/expression brow bootstrap. Source document basis identity is retained, not model-rebound; dimensions remain authored inputs and runtime retains its current-reference checks.",
             },
             bodyLandmarks: defineHumanSourceSkinLandmarks(body, generation, cut)
               .records,
@@ -286,6 +291,7 @@ export function publishHumanSourceGeneration(
           traitsDirectory,
           inspectionCheckpoint,
           repository,
+          attachmentDocument,
         );
       },
     );

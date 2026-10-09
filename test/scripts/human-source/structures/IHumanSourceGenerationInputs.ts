@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasisDocument";
 import type { IHumanSourceAcquisitionReading } from "./IHumanSourceAcquisitionReading.ts";
 import type { IHumanSourceChinReceipt } from "./IHumanSourceChinReceipt.ts";
 import type { IHumanSourceExtractionReceipt } from "./IHumanSourceExtractionReceipt.ts";
@@ -30,6 +31,9 @@ export interface IHumanSourceGenerationInputs {
 
   /** Owned input record populated before identity is frozen. */
   inputs: IHumanSourceGenerationInput[];
+
+  /** Admitted original attachment context; its source basis is never retargeted. */
+  attachmentDocument: IAutoMovieHumanFaceBasisDocument;
 
   /** Pinned consumed content and distinct rights statements. */
   upstream: IHumanSourceGenerationUpstream[];

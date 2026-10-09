@@ -20,6 +20,7 @@ export function assertHumanSourceWorkInputs(
   headTraits?: string,
   inspectionCheckpoint?: string,
   repository?: string,
+  attachmentDocument?: string,
 ): void {
   const published = new Map<string, ReadonlyMap<string, Buffer>>();
   for (const [prefix, directory, receipt] of [
@@ -36,6 +37,17 @@ export function assertHumanSourceWorkInputs(
     );
   }
   for (const input of inputs) {
+    if (input.path === "attachment-document/input") {
+      if (attachmentDocument === undefined)
+        throw new Error("Source attachment document lacks its original file owner.");
+      const bytes = fs.readFileSync(attachmentDocument);
+      if (
+        bytes.length !== input.bytes ||
+        crypto.createHash("sha256").update(bytes).digest("hex") !== input.sha256
+      )
+        throw new Error("Source attachment document changed during compilation.");
+      continue;
+    }
     if (input.role === "failed-qualified eye source descriptor") {
       if (inspectionCheckpoint === undefined)
         throw new Error("Inspection input lacks its checkpoint owner.");

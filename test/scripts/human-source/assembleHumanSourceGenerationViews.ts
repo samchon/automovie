@@ -37,8 +37,10 @@ const BAND_REACH_METRES = 0.06;
  * Macros, bindings and landmark owners retain their original order. Attachment
  * preparation follows final head-row and optical support registration, so a
  * complete publication never substitutes a coarse cage disk for required
- * native support. Bootstrap appearance remains an authored convention;
- * numerical support registration is separate from whole-model acceptance.
+ * native support. The pinned numerical document supplies independent optical
+ * dimensions and relief unchanged; ordinary brow bootstrap is also observed.
+ * Its source identity remains distinct from this newly composed host.
+ * Numerical support registration is separate from whole-model acceptance.
  */
 export function assembleHumanSourceGenerationViews(
   source: IHumanSourcePreparedGeneration,
@@ -306,10 +308,10 @@ export function assembleHumanSourceGenerationViews(
   };
   const attachment = compileHumanSourceAttachmentRegistration({
     basis: views.head.face,
-    document: resolveHumanFaceAppearanceDocument(views.head.face, {
-      id: views.head.face.id, name: views.head.face.id,
-      basis: views.head.face.id, shape: {}, expression: {},
-    }),
+    document: resolveHumanFaceAppearanceDocument(
+      views.head.face,
+      source.attachmentDocument,
+    ),
   });
   // The P1 face is a second supported export of this same head geometry.
   // Carry the one registration to both outputs without recomputing support

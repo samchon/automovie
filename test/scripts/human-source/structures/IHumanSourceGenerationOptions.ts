@@ -33,4 +33,7 @@ export interface IHumanSourceGenerationOptions {
 
   /** Completed-eye checkpoint retaining its full source refusal. */
   inspectionCheckpoint?: string;
+
+  /** Required at preparation; omission refuses instead of inventing optical dimensions. */
+  attachmentDocument?: string;
 }
