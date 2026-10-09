@@ -1,28 +1,23 @@
-# Human development and supervision
+# Human development
 
-Read this document before investigating, changing or supervising Human capability, shared source preparation or a production that consumes it. Current user directives and the owning issue define scope, authorization and acceptance; the [Human README](../../../packages/human/README.md) owns supported inputs and consumers. Use the [development](../development/SKILL.md), [contracts](../contracts/SKILL.md), [modeling](../3d-modeling/SKILL.md), [viewer](../viewer-verification/SKILL.md), [review](../review/SKILL.md) and [delivery](../pull-request/SKILL.md) procedures when their topics apply.
+Read this before Human development or supervision.
 
-## Connected Human capability
+- Follow user directives and the owning issue; the [Human README](../../../packages/human/README.md) owns supported inputs and consumers.
+- Separate numerical authoring from licensed shared source; record scientific grounds and uncertainty. Own units, frames and shared boundaries once, preserve registered correspondence and regenerate affected derivatives.
+- Connect inputs to the whole consumer. Measure geometry and inspect hardware renders; distinguish generation, numerical admission, clinical qualification and visual acceptance. Compare photographs through public numerical parameters.
+- Preserve the last valid document and model across refusal, save/reopen and export/reimport. Apply the [development](../development/SKILL.md), [contracts](../contracts/SKILL.md), [viewer](../viewer-verification/SKILL.md), [review](../review/SKILL.md) and [delivery](../pull-request/SKILL.md) procedures.
 
-Personal inputs are named measurements, physiological motions or supported choices. Keep source acquisition, licensed shared geometry and numerical authoring distinct, with primary scientific grounds and explicit uncertainty. Own each quantity, unit, frame, conversion and shared material boundary once; preserve the same registered correspondence through construction, shape and performance, and regenerate affected derivatives when their source changes.
+## Supervision
 
-Complete the input-to-consumer path for the requested connected anatomy and its neighbors. Measure actual emitted geometry and inspect current hardware renders under matching source, input, camera, light and state. Report generation, numerical admission, clinical qualification, visual judgment and parameter-based photograph likeness separately; missing or refused output stays unverified. An honestly qualified prototype can proceed while unavailable scientific evidence remains declared.
+Audit every 30 minutes. Each actor's [AGENTS.md recheck](../../../AGENTS.md#attitude) remains separate.
 
-Preserve the last valid document and model across refusal and recovery, and trace that state through normal editing, save/reopen and supported export/reimport. Use public numerical parameters for photograph comparison; source meshes and painted pixels do not replace personal numerical authorship. [Viewer verification](../viewer-verification/SKILL.md) owns capture practice, [implementation contracts](../contracts/SKILL.md) own anatomical responsibilities, and the [evidence graph](../evidence-graph/SKILL.md) owns their traceability boundaries.
+1. Check the goal, scope, skills and acceptance criteria.
+2. Compare source, inputs and before/after views under matching conditions.
+3. Check viewer ownership, PID, HTTP readiness, hardware GPU, serving/current source, stale/errors, resident models, inputs and captures.
+4. Diagnose repeated symptoms, failed premises and representation limits using output and primary research.
+5. Choose the fastest method at the same quality and full scope; assess resources, duplicate work and waits, then parallelize independent work.
+6. Check assignments, skill use, source/output and running work; respect writer leases and reassign, combine or retire owners.
+7. Execute a reasoned strategy change when premises fail, visual gains plateau or marginal gains deteriorate, then observe its result.
+8. Record audit times, missed checks, corrections and the next due time in the [wiki or PR chronology](../documentation/wiki.md), without claiming another actor's audit.
 
-## Supervision of long Human missions
-
-The manager of a long parallel or delegated Human mission must perform an actual audit every 30 minutes. This Human-specific supervision duty is separate from every actor's [AGENTS.md recheck](../../../AGENTS.md#attitude). Read the clock and reserve an early audit window so ongoing work does not consume the due time.
-
-At each audit:
-
-1. Check the literal goal, complete authorized scope, applicable instructions and acceptance criteria against actual work.
-2. Trace normal-consumer results to their source and input; compare actual before/after views under matching conditions and distinguish the separate acceptance findings.
-3. Check the required viewer's owner, PID, HTTP readiness, hardware renderer, current/serving source, stale/error state, residents, inputs and captures. If it fails, pause visual-dependent work and prioritize its owner's recovery; independent numerical work may continue within its resource and input leases. Protect foreign processes.
-4. Collect repeated symptoms and test their shared cause, failed premises, convergence and representation or source limits against actual output and relevant primary research.
-5. Choose the fastest feasible method at the same quality and full scope, using observed memory, computation, IO, checks, duplicate work and idle waits. Freeze only actual reader inputs and parallelize independent units.
-6. Verify each actor's assignment, applicable skill use, actual source/output and recheck record. Distinguish running work from idle workers, respect granted shared-writer and execution leases, and reassign, combine or retire ownership when the evidence calls for it.
-7. Decide continue or pivot. When premises fail, visual gain plateaus or marginal gain deteriorates, delegate and execute a reasoned alternative and compare its real result under equivalent conditions. A plan or weaker scope, population, tolerance or guard is no improvement.
-8. Record actual audit time, omissions, corrections, results and the next due time in the [current wiki or PR chronology](../documentation/wiki.md). Preserve missed checks honestly; another actor's check is not the manager's audit.
-
-Keep the viewer needed for visual work available between audits, and observe each coherent change before accepting it. Close a unit only when its authorized consumer and acceptance conditions are evidenced on the current source; delivery and elapsed time establish only their own facts.
+If the viewer fails, pause its dependent visual work, prioritize owner recovery and protect other owners' processes; independent numerical work may continue within its leases.
