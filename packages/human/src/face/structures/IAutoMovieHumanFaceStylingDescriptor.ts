@@ -1,5 +1,5 @@
 /**
- * Product-neutral metadata for one named scalp or skin appearance trait.
+ * Product-neutral metadata for one named hair or skin appearance trait.
  * Null endpoints mean no numerical bound from the runtime owner. Open bounds
  * are preserved explicitly, and dependent rules remain visible rather than
  * becoming invented universal slider limits. A current value comes from the
@@ -21,13 +21,13 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceStylingDescriptor {
-  /** Relative path beneath one population's traits or one named skin area. */
+  /** Relative path beneath one population's traits, terminal-shaft profile or named skin area. */
   path: readonly string[];
 
   /** Human-readable meaning of the control. */
   label: string;
 
-  /** mm, degrees, ratio or choice, with no implicit conversion. */
+  /** The owner's unit, such as mm, micrometres, degrees, count, ratio or choice, without conversion. */
   unit: string;
 
   /** Numerical minimum; null means no scalar bound. */
@@ -41,6 +41,9 @@ export interface IAutoMovieHumanFaceStylingDescriptor {
 
   /** Whether equality at the numerical maximum is refused. */
   maximumExclusive?: boolean;
+
+  /** Numerical entry step when supplied by the owner; admission still enforces its domain. */
+  step?: number | null;
 
   /** Closed permitted choices for an enum control. */
   choices?: readonly string[];

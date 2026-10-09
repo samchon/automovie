@@ -5,6 +5,7 @@ import type { IConnectedPersonInputCatalogueProps } from "./IConnectedPersonInpu
 import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDescriptor";
 import type { IConnectedPersonParameterSource } from "./IConnectedPersonParameterSource";
 import { createConnectedPersonBodyAppearanceInputs } from "./createConnectedPersonBodyAppearanceInputs";
+import { createConnectedPersonFacialHairInputs } from "./createConnectedPersonFacialHairInputs";
 import { createConnectedPersonHairInputs } from "./createConnectedPersonHairInputs";
 import { createConnectedPersonMaterialInputs } from "./createConnectedPersonMaterialInputs";
 import { createConnectedPersonOwnerDefaultInputs } from "./createConnectedPersonOwnerDefaultInputs";
@@ -12,7 +13,7 @@ import { createConnectedPersonSkinAppearanceInputs } from "./createConnectedPers
 
 /**
  * List the neutral numerical inputs of the person document whose owners
- * publish a descriptor, in the owners' order:
+ * publish a descriptor:
  *
  * - the head view's own face shape channels, with the channel's authoring
  *   envelope (expression channels are motion and are not listed);
@@ -21,14 +22,16 @@ import { createConnectedPersonSkinAppearanceInputs } from "./createConnectedPers
  * - the upper and lower lash profile parameters of each eye, with the lash
  *   owner's envelopes;
  * - the lid tissue shells and brow shaft populations, from the owners'
- *   published defaults (`createConnectedPersonOwnerDefaultInputs`).
+ *   published defaults (`createConnectedPersonOwnerDefaultInputs`);
+ * - explicitly authored facial terminal sites, from their profile owner's
+ *   numerical domains, without inferring a missing population.
  *
  * Every unit, bound, step and qualification is the owner's. An input whose
  * owner publishes no descriptor is not listed here with invented bounds;
  * `CONNECTED_PERSON_UNDESCRIBED_INPUTS` names those. The lash count carries
  * no descriptor of its own, so its bounds are null.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lists face shape channels, registered head traits and lash parameters from their owners' descriptors.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lists face shape channels, registered head traits, lash parameters and explicit facial terminal sites from their owners' descriptors.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Derives the listed controls from the head view and the owners' parameter tables instead of a hand-kept list.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the head traits whose one endpoint owner is a body channel.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Gives every listed input the document path the person transaction edits.
@@ -142,6 +145,10 @@ export function createConnectedPersonInputCatalogue(
     props.person === undefined
       ? []
       : createConnectedPersonHairInputs(props.face, props.person);
+  const facialHair =
+    props.person === undefined
+      ? []
+      : createConnectedPersonFacialHairInputs(props.person);
   return [
     ...head,
     ...lashes,
@@ -149,6 +156,7 @@ export function createConnectedPersonInputCatalogue(
     ...createConnectedPersonBodyAppearanceInputs(),
     ...materials,
     ...hair,
+    ...facialHair,
     ...createConnectedPersonSkinAppearanceInputs(props.face),
     ...shape,
   ];
