@@ -6,5 +6,5 @@
  * cladding and entablature producers, rather than camera-specific exceptions.
  */
 /** @param {string} model @returns {boolean} */
-export const isTempleRoofCovering = (model) => model === "model.ceilings" ||
+export const isTempleRoofCovering = (model: string): boolean => model === "model.ceilings" ||
   ["model.roof", "tile.", "rafter.", "truss.", "joist."].some((prefix) => model.startsWith(prefix));

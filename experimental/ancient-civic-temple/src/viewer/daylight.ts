@@ -64,7 +64,7 @@ export function createTempleDaylight() {
  * client; the actual context identity is returned without assuming hardware.
  * @param {HTMLCanvasElement} canvas
  */
-export function createTemplePresentation(canvas) {
+export function createTemplePresentation(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,

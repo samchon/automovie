@@ -6,7 +6,7 @@ The collection uses actual production captures as previews. Its static articles 
 
 The temple, suburban house and citizen house use `tour/?building=ancient|modern|future`. Every dev or build command first calls their original production scene producers, including their current engine lowering, and generates gzip-compressed transports and required texture files under the ignored `public/buildings/` directory. These are website distribution assets, regenerated from source rather than authored production inputs. Each transport embeds the SHA-256 of its native payload and external texture bytes. The `.bin` extension keeps static servers from transparently decoding gzip before the browser's explicit `DecompressionStream`. The tours share room/view search, authored camera selection, the same spectator flight as the manor, keyboard controls, and touch movement. A `view` query retains the selected native camera. Unknown building addresses fail visibly and link back to the collection.
 
-All tours use the existing AutoMovie viewer mount, also used by the playground. `tourScene.ts` calls the productions' original mesh uploaders and daylight routines. The modern inspector and website share `experimental/modern-suburban-house/src/viewer/scene.mjs`, including native glass, mirrors and physical lights. Loading waits for images and a real rendered frame. Geometry, authored models, household states and unfinished individual objects remain owned by their productions.
+All tours use the existing AutoMovie viewer mount, also used by the playground. `tourScene.ts` calls the productions' original mesh uploaders and daylight routines. The modern inspector and website share `experimental/modern-suburban-house/src/viewer/scene.mts`, including native glass, mirrors and physical lights. Loading waits for images and a real rendered frame. Geometry, authored models, household states and unfinished individual objects remain owned by their productions.
 
 The manor page runs the production's authored source in the browser. It decodes the seven albedo textures, derives the shared prototype inventory the production's instance consumer reads, builds the scene, and then folds every entry into one mesh per material (`src/bakeManor.ts`) so the house draws in a few hundred calls instead of ten thousand. Views and the `?view=<id>` deep link address the production's own authored observation points. All four buildings use the shared spectator controller: click for unlimited mouse look, WASD or arrows to fly, Space / C to rise / descend, and Escape to release the mouse. Movement is 8 m/s by default; holding either Shift key reduces it to 2 m/s. R restores the exterior. Wheel zoom changes the lens without moving an orbit pivot. If mouse capture is refused, focus the canvas for keyboard flight and drag to look. Touch users can hold direction, height and Slow buttons while dragging the scene. Flight passes through walls; blur, view selection and capture loss clear held movement.
 
@@ -20,6 +20,8 @@ pnpm --filter @automovie/website deploy   # build, then publish dist/ to the gh-
 ```
 
 `.github/workflows/website.yml` builds the site on every pull request that touches it and deploys `dist/` to `gh-pages` on every push to `master`. GitHub Pages serves the build under the repository's own name, and that path is case-sensitive, so `vite.config.ts` uses a relative `base` and the build works at whatever path it is mounted on.
+
+The TypeScript program includes the workspace productions it actually imports, so `tsconfig.json` uses the workspace root as its source root. Normal type checking emits nothing; the `ttsx` scene and deployment entries place their transient runtime JavaScript in the compiler's private cache layout. The declared output directory stays under `node_modules/.cache`, and `noEmitOnError` prevents a rejected program from writing JavaScript beside authored sources. Vite separately produces the browser delivery in `dist/`.
 
 ## Layout
 
@@ -35,5 +37,5 @@ pnpm --filter @automovie/website deploy   # build, then publish dist/ to the gh-
 | `src/spectatorCamera.ts`, `src/spectatorControls.ts`, `src/spectator.css` | Shared flight math, disposable pointer/keyboard/touch input and mobile pads. Both hosts use their existing viewer clock and renderer. |
 | `manor/index.html`, `src/manor.ts` | The manor viewer: loading card, featured views, the production's searchable view navigator, first-person flight. |
 | `src/bakeManor.ts` | Entry-level mesh merge that keeps every view's visibility, pose, and clipping semantics. |
-| `src/medieval-baron-manor.d.ts` | The typed boundary onto the production's JavaScript scene module. |
-| `build/deploy.cjs` | Manual `gh-pages` publish, the same branch the workflow writes. |
+| `src/medieval-baron-manor.d.ts` | The typed boundary onto the production's TypeScript scene module. |
+| `build/deploy.cts` | Manual `gh-pages` publish, the same branch the workflow writes. |

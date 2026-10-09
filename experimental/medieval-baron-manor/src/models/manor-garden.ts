@@ -1,27 +1,31 @@
+import type { createManorCraft } from "./manor-craft";
+type CraftWriter = Parameters<typeof createManorCraft>[0];
+interface GardenWriter extends CraftWriter { bevel: ReturnType<typeof createManorCraft>["bevel"]; }
+interface GardenGroup { id: string; material: string; faces: number[][][]; grainAxis?: number[]; }
 // Bounded deterministic botanical/masonry craft. No raster proxies or randomness.
-export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extrude,V,Q,bevel,registerMechanism}){
- const pond=[-1.70,2.35],tree=[1.65,3.65],groups=[];
+export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extrude,V,Q,bevel,registerMechanism}: GardenWriter){
+ const pond=[-1.70,2.35],tree=[1.65,3.65],groups: GardenGroup[] = [];
  // Independent stones, stems and leaves keep addressable source identities.
- const add=(id,material,faces,grainAxis)=>groups.push({id,material,faces,grainAxis});
- const flush=(id,level,role)=>{for(const g of groups)mesh(g.id,polyhedron(g.faces.map(f=>f.map(V))),[0,0,0],g.material,undefined,{grainAxis:g.grainAxis});groups.length=0;finish(id,level,role);};
- const noise=k=>(Math.sin(k*127.1+73.7)*43758.5453)%1;
- const stone=(id,p,s,seed=1,mat='stone')=>{
+ const add=(id: string,material: string,faces: number[][][],grainAxis?: number[])=>groups.push({id,material,faces,grainAxis});
+ const flush=(id: string,level: number,role: string)=>{for(const g of groups)mesh(g.id,polyhedron(g.faces.map(f=>f.map(V))),[0,0,0],g.material,undefined,{grainAxis:g.grainAxis});groups.length=0;finish(id,level,role);};
+ const noise=(k: number)=>(Math.sin(k*127.1+73.7)*43758.5453)%1;
+ const stone=(id: string,p: number[],s: number[],seed=1,mat='stone')=>{
   const rings=[[-.45,.78],[0,1],[.43,.78]],rr=rings.map(([h,r],level)=>Array.from({length:9},(_,i)=>{const a=i*Math.PI*2/9+seed*.71,v=1+noise(seed+i*13)*.18;return[p[0]+Math.cos(a)*s[0]*r*v/2,p[1]+(h+noise(seed+i*5+level*31)*.06)*s[1],p[2]+Math.sin(a)*s[2]*r*v/2];})),f=[];
   for(let i=1;i<8;i++){f.push([rr[0][0],rr[0][i],rr[0][i+1]],[rr[2][0],rr[2][i+1],rr[2][i]]);}
   for(let k=0;k<2;k++)for(let i=0;i<9;i++){const j=(i+1)%9;f.push([rr[k][i],rr[k+1][i],rr[k+1][j]],[rr[k][i],rr[k+1][j],rr[k][j]]);}add(id,mat,f);
  };
- const twig=(id,a,b,r0,r1,mat='bark')=>{
+ const twig=(id: string,a: number[],b: number[],r0: number,r1: number,mat='bark')=>{
   const d=b.map((v,i)=>v-a[i]),l=Math.hypot(...d),n=d.map(v=>v/l),u=Math.abs(n[1])<.9?[n[2],0,-n[0]]:[0,n[2],-n[1]],ul=Math.hypot(...u);for(let i=0;i<3;i++)u[i]/=ul;
-  const v=[n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]],ring=(p,r)=>Array.from({length:9},(_,i)=>p.map((c,j)=>c+r*(u[j]*Math.cos(i*Math.PI*2/9)+v[j]*Math.sin(i*Math.PI*2/9)))),aa=ring(a,r0),bb=ring(b,r1),f=[aa.toReversed(),bb];
+  const v=[n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]],ring=(p: number[],r: number)=>Array.from({length:9},(_,i)=>p.map((c,j)=>c+r*(u[j]*Math.cos(i*Math.PI*2/9)+v[j]*Math.sin(i*Math.PI*2/9)))),aa=ring(a,r0),bb=ring(b,r1),f=[aa.toReversed(),bb];
   for(let i=0;i<9;i++)f.push([aa[i],aa[(i+1)%9],bb[(i+1)%9],bb[i]]);add(id,mat,f,n);
  };
- const leaf=(id,p,angle,len,w,tilt=0,mat='leaves')=>{
-  const c=Math.cos(angle),s=Math.sin(angle),q=(u,v,h)=>[p[0]+c*u-s*v,p[1]+h+u*tilt,p[2]+s*u+c*v],edge=[[0,0],[.16,-.30],[.42,-.50],[.70,-.41],[.91,-.19],[1,0],[.91,.19],[.70,.41],[.42,.50],[.16,.30]].map(([u,v])=>q(u*len,v*w,.016*Math.sin(u*Math.PI)-len*.24*u*u)),mid=q(len*.46,0,.018-len*.24*.46**2),f=[];
+ const leaf=(id: string,p: number[],angle: number,len: number,w: number,tilt=0,mat='leaves')=>{
+  const c=Math.cos(angle),s=Math.sin(angle),q=(u: number,v: number,h: number)=>[p[0]+c*u-s*v,p[1]+h+u*tilt,p[2]+s*u+c*v],edge=[[0,0],[.16,-.30],[.42,-.50],[.70,-.41],[.91,-.19],[1,0],[.91,.19],[.70,.41],[.42,.50],[.16,.30]].map(([u,v])=>q(u*len,v*w,.016*Math.sin(u*Math.PI)-len*.24*u*u)),mid=q(len*.46,0,.018-len*.24*.46**2),f=[];
   // One manifold sheet; the material owns visibility from either side.
   for(let i=0;i<edge.length;i++){const j=(i+1)%edge.length;f.push([edge[i],edge[j],mid]);}add(id,mat,f);
  };
- const circle=(cx,cz,r,n=48)=>Array.from({length:n},(_,i)=>({x:cx+r*Math.cos(i*2*Math.PI/n),y:cz+r*Math.sin(i*2*Math.PI/n)}));
- mesh('site-earth',extrude({outer:[{x:-11.5,y:-8.5},{x:11.5,y:-8.5},{x:11.5,y:10.5},{x:-11.5,y:10.5}],holes:[circle(...pond,1.3952380952380952)],depth:.60}),[0,-.30,0],'soil',Q([1,0,0],Math.PI/2));
+ const circle=(cx: number,cz: number,r: number,n=48)=>Array.from({length:n},(_,i)=>({x:cx+r*Math.cos(i*2*Math.PI/n),y:cz+r*Math.sin(i*2*Math.PI/n)}));
+ mesh('site-earth',extrude({outer:[{x:-11.5,y:-8.5},{x:11.5,y:-8.5},{x:11.5,y:10.5},{x:-11.5,y:10.5}],holes:[circle(pond[0], pond[1],1.3952380952380952)],depth:.60}),[0,-.30,0],'soil',Q([1,0,0],Math.PI/2));
  mesh('pond-excavation-bearing',revolve({profile:[{x:0,y:-.60},{x:1.3952380952380952,y:-.60},{x:1.3952380952380952,y:0},{x:1.30,y:-.4},{x:0,y:-.4}],segments:48}),[pond[0],0,pond[1]],'soil');
  // Low ground vegetation only outside the occupied building and central approach.
  for(let k=0;k<850;k++){
@@ -64,7 +68,7 @@ export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extru
  const trunk=[[tree[0],-.02,tree[1]],[tree[0]-.06,1.10,tree[1]+.02],[tree[0]-.17,2.25,tree[1]-.08],[tree[0]-.06,3.45,tree[1]+.04]],radii=[.18,.127,.091,.036];
  // Common rings at the bends form one closed trunk; perpendicular segment
  // caps previously left an exposed wedge at each change of direction.
- const trunkRings=trunk.map((p,k)=>Array.from({length:9},(_,j)=>[p[0]+radii[k]*Math.cos(j*Math.PI*2/9),p[1],p[2]+radii[k]*Math.sin(j*Math.PI*2/9)])),trunkFaces=[trunkRings[0].toReversed(),trunkRings.at(-1)];
+ const trunkRings=trunk.map((p,k)=>Array.from({length:9},(_,j)=>[p[0]+radii[k]*Math.cos(j*Math.PI*2/9),p[1],p[2]+radii[k]*Math.sin(j*Math.PI*2/9)])),trunkFaces=[trunkRings[0].toReversed(),trunkRings[trunkRings.length-1]];
  for(let k=0;k<3;k++)for(let j=0;j<9;j++){const n=(j+1)%9;trunkFaces.push([trunkRings[k][j],trunkRings[k][n],trunkRings[k+1][n]],[trunkRings[k][j],trunkRings[k+1][n],trunkRings[k+1][j]]);}add('trunk-continuous','bark',trunkFaces.map(f=>f.toReversed()),[0,1,0]);
  const leader=[tree[0]+.19,4.30,tree[1]-.09];twig('trunk-leader',trunk[3],leader,.036,.003);
  for(let k=0;k<10;k++){const t=(k+.5)/10,p=trunk[3].map((v,j)=>v+(leader[j]-v)*t);leaf('leader-leaf-'+k,p,k*2.399963,.12,.065,-.20+(k%4)*.15);}
@@ -80,7 +84,7 @@ export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extru
    if((i+j)%5===0){const p=[tip[0],tip[1]-.025,tip[2]];twig('fruit-stalk-'+i+'-'+j,tip,[p[0],p[1]-.014,p[2]],.003,.002);mesh('apple-'+i+'-'+j,revolve({profile:[{x:0,y:-.085},{x:.025,y:-.083},{x:.043,y:-.055},{x:.042,y:-.023},{x:.022,y:-.005},{x:0,y:-.012}],segments:20}),p,'appleRed');}
   }
  }flush('apple-tree',-1,'garden');
- const weave=(id,a,b)=>{
+ const weave=(id: string,a: number[],b: number[])=>{
   const len=Math.hypot(b[0]-a[0],b[1]-a[1]),dx=(b[0]-a[0])/len,dz=(b[1]-a[1])/len,nx=-dz,nz=dx,n=Math.ceil(len/.24);
   for(let i=0;i<=n;i++){const u=len*i/n;twig(id+'-stake-'+i,[a[0]+dx*u,-.16,a[1]+dz*u],[a[0]+dx*u,.72+(i%3)*.025,a[1]+dz*u],.026,.017);}
   for(let row=0;row<8;row++)for(let i=0;i<n;i++){
@@ -89,7 +93,7 @@ export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extru
    for(let j=0;j<6;j++){
     // Keep the woven row in compressed contact with its tapered stakes.
     // The prior 37mm offset left every row 0.4–6.1mm from the actual stake mesh.
-    const at=t=>{const along=u+(v-u)*t,offset=.027*sa*Math.cos(Math.PI*t);return[a[0]+dx*along+nx*offset,.10+row*.073,a[1]+dz*along+nz*offset];};
+    const at=(t: number)=>{const along=u+(v-u)*t,offset=.027*sa*Math.cos(Math.PI*t);return[a[0]+dx*along+nx*offset,.10+row*.073,a[1]+dz*along+nz*offset];};
     twig(id+'-withe-'+row+'-'+i+'-'+j,at(j/6),at((j+1)/6),.013,.012,'bark');
    }
   }
@@ -97,7 +101,7 @@ export function createManorGarden({box,mesh,beam,finish,polyhedron,revolve,extru
  weave('fence-front-west',[-9,8.25],[-.55,8.25]);weave('fence-front-east',[.75,8.25],[9,8.25]);weave('fence-west',[-9,.15],[-9,8.25]);weave('fence-east',[9,8.25],[9,.15]);
  for(const x of [-.55,.75])bevel('gate-post-'+x,[.11,.90,.11],[x,.45,8.25],'oak',undefined,.015);
  // Open outward to the south; the west-hinged leaf clears the 1.19m passage.
- const pivot=[-.49,0,8.25],point=(x,y,z)=>[pivot[0]+x,y,pivot[2]+z];
+ const pivot=[-.49,0,8.25],point=(x: number,y: number,z: number)=>[pivot[0]+x,y,pivot[2]+z];
  for(let i=0;i<7;i++)beam('gate-leaf-upright-'+i,point(.05+i*.18,.09,0),point(.05+i*.18,.76,0),.037,'oak');
  for(const yy of [.19,.61])beam('gate-leaf-rail-'+yy,point(0,yy,0),point(1.18,yy,0),.055,'oakLight');beam('gate-leaf-brace',point(.025,.18,.03),point(1.16,.62,.03),.039,'oak');
  for(const yy of [.19,.61]){

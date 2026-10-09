@@ -4,12 +4,16 @@
 // only its URL is resolved here, so the module runs from any bundler root.
 import {TextureLoader} from 'three';
 import {AutoMovieTextureCache} from '@automovie/viewer';
-import {manorTextureBindings} from '../materials/manor.js';
-import {createManorScene} from '../models/manor.js';
-import {deriveManorInstanceInventory} from './manor-inventory.js';
-import {createManorInstanceConsumer} from './manor-viewer.js';
+import {manorTextureBindings} from '../materials/manor';
+import {createManorScene} from '../models/manor';
+import {deriveManorInstanceInventory} from './manor-inventory';
+import {createManorInstanceConsumer} from './manor-viewer';
 
-const urls={
+interface TexturedManorOptions {
+  report?: ((phase: string) => void) | ((phase: string) => Promise<void>);
+  shadows?: boolean;
+}
+const urls: Record<string, string> = {
  'assets/textures/manor/oak-albedo-v1.png':new URL('../../public/assets/textures/manor/oak-albedo-v1.png',import.meta.url).href,
  'assets/textures/manor/limestone-albedo-v1.png':new URL('../../public/assets/textures/manor/limestone-albedo-v1.png',import.meta.url).href,
  'assets/textures/manor/lime-plaster-albedo-v1.png':new URL('../../public/assets/textures/manor/lime-plaster-albedo-v1.png',import.meta.url).href,
@@ -24,7 +28,7 @@ const urls={
  * Builds the authored scene after texture loading and reports each phase.
  * @param {{report?: (phase: string) => void | Promise<void>, shadows?: boolean}} [options]
  */
-export async function createTexturedManorScene({report=()=>undefined,...options}={}){
+export async function createTexturedManorScene({report=()=>undefined,...options}: TexturedManorOptions = {}){
  await report('Decoding textures');
  const loader=new TextureLoader(),cache=new AutoMovieTextureCache(asset=>{
   const url=urls[asset];if(!url)throw new Error('Unresolved manor texture: '+asset);return loader.loadAsync(url);

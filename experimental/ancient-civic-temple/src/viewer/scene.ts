@@ -6,6 +6,7 @@
  * 표면 ID의 해시이며 재료가 아니다.
  */
 import * as THREE from "three";
+import type { ViewerPayload } from "./payload";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 
@@ -17,16 +18,16 @@ const unboundClay = () => new THREE.MeshStandardMaterial({ name: "unbound-clay",
  * @param {Map<string, THREE.Texture>} textures
  * @returns {{ root: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material> }}
  */
-export function uploadTemple(payload, textures = new Map()) {
+export function uploadTemple(payload: ViewerPayload, textures: Map<string, THREE.Texture> = new Map()) {
   const root = new THREE.Group();
   root.name = payload.environmentId;
   const clay = unboundClay();
   /** @type {THREE.Mesh[]} */
-  const meshes = [];
+  const meshes: THREE.Mesh[] = [];
   /** @type {Map<string, THREE.Material>} */
-  const ownerMaterials = new Map();
+  const ownerMaterials = new Map<string, THREE.Material>();
   /** @type {Map<THREE.Mesh, THREE.Material>} */
-  const beautyMaterials = new Map();
+  const beautyMaterials = new Map<THREE.Mesh, THREE.Material>();
   for (const placement of payload.placements) {
     const model = payload.models.find((m) => m.id === placement.model);
     if (model === undefined) throw new Error(`${placement.node}: model ${placement.model} 누락`);
@@ -43,7 +44,7 @@ export function uploadTemple(payload, textures = new Map()) {
       if (part.mesh.indices) geometry.setIndex(part.mesh.indices);
       if (!part.mesh.normals) geometry.computeVertexNormals();
       /** @type {THREE.Material} */
-      let material = clay;
+      let material: THREE.Material = clay;
       if (part.material !== null) {
         const bound = model.materials.find((m) => m.id === part.material);
         if (bound === undefined) throw new Error(`${model.id}/${part.id}: 결속 재료 ${part.material}를 찾지 못했습니다.`);
@@ -77,11 +78,11 @@ export function uploadTemple(payload, textures = new Map()) {
 }
 
 /** Load each authored base-color image once. Missing files retain the material's flat-color fallback. @param {Payload} payload */
-export async function loadTempleTextures(payload) {
+export async function loadTempleTextures(payload: ViewerPayload) {
   /** @type {Map<string, THREE.Texture>} */
-  const textures = new Map();
+  const textures = new Map<string, THREE.Texture>();
   const loader = new THREE.TextureLoader();
-  const materials = new Map(payload.models.flatMap((model) => model.materials.map((material) => [material.id, material])));
+  const materials = new Map(payload.models.flatMap((model) => model.materials.map((material) => [material.id, material] as const)));
   await Promise.all([...materials.values()].map(async (material) => {
     const binding = material.baseColorTexture;
     if (binding === null) return;
@@ -105,14 +106,14 @@ export async function loadTempleTextures(payload) {
 }
 
 /** 표면 ID 해시 색(검사 전용). @param {string} id */
-export function ownerColor(id) {
+export function ownerColor(id: string) {
   let hash = 2166136261;
   for (let i = 0; i < id.length; ++i) hash = Math.imul(hash ^ id.charCodeAt(i), 16777619);
   return new THREE.Color().setHSL(((hash >>> 0) % 360) / 360, 0.55, 0.6);
 }
 
 /** support 선언(검사 전용) 반투명 면. @param {Payload} payload */
-export function uploadSupports(payload) {
+export function uploadSupports(payload: ViewerPayload) {
   const group = new THREE.Group();
   group.name = "supports";
   for (const support of payload.supports) {
@@ -135,7 +136,7 @@ export function uploadSupports(payload) {
 }
 
 /** @param {THREE.Object3D} root */
-export function disposeTree(root) {
+export function disposeTree(root: THREE.Object3D) {
   root.traverse((object) => {
     if (object instanceof THREE.Mesh) {
       object.geometry.dispose();

@@ -18,11 +18,11 @@
     "./modern-scene": "./src/modernScene.ts"
   },
   "scripts": {
-    "scenes": "tsx build/exportScenes.cts",
+    "scenes": "ttsx -P tsconfig.json build/exportScenes.cts",
     "dev": "pnpm scenes && vite",
     "build": "pnpm scenes && ttsc --noEmit && vite build",
     "preview": "vite preview",
-    "deploy": "pnpm run build && node build/deploy.cjs"
+    "deploy": "pnpm run build && ttsx -P tsconfig.json build/deploy.cts"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -40,6 +40,7 @@
   "devDependencies": {
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
+    "@types/gh-pages": "^6.1.0",
     "@types/three": "catalog:three",
     "gh-pages": "^6.3.0",
     "ttsc": "catalog:samchon",

@@ -5,18 +5,22 @@
  * browser code. The grey floor, walk envelope and light are inspection aids.
  */
 import * as THREE from "three";
+import type { createModelBoardPayload } from "./model-board-payload";
+interface ModelBoardSource { basis: string; payload: ReturnType<typeof createModelBoardPayload>; }
+type BoardPoint = [number, number, number];
+function required<T extends Element>(selector: string, kind: new () => T): T {
+  const value = document.querySelector(selector);
+  if (!(value instanceof kind)) throw new Error("Model board control missing: " + selector);
+  return value;
+}
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-const canvas=/** @type {HTMLCanvasElement} */(document.querySelector("canvas"));
-const modelSelect=/** @type {HTMLSelectElement} */(document.querySelector(
-  "#model",
-));
-const viewSelect=/** @type {HTMLSelectElement} */(document.querySelector(
-  "#view",
-));
-const status=/** @type {HTMLElement} */(document.querySelector("#status"));
-const error=/** @type {HTMLElement} */(document.querySelector("#error"));
-const reset=/** @type {HTMLButtonElement} */(document.querySelector("#reset"));
+const canvas = required("canvas", HTMLCanvasElement);
+const modelSelect = required("#model", HTMLSelectElement);
+const viewSelect = required("#view", HTMLSelectElement);
+const status = required("#status", HTMLElement);
+const error = required("#error", HTMLElement);
+const reset = required("#reset", HTMLButtonElement);
 const renderer=new THREE.WebGLRenderer({
   canvas,
   antialias:true,
@@ -51,16 +55,13 @@ floor.rotation.x=-Math.PI/2;
 floor.position.y=-0.005;
 floor.receiveShadow=true;
 scene.add(floor);
-/** @type {{ basis:string;payload:{ models:Array<{ key:string;design:string;model:import("@automovie/interface").IAutoMovieModel }> } } | null} */
-let source=null;
-/** @type {THREE.Group | null} */
-let shown=null;
-/** @type {THREE.Box3 | null} */
-let subjectBounds=null;
+let source: ModelBoardSource | null = null;
+let shown: THREE.Group | null = null;
+let subjectBounds: THREE.Box3 | null = null;
 let displayOffset=0;
 let selectedKey="";
 
-const directions={
+const directions: Record<string, BoardPoint> = {
   front:[0, 0, 1],
   right:[1, 0, 0],
   rear:[0, 0, -1],
@@ -70,7 +71,7 @@ const directions={
 };
 
 /** @param {THREE.Object3D} root */
-function dispose(root){
+function dispose(root: THREE.Object3D){
   root.traverse((node)=>{
   if(!(node instanceof THREE.Mesh))return;
   node.geometry.dispose();
@@ -79,7 +80,7 @@ function dispose(root){
 }
 
 /** @param {string} key */
-function setModel(key){
+function setModel(key: string){
   const entry=source?.payload.models.find((item)=>item.key===key);
   if(entry===undefined)throw new Error(`${key}: current model variant missing`);
   if(shown!==null){
@@ -147,10 +148,10 @@ function setModel(key){
 
 /** @param {string} view @param {[number,number,number] | null} [focus]
  * @param {number | null} [extent] */
-function setView(view,focus=null,extent=null){
+function setView(view: string, focus: BoardPoint | null = null, extent: number | null = null){
   if(subjectBounds===null)throw new Error("model not selected");
   const bounds=subjectBounds;
-  const raw=directions[/** @type {keyof typeof directions} */(view)];
+  const raw=directions[view];
   if(raw===undefined)throw new Error(`${view}: unknown reviewed view`);
   const dir=new THREE.Vector3(...raw).normalize();
   camera.up.set(0,view==="top"?0:1,view==="top"?-1:0);

@@ -4,11 +4,10 @@ import fs from "node:fs";
 
 import path from "node:path";
 
-/** The reviewed model owner class a catalog file exports; the audit reads its records loosely, as the untyped audit always did. */
-interface ModelOwner {
-  catalog(): any;
-  build(...args: any[]): any;
-}
+import { modelMaterialFor } from "../materials/model-bindings";
+
+/** Every catalog exports the same reviewed model-owner static API. */
+type ModelOwner = Pick<typeof import("../models/001-seating-and-work").Models001, "catalog" | "build">;
 const root = path.resolve(__dirname, "../..");
 const sourceFiles = fs.readdirSync(path.join(root, "src/models"))
   .filter(name => /^00[1-5]-.*\.ts$/.test(name)).sort((a, b) => a.localeCompare(b));
@@ -66,12 +65,12 @@ function inspect(part: import("@automovie/interface").IAutoMovieModelPart, recor
 const totals = { prototypes: 0, states: 0, parts: 0, vertices: 0, triangles: 0 };
 for (const name of sourceFiles) {
   const Klass = Object.values(require(path.join(root, "src/models", name)) as Record<string, ModelOwner>)[0];
-    const catalog: import("../models/representation").ModelPrototype[] = Klass.catalog();
+    const catalog: readonly import("../models/representation").ModelPrototype[] = Klass.catalog();
   for (const prototype of catalog) {
     totals.prototypes++;
     for (const state of prototype.states) {
-            const model: import("@automovie/interface").IAutoMovieModel = Klass.build(prototype.anchor, state.state, () => ({ id: "audit-neutral" }));
-      const repeated = Klass.build(prototype.anchor, state.state, () => ({ id: "audit-neutral" }));
+            const model: import("@automovie/interface").IAutoMovieModel = Klass.build(prototype.anchor, state.state, modelMaterialFor);
+      const repeated = Klass.build(prototype.anchor, state.state, modelMaterialFor);
       const label = `${prototype.anchor}/${state.state}`;
       if (model.parts.length !== state.parts.length) throw Error(`${label}: part count mismatch`);
       if (JSON.stringify(model) !== JSON.stringify(repeated)) throw Error(`${label}: nondeterministic model build`);
@@ -110,8 +109,9 @@ if (!totals.prototypes || !totals.states || !totals.parts) throw Error("empty mo
 if (process.argv.includes("--fixture")) {
   const Klass = Object.values(require(path.join(root, "src/models", sourceFiles[0])) as Record<string, ModelOwner>)[0];
   const prototype = Klass.catalog()[0], state = prototype.states[0];
-  const model = Klass.build(prototype.anchor, state.state, () => ({ id: "audit-neutral" }));
+  const model = Klass.build(prototype.anchor, state.state, modelMaterialFor);
   const part = model.parts[0], record = state.parts[0];
+  if (part.geometry.type !== "mesh") throw Error("source mutation requires an explicit mesh");
     const original: import("@automovie/interface").IAutoMovieMesh = part.geometry.mesh;
   const caught = [];
   part.geometry.mesh = { ...original, uvs: null };

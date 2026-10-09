@@ -1,9 +1,9 @@
 import { productionRuntimeModelId } from "@automovie/engine";
 import { Quaternion, Vector3 } from "three";
 
-import { manorInstanceDefinitions } from "./instances/manor.js";
+import { manorInstanceDefinitions } from "./instances/manor";
 import { manorSpatialState } from "./manorSpatialState";
-import { createManorScene } from "./models/manor.js";
+import { createManorScene } from "./models/manor";
 
 /** Derives topology from the same geometry and world poses the viewer draws. */
 export function buildManorEnvironment() {

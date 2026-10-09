@@ -1,3 +1,4 @@
+import { buildViewerBrowser } from "./buildViewerBrowser";
 /**
  * 신전 뷰어의 CJS 서버. `/scene` 요청마다 production src 모듈 캐시를 비우고
  * 현재 source로 payload를 다시 만든다. 실패하면 500과 오류문을 돌려주며
@@ -81,23 +82,6 @@ const main = async (): Promise<void> => {
     ["/", resolve(productionRoot, "public/index.html")],
     ["/model-board", resolve(productionRoot, "public/model-board.html")],
     ["/viewer.css", resolve(productionRoot, "public/viewer.css")],
-    [
-      "/src/viewer/client.mjs",
-      resolve(productionRoot, "src/viewer/client.mjs"),
-    ],
-    [
-      "/src/viewer/daylight.mjs",
-      resolve(productionRoot, "src/viewer/daylight.mjs"),
-    ],
-    ["/src/viewer/scene.mjs", resolve(productionRoot, "src/viewer/scene.mjs")],
-    [
-      "/src/viewer/inspection-visibility.mjs",
-      resolve(productionRoot, "src/viewer/inspection-visibility.mjs"),
-    ],
-    [
-      "/src/viewer/model-board.mjs",
-      resolve(productionRoot, "src/viewer/model-board.mjs"),
-    ],
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],
     [
@@ -190,6 +174,12 @@ const main = async (): Promise<void> => {
               : String(error),
           );
       }
+      return;
+    }
+    if (path.startsWith("/assets/")) {
+      const generated = (await buildViewerBrowser(productionRoot)).get(path);
+      if (generated === undefined) { response.writeHead(404).end(); return; }
+      response.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" }).end(generated);
       return;
     }
     const file = files.get(path);

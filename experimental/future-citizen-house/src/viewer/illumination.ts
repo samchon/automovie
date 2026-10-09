@@ -5,7 +5,7 @@ import * as THREE from "three";
  * dielectric reflections. It is shared by every view, including interiors.
  * This is a lighting field, not a photograph or an image of the building.
  * @param {THREE.WebGLRenderer} renderer */
-export function daylight(renderer) {
+export function daylight(renderer: THREE.WebGLRenderer) {
   const width = 512, height = 256;
   const pixels = new Float32Array(width * height * 4);
   const zenith = new THREE.Color("#98b4d0");

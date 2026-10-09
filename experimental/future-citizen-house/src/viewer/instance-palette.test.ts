@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Assembly, initialState, v } from "../house/assembly";
 import { materialFinish } from "../materials/001-binding-and-scale";
 import { instancePaletteReference } from "./instance-palette";
-import { uploadHouse } from "./scene.mjs";
+import { uploadHouse } from "./scene";
 
 /** Declared reference uses the selected recipe; malformed declarations refuse. */
 export function verifyPaletteReference(): void {

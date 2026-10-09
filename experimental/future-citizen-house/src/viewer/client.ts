@@ -1,14 +1,18 @@
 // @ts-check
 import * as THREE from "three";
+import type { createViewerPayload } from "./payload";
+import type { IFutureHouseViewer } from "./IFutureHouseViewer";
+interface LoadedHouse extends ReturnType<typeof createViewerPayload> { basis: string; }
+interface HouseSection { height: number; remove: "above" | "below"; }
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { uploadHouse, disposeHouse } from "./scene.mjs";
-import { daylight } from "./illumination.mjs";
+import { uploadHouse, disposeHouse } from "./scene";
+import { daylight } from "./illumination";
 /** @typedef {ReturnType<typeof import('./payload.js').createViewerPayload> & {basis: string}} Payload */
 
 async function start() {
 if (new URL(location.href).searchParams.get("capture") === "1") document.body.classList.add("capture");
 /** @template {Element} T @param {string} selector @param {new () => T} kind */
-function required(selector, kind) {
+function required<T extends Element>(selector: string, kind: new () => T): T {
   const value = document.querySelector(selector);
   if (!(value instanceof kind)) throw new Error("Viewer control missing: " + selector);
   return value;
@@ -59,17 +63,17 @@ sun.shadow.normalBias = 0.003;
 sun.shadow.bias = -0.00005;
 scene.add(sky, sun, sun.target);
 /** @type {Payload | null} */
-let payload = null;
+let payload: LoadedHouse | null = null;
 /** @type {THREE.Group | null} */
-let house = null;
+let house: THREE.Group | null = null;
 let redraw = true;
 let sectionSignature = "";
 /** @type {THREE.Box3Helper | null} */
-let outline = null;
+let outline: THREE.Box3Helper | null = null;
 let running = true;
 let observation = "free";
 /** @type {string | null} */
-let observationSpace = null;
+let observationSpace: string | null = null;
 let poll = 0;
 
 function reset() {
@@ -118,7 +122,7 @@ function selectStation() {
   report();
 }
 /** @param {unknown} error */
-function fail(error) {
+function fail(error: unknown) {
   running = false;
   observation = "invalid"; observationSpace = null;
   controls.enabled = false;
@@ -161,7 +165,7 @@ async function load() {
   poll = window.setInterval(() => { void checkBasis(); }, 3000);
 }
 /** @param {{height: number; remove: "above" | "below"} | undefined} [cut] */
-function setSection(cut) {
+function setSection(cut?: HouseSection) {
   if (!house) return;
   const signature = JSON.stringify(inspection.checked ? cut ?? null : null);
   if (signature === sectionSignature) return;
@@ -233,17 +237,18 @@ function draw() {
   requestAnimationFrame(draw);
   } catch (error) { fail(error); }
 }
-Object.assign(window, { houseViewer: {
+const houseViewer: IFutureHouseViewer = {
   renderer: () => hardware,
   basis: () => payload?.basis ?? null,
   valid: () => running && house !== null,
   observations: () => payload?.stations ?? [],
   audit: () => payload?.audit ?? null,
   /** @param {string} space @param {string} id */
-  select: (space, id) => { inspection.checked = true; stationSelect.disabled = false; section.disabled = false; spaceSelect.value = space; selectSpace(); stationSelect.value = id; selectStation(); },
+  select: (space: string, id: string) => { inspection.checked = true; stationSelect.disabled = false; section.disabled = false; spaceSelect.value = space; selectSpace(); stationSelect.value = id; selectStation(); },
   /** @param {number} x @param {number} y @param {number} width @param {number} height */
-  readPixels: (x, y, width, height) => { if (!running || !house) throw new Error("No current frame"); const pixels = new Uint8Array(width * height * 4); gl.finish(); gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels); return Array.from(pixels); },
-} });
+  readPixels: (x: number, y: number, width: number, height: number) => { if (!running || !house) throw new Error("No current frame"); const pixels = new Uint8Array(width * height * 4); gl.finish(); gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels); return Array.from(pixels); },
+};
+Object.assign(window, { houseViewer });
 window.addEventListener("pagehide", () => {
   running = false; window.clearInterval(poll); controls.dispose();
   if (house) disposeHouse(house);

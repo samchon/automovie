@@ -1,5 +1,18 @@
 // @ts-check
 import * as THREE from "three";
+import type { IAutoMovieMaterial, IAutoMovieTextureReference } from "@automovie/interface";
+import type { createViewerPayload } from "./payload";
+type Payload = ReturnType<typeof createViewerPayload>;
+interface BatchItem {
+  mesh: Payload["models"][number]["parts"][number]["mesh"];
+  matrix: THREE.Matrix4;
+  colour: THREE.Color | null;
+  node: string;
+}
+interface MaterialBatch {
+  entry: IAutoMovieMaterial;
+  items: BatchItem[];
+}
 /** @typedef {ReturnType<typeof import('./payload.js').createViewerPayload>} Payload */
 /** @typedef {import('@automovie/interface').IAutoMovieMaterial} Material */
 /** @typedef {Payload["models"][number]["parts"][number]["mesh"]} Mesh */
@@ -11,17 +24,17 @@ import * as THREE from "three";
  * each batch keeps the exact placement ids it carries, instance palettes become
  * per-vertex colour ratios, and a mirrored transform flips its triangle winding.
  * @param {Pick<Payload, "environment" | "models" | "placements" | "textures">} payload */
-export function uploadHouse(payload) {
+export function uploadHouse(payload: Pick<Payload, "environment" | "models" | "placements" | "textures">) {
   const root = new THREE.Group(); root.name = payload.environment.id;
   const texture = textureCache(payload.textures);
   /** @type {Map<string, Payload["placements"]>} */
-  const placementsByModel = new Map();
+  const placementsByModel = new Map<string, Payload["placements"]>();
   for (const p of payload.placements) {
     const list = placementsByModel.get(p.model) ?? [];
     list.push(p); placementsByModel.set(p.model, list);
   }
   /** @type {Map<string, { entry: Material; items: Item[] }>} */
-  const batches = new Map();
+  const batches = new Map<string, MaterialBatch>();
   for (const model of payload.models) {
     const placements = placementsByModel.get(model.id) ?? [];
     if (!placements.length) continue;
@@ -30,7 +43,7 @@ export function uploadHouse(payload) {
       const entry = model.materials.find((m) => m.id === part.material);
       if (!entry) throw new Error(model.id + ": missing material");
       const key = JSON.stringify(entry);
-      const batch = batches.get(key) ?? { entry, items: [] };
+      const batch: MaterialBatch = batches.get(key) ?? { entry, items: [] };
       batches.set(key, batch);
       const local = new THREE.Matrix4();
       if (part.transform) local.compose(new THREE.Vector3().copy(part.transform.translation), new THREE.Quaternion().copy(part.transform.rotation), new THREE.Vector3().copy(part.transform.scale));
@@ -57,7 +70,7 @@ export function uploadHouse(payload) {
   return root;
 }
 /** @param {Material} entry @param {Item[]} items @param {ReturnType<typeof textureCache>} texture */
-function bake(entry, items, texture) {
+function bake(entry: IAutoMovieMaterial, items: BatchItem[], texture: ReturnType<typeof textureCache>) {
   const material = uploadMaterial(entry, texture);
   for (const { mesh } of items) if (material.map && mesh.uvs && (mesh.uvs.length !== mesh.positions.length / 3 * 2 || mesh.uvs.some((value) => !Number.isFinite(value))))
     throw new Error(entry.id + ": invalid primary UV array");
@@ -141,11 +154,11 @@ function bake(entry, items, texture) {
  * that source through their own sampler and transform, so a repeated finish is
  * uploaded once however many models or batches bind it.
  * @param {Payload["textures"]} assets */
-function textureCache(assets) {
+function textureCache(assets: Payload["textures"]) {
   /** @type {Map<string, THREE.DataTexture>} */
-  const sources = new Map();
+  const sources = new Map<string, THREE.DataTexture>();
   /** @param {import('@automovie/interface').IAutoMovieTextureReference} binding */
-  return (binding) => {
+  return (binding: IAutoMovieTextureReference) => {
     let base = sources.get(binding.asset);
     if (!base) {
       const asset = assets.find((value) => value.id === binding.asset);
@@ -156,9 +169,9 @@ function textureCache(assets) {
     }
     const map = base.clone();
     map.colorSpace = binding.colorSpace === "linear" ? THREE.LinearSRGBColorSpace : THREE.SRGBColorSpace;
-    const wrap = { clamp: THREE.ClampToEdgeWrapping, repeat: THREE.RepeatWrapping, mirror: THREE.MirroredRepeatWrapping };
+    const wrap = { clamp: THREE.ClampToEdgeWrapping, repeat: THREE.RepeatWrapping, mirror: THREE.MirroredRepeatWrapping } as const;
     map.wrapS = wrap[binding.sampler?.wrapS ?? "clamp"]; map.wrapT = wrap[binding.sampler?.wrapT ?? "clamp"];
-    const filters = { nearest: THREE.NearestFilter, linear: THREE.LinearFilter, nearestMipmapLinear: THREE.NearestMipmapLinearFilter, linearMipmapLinear: THREE.LinearMipmapLinearFilter };
+    const filters = { nearest: THREE.NearestFilter, linear: THREE.LinearFilter, nearestMipmapLinear: THREE.NearestMipmapLinearFilter, linearMipmapLinear: THREE.LinearMipmapLinearFilter } as const;
     map.minFilter = filters[binding.sampler?.minFilter ?? "linearMipmapLinear"];
     map.magFilter = binding.sampler?.magFilter === "nearest" ? THREE.NearestFilter : THREE.LinearFilter;
     map.generateMipmaps = true; map.anisotropy = 8;
@@ -172,13 +185,13 @@ function textureCache(assets) {
   };
 }
 /** @param {Material} entry @param {ReturnType<typeof textureCache>} texture */
-function uploadMaterial(entry, texture) {
+function uploadMaterial(entry: IAutoMovieMaterial, texture: ReturnType<typeof textureCache>) {
   if (entry.normalTexture || entry.metallicRoughnessTexture || entry.occlusionTexture || entry.emissiveTexture)
     throw new Error(entry.id + ": texture resource binding has not been supplied to this viewer");
-  let map = null;
+  let map: THREE.Texture | null = null;
   if (entry.baseColorTexture) {
     /** @type {import('@automovie/interface').IAutoMovieTextureReference} */
-    const binding = typeof entry.baseColorTexture === "string" ? { asset: entry.baseColorTexture, texCoord: 0, colorSpace: "srgb" } : entry.baseColorTexture;
+    const binding: IAutoMovieTextureReference = typeof entry.baseColorTexture === "string" ? { asset: entry.baseColorTexture, texCoord: 0, colorSpace: "srgb" } : entry.baseColorTexture;
     if (binding.texCoord !== 0) throw new Error(entry.id + ": viewer only uploads the native primary UV set");
     map = texture(binding);
   }
@@ -199,10 +212,10 @@ function uploadMaterial(entry, texture) {
 }
 
 /** @param {THREE.Object3D} root */
-export function disposeHouse(root) {
-  const geometries = new Set();
-  const materials = new Set();
-  const textures = new Set();
+export function disposeHouse(root: THREE.Object3D) {
+  const geometries = new Set<THREE.BufferGeometry>();
+  const materials = new Set<THREE.Material>();
+  const textures = new Set<THREE.Texture>();
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     geometries.add(object.geometry);

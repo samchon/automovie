@@ -9,21 +9,32 @@
  * 불러오기 실패 시 장면을 비우고 오류를 표시한다.
  */
 import * as THREE from "three";
+import type { ViewerPayload } from "./payload";
+import type { SectionPayload } from "./section";
+import type { ReviewPayload } from "../review/review-payload";
+import type { IAncientTempleViewer } from "./IAncientTempleViewer";
+interface LoadedTemple extends ReturnType<typeof uploadTemple> {
+  payload: ViewerPayload;
+  basis: string;
+  supports: THREE.Group;
+  textures: Map<string, THREE.Texture>;
+}
+interface TempleSource { basis: string; payload: ViewerPayload; }
+interface TempleSectionRequest { axis: "x" | "z"; offset: number; flip: boolean; }
+interface SectionShown { key: string; pieces: number; }
+interface Point3 { x: number; y: number; z: number; }
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createTemplePresentation } from "./daylight.mjs";
-import { isTempleRoofCovering } from "./inspection-visibility.mjs";
-import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene.mjs";
+import { createTemplePresentation } from "./daylight";
+import { isTempleRoofCovering } from "./inspection-visibility";
+import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 /** @typedef {Payload["observations"][number]} Observation */
 
 /**
- * @template {Element} T
  * @param {string} selector
- * @param {new () => T} kind
- * @returns {T}
  */
-function required(selector, kind) {
+function required<T extends Element>(selector: string, kind: new () => T): T {
   const value = document.querySelector(selector);
   if (!(value instanceof kind)) throw new Error(`뷰어 조작부 누락: ${selector}`);
   return value;
@@ -59,10 +70,8 @@ const camera = new THREE.PerspectiveCamera();
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = false;
 controls.maxDistance = 160;
-/** @type {{ payload: Payload, basis: string, root: THREE.Group, supports: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material>, textures: Map<string, THREE.Texture> } | null} */
-let current = null;
-/** @type {Observation | null} */
-let station = null;
+let current: LoadedTemple | null = null;
+let station: ViewerPayload["observations"][number] | null = null;
 const planCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1.2);
 const verticalCut = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 const orthoCamera = new THREE.OrthographicCamera(-6.4, 6.4, 4, -4, 0.05, 200);
@@ -82,8 +91,7 @@ sectionShapes.name = "section-pieces";
 scene.add(sectionShapes);
 /** 단면 조각 종류별 채움 색(검사 표시이며 재료가 아니다). */
 const sectionColors = { wall: 0x7a3b2e, roof: 0x3d4a57, trim: 0xc9a227, floor: 0x5b6b3a };
-/** @type {{ key: string, pieces: number } | null} */
-let sectionShown = null;
+let sectionShown: SectionShown | null = null;
 let sectionRequest = 0;
 
 /**
@@ -91,7 +99,7 @@ let sectionRequest = 0;
  * 잘린 실체의 속을 덮는다. 틈은 조각 사이의 빈칸, 겹침은 조각이 포개진 자리로 보인다.
  * @param {{ axis: "x" | "z", offset: number, flip: boolean }} cut
  */
-async function loadSection(cut) {
+async function loadSection(cut: TempleSectionRequest) {
   const key = `${cut.axis}:${cut.offset}:${cut.flip}`;
   if (sectionShown?.key === key) return;
   const request = ++sectionRequest;
@@ -101,14 +109,13 @@ async function loadSection(cut) {
 ${await response.text()}`);
     return;
   }
-  /** @type {import("./section.js").SectionPayload} */
-  const body = await response.json();
+  const body: SectionPayload = await response.json();
   if (request !== sectionRequest) return;
   disposeTree(sectionShapes);
   sectionShapes.clear();
   const inset = cut.flip ? 0.001 : -0.001;
   /** @param {number} u @param {number} y */
-  const world = (u, y) => cut.axis === "x" ? new THREE.Vector3(cut.offset + inset, y, u) : new THREE.Vector3(u, y, cut.offset + inset);
+  const world = (u: number, y: number) => cut.axis === "x" ? new THREE.Vector3(cut.offset + inset, y, u) : new THREE.Vector3(u, y, cut.offset + inset);
   for (const piece of body.pieces) {
     const corners = piece.points.map((p) => world(p.u, p.y));
     const [c0, c1, c2, c3] = corners;
@@ -132,7 +139,7 @@ ${await response.text()}`);
 
 /** 연직 단면 설정: 축, 위치, 남기는 쪽, 정사영. */
 function cutState() {
-  const axis = /** @type {"x" | "z" | null} */ (section.value === "cut-x" ? "x" : section.value === "cut-z" ? "z" : null);
+  const axis: "x" | "z" | null = section.value === "cut-x" ? "x" : section.value === "cut-z" ? "z" : null;
   const offset = Number(sectionOffset.value);
   return {
     axis, offset: Number.isFinite(offset) ? offset : 0, flip: sectionFlip.checked,
@@ -140,12 +147,11 @@ function cutState() {
   };
 }
 
-/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], sectionPieces: number | null, sectionKey: string | null, select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
-const handle = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, sectionKey: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
+const handle: IAncientTempleViewer = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, sectionKey: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
 Object.assign(window, { templeViewer: handle });
 
 /** @param {string} message */
-function fail(message) {
+function fail(message: string) {
   handle.error = message;
   handle.ready = false;
   if (current !== null) {
@@ -167,8 +173,7 @@ async function load() {
     fail(`HTTP ${response.status}\n${await response.text()}`);
     return;
   }
-  /** @type {{ basis: string, payload: Payload }} */
-  const body = await response.json();
+  const body: TempleSource = await response.json();
   camera.fov = body.payload.lens.verticalDegrees;
   camera.aspect = body.payload.lens.aspect;
   camera.near = body.payload.lens.near;
@@ -214,14 +219,14 @@ async function load() {
  * @param {string | null} text
  * @returns {[number, number, number] | null}
  */
-function parseVector(text) {
+function parseVector(text: string | null): [number, number, number] | null {
   if (text === null) return null;
   const values = text.split(",").map(Number);
-  return values.length === 3 && values.every(Number.isFinite) ? /** @type {[number, number, number]} */ (values) : null;
+  return values.length === 3 && values.every(Number.isFinite) ? [values[0], values[1], values[2]] : null;
 }
 
 /** @param {Payload} payload */
-function populate(payload) {
+function populate(payload: ViewerPayload) {
   spaceSelect.replaceChildren(new Option("외부 전체", ""), ...payload.spaces.map((s) => new Option(s.name, s.id)));
   refillStations(payload);
   spaceList.replaceChildren(...payload.spaces.map((s) => {
@@ -233,7 +238,7 @@ function populate(payload) {
 }
 
 /** @param {Payload} payload */
-function refillStations(payload) {
+function refillStations(payload: ViewerPayload) {
   const space = spaceSelect.value;
   const outside = ["exterior", "junction", "section", "reference"];
   const list = payload.observations.filter((o) => space === "" ? outside.includes(o.group) : o.space === space);
@@ -245,7 +250,7 @@ let viewApplied = false;
  * 관찰이 가진 검사 보기(연직 단면·절개 조감)를 켜고, 보기가 없는 관찰로 옮기면 그 보기를 끈다.
  * @param {Observation} observation
  */
-function applyView(observation) {
+function applyView(observation: ViewerPayload["observations"][number]) {
   const view = observation.view;
   if (view !== undefined) {
     inspection.checked = true;
@@ -266,7 +271,7 @@ function applyView(observation) {
 }
 
 /** @param {string} id */
-function selectStation(id) {
+function selectStation(id: string) {
   const observation = current?.payload.observations.find((o) => o.id === id);
   if (observation === undefined || observation.position === null || observation.target === null) return false;
   station = observation;
@@ -293,7 +298,7 @@ function selectStation(id) {
  * 검사용 자유 시점. 관찰 목록에 없는 위치이며 기록할 때는 좌표를 함께 남긴다.
  * @param {number[]} position @param {number[]} target
  */
-function look(position, target) {
+function look(position: number[], target: number[]) {
   if (position.length !== 3 || target.length !== 3) return false;
   camera.position.set(position[0] ?? 0, position[1] ?? 0, position[2] ?? 0);
   controls.target.set(target[0] ?? 0, target[1] ?? 0, target[2] ?? 0);
@@ -308,7 +313,7 @@ target: (${target.join(", ")})`;
 
 function describe() {
   if (station === null) return;
-  const f = (/** @type {{x:number,y:number,z:number}} */ v) => `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})`;
+  const f = (v: Point3) => `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})`;
   details.textContent = [
     `관찰: ${station.id}`, `이름: ${station.label}`, `역할: ${station.role}`,
     `카메라: ${f(camera.position)}`, `target: ${f(controls.target)}`, `렌즈: 수직 ${camera.fov}°, 화면 비율 ${camera.aspect.toFixed(2)}`,
@@ -437,8 +442,7 @@ async function loadReview() {
   try {
     const response = await fetch("/review?grid=0.01", { cache: "no-store" });
     if (!response.ok) throw new Error(await response.text());
-    /** @type {import("../review/review-payload.js").ReviewPayload} */
-    const review = await response.json();
+    const review: ReviewPayload = await response.json();
     const revision = review.revision === null ? "unverified" : `${review.revision.commit.slice(0, 8)}${review.revision.dirty ? " (dirty)" : ""}`;
     const lines = [
       `source ${review.basis} · revision ${revision}`,
