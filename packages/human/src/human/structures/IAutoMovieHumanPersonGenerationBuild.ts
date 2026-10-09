@@ -17,7 +17,7 @@ import type { IAutoMovieHumanPersonBoundaryReading } from "./IAutoMovieHumanPers
  * partitions' fields asked of the boundary.
  *
  * @evidence contracts/common.md#principled-implementation Returns the evaluated model with the body evaluation and joints a consumer already reads from a person build.
- * @evidence contracts/common.md#clear-and-simple-design Four named fields.
+ * @evidence contracts/common.md#clear-and-simple-design Named model, pre-partition source model, body, bones and boundary retain their distinct output responsibilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The boundary reading reports the partitions' disagreement instead of hiding it.
  * @evidence contracts/common.md#meaningful-documentation States the frame, the naming and the shared-sample property.
  * @evidence contracts/modeling.md#part-identity-and-grouping Parts keep their owners' identities under a prefix; no third skin identity is introduced.
@@ -34,6 +34,15 @@ import type { IAutoMovieHumanPersonBoundaryReading } from "./IAutoMovieHumanPers
 export interface IAutoMovieHumanPersonGenerationBuild {
   /** The posed person, validated as a resident model. */
   model: IAutoMovieModel;
+
+  /**
+   * The same final joined evaluation before its garment material partition.
+   * Positions, unit normals, physical sample identities and ground placement
+   * retain the model's final frame and neck stitching. Omission means model
+   * still contains that complete source-region population. This derived
+   * observation model is not rendered, exported or authored separately.
+   */
+  sourceSkinModel?: IAutoMovieModel;
 
   /** Independent body evaluation without layers; final formed skin, garment and layers when registered. */
   body: IAutoMovieHumanBodyBuild;

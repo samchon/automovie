@@ -235,7 +235,7 @@ if (stage === "source-admission") {
       const refused = layers.writeLayerOrder(
         "body",
         build.model,
-        [faces?.[0] ?? artifacts.skinOf(build.model, "Human/skin")],
+        [faces?.[0] ?? artifacts.skinOf(build.sourceSkinModel ?? build.model, "Human/skin")],
         "anatomical-source:",
         faces === undefined ? undefined : [faces[1]],
       );
@@ -313,25 +313,23 @@ if (stage === "source-admission") {
       body: bodyBuild,
       person: personBuild,
     });
-    const personFaces = layers.facesOfPerson(personBuild.model, generation, document.id);
+    const personSourceSkin = personBuild.sourceSkinModel ?? personBuild.model;
+    const personFaces = layers.facesOfPerson(personSourceSkin, generation, document.id);
     const bodyFaces = layerField === undefined ? undefined : layers.facesOf(bodyBuild.posedSurfaces[0].positions);
-    const faceSkin = artifacts.skinOf(personBuild.model, "face:Human/skin");
+    const faceSkin = artifacts.skinOf(personSourceSkin, "face:Human/skin");
     const bodyLayerRefusals = layers.writeLayerOrder(
       "body",
       bodyBuild.model,
-      [bodyFaces?.[0] ?? artifacts.skinOf(bodyBuild.model, "Human/skin")],
+      [bodyFaces?.[0] ?? artifacts.skinOf(bodyBuild.sourceSkinModel ?? bodyBuild.model, "Human/skin")],
       "anatomical-source:",
       bodyFaces === undefined ? undefined : [bodyFaces[1]],
     );
     const personLayerRefusals = layers.writeLayerOrder(
       "person",
       personBuild.model,
-      [
-        faceSkin,
-        personFaces?.[0] ?? artifacts.skinOf(personBuild.model, "body:Human/skin"),
-      ],
+      layerField === undefined ? [personFaces[0]] : [faceSkin, personFaces[0]],
       "body:anatomical-source:",
-      personFaces === undefined ? undefined : [faceSkin, personFaces[1]],
+      layerField === undefined ? undefined : [faceSkin, personFaces[1]],
     );
     // Registered anatomical joint centres beside the rig landmarks they are
     // named for: the rig pivots the skin about its landmark, a bone turns about

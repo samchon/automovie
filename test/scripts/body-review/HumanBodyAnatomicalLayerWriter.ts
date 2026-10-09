@@ -204,15 +204,21 @@ export class HumanBodyAnatomicalLayerWriter {
     ];
   }
 
-  /** Observe final emitted skin by canonical material identity, retaining native field order. */
-  facesOfPerson(model: IAutoMovieModel, generation: IAutoMovieHumanPersonGeneration, documentId: string): IHumanBodyLayerReference[] | undefined {
+  /**
+   * Read the actual final joined source-region skin before fabric partition.
+   * The caller supplies the owning pre-partition model in the final Person
+   * frame, retaining ground placement, stitching and canonical sample IDs.
+   * With no thickness field, its complete paired skin is the reference; with
+   * one, the same exterior supplies the original native layer observations.
+   */
+  facesOfPerson(model: IAutoMovieModel, generation: IAutoMovieHumanPersonGeneration, documentId: string): IHumanBodyLayerReference[] {
     const bodyPartition = generation.body.surfaces.find((surface) => surface.sourcePartition !== undefined)!;
     const facePartition = generation.face.surfaces.find((surface) => surface.sourcePartition !== undefined)!;
     const skinIds = new Set([
       ...bodyPartition.regions.map((region) => "body:" + region.id),
       ...facePartition.regions.map((region) => "face:" + region.id),
     ]);
-    const exterior = this.field === undefined ? undefined : readHumanBodyLayerExterior({
+    const exterior = readHumanBodyLayerExterior({
       domain: humanPhysicalSourceDomain(documentId, generation.id),
       samples: bodyPartition.sourcePartition!.samples,
       meshes: model.parts.filter((part) => skinIds.has(part.id)).map((part) => {
@@ -220,7 +226,7 @@ export class HumanBodyAnatomicalLayerWriter {
         return part.geometry.mesh;
       }),
     });
-    return exterior === undefined ? undefined : this.facesOf(
+    return this.field === undefined ? [{ name: "person-source-skin", mesh: exterior.mesh }] : this.facesOf(
       exterior.originVertices.flatMap((vertex) => exterior.mesh.positions.slice(vertex * 3, vertex * 3 + 3)),
       exterior,
       "person",
