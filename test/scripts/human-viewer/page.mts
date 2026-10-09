@@ -40,6 +40,7 @@ import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 import { readHumanViewerPng } from "./readHumanViewerPng";
 import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
+import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { showHumanViewerFirstAddress } from "./showHumanViewerFirstAddress";
 import { showHumanViewerReference } from "./showHumanViewerReference";
 
@@ -87,6 +88,8 @@ Object.assign(window, {
 parent.postMessage({ type: "human:admission" }, location.origin);
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress | undefined;
+/** One failed resident restoration is reported with readiness, never retried automatically. */
+let restoreError: string | undefined;
 /** Resident key of the frame on screen, which a trim never releases. */
 let shownKey = "";
 /** The photograph layer of the frame on screen, null while none is shown. */
@@ -234,8 +237,8 @@ async function main(): Promise<void> {
   // A worker that cannot load (a module it imports is missing or broken)
   // fails this candidate at once; the first show would otherwise wait on it
   // forever and never release the host's hold.
-  // Interactive pages retain their first-document behavior. A resident
-  // service proves code and hardware before any model is explicitly requested.
+  // Initial resident startup evaluates no document. A replacement restores
+  // only a display the host previously completed, through this checked realm.
   if (residentCapture) await loaded;
   else
     await showHumanViewerFirstAddress(
@@ -251,6 +254,24 @@ async function main(): Promise<void> {
     catalogue.revision,
   );
   await checkHumanViewerCandidateSource();
+  if (residentCapture && new URLSearchParams(location.search).get("restore") === "1") {
+    try {
+      await apply(parseHumanViewerAddress(location.hash));
+    } catch (error) {
+      await numerical.authority();
+      restoreError = error instanceof Error ? error.message : String(error);
+      residents.clear();
+      shownKey = "";
+      current = undefined;
+      composition = null;
+      workingDocument = "";
+      work("idle");
+    }
+    // A source/realm failure still refuses generation publication. A rejected
+    // document alone leaves a ready empty bridge and its explicit cause.
+    assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.authority(), catalogue.revision);
+    await checkHumanViewerCandidateSource();
+  }
   addEventListener("hashchange", () => {
     void apply(parseHumanViewerAddress(location.hash));
   });
@@ -303,7 +324,14 @@ async function main(): Promise<void> {
       evict: () => residents.evictOldest(shownKey),
     },
   });
-  parent.postMessage({ type: "human:ready" }, location.origin);
+  parent.postMessage({
+    type: "human:ready",
+    ...(current === undefined ? {} : {
+      address: serializeHumanViewerAddress(current),
+      parts: active.observe.parts(),
+    }),
+    restoreError,
+  }, location.origin);
   // A human orbit is display-only. Finish on demand and while the pointer moves.
   canvas.addEventListener("pointermove", () => {
     if (current !== undefined) active.finish();

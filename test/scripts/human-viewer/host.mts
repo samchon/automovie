@@ -1,9 +1,12 @@
 /**
  * Keep the committed viewport visible while a source generation prepares off
  * screen. Interactive swaps require a completed model and GPU finish; the
- * resident service can publish a source-proven bridge before selecting a model.
- * Failed candidates leave the old frame and an error; the old source digest
- * prevents HTTP capture of it as new work. Iframe removal releases its worker
+ * resident service initially publishes a checked empty bridge, then restores
+ * only a previously successful display before replacing its source generation.
+ * Failed source candidates leave the old frame; a failed selected-document
+ * restore publishes a checked empty bridge with that document's cause.
+ * The old source digest prevents HTTP capture of it as new work.
+ * Iframe removal releases its worker
  * and WebGL context, including all scene residents. The page hash holds the
  * display address; the controls above the viewport show it and change it.
  */
@@ -29,6 +32,8 @@ let candidate: HTMLIFrameElement | undefined;
 let again = false;
 let committed: ReturnType<typeof createHumanViewerGeneration> | undefined;
 let generation = 0;
+/** Only an address whose display completed; failed hash navigation is not replayed. */
+let displayedAddress: string | undefined;
 // The server's admissions reach the newest loaded viewer frame through this
 // bridge, which exists from now on, with or without a committed generation.
 Object.assign(window, {
@@ -105,9 +110,10 @@ function prepare(): void {
   frame.title = "Human GPU viewport";
   frame.style.visibility = "hidden";
   let address = "";
+  const restore = resident && displayedAddress !== undefined;
   try {
     address = serializeHumanViewerAddress(
-      parseHumanViewerAddress(location.hash),
+      parseHumanViewerAddress(restore ? displayedAddress! : location.hash),
     );
   } catch (failure) {
     showError(String(failure));
@@ -127,6 +133,7 @@ function prepare(): void {
       frame.src =
         "/scene.html?" +
         new URLSearchParams({ generation: String(ticket), token: hold.token }) +
+        (restore ? "&restore=1" : "") +
         "#" +
         address;
       stage.append(frame);
@@ -165,6 +172,9 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
     event.data.type === "human:address" &&
     event.data.address !== undefined
   ) {
+    if (candidate !== undefined && displayedAddress !== event.data.address)
+      again = true;
+    displayedAddress = event.data.address;
     history.replaceState(null, "", "#" + event.data.address);
     settle();
     error.style.display = "none";
@@ -195,13 +205,34 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   }
   if (event.data.type !== "human:ready") return;
   const ready = candidate;
+  const restored = new URLSearchParams(ready.contentWindow!.location.search).get("restore") === "1";
+  const attempted = serializeHumanViewerAddress(
+    parseHumanViewerAddress(ready.contentWindow!.location.hash),
+  );
+  // A successful selection made while this candidate prepared owns the
+  // screen. Keep that committed frame until its replacement finishes.
+  if (restored && displayedAddress !== attempted) {
+    void releaseHold(ready);
+    holds.delete(ready);
+    ready.remove();
+    candidate = undefined;
+    again = true;
+    followUp();
+    return;
+  }
+  if (event.data.restoreError !== undefined) {
+    if (displayedAddress === attempted) displayedAddress = undefined;
+  } else if (event.data.address !== undefined &&
+      (!restored || displayedAddress === attempted)) {
+    displayedAddress = event.data.address;
+    history.replaceState(null, "", "#" + event.data.address);
+  }
   const label = releaseHold(ready);
   if (active !== undefined) holds.delete(active);
   committed?.retire();
   active?.remove();
   active = candidate;
   candidate = undefined;
-  followUp();
   active.style.visibility = "visible";
   goodAt = new Date().toLocaleTimeString();
   banner.hidden = true;
@@ -219,6 +250,13 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   void label.then((proven) =>
     console.log("HUMAN_READY " + handle.revision() + " " + (proven ?? "-")),
   );
+  if (event.data.restoreError !== undefined) {
+    settle();
+    error.textContent = event.data.restoreError;
+    error.style.display = "block";
+    console.log("HUMAN_RESTORE_FAILED " + event.data.restoreError);
+  }
+  followUp();
   void refreshCatalogue()
     .then(() => {
       if (resident) return;

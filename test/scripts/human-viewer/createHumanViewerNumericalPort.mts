@@ -298,8 +298,9 @@ export function createHumanViewerNumericalPort(
     /** Duration of the most recent worker build, in milliseconds. */
     buildMs: (): number => buildMs,
 
-    /** Actual Node source and compiler receipt, distinct from browser stamps. */
-    authority: (): Promise<IHumanViewerNodeAuthority> => workerCompiles,
+    /** Actual Node receipt while its owned realm remains live; failures propagate unchanged. */
+    authority: (): Promise<IHumanViewerNodeAuthority> =>
+      workerFailure === null ? workerCompiles : Promise.reject(workerFailure),
 
     /** Flush optional persistence only after the completed display or PNG read. */
     persist: (): void => worker.postMessage({ persistence: "flush" }),
