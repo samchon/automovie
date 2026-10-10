@@ -1,29 +1,36 @@
 # Anatomical Principles
 
-These chapters address declarations that own anatomical values, controls, ranges or conversions. A human form is geometry the package authors, procedurally or offline; external meshes, atlases and scans serve as measurement references. Public numerical authoring, source preparation and deterministic runtime replay have separate responsibilities. Authored geometry supplies a representation; anatomical claims still require measurements, tissue relationships and supported conditions.
+These chapters apply to declarations that own anatomical values, controls, ranges or conversions. The package authors the geometry; external meshes, atlases and scans are measurement references. Anatomical claims require measurements, tissue relationships and supported conditions.
 
 ## Anatomical Source
 
 Apply to declarations that carry an anatomical value, range, proportion, landmark or tissue behavior.
 
-Ground each value in a primary measurement, a dissection study or an established physiological account. Keep the measured quantity, protocol, population and conditions with the value. Distinguish measured, derived, population-fitted and conventional values. Population fits apply only to the population the source measured, and a value measured at one site, direction or state applies only there; extending it across a region is a new inference that needs its own grounds and a check of the resulting geometry. A photograph, scalar or render does not determine a person's full anatomy or hidden tissue.
+- Ground each value in a primary measurement, a dissection study or an established physiological account. Keep its quantity, protocol, population and conditions with it.
+- Mark each value measured, derived, population-fitted or conventional. A value holds only for the population, site, direction and state it was measured at; extending it is a new inference that needs its own grounds and a geometry check.
+- Cite only a source that was read, by author, year and venue. A remembered figure is not a citation.
+- Keep raw observations, normalized indices and authored targets separate, and document each conversion with its units. Clinical motion capacity and requested performance are distinct quantities.
+- A code convention establishes no clinical range, personal reconstruction or physiological truth. Photographs, scans and generated images guide shape comparison and supply no hidden-tissue measurement.
 
-Identify the source by author, year and venue, the quantity it measures under its own definition, its population and conditions, and the kind of the value. Separate what the source states from what the declaration infers. Cite only a source that was read, because a remembered figure is not a citation. State where the source is weak or absent or where the declaration departs from it, and what the declaration does there.
-
-Preserve raw observations separately from normalized indices and authored targets. Document each conversion and its units, including ordinal grades, millimetres and degrees. Clinical motion capacity and requested performance are distinct quantities. A code or source convention establishes no clinical normal range, personal reconstruction or physiological truth. Reference photographs, scans and generated images can guide shape comparison; generated views supply no anatomical measurement or hidden-tissue evidence.
+Answer: the source, its quantity and population, what the declaration infers beyond it, and where the source is weak, absent or departed from.
 
 ## Permitted Range
 
 Apply to declarations that admit, bound or combine anatomical values.
 
-Admit only values, and combinations of values, that a living human body can take. Derive each bound that depends on another quantity from the structure that limits it, such as a joint's range of motion, a tissue's extensibility or a neighboring structure's clearance. Reject a state outside the range with a reported cause and leave the caller's values unchanged. Check combinations separately from single values, because every value can be permitted while their combination is impossible.
+- Admit only values and combinations a living human body can take.
+- Derive each dependent bound from the structure that limits it, such as a joint's range of motion, a tissue's extensibility or a neighbor's clearance.
+- Check combinations separately, because individually permitted values can combine impossibly.
+- Reject an out-of-range state with its cause and leave the caller's values unchanged.
 
-Identify each bound, the dependencies between quantities, and how the declaration decides the admission of a combination. Explain the behavior at and beyond each bound.
+Answer: each bound, its dependencies, how combinations are admitted and the behavior at and beyond each bound.
 
 ## Parametric Authority
 
 Apply to declarations that define or convert an input through which a caller shapes a human form.
 
-Make every public authoring input a named anatomical measurement, a named physiological motion or a choice from a closed set, as specific as its evidence permits. Public inputs do not address vertices, curves, strands or surface patches for personal sculpting. Offline shared source preparation may author those representations under its provenance and anatomical constraints. Define each conversion between simple and detailed inputs deterministically, document its anatomical or conventional basis, and state its inverse or why none exists.
+- Make each public input a named anatomical measurement, a named physiological motion or a closed-set choice, as specific as its evidence permits. Public inputs never address vertices, curves, strands or surface patches; offline source preparation may author those.
+- Define each conversion between simple and detailed inputs deterministically, with its basis and its inverse or why none exists.
+- A transport preserves its owner's meaning and does not establish it anew. Caller authorship never exempts the owner of a value or conversion from these chapters.
 
-Identify the measurement, motion or choice set each public input stands for and its conversions. A transport declaration preserves that owner's meaning; it does not establish the anatomical basis anew. Caller authorship never exempts the owner of an anatomical value or conversion from these chapters.
+Answer: the measurement, motion or choice set each public input stands for, and its conversions.
