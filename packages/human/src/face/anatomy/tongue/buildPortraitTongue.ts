@@ -19,8 +19,7 @@ import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
  * Raise offsets the centreline by sin(pi*v)^2; advance moves the anterior body
  * by one minus smoothstep(v), leaving the posterior endpoint fixed. A backwards
  * advance that would reverse the longitudinal parameterization is refused.
- *
- 
+ */
 export function buildPortraitTongue(
   shape: IPortraitTongueShape,
   performance: { raise: number; advance: number } = { raise: 0, advance: 0 },
