@@ -1,0 +1,101 @@
+<!doctype html>
+<!-- Shared website chrome; the queried building's original source supplies
+     geometry, materials, lighting and authored world-space camera choices. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ef" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <title>Architectural tour · AutoMovie</title>
+    <script type="module" crossorigin src="../assets/tour-VYWa6pfM.js"></script>
+    <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="../assets/spectatorControls--INzRAwp.js">
+    <link rel="stylesheet" crossorigin href="../assets/spectatorControls-D3-E6jpx.css">
+    <link rel="stylesheet" crossorigin href="../assets/tour-CPA2Z4Mz.css">
+  </head>
+  <body>
+    <header class="tour-header">
+      <a
+        class="back"
+        href="../#collection"
+        aria-label="Back to the building collection"
+        >← <span>Collection</span></a
+      >
+      <div class="title">
+        <p id="tour-era">Architectural collection</p>
+        <h1 id="tour-title">3D tour</h1>
+      </div>
+      <a id="tour-source" href="https://github.com/samchon/automovie"
+        >View source ↗</a
+      >
+    </header>
+    <main>
+      <canvas
+        id="view"
+        tabindex="0"
+        aria-label="Interactive building scene"
+      ></canvas>
+      <div id="loading" role="status" aria-live="polite">
+        <span class="loader" aria-hidden="true"></span>
+        <h2>Step inside.</h2>
+        <p id="phase">Preparing your 3D tour</p>
+        <a href="../#collection">Back to collection</a
+        ><button type="button" onclick="location.reload()">Try again</button>
+      </div>
+      <div class="view-chrome">
+        <div class="view-heading">
+          <p>Explore the building</p>
+          <button
+            id="panel-toggle"
+            aria-expanded="true"
+            aria-controls="tour-panel"
+          >
+            Hide views
+          </button>
+        </div>
+        <aside id="tour-panel" aria-label="Authored camera views">
+          <label for="view-search">Find a room or viewpoint</label
+          ><input
+            id="view-search"
+            type="search"
+            placeholder="Search views…"
+            autocomplete="off"
+          />
+          <p id="view-count" role="status"></p>
+          <div id="view-list"></div>
+        </aside>
+      </div>
+      <div class="camera-dock" aria-label="Camera controls">
+        <button id="reset">Reset view</button>
+      </div>
+      <div class="flight-pad flight-direction" aria-label="Hold to move">
+        <button data-flight="forward" aria-label="Fly forward">&uarr;</button>
+        <button data-flight="left" aria-label="Fly left">&larr;</button>
+        <button data-flight="right" aria-label="Fly right">&rarr;</button>
+        <button data-flight="back" aria-label="Fly backward">&darr;</button>
+      </div>
+      <div class="flight-pad flight-height" aria-label="Hold to change height">
+        <button data-flight="up" aria-label="Fly up">Up</button>
+        <button data-flight="down" aria-label="Fly down">Down</button>
+        <button data-flight="slow" aria-label="Hold to move slowly">
+          Slow
+        </button>
+      </div>
+      <div class="tour-caption">
+        <p id="current-view"></p>
+        <p id="status" role="status">Loading live 3D</p>
+      </div>
+      <details class="help">
+        <summary>How to explore</summary>
+        <p>Click to capture the mouse. Move it to look; Esc releases.</p>
+        <p>WASD / arrows fly. Space rises, C descends. R resets.</p>
+        <p>Fast by default (8 m/s). Hold Shift to move slowly (2 m/s).</p>
+        <p>
+          Scroll changes the lens. On touch, drag to look and hold the direction
+          buttons to fly. Choose a view to enter a room.
+        </p>
+      </details>
+    </main>
+  </body>
+</html>
