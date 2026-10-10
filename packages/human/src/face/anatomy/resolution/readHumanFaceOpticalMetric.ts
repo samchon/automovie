@@ -22,15 +22,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * relative epsilons of the observed coordinate scale, an arithmetic envelope
  * for rounded XYZ and plane transport. Unresolved rings or axial points return
  * a named instrument gap instead of an authored number or an infinite radius.
- *
- * @evidence contracts/common.md#principled-implementation Reads lengths from output positions and reconstructs central curvature from two independent radial observations through a two-equation polynomial system.
- * @evidence contracts/common.md#clear-and-simple-design One optical output instrument shares its iris plane and projection convention across the named quantities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no requested dimensions, fitted defaults or source proxy as if it were the generated eye.
- * @evidence contracts/common.md#meaningful-documentation States the measured surfaces, polynomial reconstruction, coordinate precision and clinical limits.
- * @evidence contracts/modeling.md#spatial-conventions Context Float32 coordinates are canonical head-frame metres; output lengths convert to millimetres once.
- * @evidence contracts/anatomy.md#anatomical-source These are direct constructed-surface observations. Corneal curvature and depth are not interchangeable with the multi-region Scheimpflug and endothelium-to-lens protocols of Feng et al. 2011, Saudi J Ophthalmol 25:255–259.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader reports quantities and instrument gaps without admitting a physiological interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function readHumanFaceOpticalMetric(
   context: IHumanFaceMeasurementContext,

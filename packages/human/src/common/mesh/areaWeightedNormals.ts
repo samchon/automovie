@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
+import { HumanMeshNormalDomainError } from "./HumanMeshNormalDomainError";
+
 /**
  * Area-weighted normals over shared triangle vertices. Compute these before
  * separating skin and lip material groups so their colour boundary cannot
@@ -39,7 +41,7 @@ export const areaWeightedNormals = (
       !Number.isFinite(normals[i + 1]) ||
       !Number.isFinite(normals[i + 2])
     )
-      throw new Error("Model normals require finite accumulated areas.");
+      throw new HumanMeshNormalDomainError();
     const normal = Vector3.normalize(
       Vector3.create(normals[i], normals[i + 1], normals[i + 2]),
     );

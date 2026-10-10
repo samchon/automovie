@@ -23,19 +23,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * named gap rather than substituting the unshaped basis. A basis without
  * contact or articulation returns a gap.
  *
- * @evidence contracts/common.md#principled-implementation Overjet, overbite, opening and absolute midline offset are components of one incisal offset in the contact frame; reference reads use the same pair, precision and axes on the same identity's separately evaluated neutral.
- * @evidence contracts/common.md#clear-and-simple-design One reader supplies every incisal measurement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the registered pair is read; no tooth is located by coordinates.
- * @evidence contracts/common.md#meaningful-documentation States the pair, the frame axes, each component's clinical meaning and the gap.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres along the contact frame derived from the mandibular axis in the basis head frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The registered pair's producer owns its anatomy; measurements state their protocols.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
  * @author Samchon
  */
 export function readHumanFaceIncisalOffset(

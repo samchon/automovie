@@ -18,20 +18,6 @@ import { resolveHumanBodySourceReferenceGoals } from "./resolveHumanBodySourceRe
  * orientations to source rows. Those rows become the sole corrective/rhythm
  * input while its goal-independent shaped rig is retained for final FK. No
  * separate rig performs the thighs, and omission keeps ordinary preparation.
- *
- * @evidence contracts/common.md#principled-implementation The admitted goal capability makes one prepared reference rig reusable after conversion; the same pose owner supplies the pre-pelvis reference and final performance.
- * @evidence contracts/common.md#clear-and-simple-design Preparation, shared baseline, existing conversion and an effective document form one boundary before weights.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing declarations and duplicate source-pose authority refuse; no goal is accepted and ignored or substituted by a second moving rig.
- * @evidence contracts/common.md#meaningful-documentation Names the capability precondition, pre-pelvis stage and saved/effective distinction.
- * @evidence contracts/modeling.md#parameter-channels Existing thigh reference degrees become source pose rows before correctives and pelvic coordination; exact zero remains a requested goal.
- * @evidence contracts/modeling.md#spatial-conventions The converter reads metre body-space rest/current frames and existing source-degree axes/signs.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping No anatomical geometry part is defined.
- * @evidenceExclude contracts/modeling.md#emitted-geometry No primitive is emitted.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The skin and source assembly own boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation The final body/person consumers observe the converted performance.
- * @evidence contracts/anatomy.md#anatomical-source The exact basis supplies source-reference frames and qualification; these are not acquired personal hip motion measurements.
- * @evidence contracts/anatomy.md#permitted-range Capability, requested source envelope and converted/final pose admission retain their existing owners and preserve caller values on failure.
- * @evidence contracts/anatomy.md#parametric-authority Saved named reference goals lower through the existing quaternion owner, without editable frame vectors or vertices.
  */
 export function prepareHumanBodyReferenceGoalDocument(
   basis: IAutoMovieHumanBodyBasis,

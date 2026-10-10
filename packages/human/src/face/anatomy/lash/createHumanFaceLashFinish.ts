@@ -18,16 +18,6 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * That alpha conversion is an appearance approximation, not follicle density.
  * A zero population emits no part or finish. Each shaft mesh takes the actual
  * export owner's Float32 geometry admission before publication.
- *
- * @evidence contracts/common.md#principled-implementation Alpha-weighted source foreground is sampled in linear colour and explicit pigment is applied without using card texture coordinates on tubes.
- * @evidence contracts/common.md#clear-and-simple-design One compiled source pigment map supplies the emitted shaft finishes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No alpha area or card count changes the requested shaft population; unpaintable source pigment refuses rather than introducing a guessed colour.
- * @evidence contracts/common.md#meaningful-documentation States source sampling, legacy alpha conversion, empty population and Float32 admission.
- * @evidence contracts/modeling.md#part-identity-and-grouping Finishes each generated lid-row group under the shared semantic ID owner.
- * @evidence contracts/modeling.md#spatial-conventions Shaft meshes remain canonical head-frame metres and pigments are linear RGB.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Transports source painting without inferring biological hair structure.
- * @evidenceExclude contracts/anatomy.md#permitted-range Profile and contact owners admit geometry; this owner admits output precision.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Introduces no shaping input.
  */
 export function createHumanFaceLashFinish(basis: IAutoMovieHumanFaceBasis) {
   const colors = new Map<string, number[]>();

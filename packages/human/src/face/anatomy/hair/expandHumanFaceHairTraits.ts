@@ -13,20 +13,6 @@ import { expandHumanFaceHairGather } from "./expandHumanFaceHairGather";
  * settings retain their exact values. A selected sagittal part retains its
  * existing bias and envelope while replacing the named part traits; a new part
  * has no extra bias or envelope. Existing admission runs before generation.
- *
- * @evidence contracts/common.md#principled-implementation A sparse overlay replaces only selected named traits and converts their units once, preserving legacy representation without an approximate migration.
- * @evidence contracts/common.md#clear-and-simple-design One pure expansion owns sparse compatibility; existing runtime owns generation and admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No existing count, root, hidden numerical setting or untouched field changes.
- * @evidence contracts/common.md#meaningful-documentation States identity refusals, copying, part preservation and actual consumer.
- * @evidence contracts/modeling.md#parameter-channels Omission retains each existing trait independently; explicit null removes only the selected optional operation.
- * @evidence contracts/modeling.md#spatial-conventions Named mm and degrees convert to head-frame metres and radians; sagittal part offset uses the shared chart origin.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing layers own population identities.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The expansion emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Existing growth-domain and contact owners construct attachment.
- * @evidenceExclude contracts/modeling.md#rendered-observation The coupled builder observes realised styling.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Trait records own their authored qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing numerical hair admission owns limits.
- * @evidence contracts/anatomy.md#parametric-authority Named traits and closed choices enter; legacy vectors and envelopes are preserved as compatibility data rather than new sculpt inputs.
  */
 export function expandHumanFaceHairTraits(
   basis: IAutoMovieHumanFaceBasis,

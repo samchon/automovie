@@ -74,16 +74,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * between them invert or adjacent skin triangles cross. The one-ring spread
  * does not solve a coupled tissue strain or require an orientation-preserving
  * surface, so the returned counts cannot certify the performed skin as whole.
- *
- * @evidence contracts/common.md#principled-implementation Rest-clearance floors are captured on the original point for every queryable collider as affine rows along the signed distance's gradient, which stays conservative where clearance is convex. Joint candidates use the shared minimum-displacement QP in positive budget units to the floors themselves and relax by half the declared tolerance only when the budget cannot reach them, while exact single-floor witnesses retain the original gradient response. All moved points, including one-ring neighbours, must satisfy original signed-query floors within the declared tolerance, or the distance's 1-Lipschitz bound where the sheet reads no side, and the strict Euclidean net budget before any supplied buffer is committed. An unverifiable pushed point refuses; an unverifiable smoothing move is not made. These authored geometric constraints are not tissue mechanics or whole-skin validity.
- * @evidence contracts/common.md#clear-and-simple-design One orchestrator owns query witnesses, welded groups, local displacement and one-ring verification; the engine owns signed geometry and the shared QP.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is enlarged and no radial clipping substitutes for a failed witness. Staging keeps all supplied pose arrays unchanged on refusal.
- * @evidence contracts/common.md#meaningful-documentation States the original floor/query ownership, the gradient rows, strict net budget, solver, spread and reach-proof rules, atomic mutation, summary interpretation and skin-validity limits.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres; millimetres appear only in error text.
- * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceContact defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping resolveHumanFaceContact is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels resolveHumanFaceContact defines and consumes no parameter channel of a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry resolveHumanFaceContact emits no primitive.
  */
 export function resolveHumanFaceContact(
   basis: IAutoMovieHumanFaceBasis,

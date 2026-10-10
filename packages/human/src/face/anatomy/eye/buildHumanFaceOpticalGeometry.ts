@@ -29,20 +29,10 @@ import type { IHumanFaceOcularCellCorner } from "./structures/IHumanFaceOcularCe
  * must bind them to its actual document/source/side instance before publication;
  * this cached geometry carries no generation-only instance domain. Drawing's
  * outer profile and contact's hull are sampled once, not independently fitted.
- *
- * @evidence contracts/common.md#principled-implementation Shares generated outer points and interface normals between drawing and contact; inner shell, open iris and reversed backing are explicit rendering approximations.
- * @evidence contracts/common.md#clear-and-simple-design One lattice and one point owner produce named meshes plus a closed collider hull.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No raw source IDs, coordinate-welding fallback, patient constants or separate fitted collider are introduced.
- * @evidence contracts/common.md#meaningful-documentation States populations, pole handling, physical ownership and each surface approximation.
- * @evidence contracts/modeling.md#emitted-geometry Fixed regular cap/sphere/annulus sampling gives the stated counts; requested dimensions move their points without adding primitives.
- * @evidence contracts/modeling.md#shared-boundaries Cornea and sclera read the same limbal points and profile tangent; the closed hull reads the same complete exterior incidence.
- * @evidence contracts/modeling.md#spatial-conventions Profile metres map through the qualified orthonormal head frame, and normals use directions without translation.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The optical assembly owns emitted part and material IDs.
- * @evidenceExclude contracts/modeling.md#parameter-channels The seven-dimension record and source carrier own inputs.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled connected optical core owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source No measured tissue geometry is inferred from this authored construction.
- * @evidenceExclude contracts/anatomy.md#permitted-range The shared profile admits geometric containment; this builder certifies no clinical interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no new shaping input.
+ * The deviation reader optionally reports each outer cell only after its actual
+ * metric bound returned. Its branch and cell ordinal identify that certificate,
+ * not a displayed inner shell or an anatomical validity claim. Observer errors
+ * propagate; no timer, geometry buffer or estimated progress is emitted.
  */
 export function buildHumanFaceOpticalGeometry(
   profile: ReturnType<typeof resolveHumanFaceOpticalProfile>,
@@ -273,6 +263,7 @@ export function buildHumanFaceOpticalGeometry(
   const hullVertices = new Map(hull.physicalPoints.map((id, at) => [id, at]));
   const readDeviation = (
     currentFrame: ReturnType<typeof resolveHumanFaceOpticalFrame>,
+    progress?: (branch: "cap" | "sphere", cell: number) => void,
   ): number => {
     let maximum = 0;
     for (const [branch, triangles, parameters] of [
@@ -307,6 +298,7 @@ export function buildHumanFaceOpticalGeometry(
           maximum,
           metric.bound(branch, currentFrame, corners),
         );
+        progress?.(branch, at / 3);
       }
     return maximum;
   };

@@ -4,11 +4,6 @@ import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPers
 
 /** One source-person geometry owner with ordinary admission and explicit construction inspection.
  *
- * @evidence contracts/common.md#principled-implementation The same composed model and source context feed ordinary and explicit construction entries.
- * @evidence contracts/common.md#clear-and-simple-design One callable and one explicit inspection method share a geometry owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The ordinary entry still refuses every reported admission failure.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes complete construction from admitted authoring output.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonGenerationBuilder {

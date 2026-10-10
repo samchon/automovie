@@ -1,33 +1,38 @@
-# Human package
+# Human development
 
-Read this document before investigating or changing `packages/human`. The [package README](../../../packages/human/README.md) owns supported APIs and their current consumers. Read the task's public issue and the selected input, source and consumer before choosing a representation.
+## Development
 
-## Input and source responsibility
+- Ground anatomical claims under the contracts skill's [Anatomical Source](../contracts/anatomy.md#anatomical-source) chapter, and keep the provenance and rights of every reference.
+- Author the geometry in this package. Its construction (surfaces, cross-sections, topology, blending) is design work: mark it authored and accept it by measurement and rendering against references. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence. A missing source is no reason to import geometry.
+- Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
+- Develop anatomy as connected parts.
+- Generate skin and interior tissue from one shared skeleton and rest frame so their correspondence holds by construction. Do not reconcile independently sourced geometry through registration or optimization.
+- Distinguish numerical, clinical and visual judgments. Missing or refused results remain unverified.
+- Preserve the last valid state when an operation fails.
 
-Work on one connected unit: its input meaning and supported domain, shared boundaries, resolver or builder, actual consumer and observed result. Design the types needed by that unit before its logic. A complete anatomical vocabulary or every neighboring feature is not a prerequisite for testing that unit.
+## Visual debugging
 
-The connected face editor consumes `IAutoMovieHumanFaceBasisDocument` and shared basis-authored weights. `IAutoMovieHumanFaceAnatomicalParameters` describes a measured authoring contract whose resolver is not yet that editor's input path. Keep connected replay, procedural construction and future measured APIs distinct. A field or type is usable only when its real consumer reaches the promised result.
+Follow [3D modeling](../3d-modeling/SKILL.md) for measurement and [viewer verification](../viewer-verification/SKILL.md) for rendered observation.
 
-Public numerical inputs admit measurements, motions and supported choices without personal vertices, free curves or sculpt resources. That boundary governs a person's document only: offline preparation may reuse licensed shared geometry and, when the existing source cannot express a required part, boundary or independent control, author new shared parts with a DCC tool or a reproducible compiler. Identify that source's rights, generation and compiler; deterministic replay does not establish biological validity or an individual likeness. Regenerate affected derivatives when their source changes, with one owner publishing a shared generation.
+- Inspect the current final geometry through its actual consumer with a hardware renderer. Enlarge the affected region and inspect it at use distance.
+- Inspect opposing views and assembled neighbors in the required states.
+- Measure landmarks, distances and angles on the same geometry that renders. State units, coordinate frames and measurement uncertainty; validate quantitative readings.
+- Compare the render with the engine's resolved geometry to distinguish viewer faults from engine or data faults.
+- Compare before and after under matching conditions. After each correction, render again and read the output directly. Accept demonstrated effects and record unobserved results separately.
 
-The [contracts skill](../contracts/SKILL.md) owns implementation questions. Anatomical value, range, conversion, boundary and assembly owners retain their concrete scientific responsibilities. Transport and helpers describe their own responsibility and the owner they consume. `human` participates in implementation contracts rather than the repository requirement/specification triangle; the [evidence graph skill](../evidence-graph/SKILL.md) owns that distinction.
+## Supervision
 
-## Scientific meaning
+Audit every 30 minutes.
 
-Read the applicable primary measurement, anatomical or physiological account, mathematical derivation or reference. Record the actual quantity, acquisition protocol, conditions, supported population and implementation conversion at the responsible owner. Preserve unknowns and distinguish a source statement from an estimate or convention. A source that cannot yet be obtained stays a named gap: it licenses no invented value, and it does not stop geometry or other parts that do not depend on it.
+1. Check the goal, scope and quality criteria.
+2. Compare source provenance, results and before/after views under matching conditions.
+3. Check viewer ownership, PID, HTTP readiness, hardware GPU, source freshness, stale/errors, resident models and captures.
+4. Find the causes of repeated symptoms, failed premises and representation limits.
+5. Choose the fastest method at the same quality and full scope. Assess resources, duplicate work and waits. Parallelize independent work.
+6. Check roles, skills, actor rechecks and outputs. Distinguish running work from idle workers. Respect writing and execution grants. Reassign, combine or retire owners.
+7. Change strategy when premises fail or visual gains stall. Gains stall when two consecutive renders under matching conditions show no improvement. Change the source, correspondence or representation, because a new solver, tolerance or parameterization on the same representation is not a strategy change. Execute the change before the next audit and verify its result. Record a verdict on every foundational alternative an owner proposes.
+8. Record audit times, missed checks, corrections and the next due time. Keep each actor's audit separate.
 
-Separate raw observations, normalized indices and authored targets; millimetres, degrees and ordinal grades; observed clinical motion capacity and requested performance. Mathematical validity, source citation, runtime admission and physiological validity are separate findings. A scalar or photograph does not determine hidden tissue or a complete three-dimensional form.
+Keep the viewer available between audits.
 
-Use figures and actual photographs, videos or scans with the views the question needs. When reference images are absent or insufficient, generate images to make a shape hypothesis or comparison concrete. Record that the image is generated, its input references and prompt, the tool and identifiable model, and its views. Generated pixels and apparently consistent views supply no measured anatomy, clinical range or hidden-tissue evidence.
-
-## Diagnose and verify a connected unit
-
-1. Establish current source, basis and input identities, local modifications, runtime, renderer, camera, lighting and pose or expression. Inspect the affected part and its neighbors before correction; collect all symptoms within that declared unit and separate reproduced causes from hypotheses. Expand the unit when the evidence identifies a shared cause.
-2. Agree on one owner for each boundary, frame, formula and canonical input. Trace input through resolution, geometry, attachment, performance and actual editor/save/reload/static export. An initial usable neighboring contract permits work before that neighbor's final acceptance.
-3. Compare candidates under the same input, source and presentation conditions. State what changes and the rejection condition. Measure the final surface the consumer receives using an independently checked instrument and its uncertainty. Replace a deficient source span or representation at its owner; higher tessellation or corrective shaping cannot supply a missing degree of freedom.
-4. Observe through rest, intermediate states, supported extremes and return under the contracts skill's [Rendered Observation](../contracts/modeling.md#rendered-observation) chapter, adding what a human form needs: each independent value, left/right differences, neighboring detail, shape and motion combinations, and front, both obliques, both profiles and rear at close and use distance in beauty and clay plus the structural passes that answer the actual question. Derive the part population from the component tree, region and body-part owners rather than a second list. A missing, occluded, refused or stale observation remains a gap.
-5. Verify normal, invalid and recovery paths through the actual consumer, preserving caller-owned values. Observe the coupled assembly as usable results arrive and close final joint conditions on the same source generation. A shared change invalidates the affected descendants and their acceptance; identify and repeat those observations.
-
-The [viewer-verification skill](../viewer-verification/SKILL.md) owns observation execution and tool routes. Numerical admission, replay, capture completeness, direct visual judgment and likeness remain separate outcomes. Keep local image artifacts in `.shots/`; put sufficient source, input, command and observation locators in the public issue for another checkout to reproduce the result.
-
-The [review skill](../review/SKILL.md) owns whole declared-surface review and final integration, and the [pull-request skill](../pull-request/SKILL.md) owns publication. Submit the established result, failed or unobserved conditions and exact current verification boundary. Tags, helper counts and passing unit tests do not complete an element whose actual consumer or coupled result remains unverified.
+If the viewer fails, pause dependent visual work, prioritize owner recovery and protect other owners' processes. Independent numerical work may continue within its resource limits.

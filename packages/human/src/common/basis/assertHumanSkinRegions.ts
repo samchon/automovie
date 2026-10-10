@@ -8,20 +8,6 @@ import type { IAutoMovieHumanSkinRegionHolder } from "./IAutoMovieHumanSkinRegio
  * vertex, because the two sides of one body hold no skin in common. Each
  * violation refuses by name. Face and body bases admit theirs through this one
  * owner.
- *
- * @evidence contracts/common.md#principled-implementation Areas are checked once at basis admission, so a rule never reads an index the basis does not hold or a side that overlaps its mirror.
- * @evidence contracts/common.md#clear-and-simple-design One pass over each area, then one pass over each right/left pair.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-range, unsorted, empty or overlapping area refuses instead of being repaired.
- * @evidence contracts/common.md#meaningful-documentation States every condition, the pairing by name, the refusal and the shared owner.
- * @evidence contracts/modeling.md#spatial-conventions Admits indices into the basis's own surfaces.
- * @evidence contracts/modeling.md#part-identity-and-grouping A side's area is disjoint from its mirror's, so one vertex never belongs to both sides.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The conditions are topological, not anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function assertHumanSkinRegions(
   basis: IAutoMovieHumanSkinRegionHolder,

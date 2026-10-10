@@ -13,19 +13,6 @@ import type { IAutoMovieHumanBodyAnatomicalUnavailable } from "./IAutoMovieHuman
  * whether or not targets were supplied, since a target conditions a
  * generator that does not exist.
  *
- * @evidence contracts/common.md#principled-implementation The observation check reads the caller's actual subtree; the region keeps ownership of its source reason.
- * @evidence contracts/common.md#clear-and-simple-design One rule shared by every region resolver.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied targets never turn an absent generator into a resolved part.
- * @evidence contracts/common.md#meaningful-documentation States the order of the two reasons and why.
- * @evidence contracts/modeling.md#part-identity-and-grouping The answer carries the exact part id it refuses.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It reads no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Consumers display the answer.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The region resolver owns the source reason.
- * @evidence contracts/anatomy.md#permitted-range An unregistered observation is refused with its cause and the request is left unchanged.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
 export function humanBodyUnavailablePart<Id extends string>(

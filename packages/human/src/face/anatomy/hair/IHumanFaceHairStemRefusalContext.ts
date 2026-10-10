@@ -18,20 +18,6 @@ import type { IHumanFaceHairStemTrial } from "./IHumanFaceHairStemTrial";
  * refusing station's own look-ahead decision and trials are passed as the walk
  * made them; earlier stations' decisions are recomputed from their inputs.
  *
- * @evidence contracts/common.md#principled-implementation Supplies only the walk's own state and readers, so the refusal reports what the walk measured.
- * @evidence contracts/common.md#clear-and-simple-design Named members replace an anonymous parameter object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Read on refusal only; no admitted lock passes through it.
- * @evidence contracts/common.md#meaningful-documentation States the order of points and which members are passed or recomputed.
- * @evidence contracts/modeling.md#spatial-conventions Positions and lengths are head-frame metres; directions are unit vectors.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry A refused stem emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The contact and interval own the boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical state only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
- *
  * @author Samchon
  */
 export interface IHumanFaceHairStemRefusalContext {

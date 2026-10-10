@@ -16,20 +16,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * surface, so the chart point stands for the pupil centre in forward gaze. A
  * basis without that eye's optical support returns a registration gap.
  *
- * @evidence contracts/common.md#principled-implementation Reads the generated regular annulus centroid after pose and Float32 rounding; a source-only build retains its explicit barycentric anterior chart approximation.
- * @evidence contracts/common.md#clear-and-simple-design One generated-surface lookup with the unchanged source-only chart path.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No maximum-projection vertex or asset name stands in; a missing support returns its gap.
- * @evidence contracts/common.md#meaningful-documentation States the approximation and the gap.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the basis head frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The eye parameter type cites the pupil-centre landmark; this reader states its approximation.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The periocular registration names the parts; the reader names none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
- *
  * @author Samchon
  */
 export function readHumanFacePupilCentre(

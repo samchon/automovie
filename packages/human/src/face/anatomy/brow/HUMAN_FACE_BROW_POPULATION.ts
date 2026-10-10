@@ -39,17 +39,6 @@ import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMo
  *
  * The connected document's whole-section omission selects this record through
  * resolveHumanFaceBrows; explicit sparse populations retain their own values.
- *
- * @evidence contracts/common.md#principled-implementation One record separates measured diameters, their derived and rounded default radius, and the other authoring conventions.
- * @evidence contracts/common.md#clear-and-simple-design A constant of the public population type; no second type or resolver.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject is named and no value was tuned to pass an admission.
- * @evidence contracts/common.md#meaningful-documentation States the ground of every value and what the record cannot promise.
- * @evidence contracts/modeling.md#parameter-channels Each field keeps the meaning the population type gives it; left and right take this same record unless a document states an asymmetry.
- * @evidence contracts/modeling.md#spatial-conventions Lengths are millimetres, fractions are of the registered band, the angle is degrees, as the population type states.
- * @evidence contracts/modeling.md#emitted-geometry 250 shafts of 7 rings of 9 vertices per brow, 15,750 vertices, set by the count and segment fields alone.
- * @evidence contracts/anatomy.md#anatomical-source Kalmoni et al. 2019, Int J Trichology 11(1):8-13, measured diameter of plucked eyebrow hair in 60 Ghanaians aged 15 to 20; count, direction pattern and emergence are clinical conventions without a read primary measurement, and length is unread, all stated above.
- * @evidence contracts/anatomy.md#permitted-range The record lies inside the profile admission's bounds; those bounds are structural, and no anatomical interval for brow hair was read.
- * @evidence contracts/anatomy.md#parametric-authority Every field is a named shaft dimension, a count or a direction of the public population type; no vertex or curve is addressed.
  */
 export const HUMAN_FACE_BROW_POPULATION: IAutoMovieHumanFaceBrowPopulation = {
   strandCount: 250,

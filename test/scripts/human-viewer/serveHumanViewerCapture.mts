@@ -1,6 +1,6 @@
 /**
  * The GPU routes of the resident viewer: `/render`, `/parts`, `/sheet`,
- * `/compare` and `/warm`. Each request is admitted before it waits (a bad
+ * `/compare`, `/warm` and explicit `/export-construction`. Each request is admitted before it waits (a bad
  * lane or an unknown document is refused at once), then runs as one queue
  * entry in its lane and is retried on the settled generation when only a
  * generation change interrupted it.
@@ -10,6 +10,7 @@ import path from "node:path";
 import { PNG } from "pngjs";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import type { HumanViewerLane } from "./HumanViewerLane";
 import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstructionPartsResponse";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps";
@@ -27,7 +28,7 @@ import { sendHumanViewerPng } from "./sendHumanViewerPng";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail";
 
-const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm"];
+const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-construction"];
 
 /**
  * Answer one GPU route, or return false when the path is not one. A bulk
@@ -37,6 +38,10 @@ const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm"];
  * renderer, the pass's reading limit, its queue position and wait, and
  * whether the model was cached or built. A frame whose generation changed
  * while it was drawn is refused, never answered as current.
+ * `/export-construction` encodes the displayed paired Person through its
+ * product viewport and returns binary GLB with the original admission headers.
+ * The full admission remains available from `/parts` on the same construction;
+ * exporting a refused draft never turns it into an admitted preview.
  *
  * @evidence contracts/common.md#principled-implementation Admission precedes queueing, and only generation-change refusals are retried on the settled generation.
  * @evidence contracts/common.md#clear-and-simple-design One handler owns the GPU routes; capture, queue and page state stay with their owners.
@@ -48,7 +53,6 @@ export function serveHumanViewerCapture(
 ): boolean {
   const { url, response, json } = props;
   if (!ROUTES.includes(url.pathname)) return false;
-  const inventory = props.inventory();
   const start = performance.now();
   const lane =
     url.searchParams.get("lane") ?? (url.pathname === "/warm" ? "bulk" : "cli");
@@ -57,6 +61,29 @@ export function serveHumanViewerCapture(
     json({ error: "lane must be ui, cli or bulk" });
     return true;
   }
+  const wanted = [url.searchParams.get("doc"), url.searchParams.get("against")]
+    .filter((doc): doc is string => doc !== null);
+  if (props.settleDocument !== undefined && wanted.length !== 0) {
+    const settleDocument = props.settleDocument;
+    void Promise.all([...new Set(wanted)].map((doc) => settleDocument(doc)))
+      .then(() => dispatchHumanViewerCapture(props, start, lane))
+      .catch((error: unknown) => {
+        response.statusCode = 503;
+        json({ error: error instanceof Error ? error.message : String(error) });
+      });
+    return true;
+  }
+  return dispatchHumanViewerCapture(props, start, lane);
+}
+
+/** Dispatch the original GPU operation after its selected document owners have answered. */
+function dispatchHumanViewerCapture(
+  props: IServeHumanViewerCaptureProps,
+  start: number,
+  lane: HumanViewerLane,
+): boolean {
+  const { url, response, json } = props;
+  const inventory = props.inventory();
   // A misspelled document fails here, not after a wait in the queue.
   for (const name of ["doc", "against"]) {
     const wanted = url.searchParams.get(name);
@@ -84,6 +111,12 @@ export function serveHumanViewerCapture(
       });
       return true;
     }
+  }
+  if (url.pathname === "/export-construction" &&
+      !inventory.documents.some((entry) => entry.id === url.searchParams.get("doc") && entry.domain === "person")) {
+    response.statusCode = 422;
+    json({ error: "Construction export requires a registered paired Person document." });
+    return true;
   }
   if (url.pathname === "/render" && lane === "bulk") {
     const file = props.thumbnailFile(url.search);
@@ -132,6 +165,7 @@ export function serveHumanViewerCapture(
           }
           const current = props.inventory();
           const fields = new URLSearchParams(url.search);
+          if (url.pathname === "/export-construction") fields.set("operation", "construct");
           fields.delete("lane");
           const axes = fields.get("axes");
           fields.delete("axes");
@@ -181,6 +215,11 @@ export function serveHumanViewerCapture(
                 ms: performance.now() - before,
               });
             }
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            request.check();
+            response.setHeader("X-Human-Revision", selectedRevision);
+            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
             return json({ revision: selectedRevision, warmed });
           } else if (url.pathname === "/compare") {
             if (against === null)
@@ -230,7 +269,85 @@ export function serveHumanViewerCapture(
             describeHumanViewerPass(address.pass),
           );
           response.setHeader("X-Human-Build", props.capture.build());
+          if (url.pathname === "/export-construction") {
+            const asset = await request.run(() =>
+              props.lifetime.run(() => props.page().evaluate(async () => {
+                const result = await (window as unknown as IHumanViewerWindow)
+                  .__humanViewer.exportConstruction();
+                // FileReader carries bytes through the browser bridge without
+                // expanding one GLB into a JavaScript array of numbers.
+                const dataUrl = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result !== "string") {
+                      reject(new Error("The exported construction has no binary data URL."));
+                      return;
+                    }
+                    resolve(reader.result);
+                  };
+                  reader.onerror = () => reject(reader.error ?? new Error("Construction byte transfer failed."));
+                  reader.readAsDataURL(new Blob([result.glb], { type: "model/gltf-binary" }));
+                });
+                return { dataUrl, admission: result.admission };
+              })),
+            );
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            response.setHeader(
+              "X-Human-Stale",
+              String(selectedRevision !== props.inventory().revision),
+            );
+            request.check();
+            const prefix = "data:model/gltf-binary;base64,";
+            if (!asset.dataUrl.startsWith(prefix))
+              throw new Error("Construction export did not return its binary GLB.");
+            const glb = Buffer.from(asset.dataUrl.slice(prefix.length), "base64");
+            response.setHeader("X-Human-Construction-Accepted", String(asset.admission.accepted));
+            response.setHeader("X-Human-Construction-Failures", String(asset.admission.failures.length));
+            response.setHeader("Content-Type", "model/gltf-binary");
+            response.setHeader("Content-Disposition", 'attachment; filename="human-construction.glb"');
+            response.setHeader("Content-Length", String(glb.length));
+            response.end(glb);
+            return;
+          }
           if (address.operation === "construct") {
+            if (url.pathname === "/parts") {
+              // Read the completed resident's identity, admission and values
+              // together. A page or selection changed after capture refuses.
+              const readings = await request.run(() =>
+                props.lifetime.run(() =>
+                  props.page().evaluate(() => {
+                    const viewer = (window as unknown as IHumanViewerWindow)
+                      .__humanViewer;
+                    return {
+                      revision: viewer.revision(),
+                      address: viewer.address(),
+                      admission: viewer.admission(),
+                      parts: viewer.parts(),
+                      periocularMappings: viewer.periocularMappings?.(),
+                      rigReading: viewer.rigReading?.(),
+                    };
+                  }),
+                ),
+              );
+              if (readings.revision !== selectedRevision ||
+                  props.readyRevision() !== selectedRevision)
+                throw new Error("Source changed during request");
+              if (serializeHumanViewerAddress(readings.address) !==
+                  serializeHumanViewerAddress(address))
+                throw new Error("Displayed selection changed during construction observation.");
+              if (readings.admission === null)
+                throw new Error("Construction observation is missing its admission report.");
+              request.check();
+              response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
+              response.setHeader("X-Human-Construction-Accepted", String(readings.admission.accepted));
+              response.setHeader("X-Human-Construction-Failures", String(readings.admission.failures.length));
+              const parts: IHumanViewerConstructionPartsResponse = {
+                ...readings,
+                admission: readings.admission,
+              };
+              return json(parts);
+            }
             const admission = await request.run(() =>
               props.lifetime.run(() =>
                 props
@@ -254,25 +371,6 @@ export function serveHumanViewerCapture(
               "X-Human-Construction-Failures",
               String(admission.failures.length),
             );
-            if (url.pathname === "/parts") {
-              const readings = await request.run(() =>
-                props.lifetime.run(() =>
-                  props.page().evaluate(() => {
-                    const viewer = (window as unknown as IHumanViewerWindow)
-                      .__humanViewer;
-                    return {
-                      parts: viewer.parts(),
-                      periocularMappings: viewer.periocularMappings?.(),
-                    };
-                  }),
-                ),
-              );
-              const parts: IHumanViewerConstructionPartsResponse = {
-                admission,
-                ...readings,
-              };
-              return json(parts);
-            }
           }
           response.setHeader(
             "X-Render-Ms",
@@ -290,6 +388,10 @@ export function serveHumanViewerCapture(
                   ),
               ),
             );
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            request.check();
+            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
             return json(
               parts.map((name) => ({
                 name,
@@ -306,7 +408,12 @@ export function serveHumanViewerCapture(
             const file = props.thumbnailFile(url.search);
             if (file !== null) await writeHumanViewerThumbnail(file, png);
           }
+          if (props.readyRevision() !== selectedRevision)
+            throw new Error("Source changed during request");
           request.check();
+          // Final async work may have observed an inventory edit while the
+          // same last-good page remains drawable. Label that page truthfully.
+          response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
           const before = performance.now();
           response.setHeader("Content-Type", "image/png");
           response.end(png);

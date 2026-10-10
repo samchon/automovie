@@ -13,20 +13,6 @@ import type { IAutoMovieHumanPersonSourceStarBinding } from "../structures/IAuto
  * gives every used vertex of both sides its normal (unused vertices read
  * zero), and `at` answers any sample under any parent, cached by its binding
  * identity. A zero used normal refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Normals come from the performed parents' own area vectors through the frozen charts, so both halves read one field.
- * @evidence contracts/common.md#clear-and-simple-design Accumulate stars, normalize on use, interpolate per binding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero normal refuses instead of being replaced.
- * @evidence contracts/common.md#meaningful-documentation States the accumulation, the interpolation, the unused case, the cache and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Area vectors in square metres; returned normals are unit vectors.
- * @evidence contracts/modeling.md#shared-boundaries A shared sample bound to equal stars on both sides reads one normal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator emits the parts.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function createHumanPersonReferenceField(
   props: IAutoMovieHumanPersonReferenceFieldProps,

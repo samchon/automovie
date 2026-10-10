@@ -4,11 +4,6 @@ import type { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirect
  * A brow profile's root extent, end thinning and grain after its spelling has
  * been resolved: what the shaft builder and the admission both read.
  *
- * @evidence contracts/common.md#principled-implementation One resolved record is the single reading of three quantities a profile can spell two ways.
- * @evidence contracts/common.md#clear-and-simple-design Three members; the grain arrives as the compiled sampler so no consumer compiles it again.
- * @evidence contracts/common.md#meaningful-documentation Each member states its range and meaning.
- * @evidence contracts/modeling.md#spatial-conventions Fractions across the registered band and along the brow, dimensionless.
- *
  * @author Samchon
  */
 export interface IPortraitEyebrowPlacement {

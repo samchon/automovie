@@ -37,6 +37,21 @@ export function assertHumanBodyBasisSurface(
     // The topology checker assumes structurally valid buffers and leaves
     // malformed-buffer reporting to its caller, so establish that premise first.
     const vertices = surface.positions.length / 3;
+    const field = surface.layerThickness;
+    if (field !== undefined) {
+      if (field.basis !== basis.id || field.skinMetres.length !== vertices ||
+          field.subcutaneousMetres.length !== vertices || field.qualification.trim() === "" ||
+          field.anchors.length === 0)
+        throw new Error("Layer thickness needs its exact basis, native population and source qualification: " + surface.id);
+      for (let vertex = 0; vertex < vertices; vertex++)
+        if (!Number.isFinite(field.skinMetres[vertex]) || field.skinMetres[vertex] < 0 ||
+            !Number.isFinite(field.subcutaneousMetres[vertex]) || field.subcutaneousMetres[vertex] < 0)
+          throw new Error("Layer thickness needs finite nonnegative native values: " + surface.id + "/" + vertex);
+      for (const anchor of field.anchors)
+        if (!Number.isFinite(anchor.metres) || anchor.metres < 0 ||
+            [anchor.site, anchor.source, anchor.protocol, anchor.population].some((value) => value.trim() === ""))
+          throw new Error("Layer thickness anchor lacks its quantity or acquisition meaning: " + surface.id);
+    }
     if (
       vertices === 0 ||
       !Number.isInteger(vertices) ||

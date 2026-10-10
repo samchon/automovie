@@ -15,20 +15,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * exocanthion are where the upper and lower eye edges meet at the inner and
  * outer corners. A basis without the registration returns its gap.
  *
- * @evidence contracts/common.md#principled-implementation Applies the registered definition to the posed margin rows on each build, so the canthus follows the shape rather than a frozen vertex.
- * @evidence contracts/common.md#clear-and-simple-design One pass over two rows.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads only the producer's registration; a missing one returns its gap.
- * @evidence contracts/common.md#meaningful-documentation States both definition forms, the vertex hop and the gap.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the basis head frame; the axis is a head-frame direction.
- * @evidence contracts/anatomy.md#anatomical-source Follows the endocanthion and exocanthion definitions of the periocular studies the eye parameter type cites.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The periocular registration names the parts; the reader names none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
- *
  * @author Samchon
  */
 export function readHumanFaceCanthus(

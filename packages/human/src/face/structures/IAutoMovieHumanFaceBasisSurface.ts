@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
 import type { IAutoMovieHumanFaceBasisRegion } from "./IAutoMovieHumanFaceBasisRegion";
+import type { IAutoMovieHumanFaceAttachmentChart } from "./IAutoMovieHumanFaceAttachmentChart";
 import type { IAutoMovieHumanFaceHairDomain } from "./IAutoMovieHumanFaceHairDomain";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
 import type { IAutoMovieHumanFaceSurfaceAttachment } from "./IAutoMovieHumanFaceSurfaceAttachment";
@@ -12,19 +13,6 @@ import type { IAutoMovieHumanFaceSurfaceAttachment } from "./IAutoMovieHumanFace
  * Endpoint rows, hair domains, collision closure and attachments all address
  * these shared identities before any material or UV seam splitting.
  *
- * @evidence contracts/common.md#principled-implementation One shared vertex table carries geometry, endpoint rows, hair domains and attachments, so seam splitting never changes connectivity or normals.
- * @evidence contracts/common.md#clear-and-simple-design One named record replaces the anonymous surface element of the face basis.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The surface is externally authored licensed geometry; this package supplies no person's mesh.
- * @evidence contracts/common.md#meaningful-documentation States shared-identity ownership, the frame and the before-seam addressing of every member.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each surface is one connected skin or attached component identified by its ID.
- * @evidence contracts/modeling.md#spatial-conventions Positions and target offsets are metres in the right-handed Y-up head frame; indices and ordinals are dimensionless.
- * @evidence contracts/modeling.md#parameter-channels Sparse endpoint rows are the per-channel offsets the basis channels blend.
- * @evidence contracts/modeling.md#shared-boundaries Source partitions bind the surface's cut to the shared body/face source tree.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The region gatherer and face builder emit geometry from this record.
- * @evidenceExclude contracts/modeling.md#rendered-observation The face builder observes the emitted surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The surface is authored geometry; its members state their own sources.
- * @evidenceExclude contracts/anatomy.md#permitted-range The record bounds no value; admission owns ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Shared basis geometry is not a person-authoring input.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisSurface {
@@ -36,6 +24,14 @@ export interface IAutoMovieHumanFaceBasisSurface {
 
   /** Optional shared-source cell lineage, prepared after the final neutral crop. */
   sourcePartition?: IAutoMovieHumanBasisSourcePartition;
+
+  /**
+   * Source-owned material disks for continuous skin courses. Each disk keeps
+   * its exact native incidence and generation through identity and performance;
+   * its dimensionless coordinates are not texture UVs or physical lengths.
+   * Omission leaves source-supported regional courses unavailable.
+   */
+  materialCharts?: Record<string, IAutoMovieHumanFaceAttachmentChart>;
 
   /** Optional native-after-posing replay of appended shared oral refinement samples. */
   sourcePosePlan?: IAutoMovieHumanFaceSourcePosePlan;

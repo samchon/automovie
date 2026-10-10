@@ -33,20 +33,6 @@ import type { IHumanBodyLayerOrderInput } from "./IHumanBodyLayerOrderInput";
  * located vertex is its minimum, the deepest one, as the shared form defines;
  * a refusal is about the largest signed distance instead. Crossings between
  * two internal parts are a different relation and are not read here.
- *
- * @evidence contracts/common.md#principled-implementation Sidedness comes from the engine's angle-weighted pseudonormal query on the same triangles the model emits, rounded to the Float32 values an exporter writes, so the reading is of the delivered surface.
- * @evidence contracts/common.md#clear-and-simple-design One pass per subject part over one compiled query per exterior sheet; the union rule is the only decision the reader makes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No part, tissue or region is exempted, and an unknown side is reported as unknown instead of being counted as contained.
- * @evidence contracts/common.md#meaningful-documentation States the union rule, the vertex-only limit and what the reading does not judge.
- * @evidence contracts/modeling.md#spatial-conventions Positions are the model's metres in its one frame; the only conversion is the rounding to Float32 that the static exporter performs.
- * @evidence contracts/modeling.md#shared-boundaries The skin is the boundary every internal part shares with the outside; the reading states, per part, whether that part stays on its inner side.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader consumes existing part identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation A numerical reading owns no rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The reader carries no anatomical value; tissue thickness stays with its owner.
- * @evidence contracts/anatomy.md#permitted-range Outside vertices refuse this vertex-only condition; unknown side also prevents a completed non-refusal, with its unavailable reason kept distinct from observed outside geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader defines no authoring input.
  */
 export function readHumanBodyLayerOrder(
   input: IHumanBodyLayerOrderInput,

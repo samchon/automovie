@@ -1,20 +1,14 @@
-import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
 import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
 
 /**
- * What the compiled underwear builder reads per document: the garment asked
- * for, the body at rest and its posed surfaces.
- *
+ * One admitted garment choice and the body's shaped rest coverage authority.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyUnderwearProps {
-  /** The garment the document wears. */
+  /** Closed style and optional linear fabric colour. */
   underwear: IAutoMovieHumanBodyUnderwear;
 
-  /** The document's body at rest. */
+  /** Source-aligned shaped rest positions and landmarks. */
   rest: IAutoMovieHumanBodyUnderwearRest;
-
-  /** The posed surfaces, in basis surface order. */
-  posed: IAutoMovieHumanBodyPosedSurface[];
 }

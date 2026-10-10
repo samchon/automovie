@@ -17,20 +17,6 @@ import { assertHumanBodySourceSurfaceShapeField } from "./assertHumanBodySourceS
  * coincide. Original source arrays, receipts and compiled geometry digests
  * are retained at their original owner; these temporary meshes are consumed
  * by the quantity solver before posing rather than warped after it.
- *
- * @evidence contracts/common.md#principled-implementation Mapping both endpoints defines a linear retargeted field whose volume remains a cubic in the same coefficient, so the existing solver can prove reach and monotonicity on the actual evaluated geometry.
- * @evidence contracts/common.md#clear-and-simple-design One exterior map carries baseline and unit endpoint before the existing quantity solve.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The same rule applies to every member and field; no requested quantity changes the exterior map or the coefficient interval.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes endpoint retargeting from nonlinear coefficient transport and computational support from clinical clearance.
- * @evidence contracts/modeling.md#parameter-channels Dimensionless field coefficients preserve zero and their source interval while their metre displacements are derived in the evaluated exterior frame.
- * @evidence contracts/modeling.md#spatial-conventions Baseline, endpoint and difference use common rest metres.
- * @evidence contracts/modeling.md#shared-boundaries Held vertices whose source displacement is zero take the identical exterior point at both endpoints.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing part and member identities pass through unchanged.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function moves existing source vertices and retains all indices.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly and person consumers observe these fields.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The source recipe owns tissue quantities and field meaning.
- * @evidenceExclude contracts/anatomy.md#permitted-range The quantity solver checks computational reach and monotonicity; anatomical support remains with the source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This runtime preparation exposes no personal source arrays.
  */
 export function carryHumanBodySourceFields(
   parts: readonly IAutoMovieHumanBodySourcePart[],

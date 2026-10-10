@@ -9,15 +9,6 @@ import type { resolveHumanFaceOpticalProfile } from "./resolveHumanFaceOpticalPr
  * estimates must agree within 32 binary64 epsilons of their metric scale;
  * that bound controls integration arithmetic rather than tissue clearance.
  * A nonconvergent profile refuses instead of supplying an estimated sphere.
- *
- * @evidence contracts/common.md#principled-implementation Plane-curve arc length integrates sqrt(1 + G'(r)^2); Simpson refinement uses the actual smooth polynomial slope and reports failed convergence.
- * @evidence contracts/common.md#clear-and-simple-design One numerical owner measures the cap profile without introducing anatomical values or another surface.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No part identity, clearance or reference model controls the integral.
- * @evidence contracts/common.md#meaningful-documentation States the metric, arithmetic convergence bound and refusal.
- * @evidence contracts/modeling.md#spatial-conventions Input radius and returned arc length are metres in the optical meridian plane.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The optical profile owner supplies all dimensions; arc length is a derived geometric quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range No physiological interval is supplied.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No authoring input is added.
  */
 export function integrateHumanFaceOcularMeridian(
   profile: ReturnType<typeof resolveHumanFaceOpticalProfile>,

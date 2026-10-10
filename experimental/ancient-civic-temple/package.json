@@ -45,7 +45,7 @@
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "tsx src/viewer/server.cts",
+    "viewer": "ttsx -P package.json src/viewer/server.cts",
     "self-check": "tsx src/review/self-check.cts",
     "test": "tsx --test src/review/tests/*.test.ts",
     "audit": "tsx src/review/audit-all.cts",
@@ -73,6 +73,7 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "@ttsc/evidence": "catalog:samchon",
+    "vite": "catalog:vite"
   }
 }

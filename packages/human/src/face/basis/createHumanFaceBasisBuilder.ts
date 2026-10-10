@@ -6,9 +6,6 @@ import typia from "typia";
 import { applyHumanSkinFinish } from "../../common/skin/applyHumanSkinFinish";
 import { buildHumanFaceBrowAssembly } from "../anatomy/brow/buildHumanFaceBrowAssembly";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
-import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
-import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
-import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
 import { assertHumanFaceLashContact } from "../anatomy/lash/assertHumanFaceLashContact";
 import { buildHumanFaceLashRows } from "../anatomy/lash/buildHumanFaceLashRows";
 import { readHumanFaceLashClearance } from "../anatomy/lash/readHumanFaceLashClearance";
@@ -34,6 +31,9 @@ import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
 import { createHumanFaceConstructionEntries } from "./createHumanFaceConstructionEntries";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceGeneratedComposition } from "./createHumanFaceGeneratedComposition";
+import { createHumanFaceHairComposition } from "./createHumanFaceHairComposition";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "../structures/IHumanFaceMaterialAttachment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { createHumanFaceResidentParts } from "./createHumanFaceResidentParts";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -133,16 +133,6 @@ import { resolveHumanFaceAppearanceDocument } from "./resolveHumanFaceAppearance
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
- *
- * @evidence contracts/common.md#principled-implementation The pose owner distinguishes legacy closure from fixed native/replayed source endpoints before rigid contact, passage and normals. Reuse is keyed by the inputs each stage reads: admitted geometry for pose, pose identity plus actual opaque material population for occlusion, and pose plus hair layers for hair. Each edit checks source incidence, alias agreement, legacy coordinate equivalence and coordinate-collapsed triangle participation; a change takes full model admission again.
- * @evidence contracts/common.md#clear-and-simple-design An orchestrator: it holds the caches and calls one named owner per stage; no stage's formula lives in it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached hair result is certified only after the full model passes validateModel, and identity collisions with resident geometry refuse; nothing is special-cased for a subject or a document.
- * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order with each owner, what is retained between edits, what is admitted once and per edit, and the limits of the contact stage.
- * @evidence contracts/modeling.md#emitted-geometry Each edit emits the basis's resident triangles split into their declared material regions plus generated hair; the count follows the basis and the numerical hair layers' own resolution parameters, not the number of authored controls.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres in the Y-up +Z-anterior head frame throughout; colour multipliers are linear RGB in [0,1] after liftHumanFaceColours.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The builder carries no anatomical value of its own; the stages that do (articulation, contact) answer for it.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission of controls is delegated to humanFaceBasisWeights and the stage owners; the builder bounds no anatomical quantity itself.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes a compact document of named channel weights, materials and layers; it defines no input, and the document schema owns the input vocabulary.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
@@ -152,9 +142,7 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
-  const buildHair = createHumanFaceHairResultCache(
-    createHumanFaceHairBuilder(basis),
-  );
+  const composeHair = createHumanFaceHairComposition(basis);
   const fibreTint = createHumanFaceFibreTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
@@ -189,6 +177,13 @@ export function createHumanFaceBasisBuilder(
       throw new Error(
         "Facial edits need nonempty identities and the exact compiled basis revision.",
       );
+    const geometryProgress = (owner: string): void =>
+      options?.observeConstructionProgress?.({
+        documentId: document.id,
+        basis: document.basis,
+        phase: "geometry-owner-finished",
+        geometryOwner: owner,
+      });
     const surfaceIds = new Set(basis.surfaces.map((surface) => surface.id));
     for (const id of Object.keys(document.skin ?? {}))
       if (!surfaceIds.has(id))
@@ -234,7 +229,13 @@ export function createHumanFaceBasisBuilder(
         : new Set(["leftEye", "rightEye"]),
     );
     applyHumanSkinFinish(materials);
-    const pose = evaluatePose(state, document.shape, document);
+    const pose = evaluatePose(
+      state,
+      document.shape,
+      document,
+      options?.observeConstructionProgress === undefined ? undefined : geometryProgress,
+    );
+    geometryProgress("pose");
     const checks = [...pose.checks];
     checks.push({
       owner: "oral-sampling",
@@ -263,6 +264,7 @@ export function createHumanFaceBasisBuilder(
               document,
               materials,
               "rest",
+              pose.reference,
             );
             checks.push(...resting.checks);
             const performed = buildHumanFaceBrowAssembly(
@@ -270,10 +272,13 @@ export function createHumanFaceBasisBuilder(
               posed,
               document,
               materials,
+              "performed",
+              pose.reference,
             );
             checks.push(...performed.checks);
             return performed;
           })();
+    if (brows !== undefined) geometryProgress("brows");
     const lashes =
       document.lashes === undefined
         ? undefined
@@ -285,6 +290,7 @@ export function createHumanFaceBasisBuilder(
             document.id,
             pose.optics,
           );
+    if (lashes !== undefined) geometryProgress("lashes");
     if (lashes !== undefined)
       checks.push(
         createHumanFaceClearanceCheck(
@@ -353,6 +359,7 @@ export function createHumanFaceBasisBuilder(
       fibreTints: tints,
       skinGains,
     });
+    geometryProgress("source-regions");
     // Before validation, which a fixed weld partition may skip: a vertex
     // colour never leaves [0, 1].
     liftHumanFaceColours(parts, materialMap);
@@ -366,6 +373,7 @@ export function createHumanFaceBasisBuilder(
       body: null,
       asset: null,
     };
+    const materialAttachments = new Map<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>();
     composeGenerated({
       document,
       pose,
@@ -374,7 +382,9 @@ export function createHumanFaceBasisBuilder(
       model,
       materialMap,
       checks,
+      materialAttachments,
     });
+    geometryProgress("generated-composition");
     // Admission reads these on the delivered model, after hair is composed.
     checks.push(
       createHumanFaceClearanceCheck(
@@ -413,50 +423,14 @@ export function createHumanFaceBasisBuilder(
     if (bakeOcclusion !== undefined)
       for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
-    let hairPartIds: string[] = [];
-    if (document.hair !== undefined && document.hair !== null) {
-      assertHumanFaceHair(document.hair);
-      const generated = buildHair(document.hair, evaluated, pose);
-      const hair = generated.value;
-      hairPartIds = hair.parts.map((part) => part.id);
-      if (
-        hair.parts.some((part) =>
-          model.parts.some((resident) => resident.id === part.id),
-        ) ||
-        hair.materials.some((material) =>
-          model.materials.some((resident) => resident.id === material.id),
-        )
-      )
-        throw new Error(
-          "Numerical hair identities collide with resident face geometry or finishes.",
-        );
-      // validateModel checks each part/material locally plus IDs and references.
-      // A certified hair copy passed the full model gate for this exact pose
-      // and hair document. Admit the current face/material changes separately
-      // before composing it; the collision check above settles shared IDs.
-      if (generated.certified) {
-        const validation = validateModel({ model });
-        if (!validation.success)
-          throw new Error(
-            "The numerical hairstyle did not form a valid resident model: " +
-              JSON.stringify(validation),
-          );
-      }
-      model.parts.push(...hair.parts);
-      model.materials.push(...hair.materials);
-      if (!generated.certified) {
-        const validation = validateModel({ model });
-        if (!validation.success)
-          throw new Error(
-            "The numerical hairstyle did not form a valid resident model: " +
-              JSON.stringify(validation),
-          );
-        generated.certify();
-      }
-    }
+    if (bakeOcclusion !== undefined) geometryProgress("occlusion");
+    const hairContactLayouts = new Map<string, IHumanFaceHairContactLayout>();
+    const hairPartIds = composeHair(document, evaluated, pose, model, geometryProgress, hairContactLayouts);
     const value = {
       model,
       hairPartIds,
+      hairContactLayouts,
+      materialAttachments,
       reference: pose.reference,
       oral: oralRegistration,
       sourceRegions,

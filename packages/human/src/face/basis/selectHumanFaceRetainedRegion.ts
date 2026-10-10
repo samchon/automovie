@@ -7,19 +7,6 @@ import type { IAutoMovieHumanFaceBasisRegion } from "../structures/IAutoMovieHum
  * or finish. A triangle straddling an enrolled component boundary refuses rather
  * than inventing a cut. Empty returns no resident part; omission returns the
  * original region object so its existing compiled gatherer remains unchanged.
- * @evidence contracts/common.md#principled-implementation Exact source triangle ownership preserves unrequested components and per-corner UV correspondence without coordinate guesses.
- * @evidence contracts/common.md#clear-and-simple-design One incidence-selection owner returns the unchanged, retained or empty source region.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No whole shared region is discarded for a unilateral request and no mixed triangle is silently clipped.
- * @evidence contracts/common.md#meaningful-documentation States independent sides, original-object reuse, UV/source preservation and mixed-boundary refusal.
- * @evidence contracts/modeling.md#shared-boundaries Removes only complete enrolled triangles and preserves every unowned source interface.
- * @evidence contracts/modeling.md#spatial-conventions Source vertex indices and dimensionless corner UVs are copied without conversion.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Preserves the source region identity without naming another part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Selects actual existing incidence; the region gatherer emits geometry.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no user control or private component selection.
- * @evidenceExclude contracts/modeling.md#rendered-observation The actual model/viewer owner observes retained and generated components together.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Triangle selection supplies no biological measurement or population.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Uses publisher-owned component incidence, not a personal input.
  */
 export function selectHumanFaceRetainedRegion(
   region: IAutoMovieHumanFaceBasisRegion,

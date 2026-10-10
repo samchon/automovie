@@ -4,9 +4,12 @@ import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { humanPhysicalSourceDomain } from "../../../common/basis/humanPhysicalSourceDomain";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
+import { registerHumanFaceLipPhysicalSources } from "../../basis/registerHumanFaceLipPhysicalSources";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceRigidMotion } from "../../structures/IAutoMovieHumanFaceRigidMotion";
+import type { IHumanFaceMaterialAttachment } from "../../structures/IHumanFaceMaterialAttachment";
 import type { IHumanFaceOralAssembly } from "./IHumanFaceOralAssembly";
 import { humanFaceOralDentalDomain } from "./humanFaceOralDentalDomain";
 import { readHumanFaceOralPigment } from "./readHumanFaceOralPigment";
@@ -17,14 +20,13 @@ import { readHumanFaceOralPigment } from "./readHumanFaceOralPigment";
  * no clinical tissue pigmentation is inferred. Shared generated points use
  * one source-instance domain. Exact cervical points reuse the dental source's
  * canonical sample identities, while shading normals remain region-specific.
+ * Native lip vertices retain their sample IDs. Continuous lip seats consume
+ * the source reader's complete exact-identity registration and carry the same
+ * parent/represented-weight attachment to final Person skin placement.
  * Only triangle-used vertices are gathered; the emitted parts own Float32
  * buffers and no unused zero-normal rows. The canonical model gate remains
  * with the face/person orchestrator.
- * @evidence contracts/common.md#principled-implementation Drawing consumes the assembly's exact generated meshes and the existing rigid jaw motion, with canonical source aliases rather than position welding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fitted secondary jaw, free input mesh, regenerated boundary or inferred clinical colour enters.
- * @evidence contracts/modeling.md#shared-boundaries Native cervical physical IDs are preserved, and all generated lining aliases share one domain and exact source identities.
- * @evidence contracts/modeling.md#spatial-conventions The same metre-frame quaternion and translation carry the mandibular group; Float32 conversion is owned once downstream.
- * @evidence contracts/anatomy.md#anatomical-source Finishes are inherited source artwork, not tissue acquisition or a biological material model.
+ *
  * @author Samchon
  */
 export function createHumanFaceOralFinish(
@@ -33,6 +35,7 @@ export function createHumanFaceOralFinish(
   assembly: IHumanFaceOralAssembly,
   jaw: IAutoMovieHumanFaceRigidMotion,
   materials: readonly IAutoMovieMaterial[],
+  materialAttachments: Map<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>,
 ): Pick<IAutoMovieModel, "parts" | "materials"> {
   const surface = basis.surfaces.find((one) => one.id === "Human.teeth_base")!;
   const gumRegion = surface.regions[0];
@@ -46,6 +49,13 @@ export function createHumanFaceOralFinish(
   if (source === undefined)
     throw new Error("Oral lining source material is missing.");
   const domain = humanPhysicalSourceDomain(document.id, assembly.generation);
+  const contact = basis.contact;
+  const skin = contact === undefined ? undefined : basis.surfaces.find((one) => one.id === contact.lips.surface);
+  const lipSources = skin === undefined || contact?.margin === undefined ? undefined :
+    registerHumanFaceLipPhysicalSources(skin,
+      readHumanFaceLipMarginPoints(skin, contact.margin, skin.positions), document.id, assembly.generation);
+  for (const [key, attachments] of lipSources?.materialAttachments ?? [])
+    materialAttachments.set(key, structuredClone(attachments));
   const dentalDomain = humanFaceOralDentalDomain(
     document.id,
     assembly.generation,
@@ -96,8 +106,12 @@ export function createHumanFaceOralFinish(
             const native = Number(point.slice(7));
             return { domain: dentalDomain, id: native };
           }
-          if (point.startsWith("skin:"))
-            return { domain, id: Number(point.slice(5)) };
+          if (point.startsWith("skin:")) {
+            const registered = lipSources?.sources.get(point);
+            if (registered === undefined)
+              throw new Error("Oral skin point lost its registered native or material attachment identity.");
+            return { ...registered };
+          }
           const id = generatedIds.get(point);
           if (id === undefined)
             throw new Error(

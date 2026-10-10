@@ -5,8 +5,6 @@ import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieH
  * Nasolabial smile performance remains driven by the caller's neutral source
  * weights. The input is never changed and an already neutral regional record
  * is reused, without turning raw clinical grades into geometry.
- * @evidence contracts/common.md#principled-implementation The explicit performed fraction is the only regional field removed; signed resting offsets and all support dimensions remain identical.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No zeroed identity trait or clinical-grade conversion substitutes for a neutral performed state.
  * @author Samchon
  */
 export function humanFaceSkinReliefIdentity(

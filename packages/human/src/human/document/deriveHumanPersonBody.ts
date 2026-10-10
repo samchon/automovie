@@ -21,20 +21,6 @@ import type { IDeriveHumanPersonBodyProps } from "./IDeriveHumanPersonBodyProps"
  * channel outside (0, 1] (a zero channel, the body's site power law has no
  * meaning for) and a face override that names a non-finite value are refused
  * with the cause. The result is a new document; the person's are not modified.
- *
- * @evidence contracts/common.md#principled-implementation The cheek albedo the body's site model is fitted against is the face's skin colour, so deriving one from the other is exact rather than approximate; the override merge repeats the face builder's own (`baseColor` with the override channels over it).
- * @evidence contracts/common.md#clear-and-simple-design One function reads the face's skin material and one document field, and returns a copy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No colour is supplied; the refusals name the actual conflicts.
- * @evidence contracts/common.md#meaningful-documentation The comment states why one value serves both, what the albedo is taken before, and every refusal.
- * @evidence contracts/modeling.md#part-identity-and-grouping The function relates two documents and defines no part.
- * @evidence contracts/modeling.md#spatial-conventions Linear RGB channels in (0, 1], the unit both documents use.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function derives a value both skins share and builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the seam colour is observed in the assembled person.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the colour is the face document's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The range of the channels is the body basis's rule, restated here so the refusal names the person.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input; it removes the body's duplicate of one.
  */
 export function deriveHumanPersonBody(
   props: IDeriveHumanPersonBodyProps,

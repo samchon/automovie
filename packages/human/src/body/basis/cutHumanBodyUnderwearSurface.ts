@@ -1,37 +1,28 @@
+import type { IHumanBodyUnderwearSurfaceCutInput } from "./IHumanBodyUnderwearSurfaceCutInput";
+import type { IHumanBodyUnderwearSurfaceCutResult } from "./IHumanBodyUnderwearSurfaceCutResult";
+
 /**
  * Cut the triangles of a skin surface where a coverage field is positive.
  *
  * A triangle with all three corners inside is kept; one with one or two is
- * clipped at the zero of the field along its edges (linear, the crossing held
- * at least 5% of an edge from either corner so no clipped triangle
- * degenerates), and a crossing is read from the edge's lower index, so both
- * triangles of an edge share it and the cut is as manifold as the skin. A
- * triangle with no corner inside is dropped. The winding is kept.
+ * clipped at the piecewise-linear zero of the field along its edges. An
+ * interior crossing is read from the edge's lower index, so both triangles
+ * share it. A crossing at an exact-zero endpoint instead shares that source
+ * corner with every incident edge. A triangle with no positive corner is
+ * dropped, as is the repeated-corner triangle when a clipped quadrilateral
+ * reduces to a triangle at that endpoint. The winding is kept.
  *
  * The result is the kept surface still on the skin (the caller lifts it), and
  * per output vertex the unit interpolated normal, which the caller lifts
  * along. `field` is one value per skin vertex, `positions` and `normals` are
  * the posed skin's vertex arrays, and every kept normal must be nonzero: the
  * lift is undefined along a zero normal. A skin with no kept triangle gives
- * empty arrays.
- *
- * @evidence contracts/common.md#principled-implementation The zero of a piecewise-linear field on a triangle lies on its edges at the linear interpolation, so clipping along the edges is exact for the linear pieces of the field and approximate at its kinks; sharing each crossing by the edge's lower index makes two triangles of an edge agree on it, and the 5% clamp keeps every clipped triangle non-degenerate at the cost of moving a crossing by at most 5% of an edge.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: clip a surface by a per-vertex field. The field, the lift and the material belong to their own files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The cut reads the field and the mesh only; no vertex, landmark or body is named.
- * @evidence contracts/common.md#meaningful-documentation The comment states the clipping rule, its clamp, the shared crossing, the winding and what the caller supplies and receives.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function clips one surface and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The kept triangles follow from the skin's own triangulation and the field; nothing is added per author feature.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function.
+ * empty arrays. Crossings are never moved away from source corners to enlarge
+ * a sliver; numerical and final Float32 mesh admission remain downstream.
  */
-export function cutHumanBodyUnderwearSurface(props: {
-  indices: readonly number[];
-  positions: readonly number[];
-  normals: readonly number[];
-  field: ArrayLike<number>;
-}): { points: number[]; normals: number[]; indices: number[] } {
+export function cutHumanBodyUnderwearSurface(
+  props: IHumanBodyUnderwearSurfaceCutInput,
+): IHumanBodyUnderwearSurfaceCutResult {
   const { positions, normals, field } = props;
   const points: number[] = [];
   const lifted: number[] = [];
@@ -39,17 +30,17 @@ export function cutHumanBodyUnderwearSurface(props: {
   const emit = (a: number, b: number): number => {
     // a kept corner (b === a), or the crossing on the edge a-b read from its
     // lower index so both triangles of the edge share it
-    const [low, high] = a <= b ? [a, b] : [b, a];
+    let [low, high] = a <= b ? [a, b] : [b, a];
+    // A source corner on the contour has one identity across all its edges.
+    if (field[low] === 0) high = low;
+    else if (field[high] === 0) low = high;
     const key = low + "/" + high;
     let id = emitted.get(key);
     if (id !== undefined) return id;
     const t =
       low === high
         ? 0
-        : Math.min(
-            0.95,
-            Math.max(0.05, field[low] / (field[low] - field[high])),
-          );
+        : field[low] / (field[low] - field[high]);
     const normal = [0, 1, 2].map(
       (k) =>
         normals[low * 3 + k] +
@@ -84,7 +75,8 @@ export function cutHumanBodyUnderwearSurface(props: {
     else {
       const ab = emit(a, b);
       const ca = emit(c, a);
-      indices.push(ab, emit(b, b), emit(c, c), ab, emit(c, c), ca);
+      indices.push(ab, emit(b, b), emit(c, c));
+      if (ab !== ca) indices.push(ab, emit(c, c), ca);
     }
   }
   return { points, normals: lifted, indices };

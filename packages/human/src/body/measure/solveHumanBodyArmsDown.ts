@@ -32,18 +32,6 @@ import { stepHumanBodyArmsDown } from "./stepHumanBodyArmsDown";
  * builder's reason; nothing is clamped. Cost grows with the larger first-safe
  * whole-degree elevation, with one shared build per degree. The editor runs
  * it off the page one step at a time (`stepHumanBodyArmsDown`).
- *
- * @evidence contracts/common.md#principled-implementation Each arm's total elevation is searched in one-degree steps from hanging straight down toward the body's measured A-pose rest elevation, and the first elevation at which that arm's chain crosses no skin beyond what it crosses at rest is kept. A linear scan is used because contact can vanish and return as the arm passes different body regions, which bisection would skip; both arms share one build per degree, and cross-arm contact is judged in the combined result, which refuses any new crossing. The premises are the builder's own evaluated skin and the whole-degree resolution.
- * @evidence contracts/common.md#clear-and-simple-design A synchronous driver over the step generator that owns the search, so the editor's incremental path and this path run one implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No elevation is typed per body and no crossing is hidden: the preset is read on the document's own surface, a document the builder refuses is refused with the builder's reason, and nothing is clamped.
- * @evidence contracts/common.md#meaningful-documentation States why a fixed elevation fails, the plane, axial rotation and elbow convention, the search order and cost, the cross-arm check, the returned pose and shoulder data and the refusal behavior.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group; it chooses shoulder goals for existing joints.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no morph channel; it returns pose and shoulder goals.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits document pose data and no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Elevations are whole degrees in the thorax-tt shoulder coordinates (plane 0 lateral, axial rotation 0) and flexion is degrees; crossings are counted on the builder's rest-frame meshes, and no unit or frame is converted here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary; it reads crossings between the builder's existing segments.
- * @evidence contracts/anatomy.md#permitted-range Each sampled goal is built by the builder, which refuses a girdle or elbow past its clinical range with its own reason, and this solve passes that refusal on instead of clamping. The goals are searched only between hanging straight down and the measured rest elevation, and cross-arm combinations are checked together after both arms are chosen.
- * @evidence contracts/anatomy.md#parametric-authority It returns an ordinary document pose and shoulder goals for named joints (lower-arm flexion 0, upper-arm TT plane, elevation and axial rotation), derived deterministically from the document's own skin, so no input addresses a vertex or surface; there is no inverse because the result is authored pose data the caller applies as one edit.
  */
 export function solveHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,

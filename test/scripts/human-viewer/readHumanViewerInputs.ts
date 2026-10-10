@@ -79,6 +79,7 @@ export function readHumanViewerInputs(
   // pending or refused one is listed with the file and its reason instead.
   let file = "";
   const accept = (entry: IHumanViewerCatalogueEntry): void => {
+    if (props.selectedDoc !== undefined && entry.id !== props.selectedDoc) return;
     const admission = props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
     else
@@ -87,6 +88,7 @@ export function readHumanViewerInputs(
         id: entry.id,
         reason: `${entry.id}: ${admission.reason ?? admission.state}`,
         pending: admission.state === "pending",
+        ...(admission.state === "pending" ? { candidate: entry } : {}),
       });
   };
   /** What every file's result depends on besides its own bytes and sidecars. */
@@ -385,6 +387,9 @@ export function readHumanViewerInputs(
   };
   for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
+    if (props.selectedDoc !== undefined &&
+        (!props.selectedDoc.startsWith("file:") ||
+         file !== props.selectedDoc.slice(5).split("/")[0] + ".json")) continue;
     try {
       const read = readFile(file);
       for (const entry of read.entries) accept(entry);

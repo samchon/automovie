@@ -12,20 +12,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * closed by its source collider fan, at the supplied positions. Three owners
  * restated this choice; periocular shells, visible ocular surfaces and the
  * assembly census now ask one function, so they always read the same surface.
- *
- * @evidence contracts/common.md#principled-implementation The exterior is the collider the contact stage itself resolves against, taken from the same record, so measurement and contact agree on the surface.
- * @evidence contracts/common.md#clear-and-simple-design One selection owner replaces three copies of the generated-or-source choice.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing source proxy returns undefined for the caller to refuse; no analytic globe is substituted.
- * @evidence contracts/common.md#meaningful-documentation States both sources of the exterior and why one owner selects it.
- * @evidence contracts/modeling.md#shared-boundaries The optical exterior is the shared boundary every periocular part meets; this is its one read access.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres at source precision; consumers round to Float32.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Selects an existing surface.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no part; returns a reference surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation Supplies a measuring reference.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The optical profile and source owners hold the anatomical values.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function readHumanFaceOpticalExterior(
   basis: IAutoMovieHumanFaceBasis,

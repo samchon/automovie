@@ -1,5 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import type { IHumanLocalMeshFrame } from "../../../../common/mesh/IHumanLocalMeshFrame";
+
 import type { AutoMovieHumanFacePeriocularTissue } from "../../../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
 import type { IHumanFacePeriocularTissueFit } from "./IHumanFacePeriocularTissueFit";
@@ -19,6 +21,9 @@ export interface IHumanFacePeriocularTissuePart {
   sourceId: string;
   /** Closed capped shell in canonical head-frame metres, read by contact and finish. */
   mesh: IAutoMovieMesh;
+
+  /** Same shell's strict local Float32 publication frame, without changing the head-frame source. */
+  publication: IHumanLocalMeshFrame;
 
   /** Room the requested dimensions had inside the lid at the stations this shell is built from. */
   fit: IHumanFacePeriocularTissueFit;

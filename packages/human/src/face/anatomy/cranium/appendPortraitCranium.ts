@@ -15,15 +15,6 @@ import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
  * Its ordered boundary belongs to the neck builder, so the finished skin is one
  * surface rather than a closed head intersecting a separate cylinder.
  * The input retains the first 468 measured facial vertex identities.
- *
- * @evidence contracts/common.md#principled-implementation The hidden vault is a lattice of rings built from sagittal stations: each ring point is (width sin a, mix(floor, crown, (1 + cos a)/2), mix(z, crownZ, max(0, cos a)^2)) with the angle a of the measured oval vertex, blended with equal angular spacing towards the rear so the posterior cap gets balanced cells, and the first row leaves the measured oval by a transition fraction. The occiput is a linearly blended Coons patch of the rear ring whose depth is then set from physical head coordinates by an elliptic paraboloid, because the Coons map compresses parameter spacing near the boundary. The stations are authored estimates, as the docs state.
- * @evidence contracts/common.md#clear-and-simple-design Ring construction, collar cut-out and cap patch are three consecutive blocks over one lattice; the neck builder owns everything below the collar.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The collar rows and columns are fixed indices of the fixed 36-vertex oval of the landmark basis, which is a contract of that basis and not a per-subject rule.
- * @evidence contracts/common.md#meaningful-documentation States the stations, that hidden-side dimensions are estimates, the open collar and that its ordered boundary belongs to the neck builder.
- * @evidence contracts/modeling.md#part-identity-and-grouping The cranium is the hidden continuation of the head's one skin surface and shares its cage and subdivision with the face patch and the neck, so it is a region of one part and not a part of its own.
- * @evidence contracts/modeling.md#emitted-geometry The population follows from the station count and the fixed 36-vertex oval: (stations + 1) new rings of 36 vertices (the collar cut-out omits faces, not vertices), plus one 9 x 9 cap patch; no author feature changes it. A smaller lattice would not carry the jaw-to-vault turn.
- * @evidence contracts/modeling.md#shared-boundaries The first ring is the measured oval's own vertex identities and the collar boundary is returned in oriented order for the neck, so the face patch, cranium and neck are one connected surface with no duplicated corners; a station set that does not descend in depth refuses.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up and +Z anterior throughout.
  */
 export function appendPortraitCranium(
   cage: IControlMesh,

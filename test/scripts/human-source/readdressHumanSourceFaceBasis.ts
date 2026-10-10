@@ -20,16 +20,18 @@ export function readdressHumanSourceFaceBasis(
   const old = input.face.surfaces.find((surface) => surface.id === "Human");
   if (old === undefined)
     throw new Error("Source face readdressing needs its original Human skin.");
+  const margin = input.face.contact?.margin;
   if (
     old.sourcePosePlan !== undefined ||
     old.sourcePartition !== undefined ||
     input.face.contact?.closure.sourceSpan !== undefined ||
+    margin?.kind === "material" ||
     input.face.periocular !== undefined ||
     input.face.opticalSupport !== undefined ||
     input.face.oralSupport !== undefined
   )
     throw new Error(
-      "New source pose/partition/closure plans must be authored by their generation owner before face readdressing.",
+      "New source pose/partition/closure/material-margin plans must be authored by their generation owner before face readdressing.",
     );
   const current = input.skin.partition;
   const vertex = (index: number, role: string): number => {
@@ -99,13 +101,13 @@ export function readdressHumanSourceFaceBasis(
             lips: pair(contact.lips, "lip midline"),
             incisors: pair(contact.incisors, "incisor midline"),
             margin:
-              contact.margin === undefined || contact.lips.surface !== "Human"
-                ? contact.margin
+              margin === undefined || contact.lips.surface !== "Human"
+                ? margin
                 : {
-                    upper: contact.margin.upper.map((point) =>
+                    upper: margin.upper.map((point) =>
                       vertex(point, "upper lip margin"),
                     ),
-                    lower: contact.margin.lower.map((point) =>
+                    lower: margin.lower.map((point) =>
                       vertex(point, "lower lip margin"),
                     ),
                   },

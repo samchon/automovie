@@ -23,20 +23,6 @@ import type { IHumanFaceBrowClearanceProps } from "./IHumanFaceBrowClearanceProp
  *
  * No shaft produces no reading. Distances are metres on Float32 coordinates,
  * positive outside the skin; the instrument's uncertainty is its own.
- *
- * @evidence contracts/common.md#principled-implementation The signed query and crossing census of the shared face instrument read the emitted Float32 geometry, so the reported numbers are those of the delivered parts; root and tip rows are selected by the lattice's own row layout.
- * @evidence contracts/common.md#clear-and-simple-design One combined mesh and three requests; the judged conditions live in the instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Tolerance and refusal conditions are unchanged from the assertion this reader replaces; nothing is retried or shortened.
- * @evidence contracts/common.md#meaningful-documentation States each relation, which one is judged and what the unjudged ones measure.
- * @evidence contracts/modeling.md#shared-boundaries Shafts are read against the same skin state whose host seated them.
- * @evidence contracts/modeling.md#spatial-conventions All geometry and distances are head-frame metres.
- * @evidence contracts/modeling.md#rendered-observation The reader reports numbers only; the brow assembly's rendered observation is recorded in the campaign rounds.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no primitive.
- * @evidence contracts/anatomy.md#permitted-range Geometric skin clearance admits no measured implantation depth or clinical density interval; the root standoff is reported because no bound for it has been read.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The reader carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader defines no authoring input.
  */
 export function readHumanFaceBrowClearance(
   props: IHumanFaceBrowClearanceProps,

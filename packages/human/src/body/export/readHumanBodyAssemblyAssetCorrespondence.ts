@@ -13,17 +13,18 @@ import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHuman
  * actual anatomical-source members in this primitive, in order; ordinary skin
  * and legacy atlas inspection have separate ownership. This validates binding
  * and schema rather than scientific authenticity or clinical resolution.
- *
- * @evidence contracts/common.md#principled-implementation Qualification joins the generic reader's actual carrying primitive intervals rather than reconstructed model data.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns schema and exact ordered source identity correspondence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Material names and counts cannot substitute for actual source member intervals.
- * @evidence contracts/common.md#meaningful-documentation States absent legacy behavior and scientific qualification limits.
+ * A native-only primitive carries the separate field/exterior/member record
+ * with no static source accounts. Its original anchors retain their meaning.
  */
 export function readHumanBodyAssemblyAssetCorrespondence(
   primitive: Primitive,
 ): IAutoMovieHumanBodyAssemblyAssetCorrespondence | undefined {
   const extras = primitive.getExtras();
-  if (!Object.hasOwn(extras, "automovieAnatomicalAssembly")) return undefined;
+  if (!Object.hasOwn(extras, "automovieAnatomicalAssembly")) {
+    if (readHumanStaticPartCorrespondence(primitive)?.parts.some((part) => /^(?:body:)?native-subcutaneous:/.test(part.id)))
+      throw new Error("Native subcutaneous source members require their actual calculation qualification.");
+    return undefined;
+  }
   const qualification =
     typia.assertEquals<IAutoMovieHumanBodyAssemblyQualification>(
       extras.automovieAnatomicalAssembly,
@@ -36,6 +37,7 @@ export function readHumanBodyAssemblyAssetCorrespondence(
   const actual = geometry.parts.filter((part) =>
     /^(?:body:)?anatomical-source:/.test(part.id),
   );
+  const native = qualification.nativeSubcutaneous;
   if (
     qualification.version !== 1 ||
     qualification.sourceModel.trim() === "" ||
@@ -46,13 +48,30 @@ export function readHumanBodyAssemblyAssetCorrespondence(
       (value) => !Number.isFinite(value),
     ) ||
     actual.length !== qualification.parts.length ||
-    actual.length === 0 ||
+    (native === undefined && geometry.parts.some((part) => /^(?:body:)?native-subcutaneous:/.test(part.id))) ||
+    (native !== undefined && qualification.parts.some((part) => part.part === native.source.id)) ||
+    (actual.length === 0 && native === undefined) ||
     new Set(qualification.parts.map((part) => part.id)).size !==
       qualification.parts.length
   )
     throw new Error(
       "Coarse anatomical qualification has unsupported source/schema/member population.",
     );
+  if (native !== undefined) {
+    const ids = new Set(native.members.map((member) => member.id));
+    const parts = geometry.parts.filter((part) => /^(?:body:)?native-subcutaneous:/.test(part.id));
+    if (native.basis !== qualification.basis || native.instance.trim() === "" || native.clinical !== "unavailable" ||
+        native.source.id !== "subcutaneousAdipose" || native.source.tissue !== "adipose" ||
+        [native.source.surface, native.source.fieldFileUri, native.source.bindingAccount, native.source.qualification, native.fieldQualification].some((value) => value.trim() === "") ||
+        !/^sha256:[a-f0-9]{64}$/.test(native.source.fieldDigest) || !/^sha256:[a-f0-9]{64}$/.test(native.exteriorDigest) ||
+        [native.source.fieldFileSha256, native.source.producerSha256, native.source.inputViewSha256, native.source.receiptSha256].some((value) => !/^[a-f0-9]{64}$/.test(value)) ||
+        ids.size === 0 || ids.size !== native.members.length || parts.length !== ids.size ||
+        new Set(native.members.map((member) => member.role)).size !== native.members.length ||
+        native.members.some((member, at) => member.id !== parts[at].id ||
+          member.id !== (member.id.startsWith("body:") ? "body:" : "") + "native-subcutaneous:" + native.source.id + "/" + native.source.surface + "/" + member.role ||
+          !/^sha256:[a-f0-9]{64}$/.test(member.meshDigest)))
+      throw new Error("Native subcutaneous qualification must bind actual boundary members and complete field/exterior provenance.");
+  }
   for (const [at, part] of qualification.parts.entries()) {
     if (
       part.id !== actual[at].id ||

@@ -15,20 +15,6 @@ import type { IAutoMovieHumanPersonHeadTransform } from "../structures/IAutoMovi
  * is not modified.
  * Physical source identities retain their meaning through an owned copy;
  * the shared engine admission checks alias grid agreement before and after.
- *
- * @evidence contracts/common.md#principled-implementation A rigid transform moves positions by rotation and translation and normals by the rotation alone, which is what the two callbacks are; the mesh's other attributes do not depend on where it stands.
- * @evidence contracts/common.md#clear-and-simple-design Two loops over the flat arrays and a spread for the rest.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is dropped, rounded or recomputed.
- * @evidence contracts/common.md#meaningful-documentation The comment states what moves how, what does not, and why the transform is supplied.
- * @evidence contracts/modeling.md#spatial-conventions Positions and normals stay in the caller's one frame; the change of frame is the supplied transform.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves a part's vertices and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive beyond the copy it returns.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function moveHumanMeshRigidly(
   mesh: IAutoMovieMesh,

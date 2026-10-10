@@ -11,20 +11,6 @@ import type { IAutoMovieHumanPersonSourceInterval } from "../structures/IAutoMov
  * callers admit count/index domains and supply that cell tree's preimages.
  * It measures chart coverage, not physical coordinates or surface collisions.
  * All input buffers and preimages remain read only.
- *
- * @evidence contracts/common.md#principled-implementation Positive oriented chart determinants, directed-edge cancellation and exact boundary intervals establish complete parent coverage without an area tolerance.
- * @evidence contracts/common.md#clear-and-simple-design One coverage owner consumes a parent tree and immutable cell preimages independently of geometric or shading interpretation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects outside support, reversed or missing cells and uncancelled interior edges instead of deleting triangles or fitting a tolerance.
- * @evidence contracts/common.md#meaningful-documentation States admitted-domain premises, coverage meaning and input ownership.
- * @evidence contracts/modeling.md#shared-boundaries Internal shared source edges cancel in opposite directions and parent boundaries retain their exact affine intervals.
- * @evidence contracts/modeling.md#spatial-conventions Samples and affine weights are dimensionless; physical coordinates are not consumed.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Validates supplied source cells without defining a part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Assembly consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Checks source coverage rather than a biological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes immutable compiler lineage rather than shaping inputs.
  */
 export function validateHumanPersonSourceCoverage(
   props: IAutoMovieHumanPersonSourceCoverageProps,

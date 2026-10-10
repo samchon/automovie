@@ -73,7 +73,7 @@ export function readHumanViewerCatalogue(
     props.faceMemo.signature = faceSignature;
     props.faceMemo.value = faces;
   }
-  const generation = (
+  const generation = props.independentInput === true ? null : (
     props.generation ??
     ((): IHumanViewerRejectedInput => ({
       file: "test/studies/human-person/generation",
@@ -85,7 +85,7 @@ export function readHumanViewerCatalogue(
   // it exists (drawn on the one-skin generation); otherwise from the legacy
   // published face and body pair.
   const generationSubjects =
-    "reason" in generation ||
+    generation === null || "reason" in generation ||
     props.subjectPeopleFile === undefined ||
     !fs.existsSync(props.subjectPeopleFile)
       ? null
@@ -109,8 +109,8 @@ export function readHumanViewerCatalogue(
         })
       : [];
   const authored =
-    "reason" in generation
-      ? { documents: [], rejected: [generation] }
+    generation === null || "reason" in generation
+      ? { documents: [], rejected: generation === null ? [] : [generation] }
       : admitHumanViewerAuthoredEntries(
           [
             ...readHumanViewerStandardBodies({ generation, sources }),
@@ -120,7 +120,7 @@ export function readHumanViewerCatalogue(
               sources,
             }),
             ...(generationSubjects?.documents ?? []),
-          ],
+          ].filter((entry) => props.selectedDoc === undefined || entry.id === props.selectedDoc),
           admit,
         );
   if (generationSubjects !== null)
@@ -128,6 +128,7 @@ export function readHumanViewerCatalogue(
   const inputs =
     props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
       ? readHumanViewerInputs({
+          selectedDoc: props.selectedDoc,
           io: {
             names: () => fs.readdirSync(props.inputsDirectory!),
             read: (name) =>
@@ -139,7 +140,7 @@ export function readHumanViewerCatalogue(
           },
           memo: props.inputsMemo,
           bases,
-          generation: "reason" in generation ? null : generation,
+          generation: generation === null || "reason" in generation ? null : generation,
           sources,
           sidecar: props.sidecar ?? (() => null),
           admission: admit,
@@ -153,6 +154,6 @@ export function readHumanViewerCatalogue(
       ...subjectPeople,
       ...authored.documents,
       ...inputs.documents,
-    ],
+    ].filter((entry) => props.selectedDoc === undefined || entry.id === props.selectedDoc),
   };
 }

@@ -36,18 +36,6 @@ interface CappedSurface {
  * over a compact mesh of only the triangles and vertices involved: the
  * crossing test scans its whole buffer on admission, and the body's tens of
  * thousands of untouched vertices were most of its cost.
- *
- * @evidence contracts/common.md#principled-implementation The enclosed volume of a closed, consistently wound surface is the sum of the signed tetrahedra each triangle spans with the origin; each open loop is closed by a fan to its centroid wound against its boundary edges so the sum stays the enclosed volume. Containment is the total solid angle (the arctangent solid-angle form) exceeding half a turn, which is exact for a closed oriented surface away from its faces. Contact is decided by strict crossings plus clipped coplanar area, with the stated 1e-12 relative floor where rotated coordinates leave rounding residues.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No body, surface or expected volume is named; the only tolerance is the stated numerical floor at exact contact, and the cap checks refuse instead of compensating.
- * @evidence contracts/common.md#meaningful-documentation The comment states the closing, the winding, the containment and contact rules, the tolerance floor, and why the geometry check works on compact meshes.
- * @evidence contracts/modeling.md#spatial-conventions Positions are metres in the basis frame and every test is made in that one frame; nothing is converted.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry the viewer displays; the cap fan is an internal measuring surface of one triangle per boundary edge.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no quantity; it refuses a degenerate or crossing cap and the caller refuses unreachable targets.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a body.
  */
 export function humanBodyCappedSurface(
   positions: number[],

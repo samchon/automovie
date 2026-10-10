@@ -29,17 +29,6 @@ const SIDES = ["left", "right"] as const;
  * evaluates one request at a time) hands its thread back between steps and
  * stops iterating when a later request supersedes the solve; the synchronous
  * function runs every step at once.
- *
- * @evidence contracts/common.md#principled-implementation It pauses after each build and crossing read, scans whole-degree elevations from low to high with both arms in one build, keeps an arm's first clean angle and then rebuilds the final pair with cross-arm crossings restored, refusing a combination that adds a crossing. Pausing the generator changes no result, so a caller that stops iterating when a later request supersedes the solve leaves no partial state.
- * @evidence contracts/common.md#clear-and-simple-design One generator owns the search and its state; the synchronous solver only drains it, and the partition into segments comes from the segmenter that the worker may share.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No angle or contact is typed or hidden; the baseline contact at the rest goals is the only allowance and is read from the document's own skin.
- * @evidence contracts/common.md#meaningful-documentation States the scan order and why bisection is unsound, how the worker shares its partition, and how a responsive caller drives and abandons the steps.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no morph channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits shoulder goals and pose rows and no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Elevations are whole degrees in the thorax-tt shoulder coordinates and crossings are read on the builder's rest-frame meshes; no unit or frame is converted here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary; it reads crossings between existing segments.
- * @evidence contracts/anatomy.md#parametric-authority It yields document pose data for named joints from the document's own skin; no input addresses a vertex or surface.
  */
 export function* stepHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,

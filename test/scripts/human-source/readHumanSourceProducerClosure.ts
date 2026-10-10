@@ -18,6 +18,21 @@ import type { IHumanSourceProducerObservation } from "./structures/IHumanSourceP
 const ANATOMICAL_ASSEMBLY_PRODUCER = "body-anatomy";
 
 /**
+ * Owning project and complete offline source population for another producer.
+ * Both paths resolve within the repository; the actual entry must belong to that
+ * source directory. Compiler observations retain every resolved dependency.
+ *
+ * @author Samchon
+ */
+interface ProducerProjectContext {
+  /** Actual owning tsconfig; its directory is the native graph's path base. */
+  projectFile: string;
+
+  /** Complete offline producer tree, including its actual entry. */
+  sourceDirectory: string;
+}
+
+/**
  * Pin a production compiler's language-semantic producer closure.
  *
  * The native compiler's resolved reference graph, including type-only edges,
@@ -26,6 +41,8 @@ const ANATOMICAL_ASSEMBLY_PRODUCER = "body-anatomy";
  * and directory membership are checked for stability within this run but
  * stay outside content identity: an unused lookup at a different ancestor
  * directory must not give the same resolved program a different identity.
+ * A resolved directory resource retains every descendant file's bytes and
+ * its directory membership observations; it is not a realized source file.
  * This graph-only pass uses the canonical no-plugin project context; the
  * running ttsx entry and its dependency owners retain their configured
  * checks and transforms. Numerical producers imported from body-basis and
@@ -36,11 +53,17 @@ const ANATOMICAL_ASSEMBLY_PRODUCER = "body-anatomy";
  * (`tsconfig.human-source.json`): the source scripts and what they import.
  * Review, viewer and assembly scripts belong to other projects, so their
  * type state and edits neither enter this identity nor stop this producer.
+ * Another producer may supply its owning project and complete offline source
+ * directory; that changes the graph context, never its stability verifier.
  *
- * The local source directory also contains the offline Python samplers and
+ * The local source directory also contains offline producer inputs and an
  * upstream lock, which a TypeScript graph cannot import. Their existing
  * whole-directory population remains covered, except the anatomical assembly
- * chain's generators named above. Package lock and workspace
+ * chain's generators named above and dependency infrastructure under node_modules.
+ * That generated/installed tree is not authored offline input; the native graph
+ * independently pins its actually resolved files and directory resources.
+ * Compiler artifacts share the repository cache outside the authored population.
+ * Package lock and workspace
  * configuration pin external runtime code and tool versions; the graph's
  * external declarations and metadata are addressed by package name/version,
  * never an absolute machine path. Platform executable identity belongs to
@@ -57,11 +80,29 @@ const ANATOMICAL_ASSEMBLY_PRODUCER = "body-anatomy";
 export function readHumanSourceProducerClosure(
   repository: string,
   entryFile: string = "test/scripts/human-source/compile-source-generation.ts",
+  context?: ProducerProjectContext,
 ): IHumanSourceProducerClosure {
-  const project = path.join(repository, "test");
+  const projectFile = context === undefined
+    ? path.join(repository, "test/tsconfig.human-source.json")
+    : path.resolve(repository, context.projectFile);
+  // Native graph paths are project-relative, not relative to the process cwd.
+  const project = path.dirname(projectFile);
+  const sourceDirectory = path.resolve(repository,
+    context?.sourceDirectory ?? "test/scripts/human-source");
+  if (context !== undefined) {
+    for (const file of [projectFile, sourceDirectory]) {
+      const relative = path.relative(repository, file);
+      if (relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative))
+        throw new Error("Source producer context must stay within its repository.");
+    }
+    const relativeEntry = path.relative(sourceDirectory, path.resolve(repository, entryFile));
+    if (relativeEntry === ".." || relativeEntry.startsWith(".." + path.sep) || path.isAbsolute(relativeEntry))
+      throw new Error("Source producer entry must belong to its declared source directory.");
+  }
   const result = new TtscCompiler({
     cwd: project,
-    tsconfig: path.join(project, "tsconfig.human-source.json"),
+    tsconfig: projectFile,
+    cacheDir: path.join(repository, "node_modules/.cache/ttsc"),
     plugins: false,
   }).transform();
   if (result.type !== "success")
@@ -94,7 +135,15 @@ export function readHumanSourceProducerClosure(
         pending.push(absolute(dependency));
   }
   const paths = new Set(reached);
-  const contentPaths = new Set(reached);
+  const resolvedFiles = new Set<string>();
+  const directoryResources: string[] = [];
+  for (const file of reached) {
+    const stat = fs.statSync(file);
+    if (stat.isFile()) resolvedFiles.add(file);
+    else if (stat.isDirectory()) directoryResources.push(file);
+    else throw new Error("Resolved producer resource has no file/directory identity: " + file);
+  }
+  const contentPaths = new Set(resolvedFiles);
   for (const file of [
     ...graph.globals,
     ...graph.configs,
@@ -120,27 +169,36 @@ export function readHumanSourceProducerClosure(
       `Source producer graph has unproved filesystem inputs: ${JSON.stringify(failures)}`,
     );
   const realized = new Set([
-    ...reached,
+    ...resolvedFiles,
     ...graph.globals.map(absolute),
     ...graph.configs.map(absolute),
   ]);
   assertHumanSourceCompilerObservations(graph, project, paths, realized);
-  const offline = (directory: string): void => {
+  const offline = (directory: string, resource = false, ancestors = new Set<string>()): void => {
+    const physical = fs.realpathSync.native(directory);
+    if (ancestors.has(physical))
+      throw new Error("Producer resource directory contains a physical cycle: " + directory);
+    const ancestry = new Set(ancestors).add(physical);
+    if (resource) paths.add(directory);
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       if (
-        entry.name === "__pycache__" ||
-        entry.name === ANATOMICAL_ASSEMBLY_PRODUCER
+        !resource && (entry.name === "__pycache__" || entry.name === "node_modules" ||
+          (entry.name === ANATOMICAL_ASSEMBLY_PRODUCER &&
+            sourceDirectory === path.resolve(repository, "test/scripts/human-source")))
       )
         continue;
       const file = path.join(directory, entry.name);
-      if (entry.isDirectory()) offline(file);
-      else {
+      const stat = fs.statSync(file);
+      if (stat.isDirectory()) offline(file, resource, ancestry);
+      else if (stat.isFile()) {
         paths.add(file);
         contentPaths.add(file);
-      }
+      } else throw new Error("Producer resource has no file/directory identity: " + file);
     }
   };
-  offline(path.join(repository, "test/scripts/human-source"));
+  if (context !== undefined) paths.add(sourceDirectory);
+  offline(sourceDirectory);
+  for (const directory of directoryResources) offline(directory, true);
   paths.add(path.join(repository, "pnpm-lock.yaml"));
   paths.add(path.join(repository, "pnpm-workspace.yaml"));
   contentPaths.add(path.join(repository, "pnpm-lock.yaml"));

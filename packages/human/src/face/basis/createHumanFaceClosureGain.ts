@@ -6,6 +6,7 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
 import type { IHumanFaceClosureGain } from "./IHumanFaceClosureGain";
 import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
+import { createHumanFaceNativeClosureGain } from "./createHumanFaceNativeClosureGain";
 
 /** Fixed-point passes re-reading a chain vertex's place along the axis after its gain changes. */
 const PASSES = 4;
@@ -24,11 +25,13 @@ const MOVABLE_METRES = 1e-7;
  * the opening direction equals the upper polyline's height at its own position
  * along the mandibular axis, the nearest end beyond the chain), then each upper
  * vertex still above the lower chain's polyline takes the gain that brings it
- * down onto it. Lowering an upper vertex only turns contact at the lower
- * vertices into overlap, so after both steps no point of either chain is left
- * open. Posing is affine in rest position, so a vertex's height is affine in
- * its gain and each gain is exact; its position along the axis is re-read for
- * a few fixed-point passes. Every other vertex of the lips surface takes the
+ * down onto it. Posing is affine in rest position, so a vertex's height is
+ * affine in its gain at a fixed target, but four fixed-point passes do not
+ * prove convergence when its along coordinate or the opposite chain changes.
+ * Actual margin measurements remain the acceptance evidence. Material courses
+ * use createHumanFaceNativeClosureGain to constrain their shared native gain
+ * field and verify posed/refined contact. Every other vertex of the legacy
+ * lips surface takes the
  * inverse-square-distance mean of the chain gains, blending to the central
  * gain at the surface's declared soft-tissue budget distance from the nearest
  * chain vertex (a stated convention reusing the tissue extent the contact
@@ -37,19 +40,6 @@ const MOVABLE_METRES = 1e-7;
  * the opening direction, or one moved farther from the central closure than
  * that budget, refuses by name with where it lies.
  *
- * @evidence contracts/common.md#principled-implementation A vertex's posed height is affine in its gain because posing is affine in rest position, so each gain puts its vertex exactly on the other chain; taking the upper chain as the contact line removes the free shift two mutually referenced chains would leave, and lowering upper vertices afterwards can only add overlap, never a gap.
- * @evidence contracts/common.md#clear-and-simple-design Two per-vertex passes over the registered chains, a smooth blend elsewhere on the lips surface, the central gain on every other surface.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is raised; an unmoved or over-budget chain vertex refuses by name.
- * @evidence contracts/common.md#meaningful-documentation States the contact line, the two passes, why no gap remains, the fixed-point re-read, the blend and its stated distance convention, and the refusals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The field names no part.
- * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning along the whole margin: weight one is contact.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator applies the gains.
- * @evidence contracts/modeling.md#spatial-conventions Positions along the mandibular axis and heights along the opening direction, in basis metres.
- * @evidence contracts/modeling.md#shared-boundaries The upper and lower vermilion meet along the registered margin chains.
- * @evidenceExclude contracts/modeling.md#rendered-observation The summary reports the final apertures.
- * @evidence contracts/anatomy.md#anatomical-source Lip seal is contact along the whole vermilion margin; the requirement defines weight one as seal.
- * @evidence contracts/anatomy.md#permitted-range The extra displacement at a chain vertex is bounded by the lips surface's declared soft-tissue budget, beyond which the state refuses.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The gains are derived, not an input.
  * @author Samchon
  */
 export function createHumanFaceClosureGain(
@@ -87,6 +77,11 @@ export function createHumanFaceClosureGain(
   const budget =
     contact.soft.find((entry) => entry.surface === contact.lips.surface)
       ?.budgetMetres ?? 0;
+  if (contact.margin.kind === "material")
+    return { ratio, lips: createHumanFaceNativeClosureGain({
+      surface, contact, positions, motions, up, ratio, delta, budget, axis,
+      movableMetres: MOVABLE_METRES,
+    }) };
 
   // posed position at gains 0 and 1 of every chain vertex: along and height
   // the central pair belongs to the margin: each chain takes its vertex, in order along the axis
@@ -166,8 +161,8 @@ export function createHumanFaceClosureGain(
     const at = column.get(vertex)!;
     gains[at] = reach(at, (position) => across(upperChain, position));
   }
-  // 2. an upper vertex left above the lower chain comes down onto it; lowering
-  // the upper chain only turns contact at the lower vertices into overlap
+  // 2. re-read an upper vertex left above the current lower polyline. Changes
+  // to along coordinates can change brackets; this pass proves no seal.
   for (const vertex of upperChain) {
     const at = column.get(vertex)!;
     if (height(at) > across(lowerChain, along(at)))

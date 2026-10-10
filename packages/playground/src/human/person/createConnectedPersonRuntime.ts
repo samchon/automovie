@@ -28,6 +28,7 @@ import { packConnectedBodyModel } from "../body/connectedBodyGeometry";
 import { describeConnectedBodyConstructionProgress } from "../body/describeConnectedBodyConstructionProgress";
 import { readConnectedBodyContacts } from "../body/readConnectedBodyContacts";
 import { readConnectedBodyHumeralHeads } from "../body/readConnectedBodyHumeralHeads";
+import { readConnectedBodyRigReading } from "../body/readConnectedBodyRigReading";
 import type { IConnectedPersonRuntimeOptions } from "./IConnectedPersonRuntimeOptions";
 import { describeConnectedPersonFaceProgress } from "./describeConnectedPersonFaceProgress";
 
@@ -156,6 +157,7 @@ export function createConnectedPersonRuntime(
       bodyBasis,
       built.body.evaluatedDocument,
       "body:",
+      built.body.layerObservations,
     );
     progress("assembly-qualified");
     const oral = await createHumanFaceOralExportQualification(
@@ -213,6 +215,7 @@ export function createConnectedPersonRuntime(
           bones: constructed.bones,
           landmarks: constructed.body.landmarks,
         },
+        rigReading: readConnectedBodyRigReading(constructed.body, constructed.model.id, constructed.bones),
       };
     }
     if (lastDocument !== request.document) release();

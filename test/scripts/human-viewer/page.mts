@@ -40,6 +40,7 @@ import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 import { readHumanViewerPng } from "./readHumanViewerPng";
 import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
+import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 import { showHumanViewerFirstAddress } from "./showHumanViewerFirstAddress";
 import { showHumanViewerReference } from "./showHumanViewerReference";
 
@@ -86,7 +87,9 @@ Object.assign(window, {
 });
 parent.postMessage({ type: "human:admission" }, location.origin);
 let catalogue: HumanViewerCatalogue;
-let current: HumanViewerAddress;
+let current: HumanViewerAddress | undefined;
+/** One failed resident restoration is reported with readiness, never retried automatically. */
+let restoreError: string | undefined;
 /** Resident key of the frame on screen, which a trim never releases. */
 let shownKey = "";
 /** The photograph layer of the frame on screen, null while none is shown. */
@@ -116,8 +119,6 @@ const buildResident = (
   operation: "preview" | "construct",
 ): Promise<IHumanViewerResident<HumanViewerStage>> => {
   const host = createHumanViewerViewportHost(canvas, renderer, loader);
-  if (operation === "construct" && selected.domain === "body")
-    throw new Error("The body domain has no construction inspection entry.");
   if (selected.domain === "face")
     return buildHumanViewerFaceResident({
       host,
@@ -141,6 +142,7 @@ const buildResident = (
     host,
     document: selected.document,
     worker,
+    operation,
   });
 };
 
@@ -164,8 +166,10 @@ async function show(address: HumanViewerAddress): Promise<void> {
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
-  if (selected === undefined)
-    throw new Error(`Unknown document: ${address.doc}`);
+  if (selected === undefined) {
+    const rejected = catalogue.rejected.find((entry) => entry.id === address.doc);
+    throw new Error(rejected?.reason ?? `Unknown document: ${address.doc}`);
+  }
   const operation = address.operation ?? "preview";
   const key =
     selected.key +
@@ -212,7 +216,10 @@ let queue = Promise.resolve();
 const apply = (address: HumanViewerAddress): Promise<void> => {
   const next = queue
     .then(() => show(address))
-    .then(() => announceHumanViewerAddress(current, active));
+    .then(() => {
+      if (current === undefined) throw new Error("No model has been displayed.");
+      announceHumanViewerAddress(current, active);
+    });
   queue = next.catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : String(error);
   });
@@ -221,7 +228,7 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
 async function main(): Promise<void> {
   // The host's hold ends when this page and its worker have loaded their
   // modules; the build and drawing that follow no longer read source.
-  const loaded = numerical.compiles();
+  const loaded = numerical.authority();
   void loaded
     .then(() => parent.postMessage({ type: "human:loaded" }, location.origin))
     .catch(() => undefined);
@@ -230,36 +237,80 @@ async function main(): Promise<void> {
   // A worker that cannot load (a module it imports is missing or broken)
   // fails this candidate at once; the first show would otherwise wait on it
   // forever and never release the host's hold.
-  // The first address is the host's last one; a document that cannot be
-  // shown there does not keep this generation from becoming ready.
-  await showHumanViewerFirstAddress(
-    parseHumanViewerAddress(location.hash),
-    apply,
-    loaded,
-    (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
-  );
-  // Publish only a generation whose page and worker ran one compile.
+  // Initial resident startup evaluates no document. A replacement restores
+  // only a display the host previously completed, through this checked realm.
+  if (residentCapture) await loaded;
+  else
+    await showHumanViewerFirstAddress(
+      parseHumanViewerAddress(location.hash),
+      apply,
+      loaded,
+      (message) => console.warn("HUMAN_FIRST_ADDRESS " + message),
+    );
+  // Publish one browser compile with a separately checked, same-source Node realm.
   assertHumanViewerSingleCompile(
     readHumanViewerCompiles(),
-    await numerical.compiles(),
+    await numerical.authority(),
+    catalogue.revision,
   );
   await checkHumanViewerCandidateSource();
+  if (residentCapture && new URLSearchParams(location.search).get("restore") === "1") {
+    try {
+      await apply(parseHumanViewerAddress(location.hash));
+    } catch (error) {
+      await numerical.authority();
+      restoreError = error instanceof Error ? error.message : String(error);
+      residents.clear();
+      shownKey = "";
+      current = undefined;
+      composition = null;
+      workingDocument = "";
+      work("idle");
+    }
+    // A source/realm failure still refuses generation publication. A rejected
+    // document alone leaves a ready empty bridge and its explicit cause.
+    assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.authority(), catalogue.revision);
+    await checkHumanViewerCandidateSource();
+  }
   addEventListener("hashchange", () => {
     void apply(parseHumanViewerAddress(location.hash));
   });
   Object.assign(window, {
     __humanViewer: {
       show: apply,
-      parts: () => active.observe.parts(),
-      renderer: () => String(active.renderer()),
+      parts: () => current === undefined ? [] : active.observe.parts(),
+      renderer: () => {
+        const gl = renderer.getContext();
+        const device = gl.getExtension("WEBGL_debug_renderer_info");
+        return String(gl.getParameter(device?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER));
+      },
       revision: () => catalogue.revision,
       builds: numerical.builds,
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
-      address: () => current,
+      address: () => {
+        if (current === undefined) throw new Error("No model has been displayed.");
+        return current;
+      },
       admission: () => residents.get(shownKey)?.admission ?? null,
+      rigReading: () => residents.get(shownKey)?.rigReading,
+      exportConstruction: async () => {
+        const address = current;
+        if (address === undefined) throw new Error("No model has been displayed.");
+        const selected = catalogue.documents.find((entry) => entry.id === address.doc);
+        const resident = residents.get(shownKey);
+        if (selected?.domain !== "person" || address.operation !== "construct" ||
+            resident?.exportConstruction === undefined)
+          throw new Error("Static construction export requires the displayed paired Person construction.");
+        try {
+          return await resident.exportConstruction();
+        } finally {
+          work("idle");
+        }
+      },
       periocularMappings: () => residents.get(shownKey)?.periocularMappings,
       png: () => {
+        if (current === undefined) throw new Error("No model has been displayed.");
         const png = readHumanViewerPng({
           stage: active,
           renderer,
@@ -273,12 +324,21 @@ async function main(): Promise<void> {
       evict: () => residents.evictOldest(shownKey),
     },
   });
-  parent.postMessage({ type: "human:ready" }, location.origin);
+  parent.postMessage({
+    type: "human:ready",
+    ...(current === undefined ? {} : {
+      address: serializeHumanViewerAddress(current),
+      parts: active.observe.parts(),
+    }),
+    restoreError,
+  }, location.origin);
   // A human orbit is display-only. Finish on demand and while the pointer moves.
-  canvas.addEventListener("pointermove", () => active.finish());
-  canvas.addEventListener("wheel", () =>
-    requestAnimationFrame(() => active.finish()),
-  );
+  canvas.addEventListener("pointermove", () => {
+    if (current !== undefined) active.finish();
+  });
+  canvas.addEventListener("wheel", () => {
+    if (current !== undefined) requestAnimationFrame(() => active.finish());
+  });
 }
 if (import.meta.hot) import.meta.hot.accept();
 void main().catch((error: unknown) => {

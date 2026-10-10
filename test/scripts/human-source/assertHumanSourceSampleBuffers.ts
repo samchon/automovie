@@ -84,7 +84,6 @@ export function assertHumanSourceSampleBuffers(
     });
   for (const [interior, boundary, operator] of [
     [sample.flattenInterior, sample.flattenBoundary, sample.flattenOperator],
-    [sample.genitalInterior, sample.genitalBoundary, sample.genitalOperator],
   ] as const) {
     if (
       !count(interior.length * boundary.length) ||

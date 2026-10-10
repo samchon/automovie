@@ -6,13 +6,6 @@ import type { IHumanFacePeriocularOffsetVertex } from "./IHumanFacePeriocularOff
  * The actual requested distances and retained skin frames identify the
  * normal-offset map whose generated triangles the instrument inspected.
  *
- * @evidence contracts/common.md#principled-implementation Retains existing transverse witness populations and their exact construction inputs.
- * @evidence contracts/common.md#clear-and-simple-design One table stores each participating producer vertex once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither distance nor physical acceptance is changed by the report.
- * @evidence contracts/common.md#meaningful-documentation States that these are producer observations, not anatomical qualification.
- * @evidence contracts/modeling.md#spatial-conventions Requested distances and positions use metres in the original head frame.
- * @evidence contracts/modeling.md#shared-boundaries The two sheet populations share the same producer vertex table.
- *
  * @author Samchon
  */
 export interface IHumanFacePeriocularOffsetWitnesses {

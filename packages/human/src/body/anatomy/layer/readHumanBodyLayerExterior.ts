@@ -11,24 +11,9 @@ import type { IHumanBodyLayerExteriorInput } from "./IHumanBodyLayerExteriorInpu
  * appropriate for a person assembled from one source sample value, and no
  * coordinate average alters that value. All native body samples must occur.
  * The returned mesh and origin map are owned; source meshes remain untouched.
- * This only recovers geometry and incidence. Triangle topology, embedding and
+ * The anatomical assembly compiler consumes this final exterior for its
+ * whole-person layer normal and ray domain. This only recovers geometry and incidence. Triangle topology, embedding and
  * the inward-ray interpretation remain the consuming owners' responsibilities.
- *
- * @publicUnconsumed compile-human-anatomical-assembly.ts layer-surfaces/full: The frozen baseline retains this source-owned exterior reader before its planned caller connection; complete-exterior ray validation and geometry acceptance remain unimplemented.
- *
- * @evidence contracts/common.md#principled-implementation Declared physical sample IDs recover the actual performed skin and native origin incidence without coordinate-based welding.
- * @evidence contracts/common.md#clear-and-simple-design One sample map gathers vertices and triangles, then resolves the native body origins.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Disagreeing aliases and missing native origins refuse; no position is averaged, capped or synthesized.
- * @evidence contracts/common.md#meaningful-documentation States strict performed alias equality, buffer ownership and the independent topology obligation.
- * @evidence contracts/modeling.md#spatial-conventions Positions retain the common evaluated metre frame; source IDs and mesh indices are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Both partitions' render occurrences of one canonical sample resolve to the same query vertex.
- * @evidence contracts/modeling.md#emitted-geometry Retains every supplied triangle; vertex aliases collapse only by declared sample identity and do not change the input resolution.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing skin-part identities are not redefined by this numerical reader.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads no authoring channel or motion.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled model's owner observes these input skins; the query reader displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This sample reader contains no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Index and alias admission is numerical rather than a biological bound.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It reads host-owned output rather than supplying a personal sculpt input.
  */
 export function readHumanBodyLayerExterior(
   input: IHumanBodyLayerExteriorInput,

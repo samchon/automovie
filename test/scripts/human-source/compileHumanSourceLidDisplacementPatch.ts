@@ -2,6 +2,7 @@ import type { IAutoMovieHumanFacePeriocularDisplacementPatch } from "@automovie/
 
 import { readHumanSourceAttachmentLoops } from "./readHumanSourceAttachmentLoops.ts";
 import { readHumanSourceAttachmentTopology } from "./readHumanSourceAttachmentTopology.ts";
+import { readHumanSourceNativeEdgeCycle } from "./readHumanSourceNativeEdgeCycle.ts";
 import type { IHumanSourceLidDisplacementPatchInput } from "./structures/IHumanSourceLidDisplacementPatchInput.ts";
 
 /**
@@ -51,40 +52,9 @@ export function compileHumanSourceLidDisplacementPatch(
     a < b ? `${a}:${b}` : `${b}:${a}`;
   const cuts = new Set<string>();
   const trace = (stations: readonly number[]): number[] => {
-    const cycle = [stations[0]];
-    occupied.add(stations[0]);
-    for (let segment = 0; segment < stations.length; segment++) {
-      const start = stations[segment],
-        end = stations[(segment + 1) % stations.length];
-      const queue = [start],
-        previous = new Map<number, number>([[start, start]]);
-      for (let at = 0; at < queue.length && !previous.has(end); at++)
-        for (const near of [...topology.vertexNeighbors[queue[at]]].sort(
-          (a, b) => a - b,
-        )) {
-          if (
-            previous.has(near) ||
-            (near !== end && (forbidden.has(near) || occupied.has(near)))
-          )
-            continue;
-          previous.set(near, queue[at]);
-          queue.push(near);
-        }
-      if (!previous.has(end))
-        throw new Error(
-          "Lid movement row has no simple uncrossed native edge path.",
-        );
-      const path = [end];
-      while (path.at(-1) !== start) path.push(previous.get(path.at(-1)!)!);
-      path.reverse();
-      for (let at = 1; at < path.length; at++) {
-        cuts.add(key(path[at - 1], path[at]));
-        if (path[at] !== cycle[0]) {
-          cycle.push(path[at]);
-          occupied.add(path[at]);
-        }
-      }
-    }
+    const cycle = readHumanSourceNativeEdgeCycle({ topology, stations, forbidden, occupied });
+    for (let at = 0; at < cycle.length; at++)
+      cuts.add(key(cycle[at], cycle[(at + 1) % cycle.length]));
     return cycle;
   };
   const posterior = trace(posteriorStations),

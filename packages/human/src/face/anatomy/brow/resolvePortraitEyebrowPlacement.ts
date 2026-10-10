@@ -15,20 +15,6 @@ import { resolvePortraitEyebrowFlowPattern } from "./resolvePortraitEyebrowFlowP
  * be said to win. A named root bound given alone takes the other from the
  * default band [0.1, 0.22]; a named fade given alone leaves the other end
  * unfaded. No field at all gives the default band, no fade and no flow.
- *
- * @evidence contracts/common.md#principled-implementation Each quantity has exactly one resolved value and one refusal for a contradictory statement, so the shaft builder and the admission cannot read different spellings.
- * @evidence contracts/common.md#clear-and-simple-design One resolver returns one record; consumers no longer default the tuples themselves.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The older spelling is admitted because documents carry it, a supported difference; nothing is guessed when both are present.
- * @evidence contracts/common.md#meaningful-documentation States both spellings, the defaults and the refusal.
- * @evidence contracts/modeling.md#parameter-channels Root extent, end thinning and grain stay three independent traits in either spelling.
- * @evidence contracts/modeling.md#spatial-conventions Fractions of the registered band and of the brow's length pass through unchanged.
- * @evidence contracts/anatomy.md#parametric-authority The named numbers are the authoring inputs; the conversion to the detailed tuple and witness form is deterministic and has no inverse for witness lists the four-number grain cannot state.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The resolver carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The profile admission bounds the resolved values.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The resolver defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The resolver emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The resolver builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The brow assembly observes the result.
  */
 export function resolvePortraitEyebrowPlacement(
   shape: IPortraitEyebrowProfile,

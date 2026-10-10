@@ -18,20 +18,6 @@ import type { IHumanFaceHairRootSupport } from "./IHumanFaceHairRootSupport";
  * lengths are current head-frame metres. The collider readers and the budget
  * are the walk's.
  *
- * @evidence contracts/common.md#principled-implementation Supplies exactly the station state and one collider's readers the stem step decides with.
- * @evidence contracts/common.md#clear-and-simple-design Named members replace the walk's captured locals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no waypoint, subject or tolerance.
- * @evidence contracts/common.md#meaningful-documentation States the order of points, the root special case, frames and ownership.
- * @evidence contracts/modeling.md#spatial-conventions Positions and lengths are head-frame metres; directions are unit vectors.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The walk emits stations.
- * @evidence contracts/modeling.md#shared-boundaries Contact, ray index and root support read the one host collider.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical state only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
- *
  * @author Samchon
  */
 export interface IHumanFaceHairRootedStemStep {

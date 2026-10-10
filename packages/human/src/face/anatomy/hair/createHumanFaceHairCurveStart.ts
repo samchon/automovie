@@ -1,3 +1,5 @@
+import { Vector3 } from "@automovie/engine";
+
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
@@ -12,29 +14,19 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * owner reads the combed field from the neutral chart; the current
  * barycentric seat, signed query, ray caster and root-star distance reader must
  * share one closed collider snapshot. The emergence owner supplies the desired
- * unit root tangent at the caller's exit elevation `degrees`, chosen from the
- * root's cited range; the integrator grows its curved boundary transition
+ * unit root tangent at the caller's exit elevation `degrees`, either an
+ * admitted authored target or the existing scalp placement interval. The
+ * integrator grows its curved boundary transition
  * before starting the free walk. All positions and lengths are head-frame metres.
+ * An authored non-normal elevation needs a tangential field; a singular field
+ * refuses rather than replacing that target with normal emergence. The legacy
+ * scalp fallback remains with the unchanged generic emergence owner.
  *
  * The returned stage and contact belong to this lock; the supplied remaining
  * budget is admitted here and mutated by the owning metric walker. Both guide
  * and strand use the same initial state; the integrator supplies any completed
  * rooted transition before hierarchy placement. Preparation refusal propagates.
  * Neither the fibre launch nor this preparation certifies ribbon interiors.
- *
- * @evidence contracts/common.md#principled-implementation Guide and strand preparation reads the same emergence field at its own current root and preserves the caller's metric/contact instance. Shared context is admitted before iteration and gathered locks cannot bypass tie-state completion through hierarchy placement. The integrator owns actual stations and exterior certificates.
- * @evidence contracts/common.md#clear-and-simple-design One owner prepares the initial field and caller's exact metric/contact instance; the integrator owns walking and the strand owner owns interpolation admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every root follows the same field and ray solver without a style or subject exception, projected launch or changed clearance.
- * @evidence contracts/common.md#meaningful-documentation States snapshot identity, neutral/current responsibilities, owned state, units, refusal and surface limits.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It prepares numerical state and defines no displayed part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It preserves the admitted layer's quantities and introduces no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It prepares an initial direction and state but emits no station; the integrator owns the rooted stem and free population.
- * @evidence contracts/modeling.md#spatial-conventions Chart, current root and collider use head-frame metres; directions are dimensionless unit vectors.
- * @evidence contracts/modeling.md#shared-boundaries It transports the canonical sampler seat, support and same-snapshot contact to the metric walker; createHumanFaceHairExteriorInterval owns chord certificates and the integrator owns the freeFrom boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It prepares numerical state; the assembled hair builder owns visual observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The emergence and regional-length owners supply anatomical or conventional quantities.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission belongs to assertHumanFaceHair; this adapter establishes numerical launch premises only.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It transports an admitted layer and derived seat rather than adding an authoring input.
  */
 export function createHumanFaceHairCurveStart(
   props: IHumanFaceHairIntegration,
@@ -59,14 +51,15 @@ export function createHumanFaceHairCurveStart(
   if (!Number.isFinite(length) || length <= contact.epsilon)
     throw new Error("Hair length cannot accommodate its rooted transition.");
   const budget = props.budget;
+  const normal = humanFaceHairFrame.direction(props.normal);
+  const field = stage.direction(props.root, normal, 0);
+  if (layer.emergenceAngleDegrees !== undefined && degrees < 90 &&
+      Vector3.length(Vector3.subtract(field, Vector3.scale(normal, Vector3.dot(field, normal)))) === 0)
+    throw new Error("An authored non-normal hair emergence requires a nonzero tangential styling direction.");
   const direction = humanFaceHairEmergence({
     normal: props.normal,
     degrees,
-    field: stage.direction(
-      props.root,
-      humanFaceHairFrame.direction(props.normal),
-      0,
-    ),
+    field,
   });
   return { stage, length, contact, budget, direction };
 }

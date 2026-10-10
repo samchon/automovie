@@ -34,20 +34,6 @@ import { compileHumanFaceProjectedSkinCourse } from "./compileHumanFaceProjected
  * a moved skin needs a new host. Coordinates are head-frame metres. A
  * triangle of zero area, a non-finite coordinate or an index outside the
  * positions refuses.
- *
- * @evidence contracts/common.md#principled-implementation Nearest-point seating uses the engine's signed mesh query (angle-weighted pseudonormal sign, Baerentzen and Aanaes 2005) on the open skin sheet, and the barycentric weights of the returned point are solved in the returned triangle's own plane, where the point lies by construction. Area-vector accumulation weights each incident triangle by its area, the standard smooth vertex normal; welding by exact coordinates is safe because seam copies are bit-identical gathers of one source vertex and no tolerance is involved.
- * @evidence contracts/common.md#clear-and-simple-design One compile step returns closures over owned arrays; the lazy query is the only state and it is write-once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No head axis, anatomical label or region enters; degenerate input refuses instead of being repaired.
- * @evidence contracts/common.md#meaningful-documentation States the seat and normal definitions, the lazy index, ownership, units and refusals.
- * @evidence contracts/modeling.md#spatial-conventions Input and output are head-frame metres in the surface's own vertex order; no conversion happens here.
- * @evidence contracts/modeling.md#shared-boundaries The host reads the same index list and positions the skin part is gathered from, so an attached part and the drawn skin cannot disagree about where the surface is.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The host defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The host consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The host emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The host displays nothing; its consumers own their observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The host carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The host admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The host defines no authoring input.
  */
 export function createHumanFaceSkinHost(
   indices: readonly number[],

@@ -3,6 +3,7 @@ import { evaluateHumanFaceRest } from "@automovie/human/face/basis/evaluateHuman
 import { measureHumanFaceMarginGaps } from "@automovie/human/face/basis/measureHumanFaceMarginGaps";
 import { resolveHumanFaceApertureUp } from "@automovie/human/face/basis/resolveHumanFaceApertureUp";
 import { resolveHumanFaceArticulation } from "@automovie/human/face/basis/resolveHumanFaceArticulation";
+import { readHumanFaceLipMarginPoints } from "@automovie/human/face/basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 import crypto from "node:crypto";
 
@@ -79,10 +80,25 @@ export function regenerateHumanSourceLipSeal(
   const chain = registerHumanSourceLipMargin(
     face,
     Array.from(skin.headPositions),
+    {
+      generation: geometrySha,
+      originalVertices: skin.partition.cut.originalVertices,
+      parentTriangles: Array.from(root.topology.triangles),
+      intersections: skin.partition.cut.intersections.map((point) => ({ ...point })),
+      samples: Array.from(skin.partition.cut.faceToG1),
+      parents: Array.from(skin.partition.cut.p1FaceParents),
+    },
   );
+  const lipSurface = face.surfaces.find((surface) => surface.id === contact.lips.surface)!;
+  lipSurface.sourcePartition = {
+    generation: geometrySha, originalVertices: skin.partition.cut.originalVertices,
+    parentTriangles: Array.from(root.topology.triangles),
+    intersections: skin.partition.cut.intersections.map((point) => ({ ...point })),
+    samples: Array.from(skin.partition.cut.faceToG1), parents: Array.from(skin.partition.cut.p1FaceParents),
+  };
   face.contact = {
     ...face.contact!,
-    margin: { upper: chain.upper, lower: chain.lower },
+    margin: chain.margin,
   };
   const currentContact = face.contact!;
   const margin = currentContact.margin!;
@@ -110,6 +126,7 @@ export function regenerateHumanSourceLipSeal(
     margin,
     articulation.jaw.axis,
     up,
+    lipSurface,
   );
   for (let at = 0; at < transported.length; at += 4)
     for (let axis = 0; axis < 3; axis++)
@@ -120,6 +137,7 @@ export function regenerateHumanSourceLipSeal(
     margin,
     articulation.jaw.axis,
     up,
+    lipSurface,
   );
   const tolerance = currentContact.toleranceMetres;
   if (
@@ -155,8 +173,8 @@ export function regenerateHumanSourceLipSeal(
           centralGain: gain.ratio,
           beforeGapsMetres: beforeGaps,
           afterGapsMetres: afterGaps,
-          upper: margin.upper.map(reading),
-          lower: margin.lower.map(reading),
+          upper: readHumanFaceLipMarginPoints(lipSurface, margin, after).upper.map((point) => ({ identity: point.identity, point: point.point, support: point.vertices.map(reading) })),
+          lower: readHumanFaceLipMarginPoints(lipSurface, margin, after).lower.map((point) => ({ identity: point.identity, point: point.point, support: point.vertices.map(reading) })),
           closureProvenance: closure.provenance,
         }),
     );

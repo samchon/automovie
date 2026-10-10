@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+import type { IConnectedBodyConstructionExportResult } from "@automovie/playground/src/human/body/IConnectedBodyConstructionExportResult";
+import type { IConnectedBodyRigReading } from "@automovie/playground/src/human/body/IConnectedBodyRigReading";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 
@@ -37,18 +39,24 @@ export interface HumanViewerHandle {
   /** Page milliseconds per named stage of the last show, empty for a pure cache hit. */
   spans(): Record<string, number>;
 
-  /** Last committed display selection. */
+  /** Last committed display selection; refuses before any model is displayed. */
   address(): HumanViewerAddress;
 
-  /** Actual construction checks, null for an admitted normal preview. */
+  /** Actual construction checks, null when no construction is displayed. */
   admission(): IAutoMovieHumanConstructionAdmission | null;
+
+  /** Same-resident placement readings; absent for a preview or a face. */
+  rigReading?(): IConnectedBodyRigReading | undefined;
+
+  /** Encode the displayed Person construction, preserving rejected admission. */
+  exportConstruction(): Promise<IConnectedBodyConstructionExportResult>;
 
   /** Owner mapping readings from the constructed face; absence reports no reading. */
   periocularMappings?():
     | IAutoMovieHumanFacePeriocularMappingReport[]
     | undefined;
 
-  /** Finished PNG: the canvas, composed with the reference photograph when one is shown. */
+  /** Finished PNG; refuses before display, and includes a shown local reference photograph. */
   png(): string;
 
   /** Release the least recently used resident other than the one shown; false when none is left. */

@@ -20,20 +20,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * Edge interpolation uses direct differences while their span is finite;
  * halving a subnormal distance first can erase a crossing. Only a span that
  * overflows between finite opposite endpoints uses half-scaled differences.
- *
- * @evidence contracts/common.md#principled-implementation Height and forward distance are affine over a triangle. Intersecting it with two half-spaces gives a convex polygon, so height extrema lie at retained corners or edge/plane intersections; the function evaluates every such candidate rather than sampling only source vertices. Empty intersections remain explicit.
- * @evidence contracts/common.md#clear-and-simple-design Project source positions once, then measure corners and edge intersections in one pass over resident triangles.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The same triangle/slab construction applies to every tongue, without a subject-specific sampling threshold or compensating thickness.
- * @evidence contracts/common.md#meaningful-documentation States the consumer, admitted-input preconditions, affine derivation, read-only ownership, empty-section meaning and the piecewise linear approximation.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres in the caller's opening frame; forward and up are orthogonal unit directions about the lower-incisor origin.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Measures an existing surface and owns no part or composition.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads already posed geometry and defines or consumes no form channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits measurements only, without changing the tongue's primitive population.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no boundary between anatomical parts.
- * @evidenceExclude contracts/modeling.md#rendered-observation Owns no displayed part or joint; the performed tongue's owner observes it.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Contains no anatomical dimension or tissue law; its slab is a caller-supplied measurement domain.
- * @evidenceExclude contracts/anatomy.md#permitted-range Does not admit or combine an anatomical control; the passage evaluator compares the returned measurement to apertures.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Provides no input through which an author shapes a human form.
  */
 export function measureHumanFaceTongueSection(
   positions: readonly number[],

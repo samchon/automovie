@@ -9,6 +9,7 @@ import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
+import type { IConnectedBodyRigReading } from "./IConnectedBodyRigReading";
 
 /**
  * The worker's reply to a preview request.
@@ -46,6 +47,9 @@ export interface IConnectedBodyPreviewResult {
 
   /** Additional build readings keyed by name. */
   extras: Record<string, unknown>;
+
+  /** Returned rest/posed placement readings from this same construction. */
+  rigReading?: IConnectedBodyRigReading;
 
   /** Candidate-only numerical inspection; legacy body previews omit it. */
   anatomicalRequest?: IAutoMovieHumanBodyAnatomicalInspection;

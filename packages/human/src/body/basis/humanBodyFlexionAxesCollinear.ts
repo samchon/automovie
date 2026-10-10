@@ -12,20 +12,6 @@ import type { IHumanBodyDyadicValue } from "./IHumanBodyDyadicValue";
  * equality of supplied finite doubles, not certification of the rotations or
  * trigonometric functions that produced them. A zero vector defines no axis
  * and returns false; nonfinite input refuses before bit arithmetic.
- *
- * @evidence contracts/common.md#principled-implementation A finite binary64 number is its signed integer significand times 2 raised to an integer exponent. Aligning exact BigInt product exponents compares all three cross-product determinants without rounded multiplication, including subnormals and signed zero.
- * @evidence contracts/common.md#clear-and-simple-design One finite/nonzero admission and three exact product equalities own the predicate used by the clinical reader.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No angular tolerance or name selects equality; the predicate reads the supplied source doubles.
- * @evidence contracts/common.md#meaningful-documentation States the source-double meaning, numerical limit, zero behavior, refusal and real consumer.
- * @evidence contracts/modeling.md#spatial-conventions Both directions must belong to the same frame; positive or negative scale leaves their line identity unchanged and no unit conversion occurs.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no surface boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Supplies a numerical identity and draws nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Establishes no clinical range or motion capacity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Reads directions rather than a personal authoring input.
  */
 export function humanBodyFlexionAxesCollinear(
   a: IAutoMovieVector3,

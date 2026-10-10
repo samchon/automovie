@@ -8,10 +8,6 @@ import type { IAutoMovieMeshPhysicalSource } from "@automovie/interface";
  * each vertex's index+1 into it, or zero for position-derived incidence.
  * Source pairs keep the mesh model's own definition.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the mesh model's source-pair type and fixes the version and attribute name as literals the reader admits.
- * @evidence contracts/common.md#clear-and-simple-design Three named fields replace an anonymous admission type.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source pairs are table entries, never Float32 attributes or inferred contact.
- * @evidence contracts/common.md#meaningful-documentation States the reader, the attribute encoding and the zero convention.
  * @author Samchon
  */
 export interface IHumanMeshPhysicalSourceTable {

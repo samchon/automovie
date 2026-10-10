@@ -20,6 +20,7 @@ export function defineHumanSourceMedialBed(
   lowerColumns: readonly number[],
   generation: string,
   surface: string,
+  samples: readonly number[],
 ): IAutoMovieHumanFacePeriocularMedialBed {
   const upperCount = readHumanSourceMedialBedCount(
     positions,
@@ -47,6 +48,7 @@ export function defineHumanSourceMedialBed(
     lower[lower.length - 1],
     generation,
     surface,
+    samples,
   );
   const native = (point: number): number | undefined =>
     materialPatch.nativeVertices[point] ?? undefined;

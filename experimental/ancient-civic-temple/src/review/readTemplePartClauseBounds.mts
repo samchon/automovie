@@ -224,9 +224,10 @@ export function readTemplePartClauseBounds(props: {
       const alongX = /X축|YZ 평면/.test(sentence) ||
         (/X=/.test(sentence) && /원통|원뿔/.test(sentence) && !/Y=.{0,8}~/.test(sentence)) ||
         (/^끝은 X=/.test(sentence) && /원뿔/.test(sentence));
-      for (const axis of (alongX
+      const radialAxes: Axis[] = alongX
         ? ["Y", "Z"]
-        : ["X", "Z"] as Axis[])) {
+        : ["X", "Z"];
+      for (const axis of radialAxes) {
         const axisCenter = alongX
           ? sentence.match(new RegExp(axis + "=(" + number + ")m"))
           : null;

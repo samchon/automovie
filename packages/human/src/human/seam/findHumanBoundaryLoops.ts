@@ -13,19 +13,6 @@
  * boundary edges leave (a pinch), has no single loop to report and refuses
  * with the vertex named, because a seam built on it would join the wrong
  * pair of edges. An index list with no open edge returns no loop.
- *
- * @evidence contracts/common.md#principled-implementation A directed edge is on the boundary exactly when its reverse is absent, which is the definition of an open edge on an oriented manifold; following the unique outgoing boundary edge of each boundary vertex closes each loop, and a vertex with two outgoing boundary edges refuses because the walk would then depend on an arbitrary choice.
- * @evidence contracts/common.md#clear-and-simple-design One pass builds the directed edge set and one walk emits the loops; the function reads nothing but the index list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No basis, vertex identity or expected loop length is assumed; a non-manifold boundary refuses instead of being repaired.
- * @evidence contracts/common.md#meaningful-documentation The comment states the loop direction convention the seam relies on and the two refusals.
- * @evidence contracts/modeling.md#spatial-conventions Indices only; no unit or frame enters, and the direction convention is the triangle winding's.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function reads a boundary and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it names existing vertices.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the seams built on its loops are observed by their owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function findHumanBoundaryLoops(indices: readonly number[]): number[][] {
   if (indices.length % 3 !== 0)

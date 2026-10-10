@@ -40,20 +40,6 @@ import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurfa
  * The seat removes the margin's penetration and float. It does not thicken a
  * lid: rows above the margin keep their source height above the globe except
  * for the carried displacement.
- *
- * @evidence contracts/common.md#principled-implementation Nearest-point projection preserves each registered margin direction; exact cage displacements and the stationary preseptal boundary constrain one positive source-adjacency Dirichlet field where the publisher supplies its native annulus. This piecewise-linear interpolation makes no first-derivative or injectivity claim.
- * @evidence contracts/common.md#clear-and-simple-design One function owns margin seating for every state; tissue, wet margins and lashes read the seated cage instead of re-deriving contact.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every column of both lids takes the same rule; no column, side, document or refused part is special-cased, and no optical or tissue input is changed.
- * @evidence contracts/common.md#meaningful-documentation States the three steps, what is preserved, what does not move and what the seat does not do.
- * @evidence contracts/modeling.md#shared-boundaries The posterior lid margin and the ocular exterior meet at one registered height in every admitted configuration; the join opens only inside the medial bed, by registration.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres in and out.
- * @evidence contracts/modeling.md#parameter-channels Shape channels move the cage first and keep their meaning; this seat depends on them only through the positions it receives.
- * @evidence contracts/anatomy.md#anatomical-source That the lid's posterior surface contacts the globe is taken from descriptive statements (Agarwal 2024, Indian J Ophthalmol 72(10):1385, lid wiper; Ferreira et al. 2020, Cancers 12(3):658, palpebral conjunctiva as the posterior layer); no read primary source measures the gap. The seating height and medial bed length are authored, as their constant states.
- * @evidence contracts/anatomy.md#permitted-range Refuses a cage whose margin rows are incomplete or whose column has no length; positions outside the exterior's definition cannot occur because every point has a nearest exterior point.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Moves vertices of the existing skin surface.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The eye assembly owner observes the seated result.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no input.
  */
 export function seatHumanFaceLidCage(
   cage: IAutoMovieHumanFacePeriocularCage,

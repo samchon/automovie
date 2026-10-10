@@ -1,34 +1,18 @@
+import type { IAutoMovieHumanFaceNativeLipMargin } from "./IAutoMovieHumanFaceNativeLipMargin";
+import type { IAutoMovieHumanFaceVertexLipMargin } from "./IAutoMovieHumanFaceVertexLipMargin";
+
 /**
- * The vermilion margin of the oral fissure on the contact's lips surface: the
- * upper lip's lower edge and the lower lip's upper edge, each an ordered vertex
- * chain from one commissure to the other.
+ * Two source-registered contact trajectories on the contact's lips surface.
  *
- * The chains are the edges the fissure shows from the front: the lower
- * silhouette of the upper vermilion and the upper silhouette of the lower
- * vermilion, projected onto the plane of the mandibular axis and the opening
- * direction, ordered along the axis and running unbroken to the commissure
- * join. Closure weight one brings every vertex of each chain onto the other
- * chain, so the fissure closes along its whole length.
+ * Existing resident vertex chains retain their original registration. A
+ * material course instead carries native facet seats and original source
+ * stops without inventing resident vertices. The common margin reader admits
+ * both representations and supplies canonical performed points. Source rest
+ * ordering does not prove performed ordering or contact: the closure and gap
+ * owners verify the actual graph, tissue budget and residual independently.
  *
- * @evidence contracts/common.md#principled-implementation The chains are the fissure's visible edges, so contact of every chain vertex with the opposite chain closes the fissure without gaps between samples.
- * @evidence contracts/common.md#clear-and-simple-design Two ordered vertex chains on the surface the central lips pair names.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The chains are registered by preparation from the stated silhouette rule, never guessed at runtime.
- * @evidence contracts/common.md#meaningful-documentation States what each chain is, its order, its extent and what closure does with it.
- * @evidence contracts/modeling.md#part-identity-and-grouping Every vertex belongs to the lips surface the contact names.
- * @evidenceExclude contracts/modeling.md#parameter-channels The margin is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The margin emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Indices carry no unit.
- * @evidence contracts/modeling.md#shared-boundaries The chains are the boundary where upper and lower vermilion meet in contact.
- * @evidenceExclude contracts/modeling.md#rendered-observation The contact summary reports the residual apertures.
- * @evidence contracts/anatomy.md#anatomical-source Lip seal is contact along the whole vermilion margin from commissure to commissure.
- * @evidenceExclude contracts/anatomy.md#permitted-range The margin bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The margin is basis registration, not a caller input.
  * @author Samchon
  */
-export interface IAutoMovieHumanFaceLipMargin {
-  /** The upper vermilion's lower edge, ordered along the mandibular axis. */
-  upper: number[];
-
-  /** The lower vermilion's upper edge, ordered along the mandibular axis. */
-  lower: number[];
-}
+export type IAutoMovieHumanFaceLipMargin =
+  | IAutoMovieHumanFaceVertexLipMargin
+  | IAutoMovieHumanFaceNativeLipMargin;

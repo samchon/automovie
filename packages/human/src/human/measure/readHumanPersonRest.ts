@@ -16,20 +16,6 @@ import type { IAutoMovieHumanPersonRestReading } from "../structures/IAutoMovieH
  * so the shared boundary samples close the skin without a cap. A skin that
  * does not close (a boundary edge used once) refuses by name, since its
  * volume would depend on where it is open.
- *
- * @evidence contracts/common.md#principled-implementation Both values are read on the one closed skin the generation defines, so no allowance replaces a missing head or neck.
- * @evidence contracts/common.md#clear-and-simple-design One rest evaluation, one height pass, one closure check and one volume sum.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An open skin refuses instead of being capped.
- * @evidence contracts/common.md#meaningful-documentation States the source of the skin, the precision, both definitions and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Metres and cubic metres of the person frame, +Y up.
- * @evidence contracts/modeling.md#shared-boundaries Shared samples are one vertex of the closed skin.
- * @evidence contracts/anatomy.md#anatomical-source Stature follows the standing floor-to-vertex protocol and names the head-orientation approximation.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanPersonRest(
   compiled: IAutoMovieHumanPersonCompiledGeneration,

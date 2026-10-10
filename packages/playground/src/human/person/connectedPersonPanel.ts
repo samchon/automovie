@@ -41,6 +41,11 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * registration refusal) changes nothing: the displayed person, the working
  * document and the history stay, and the status says so.
  *
+ * Accepted display publication and leaving a draft run synchronously inside
+ * the history owner's commit, so a newer intent cannot separate the displayed
+ * frame and draft state from their committed document/model pair. Discard
+ * rebuilds that current pair without adding an undo entry.
+ *
  * The status line, the admission report and every button state are drawn
  * from the session state and the history (`describeConnectedPersonStatus`),
  * never written directly, and only the latest request may change that state
@@ -54,9 +59,9 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Edits the person's body subtree with the body editor's measured, joint and pose controls.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Edits the person's face subtree with the face editor's shape and expression controls.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Runs body edits through one transaction history and worker, keeping the last valid person on a failure.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Runs face edits through the same transaction owner so a refused edit keeps the last valid state.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps the last valid person document and model when a face or body edit is refused or superseded.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Joins accepted body edits and history restoration to synchronous viewport/draft publication in the same transaction, retaining the previous pair on build or publication refusal.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Uses the same generation-checked face transaction and synchronous viewport/draft publication for edit and restore, without a later publication await gap.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Rebuilds the current accepted document/model pair when discarding a draft without adding history, and lets only the current successful transaction replace the displayed accepted state.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The person panel is one editing screen; the body domain index also spans extraction, evaluation and review owned elsewhere.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The panel evaluates no body endpoint or corrective; the person builder in the worker does.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The panel writes joint rows and articulates nothing; the person builder resolves and skins the pose.
@@ -222,25 +227,40 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
         return false;
       }
       admissions.set(result.model, result.admission);
-      viewport.publish(result.model);
-      if (!result.admission.accepted)
+      if (!result.admission.accepted) {
+        viewport.publish(result.model);
         session.settle({
           document: structuredClone(next),
           model: result.model,
           admission: result.admission,
         });
-      else {
-        if (editor === undefined)
-          editor = createHumanFaceEditor({
+      } else {
+        if (editor === undefined) {
+          const initialEditor = createHumanFaceEditor({
             document: next,
             model: result.model,
             build: accept,
+            dispose: (model) => viewport.dispose(model),
+            publish: (model) => {
+              viewport.publish(model);
+              session.settle(null);
+            },
           });
-        else {
+          viewport.publish(result.model);
+          editor = initialEditor;
+          session.settle(null);
+        } else {
           handoff = result.model;
-          await editor.edit(next);
+          const success = await editor.edit(next);
+          if (!intents.isCurrent(ticket)) return false;
+          if (!success) {
+            const error = editor.snapshot().error;
+            if (error !== null) session.refuse(error);
+            else session.rest();
+            refresh();
+            return false;
+          }
         }
-        session.settle(null);
       }
       if (!framed) viewport.fitView();
       framed = true;
@@ -312,28 +332,27 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       const success = await history[action]();
       if (!intents.isCurrent(ticket)) return;
       const restored = history.snapshot();
-      if (success) {
-        viewport.publish(restored.model);
-        session.settle(null);
-      } else if (restored.error !== null) session.refuse(restored.error);
-      else session.rest();
+      if (!success) {
+        if (restored.error !== null) session.refuse(restored.error);
+        else session.rest();
+      }
       refresh();
     };
-  // leave a draft: the committed document is constructed again, because the
-  // draft replaced the frame the committed model was drawn from
+  // Leaving a draft rebuilds the committed document/model pair without an
+  // undo entry, because the draft replaced its resident frame.
   element("person-discard").onclick = async () => {
     const history = editor;
     if (history === undefined || session.snapshot().draft === null) return;
     const ticket = withdraw();
     busy("Returning to the accepted person…");
     try {
-      const model = await accept(history.snapshot().document);
-      if (!intents.isCurrent(ticket)) {
-        viewport.dispose(model);
-        return;
+      const success = await history.restore();
+      if (!intents.isCurrent(ticket)) return;
+      const restored = history.snapshot();
+      if (!success) {
+        if (restored.error !== null) session.refuse(restored.error);
+        else session.rest();
       }
-      viewport.publish(model);
-      session.settle(null);
       refresh();
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);

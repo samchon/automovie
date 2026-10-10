@@ -6,6 +6,8 @@ import type {
 
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IHumanBodySourceQuantityReading } from "../anatomy/assembly/IHumanBodySourceQuantityReading";
+import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
+import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";
@@ -43,6 +45,17 @@ export interface IAutoMovieHumanBodyBuild {
   /** Posed static model: skinless parts, no skeleton, validated as a resident model. */
   model: IAutoMovieModel;
 
+  /**
+   * The same evaluation's source-region model before a garment material split.
+   * Contact segmentation checks its original UV/source population against
+   * posedSurfaces with the same strict incidence, position and normal guards.
+   * It retains the evaluated frame, material identities and physical sources;
+   * no geometry is regenerated. Omission means model still has that original
+   * region population. This derived record is not another authored document
+   * and is never appended to the rendered or exported model.
+   */
+  sourceSkinModel?: IAutoMovieModel;
+
   /** Posed connected skin per basis surface, before render/material splitting. */
   posedSurfaces: IAutoMovieHumanBodyPosedSurface[];
 
@@ -71,6 +84,20 @@ export interface IAutoMovieHumanBodyBuild {
    * omission means this basis has no evaluated anatomical assembly.
    */
   anatomicalQuantities?: readonly IHumanBodySourceQuantityReading[];
+
+  /**
+   * Each registered skin's original limited offset observations on the final
+   * construction. Omission means no field was constructed, not accepted tissue.
+   * These native populations remain separate from the face's part census.
+   */
+  layerObservations?: readonly IHumanBodyLayerObservation[];
+
+  /**
+   * Limited skin-layer admission, separate from face and source containment.
+   * Rejected constructions retain their actual model for explicit inspection;
+   * ordinary body/person calls refuse them. Omission denotes no layer field.
+   */
+  layerAdmission?: IAutoMovieHumanConstructionAdmission;
 
   /** Shaped landmark positions by id, after channels and correctives. */
   landmarks: Record<string, IAutoMovieVector3>;

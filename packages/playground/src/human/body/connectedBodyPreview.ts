@@ -95,6 +95,7 @@ export function createConnectedBodyPreview<
           crossings: result.crossings,
           anatomy: result.anatomy,
           extras: result.extras,
+          rigReading: result.rigReading,
           groundSupport: result.groundSupport,
           femoralHeads: result.femoralHeads,
           anatomicalRequest: result.anatomicalRequest,

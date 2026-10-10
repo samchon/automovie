@@ -15,20 +15,6 @@
  * least cost. A square problem needs no scale; an underdetermined one without
  * a scale weighs every offset equally.
  *
- * @evidence contracts/common.md#principled-implementation The caller states the problem; the solver owns only the iteration, so one numerical owner serves the body's square solve and the person head's underdetermined one.
- * @evidence contracts/common.md#clear-and-simple-design Six fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The departure scale is the caller's stated convention; the solver selects no anatomical weight of its own.
- * @evidence contracts/common.md#meaningful-documentation States the units, the cost the departure scale defines and the default.
- * @evidence contracts/modeling.md#spatial-conventions Offsets, residuals and scales are dimensionless numerical coordinates.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record owns no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The caller maps offsets to channels; the record defines none.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The record owns no displayed part.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The record carries no anatomical constant.
- * @evidenceExclude contracts/anatomy.md#permitted-range The intervals come from already admitted channel bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The record is internal solve state.
- *
  * @author Samchon
  */
 export interface IHumanBodySimpleOffsetsProblem {

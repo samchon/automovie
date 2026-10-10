@@ -1,10 +1,11 @@
 /**
- * Register native displacement incidence on an immutable existing face:
- * ttsx -P tsconfig.human-source.json --no-plugins scripts/human-source/register-source-lid-displacement.ts FACE_GZIP OUTPUT_DIRECTORY
+ * Register native displacement and anterior courses on an immutable face:
+ * ttsx -P tsconfig.human-source.json scripts/human-source/register-source-lid-displacement.ts FACE_GZIP OUTPUT_DIRECTORY
  *
  * This normal metadata stage preserves every existing geometry and chart
- * value. It does not fix a previously baked neutral or publish a generation;
- * the normal authored-skin producer separately regenerates that root pair.
+ * value. Input, producer and output hashes identify this metadata derivative;
+ * it does not regenerate or correct the physical root. The actual model and
+ * rendered acceptance remain separate from this registration.
  */
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
 import crypto from "node:crypto";
@@ -12,9 +13,9 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-import { compileHumanSourceLidDisplacementPatch } from "./compileHumanSourceLidDisplacementPatch.ts";
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
 import { readHumanSourceProducerClosure } from "./readHumanSourceProducerClosure.ts";
+import { registerHumanSourcePeriocularBoundaryCourses } from "./registerHumanSourcePeriocularBoundaryCourses.ts";
 
 const [inputFile, outputDirectory] = process.argv.slice(2);
 if (inputFile === undefined || outputDirectory === undefined)
@@ -35,45 +36,33 @@ const basis = JSON.parse(
 ) as IAutoMovieHumanFaceBasis;
 const sha = (bytes: Buffer): string =>
   crypto.createHash("sha256").update(bytes).digest("hex");
-if (basis.periocular === undefined)
+if (basis.periocular === undefined ||
+    basis.periocular.left.cage === undefined || basis.periocular.right.cage === undefined)
   throw new Error(
     "Lid displacement registration needs both actual source cages.",
   );
-for (const side of ["left", "right"] as const) {
-  const cage = basis.periocular[side].cage;
-  if (cage === undefined)
-    throw new Error("Lid displacement registration has an absent eye cage.");
-  const host = basis.surfaces.find((surface) => surface.id === cage.surface);
-  if (host?.sourcePartition?.generation !== cage.generation)
-    throw new Error(
-      "Lid displacement registration needs matching actual host source identity.",
-    );
-  const posterior = cage.stations.find(
-    (station) => station.role === "posteriorMargin",
-  );
-  const preseptal = cage.stations.find(
-    (station) => station.role === "preseptal",
-  );
-  if (posterior === undefined || preseptal === undefined)
-    throw new Error(
-      "Lid displacement registration has no authored boundary rows.",
-    );
-  cage.displacementPatch = compileHumanSourceLidDisplacementPatch({
-    generation: cage.generation,
-    surface: cage.surface,
-    indices: host.indices,
-    samples: host.sourcePartition.samples,
-    posteriorStations: posterior.vertices,
-    preseptalStations: preseptal.vertices,
-    interiorStations: cage.stations
-      .filter((station) =>
-        ["anteriorMargin", "pretarsal", "crease", "hood"].includes(
-          station.role,
-        ),
-      )
-      .flatMap((station) => station.vertices),
-  });
-}
+const preserve = (): string => JSON.stringify({
+  ...basis,
+  periocular: {
+    ...basis.periocular,
+    ...Object.fromEntries((["left", "right"] as const).map((side) => {
+      const source = basis.periocular![side];
+      return [side, {
+        ...source,
+        cage: source.cage === undefined ? undefined : {
+          ...source.cage,
+          displacementPatch: undefined,
+          stations: source.cage.stations.map((station) => station.role === "anteriorMargin"
+            ? { ...station, boundary: undefined } : station),
+        },
+      }];
+    })),
+  },
+});
+const original = preserve();
+const courses = registerHumanSourcePeriocularBoundaryCourses(basis);
+if (original !== preserve())
+  throw new Error("Native lid metadata changed geometry, targets, anchors, charts or extent values.");
 if (sha(fs.readFileSync(inputFile)) !== sha(inputBytes))
   throw new Error("Lid displacement input changed during registration.");
 producer.verifyUnchanged();
@@ -82,10 +71,16 @@ const receipt = {
   inputSha256: sha(inputBytes),
   outputSha256: sha(output),
   producerInputs: producer.inputs,
+  preservedSourceContentSha256: sha(Buffer.from(original)),
+  courses,
+  boundaries: Object.fromEntries((["left", "right"] as const).map((side) => [
+    side,
+    basis.periocular![side].cage!.stations.find((station) => station.role === "anteriorMargin")!.boundary,
+  ])),
   left: basis.periocular.left.cage!.displacementPatch,
   right: basis.periocular.right.cage!.displacementPatch,
   qualification:
-    "Actual source-incidence displacement metadata only; original neutral, weights, endpoints, charts and root generation unchanged. Source sparse-bake correction and whole model admission remain separate.",
+    "Actual source-incidence displacement and authored anterior native-course metadata only; original neutral, weights, endpoints, anchors, charts, posterior-origin extents and physical root generation unchanged. The recipe/input/output hashes identify this metadata derivative. Clinical boundaries and whole-model/rendered acceptance remain separate.",
 };
 publishHumanSourceFiles({
   directory: outputDirectory,
@@ -104,5 +99,5 @@ publishHumanSourceFiles({
 });
 console.log(
   "[human-source] native lid displacement registration",
-  JSON.stringify(receipt),
+  JSON.stringify({ inputSha256: receipt.inputSha256, outputSha256: receipt.outputSha256, courses }),
 );

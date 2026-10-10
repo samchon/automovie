@@ -5,27 +5,15 @@ import type {
 } from "@automovie/engine";
 
 import type { IHumanFaceHairSeparationReaders } from "./IHumanFaceHairSeparationReaders";
+import type { IHumanFaceHairContactCurve } from "./IHumanFaceHairContactCurve";
 
 /**
  * Per-layer inputs `buildHumanFaceHairMesh` needs beside its curves.
  *
  * `widths`, `budgets` and `attachments` are aligned with the curves, one entry
  * per curve; each budget continues that curve's lock budget and is spent in
- * place.
- *
- * @evidence contracts/common.md#principled-implementation Supplies the density widths, host readers, shared budgets and canonical root seats the mesher certifies with.
- * @evidence contracts/common.md#clear-and-simple-design Named members replace an anonymous parameter object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no subject, tolerance or per-curve exception.
- * @evidence contracts/common.md#meaningful-documentation States alignment with the curves and budget mutation.
- * @evidence contracts/modeling.md#spatial-conventions Widths and readers use head-local metres.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The mesher names the layer part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The mesher emits the ribbons.
- * @evidence contracts/modeling.md#shared-boundaries The readers and root seats describe the one host skin the ribbons must clear.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical inputs only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived inputs, not a personal control.
+ * place. The representation owner emits the actual station/vertex membership
+ * through observeContactCurve; assembly never guesses rings from ribbons.
  *
  * @author Samchon
  */
@@ -44,4 +32,10 @@ export interface IHumanFaceHairMeshContext {
 
   /** Each curve's canonical root seat on the host skin. */
   attachments: readonly IAutoMovieMeshSeparationAttachment[];
+
+  /** Reports a completed curve buffer in its actual representation; whole-mesh validation remains downstream. */
+  progress?: (ordinal: number) => void;
+
+  /** Publish actual per-curve emitted vertex membership after its geometry has been certified. */
+  observeContactCurve?: (curve: IHumanFaceHairContactCurve) => void;
 }

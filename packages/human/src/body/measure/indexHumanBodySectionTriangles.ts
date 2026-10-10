@@ -31,20 +31,6 @@ const MARGIN_METRES = 1e-9;
  * metres in the rest body's frame, the levels are metres along the normal
  * and an empty stack answers an empty list. Cost is linear in the triangle
  * count plus the listed triangles, once per stack.
- *
- * @evidence contracts/common.md#principled-implementation A triangle can change sign across a plane only when the plane's level lies between its lowest and highest corner projections, so listing every triangle whose span holds the level, widened by a margin far above the rounding of the two arrangements of the same products, is a superset of the straddlers; the exact sign test stays in the cut. The bisection over the sorted levels is the ordinary lower-bound search.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: which triangles a stack of parallel planes can reach. The cut, the loops and the tape stay in `measureHumanSection`, which takes the list as an optional argument and otherwise walks everything.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No surface, landmark, rule or expected girth is named; the list depends on the triangles, the normal and the levels alone, and the cut still decides every crossing.
- * @evidence contracts/common.md#meaningful-documentation The comment states the reason for the index, the superset guarantee and its margin, the ordering the cut relies on, the units and the cost.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is an index over triangles and defines no part or group.
- * @evidence contracts/modeling.md#spatial-conventions Positions are metres in the rest body's frame and the normal is a direction in that frame, so a level is a projection onto it that is metres for the unit normal the caller passes; the 1e-9 m margin is compared in that same unit, and the function converts no unit or frame.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only triangle ordinals of the surface it was given.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays; the measuring reader that consumes it answers that chapter.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a body.
  */
 export function indexHumanBodySectionTriangles(
   positions: number[],

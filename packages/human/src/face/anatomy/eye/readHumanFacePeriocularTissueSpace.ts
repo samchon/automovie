@@ -1,4 +1,4 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
@@ -27,20 +27,6 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * that every shell and every pair is measured and reported, where the
  * admission used to stop at the first one. The source tolerance absorbs
  * position rounding only.
- *
- * @evidence contracts/common.md#principled-implementation Absolute signed geometry plus the triangle crossing census read the exact emitted shells and eye hulls at output precision, over the whole shell population.
- * @evidence contracts/common.md#clear-and-simple-design One owner enumerates the relations and delegates each to the shared clearance instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No shell offset, source tolerance or resting penetration is changed, and no shell or side is exempted.
- * @evidence contracts/common.md#meaningful-documentation States both state gates, coplanar contact, the unchanged condition and the complete report.
- * @evidence contracts/modeling.md#shared-boundaries Tissue shells and optics share one metre-frame spatial reading instead of independent penetration baselines.
- * @evidence contracts/modeling.md#spatial-conventions Uses existing head-frame geometry and source metre tolerance.
- * @evidence contracts/anatomy.md#permitted-range Refuses intersecting geometric shells without claiming tissue mechanics or a physiological dimension interval.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads generator-owned part identities without defining another population.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Reads exact generated geometry and emits no replacement.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no dimensional control or source eligibility field.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical admission; the eye assembly owner owes the rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Geometric intersection admission supplies no biological value or acquisition protocol.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  */
 export function readHumanFacePeriocularTissueSpace(
   basis: IAutoMovieHumanFaceBasis,
@@ -56,6 +42,13 @@ export function readHumanFacePeriocularTissueSpace(
       "Periocular tissue space needs its source contact tolerance.",
     );
   const owner = "periocular-" + state;
+  const transforms = new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
+    parts.map((part) => [part, {
+      translation: part.publication.origin,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    }]),
+  );
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   const skins = new Map<"left" | "right", IAutoMovieMesh>();
   for (const side of ["left", "right"] as const) {
@@ -123,7 +116,8 @@ export function readHumanFacePeriocularTissueSpace(
           against: skinId + ":beneath",
           judged: true,
           forbidden: "outside",
-          mesh: part.mesh,
+          mesh: part.publication.mesh,
+          meshTransform: transforms.get(part),
           exterior: skins.get(side)!,
           boundary: "open",
           toleranceMetres: tolerance,
@@ -137,7 +131,8 @@ export function readHumanFacePeriocularTissueSpace(
           subject: id(selected[at]),
           against: "optics:" + side,
           judged: true,
-          mesh: selected[at].mesh,
+          mesh: selected[at].publication.mesh,
+          meshTransform: transforms.get(selected[at]),
           exterior: optical,
           boundary: "closed",
           toleranceMetres: tolerance,
@@ -153,8 +148,10 @@ export function readHumanFacePeriocularTissueSpace(
             subject: id(selected[at]),
             against: id(selected[other]),
             judged: true,
-            mesh: selected[at].mesh,
-            exterior: selected[other].mesh,
+            mesh: selected[at].publication.mesh,
+            meshTransform: transforms.get(selected[at]),
+            exterior: selected[other].publication.mesh,
+            exteriorTransform: transforms.get(selected[other]),
             boundary: "closed",
             toleranceMetres: tolerance,
           }),
@@ -164,8 +161,10 @@ export function readHumanFacePeriocularTissueSpace(
             subject: id(selected[other]),
             against: id(selected[at]),
             judged: true,
-            mesh: selected[other].mesh,
-            exterior: selected[at].mesh,
+            mesh: selected[other].publication.mesh,
+            meshTransform: transforms.get(selected[other]),
+            exterior: selected[at].publication.mesh,
+            exteriorTransform: transforms.get(selected[at]),
             boundary: "closed",
             toleranceMetres: tolerance,
             crossingIndices: null,

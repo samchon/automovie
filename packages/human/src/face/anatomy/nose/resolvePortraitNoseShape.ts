@@ -14,18 +14,6 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
  *
  * These checks say the shape is constructible, not that it is a living nose:
  * the bounds of a living nose are not encoded here.
- *
- * @evidence contracts/common.md#principled-implementation Admission is a set of closed-form predicates over the shape: finiteness, the open intervals that keep the lining contracted inside the rim and the support ring between rim and floor, and structural copying so later caller edits cannot change a built nose.
- * @evidence contracts/common.md#clear-and-simple-design The dimension rules live in one function beside the component that reads them; the component keeps only fitting and attachment.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is special-cased; every refusal is a statement about the shape alone.
- * @evidence contracts/common.md#meaningful-documentation The comment lists each refusal class, the ownership of the copy and the limit of what admission means.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part; it admits the shape of the nose component.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitives.
- * @evidence contracts/modeling.md#spatial-conventions The copied shape retains head millimetres for displacements, degrees for tilt and dimensionless ratios for scales, as defined by IPortraitNoseShape; admission converts none of these quantities.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part; the component observes the assembled nose.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function admits inputs defined on IPortraitNoseShape and adds none.
  */
 export function resolvePortraitNoseShape(
   input: IPortraitNoseShape,

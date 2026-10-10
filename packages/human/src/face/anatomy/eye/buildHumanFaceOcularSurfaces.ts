@@ -25,8 +25,12 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * Neither representation establishes appearance or tissue mechanics; emitted
  * sheets undergo ordinary ocular-space admission.
  *
- * The two lid margins are the posterior margin row of the source cage, read
- * as ordered chains from the medial join. A wet margin starts on its own
+ * The two lid margins follow the registered native posterior boundary, read
+ * as ordered edge chains from the medial join through their cage anchors.
+ * The boundary's starting index and winding need not match the cage column
+ * order; the complete anchor sequence selects its direction for each lid.
+ * A legacy cage without that registration retains its original coarse row
+ * and ordinary optical contact refusals. A wet margin starts on its own
  * margin vertex-for-height: at its first row each point is the margin point
  * itself. It runs towards the corresponding point of the opposite margin by
  * the requested width, never more than half the local aperture and fading to
@@ -53,19 +57,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * The source host display finish is a convention; no tear-fluid material or
  * physiological secretion is inferred. Admission reads the constructed
  * sheets separately (`readHumanFaceOcularSurfaceSpace`).
- *
- * @evidence contracts/common.md#principled-implementation Requested pointwise heights use the shared cap-replaced exterior's nearest foot and normal. Inflection and normal-offset folds remain possible and are judged by actual emitted-sheet admission, not a convexity assumption.
- * @evidence contracts/common.md#clear-and-simple-design Wet margins and the legacy medial convention share the ocular owner; registered medial topology delegates to its skin-host patch owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing cage or exterior refuses; no head-axis projection, analytic stand-in or guessed vertex substitutes for the registered margins.
- * @evidence contracts/common.md#meaningful-documentation States the frame, each sheet's boundary and height rule, the procedural envelope convention and the display convention.
- * @evidence contracts/modeling.md#part-identity-and-grouping Emits a connected medial caruncle/plica sheet and independent upper and lower wet-margin parts per side.
- * @evidence contracts/modeling.md#shared-boundaries Wet sheets begin at the seated margin; registered medial relief preserves its native pocket boundary, while an absent registration uses the stated ruled-sheet convention.
- * @evidence contracts/modeling.md#spatial-conventions Document millimetres convert once to head-frame metres; heights are along the outward exterior normal.
- * @evidence contracts/modeling.md#emitted-geometry Lattices of 80 by 4 cells per wet margin and 32 by 12 for the medial sheet, as before; welded points and nonzero-area triangles are emitted.
- * @evidence contracts/modeling.md#parameter-channels Corner length, caruncle and plica projection, and each margin's width and lift keep their meaning and independence.
- * @evidence contracts/anatomy.md#anatomical-source No read primary source gives caruncle, plica or tear-meniscus dimensions; the document values are authored and the tear-film floor is the seat constant's conventional value.
- * @evidence contracts/anatomy.md#permitted-range Refuses negative or non-finite dimensions, unpaired upper width and lift, and a corner longer than either margin.
- * @evidence contracts/anatomy.md#parametric-authority Seven named dimensions per eye; no personal vertex or curve input.
  */
 export function buildHumanFaceOcularSurfaces(
   basis: IAutoMovieHumanFaceBasis,
@@ -118,8 +109,36 @@ export function buildHumanFaceOcularSurfaces(
           side,
       );
     const chain = (columns: readonly number[]) => {
-      const points = columns.map((column) => {
-        const at = 3 * margin.vertices[column];
+      const anchors = columns.map((column) => margin.vertices[column]);
+      const boundary = cage.displacementPatch?.posteriorBoundary;
+      let vertices = anchors;
+      if (boundary !== undefined) {
+        const start = boundary.indexOf(anchors[0]);
+        const end = anchors[anchors.length - 1];
+        const stations = new Set(margin.vertices);
+        const paths = [1, -1].map((direction) => {
+          const path: number[] = [];
+          for (let at = 0; at < boundary.length; at++) {
+            const vertex = boundary[
+              (start + direction * at + boundary.length) % boundary.length
+            ];
+            path.push(vertex);
+            if (vertex === end) break;
+          }
+          return path;
+        }).filter((path) => {
+          const ordered = path.filter((vertex) => stations.has(vertex));
+          return start >= 0 && ordered.length === anchors.length &&
+            ordered.every((vertex, at) => vertex === anchors[at]);
+        });
+        if (paths.length !== 1)
+          throw new Error(
+            "Ocular margin needs one actual native posterior path through its ordered cage anchors: " + side,
+          );
+        vertices = paths[0];
+      }
+      const points = vertices.map((vertex) => {
+        const at = 3 * vertex;
         return Vector3.create(values[at], values[at + 1], values[at + 2]);
       });
       const arc = [0];
@@ -132,8 +151,11 @@ export function buildHumanFaceOcularSurfaces(
       // Point at an arc distance from the medial join.
       const at = (distance: number): IAutoMovieVector3 => {
         const target = Math.min(length, Math.max(0, distance));
+        if (target === 0) return points[0];
+        if (target === length) return points[points.length - 1];
         let segment = 1;
         while (segment < arc.length - 1 && arc[segment] < target) segment++;
+        if (target === arc[segment]) return points[segment];
         const span = arc[segment] - arc[segment - 1];
         const t = span === 0 ? 0 : (target - arc[segment - 1]) / span;
         return Vector3.add(

@@ -13,19 +13,6 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/
  * document stays with document admission. The basis lets a resolver state that a
  * defining landmark or tissue boundary is absent from the source.
  *
- * @evidence contracts/common.md#principled-implementation Regions read the admitted document anatomy and its compiled basis without re-deriving measurements or observations.
- * @evidence contracts/common.md#clear-and-simple-design Two read-only members shared by every region resolver.
- * @evidenceExclude contracts/common.md#prohibited-implementation-shortcuts A carrier; it substitutes nothing.
- * @evidence contracts/common.md#meaningful-documentation Identifies document anatomy as the input and explains why the source basis is present.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Members own their units.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It renders nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The measurement types own their definitions.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission happened before this input exists.
- * @evidence contracts/anatomy.md#parametric-authority Carries only named anatomical targets.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyRegionPartsInput {

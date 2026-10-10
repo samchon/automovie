@@ -36,16 +36,6 @@ import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
  * canonical sample IDs before any UV split. Each document supplies its actual
  * instance to the sole namespace helper. Missing or mismatched registration
  * refuses; omission keeps the original position-derived output.
- * @evidence contracts/common.md#principled-implementation Uses actual preUV source incidence and the existing canonical digest/domain owners; performance changes coordinates without inventing point identity.
- * @evidence contracts/common.md#clear-and-simple-design One compiled source registration accompanies the existing shared-skin and region stages.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Native indices are not output UV ordinals or fake canonical samples, and normal islands do not identify physical points.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes explicit registration from default absence and clinical acceptance.
- * @evidence contracts/modeling.md#emitted-geometry Original source incidence travels beside the unchanged performed coordinate and normal arrays through the same region gather.
- * @evidence contracts/modeling.md#spatial-conventions Positions remain in the original metre frame; dimensionless samples identify points without transforming them.
- * @evidence contracts/modeling.md#shared-boundaries Material and UV aliases of a source point receive the same instance-bound identity.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Registration identifies supplied geometry, not an anatomical quantity or cohort.
- * @evidenceExclude contracts/anatomy.md#permitted-range Pose and source admission remain independent of this incidence registration.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This internal source registration is not a numerical body sculpt input.
  */
 export function createHumanBodySurfaceParts(
   basis: IAutoMovieHumanBodyBasis,

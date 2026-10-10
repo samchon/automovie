@@ -15,11 +15,6 @@ import { selectHumanFaceRetainedRegion } from "./selectHumanFaceRetainedRegion";
  * region and canonical corner table; a compact gather cannot silently inherit
  * the original region's render numbering. Original physical-source admission,
  * reflectance composition, part identity and hair input ownership are preserved.
- *
- * @evidence contracts/common.md#principled-implementation Native mesh and source correspondence are gathered from the same retained material-region incidence through the canonical region owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate match, original ordinal guess or retired source geometry supplies the emitted correspondence.
- * @evidence contracts/modeling.md#shared-boundaries Partial generated replacement preserves every remaining component's original source identity and UV split.
- * @evidence contracts/modeling.md#spatial-conventions The pose's head-frame metre coordinates and source ordinals are carried without conversion.
  */
 export function createHumanFaceResidentParts(basis: IAutoMovieHumanFaceBasis) {
   const surfaces = basis.surfaces.map((surface) => {

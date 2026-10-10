@@ -3,11 +3,6 @@ import type { IAutoMovieHumanConstructionPartReading } from "../structures/IAuto
 
 /** One unchanged admission condition deferred until its geometry is assembled.
  *
- * @evidence contracts/common.md#principled-implementation Pairs one original assertion with its responsible owner for deferred geometry admission.
- * @evidence contracts/common.md#clear-and-simple-design One named owner and one unchanged assertion form an admission task.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry mutation, accepted flag or tolerance override is represented.
- * @evidence contracts/common.md#meaningful-documentation Explains same-geometry capture and the reported responsibility.
- *
  * @author Samchon
  */
 export interface IHumanConstructionCheck {

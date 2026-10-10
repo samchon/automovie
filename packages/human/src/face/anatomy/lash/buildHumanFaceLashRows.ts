@@ -9,7 +9,11 @@ import type { humanFaceBasisWeights } from "../../basis/humanFaceBasisWeights";
 import { resolveHumanFaceArticulation } from "../../basis/resolveHumanFaceArticulation";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceLashes } from "../../structures/IAutoMovieHumanFaceLashes";
+import { readHumanFacePeriocularStationBoundary } from "../eye/readHumanFacePeriocularStationBoundary";
 import type { IHumanFaceOpticalAssembly } from "../eye/structures/IHumanFaceOpticalAssembly";
+import { createHumanFaceSkinChart } from "../skin/createHumanFaceSkinChart";
+import { createHumanFaceSkinChartCourse } from "../skin/createHumanFaceSkinChartCourse";
+import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import { assertHumanFaceLashPopulation } from "./assertHumanFaceLashPopulation";
 import { buildPortraitEyelash } from "./buildPortraitEyelash";
 import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
@@ -18,7 +22,14 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * Attach each requested shaft population to the final anterior lid edge.
  *
  * Roots sample equal arc-length stations on the producer's registered skin
- * row, excluding its endpoints. The local anterior direction runs from the
+ * row, excluding its endpoints. With a source material disk, each consecutive
+ * pair of registered anterior anchors follows the published native boundary,
+ * retaining every knot before arc length is measured. An anchor pair need not
+ * be one resident edge; neither its spatial nor its material chord replaces
+ * that source course. The ordered boundary is an authored convention, not measured
+ * follicle trajectories. Legacy sources without either registration retain the original
+ * polygonal row and its ordinary contact refusals.
+ * The local anterior direction runs from the
  * actual generated globe centre to the root; without independent optics the
  * existing source joint pivot plus its translation is the stated proxy. The
  * projected medial-to-lateral row tangent fixes roll, with anatomical side
@@ -33,18 +44,6 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * millimetres into the live metre frame once. Its duplicated angular seam
  * shares explicit physical IDs and identical coordinates. Both tube ends are
  * open; no hidden follicle volume is inferred from the skin row.
- *
- * @evidence contracts/common.md#principled-implementation Arc-length stations and a radial-priority orthonormal root frame consume the exact final skin; the common constant-curvature shaft owner preserves length and radius during frame transport.
- * @evidence contracts/common.md#clear-and-simple-design One attached row producer delegates free-shaft geometry and profile admission to existing owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No card vertex is called a follicle and no missing count, root or frame receives a guessed default.
- * @evidence contracts/common.md#meaningful-documentation States source registration, proxy limit, actual root frame, sampling and open-end meaning.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each side and lid row is one group of its requested free shafts, with the source card region explicitly retained for replacement.
- * @evidence contracts/modeling.md#emitted-geometry Each shaft contributes 117 shading vertices, 104 distinct physical points and 192 triangles; count follows the explicit population, including zero, rather than source-card density.
- * @evidence contracts/modeling.md#shared-boundaries Root centres are the same interpolated points on the current registered anterior skin edges. Posterior contact margins are never substituted for roots.
- * @evidence contracts/modeling.md#spatial-conventions Millimetre shaft offsets map once into a right-handed live head metre frame; lower positive elevation and curl are reflected towards local inferior.
- * @evidence contracts/anatomy.md#anatomical-source Root-frame construction follows the read 2024 primary article; CC0 source roots are anterior mesh-edge correspondences, not clinical follicle coordinates. Count, uniform spacing and centre-heavy length remain authored conventions.
- * @evidenceExclude contracts/anatomy.md#permitted-range Combined shaft and tissue feasibility is admitted by the connected lash contact owner.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The population and profile records own inputs; this generator adds no personal root curve or strand parameter.
  */
 export function buildHumanFaceLashRows(
   basis: IAutoMovieHumanFaceBasis,
@@ -152,6 +151,37 @@ export function buildHumanFaceLashRows(
           )
             lengths[segment] = 0;
         });
+      const sourceChart = registration.cage?.attachmentCharts?.[row];
+      if (anterior?.boundary !== undefined && sourceChart === undefined)
+        throw new Error(`Attached ${side} ${row} native boundary needs its registered material disk.`);
+      const host = basis.surfaces.find(
+        (candidate) => candidate.id === registration.margins.surface,
+      );
+      const nativeSegments = sourceChart === undefined || anterior === undefined || host === undefined
+        ? undefined
+        : readHumanFacePeriocularStationBoundary(anterior, host, roots);
+      if (sourceChart !== undefined && nativeSegments === undefined)
+        throw new Error(`Attached ${side} ${row} lashes need the published anterior native boundary for their material disk.`);
+      const chart = sourceChart === undefined
+        ? undefined
+        : createHumanFaceSkinChart({
+            surface: host!,
+            referencePositions: host!.positions,
+            domain: `lashes:${side}:${row}`,
+            registration: sourceChart,
+            supportVertices: roots,
+            host: createHumanFaceSkinHost(host!.indices, skin),
+          });
+      const courses = lengths.map((length, segment) =>
+        chart === undefined || length === 0
+          ? undefined
+          : createHumanFaceSkinChartCourse(chart.compile(
+              nativeSegments![segment].map((vertex) => chart.coordinate(vertex)),
+            )),
+      );
+      courses.forEach((course, segment) => {
+        if (course !== undefined) lengths[segment] = course.totalLengthMetres;
+      });
       const span = lengths.reduce((a, b) => a + b, 0);
       if (eligibility !== undefined && span === 0)
         throw new Error(
@@ -205,11 +235,19 @@ export function buildHumanFaceLashRows(
           distance -= lengths[segment];
           segment++;
         }
-        const delta = Vector3.subtract(points[segment + 1], points[segment]);
-        const root = Vector3.add(
-          points[segment],
-          Vector3.scale(delta, distance / lengths[segment]),
+        const course = courses[segment];
+        const native = course?.spans.find(
+          (piece) => distance <= piece.precedingLengthMetres + piece.lengthMetres,
         );
+        const delta = course === undefined
+          ? Vector3.subtract(points[segment + 1], points[segment])
+          : Vector3.create(...native!.end.map((value, axis) => value - native!.start[axis]));
+        const root = course === undefined
+          ? Vector3.add(
+              points[segment],
+              Vector3.scale(delta, distance / lengths[segment]),
+            )
+          : Vector3.create(...course.frameAt(distance).point);
         const forward = Vector3.normalize(Vector3.subtract(root, center));
         const projected = Vector3.subtract(
           delta,

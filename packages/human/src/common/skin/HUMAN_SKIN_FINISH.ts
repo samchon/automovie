@@ -18,14 +18,6 @@ import type { IAutoMovieHumanSkinFinish } from "./IAutoMovieHumanSkinFinish";
  *
  * `material` identifies the skin material receiving this finish. Another
  * builder can apply the same record to agree on scattering at a shared join.
- *
- * @evidence contracts/common.md#principled-implementation One source-owned record supplies the body finish and lets another builder reuse the same authority rather than duplicate values that can drift.
- * @evidence contracts/common.md#clear-and-simple-design One constant; no per-site table until a per-site measurement exists.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The shared renderer radius derives from published fitted optical coefficients; applying it to all sites is an explicit authored approximation.
- * @evidence contracts/common.md#meaningful-documentation States the coefficient fit, diffusion derivation, rounding, metre conversion and uncalibrated site and population extension.
- * @evidence contracts/modeling.md#shared-boundaries Builders that apply this same record can give both sides of a skin join the same scattering; the body builder consumes it here.
- * @evidence contracts/modeling.md#spatial-conventions Metres, linear sRGB primaries.
- * @evidence contracts/anatomy.md#anatomical-source Jensen et al. 2001 Figure 5(b) supplies fitted skin1 optical coefficients; diffusion distances are derived and rounded, with arm-to-face and other-site use an authored approximation and population calibration unspecified.
  */
 export const HUMAN_SKIN_FINISH: IAutoMovieHumanSkinFinish = {
   material: "skin",

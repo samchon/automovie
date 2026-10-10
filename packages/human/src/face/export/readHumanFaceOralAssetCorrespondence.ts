@@ -12,10 +12,6 @@ import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHum
  * authority. Present metadata must match every actual oral source member in
  * original interval order. This certifies correspondence, not source
  * authenticity, editable parameters or clinically valid anatomy.
- * @evidence contracts/common.md#principled-implementation Typed namespace admission and exact ordered member identity reuse actual Float32 accessor intervals from the common owner.
- * @evidence contracts/common.md#clear-and-simple-design One readback owner distinguishes absent qualification from malformed presence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A static shape or material never supplies a clinical certificate or editable numerical document.
- * @evidence contracts/common.md#meaningful-documentation States legacy absence and separate source/clinical authority.
  * @author Samchon
  */
 export function readHumanFaceOralAssetCorrespondence(

@@ -14,10 +14,6 @@ import type { IHumanGltfTextureReference } from "./IHumanGltfTextureReference";
  * and UV transform are returned unchanged for the writer to encode. A legacy
  * string returns no sampler and no transform, so its bytes stay as before.
  *
- * @evidence contracts/common.md#principled-implementation Every glTF-representable part of a binding (image, UV set zero, sampler, transform) is carried; what glTF fixes per slot (colour space) must agree rather than being silently reinterpreted.
- * @evidence contracts/common.md#clear-and-simple-design One normalizer owns the binding-form distinction, so the writer encodes a single record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No admission check is relaxed: external assets, other UV sets and mismatched colour spaces refuse by name.
- * @evidence contracts/common.md#meaningful-documentation States each accepted form, each refusal and the legacy behaviour.
  * @author Samchon
  */
 export function resolveHumanGltfTextureReference(

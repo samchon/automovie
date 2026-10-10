@@ -13,15 +13,13 @@ import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
  * new document appears without this owner learning its name.
  */
 export function describeHumanViewerDocuments(
-  catalogue: Pick<HumanViewerCatalogue, "documents">,
+  catalogue: Pick<HumanViewerCatalogue, "documents"> & Partial<Pick<HumanViewerCatalogue, "rejected">>,
 ): IHumanViewerIndexEntry[] {
-  return catalogue.documents.map((entry) => {
-    const document = entry.document as {
-      name?: unknown;
-      shape?: Record<string, unknown>;
-      pose?: unknown[];
-      shoulders?: unknown[];
-    };
+  const candidates = (catalogue.rejected ?? []).flatMap((entry) =>
+    entry.pending && entry.candidate !== undefined ? [entry.candidate] : [],
+  );
+  return [...catalogue.documents, ...candidates].map((entry) => {
+    const document = entry.document as HumanViewerDocumentIndexContent;
     const label =
       typeof document.name === "string" && document.name !== ""
         ? document.name
@@ -52,4 +50,12 @@ export function describeHumanViewerDocuments(
             : "Body build";
     return { id: entry.id, label, domain: "body", section };
   });
+}
+
+/** Numerical label and grouping hints; the domain owner still admits the selected document. */
+interface HumanViewerDocumentIndexContent {
+  name?: unknown;
+  shape?: Record<string, unknown>;
+  pose?: unknown[];
+  shoulders?: unknown[];
 }

@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../../structures/IAutoMovieHumanFaceRigidMotion";
@@ -17,12 +18,6 @@ import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
  * They are not additional rigid dental obstacles and do not certify a sealed
  * posterior enclosure, muscular mechanics or source full-margin closure.
  *
- * @evidence contracts/common.md#principled-implementation Original lip edges and the same rigid vestibular edge form a variable-population strip; normalized arc station ordering determines incidence without changing either boundary.
- * @evidence contracts/common.md#clear-and-simple-design One final soft-wall join consumes the existing lip/contact and rigid arch owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coincident-coordinate weld, guessed commissure, bounding-box closure or phantom rigid mucosa replaces source ports.
- * @evidence contracts/modeling.md#shared-boundaries Every native lip margin ordinal and performed vestibular rim is retained exactly with its source identity.
- * @evidence contracts/modeling.md#spatial-conventions Final source-frame metre coordinates are already performed and receive no second jaw transform.
- * @evidence contracts/anatomy.md#anatomical-source The soft vestibular strip is a coarse authored connection, without measured mucosal thickness or pharyngeal acquisition.
  * @author Samchon
  */
 export function connectHumanFaceOralLipPorts(
@@ -46,6 +41,7 @@ export function connectHumanFaceOralLipPorts(
       "Oral soft wall needs the actual final source lip ports and canonical skin correspondence.",
     );
   const joined: IHumanFaceOralPart[] = [];
+  const ports = readHumanFaceLipMarginPoints(surface, contact.margin, lip);
   const stations = (points: readonly number[][]): number[] => {
     const distances = [0];
     for (let k = 1; k < points.length; k++)
@@ -85,13 +81,9 @@ export function connectHumanFaceOralLipPorts(
       );
       return [placed.x, placed.y, placed.z];
     });
-    const margin = mandibular ? contact.margin.lower : contact.margin.upper;
-    const lipPoints = margin.map((vertex) =>
-      lip.slice(3 * vertex, 3 * vertex + 3),
-    );
-    const lipIds = margin.map(
-      (vertex) => "skin:" + surface.sourcePartition!.samples[vertex],
-    );
+    const margin = mandibular ? ports.lower : ports.upper;
+    const lipPoints = margin.map(({ point }) => [point.x, point.y, point.z]);
+    const lipIds = margin.map((point) => point.identity);
     if (lipPoints[0][0] > lipPoints[lipPoints.length - 1][0]) {
       lipPoints.reverse();
       lipIds.reverse();

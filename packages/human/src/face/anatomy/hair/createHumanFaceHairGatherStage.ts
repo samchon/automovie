@@ -33,20 +33,6 @@ const requireDirection = humanFaceHairFrame.direction;
  * the root and never asks for the scalp field. A layer that gathers needs its
  * attached anchor and the scalp direction field; without them construction
  * refuses. Inputs stay caller-owned.
- *
- * @evidence contracts/common.md#principled-implementation The tie is a sphere of the layer's radius about the anchor, and a step from p to q enters it where |p + t (q - p) - anchor| = radius, the smaller root of a t^2 + b t + c with a = |q - p|^2, b = 2 (p - anchor) . (q - p) and c = |p - anchor|^2 - radius^2, accepted when it lies in [0, 1]. The premise is a nonzero step, and a zero one yields no root and so no crossing. A step that starts inside is not asked, because `observe` has already entered the tail there. The tail's velocity is the derivative of a smoothstep from the tie's entry offset to a sampled offset, so it adds no station and no length.
- * @evidence contracts/common.md#clear-and-simple-design One owner of the gathering state, which the integrator would otherwise hold as interleaved variables: whether the lock is tied, where, the tail's spread and the nearest approach. The integrator keeps the walk, the contact and the length.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case for a style or subject; every gathered lock meets the same tie and tail rules, a lock that cannot reach its tie refuses, and no state is shared between locks.
- * @evidence contracts/common.md#meaningful-documentation The comments state the stages, the three calls and when each happens, the crossing rule, the refusals and the root-inside-the-tie case.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function creates the state of one lock's gathering and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines no channel and reads the layer's gather fields, which the document type owns.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; the integrator's stations are the only points.
- * @evidence contracts/modeling.md#spatial-conventions Points, anchor, radius and arc distance are metres in the head frame, the reference point is the neutral chart position the fields are read at, directions are unit vectors, and phases and angles are radians; nothing is converted.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; contact with the skin stays with the integrator.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint and displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The gathering is an authored styling operation and carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; assertHumanFaceHair owns admission of the gather fields.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The inputs are named angles, a radius, a strength and a tail direction that the document already names and admits; no input places a strand.
  */
 export function createHumanFaceHairGatherStage(
   props: ICreateHumanFaceHairGatherStageProps,

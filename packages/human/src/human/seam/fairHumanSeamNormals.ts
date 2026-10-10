@@ -21,20 +21,6 @@
  * blended normal collapses to zero (neighbours cancelling) keeps its own.
  * `positions` is not read (the mesh's connectivity is all that matters); the
  * inputs are not modified.
- *
- * @evidence contracts/common.md#principled-implementation Blending each normal toward its neighbours' mean is a diffusion of the normal field whose reach grows by one ring per sweep, so `rings` sweeps with weights that vanish beyond the last ring confine the change to the band and are exactly a no-op outside it; the kernel is C2, so the blend weight has no step at the band's edge.
- * @evidence contracts/common.md#clear-and-simple-design A breadth-first ring numbering from the seeds, then a fixed number of sweeps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is special-cased, and a vertex outside the band is returned untouched by arithmetic and not by an exception for a named case.
- * @evidence contracts/common.md#meaningful-documentation The comment states why the step shows, what is blended, how far it reaches and that positions do not move.
- * @evidence contracts/modeling.md#shared-boundaries The faired normals continue across the shared seam vertices with a gradient over the rings on both sides, which is the normal continuity a shared boundary owes; the bend itself remains the geometry's.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function edits a normal field and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The function carries no unit; normals are unit vectors in the caller's frame.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the fairing is observed on the assembled person's seam.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function fairHumanSeamNormals(props: {
   /** Triangles of the joined skin, over shared vertices. */

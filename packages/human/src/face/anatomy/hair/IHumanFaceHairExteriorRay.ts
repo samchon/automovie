@@ -15,20 +15,6 @@ import type { IHumanFaceHairRootSupport } from "./IHumanFaceHairRootSupport";
  * an epsilon-sized prefix; otherwise no intersection is skipped. Every query
  * spends the caller's budget, including a refusal.
  *
- * @evidence contracts/common.md#principled-implementation Supplies the ray, its travel bound, root mode and the one collider's readers the interval proof needs.
- * @evidence contracts/common.md#clear-and-simple-design Named members replace an anonymous parameter object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no tolerance beyond the contact allowance and no skipped-hit exception.
- * @evidence contracts/common.md#meaningful-documentation States both modes, units and budget spending.
- * @evidence contracts/modeling.md#spatial-conventions Root and travel are head-frame metres; the direction is normalized by the owner.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidence contracts/modeling.md#shared-boundaries Root mode admits only the original support of the same host skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical geometry only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Producer-derived rays, not personal controls.
- *
  * @author Samchon
  */
 export interface IHumanFaceHairExteriorRay {

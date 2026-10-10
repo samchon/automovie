@@ -27,19 +27,6 @@ import { resolveHumanFaceApertureDirections } from "./resolveHumanFaceApertureDi
  * Only four vertices are posed here, so the measure is cheap enough to run
  * before the surfaces are posed, which is when the closure rows need it.
  *
- * @evidence contracts/common.md#principled-implementation Both apertures project upper minus lower onto normalized basis Y-up with its mandibular-axis component removed. This frame follows the declared basis axis, and posed translations contribute their components along it. The model convention establishes no universal clinical vertical or incisor-chord direction.
- * @evidence contracts/common.md#clear-and-simple-design Only four vertices are posed, so the measure runs before the surfaces are posed; it delegates both canonical directions to resolveHumanFaceApertureDirections and posing to poseHumanFaceVertex.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant; a degenerate axis refuses.
- * @evidence contracts/common.md#meaningful-documentation States the frame, the layer it reads, the sign and why the measure is cheap enough to run first.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres; up and forward are unit vectors of the basis frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping measureHumanFaceAperture is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels measureHumanFaceAperture moves no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry measureHumanFaceAperture emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries measureHumanFaceAperture constructs no surface that meets another part.
- * @evidenceExclude contracts/modeling.md#rendered-observation measureHumanFaceAperture owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The frame is a model convention, not an anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The measure bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The measure is not an input.
  * @author Samchon
  */
 export function measureHumanFaceAperture(

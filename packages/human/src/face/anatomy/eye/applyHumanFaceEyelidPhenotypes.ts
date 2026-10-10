@@ -17,20 +17,6 @@ import type { IAutoMovieHumanFaceEyelidPhenotypes } from "../../structures/IAuto
  * This is authored prototype morphology on a coarse source cage. Geometry
  * sampling and actual assembled admission limit supported combinations; these
  * rules do not establish clinical fold anatomy or a personal reconstruction.
- *
- * @evidence contracts/common.md#principled-implementation The source rows and chart define named vertical measurements, while row-local canthal fade preserves shared joins and original alias transport.
- * @evidence contracts/common.md#clear-and-simple-design One visible-lid conversion precedes the established source pose/contact owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported rows, verticals and combinations refuse instead of substituting a mean or clamping the request.
- * @evidence contracts/common.md#meaningful-documentation States each conversion, source approximation, preserved geometry and independent downstream admission.
- * @evidence contracts/modeling.md#parameter-channels Height and hood overlap preserve absolute units; single creasing retains row height but removes its source groove.
- * @evidence contracts/modeling.md#spatial-conventions Source head-frame metres, converted from supplied millimetres once.
- * @evidence contracts/modeling.md#shared-boundaries Canthi remain source-owned; all aliases move together before pose and contact.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Changes the existing upper lid.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Source topology and population remain unchanged.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled lid owner observes generated morphology.
- * @evidence contracts/anatomy.md#anatomical-source Visible lengths use the source optical-support approximation and source-authoring cage roles; acquisition of the clinical crease and hood remains unknown.
- * @evidence contracts/anatomy.md#permitted-range Positive crease heights remain below actual preseptal clearance; hood overlap cannot reach the margin. Final tissue/contact admission judges the full combination.
- * @evidence contracts/anatomy.md#parametric-authority Consumes closed morphology choices and visible length measurements without caller-supplied geometry.
  */
 export function applyHumanFaceEyelidPhenotypes(
   basis: IAutoMovieHumanFaceBasis,

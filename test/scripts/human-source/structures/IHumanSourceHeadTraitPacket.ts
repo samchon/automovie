@@ -1,10 +1,10 @@
 import type { IHumanSourceHeadTraitField } from "./IHumanSourceHeadTraitField.ts";
 
-/** `head-trait-endpoints.json` of `compile-head-trait-endpoints.py`: the
+/** `head-trait-endpoints.json` of `compile-head-trait-endpoints.ts`: the
  * content receipt of actual dimensional source production. It names the
  * authoring receipt, sample and provider it was computed from by digest, so
  * the generation compiler can refuse endpoints of another formula. Host
- * paths and interpreter details stay in that run's `run-environment.json`.
+ * paths and runtime details remain separate evidence, never portable content.
  * @author Samchon
  */
 export interface IHumanSourceHeadTraitPacket {

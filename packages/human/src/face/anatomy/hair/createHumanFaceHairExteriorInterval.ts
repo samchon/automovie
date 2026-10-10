@@ -19,20 +19,6 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * The returned spend closure continues that same budget; it never resets it.
  * PointAt is an immutable unit ray and returns owned points. The caller must
  * choose representable points in the interval and retains metric ownership.
- *
- * @evidence contracts/common.md#principled-implementation Convex triangle distance admits only the numeric root prefix. The first remaining intersection and an actual interior signed witness certify an exterior interval without inferring crossings from intersection normals.
- * @evidence contracts/common.md#clear-and-simple-design One owner defines root-star exclusion, exterior witnessing and budget expenditure for both ray and curved-stem consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source, root, angle, clearance or epsilon override; only the original support triangles may supply a numeric root prefix.
- * @evidence contracts/common.md#meaningful-documentation Defines root/outside modes, same-snapshot premises, returned ownership, units and conservative refusals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It certifies a numerical interval and defines no displayed part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It consumes derived geometry without adding a styling channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive or station.
- * @evidence contracts/modeling.md#spatial-conventions Origin, collider and travel share current head-frame metres; direction is unit length.
- * @evidence contracts/modeling.md#shared-boundaries The same closed snapshot and original sampler support own the numeric root boundary; exterior chords remain before all other intersections.
- * @evidenceExclude contracts/modeling.md#rendered-observation It certifies numerical geometry; the builder owns rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It supplies no anatomical angle or tissue value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits computational premises, not clinical bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Its inputs are producer-derived rays rather than personal curve controls.
  */
 export function createHumanFaceHairExteriorInterval(
   props: IHumanFaceHairExteriorRay,

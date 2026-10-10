@@ -26,19 +26,6 @@ import { HUMAN_BODY_EXTERIOR_TARGETS } from "./surface/HUMAN_BODY_EXTERIOR_TARGE
  *
  * The caller's document is not changed.
  *
- * @evidence contracts/common.md#principled-implementation Existing exterior/gap tables and exact loaded-source quantity bindings own supported paths; member, unit, protocol and field authority are required before new internal records reach their actual consumer.
- * @evidence contracts/common.md#clear-and-simple-design One walk of the supplied tree with four outcomes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is kept without a consumer and no channel has two authorities.
- * @evidence contracts/common.md#meaningful-documentation States each refusal and its reason.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part.
- * @evidence contracts/modeling.md#parameter-channels A bound channel is solved from its measurement and cannot be authored beside it.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It reads no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It renders nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The tables own the definitions and reasons.
- * @evidence contracts/anatomy.md#permitted-range Unconsumable and unregistered values refuse by path with their cause, leaving the document unchanged.
- * @evidence contracts/anatomy.md#parametric-authority Only named anatomical measurements with a consumer are admitted.
  * @author Samchon
  */
 export function admitHumanBodyDocumentAnatomy(

@@ -14,19 +14,6 @@ import type { IHumanFaceOralToothStation } from "./IHumanFaceOralToothStation";
  * and min(v,terminal.v), so the same two rays own both sign and distance.
  * This authored continuation is not acquired pharyngeal or soft-palate anatomy.
  *
- * @evidence contracts/common.md#principled-implementation Analytic half-ray crossing and nearest-point rules evaluate the same unbounded boundary for side and distance.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies the boundary reading shared by lining rise and posterior wall omission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite far distance, source-specific closure, clinical cap or posterior-reach change enters.
- * @evidence contracts/common.md#meaningful-documentation States the actual primitive domain, parity convention, distance and anatomical limitation.
- * @evidence contracts/modeling.md#spatial-conventions Arch lateral u and anterior v are metres; negative v is posterior and returned positive distance is lingual.
- * @evidence contracts/modeling.md#shared-boundaries The same native finite arch and terminal continuations supply the side and distance consumed by every lining region.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Uses existing source stations without adding a control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive mesh.
- * @evidenceExclude contracts/modeling.md#rendered-observation Oral assembly owns observation.
- * @evidence contracts/anatomy.md#anatomical-source The station source owns crown registration; posterior half-rays are the existing authored boundary convention and do not reconstruct a pharynx.
- * @evidenceExclude contracts/anatomy.md#permitted-range No clinical range or finite query-domain cap is imposed.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authored shape input.
  * @author Samchon
  */
 export function measureHumanFaceOralArchDepth(

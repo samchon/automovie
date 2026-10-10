@@ -3,6 +3,9 @@ import type { IAutoMovieHumanBasisSourcePartition } from "@automovie/human/commo
 import { defineHumanSourceSkinLandmarks } from "./defineHumanSourceSkinLandmarks.ts";
 import { registerHumanSourceLipMargin } from "./registerHumanSourceLipMargin.ts";
 import { registerHumanSourceTeeth } from "./registerHumanSourceTeeth.ts";
+import { registerHumanSourceMaterialCharts } from "./registerHumanSourceMaterialCharts.ts";
+import { extendHumanSourceBrowMaterialSupport } from "./extendHumanSourceBrowMaterialSupport.ts";
+import { prepareHumanSourceBootstrapMaterialReference } from "./prepareHumanSourceBootstrapMaterialReference.ts";
 import { splitHumanSourceToes } from "./splitHumanSourceToes.ts";
 import type { IHumanSourceEndpointDomain } from "./structures/IHumanSourceEndpointDomain.ts";
 import type { IHumanSourceP1 } from "./structures/IHumanSourceP1.ts";
@@ -17,7 +20,7 @@ import type { IHumanSourceP1Input } from "./structures/IHumanSourceP1Input.ts";
  * skin landmarks and regions chosen on the generation
  * (`defineHumanSourceHeadLandmarks`, `defineHumanSourceHeadRegions`), and its
  * contact gains the vermilion margin chains beside the central pair
- * (`buildHumanSourceLipMarginChain`), and it carries the periocular
+ * (`registerHumanSourceLipMargin`), and it carries the periocular
  * registration (`defineHumanSourcePeriocular`).
  * The body becomes the source complement of the same cut, with the
  * generation's neutral and weights, its endpoints re-addressed
@@ -174,7 +177,8 @@ export function assembleHumanSourceP1(
       : lipsSource;
   if (lipsSurface === undefined)
     throw new Error("The published face has no lips contact surface.");
-  const chain = registerHumanSourceLipMargin(face, lipsSurface.positions);
+  const chain = registerHumanSourceLipMargin(face, lipsSurface.positions,
+    partition(Array.from(cut.faceToG1), Array.from(cut.p1FaceParents)));
   const p1Face = {
     ...face,
     id: `human-source-g1-${short}-p1-face`,
@@ -183,7 +187,7 @@ export function assembleHumanSourceP1(
       ...input.headRegions,
       ...registerHumanSourceTeeth(face).regions,
     },
-    contact: { ...contact, margin: { upper: chain.upper, lower: chain.lower } },
+    contact: { ...contact, margin: chain.margin },
     periocular: input.periocular,
     surfaces: face.surfaces.map((s) =>
       s.id === "Human"
@@ -198,10 +202,15 @@ export function assembleHumanSourceP1(
               Array.from(cut.p1FaceParents),
             ),
           }
-        : s,
+        : { ...s },
     ),
   };
 
+  registerHumanSourceMaterialCharts(p1Face);
+  extendHumanSourceBrowMaterialSupport({
+    basis: p1Face,
+    references: [prepareHumanSourceBootstrapMaterialReference(p1Face)],
+  });
   const bodySurface = body.surfaces[0];
   const count = cut.p1BodyToG1.length;
   const positions: number[] = [];

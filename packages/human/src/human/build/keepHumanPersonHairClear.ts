@@ -23,25 +23,15 @@ import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHai
  * query. The full source hierarchy supplies nearest-feature pruning without
  * altering incidence or imposing a fixed reach on a document clearance.
  *
- * Each ribbon station moves as a whole, preserving its width under each
+ * Geometry-owned stations move as wholes, preserving ribbon width or shaft
+ * calibre. A supplied layout identifies each part's own gap and canonical
+ * attached root; a root needing a body push refuses without changing its seat.
+ * Only legacy ribbon transport derives paired stations from mesh topology.
+ * Each non-root station moves as a whole under each
  * translation. Two passes use the largest sampled vertex push at that station;
  * they constrain neither strand arc length nor complete face clearance and
  * do not establish collision-free or biologically valid hair contact. The
  * assembled result and scalp root attachment remain separate observations.
- *
- * @evidence contracts/common.md#principled-implementation The existing oriented signed query admits the complete retained body surface, so a crop cannot break its incident fans. Each station uses the largest observed vertex displacement towards the requested offset surface; finite passes and vertex samples supply no whole-face clearance proof.
- * @evidence contracts/common.md#clear-and-simple-design One complete source query feeds the existing station translation; no spatial crop or corrective retry chooses a different topology.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source incidence, winding and requested clearance remain unchanged; the signed-query guard is neither bypassed nor weakened for a pose or subject.
- * @evidence contracts/common.md#meaningful-documentation States complete-source query ownership, rim refusal and the limits of station samples and passes.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the shared frame; the query retains the body's original winding and actual open boundary.
- * @evidence contracts/modeling.md#shared-boundaries Hair and body consume one document clearance; sampled station movement does not certify scalp attachment or complete contact under every pose.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves vertices of an existing part and defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive beyond the query's private sheet.
- * @evidenceExclude contracts/modeling.md#rendered-observation The stage is observed on the assembled person, where the hair meets the shoulder.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the clearance is the hair document's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function keepHumanPersonHairClear(
   props: IHumanPersonHairContactProps,
@@ -59,14 +49,40 @@ export function keepHumanPersonHairClear(
     skin: null,
   };
   const query = createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
-  return hair.map(({ positions: part, indices: triangles }) => {
+  return hair.map(({ positions: part, indices: triangles, layout }) => {
     const output = part.slice();
-    // A ribbon's stations move as wholes, so its width and frame survive: the
-    // strand's vertices are its root followed by a left and a right corner
-    // per station, and each strand is one connected component of the ribbon.
-    for (const strand of humanRibbonStations(triangles))
+    const gap = layout?.clearance ?? clearance;
+    if (!Number.isFinite(gap) || gap < 0)
+      throw new Error("Hair part clearance must be a nonnegative finite length.");
+    const strands = layout === undefined ? humanRibbonStations(triangles) :
+      layout.curves.map((curve) => curve.stations.map((station) => Array.from(station.vertices)));
+    if (layout !== undefined) {
+      const referenced = new Set(triangles);
+      const seen = new Set<number>();
+      for (const [curveIndex, curve] of layout.curves.entries()) {
+        if (curve.stations.length === 0 || curve.stations[0].radius !== 0 ||
+            curve.stations[0].arcLength !== 0 || curve.stations[0].vertices.length !== 1)
+          throw new Error("Hair layout lacks its canonical attached root station: " + curveIndex);
+        for (const station of curve.stations) {
+          if (station.vertices.length === 0 || !Number.isFinite(station.radius) || station.radius < 0 ||
+              !Number.isFinite(station.arcLength) || station.arcLength < 0)
+            throw new Error("Hair layout station lacks finite geometry-owned radius and arc length.");
+          for (const vertex of station.vertices) {
+            if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex * 3 + 2 >= part.length ||
+                !referenced.has(vertex) || seen.has(vertex))
+              throw new Error("Hair layout must partition actual referenced station vertices exactly.");
+            seen.add(vertex);
+          }
+        }
+      }
+      if (seen.size !== referenced.size)
+        throw new Error("Hair layout omits actual referenced geometry.");
+    }
+    // Produced layouts define complete rings or ribbon pairs. The legacy
+    // fallback retains only the original ribbon numbering contract.
+    for (const strand of strands)
       for (let pass = 0; pass < 2; pass++)
-        for (const station of strand) {
+        for (const [stationIndex, station] of strand.entries()) {
           let push: number[] | null = null;
           let most = 0;
           for (const vertex of station) {
@@ -76,10 +92,10 @@ export function keepHumanPersonHairClear(
               output[vertex * 3 + 2],
             ];
             const found = query(p);
-            if (found.boundary || found.signedDistance >= clearance) continue;
+            if (found.boundary || found.signedDistance >= gap) continue;
             const need = [0, 1, 2].map(
               (axis) =>
-                found.point[axis] + found.normal[axis] * clearance - p[axis],
+                found.point[axis] + found.normal[axis] * gap - p[axis],
             );
             const size = Math.hypot(need[0], need[1], need[2]);
             if (size > most) {
@@ -87,6 +103,8 @@ export function keepHumanPersonHairClear(
               push = need;
             }
           }
+          if (push !== null && layout !== undefined && stationIndex === 0)
+            throw new Error("Attached native hair root conflicts with the body's requested clearance.");
           if (push !== null)
             for (const vertex of station)
               for (let axis = 0; axis < 3; axis++)

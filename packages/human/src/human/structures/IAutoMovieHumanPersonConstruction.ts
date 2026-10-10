@@ -3,14 +3,15 @@ import type { IAutoMovieHumanPersonGenerationBuild } from "./IAutoMovieHumanPers
 
 /** Complete same-source person construction and its separate admission outcome.
  *
- * @evidence contracts/common.md#principled-implementation The full same-source person result retains its body, bones and boundary beside explicit admission.
- * @evidence contracts/common.md#clear-and-simple-design Extends the actual person build result instead of creating a separate renderer or geometry path.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected constructions remain explicitly rejected.
- * @evidence contracts/common.md#meaningful-documentation States complete source context and the editor acceptance boundary.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonConstruction extends IAutoMovieHumanPersonGenerationBuild {
   /** Rejected coarse geometry remains inspectable and is never an accepted editor result. */
   admission: IAutoMovieHumanConstructionAdmission;
+
+  /**
+   * Original face-only admission and its own census, before body-layer
+   * refusals are included in the person's combined acceptance decision.
+   */
+  faceAdmission: IAutoMovieHumanConstructionAdmission;
 }

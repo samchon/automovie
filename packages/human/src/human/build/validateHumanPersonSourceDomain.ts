@@ -10,20 +10,6 @@ import { isHumanPersonSourceIndex as integer } from "./isHumanPersonSourceIndex"
  * refinements (barycentric payloads refused), normal domains for every parent
  * corner, normal parents for every vertex, and cell maps matching the
  * surface's vertex and triangle populations. Each failure refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Every id and fraction the plan later reads is admitted before it is read.
- * @evidence contracts/common.md#clear-and-simple-design One pass per record table.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported barycentric refinements refuse instead of being converted.
- * @evidence contracts/common.md#meaningful-documentation States every condition and the refusal.
- * @evidence contracts/modeling.md#shared-boundaries Admits the cut table both partitions share before their samples are compared.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Ids and affine fractions are dimensionless.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The conditions are topological, not anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function validateHumanPersonSourceDomain(
   record: IAutoMovieHumanBasisSourcePartition,

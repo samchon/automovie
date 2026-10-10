@@ -9,11 +9,6 @@ import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBod
  * each registered source mesh before transferring its receipt, so a syntactic
  * digest alone cannot qualify changed geometry. The final posed Float32 shape
  * is bound separately by the exporter's actual accessor partition.
- *
- * @evidence contracts/common.md#principled-implementation SHA-256 of the actual registered mesh serialization must match its source receipt before exact source-ID qualification is returned.
- * @evidence contracts/common.md#clear-and-simple-design One selected-resource pass supplies body or prefixed person member records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No original mesh hash is asserted to hash the final posed asset and no clinical resolution is inferred.
- * @evidence contracts/common.md#meaningful-documentation Explains call order, source digest verification and final geometry authority.
  */
 export async function createHumanBodyAtlasExportQualification(
   basis: IAutoMovieHumanBodyBasis,

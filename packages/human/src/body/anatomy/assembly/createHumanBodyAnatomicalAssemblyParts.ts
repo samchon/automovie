@@ -6,6 +6,7 @@ import { createHumanBodyExteriorFollower } from "../binding/createHumanBodyExter
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IHumanBodyAnatomicalAssemblyParts } from "./IHumanBodyAnatomicalAssemblyParts";
 import type { IHumanBodyAnatomicalAssemblyPartsInput } from "./IHumanBodyAnatomicalAssemblyPartsInput";
+import { carryHumanBodyNeutralSourceRig } from "./carryHumanBodyNeutralSourceRig";
 import { carryHumanBodySourceFields } from "./carryHumanBodySourceFields";
 import { createHumanBodySourceResidentMesh } from "./createHumanBodySourceResidentMesh";
 import { dataSourceShapes } from "./dataSourceShapes";
@@ -53,26 +54,14 @@ function followerOf(
  * displacement from the neutral skin, by that binding's rule, and are then
  * posed. An assembly without one still refuses any other shape.
  * A neutral whole-person consumer can supply its joined exterior reference;
- * all internal parts then follow that one head/body displacement field.
- *
- * @evidence contracts/common.md#principled-implementation All tissues consume the same posed times inverse rest graph and source attachment identities.
- * @evidence contracts/common.md#clear-and-simple-design One replay pass admits source registration, attachment cardinality and weighted geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sphere replacement, arbitrary per-part carrier, source-face filtering or clinical upgrade occurs.
- * @evidence contracts/common.md#meaningful-documentation States offline binding, exact shape and coarse deformation limits.
- * @evidence contracts/modeling.md#part-identity-and-grouping Actual anatomical part and source member IDs survive as independently mapped static parts.
- * @evidence contracts/modeling.md#parameter-channels Exact source shape binds registration while the owning graph admits named joint goals.
- * @evidence contracts/modeling.md#emitted-geometry Actual acquired/authored source vertices and source triangles are retained without geometric proxies.
- * @evidence contracts/modeling.md#spatial-conventions Common-neutral metre points use the one graph's paired rest/posed transforms; directions rotate and normalize.
- * @evidence contracts/modeling.md#shared-boundaries Source tissue attachments resolve shared graph sites; this stage claims no physiological sliding or clearance.
- * @evidence contracts/modeling.md#rendered-observation Actual parts reach the body and person assembly; same-generation appearance remains the campaign's separately observed responsibility.
- * @evidence contracts/anatomy.md#anatomical-source Each original/compiled surface receipt and authored binding account remains separate from clinical resolution.
- * @evidence contracts/anatomy.md#permitted-range Unsupported shape or attachment refuses by part; source graph axes own actual supported motion.
- * @evidence contracts/anatomy.md#parametric-authority Source weights and vertices remain immutable offline data, never personal document edits.
+ * all internal parts, held rest origins and shared attachment sites then
+ * follow that one head/body displacement field.
  */
 export function createHumanBodyAnatomicalAssemblyParts(
   input: IHumanBodyAnatomicalAssemblyPartsInput,
 ): IHumanBodyAnatomicalAssemblyParts {
   const output: IHumanBodyAnatomicalAssemblyParts = {
+    rig: input.rig,
     parts: [],
     materials: [],
     quantities: [],
@@ -147,6 +136,11 @@ export function createHumanBodyAnatomicalAssemblyParts(
     follow === undefined
       ? assembly.parts
       : carryHumanBodySourceFields(assembly.parts, follow);
+  const rig =
+    follow !== undefined && assembly.mode === "neutral-only"
+      ? carryHumanBodyNeutralSourceRig(input.rig, follow)
+      : input.rig;
+  output.rig = rig;
   const sourceShapes = dataSourceShapes(
     { parts: sourceParts },
     input.document.anatomy,
@@ -173,7 +167,7 @@ export function createHumanBodyAnatomicalAssemblyParts(
     for (const attachment of part.attachments)
       if (
         attachment.account.trim() === "" ||
-        input.rig.sites.get(attachment.bone)?.has(attachment.site) !== true
+        rig.sites.get(attachment.bone)?.has(attachment.site) !== true
       )
         refuse(
           "attachment-site-unavailable:" +
@@ -220,7 +214,7 @@ export function createHumanBodyAnatomicalAssemblyParts(
       )
         refuse("invalid-source-surface-binding:" + surface.id);
       const transforms = binding.bones.map((bone) => {
-        const transform = input.rig.bones.get(bone);
+        const transform = rig.bones.get(bone);
         if (transform === undefined) refuse("source-bone-unavailable:" + bone);
         return {
           ...transform!,

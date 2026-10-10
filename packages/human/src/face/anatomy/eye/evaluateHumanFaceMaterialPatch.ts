@@ -9,20 +9,6 @@ import type { IHumanFaceMaterialPatchGeometry } from "./structures/IHumanFaceMat
  * The same skin-frame owner supplies exact affine positions and its geometric
  * face-normal convention for an opposed or zero blend. Barycentric sum admission
  * is the existing three-addition rounding bound, not anatomical clearance.
- *
- * @evidence contracts/common.md#principled-implementation Ordered barycentric support evaluates the original live host triangle and its shared vertex normals.
- * @evidence contracts/common.md#clear-and-simple-design One evaluator carries current positions and directions for the registered patch.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Same-generation material identity replaces nearest-point fits or reference XYZ copies.
- * @evidence contracts/common.md#meaningful-documentation Explains host ownership, arithmetic domain and its geometric normal convention.
- * @evidence contracts/modeling.md#spatial-conventions Current head-frame metres and unit directions; weights remain dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Every cell, endpoint and boundary consumes the same evaluated material point table.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Evaluates existing source registration without defining a tissue part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The tissue consumer chooses emitted geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes its final output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Material interpolation supplies no clinical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits a mathematical material-point domain, not physiological values.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes offline registration without personal sculpting.
  */
 export function evaluateHumanFaceMaterialPatch(
   patch: IAutoMovieHumanFaceMaterialPatch,

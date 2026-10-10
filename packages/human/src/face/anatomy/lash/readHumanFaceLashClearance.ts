@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type { IAutoMovieHumanConstructionRootInsertionWitness } from "../../../common/structures/IAutoMovieHumanConstructionRootInsertionWitness";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import { readHumanFaceOpticalExterior } from "../eye/readHumanFaceOpticalExterior";
@@ -22,23 +23,13 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * whose nearest skin feature is the open rim,
  * or a non-coplanar crossing refuses. Each row is reported whole, with its
  * counts and extrema, where the admission used to stop at the first shaft.
+ * The first reported free-skin pair retains the exact strict point, root ring
+ * and distance that its unchanged insertion predicate read. Triangle-pair keys
+ * associate that observation with the shared instrument's original witness;
+ * recording it never selects another intersection or changes the verdict.
  *
  * A shaft is 13 rings of 9 shading vertices (117) and 12 bands of 48 indices
  * (576), the layout `buildHumanFaceLashRows` emits.
- *
- * @evidence contracts/common.md#principled-implementation Float32 signed geometry and triangle crossings judge free tissue penetration over the complete row, with the insertion excluded by the measured root radius of each shaft.
- * @evidence contracts/common.md#clear-and-simple-design One reading owner enumerates row relations and delegates to the shared clearance instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No profile, root, count or tolerance changes, and no row or shaft is exempted.
- * @evidence contracts/common.md#meaningful-documentation States the free-shaft rule, the unchanged conditions, the shaft layout it relies on and the complete report.
- * @evidence contracts/modeling.md#shared-boundaries Root insertion uses the same registered skin point; the remaining free shaft must stay outside the final skin and optical exterior.
- * @evidence contracts/modeling.md#spatial-conventions All geometry and tolerances are canonical head-frame metres.
- * @evidence contracts/anatomy.md#permitted-range Free shafts must avoid tissue penetration; this certifies no clinical follicle implantation or population interval.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads the row identities the generator owns.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical admission; the lash assembly owner owes the rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Geometric admission introduces no inferred tissue dimension.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Admits the emitted result without adding a shaping input.
  */
 export function readHumanFaceLashClearance(
   basis: IAutoMovieHumanFaceBasis,
@@ -128,30 +119,48 @@ export function readHumanFaceLashClearance(
           ),
         }),
       );
-    readings.push(
-      measureHumanFaceClearance({
-        owner,
-        state: "performed",
-        subject,
-        against: id + ":free-skin",
-        judged: true,
-        mesh: row.mesh,
-        exterior: skin,
-        boundary: "open",
-        toleranceMetres: tolerance,
-        vertices: freeVertices,
-        acceptTransversePoint: (point, triangle) => {
-          const insertion = insertions[Math.floor(triangle / (576 / 3))];
-          return (
-            Math.hypot(
-              point[0] - insertion.centre[0],
-              point[1] - insertion.centre[1],
-              point[2] - insertion.centre[2],
-            ) > insertion.radius
-          );
-        },
-      }),
-    );
+    const classified = new Map<
+      string,
+      IAutoMovieHumanConstructionRootInsertionWitness
+    >();
+    const freeSkin = measureHumanFaceClearance({
+      owner,
+      state: "performed",
+      subject,
+      against: id + ":free-skin",
+      judged: true,
+      mesh: row.mesh,
+      exterior: skin,
+      boundary: "open",
+      toleranceMetres: tolerance,
+      vertices: freeVertices,
+      acceptTransversePoint: (point, triangle, other) => {
+        const shaft = Math.floor(triangle / (576 / 3));
+        const insertion = insertions[shaft];
+        const distance = Math.hypot(
+          point[0] - insertion.centre[0],
+          point[1] - insertion.centre[1],
+          point[2] - insertion.centre[2],
+        );
+        const free = distance > insertion.radius;
+        const key = triangle + ":" + other;
+        if (free)
+          classified.set(key, {
+            point: [...point],
+            shaft,
+            centre: [...insertion.centre],
+            radiusMetres: insertion.radius,
+            distanceMetres: distance,
+          });
+        return free;
+      },
+    });
+    const witness = freeSkin.crossingWitness;
+    if (witness !== undefined && witness !== null)
+      witness.rootInsertion = classified.get(
+        witness.subjectTriangle + ":" + witness.referenceTriangle,
+      )!;
+    readings.push(freeSkin);
   }
   return readings;
 }

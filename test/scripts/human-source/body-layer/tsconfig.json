@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.scripts.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "../../../lint.config.ts"
+      }
+    ]
+  },
+  "include": ["**/*.ts"]
+}

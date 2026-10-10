@@ -7,20 +7,6 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * (`axis` 0, 1 or 2 for X, Y or Z at `value`). A vertex on the plane counts as the positive side, so it is
  * reached as the crossing at its own end. Only the triangles `keep` accepts
  * are cut; omitted, every triangle is.
- *
- * @evidence contracts/common.md#principled-implementation Every section-based head rule cuts the skin by this one crossing rule.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the triangle edges.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Crossings are interpolated on the edges; no vertex is snapped to the plane.
- * @evidence contracts/common.md#meaningful-documentation States the plane, the crossing convention and the triangle filter.
- * @evidence contracts/modeling.md#spatial-conventions Axis-aligned planes of the head frame; points in metres.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function humanHeadPlanePoints(
   head: IAutoMovieHumanHeadSkin,

@@ -7,5 +7,6 @@ export * from "./IHumanBasisRegionCorners";
 export * from "./IAutoMovieHumanConstructionAdmission";
 export * from "./IAutoMovieHumanConstructionClearanceReading";
 export * from "./IAutoMovieHumanConstructionCrossingWitness";
+export * from "./IAutoMovieHumanConstructionRootInsertionWitness";
 export * from "./IAutoMovieHumanConstructionFailure";
 export * from "./IAutoMovieHumanConstructionPartReading";

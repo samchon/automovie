@@ -21,20 +21,6 @@ import type { IAutoMovieHumanFaceOpticalDimensions } from "../../structures/IAut
  * inverted or intersecting internal surfaces. Curvature inflection alone is
  * not a refusal: the derivative is negative throughout (0,L), because its
  * factor is affine in r² and negative at both ends. No value is clamped.
- *
- * @evidence contracts/common.md#principled-implementation Derives the common interface value and tangent, central curvature, monotonicity and containment inequalities from the explicit dimensions.
- * @evidence contracts/common.md#clear-and-simple-design One conversion and one profile feed drawing and contact.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid supplied geometry throws without defaults, retries or population bounds.
- * @evidence contracts/common.md#meaningful-documentation States the polynomial, approximations, inequalities and refusal consequences.
- * @evidence contracts/modeling.md#shared-boundaries The scleral sphere and anterior profile share G(L) and G'(L) by construction.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres divide by 1000 and micrometres by 1000000 once; all returned lengths and queries are metres.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The profile names no rendered part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The dimension record owns input meanings.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The geometry builder owns tessellation.
- * @evidenceExclude contracts/modeling.md#rendered-observation The connected assembly owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical constant.
- * @evidenceExclude contracts/anatomy.md#permitted-range Strict geometric feasibility is not a clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Reads the named dimension record without defining additional controls.
  */
 export function resolveHumanFaceOpticalProfile(
   input: IAutoMovieHumanFaceOpticalDimensions,

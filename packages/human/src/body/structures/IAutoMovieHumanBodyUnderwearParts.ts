@@ -1,14 +1,22 @@
-import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieMaterial } from "@automovie/interface";
+
+import type { IHumanBodyUnderwearRegion } from "./IHumanBodyUnderwearRegion";
 
 /**
- * The underwear the builder appends to a body model: its material and parts.
+ * Prepared material and source coverage for skin-attached underwear parts.
+ * The final Body or Person consumer partitions its actual performed region
+ * meshes. No independent garment positions, offset or fitted surface is stored.
+ * The same unsplit skin remains authoritative for anatomy and contact.
  *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyUnderwearParts {
-  /** The garment's material. */
+  /** Costume material, independent of skin colour multipliers. */
   material: IAutoMovieMaterial;
 
-  /** The garment's parts, one per surface with kept triangles. */
-  parts: IAutoMovieModel["parts"];
+  /** Finite rest coverage per native vertex, in basis surface order. */
+  sourceFields: readonly (readonly number[])[];
+
+  /** Actual region ids and original source-to-renderer correspondence. */
+  regions: ReadonlyMap<string, IHumanBodyUnderwearRegion>;
 }

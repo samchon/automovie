@@ -9,15 +9,6 @@ import type { IHumanFaceOcularSurfacePair } from "./IHumanFaceOcularSurfacePair"
  * One generated eye's shared exterior, displayed surfaces and resident owner.
  * Geometry is read by both contact and the face model; finishes are downstream.
  *
- * @evidence contracts/common.md#principled-implementation Contact and drawing retain the same generated geometry and exact rigid owner.
- * @evidence contracts/common.md#clear-and-simple-design One record joins source identity, collision states and displayed surfaces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No separate fitted sphere or collider convention is carried.
- * @evidence contracts/common.md#meaningful-documentation States geometry and finish responsibilities.
- * @evidence contracts/modeling.md#spatial-conventions All meshes are in the source head metre frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries authored geometry without measured tissue claims.
- * @evidenceExclude contracts/anatomy.md#permitted-range Dimensions are admitted by the profile owner.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no independent control.
- *
  * @author Samchon
  */
 export interface IHumanFaceOpticalAssembly {

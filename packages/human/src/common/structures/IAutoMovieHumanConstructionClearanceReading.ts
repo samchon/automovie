@@ -12,20 +12,6 @@ import type { IAutoMovieHumanConstructionCrossingWitness } from "./IAutoMovieHum
  * result and no anatomical judgment: `judged` says whether an existing
  * admission condition reads this relation, and only a judged relation can be
  * `refused`.
- *
- * @evidence contracts/common.md#principled-implementation The record keeps the exact counts and extrema an admission condition compared, so the verdict is a function of the reported numbers.
- * @evidence contracts/common.md#clear-and-simple-design One flat record per subject and reference surface; judged and report-only relations share it and differ by one flag.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A report-only relation can never refuse, and a judged relation keeps its original tolerance in the record.
- * @evidence contracts/common.md#meaningful-documentation States sign convention, units, coordinate precision and the difference between judged and observed relations.
- * @evidence contracts/modeling.md#spatial-conventions Distances are metres in the owning model's frame, read on Float32 coordinates.
- * @evidence contracts/modeling.md#rendered-observation A numerical reading of constructed geometry; it does not replace the rendered observation its part owner owes.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Names existing part identities without defining one.
- * @evidenceExclude contracts/modeling.md#parameter-channels Carries no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Reports a boundary's measured state; the part owners construct it.
- * @evidenceExclude contracts/anatomy.md#anatomical-source A geometric reading supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The admission owner that produced the reading owns its bound.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export interface IAutoMovieHumanConstructionClearanceReading {
   /** Admission owner that measured the relation. */

@@ -15,6 +15,9 @@ import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
  * @author Samchon
  */
 export interface IReadHumanViewerInputsProps {
+  /** Exact document address; only its owning input file and entry are read. */
+  selectedDoc?: string;
+
   /** Input directory access. */
   io: IHumanViewerInputsIo;
 

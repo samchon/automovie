@@ -15,20 +15,6 @@ import { expandHumanFaceHairGather } from "./expandHumanFaceHairGather";
  * No default population, hidden density change or geometry is introduced.
  * Existing runtime admission follows expansion before allocation. The input and
  * licensed basis remain unchanged, so save/reload preserves the authored record.
- *
- * @evidence contracts/common.md#principled-implementation Each named trait maps directly to its established field, and source-domain lookup owns the origin needed for a sagittal part.
- * @evidence contracts/common.md#clear-and-simple-design One adapter performs unit and closed-choice conversion; existing hair owners retain generation and admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing shared domains refuse and no individual guide coordinate is supplied.
- * @evidence contracts/common.md#meaningful-documentation States conversions, source lookup, copying, consumer and unchanged populations.
- * @evidence contracts/modeling.md#parameter-channels Independent regional lengths map to their matching axes; omitted fringe is one, omitted part and fall remain absent.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres become metres, degrees radians and comb choices unit axes in +X-left/+Y-superior/+Z-anterior head coordinates.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The layer and assembled builder own part identity.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This expansion emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Existing registered growth and contact owners construct the root boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The connected builder observes generated hair.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Input trait owners state their authored and clinically unknown qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range The established hair admission owns numerical limits.
- * @evidence contracts/anatomy.md#parametric-authority Fixed named measurements and closed choices replace personal vector, plane and curve authoring.
  */
 export function expandHumanFaceScalpHair(
   basis: IAutoMovieHumanFaceBasis,

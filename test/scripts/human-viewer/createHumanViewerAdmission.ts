@@ -37,6 +37,7 @@ export function createHumanViewerAdmission(
   const waiting = new Map<string, IHumanViewerKeyedAdmission>();
   const asking = new Map<string, string>();
   const inFlight = new Set<Promise<void>>();
+  const requests = new Map<string, Promise<void>>();
   /** Why a document whose admission could not be judged now waits. */
   const unavailable = (): string => {
     const page = props.page();
@@ -45,6 +46,14 @@ export function createHumanViewerAdmission(
       : "awaiting admission: no viewer frame has loaded the current source; asked again when one loads";
   };
   return {
+    /** Read the current verdict without starting unrelated document work. */
+    peek: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
+      const kept = verdicts.get(entry.id);
+      if (kept?.key === entry.key) return kept.admission;
+      const held = waiting.get(entry.id);
+      if (held?.key === entry.key) return held.admission;
+      return { state: "pending", reason: "awaiting admission by the viewer page" };
+    },
     /** The verdict for this entry at its key, starting the page's admission when none exists. */
     of: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
       const kept = verdicts.get(entry.id);
@@ -117,8 +126,10 @@ export function createHumanViewerAdmission(
           })
           .finally(() => {
             inFlight.delete(request);
+            if (requests.get(entry.id) === request) requests.delete(entry.id);
           });
         inFlight.add(request);
+        requests.set(entry.id, request);
       }
       return {
         state: "pending",
@@ -127,17 +138,26 @@ export function createHumanViewerAdmission(
     },
 
     /** Forget why documents wait, so the next catalogue reading asks the page again; returns how many waited. */
-    retry: (): number => {
+    retry: (doc?: string): number => {
+      if (doc !== undefined) return waiting.delete(doc) ? 1 : 0;
       const released = waiting.size;
       waiting.clear();
       return released;
     },
 
     /** Whether any admission asked of the page is still awaiting its answer. */
-    busy: (): boolean => inFlight.size !== 0,
+    busy: (doc?: string): boolean => doc === undefined ? inFlight.size !== 0 : requests.has(doc),
 
     /** Resolves when every admission already asked of the page has its answer. */
-    settled: async (): Promise<void> => {
+    settled: async (doc?: string): Promise<void> => {
+      if (doc !== undefined) {
+        let request = requests.get(doc);
+        while (request !== undefined) {
+          await request;
+          request = requests.get(doc);
+        }
+        return;
+      }
       while (inFlight.size !== 0) await Promise.all([...inFlight]);
     },
 

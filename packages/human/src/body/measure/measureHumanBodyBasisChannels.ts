@@ -32,20 +32,6 @@ import { orientHumanBodyMeasurement } from "./orientHumanBodyMeasurement";
  * `assertHumanBodyBasis`; an empty surface population is refused here because
  * an RMS over nothing would publish NaN.
  *
- *
- * @evidence contracts/common.md#principled-implementation Each endpoint scale is the root mean square of the sparse rows' offsets over every resident vertex, so a vertex a target does not move counts as zero, and the peak is the largest single row offset. The rule readings at neutral and at each endpoint's full weight go through the shared shape evaluator the builder uses, so they equal what the built body measures. The premises are an admitted basis whose rows address each moved vertex once, and a nonempty surface population, which is refused so that no RMS over nothing publishes NaN.
- * @evidence contracts/common.md#clear-and-simple-design One report function over the basis; the rule table, the shape evaluator and the shared reader own the instruments, and the only local state is one lazily built neutral reader.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel, basis or measurement is special-cased; a rule the basis cannot answer reports null instead of a substituted value.
- * @evidence contracts/common.md#meaningful-documentation States the callers, the optional diagnostic scope, the units, the shape-only reading, the null results for unanswerable rules and the empty-population refusal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group; it reports per-channel scales.
- * @evidence contracts/modeling.md#parameter-channels It consumes each channel's declared neutral (the empty shape), its positive endpoint at the maximum weight and its optional negative endpoint at the minimum weight, each read as a separate shaped body. A channel without a negative target reports null instead of a mirrored value, and no left/right pairing is inferred, so a pair is reported as two channels. It defines no channel and does not establish that channels vary independent traits.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits scale records and no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Row offsets and rule readings are metres in the rest body's frame, shape weights are dimensionless, and no unit or frame is converted here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It reports numbers and owns no part, group or joint a viewer displays.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The measurement rule table owns each instrument's definition and source; this report carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It reports the reach of existing channel envelopes and admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input; the editor uses its reported reach and the inverse owner converts a target.
  */
 export function measureHumanBodyBasisChannels(
   basis: IAutoMovieHumanBodyBasis,

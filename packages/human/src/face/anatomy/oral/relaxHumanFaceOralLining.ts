@@ -23,20 +23,6 @@
  * and the caller's final source/Float32 rank and collar-sampling gates report
  * those unresolved conditions. Connectivity remains conforming; quality is
  * not established by this function's return.
- *
- * @evidence contracts/common.md#principled-implementation Lawson-style flips improve locally selected diagonals under relative approximate predicates; near-zero sign reliability and the pass cap limit that inference, while final generated rank and sampling admission remain separate.
- * @evidence contracts/common.md#clear-and-simple-design One owner improves triangle shape separately from sampling density and from the height field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes connectivity only; no coordinate, boundary edge or tolerance is adjusted to hide a sliver.
- * @evidence contracts/common.md#meaningful-documentation States the flip rule, what is preserved and what the pass bound means.
- * @evidence contracts/modeling.md#emitted-geometry Keeps the point and triangle counts exactly; only the diagonals of triangle pairs change.
- * @evidence contracts/modeling.md#shared-boundaries Fixed and outline edges are untouched, so neighbours sharing them keep identical vertices and edges.
- * @evidence contracts/modeling.md#spatial-conventions Arch-frame plane metres; triangles in and out are counter-clockwise.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Retriangulates one region.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function relaxHumanFaceOralLining(
   points: readonly number[][],

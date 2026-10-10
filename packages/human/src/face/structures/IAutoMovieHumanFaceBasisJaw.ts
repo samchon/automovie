@@ -8,20 +8,6 @@ import type { IAutoMovieHumanFaceBasisJawTranslation } from "./IAutoMovieHumanFa
  * the supported sagittal translation budget
  * (`IAutoMovieHumanFaceBasis.articulation` states the trajectory).
  *
- * @evidence contracts/common.md#principled-implementation The mandible's fields, extracted from the articulation declaration without change.
- * @evidence contracts/common.md#clear-and-simple-design Pivot, offset, axis, three motions and a budget.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A document past the budget is refused rather than clamped (`IAutoMovieHumanFaceBasis.articulation`).
- * @evidence contracts/common.md#meaningful-documentation States each field's unit and points to the documented trajectory.
- * @evidence contracts/modeling.md#spatial-conventions Metres and degrees in the basis head frame, right-handed and Y-up.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The record names channels the basis declares; it defines none.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The record is not displayed; the evaluated face is observed by its owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The basis declaration cites the sources of the model this record belongs to.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission of the basis bounds these values; the record admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The record is basis data, not an input a document sets.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisJaw {

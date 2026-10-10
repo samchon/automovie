@@ -5,18 +5,17 @@ import type { IHumanSourceExcludedRegionReceipt } from "./structures/IHumanSourc
 import type { IHumanSourceSample } from "./structures/IHumanSourceSample.ts";
 
 /**
- * Author the product-excluded skin regions out of the provider neutral.
+ * Carry the published source's existing nipple exclusion into its neutral.
  *
  * The published body's extractor filled the nipple-areola region of every
  * sampled state before use. The authored provider path reads its neutral and
- * endpoint differences directly and so carried the sculpted nipples, and the
- * genital crease the extractor never treated, into the skin. This stage
- * applies the sampler's two fill operators to the one root, so both views
- * and every later derivative use the same filled base. Vertex count, order,
- * triangles, UV and the neck cut are untouched: only positions inside the two
- * regions change.
+ * endpoint differences directly. This stage applies that same original
+ * nipple operator to the one root, so both views and derivatives retain the
+ * published product exclusion. Vertex count, order, triangles, UV and neck
+ * cut are unchanged. It defines no genital fill, restoration, anatomy domain
+ * or registration metadata.
  *
- * Endpoint differences are filled by the same operators where the compiler
+ * Endpoint differences use the same original operator where the compiler
  * reads them (`fillHumanSourceExcludedRegions`), because a linear fill of a
  * displacement is the displacement of the filled states.
  *
@@ -36,13 +35,6 @@ export function regenerateHumanSourceExcludedRegions(
       sample.flattenInterior,
       sample.flattenBoundary,
       sample.flattenOperator,
-    ],
-    [
-      "genital",
-      "genital-fill",
-      sample.genitalInterior,
-      sample.genitalBoundary,
-      sample.genitalOperator,
     ],
   ] as const) {
     const before = Float64Array.from(skin.positions);

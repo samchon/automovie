@@ -9,20 +9,6 @@ import { equalHumanBodySourceValue } from "./equalHumanBodySourceValue";
  * its actual external geometry, with this exact body and source partition;
  * declared drivers count only when a real head surface or landmark has valid
  * nonzero rows. This does not admit those surfaces' contact or appearance.
- *
- * @evidence contracts/common.md#principled-implementation Reconciles body channels with actual same-generation head source rows rather than requiring invented body deformation.
- * @evidence contracts/common.md#clear-and-simple-design One source population produces the resident endpoint identities used by body admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No empty row, permission flag or unregistered driver substitutes for geometry.
- * @evidence contracts/common.md#meaningful-documentation States source ownership and the separate physical admission responsibility.
- * @evidence contracts/modeling.md#parameter-channels The body remains the signed endpoint gain owner while registered head drivers carry its real contribution.
- * @evidence contracts/modeling.md#shared-boundaries Both partitions must identify the same generation and the supplied body must equal the admitted body.
- * @evidence contracts/modeling.md#spatial-conventions Sparse displacements keep the source's metre coordinates and resident indices.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Reads existing geometry without emitting or modifying it.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing surfaces keep their identities.
- * @evidenceExclude contracts/modeling.md#rendered-observation No rendered acceptance is established.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing channel bounds remain unchanged.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Converts no personal control.
  */
 export function humanBodyExternalEndpointContributions(
   basis: IAutoMovieHumanBodyBasis,

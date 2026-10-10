@@ -4,6 +4,7 @@ import typia from "typia";
 
 import { createHumanBodyAnatomicalAssemblyParts } from "../anatomy/assembly/createHumanBodyAnatomicalAssemblyParts";
 import { createHumanBodyAtlasParts } from "../anatomy/atlas/createHumanBodyAtlasParts";
+import { appendHumanBodyLayers } from "../anatomy/layer/appendHumanBodyLayers";
 import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -19,6 +20,7 @@ import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearanc
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySurfaceParts } from "./createHumanBodySurfaceParts";
 import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
+import { applyHumanBodyUnderwearMaterial } from "./applyHumanBodyUnderwearMaterial";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
@@ -43,7 +45,8 @@ import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
  * feed `resolveHumanBodyBuildPose`; the shared rest and lean evaluations feed
  * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`; posed toe
  * ray phalanges (`resolveHumanBodyToeRays`) join those transforms for skinning. Underwear is
- * cut from the resulting unsplit posed skin after every material region.
+ * assigned to complementary material regions of the final skin after source
+ * and layer readings. The basic garment adds no displaced cloth surface.
  * The pose resolver owns clinical angles and pelvic rhythm, the appearance
  * stage owns material caches, and the surface stage owns skinning and sag.
  * Keeping their results in this order makes colour, relief, gravity and cloth
@@ -71,6 +74,8 @@ import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
  * exterior. Ordinary calls prepare and complete against the body's own rest
  * skin. Preparation owns one admitted document snapshot, so later caller edits
  * cannot combine already evaluated skin with different anatomy or placement.
+ * Its dress operation supplies that admitted choice's shared rest coverage;
+ * final composition partitions its skin without a second body evaluation.
  * The optional physicalSource constructor mode registers actual native
  * indexed incidence or declared canonical source samples before UV gathering.
  * Omission preserves the existing model and metadata absence. Registration
@@ -117,7 +122,11 @@ export function createHumanBodyBasisBuilder(
       stage: IHumanBodyConstructionProgress["stage"],
       details?: Pick<
         IHumanBodyConstructionProgress,
-        "part" | "path" | "completed" | "total"
+        "part" | "path" | "completed" | "total" | "garmentFitting" |
+        "garmentSurface" | "garmentComponent" | "garmentPhase" | "garmentRound" |
+        "garmentWorkUsed" | "garmentWorkBound" | "garmentVariables" | "garmentRows" |
+        "garmentEntries" | "garmentMinimumNonzeroCoefficient" | "garmentMaximumCoefficient" |
+        "garmentFieldResidualMetres" | "garmentGeometryFailures" | "garmentFittingRound" | "garmentProposal"
       >,
     ): void =>
       admittedOptions?.observeProgress?.({
@@ -263,16 +272,11 @@ export function createHumanBodyBasisBuilder(
     materials.push(...atlas.materials);
     const sourcePartOffset = parts.length;
     const sourceMaterialOffset = materials.length;
-    // the underwear, cut from the posed skin after every skin region
-    if (document.underwear !== undefined) {
-      const dressed = (dress ??= createHumanBodyUnderwear(basis))({
-        underwear: document.underwear,
-        rest: restAll(),
-        posed: posedSurfaces,
-      });
-      materials.push(dressed.material);
-      parts.push(...dressed.parts);
-    }
+    // Rest coverage is prepared once; final skin consumers own material clipping.
+    const garment = document.underwear === undefined ? undefined
+      : (dress ??= createHumanBodyUnderwear(basis))({
+          underwear: document.underwear, rest: restAll(),
+        });
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,
@@ -311,9 +315,36 @@ export function createHumanBodyBasisBuilder(
         ? skinBuild
         : placeHumanBodyOnGround({ basis, build: skinBuild });
     const { model: skinModel, ...skin } = placedSkin;
+    const wear = (completed: IAutoMovieHumanBodyBuild): IAutoMovieHumanBodyBuild => {
+      if (garment === undefined) return completed;
+      const dressedModel: IAutoMovieModel = {
+        ...completed.model,
+        parts: completed.model.parts.flatMap((part) => {
+          const region = garment.regions.get(part.id);
+          return region === undefined ? [part] : applyHumanBodyUnderwearMaterial({
+            part, field: region.field, sources: region.sources, material: garment.material,
+          });
+        }),
+        materials: [...completed.model.materials.filter((material) => material.id !== garment.material.id), garment.material],
+      };
+      const dressedValidation = validateModel({ model: dressedModel });
+      if (!dressedValidation.success)
+        throw new Error("Skin-attached underwear is not a valid resident model: " + JSON.stringify(dressedValidation));
+      progress("garment-evaluated");
+      // Preserve the already evaluated, placed source-region model for the
+      // strict contact partition. It is not inserted into rendered geometry.
+      return { ...completed, model: dressedModel,
+        sourceSkinModel: completed.sourceSkinModel ?? completed.model,
+      };
+    };
     return {
       skin: { ...skin, skinModel },
-      finish: (exteriorRestReference) => {
+      wear,
+      dress: (rest) => document.underwear === undefined ? undefined
+        : rest === undefined ? garment : (dress ??= createHumanBodyUnderwear(basis))({
+            underwear: document.underwear, rest,
+          }),
+      finish: (exteriorRestReference, layers, garmentMode) => {
         const assembly =
           sourceRigResult === undefined
             ? undefined
@@ -354,16 +385,23 @@ export function createHumanBodyBasisBuilder(
           model: completeModel,
           ...(assembly === undefined
             ? {}
-            : { anatomicalQuantities: assembly.quantities }),
+            : { anatomicalRig: assembly.rig, anatomicalQuantities: assembly.quantities }),
         };
-        return document.groundPlacement === undefined
+        const placed = document.groundPlacement === undefined
           ? build
           : placeHumanBodyOnGround({ basis, build });
+        const completed = layers === "defer" ? placed : appendHumanBodyLayers(basis, placed);
+        return garmentMode === "defer" ? completed : wear(completed);
       },
     };
   };
-  return Object.assign(
-    (document: IAutoMovieHumanBodyBasisDocument) => prepare(document).finish(),
-    { prepare },
-  );
+  const construct = (document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild =>
+    prepare(document).finish();
+  const build = (document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild => {
+    const result = construct(document);
+    if (result.layerAdmission?.accepted === false)
+      throw new Error(result.layerAdmission.failures[0].cause);
+    return result;
+  };
+  return Object.assign(build, { prepare, construct });
 }

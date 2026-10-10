@@ -42,21 +42,22 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
+    "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@ttsc/unplugin": "catalog:samchon",
     "@types/jsdom": "^21.1.7",
     "@types/node": "catalog:utils",
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
+    "@wrtnlabs/evidence": "catalog:samchon",
     "chalk": "catalog:utils",
+    "devalue": "6.0.2",
     "jsdom": "26.1.0",
     "mp4box": "catalog:media",
     "playwright": "catalog:media",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3",
-    "vite": "catalog:vite",
-    "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "vite": "catalog:vite"
   }
 }

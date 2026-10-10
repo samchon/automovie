@@ -7,12 +7,17 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { publishHumanSourceFiles } from "./publishHumanSourceFiles.ts";
+import { readHumanSourceProtectedHairDomains } from "./readHumanSourceProtectedHairDomains.ts";
+import { registerHumanSourceFacialHairDomains } from "./registerHumanSourceFacialHairDomains.ts";
+import { registerHumanSourcePeriocularBoundaryCourses } from "./registerHumanSourcePeriocularBoundaryCourses.ts";
 import type { IHumanSourceFaceMetadataProjectionReceipt } from "./structures/IHumanSourceFaceMetadataProjectionReceipt.ts";
 
 /**
  * Put one compiled face attachment registration into its original head host.
  * Exact serialized equality after removing only attachment-chart and native
- * displacement and clipped medial material registrations proves every other face value is unchanged. All head fields are
+ * displacement, anterior station courses, clipped medial material, skin courses and source-authored
+ * terminal-growth registrations proves
+ * every other face value is unchanged. All head fields are
  * preserved directly, including id, aliases, drivers and headSkin. Input
  * bytes remain immutable and a fresh destination is required. This metadata
  * representation candidate is not a new root generation, geometry bake,
@@ -73,6 +78,28 @@ export function projectHumanSourceFaceMetadata(
         "Head metadata projection has a different-source medial material registration.",
       );
   }
+  for (const surface of face.surfaces)
+    for (const chart of Object.values(surface.materialCharts ?? {}))
+      if (chart.generation !== surface.sourcePartition?.generation ||
+          chart.surface !== surface.id)
+        throw new Error("Head metadata projection has a different-source skin course disk.");
+  // Verify every existing terminal territory against this actual source before
+  // excluding that owned registration from the preserved-content comparison.
+  // Legacy attachment-only candidates have no terminal registration to verify.
+  const facialRegistered = face.surfaces.some((surface) =>
+    surface.hairDomains?.some((domain) => domain.facialHairSite !== undefined),
+  );
+  if (!facialRegistered && head.face.surfaces.some((surface) =>
+    surface.hairDomains?.some((domain) => domain.facialHairSite !== undefined),
+  )) throw new Error("Head metadata projection cannot retire existing terminal growth registrations.");
+  if (facialRegistered) registerHumanSourceFacialHairDomains(face);
+  const boundaryRegistered = [face.periocular.left, face.periocular.right].some(
+    (side) => side.cage?.stations.some((station) => station.boundary !== undefined),
+  );
+  if (!boundaryRegistered && [head.face.periocular.left, head.face.periocular.right].some(
+    (side) => side.cage?.stations.some((station) => station.boundary !== undefined),
+  )) throw new Error("Head projection cannot retire existing native station boundaries.");
+  if (boundaryRegistered) registerHumanSourcePeriocularBoundaryCourses(face);
   const stripSide = (
     side: IAutoMovieHumanFacePeriocularSide,
   ): IAutoMovieHumanFacePeriocularSide => ({
@@ -82,6 +109,8 @@ export function projectHumanSourceFaceMetadata(
         ? undefined
         : {
             ...side.cage,
+            stations: side.cage.stations.map((station) => station.role === "anteriorMargin"
+              ? { ...station, boundary: undefined } : station),
             attachmentCharts: undefined,
             displacementPatch: undefined,
             medialBed:
@@ -93,6 +122,11 @@ export function projectHumanSourceFaceMetadata(
   const preserved = (value: IAutoMovieHumanFaceBasis): string =>
     JSON.stringify({
       ...value,
+      surfaces: value.surfaces.map((surface) => ({
+        ...surface,
+        materialCharts: undefined,
+        hairDomains: readHumanSourceProtectedHairDomains(surface),
+      })),
       periocular:
         value.periocular === undefined
           ? undefined
@@ -129,7 +163,7 @@ export function projectHumanSourceFaceMetadata(
     outputHeadSha256: sha(outputBytes),
     outputHeadBytes: outputBytes.length,
     qualification:
-      "Lossless host-owned face attachment/displacement/medial material metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices and head identity/aliases/drivers/headSkin are preserved. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
+      "Lossless host-owned face attachment/displacement/anterior native station-course/medial material/skin-course metadata projection. Root geometry, weights, all non-registration face content including legacy bed counts/vertices, original untagged scalp domains and head identity/aliases/drivers/headSkin are preserved. Native anterior courses and terminal territories are independently recomputed and verified as authored conventions; their clinical boundaries/populations are unknown. Full source generation, whole-person admission and GPU/export acceptance remain separate.",
   };
   publishHumanSourceFiles({
     directory: path.dirname(path.resolve(outputFile)),
