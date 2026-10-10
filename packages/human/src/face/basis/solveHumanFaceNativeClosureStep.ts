@@ -1,4 +1,5 @@
 import { solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
+import { refineAutoMovieQuadraticProgram } from "@automovie/engine/math/refineAutoMovieQuadraticProgram";
 import type { IHumanFaceNativeClosureStep } from "./IHumanFaceNativeClosureStep";
 import type { IHumanFaceNativeClosureStepInput } from "./IHumanFaceNativeClosureStepInput";
 
@@ -10,6 +11,10 @@ import type { IHumanFaceNativeClosureStepInput } from "./IHumanFaceNativeClosure
  * gain departure at the attained minimax aperture value; it admits no added
  * physical clearance. With no contact rows, the graph-only phase retains its
  * original maximum-spacing/interior-minimum-gain strategy.
+ * Shared residual refinement seeks 1e-10 in these original normalized units.
+ * Its finite work budget and native statuses never replace physical admission.
+ * A minimum-departure refusal records the already-computed restoration result
+ * beside its failed result; successful earlier-phase KKT is no final geometry witness.
  *
  * The Stanford SOL SNOPT treatment distinguishes infeasible nonlinear
  * linearizations from an infeasible original problem and restores nonlinear
@@ -53,10 +58,15 @@ export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureSt
   if (hasContact) problem.push({ indices: [elasticColumn], weights: [1], lower: 0, upper: null });
   const objective = new Array<number>(dimension).fill(0);
   objective[hasContact ? elasticColumn : variables] = hasContact ? 1 : -1;
-  const restoration = solveAutoMovieQuadraticProgram({ diagonal: new Array<number>(dimension).fill(0), linear: objective, rows: problem });
-  if (restoration.status !== 1 || !restoration.primal.every(Number.isFinite))
+  const precision = 1e-10;
+  const restorationProblem = { diagonal: new Array<number>(dimension).fill(0), linear: objective, rows: problem };
+  const restoration = refineAutoMovieQuadraticProgram(restorationProblem,
+    solveAutoMovieQuadraticProgram(restorationProblem), { tolerance: precision, maximumRefinements: 8 });
+  if (restoration.status !== 1 || !restoration.primal.every(Number.isFinite) ||
+      !(restoration.maximumViolation <= precision && restoration.stationarityResidual <= precision &&
+        restoration.complementarityResidual <= precision))
     throw new Error("Native closure restoration failed: " + JSON.stringify({ status: restoration.status,
-      maximumViolation: restoration.maximumViolation, input, restoration }));
+      maximumViolation: restoration.maximumViolation, input, solverInput: restorationProblem, restoration }));
   // Status 1 and a reported slack do not establish epigraph feasibility.
   // Re-read the original affine contact rows at the returned field. This
   // attained excess is a realizable epigraph upper for that field, even if
@@ -70,11 +80,16 @@ export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureSt
   problem.push(hasContact
     ? { indices: [elasticColumn], weights: [1], lower: 0, upper: optimum }
     : { indices: [variables], weights: [1], lower: optimum > 0 ? optimum / 2 : 0, upper: null });
-  const result = solveAutoMovieQuadraticProgram({ diagonal: Array.from({ length: dimension }, (_, at) => at < variables ? 1 : 0),
-    linear: new Array<number>(dimension).fill(0), rows: problem });
-  if (result.status !== 1 || !result.primal.every(Number.isFinite))
+  const departureProblem = { diagonal: Array.from({ length: dimension }, (_, at) => at < variables ? 1 : 0),
+    linear: new Array<number>(dimension).fill(0), rows: problem };
+  const result = refineAutoMovieQuadraticProgram(departureProblem,
+    solveAutoMovieQuadraticProgram(departureProblem), { tolerance: precision, maximumRefinements: 8 });
+  if (result.status !== 1 || !result.primal.every(Number.isFinite) ||
+      !(result.maximumViolation <= precision && result.stationarityResidual <= precision &&
+        result.complementarityResidual <= precision))
     throw new Error("Native closure minimum-departure solve failed: " + JSON.stringify({ status: result.status,
-      maximumViolation: result.maximumViolation, input, result }));
+      maximumViolation: result.maximumViolation, input, solverInput: departureProblem,
+      restoration, result }));
   return { field: result.primal.slice(0, variables),
     apertureSlack: hasContact ? result.primal[elasticColumn] : 0, spacingSlack: result.primal[variables] };
 }
