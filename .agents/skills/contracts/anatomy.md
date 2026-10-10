@@ -1,6 +1,6 @@
 # Anatomical Principles
 
-These chapters address declarations that own anatomical values, controls, ranges or conversions. A human form may use an offline shared, licensed mesh and compiled basis as well as procedural geometry. Public numerical authoring, source preparation and deterministic runtime replay have separate responsibilities. Source geometry supplies a representation; anatomical claims still require measurements, tissue relationships and supported conditions.
+These chapters address declarations that own anatomical values, controls, ranges or conversions. A human form is geometry the package authors, procedurally or offline; external meshes, atlases and scans serve as measurement references. Public numerical authoring, source preparation and deterministic runtime replay have separate responsibilities. Authored geometry supplies a representation; anatomical claims still require measurements, tissue relationships and supported conditions.
 
 ## Anatomical Source
 

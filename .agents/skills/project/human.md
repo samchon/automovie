@@ -2,10 +2,10 @@
 
 ## Development
 
-- Ground anatomy in scientific evidence. State assumptions and uncertainty. Preserve source provenance and rights.
+- Ground anatomical claims (dimensions, positions, ranges, tissue relationships) in scientific evidence. State assumptions and uncertainty. Preserve the provenance and rights of every reference.
+- Author the geometry in this package. Its construction (surfaces, cross-sections, topology, blending) is design work: mark it authored and accept it by measurement and rendering against references. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence. A missing source is no reason to import geometry.
 - Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
 - Develop anatomy as connected parts.
-- Author the geometry in this package. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence.
 - Generate skin and interior tissue from one shared skeleton and rest frame so their correspondence holds by construction. Do not reconcile independently sourced geometry through registration or optimization.
 - Distinguish numerical, clinical and visual judgments. Missing or refused results remain unverified.
 - Preserve the last valid state when an operation fails.
