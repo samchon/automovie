@@ -36,6 +36,7 @@ export * from "./IAutoMovieHumanFaceControlMap";
 export * from "./IAutoMovieHumanFaceComponentTree";
 export * from "./IAutoMovieHumanFaceDetailChannel";
 export * from "./IAutoMovieHumanFaceDocument";
+export * from "./IAutoMovieHumanFaceEditorProps";
 export * from "./IAutoMovieHumanFaceEditorSnapshot";
 export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";
