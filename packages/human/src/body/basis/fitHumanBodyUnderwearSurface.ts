@@ -44,11 +44,6 @@ import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrial
  * boundary with zero merit, stalled globalization and exhausted work refuse
  * with the complete original readings. No feasible path, optimum, global
  * embedding or rendered improvement is guaranteed.
- *
- * @evidence contracts/common.md#principled-implementation Elastic Phase I admits an infeasible initial lift while actual nonlinear evaluation and the unchanged strict predicates alone admit final geometry.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds Phase I/II state, full logical groups, restricted scheduling, actual merit and their shared work population.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Slacks remain optimization variables; original field zero, signed lift, pins, material topology and raw failures remain unchanged.
- * @evidence contracts/common.md#meaningful-documentation Separates affine proposals, actual acceptance, strict-boundary stalls and unproved convergence.
  */
 export function fitHumanBodyUnderwearSurface(
   input: IHumanBodyUnderwearSurfaceFitInput,

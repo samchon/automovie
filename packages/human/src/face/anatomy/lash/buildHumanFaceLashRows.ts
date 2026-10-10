@@ -44,18 +44,6 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * millimetres into the live metre frame once. Its duplicated angular seam
  * shares explicit physical IDs and identical coordinates. Both tube ends are
  * open; no hidden follicle volume is inferred from the skin row.
- *
- * @evidence contracts/common.md#principled-implementation Arc-length stations and a radial-priority orthonormal root frame consume the exact final skin; the common constant-curvature shaft owner preserves length and radius during frame transport.
- * @evidence contracts/common.md#clear-and-simple-design One attached row producer delegates free-shaft geometry and profile admission to existing owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No card vertex is called a follicle and no missing count, root or frame receives a guessed default.
- * @evidence contracts/common.md#meaningful-documentation States source registration, proxy limit, actual root frame, sampling and open-end meaning.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each side and lid row is one group of its requested free shafts, with the source card region explicitly retained for replacement.
- * @evidence contracts/modeling.md#emitted-geometry Each shaft contributes 117 shading vertices, 104 distinct physical points and 192 triangles; count follows the explicit population, including zero, rather than source-card density.
- * @evidence contracts/modeling.md#shared-boundaries Registered anterior anchors lift through their existing source material disk onto current native facets, and root centres and tangents read those same retained intervals. Legacy polygonal rows retain downstream skin contact admission.
- * @evidence contracts/modeling.md#spatial-conventions Millimetre shaft offsets map once into a right-handed live head metre frame; lower positive elevation and curl are reflected towards local inferior.
- * @evidence contracts/anatomy.md#anatomical-source Root-frame construction follows the read 2024 primary article; CC0 source roots are ordered anterior anchors whose material course is an authored correspondence, not clinical follicle coordinates. Count, uniform spacing and centre-heavy length remain authored conventions.
- * @evidenceExclude contracts/anatomy.md#permitted-range Combined shaft and tissue feasibility is admitted by the connected lash contact owner.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The population and profile records own inputs; this generator adds no personal root curve or strand parameter.
  */
 export function buildHumanFaceLashRows(
   basis: IAutoMovieHumanFaceBasis,

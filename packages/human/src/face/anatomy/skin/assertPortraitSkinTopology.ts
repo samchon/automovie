@@ -4,20 +4,6 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
  * A composed skin may have declared anatomical openings, but no accidental
  * cracks, missing stitches or oppositely assembled component faces. Audit the
  * shared control cage before subdivision could multiply a broken attachment.
- *
- * @evidence contracts/common.md#principled-implementation A composed skin is a valid oriented surface exactly when every undirected edge has two incident faces that traverse it in opposite directions, apart from the declared open edges. The audit counts incident faces per edge and sums a direction sign (+1 when a < b, -1 otherwise), so two consistently wound faces sum to zero; every vertex of every triangle appears as the first endpoint of one edge, so residency is checked for all of them.
- * @evidence contracts/common.md#clear-and-simple-design A declared-opening set and one pass over the cage's edges; no repair is attempted.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses instead of patching: an undeclared or missing opening, a duplicate declaration or a mis-wound pair each throw.
- * @evidence contracts/common.md#meaningful-documentation States what is audited, why it runs before subdivision, and what each refusal means.
- * @evidence contracts/modeling.md#shared-boundaries It is the audit of the shared boundaries: it proves that every seam the components share is a two-face edge and that only the declared openings are free.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertPortraitSkinTopology is a pure computation and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels assertPortraitSkinTopology defines and consumes no parameter channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry assertPortraitSkinTopology decides no primitive population of a form.
- * @evidenceExclude contracts/modeling.md#spatial-conventions assertPortraitSkinTopology keeps the caller's unit and frame and converts nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source assertPortraitSkinTopology carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range assertPortraitSkinTopology admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority assertPortraitSkinTopology defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#rendered-observation assertPortraitSkinTopology owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertPortraitSkinTopology(
   cage: IControlMesh,

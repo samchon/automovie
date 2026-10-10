@@ -16,20 +16,6 @@ import type { IHumanFaceLipPhysicalSources } from "./IHumanFaceLipPhysicalSource
  * first source course witness supplies its original represented triangle.
  * No coordinate welding, hash-to-integer conversion or source vertex insertion
  * enters. The supplied reader population must contain both complete courses.
- *
- * @evidence contracts/common.md#principled-implementation One full-margin identity population supplies finishing aliases and final-skin interpolation.
- * @evidence contracts/common.md#clear-and-simple-design Native aliases retain their sample IDs while exact material keys receive separate sorted ordinals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No material string is parsed as a vertex ID and no point or coefficient is altered.
- * @evidence contracts/common.md#meaningful-documentation States population ownership, stable ID assignment and preserved interpolation order.
- * @evidence contracts/modeling.md#shared-boundaries One typed source registration serves Face and Person physical aliases.
- * @evidence contracts/modeling.md#spatial-conventions Source sample IDs and dimensionless weights retain the reader's native triangle order.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Registers no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no user channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry or new native vertex.
- * @evidenceExclude contracts/modeling.md#rendered-observation Final joined consumers own appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Reads existing registered skin support without clinical inference.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source and contact owners admit the material domain.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal geometry input.
  */
 export function registerHumanFaceLipPhysicalSources(
   surface: IAutoMovieHumanFaceBasisSurface,

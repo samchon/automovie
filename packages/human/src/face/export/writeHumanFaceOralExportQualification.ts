@@ -12,10 +12,6 @@ import { readHumanFaceOralAssetCorrespondence } from "./readHumanFaceOralAssetCo
  * members receive no oral claim, and neither colours nor shape similarity
  * supplies source identity. Typed qualification is metadata, not a substitute
  * for the writer's source interval, geometry and Float32 admission.
- * @evidence contracts/common.md#principled-implementation Bijective actual source-part identity joins one typed source receipt to the precise primitives emitted by the static writer.
- * @evidence contracts/common.md#clear-and-simple-design One Document adapter retains the writer's existing material grouping and geometry authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither a material label, coordinate match nor clinical guess supplies a qualification record.
- * @evidence contracts/common.md#meaningful-documentation States selected-source scope, static/editable separation and independent clinical qualification.
  * @author Samchon
  */
 export function writeHumanFaceOralExportQualification(

@@ -14,11 +14,6 @@ import type { IHumanConstructionCheck } from "./IHumanConstructionCheck";
  * assert, reading and census finish. It sees no geometry, changes no verdict,
  * and an observer exception propagates to the caller outside the refusal
  * collection. Omission preserves the prior execution path.
- *
- * @evidence contracts/common.md#principled-implementation Runs each unchanged admission condition over its captured constructed geometry and preserves each reported refusal.
- * @evidence contracts/common.md#clear-and-simple-design A single report owner keeps construction inspectability separate from accepted publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed condition remains a named refusal and changes no geometry, input or tolerance.
- * @evidence contracts/common.md#meaningful-documentation Documents retained causes and the ordinary builder publication boundary.
  */
 export function admitHumanConstruction(
   checks: readonly IHumanConstructionCheck[],

@@ -18,20 +18,6 @@ import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
  * An optional observer is forwarded only to an actual evaluation on a miss and
  * is not a cache key. Evaluation and observer exceptions leave the old entry
  * intact; a completed cached pose emits no new internal work completions.
- *
- * @evidence contracts/common.md#principled-implementation Retains ordered admitted weights and named geometric profiles read by pose and downstream generated parts; omitted and explicit zero channel weights compare equal because both evaluate as zero, while profile changes replace the shared geometric identity.
- * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by ordered weights and the actual geometric document members; no eviction policy or alternative evaluator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No test-only or subject-specific logic; a changed weight always recomputes.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes admitted channel weights from geometric profiles and requires downstream consumers to treat retained outputs as read-only.
- * @evidence contracts/modeling.md#parameter-channels Preserves the channel owner's neutral-zero weights and document member identities without reinterpreting their measurement or motion meaning.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseCache is a pure computation and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseCache decides no primitive population of a form.
- * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceBasisPoseCache constructs no surface that meets another part.
- * @evidenceExclude contracts/modeling.md#rendered-observation createHumanFaceBasisPoseCache owns no part, group or joint that a viewer displays; its consumers own the observation.
- * @evidenceExclude contracts/modeling.md#spatial-conventions createHumanFaceBasisPoseCache keeps the caller's unit and frame and converts nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceBasisPoseCache carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceBasisPoseCache admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceBasisPoseCache defines no input through which a caller shapes a human form.
  */
 export function createHumanFaceBasisPoseCache<T>(
   channels: readonly Pick<IAutoMovieHumanFaceBasis["channels"][number], "id">[],

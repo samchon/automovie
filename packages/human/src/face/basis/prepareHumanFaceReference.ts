@@ -25,16 +25,6 @@ import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinem
  * An optional observer reports only completed owners. Its exceptions propagate;
  * completion callbacks run before the retained reference is committed, so a
  * failed completion never retains a partially observed reference.
- *
- * @evidence contracts/common.md#principled-implementation Reuses native identity, exact optical support, lid seating, persistent relief and source replay in their existing canonical order.
- * @evidence contracts/common.md#clear-and-simple-design One preparation owner exposes the intermediate shape and one memoized completion boundary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source compilation and normal assembly call the same preparation rather than substituting a neutral fixture or altered geometry record.
- * @evidence contracts/common.md#meaningful-documentation States ownership, staging, units and the generated-assembly boundary.
- * @evidence contracts/modeling.md#spatial-conventions Every returned coordinate remains canonical head-frame metres; the optical owner supplies the same rest exterior.
- * @evidence contracts/modeling.md#shared-boundaries Tissue attachment and source coverage read the same seated and replayed skin reference.
- * @evidenceExclude contracts/anatomy.md#anatomical-source All anatomical qualifications stay with the called identity, optics and skin owners.
- * @evidenceExclude contracts/anatomy.md#permitted-range This orchestration adds no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes existing numerical inputs and adds no shaping control.
  */
 export function prepareHumanFaceReference(
   input: IHumanFaceReferencePreparationInput,

@@ -14,15 +14,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * length and is not a photographic visible length or a biological follicle
  * count. An explicitly empty generated row measures zero; retained cards give
  * a named instrument gap.
- *
- * @evidence contracts/common.md#principled-implementation Counts graph components of actual index connectivity and measures segment lengths from output ring centroids, without reading requested population values.
- * @evidence contracts/common.md#clear-and-simple-design One generated-row instrument provides two explicit geometric quantities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No alpha coverage, card vertex or requested count supplies a shaft measurement.
- * @evidence contracts/common.md#meaningful-documentation States connectivity, regular sampling, seam handling, approximation and empty-state meaning.
- * @evidence contracts/modeling.md#spatial-conventions Context Float32 head-frame metres convert to millimetres for sampled length; component count is dimensionless.
- * @evidence contracts/anatomy.md#anatomical-source These constructed-surface observations differ from Kikuchi et al. 2015, Global Dermatology 2, DOI 10.15761/GOD.1000123: 50 healthy Japanese adults, ages 22–38, right lids only, longest central-two-millimetre shaft measured with a 0.25 mm caliper and central counts from scaled photographs. That paper does not define the sampled 3D centreline arc measured here.
- * @evidenceExclude contracts/anatomy.md#permitted-range Reports a quantity without admitting clinical bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no shaping input.
  */
 export function readHumanFaceLashGeometry(
   context: IHumanFaceMeasurementContext,

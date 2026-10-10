@@ -26,20 +26,6 @@ import type { IHumanBodySourceReferenceGoalContext } from "./IHumanBodySourceRef
  * and the caller admits converted and final actual parent coordinates too.
  * Values use the engine's finite/gimbal conventions, not a certified angular
  * interval or an individual's clinical registration or motion capacity.
- *
- * @evidence contracts/common.md#principled-implementation Composes actual reference travel, the supplied shaped thigh rest and jointToQuaternion, then reads the same skeleton parent/local rest through decomposeJointRotation. Converted raw degrees remain the existing corrective and curve authority.
- * @evidence contracts/common.md#clear-and-simple-design One indexed supplied FK result and one pass over explicit goals; no skin generation, second skeleton or mutable document state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source ID or hand-copied angle formula solves the request; unsupported declarations and requested source envelopes refuse rather than clamp.
- * @evidence contracts/common.md#meaningful-documentation Names the prepared-rig precondition, target composition, effective-document purpose and source-rig numerical meaning.
- * @evidence contracts/modeling.md#parameter-channels Goals use the thigh's existing source axes/signs/neutral in degrees; their raw representation alone drives the existing performance pipeline.
- * @evidence contracts/modeling.md#spatial-conventions Source-reference travel is current world times inverse rest world; removing source parent world and local rest yields the existing local articulation convention.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Constructs no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Defines no tissue boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The builder and editor observe the converted performance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no personal measurement or clinical frame.
- * @evidence contracts/anatomy.md#permitted-range Requested goals retain the existing source envelope owner; the shared caller additionally enforces converted and post-pelvis actual ranges.
- * @evidence contracts/anatomy.md#parametric-authority Named source motion degrees are converted without asking for editable vertices, axes or geometry.
  */
 export function resolveHumanBodySourceReferenceGoals(
   input: IHumanBodySourceReferenceGoalContext,

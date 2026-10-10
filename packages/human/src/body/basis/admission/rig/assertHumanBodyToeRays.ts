@@ -12,19 +12,6 @@ import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHum
  * summing to one per vertex within the source's 1e-7 weight storage unit.
  * Each refusal names the ray, surface or vertex.
  *
- * @evidence contracts/common.md#principled-implementation Admission checks every structural promise the toe ray resolver and skinning rely on, once per compiled basis.
- * @evidence contracts/common.md#clear-and-simple-design Rays first, then each surface's split.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed data refuses by name instead of being normalized or skipped.
- * @evidence contracts/common.md#meaningful-documentation Lists each admitted condition.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each phalanx is unique and hangs from a declared parent of its own ray and side.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It checks references, not positions.
- * @evidence contracts/modeling.md#shared-boundaries Shares that sum to one keep the split vertices' total weight and every other weight unchanged.
- * @evidenceExclude contracts/modeling.md#rendered-observation The posed toes are observed through the builder's consumer.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The resolver owns pose admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It admits basis data, not authoring input.
  * @author Samchon
  */
 export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {

@@ -15,14 +15,6 @@ import { readHumanBodySourcePublicPose } from "./readHumanBodySourcePublicPose";
  * rotation conjugation and public-site pivot preserve that same frame without
  * independently solving a second humanoid rig.
  *
- * @evidence contracts/common.md#principled-implementation Public articulation is conjugated through its actual source projection and pivots at the same named site.
- * @evidence contracts/common.md#clear-and-simple-design One parent carry and one joint evaluation produce the source bone frame.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reuses engine clinical conversion instead of equating flexion/abduction with generic Euler angles.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes authored intrinsic axes from the existing public clinical conversion.
- * @evidence contracts/modeling.md#parameter-channels Source axes retain declared order/neutral/pivot; public pose retains the actual basis axes and rest-frame mapping.
- * @evidence contracts/modeling.md#spatial-conventions Rest/world positions are metres; local source pivots and unit axes meet at their named joint frame; engine axis-angle inputs are degrees.
- * @evidence contracts/anatomy.md#anatomical-source Source registration owns joint axes/sites; this evaluator preserves their account rather than inventing anatomical landmark values.
- * @evidence contracts/anatomy.md#parametric-authority Uses only closed named motion goals and source registration; source/public matrices are generated results.
  * @author Samchon
  */
 export function resolveHumanBodySourceAxes(

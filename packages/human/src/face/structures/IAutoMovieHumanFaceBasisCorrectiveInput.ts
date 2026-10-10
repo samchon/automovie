@@ -3,20 +3,6 @@
  * endpoints the corrective answers for, and the optional in-between tent over
  * that driver's weight (`IAutoMovieHumanFaceBasis.correctives`).
  *
- * @evidence contracts/common.md#principled-implementation One driver's fields, extracted from the corrective declaration without change.
- * @evidence contracts/common.md#clear-and-simple-design A channel, a side and an optional tent.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An in-between is an authored tent, not an inferred correction.
- * @evidence contracts/common.md#meaningful-documentation States the tent, its defaults and why neighbouring peaks bound it.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The record holds names and dimensionless weights, no coordinate.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The record names channels the basis declares; it defines none.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The record is not displayed; the evaluated face is observed by its owners.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The basis declaration cites the sources of the model this record belongs to.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission of the basis bounds these values; the record admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The record is basis data, not an input a document sets.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisCorrectiveInput {

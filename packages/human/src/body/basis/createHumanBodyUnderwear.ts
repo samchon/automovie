@@ -18,20 +18,6 @@ import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
  * only geometry authority. This basic garment adds no thickness, crease fit,
  * support mechanics or independent cloth shape. Style and colour retain their
  * normal document, editor, save and portable static-material export meaning.
- *
- * @evidence contracts/common.md#principled-implementation Existing landmark coverage and source corner correspondence define a material partition of the same skin; no independent geometry or displaced envelope is solved.
- * @evidence contracts/common.md#clear-and-simple-design One compiled coverage owner returns the fabric material and source fields; final mesh partition stays with the actual performed-skin consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The existing two closed styles use one landmark formula without person constants, contour repairs or renderer depth bias.
- * @evidence contracts/common.md#meaningful-documentation States rest attachment, zero thickness, final consumer ownership and the lack of cloth mechanics.
- * @evidence contracts/modeling.md#part-identity-and-grouping Final consumers retain uncovered skin identities and name the covered fabric region separately.
- * @evidence contracts/modeling.md#parameter-channels Closed style determines coverage and optional linear RGB determines fabric colour; performance changes only the shared skin.
- * @evidence contracts/modeling.md#spatial-conventions Coverage uses source-aligned shaped rest metre coordinates; final performed coordinates are consumed without a second pose transform.
- * @evidence contracts/modeling.md#shared-boundaries Complementary material clipping uses the same original edges and fractions on the actual final skin.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The partition owner decides emitted triangles.
- * @evidenceExclude contracts/modeling.md#rendered-observation Body and Person final consumers own garment observation.
- * @evidence contracts/anatomy.md#anatomical-source Coverage reads the admitted joint and named skin landmarks; costume fractions are conventions rather than clinical measurements.
- * @evidence contracts/anatomy.md#permitted-range Existing coverage refuses absent landmarks and fabric colour must be finite in [0,1], leaving caller-owned data unchanged.
- * @evidence contracts/anatomy.md#parametric-authority Authoring remains a closed style and colour, with no personal mesh or sculpt input.
  */
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,

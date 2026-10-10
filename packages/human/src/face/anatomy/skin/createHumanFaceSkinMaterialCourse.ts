@@ -16,19 +16,6 @@ import { createHumanFaceSkinChartCourse } from "./createHumanFaceSkinChartCourse
  * the chart owner. Width, normal offset and endpoint fade remain solely with
  * the relief kernel. A changed source state invalidates this entire course.
  *
- * @evidence contracts/common.md#principled-implementation Registered source material coordinates and actual adjacency produce one continuous native path before current physical arc and Euclidean distance are read.
- * @evidence contracts/common.md#clear-and-simple-design Shares chart lifting and physical metric across every regional relief owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Native identity validation replaces discontinuous independent nearest projections without changing requested guide dimensions or source geometry.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes source-native stations, reference-metre offsets, current metric and unsupported chart domains.
- * @evidence contracts/modeling.md#spatial-conventions Native course positions and its physical metric remain head-frame metres.
- * @evidence contracts/modeling.md#shared-boundaries The existing chart walker joins intervals at actual native shared edges.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no separate part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The calling relief owner retains its traits.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits internal course spans only.
- * @evidenceExclude contracts/modeling.md#rendered-observation The calling relief owners observe their output.
- * @evidence contracts/anatomy.md#anatomical-source Native material stations and dimensioned reference guides are authored source conventions, not clinical crease measurements.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source chart admission belongs to the native walker.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes internal source registrations without public sculpt inputs.
  * @author Samchon
  */
 export function createHumanFaceSkinMaterialCourse(

@@ -18,41 +18,6 @@ import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRe
  * The tangential direction is normalized before the bounded cosine weight is
  * applied. A finite positive subnormal length therefore cannot overflow an
  * intermediate reciprocal; the same shared vector owner supplies both norms.
- *
- * @evidence contracts/common.md#principled-implementation The result is sin(a)
- *   * n + cos(a) * t, with n the unit normal and t the unit tangential part of
- *   the field, which are orthogonal, so the vector is a unit vector rising
- *   exactly a above the tangent plane and pointing where the field combs. A
- *   field with no tangential part has no direction to lie down in and leaves the
- *   hair on its normal, which is stated.
- * @evidence contracts/common.md#clear-and-simple-design One function owns the
- *   exit direction; authored angle admission and the legacy scalp interval
- *   have their existing separate owners, so no second range copy exists.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
- *   case for a subject or style: the direction depends only on the normal, the
- *   field and the admitted elevation supplied by the integrator.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   what is returned, where the elevation comes from, why the azimuth is fixed
- *   and who owns what happens after emergence.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
- *   function computes a value and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle field without varying a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
- *   no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Normal and field are
- *   neutral head-frame directions, the elevation is degrees converted to
- *   radians at one line, and the result is a dimensionless unit vector.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
- *   no surface and joins no neighbouring part.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function
- *   owns no part, group or joint and displays nothing; the builder that owns the
- *   assembled hair is where the result is observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The legacy scalp interval has its own cited owner; authored targets assert no clinical norm.
- * @evidenceExclude contracts/anatomy.md#permitted-range Layer admission or the legacy scalp interval owns elevation admission; this function applies it.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
- *   shapes a human form through this function; it reads quantities the hairstyle
- *   document already names and admits.
  */
 export function humanFaceHairEmergence(
   props: IHumanFaceHairEmergenceRequest,

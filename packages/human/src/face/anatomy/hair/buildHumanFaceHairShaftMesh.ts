@@ -16,14 +16,6 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * Source and actual Float32 convex cells must both certify the original gap.
  * An unsupported tube refuses; its diameter is not reduced to obtain coverage.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the production curves, root registrations and exact source/represented separation readers instead of reconstructing roots or replacing scalar targets.
- * @evidence contracts/common.md#clear-and-simple-design This geometry owner distinguishes physical shaft calibre from scalp density-coverage ribbons.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every non-root ring keeps the requested radius and unsupported cells refuse without width fitting or guard relaxation.
- * @evidence contracts/common.md#meaningful-documentation States the calibrated rings, geometric root fan, eight-side representation and independent source/F32 admission.
- * @evidence contracts/modeling.md#emitted-geometry Each admitted curve emits one rooted eight-side shaft through all its actual stations and a tip cap.
- * @evidence contracts/modeling.md#spatial-conventions Positions, diameter and clearance use current head-local metres; transverse frames are unit vectors and UVs are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries The first fan uses its canonical native root attachment; all later complete cells prove separation from the same source and Float32 host.
- * @evidence contracts/anatomy.md#anatomical-source The requested visible calibre is authored; the geometric emergence fan does not claim a follicle or a clinical normal interval.
  * @author Samchon
  */
 export function buildHumanFaceHairShaftMesh(

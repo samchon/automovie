@@ -9,20 +9,6 @@ import type { IHumanBodyPreparedBuild } from "./IHumanBodyPreparedBuild";
  * prepares the same admitted skin and pose first, forms the joined exterior,
  * then completes the anatomical assembly against that one authority.
  *
- * @evidence contracts/common.md#principled-implementation The two entry routes share skin preparation and each completes one internal source solve against its final consumer exterior.
- * @evidence contracts/common.md#clear-and-simple-design Normal callers keep the callable; composition uses the explicit prepared stage.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Both routes reach the same complete assembly owner without a hidden preliminary target solve.
- * @evidence contracts/common.md#meaningful-documentation States the existing callable and the person-only composition stage.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The existing part owners define the body.
- * @evidenceExclude contracts/modeling.md#parameter-channels The body document and its owners define controls.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The builder's existing surface and source stages emit geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Prepared and completed result owners carry the common frame.
- * @evidence contracts/modeling.md#shared-boundaries Completion consumes the complete exterior the composition formed from the prepared skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The actual body and person consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The procedure adds no anatomical value or population.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing stage owners retain admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The procedure adds no personal authoring field.
- *
  * @author Samchon
  */
 export interface IHumanBodyBasisBuilder {

@@ -23,14 +23,6 @@ import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
  * Lips themselves remain in the shared facial mesh, preserving their skin join.
  * Selecting cavityWall requires final skin indices and replaces the detached
  * backdrop with an enclosure joined to every actual refined oral-rim vertex.
- *
- * @evidence contracts/common.md#principled-implementation The oral interior behind a photographed opening is either the enclosure joined to the actual refined rim or, when no wall is selected, a bilinear backdrop between the two inner lip curves recessed by a depth that grows by 0.8 sin(pi v) toward its centre; optional legacy crowns are walked along the arch in millimetres so rotating side crowns cannot create artificial gaps, and neighbouring enamel is then separated so no two crowns interpenetrate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; the crown defaults come from `resolvePortraitDentalCrown` and the separation is the dental owner's.
- * @evidence contracts/common.md#meaningful-documentation The comment states the interior, the crown placement, that widths are authored estimates and that a wall requires the final skin indices.
- * @evidence contracts/modeling.md#emitted-geometry The backdrop is a fixed 100 by 30 lattice, the enclosure follows the rim, and the crowns are the caller's; none grows with authored features beyond the crowns the caller lists.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres in; interiors are returned in millimetres and packed once at the metric boundary by the callers.
- * @evidence contracts/modeling.md#shared-boundaries When a wall is selected the lining is attached to every actual refined rim vertex through the declared attachments, so the interior and the lip band share one boundary. The detached backdrop is not joined to the skin, which is its documented legacy form, and the enamel is not fitted against the lips or the backdrop, so enamel can cross them.
- * @evidence contracts/anatomy.md#parametric-authority Inputs are named mouth dimensions, a named performance and named crown dimensions; none addresses a vertex, curve or patch of the interior.
  */
 export function preparePortraitMouth(
   source: number[][],

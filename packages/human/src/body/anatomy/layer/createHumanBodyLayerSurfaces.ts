@@ -26,20 +26,6 @@ import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInpu
  * observation. Neither the origin nor a metric exclusion band is shifted.
  * Both offset sheets are compared with the original triangle orientations.
  * All offsets retain the requested thickness; failures are never repaired.
- *
- * @evidence contracts/common.md#principled-implementation Reports normal-ray thickness ratios and both offset orientations on the supplied triangles; topology excludes origin incidence without claiming these limited observations establish true reach or global embedding.
- * @evidence contracts/common.md#clear-and-simple-design One pass for normals, one for the offsets and the reach rays, one for triangle orientation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Thickness is applied as given; a vertex beyond reach is counted and located, not shortened.
- * @evidence contracts/common.md#meaningful-documentation States the offset rule, both validity conditions and the case neither detects.
- * @evidence contracts/modeling.md#emitted-geometry Both faces have exactly the skin's vertices; the count follows the skin's resolution.
- * @evidence contracts/modeling.md#spatial-conventions Positions in and out are metres in the same frame; the normal is outward and the offset is against it.
- * @evidence contracts/modeling.md#shared-boundaries The skin, the subcutaneous layer and the deep tissues meet on these two faces, which have no definition other than this offset of the skin.
- * @evidence contracts/anatomy.md#permitted-range Reports the conventional half-normal-ray condition, missing positive reach and offset inversion without altering thickness; these observations alone do not admit anatomical thickness or certify embedding.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The thickness field owns its channels.
- * @evidenceExclude contracts/modeling.md#rendered-observation The faces are not displayed; the shell's consumer owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The thickness field owns the values and their sources.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
 export function createHumanBodyLayerSurfaces(
   input: IHumanBodyLayerSurfacesInput,

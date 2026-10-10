@@ -21,10 +21,6 @@ import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
  * No compiled output array is shared between document evaluations.
  * Supplied physical samples use that same corner table; absent registration
  * preserves legacy output. The caller owns source and actual instance binding.
- * @evidence contracts/common.md#principled-implementation One authoritative source-to-UV gather copies physical sample identity with performed XYZ instead of reconstructing it from coordinates.
- * @evidence contracts/common.md#clear-and-simple-design The region projection consumes explicit correspondence and delegates its admission to the existing gatherer and engine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts UV ordinals, normal islands and coordinate contact never become source identity.
- * @evidence contracts/common.md#meaningful-documentation States shared incidence, default absence and output ownership.
  */
 export function createHumanBodySurfaceRegionParts(
   surface: IAutoMovieHumanBodyBasis["surfaces"][number],

@@ -22,19 +22,6 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  * A changed card carries new area-weighted normals. A vertex with no incident
  * area retains its old direction because no new surface determines one;
  * untouched cards keep their normal buffers, and absent normals stay absent.
- *
- * @evidence contracts/common.md#principled-implementation The head's contact rule is reused for the body because clearance does not depend on which skin it lies over; changed faces determine new area-weighted directions, while an unused or zero-area vertex retains the admitted direction no new face can replace.
- * @evidence contracts/common.md#clear-and-simple-design One selection, one clearance and one call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller supplies actual emitted hair membership instead of inferring hair from a part's absence among basis regions; clearance remains the hair document's own.
- * @evidence contracts/common.md#meaningful-documentation The comment states which parts move, where the clearance comes from and what happens with none.
- * @evidence contracts/modeling.md#shared-boundaries The hair and the body meet at one clearance the hair document states.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves vertices of existing parts and defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Positions remain metres in the shared frame and changed normals are unit directions of the resulting posed faces.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the clearance is the hair document's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function clearHumanPersonHair(
   props: IAutoMovieHumanPersonHairClearanceProps,

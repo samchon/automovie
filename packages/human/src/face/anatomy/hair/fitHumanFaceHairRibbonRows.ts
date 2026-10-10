@@ -59,18 +59,6 @@ interface Row {
  * work budget alone is intentionally caller-owned mutable state.
  * Nothing here establishes hair-to-hair intersection freedom.
  *
- * @evidence contracts/common.md#principled-implementation Whole convex row and triangle separation, rather than endpoint samples, determines the fitted coverage and the complete supported coverage profile.
- * @evidence contracts/common.md#clear-and-simple-design One owner carries row widths, swept-span fitting and the shared geometry budget; engine owns every separation formula.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No person, root ordinal or style selects a correction, and an unsupported centreline refuses without reducing the requested gap.
- * @evidence contracts/common.md#meaningful-documentation States the coverage meaning, represented coordinate proofs, preserved metric and unresolved root-contact boundary.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The enclosing mesh builder names the layer and its material.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author field and consumes derived row geometry.
- * @evidence contracts/modeling.md#emitted-geometry Retains every original centre/frame/UV row and fits actual transverse radii until the whole swept convex cell supplies a separation certificate.
- * @evidence contracts/modeling.md#spatial-conventions Rows and host queries share head-local metres; UV v remains the original cumulative metric fraction, without resampling the curve.
- * @evidence contracts/modeling.md#shared-boundaries Both source and represented host queries must certify complete free rows and triangles; no permitted root contact is widened into a free-span exception.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Coverage fitting supplies no anatomical quantity or biological follicle model.
- * @evidenceExclude contracts/anatomy.md#permitted-range Consumes admitted coverage/clearance geometry without defining an anatomical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Introduces no saved author input or personal shape authority.
  * @author Samchon
  */
 export function fitHumanFaceHairRibbonRows(

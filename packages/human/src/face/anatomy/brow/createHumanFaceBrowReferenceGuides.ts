@@ -17,19 +17,6 @@ import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlaceme
  * native seating and current normal/arc reading remain downstream. No source
  * vertex, requested quantity or population default is changed here.
  *
- * @evidence contracts/common.md#principled-implementation One reference-space band and finite guide definition precede both source support compilation and runtime material transport, removing the disk-dependent guide/support cycle.
- * @evidence contracts/common.md#clear-and-simple-design Owns placement and free-guide generation; native seating, physical arc and shaft meshes remain separate consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves existing root, fade, density, flow, finite-difference tangent and millimetre bend definitions without altered defaults or source geometry.
- * @evidence contracts/common.md#meaningful-documentation States reference ownership, guide semantics, source/runtime consumers and nonclinical limitations.
- * @evidence contracts/modeling.md#spatial-conventions Reference positions and output stations are head-frame metres; profile bends convert from millimetres once.
- * @evidence contracts/modeling.md#shared-boundaries Actual native band identities supply the same guide to source support and runtime registration.
- * @evidence contracts/modeling.md#parameter-channels Placement retains root/fade/grain meanings and bend modifies the finite reference guide rather than material coordinates.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Carries derived shaft guides rather than rendered parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The shaft mesh owner retains the rendered lattice.
- * @evidenceExclude contracts/modeling.md#rendered-observation Brow assembly observes the emitted shafts.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The population and profile owners retain qualifications; this calculation adds no clinical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing profile admission owns bounds and the emitted contact owner judges geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No personal curve input is introduced.
  * @author Samchon
  */
 export function createHumanFaceBrowReferenceGuides(

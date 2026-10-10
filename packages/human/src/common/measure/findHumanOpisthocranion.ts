@@ -21,20 +21,6 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * distance from glabella is nearly constant and small undulations of the skin
  * stop such a walk early; a floor does not. A head view with no section point
  * above the floor refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation The extreme is found on each skin above an anatomical floor; no vertex is fixed as the opisthocranion.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the triangle edges.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty search refuses instead of returning a default point; the floor is the declared tragion's height, not a constant.
- * @evidence contracts/common.md#meaningful-documentation States the plane, the crossing convention, the floor, why it exists, the rejected alternative and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions The plane is normal to +X of the person frame; points are metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows the caliper search of ANSUR II 6.4.48 and names the floor as the approximation of the Frankfurt plane.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function findHumanOpisthocranion(
   head: IAutoMovieHumanHeadSkin,

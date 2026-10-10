@@ -11,10 +11,6 @@ import type { IAutoMovieHumanBodyExteriorCandidateReport } from "./IAutoMovieHum
  * anatomical report preserves each part owner's separate qualification.
  * The report carries no replay weights or editable source witness ordinals.
  *
- * @evidence contracts/common.md#principled-implementation Separates actual surface measurements from independent anatomical validation.
- * @evidence contracts/common.md#clear-and-simple-design One model and one report travel together to preview and export consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested context is retained without population means or false resolved tissue.
- * @evidence contracts/common.md#meaningful-documentation States the physical candidate and clinical availability distinction.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateBuild {

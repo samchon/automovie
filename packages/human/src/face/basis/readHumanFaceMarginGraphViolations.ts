@@ -9,19 +9,6 @@ import type { IHumanFaceMarginGraphViolation } from "./IHumanFaceMarginGraphViol
  * along/equal height joins remain valid; no numerical epsilon classifies them.
  * Solver candidates use this same predicate as the final aperture owner.
  *
- * @evidence contracts/common.md#principled-implementation Consecutive directed differences test the exact represented height-graph conditions, with original endpoint orientation and witnesses.
- * @evidence contracts/common.md#clear-and-simple-design One predicate owner supplies candidate and final measurement consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither sorting, approximate ties nor substituted source points changes the predicate.
- * @evidence contracts/common.md#meaningful-documentation States the accepted tie condition, full span and diagnostic ownership.
- * @evidence contracts/modeling.md#spatial-conventions Supplied points and projected readings remain canonical head-frame metres.
- * @evidence contracts/modeling.md#shared-boundaries Reads the actual upper/lower contact courses through one condition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly observes the courses.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This projection predicate is not a clinical norm.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal input.
  * @author Samchon
  */
 export function readHumanFaceMarginGraphViolations(

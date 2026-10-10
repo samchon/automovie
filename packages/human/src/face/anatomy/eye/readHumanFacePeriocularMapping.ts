@@ -20,12 +20,6 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
  * Missing legacy UV coordinates stay unknown rather than reading as zero folds.
  * Original offset crossing witnesses retain their producer attachments; no
  * second query or reconstructed sheet is introduced to locate their causes.
- *
- * @evidence contracts/common.md#principled-implementation Signed triangle areas discriminate material folds, while identical engine crossing predicates separately read the producer's skin, outer and inner stages at output precision.
- * @evidence contracts/common.md#clear-and-simple-design The emitted cell incidence and original arrays are supplied by their construction owner; source-only observations can be reused within that immutable band.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled triangle or failed relation is removed and no physical admission condition is replaced by the report.
- * @evidence contracts/common.md#meaningful-documentation Separates mathematical mapping readings from clinical acceptance and reports absent source UV as unknown.
- * @evidence contracts/modeling.md#spatial-conventions Material areas are dimensionless; spatial buffers restore actual local Float32 coordinates into head-frame metres exactly as part census.
  */
 export function readHumanFacePeriocularMapping(
   input: IHumanFacePeriocularMappingInput,

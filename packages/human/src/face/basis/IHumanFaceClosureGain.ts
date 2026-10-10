@@ -6,19 +6,6 @@
  * the lips surface: each margin chain vertex's solved contact gain, blending to
  * `ratio` away from the fissure.
  *
- * @evidence contracts/common.md#principled-implementation The field applies to actual resident endpoint rows; native material seats constrain their shared support jointly and actual posed apertures establish contact, while legacy fixed-point approximation retains its convergence limitation.
- * @evidence contracts/common.md#clear-and-simple-design The central gain and one array for the lips surface.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The field is computed per state, never stored per person.
- * @evidence contracts/common.md#meaningful-documentation States where each gain applies.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no part.
- * @evidence contracts/modeling.md#parameter-channels Gains scale the closure channel's rows per unit weight.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Gains are dimensionless.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The summary reports the resulting apertures.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The gains carry no anatomical value of their own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The field's construction refuses beyond the tissue budget.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The record is derived, not an input.
  * @author Samchon
  */
 export interface IHumanFaceClosureGain {

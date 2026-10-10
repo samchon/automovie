@@ -44,19 +44,6 @@ import { solveHumanFaceNativeClosureStep } from "./solveHumanFaceNativeClosureSt
  * returned. Nonconvergence or an unavailable response refuses. Neither the QP
  * status nor the iteration count establishes contact or anatomical validity.
  *
- * @evidence contracts/common.md#principled-implementation Sparse affine contact and directed along rows couple every native support gain with one source-sample variable. Graph restoration precedes contact linearization; contact elasticity stays inside the original hard domain and actual graph, aperture merit, central pair and budget predicates verify every backtracked candidate independently of QP status.
- * @evidence contracts/common.md#clear-and-simple-design One native solver owns field variables, contact rows and final verification; the existing engine owns the sparse quadratic solve.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source anchor, request, tolerance or tissue extent is changed; unsolved original geometry refuses.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes coupled affine rows, sequential linearization and actual-output acceptance, including the finite iteration limit.
- * @evidence contracts/modeling.md#parameter-channels Returns the per-vertex scaling of the original closure endpoint with the original central gain.
- * @evidence contracts/modeling.md#spatial-conventions Physical heights use canonical head-frame metres; QP variables and rows are divided by the existing tissue budget.
- * @evidence contracts/modeling.md#shared-boundaries Both native source courses constrain the same vertex field and source aliases share one gain.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Changes no topology or primitive count.
- * @evidenceExclude contracts/modeling.md#rendered-observation The final face assembly observes the returned field.
- * @evidenceExclude contracts/anatomy.md#anatomical-source These geometric constraints introduce no measured tissue mechanics or clinical claim.
- * @evidence contracts/anatomy.md#permitted-range Each vertex's departure from central closure remains inside the original tissue budget and the final gap retains the original contact tolerance.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived fields add no personal sculpt input.
  * @author Samchon
  */
 export function createHumanFaceNativeClosureGain(input: IHumanFaceNativeClosureGainInput): Float64Array {

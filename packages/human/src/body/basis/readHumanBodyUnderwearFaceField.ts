@@ -22,11 +22,6 @@ import type { IHumanBodyUnderwearEnvelopeFaceReading } from "./IHumanBodyUnderwe
  * centres are therefore a sufficient acceptance bound; opposing possible
  * centres are tested for an actual active cell before refusing. Cell clipping
  * changes no emitted geometry, source identity or ball population.
- *
- * @evidence contracts/common.md#principled-implementation A complete spatial candidate bound and exact restricted Voronoi cells establish the active branch condition over the whole face rather than samples.
- * @evidence contracts/common.md#clear-and-simple-design This numerical reader serves the one existing garment envelope and emits no alternate field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Original centre ordinals and represented coordinates are retained without geometric margins or positional welding.
- * @evidence contracts/common.md#meaningful-documentation Defines candidate completeness, exact clipping and the conservative positive direction bound.
  */
 export function readHumanBodyUnderwearFaceField(
   input: IHumanBodyUnderwearFaceFieldInput,

@@ -19,20 +19,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * `along` from `low` to `high` at which the angle lies, so a value known at the
  * loop's vertices interpolates linearly in the angle. At a vertex's own angle
  * the answer is that vertex with fraction zero.
- *
- * @evidence contracts/common.md#principled-implementation Winding one turn in one direction is exactly the condition under which the angle is a bijection from the loop to the circle, so the bracketing pair is unique; the check sums the wrapped angle steps and demands one sign and a total of one turn.
- * @evidence contracts/common.md#clear-and-simple-design One function computes the angles, validates the winding and returns a lookup closed over the sorted table.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a body or a face; a loop that fails the winding condition refuses with the reason.
- * @evidence contracts/common.md#meaningful-documentation The comment states the angle convention, the winding precondition and the lookup's contract at and between vertices.
- * @evidence contracts/modeling.md#spatial-conventions One frame: metres, Y up, angle from +Z towards +X about the vertical through `center`.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function parameterizes a loop and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary; it names positions on one.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function createHumanLoopAzimuth(
   loop: readonly IAutoMovieVector3[],

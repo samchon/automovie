@@ -12,11 +12,6 @@ import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachmen
  * A rejected construction is inspectable, never an accepted editor state.
  * The numerical document remains the only editable source of the geometry.
  *
- * @evidence contracts/common.md#principled-implementation The complete model and exact source correspondence accompany their independent admission outcome.
- * @evidence contracts/common.md#clear-and-simple-design A single result retains geometry, generated hair IDs, reference and oral source transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No rejected geometry is relabelled an accepted editor result.
- * @evidence contracts/common.md#meaningful-documentation Documents model ownership, source correspondence and the numerical document boundary.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceConstruction {

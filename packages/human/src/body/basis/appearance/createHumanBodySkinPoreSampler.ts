@@ -21,12 +21,6 @@ import { seededValue } from "@automovie/engine";
  * wrapping a rounded seam coordinate keeps it in [0,1). Finite coordinates and
  * the consumer's texels can merge unresolved features at high density; count
  * admission alone proves neither anatomical validity nor resolved texture detail.
- *
- * @evidence contracts/common.md#principled-implementation Rounding density times physical area selects the nearest representable count; equal-area strata distribute that count without square-grid rounding or a forced pore at zero.
- * @evidence contracts/common.md#clear-and-simple-design One lazy population sampler owns cardinality and UV placement; the texture consumer owns Gaussian heights, derivatives and PNG encoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every population uses the same strata rule and seed domain, with no subject, image or special density value.
- * @evidence contracts/common.md#meaningful-documentation States units, count rounding, strata derivation, caller-owned statistical provenance and finite sampling limits.
- * @evidence contracts/modeling.md#spatial-conventions Converts millimetres to centimetres only for physical area; returned positions are periodic unit-tile coordinates independent of a body mesh's arbitrary UV layout.
  */
 export function createHumanBodySkinPoreSampler(input: {
   seed: number;

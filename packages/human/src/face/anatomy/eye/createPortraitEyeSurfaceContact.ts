@@ -37,16 +37,6 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * in engine metres, with the explicit division by 1000 on the way in and the
  * multiplication on the way out. Only vertices whose target differs from their
  * position are returned, and the supplied mesh is not modified.
- *
- * @evidence contracts/common.md#principled-implementation Contact is decided by full triangle overlap against the same optical mesh that is drawn, along the recorded observation ray, so a bulge between two clear vertices is caught. A point pushed forward is carried into its neighbours by the same geodesic adapter that the initial fit uses, which avoids a hard platform at the footprint edge, and taking the foremost of two coincident margin targets is what keeps a closed seam from reopening. It establishes directional clearance and not the anatomical shape of the section, as the comment says.
- * @evidence contracts/common.md#clear-and-simple-design One function composes the shared contact basis, the shared directional contact solver and the shared skin adapter for one eye, and adds only the closed-seam unification, so the contact rule is not restated in the eye.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is named after a subject or fixture. The contact reads the actual optical mesh and skin, no proposal is invented for a test, and the default reach is the documented shape default, not a tuned value.
- * @evidence contracts/common.md#meaningful-documentation The comment states when the provider runs, what it tests and against what, the clearance and reach, the closed-seam rule, the units and that the input is not modified.
- * @evidence contracts/modeling.md#spatial-conventions Meshes and proposals are head millimetres in one frame and the contact query is in engine metres, with the conversion an explicit factor of 1000 at both boundaries.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function proposes skin movements and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the eye shape and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits target positions and no primitive.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value of its own; the clearance and reach are the shape's.
  */
 export function createPortraitEyeSurfaceContact({
   iris,

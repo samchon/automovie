@@ -21,19 +21,6 @@ import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadS
  * `skin` is the same map on the body partition. Nothing is a runtime clip and
  * no person document value is stored here.
  *
- * @evidence contracts/common.md#principled-implementation The partition views are exactly the generation's head and body cells with shared sample identities, so evaluating them together is evaluating one skin; the one weight map is supplied for both.
- * @evidence contracts/common.md#clear-and-simple-design Reuses the face and body basis formats as partition views and adds only the head rows of the weight map.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The views must share one generation and complementary source coverage; the evaluator verifies that instead of trusting the id.
- * @evidence contracts/common.md#meaningful-documentation States what each field is, which partition owns which channels and that the boundary is registered offline.
- * @evidence contracts/modeling.md#shared-boundaries The neck boundary is the set of samples both views share, registered on source triangles when the generation was compiled.
- * @evidence contracts/modeling.md#part-identity-and-grouping The face view's attached parts and the body view's parts keep their published identities; the generation adds no part.
- * @evidence contracts/modeling.md#spatial-conventions Both views use the shared metre, Y-up, +Z-forward frame of their source.
- * @evidenceExclude contracts/modeling.md#parameter-channels The record defines no channel; the views keep their published ones.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The record is not observed on its own.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The record adds no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The record admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The record is compiled source data, not a caller input.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonGeneration {

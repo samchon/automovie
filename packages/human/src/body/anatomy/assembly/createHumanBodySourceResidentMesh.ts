@@ -19,20 +19,6 @@ import type { IHumanBodySourceResidentMesh } from "./IHumanBodySourceResidentMes
  * assembly owner. Geometric normals, when requested, are computed on the actual
  * resident triangles, where each vertex has incidence; there is no direction to
  * invent for an unused source bookkeeping ordinal.
- *
- * @evidence contracts/common.md#principled-implementation A bijection from referenced source ordinals preserves every triangle's order and coordinates and keeps source metadata outside resident geometry.
- * @evidence contracts/common.md#clear-and-simple-design One owner aligns all vertex attributes and indices and returns their original-ordinal map.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate welding, source-face removal, normal fallback or threshold alteration occurs.
- * @evidence contracts/common.md#meaningful-documentation States immutable source versus resident populations, nonindexed handling and original-data admission.
- * @evidence contracts/modeling.md#emitted-geometry Resident vertices are exactly the source triangle population's referenced ordinals.
- * @evidence contracts/modeling.md#spatial-conventions Metre coordinates and attribute directions retain their frame; only ordinal addresses change.
- * @evidence contracts/modeling.md#shared-boundaries Distinct source aliases and explicit physical source IDs retain their existing incidence.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing source owners retain anatomical member identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels No authored quantity changes here.
- * @evidenceExclude contracts/modeling.md#rendered-observation Assembly consumers observe the unchanged triangles.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The source owner retains acquisition and physiological meaning.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing source and resident validators own their admitted domains.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No personal vertex authoring is exposed.
  */
 export function createHumanBodySourceResidentMesh(
   mesh: IAutoMovieMesh,

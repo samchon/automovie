@@ -8,19 +8,6 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
  * registered through the same shape-only native reference. Material identity stays fixed
  * while the current host supplies physical lengths, positions and normals.
  *
- * @evidence contracts/common.md#principled-implementation Native support identities define the chart branch independently of guide width and distance queries.
- * @evidence contracts/common.md#clear-and-simple-design Carries the material-course compiler's geometry and source registration together.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Internal registered vertices and authored guide dimensions introduce no personal sculpt resource.
- * @evidence contracts/common.md#meaningful-documentation States source-reference offset and current-host metric ownership.
- * @evidence contracts/modeling.md#spatial-conventions Reference offsets and current positions are head-frame metres; material coordinates are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries The source chart and current host retain the same registered native incidence.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Carries an existing skin course input.
- * @evidenceExclude contracts/modeling.md#parameter-channels The relief owner defines numerical traits.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Defines no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The relief owners observe their skin.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Source landmark registration remains with the relief owner.
- * @evidenceExclude contracts/anatomy.md#permitted-range The chart compiler admits native support.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no public shaping input.
  * @author Samchon
  */
 export interface IHumanFaceSkinMaterialCourseInput {

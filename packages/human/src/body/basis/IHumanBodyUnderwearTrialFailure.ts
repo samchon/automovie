@@ -10,19 +10,6 @@ import type { IHumanBodyUnderwearSurfaceViolation } from "./IHumanBodyUnderwearS
  * repair or a permitted geometry. Revised connected proposals still use the same forward
  * evaluator and final acceptance conditions.
  *
- * @evidence contracts/common.md#principled-implementation Keeps an undefined candidate evaluation distinct from the original input and from actual feasible geometry while globalization revises its connected proposal.
- * @evidence contracts/common.md#clear-and-simple-design One located refusal accompanies the existing connected fitter's backtracking state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains candidate coordinates and original reason instead of supplying fallback geometry or replacing a failed normal.
- * @evidence contracts/common.md#meaningful-documentation Documents actual candidate ownership, phase, line parameter and the unchanged forward failure.
- * @evidence contracts/modeling.md#spatial-conventions Candidate XYZ coordinates are posed-frame metres and the line parameter is dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A failed numerical candidate defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Failed coordinates are never emitted.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Existing cut incidence is unchanged.
- * @evidenceExclude contracts/modeling.md#rendered-observation A refusal establishes no appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Retains existing anatomical admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Internal candidate coordinates are not an authoring surface.
  * @author Samchon
  */
 export interface IHumanBodyUnderwearTrialFailure {

@@ -25,11 +25,6 @@ import { readHumanBodyUnderwearLiftPath } from "./readHumanBodyUnderwearLiftPath
  * Existing optional construction observation reports actual normal, vertex-field,
  * batched face and full candidate completions. Face progress uses powers of two
  * and the final actual count; every face and original reading is still evaluated.
- *
- * @evidence contracts/common.md#principled-implementation One forward normal and lift calculation is shared by restoration and final emission; the local prism determinant is affine in barycentric normals and quadratic along the actual lift interval.
- * @evidence contracts/common.md#clear-and-simple-design One garment calculation returns its actual buffers and located failures to both consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source values, triangle incidence and signed offset remain unchanged; exact represented-input polynomial arithmetic introduces no geometry epsilon.
- * @evidence contracts/common.md#meaningful-documentation Separates field, base, lift and local prism conditions from global intersection and rendered acceptance.
  */
 export function createHumanBodyUnderwearSurfaceEvaluator(
   input: IHumanBodyUnderwearSurfaceFitInput,

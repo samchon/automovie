@@ -21,19 +21,6 @@ import { readHumanFaceMarginGraphViolations } from "./readHumanFaceMarginGraphVi
  * extremum of the piecewise-affine aperture. Legacy vertex callers retain the
  * original four-argument behavior.
  *
- * @evidence contracts/common.md#principled-implementation Actual posed heights are compared at the same axis coordinate; on admitted monotone native graphs the union of knots bounds the complete piecewise-affine aperture independently of the solver.
- * @evidence contracts/common.md#clear-and-simple-design One reading per chain vertex.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Readings come from the posed positions, never from the solve.
- * @evidence contracts/common.md#meaningful-documentation States the comparison, the sign and the order.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reading names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reading is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reading emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres along the opening direction.
- * @evidence contracts/modeling.md#shared-boundaries It measures the boundary where upper and lower vermilion meet.
- * @evidence contracts/modeling.md#rendered-observation The summary reports it on the geometry the viewer displays.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The reading carries no anatomical norm.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reading bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reading is output, not input.
  * @author Samchon
  */
 export function measureHumanFaceMarginGaps(

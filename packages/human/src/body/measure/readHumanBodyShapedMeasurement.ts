@@ -34,19 +34,6 @@ import { readHumanBodySkinReach } from "./readHumanBodySkinReach";
  * repeating the instrument's witness calculation. The numeric return and
  * omitted-observer path retain the original measurement behavior. Mutating
  * those copies cannot change the measured skin or a later station.
- * @evidence contracts/common.md#principled-implementation One instrument reads source-rest and actual final Float32 surfaces without reimplementing planes, witnesses or tape sections.
- * @evidence contracts/common.md#clear-and-simple-design Reading an already evaluated skin is independent of constructing it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing witnesses and open sections answer null rather than an inferred anatomical value.
- * @evidence contracts/common.md#meaningful-documentation States each rule and its unavailable cases.
- * @evidence contracts/modeling.md#spatial-conventions Reads metre positions and source-frame plane directions without a unit or pose conversion.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It reads surfaces and creates no anatomical or source part identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels The source rule and evaluated surface are explicit inputs; it defines no shape channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits numbers and copied measurement witnesses, never render geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The builder owns the shared skin that this instrument reads.
- * @evidenceExclude contracts/modeling.md#rendered-observation The concrete exterior consumer owns rendered candidate inspection.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The source rule owns its anatomical site; this function owns the instrument arithmetic.
- * @evidenceExclude contracts/anatomy.md#permitted-range It reports a reading or null and bounds no authored target.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The producer interprets named measurements; this function receives already evaluated geometry.
  */
 export function readHumanBodyShapedMeasurement(
   basis: IAutoMovieHumanBodyBasis,

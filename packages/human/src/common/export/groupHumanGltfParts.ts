@@ -8,11 +8,6 @@ import type { IHumanGltfPartGroup } from "./IHumanGltfPartGroup";
  * Null and explicitly identity transforms share a frame; rotations with
  * different components remain separate even when they describe the same turn.
  * Model validation owns finite transforms and valid material references.
- *
- * @evidence contracts/common.md#principled-implementation Exact numeric TRS tuples preserve the input frame; no tolerance or transformed-position grouping changes the Float32 boundary.
- * @evidence contracts/common.md#clear-and-simple-design One ordered Map owns group membership and retains the first member's existing transform.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Grouping uses actual material and transform values, never anatomical IDs or source-specific rules.
- * @evidence contracts/common.md#meaningful-documentation States deterministic order, identity equivalence and validation responsibility.
  */
 export function groupHumanGltfParts(
   parts: readonly IAutoMovieModelPart[],

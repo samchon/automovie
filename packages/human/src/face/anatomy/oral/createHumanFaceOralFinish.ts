@@ -27,11 +27,6 @@ import { readHumanFaceOralPigment } from "./readHumanFaceOralPigment";
  * buffers and no unused zero-normal rows. The canonical model gate remains
  * with the face/person orchestrator.
  *
- * @evidence contracts/common.md#principled-implementation Drawing consumes the assembly's exact generated meshes and the existing rigid jaw motion, with canonical source aliases rather than position welding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fitted secondary jaw, free input mesh, regenerated boundary or inferred clinical colour enters.
- * @evidence contracts/modeling.md#shared-boundaries Native cervical physical IDs are preserved, and all generated lining aliases share one domain and exact source identities.
- * @evidence contracts/modeling.md#spatial-conventions The same metre-frame quaternion and translation carry the mandibular group; Float32 conversion is owned once downstream.
- * @evidence contracts/anatomy.md#anatomical-source Finishes are inherited source artwork, not tissue acquisition or a biological material model.
  * @author Samchon
  */
 export function createHumanFaceOralFinish(

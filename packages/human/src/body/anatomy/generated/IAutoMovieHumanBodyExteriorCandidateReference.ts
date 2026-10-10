@@ -3,8 +3,6 @@
  * This source-rest convention carries no population or clinical certificate;
  * each fulfilled measurement states its own protocol.
  *
- * @evidence contracts/common.md#clear-and-simple-design Gives the report reference one named structural owner.
- * @evidence contracts/common.md#meaningful-documentation Names the basis and evaluation frame, leaving protocols to each measurement.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateReference {

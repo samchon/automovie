@@ -15,19 +15,6 @@ import type { IHumanFaceMeasurementContextOptions } from "./IHumanFaceMeasuremen
  * name. The opening direction is the contact frame's, or null when the basis
  * declares no articulation.
  *
- * @evidence contracts/common.md#principled-implementation Readers see exactly the emitted final positions at asset precision, so a reading is what the asset carries.
- * @evidence contracts/common.md#clear-and-simple-design One adapter from the build's posed map to the reader context.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown surfaces and vertices refuse instead of reading zeros.
- * @evidence contracts/common.md#meaningful-documentation States the stage, precision, refusals and the null direction.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the Y-up basis head frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The context names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The context moves no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The context emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The context builds no boundary.
- * @evidence contracts/modeling.md#rendered-observation The context reads the surface the editor displays and exports.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The context carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The context bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The context is not an input.
  * @author Samchon
  */
 export function createHumanFaceMeasurementContext(

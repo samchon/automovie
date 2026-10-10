@@ -19,17 +19,6 @@ import type { IHumanBodyUnderwearSurfaceCutResult } from "./IHumanBodyUnderwearS
  * lift is undefined along a zero normal. A skin with no kept triangle gives
  * empty arrays. Crossings are never moved away from source corners to enlarge
  * a sliver; numerical and final Float32 mesh admission remain downstream.
- *
- * @evidence contracts/common.md#principled-implementation Linear edge interpolation represents the piecewise-linear field's zero without a contour offset. Interior crossings share the unordered source edge, exact-zero endpoints share the source corner, and a quadrilateral that collapses at that endpoint emits only its nondegenerate triangle.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: clip a surface by a per-vertex field. The field, the lift and the material belong to their own files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The cut reads the field and the mesh only; no vertex, landmark or body is named.
- * @evidence contracts/common.md#meaningful-documentation States exact-zero ownership, clipping and winding, the supplied normal precondition and downstream numerical admission.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function clips one surface and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The kept triangles follow from the skin's own triangulation and the field; nothing is added per author feature.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function.
  */
 export function cutHumanBodyUnderwearSurface(
   props: IHumanBodyUnderwearSurfaceCutInput,

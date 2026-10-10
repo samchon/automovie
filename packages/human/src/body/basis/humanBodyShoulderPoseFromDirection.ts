@@ -10,12 +10,6 @@ import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHu
  * length is one, elevation is from hanging and axial rotation is zero: one
  * axis direction alone cannot measure torsion. This is the resolver's existing
  * geometric convention, not an anatomical frame or population estimate.
- *
- * @evidence contracts/common.md#principled-implementation One direction readout owns the current rest tilt used by both resolver and corrective sampler without introducing a fixed shape-independent A-pose.
- * @evidence contracts/common.md#clear-and-simple-design Side-aware atan2 and the existing clamped acos read tilt; the result is a fresh record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No trait, pose preset or measured-looking default bypasses the supplied shaped frame.
- * @evidence contracts/common.md#meaningful-documentation States the actual consumers, unit-direction precondition, shared axes, degrees and unmeasured torsion.
- * @evidence contracts/modeling.md#spatial-conventions Input is the admitted rest unit direction in the body frame; output tilt is degrees and zero torsion retains the prior rest convention.
  */
 export function humanBodyShoulderPoseFromDirection(input: {
   bone: "leftUpperArm" | "rightUpperArm";

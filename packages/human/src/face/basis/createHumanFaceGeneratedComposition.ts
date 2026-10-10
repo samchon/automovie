@@ -18,16 +18,6 @@ import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
  * occlusion stage consumes. The caller still owns canonical model admission and
  * successful observer publication. Failed composition cannot alter a previous
  * admitted model because only the current build's owned model is supplied.
- * @evidence contracts/common.md#principled-implementation Exact retained geometry stages feed their finish owners in one deterministic composition order, with common identity checks and same-model finish lookup.
- * @evidence contracts/common.md#clear-and-simple-design One composition owner joins the generated part tree, while the face builder retains document, pose, model admission and observer state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry is replaced by a cached picture, and no prior admitted model enters this mutable current-build stage.
- * @evidence contracts/common.md#meaningful-documentation States geometry and finish cache ownership, collision admission and successful publication boundaries.
- * @evidence contracts/modeling.md#part-identity-and-grouping Joins existing side/tissue/shaft/oral semantic part identities and refuses duplicate model or finish identities.
- * @evidence contracts/modeling.md#shared-boundaries Preserves the exact meshes from each shared source/pose owner rather than rebuilding their interfaces at composition.
- * @evidence contracts/modeling.md#spatial-conventions Generated parts retain canonical head-frame metre coordinates.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Geometry and input owners retain anatomical qualification; composition adds none.
- * @evidenceExclude contracts/anatomy.md#permitted-range Geometric admission remains with each producer and the model validator.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no independent authoring control.
  */
 export function createHumanFaceGeneratedComposition(
   basis: IAutoMovieHumanFaceBasis,

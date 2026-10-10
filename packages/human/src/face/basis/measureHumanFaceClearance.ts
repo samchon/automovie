@@ -49,20 +49,6 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * their declared TRS; it is not global-coordinate Float32 rounding. The reference is
  * the tessellated surface, so a reading against a curved exterior also carries
  * that surface's chord error, which this instrument does not know.
- *
- * @evidence contracts/common.md#principled-implementation Signed distance to the nearest feature decides containment and the triangle census decides transverse crossing; together they are the two ways one surface can pass another, and both are read over the whole subject.
- * @evidence contracts/common.md#clear-and-simple-design One instrument serves every face relation; owners differ only in the request they build.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The tolerance is the caller's, no part or side is special-cased, and a relation that cannot be read is reported as unavailable instead of passing.
- * @evidence contracts/common.md#meaningful-documentation States the instrument, precision, refusal rule and the uncertainty it does and does not cover.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres reconstructed from actual local Float32 coordinates and their publication TRS.
- * @evidence contracts/modeling.md#shared-boundaries Measures the state of a boundary between two parts; it constructs nothing and its record names both sides.
- * @evidence contracts/modeling.md#rendered-observation A numerical helper; the part owners owe the rendered observation.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/anatomy.md#anatomical-source A geometric instrument supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Applies the requesting owner's existing geometric condition and adds no bound.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function measureHumanFaceClearance(
   request: IHumanFaceClearanceRequest,

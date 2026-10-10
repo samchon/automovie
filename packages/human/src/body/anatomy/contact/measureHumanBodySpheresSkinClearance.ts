@@ -18,19 +18,6 @@ import { humanBodyCappedSurface } from "../../simple/humanBodyCappedSurface";
  * its algebraic tetrahedron sum is finite. This geometry does not infer a
  * missing bone shaft, tissue thickness or an elastic contact response.
  *
- * @evidence contracts/common.md#principled-implementation The signed clearance of a sphere is its nearest distance to the closed skin minus the radius, positive when the sphere lies wholly inside exactly one skin solid. Inside is decided by solid-angle containment in the skin closed with a centroid fan at each boundary loop by `humanBodyCappedSurface`, and the nearest distance is the minimum exact point-to-triangle distance over every source and cap triangle (face projection by barycentric coordinates, otherwise the nearest edge). The premises are a closed, non-self-intersecting skin, which the caller checks and whose closed mesh `assertValid` refuses when its volume or cap faces are degenerate or a cap crosses the skin, and non-degenerate triangles, which the divisor test throws on; a centre inside two solids throws instead of guessing. Distances are computed squared in double precision and rooted once.
- * @evidence contracts/common.md#clear-and-simple-design One pass that closes each skin once, measures every sphere against every triangle and settles inside and outside per solid; the point-triangle distance is the only helper.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture, sphere name or tolerance special case: the result is a function of the skins and spheres alone, and a violated precondition throws instead of being repaired.
- * @evidence contracts/common.md#meaningful-documentation The comment states the units and frame, how inside is defined, what positive, zero and negative clearance mean, that skin closure and validation are shared across spheres, that the caller must first check self-crossings, and that no bone shaft, tissue thickness or elastic response is inferred.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function measures and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry: it returns one clearance record per input sphere.
- * @evidence contracts/modeling.md#spatial-conventions Positions, radii and every returned distance are metres in the body's Y-up, Z-forward frame; the function converts nothing and the closed cap it adds stays in the same frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface itself: the closed solid it measures against is the one `humanBodyCappedSurface` defines for the capped skin, and this function only reads it.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint and draws nothing; it returns numbers.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value: it is geometry over caller-supplied skins and spheres.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value: it checks that ids are nonempty, centres finite and radii positive, throws on overlapping skin solids, and reports negative clearance as a measurement rather than a refusal; whether a protrusion is anatomically permitted is the caller's judgement.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; it only reads a built skin and caller spheres and returns a measurement.
  * @author Samchon
  */
 export function measureHumanBodySpheresSkinClearance(input: {

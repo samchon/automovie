@@ -7,39 +7,11 @@ import type { IHumanFaceConformingMaterialTriangle as MaterialTriangle } from ".
  * triangle. Original cut edges determine shared fractions; each triangle
  * determines its interior samples. The conforming sheet owns final seats and
  * assembly, so both metric offset sheets consume the same result.
- *
- * @evidence contracts/common.md#principled-implementation Integer barycentric weights partition each complete material triangle before native common refinement; exact homogeneous coordinates retain every constructed point.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies lattice points, shared edge identities and all refined triangles.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates never decide identity, and no sample is deleted or moved to satisfy an admission condition.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes original cut-edge ownership, triangle interiors and downstream metric seating.
- * @evidence contracts/modeling.md#emitted-geometry Complete material-domain barycentric cells preserve the existing cross-band sampling density before native facets introduce their own cuts.
- * @evidence contracts/modeling.md#shared-boundaries Original cut keys and integer edge fractions give incident pieces the same refinement vertices.
- * @evidence contracts/modeling.md#spatial-conventions Exact coordinates remain in the common dimensionless material frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines an existing tissue.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes the offset shell.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
  */
 export class HumanFaceConformingRefinement {
   /**
    * Prepare exact triangle incidence and its exact common-unit material box.
    * The box only rejects disjoint candidates; exact points own all predicates.
-   *
-   * @evidence contracts/common.md#principled-implementation Original integer corners and their exact extrema supply one conservative triangle record.
-   * @evidence contracts/common.md#clear-and-simple-design A single record retains construction keys, original parents and exact points.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Incidence IDs are supplied rather than inferred from nearby coordinates.
-   * @evidence contracts/common.md#meaningful-documentation Separates exact coordinates from broad-phase bounds.
-   * @evidence contracts/modeling.md#spatial-conventions Exact points and their bounds use the same dimensionless common integer material unit.
-   * @evidence contracts/modeling.md#shared-boundaries Original construction keys survive later refinement.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Prepares an existing tissue domain.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no mesh primitive.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes its shell.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological interval.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
    */
   static triangle(
     corners: [number, number, number],
@@ -63,20 +35,6 @@ export class HumanFaceConformingRefinement {
    * The caller's common integer unit contains the division factor, so every
    * lattice point has an exact unit-denominator representation. Keys retain
    * original edge fractions; no coordinate comparison chooses an identity.
-   *
-   * @evidence contracts/common.md#principled-implementation Each original triangle's complete barycentric lattice is generated once, then native common refinement can only subdivide it further.
-   * @evidence contracts/common.md#clear-and-simple-design One construction-key table shares material vertices across all original triangles.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact divisibility refuses a wrong unit; no rounding, point weld or small-cell deletion occurs.
-   * @evidence contracts/common.md#meaningful-documentation States the common-unit precondition, original parents and exact cell bounds.
-   * @evidence contracts/modeling.md#emitted-geometry Every original triangle produces divisions-squared complete material cells before native clipping.
-   * @evidence contracts/modeling.md#shared-boundaries Original edge keys and fractions provide one incidence for adjacent material cells.
-   * @evidence contracts/modeling.md#spatial-conventions Coordinates remain exact integers in the caller's common material unit.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines an existing tissue domain.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes the shell.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological interval.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
    */
   static compile(domain: readonly MaterialTriangle[], divisions: number): MaterialTriangle[] {
     const ordinals = new Map<string, number>();
@@ -113,20 +71,6 @@ export class HumanFaceConformingRefinement {
 
   /**
    * Exact extrema of unit-denominator material points for broad-phase rejection.
-   *
-   * @evidence contracts/common.md#principled-implementation Every affine triangle point lies between its corner extrema on each coordinate axis.
-   * @evidence contracts/common.md#clear-and-simple-design Four integer extrema supply the complete box.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact integer comparisons need no floating expansion or epsilon.
-   * @evidence contracts/common.md#meaningful-documentation States the unit-denominator precondition and limited rejection role.
-   * @evidence contracts/modeling.md#spatial-conventions Bounds retain the same dimensionless common material unit as their points.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Bounds an existing construction triangle.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no mesh primitive.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries Defines no join.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes its shell.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological interval.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
    */
   private static bounds(points: MaterialTriangle["points"]): MaterialTriangle["bounds"] {
     if (points.some((point) => point[2] !== 1n))
@@ -141,20 +85,6 @@ export class HumanFaceConformingRefinement {
   /**
    * Refine one positive exact material triangle at the original cross-band density.
    * Shared edge keys use original cut incidence and integer fractions.
-   *
-   * @evidence contracts/common.md#principled-implementation Uniform barycentric weights partition the complete triangle, preserving exact rational points and every original corner.
-   * @evidence contracts/common.md#clear-and-simple-design Original cut edges own all shared refinement points; triangle identity owns interior points.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate weld, discarded cell or reduction of requested sampling density occurs.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes edge identity from exact homogeneous location.
-   * @evidence contracts/modeling.md#emitted-geometry The complete barycentric lattice emits all of its positive triangles.
-   * @evidence contracts/modeling.md#shared-boundaries Adjacent pieces use identical original-edge fractions.
-   * @evidence contracts/modeling.md#spatial-conventions Weights are dimensionless and preserve the common material frame.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines an existing tissue domain.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The tissue owner observes its offset shell.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical dimension.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological range.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal control.
    */
   static refine(
     triangle: [MaterialCut, MaterialCut, MaterialCut],

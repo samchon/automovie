@@ -38,20 +38,6 @@ import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurfa
  * the normal profile owner does through local scalar closures. Returned
  * centre and axis vectors are independent descriptors: mutating them does
  * not move the compiled query, which requires a new factory call to change.
- *
- * @evidence contracts/common.md#principled-implementation The cap-replaced solid, complete stationary-root search, restricted sphere and axis-frame tie share one profile; exact meridian distance enclosures distinguish represented feet from real minima.
- * @evidence contracts/common.md#clear-and-simple-design One factory returns the surface; the profile owner keeps every dimension and formula of the cap.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No radius, protrusion or clearance is adjusted here, and no eye or side is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the two pieces, the solid, the relation to the emitted hull and the search method with its premise.
- * @evidence contracts/modeling.md#shared-boundaries Supplies the one definition of the ocular exterior that seating, tissue construction and visible ocular sheets consume.
- * @evidence contracts/modeling.md#spatial-conventions Centre and axis are head-frame metres and a unit vector; the profile is metres.
- * @evidence contracts/anatomy.md#anatomical-source The seven optical dimensions and their sources belong to the optical profile owner; this owner derives geometry from them and adds no value.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines a reference surface.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes the resolved profile, not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Not displayed; the optical parts are.
- * @evidenceExclude contracts/anatomy.md#permitted-range The profile owner admits the dimensions.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no input.
  */
 export function createHumanFaceOcularSurface(
   inputProfile: ReturnType<typeof resolveHumanFaceOpticalProfile>,

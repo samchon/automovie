@@ -12,20 +12,6 @@ import type { AutoMovieHumanBodyBoneId } from "../identity/AutoMovieHumanBodyBon
  * remain coordinate conventions and each carried rest remains its own posed
  * frame; this introduces no movement, inferred anatomical axis or rigid-bone
  * certificate. Caller-owned graph maps and site objects remain unchanged.
- *
- * @evidence contracts/common.md#principled-implementation One supplied point map carries all held origins and world sites, preserving a site's identity and its member's common evaluated frame.
- * @evidence contracts/common.md#clear-and-simple-design One batch contains the graph's existing anchors and one result reconstructs its immutable maps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Consumes the same exterior map as source geometry rather than a separate bone or site correction.
- * @evidence contracts/common.md#meaningful-documentation States held-neutral admission, unchanged rotation conventions and caller ownership.
- * @evidence contracts/modeling.md#spatial-conventions Origins and resolved sites enter and leave in the actual common body metre frame.
- * @evidence contracts/modeling.md#shared-boundaries Coincident source points take the identical point rule already used by the source members and held field endpoints.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing graph and member owners retain every bone and attachment identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels The exterior and field owners retain their source channels and numerical meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This graph transport emits no mesh.
- * @evidenceExclude contracts/modeling.md#rendered-observation The anatomical assembly and final person observe the coupled result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This transport reads existing authored origins and sites without establishing new anatomical measurements.
- * @evidenceExclude contracts/anatomy.md#permitted-range The neutral pose owner already refuses all performance, and the final geometry owners retain shape and clearance admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This internal transport exposes no personal frame or vertex input.
  */
 export function carryHumanBodyNeutralSourceRig(
   rig: IAutoMovieHumanBodySourceRigResult,

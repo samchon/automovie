@@ -11,20 +11,6 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * the straight distance between them, which takes the long axis as the line
  * through those two points (a stated convention for the axis). A missing or
  * misplaced area refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Both ends are extremes found on each skin within the declared ear area.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the area's vertices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing area refuses; the axis is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States the protocol sentence, both ends, the axis convention and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions A straight distance in metres; heights along +Y of the head frame.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 6.4.32; Farkas's corresponding points are named, not used as the definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanEarLength(
   head: IAutoMovieHumanHeadSkin,

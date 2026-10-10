@@ -31,19 +31,6 @@ import type { IHumanFaceSkinProjectionOwnership } from "./IHumanFaceSkinProjecti
  * boundaries without a representable midpoint. Represented boundaries are
  * still a curve representation; clinical/source accuracy is not certified.
  *
- * @evidence contracts/common.md#principled-implementation Exact native rational projection coefficients, shared root enclosures and independent quadratic crossing counts certify clipped open-interval ownership without inferring roots from a stationary point.
- * @evidence contracts/common.md#clear-and-simple-design Owns polynomial comparison and representable root isolation; native membership stays with the feature producer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomical label, relief width, artificial iteration cap or replacement distance enters.
- * @evidence contracts/common.md#meaningful-documentation Separates represented feature construction, actual root existence, interval ownership and crossing-order representation refusal.
- * @evidence contracts/modeling.md#spatial-conventions Guide parameters are dimensionless; projection residuals use the feature producer's explicit local coordinate scale.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Processes an existing skin course and creates no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes internal geometry without adding an anatomical authoring control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive or source vertex.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The final course owner checks native feature continuity; this helper does not certify a tissue join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The calling relief owners observe the resulting skin.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Performs geometry arithmetic and introduces no physiological quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input ranges remain with the relief callers.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No personal curve or vertex authoring is exposed.
  * @author Samchon
  */
 export function compareHumanFaceSkinProjectionFeatures(

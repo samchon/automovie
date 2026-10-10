@@ -25,20 +25,6 @@ import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemor
  * independently measured joint centre. Actual final-frame coordinates pass
  * the existing inverse and pose admission, including independent source
  * articulation and the hips-only rhythm, without changing caller goals.
- *
- * @evidence contracts/common.md#principled-implementation One anatomical FK supplies public skin placements and tissue sites; the existing rest rig and inverse own clinical coordinate meaning.
- * @evidence contracts/common.md#clear-and-simple-design Source resolution, rest registration, actual coordinate readback and admission occur in that order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or incompatible public rest projections refuse; no second rig, per-part position correction or clinical registration is inferred.
- * @evidence contracts/common.md#meaningful-documentation States mechanical registration, performed/rest distinction, actual frame admission and biological limits.
- * @evidence contracts/modeling.md#parameter-channels Source named goals and existing public pose/TT goals retain their separate authority; the source resolver refuses unavailable or conflicting coordinates.
- * @evidence contracts/modeling.md#spatial-conventions Rest and posed frames use right-handed +X-left/+Y-up/+Z-anterior body metres and unit quaternions. The existing inverse reports clinical degrees; the hips contribution remains its owner's signed degrees.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The numerical bridge projects existing rig identities and defines no geometry part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry No primitive population is selected.
- * @evidenceExclude contracts/modeling.md#shared-boundaries No surface or volume boundary is constructed; the body assembly consumes the shared placements.
- * @evidenceExclude contracts/modeling.md#rendered-observation The final body/person assembly owns observation, rather than this numerical bridge.
- * @evidence contracts/anatomy.md#anatomical-source Frames retain their compiled source and registration accounts; mechanical agreement with a public rig is not personal anatomical acquisition or clinical capacity.
- * @evidence contracts/anatomy.md#permitted-range The source resolver admits source-coordinate ranges and dependencies, then actual projected clinical coordinates pass the existing skeleton's pose admission; failures preserve the authored document.
- * @evidence contracts/anatomy.md#parametric-authority Only named source motion goals and existing public clinical goals enter the resolution; no public matrix or vertex adjustment is introduced.
  */
 export function resolveHumanBodyAnatomicalBuildPose(
   input: IHumanBodyBuildPoseInput,

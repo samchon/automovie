@@ -13,20 +13,6 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  * coordinates and normals, so its layers do not accompany an earlier skin.
  * Source data and caller arrays remain unchanged. Other native layer surfaces
  * need explicit correspondence and refuse instead of using a body-only query.
- *
- * @evidence contracts/common.md#principled-implementation Reads actual formed parts through the existing incidence owner before one layer completion.
- * @evidence contracts/common.md#clear-and-simple-design Owns skin selection and final body component consistency rather than another geometry evaluator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No nearest projection, coordinate weld, missing surface substitute or second placement establishes correspondence.
- * @evidence contracts/common.md#meaningful-documentation Explains final component consistency, source ownership and unsupported correspondence.
- * @evidence contracts/modeling.md#shared-boundaries Both skin partitions supply their actual physical sample identities in the same final frame.
- * @evidence contracts/modeling.md#spatial-conventions Final person metres and shared unit normals are retained unchanged.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Existing part and layer owners define the identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing document and field owners define the channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Reuses actual skin meshes and delegates layer emission.
- * @evidence contracts/modeling.md#rendered-observation The Person construction consumer observes its actual joined model; this completion certifies no appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Field anchors retain their qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range Layer admission remains with its existing observation owner.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This runtime completion exposes no personal vertices.
  */
 export function completeHumanPersonBodyLayers(
   props: ICompleteHumanPersonBodyLayersProps,

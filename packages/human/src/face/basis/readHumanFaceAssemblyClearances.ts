@@ -36,20 +36,6 @@ import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
  *    vertex order, so parts whose index order differs between sides compare.
  *
  * A point population such as a cage row is read as vertices only.
- *
- * @evidence contracts/common.md#principled-implementation Each relation pairs a part with the surface it physically neighbours and reads it with the shared signed and crossing instrument on emitted coordinates.
- * @evidence contracts/common.md#clear-and-simple-design One reader enumerates the relations from the model and the registrations; the instrument is shared with the judged admissions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Parts are selected by registration and identity class, never by a defect list, and no reading can refuse or pass a construction.
- * @evidence contracts/common.md#meaningful-documentation Lists the relations, their sign reading and why none is judged.
- * @evidence contracts/modeling.md#shared-boundaries Reads the measured state of boundaries whose constructing owners are still to be defined, naming both sides of each.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres; the mirror twin negates X, the anatomical left-right axis.
- * @evidence contracts/modeling.md#rendered-observation A numerical observation of the assembly; the assembly owner still owes the rendered one.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Report-only; bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function readHumanFaceAssemblyClearances(
   input: IHumanFaceAssemblyCensusInput,

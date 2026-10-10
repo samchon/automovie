@@ -10,15 +10,6 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  * Generated optics are retained beside their posed skin so drawing never
  * rebuilds the collider or its placement from a later appearance edit.
  *
- * @evidence contracts/common.md#principled-implementation A single evaluated result retains the exact geometry used by contact.
- * @evidence contracts/common.md#clear-and-simple-design One named transport replaces the pose evaluator's anonymous result.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry or summary is re-estimated by the consumer.
- * @evidence contracts/common.md#meaningful-documentation States ownership and synchronized geometry.
- * @evidence contracts/modeling.md#spatial-conventions Positions and optics remain basis head-frame metres; normals are unit directions.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries evaluated geometry without a measured anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The stage owners admit the geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Result transport, without an authoring control.
- *
  * @author Samchon
  */
 export interface IHumanFacePoseResult {

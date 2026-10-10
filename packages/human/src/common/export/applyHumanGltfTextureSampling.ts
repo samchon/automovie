@@ -14,10 +14,6 @@ import type { IHumanGltfTextureReference } from "./IHumanGltfTextureReference";
  * radians counter-clockwise), because tiling cannot be shown without it; an
  * identity transform adds nothing, so untransformed bytes are unchanged.
  *
- * @evidence contracts/common.md#principled-implementation Each declared wrap, filter and transform maps to its exact glTF counterpart; only a non-identity transform adds an extension.
- * @evidence contracts/common.md#clear-and-simple-design One owner encodes sampling for every texture slot.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampling is invented: absent declarations keep the established clamp default and an identity transform writes nothing.
- * @evidence contracts/common.md#meaningful-documentation States the default, the one-to-one mapping, the transform units and when the extension appears.
  * @author Samchon
  */
 export function applyHumanGltfTextureSampling(

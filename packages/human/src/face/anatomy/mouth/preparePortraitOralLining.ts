@@ -17,16 +17,6 @@ import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
  * This enclosure does not reconstruct gingiva or certify tissue clearance.
  * The returned boundary names the source skin vertex for each initial mesh
  * vertex, in order. Both boundary and mesh arrays are newly owned.
- *
- * @evidence contracts/common.md#principled-implementation The enclosure copies the traced rim exactly, then stacks twenty-three further rings that hold the opening's section until the wall fraction and taper by a cosine radius to a single posterior pole at 1.8 depths, with the optional chamber widening the rings by a smoothstep weight that is zero at the rim. Each ring keeps the rim's vertex order, so the strips join by index; the winding is the skin's reversed so the visible side faces inward, and the mesh returns the skin vertex that each rim vertex copied.
- * @evidence contracts/common.md#clear-and-simple-design One producer of geometry and skin correspondence for the component and the standalone builder.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; the ring count and the 1.8 pole depth are documented dimensions of the enclosure.
- * @evidence contracts/common.md#meaningful-documentation The comment states the rings, the taper, the winding, the chamber's neutrality, that no gingiva is reconstructed and what the returned boundary names.
- * @evidence contracts/modeling.md#part-identity-and-grouping The declaration builds one part, the oral lining enclosure.
- * @evidence contracts/modeling.md#emitted-geometry The population is rows (23 rings plus the pole) times the rim's own vertex count, so it follows the refined rim's resolution and is independent of the depth, wall and chamber values; a card or a single cap could not join every actual rim vertex.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres in and out; depth and chamber values are millimetres and the wall a fraction.
- * @evidence contracts/modeling.md#shared-boundaries The rim vertices are the exact skin boundary vertices traced from the refined surface, and the returned boundary names the skin vertex behind each, so the lining and the lip band share one boundary and cannot open at the join for any admitted depth, wall or chamber. Its back is a free enclosure that other oral parts may cross.
- * @evidence contracts/anatomy.md#parametric-authority Inputs are a named depth, a named wall fraction and a named chamber in millimetres; none addresses a vertex, curve or patch of the lining.
  */
 export function preparePortraitOralLining(
   surface: {

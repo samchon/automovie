@@ -57,65 +57,6 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
  * The optional observer receives actual completed guide, interpolation,
  * grown-strand, ribbon-buffer and whole-layer boundaries. It reads no model,
  * changes no geometry or budget and is never an elapsed-time heartbeat.
- *
- * @evidence contracts/common.md#principled-implementation Compilation admits
- *   each growth domain and the closure once: ordered resident triangles, finite
- *   origins, a closure that chains into loops and closes as a signed query. Each
- *   evaluation then follows a fixed order: admit the hairstyle, sample roots on
- *   the neutral domain, seat them on the current face, integrate the guides
- *   against the closed collider, interpolate or grow the rest, measure each
- *   root's scalp for its ribbon width and mesh the same stations. Roots and
- *   field coordinates belong to the neutral and contact to the current shape,
- *   which is why a root is a barycentric seat and the cap is rebuilt from the
- *   current rim. The premises are an embedded, outward-oriented shared surface
- *   and deformation, which the signed query cannot check and the comment states.
- * @evidence contracts/common.md#clear-and-simple-design The builder orders
- *   stages and each formula has one owner: root seating, area, gathering, turn
- *   limit, contact, interpolation and meshing are separate functions, and the
- *   station budget is one local rule applied at each stage. What remains here is
- *   the compile step, the per-layer loop and the part and material assembly.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No person
- *   name selects a generator, guide array, cache or bitmap: every layer meets
- *   the same stages, and a layer whose surface, domain or roots are missing
- *   refuses instead of being skipped or patched.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   what is compiled once and what per evaluation, which shape each quantity
- *   belongs to, ownership of the arrays, the identity-collision responsibility
- *   of the caller and the ribbon width source.
- * @evidence contracts/modeling.md#part-identity-and-grouping The builder is
- *   the group that composes a hairstyle: each layer becomes one part named
- *   numerical-hair with the layer's identity and one material, and the group
- *   owns their order and copies no member's shape or values. It cannot be split
- *   further, since a layer's parts share one collider and one station budget.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle document's fields without varying
- *   a form; the document type owns their meaning.
- * @evidence contracts/modeling.md#emitted-geometry Each layer emits one mesh
- *   whose scalp ribbons or calibrated terminal shafts are its requested count, at most 1024, and whose stations
- *   follow the curve and not the number of authored features; the assembled
- *   station total is capped at a million and refuses beyond it. The mesher
- *   retains root and launch and derives the actual representation's rows from
- *   the curve; its contact layout preserves those exact vertex groups and calibre.
- * @evidence contracts/modeling.md#spatial-conventions Basis positions, origins
- *   and current positions are metres in the head frame, roots move from neutral
- *   barycentric seats to current points, the closure cap is built on current
- *   metres, and material colours are linear RGB; the conversions are the seat
- *   and the cap rebuild, each owned by one function.
- * @evidence contracts/modeling.md#shared-boundaries Hair meets the skin
- *   through one closed signed query per surface, made from the current positions
- *   and a cap fanned from the rim's current centroid, so the collider closes
- *   exactly where the authored closure opening was and shares that rim's
- *   vertices. The join opens, and the builder refuses, when the current rim is
- *   no longer star-shaped about its centre.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
- *   no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The builder's refusals
- *   concern representation and topology, and the anatomical admission of the
- *   hairstyle belongs to assertHumanFaceHair, which it calls first.
- * @evidence contracts/anatomy.md#parametric-authority The only input is the
- *   hairstyle document, whose fields are named lengths, angles, fractions,
- *   colours, counts and seeds, admitted by a closed schema; no field addresses a
- *   vertex, curve, strand or patch, and no person selects a stored guide.
  */
 export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
   const sources = new Map(

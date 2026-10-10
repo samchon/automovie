@@ -16,20 +16,6 @@ import type { IHumanFaceHairStrandPlacement } from "./IHumanFaceHairStrandPlacem
  * with the same field/gather state and remaining budget, without a second launch.
  * Canonical transition refusal occurs before this handoff and is never caught
  * here. A standalone resumed producer's Error propagates unchanged.
- *
- * @evidence contracts/common.md#principled-implementation The original arc coordinate omits the interpolation's obsolete root prefix, while the admitted canonical stem remains exact. Projected suffix chords and total actual metric must satisfy the same contact/sampling contract before placement is accepted; otherwise the owning walk resumes rather than copying a stale length.
- * @evidence contracts/common.md#clear-and-simple-design One admission decision for an interpolated remainder; stem construction, state and budgets stay with the integrator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every root uses the same prefix/suffix rule. Rejection resumes the already admitted walk and never retries a failed canonical transition or resets its budget.
- * @evidence contracts/common.md#meaningful-documentation Defines handoff, original arc selection, duplicate station meaning, metric/chord admission, named legacy refusal and resume/error ownership.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It admits a numerical curve and defines no part identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels It preserves existing hierarchy quantities and adds no styling channel.
- * @evidence contracts/modeling.md#emitted-geometry Canonical stem stations are retained, selected interpolated remainder stations are projected, and duplicate grafts add no row.
- * @evidence contracts/modeling.md#spatial-conventions Stations, metric and contact bounds are current head-frame metres; metadata indices are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Placement consumes the already certified stem and the same contact instance/metric as its walker. Rejection leaves that boundary and walk intact.
- * @evidenceExclude contracts/modeling.md#rendered-observation It admits numerical geometry; the assembled builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It defines no anatomical value or buried follicle.
- * @evidenceExclude contracts/anatomy.md#permitted-range Its bounds are numerical admission rather than clinical ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It transports compiled geometry and never adds a personal authoring control.
  */
 export function growHumanFaceHairStrand(
   props: IHumanFaceHairStrandPlacement,

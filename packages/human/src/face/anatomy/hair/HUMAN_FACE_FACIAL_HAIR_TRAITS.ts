@@ -9,20 +9,6 @@ import type { IAutoMovieHumanFaceStylingDescriptor } from "../../structures/IAut
  * no biological density, follicle-angle interval or personal reconstruction.
  * There is no default profile. Source registration, dependent hair allocation
  * and the resulting geometry retain their existing admission owners.
- *
- * @evidence contracts/common.md#principled-implementation Carries the existing profile validator's scalar envelopes, open endpoints and integer entry steps without converting them into clinical ranges.
- * @evidence contracts/common.md#clear-and-simple-design One descriptor table serves every existing named terminal site; current values remain in the authored document.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplies no default population, source-specific profile or geometry correction.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes scalar entry domains, resource limits, authored styling and subsequent geometry admission.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The existing site input and resolver own population identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels The existing terminal-shaft profile defines each channel's meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Metadata emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Profile and resolver owners define units and frame conversion; metadata carries their stated units.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Source growth and contact owners construct attachment.
- * @evidenceExclude contracts/modeling.md#rendered-observation Metadata displays no form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source These entries describe authored numerical targets and assert no measured biological interval.
- * @evidenceExclude contracts/anatomy.md#permitted-range The existing validator and geometry owners decide admission; these numerical envelopes are not physiological bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Metadata introduces no authoring input.
  */
 export const HUMAN_FACE_FACIAL_HAIR_TRAITS: readonly IAutoMovieHumanFaceStylingDescriptor[] = [
   {

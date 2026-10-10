@@ -46,11 +46,6 @@ import { writeHumanBodyAtlasQualification } from "./writeHumanBodyAtlasQualifica
  * A fifth coarse-assembly report carries acquired or authored tissue member
  * rights and shared registration under `automovieAnatomicalAssembly` through
  * those same actual intervals. Its clinical state remains unavailable.
- *
- * @evidence contracts/common.md#principled-implementation Common construction owns actual intervals and admission; this writer joins only exact candidate IDs and qualification in the same Document before the original serialization.
- * @evidence contracts/common.md#clear-and-simple-design Optional candidate qualification extends the existing body writer without a second container or a reconstructed merge.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are never material names or clinical certification, and unavailable whole skin and bones remain explicit.
- * @evidence contracts/common.md#meaningful-documentation States opt-in provenance, ID refusal, default absence and the static document boundary.
  */
 export async function exportHumanBody(
   model: IAutoMovieModel,

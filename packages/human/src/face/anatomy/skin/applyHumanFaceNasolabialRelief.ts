@@ -41,18 +41,6 @@ import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterial
  * contact floor and budget as the remaining tissue performance. Common normal
  * construction and whole-person source-cell admission remain downstream.
  *
- * @evidence contracts/common.md#principled-implementation Smooth compact transverse and endpoint kernels displace the actual anterior sheet, sampled from immutable live geometry; contributions sum once into owned positions.
- * @evidence contracts/common.md#clear-and-simple-design One source-relative regional producer; depth sampling remains the shared engine instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Registered anatomical endpoints and lip margin are required; no guessed vertex or clinical-grade conversion stands in.
- * @evidence contracts/common.md#meaningful-documentation States the guide and displacement conventions, identity/performance distinction, ownership, refusal and contact-reference responsibility.
- * @evidence contracts/modeling.md#part-identity-and-grouping Shapes the nasolabial region of the existing skin and adds no separate layer part.
- * @evidence contracts/modeling.md#parameter-channels Left and right resting depths are independent from their own smile amplitude; width changes compact support rather than the requested depth.
- * @evidence contracts/modeling.md#emitted-geometry Preserves every source vertex and triangle; fine relief resolution remains limited by the source's sampling.
- * @evidence contracts/modeling.md#spatial-conventions Converts millimetres once to Y-up +Z-anterior head-frame metres; valleys displace along the host's negative outward normal.
- * @evidence contracts/modeling.md#shared-boundaries Registered lip-margin vertices are untouched and the guide contribution vanishes at its alar and oral endpoints; other neighboring geometry still requires coupled contact observation.
- * @evidence contracts/anatomy.md#anatomical-source Uses the source's registered alar-curvature and cheilion identities; the constructed course and relief kernels are conventions, not measured tissue or a photonumeric inverse.
- * @evidence contracts/anatomy.md#permitted-range Nonfinite, negative or degenerate numerical inputs refuse unchanged; contact and source-cell guards judge geometric combinations, without claiming a clinical physiological envelope.
- * @evidence contracts/anatomy.md#parametric-authority Only named regional depths and width enter; source identities stay in the basis and personal vertices or curves cannot be authored.
  * @author Samchon
  */
 export function applyHumanFaceNasolabialRelief(

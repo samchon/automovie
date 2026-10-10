@@ -4,10 +4,6 @@ import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBod
 /**
  * Actual static accessor correspondence and acquired atlas qualification.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the common actual accessor partition and preserves independently qualified atlas provenance.
- * @evidence contracts/common.md#clear-and-simple-design Two owned records are returned together.
- * @evidenceExclude contracts/common.md#prohibited-implementation-shortcuts A readback carrier.
- * @evidence contracts/common.md#meaningful-documentation Names the distinct geometry and provenance authorities.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyAtlasAssetCorrespondence {

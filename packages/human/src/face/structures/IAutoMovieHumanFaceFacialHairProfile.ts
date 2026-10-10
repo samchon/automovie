@@ -6,14 +6,6 @@ import type { IAutoMovieHumanFaceAppearanceParameters } from "../parameters/IAut
  * terminal density, follicular units and donor-zone measurements. No clinical
  * normal interval is inferred from those distinct quantities.
  *
- * @evidence contracts/common.md#principled-implementation Metric calibre, named-frame styling and finish are independently admitted before allocation.
- * @evidence contracts/common.md#clear-and-simple-design Each site has one scalar authority for count, length, calibre and sampling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No private groom or clinical density-derived default enters.
- * @evidence contracts/common.md#meaningful-documentation Fields distinguish units, authoring and biological observations.
- * @evidence contracts/modeling.md#parameter-channels Count, calibre, length, angle and sampling retain independent effects.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres, micrometres and degrees convert once to model metres and radians.
- * @evidence contracts/anatomy.md#anatomical-source Authored visible targets are distinct from donor-zone FU observations.
- * @evidence contracts/anatomy.md#parametric-authority Scalar site controls include no personal strands or coordinates.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceFacialHairProfile {

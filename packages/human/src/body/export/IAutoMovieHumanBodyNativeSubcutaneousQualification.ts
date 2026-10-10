@@ -10,10 +10,6 @@ import type { IAutoMovieHumanBodyNativeLayerMemberQualification } from "./IAutoM
  * and physical-source records independently address their Float32 export.
  * Original measured/authored anchors and clinical unavailability survive.
  *
- * @evidence contracts/common.md#principled-implementation Registered field provenance and actual final exterior/member identities accompany independently bound Float32 intervals.
- * @evidence contracts/common.md#clear-and-simple-design Native calculation qualification remains separate from static atlas-mesh qualification in the existing assembly report.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Native field resources are not relabeled acquired meshes, and original offset refusals imply no clinical acceptance.
- * @evidence contracts/common.md#meaningful-documentation States input/output identity, primitive subsets and the original field's scientific limits.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyNativeSubcutaneousQualification {

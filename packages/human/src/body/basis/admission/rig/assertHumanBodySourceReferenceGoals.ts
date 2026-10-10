@@ -18,20 +18,6 @@ import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHum
  * here, rather than treated as its generic parent chain. With pelvic rhythm,
  * its root is goal-dependent too. Other independent generic source references
  * need no personal clinical registration to define a geometric orientation.
- *
- * @evidence contracts/common.md#principled-implementation Inspects actual rig-anchor stencil components and one-way coupling dependencies before promising an independent reference, preserving empty and zero-effect source rows.
- * @evidence contracts/common.md#clear-and-simple-design One declared-goal set, source joint index and parent-path walk own capability admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source ID selects support, no iterative guess breaks a dependency, and TT rotation is never forced through generic FK semantics.
- * @evidence contracts/common.md#meaningful-documentation Names supported reference ownership, actual feedback, zero-effect exceptions and legacy compatibility.
- * @evidence contracts/modeling.md#parameter-channels Optional source declarations select the existing thigh axes, signs, neutral and ranges without altering legacy authored channels.
- * @evidence contracts/modeling.md#spatial-conventions References are declared rig bones whose rest/current rotation transports the thigh frame; source direction construction remains with the shared skeleton owner.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Emits no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Capability admission draws no performed body.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical measurement or frame registration.
- * @evidence contracts/anatomy.md#permitted-range Unsupported feedback refuses before source-joint conversion; ordinary range admission remains with the existing ROM owner.
- * @evidence contracts/anatomy.md#parametric-authority Declares named geometric source motion, never a personal mesh or editable axis.
  */
 export function assertHumanBodySourceReferenceGoals(
   basis: IAutoMovieHumanBodyBasis,

@@ -14,20 +14,6 @@ import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosure
  * representative and finite arithmetic are required. This arithmetic establishes
  * no complete-margin, cell, tissue or collider validity. Source preparation owns
  * the qualified field and fixed boundaries; contact and assembly observe output.
- *
- * @evidence contracts/common.md#principled-implementation Uses one anchored source pair mean and supplied sparse displacement rows before one requested blend, retaining translation covariance without coefficient normalization or a runtime solve.
- * @evidence contracts/common.md#clear-and-simple-design Source endpoint and request blend have separate responsibilities; native pose/replay and rigid contact stay with their consuming stage owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source owners select IDs and coefficients; no person, neck index, gap mask or tolerant coincidence substitutes for actual geometry qualification.
- * @evidence contracts/common.md#meaningful-documentation States fixed-state inputs, domains, ownership, numerical refusals and the separate physical acceptance boundary.
- * @evidence contracts/modeling.md#shared-boundaries A registered pair receives the same computed target and the exact endpoint survives weight one; the qualified source owns preserved neighboring boundaries.
- * @evidence contracts/modeling.md#spatial-conventions Positions retain one common performed metre/head frame; coefficients and request weight are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Computes over existing surfaces and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes an admitted request weight and defines no person authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Retains the existing vertex population and emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Source compiler and face assembly observe their resulting geometry; this arithmetic helper displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The compiled endpoint is a numerical source convention, not measured tissue mechanics.
- * @evidenceExclude contracts/anatomy.md#permitted-range The request's arithmetic domain is not a clinical motion capacity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal vertex, curve or sculpt authoring input.
  */
 export function applyHumanFaceSourceClosure(
   plan: IAutoMovieHumanFaceSourceClosurePlan,

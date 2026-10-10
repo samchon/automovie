@@ -14,11 +14,6 @@ import { readHumanBodyAssemblyAssetCorrespondence } from "./readHumanBodyAssembl
  * personal anatomy.
  * Native SAT members use their explicit calculation record and actual generic
  * intervals; they never receive an acquired static-mesh qualification.
- *
- * @evidence contracts/common.md#principled-implementation Qualification binds actual primitive member intervals in the same Document instance used by the writer.
- * @evidence contracts/common.md#clear-and-simple-design One bijective source join precedes the existing static serialization.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or extra provenance records cannot be hidden by geometry grouping.
- * @evidence contracts/common.md#meaningful-documentation States responsibility and scientific limits.
  */
 export function writeHumanBodyAssemblyQualification(
   document: Document,

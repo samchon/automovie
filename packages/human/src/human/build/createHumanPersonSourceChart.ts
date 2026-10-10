@@ -9,20 +9,6 @@ import { isHumanPersonSourceIndex } from "./isHumanPersonSourceIndex";
  * its two coordinates. Charts are memoized per requested sample, and the
  * returned buffers are borrowed read-only. A sample outside the captured
  * domain refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Each sample's chart is read from the frozen record it was compiled with, never from caller arrays.
- * @evidence contracts/common.md#clear-and-simple-design Three cases and a cache.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-domain sample refuses instead of reading a neighbour.
- * @evidence contracts/common.md#meaningful-documentation States each case, the cache and the refusal.
- * @evidence contracts/modeling.md#shared-boundaries Cut samples chart through the one ordered cut table both partitions share.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Chart coordinates are dimensionless.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits sample ids, not anatomy.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function createHumanPersonSourceChart(
   source: IAutoMovieHumanBasisSourcePartition,

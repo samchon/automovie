@@ -5,19 +5,6 @@
  * becoming invented universal slider limits. A current value comes from the
  * document reader, never a universal person's anatomical default.
  *
- * @evidence contracts/common.md#principled-implementation Explicit open endpoints and named dependent rules preserve the runtime domain without arbitrary UI bounds.
- * @evidence contracts/common.md#clear-and-simple-design One descriptor type serves scalar and closed-choice styling traits without importing product UI.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The descriptor invents no biological range or current document value.
- * @evidence contracts/common.md#meaningful-documentation States null bounds, dependency and default ownership.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Metadata names traits rather than parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels The input owners state trait meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Metadata emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Trait units are carried without conversion.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Metadata builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Metadata displays no form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The input owners state authored qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range Metadata transports numerical admission rather than asserting a physiological interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Metadata introduces no new person input.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceStylingDescriptor {

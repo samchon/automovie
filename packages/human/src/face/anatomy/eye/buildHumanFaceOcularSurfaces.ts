@@ -57,19 +57,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * The source host display finish is a convention; no tear-fluid material or
  * physiological secretion is inferred. Admission reads the constructed
  * sheets separately (`readHumanFaceOcularSurfaceSpace`).
- *
- * @evidence contracts/common.md#principled-implementation Requested pointwise heights use the shared cap-replaced exterior's nearest foot and normal. Inflection and normal-offset folds remain possible and are judged by actual emitted-sheet admission, not a convexity assumption.
- * @evidence contracts/common.md#clear-and-simple-design Wet margins and the legacy medial convention share the ocular owner; registered medial topology delegates to its skin-host patch owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing cage or exterior refuses; no head-axis projection, analytic stand-in or guessed vertex substitutes for the registered margins.
- * @evidence contracts/common.md#meaningful-documentation States the frame, each sheet's boundary and height rule, the procedural envelope convention and the display convention.
- * @evidence contracts/modeling.md#part-identity-and-grouping Emits a connected medial caruncle/plica sheet and independent upper and lower wet-margin parts per side.
- * @evidence contracts/modeling.md#shared-boundaries Wet sheets begin at the seated margin; registered medial relief preserves its native pocket boundary, while an absent registration uses the stated ruled-sheet convention.
- * @evidence contracts/modeling.md#spatial-conventions Document millimetres convert once to head-frame metres; heights are along the outward exterior normal.
- * @evidence contracts/modeling.md#emitted-geometry Lattices of 80 by 4 cells per wet margin and 32 by 12 for the medial sheet, as before; welded points and nonzero-area triangles are emitted.
- * @evidence contracts/modeling.md#parameter-channels Corner length, caruncle and plica projection, and each margin's width and lift keep their meaning and independence.
- * @evidence contracts/anatomy.md#anatomical-source No read primary source gives caruncle, plica or tear-meniscus dimensions; the document values are authored and the tear-film floor is the seat constant's conventional value.
- * @evidence contracts/anatomy.md#permitted-range Refuses negative or non-finite dimensions, unpaired upper width and lift, and a corner longer than either margin.
- * @evidence contracts/anatomy.md#parametric-authority Seven named dimensions per eye; no personal vertex or curve input.
  */
 export function buildHumanFaceOcularSurfaces(
   basis: IAutoMovieHumanFaceBasis,

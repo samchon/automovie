@@ -22,43 +22,6 @@ const direction = (values: readonly number[]): boolean =>
  * Even a zero-count layer must have valid fields. Shared surface/domain lookup,
  * actual root emergence and contact feasibility belong to the compiled builder.
  * The input and its nested arrays are read without mutation or normalization.
- *
- * @evidence contracts/common.md#principled-implementation typia.assertEquals
- *   checks the whole structure and rejects unknown fields, and explicit finite,
- *   integer and interval checks follow, so a document that passes has only
- *   numbers the generator can integrate; the interval budget is computed from
- *   the longest authored length including its variation. Its limits bound
- *   representation and arithmetic cost and not biological populations, as the
- *   comment states.
- * @evidence contracts/common.md#clear-and-simple-design One admission owner
- *   called by both document loading and generation, so the two cannot disagree.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
- *   case for a subject or style: every layer meets the same checks.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   what is admitted before allocation, that limits are not biological, the
- *   budget and that input is not mutated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
- *   function computes a value and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle document's fields without varying
- *   a form; the document type owns their meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
- *   no primitive.
- * @evidence contracts/modeling.md#spatial-conventions It checks the units the
- *   interface declares (metres, authored emergence degrees, other field radians, dimensionless weights and linear RGB)
- *   and converts nothing.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds
- *   no surface and joins no neighbouring part.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function
- *   owns no part, group or joint and displays nothing; the builder that owns the
- *   assembled hair is where the result is observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The limits carry no
- *   anatomical value; they bound representation, as the comment states.
- * @evidence contracts/anatomy.md#parametric-authority The admitted schema is
- *   closed: assertEquals rejects any field the interface does not name, and
- *   every named field is a metre length, an angle, a fraction, a colour, an
- *   integer count or a seed, so the document has no field that addresses a root,
- *   vertex, curve or patch.
  */
 export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
   const hair = typia.assertEquals<IAutoMovieHumanFaceHair>(input);

@@ -34,20 +34,6 @@ import { walkHumanFaceHairCurve } from "./walkHumanFaceHairCurve";
  * memory only reuses deterministic answers. The walk itself is
  * walkHumanFaceHairCurve; regional guide length and post-clump strand
  * metric/contact retain their existing owners.
- *
- * @evidence contracts/common.md#principled-implementation An authored elevation is walked unchanged; omission preserves the convention and search inside the cited scalp interval using the walk's own admission.
- * @evidence contracts/common.md#clear-and-simple-design Owns the elevation choice only; the walk, the stem step and the emergence direction keep their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No azimuth change, subject case or alteration of an authored target; the legacy scalp search stays inside its cited interval and failed endpoints make no global impossibility claim.
- * @evidence contracts/common.md#meaningful-documentation States the order of trials, the search, its non-monotone limit and what propagates.
- * @evidence contracts/modeling.md#spatial-conventions Elevations are degrees above the tangent plane; lengths are head-frame metres.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads the authored layer without defining a channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidence contracts/modeling.md#emitted-geometry Returns the admitted walk's curve unchanged.
- * @evidence contracts/modeling.md#shared-boundaries Every admitted elevation's stem is exterior-certified on the one host collider by the walk.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The range owner states the cited angles.
- * @evidence contracts/anatomy.md#permitted-range The legacy scalp search stays inside its cited interval; explicit elevations retain their admitted geometric authoring meaning without borrowing a scalp clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; it reads quantities the hairstyle document already names and admits.
  */
 export function integrateHumanFaceHairCurve(
   props: IHumanFaceHairIntegration,

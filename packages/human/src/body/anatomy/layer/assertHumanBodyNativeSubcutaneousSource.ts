@@ -8,20 +8,6 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
  * independently verifies the field the runtime will calculate with. Static
  * and native ownership of the same tissue cannot coexist. Offset geometry
  * and its original refusals remain with the layer constructor.
- *
- * @evidence contracts/common.md#principled-implementation Exact surface/basis identity and parsed field digest bind the runtime calculation to the source registration.
- * @evidence contracts/common.md#clear-and-simple-design One admission serves both standalone Body and Person through their compiled body basis.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Simultaneous static/native ownership refuses instead of dropping a selected source part.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes resource provenance, runtime field identity and independent geometry observations.
- * @evidence contracts/modeling.md#shared-boundaries One field and native skin own the subcutaneous boundary, excluding an independent static boundary owner.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The source descriptor owns the logical tissue identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels No authoring channel is added.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This admission emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The surface/field owners retain the metre frame and native indices.
- * @evidenceExclude contracts/modeling.md#rendered-observation The body and person consumers observe the boundary.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Field anchors retain anatomical quantity and population qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing field and offset admission retain physiological and geometric limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Offline registration is not personal authoring.
  */
 export function assertHumanBodyNativeSubcutaneousSource(
   basis: IAutoMovieHumanBodyBasis,

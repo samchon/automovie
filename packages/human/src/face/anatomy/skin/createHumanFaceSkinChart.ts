@@ -31,19 +31,6 @@ import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
  * represented registration, not a mathematical exact-nearest certificate.
  * Source/topology/reference changes invalidate every consuming course and asset.
  *
- * @evidence contracts/common.md#principled-implementation Registered material coordinates and exact native-cell lifting retain correspondence; finite 3D guide registration belongs to one shape-only reference rather than a tangent differential extrapolated beyond its facet.
- * @evidence contracts/common.md#clear-and-simple-design One immutable disk owns native continuation; its lazy reference host registers dimensioned guides while the current host alone supplies performed geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Shape-only native nearest registration retains the helper's geometric barycentric bounds without changing anatomical guide dimensions; current-state reseating, fallback sheets and source alteration are absent.
- * @evidence contracts/common.md#meaningful-documentation States source domain, shape-only registration, represented-weight normalization, units and invalidation.
- * @evidence contracts/modeling.md#spatial-conventions Reference displacements and host positions are canonical head-frame metres; material coordinates and barycentrics are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Exact source incidence and one coordinate per native vertex preserve each joined material interval on actual shared edges.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads a registered disk on existing skin.
- * @evidenceExclude contracts/modeling.md#parameter-channels The relief and brow owners retain numerical input meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits internal course intervals only.
- * @evidenceExclude contracts/modeling.md#rendered-observation Consuming relief and brow assemblies observe the final output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Source registration and finite reference guides are geometric conventions, not clinical tissue measurements.
- * @evidenceExclude contracts/anatomy.md#permitted-range Actual source coverage and downstream contact retain admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Introduces no personal source vertex or sculpt input.
  * @author Samchon
  */
 export function createHumanFaceSkinChart(

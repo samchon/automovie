@@ -10,10 +10,6 @@ import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHuma
  * retains anatomical identity independently of material naming. Source mesh
  * digest concerns the registered reference, not the final posed Float32 mesh.
  *
- * @evidence contracts/common.md#principled-implementation Exact member identity joins source provenance to the common geometry partition without duplicating its interval formula.
- * @evidence contracts/common.md#clear-and-simple-design One record carries one part's source and reference qualification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Atlas shape and provenance cannot supply a clinical resolved label.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes bone identity, source member and registered reference digest from final geometry.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyAtlasPartQualification {

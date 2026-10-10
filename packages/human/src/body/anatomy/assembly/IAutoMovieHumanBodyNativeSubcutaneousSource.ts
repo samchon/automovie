@@ -10,19 +10,6 @@
  * Original field anchors retain their measurement protocols and populations.
  * Registration preserves reported offset refusals and certifies no embedding.
  *
- * @evidence contracts/common.md#principled-implementation Addresses one native field by surface and parsed-content digest while preserving independent file, producer, view and receipt provenance.
- * @evidence contracts/common.md#clear-and-simple-design One explicit subcutaneous registration replaces its independent static compartment owner without adding a general procedural-source factory.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No field value, fake atlas mesh digest or source vertex alias is duplicated by the record.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes parsed field identity, original bytes, final geometry ownership and limited qualification.
- * @evidence contracts/modeling.md#part-identity-and-grouping The fixed subcutaneousAdipose/adipose identity owns the existing layer constructor's disjoint boundary members.
- * @evidenceExclude contracts/modeling.md#parameter-channels The existing field and body document own the values.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The layer constructor determines the native boundary population.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The addressed field and exterior own metre coordinates and native incidence.
- * @evidence contracts/modeling.md#shared-boundaries One native field and final exterior supply the shared dermal/fascial/rim calculation rather than an independent voxel boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Body and person consumers observe the generated boundary.
- * @evidence contracts/anatomy.md#anatomical-source The addressed field's original anchors and qualification retain measured versus authored quantities and their population limits.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing offset observations and document admission remain authoritative.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Offline registration exposes no personal vertices or tissue values.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyNativeSubcutaneousSource {

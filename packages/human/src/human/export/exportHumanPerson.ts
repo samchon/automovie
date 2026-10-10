@@ -32,11 +32,6 @@ import { writeHumanFaceOralExportQualification } from "../../face/export/writeHu
  * Optional oral qualification joins actual `face:oral:` source intervals in
  * that same Document, preserving licensed/native source digests and the oral
  * owner's explicit clinical gaps.
- *
- * @evidence contracts/common.md#principled-implementation The person's model has no bone binding, which is the precondition of the shared exporter, so reusing it is exact rather than approximate.
- * @evidence contracts/common.md#clear-and-simple-design Build the document, write both containers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is patched; unsupported resources refuse in the shared exporter.
- * @evidence contracts/common.md#meaningful-documentation The comment states why no rig is written and why one module instance is kept.
  */
 export async function exportHumanPerson(
   model: IAutoMovieModel,

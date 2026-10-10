@@ -22,20 +22,6 @@ import { humanHeadEar } from "./humanHeadEar";
  * within 2 mm of the anterior bound: there the skin keeps widening toward
  * the ear, the arch makes no lateral maximum of its own, and the bound alone
  * would set the reading. The 2 mm margin is a stated convention.
- *
- * @evidence contracts/common.md#principled-implementation The zygia are lateral extremes found on each skin within a stated face band.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the triangles that remain.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty side and a bound-set extreme refuse; the band is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States both protocol sentences, the search band, its status and both refusals.
- * @evidence contracts/modeling.md#spatial-conventions Right is -X; heights along +Y; anterior is +Z.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 5.2.47 and 6.4.16.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function findHumanZygia(
   head: IAutoMovieHumanHeadSkin,

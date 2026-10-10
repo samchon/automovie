@@ -15,11 +15,6 @@ import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHuman
  * and schema rather than scientific authenticity or clinical resolution.
  * A native-only primitive carries the separate field/exterior/member record
  * with no static source accounts. Its original anchors retain their meaning.
- *
- * @evidence contracts/common.md#principled-implementation Qualification joins the generic reader's actual carrying primitive intervals rather than reconstructed model data.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns schema and exact ordered source identity correspondence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Material names and counts cannot substitute for actual source member intervals.
- * @evidence contracts/common.md#meaningful-documentation States absent legacy behavior and scientific qualification limits.
  */
 export function readHumanBodyAssemblyAssetCorrespondence(
   primitive: Primitive,

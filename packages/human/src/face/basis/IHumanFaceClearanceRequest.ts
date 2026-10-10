@@ -8,20 +8,6 @@ import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
  * the head-frame identity. The instrument
  * rounds both local meshes to Float32 and applies their actual publication TRS before it reads them in the common head frame.
  *
- * @evidence contracts/common.md#principled-implementation Names every input the reading depends on, so two owners asking the same relation obtain the same record.
- * @evidence contracts/common.md#clear-and-simple-design One request record replaces per-owner copies of the same query set-up.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries the caller's tolerance unchanged and no override for a part or a side.
- * @evidence contracts/common.md#meaningful-documentation States frame, precision and the meaning of each optional restriction.
- * @evidence contracts/modeling.md#spatial-conventions Local metre meshes plus optional publication TRS; the instrument owns Float32 conversion and head-frame reconstruction.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Names existing parts without defining one.
- * @evidenceExclude contracts/modeling.md#parameter-channels Carries no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Describes a relation to measure; the part owners construct the boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Transport to a numerical instrument.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries geometry and identities only.
- * @evidenceExclude contracts/anatomy.md#permitted-range The requesting owner owns its bound.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
- *
  * @author Samchon
  */
 export interface IHumanFaceClearanceRequest {

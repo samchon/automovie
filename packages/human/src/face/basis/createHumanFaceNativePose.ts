@@ -25,20 +25,6 @@ import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
  * unrequested closure-one margin field. Nonzero requests retain that field.
  * Optional progress reports completed owners and propagates observer failures.
  * The final evaluator owns source-span blending, assembly/contact and normals.
- *
- * @evidence contracts/common.md#principled-implementation Shared rest arrays and shape-only identity feed the existing closure, joint and refinement owners in the original order.
- * @evidence contracts/common.md#clear-and-simple-design One cohesive native stage owns pre-articulation identity and source companion evaluation; final spatial admission stays downstream.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No ghost incisor, second jaw transform or clinical default supplies closure identity.
- * @evidence contracts/common.md#meaningful-documentation States native identity, neutral oral performance, direction-only closure and downstream ownership.
- * @evidence contracts/modeling.md#spatial-conventions Native source coordinates remain canonical head-frame metres and rigid motion uses the existing source owner.
- * @evidence contracts/modeling.md#parameter-channels Closure companion reads the original admitted source weight and aperture-scaled gain once.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Preserves source part identities without defining new members.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Changes source positions without changing topology.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The named lid/oral identity owners preserve their source interfaces; this stage sequences them.
- * @evidenceExclude contracts/modeling.md#rendered-observation Final assembly and viewer owners observe the actual performed output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Source and identity owners retain anatomical qualifications; orchestration adds no biological quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing closure and articulation owners admit their domains.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes the admitted named geometric record without adding a control.
  */
 export function createHumanFaceNativePose(
   basis: IAutoMovieHumanFaceBasis,

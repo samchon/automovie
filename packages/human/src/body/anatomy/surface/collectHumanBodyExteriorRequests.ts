@@ -17,19 +17,6 @@ import type { IAutoMovieHumanBodyExteriorRequest } from "./IAutoMovieHumanBodyEx
  * plane or site of an acquisition is registered on the source skin. Paths
  * without a binding are left to the caller.
  *
- * @evidence contracts/common.md#principled-implementation The target table is the only list of answerable paths and the rule table the only instrument owner.
- * @evidence contracts/common.md#clear-and-simple-design One walk of the table against the supplied tree.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Observations refuse instead of being read as targets.
- * @evidence contracts/common.md#meaningful-documentation States the order, the orientation and the refusal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part.
- * @evidence contracts/modeling.md#parameter-channels Pairs each named target with its bound solving channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Values stay metres on the source-rest instrument.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It renders nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Each binding's protocol and rule own the source statement.
- * @evidence contracts/anatomy.md#permitted-range Unregistered observations refuse by path and the request is left unchanged.
- * @evidence contracts/anatomy.md#parametric-authority Only named anatomical targets enter.
  * @author Samchon
  */
 export function collectHumanBodyExteriorRequests(

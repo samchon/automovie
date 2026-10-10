@@ -16,19 +16,6 @@ import type { IHumanFaceMeasurementSurface } from "./IHumanFaceMeasurementSurfac
  * vertical made perpendicular to the mandibular axis), or null when the basis
  * declares no articulation.
  *
- * @evidence contracts/common.md#principled-implementation Readers measure the same final surface the editor shows and the asset carries, at its exported precision.
- * @evidence contracts/common.md#clear-and-simple-design One context gives every reader the basis, a point lookup and the shared opening direction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Readers never see pre-contact or rest positions as if they were final.
- * @evidence contracts/common.md#meaningful-documentation States the stage, precision, frame and refusal of the lookup.
- * @evidence contracts/modeling.md#spatial-conventions Points are metres in the basis head frame, rounded to Float32.
- * @evidence contracts/modeling.md#rendered-observation The points are the displayed and exported final surface.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The context names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The context is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The context emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The context builds no boundary.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The context carries geometry, not an anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The context bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The context is not an input.
  * @author Samchon
  */
 export interface IHumanFaceMeasurementContext {
@@ -37,39 +24,11 @@ export interface IHumanFaceMeasurementContext {
 
   /**
    * One final posed vertex of a basis surface, rounded to Float32.
-   *
-   * @evidence contracts/common.md#principled-implementation The vertex is read after articulation, closure and contact, as emitted.
-   * @evidence contracts/common.md#clear-and-simple-design One vertex per call.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown surface or vertex refuses by name.
-   * @evidence contracts/common.md#meaningful-documentation States the stage and precision of the point.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The callback defines no part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels The callback is not a shaping channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The callback emits no geometry.
-   * @evidence contracts/modeling.md#spatial-conventions Metres in the basis head frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The callback builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The callback owns nothing a viewer displays.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source The registered measurement or caller states the protocol.
-   * @evidenceExclude contracts/anatomy.md#permitted-range The callback admits no value.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority The callback is a reader, not a caller input.
    */
   point: (surface: string, vertex: number) => IAutoMovieVector3;
 
   /**
    * One whole final posed basis surface: Float32-rounded XYZ and its triangle indices.
-   *
-   * @evidence contracts/common.md#principled-implementation The surface is the emitted final shape with the basis triangles.
-   * @evidence contracts/common.md#clear-and-simple-design One surface per call.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown surface refuses by name.
-   * @evidence contracts/common.md#meaningful-documentation States the stage, precision and contents.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The callback defines no part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels The callback is not a shaping channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The callback emits no geometry.
-   * @evidence contracts/modeling.md#spatial-conventions Metres in the basis head frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The callback builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The callback owns nothing a viewer displays.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source The registered measurement or caller states the protocol.
-   * @evidenceExclude contracts/anatomy.md#permitted-range The callback admits no value.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority The callback is a reader, not a caller input.
    */
   surface: (surface: string) => IHumanFaceMeasurementSurface;
 

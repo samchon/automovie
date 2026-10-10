@@ -10,20 +10,6 @@ import type { IHumanFaceNasalContourReading } from "./IHumanFaceNasalContourRead
  * The first actual point is the translation origin. Missing registration,
  * invalid indices, non-finite or degenerate projection and a crossing contour
  * refuse by name. No sparse-region ordering or rest geometry substitutes.
- *
- * @evidence contracts/common.md#principled-implementation The exact registered order and final emitted coordinates define the source-projected quantity.
- * @evidence contracts/common.md#clear-and-simple-design One orthogonal chart supplies area and two extents.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing registration and invalid projections refuse without a replacement contour.
- * @evidence contracts/common.md#meaningful-documentation States the plane, order, precision, source qualification and refusal conditions.
- * @evidence contracts/modeling.md#spatial-conventions Metres and square metres in an orthogonal plane of the runtime head frame.
- * @evidenceExclude contracts/modeling.md#parameter-channels This report-only instrument does not move geometry.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The instrument creates no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The instrument reads emitted skin.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The source owns the contour incidence.
- * @evidence contracts/modeling.md#rendered-observation The context reads the same final Float32 geometry as the displayed and exported model.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This is explicitly a source-authored projected polygon, not a clinical aperture protocol.
- * @evidenceExclude contracts/anatomy.md#permitted-range This instrument admits no personal input.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This report-only quantity supplies no inverse target.
  */
 export function readHumanFaceNasalContour(
   context: IHumanFaceMeasurementContext,

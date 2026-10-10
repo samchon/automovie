@@ -15,19 +15,6 @@ import type { IAutoMovieHumanFaceTonguePassageSummary } from "./IAutoMovieHumanF
  * produces one, because the refusal names the deficient channel and the
  * millimetres instead.
  *
- * @evidence contracts/common.md#principled-implementation Every value is read on the final posed geometry the render receives, after closure and contact.
- * @evidence contracts/common.md#clear-and-simple-design One record per evaluation: apertures, the central closure gain, passage and contact counts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused evaluation produces no summary; no value is substituted.
- * @evidence contracts/common.md#meaningful-documentation States what each value measures and what the summary does not certify.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The summary names surfaces only to report contact counts.
- * @evidenceExclude contracts/modeling.md#parameter-channels The summary is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The summary emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Apertures and depths are metres along the contact frame's opening direction.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The summary builds no boundary.
- * @evidence contracts/modeling.md#rendered-observation It reports the geometry the viewer and export display.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The summary carries no anatomical norm.
- * @evidenceExclude contracts/anatomy.md#permitted-range Refusals, not the summary, bound values.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The summary is output, not input.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceContactSummary {

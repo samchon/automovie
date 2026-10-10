@@ -24,20 +24,6 @@ import type { IHumanFaceHairRootSeatsProps } from "./IHumanFaceHairRootSeatsProp
  *
  * Positions are metres in the head frame, current and neutral alike. Inputs
  * are read only and the seats own their vectors.
- *
- * @evidence contracts/common.md#principled-implementation The source root consumes the same represented triangle interpolation as engine attachment admission; seam-resolved normals and singular/inward fallback remain with the common skin host. Sampler weights and exact collision geometry remain unchanged.
- * @evidence contracts/common.md#clear-and-simple-design One pure function from roots, indices and current positions to seats, extracted from the builder so that the builder only orders the stages.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case for a subject or shape; every root is seated by the same rule, and degenerate triangles are refused earlier by the root sampler.
- * @evidence contracts/common.md#meaningful-documentation The comment states what a seat is, what follows the shape and what does not, the frame and where a degenerate triangle is refused.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function seats points and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function returns one seat per root it is given and emits no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Current positions and seats are metres in the head frame of the evaluated face, the weights are dimensionless, and the only conversion is neutral barycentric seat to current point.
- * @evidence contracts/modeling.md#shared-boundaries The seat lies on its exact shared scalp triangle while its normal uses the common skin host's coordinate-seam-resolved normal definition. Edge normal interpolation agrees across adjacent source triangles. Exact triangle collision still certifies the resulting geometry; smooth tangent interpolation supplies no collision exemption.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint and displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the roots come from the sampler.
  */
 export function seatHumanFaceHairRoots<T extends IHumanFaceHairRootReference>(
   props: IHumanFaceHairRootSeatsProps<T>,

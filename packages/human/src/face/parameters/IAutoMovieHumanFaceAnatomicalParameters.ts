@@ -52,19 +52,6 @@ import type { IAutoMovieHumanFaceTongueParameters } from "./IAutoMovieHumanFaceT
  * https://onlinelibrary.wiley.com/doi/full/10.1111/joa.12407); one protocol
  * must own a measurement and a source landmark before inversion.
  *
- * @evidence contracts/common.md#principled-implementation The anatomical parameter record is a named observation record admitted field by field by the face resolver.
- * @evidence contracts/common.md#clear-and-simple-design The anatomical parameter record is one named record replacing an anonymous shape.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
- * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
- * @evidence contracts/anatomy.md#anatomical-source The 3D Facial Norms cohort and each nested owner's cited protocol define the fields.
- * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
- * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
  * @author Samchon
  */
 export type IAutoMovieHumanFaceAnatomicalParameters =
@@ -76,19 +63,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
    * Observed fields shared by both jaw references; the exported union owns
    * the dental-reference coupling.
    *
-   * @evidence contracts/common.md#principled-implementation The shared field record is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The shared field record is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source The 3D Facial Norms cohort and each nested owner's cited protocol define the fields.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface Fields {
@@ -162,19 +136,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * A dentate jaw, closed at maximum intercuspation.
    *
-   * @evidence contracts/common.md#principled-implementation The dentate record is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The dentate record is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source Clinical occlusion references a dentate jaw at maximum intercuspation.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface Dentate extends Fields {
@@ -188,19 +149,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * An edentulous jaw, closed at its documented habitual closure.
    *
-   * @evidence contracts/common.md#principled-implementation The edentulous record is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The edentulous record is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source An edentulous jaw has no intercuspal position and uses habitual closure.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface Edentulous extends Fields {
@@ -217,19 +165,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Dental observations of a primary, mixed or permanent dentition.
    *
-   * @evidence contracts/common.md#principled-implementation The dentate dentition is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The dentate dentition is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source ISO 3950 tooth identity and the cited cast protocols define the dental fields.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface DentateDentition extends IAutoMovieHumanFaceDentalParameters {
@@ -240,19 +175,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Dental observations of an edentulous jaw.
    *
-   * @evidence contracts/common.md#principled-implementation The edentulous dentition is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The edentulous dentition is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source An edentulous stage carries no natural tooth.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface EdentulousDentition extends IAutoMovieHumanFaceDentalParameters {
@@ -263,19 +185,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Paired eyebrow envelopes and positions in the neutral expression, each side independently owned.
    *
-   * @evidence contracts/common.md#principled-implementation The brow pair is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The brow pair is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source Each side follows the eyebrow owner's cited protocol.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface BrowPair {
@@ -289,19 +198,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Paired upper/lower lash populations attached to their eyelid margins, each side independently owned.
    *
-   * @evidence contracts/common.md#principled-implementation The eyelash pair is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The eyelash pair is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source Each side follows the eyelash owner's cited protocol.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface EyelashPair {
@@ -315,19 +211,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Internal cheek-fat compartments, independently measured by side, each side independently owned.
    *
-   * @evidence contracts/common.md#principled-implementation The cheek pair is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The cheek pair is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source Each side follows the cheek owner's cited MRI protocol.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface CheekPair {
@@ -341,19 +224,6 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * External auricles, each side independently owned.
    *
-   * @evidence contracts/common.md#principled-implementation The ear pair is a named observation record admitted field by field by the face resolver.
-   * @evidence contracts/common.md#clear-and-simple-design The ear pair is one named record replacing an anonymous shape.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omission means unknown; no population mean or default fills a field.
-   * @evidence contracts/common.md#meaningful-documentation States each field's protocol, unit and owner beside it.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record names no emitted part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Observations are not shaping channels; only measurement targets move channels.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no geometry.
-   * @evidenceExclude contracts/modeling.md#spatial-conventions Each nested owner states its own units and frame.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no boundary.
-   * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the comparison readings.
-   * @evidence contracts/anatomy.md#anatomical-source Each side follows the ear owner's cited protocol.
-   * @evidence contracts/anatomy.md#permitted-range The face resolver refuses by name a value the basis cannot represent.
-   * @evidence contracts/anatomy.md#parametric-authority Named anatomical quantities enter, never vertices, curves or proxy shapes.
    * @author Samchon
    */
   export interface EarPair {

@@ -28,20 +28,6 @@ import type { IHumanFaceLidDisplacementInput } from "./structures/IHumanFaceLidD
  * map includes all resident aliases of each annulus sample, with identical
  * displacement values. Changes invalidate seated skin, normals, source replay
  * derivatives and the consumer's affected observations.
- *
- * @evidence contracts/common.md#principled-implementation A uniform positive symmetric source-adjacency Laplacian minimizes discrete displacement energy; explicit component-to-pin reachability proves its Dirichlet reduction positive definite, and solvePortraitSkinSystem verifies the true residual. This interpolation makes no injectivity or physiological claim.
- * @evidence contracts/common.md#clear-and-simple-design Admit topology and pins, establish the SPD condition, solve each Cartesian axis using one existing solver, then expand canonical samples to source aliases.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory alias pins, incomplete boundary constraints and unanchored components refuse; neither vertex coordinates nor part identities select exceptions.
- * @evidence contracts/common.md#meaningful-documentation States the graph energy, unit conversion, exact-pin preservation, failure atomicity and the geometric conditions not proved by interpolation.
- * @evidence contracts/modeling.md#spatial-conventions Metre head-local input and output; only free-axis solver quantities convert to millimetres and back, without a coordinate-frame change.
- * @evidence contracts/modeling.md#shared-boundaries The seating owner supplies every boundary displacement; canonical source aliases retain that one exact definition, including unchanged boundaries.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Interpolates existing skin data and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes resolved displacement constraints, not shape channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Returns displacement vectors for existing source vertices and creates no primitives.
- * @evidenceExclude contracts/modeling.md#rendered-observation The seating consumer owns assembled-skin observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source A discrete interpolation rule supplies no anatomical value or tissue constitutive law.
- * @evidenceExclude contracts/anatomy.md#permitted-range Numerical solvability is not physiological admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This internal helper adds no public human authoring input.
  */
 export function interpolateHumanFaceLidDisplacement(
   input: IHumanFaceLidDisplacementInput,

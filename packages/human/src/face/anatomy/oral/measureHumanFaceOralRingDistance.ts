@@ -8,20 +8,6 @@ import type { IHumanFaceOralToothStation } from "./IHumanFaceOralToothStation";
  * along a whole ring and continuous across it. Only the lateral and anterior
  * coordinates enter; a ring's apical coordinate is the height the lining
  * starts from and plays no part in where the lining lies.
- *
- * @evidence contracts/common.md#principled-implementation Point-to-segment distance with the parameter clamped to the segment is the exact distance to a closed polyline.
- * @evidence contracts/common.md#clear-and-simple-design One distance serves the arch frame's span, the lining heights and the gingival region split.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads every ring edge; a zero-length edge degrades to its vertex without a tolerance.
- * @evidence contracts/common.md#meaningful-documentation States the measured feature, the plane and the unit.
- * @evidence contracts/modeling.md#spatial-conventions Arch-frame metres in and out.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Measures existing stations.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The lining owner constructs the boundary this distance is read from.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical helper.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function measureHumanFaceOralRingDistance(
   stations: readonly IHumanFaceOralToothStation[],

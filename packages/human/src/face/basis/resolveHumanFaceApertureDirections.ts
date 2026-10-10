@@ -14,19 +14,6 @@ import type { IHumanFaceApertureDirections } from "./IHumanFaceApertureDirection
  * An exactly vertical axis has no nearest-Y perpendicular and refuses, as does
  * an absent or nonfinite direction. No small-angle threshold selects a frame.
  *
- * @evidence contracts/common.md#principled-implementation The vector triple-product identity defines the nearest-Y perpendicular; normalization before the second cross avoids squared tiny components and cancellation.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies axis, up and forward to compatible up-only and full-frame consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No authored axis, admission tolerance, clinical quantity or degenerate fallback is changed.
- * @evidence contracts/common.md#meaningful-documentation States the numerical axis tolerance, triple-product construction and exact degeneracies.
- * @evidence contracts/modeling.md#spatial-conventions All returned directions are dimensionless unit vectors in the source Y-up head frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes the existing source axis without adding a control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Defines measurement directions, not tissue joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Final measurement and model consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This is a model directional convention, not a clinical measurement frame.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing source admission owns axis validity; no clinical interval is asserted.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  * @author Samchon
  */
 export function resolveHumanFaceApertureDirections(

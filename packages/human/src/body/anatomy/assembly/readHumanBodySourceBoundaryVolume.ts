@@ -13,12 +13,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * Source owners separately qualify embeddedness, compartment identity and
  * relationships between multiple members. Open source surfaces refuse rather
  * than being capped by this instrument.
- * @evidence contracts/common.md#principled-implementation Closed opposite-directed edge incidence and oriented tetrahedral integration establish actual polyhedral boundary volume; recentering and compensated summation address floating-point cancellation.
- * @evidence contracts/common.md#clear-and-simple-design One actual source mesh instrument, without inferred tissue or shape controls.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Open boundaries and invalid triangles refuse; header values, bbox products and arbitrary caps never supply volume.
- * @evidence contracts/common.md#meaningful-documentation Separates geometric volume, source compartment authority and clinical acquisition.
- * @evidence contracts/modeling.md#spatial-conventions Input metre coordinates yield cubic metres and dimensionless incidence ordinals.
- * @evidence contracts/anatomy.md#anatomical-source Mathematical boundary integration establishes no clinical tissue segmentation or population range.
  * @author Samchon
  */
 export function readHumanBodySourceBoundaryVolume(

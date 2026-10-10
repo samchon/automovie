@@ -16,20 +16,6 @@ import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
  * evaluating it again on posed neck coordinates would reattach the garment.
  * Unregistered derived points retain the legacy position-derived topology.
  * Registered strict seam insertions remain subject to the original refusal.
- *
- * @evidence contracts/common.md#principled-implementation Actual cut fractions, stitch parent weights and survivor ordinals carry the same rest scalar through every changed vertex population.
- * @evidence contracts/common.md#clear-and-simple-design One legacy region-composition owner sequences the existing cut, placement, stitch and compaction operations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No neck exemption or posed coordinate fit replaces material correspondence; registered seam refusals remain intact.
- * @evidence contracts/common.md#meaningful-documentation Defines stencil transport, legacy metadata absence and preserved registered refusal.
- * @evidence contracts/modeling.md#emitted-geometry Existing cut and stitch owners retain their actual geometry emission; this composition only carries its scalar correspondence alongside.
- * @evidence contracts/modeling.md#spatial-conventions Original performed metre coordinates remain in the existing Person frame; coverage is transported by dimensionless stencil weights.
- * @evidence contracts/modeling.md#shared-boundaries Source scalar and every mesh attribute consume the same actual inserted-point and survivor operations.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Original parts retain the Person's established namespace; final garment composition owns fabric parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels No new personal or garment control is defined.
- * @evidenceExclude contracts/modeling.md#rendered-observation Final Person consumers observe the result of this transport.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Transports source incidence without adding anatomy.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing cut, source and final model admission decide supported geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no shaping input.
  */
 export function createHumanPersonBodyRegionParts(
   input: IHumanPersonBodyRegionPartsInput,

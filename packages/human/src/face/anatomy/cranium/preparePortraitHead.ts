@@ -26,16 +26,6 @@ import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
  * This phase boundary is not a nonintersection or anatomical validity proof.
  * Changing the prepared surface invalidates downstream normals and interiors;
  * callers must derive those from the final surface instead of cached geometry.
- *
- * @evidence contracts/common.md#principled-implementation All components fit one unchanged host so the result cannot depend on component order, their cuts are validated together (a repeated triangle refuses), and the pipeline then runs in the order that data dependence forces: assemble and blend, cranial continuation and neck, topology audit, subdivision, layers, region replacements, final surface proposals. Colour follows the paired reference coordinates rather than posed geometry, and corresponding cages are compared index by index.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a subject or component; mismatched identities, topology or colour reference refuse.
- * @evidence contracts/common.md#meaningful-documentation States the phase boundary, ownership of the returned arrays, what stays unsealed and that the phase order is not a nonintersection proof.
- * @evidence contracts/modeling.md#emitted-geometry The refined population follows from the cage and the subdivision rounds (0 to 4), which the function bounds; no authored feature adds primitives.
- * @evidence contracts/modeling.md#shared-boundaries Components attach to the same host vertex identities and share topology in one cage, the cut faces are unique, the assembled cage is audited for undeclared openings, and interior consumers read the final refined surface.
- * @evidence contracts/modeling.md#spatial-conventions Host, source and refined positions in millimetres.
- * @evidenceExclude contracts/anatomy.md#anatomical-source preparePortraitHead carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range preparePortraitHead admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority preparePortraitHead defines no input through which a caller shapes a human form.
  */
 export function preparePortraitHead(
   host: IPortraitComponentHost,

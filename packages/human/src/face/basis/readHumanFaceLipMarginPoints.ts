@@ -15,19 +15,6 @@ import { identifyHumanFaceMaterialPoint } from "./identifyHumanFaceMaterialPoint
  * conversion. Every consumer then uses the engine's unchanged multiply/add
  * interpolation; no reader-specific coefficient normalization enters.
  *
- * @evidence contracts/common.md#principled-implementation Same-generation native incidence, exact persisted weights and represented interpolation are verified together.
- * @evidence contracts/common.md#clear-and-simple-design One reader supplies both source representations to contact, oral and relief consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid source/weight identity refuses rather than reseating or renormalizing.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes exact support from the canonical represented point.
- * @evidence contracts/modeling.md#spatial-conventions Supplied source/posed positions use canonical head-frame metres.
- * @evidence contracts/modeling.md#shared-boundaries Stable parent/weight identities serve every joined consumer.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing skin without making a part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation Assemblies own rendering.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Reads registration without clinical acquisition.
- * @evidenceExclude contracts/anatomy.md#permitted-range Physical consumers own tissue and residual limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal coordinates.
  * @author Samchon
  */
 export function readHumanFaceLipMarginPoints(

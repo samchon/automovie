@@ -6,19 +6,6 @@ import type { IAutoMovieHumanFaceBasisSurface } from "../structures/IAutoMovieHu
  * Parent samples, not local vertex order or XYZ, define the sparse identity.
  * Aliases of one parent combine their coefficients before canonical ordering.
  *
- * @evidence contracts/common.md#principled-implementation Exact coefficient aggregation over actual source samples retains one material identity across local vertex permutations.
- * @evidence contracts/common.md#clear-and-simple-design One owning function canonicalizes the sparse parent/weight key.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates, tolerances and point proximity never determine identity.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes canonical identity ordering from trajectory ordering.
- * @evidence contracts/modeling.md#shared-boundaries Native facet aliases on one source edge share the same exact parent/weight identity.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Indices and coefficients carry no physical unit.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation Assemblies own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical identity carries no clinical norm.
- * @evidenceExclude contracts/anatomy.md#permitted-range Contact/source owners admit physical limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal point input.
  * @author Samchon
  */
 export function identifyHumanFaceMaterialPoint(

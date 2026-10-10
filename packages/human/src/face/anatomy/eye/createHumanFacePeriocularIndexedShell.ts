@@ -9,13 +9,6 @@ import type { IHumanFacePeriocularIndexedShellInput } from "./structures/IHumanF
  * Outer triangles, reversed inner triangles and the same directed boundary
  * edges form one indexed solid. Positions and requested dimensions remain
  * untouched; enclosed-volume sign fixes only global orientation.
- *
- * @evidence contracts/common.md#principled-implementation Each sheet boundary gets one two-triangle wall, and each sheet's internal edge retains its opposing incidence.
- * @evidence contracts/common.md#clear-and-simple-design One closure owner consumes the actual source sheet rather than inventing another grid.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No area tolerance, coordinate weld, source ordinal exception or generated face is discarded.
- * @evidence contracts/common.md#meaningful-documentation States unchanged positions, boundary closure and global orientation.
- * @evidence contracts/modeling.md#shared-boundaries Both sheets and their walls use one vertex and boundary definition.
- * @evidence contracts/modeling.md#spatial-conventions Positions stay canonical head-frame metres; normals are area-weighted unit directions.
  */
 export function createHumanFacePeriocularIndexedShell(
   input: IHumanFacePeriocularIndexedShellInput,

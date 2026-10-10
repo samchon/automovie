@@ -89,19 +89,6 @@ import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
  * plausible size for the stature, that the face's neck matches the body's
  * measured neck girth; those are separate relations a person document does
  * not yet carry.
- *
- * @evidence contracts/common.md#principled-implementation The order follows data dependence: the colour must exist before the body is built, the skinned face before the collar can follow it, the conformed collar before the joined normals, and the normals before the parts are read back; each stage cites its owner for its own premises.
- * @evidence contracts/common.md#clear-and-simple-design An orchestrator that calls one named owner per stage and holds only the tables compiled once (the seam, the face weights, the region corner tables).
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a document or a basis revision; refusals name the actual causes, and the two anatomies' own builders admit their documents.
- * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order, the naming rule, the frame and what the builder does not judge.
- * @evidence contracts/modeling.md#part-identity-and-grouping The person is a group of the two anatomies' parts; each keeps its owner's identity under a prefix, and the boundary subdivision does not introduce a third skin identity.
- * @evidence contracts/modeling.md#spatial-conventions One frame, metres, Y up, +Z forward, the frame both bases share; the conversion between the neutral frame and the shaped rest frame is the head transform's named shift.
- * @evidence contracts/modeling.md#shared-boundaries The face and body skin triangles use the same union of boundary samples and the same position and normal for each; the body's coarse chord is subdivided through the face's corners instead of joined by a degenerate ribbon.
- * @evidenceExclude contracts/modeling.md#parameter-channels The builder consumes no channel of its own; the two documents keep theirs.
- * @evidence contracts/modeling.md#emitted-geometry The person clips body triangles through frozen source-edge intersections and subdivides only triangles incident to the shared boundary; the boundary owner documents the centroid fan's population.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The builder carries no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The builder bounds no anatomical quantity; the two documents' ranges are their owners'.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes two documents of named inputs and adds none.
  */
 export function createHumanPersonBuilder(
   props: IAutoMovieHumanPersonBuilderProps,

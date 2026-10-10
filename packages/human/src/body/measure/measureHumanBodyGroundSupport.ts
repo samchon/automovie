@@ -21,19 +21,6 @@ import { humanBodyDominantVertices } from "./humanBodyDominantVertices";
  * that plane is owned by the placement and does not move with shaped rig
  * landmarks. A supplied nonfinite plane refuses as an invalid instrument input.
  *
- * @evidence contracts/common.md#principled-implementation The lowest point is searched on final posed skin against the explicitly supplied fixed plane or the default shaped source ground.
- * @evidence contracts/common.md#clear-and-simple-design One region pass per foot.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing landmark and absent explicit plane answer null instead of an assumed floor; an explicit nonfinite plane refuses.
- * @evidence contracts/common.md#meaningful-documentation States the plane, the region, the sign and what is not modelled.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The foot region is a rig attachment, not an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits readings, not geometry.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the basis frame; the plane is perpendicular to +Y.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The builder owns the posed skin.
- * @evidence contracts/modeling.md#rendered-observation The body editor's contact check shows each foot's gap beside the posed frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It reads and admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It receives evaluated geometry.
  * @author Samchon
  */
 export function measureHumanBodyGroundSupport(

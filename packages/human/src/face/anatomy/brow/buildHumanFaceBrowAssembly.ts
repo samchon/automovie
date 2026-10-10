@@ -31,18 +31,6 @@ import { readHumanFaceBrowClearance } from "./readHumanFaceBrowClearance";
  * Each side also states, as gains on the skin vertices of its band, the share
  * of the band its shafts cover, which is how the brow reads where a view
  * cannot resolve a shaft; the builder multiplies those gains into the skin.
- * @evidence contracts/common.md#principled-implementation Shafts are seated on the actual skin triangles of the state being built, and the same triangles judge their clearance; source-card foreground painting supplies only appearance.
- * @evidence contracts/common.md#clear-and-simple-design One assembly connects population, source band, host, geometry, measurement and replacement incidence.
- * @evidence contracts/common.md#meaningful-documentation States source implantation, the host, the two states, count and display-only pigment transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No private curve input, guessed forehead indices or biological count derived from a card mesh enters.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each side and original shaft sequence has a stable brows identity; zero requested population replaces cards with no shaft part.
- * @evidence contracts/modeling.md#spatial-conventions Skin and shafts stay in head-frame metres; the shaft builder owns the one conversion of the profile's millimetres.
- * @evidence contracts/modeling.md#emitted-geometry The shaft builder owns the lattice; this assembly admits its Float32 meshes and no card vertex population becomes a shaft count.
- * @evidence contracts/modeling.md#parameter-channels Requested strand count and supplied shaft radius, taper, arch, emergence and complete flow remain independent of source painting.
- * @evidence contracts/modeling.md#shared-boundaries The registered band's vertex identities and the host address the same live skin, while original card replacement follows exact publisher-owned incidence.
- * @evidence contracts/anatomy.md#anatomical-source Source band eligibility and painting are explicitly authored or source-observed qualifications; no clinical follicle protocol is inferred from them.
- * @evidence contracts/anatomy.md#permitted-range Existing profile admission bounds the rendering population, and the skin clearance condition and tolerance are the ones the former assertion applied.
- * @evidence contracts/anatomy.md#parametric-authority Independent counts and numerical shaft/flow dimensions are authored controls; source implantation and clinical density remain separate.
  */
 export function buildHumanFaceBrowAssembly(
   basis: IAutoMovieHumanFaceBasis,

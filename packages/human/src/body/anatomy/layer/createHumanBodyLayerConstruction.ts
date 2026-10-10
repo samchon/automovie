@@ -25,20 +25,6 @@ import { createHumanBodySubcutaneousShell } from "./createHumanBodySubcutaneousS
  * An admitted native source registration assigns these same members to the
  * single subcutaneous owner and records their actual final mesh identities.
  * The original geometry, skin scalar inspection finish and refusals remain.
- *
- * @evidence contracts/common.md#principled-implementation Calls the existing offset and shell owners once and retains their complete limited observations.
- * @evidence contracts/common.md#clear-and-simple-design Three named parts and one observation retain geometry and admission separately.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refused offsets retain their coordinates; no thickness, topology or unknown reach is repaired.
- * @evidence contracts/common.md#meaningful-documentation Explains inspection finish, physical domains, final frame and limited admission.
- * @evidence contracts/modeling.md#part-identity-and-grouping Dermal outer boundary, fascial inner boundary and connecting rim are disjoint named members composing one subcutaneous layer boundary.
- * @evidence contracts/modeling.md#emitted-geometry Partitions the existing shell's complete triangle sequence without duplicating or dropping a triangle; referenced-vertex compaction preserves native physical sample addresses.
- * @evidence contracts/modeling.md#spatial-conventions Uses the supplied final body metre frame and native vertex ordinals without another placement.
- * @evidence contracts/modeling.md#shared-boundaries Both boundary parts reuse the exact sheets the shell consumes and share their actual native physical sample identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels The immutable thickness field owns its channels.
- * @evidence contracts/modeling.md#rendered-observation The normal Body and Person construction consumers receive these exact parts; acceptance of their appearance remains the consuming observation's responsibility.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The field owns its anchors, protocol and population qualification.
- * @evidence contracts/anatomy.md#permitted-range Original limited offset observations remain separate named failures and supply no clinical embedding certificate.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Immutable source fields are not personal sculpt input.
  */
 export function createHumanBodyLayerConstruction(
   input: IHumanBodyLayerConstructionInput,

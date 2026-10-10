@@ -32,20 +32,6 @@
  * given direction around the loop with at most one wrap from the smallest back
  * to the largest; anything else has no merge and refuses. Positions run in
  * `[0, count]`, and `count` and `0` name the same place.
- *
- * @evidence contracts/common.md#principled-implementation Merging two sorted sequences by comparing the next element of each is the standard linear merge, and on a circle it needs the cyclic rotation to the smallest element, which the single permitted descent identifies; each step consumes one edge of one loop, so every loop edge is in one triangle, and the winding follows from requiring each shared edge to run in opposite directions in its two triangles.
- * @evidence contracts/common.md#clear-and-simple-design One rotation, one merge loop, one triangle per step.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No loop length or subject is special-cased; disordered parameters and loops of under two vertices refuse.
- * @evidence contracts/common.md#meaningful-documentation The comment states the coordinate, the direction convention, the local numbering, why merging replaces choosing diagonals and the ordering precondition.
- * @evidence contracts/modeling.md#spatial-conventions Positions are dimensionless edge units along the first loop; the output is indices.
- * @evidence contracts/modeling.md#shared-boundaries The ribbon uses the two loops' own vertices, so both sides share one definition of the boundary, and its edge directions oppose the surfaces' so the joined mesh is oriented.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function triangulates one ribbon and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The ribbon is exactly one triangle per loop edge, which a ribbon between two closed loops requires; no smaller triangulation joins them.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the seam that owns the ribbon is observed as assembled by its owner.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function mergeHumanBoundaryLoops(
   count: number,

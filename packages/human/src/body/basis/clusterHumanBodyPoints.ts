@@ -8,19 +8,6 @@
  * in neighbouring cubes may be up to two cubes apart) and never separates two
  * points closer than `gap`. Groups hold the point indices in input order, and
  * a group's order follows its first point.
- *
- * @evidence contracts/common.md#principled-implementation Points within `gap` lie in the same or neighbouring cubes of side `gap`, and union-find over those neighbourhoods yields the connected components of that relation exactly; no two points closer than `gap` are ever separated, while two farther apart than two cubes never join directly.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: partition indices by proximity, with no notion of a garment or a skin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The partition follows the points alone; nothing is tuned to a body or a garment.
- * @evidence contracts/common.md#meaningful-documentation The comment states the relation, its conservative side and the order of the result.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function partitions point indices and defines no part or group of a form.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function.
  */
 export function clusterHumanBodyPoints(
   points: readonly number[],

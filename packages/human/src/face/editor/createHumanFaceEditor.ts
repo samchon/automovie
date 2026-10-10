@@ -19,20 +19,6 @@ import { IAutoMovieHumanFaceEditorSnapshot } from "../structures/IAutoMovieHuman
  * An optional caller disposer releases a successfully built model on
  * supersession or publication refusal; worker cancellation and shared renderer
  * resources remain caller-owned.
- *
- * @evidence contracts/common.md#principled-implementation One request generation gates synchronous caller publication and document/model/history replacement after the injected builder succeeds; current restoration retains both history stacks and obsolete successful results use the caller's disposal effect.
- * @evidence contracts/common.md#clear-and-simple-design Every rebuilding action calls the same transaction owner with its intended history stacks.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Restoration uses the ordinary injected builder and latest-request check rather than copying a stale renderer model into committed state.
- * @evidence contracts/common.md#meaningful-documentation The initial pair precondition, synchronous nonreentrant publication's failure boundary, restore versus reset semantics and obsolete-model release boundary are stated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The editor owns transaction state and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The supplied document owns its channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The injected builder owns emitted geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Documents and opaque models retain their owners' units and frames.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The injected builder owns shared boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation The caller publishes and observes committed results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The supplied document and builder own anatomical quantities.
- * @evidenceExclude contracts/anatomy.md#permitted-range The injected builder admits candidate values before commit.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The editor adds no anatomical authoring input or conversion.
  */
 export function createHumanFaceEditor<
   Model,

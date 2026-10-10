@@ -40,19 +40,6 @@ const MOVABLE_METRES = 1e-7;
  * the opening direction, or one moved farther from the central closure than
  * that budget, refuses by name with where it lies.
  *
- * @evidence contracts/common.md#principled-implementation Legacy vertices use affine height equations with bounded fixed-point rereads whose convergence is not guaranteed; material courses instead use coupled native variables and actual posed residual acceptance at the original physical limits.
- * @evidence contracts/common.md#clear-and-simple-design One representation branch retains the legacy vertex solve and delegates material courses to their coupled field owner; other surfaces retain the central gain.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is raised; an unmoved or over-budget chain vertex refuses by name.
- * @evidence contracts/common.md#meaningful-documentation States the legacy contact line and bounded reread limitation, the material solver, the blend convention and original physical refusals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The field names no part.
- * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning along the whole margin: weight one is contact.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator applies the gains.
- * @evidence contracts/modeling.md#spatial-conventions Positions along the mandibular axis and heights along the opening direction, in basis metres.
- * @evidence contracts/modeling.md#shared-boundaries The upper and lower vermilion meet along the registered margin chains.
- * @evidenceExclude contracts/modeling.md#rendered-observation The summary reports the final apertures.
- * @evidence contracts/anatomy.md#anatomical-source Lip seal is contact along the whole vermilion margin; the requirement defines weight one as seal.
- * @evidence contracts/anatomy.md#permitted-range The extra displacement at a chain vertex is bounded by the lips surface's declared soft-tissue budget, beyond which the state refuses.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The gains are derived, not an input.
  * @author Samchon
  */
 export function createHumanFaceClosureGain(

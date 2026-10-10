@@ -27,12 +27,6 @@ import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeri
  * This does not reconstruct the unavailable continuous authored outline.
  * Exact refinement supplies intervening samples on that same far course.
  * Legacy nearest seating retains its existing geometric refusals.
- *
- * @evidence contracts/common.md#principled-implementation Source chart incidence and ocular arc correspondence determine the sheet independently of tissue offsets.
- * @evidence contracts/common.md#clear-and-simple-design One immutable lid band is reused by posterior tissue consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No requested thickness, source ordinal or optical dimension changes.
- * @evidence contracts/common.md#meaningful-documentation Separates source-sheet construction from normal-offset shell admission.
- * @evidence contracts/modeling.md#spatial-conventions Actual host positions and ocular arc quantities are head-frame metres.
  */
 export function buildHumanFacePeriocularBand(
   input: IHumanFacePeriocularBandInput,

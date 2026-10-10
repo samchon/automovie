@@ -70,19 +70,6 @@ type Skin = {
  * Refusals name the cause: not one open loop on each skin, a retained body
  * boundary that is not one loop, or a retained loop that does not run along the
  * face loop in order.
- *
- * @evidence contracts/common.md#principled-implementation The covered interior is sampled from height against azimuth and the radial guard, then extended as a piecewise-linear scalar over source triangles; shared crossing stencils retain the lower portion rather than exposing a staircase row, without claiming an exact analytic angular cut; the merge, the loop walk and the Wendland weight each state their own premises, and the joined skin is checked to be an oriented manifold along the seam so a misoriented ribbon refuses instead of shipping.
- * @evidence contracts/common.md#clear-and-simple-design The function sequences named owners (loops, azimuth, distances, merge) in the order the data dependence forces and computes the frozen cut, its retained-loop follow table and the compact-support band.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex number, loop length or subject is special-cased; the constants are named in `HUMAN_PERSON_SEAM` with their status, and every unmet precondition refuses.
- * @evidence contracts/common.md#meaningful-documentation The comment states the four steps, the vertical-tube assumption, the refusals and that the result depends on the neutral surfaces only.
- * @evidence contracts/modeling.md#part-identity-and-grouping The seam relates the two existing skin surfaces by boundary source identities; its logical ribbon supplies adjacency rather than a third displayed skin part.
- * @evidence contracts/modeling.md#emitted-geometry The cut appends one vertex per strict crossing edge and retains at most two triangles per source triangle; the logical cross-loop stencil has one triangle per loop edge, and displayed subdivision is owned by stitchHumanPersonBoundary.
- * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, +Z anterior, +X anatomical left, the frame both bases share; azimuth is about the vertical through the face loop's centroid.
- * @evidence contracts/modeling.md#shared-boundaries Each body crossing has one undirected-edge affine stencil shared by adjacent triangles and regions. The follow table associates the retained sampled contour with the face loop; collar alignment and stitchHumanPersonBoundary establish the final displayed common polyline, while the sampled contour is not the exact analytic angular cut.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel and varies with nothing but the two neutral surfaces.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The seam carries no anatomical value of its own; its reach is read from the body basis's authored skin weights (`measureHumanNeckReach`).
- * @evidenceExclude contracts/anatomy.md#permitted-range The function bounds no anatomical value; the composed documents' ranges are their owners'.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function createHumanPersonSeam(props: {
   face: { basis: string; surface: Skin };

@@ -56,20 +56,6 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * complete endpoint path into a clinical trajectory. The rest-clearance
  * contact stage is also a deterministic authored constraint rather than
  * measured tissue mechanics; resolveHumanFaceContact owns that distinction.
- *
- * @evidence contracts/common.md#principled-implementation Reuses the native companion/pose/replay stage at fixed source closure zero and one, with the weights owner rebuilding all other identical inputs, before one requested source-span blend. Native closure scales so weight one seals the measured central lip aperture. Original rigid floors read the same shape-only rest, and final registered/native aperture diagnostics and tongue passage read the actual corrected geometry.
- * @evidence contracts/common.md#clear-and-simple-design One native stage feeds the legacy path or the compiled source endpoint owner; contact, final measurements and normals remain their named downstream responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No second requested gain, source index clamp or forced zero gap enters the source path. Contact still owns its rest-clearance rule and budget, while source registration selects the actual final representative and retains the authored native diagnostic.
- * @evidence contracts/common.md#meaningful-documentation States the order, the frame and units, who owns the returned arrays and cites the jaw source with the limits of endpoint interpolation.
- * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseEvaluator is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseEvaluator emits no primitive.
- * @evidence contracts/modeling.md#parameter-channels The closure channel keeps one meaning: weight one brings the central pair and the whole registered lip margin to contact, scaled per vertex by createHumanFaceClosureGain.
- * @evidenceExclude contracts/modeling.md#shared-boundaries resolveHumanFaceContact owns the boundary between soft and rigid surfaces; the evaluator sequences it.
- * @evidenceExclude contracts/modeling.md#rendered-observation The face builder observes the emitted model; the evaluator returns positions, normals and the contact summary it reports.
- * @evidence contracts/anatomy.md#anatomical-source Jaw motion is source-authored endpoint interpolation with coupled translation (Lindauer et al.), and closure follows the requirement that weight one seals the lips.
- * @evidence contracts/anatomy.md#permitted-range A closure that cannot seal a pair, or would exceed the lips' tissue budget, refuses through createHumanFaceClosureGain; contact refusals come from resolveHumanFaceContact.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Channel weights are admitted upstream by humanFaceBasisWeights; the evaluator adds no input.
  */
 export function createHumanFaceBasisPoseEvaluator(
   basis: IAutoMovieHumanFaceBasis,

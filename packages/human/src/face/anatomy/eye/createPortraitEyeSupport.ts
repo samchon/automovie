@@ -29,16 +29,6 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * the unshifted `fittedSphere` is retained as the guide for the outer seam;
  * the intersection then projects onto the shifted sphere. Fitting failures of
  * the delegated routines throw unchanged.
- *
- * @evidence contracts/common.md#principled-implementation The identity is chosen once from the observed curves, before any blink or gaze, by delegating to the two fitting routines that each own their derivation, and a globe depth shift is a translation along the recorded ray, which keeps every image coordinate along that ray unchanged. Keeping the unshifted fit beside the shifted sphere is what lets the outer skin seam ignore optical prominence.
- * @evidence contracts/common.md#clear-and-simple-design One function selects between the two fit strategies by one shape field and returns the same shape of result for both, so the consumer does not branch on the strategy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The support is a function of the curves, the ray and the shape only, with no case named after a subject or fixture and no compensating retry.
- * @evidence contracts/common.md#meaningful-documentation The comment states when the identity is fixed, what each strategy returns, how the lift acts and what stays unshifted, the units and where failures come from.
- * @evidence contracts/modeling.md#spatial-conventions Every input and result is head millimetres in one right-handed frame with an anterior camera ray, and the only transformation is the translation along that ray, applied by name.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function fits an optical identity and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the shape's fit fields and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits the canthal hull only by delegating to its builder, and no primitive of its own.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value of its own; the radius and lift are the shape's.
  */
 export function createPortraitEyeSupport(
   upper: readonly Point[],

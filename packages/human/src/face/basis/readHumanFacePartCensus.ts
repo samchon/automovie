@@ -21,20 +21,6 @@ import type { IAutoMovieHumanConstructionPartReading } from "../../common/struct
  * its neighbouring regions; the census reports the count and judges nothing.
  * Self-crossings are the engine crossing census with the part as both
  * arguments, which ignores triangles that merely share an edge or a corner.
- *
- * @evidence contracts/common.md#principled-implementation The engine topology instrument reads the emitted buffers of each part; bounds are the coordinate extrema of the same buffers.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the model parts with one record each.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every mesh part is read; none is filtered by identity.
- * @evidence contracts/common.md#meaningful-documentation States precision, welding and why a boundary count is not a verdict.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres reconstructed from actual local Float32 buffers and part TRS.
- * @evidence contracts/modeling.md#emitted-geometry Reports the emitted counts of each part as constructed.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing part identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Counts boundary edges; the part owners construct boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical census.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function readHumanFacePartCensus(
   model: IAutoMovieModel,

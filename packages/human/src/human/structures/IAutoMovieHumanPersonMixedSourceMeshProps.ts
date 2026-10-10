@@ -10,14 +10,6 @@ import type { IAutoMovieHumanPersonHeadTransform } from "./IAutoMovieHumanPerson
  * Other vertices receive the generated part's rigid head carry. Native and
  * material domains retain their distinction under the person instance rebase.
  *
- * @evidence contracts/common.md#principled-implementation Actual native correspondence or original material parent seats pair evaluated skin coordinates with the generated part that uses them.
- * @evidence contracts/common.md#clear-and-simple-design Mesh, rigid carry, canonical lookup, final skin and exact material seats identify one placement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source aliases are identified by domain/ID rather than positions or part-name patterns.
- * @evidence contracts/common.md#meaningful-documentation Separates skin attachment coordinates from the generated part's rigid vertices.
- * @evidence contracts/modeling.md#spatial-conventions Input mesh uses head-frame metres; skin positions and placed output use person-frame metres.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Part and joint owners define the tissue; this record transports their shared point identities.
- * @evidenceExclude contracts/anatomy.md#permitted-range The source and pose owners admit geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This record adds no authoring value.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonMixedSourceMeshProps {

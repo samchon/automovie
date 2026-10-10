@@ -16,20 +16,6 @@ import type { IAutoMovieHumanBodyExteriorBinding } from "./IAutoMovieHumanBodyEx
  * shell cannot be nearer than its current furthest neighbour, so the answer is the
  * exact nearest set and not a sample of it. A point coincident with a skin
  * vertex takes that vertex's displacement.
- *
- * @evidence contracts/common.md#principled-implementation The shell search ends on a metric bound, so the weights are those of the true nearest vertices; positive normalised weights keep each moved point inside the range of the displacements it averages.
- * @evidence contracts/common.md#clear-and-simple-design One lattice, one search per point array, one weighted sum per build.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every point is treated alike; the search is exact and nothing is tuned to a part.
- * @evidence contracts/common.md#meaningful-documentation States the inputs, the caching rule and why the lattice search is exact.
- * @evidence contracts/modeling.md#spatial-conventions Points, skin positions and displacements are metres in the body's one neutral frame; the skin is addressed by native vertex ordinal.
- * @evidence contracts/modeling.md#shared-boundaries The skin displacement given here is the same one the exterior shows, so tissue and skin move by one definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The binding record owns the rule's parameters.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function moves given points and emits none.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly consumer owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The shape channels own their ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
 export function createHumanBodyExteriorFollower(
   skin: readonly number[],

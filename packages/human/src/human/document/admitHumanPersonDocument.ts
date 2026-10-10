@@ -25,20 +25,6 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
  * An explicitly neutral-only source also requires the face's owner-neutral
  * empty expression and absent oral/regional performance. Identity dimensions
  * remain authored, and this admission never clears a caller's expression.
- *
- * @evidence contracts/common.md#principled-implementation Exact person schema and finite source-trait values are admitted here; anatomy-specific schemas remain delegated, and generation-dependent support/conversion remains with the head shape resolver.
- * @evidence contracts/common.md#clear-and-simple-design One exact-schema check, two anatomy delegations, finite person-head values and person identity admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is accepted by omission of a check: unknown fields refuse through the exact-schema assertion.
- * @evidence contracts/common.md#meaningful-documentation The comment states what is admitted here and what the builder decides.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function admits a document and defines no part.
- * @evidence contracts/modeling.md#parameter-channels The person owns the closed source-neutral head trait requests; this admission preserves their values and leaves directional endpoint conversion to registered generation data.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Head differences retain their trait's source millimetre/degree units without conversion; source registration owns the anatomical support frame and weight scaling.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The source trait registration owns geometric/protocol qualification; schema admission derives no anatomy or clinical normal.
- * @evidenceExclude contracts/anatomy.md#permitted-range Finite values are admitted here; generation registration and pose/source owners enforce their actual authored and physical support during evaluation.
- * @evidence contracts/anatomy.md#parametric-authority The exact closed anatomical trait record admits numerical differences only; personal vertices, curves, meshes and extra fields cannot enter through headShape.
  */
 export function admitHumanPersonDocument(
   input: unknown,

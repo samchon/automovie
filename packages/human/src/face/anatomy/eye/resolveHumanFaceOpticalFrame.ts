@@ -20,20 +20,6 @@ import type { IAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMo
  * it is not a clinical zero. The shaped chart transports the same barycentric
  * point; the source axis/reference convention stays fixed for the qualified
  * translational population. No new optical axis is fitted after gaze.
- *
- * @evidence contracts/common.md#principled-implementation Validates source correspondence and endpoint movement before evaluating the recorded barycentric chart; the requested profile apex places its centre separately from the joint pivot.
- * @evidence contracts/common.md#clear-and-simple-design One source record and one shaped rest produce one orthonormal authoring frame.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No side-from-sign, radius mean, raw control ID substitution or unqualified target fallback.
- * @evidence contracts/common.md#meaningful-documentation States exact witnesses, Float64 bound, zero-effect meaning and frame transport limit.
- * @evidence contracts/modeling.md#spatial-conventions All coordinates and apex distance are head-frame metres; normalized source axis and projected reference determine one right-handed frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The source names the attachment owner; this function emits no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The basis owns endpoint meanings and the dimension record owns lengths.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits a frame, not a mesh.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The profile and geometry owners construct boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled optical core owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Source geometric registration is not a measured ocular axis or corneal apex.
- * @evidenceExclude contracts/anatomy.md#permitted-range No clinical interval is admitted.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This function adds no independent authoring dimension.
  */
 export function resolveHumanFaceOpticalFrame(
   basis: IAutoMovieHumanFaceBasis,

@@ -18,12 +18,6 @@ import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
  * They are not additional rigid dental obstacles and do not certify a sealed
  * posterior enclosure, muscular mechanics or source full-margin closure.
  *
- * @evidence contracts/common.md#principled-implementation Original lip edges and the same rigid vestibular edge form a variable-population strip; normalized arc station ordering determines incidence without changing either boundary.
- * @evidence contracts/common.md#clear-and-simple-design One final soft-wall join consumes the existing lip/contact and rigid arch owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coincident-coordinate weld, guessed commissure, bounding-box closure or phantom rigid mucosa replaces source ports.
- * @evidence contracts/modeling.md#shared-boundaries Every native lip margin ordinal and performed vestibular rim is retained exactly with its source identity.
- * @evidence contracts/modeling.md#spatial-conventions Final source-frame metre coordinates are already performed and receive no second jaw transform.
- * @evidence contracts/anatomy.md#anatomical-source The soft vestibular strip is a coarse authored connection, without measured mucosal thickness or pharyngeal acquisition.
  * @author Samchon
  */
 export function connectHumanFaceOralLipPorts(

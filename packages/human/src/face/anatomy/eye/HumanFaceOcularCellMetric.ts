@@ -31,20 +31,6 @@ type Interval = readonly [IHumanExactFraction, IHumanExactFraction];
  * separate corner-error key. Reuse retains the same exact square sum and upper
  * square-root enclosure rather than substituting an orthonormal-frame premise.
  *
- * @evidence contracts/common.md#principled-implementation Barycentric variance bounds the Taylor remainder; exact rational and transcendental enclosures account for actual corner evaluation separately.
- * @evidence contracts/common.md#clear-and-simple-design One profile resource shares coefficient, angle and value-checked frame-norm work across its actual exterior cells.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No apex curvature premise, scalar chord proxy, clinical margin or input modification enters the certificate.
- * @evidence contracts/common.md#meaningful-documentation States the one-sided certificate and distinguishes corner roundoff, tessellation and physical contact.
- * @evidence contracts/modeling.md#spatial-conventions Generating patch coordinates map through the actual head-frame vectors; the result is metres.
- *
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
  */
 export class HumanFaceOcularCellMetric {
   private readonly cap: HumanFaceOcularCapMetric;
@@ -65,20 +51,6 @@ export class HumanFaceOcularCellMetric {
   }
 
   /** Bound the actual triangle's deviation from its own cap or sphere patch.
-   *
-   * @evidence contracts/common.md#principled-implementation Taylor remainder bounds and actual corner discrepancies include both represented precisions without assuming hull inscription.
-   * @evidence contracts/common.md#clear-and-simple-design bound keeps its specific numerical operation with the shared owning implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts bound retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
-   * @evidence contracts/common.md#meaningful-documentation Bound the actual triangle against its generating cap or sphere patch, including binary64 and Float32 corner representation; this is one-sided deviation, not physical acceptance.
-   * @evidence contracts/modeling.md#spatial-conventions Ocular metric coordinates use profile metres and dimensionless or radian patch parameters; derivative quantities retain their stated units.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
    */
   bound(
     branch: "cap" | "sphere",
@@ -222,7 +194,6 @@ export class HumanFaceOcularCellMetric {
 
   /**
    * Reuse exact sine and cosine enclosures for one represented radian angle within the admitted tessellation domain.
-   *
    */
   private angle(value: number): IHumanTrigonometricBounds {
     let result = this.angles.get(value);

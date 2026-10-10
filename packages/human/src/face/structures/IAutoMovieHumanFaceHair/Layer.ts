@@ -22,20 +22,6 @@ import type { Region } from "./Region";
  * shafts; contact adds their radius to the centreline gap and the mesh keeps
  * that calibre. This separate geometry meaning leaves legacy ribbon fields unchanged.
  *
- * @evidence contracts/common.md#principled-implementation The existing root population record retains every metric styling field and shared-source identity without a second layer definition.
- * @evidence contracts/common.md#clear-and-simple-design This named file owns the sole Layer field definition; a separate compatibility alias preserves its existing public namespace.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing namespace qualification, fields and units are preserved without duplicate definitions or runtime patching.
- * @evidence contracts/common.md#meaningful-documentation Each retained member documents its established units, optional meaning and styling responsibility.
- * @evidence contracts/modeling.md#part-identity-and-grouping One id names one independently styled population on a registered surface/domain; IAutoMovieHumanFaceHair groups these records and createHumanFaceHairBuilder names their generated parts.
- * @evidence contracts/modeling.md#parameter-channels Regional lengths, population count, guide fraction, direction fields and appearance remain distinct styling quantities; wavelength depends on sampling step and gathering requires fully integrated guides as assertHumanFaceHair checks.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This input carries count and sampling controls; createHumanFaceHairBuilder and buildHumanFaceHairMesh own allocation, ribbon topology and the aggregate station budget.
- * @evidence contracts/modeling.md#spatial-conventions Lengths and clearances are metres, polar fields are radians, explicit emergence is degrees, coefficients and RGB are dimensionless; region coordinates use the neutral head frame and named scalp styling converts mm/degrees in expandHumanFaceScalpHair.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The record constructs no root or contact surface; the builder's source-domain, seating and root-boundary owners bind generated hair to the live scalp.
- * @evidenceExclude contracts/modeling.md#rendered-observation This input has no independent displayed output; createHumanFaceHairBuilder and the connected face assembly owe current hair/scalp observations, which are not established by these tags.
- * @evidence contracts/anatomy.md#anatomical-source Registered growth domains come from the shared source; lock counts, field lengths and painted-fibre appearance are authored styling conventions, not follicle counts, tissue mechanics or biological density measurements.
- * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceHair owns finite/integer limits and aggregate representation budgets; live builder contact owns source-dependent geometric feasibility. This type certifies no physiological hairstyle envelope.
- * @evidence contracts/anatomy.md#parametric-authority Named scalp measurements and closed styling choices expand through expandHumanFaceScalpHair into this retained runtime schema. Its legacy flow/plane/envelope coefficients remain conventional styling resources, not calibrated anatomical inputs; no individual root, strand sample or personal mesh is carried.
- *
  * @author Samchon
  */
 export interface Layer {

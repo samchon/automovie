@@ -20,16 +20,6 @@ import type { IHumanFacePeriocularArcLocation } from "./structures/IHumanFacePer
  * binary64. Missing extent or ambiguous crossings refuse without changing
  * the caller's registered distance. The source station path is an authored
  * attachment convention, not a measured biological meridian.
- *
- * @evidence contracts/common.md#principled-implementation Bisection preserves opposite target signs on a continuous material segment; source station crossings are counted without assuming that an inner lid wall has globally monotone ocular coordinates.
- * @evidence contracts/common.md#clear-and-simple-design One owner converts the registered ocular arc to a dimensionless source attachment coordinate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset, extent, surface or clearance is clamped when the registered source lacks a supported path.
- * @evidence contracts/common.md#meaningful-documentation States the origin, metric, source-path qualification and failure effects.
- * @evidence contracts/modeling.md#spatial-conventions Input distance is metres along the actual ocular meridian; output is dimensionless source-chart u,v.
- * @evidence contracts/modeling.md#shared-boundaries The shared far-border coordinate serves both posterior lamella tissue identities.
- * @evidence contracts/anatomy.md#anatomical-source Consumes publisher-qualified plate extents and station paths; their anatomical qualification remains with the source owner.
- * @evidenceExclude contracts/anatomy.md#permitted-range This geometric source-domain check asserts no clinical interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal shaping input.
  */
 export function locateHumanFacePeriocularArc(
   chart: IHumanFaceAttachmentChartHost,

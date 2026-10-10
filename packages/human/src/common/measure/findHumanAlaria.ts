@@ -17,20 +17,6 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * so does a side whose most lateral vertex lies within 1 mm of the band's
  * posterior bound: there the skin keeps widening into the cheek and the bound
  * alone would set the reading (the margin is a stated convention).
- *
- * @evidence contracts/common.md#principled-implementation The alaria are lateral extremes found on each skin within a stated alar band.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the vertices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty side and a bound-set extreme refuse; the band is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States both protocol sentences, the band, its status and both refusals.
- * @evidence contracts/modeling.md#spatial-conventions Right is -X; heights along +Y; anterior is +Z.
- * @evidence contracts/anatomy.md#anatomical-source Follows Katina 2016's alare and the 3DFN nasal width.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function findHumanAlaria(
   head: IAutoMovieHumanHeadSkin,

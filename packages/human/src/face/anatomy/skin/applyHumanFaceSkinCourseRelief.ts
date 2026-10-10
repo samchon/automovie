@@ -24,19 +24,6 @@ import type { IHumanFaceSkinCourseRelief } from "./IHumanFaceSkinCourseRelief";
  * feature partitioning and arithmetic refusal; a changed skin needs a new host
  * and invalidates affected relief fields, normals and contact references.
  *
- * @evidence contracts/common.md#principled-implementation Seating the course and displacing along the surface normal define the relief relative to the skin, so its depth is the authored offset wherever the skin faces; a displacement along a head axis delivers only the cosine of the skin's inclination and shears the surface where it turns. `(1 - r^2)^2` is C1 at `r = 1` and `sin^2` is C1 at the ends.
- * @evidence contracts/common.md#clear-and-simple-design One kernel for every relief owner; owners supply their native courses, widths and offsets.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No region name or landmark is known here; nothing is clamped and an unrepresentable result refuses.
- * @evidence contracts/common.md#meaningful-documentation States the formula, both conventions, the second-sheet limit and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres in and out; displacement is along the host's outward smooth normal.
- * @evidence contracts/modeling.md#shared-boundaries Zero value and zero slope at the kernel's edge keep the relieved skin continuous in position and normal with the skin around it, and held vertices keep the lip margin and landmarks exactly.
- * @evidence contracts/modeling.md#parameter-channels Width sets the transverse extent and offset the central displacement; neither changes the other.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function displaces vertices of an existing part and defines none.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The relief owners that call this observe their result.
- * @evidence contracts/anatomy.md#anatomical-source The kernel shapes are authored conventions; no crease profile was read from a measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The calling relief owners admit their inputs.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The calling relief owners define the public inputs.
  * @author Samchon
  */
 export function applyHumanFaceSkinCourseRelief(

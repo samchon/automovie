@@ -13,20 +13,6 @@ import { triangleAreaVector } from "./triangleAreaVector";
  * keeps origin zero. This chooses a coordinate frame, never a vertex merge
  * or a geometric tolerance. The original redundancy classification remains
  * authoritative through translation and the strict Float32 conversion.
- *
- * @evidence contracts/common.md#principled-implementation Exact reconstruction and source-face direction checks precede the existing local Float32 guard.
- * @evidence contracts/common.md#clear-and-simple-design One owner chooses the origin and prepares its immutable local mesh.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No nearby point, small face or failed orientation is removed or exempted.
- * @evidence contracts/common.md#meaningful-documentation States exact reconstruction, zero-origin axes and source redundancy ownership.
- * @evidence contracts/modeling.md#spatial-conventions A compensating translation preserves the supplied metre-frame geometry.
- * @evidence contracts/modeling.md#shared-boundaries Vertex order, indices and physical source correspondence survive unchanged.
- * @evidence contracts/modeling.md#emitted-geometry Preserves every input vertex and nonredundant triangle.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The caller retains its existing part identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The actual viewport and export own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical dimension.
- * @evidenceExclude contracts/anatomy.md#permitted-range Physical predicates remain with their owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Changes no personal input.
  */
 export function createHumanLocalMeshFrame(
   source: IAutoMovieMesh,

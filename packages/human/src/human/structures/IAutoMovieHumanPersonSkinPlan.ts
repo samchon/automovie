@@ -6,19 +6,6 @@ import type { IAutoMovieHumanPersonSkinBand } from "./IAutoMovieHumanPersonSkinB
  * What forming a one-skin person's posed skin reads that does not depend on
  * the document, compiled once from the generation.
  *
- * @evidence contracts/common.md#principled-implementation The shared-sample maps, neutral positions and weight maps are compiled once per generation.
- * @evidence contracts/common.md#clear-and-simple-design One record of the tables the forming step reads.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every table is derived from the generation's own registration; nothing is matched by position.
- * @evidence contracts/common.md#meaningful-documentation States what each table holds.
- * @evidence contracts/modeling.md#shared-boundaries Holds the shared-sample correspondence both halves read one value through.
- * @evidence contracts/modeling.md#spatial-conventions Neutral positions are metres of the generation's frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The plan defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The plan carries no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The plan emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The plan is not displayed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The plan carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The plan admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The plan converts no input.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonSkinPlan {

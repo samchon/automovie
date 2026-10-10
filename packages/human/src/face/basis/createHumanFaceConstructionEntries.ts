@@ -15,11 +15,6 @@ import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage"
  * Refused drafts still report their verdict; result publication remains
  * success-only. A thrown stage has no completed-stage event, and observer
  * exceptions propagate without altering any retained admission condition.
- *
- * @evidence contracts/common.md#principled-implementation Both entries consume one stage and the same admission population without changing a geometry or condition.
- * @evidence contracts/common.md#clear-and-simple-design Geometry ownership stays supplied while this entry owner handles admission and publication timing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Inspection preserves every refusal; no skip flag or alternative renderer admits the model.
- * @evidence contracts/common.md#meaningful-documentation States ordinary refusal, complete draft reporting and successful observer isolation.
  */
 export function createHumanFaceConstructionEntries(
   stage: (

@@ -8,19 +8,6 @@ import type { IHumanBodyUnderwearSurfaceViolation } from "./IHumanBodyUnderwearS
  * use the original dimensionless logical L1 population. Progress omits buffers;
  * final refusals retain them. Numerical curvature changes no physical input.
  *
- * @evidence contracts/common.md#principled-implementation Distinguishes full affine prediction, actual supported merit and original physical feasibility.
- * @evidence contracts/common.md#clear-and-simple-design One local proposal owns its numerical comparison and candidate identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No slack sum, native objective or failure count substitutes for the original merit.
- * @evidence contracts/common.md#meaningful-documentation States metric units, unavailable values and separate forward coordinates.
- * @evidence contracts/modeling.md#spatial-conventions Base coordinates retain posed metres; native point displacements are divided by rho and relative-edge auxiliaries by their original edge scale, so the L1 merit and proximal metric are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This numerical proposal defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no authored input.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Only the unchanged forward owner can admit geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Existing cut incidence and pins remain owned by the fitter.
- * @evidenceExclude contracts/modeling.md#rendered-observation A proposal establishes no appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Original anatomical admission remains authoritative.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Numerical curvature is not an authoring control.
  * @author Samchon
  */
 export interface IHumanBodyUnderwearFittingProposal {

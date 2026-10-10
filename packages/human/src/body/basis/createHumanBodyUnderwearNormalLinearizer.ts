@@ -21,20 +21,6 @@ import type { IHumanBodyUnderwearSurfaceEvaluation } from "./IHumanBodyUnderwear
  * real-arithmetic model of that forward branch, not the derivative of binary64
  * rounding. Nonzero finite normal and representable derivative requirements are
  * reported explicitly. The evaluator alone accepts an actual candidate.
- *
- * @evidence contracts/common.md#principled-implementation Analytic triangle-area and unit-vector derivatives propagate through the actual shortest-arc quaternion branch and returned-normal normalization; one-ring sparse maps include every incident face dependency.
- * @evidence contracts/common.md#clear-and-simple-design Owns one numerical result consumed by the connected garment fit.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves supplied material, signed offset and strict final acceptance; no numerical differencing or geometry tolerance is introduced.
- * @evidence contracts/common.md#meaningful-documentation States units, derivative meaning, numerical domain and final-acceptance limits.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical garment data defines no independent part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Carries existing material values without adding an authoring trait.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Computes no new render primitive.
- * @evidence contracts/modeling.md#spatial-conventions Candidate coordinates and signed offsets use the existing posed skin frame in metres; derivative and raw-area units are documented at their fields.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Retains caller-owned incidence and defines no new geometric join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The actual garment emitter owns rendered verification; local derivatives establish no appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical quantity or measured range.
- * @evidenceExclude contracts/anatomy.md#permitted-range The anatomical and field owners retain admission; this operation measures only local orientation.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Internal candidate coordinates are not a public sculpting channel.
  */
 export function createHumanBodyUnderwearNormalLinearizer(
   input: IHumanBodyUnderwearLiftLinearizerInput,

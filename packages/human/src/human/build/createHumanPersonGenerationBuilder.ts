@@ -104,19 +104,6 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  * same person model with the face's unchanged admission report. The ordinary
  * callable refuses a rejected report. Source, schema, geometry, normal and
  * static resident-model checks still execute on their original boundaries.
- *
- * @evidence contracts/common.md#principled-implementation The order follows data dependence: both partitions are evaluated before the rest skin can be formed, the rest skin before the one skinning, the posed halves before the one normal field, and the normals before the parts are read back; a shared sample is one value because both partitions' fields are summed once and then skinned once with one weight row.
- * @evidence contracts/common.md#clear-and-simple-design One orchestrator over the existing face, body, head-carry, skinning, normal and hair owners; the only tables compiled once are the shared-sample maps and the region corner tables.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a document, a vertex or a revision; incompatible views refuse by name, the source normal guards are used unchanged and the boundary disagreement is reported rather than corrected.
- * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order, the boundary rule, what is absent compared with the seam path and the cost of a posed document.
- * @evidence contracts/modeling.md#part-identity-and-grouping The person is a group of the two partitions' parts under `face:` and `body:` prefixes; the boundary introduces no third skin identity.
- * @evidence contracts/modeling.md#spatial-conventions One metre, Y-up, +Z-forward frame; the neutral-to-shaped conversion of the head is the head transform's named shift.
- * @evidence contracts/modeling.md#shared-boundaries Every shared sample has one rest value and one skinning row, so both halves read the same position, and one source normal field gives both the same normal.
- * @evidence contracts/modeling.md#emitted-geometry Skin assembly retains the partition views' incidence; requested underwear then splits its covered and uncovered render regions through the shared material-partition owner.
- * @evidenceExclude contracts/modeling.md#parameter-channels The evaluator consumes the partitions' channels through their owners and defines none.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The evaluator carries no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The partitions' owners admit their documents.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The evaluator consumes the person document and adds no input.
  */
 export function createHumanPersonGenerationBuilder(
   props: IAutoMovieHumanPersonGenerationBuilderProps,

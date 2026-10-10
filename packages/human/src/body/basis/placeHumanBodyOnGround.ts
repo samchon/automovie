@@ -19,20 +19,6 @@ import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMo
  * the same body. No weight, friction, balance or physiological claim follows.
  * A supplied pre-garment sourceSkinModel receives that same translation;
  * contact must not compare its old frame with the placed posedSurfaces.
- *
- * @evidence contracts/common.md#principled-implementation Subtracting the minimum final foot gap from every performed Y coordinate puts that minimum on the same fixed horizontal plane without changing relative geometry.
- * @evidence contracts/common.md#clear-and-simple-design One existing final-surface instrument determines one translation shared by the model, skin and posed bone frames.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing ground or either foot refuses by name; the ground is never moved and angles are never clamped.
- * @evidence contracts/common.md#meaningful-documentation States the explicit placement, airborne higher foot, preserved rest frame and mechanical limits.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It transforms existing parts and defines none.
- * @evidence contracts/modeling.md#parameter-channels The consumer opts into lowest-foot placement; omission preserves the source-root pose.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It retains every primitive and copies only positions.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the source Y-up frame; translation is vertical relative to the unchanged joint-ground plane.
- * @evidence contracts/modeling.md#shared-boundaries Every part, unsplit surface and posed frame takes one translation, preserving their relative boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation Body and person assembly consumers own observation of the placed result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It supplies a geometric placement and no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Pose owners retain their admission; placement admits no clinical range.
- * @evidence contracts/anatomy.md#parametric-authority The public request is a named geometric support choice and never an authored surface or vertex offset.
  */
 export function placeHumanBodyOnGround(
   props: IHumanBodyGroundPlacementProps,

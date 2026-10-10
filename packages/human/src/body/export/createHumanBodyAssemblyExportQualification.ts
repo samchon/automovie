@@ -14,11 +14,6 @@ import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLaye
  * A registered native SAT owner additionally requires the layer constructor's
  * actual final observation. Its field/exterior/member provenance is retained
  * separately from original acquired or authored static mesh digests.
- *
- * @evidence contracts/common.md#principled-implementation Actual source geometry digest and exact member identities bind provenance before the shared writer groups primitives.
- * @evidence contracts/common.md#clear-and-simple-design One source walk prepares body or prefixed person qualification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Receipt strings never replace hashing the actual acquired/authored geometry.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes original geometry, posed representation and unavailable clinical validity.
  */
 export async function createHumanBodyAssemblyExportQualification(
   basis: IAutoMovieHumanBodyBasis,

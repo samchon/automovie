@@ -8,20 +8,6 @@ import { createHumanLocalMeshFrame } from "./createHumanLocalMeshFrame";
  * Publish a static mesh in its prepared local frame using ordinary part TRS.
  * The original linear transform stays unchanged; its translation carries the
  * local origin through the existing engine matrix composition.
- *
- * @evidence contracts/common.md#principled-implementation Post-composes the existing TRS with the compensating origin translation.
- * @evidence contracts/common.md#clear-and-simple-design One adapter publishes the prepared frame without another model API.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains part, material, geometry incidence and existing linear transform.
- * @evidence contracts/common.md#meaningful-documentation States static scope and compensation order.
- * @evidence contracts/modeling.md#spatial-conventions Local metre positions use the ordinary T*R*S part transform.
- * @evidence contracts/modeling.md#shared-boundaries Carries existing physical source correspondence without reassignment.
- * @evidence contracts/modeling.md#emitted-geometry Publishes the same complete mesh in a translated coordinate frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Preserves the caller's identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no personal channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation Normal viewer and glTF consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical dimension.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission remains unchanged.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring control.
  */
 export function createHumanLocalModelPart(
   part: IAutoMovieModelPart,

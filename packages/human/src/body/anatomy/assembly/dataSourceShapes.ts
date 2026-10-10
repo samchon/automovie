@@ -84,14 +84,6 @@ function volumePolynomial(
  * Original source arrays, rights, compiled digests and bindings remain intact;
  * returned shape meshes are owned and consumed before the same rig poses them.
  *
- * @evidence contracts/common.md#principled-implementation Actual closed-boundary volume is solved within one producer-defined field domain; final metric and representable geometry are reread before owned results are returned.
- * @evidence contracts/common.md#clear-and-simple-design Existing record paths, one source field and original member identity form the consumer; publication and rigid attachment stay with their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No bbox/header volume, clinical default, positive-all domain, observed-to-target cast or per-part carrier enters.
- * @evidence contracts/common.md#meaningful-documentation States supported freedom, clinical/acquisition separation, shape registration and immutable source provenance.
- * @evidence contracts/modeling.md#parameter-channels Named absolute volume targets solve a source-owned coefficient without exposing private displacement arrays.
- * @evidence contracts/modeling.md#spatial-conventions Source fields use common-neutral metres and actual boundary volume converts to input millilitres by 1e6.
- * @evidence contracts/modeling.md#shared-boundaries Declared source held vertices have zero displacement; missing graph/site/skin adaptation is not replaced by an independent transform.
- * @evidence contracts/anatomy.md#anatomical-source Compartment/protocol/target conditions are supplied by the actual source binding; mathematical volume does not certify clinical segmentation or population support.
  * @author Samchon
  */
 export function dataSourceShapes(

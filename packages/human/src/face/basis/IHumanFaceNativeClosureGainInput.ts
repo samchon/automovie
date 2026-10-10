@@ -7,19 +7,6 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  * The solver borrows all buffers and returns a fresh gain field. Tissue budget
  * and contact tolerance retain the source contract's metres, not solver units.
  *
- * @evidence contracts/common.md#principled-implementation Keeps the actual surface, source contact, rigid maps and central gain together for a coupled vertex solve.
- * @evidence contracts/common.md#clear-and-simple-design One input record carries one native closure responsibility.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No authoring defaults or alternate source enters this transport.
- * @evidence contracts/common.md#meaningful-documentation Names borrowed buffers and the original physical limits.
- * @evidence contracts/modeling.md#spatial-conventions Positions, deltas and budget use canonical head-frame metres; ratio is dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The contact owner defines the closure channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The solver consumes the source courses.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly observes the result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries source-owned values without deriving anatomy.
- * @evidenceExclude contracts/anatomy.md#permitted-range The solver enforces the transported limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  * @author Samchon
  */
 export interface IHumanFaceNativeClosureGainInput {

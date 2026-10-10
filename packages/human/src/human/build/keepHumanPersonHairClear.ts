@@ -32,20 +32,6 @@ import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHai
  * they constrain neither strand arc length nor complete face clearance and
  * do not establish collision-free or biologically valid hair contact. The
  * assembled result and scalp root attachment remain separate observations.
- *
- * @evidence contracts/common.md#principled-implementation The existing oriented signed query admits the complete retained body surface, so a crop cannot break its incident fans. Each station uses the largest observed vertex displacement towards the requested offset surface; finite passes and vertex samples supply no whole-face clearance proof.
- * @evidence contracts/common.md#clear-and-simple-design One complete source query feeds the existing station translation; no spatial crop or corrective retry chooses a different topology.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source incidence, winding and requested clearance remain unchanged; the signed-query guard is neither bypassed nor weakened for a pose or subject.
- * @evidence contracts/common.md#meaningful-documentation States complete-source query ownership, rim refusal and the limits of station samples and passes.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the shared frame; the query retains the body's original winding and actual open boundary.
- * @evidence contracts/modeling.md#shared-boundaries Hair and body consume one document clearance; sampled station movement does not certify scalp attachment or complete contact under every pose.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves vertices of an existing part and defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive beyond the query's private sheet.
- * @evidenceExclude contracts/modeling.md#rendered-observation The stage is observed on the assembled person, where the hair meets the shoulder.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the clearance is the hair document's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function keepHumanPersonHairClear(
   props: IHumanPersonHairContactProps,

@@ -5,20 +5,6 @@ import type { IHumanPolynomialRoot } from "./IHumanPolynomialRoot";
 
 /** One dyadic interval used by the exact Sturm subdivision.
  *
- * @evidence contracts/common.md#principled-implementation Integer endpoints and a common binary denominator retain exact interval boundaries and their Sturm root count.
- * @evidence contracts/common.md#clear-and-simple-design One traversal record carries the two endpoints, denominator exponent and interior root count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No rounded endpoint or fixed subdivision tolerance replaces exact interval state.
- * @evidence contracts/common.md#meaningful-documentation Each field names its role in exact subdivision.
- *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
  * @author Samchon
  */
 interface RootInterval {
@@ -41,20 +27,6 @@ interface RootInterval {
  * parameter; several roots rounding to that parameter need one output point.
  * There is no iteration cap, coefficient epsilon or anatomical limit.
  *
- * @evidence contracts/common.md#principled-implementation Sturm variation differences count all roots; exact one-sided signs and dyadic subdivision certify binary64 parameter isolation.
- * @evidence contracts/common.md#clear-and-simple-design Integer sequence construction precedes immutable dyadic interval traversal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sample grid, curvature assumption or small coefficient hides a root.
- * @evidence contracts/common.md#meaningful-documentation States coefficient order, repeated-root handling, interval and rounding termination.
- *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
  */
 export function isolateHumanPolynomialRoots(
   coefficients: readonly IHumanExactFraction[],
@@ -159,20 +131,6 @@ export function isolateHumanPolynomialRoots(
 
 /** Positive integer content normalization preserves all polynomial signs.
  *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
- *
- * @evidence contracts/common.md#principled-implementation Positive integer-content normalization removes only common factors and trailing zero coefficients, preserving polynomial signs.
- * @evidence contracts/common.md#clear-and-simple-design primitive owns this exact polynomial or interval operation for the shared numerical caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact represented coefficients and endpoint signs are retained without a magnitude cutoff.
- * @evidence contracts/common.md#meaningful-documentation Positive integer-content normalization removes only common factors and trailing zero coefficients, preserving polynomial signs.
  */
 function primitive(values: readonly bigint[]): bigint[] {
   const result = [...values];
@@ -189,20 +147,6 @@ function primitive(values: readonly bigint[]): bigint[] {
 
 /** The formal derivative lowers degree and preserves exact coefficients.
  *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
- *
- * @evidence contracts/common.md#principled-implementation Formal power coefficients produce the exact polynomial derivative before positive-content normalization.
- * @evidence contracts/common.md#clear-and-simple-design derivative owns this exact polynomial or interval operation for the shared numerical caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact represented coefficients and endpoint signs are retained without a magnitude cutoff.
- * @evidence contracts/common.md#meaningful-documentation Formal power coefficients produce the exact polynomial derivative before positive-content normalization.
  */
 function derivative(values: readonly bigint[]): bigint[] {
   return primitive(values.slice(1).map((value, at) => value * BigInt(at + 1)));
@@ -210,20 +154,6 @@ function derivative(values: readonly bigint[]): bigint[] {
 
 /** Multiply each division step by a positive leading magnitude.
  *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
- *
- * @evidence contracts/common.md#principled-implementation Positive leading-magnitude scaling preserves the signs needed by the exact Sturm sequence.
- * @evidence contracts/common.md#clear-and-simple-design pseudoRemainder owns this exact polynomial or interval operation for the shared numerical caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact represented coefficients and endpoint signs are retained without a magnitude cutoff.
- * @evidence contracts/common.md#meaningful-documentation Positive leading-magnitude scaling preserves the signs needed by the exact Sturm sequence.
  */
 function pseudoRemainder(a: readonly bigint[], b: readonly bigint[]): bigint[] {
   let result = [...a];
@@ -241,20 +171,6 @@ function pseudoRemainder(a: readonly bigint[], b: readonly bigint[]): bigint[] {
 
 /** Homogeneous Horner evaluation returns the exact sign at n/2^power.
  *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
- *
- * @evidence contracts/common.md#principled-implementation Homogeneous Horner evaluation keeps the sign exact at the supplied dyadic parameter.
- * @evidence contracts/common.md#clear-and-simple-design evaluate owns this exact polynomial or interval operation for the shared numerical caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact represented coefficients and endpoint signs are retained without a magnitude cutoff.
- * @evidence contracts/common.md#meaningful-documentation Homogeneous Horner evaluation keeps the sign exact at the supplied dyadic parameter.
  */
 function evaluate(
   values: readonly bigint[],

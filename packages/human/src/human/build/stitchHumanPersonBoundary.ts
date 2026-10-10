@@ -51,19 +51,6 @@ import { assertHumanPersonSubdivision } from "./assertHumanPersonSubdivision";
  * Existing endpoint pairs must agree, and metadata is copied independently.
  * A new edge point or centroid needs a registration owner this stage does
  * not supply, so correspondence-present subdivision refuses that case.
- *
- * @evidence contracts/common.md#principled-implementation A union of the two ordered edge partitions gives both surfaces identical segments; interpolating each shared point from the same face edge avoids a floating-point definition on each side, and centroid fans subdivide the incident skins rather than emitting degenerate joining faces.
- * @evidence contracts/common.md#clear-and-simple-design One canonical ordered boundary feeds region-local edge subdivision and attribute interpolation; the person builder supplies the already posed surfaces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No area threshold exempts a face from precision admission; shared positions are derived from boundary identity, and no basis or subject is singled out.
- * @evidence contracts/common.md#meaningful-documentation States the canonical boundary, attribute ownership, stage order, centroid assumption, precision gate and mutation rule.
- * @evidence contracts/modeling.md#spatial-conventions Positions remain metres in the shared frame; parameters are dimensionless positions along the face's numbered edges.
- * @evidence contracts/modeling.md#shared-boundaries Both skins use the union of the face vertices and projected body vertices, with one position and normal calculation for every boundary sample.
- * @evidence contracts/modeling.md#emitted-geometry Face edge subdivision emits one additional triangle per inserted point, the minimum polygon triangulation without an interior vertex. A nonplanar body perimeter retains the old triangle centroid, requiring one fan triangle per perimeter segment; neither path adds geometry when there is no inserted sample.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Subdivides an existing material region and creates no new part identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored shape channel.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical measurement or tissue model; it joins already evaluated skin boundaries.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical document admission precedes this mesh stage.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The inputs are internal evaluated meshes and their source identities, not user sculpting controls.
  */
 export function stitchHumanPersonBoundary(
   props: IAutoMovieHumanPersonBoundaryStitchProps,

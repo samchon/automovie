@@ -28,20 +28,6 @@ import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells
  * Arrays are read only; returned unit normals are owned, dimensionless and
  * expressed in the shared metre/Y-up/Z-forward reference/current frame.
  * Geometry admission remains with evaluateHumanPersonSourceCells.
- *
- * @evidence contracts/common.md#principled-implementation Builds each differential from actual reference/current tangents and an explicit transverse convention, then applies the engine cofactor and fixed reference-area incidence.
- * @evidence contracts/common.md#clear-and-simple-design One transport owner separates ancestral fields, fixed source-star densities and final frozen-chart readback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No neutral arrays, personal vertex exceptions or renderer stars substitute for the actual final reference and source cells.
- * @evidence contracts/common.md#meaningful-documentation States the extension convention, frame, precision, incidence and exact return boundary without claiming tissue validity.
- * @evidence contracts/modeling.md#shared-boundaries Both complementary skins consume the same canonical source stars and admitted ordered charts.
- * @evidence contracts/modeling.md#spatial-conventions Tangents are metres, cross products square metres and final shading vectors dimensionless in the common performed frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines a field, not a part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no shaping channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits normals for existing geometry only.
- * @evidenceExclude contracts/modeling.md#rendered-observation The person assembly owns actual observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The transverse convention is numerical shading, not anatomy.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits numerical fields, not biological ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes compiled lineage without personal vertex input.
  */
 export function createHumanPersonNormalTransport(
   props: IAutoMovieHumanPersonNormalTransportProps,

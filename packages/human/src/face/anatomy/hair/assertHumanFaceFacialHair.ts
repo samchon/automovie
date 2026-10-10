@@ -8,11 +8,6 @@ import type { IAutoMovieHumanFaceFacialHair } from "../../structures/IAutoMovieH
  * this limit does not define a biological density. No requested scalar is
  * clamped or replaced. Source coverage is decided by the subsequent resolver.
  *
- * @evidence contracts/common.md#principled-implementation Closed schema and finite unit-bearing targets are checked before source or geometry allocation.
- * @evidence contracts/common.md#clear-and-simple-design One admission owner is shared by numerical document load/save and production resolution.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses invalid targets without inventing clinical bounds or narrowing a requested population.
- * @evidence contracts/common.md#meaningful-documentation Separates resource admission, authored quantities and later source coverage.
- * @evidence contracts/anatomy.md#parametric-authority Only named site counts, metric dimensions, styling angle, seed and reflected finish enter.
  * @author Samchon
  */
 export function assertHumanFaceFacialHair(input: IAutoMovieHumanFaceFacialHair): void {

@@ -7,19 +7,6 @@ import type { IAutoMovieHumanFaceSourceClosurePlan } from "../structures/IAutoMo
  * This owner reads genuine current positions; it neither constructs nor
  * substitutes the separately requested closure-one endpoint.
  *
- * @evidence contracts/common.md#principled-implementation Structural registration is admitted independently of endpoint work using actual dense open geometry.
- * @evidence contracts/common.md#clear-and-simple-design The evaluator and endpoint arithmetic share one registration guard owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero requests retain layout, ownership and coefficient refusals without a fake prior or a new bypass flag.
- * @evidence contracts/common.md#meaningful-documentation Separates structural admission from requested endpoint arithmetic and physical contact acceptance.
- * @evidence contracts/modeling.md#shared-boundaries Unique source pair and transition ownership is preserved.
- * @evidence contracts/modeling.md#spatial-conventions Open arrays retain canonical head-frame metres; driver coefficients are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The source owns the closure channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation Assemblies observe the performed output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical quantity or tissue model.
- * @evidenceExclude contracts/anatomy.md#permitted-range Physical contact owners retain their limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  * @author Samchon
  */
 export function assertHumanFaceSourceClosurePlan(

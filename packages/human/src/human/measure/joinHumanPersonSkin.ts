@@ -18,20 +18,6 @@ import type { IAutoMovieHumanPersonJoinedSkin } from "../structures/IAutoMovieHu
  * kept. The shared boundary samples are therefore one physical vertex of the
  * result, and a contour that crosses the head/body cut closes. Positions are
  * quantized to Float32, the precision the model is exported and drawn at.
- *
- * @evidence contracts/common.md#principled-implementation The halves are joined by their declared source identity, not by position, so the result is the one skin the generation defines.
- * @evidence contracts/common.md#clear-and-simple-design Find the domain, append each part of it, keep the anchor.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Parts of another domain (eyes, teeth, clothing) are left out instead of competing for a contour.
- * @evidence contracts/common.md#meaningful-documentation States what is joined, how identity survives, the precision and the null case.
- * @evidence contracts/modeling.md#spatial-conventions Float32 metres in the model frame.
- * @evidence contracts/modeling.md#shared-boundaries The head/body boundary samples stay one physical vertex.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function reads parts by source identity and defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The joined buffer is read, never emitted.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function joinHumanPersonSkin(
   model: IAutoMovieModel,

@@ -18,20 +18,6 @@ import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSu
  * Construction admits the same fixed lift inputs before fitting begins. The
  * returned reader is called only after the fitter has initialized its refusal
  * state. Neither affine feasibility nor the L1 sum accepts emitted geometry.
- *
- * @evidence contracts/common.md#principled-implementation Complete original field rows and actual transported-normal lift rows share fixed dimensionless displacement coordinates; unique logical condition maxima define the original L1 merit.
- * @evidence contracts/common.md#clear-and-simple-design Owns the complete affine model and lift derivative instance; the caller retains native scheduling, state, work accounting and final acceptance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every original row and tied witness is retained without a substituted gradient, tolerance or sampled condition.
- * @evidence contracts/common.md#meaningful-documentation Defines normalization, slack ownership, refusal history and the separation from physical acceptance.
- * @evidence contracts/modeling.md#spatial-conventions Candidate XYZ and rho use posed-skin metres; normalized rows and merit are dimensionless, while the lift owner retains raw square metres and inverse-metre derivatives.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This numerical model defines no independent part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads fixed material inputs without adding authoring traits.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Computes affine rows rather than render primitives.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The cut and evaluator retain material incidence and joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation The garment emitter retains appearance verification.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no anatomical value or range.
- * @evidenceExclude contracts/anatomy.md#permitted-range Original input and final geometry owners retain admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Internal affine proposals cannot author personal anatomy.
  */
 export function createHumanBodyUnderwearFittingLinearizer(
   input: IHumanBodyUnderwearSurfaceFitInput,

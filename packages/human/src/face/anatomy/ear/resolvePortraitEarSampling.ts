@@ -7,16 +7,6 @@ import { portraitEarSampling } from "./portraitEarSampling";
  *
  * Bounds here only keep dimensions finite and positive: a living pinna range
  * is not encoded, so a positive but implausible scale is admitted.
- *
- * @evidence contracts/common.md#principled-implementation Admission is closed-form: every placement and scale must be finite, scales and projection strictly positive, embedding nonnegative, and the tessellation integers inside inclusive bounds, so a NaN, a fractional count or an adjacent out-of-range value refuses before geometry is built. The result is a copy, so the caller's shape and the shared default are never mutated. The bounds are tessellation budgets, not anatomical limits.
- * @evidence contracts/common.md#clear-and-simple-design One validator and one default owner (`portraitEarSampling`); this validator and the document resolver consume the same default instead of repeating it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is special-cased and nothing is patched around another module; the default is a named contract constant.
- * @evidence contracts/common.md#meaningful-documentation The comment states what is validated, that the sampling is independent of anatomy and that the caller owns the returned record.
- * @evidence contracts/modeling.md#spatial-conventions The function passes the placement and dimensions through in the head-frame millimetres and dimensionless scales that IPortraitEarShape defines and converts none of them; the sampling counts are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it admits the numbers of the pinna builder.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part; the pinna builder observes the assembled ear.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; its bounds only keep dimensions finite and positive and the tessellation within a budget.
  */
 export function resolvePortraitEarSampling(
   shape: IPortraitEarShape,

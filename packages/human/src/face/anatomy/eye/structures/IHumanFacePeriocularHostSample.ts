@@ -7,14 +7,6 @@ import type { IHumanFacePeriocularMaterialEdgePoint } from "./IHumanFacePeriocul
  * a failed geometric admission distinguish a folded host projection from
  * rounding or a source-declared zero-height endpoint.
  *
- * @evidence contracts/common.md#principled-implementation Retains the pre-projection point and actual host seat together, so an admission refusal can be traced to the construction mapping without changing that mapping.
- * @evidence contracts/common.md#clear-and-simple-design One transient record carries a sample's structured identity and attachment.
- * @evidence contracts/common.md#meaningful-documentation States the construction stage, units and limited diagnostic lifetime.
- * @evidence contracts/modeling.md#spatial-conventions The free point remains head-frame metres; row, column and barycentric seat are dimensionless source-chart coordinates.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries a geometric witness rather than an anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no physiological interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Transient construction metadata adds no authoring input.
- *
  * @author Samchon
  */
 export interface IHumanFacePeriocularHostSample {

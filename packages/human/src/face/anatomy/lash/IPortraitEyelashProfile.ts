@@ -11,16 +11,6 @@
  * `portraitEyelashParameters`, which are authoring envelopes and not a
  * measured population range.
  *
- * @evidence contracts/common.md#principled-implementation Seven scalars are the complete description of one constant-curvature tapered strand: arc length, initial elevation, total turn, fan, root radius, taper and length variation. Together they fix the centreline and radius profile that `buildPortraitEyelash` sweeps, and nothing else about a strand is stored.
- * @evidence contracts/common.md#clear-and-simple-design A flat record of seven named numbers with one owner for its bounds, `portraitEyelashParameters`. It holds no per-strand list and no option that another field overrides.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A type carries no mechanism: no field names a subject, a photograph or a fixture, and every field is a general strand trait.
- * @evidence contracts/common.md#meaningful-documentation Each field states its unit, admitted interval and what a change moves, and the type states the frame and that the bounds are authoring envelopes.
- * @evidence contracts/modeling.md#spatial-conventions Lengths are millimetres and angles degrees in the head frame (+Y superior, +Z anterior); each field states its unit, and the builder is the one place that converts degrees to radians.
- * @evidence contracts/anatomy.md#parametric-authority Every field is a named physical trait of the lash population (arc length, curl, fan, radius, taper, variation). None addresses a vertex, a strand or a patch, and the type has no conversion from a simpler input.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The type is a parameter record for a population of strands and defines no part or group.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The type emits no primitive; the strand count is `IPortraitEyeShape.upperLashes` and the strand tessellation belongs to `buildPortraitEyelash`.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The type builds no surface and meets no neighbouring part.
- * @evidenceExclude contracts/modeling.md#rendered-observation The type owns no part and displays nothing.
  * @author Samchon
  */
 export interface IPortraitEyelashProfile {

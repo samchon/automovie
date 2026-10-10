@@ -60,11 +60,6 @@ import { resolveHumanGltfTextureReference } from "./resolveHumanGltfTextureRefer
  * always preserves its source-pair/null lineage in a separate JSON namespace
  * and unnormalized Uint16 VEC2 custom accessor containing low/high words of
  * each 32-bit table reference. Missing correspondence keeps legacy bytes.
- *
- * @evidence contracts/common.md#principled-implementation Exact material/TRS groups preserve local Float32 geometry and standard node placement; engine placement of actual packed buffers retains material-wide topology checks and the common reader admits complete source intervals.
- * @evidence contracts/common.md#clear-and-simple-design One constructor owns material membership, source-ID mapping and final primitive creation; no serialized grouping is reconstructed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional metadata changes neither source geometry nor the legacy default and conveys no anatomical certification.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes optional source identity and the existing static exporter limitations.
  */
 export function createGltfDocument(
   model: IAutoMovieModel,

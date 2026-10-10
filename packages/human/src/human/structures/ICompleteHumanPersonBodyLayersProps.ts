@@ -7,19 +7,6 @@ import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieH
  * Actual formed person skin and the body component whose layers it completes.
  * No source field or personal position is authored by this transport.
  *
- * @evidence contracts/common.md#principled-implementation Carries actual projected parts and the existing body's native source address into one completion.
- * @evidence contracts/common.md#clear-and-simple-design Names the region, instance and normal authorities the completion consumes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no substitute geometry or source identity.
- * @evidence contracts/common.md#meaningful-documentation States final part, native index and shared normal ownership.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Carries existing final metre geometry and dimensionless source indices.
- * @evidence contracts/modeling.md#shared-boundaries Names the actual rendered parts and their shared physical registration.
- * @evidenceExclude contracts/modeling.md#rendered-observation The Person consumer observes the supplied parts.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing owners admit source, document and layers.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Runtime parts are not a personal sculpt input.
  * @author Samchon
  */
 export interface ICompleteHumanPersonBodyLayersProps {

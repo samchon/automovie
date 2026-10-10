@@ -23,17 +23,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * The optional observer reports completed mesh construction and each actual
  * exterior-cell certificate in its rest or performed state. It carries only
  * owner identities; observer exceptions abort instead of returning a partial assembly.
- *
- * @evidence contracts/common.md#principled-implementation The profile supplies exact interface geometry, the source chart supplies placement, and one existing rigid motion acts on positions and directions without scaling.
- * @evidence contracts/common.md#clear-and-simple-design One assembly connects the existing profile, frame, geometry and articulation owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No aperture fitting, source-name fallback, separate collision sphere or invented default dimensions.
- * @evidence contracts/common.md#meaningful-documentation States state separation, shared exterior and scientific limits.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each eye composes sclera, cornea, iris and an interior rendering backing; the backing is not retinal tissue.
- * @evidence contracts/modeling.md#shared-boundaries The generated limbus and complete exterior are reused by drawing and both collider states.
- * @evidence contracts/modeling.md#spatial-conventions Frame and meshes remain head-frame metres; gaze uses the source owner's quaternion and metre translation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical dimensions remain authored inputs rather than a fitted clinical eye.
- * @evidenceExclude contracts/anatomy.md#permitted-range The profile admits geometric containment; contact owns existing tissue budgets.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes the document's seven dimensions without adding controls.
  */
 export function buildHumanFaceOpticalAssembly(
   basis: IAutoMovieHumanFaceBasis,

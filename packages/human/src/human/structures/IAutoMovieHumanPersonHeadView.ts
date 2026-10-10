@@ -16,19 +16,6 @@ import type { IAutoMovieHumanPersonHeadSkin } from "./IAutoMovieHumanPersonHeadS
  * `id` is the generation id and is the file's first field. The body file of
  * the same generation completes it (`joinHumanPersonGeneration`).
  *
- * @evidence contracts/common.md#principled-implementation The producer re-addresses the generation offline; the file is the head half of that output, so the runtime only admits and joins it.
- * @evidence contracts/common.md#clear-and-simple-design Existing partition, weight, alias and driver records remain separate from optional source-owned numerical trait registration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing here is derived at runtime; a mismatched body file refuses at the join.
- * @evidence contracts/common.md#meaningful-documentation States what each field holds and how the file pairs with its body file.
- * @evidence contracts/modeling.md#shared-boundaries The head view's source partition shares the registered neck samples with the body view of the same id.
- * @evidence contracts/modeling.md#spatial-conventions The face basis states the shared metre, Y-up, +Z-forward frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The face basis owns its parts' identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels The file adds no user channel; driver channels are derived inputs.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The file emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The file is observed through the evaluated person.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Individual numerical source-field records own their authored support/protocol qualifications; this partition wrapper derives no clinical anatomy.
- * @evidenceExclude contracts/anatomy.md#permitted-range The face and body owners admit document values.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The file is compiled data, not a caller input.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonHeadView {

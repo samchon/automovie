@@ -17,20 +17,6 @@ import { createHumanBodyLayerConstruction } from "./createHumanBodyLayerConstruc
  * the original build without changing bytes or claiming layer observations.
  * A composing person supplies its own document instance so two people that
  * reuse one body document do not claim identical physical layer points.
- *
- * @evidence contracts/common.md#principled-implementation Constructs each registered layer once after existing placement and validates the completed resident model.
- * @evidence contracts/common.md#clear-and-simple-design One completion owner serves standalone and composed final exteriors.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source fields, native triangles and original offset failures are retained without fallback or repair.
- * @evidence contracts/common.md#meaningful-documentation States source absence, final placement, query authority and caller ownership.
- * @evidence contracts/modeling.md#part-identity-and-grouping Appends the layer constructor's named parts without redefining existing anatomy.
- * @evidence contracts/modeling.md#spatial-conventions Final metre coordinates are taken from the placed body or actual joined exterior, without another transform.
- * @evidence contracts/modeling.md#shared-boundaries Supplied native origins select the actual final exterior consumed by both partitions.
- * @evidenceExclude contracts/modeling.md#parameter-channels The field and document owners define all inputs.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The layer constructor determines its population.
- * @evidence contracts/modeling.md#rendered-observation Body and Person consumers observe the completed model; this completion does not certify appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The field retains its anchor qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range The construction owner retains limited offset admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This completion adds no personal document field.
  */
 export function appendHumanBodyLayers(
   basis: IAutoMovieHumanBodyBasis,

@@ -19,20 +19,6 @@ import type { IPortraitInterior } from "./structures/IPortraitInterior";
  * Skin is addressed by a null part; every other target uses an interior ID.
  * Named loops may have faces on both sides, as cervical rings of capped enamel
  * do. No face is removed and no collision pair is excluded by this admission.
- *
- * @evidence contracts/common.md#principled-implementation Declared correspondences are checked directly: interior identities are unique, each named loop's vertices are resident and every consecutive pair is an existing directed mesh edge, and each attachment pair has exactly equal coordinates. Nothing is inferred from coincident positions.
- * @evidence contracts/common.md#clear-and-simple-design One read-only pass over all interiors so an attachment can name a later component.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses instead of discovering or repairing a join.
- * @evidence contracts/common.md#meaningful-documentation States what is proved (residency, directed loops, C0 attachment) and what is not (normals, collision, manifoldness of the union).
- * @evidence contracts/modeling.md#shared-boundaries It is the admission of the shared native boundaries between skin and interiors: declared vertex pairs must coincide exactly and named cycles must follow directed edges.
- * @evidence contracts/modeling.md#spatial-conventions Skin and interiors share head millimetres; coordinates are compared exactly.
- * @evidenceExclude contracts/anatomy.md#anatomical-source assertPortraitInteriorBindings carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range assertPortraitInteriorBindings admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority assertPortraitInteriorBindings defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertPortraitInteriorBindings is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels assertPortraitInteriorBindings defines and consumes no parameter channel of a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry assertPortraitInteriorBindings emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation assertPortraitInteriorBindings owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertPortraitInteriorBindings(
   skin: Pick<IControlMesh, "positions">,

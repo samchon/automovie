@@ -10,39 +10,11 @@ import type { IHumanFaceConformingSheetVertex } from "./structures/IHumanFaceCon
 
 /**
  * Homogeneous material coordinates with a positive denominator; scale cancels from incidence predicates.
- *
- * @evidence contracts/common.md#principled-implementation A positive denominator preserves determinant signs when coordinates are divided by it.
- * @evidence contracts/common.md#clear-and-simple-design Three integers carry one rational point without separate rounded coordinates.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The tuple records an exact point and does not alias nearby samples.
- * @evidence contracts/common.md#meaningful-documentation States homogeneous denominator ownership rather than treating integer UV as metres.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The MaterialPoint witness does not define an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The MaterialPoint witness adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The MaterialPoint witness does not choose a mesh population.
- * @evidence contracts/modeling.md#spatial-conventions Coordinates share the overlay's common dimensionless power-of-two unit.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The MaterialPoint witness does not construct a part join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes the shell; this MaterialPoint witness carries no independent rendered form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The MaterialPoint witness supplies no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The MaterialPoint witness defines no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The MaterialPoint witness exposes no personal shaping input.
  */
 type MaterialPoint = Parameters<typeof Arithmetic.orientation>[0];
 
 /**
  * Exact twice-area as a signed rational, used before any output rounding.
- *
- * @evidence contracts/common.md#principled-implementation A rational numerator and denominator preserve addition and exact coverage comparison.
- * @evidence contracts/common.md#clear-and-simple-design Two integers carry only the signed area required by coverage.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No floating tolerance replaces equality of the covered and original area.
- * @evidence contracts/common.md#meaningful-documentation States the signed twice-area convention used by the coverage owner.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The MaterialArea witness does not define an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The MaterialArea witness adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The MaterialArea witness does not choose a mesh population.
- * @evidence contracts/modeling.md#spatial-conventions Area is expressed in squared common material units.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The MaterialArea witness does not construct a part join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes the shell; this MaterialArea witness carries no independent rendered form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The MaterialArea witness supplies no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The MaterialArea witness defines no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The MaterialArea witness exposes no personal shaping input.
  */
 type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
 
@@ -72,20 +44,6 @@ type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
  * A declared native-edge grid point retains its original endpoints and affine
  * fraction through the exact overlay. Its rounded UV is diagnostic, not a
  * second independent point that may fall off that same source edge.
- *
- * @evidence contracts/common.md#principled-implementation Convex triangle intersection followed by exact-predicate ear triangulation covers each refined material-domain triangle with pieces of actual source triangles; exact area accounting refuses missing disk coverage.
- * @evidence contracts/common.md#clear-and-simple-design One material overlay returns attachment, emitted incidence and the single ordered boundary to the existing tissue consumer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared identities derive from original incidence and exact endpoint seats, with no coordinate tolerance, nearest-point fallback or part-specific exception.
- * @evidence contracts/common.md#meaningful-documentation States exact arithmetic, chart-reader preconditions, downstream metric ownership and refusal effects.
- * @evidence contracts/modeling.md#emitted-geometry Population follows the complete simple material region and its exact host common refinement, with the supplied cross-band density applied to the material domain first.
- * @evidence contracts/modeling.md#spatial-conventions The common integer UV frame is internal and dimensionless; returned UVs and weights preserve the original material frame, and no head-metre quantity is changed.
- * @evidence contracts/modeling.md#shared-boundaries Every shared source/grid cut has one incidence identity, and both offset sheets consume the same final boundary edges.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines the representation of an existing tissue rather than defining another part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The existing tissue builder owns observation of its final offset shell.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Converts material topology without supplying anatomical dimensions.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing tissue admission owns physiological and clearance conditions.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Preserves the existing numerical authoring contract.
  */
 export function createHumanFaceConformingSheet(
   input: IHumanFaceConformingSheetInput,
@@ -297,20 +255,6 @@ export function createHumanFaceConformingSheet(
 
 /**
  * Reject only disjoint original-triangle boxes; touching boxes remain candidates.
- *
- * @evidence contracts/common.md#principled-implementation Inclusive exact integer interval overlap cannot reject a true triangle intersection or boundary contact.
- * @evidence contracts/common.md#clear-and-simple-design Four interval comparisons perform the entire broad phase.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No expansion or clearance tolerance is applied to either box.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes conservative rejection from geometric intersection.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The box predicate does not define an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The box predicate adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The box predicate does not choose a mesh population.
- * @evidence contracts/modeling.md#spatial-conventions Both boxes use the same dimensionless UV frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The box predicate does not construct a part join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes the shell; this box predicate carries no independent rendered form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The box predicate supplies no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The box predicate defines no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The box predicate exposes no personal shaping input.
  */
 function overlap(a: readonly bigint[], b: readonly bigint[]): boolean {
   return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
@@ -321,20 +265,6 @@ function overlap(a: readonly bigint[], b: readonly bigint[]): boolean {
  * A refused edge retains all original incident faces and their grid/native
  * parents. Collection leaves the first original refusal and every predicate
  * unchanged; no invalid incidence is returned as a boundary.
- *
- * @evidence contracts/common.md#principled-implementation A manifold oriented disk has two opposite incidences on interior edges and one incidence on its boundary.
- * @evidence contracts/common.md#clear-and-simple-design One edge table serves cancellation, degree checks and cycle traversal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Third incidences, same-direction neighbors and extra cycles refuse instead of being hidden.
- * @evidence contracts/common.md#meaningful-documentation Documents the disk prerequisite and each incidence failure effect.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The boundary incidence does not define an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The boundary incidence adds no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The boundary incidence does not choose a mesh population.
- * @evidence contracts/modeling.md#spatial-conventions Vertex IDs are topology ordinals, independent of UV or head metres.
- * @evidence contracts/modeling.md#shared-boundaries The exact final sheet incidence supplies the sole wall boundary, with one incoming and outgoing edge per vertex.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue consumer observes the shell; this boundary incidence carries no independent rendered form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The boundary incidence supplies no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The boundary incidence defines no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The boundary incidence exposes no personal shaping input.
  */
 function boundary(
   sheet: IHumanFaceConformingSheet,

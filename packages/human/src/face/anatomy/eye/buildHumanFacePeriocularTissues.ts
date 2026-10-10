@@ -72,19 +72,6 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * source identities. Incidence reports every refused edge's native and grid
  * parents; Float32 retains the completed overlay. Reporting changes neither
  * the mapping nor the shell and performs no second geometric query.
- *
- * @evidence contracts/common.md#principled-implementation Both lamellae retain the supplied offset and thickness along actual host normals; globe room and transverse intersections are separate admission readings because a normal-offset surface can fold at insufficient local feature size. Orientation is fixed by enclosed-volume sign.
- * @evidence contracts/common.md#clear-and-simple-design One generator owns both lamella constructions, shell topology and Float32 output admission; the ocular surface and the seat constant supply the globe frame.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing cages or exteriors refuse by side, no default dimension substitutes for an authored input, and a request the lid cannot hold is reported instead of adjusted.
- * @evidence contracts/common.md#meaningful-documentation States which surface positions each lamella, the band's extent and resolution, the floor, and the unchanged meaning of the offset.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each side emits independently selected tarsal, orbicularis, septal-support and conjunctival shells under stable tissue identities.
- * @evidence contracts/modeling.md#shared-boundaries The lamellae share the actual posed skin host and ocular exterior. Independently authored offsets need not meet; their joins and intersections are admitted against the emitted geometry.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres convert once to head-frame metres; both tissue faces are offset along the host skin normal and their room is read against the ocular exterior.
- * @evidence contracts/modeling.md#emitted-geometry Registered posterior bands retain every near native knot with four cells per native edge, every coarse far target and both finite end edges; original material triangles retain eight barycentric intervals before exact native common refinement. Legacy bands keep four cells per coarse interval and eight row intervals. Anterior strips keep the cage station grid.
- * @evidence contracts/modeling.md#parameter-channels Inward offset and thickness remain independent numerical construction inputs for each tissue and side.
- * @evidence contracts/anatomy.md#anatomical-source Layer identities and order follow Ferreira 2020; that the posterior lamella lies on the globe rests on descriptive statements, not a measured gap; thicknesses are authored inputs, the tear-film floor is the seat constant's conventional value, and the tarsal extent is the cage's registration or its crease-row convention.
- * @evidence contracts/anatomy.md#permitted-range Positive finite dimensions and complete station rows are required, and each shell's room is recorded for admission; this is a geometric domain, not a clinical interval.
- * @evidence contracts/anatomy.md#parametric-authority Named tissue dimensions contain no personal vertex, curve or precomputed mesh input.
  */
 export function buildHumanFacePeriocularTissues(
   basis: IAutoMovieHumanFaceBasis,

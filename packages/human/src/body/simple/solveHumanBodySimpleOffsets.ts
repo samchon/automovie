@@ -59,20 +59,6 @@ const DAMPING = [1, 0.5, 0.25, 0.125];
  * dimensionless Jacobian, a numerical ceiling rather than anatomical refusal.
  * Inputs have matching dimensions and are read only. The result is a fresh
  * offset vector, not a body document or user control.
- *
- * @evidence contracts/common.md#principled-implementation Finite-difference columns estimate the local reading map; partial-pivot elimination solves its Newton equation, and an underdetermined equation is solved for the least departure the caller defines, within the intervals. Each accepted bounded step lowers the squared norm, and the old-matrix rank-one update satisfies its secant equation. A fresh Jacobian retry and fixed work budget do not guarantee convergence, so unresolved systems return null to the strict measurement inverse.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the numerical state and iteration; the body adapter owns measurements and physical budgets, and the rank-one update has one pure owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical steps depend only on the actual reading map and admitted intervals; no subject, photograph or test-specific branch is selected.
- * @evidence contracts/common.md#meaningful-documentation States dimensions, units, determinism, ownership, source equations, numerical policies and the lack of a universal convergence guarantee.
- * @evidence contracts/modeling.md#spatial-conventions Offsets and relative residuals are dimensionless numerical coordinates; no body position or frame is transformed.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It owns no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The body adapter supplies directions and their intervals; this owner defines no shape channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits an offset vector and no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The adapter owns anatomical readings; this solver carries no anatomical constant.
- * @evidenceExclude contracts/anatomy.md#permitted-range Numerical offset intervals come from already admitted channel bounds and establish no new physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority These are internal solve coordinates, not authored document fields.
  */
 export function solveHumanBodySimpleOffsets(
   input: IHumanBodySimpleOffsetsProblem,

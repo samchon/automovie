@@ -17,20 +17,6 @@ import { clipHumanPersonTriangles } from "./clipHumanPersonTriangles";
  * Registered physical endpoints follow the same corner gather into owned
  * metadata. A strict new cut has no registered point in this consumer and
  * refuses when correspondence is present; omission retains legacy clipping.
- *
- * @evidence contracts/common.md#principled-implementation The shared scalar clip emits corner stencils; applying them to every parallel attribute keeps the corner's chart and source correspondence while preserving its performed source edge.
- * @evidence contracts/common.md#clear-and-simple-design Topology belongs to clipHumanPersonTriangles; this consumer only gathers region attributes and resident numbering.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, triangle or fitted threshold changes the shared cut; unsupported skinned or nonindexed input refuses.
- * @evidence contracts/common.md#meaningful-documentation States stage order, chart identity, posing semantics, ownership and refusals.
- * @evidence contracts/modeling.md#emitted-geometry The shared clipped polygon supplies all triangles; chart duplication follows attribute identity.
- * @evidence contracts/modeling.md#shared-boundaries Source identities are shared across regions while corner attributes retain their own charts.
- * @evidence contracts/modeling.md#spatial-conventions Positions retain the caller's metres and posed frame; UVs, colours, relief and fractions are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Gathers one existing region and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled seam owns displayed observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits no anatomical input.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no user input.
  */
 export function clipHumanPersonMesh(
   mesh: IAutoMovieMesh,

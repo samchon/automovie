@@ -19,19 +19,6 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
  * part's request refuses it as `acquisition-not-registered`. Bust and waist
  * girths belong to the skin.
  *
- * @evidence contracts/common.md#principled-implementation Each part's reason names the source dependency the connected exterior lacks.
- * @evidence contracts/common.md#clear-and-simple-design One answer per owned part from that part's own request subtree, sides and segment numbers enumerated once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A bust or waist girth never produces a rib, muscle or fat composition.
- * @evidence contracts/common.md#meaningful-documentation States each reason, which whole-cage values condition which parts, and the breast and subcutaneous ownership.
- * @evidence contracts/modeling.md#part-identity-and-grouping Owns c1–c7, t1–t12, l1–l5, the sternum, each side's twelve ribs, costal cartilages, pectoralis major, rectus abdominis, external and internal oblique, latissimus dorsi, trapezius and external oblique aponeurosis, and the abdominal visceral adipose.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It reads no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The exterior builder owns the shared skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The exterior consumer displays the answers.
- * @evidence contracts/anatomy.md#anatomical-source The reasons state what the source lacks; no anatomical value is asserted.
- * @evidence contracts/anatomy.md#permitted-range Unregistered observations refuse with their cause and the request is left unchanged.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
 export function resolveHumanBodyTrunkParts(

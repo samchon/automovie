@@ -16,20 +16,6 @@ import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
  * skin normal. The ray index and contact read the same closed collider, and
  * every look-ahead ray spends the shared lock budget.
  *
- * @evidence contracts/common.md#principled-implementation Supplies the heading, the turn reference, the station's skin and the one collider's readers the look-ahead needs.
- * @evidence contracts/common.md#clear-and-simple-design Named members replace an anonymous parameter object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no waypoint, subject or tolerance.
- * @evidence contracts/common.md#meaningful-documentation States frames, units, the shared collider and budget spending.
- * @evidence contracts/modeling.md#spatial-conventions Positions and lengths are head-frame metres; directions are unit vectors.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The integrator emits stations.
- * @evidence contracts/modeling.md#shared-boundaries The ray and the contact read the one host collider the stem must clear.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical geometry only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
- *
  * @author Samchon
  */
 export interface IHumanFaceHairRootedLookahead {

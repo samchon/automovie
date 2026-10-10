@@ -15,20 +15,6 @@ import type { IHumanSkinMaterialPartitionInput } from "../structures/IHumanSkinM
  * This is a zero-thickness surface garment, not cloth volume or crease fitting.
  * Original winding and downstream finite, Float32-area and topology admission
  * remain applicable, including refusal of an unrepresentable clipped sliver.
- *
- * @evidence contracts/common.md#principled-implementation Complementary half-space clipping shares a single source-edge interpolation for position and physical identity and preserves the original planar triangle surface.
- * @evidence contracts/common.md#clear-and-simple-design One material partition owns clipping and attribute transport; costume coverage and final model composition remain with callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No displacement, contour epsilon, coincident overlay, person identifier or geometric repair changes the source skin.
- * @evidence contracts/common.md#meaningful-documentation States zero-thickness meaning, coverage state, crossing ownership and unchanged downstream precision limits.
- * @evidence contracts/modeling.md#emitted-geometry Each source triangle contributes at most three triangles across its complementary regions; source resolution determines the population.
- * @evidence contracts/modeling.md#shared-boundaries Both materials consume the same represented edge fraction and position; source physical parents distinguish attachment from coordinate coincidence.
- * @evidence contracts/modeling.md#spatial-conventions Positions remain in the input mesh frame and metres; coverage retains its caller's signed units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The clothing owner names the two material parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes an evaluated field without defining authoring controls.
- * @evidenceExclude contracts/modeling.md#rendered-observation Final body and person clothing owners observe the composed material regions.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Transports actual source skin without adding anatomical quantities.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing source and model admission own anatomical domains.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no personal shaping input.
  */
 export function partitionHumanSkinMaterial(
   input: IHumanSkinMaterialPartitionInput,

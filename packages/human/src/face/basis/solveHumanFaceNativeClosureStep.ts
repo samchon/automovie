@@ -24,19 +24,6 @@ import type { IHumanFaceNativeClosureStepInput } from "./IHumanFaceNativeClosure
  * does not implement SNOPT. Returned slacks are internal candidates; the caller
  * alone admits the actual geometry at its unchanged original tolerance.
  *
- * @evidence contracts/common.md#principled-implementation A single common elastic variable bounds both signed contact interval violations; lexicographic minimax residual then squared gain departure preserves every hard row and original nonlinear acceptance remains downstream.
- * @evidence contracts/common.md#clear-and-simple-design One shared QP adapter owns contact-row elasticity and the two-stage objective; the field owner owns nonlinear measurements and step selection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The method is selected by the declared nonlinear row partition, not by an infeasible-status exception; original hard endpoints are never relaxed.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes internal slack, minimax preference, reference method and actual-output acceptance.
- * @evidence contracts/modeling.md#spatial-conventions Original normalized field and aperture units pass through unchanged.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The caller owns the closure channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The field owner validates original contact courses.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly observes the field.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no tissue mechanics or clinical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The field owner retains original physical limits.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no public authoring input.
  * @author Samchon
  */
 export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureStepInput): IHumanFaceNativeClosureStep {

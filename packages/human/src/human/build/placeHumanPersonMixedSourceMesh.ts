@@ -19,20 +19,6 @@ import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
  * Changed soft-sheet normals are read from that actual placed triangle mesh;
  * their shading remains independent of the shared physical lip boundary.
  * The input stays owned by the caller and unchanged.
- *
- * @evidence contracts/common.md#principled-implementation Native aliases read actual canonical skin samples; material aliases interpolate their registered parents with unchanged represented weights and arithmetic order. Rigid placement continues for other points and normals follow the placed triangles.
- * @evidence contracts/common.md#clear-and-simple-design One rigid copy, exact native or material scatter, distinct domain rebase and placed-normal evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No position weld, regenerated lip boundary or independently estimated skin carry substitutes for final skin coordinates.
- * @evidence contracts/common.md#meaningful-documentation States coordinate ownership, selective domain rebasing, normal islands, refusal and caller immutability.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres receive the actual person head carry; attached aliases take the final skin's person-frame metre coordinates.
- * @evidence contracts/modeling.md#shared-boundaries Native aliases retain shared skin identities; material aliases retain their own domain and ID while consuming the same original parent seat on the final skin.
- * @evidence contracts/modeling.md#emitted-geometry Existing vertices/indices/UVs remain the same population; only placement, attached domains and affected normal values change.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The generated part retains its producer's identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels This placement consumes no new authoring channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The person and oral joint owners observe this placed result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Source and oral owners define the physical skin and lining boundary.
- * @evidenceExclude contracts/anatomy.md#permitted-range The source/pose/model owners admit the geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The placement introduces no anatomy input.
  */
 export function placeHumanPersonMixedSourceMesh(
   props: IAutoMovieHumanPersonMixedSourceMeshProps,

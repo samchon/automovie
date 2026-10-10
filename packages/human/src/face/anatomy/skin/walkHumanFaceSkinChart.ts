@@ -21,19 +21,6 @@ import { readHumanFaceSkinChartWeights } from "./readHumanFaceSkinChartWeights";
  * Native cell and frame callbacks must read their immutable chart host;
  * callback closure state is not cloned by this geometric walker.
  *
- * @evidence contracts/common.md#principled-implementation Exact triangle-domain inequalities and actual edge adjacency lift a chord; convex cell domains and strict parameter advance give finite termination.
- * @evidence contracts/common.md#clear-and-simple-design One walker owns event continuation, while the cell inverse and frame readers retain geometry authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No nearest-face preference, bridge, clamped barycentric, iteration cap or coordinate tolerance enters.
- * @evidence contracts/common.md#meaningful-documentation States finite termination, exact-edge ties and unsupported continuation.
- * @evidence contracts/modeling.md#spatial-conventions Chart parameters and barycentrics are dimensionless; the frame owner returns head-frame metres.
- * @evidence contracts/modeling.md#shared-boundaries Actual native adjacency and exact event weights join consecutive pieces on their shared source edge.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Walks an existing part's native cells.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no trait.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The shaft consumer emits geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The brow assembly observes its result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This chart path is a source geometry convention, not a follicle trajectory or geodesic.
- * @evidenceExclude contracts/anatomy.md#permitted-range The actual source-chart and contact owners admit construction.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Uses internal source coordinates, not a personal curve.
  * @author Samchon
  */
 export function walkHumanFaceSkinChart(

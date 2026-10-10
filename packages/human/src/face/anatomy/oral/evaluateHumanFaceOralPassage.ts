@@ -24,12 +24,6 @@ import type { IHumanFaceOralPassageProps } from "./IHumanFaceOralPassageProps";
  * baseline crossings are retained by exact triangle-pair identity rather than
  * forgiven by an aggregate count. Absent crowns supply no query or crossing.
  *
- * @evidence contracts/common.md#principled-implementation Actual lip chains bound the measured tongue triangle/slab section, while complete present-crown crossing witnesses compare stable actual incidence against the same shaped reference.
- * @evidence contracts/common.md#clear-and-simple-design One generated oral passage owner separates geometric passage from unavailable clinical incisal measurements.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No virtual tooth, inferred missing incisal edge, measured zero, added tolerance or aggregate crossing exemption enters.
- * @evidence contracts/common.md#meaningful-documentation States projection/slab conventions, complete section and crossing scope, rest-reference ownership and clinical limits.
- * @evidence contracts/modeling.md#spatial-conventions Source head-frame metres and jaw-axis unit directions are used throughout.
- * @evidence contracts/anatomy.md#anatomical-source Actual retained enamel and final lip ports supply geometric constraints without a clinical incisal protocol or muscle claim.
  * @author Samchon
  */
 export function evaluateHumanFaceOralPassage(

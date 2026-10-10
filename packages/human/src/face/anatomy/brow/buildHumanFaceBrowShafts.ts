@@ -66,19 +66,6 @@ import { createHumanFaceBrowReferenceGuides } from "./createHumanFaceBrowReferen
  * replaces the previous parameter-driven course and linear-taper/sine-arch
  * representation and global-nearest course assumption. Affected brow meshes, contact reports, Face/Person results,
  * static exports and rendered observations require the new basis.
- *
- * @evidence contracts/common.md#principled-implementation Native finite-course arclength supplies metric advance; its first support facet supplies the initial tangent frame. Zero root derivatives of the C1 taper, arch and normal field leave only the requested tangent/normal decomposition in the complete initial centreline derivative. The lattice is an approximation and actual emitted contact remains independently admitted.
- * @evidence contracts/common.md#clear-and-simple-design The reference-guide owner supplies admitted roots, flow and finite chords once; this owner registers, reads current arc/normal and sweeps the shaft lattice.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, side-specific constant or head axis shapes a shaft; nothing clamps a shaft that leaves its support.
- * @evidence contracts/common.md#meaningful-documentation States each shaft quantity's definition, the identity rule, units and refusals.
- * @evidence contracts/modeling.md#part-identity-and-grouping One part per shaft, named by side and original sequence index, so thinning changes membership and never renumbers a survivor; the brow is the group.
- * @evidence contracts/modeling.md#emitted-geometry `count` shafts of `9 (segments + 1)` vertices for a tube or `2 (segments + 1)` for a ribbon, so the population grows with the two authored resolution inputs (at most 4096 and 32) and with nothing else.
- * @evidence contracts/modeling.md#spatial-conventions Skin and output are head-frame metres; profile lengths are millimetres multiplied by 0.001 on entry, and fractions are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Root, course and normal all come from the host compiled on the skin the model emits, so the shaft's foot and the skin under it are one definition.
- * @evidence contracts/modeling.md#parameter-channels Radius, taper, clearance, arch, bend, span or flow, root band, fades and emergence each change one named shaft quantity; length is the one derived quantity and its dependence on span and bend is stated.
- * @evidence contracts/anatomy.md#anatomical-source No value originates here; every dimension is the caller's authored input, whose grounds the default population record states.
- * @evidenceExclude contracts/anatomy.md#permitted-range The profile admission owns the input bounds and the contact admission owns skin clearance.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The population record owns the public inputs; this builder consumes them.
  */
 export function buildHumanFaceBrowShafts(
   props: IHumanFaceBrowShaftsProps,

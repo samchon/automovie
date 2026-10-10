@@ -32,18 +32,6 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
  * For the shape-only reference, the orchestrator omits performance values.
  * Clinical observations never enter this displacement owner.
  *
- * @evidence contracts/common.md#principled-implementation Actual source landmarks define courses that the shared course kernel seats on the skin and displaces along its normal; independent contributions accumulate from immutable geometry before contact and common normals.
- * @evidence contracts/common.md#clear-and-simple-design One regional skin owner; optical sections remain with their separate source cage.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No clinical-grade, age-to-depth or Portrait/card-host substitution enters.
- * @evidence contracts/common.md#meaningful-documentation States guide conventions, signed identity, performance, immutable sampling, source resolution and clinical limits.
- * @evidence contracts/modeling.md#part-identity-and-grouping Shapes named regions of the same connected skin and adds no independent surface part.
- * @evidence contracts/modeling.md#parameter-channels Regional signed offsets and fold fractions are independent of original source expression and clinical grades.
- * @evidence contracts/modeling.md#shared-boundaries Complete source lip margins and registered landmark vertices remain exact; whole contact still judges neighboring tissue.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres convert once into Y-up head-frame metres; positive offset is along the outward skin normal.
- * @evidence contracts/modeling.md#emitted-geometry Adds no vertex or triangle and remains limited by the actual source sampling.
- * @evidence contracts/anatomy.md#anatomical-source Source-landmark courses and compact support are authored visible shape conventions without a clinical crease, population or tissue-mechanics claim.
- * @evidence contracts/anatomy.md#permitted-range Finite representable dimensions, fraction domain and actual contributing source samples are required without clinical bounds or clamps.
- * @evidence contracts/anatomy.md#parametric-authority Only named regional numerical traits enter; no personal curves or vertices can be supplied.
  * @author Samchon
  */
 export function applyHumanFaceRegionalRelief(

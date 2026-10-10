@@ -3,20 +3,6 @@
  * the Float32 coordinates the model emits. A construction admission carries
  * one record per part so a consumer can check the part population and read
  * where each part lies without opening its geometry.
- *
- * @evidence contracts/common.md#principled-implementation Counts and bounds are read from the emitted buffers by the engine's topology instrument, not restated from a generator's intent.
- * @evidence contracts/common.md#clear-and-simple-design One record per model part with the instrument's own quantities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The census reports open or non-manifold surfaces as counted and decides nothing.
- * @evidence contracts/common.md#meaningful-documentation States coordinate precision, units and that an open boundary is a count, not a verdict.
- * @evidence contracts/modeling.md#spatial-conventions Bounds are metres in the owning model's frame.
- * @evidence contracts/modeling.md#emitted-geometry Reports the emitted vertex and triangle counts of each part as constructed.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Names existing part identities without defining one.
- * @evidenceExclude contracts/modeling.md#parameter-channels Carries no channel.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Counts boundary edges; the part owners construct the boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation A numerical census; the part owner owes the rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source A geometric census supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export interface IAutoMovieHumanConstructionPartReading {
   /** Model part identity. */

@@ -13,12 +13,6 @@ import { assertHumanFaceHair } from "./assertHumanFaceHair";
  * Inactive curl, taper and painted-fibre coefficients express an untapered,
  * uniformly pigmented authored shaft, not a clinical population estimate.
  *
- * @evidence contracts/common.md#principled-implementation A positive site resolves exactly one basis-owned tagged native domain before allocation; missing or ambiguous registration refuses.
- * @evidence contracts/common.md#clear-and-simple-design One expander feeds the existing hair producer without a second root sampler or personal geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source triangles and target counts are neither cropped nor reduced to fit a request.
- * @evidence contracts/common.md#meaningful-documentation Separates authoring targets, unit conversion, inactive styling conventions and source registration.
- * @evidence contracts/modeling.md#spatial-conventions Length and step millimetres become metres; shaft micrometres become metres; zero flow angle is inferior and positive turns anatomical left in the head frontal plane.
- * @evidence contracts/anatomy.md#parametric-authority Named site controls contain no per-strand vertex, curve, world vector or private groom.
  * @author Samchon
  */
 export function resolveHumanFaceFacialHair(

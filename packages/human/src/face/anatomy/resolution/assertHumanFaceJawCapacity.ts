@@ -17,19 +17,6 @@ const HALF_READOUT_MM = 0.05;
  * were zero. A supplied maximum whose reading is unavailable cannot be checked
  * and refuses by name rather than passing unchecked. Nothing is clamped.
  *
- * @evidence contracts/common.md#principled-implementation Capacity and performance are compared on the same build's final incisal offset in the contact frame.
- * @evidence contracts/common.md#clear-and-simple-design Four comparisons, one per declared jaw maximum.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An exceeding pose refuses with both values; an uncheckable maximum refuses; nothing is clamped.
- * @evidence contracts/common.md#meaningful-documentation States each pairing, the tolerance and the unavailable case.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The check names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The check moves no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The check emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres in the contact frame; the tolerance is half the 0.1 mm readout.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The check builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the readings.
- * @evidence contracts/anatomy.md#anatomical-source Maximum interincisal opening, protrusion and lateral excursion follow their clinical incisal definitions, which the readings measure.
- * @evidence contracts/anatomy.md#permitted-range The document's own observed capacity bounds its performance; beyond it the document refuses.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The check admits no input of its own.
  * @author Samchon
  */
 export function assertHumanFaceJawCapacity(

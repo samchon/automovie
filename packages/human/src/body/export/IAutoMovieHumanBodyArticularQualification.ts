@@ -11,10 +11,6 @@ import type { IAutoMovieHumanBodyArticularPartQualification } from "./IAutoMovie
  * Interval arithmetic stays with the common correspondence; this record adds
  * only qualification, in the carrying primitive's source-member order.
  *
- * @evidence contracts/common.md#principled-implementation Qualification is joined by exact source ID beside the common interval owner instead of duplicating its formula.
- * @evidence contracts/common.md#clear-and-simple-design One named record replaces the correspondence's anonymous qualification object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Whole skin and bones remain explicitly unavailable; no clinical revision or tissue is inferred.
- * @evidence contracts/common.md#meaningful-documentation States reference-only provenance, the member order and the unavailable whole anatomy.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyArticularQualification {
