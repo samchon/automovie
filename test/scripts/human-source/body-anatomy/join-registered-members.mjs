@@ -1,7 +1,7 @@
 /**
- * Join registered members into a candidate anatomical assembly and its plan.
+ * Historical registered-member candidate assembly and plan join.
  *
- * From the repository root:
+ * Historical invocation, retained for interpreting existing receipts:
  *   node test/scripts/human-source/body-anatomy/join-registered-members.mjs ASSEMBLY PLAN REGISTRATION OUTPUT [LAYER|-] [TARGET_PLAN]
  *
  * ASSEMBLY and PLAN are the registered whole assembly being superseded for
@@ -50,9 +50,12 @@
  *
  * Pass static-source for LAYER when ASSEMBLY is the complete output of the
  * static bone/depot producers and REGISTRATION names joined-source-receipt.json.
- * The existing depot join is shipped as join_registered_neutral_depots.py in
- * this directory; run it with ASSEMBLY DEPOTS SOURCE_BODY TARGET_BODY OUTPUT
- * before sealing its source-assembly-before-node-digest.json here.
+ * This mode describes historical candidates only. The Python depot author
+ * and join were retired from development; their preserved bytes and receipts
+ * remain reference evidence, without an equivalent source-birth claim.
+ * Current material registration uses author-body-material-registration.ts
+ * and bakeHumanBodyMaterialRegistration.ts through the owning ttsx project.
+ * This legacy JavaScript entry is not a current development command.
  * PLAN then names their actual current target views and saved document. This
  * mode seals Node object digests and enrols every consumed source file without
  * moving geometry, copying a different body's registration or constructing
