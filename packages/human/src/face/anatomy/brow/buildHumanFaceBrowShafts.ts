@@ -1,33 +1,37 @@
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 
-import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+
+
+
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import type { IHumanFaceBrowShaftsProps } from "./IHumanFaceBrowShaftsProps";
-import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
+
 import { createHumanFaceBrowCourse } from "./createHumanFaceBrowCourse";
-import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
+import { createHumanFaceBrowReferenceGuides } from "./createHumanFaceBrowReferenceGuides";
 
 /**
  * Build one eyebrow's shafts on the skin they grow from.
  *
- * Every quantity of a shaft is defined on the skin host:
+ * Attachment follows fixed source material coordinates; physical arc and normal
+ * readings belong to the current skin host:
  *
  * - **Root.** The band between the registered lower and upper boundary is
- *   parameterized in space: `u` along the brow (uniform Catmull-Rom through
- *   each boundary's vertices) and a fraction across it (straight between the
- *   two boundary points at `u`). Shaft `i` of `n` takes `u = (i + 0.5) / n`
+ *   parameterized in the actual shape-only reference: `u` along the brow
+ *   (uniform Catmull-Rom through the native boundary positions) and across it.
+ *   Shaft `i` of `n` takes `u = (i + 0.5) / n`
  *   and a root fraction from the golden-ratio sequence inside `rootBand`.
- *   The registered source-facet chart lifts that point to its actual skin.
+ *   The shared reference-guide owner defines its 3D point before any material
+ *   disk is selected. Native reference registration transports it to current skin.
  * - **Growth direction.** The shaft's course runs from its root fraction to
  *   its tip fraction across the band (`span`, or the flow profile's `tip`),
  *   displaced toward the lateral end of the brow by `outwardBend * t^2`. The
- *   lateral direction is the band's own tangent along `u`, so on the tail,
- *   where the brow turns toward the temple, "lateral" follows the skin. The
- *   requested shaft resolution supplies free-guide chords. The registered
- *   chart lifts their projections by actual native triangle adjacency.
- *   These millimetre bend values describe the authored free guide; a warped
+ *   lateral direction is the source-reference band's tangent along `u`.
+ *   Its finite metre displacement registers on that reference skin once;
+ *   requested resolution supplies material-guide chords lifted by actual
+ *   native triangle adjacency. No performed-state projection selects support.
+ *   These millimetre bend values describe the reference guide; a deformed
  *   chart's final surface-tip displacement is a separate measured quantity.
- * - **Course length.** `L` is that projected course's accumulated length,
+ * - **Course length.** `L` is that native course's current accumulated length,
  *   derived from the band and bend. It is not an authored shaft length or
  *   the final offset centreline's total arc length.
  * - **Emergence.** With `emergenceDegrees = e`, ring fraction `t` reads actual
@@ -62,113 +66,27 @@ import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlaceme
  * replaces the previous parameter-driven course and linear-taper/sine-arch
  * representation and global-nearest course assumption. Affected brow meshes, contact reports, Face/Person results,
  * static exports and rendered observations require the new basis.
- *
- * @evidence contracts/common.md#principled-implementation Native finite-course arclength supplies metric advance; its first support facet supplies the initial tangent frame. Zero root derivatives of the C1 taper, arch and normal field leave only the requested tangent/normal decomposition in the complete initial centreline derivative. The lattice is an approximation and actual emitted contact remains independently admitted.
- * @evidence contracts/common.md#clear-and-simple-design One function per brow in the order admit, band, roots, course, lift, sweep; the host owns every surface question and the flow owner every flow question.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, side-specific constant or head axis shapes a shaft; nothing clamps a shaft that leaves its support.
- * @evidence contracts/common.md#meaningful-documentation States each shaft quantity's definition, the identity rule, units and refusals.
- * @evidence contracts/modeling.md#part-identity-and-grouping One part per shaft, named by side and original sequence index, so thinning changes membership and never renumbers a survivor; the brow is the group.
- * @evidence contracts/modeling.md#emitted-geometry `count` shafts of `9 (segments + 1)` vertices for a tube or `2 (segments + 1)` for a ribbon, so the population grows with the two authored resolution inputs (at most 4096 and 32) and with nothing else.
- * @evidence contracts/modeling.md#spatial-conventions Skin and output are head-frame metres; profile lengths are millimetres multiplied by 0.001 on entry, and fractions are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Root, course and normal all come from the host compiled on the skin the model emits, so the shaft's foot and the skin under it are one definition.
- * @evidence contracts/modeling.md#parameter-channels Radius, taper, clearance, arch, bend, span or flow, root band, fades and emergence each change one named shaft quantity; length is the one derived quantity and its dependence on span and bend is stated.
- * @evidence contracts/anatomy.md#anatomical-source No value originates here; every dimension is the caller's authored input, whose grounds the default population record states.
- * @evidenceExclude contracts/anatomy.md#permitted-range The profile admission owns the input bounds and the contact admission owns skin clearance.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The population record owns the public inputs; this builder consumes them.
  */
 export function buildHumanFaceBrowShafts(
   props: IHumanFaceBrowShaftsProps,
 ): IAutoMovieModelPart[] {
-  const { chart, positions, binding, count } = props;
+  const { chart, binding, count } = props;
   const shape = structuredClone(props.profile);
-  assertPortraitEyebrowProfile(shape, count);
-  if (count === 0) return [];
-  const vertices = positions.length / 3;
-  if (
-    binding.upper.length < 2 ||
-    binding.lower.length < 2 ||
-    [...binding.upper, ...binding.lower].some(
-      (id) => !Number.isInteger(id) || id < 0 || id >= vertices,
-    )
-  )
-    throw new Error("Eyebrow boundaries need resident skin identities.");
-  const millimetre = 0.001;
-  const {
-    flow,
-    rootBand,
-    endFade: ends,
-  } = resolvePortraitEyebrowPlacement(shape);
-  const landmark = (id: number) => ({
-    x: positions[3 * id],
-    y: positions[3 * id + 1],
-    z: positions[3 * id + 2],
+  const guides = createHumanFaceBrowReferenceGuides({
+    positions: props.referencePositions,
+    binding,
+    count,
+    profile: shape,
   });
-  const top = binding.upper.map(landmark),
-    bottom = binding.lower.map(landmark);
-  const band = (u: number, across: number): number[] => {
-    const a = catmullRomPoint(bottom, u),
-      b = catmullRomPoint(top, u);
-    return [
-      a.x + (b.x - a.x) * across,
-      a.y + (b.y - a.y) * across,
-      a.z + (b.z - a.z) * across,
-    ];
-  };
-  // The medial end is the one nearer the midsagittal plane.
-  const lateralSign =
-    Math.abs(band(1, 0.5)[0]) >= Math.abs(band(0, 0.5)[0]) ? 1 : -1;
-  const fade = (distance: number, reach: number): number => {
-    if (reach === 0) return 1;
-    const t = Math.min(1, distance / reach);
-    return t * t * (3 - 2 * t);
-  };
-  const densityStep =
-    shape.densitySeed === undefined ? 0.61803398875 : Math.SQRT2;
-  const densityPhase =
-    shape.densitySeed === undefined
-      ? 0
-      : (Math.imul(shape.densitySeed, 0x9e3779b1) >>> 0) / 0x100000000;
+  const millimetre = 0.001;
   const emergence = ((shape.emergenceDegrees ?? 0) * Math.PI) / 180;
-  const rise = Math.sin(emergence),
-    advance = Math.cos(emergence);
+  const rise = Math.sin(emergence), advance = Math.cos(emergence);
   const rings = shape.segments + 1;
   const parts: IAutoMovieModelPart[] = [];
-  for (let i = 0; i < count; i++) {
-    const u = (i + 0.5) / count;
-    const anatomical = lateralSign > 0 ? u : 1 - u;
-    const envelope = fade(anatomical, ends[0]) * fade(1 - anatomical, ends[1]);
-    if (((i + 0.5) * densityStep + densityPhase) % 1 >= envelope) continue;
-    const rootFraction = (i * 0.61803398875) % 1;
-    const start = rootBand[0] + (rootBand[1] - rootBand[0]) * rootFraction;
-    const direction = flow?.(
-      anatomical,
-      rootBand[0] === rootBand[1] ? 0.5 : rootFraction,
-    );
-    const end =
-      direction?.tip ??
-      start + (shape.span ?? 0.26 + 0.08 * Math.sin(Math.PI * u));
-    const bend = (direction?.outwardBend ?? shape.outwardBend) * millimetre;
-    // Unit tangent of the band along the brow, toward its lateral end.
-    const before = band(Math.max(0, u - 0.01), 0.5),
-      after = band(Math.min(1, u + 0.01), 0.5);
-    const along = [0, 1, 2].map(
-      (axis) => (after[axis] - before[axis]) * lateralSign,
-    );
-    const alongLength = Math.hypot(...along);
-    if (!(alongLength > 0))
-      throw new Error("An eyebrow band needs a nonzero course along the brow.");
-    const course = (t: number): number[] => {
-      const base = band(u, start + (end - start) * t);
-      return base.map(
-        (value, axis) => value + (along[axis] / alongLength) * bend * t * t,
-      );
-    };
+  for (const guide of guides) {
+    const i = guide.index;
     const metric = createHumanFaceBrowCourse(
-      chart.compile(
-        Array.from({ length: rings }, (_, ring) =>
-          chart.project(course(ring / shape.segments)),
-        ),
-      ),
+      chart.compile(guide.points.map((point) => chart.register(point))),
     );
     const length = metric.lengthMetres;
     const progress = (t: number): number => t * t * (3 - 2 * t);

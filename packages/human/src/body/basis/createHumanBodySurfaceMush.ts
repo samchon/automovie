@@ -33,19 +33,6 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  * changing vertex identities changes that reference; a changed basis needs
  * recompilation. It does not prove volume, clearance, nonpenetration or
  * anatomical motion.
- *
- * @evidence contracts/common.md#principled-implementation Equal-neighbour smoothing is linear and commutes with a shared rigid transform; normalized area normals and the projected reference edge then rotate the rest residual in the same orthonormal frame. A collapsed frame retains the posed sample. This is a numerical rest-detail transport, not a constitutive tissue model.
- * @evidence contracts/common.md#clear-and-simple-design Preparation owns topology and mask, while one returned function evaluates rest and posed smoothing and frame transport. The actual posed-surface consumer owns corrective and sag order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed support comes from positive distinct bone influences and open edges, not names or coordinate thresholds. Mask normalization preserves the skin binding's common-scale meaning without changing caller weights or the existing admission tolerance.
- * @evidence contracts/common.md#meaningful-documentation States the preconditions, metre frame, numerical method, snapshot and return ownership, frame fallback, output-rim policy and the absence of contact or physiological guarantees.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This numerical filter defines no anatomical part or group; the existing surface owns its shared vertex identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels The basis policy controls numerical sweeps and mask transport, not a named bodily trait; the human document's shape and pose channels remain unchanged.
- * @evidence contracts/modeling.md#emitted-geometry Returns the same XYZ population in the same order; no vertex, triangle, region or subdivision is emitted by this filter.
- * @evidence contracts/modeling.md#spatial-conventions Rest and posed arrays are metre positions in the same right-handed Y-up, Z-forward body frame; local residual projection and reconstruction introduce no unit conversion.
- * @evidence contracts/modeling.md#shared-boundaries Open-edge endpoints retain the caller's posed positions and mask diffusion cannot activate them. Material seams retain their existing common source vertices; this operation does not stitch independent surfaces or solve contact.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This numerical operator introduces no measured tissue value; the basis owns the licensed source geometry and the deformation is not asserted to reproduce tissue physiology.
- * @evidenceExclude contracts/anatomy.md#permitted-range The surface admission owns numerical policy bounds; this operator admits no new clinical shape or joint range and does not establish admissibility of a deformed body.
- * @evidenceExclude contracts/anatomy.md#parametric-authority These arrays and policy are compiler-stage basis inputs, not additional controls in an authored human document.
  */
 export function createHumanBodySurfaceMush(
   surface: Surface,

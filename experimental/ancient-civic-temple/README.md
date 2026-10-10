@@ -31,6 +31,7 @@ Use the commands declared in `package.json`:
 | --- | --- |
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
+| `npm run viewer -- --port 4175` | Run the typed native producer and browser compiler through `ttsx -P package.json`; serve generated ESM for both the building and model board. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 

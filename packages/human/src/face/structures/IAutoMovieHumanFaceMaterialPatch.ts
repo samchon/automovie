@@ -6,20 +6,6 @@ import type { IAutoMovieHumanFaceAttachmentPoint } from "./IAutoMovieHumanFaceAt
  * Current host corners supply geometry under deformation; this record adds no
  * personal vertex control or clinical tissue boundary measurement.
  *
- * @evidence contracts/common.md#principled-implementation Actual host triangles and barycentric points retain material lineage through source-region clipping.
- * @evidence contracts/common.md#clear-and-simple-design One point table and oriented incidence carry the patch and every boundary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No reference XYZ or coordinate weld substitutes for native material identity.
- * @evidence contracts/common.md#meaningful-documentation States generation, incidence, endpoint and boundary ownership.
- * @evidence contracts/modeling.md#spatial-conventions Host triangle ordinals and dimensionless weights are evaluated in the current host frame.
- * @evidence contracts/modeling.md#shared-boundaries Boundary and plica indices address the same shared material point table as emitted cells.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Source metadata locates existing tissue parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no personal authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The consuming tissue builder owns emission.
- * @evidenceExclude contracts/modeling.md#rendered-observation The consuming tissue builder observes its output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Material correspondence supplies no clinical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source and tissue owners admit their own domains.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Offline shared-source metadata, not personal sculpting input.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceMaterialPatch {
@@ -53,6 +39,6 @@ export interface IAutoMovieHumanFaceMaterialPatch {
   /** Actual lower posterior-margin endpoint of the authored bed. */
   lowerEndpoint: number;
 
-  /** The projected-region definition is authored, not observed histology. */
+  /** The source-authored material-region definition is not observed histology. */
   qualification: "authoredConvention";
 }

@@ -8,15 +8,6 @@ import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformanc
  * populations retain a coincident seam through the same boundary subdivision
  * rule. Surrounding band points receive the rim's displacement, preserving
  * their section thickness instead of flattening both vermilion bodies.
- *
- * @evidence contracts/common.md#principled-implementation The two margins are paired sample by sample so a zero separation makes them one seam; separation is scaled about each pair's midpoint by the ratio of current to observed separation (or opened by a parabolic bump when the observation was closed), the mandible rotates only the lower margin by a hinge angle weighted 4t(1-t) along the span so the corners stay fixed, and smile and pucker are added as smooth lateral fields. Observed and current pairs make an unchanged pair an exact identity, which is checked. Finite, ordered output is verified.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; every constant is a documented coupling of the performance type.
- * @evidence contracts/modeling.md#spatial-conventions Inputs and outputs are head-frame millimetre points; angles are degrees about the hinge and the lateral coordinate is a unitless fraction.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function poses two margins and defines no part or group.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it moves the given samples.
- * @evidence contracts/modeling.md#shared-boundaries Both margins share their corner points, and a zero separation keeps the rims coincident on one seam (residual sub-nanometre error is resolved onto one shared seam), so the aperture stays closed at the corners and along the seam when the lips meet.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint; the performed lips are observed under the mouth component.
- * @evidence contracts/anatomy.md#parametric-authority Inputs are named motions (lip separation, mandibular angle about a named hinge, commissure elevation, protrusion) with named ranges; none addresses a vertex, curve or patch.
  */
 export function createPortraitMouthPerformance(
   upper: readonly IAutoMovieVector3[],

@@ -21,16 +21,6 @@ import { portraitTongueStation } from "./portraitTongueStation";
  * Fit captures the performed mesh in head millimetres. Native preparation gives
  * each consumer a fresh copy with matching normals; compatibility finish packs
  * this same producer's result without repeating attachment or jaw motion.
- *
- * @evidence contracts/common.md#principled-implementation The observed-relative tongue is built once in its local frame, placed by the shared oral frame at the lower-lip anchor, and each vertex is rotated about the jaw hinge by the observed-relative angle weighted by the tip-to-root fade of its station, so the tip follows the mandible and the root stays put; normals are recomputed because the motion is not rigid.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named, and the station weight comes from the layout owner and not from a private restatement of it.
- * @evidence contracts/common.md#meaningful-documentation The comment states what the tongue follows, that normals are recomputed, that this is a kinematic approximation and not muscular or hyoid simulation, and what fit captures.
- * @evidence contracts/modeling.md#part-identity-and-grouping The declaration is the component of one part, the tongue, which it attaches to the observed lower oral frame.
- * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the raise, advance and jaw differences of the expression and defines no channel of its own.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The primitives are the builder's own.
- * @evidence contracts/modeling.md#spatial-conventions Sockets name host vertices; the local millimetre body is mapped to the head millimetre frame by the shared oral attachment, then rotated in degrees about the head-frame hinge, and packed once at the metric boundary.
- * @evidence contracts/modeling.md#shared-boundaries The tongue is placed in the same lower-lip frame and rotated about the same hinge and by the same rotation function as the lower lip and lower enamel, with the posterior end held fixed, so the anterior body moves with the mandible without the root leaving its place. The tongue is not brought into contact with the teeth or the lining, so the join with them is not guaranteed.
- * @evidence contracts/anatomy.md#parametric-authority Inputs are three named oral landmarks, a named hinge, the named lingual dimensions and the observed and current expressions; none addresses a vertex, curve or patch.
  */
 export function createPortraitTongueComponent(
   inputSocket: {

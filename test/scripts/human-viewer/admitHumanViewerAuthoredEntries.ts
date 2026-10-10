@@ -27,6 +27,7 @@ export function admitHumanViewerAuthoredEntries(
         reason: `${entry.id}: ${admission.reason ?? admission.state}`,
         pending: admission.state === "pending",
         id: entry.id,
+        ...(admission.state === "pending" ? { candidate: entry } : {}),
       });
   }
   return result;

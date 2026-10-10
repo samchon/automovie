@@ -9,7 +9,7 @@ import {
   createAutoMovieProductionPrincipleClaim,
 } from "@automovie/evidence";
 import type { IEvidenceConfig } from "@wrtnlabs/evidence";
-import { fileURLToPath } from "node:url";
+
 
 /**
  * The sole tracked production kind, population scope, branch-stage, and local
@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
  */
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
-    fileURLToPath(new URL(".", import.meta.url)),
+    __dirname,
     "korean" as AutoMovieProductionLanguage,
   ),
   kind: "library",

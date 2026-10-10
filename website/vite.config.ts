@@ -18,22 +18,23 @@ export default defineConfig({
   preview: { host: "127.0.0.1", port: 4174, strictPort: true },
   resolve: {
     dedupe: ["three"],
+    extensions: [".mts", ".ts", ".tsx", ".mjs", ".js", ".jsx", ".json"],
     alias: {
       "production-temple-scene": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/scene.mjs",
+        "../experimental/ancient-civic-temple/src/viewer/scene.ts",
       ),
       "production-temple-daylight": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/daylight.mjs",
+        "../experimental/ancient-civic-temple/src/viewer/daylight.ts",
       ),
       "production-future-scene": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/scene.mjs",
+        "../experimental/future-citizen-house/src/viewer/scene.ts",
       ),
       "production-future-daylight": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/illumination.mjs",
+        "../experimental/future-citizen-house/src/viewer/illumination.ts",
       ),
     },
   },

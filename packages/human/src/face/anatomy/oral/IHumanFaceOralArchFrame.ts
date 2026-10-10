@@ -9,20 +9,6 @@ import type { IHumanFaceOralToothStation } from "./IHumanFaceOralToothStation";
  * local cervical ring" and never a height above the head's horizontal plane.
  * Head-frame vectors are unit length; `origin` is in head-frame metres.
  *
- * @evidence contracts/common.md#principled-implementation The lining attaches to the cervical rings, so the plane those rings define is the frame in which its heights have one meaning for every tooth.
- * @evidence contracts/common.md#clear-and-simple-design One frame per arch replaces the head axes each lining formula assumed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Derived from the registered rings alone; no tooth, side or document is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what the frame owns, its units and the meaning of each direction.
- * @evidence contracts/modeling.md#part-identity-and-grouping Groups the arch's crown stations in anatomical order without copying crown geometry.
- * @evidence contracts/modeling.md#spatial-conventions The `(lateral, anterior, apical)` arch metre frame is left-handed on the maxilla and right-handed on the mandible because apical points away from the crowns in both arches; this record owns its conversion to the Y-up head frame.
- * @evidence contracts/modeling.md#shared-boundaries Supplies the single definition the gingiva, palate or floor and vestibular wall share.
- * @evidenceExclude contracts/modeling.md#parameter-channels Carries no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining built in this frame.
- * @evidence contracts/anatomy.md#anatomical-source A geometric frame of licensed source crown ports; it is no measured occlusal plane, and the source registers no tooth long axis.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
- *
  * @author Samchon
  */
 export interface IHumanFaceOralArchFrame {

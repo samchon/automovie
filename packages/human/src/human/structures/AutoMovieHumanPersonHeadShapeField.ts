@@ -9,12 +9,6 @@
  * reconstruction. The generation descriptor owns exact directions, support,
  * signed endpoint conversion and permitted source conditions.
  *
- * @evidence contracts/common.md#principled-implementation A closed anatomical path set distinguishes independently authored source traits without exposing personal vertices or curves.
- * @evidence contracts/common.md#clear-and-simple-design Each path identifies one cranial, facial, cervical, nasal or paired-pinna source trait.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Paths select registered source traits; they carry neither a source identity shortcut nor default measured values.
- * @evidence contracts/common.md#meaningful-documentation States source-relative units, positive directions and the separate clinical meaning.
- * @evidence contracts/modeling.md#parameter-channels Domains and paired paths keep each source trait distinct; the provider owns intentional coupling and its neutral.
- * @evidence contracts/anatomy.md#parametric-authority Only named anatomical exterior differences select the source's numerical controls; a person cannot address a vertex, free curve or patch.
  * @author Samchon
  */
 export type AutoMovieHumanPersonHeadShapeField =

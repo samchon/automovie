@@ -24,19 +24,6 @@ import type { IHumanBodyToeRayInput } from "./IHumanBodyToeRayInput";
  * without toe poses return an empty map, so skinning keeps the one toes bone
  * and its output is unchanged to the bit.
  *
- * @evidence contracts/common.md#principled-implementation The rays compose on the toes bone's own transform, so existing toes poses keep their meaning and rays at rest reproduce them exactly.
- * @evidence contracts/common.md#clear-and-simple-design One parent-before-child pass over the declared rays.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Undeclared, repeated, out-of-range and hinge-splay poses refuse instead of being clamped or ignored.
- * @evidence contracts/common.md#meaningful-documentation States the axes, signs, composition and every refusal.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each phalanx keeps its own transform under its named parent.
- * @evidence contracts/modeling.md#parameter-channels Flexion and splay are named motions per phalanx.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Skinning applies these transforms; this owner emits none.
- * @evidence contracts/modeling.md#spatial-conventions Metres and degrees in the basis frame (+Y up, +Z forward, +X anatomical left).
- * @evidenceExclude contracts/modeling.md#shared-boundaries The skin owns the shared surface.
- * @evidence contracts/modeling.md#rendered-observation The posed toes are read in the body viewer's side, bottom and close frames.
- * @evidence contracts/anatomy.md#anatomical-source Rig landmarks stand for the joint centres; the ranges are a stated convention without a clinical source yet.
- * @evidence contracts/anatomy.md#permitted-range Each phalanx's flexion and the proximal splay are admitted within the convention ranges and refused with their cause beyond them.
- * @evidence contracts/anatomy.md#parametric-authority Inputs are named phalanx motions in degrees only.
  * @author Samchon
  */
 export function resolveHumanBodyToeRays(

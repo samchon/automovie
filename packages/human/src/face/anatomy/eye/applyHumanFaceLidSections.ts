@@ -12,18 +12,6 @@ import type { IAutoMovieHumanFaceEyelids } from "../../structures/IAutoMovieHuma
  * These are independent rest identity controls, not wrinkle grades or measured
  * anatomy. Source pose residuals then carry blink, squint and gaze once, and
  * actual assembled space/contact admission judges the resulting geometry.
- * @evidence contracts/common.md#principled-implementation Named source station rows change the actual common skin before its existing pose and normal owners, preserving canthal and outer attachment points.
- * @evidence contracts/common.md#clear-and-simple-design One rest identity owner applies independent section deltas to canonical sample aliases; existing source stages retain motion and normals.
- * @evidence contracts/common.md#meaningful-documentation States displacement directions, held boundaries, source role qualification and downstream spatial admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No personal boundary coordinates, inferred clinical dimension or corrective tolerance hides a missing section registration.
- * @evidence contracts/modeling.md#parameter-channels Each upper/lower section has independent signed elevation and projection in millimetres.
- * @evidence contracts/modeling.md#shared-boundaries Section identity modifies shared skin vertices, and exact joins and margins remain with their existing owner.
- * @evidence contracts/modeling.md#spatial-conventions Superior is head +Y and anterior is +Z; millimetres convert once before source motion.
- * @evidence contracts/anatomy.md#anatomical-source Section roles are licensed source authoring conventions, not observed clinical fold dimensions.
- * @evidence contracts/anatomy.md#parametric-authority Only named scalar section displacements enter; source registration owns every vertex row.
- * @evidence contracts/anatomy.md#permitted-range Finite representable signed section dimensions are admitted geometrically; no clinical interval is inferred and assembly contact remains downstream.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Changes existing registered skin sections; source and assembly own the parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Changes the existing native coordinates without changing source connectivity or population.
  */
 export function applyHumanFaceLidSections(
   basis: IAutoMovieHumanFaceBasis,

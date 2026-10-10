@@ -15,19 +15,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * `columns * (rows - 1) + 2` vertices and `2 * columns * (rows - 1)` triangles.
  * A non-finite or non-positive sphere, a count outside those ranges or a
  * placement that overflows finite coordinates throws.
- *
- * @evidence contracts/common.md#principled-implementation A latitude-longitude parameterization puts every vertex on the sphere by construction, and its analytic unit normals equal the exact sphere normals at those vertices. Collapsing each pole to one vertex with a wrapped ring of triangles removes the zero-area cells that a rectangular pole row would produce. The mesh is a polyhedral approximation whose chord sag falls with the counts, and no interior point is claimed to lie on the sphere.
- * @evidence contracts/common.md#clear-and-simple-design One function builds one closed sphere from a centre, a radius and two counts, with no option and no state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The sphere is a function of its arguments alone, with nothing named after a subject or fixture and no foreign method replaced.
- * @evidence contracts/common.md#meaningful-documentation The comment states the frame, the pole axis, the exact-normal property, the two counts and the vertex and triangle counts they give, and every refusal.
- * @evidence contracts/modeling.md#emitted-geometry The population is `columns * (rows - 1) + 2` vertices and `2 * columns * (rows - 1)` triangles, from the eye's two sampling parameters only: 5 vertices and 6 triangles at the 3 by 2 minimum and 261,634 vertices and 523,264 triangles at the 512 by 512 maximum, whatever the aperture or lid state. A complete closed surface is what a performed lid needs, because the lids can hide any part of the globe as they close, and a parametric sphere emits a population that follows the requested resolution instead of an individually placed primitive per feature; an icosphere would spread vertices more evenly but would not tie the count to the eye's two existing sampling parameters.
- * @evidence contracts/modeling.md#spatial-conventions Centre, radius and positions share one unit and one right-handed frame supplied by the caller, the poles are on its Y axis and normals are dimensionless; no conversion happens inside.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function emits one mesh and defines neither the sclera part that displays it nor the group that composes the eye.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes a sphere and two counts and defines no channel.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds one closed surface and joins no other part; the canthal hull and the ocular tissues that meet it are built by their own declarations from this same mesh.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the radius is the caller's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits only geometric validity of a sphere and two tessellation counts and bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a face through.
  */
 export function buildPortraitPerformanceGlobe(
   sphere: IPortraitEyeSphere,

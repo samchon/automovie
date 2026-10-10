@@ -50,19 +50,6 @@ import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
  * The result has the shape the body's skin table has, so the body's own dual
  * quaternion skinning poses the face skin unchanged. `joints` lists the bones
  * the table names, the head first.
- *
- * @evidence contracts/common.md#principled-implementation Reading the body's complete collar weight map through the shared nearest-face correspondence and rising to the head by a smooth function of height above the cut spreads neck motion while retaining the head alone above it; final positional continuity belongs to the collar and stitch owners rather than assuming nonlinear skinning commutes with interpolation; taking the ramp's length from the body's own head weights makes the twist spread over the length the body spreads it over, and forcing the mandible's skin to the head keeps the chin rigid; C2 smootherstep keeps the weights, and so the skin's strain, continuous across the ramp, and pruning to four influences with renormalization keeps each weight vector a convex combination.
- * @evidence contracts/common.md#clear-and-simple-design The function is one pass over the face vertices with the shared correspondence lookup and the loop height as its geometric inputs, after the jaw's vertices are marked.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is special-cased and no length is supplied: the ramp length is the body's measured head reach, the jaw's vertices are the face's own attachment, and the weights are read from the body's authored table.
- * @evidence contracts/common.md#meaningful-documentation The comment states why the face needs the body's weights, the rules that build them, the ramp and its length, why the jaw is rigid, and the influence limit.
- * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, angle from +Z towards +X about the seam's axis; weights are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries The face reads the body's complete bone-wise affine weight field at frozen cut intersections before its final four-influence limit. These weights spread neck motion; they do not make nonlinear skinning commute with edge interpolation. Final posed positional continuity belongs to conformHumanPersonCollar and stitchHumanPersonBoundary, and unsupported folds remain their admission failures.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function computes weights for one existing part and defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it emits a weight table.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value of its own; the ramp length and the collar weights are the body's and the jaw attachment is the face's.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function createHumanPersonFaceSkin(props: {
   seam: IAutoMovieHumanPersonSeam;

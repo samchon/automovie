@@ -1,3 +1,5 @@
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry";
+
 /**
  * A document the viewer refused or has not yet decided, with the reason: an
  * input file, the published person generation, or a document the viewer
@@ -25,4 +27,7 @@ export interface IHumanViewerRejectedInput {
 
   /** The document id when the entry is one document of a file (or one viewer-authored document). */
   id?: string;
+
+  /** Selectable numerical descriptor while pending; it is not a drawable or admitted document. */
+  candidate?: IHumanViewerCatalogueEntry;
 }

@@ -17,20 +17,6 @@ import type { IAutoMovieHumanPersonSkinPlan } from "../structures/IAutoMovieHuma
  * in the rest frame, carried by the rigid skinning transform the body gave
  * that vertex. The largest step each partition's field asked of the boundary
  * is reported, not corrected.
- *
- * @evidence contracts/common.md#principled-implementation Both partitions' fields are summed once at each shared sample and skinned once with one weight row, so the halves meet at one value.
- * @evidence contracts/common.md#clear-and-simple-design Read back, form the rest, skin the head, copy the shared samples, add the band.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The boundary disagreement is measured and reported; nothing blends it away.
- * @evidence contracts/common.md#meaningful-documentation States the rest rule, the posing of each side, the band rule and the report.
- * @evidence contracts/modeling.md#spatial-conventions Rest and posed metres of the person frame; the shift is the head carry's named translation.
- * @evidence contracts/modeling.md#shared-boundaries Every shared sample has one rest value and one skinning row, and both halves read that one posed value.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function forms skin positions and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The partitions' owners evaluated the channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator emits the parts.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The partitions' owners admitted the document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input.
  */
 export function formHumanPersonSkin(
   plan: IAutoMovieHumanPersonSkinPlan,

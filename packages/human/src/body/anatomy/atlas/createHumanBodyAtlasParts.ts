@@ -16,20 +16,6 @@ import { isHumanBodyAtlasSourceRecorded } from "./isHumanBodyAtlasSourceRecorded
  * primitive, reaches the body, person and static export as separate parts.
  * Normal vectors rotate with the surface; source arrays remain caller-owned.
  * Clinical part resolution remains unavailable outside this adapter.
- *
- * @evidence contracts/common.md#principled-implementation Posed times inverse registered reference is a rigid map in the common frame; exact shape admission prevents silently applying an atlas to a different body.
- * @evidence contracts/common.md#clear-and-simple-design One selected-part pass admits provenance, checks registration and copies positioned meshes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry replacement, dimensional rescaling, source-face filtering or clinical certification occurs.
- * @evidence contracts/common.md#meaningful-documentation Names opt-in, refusal, ownership and qualification limits.
- * @evidence contracts/modeling.md#part-identity-and-grouping One atlas part and one material per selected closed bone ID retain correspondence through static export's material grouping.
- * @evidence contracts/modeling.md#parameter-channels Only explicit named inspection selection is consumed; registered shape is a replay condition and no dimensions are inferred.
- * @evidence contracts/modeling.md#emitted-geometry The source mesh vertex and face populations are retained exactly for each selected resource.
- * @evidence contracts/modeling.md#spatial-conventions Registered common-frame metre points are carried by posed rotation times inverse reference rotation; normals receive rotation only.
- * @evidence contracts/modeling.md#shared-boundaries Separate acquired boundaries assert no cartilage continuity, bone-to-skin registration or independently articulated subtalar contact.
- * @evidence contracts/modeling.md#rendered-observation Explicit inspection parts reach the actual body and person static model; atlas registration and supported pose observation remain with the owning campaign record.
- * @evidence contracts/anatomy.md#anatomical-source The actual resource source receipt is retained; authored reference placement supplies no held-out tissue validation or personal reconstruction.
- * @evidence contracts/anatomy.md#permitted-range Exact registered shape refuses unsupported combinations; clinical motion admission remains the body pose owner and rigid replay certifies no tissue clearance.
- * @evidence contracts/anatomy.md#parametric-authority A document selects only named bone IDs, never personal vertices or placement frames.
  */
 export function createHumanBodyAtlasParts(
   input: IHumanBodyAtlasPartsInput,

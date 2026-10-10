@@ -8,8 +8,6 @@ import type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyG
  * The named report preserves the original request and states which quantity
  * the actual final skin fulfills without claiming clinical reconstruction.
  *
- * @evidence contracts/common.md#clear-and-simple-design Owns the candidate report independently of the rendered model container.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes measured exterior output from unavailable anatomy.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateReport {

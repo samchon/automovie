@@ -47,20 +47,6 @@ import { validateHumanPersonSourcePartitions } from "./validateHumanPersonSource
  * Unused surface vertices retain zero normals and never reach rendering.
  * Zero-coefficient star slots use finite placeholders in the shared affine
  * evaluator, whose inactive-coordinate branches never consume those fields.
- *
- * @evidence contracts/common.md#principled-implementation Summing a parent's cell cross products retains its oriented area vector; assigning that complete vector to the original vertex star and evaluating the shared affine cut table preserves one source shading field across complementary clipping.
- * @evidence contracts/common.md#clear-and-simple-design Static source admission, vertex normal incidence and weighted star bindings compile once; each call gathers current parent areas and scatters the selected source shading fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No neutral corrective, coordinate welding or generation label replaces the source chart or current geometry, and undefined used normals refuse.
- * @evidence contracts/common.md#meaningful-documentation Explains source versus shading geometry, performed ordering, current-coordinate admission, ownership, units and legacy behavior.
- * @evidence contracts/modeling.md#shared-boundaries One canonical sample normal is supplied to both source partitions, including the cut samples evaluated by the same ordered stencil.
- * @evidence contracts/modeling.md#spatial-conventions Current positions share metres/Y-up/Z-forward; cross products are area vectors and normalization yields dimensionless unit normals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Computes a field over supplied source cells and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits normal arrays for an existing population, without adding or removing a geometric primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The person builder owns assembled observation; this transport does not display a part.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Area-weighted shading is not an anatomical quantity or a tissue model.
- * @evidenceExclude contracts/anatomy.md#permitted-range Coordinate admission establishes numerical representability, not a biological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes immutable compiler lineage and performed geometry, not personal shaping inputs.
  */
 export function createHumanPersonSourceNormals(
   props: IAutoMovieHumanPersonSourcePartitionsProps,

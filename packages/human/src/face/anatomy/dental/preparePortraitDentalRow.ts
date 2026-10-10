@@ -18,14 +18,6 @@ import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * crowns are then shifted along group X until they no longer overlap.
  * Returns the merged owned mesh and one directed cervical cycle per input
  * crown in that crown's order, expressed in merged native vertex identities.
- *
- * @evidence contracts/common.md#principled-implementation Crowns are placed by cumulative arc length along an ellipse guide, each rotated by the arc tangent (an orthonormal rotation of positions and normals, so enamel width is preserved), and then shifted along X by the engine's sequence separation until the complete proximal surfaces clear. The merge preserves input order, so the per-crown cervical cycles are carried by an offset of native vertex identities and never recovered by position. The premises are positive semiaxes, a nonnegative gap and at least one crown.
- * @evidence contracts/modeling.md#part-identity-and-grouping The declaration is the arch group: it composes the crowns, owns their order, spacing, rotation and separation and copies no crown's shape.
- * @evidence contracts/modeling.md#emitted-geometry The population is the crowns' own meshes, one loft per crown, so the count grows with the number of crowns the caller authors and each crown's size is fixed by its constructor.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres in the group's local frame (+X across the arch, +Y towards the gingiva, +Z towards the lip); the separation solves in metres and converts back at one named step in `separatePortraitDentalCrowns`.
- * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the row's dimensions and defines no channel of its own.
- * @evidence contracts/modeling.md#shared-boundaries Neighbouring crowns meet at one boundary definition, the contact gap: every adjacent pair is separated from complete surfaces so they touch at most, verified by the sequence separation's clearance measurement along X, and the nominal ellipse is only a guide. The join is measured along one axis, so a crown pair whose rotated proximal faces overlap in a direction the X measurement does not see is a limit of the engine measurement.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the row type's named dimensions.
  */
 export function preparePortraitDentalRow(input: IPortraitDentalRow) {
   const shape = structuredClone(input);

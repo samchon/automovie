@@ -13,9 +13,6 @@ import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHum
  * actual model. It verifies the original native source fingerprint rather
  * than asserting that fingerprint hashes the final posed output. The writer
  * separately binds its actual primitive intervals and Float32 geometry.
- * @evidence contracts/common.md#principled-implementation SHA-256 of the exact original neutral/target/attachment/region serialization must match producer provenance before actual generated member IDs are qualified.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source digest is relabelled a final posed asset digest, and missing geometry receives no receipt.
- * @evidence contracts/common.md#meaningful-documentation States successful-build precondition and separate source versus actual-static geometry authority.
  * @author Samchon
  */
 export async function createHumanFaceOralExportQualification(

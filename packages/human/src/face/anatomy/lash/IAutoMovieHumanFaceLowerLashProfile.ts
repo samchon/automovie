@@ -13,20 +13,6 @@
  * et al. 2015 (DOI 10.15761/GOD.1000123) does not register this frame, so these
  * bounds are not a measured population range.
  *
- * @evidence contracts/common.md#principled-implementation The seven scalars describe one constant-curvature tapered strand; mirroring the angle frame lets the lower row use the same strand construction without an upper-biased curl interval.
- * @evidence contracts/common.md#clear-and-simple-design A flat record of seven named numbers with one owner for its bounds, `humanFaceLowerLashParameters`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No field names a subject or fixture; the mirrored frame is stated rather than borrowed silently from the upper row.
- * @evidence contracts/common.md#meaningful-documentation Each field states its unit and direction, and the type states the mirrored frame and the conventional bounds.
- * @evidence contracts/modeling.md#spatial-conventions Lengths are millimetres and angles degrees in the head frame (+Y superior, +Z anterior), with elevation measured towards -Y and positive curl turning downwards.
- * @evidence contracts/modeling.md#parameter-channels Seven named shape inputs per eye, independent of the skin channels.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A parameter record for a population of strands; the periocular registration names the part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The lash generator emits the strands.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The registered lower margin owns the root boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The face builder's consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source No lower-lash measurement source is held; the bounds are a stated convention.
- * @evidence contracts/anatomy.md#permitted-range Admission applies `humanFaceLowerLashParameters`, stated as a convention.
- * @evidence contracts/anatomy.md#parametric-authority Every field is a named strand trait; none addresses a vertex or strand.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceLowerLashProfile {

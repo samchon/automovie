@@ -38,18 +38,6 @@ const LOWER_MARGIN_CLOSURE_SHARE = 0.1;
  * a result that overflows finite coordinates all throw, and the caller's
  * curves are never modified. Equal current and observed closure returns owned
  * copies of the inputs.
- *
- * @evidence contracts/common.md#principled-implementation A convex blend of a station with its own seam is the motion that keeps the pair between its endpoints and brings both to one point at full closure. Dividing by (1 - observedBlink) makes the observation the ratio-one state whatever closure it already carried, and the admission's 0.95 ceiling on observed closure keeps that divisor positive. Extrapolation past the observation is allowed and its overflow is checked.
- * @evidence contracts/common.md#clear-and-simple-design One function computes the seam and moves both curves toward it with the single share constant; it has no option and no state, and the caller owns the projection back onto the globe.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The motion is a function of the two curves and the performance only. The share is one named constant with a stated basis, not a value chosen for a fixture or a photograph, and nothing is patched around another module.
- * @evidence contracts/common.md#meaningful-documentation The comment states the share and its basis, the seam definition, the ratio, that the path is a chord the caller projects, every refusal and the ownership of the copies.
- * @evidence contracts/modeling.md#spatial-conventions The function is a pure affine blend of points in whatever right-handed frame and unit its caller uses, so it introduces no conversion; the eye component supplies head millimetres.
- * @evidence contracts/anatomy.md#parametric-authority The input is the named physiological motion of eyelid closure as a fraction relative to the observation; no input addresses a vertex or a curve, since the curves are the subject's own measured aperture and the function moves them by one ratio.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves two curves and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the performance record and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits one point per input point and no primitive of its own.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the shared seam it computes is the boundary of the upper and lower curves, and the eye component builds the lid rows from it.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing; the lids it moves are observed under the eye component.
  */
 export function posePortraitLidCurves(
   upper: readonly IAutoMovieVector3[],

@@ -33,18 +33,6 @@ const extent = 0.2;
  * RGB. Sites fix product order by name, making declaration order irrelevant.
  * Gains lie in [0,1]: this path has no material to fold a lightening into.
  * The host uses millimetres; the sampler reads reference points in the same unit.
- *
- * @evidence contracts/common.md#principled-implementation Sites resolve to fixed landmarks of the basis and one shared support scaled by the host's own breadth, then the compact kernel of createPortraitColourField weights each gain; sampling on reference coordinates keeps the colour from sliding with expression.
- * @evidence contracts/common.md#clear-and-simple-design It resolves a closed site set to fields and delegates sampling to createPortraitColourField.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; an unknown or repeated site, a missing or nonfinite landmark and a gain above one refuse.
- * @evidence contracts/common.md#meaningful-documentation States the site landmarks through the site type, the support rule, the ordering rule, the gain limit and the unit.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres for the host and the sampled points; gains are linear RGB.
- * @evidence contracts/anatomy.md#parametric-authority Every input is a named skin site with linear gains and a strength; no input addresses a vertex, offsets a centre or sets a radius, and the site landmarks and the support fraction are fixed by the basis and this owner.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It compiles a colour function and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines and consumes no parameter channel of a form; the sites are colour envelopes.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part; the skin part that samples it is observed by its owner.
  */
 export function createPortraitSkinColour(
   host: IPortraitComponentHost,

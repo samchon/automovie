@@ -1,0 +1,116 @@
+import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
+import { autoMovieRenderDigest } from "@automovie/engine";
+
+import { humanPhysicalSourceDomain } from "../../../common/basis/humanPhysicalSourceDomain";
+import type { IAutoMovieHumanConstructionFailure } from "../../../common/structures/IAutoMovieHumanConstructionFailure";
+import { createHumanBodySourceResidentMesh } from "../assembly/createHumanBodySourceResidentMesh";
+import type { IHumanBodyLayerConstruction } from "./IHumanBodyLayerConstruction";
+import type { IHumanBodyLayerConstructionInput } from "./IHumanBodyLayerConstructionInput";
+import { createHumanBodyLayerSurfaces } from "./createHumanBodyLayerSurfaces";
+import { createHumanBodySubcutaneousShell } from "./createHumanBodySubcutaneousShell";
+
+/**
+ * Emit one subcutaneous shell as disjoint dermal, fascial and rim members.
+ *
+ * The existing offset and shell owners retain every requested thickness and
+ * triangle exactly once. The dermal outer sheet, reversed fascial inner sheet
+ * and actual open-boundary strips partition that one shell; separate copies
+ * of its sheets would duplicate physical faces when exported together.
+ * Inspection appearance copies the existing skin finish's scalar
+ * values without its exterior UV textures; it implies no inner tissue colour
+ * or physical material measurement. Their physical
+ * domains distinguish the two sheets; each sheet and its shell occurrence
+ * share the same native point. Offsets are made in the supplied final frame,
+ * after the consumer's root placement, and never moved a second time here.
+ * An admitted native source registration assigns these same members to the
+ * single subcutaneous owner and records their actual final mesh identities.
+ * The original geometry, skin scalar inspection finish and refusals remain.
+ */
+export function createHumanBodyLayerConstruction(
+  input: IHumanBodyLayerConstructionInput,
+): IHumanBodyLayerConstruction {
+  if (input.field.basis !== input.basis || input.surface.trim() === "")
+    throw new Error("Native layer construction needs its exact basis and surface.");
+  if (input.nativeSource !== undefined && (input.nativeSource.surface !== input.surface ||
+      input.nativeSource.fieldDigest !== autoMovieRenderDigest(JSON.stringify(input.field))))
+    throw new Error("Native subcutaneous construction needs its registered field and actual surface.");
+  const surfaces = createHumanBodyLayerSurfaces(input);
+  const count = input.positions.length / 3;
+  const domains = ["dermal", "fascial"].map((sheet) =>
+    humanPhysicalSourceDomain(input.instance, JSON.stringify([input.basis, input.surface, sheet])),
+  );
+  const shell = createHumanBodySubcutaneousShell(surfaces, input.indices);
+  shell.physicalVertices = {
+    sources: domains.flatMap((domain) => Array.from({ length: count }, (_, id) => ({ domain, id }))),
+    vertices: Array.from({ length: count * 2 }, (_, id) => id),
+  };
+  const outer: number[] = [], inner: number[] = [];
+  for (let at = 0; at < input.indices.length / 3; at++) {
+    outer.push(...shell.indices!.slice(at * 6, at * 6 + 3));
+    inner.push(...shell.indices!.slice(at * 6 + 3, at * 6 + 6));
+  }
+  const rim = shell.indices!.slice(input.indices.length * 2);
+  const populations = [outer, inner, rim];
+  const names = ["dermal-face", "fascial-face", "subcutaneous-rim"] as const;
+  const prefix = input.nativeSource === undefined ? "skin-layer:" + input.surface + ":" :
+    "native-subcutaneous:" + input.nativeSource.id + "/" + input.surface + "/";
+  const meshes: IAutoMovieMesh[] = populations.map((indices) =>
+    indices.length === 0 ? { ...shell, indices: [] } :
+      createHumanBodySourceResidentMesh({ ...shell, indices }).mesh,
+  );
+  const material: IAutoMovieMaterial = {
+    id: "skin-layer:" + input.surface + ":inspection",
+    name: "Untextured source skin scalar inspection finish",
+    baseColor: structuredClone(input.material.baseColor),
+    roughness: input.material.roughness,
+    metallic: input.material.metallic,
+    opacity: input.material.opacity,
+    emissive: structuredClone(input.material.emissive),
+    baseColorTexture: null,
+    doubleSided: input.material.doubleSided,
+  };
+  const failures: IAutoMovieHumanConstructionFailure[] = [];
+  for (const key of ["beyondReachVertices", "unmeasuredReachVertices", "invertedTriangles", "dermalInvertedTriangles"] as const)
+    if (surfaces[key] !== 0)
+      failures.push({ owner: "body-layer:" + input.surface, cause: key + ": " + surfaces[key] });
+  const { dermis, fascia, normals, ...observations } = surfaces;
+  return {
+    parts: meshes.flatMap((mesh, index) => mesh.indices!.length === 0 ? [] : [{
+      id: prefix + names[index],
+      name: names[index],
+      geometry: { type: "mesh", mesh },
+      material: material.id,
+      attachedBone: null,
+      transform: null,
+    }]),
+    material,
+    observation: {
+      ...observations,
+      basis: input.basis,
+      surface: input.surface,
+      nativeVertices: count,
+      nativeTriangles: input.indices.length / 3,
+      fieldQualification: input.field.qualification,
+      subcutaneousShellParts: names.flatMap((name, index) => populations[index].length === 0 ? [] :
+        [prefix + name]),
+      ...(input.nativeSource === undefined ? {} : { nativeSubcutaneous: {
+        basis: input.basis,
+        instance: input.instance,
+        source: structuredClone(input.nativeSource),
+        exteriorDigest: autoMovieRenderDigest(JSON.stringify({
+          positions: input.exterior?.mesh.positions ?? input.positions,
+          indices: input.exterior?.mesh.indices ?? input.indices,
+        })),
+        anchors: structuredClone(input.field.anchors),
+        fieldQualification: input.field.qualification,
+        members: meshes.flatMap((mesh, index) => mesh.indices!.length === 0 ? [] : [{
+          id: prefix + names[index],
+          role: names[index],
+          meshDigest: autoMovieRenderDigest(JSON.stringify(mesh)),
+        }]),
+        clinical: "unavailable" as const,
+      } }),
+    },
+    admission: { accepted: failures.length === 0, failures },
+  };
+}

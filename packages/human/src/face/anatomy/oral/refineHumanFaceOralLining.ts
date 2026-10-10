@@ -25,20 +25,6 @@
  * the lining builder counts those edges and reports them, so a refinement
  * that fell short is a reported fact of the assembly and never an aborted
  * construction.
- *
- * @evidence contracts/common.md#principled-implementation Shared-midpoint edge bisection with the one-, two- and three-edge templates is the standard conforming refinement; it preserves orientation and boundary edges exactly.
- * @evidence contracts/common.md#clear-and-simple-design One refinement owner separates sampling density from the lining's height definition.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate is welded or snapped and no boundary edge is altered to make the mesh conform.
- * @evidence contracts/common.md#meaningful-documentation States what is split, what is preserved, who owns the point buffer and why it terminates.
- * @evidence contracts/modeling.md#emitted-geometry Triangle count is determined by region area over the square of the target edge length, the source cervical spacing; it does not grow with authored features.
- * @evidence contracts/modeling.md#shared-boundaries Cervical ring and outer rim edges stay unsplit, so the neighbours that share them keep identical vertices.
- * @evidence contracts/modeling.md#spatial-conventions Arch-frame plane metres in and out.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Refines one region's sampling.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds nothing anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function refineHumanFaceOralLining(
   points: number[][],

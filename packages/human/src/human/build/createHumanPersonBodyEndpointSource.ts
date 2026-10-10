@@ -5,20 +5,6 @@ import type { IAutoMovieHumanPersonGeneration } from "../structures/IAutoMovieHu
  * Project the person's actual head contributions for its body's gain owner.
  * Source arrays are borrowed unchanged. The composition owns the driver lookup;
  * the body owns exact body/partition/geometry admission without importing person.
- *
- * @evidence contracts/common.md#principled-implementation Reads bindings and nonzero contributions from the same compiled generation supplied to the person builder.
- * @evidence contracts/common.md#clear-and-simple-design One projection bridges composition ownership to the body-owned constructor input.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No empty marker, inferred point or copied gain equation replaces source geometry.
- * @evidence contracts/common.md#meaningful-documentation States array ownership and the dependency direction.
- * @evidence contracts/modeling.md#parameter-channels Actual head channel bindings preserve the body's signed endpoint gain owner.
- * @evidence contracts/modeling.md#shared-boundaries Both actual source partitions must identify this generation.
- * @evidence contracts/modeling.md#spatial-conventions Borrowed positions and displacement rows retain their source metre frame.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Preserves existing source member identities.
- * @evidenceExclude contracts/modeling.md#rendered-observation Establishes no rendered acceptance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing source channels own bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Converts no personal input.
  */
 export function createHumanPersonBodyEndpointSource(
   generation: IAutoMovieHumanPersonGeneration,

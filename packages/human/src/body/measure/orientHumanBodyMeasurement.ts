@@ -19,20 +19,6 @@ import { humanBodyMeasurementSide } from "./humanBodyMeasurementSide";
  * request is refused by the rule's label instead of reading the same value
  * twice under two names. A mirrored landmark the basis lacks is not checked
  * here; the reader answers null for it as for any missing landmark.
- *
- * @evidence contracts/common.md#principled-implementation One authored rule serves both sides through the basis's own landmark pairing, so the two sides' instruments share every fraction, plane and pick by construction.
- * @evidence contracts/common.md#clear-and-simple-design Side classification belongs to humanBodyMeasurementSide; this owner only mirrors landmark names per rule kind.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No right-side rule is copied into the table and no rule id is special-cased; a side asked of a midline or bilateral rule is refused rather than answered with the unsided value.
- * @evidence contracts/common.md#meaningful-documentation States the authoring convention, what mirroring exchanges and keeps, the refusal and where a missing mirrored landmark is reported.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines and consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Sides are the person's own (AutoMovieHumanBodySide); the plane of a mirrored station is built from the mirrored landmarks by the reader, so no coordinate is reflected here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The rule table owns each instrument's definition and source; mirroring adds no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input value.
  */
 export function orientHumanBodyMeasurement(
   label: string,

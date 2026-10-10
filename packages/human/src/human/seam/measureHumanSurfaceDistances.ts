@@ -11,20 +11,6 @@
  *
  * Positions are read once and never changed; sources are unique vertex
  * numbers of the same mesh.
- *
- * @evidence contracts/common.md#principled-implementation Edge lengths are nonnegative, so Dijkstra's algorithm with a binary heap returns exact shortest edge-chain lengths; the result is an upper bound of the surface geodesic and the comment states which way the approximation errs.
- * @evidence contracts/common.md#clear-and-simple-design One heap and one relaxation loop over an adjacency built from the triangle list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex, source or distance is special-cased; unreachable vertices report Infinity instead of a substitute.
- * @evidence contracts/common.md#meaningful-documentation The comment states the metric, the direction of its error and the unreachable value.
- * @evidence contracts/modeling.md#spatial-conventions Positions and distances are metres in the caller's single frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function measures distances and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function measureHumanSurfaceDistances(
   positions: readonly number[],

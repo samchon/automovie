@@ -1,5 +1,6 @@
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
 import type { IAutoMovieHumanFaceSourceClosurePlan } from "../structures/IAutoMovieHumanFaceSourceClosurePlan";
+import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
 
 /**
  * Form one source-registered closed endpoint after native posing and replay.
@@ -13,20 +14,6 @@ import type { IAutoMovieHumanFaceSourceClosurePlan } from "../structures/IAutoMo
  * representative and finite arithmetic are required. This arithmetic establishes
  * no complete-margin, cell, tissue or collider validity. Source preparation owns
  * the qualified field and fixed boundaries; contact and assembly observe output.
- *
- * @evidence contracts/common.md#principled-implementation Uses one anchored source pair mean and supplied sparse displacement rows before one requested blend, retaining translation covariance without coefficient normalization or a runtime solve.
- * @evidence contracts/common.md#clear-and-simple-design Source endpoint and request blend have separate responsibilities; native pose/replay and rigid contact stay with their consuming stage owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source owners select IDs and coefficients; no person, neck index, gap mask or tolerant coincidence substitutes for actual geometry qualification.
- * @evidence contracts/common.md#meaningful-documentation States fixed-state inputs, domains, ownership, numerical refusals and the separate physical acceptance boundary.
- * @evidence contracts/modeling.md#shared-boundaries A registered pair receives the same computed target and the exact endpoint survives weight one; the qualified source owns preserved neighboring boundaries.
- * @evidence contracts/modeling.md#spatial-conventions Positions retain one common performed metre/head frame; coefficients and request weight are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Computes over existing surfaces and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes an admitted request weight and defines no person authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Retains the existing vertex population and emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Source compiler and face assembly observe their resulting geometry; this arithmetic helper displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The compiled endpoint is a numerical source convention, not measured tissue mechanics.
- * @evidenceExclude contracts/anatomy.md#permitted-range The request's arithmetic domain is not a clinical motion capacity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal vertex, curve or sculpt authoring input.
  */
 export function applyHumanFaceSourceClosure(
   plan: IAutoMovieHumanFaceSourceClosurePlan,
@@ -34,10 +21,9 @@ export function applyHumanFaceSourceClosure(
   prior: ReadonlyMap<string, readonly number[]>,
   weight: number,
 ): Map<string, number[]> {
-  if (plan.generation.trim() === "" || plan.surface.trim() === "")
-    throw new Error("Face source closure needs its generation and surface.");
   if (!Number.isFinite(weight) || weight < 0 || weight > 1)
     throw new Error("Face source closure needs a request weight in [0,1].");
+  assertHumanFaceSourceClosurePlan(plan, open);
   if (open.size !== prior.size)
     throw new Error("Face source closure needs matching performed surfaces.");
   for (const [id, values] of open) {
@@ -52,33 +38,11 @@ export function applyHumanFaceSourceClosure(
       if (!Number.isFinite(values[i]) || !Number.isFinite(endpoint[i]))
         throw new Error("Face source closure needs dense finite positions.");
   }
-  const selected = prior.get(plan.surface);
-  if (
-    !Number.isSafeInteger(plan.vertices) ||
-    plan.vertices < 3 ||
-    selected === undefined ||
-    selected.length !== plan.vertices * 3
-  )
-    throw new Error("Face source closure needs its matching performed layout.");
-  const valid = (v: number): boolean =>
-    Number.isSafeInteger(v) && v >= 0 && v < plan.vertices;
-  const closed = selected.slice(),
-    contact = new Set<number>();
-  if (plan.contactPairs.length === 0)
-    throw new Error("Face source closure needs registered contact pairs.");
+  const selected = prior.get(plan.surface)!;
+  const closed = selected.slice();
   for (let i = 0; i < plan.contactPairs.length; i++) {
     const pair = plan.contactPairs[i];
-    if (
-      pair === undefined ||
-      pair.length !== 2 ||
-      ![pair[0], pair[1]].every(valid)
-    )
-      throw new Error("Face source closure names an absent contact point.");
     const [a, b] = pair;
-    if (contact.has(a) || contact.has(b))
-      throw new Error("Face source closure repeats contact point ownership.");
-    contact.add(a);
-    contact.add(b);
     for (let axis = 0; axis < 3; axis++) {
       const mean = interpolateHumanBasisSourceTriangle(
         [
@@ -92,46 +56,8 @@ export function applyHumanFaceSourceClosure(
       closed[b * 3 + axis] = mean;
     }
   }
-  if (
-    plan.representativePair.length !== 2 ||
-    !plan.contactPairs.some(
-      (pair) =>
-        pair[0] === plan.representativePair[0] &&
-        pair[1] === plan.representativePair[1],
-    )
-  )
-    throw new Error("Face source closure representative must be registered.");
-  const transitions = new Set<number>();
   for (let i = 0; i < plan.rows.length; i++) {
     const row = plan.rows[i];
-    if (
-      row === undefined ||
-      !valid(row.vertex) ||
-      contact.has(row.vertex) ||
-      transitions.has(row.vertex)
-    )
-      throw new Error("Face source closure has an invalid transition owner.");
-    transitions.add(row.vertex);
-    if (row.coefficients.length === 0)
-      throw new Error(
-        "Face source closure needs nonempty driver coefficients.",
-      );
-    const drivers = new Set<number>();
-    for (let j = 0; j < row.coefficients.length; j++) {
-      const entry = row.coefficients[j];
-      if (
-        entry === undefined ||
-        entry.length !== 2 ||
-        !contact.has(entry[0]) ||
-        drivers.has(entry[0]) ||
-        !Number.isFinite(entry[1]) ||
-        entry[1] <= 0
-      )
-        throw new Error(
-          "Face source closure needs unique positive supported drivers.",
-        );
-      drivers.add(entry[0]);
-    }
     for (let axis = 0; axis < 3; axis++) {
       let movement = 0;
       for (const [driver, coefficient] of row.coefficients)

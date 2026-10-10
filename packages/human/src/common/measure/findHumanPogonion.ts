@@ -16,20 +16,6 @@ import { humanHeadPlanePoints } from "./humanHeadPlanePoints";
  * stated convention of this reader, not part of the definition. The rest
  * orientation stands in for the protocol's head orientation (named
  * approximation). A chin with no such maximum below `ceiling` refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation The chin's anterior extreme is found on each skin from the defined anatomical side (upward from menton), not fixed.
- * @evidence contracts/common.md#clear-and-simple-design One section, one band pass, one forward scan.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No maximum refuses; the band and window widths are documented conventions.
- * @evidence contracts/common.md#meaningful-documentation States the definition, its source, the walk, both conventions and the approximation.
- * @evidence contracts/modeling.md#spatial-conventions +Z anterior, +Y up in the head frame; bands in metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows Katina et al. 2016 Table 2's traditional pogonion definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function findHumanPogonion(
   head: IAutoMovieHumanHeadSkin,

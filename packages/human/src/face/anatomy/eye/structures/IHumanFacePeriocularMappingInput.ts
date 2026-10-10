@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanFaceSkinFrame } from "../../skin/IHumanFaceSkinFrame";
 import type { IHumanFaceSkinSeat } from "../../skin/IHumanFaceSkinSeat";
 import type { IHumanFacePeriocularGrid } from "./IHumanFacePeriocularGrid";
@@ -16,6 +18,9 @@ export interface IHumanFacePeriocularMappingInput extends IHumanFacePeriocularGr
 
   /** The producer's actual inner sheet, without reconstruction. */
   inner: number[];
+
+  /** Outer and inner shell's actual shared local-publication origin; source skin retains its original frame. */
+  publicationOrigin?: IAutoMovieVector3;
 
   /** Actual sample material coordinates, or undefined for legacy spatial seating. */
   material?: number[];

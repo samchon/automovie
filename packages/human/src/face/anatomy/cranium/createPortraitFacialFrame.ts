@@ -12,16 +12,6 @@ import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShap
  * A nonzero brow projection additionally needs both caller-owned eye sockets.
  * Its shared superior-orbit envelope preserves their aperture and changes the
  * outer skin before fitting eyelid attachments, not as a later skin overlay.
- *
- * @evidence contracts/common.md#principled-implementation Each support is a compact weight t^2 with t = max(0, 1 - r^2) over an ellipsoid about a named landmark, which is one at the landmark, zero at and beyond the support radius and C1 at the radius (its derivative -4r(1-r^2) vanishes at r = 1); paired supports enter as a signed difference so positive means widening on both sides. Global width and length scale act last about the nasion so they compose with the local displacements in a stated order. Inputs are finite and the result is checked for overflow.
- * @evidence contracts/common.md#clear-and-simple-design Resolve the shape, build the weights, return the transformed host and the reusable transform.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific rule: the supports depend only on the host's own zygomatic breadth and frontal-to-chin length.
- * @evidence contracts/common.md#meaningful-documentation States the supports, the kernel, the order of global scale, the eye-socket requirement for brow projection and that source observations and triangle identities survive.
- * @evidence contracts/modeling.md#shared-boundaries Every component fits this one derived host and reads the same transform, so their boundaries are built on one definition of the frame; a nonzero brow projection needs both eye sockets and refuses without them.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres for positions and displacements; scales are dimensionless.
- * @evidence contracts/anatomy.md#parametric-authority Each input is a named craniofacial measurement (transverse or vertical scale, gonial, gnathion, pogonion, frontal, superior-orbit or temporal displacement) with a unit and a range; none addresses a vertex, curve or patch, and the landmark identities are fixed by the basis, not supplied by the caller.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It is a transformation of the shared host, not a part or a group of parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It moves the host's vertices and emits no primitive.
  */
 export function createPortraitFacialFrame(
   host: IPortraitComponentHost,

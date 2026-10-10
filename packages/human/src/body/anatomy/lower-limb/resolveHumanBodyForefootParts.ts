@@ -16,19 +16,6 @@ import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyTo
  * three-phalanx source. An observed value refuses its bone as
  * `acquisition-not-registered`. Foot length and breadth belong to the skin.
  *
- * @evidence contracts/common.md#principled-implementation Each part's reason names the source dependency the connected exterior source lacks, including the toe pattern it follows.
- * @evidence contracts/common.md#clear-and-simple-design One answer per owned part from that part's own request subtree.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested phalangeal variant is refused, never approximated on the other pattern.
- * @evidence contracts/common.md#meaningful-documentation States each reason and the variant refusal.
- * @evidence contracts/modeling.md#part-identity-and-grouping Owns each side's five midfoot bones, the hallux's three bones and four bones of each lesser toe; talus and calcaneus stay with the hindfoot.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It reads no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The exterior builder owns the shared skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The exterior consumer displays the answers.
- * @evidence contracts/anatomy.md#anatomical-source The variant refusal follows the source's toe joint count; no prevalence or default pattern is asserted.
- * @evidence contracts/anatomy.md#permitted-range Unregistered observations and absent variants refuse with their cause and the request is left unchanged.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
 export function resolveHumanBodyForefootParts(

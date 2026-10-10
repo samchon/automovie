@@ -18,19 +18,6 @@ import type { IAutoMovieHumanBasisSourceChartPoint } from "../../common/basis/IA
  * a generation label alone cannot establish native-prefix correspondence.
  * Geometry, targets, attachments and UVs retain separate preparation checks.
  *
- * @evidence contracts/common.md#principled-implementation Affine replay after native posing preserves the performed source definition despite the noncommutation of mixed attachment transforms and rest-space interpolation.
- * @evidence contracts/common.md#clear-and-simple-design A native count/topology and one dense chart per appended vertex define the replay order without a second skinning policy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No per-person coordinates or exceptional vertex indices are encoded; generation and prefix compatibility require actual consumer checks.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes native face count from full-body provenance, states posing/contact order, ownership and unverified correspondence limits.
- * @evidence contracts/modeling.md#spatial-conventions Counts and indices are dimensionless; chart coordinates are dimensionless and posed components retain the face's metre frame.
- * @evidence contracts/modeling.md#shared-boundaries Derived vertices and aliases evaluate the same native chart after performance, while existing native neck samples keep their previous owner and pose definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This binding record defines no part or assembly.
- * @evidenceExclude contracts/modeling.md#parameter-channels Source coordinates are compiled shared correspondence, not authored person channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The record binds an existing refinement population; its source compiler owns emission.
- * @evidenceExclude contracts/modeling.md#rendered-observation The face pose/contact consumer owns observation of the replayed surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source This mathematical binding establishes no anatomical value, proportion or tissue behavior.
- * @evidenceExclude contracts/anatomy.md#permitted-range A source chart's domain is not a physiological motion range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This offline plan introduces no person-authoring vertex input.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceSourcePosePlan {

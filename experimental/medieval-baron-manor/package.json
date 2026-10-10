@@ -7,7 +7,7 @@
   "description": "The authored medieval baron manor used by the public website.",
   "exports": {
     "./spatial-state": "./src/manorSpatialState.ts",
-    "./textured-scene": "./src/instances/manor-textured.js",
+    "./textured-scene": "./src/instances/manor-textured.ts",
     "./viewer/flight-speed-readout": "./src/viewer/flightSpeedReadout.ts",
     "./viewer/preview-navigation": "./src/viewer/previewNavigation.ts"
   },

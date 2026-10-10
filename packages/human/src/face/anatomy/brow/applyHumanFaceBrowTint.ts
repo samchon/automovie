@@ -27,19 +27,6 @@ import type { IHumanFaceBrowTintProps } from "./IHumanFaceBrowTintProps";
  *
  * No shaft gives no tint. The coverage is a geometric ratio of the emitted
  * population and no measured optical density of a brow.
- *
- * @evidence contracts/common.md#principled-implementation Shaft silhouette over the unprojected boundary-loft area is an authored unresolved-coverage approximation; cylinder broadside silhouette uses lateral area over pi, while later barycentric seating distributes the tint without measuring projected-skin area.
- * @evidence contracts/common.md#clear-and-simple-design One ratio and one splat; the count, radius and length inputs act through the emitted geometry and need no second formula.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No darkness is chosen by hand: a sparse or fine population tints less by the same ratio.
- * @evidence contracts/common.md#meaningful-documentation States why the tint exists, the ratio, the splat, the gain and the limits.
- * @evidence contracts/modeling.md#emitted-geometry The tint is the level of detail of the same population: shafts for a close view, covered-area albedo for a view that cannot resolve them; it emits no primitive.
- * @evidence contracts/modeling.md#shared-boundaries The tint lies on the skin vertices of the registered band, the same band whose seats root the shafts.
- * @evidence contracts/modeling.md#spatial-conventions Shaft and original loft-lattice areas are square metres in head-frame positions; seating weights are dimensionless and colours are linear RGB.
- * @evidence contracts/modeling.md#parameter-channels Coverage follows count, radius and length together through the emitted area; it adds no channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function changes vertex colour gains of the skin and defines no part.
- * @evidence contracts/anatomy.md#anatomical-source No value is carried; coverage is computed from the emitted population and is not a measured brow density.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
 export function applyHumanFaceBrowTint(props: IHumanFaceBrowTintProps): void {
   const { host, positions, binding, shafts, gains } = props;

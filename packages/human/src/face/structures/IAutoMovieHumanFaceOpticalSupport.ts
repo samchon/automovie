@@ -18,19 +18,6 @@ import type { IAutoMovieHumanFaceOpticalSupportTarget } from "./IAutoMovieHumanF
  * Axis and reference fix a geometric convention in the source head frame;
  * the articulation's existing centre landmark remains the rotation pivot.
  *
- * @evidence contracts/common.md#principled-implementation Records exact native coordinate, UV, incidence and target witnesses beside the producer identity so the consumer can reject stale or incompatible source data.
- * @evidence contracts/common.md#clear-and-simple-design One record binds one named side to one source surface and one chart.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate-sign side inference, raw-to-native ID copying or clinical label substitutes for correspondence.
- * @evidence contracts/common.md#meaningful-documentation Separates native witnesses, producer provenance, geometric registration and clinical claims.
- * @evidence contracts/modeling.md#spatial-conventions Neutral coordinates and endpoint displacements use the basis head-metre frame; UVs are the actual resident chart and barycentric coordinates are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The registered attachment owner names a source eye and defines no new part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Source target names witness existing endpoints rather than defining controls.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The optical builder owns generated geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The profile and contact owner define the generated outer interface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The connected builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Qualifies source authoring correspondence and carries no clinical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Introduces no physiological bound.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The caller's seven dimensions own independent geometry; this record owns placement only.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceOpticalSupport {

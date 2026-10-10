@@ -15,20 +15,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * on both sides is measured and reported. A refusal is a physical
  * qualification result, never a request to remove a surface or change its
  * dimensions or tolerance.
- *
- * @evidence contracts/common.md#principled-implementation Signed Float32 distances and the triangle crossing census read every constructed ocular part against the hull of its own eye.
- * @evidence contracts/common.md#clear-and-simple-design The same optical hull qualifies completed medial and wet geometry separately from generation, through the shared instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No surface, radius, tolerance or caller value changes to pass admission, and no sheet is skipped.
- * @evidence contracts/common.md#meaningful-documentation Explains construction retention, the unchanged condition and the complete report.
- * @evidence contracts/modeling.md#shared-boundaries The visible ocular sheets meet the optical exterior; this reads that boundary on the surface the contact stage uses.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres and the source metre tolerance.
- * @evidence contracts/anatomy.md#permitted-range Refuses geometric intersection without claiming a physiological interval.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads generator-owned part identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical admission; the eye assembly owner owes the rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  */
 export function readHumanFaceOcularSurfaceSpace(
   basis: IAutoMovieHumanFaceBasis,

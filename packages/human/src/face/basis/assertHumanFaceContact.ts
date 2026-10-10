@@ -1,6 +1,7 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
 
 /**
  * Admit a basis's coupled oral contact declaration before any document is
@@ -16,19 +17,6 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * its reference opening; a purely linear basis has no such direction. The
  * check reads names and neutral geometry only; whether a document's
  * combination passes the rules is the evaluation's answer, not admission's.
- *
- * @evidence contracts/common.md#principled-implementation Admission proves, before any document is evaluated, that every surface and channel the contact declaration names exists, the aperture pairs are two distinct resident vertices of one surface, closure and reference are different expression channels, each collider seals into a surface the engine's oriented sheet query accepts on the neutral, and every metre figure is finite and nonnegative. It reads names and neutral geometry only.
- * @evidence contracts/common.md#clear-and-simple-design One declaration checked in order; the sheet query itself is the engine's admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every violation throws; nothing is repaired or defaulted.
- * @evidence contracts/common.md#meaningful-documentation States the requirement of articulation, the checks and that the evaluation, not admission, answers whether a combination passes.
- * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceContact carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceContact admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceContact defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertHumanFaceContact is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels assertHumanFaceContact defines and consumes no parameter channel of a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry assertHumanFaceContact emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries assertHumanFaceContact constructs no surface that meets another part.
- * @evidenceExclude contracts/modeling.md#rendered-observation assertHumanFaceContact owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   const contact = basis.contact;
@@ -66,14 +54,27 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   if (contact.margin !== undefined) {
     const count =
       (surfaces.get(contact.lips.surface)?.positions.length ?? 0) / 3;
-    const chains = [contact.margin.upper, contact.margin.lower];
+    const surface = surfaces.get(contact.lips.surface)!;
+    const read = readHumanFaceLipMarginPoints(surface, contact.margin, surface.positions);
+    const chains = [read.upper, read.lower];
     const all = chains.flat();
+    const keys = chains.map((chain) => chain.map((point) =>
+      contact.margin!.kind === "material" ? point.identity : point.nativeVertex));
+    const repeated = keys.some((chain) => new Set(chain).size !== chain.length);
+    const shared = keys[0].some((identity, upperAt) => {
+      const lowerAt = keys[1].indexOf(identity);
+      if (lowerAt < 0) return false;
+      // A native source course may name its one real commissure in both
+      // corresponding endpoints; legacy vertex chains keep their old guard.
+      return contact.margin!.kind !== "material" ||
+        !((upperAt === 0 && lowerAt === 0) ||
+          (upperAt === keys[0].length - 1 && lowerAt === keys[1].length - 1)) ||
+        chains[0][upperAt].nativeVertex === null || chains[1][lowerAt].nativeVertex === null;
+    });
     if (
       chains.some((chain) => chain.length < 2) ||
-      all.some(
-        (vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
-      ) ||
-      new Set(all).size !== all.length
+      all.some((point) => point.vertices.some((vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count)) ||
+      repeated || shared
     )
       throw new Error(
         "Facial contact lip margin needs two chains of at least two distinct resident vertices of the lips surface.",

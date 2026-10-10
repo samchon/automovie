@@ -11,20 +11,6 @@ import type { IHumanFaceHairGatherTransportState } from "./IHumanFaceHairGatherT
  * Ordinary/zero-strength and tied tail callers keep their existing path.
  * All positions, offsets and travel are current head metres. No caller mutates.
  * The existing floor remains mandatory; concave/ambiguous retraction refuses.
- *
- * @evidence contracts/common.md#principled-implementation The implicit chord equation is (1-b²)l²-2b(v.n)l-|v|²=0 with b=strength*(direction.normal). Its positive root supplies actual metric normal intent, while the original skin owner qualifies retraction and floor.
- * @evidence contracts/common.md#clear-and-simple-design Owns one scalar transport relation; field blending, turn, contact and metric walking retain their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, triangle, waypoint, tolerance or budget exception; unsupported geometry refuses.
- * @evidence contracts/common.md#meaningful-documentation States strength limits, derived datum, actual metric, units, ownership and refusal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Computes one candidate and owns no displayed identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no author field and preserves the existing requested direction.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The integrator admits and retains actual stations.
- * @evidence contracts/modeling.md#spatial-conventions Uses current head metres and dimensionless unit directions/strength.
- * @evidence contracts/modeling.md#shared-boundaries The original same-collider floor and shared lock budget remain mandatory after retraction.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembled builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical transport carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes derived state and the existing admitted strength, never a personal corrective.
  */
 export function transportHumanFaceHairGatherStep(
   props: IHumanFaceHairGatherTransportState,

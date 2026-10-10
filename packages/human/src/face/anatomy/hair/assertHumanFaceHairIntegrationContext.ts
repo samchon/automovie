@@ -7,20 +7,6 @@ import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve"
  * named refusal rather than an accidental property-access TypeError. Zero is
  * valid admission and later means exhaustion; malformed counts never mutate.
  * Reader snapshot/provenance identity remains the compiler's responsibility.
- *
- * @evidence contracts/common.md#principled-implementation Callable ray/proximity readers, original support arrays and a nonnegative safe-integer remaining count are the numerical premises their consumers require; admission leaves all caller state intact.
- * @evidence contracts/common.md#clear-and-simple-design One context-admission owner serves both ray and metric consumers without copying budget validity rules.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It supplies no fallback reader, count reset or per-subject exception.
- * @evidence contracts/common.md#meaningful-documentation Defines missing-context and malformed-count refusals, valid zero and ownership limits.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It admits transport context and defines no displayed part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It admits computational state rather than a styling channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It allocates no form or primitive.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Reader objects and iteration counts carry no spatial quantity here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The compiler owns collider identity; this boundary only admits reader shape.
- * @evidenceExclude contracts/modeling.md#rendered-observation It admits context and owns no displayed result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range A safe-integer computational count is not a clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It supplies no personal authoring control.
  */
 export function assertHumanFaceHairIntegrationContext(
   props: Pick<

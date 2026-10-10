@@ -14,20 +14,6 @@ import { validateHumanPersonSourceCoverage } from "./validateHumanPersonSourceCo
  * deformation-side domains. Returned cells and binding charts are owned.
  * This establishes immutable lineage, not performed source validity or a
  * reference frame. The normal consumer admits those actual coordinates.
- *
- * @evidence contracts/common.md#principled-implementation Admits both the complete source subdivision and its emitted-cell coverage through one shared chart-coverage owner before transporting a field.
- * @evidence contracts/common.md#clear-and-simple-design Parent-local declarations compile to one global fixed-cell table with side-local owned vertex bindings.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects partial trees, unsupported incidence and mismatching geometric charts rather than inferring a neutral or opposite-edge binding.
- * @evidence contracts/common.md#meaningful-documentation Defines index namespaces, chart ownership and the distinct performed-coordinate responsibility.
- * @evidence contracts/modeling.md#shared-boundaries Raw bindings preserve the canonical ordered cut stencil; both halves compile equivalent source cells and normal incidence.
- * @evidence contracts/modeling.md#spatial-conventions Cell/sample/domain identifiers and affine charts are dimensionless; no physical coordinates are converted.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Compiles supplied incidence without defining a part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no shaping channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Admits existing cells without emitting geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly consumer owns rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Incidence carries no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range Index/chart domains are not physiological ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Compiler lineage is not a personal vertex editing input.
  */
 export function validateHumanPersonNormalTransport(
   props: IAutoMovieHumanPersonNormalTransportValidationProps,

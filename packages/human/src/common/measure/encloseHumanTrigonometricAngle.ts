@@ -9,20 +9,6 @@ import type { IHumanTrigonometricBounds } from "./IHumanTrigonometricBounds";
  * continue until both bounds round to the same binary64 value; the original
  * enclosure remains available, rather than declaring Math.sin correctly rounded.
  *
- * @evidence contracts/common.md#principled-implementation Alternating decreasing Taylor terms bound both transcendental evaluations with exact rational endpoints.
- * @evidence contracts/common.md#clear-and-simple-design One immutable angle query serves every repeated tessellation corner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sample count, tolerance or anatomical dimension controls termination.
- * @evidence contracts/common.md#meaningful-documentation States the internal angle domain, remainder theorem and represented-output termination.
- *
- * @evidenceExclude contracts/modeling.md#spatial-conventions Unit-agnostic arithmetic carries no physical frame; its caller owns units.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
  */
 export function encloseHumanTrigonometricAngle(
   angle: number,

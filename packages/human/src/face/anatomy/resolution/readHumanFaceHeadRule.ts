@@ -15,19 +15,6 @@ import { readHumanFaceHeadSkin } from "./readHumanFaceHeadSkin";
  * default) for metres to millimetres, 1e6 for square metres to square
  * millimetres, 1 for an instrument that already returns degrees.
  *
- * @evidence contracts/common.md#principled-implementation Face measurements call the shared head instruments; the face adds no second definition.
- * @evidence contracts/common.md#clear-and-simple-design One adapter call and one instrument call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing names and refused readings return their reasons; nothing is substituted.
- * @evidence contracts/common.md#meaningful-documentation States the adapter, the unit change and both kinds of gap.
- * @evidence contracts/modeling.md#spatial-conventions The explicit scale converts metres to millimetres, square metres to square millimetres, or preserves degrees.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Each instrument cites its definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
  * @author Samchon
  */
 export function readHumanFaceHeadRule(

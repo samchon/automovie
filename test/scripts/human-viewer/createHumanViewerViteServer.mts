@@ -1,4 +1,6 @@
-import { type Connect, type ViteDevServer, createServer } from "vite";
+import { type ViteDevServer, createServer } from "vite";
+
+import type { HumanViewerMiddleware } from "./HumanViewerMiddleware";
 
 import viewerConfig from "./vite.config.mjs";
 
@@ -15,7 +17,7 @@ import viewerConfig from "./vite.config.mjs";
  * @evidence contracts/common.md#meaningful-documentation States why no config file is used.
  */
 export function createHumanViewerViteServer(
-  middleware: Connect.NextHandleFunction,
+  middleware: HumanViewerMiddleware,
 ): Promise<ViteDevServer> {
   return createServer({
     ...viewerConfig,

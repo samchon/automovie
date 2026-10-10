@@ -15,20 +15,6 @@ import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
  * cannot repair a gap, move a point or hide an inconsistent boundary. Source
  * crown queries retain their independent numerical cervical closures; final
  * performed lip strips remain soft tissue outside these rigid queries.
- *
- * @evidence contracts/common.md#principled-implementation Physical identities assemble all oriented triangles of one arch without changing coordinates or incidence; the downstream signed-query owner admits the resulting complete sheet.
- * @evidence contracts/common.md#clear-and-simple-design One identity assembler separates physical query boundaries from rendering material regions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate welding, triangle omission, generated cap or policy tolerance repairs supplied topology.
- * @evidence contracts/common.md#meaningful-documentation States physical identity admission, immutable input, material-region independence and separate crown and soft-strip responsibilities.
- * @evidence contracts/modeling.md#part-identity-and-grouping Consumes every non-enamel rigid region under one supplied head or jaw owner as a single physical arch query.
- * @evidence contracts/modeling.md#emitted-geometry The query has exactly the supplied arch triangles and one indexed point per triangle-used physical identity; it adds no surface primitive.
- * @evidence contracts/modeling.md#spatial-conventions Preserves supplied rest coordinates in head-frame metres with no conversion.
- * @evidence contracts/modeling.md#shared-boundaries Shared rim and material-region identities become one indexed query vertex, and unequal coordinates for one identity refuse.
- * @evidenceExclude contracts/modeling.md#parameter-channels Transports existing part incidence without introducing a shape or performance control.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly owns visible geometry and its coupled observation; this numerical query assembler changes no displayed surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Preserves geometry supplied by the oral assembly and establishes no anatomical value or tissue acquisition.
- * @evidenceExclude contracts/anatomy.md#permitted-range The assembly admits authored dimensions and the signed-query owner admits topology; this helper adds no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes existing source-owned physical identities and adds no personal authoring input.
  */
 export function createHumanFaceOralArchQueryMesh(
   parts: readonly IHumanFaceOralPart[],

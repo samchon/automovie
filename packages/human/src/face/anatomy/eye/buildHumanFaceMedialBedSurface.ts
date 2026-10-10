@@ -17,19 +17,6 @@ import { evaluateHumanFaceMaterialPatch } from "./evaluateHumanFaceMaterialPatch
  * coarse conventions, not measured tissue anatomy. Source skin and its normals
  * transport the patch under shape and pose; no ocular or head-axis sheet
  * replaces the pocket. Absence is handled by the caller's legacy convention.
- *
- * @evidence contracts/common.md#principled-implementation Resident skin incidence carries one registered patch; boundary-zero normal relief preserves its join, and distances are measured against its actual edges.
- * @evidence contracts/common.md#clear-and-simple-design One patch generator consumes the source registration and the existing two projections.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty or nonresident registrations refuse instead of substituting a different pocket or hiding a part.
- * @evidence contracts/common.md#meaningful-documentation States transport, boundaries, envelope width and the authored anatomical limitation.
- * @evidence contracts/modeling.md#part-identity-and-grouping Supplies the registered medial caruncle-plica surface to its existing part owner.
- * @evidence contracts/modeling.md#shared-boundaries Native patch boundary vertices remain unchanged; inside vertices use the same skin normal owner.
- * @evidence contracts/modeling.md#spatial-conventions Source head-frame metres; projection millimetres convert once.
- * @evidence contracts/modeling.md#emitted-geometry Two shared-edge midpoint subdivisions of resident pocket triangles provide interior relief samples even when the coarse source's vertices all lie on its boundary; no triangles extend beyond that patch.
- * @evidence contracts/modeling.md#parameter-channels Existing caruncle and plica projections stay independent; corner length supplies the authored plica envelope width.
- * @evidence contracts/anatomy.md#anatomical-source Pocket and plica are offline source conventions qualified by their registration; envelopes and width lack a read population measurement.
- * @evidence contracts/anatomy.md#permitted-range Registration must contain resident triangles, a boundary and at least one finite nonzero plica edge; ordinary ocular admission judges its emitted geometry.
- * @evidence contracts/anatomy.md#parametric-authority Consumes named projection dimensions and shared-source registration, with no personal vertex authoring.
  */
 export function buildHumanFaceMedialBedSurface(
   basis: IAutoMovieHumanFaceBasis,

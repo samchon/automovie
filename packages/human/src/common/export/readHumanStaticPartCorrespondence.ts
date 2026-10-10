@@ -7,11 +7,6 @@ import type { IAutoMovieHumanStaticPartCorrespondence } from "./IAutoMovieHumanS
  * Read an owned source-ID partition from the actual carrying primitive.
  * Absence is a legacy asset; present malformed or unsupported metadata refuses.
  * This checks element binding, not topology, provenance authenticity or anatomy.
- *
- * @evidence contracts/common.md#principled-implementation Exact version/schema admission and contiguous element partitions are checked against actual accessors and each member's referenced vertices.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns interval admission for generic and body-qualified consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Material names and regenerated source meshes do not substitute for the primitive's records.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes legacy absence, malformed presence and identity from anatomical certification.
  */
 export function readHumanStaticPartCorrespondence(
   primitive: Primitive,

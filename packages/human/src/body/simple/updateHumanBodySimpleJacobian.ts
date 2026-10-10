@@ -26,20 +26,6 @@ const MINIMUM_NORMAL = 2 ** -1022;
  * accurate matrix for every ill-conditioned input or unrepresentable update.
  * Units are dimensionless residual per scalar step.
  * This numerical update establishes no physiological admission or anatomy.
- *
- * @evidence contracts/common.md#principled-implementation The correction uses the entire old matrix before constructing new columns. Safe normal intermediates retain their operation order. In exceptional rows, writing each finite input as its exact integer multiple of u=2^-1074 gives B_new/u=(B_integer*sum(S_integer^2)+(Y_integer/u-sum(B_integer*S_integer))*S_integer)/sum(S_integer^2). Integer products and cancellation are exact; rational rounding uses nearest with ties to even at binary64's actual precision and subnormal boundary. An inactive column is unchanged. A mathematically unrepresentable result still overflows, and the original ordinary path retains floating-point rounding.
- * @evidence contracts/common.md#clear-and-simple-design One pure numerical owner computes the secant error and its outer product; the body solver owns readings, bounds and acceptance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the previous matrix and the actual accepted step determine the update; no subject, fixture, photograph or tuning value is inspected.
- * @evidence contracts/common.md#meaningful-documentation States the column convention, formula, old-matrix requirement, ownership, units, input preconditions and undefined-step refusal.
- * @evidence contracts/modeling.md#spatial-conventions The input is a dimensionless residual Jacobian with columns indexed by scalar directions; no head or body coordinate frame is involved.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This is a numerical update and owns no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The solver supplies its scalar directions; this function defines no shape channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits a matrix and no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It contains no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It is solver state, not a caller control that shapes a body.
  */
 export function updateHumanBodySimpleJacobian(
   columns: readonly (readonly number[])[],

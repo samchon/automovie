@@ -63,20 +63,6 @@ import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisP
  * records remain admitted, while an unselected source eye still requires its
  * textured globe. The selected owner population is part of the cache key and
  * preparation is rebuilt when it changes; the caller's set is never retained.
- *
- * @evidence contracts/common.md#principled-implementation The locator supplies an absolute iris chord and conventional pupil on the fitted neutral sphere; identity deformation after painting is outside that size guarantee. Only the mapped iris texels are repainted from the document's eight bands. Excess painting outside that disc is covered with a mean sclera colour under the locator's declared painted-angle convention, which is not a measured texture boundary. Blending is in linear light and encoded through the exact sRGB transfer function; these optical conventions do not establish physiological iris anatomy.
- * @evidence contracts/common.md#clear-and-simple-design The function compiles the geometry once per basis, then paints per document from a cache keyed by the two pigments; disc location, rasterization and texel colour are three separate owners, and the private helpers only find the globe and decode the texture.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No asset name, subject, fixture or photograph is consulted; the globe is found by its attachment weights and texture alone. The only mutation of foreign data is of the materials array the builder passes for exactly this purpose, and it is documented.
- * @evidence contracts/common.md#meaningful-documentation The comment states why a colour override cannot do this job, the compile-time and per-document steps, the size rule and the cover of the excess painted iris, what is unchanged, what refuses, what is mutated and the units.
- * @evidence contracts/modeling.md#spatial-conventions Disc geometry is basis-frame metres and radians and painting is in pixel space, with the millimetre-to-metre conversion done once inside the disc locator; the sRGB decode and encode of the texture are named steps that cite IEC 61966-2-1.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function repaints a texture and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the document's iris pigments and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it changes no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the limbal edge is an appearance blend inside one texture.
- * @evidenceExclude contracts/modeling.md#rendered-observation The rule repaints materials and owns no displayed part or joint; the connected face builder owns the eye assembly.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The disc locator owns the anatomical size proxies; this rule introduces only stated optical painting and blending conventions.
- * @evidenceExclude contracts/anatomy.md#permitted-range It checks optical pigment components and no physiological interval.
- * @evidence contracts/anatomy.md#parametric-authority Each articulated left/right eye takes its named linear-RGB pigment endpoints; callers supply no texel, vertex, curve or surface patch through this rule. The mapping into palette bands is deterministic and does not recover pigment from a photograph.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,

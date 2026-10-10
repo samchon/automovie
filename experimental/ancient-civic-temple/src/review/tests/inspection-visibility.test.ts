@@ -1,7 +1,7 @@
 /** Roof-off inspection covers independent coverings and preserves the shell. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isTempleRoofCovering } from "../../viewer/inspection-visibility.mjs";
+import { isTempleRoofCovering } from "../../viewer/inspection-visibility";
 
 void test("roof-off recognizes slab, ceiling, tile and exposed roof timber families", () => {
   for (const id of ["model.roof.sanctuary", "model.ceilings", "tile.roof", "tile.ridge.22", "rafter.north", "truss.sanctuary", "joist.low"])

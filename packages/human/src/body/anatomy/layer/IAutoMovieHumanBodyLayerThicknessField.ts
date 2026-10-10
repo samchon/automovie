@@ -20,19 +20,6 @@ import type { IAutoMovieHumanBodyLayerThicknessAnchor } from "./IAutoMovieHumanB
  * document does not carry it; named tissue measurements that scale it are a
  * later input, admitted by their own owner.
  *
- * @evidence contracts/common.md#principled-implementation Two scalar fields on the skin's own vertices place both inner faces by one offset rule, so the layer shares its boundaries with the skin instead of approximating them on a lattice.
- * @evidence contracts/common.md#clear-and-simple-design One record holds both thicknesses, the basis they address and the anchors they rest on.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Values are stated per vertex with their anchors; nothing is back-solved from a wanted volume or a rendered result.
- * @evidence contracts/common.md#meaningful-documentation States what the two faces are, the addressing rule and what the default values do and do not claim.
- * @evidence contracts/modeling.md#part-identity-and-grouping The field belongs to the one connected skin and defines the subcutaneous layer as the part between two of its offsets.
- * @evidence contracts/modeling.md#parameter-channels Skin thickness and subcutaneous thickness are separate traits in metres with no neutral-zero offset; left and right vertices hold their own values, so asymmetry is data.
- * @evidence contracts/modeling.md#emitted-geometry The layer's primitive count follows from the skin's own vertices and triangles and from nothing else.
- * @evidence contracts/modeling.md#spatial-conventions Metres along the inward area-weighted skin normal, addressed by native vertex ordinal in the basis's canonical frame.
- * @evidence contracts/modeling.md#shared-boundaries The dermal face is the subcutaneous layer's outer boundary and the fascial face its inner one; both derive from the skin by this field alone.
- * @evidence contracts/anatomy.md#anatomical-source Each anchor names its source, quantity, protocol and population; values away from an anchor are declared authored and unmeasured populations unknown.
- * @evidenceExclude contracts/modeling.md#rendered-observation The layer's consumer owns observation of the emitted shell.
- * @evidenceExclude contracts/anatomy.md#permitted-range The surface builder reports limited normal-ray and orientation conditions; the field itself admits no anatomical thickness.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The field is offline source data; no document addresses its vertices.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyLayerThicknessField {

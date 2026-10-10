@@ -15,20 +15,6 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * between them. The rest head orientation stands in for the study's Frankfurt
  * positioning, as for every head rule. A missing or misplaced area refuses by
  * name.
- *
- * @evidence contracts/common.md#principled-implementation Both ends are extremes found on each skin within the declared ear area.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the area's vertices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing area refuses; the orientation is the documented head convention.
- * @evidence contracts/common.md#meaningful-documentation States the protocol sentences, both ends and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions A straight distance in metres; anterior is +Z of the head frame.
- * @evidence contracts/anatomy.md#anatomical-source Follows the cited 3D auricle study's Pa-Pra definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanEarBreadth(
   head: IAutoMovieHumanHeadSkin,

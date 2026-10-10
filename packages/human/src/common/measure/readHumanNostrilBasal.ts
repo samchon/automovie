@@ -25,20 +25,6 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * selections and missing angular sectors interpolate unobserved boundary;
  * the producer owns that qualification. The polygon is a reportable source
  * convention, not a clinically registered aperture area or an inverse target.
- *
- * @evidence contracts/common.md#principled-implementation The opening is read on each skin from the declared margin area.
- * @evidence contracts/common.md#clear-and-simple-design One projection, one ordering and two passes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing area or a degenerate margin refuses; the view is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States the sources, how far they were read, the view, the ordering and the refusals.
- * @evidence contracts/modeling.md#spatial-conventions Square metres and metres in the X-Z plane of the head frame.
- * @evidence contracts/anatomy.md#anatomical-source Follows Gray's nares and the parameters' basal-view quantities.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanNostrilBasal(
   head: IAutoMovieHumanHeadSkin,

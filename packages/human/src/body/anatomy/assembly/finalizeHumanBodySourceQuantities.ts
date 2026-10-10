@@ -14,20 +14,6 @@ import { readHumanBodySourceBoundaryVolume } from "./readHumanBodySourceBoundary
  * use, then measured by the existing closed-boundary instrument. An observed
  * acquisition remains undefined because no registered acquisition comparison
  * has been supplied. No rounding difference changes the caller's target.
- *
- * @evidence contracts/common.md#principled-implementation Requested member identities select actual output geometry, and the shared Float32 conversion precedes the existing oriented boundary-volume integral.
- * @evidence contracts/common.md#clear-and-simple-design One final reading augments existing source-stage quantities without repeating the source solve.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No stored header, bbox estimate or solved target substitutes for the emitted boundary; an unavailable member refuses.
- * @evidence contracts/common.md#meaningful-documentation Separates source-rest and posed-export precision and preserves undefined acquisition comparison.
- * @evidence contracts/modeling.md#spatial-conventions Emitted metre coordinates yield cubic metres, converted explicitly to millilitres by 1e6.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The source binding retains each compartment's member identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function reads existing targets and adds no control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Source membership and attachment owners define boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly consumer observes the emitted geometry.
- * @evidence contracts/anatomy.md#anatomical-source Actual geometric boundary volume is distinct from an acquisition comparison or clinical tissue segmentation.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing source and conversion owners enforce their supported conditions.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Caller targets and raw observations remain unchanged.
  */
 export function finalizeHumanBodySourceQuantities(
   readings: readonly IHumanBodySourceQuantityReading[],

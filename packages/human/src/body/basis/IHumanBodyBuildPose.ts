@@ -17,19 +17,6 @@ import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovi
  * Frames use right-handed body metres, +X left, +Y superior and +Z anterior;
  * rotations are unit quaternions and clinical coordinates are degrees.
  *
- * @evidence contracts/common.md#principled-implementation Keeps the prepared rest rig, final public placements and optional source graph together so consumers do not solve another pose.
- * @evidence contracts/common.md#clear-and-simple-design Names the existing pose result and its optional anatomical source evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rest and performed frames stay distinct; source bone frames are not substituted for anatomical solids or clinical capacity.
- * @evidence contracts/common.md#meaningful-documentation States state ownership, final-coordinate meaning and the frame before root placement.
- * @evidence contracts/modeling.md#spatial-conventions Body XYZ metres and unit quaternions accompany the source-rig degree coordinates without a conversion here.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The record carries evaluated rig identities rather than defining geometry parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels The document and source joint owners define motion channels; this record carries their evaluated result.
- * @evidenceExclude contracts/modeling.md#emitted-geometry No primitive population is selected here.
- * @evidenceExclude contracts/modeling.md#shared-boundaries No surface or volume boundary is constructed here.
- * @evidenceExclude contracts/modeling.md#rendered-observation The body assembly observes the performed parts; the numerical result has no independent render.
- * @evidence contracts/anatomy.md#anatomical-source Clinical coordinates describe this compiled source rig; source registration and approximation accounts do not establish measured personal motion capacity.
- * @evidenceExclude contracts/anatomy.md#permitted-range The pose resolver admits coordinates and combinations before publishing this result.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This is evaluated internal state, not a public measurement or motion input.
  * @author Samchon
  */
 export interface IHumanBodyBuildPose {

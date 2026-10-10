@@ -1,23 +1,29 @@
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+import type { IAutoMovieHumanFaceEditorProps } from "../structures/IAutoMovieHumanFaceEditorProps";
 import { IAutoMovieHumanFaceEditorSnapshot } from "../structures/IAutoMovieHumanFaceEditorSnapshot";
 
 /**
  * Transactional face editing over one injected builder. The caller supplies a
  * validated initial document/model pair and keeps renderer models immutable.
- * Every edit, reset and history traversal uses the same asynchronous builder.
+ * Every edit, reset, current restoration and history traversal uses the same
+ * asynchronous builder. Current restoration replaces the committed model
+ * without adding or removing either history stack.
  * Only the latest request can atomically publish its document, model and history.
  *
- * A rejected or superseded request resolves false. Subscribers are deliberately
- * outside this pure state owner; the browser adapter reads snapshots to render.
+ * A rejected or superseded request resolves false. An optional synchronous,
+ * nonreentrant publication effect joins the displayed result to the same
+ * generation-checked commit before its pair/history assignment. A publication
+ * refusal retains that pair; arbitrary caller effects cannot be rolled back.
+ * The browser adapter reads snapshots to draw controls.
+ *
+ * An optional caller disposer releases a successfully built model on
+ * supersession or publication refusal; worker cancellation and shared renderer
+ * resources remain caller-owned.
  */
 export function createHumanFaceEditor<
   Model,
   Document = IAutoMovieHumanFaceDocument,
->(props: {
-  document: Document;
-  model: Model;
-  build: (document: Document) => Promise<Model>;
-}) {
+>(props: IAutoMovieHumanFaceEditorProps<Model, Document>) {
   const initial = structuredClone(props.document);
   let document = structuredClone(initial);
   let model = props.model;
@@ -37,7 +43,16 @@ export function createHumanFaceEditor<
     error = null;
     try {
       const built = await props.build(structuredClone(candidate));
-      if (ticket !== generation) return false;
+      if (ticket !== generation) {
+        props.dispose?.(built);
+        return false;
+      }
+      try {
+        props.publish?.(built);
+      } catch (cause) {
+        props.dispose?.(built);
+        throw cause;
+      }
       document = candidate;
       model = built;
       past = nextPast;
@@ -74,6 +89,8 @@ export function createHumanFaceEditor<
     },
     /** Reset is an ordinary undoable edit to the initial validated document. */
     reset: (): Promise<boolean> => edit(initial),
+    /** Rebuild the committed settings without changing undo or redo history. */
+    restore: (): Promise<boolean> => request(document, past, future),
     /** History is changed only after the restored document builds successfully. */
     undo: (): Promise<boolean> =>
       past.length === 0

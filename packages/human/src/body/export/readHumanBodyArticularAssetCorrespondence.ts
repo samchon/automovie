@@ -8,11 +8,6 @@ import type { IAutoMovieHumanBodyArticularAssetCorrespondence } from "./IAutoMov
  * Join candidate qualification to its actual primitive source-ID partition.
  * Body absence is legacy; a present unsupported claim or incomplete ID join
  * refuses. The common reader remains the sole element-interval admission owner.
- *
- * @evidence contracts/common.md#principled-implementation Exact candidate-only schema and ID-order equality bind qualification to the admitted common mapping.
- * @evidence contracts/common.md#clear-and-simple-design Delegates geometry binding and owns only body qualification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A material name or a resolved bone label cannot replace candidate provenance.
- * @evidence contracts/common.md#meaningful-documentation States absence, refusal and the distinction from clinical validity.
  */
 export function readHumanBodyArticularAssetCorrespondence(
   primitive: Primitive,

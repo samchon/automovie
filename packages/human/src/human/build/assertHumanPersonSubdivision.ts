@@ -13,20 +13,6 @@ import type { IAutoMovieHumanPersonSubdivisionCheck } from "../structures/IAutoM
  * stitch carries the body's positions before collar alignment, each involved
  * source's native, collar and band lineage. The admission itself is
  * unchanged by the report.
- *
- * @evidence contracts/common.md#principled-implementation The piece is admitted against the original triangle's own area vector, the geometric condition of a star-shaped perimeter.
- * @evidence contracts/common.md#clear-and-simple-design One direction check; the report is built only on refusal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A folded piece refuses; no tolerance is widened and no piece is dropped.
- * @evidence contracts/common.md#meaningful-documentation States the condition and everything the refusal reports.
- * @evidence contracts/modeling.md#emitted-geometry Refuses an emitted triangle that reverses the surface it replaces.
- * @evidence contracts/modeling.md#spatial-conventions Posed metres and square-metre area vectors.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The stitch owns the boundary; this admits its pieces.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The condition is geometric, not anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function assertHumanPersonSubdivision(
   check: IAutoMovieHumanPersonSubdivisionCheck,

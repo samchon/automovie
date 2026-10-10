@@ -27,20 +27,6 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * frame-partitioned source region remains that region's sampled extent; it
  * does not establish that its boundary equals a clinical conchal boundary,
  * nor does either extent determine conchal depth or internal relief.
- *
- * @evidence contracts/common.md#principled-implementation Both extents are read on each skin over the declared conchal areas against registered attachment points.
- * @evidence contracts/common.md#clear-and-simple-design One frame and one pass.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing area refuses; the perpendicular is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States both protocol sentences, the conchal parts, the frame and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Metres along directions of the head frame; anterior is +Z.
- * @evidence contracts/anatomy.md#anatomical-source Follows the cited conchal protocol and Gray's division of the concha.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanConchaExtent(
   head: IAutoMovieHumanHeadSkin,

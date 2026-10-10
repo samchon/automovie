@@ -29,19 +29,6 @@ import type { IPortraitSurfaceNeighbour } from "./structures/IPortraitSurfaceNei
  * inserts shared midpoints without moving the basis; omission preserves its
  * triangles. Material groups survive, and the caller recomputes normals after
  * the boundary fade, whose spatial gradient also changes the surface slope.
- *
- * @evidence contracts/common.md#principled-implementation Every layer reads the same unmodified host and the summed fields deform through the engine's deformer, masked by a quintic smootherstep of the geodesic distance from free rims (weight 6t^5 - 15t^4 + 10t^3, derivative 30 t^2 (1 - t)^2) whose gradient is the area-weighted mean of the per-triangle gradients, so the deformation's Jacobian and orientation checks see the final masked map and open rims stay exact. The distance is a mesh-edge approximation of the geodesic and is clamped before differentiation.
- * @evidence contracts/common.md#clear-and-simple-design Optional sampling, boundary distance, gradient, mask, one engine deformation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No layer is special-cased; identical layer ids refuse and sorting fixes summation order.
- * @evidence contracts/common.md#meaningful-documentation States the phases, units, the fade and its derivative, and that normals are recomputed by the caller.
- * @evidence contracts/modeling.md#shared-boundaries Open eye, mouth and crop rims receive zero influence and full influence is reached over the declared geodesic distance, so displaced skin meets its rims without a jump.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres for the cage and fade, metres for the engine's fields, and the 1000 factor on the mask gradient is the named conversion.
- * @evidenceExclude contracts/anatomy.md#anatomical-source applyPortraitSurfaceLayers carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range applyPortraitSurfaceLayers admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority applyPortraitSurfaceLayers defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping applyPortraitSurfaceLayers is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels applyPortraitSurfaceLayers defines and consumes no parameter channel of a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry applyPortraitSurfaceLayers emits no primitive.
  */
 export function applyPortraitSurfaceLayers(
   mesh: IControlMesh,

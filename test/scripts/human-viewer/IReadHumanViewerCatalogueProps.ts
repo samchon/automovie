@@ -17,6 +17,12 @@ import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts";
  * @author Samchon
  */
 export interface IReadHumanViewerCatalogueProps {
+  /** Exact document to read and admit; omission retains the complete catalogue. */
+  selectedDoc?: string;
+
+  /** The selected file has its own basis/packet/view sidecars, so published generation views are not its authority. */
+  independentInput?: boolean;
+
   /** Published bases. */
   basisFiles: IHumanViewerBasisFiles;
 

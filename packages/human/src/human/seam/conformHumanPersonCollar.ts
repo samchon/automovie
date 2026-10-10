@@ -25,19 +25,6 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * the neck there, which is the configuration to observe. The function returns
  * a new array and leaves every input unchanged; the arrays are the connected
  * skin surfaces' flat shared vertices, in metres.
- *
- * @evidence contracts/common.md#principled-implementation Placing the loop on the face's polyline makes the two boundaries coincide exactly, and spreading the resulting displacement by a C2 compact-support weight and an azimuth interpolation of the loop displacement gives a continuous field that is the full mismatch at the loop and vanishes at the reach.
- * @evidence contracts/common.md#clear-and-simple-design One pass computes the per-loop delta and one pass adds the weighted interpolation to the band; the seam supplies every stencil, so the function holds no geometry search.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a body, a shape or a pose; the same arithmetic runs whether the mismatch is zero or large.
- * @evidence contracts/common.md#meaningful-documentation The comment states what moves, where it lands, why the seam has no width and the cost of that.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the shared Y-up, +Z-anterior frame; every position is an evaluated position of the two skins.
- * @evidence contracts/modeling.md#shared-boundaries Every retained body-loop vertex is evaluated from one face edge and fraction; the person builder subsequently subdivides both boundary partitions through their union, because coincidence of the vertices alone does not close a chord across a corner.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves vertices of two existing parts and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel; it reads two evaluated surfaces.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it returns the body's own vertices moved.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the reach is the seam's named convention.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function conformHumanPersonCollar(props: {
   seam: IAutoMovieHumanPersonSeam;

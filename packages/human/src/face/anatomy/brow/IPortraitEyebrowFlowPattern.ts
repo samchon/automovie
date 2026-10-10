@@ -21,16 +21,6 @@
  * a convention and no measured direction field, and the four values are
  * authored.
  *
- * @evidence contracts/common.md#principled-implementation Three fixed stretches with two quantities each, shared between body and tail, are the least that states the described pattern; the direction field between them is interpolated by the flow owner.
- * @evidence contracts/common.md#clear-and-simple-design Four named numbers replace a variable list of direction witnesses as the authoring input.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No value addresses a hair, a station or a vertex.
- * @evidence contracts/common.md#meaningful-documentation States the pattern, the fixed division, each quantity's unit and direction and the conventional status.
- * @evidence contracts/modeling.md#parameter-channels Each number varies one trait: where head hairs end, how far they sweep, where the two borders meet, and how far body and tail hairs sweep. None is normalized around a neutral; they are absolute fractions and millimetres.
- * @evidence contracts/modeling.md#spatial-conventions Fractions of the registered band, lower boundary zero to upper boundary one; sweeps in millimetres along the band toward the lateral end.
- * @evidence contracts/anatomy.md#anatomical-source The pattern follows the description of brow hair direction in hair-restoration practice, a convention; no primary measurement of brow hair direction was read, and the default values are authored.
- * @evidence contracts/anatomy.md#permitted-range The profile admission bounds fractions to [0,1] and requires finite sweeps; no anatomical interval was read.
- * @evidence contracts/anatomy.md#parametric-authority Four named quantities of the brow's grain; the same record serves either side, and a document states an asymmetry by giving the sides different records.
- *
  * @author Samchon
  */
 export interface IPortraitEyebrowFlowPattern {

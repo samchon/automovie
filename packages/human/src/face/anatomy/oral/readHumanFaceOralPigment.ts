@@ -10,9 +10,6 @@ import { readHumanFaceOralCrowns } from "./readHumanFaceOralCrowns";
  * The source UVs identify artwork rather than a biological pigmentation
  * measurement. The current material gain remains independent of geometry.
  * Missing gum painting refuses rather than choosing an anatomical colour.
- * @evidence contracts/common.md#principled-implementation Native crown membership excludes enamel texels from the source gingival UV census; sRGB artwork converts through the common colour owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No guessed gum colour or clinical tissue value substitutes for licensed source artwork.
- * @evidence contracts/anatomy.md#anatomical-source Source painting is a rendering convention, without a tissue-pigmentation acquisition claim.
  * @author Samchon
  */
 export function readHumanFaceOralPigment(

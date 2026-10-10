@@ -24,19 +24,6 @@ const PASSES = 6;
  * joint solve; when that fails too, the refusal names that path with the
  * inverse's message. Channels no request binds keep their weights.
  *
- * @evidence contracts/common.md#principled-implementation The per-channel inverse keeps ownership of reach and tolerance; this owner only orders requests and decides when the set holds.
- * @evidence contracts/common.md#clear-and-simple-design A bounded Gauss-Seidel pass over the requests.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory targets refuse instead of keeping the last solved one.
- * @evidence contracts/common.md#meaningful-documentation States the order, the stop rule, the pass limit and both refusals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines no part.
- * @evidence contracts/modeling.md#parameter-channels Only bound channels change; other weights are kept.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It returns weights, not geometry.
- * @evidence contracts/modeling.md#spatial-conventions Targets and readings are metres on the source-rest skin.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The builder's consumer renders the shape.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The rules own their definitions.
- * @evidence contracts/anatomy.md#permitted-range Channel reach and joint consistency refuse unsupported combinations without extrapolation.
- * @evidence contracts/anatomy.md#parametric-authority Named targets become private channel weights deterministically.
  * @author Samchon
  */
 export function solveHumanBodyExteriorRequests(

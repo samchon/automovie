@@ -6,7 +6,9 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps";
  * pending entry with its reason. With `settled=1` it first settles the
  * inputs (every read and admission they start, waiting admissions asked
  * again) and publishes that catalogue, so a page about to show a pending
- * document reads its verdict. Returns whether the path was `/docs`.
+ * document reads its verdict. A `doc` selector reads and settles only that
+ * document, leaving the host's complete inventory intact. Returns whether the
+ * path was `/docs`.
  *
  * @evidence contracts/common.md#clear-and-simple-design The route only publishes the host's catalogue; composition and settling belong to the host.
  * @evidence contracts/common.md#meaningful-documentation States both answers and when each is given.
@@ -15,14 +17,15 @@ export function serveHumanViewerDocs(
   props: IServeHumanViewerDataProps,
 ): boolean {
   if (props.url.pathname !== "/docs") return false;
+  const selected = props.url.searchParams.get("doc");
   if (props.url.searchParams.get("settled") !== "1") {
-    props.json(props.inventory);
+    props.json(selected === null ? props.inventory : props.readDocument(selected));
     return true;
   }
-  void props
-    .settleInputs()
+  const settled = selected === null ? props.settleInputs() : props.settleDocument(selected);
+  void settled
     .then((settled) => {
-      props.publish(settled);
+      if (selected === null) props.publish(settled);
       props.json(settled);
     })
     .catch((error: unknown) => {

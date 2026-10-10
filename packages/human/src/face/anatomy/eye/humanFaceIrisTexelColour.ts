@@ -28,19 +28,6 @@ const HUMAN_FACE_PUPIL_COLOUR: readonly [number, number, number] = [
  * exactly at an edge takes half of each side and no colour leaves the range of
  * its inputs. A pupil or limbus at the same angle (zero width iris) divides by
  * zero, so the caller supplies `limbus > pupil`, which the disc guarantees.
- *
- * @evidence contracts/common.md#principled-implementation Each texel is a convex blend, first between the pupil colour and the band colour across the pupillary edge and then between that and the texture's own colour across the limbal edge, with weights clamped to [0,1] and a linear ramp of the stated half-width, so the result stays inside the hull of its inputs and the edges are anti-aliased at texel scale. Normalized radius runs from the pupil margin to the limbus, which is where the fibre and ring laws are defined.
- * @evidence contracts/common.md#clear-and-simple-design One pure function maps polar coordinates and a palette to one colour in the fixed order radius, band, pupil edge, limbal edge, with no state and no option.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The colour depends on the texel's coordinates and the palette only, with no case named after a subject, an asset or a fixture.
- * @evidence contracts/common.md#meaningful-documentation The comment states the radius normalization, the band law, the ring, the two blends, the units, which parts are conventions and the precondition on limbus and pupil.
- * @evidence contracts/modeling.md#spatial-conventions Theta, phi and the edge half-width are radians and the colours are linear RGB, each stated; no frame is converted and no length is involved.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function colours one texel and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The palette is declared by the pigment type and the function defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits a colour and no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the blend at the limbal edge is an appearance blend of colours and not a joined boundary of two parts.
- * @evidence contracts/modeling.md#rendered-observation Painted onto the connected globe and drawn through the resident viewer on a real GPU (ANGLE AMD Radeon 780M), 2048 px beauty front crops of one subject shape with blue, pale-grey, near-black and brown pigments, plus that subject's left three-quarter, each cropped to the eye band. The disc reads as a circular iris with a darker limbal ring, a small black pupil and a clean edge into the painted sclera in every pigment and in the oblique view. The radial spokes are visibly regular, because the fibre law is a sum of fixed-frequency sinusoids; that regularity is a named ceiling of an authored optical convention and not a claim of iris anatomy. Not taken: profile close-up at iris scale, clay and normal passes (the rule changes colour only), and pigment pairs at unequal left and right values.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function is an internal per-texel colour rule called by the pigment compiler; no caller shapes a face through its polar arguments, and the caller-facing pigment input is owned by the pigment type and the compiler.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical value.
  */
 export function humanFaceIrisTexelColour(props: {
   theta: number;

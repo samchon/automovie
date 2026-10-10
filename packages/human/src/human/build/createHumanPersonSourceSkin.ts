@@ -18,20 +18,6 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
  * with the same body build; a pre-contact face is not a final reference.
  * Every returned coordinate array is owned, in metres/Y-up/Z-forward.
  * This assembly does not create anatomical proportions or solve lip contact.
- *
- * @evidence contracts/common.md#principled-implementation Final face readback precedes head skinning and body collar following; reference and current share the same assembly ordering and body frames.
- * @evidence contracts/common.md#clear-and-simple-design One skin assembly owner gathers region vertices and calls the established head, skin, cut and collar owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual final face parts and body bones rather than neutral geometry or a per-vertex corrective.
- * @evidence contracts/common.md#meaningful-documentation States final contact as an input boundary, assembly order, coordinate frame and returned-array ownership.
- * @evidence contracts/modeling.md#shared-boundaries The existing canonical cut and collar owner put both skins on their performed shared boundary.
- * @evidence contracts/modeling.md#spatial-conventions Face parts begin in their head basis frame and the named head and skin owners place them in the common metre/Y-up/Z-forward body frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Consumes existing parts without defining a new anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no shaping channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Returns skin coordinate arrays for existing connectivity.
- * @evidenceExclude contracts/modeling.md#rendered-observation The person builder owns rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Consumes already admitted anatomy rather than defining a biological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes owner-built geometry without a new user shaping input.
  */
 export function createHumanPersonSourceSkin(
   props: IAutoMovieHumanPersonSourceSkinProps,

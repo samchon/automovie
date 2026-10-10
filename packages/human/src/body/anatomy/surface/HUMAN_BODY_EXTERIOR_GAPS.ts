@@ -9,19 +9,6 @@ import type { IAutoMovieHumanBodyExteriorGap } from "./IAutoMovieHumanBodyExteri
  * landmark is registered on the source or its rule is written, and the path
  * then moves to the binding table.
  *
- * @evidence contracts/common.md#principled-implementation An unbound path is named with its missing dependency rather than approximated or hidden.
- * @evidence contracts/common.md#clear-and-simple-design Data only, one entry per path.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No entry carries a stand-in instrument.
- * @evidence contracts/common.md#meaningful-documentation States ownership, exclusivity with the binding table and how a gap closes.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The table defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It binds no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It carries no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The editor owns display.
- * @evidence contracts/anatomy.md#anatomical-source Each detail cites the survey landmark or tissue the source lacks.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
 export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[] =

@@ -14,19 +14,6 @@ import type { IHumanFaceMeasurementSolveInput } from "./IHumanFaceMeasurementSol
  * reaches refuses by name; no vertex or unlisted channel is moved to make it
  * fit.
  *
- * @evidence contracts/common.md#principled-implementation Each channel's real readings bracket the target before the shared inverse solves it, so the result is the measured value of the emitted surface.
- * @evidence contracts/common.md#clear-and-simple-design One solver over the listed channels delegates the numerical inverse to common/measure.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Report-only, non-millimetre, unreadable and unreachable targets refuse by name; nothing is clamped.
- * @evidence contracts/common.md#meaningful-documentation States the channel order, the unit edge and each refusal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The solver names no part.
- * @evidence contracts/modeling.md#parameter-channels Only the measurement's listed existing channels move, inside their authored envelopes.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The solver emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Millimetre targets convert to metres for the inverse and back for the reading.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The solver builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the solved reading.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The measurement states its protocol.
- * @evidence contracts/anatomy.md#permitted-range A target outside every listed channel's reach refuses with the reasons, never clamped.
- * @evidence contracts/anatomy.md#parametric-authority A named metric target maps deterministically to one existing channel weight.
  * @author Samchon
  */
 export function solveHumanFaceMeasurementTarget(

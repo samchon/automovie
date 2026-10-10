@@ -16,19 +16,6 @@ import { humanBodyDominantVertices } from "./humanBodyDominantVertices";
  * are found on the given shape, never fixed to vertices chosen on another
  * shape. A vertical axis or an empty region answers null.
  *
- * @evidence contracts/common.md#principled-implementation Extremes are searched on the shaped skin and the region follows the rig's dominant weights, so the instrument follows every shape.
- * @evidence contracts/common.md#clear-and-simple-design One pass over each surface's region.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A degenerate axis or empty region answers null instead of a substituted value.
- * @evidence contracts/common.md#meaningful-documentation States the region rule, the axis, the reading and the null cases.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The dominant-weight region is a rig attachment, not an anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits a number, never geometry.
- * @evidence contracts/modeling.md#spatial-conventions Reads metre positions in the basis frame; horizontal is perpendicular to +Y.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The builder owns the skin it reads.
- * @evidenceExclude contracts/modeling.md#rendered-observation The measured channel's consumer owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The rule in HUMAN_BODY_MEASUREMENTS owns the survey definition.
- * @evidenceExclude contracts/anatomy.md#permitted-range It reads and bounds no authored value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It receives already evaluated geometry.
  * @author Samchon
  */
 export function readHumanBodySkinExtent(

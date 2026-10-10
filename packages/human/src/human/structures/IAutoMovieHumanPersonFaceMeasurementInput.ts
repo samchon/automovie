@@ -13,19 +13,6 @@ import type { IAutoMovieHumanPersonHeadTransform } from "./IAutoMovieHumanPerson
  * the final observational readout without certifying physical or clinical
  * acceptance or adding another admission decision.
  *
- * @evidence contracts/common.md#principled-implementation Model and carry come from the same one-skin geometry evaluation; physical acceptance is a separate result.
- * @evidence contracts/common.md#clear-and-simple-design The evaluated model, document, head carry and optional homologous reference.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No body gain or geometry is reconstructed from the document.
- * @evidence contracts/common.md#meaningful-documentation States the model, request and inverse-frame responsibilities.
- * @evidence contracts/modeling.md#spatial-conventions The model is posed person-frame metres; the carry identifies its head frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This record owns no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing document owners admit all values.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This record emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The one-skin evaluator owns shared samples.
- * @evidenceExclude contracts/modeling.md#rendered-observation The actual model's consumers observe its output.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The registry owns every anatomical or conventional quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range This record admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This record introduces no authored channel.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonFaceMeasurementInput {

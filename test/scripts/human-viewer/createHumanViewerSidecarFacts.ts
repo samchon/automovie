@@ -36,6 +36,7 @@ export function createHumanViewerSidecarFacts(
   const known = new Map<string, IHumanViewerSidecarFacts>();
   const reading = new Map<string, string>();
   const inFlight = new Set<Promise<void>>();
+  const requests = new Map<string, Promise<void>>();
   const read = async (
     file: string,
     stamp: string,
@@ -105,17 +106,27 @@ export function createHumanViewerSidecarFacts(
           })
           .finally(() => {
             inFlight.delete(request);
+            if (requests.get(file) === request) requests.delete(file);
           });
         inFlight.add(request);
+        requests.set(file, request);
       }
       return null;
     },
 
     /** Whether any sidecar read is still running. */
-    busy: (): boolean => inFlight.size !== 0,
+    busy: (files?: readonly string[]): boolean => files === undefined ? inFlight.size !== 0 : files.some((file) => requests.has(file)),
 
     /** Resolves when every sidecar read already started has stored its facts. */
-    settled: async (): Promise<void> => {
+    settled: async (files?: readonly string[]): Promise<void> => {
+      if (files !== undefined) {
+        while (files.some((file) => requests.has(file)))
+          await Promise.all(files.flatMap((file) => {
+            const request = requests.get(file);
+            return request === undefined ? [] : [request];
+          }));
+        return;
+      }
       while (inFlight.size !== 0) await Promise.all([...inFlight]);
     },
   };

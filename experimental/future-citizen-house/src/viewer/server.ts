@@ -1,3 +1,4 @@
+import { buildViewerBrowser } from "./buildViewerBrowser";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -36,9 +37,6 @@ async function main(): Promise<void> {
   const files = new Map([
     ["/", resolve(productionRoot, "public/index.html")],
     ["/viewer.css", resolve(productionRoot, "public/viewer.css")],
-    ["/src/viewer/client.mjs", resolve(productionRoot, "src/viewer/client.mjs")],
-    ["/src/viewer/scene.mjs", resolve(productionRoot, "src/viewer/scene.mjs")],
-    ["/src/viewer/illumination.mjs", resolve(productionRoot, "src/viewer/illumination.mjs")],
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],
     ["/vendor/OrbitControls.js", resolve(threeRoot, "examples/jsm/controls/OrbitControls.js")],
@@ -62,6 +60,12 @@ async function main(): Promise<void> {
         let payload = payloads.get(key);
         if (!payload) { payload = createViewerPayload(state); payloads.set(key, payload); }
         response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ basis, ...payload }));
+        return;
+      }
+      if (path.startsWith("/assets/")) {
+        const generated = (await buildViewerBrowser(productionRoot)).get(path);
+        if (generated === undefined) { response.writeHead(404).end(); return; }
+        response.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" }).end(generated);
         return;
       }
       const file = files.get(path);

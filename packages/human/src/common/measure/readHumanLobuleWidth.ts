@@ -17,20 +17,6 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * owns the lobule's segmentation and the notch convention, so a sparse
  * sample region supplies a source-conditioned projection, not a recovered
  * individual clinical landmark.
- *
- * @evidence contracts/common.md#principled-implementation The posterior extreme is found on each skin within the declared lobule area.
- * @evidence contracts/common.md#clear-and-simple-design One direction and one pass.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing area refuses; the perpendicular is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States the protocol, both points, the direction and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Metres along directions of the head frame; posterior is -Z.
- * @evidence contracts/anatomy.md#anatomical-source Follows the cited study's h-i.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanLobuleWidth(
   head: IAutoMovieHumanHeadSkin,

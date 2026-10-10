@@ -20,19 +20,6 @@ const DOCUMENT_FIELDS = [
  * The manifest must cover every channel, basis surface and appearance field
  * once. Validation refuses cycles, aliases and stale basis revisions instead
  * of silently leaving a fine control unreachable after a source revision.
- *
- * @evidence contracts/common.md#principled-implementation The manifest is compiled against its exact basis: every channel, surface and appearance field must have exactly one owner in a single unaliased tree, so no fine control can become unreachable after a source revision; cycles and aliases are refused through the visited-node set and identity uniqueness.
- * @evidence contracts/common.md#clear-and-simple-design One recursive walk that copies the tree while recording the label path of each channel, surface and field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses stale revisions, aliases and missing owners instead of defaulting.
- * @evidence contracts/common.md#meaningful-documentation States that physical surface ownership differs from channel influence, and the coverage the manifest must satisfy.
- * @evidence contracts/modeling.md#part-identity-and-grouping This is the group owner: it composes named nodes of channels, surfaces and appearance fields and copies none of their values; each channel, surface and field belongs to one node.
- * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceComponentTree carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceComponentTree admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceComponentTree defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceComponentTree emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceComponentTree constructs no surface that meets another part.
- * @evidenceExclude contracts/modeling.md#spatial-conventions createHumanFaceComponentTree defines no value that carries a unit or a coordinate frame of its own.
- * @evidenceExclude contracts/modeling.md#rendered-observation createHumanFaceComponentTree owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createHumanFaceComponentTree(
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels" | "surfaces">,

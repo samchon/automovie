@@ -8,20 +8,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * mature brow hair. A basis without the periocular registration returns its
  * gap.
  *
- * @evidence contracts/common.md#principled-implementation Reads the registered posed card, so the extent follows every brow channel.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the side's vertices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads only the registered brow vertices; a missing registration returns its gap.
- * @evidence contracts/common.md#meaningful-documentation States the projection, the card approximation and the gap.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres along head-frame X.
- * @evidence contracts/anatomy.md#anatomical-source Follows the brow-length definition the brow parameter type cites, on the card that stands for the hair envelope.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The periocular registration names the parts; the reader names none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
- *
  * @author Samchon
  */
 export function readHumanFaceBrowLength(

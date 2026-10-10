@@ -34,20 +34,6 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * representable travels all map to the same sampled point, not to an earlier
  * unsampled clearance crossing. The search spends the existing shared budget.
  * The result owns its point; contact sampling state remains with its owner.
- *
- * @evidence contracts/common.md#principled-implementation Convex distance to each actual root-star triangle certifies only the epsilon-sized prefix. The first remaining surface hit bounds a crossing-free open interval, whose actual closest-point signed-distance witness establishes its exterior side without classifying an intersection normal against the ray. Conservative Lipschitz advances cannot skip the first clearance crossing. Binary64 travel and 3D interior checks refuse ambiguity, and every query consumes the existing shared count.
- * @evidence contracts/common.md#clear-and-simple-design One owner finds a scalar travel on an immutable desired ray; the existing collider owns distances and ray intersections, and the integrator owns later walking and metric length.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, angle, clearance, epsilon or sampling override; no projection rotates the desired ray and no personal corrective is stored.
- * @evidence contracts/common.md#meaningful-documentation States the same-collider premise, nonmonotone search argument, root boundary allowance, length and representability refusals, and owned output.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It selects one station and defines no displayed part or group.
- * @evidence contracts/modeling.md#parameter-channels It consumes the derived emergence direction and authored metric length without reinterpreting their meaning or introducing a styling channel.
- * @evidence contracts/modeling.md#emitted-geometry It returns one station; the integrator retains the root and accounts for the returned travel in the existing station and length budgets.
- * @evidence contracts/modeling.md#spatial-conventions Root, collider and output are in the same current head metre frame; direction is normalized and travel, length, clearance and epsilon are metres.
- * @evidence contracts/modeling.md#shared-boundaries The root-to-station ray is bounded before another collider intersection outside the existing root allowance. Only the fibre transition is covered; ribbon interiors and hair-to-hair contact are not certified.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the hair builder and integrator's product consumer own visual observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical angle or population value; emergence supplies the direction.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits numerical surface and metric premises, not an anatomical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It adds no caller authoring input; root, direction and collider are derived by their existing owners.
  */
 export function launchHumanFaceHairCurve(
   props: IHumanFaceHairLaunch,

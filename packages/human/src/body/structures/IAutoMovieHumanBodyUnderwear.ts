@@ -8,9 +8,10 @@ import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBod
 /**
  * The plain default underwear a body document may wear.
  *
- * It is not cloth: the builder cuts the posed skin's own triangles inside
- * the garment's regions and lifts them a few millimetres along the posed
- * normals, so the underwear follows every shape and pose the skin does. The
+ * The builder partitions the final skin into complementary exposed-skin and
+ * fabric material regions. This basic garment has zero geometric thickness;
+ * it adds no normal offset, crease restoration or independent cloth surface.
+ * Actual source topology, normals and final mesh admission remain applicable. The garment's
  * regions are rules on the body's joint landmarks and named skin points,
  * never vertex lists for one person or one basis (`HUMAN_BODY_UNDERWEAR`).
  *
@@ -43,18 +44,6 @@ export namespace IAutoMovieHumanBodyUnderwear {
 
     /** Fabric roughness in [0,1]. */
     roughness: number;
-
-    /** Lift of the fabric off the skin along the posed normal, metres. */
-    offsetMetres: number;
-
-    /**
-     * Width of the widest skin crease the fabric bridges instead of following
-     * it down, metres (twice the radius of the ball the fabric cannot bend
-     * tighter than); zero lays the fabric on the skin everywhere. Creases
-     * narrower than three fifths of it are always bridged, wider ones
-     * never are, and wider concavities keep their depth.
-     */
-    spanMetres: number;
 
     /**
      * Bones whose skin is never covered, with every bone below them: a

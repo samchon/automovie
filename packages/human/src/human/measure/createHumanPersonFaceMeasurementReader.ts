@@ -40,20 +40,6 @@ import { readHumanPersonOralDentalPositions } from "./readHumanPersonOralDentalP
  * Generated brow replacements carry the same explicit source-card acquisition
  * refusal as the standalone face context; retained coordinates do not supply
  * measurements of retired cards or inferred shaft boundaries.
- *
- * @evidence contracts/common.md#principled-implementation The actual retained region gatherer's returned source numbering is inverted over the emitted model; inverse rigid carry restores the registry's declared frame without a second shape or replacement evaluation.
- * @evidence contracts/common.md#clear-and-simple-design Compile region correspondence once, then scatter one final model and call the existing registry reader.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source-rest vertex, independently computed body gain or face subtree substitutes for final output.
- * @evidence contracts/common.md#meaningful-documentation States correspondence, missing-part semantics, Float32 precision and the inverse measurement frame.
- * @evidence contracts/modeling.md#spatial-conventions Final Float32 world metres are transformed through the inverse actual head carry to the head-frame metres of existing instruments.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader consumes existing parts and creates none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader moves no authored value.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The evaluator owns source-shared skin samples.
- * @evidence contracts/modeling.md#rendered-observation The readings consume the final model the person editor displays and exports.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Each registry entry owns its protocol and qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader admits no anatomical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader introduces no authoring input.
  */
 export function createHumanPersonFaceMeasurementReader(
   compiled: IAutoMovieHumanPersonCompiledGeneration,

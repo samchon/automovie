@@ -37,16 +37,6 @@ import type { IHumanFaceLashSegment } from "./structures/IHumanFaceLashSegment";
  * arc owner's curvature guard. Transparent surviving source cards supply no
  * biological shaft collider; their alpha-dependent appearance remains an
  * assembled observation limit.
- *
- * @evidence contracts/common.md#principled-implementation Float32 signed geometry and actual triangle crossings judge free tissue penetration, while convex capsule containment and bounded segment proximity certify pair separation.
- * @evidence contracts/common.md#clear-and-simple-design One contact owner uses existing geometry instruments and the shared finite resident candidate hierarchy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No profile, root, count, tolerance or last-valid input is changed to force a fit; a conservative proximity refusal names its actual shafts.
- * @evidence contracts/common.md#meaningful-documentation States root insertion, output precision, source tolerance, capsule conservatism and legacy card limits.
- * @evidence contracts/modeling.md#shared-boundaries Root insertion uses the same registered skin point; the remaining free shaft must stay outside the final skin and optical exterior.
- * @evidence contracts/modeling.md#spatial-conventions All geometry and tolerances are canonical head-frame metres.
- * @evidence contracts/anatomy.md#permitted-range The generated population is geometrically admitted only if free shafts leave their root insertion, avoid tissue penetration and have nonoverlapping capsule bounds. These bounds certify no clinical follicle implantation or population interval.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Geometric admission introduces no inferred tissue dimension.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Admits the emitted result without adding a shaping input.
  */
 export function assertHumanFaceLashContact(
   rows: readonly IHumanFaceLashRow[],

@@ -19,4 +19,7 @@ export interface IHumanFaceReferencePreparationInput {
 
   /** Existing owned native stage, reused by normal assembly rather than evaluated twice. */
   native?: IHumanFaceNativePose;
+
+  /** Reports actual completed reference owners; an exception aborts preparation. */
+  progress?: (owner: string) => void;
 }

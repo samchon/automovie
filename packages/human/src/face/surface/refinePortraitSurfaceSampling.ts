@@ -20,19 +20,6 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Exactly coincident free-rim samples are pending tissue contact. Their
  * incident faces retain sampling until the assembler welds the seam, avoiding
  * unmatched subdivisions and differently curved opposed commissural folds.
- *
- * @evidence contracts/common.md#principled-implementation A triangle that meets a field box and has an edge longer than the spacing has that edge split at the midpoint of the cubic Bezier curve whose end tangents are the edge projected onto each endpoint's tangent plane, m = (pa + pb)/2 + (dotB nb - dotA na)/8 for interior edges; open edges split linearly so the rim stays exact. Neighbours share every inserted midpoint through one edge map, so the refinement leaves no T-junction, and the loop ends when no edge qualifies.
- * @evidence contracts/common.md#clear-and-simple-design Detect contact pending faces, split edges, re-triangulate by split count, repeat to a fixed point.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A spacing below coordinate precision refuses instead of looping.
- * @evidence contracts/common.md#meaningful-documentation States conservative box intersection, the midpoint rule, the free-rim rule and that it interpolates existing curvature only.
- * @evidence contracts/modeling.md#emitted-geometry The population grows with the field support divided by the requested spacing, not with the number of authored features; faces outside every field box and faces on pending contact seams keep their sampling.
- * @evidence contracts/modeling.md#shared-boundaries Every split edge owns one shared midpoint, so adjacent faces meet without a T-junction, free rims stay linear and exact, and coincident free-rim samples pending contact keep their incident faces unrefined until the seam is welded.
- * @evidence contracts/modeling.md#spatial-conventions Construction millimetres for the mesh and spacing; field boxes arrive in metres and are multiplied by 1000 at the single box construction.
- * @evidenceExclude contracts/anatomy.md#anatomical-source refinePortraitSurfaceSampling carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range refinePortraitSurfaceSampling admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority refinePortraitSurfaceSampling defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping refinePortraitSurfaceSampling is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels refinePortraitSurfaceSampling defines and consumes no parameter channel of a form.
  */
 export function refinePortraitSurfaceSampling(
   input: IControlMesh,

@@ -11,20 +11,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * periocular registration's brow vertices of that side. A vertical that misses
  * the card returns a gap, and a basis without the registration returns its gap.
  *
- * @evidence contracts/common.md#principled-implementation Sections the registered posed card with the vertical, so both borders follow every brow channel.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the side's triangle edges.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads only the registered brow vertices; a miss returns its gap.
- * @evidence contracts/common.md#meaningful-documentation States the section rule, the side selection and the gaps.
- * @evidence contracts/modeling.md#spatial-conventions The vertical is head-frame +Y at constant X, metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows the inferior and superior brow-margin definitions the brow parameter type cites, on the card that stands for the hair envelope.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The periocular registration names the parts; the reader names none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
- *
  * @author Samchon
  */
 export function readHumanFaceBrowAtVertical(

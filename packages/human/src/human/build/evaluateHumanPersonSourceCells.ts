@@ -13,20 +13,6 @@ import type { IAutoMovieHumanPersonSourceCellEvaluationProps } from "../structur
  * Arrays are read only; returned parent areas and canonical source positions
  * are owned. Source positions retain the first partition's Double coordinates
  * after the shared Float32 check, and use metres/Y-up/Z-forward.
- *
- * @evidence contracts/common.md#principled-implementation Physical cell area, Float32 emission and shared source identity are admitted before any normal-star normalization; ancestor-star cancellation is not a substitute for a cell direction test.
- * @evidence contracts/common.md#clear-and-simple-design One admission owner returns complete performed parent areas and canonical source coordinates for both smooth shading and deformation transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects missing populations, incompatible shared samples and zero or reversed cells without deleting triangles or substituting neutral geometry.
- * @evidence contracts/common.md#meaningful-documentation States precision, coordinate ownership and the distinction between physical area and normal-star validity.
- * @evidence contracts/modeling.md#shared-boundaries Shared canonical samples must have identical Float32 coordinates on the two performed partitions.
- * @evidence contracts/modeling.md#spatial-conventions Positions use metres/Y-up/Z-forward and cross products use square metres; no coordinate conversion occurs.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Admits supplied cells without defining a part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Measures existing cells without emitting a primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly consumer owns rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Physical cell admission carries no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Checks representation rather than a biological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Consumes performed geometry rather than a shaping input.
  */
 export function evaluateHumanPersonSourceCells(
   props: IAutoMovieHumanPersonSourceCellEvaluationProps,

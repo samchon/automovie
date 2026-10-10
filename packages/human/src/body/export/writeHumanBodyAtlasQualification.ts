@@ -12,11 +12,6 @@ import { readHumanBodyAtlasAssetCorrespondence } from "./readHumanBodyAtlasAsset
  * atlas records in a composed Document. It changes only the atlas
  * namespace on matching primitives; every actual atlas source member requires
  * exactly one supplied receipt, while other source members make no atlas claim.
- *
- * @evidence contracts/common.md#principled-implementation Bijective source-ID admission joins receipts to the same prepared primitive members that the common exporter writes.
- * @evidence contracts/common.md#clear-and-simple-design One Document adapter serves the body writer and can join body-prefixed atlas records without another geometry path.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Qualification is never supplied from material labels or reconstructed geometry.
- * @evidence contracts/common.md#meaningful-documentation States exact selected-member scope and unchanged geometry authority.
  */
 export function writeHumanBodyAtlasQualification(
   document: Document,

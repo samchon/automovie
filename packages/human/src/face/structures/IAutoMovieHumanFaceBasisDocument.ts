@@ -5,6 +5,7 @@ import type { IAutoMovieHumanFaceEyelidPhenotypes } from "./IAutoMovieHumanFaceE
 import type { IAutoMovieHumanFaceEyelids } from "./IAutoMovieHumanFaceEyelids";
 import type { IAutoMovieHumanFaceEyes } from "./IAutoMovieHumanFaceEyes";
 import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceFacialHair } from "./IAutoMovieHumanFaceFacialHair";
 import type { IAutoMovieHumanFaceHairTraits } from "./IAutoMovieHumanFaceHairTraits";
 import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
 import type { IAutoMovieHumanFaceLashes } from "./IAutoMovieHumanFaceLashes";
@@ -55,6 +56,9 @@ export interface IAutoMovieHumanFaceBasisDocument {
    * no identity-dependent groom resource or personal guide coordinates resolve.
    */
   hair?: IAutoMovieHumanFaceHair | null;
+
+  /** Named visible terminal facial shafts; independent of scalp locks and recorded follicle observations. */
+  facialHair?: IAutoMovieHumanFaceFacialHair | null;
 
   /** Complete named scalp styling; alternative to the legacy full hair document. */
   scalpHair?: IAutoMovieHumanFaceScalpHair;

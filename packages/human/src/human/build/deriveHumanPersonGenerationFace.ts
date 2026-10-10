@@ -11,20 +11,6 @@ import type { IAutoMovieHumanPersonGenerationFaceProps } from "../structures/IAu
  * quantity once through the body channel, and must not state a driver
  * channel. Each driver channel then takes the body's own gain of its endpoint,
  * zero when the body does not move it.
- *
- * @evidence contracts/common.md#principled-implementation An aliased quantity has one owner, and a driver carries the body's own gain instead of a second face value.
- * @evidence contracts/common.md#clear-and-simple-design Refuse the stated owners, then copy each driver's gain.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A face document stating an aliased or driver channel is refused by name, never silently overwritten.
- * @evidence contracts/common.md#meaningful-documentation States both cases and every refusal.
- * @evidence contracts/modeling.md#parameter-channels Writes only the driver channels and leaves every authored face channel as stated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The function carries no value with a unit or frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The face builder admits the document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input.
  */
 export function deriveHumanPersonGenerationFace(
   props: IAutoMovieHumanPersonGenerationFaceProps,

@@ -13,19 +13,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * not declare returns "missing landmark: <name>" or "missing region: <name>"
  * before anything is read.
  *
- * @evidence contracts/common.md#principled-implementation The face hands the shared head instruments the same record the person reads, so a head measurement has one owner.
- * @evidence contracts/common.md#clear-and-simple-design One name check and one surface read.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing point or area returns its gap; nothing is substituted.
- * @evidence contracts/common.md#meaningful-documentation States the surface choice and both gaps.
- * @evidence contracts/modeling.md#spatial-conventions Positions are the final posed metres of the basis head frame, Float32-rounded.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The record carries no anatomical definition.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  * @author Samchon
  */
 export function readHumanFaceHeadSkin(

@@ -18,20 +18,6 @@ import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
  * `isNeck(v)` says whether the neck or head bone has the largest weight there.
  * A skin that never falls below the share returns its greatest finite
  * distance; one with no reachable vertex refuses.
- *
- * @evidence contracts/common.md#principled-implementation The reach is a running statistic over vertices ordered by distance, so it is the smallest distance at which the stated share is crossed, and it depends only on the body's authored weights and mesh.
- * @evidence contracts/common.md#clear-and-simple-design One sort and one running count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No length is supplied; the only choices are the named share and the refusal of an empty input.
- * @evidence contracts/common.md#meaningful-documentation The comment states the statistic, what the two inputs are and the limiting cases.
- * @evidence contracts/modeling.md#spatial-conventions Distances are metres along the skin in the body's frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function measures a length and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the reach is observed in the assembled person.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The extent of the neck is read from the body basis's authored weights, whose source the body owns; the function adds no value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function measureHumanNeckReach(
   distance: Float64Array,

@@ -1,3 +1,5 @@
+import type { IHumanBodySkinVoxelDistance } from "./IHumanBodySkinVoxelDistance";
+
 /**
  * The posed skin voxelised around a garment: a regular grid of cubic cells,
  * the distance from each cell to the skin, and the queries a garment's
@@ -20,7 +22,7 @@ export interface IAutoMovieHumanBodySkinVoxels {
    * skin sample falls in, and that voxel's index (`-1` when the skin has no
    * sample in the grid).
    */
-  distance: { squared: Float64Array; source: Int32Array };
+  distance: IHumanBodySkinVoxelDistance;
 
   /** The centre of voxel `voxel`, metres. */
   centre(voxel: number): number[];
@@ -34,10 +36,14 @@ export interface IAutoMovieHumanBodySkinVoxels {
    */
   nearest(voxel: number, at: readonly number[]): number[];
 
+  /** Actual nearest-triangle separation in metres, independent of voxel sites. */
+  clearance(at: readonly number[]): number;
+
   /**
-   * The voxels a ball of radius `rho` could rest on, one byte each: clear of
-   * the skin by the radius less a cell and no more than two cells beyond, and
-   * in the air and not in the flesh.
+   * The voxels a ball of radius `rho` could rest on, one byte each: proposed by
+   * the existing sampled shell, then qualified by actual triangle clearance
+   * at least rho and an oriented interior-feature exterior side. Open-rim
+   * hits are excluded; this is not a global sign for an open volume.
    */
   centres(rho: number): Uint8Array;
 }

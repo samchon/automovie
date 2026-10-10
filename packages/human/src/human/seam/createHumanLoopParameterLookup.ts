@@ -7,20 +7,6 @@
  * At an exact sample the last tied resident owns low with fraction zero; the
  * next cyclic sample is high. Inputs are read only and the table is owned.
  * The caller supplies a nonempty ordered population and finite query values.
- *
- * @evidence contracts/common.md#principled-implementation Predecessor search on normalized cyclic parameters finds the unique interval between consecutive distinct samples; the wrap interval extends by one period before affine interpolation.
- * @evidence contracts/common.md#clear-and-simple-design One immutable sorted table and binary predecessor lookup serves both collar consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Correspondence ordering remains the merge owner's strict admission; lookup introduces no angle epsilon or repaired order.
- * @evidence contracts/common.md#meaningful-documentation States admitted input responsibility, coordinate, exact sample ownership, wrap and mutation.
- * @evidence contracts/modeling.md#spatial-conventions Face-edge parameters and interpolation fractions are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Reads an admitted shared correspondence and constructs no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Owns no displayed form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits no anatomical input.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no user input.
  */
 export function createHumanLoopParameterLookup(
   parameters: readonly number[],

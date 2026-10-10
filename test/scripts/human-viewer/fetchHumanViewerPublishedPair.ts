@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanPersonGeneration,
 } from "@automovie/human";
-import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
+import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset.ts";
 
 import { humanViewerBasisDigests } from "./humanViewerBasisDigests";
 import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
@@ -16,6 +16,7 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens";
  */
 export async function fetchHumanViewerPublishedPair(
   token: string,
+  origin = "",
 ): Promise<Pick<IAutoMovieHumanPersonGeneration, "face" | "body">> {
   const [face, body] = humanViewerBasisDigests(
     token,
@@ -24,10 +25,10 @@ export async function fetchHumanViewerPublishedPair(
   );
   return {
     face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-      read: () => fetch("/basis/face?digest=" + face),
+      read: () => fetch(origin + "/basis/face?digest=" + face),
     }),
     body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-      read: () => fetch("/basis/body?digest=" + body),
+      read: () => fetch(origin + "/basis/body?digest=" + body),
     }),
   };
 }

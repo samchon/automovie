@@ -21,19 +21,6 @@ import { readHumanFaceIncisalOffset } from "./readHumanFaceIncisalOffset";
  * the source rig. Missing reference or incisor registration remains a gap.
  * Raw interincisal opening is a separate distance, not this vertical excursion.
  *
- * @evidence contracts/common.md#principled-implementation Subtracts offsets of one homologous pair at two states in the same frame, yielding reference-relative movement rather than final dental position.
- * @evidence contracts/common.md#clear-and-simple-design One adapter over the shared incisal offset reader.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No zero reference or unshaped basis substitutes for a missing evaluated reference.
- * @evidence contracts/common.md#meaningful-documentation States reference ownership, signs, units, source protocols and distinction from raw opening.
- * @evidence contracts/modeling.md#spatial-conventions Signed millimetres in one contact frame; positive forward is anterior and positive left is anatomical left.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader creates no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader moves no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader creates no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The context owns the emitted positions and the editor shows the reading.
- * @evidence contracts/anatomy.md#anatomical-source The cited 2021 and 2014 primary protocols account for initial incisal relationship when measuring excursion; their cohorts supply no universal range here.
- * @evidenceExclude contracts/anatomy.md#permitted-range The capacity owner compares this quantity with the document's own observed maximum.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This is a readout, not a shaping input.
  * @author Samchon
  */
 export function readHumanFaceIncisalExcursion(

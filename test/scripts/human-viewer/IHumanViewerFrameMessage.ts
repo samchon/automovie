@@ -11,12 +11,15 @@ export interface IHumanViewerFrameMessage {
   /** Why the candidate failed, for `human:error`. */
   error?: string;
 
+  /** A failed selected-document restore; the checked generation itself remains ready. */
+  restoreError?: string;
+
   /** For `human:error`: the candidate mixed compiles and must be started again at once. */
   restart?: boolean;
 
-  /** The displayed address, for `human:address`. */
+  /** The completed displayed address, for `human:address` or `human:ready`. */
   address?: string;
 
-  /** Displayed mesh names, for `human:address`. */
+  /** Displayed mesh names, for `human:address` or `human:ready`. */
   parts?: string[];
 }

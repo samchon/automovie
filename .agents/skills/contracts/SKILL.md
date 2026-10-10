@@ -5,29 +5,34 @@ description: Defines the implementation acknowledgments that maintained source d
 
 # Implementation Contracts
 
-The common principles govern implementation and review. Modeling and anatomy chapters ask the declarations that own those responsibilities for concrete grounds, carried by `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The owning package's `evidence.config.ts` selects standalone checklist obligations, and the [review skill](../review/SKILL.md) judges their truth. Selected chapters still require an answer; keep it specific to the declaration's responsibility instead of repeating generic self-assessments. Changing those obligations requires a separately verified configuration change.
+A declaration answers each chapter its package's `evidence.config.ts` selects with `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The [review skill](../review/SKILL.md) judges whether the answers are true. Changing the selection requires a separately verified configuration change.
 
-Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
+Product promises and system contracts belong to the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract to the scaffold's shipped `contract` skill.
 
-An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Answer only what has been done: a chapter whose work is still open stays unanswered, and the missing answer is the todo. Keep open defects in the task's issue or worklog and never in the declaration, because a status comment goes stale. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file would bypass every chapter in it.
+## Answering a chapter
 
-Meet every applicable chapter together. Assign part, parameter, range, conversion, boundary and assembly claims to their actual owners. Transport and helpers preserve those owners' meaning and do not repeat anatomical research or whole-render judgments they do not perform. Selection and chapter exclusions must follow that responsibility, while unfinished owner work remains visible. No chapter permits weakening supported behavior to satisfy another. Review private helpers with their owner.
+- State why the approach fits, its assumptions and any unresolved departure, specific to the declaration's responsibility. Do not certify outputs or claim that tests passed.
+- Answer only finished work. An open chapter stays unanswered as the todo, and open defects go to the issue or worklog, because a status comment in source goes stale.
+- Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations).
+- Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter. Excluding a whole file bypasses every chapter in it.
+- Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another.
+- Assign part, parameter, range, conversion, boundary and assembly claims to their actual owners. Transports and helpers preserve the owner's meaning and repeat no research or whole-render judgment they do not perform. Review private helpers with their owner.
 
 ## [Common Implementation Principles](common.md)
 
-Principled implementation, clear and simple design, prohibited shortcuts and meaningful documentation. Apply these to every maintained declaration and record nonobvious grounds where the responsibility is defined.
+Every maintained declaration.
 
 ## [Modeling Principles](modeling.md)
 
-Part identity and grouping, parameter channels, emitted geometry, spatial conventions, shared boundaries and rendered observation. Read when the declaration defines, builds or measures a form.
+Declarations that define, build or measure a form: parts, channels, emitted geometry, frames, boundaries and rendered observation.
 
 ## [Anatomical Principles](anatomy.md)
 
-Anatomical source, permitted range and parametric authority. Read when the declaration stands for a living human body.
+Declarations that stand for a living human body: sources, ranges and public inputs.
 
 ## Maintaining the checklists
 
-- Give each question one chapter owner across all three files, and extend the owning chapter instead of adding a second one.
-- Keep each chapter an H2 with a stable anchor. Common principles apply to every maintained declaration; modeling and anatomy chapters open with an `Apply to` sentence.
-- Keep links out of the checklist files so each stays readable on its own.
+- Give each question one chapter owner across the three files, and extend that chapter instead of adding a second.
+- Keep each chapter an H2 with a stable anchor, because the H2 is the checklist item the configuration selects. Modeling and anatomy chapters open with an `Apply to` sentence.
+- Keep links out of the checklist files so each reads on its own.
 - Write and review a changed checklist under the documentation skill's [instructions document](../documentation/instructions.md).

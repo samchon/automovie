@@ -7,20 +7,6 @@ import { createPortraitIrisMaterials } from "../eye/createPortraitIrisMaterials"
  * from the photograph, and the reference photo is not used as a skin texture.
  * Keep IDs stable: the anatomical builders bind their parts to these names.
  * Diagnostic clay views replace finishes while keeping these same mesh buffers.
- *
- * @evidence contracts/common.md#principled-implementation The palette is a set of authored linear-RGB physically based finishes whose stable identities the anatomical builders bind to; the comments state that none is sampled from a photograph or a measured reflectance.
- * @evidence contracts/common.md#clear-and-simple-design A local helper appends materials in a fixed order; no option or branching.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific colour and no photograph is used as a texture.
- * @evidence contracts/common.md#meaningful-documentation States that the values are provisional appearance controls, that identities are stable and that clay views replace finishes.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A palette is a list of finishes and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines and consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Colours are linear RGB and roughness is dimensionless; no length unit or frame is involved.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The finishes are authored appearance controls, not anatomical measurements, as the comments state.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It defines no caller input.
- * @evidenceExclude contracts/modeling.md#rendered-observation createPortraitMaterials owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createPortraitMaterials(): IAutoMovieMaterial[] {
   const materials: IAutoMovieMaterial[] = [];

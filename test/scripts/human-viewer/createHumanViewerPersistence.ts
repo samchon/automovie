@@ -1,4 +1,5 @@
 import type { IHumanViewerPersistenceJob } from "./IHumanViewerPersistenceJob";
+import type { IHumanViewerNumericalPersistenceMessage } from "./IHumanViewerNumericalPersistenceMessage";
 import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks";
 
 /**
@@ -13,7 +14,10 @@ import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not alter geometry, admission, precision or cache identity.
  * @evidence contracts/common.md#meaningful-documentation States scheduling, memory bounds, cancellation and independent failure.
  */
-export function createHumanViewerPersistence(report: (value: unknown) => void) {
+export function createHumanViewerPersistence(
+  report: (value: IHumanViewerNumericalPersistenceMessage) => void,
+  origin = "",
+) {
   let pending: IHumanViewerPersistenceJob | undefined;
   let active: IHumanViewerPersistenceJob | undefined;
   let controller: AbortController | undefined;
@@ -43,7 +47,7 @@ export function createHumanViewerPersistence(report: (value: unknown) => void) {
       abort.signal.throwIfAborted();
       const blob = new Blob(pieces, { type: "application/json" });
       const encoded = performance.now();
-      const response = await fetch(`/cache/${job.key}`, {
+      const response = await fetch(`${origin}/cache/${job.key}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

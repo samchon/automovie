@@ -24,20 +24,6 @@ import type { IHumanFaceLidSeat } from "./structures/IHumanFaceLidSeat";
  *
  * The source publisher uses the same record to re-author the neutral lid
  * cage, so the source and the runtime frame share one seating definition.
- *
- * @evidence contracts/common.md#principled-implementation One authored seating height is shared by source and runtime; actual facet deviation remains separate from that pointwise construction value.
- * @evidence contracts/common.md#clear-and-simple-design One constant record owns the three seating dimensions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The values are properties of the lid frame, not of a subject, a document or a refused part.
- * @evidence contracts/common.md#meaningful-documentation Gives each value, its kind, its bound or source, and what is unknown.
- * @evidence contracts/modeling.md#spatial-conventions Metres.
- * @evidence contracts/modeling.md#shared-boundaries The lid margin and the ocular exterior meet at this height; the same value seats the skin and starts the wet margin.
- * @evidence contracts/anatomy.md#anatomical-source Authored and conventional values with their one read review source; the lid-to-globe gap and the medial bed length are stated as unknown.
- * @evidence contracts/anatomy.md#permitted-range Actual emitted-hull contact admission checks the seated geometry without increasing this authored clearance by a tessellation bound.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Not a channel; a fixed property of the frame.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The lid frame owner owns the observed result.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Not a public input.
  */
 export const HUMAN_FACE_LID_SEAT: IHumanFaceLidSeat = {
   posteriorClearanceMetres: 0.0001,

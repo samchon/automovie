@@ -8,11 +8,6 @@ import type { IAutoMovieHumanConstructionPartReading } from "./IAutoMovieHumanCo
  * it is not a committed or physiologically accepted authoring result.
  * Measuring owners also attach every relation and part they read, refused or
  * not, so acceptance is a statement about reported numbers.
- *
- * @evidence contracts/common.md#principled-implementation Acceptance requires an empty population of original named failures.
- * @evidence contracts/common.md#clear-and-simple-design A boolean and complete failure population separate construction from admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected construction stays rejected rather than becoming an accepted editor state.
- * @evidence contracts/common.md#meaningful-documentation States inspectability and the accepted-publication boundary.
  */
 export interface IAutoMovieHumanConstructionAdmission {
   /** True only when every original admission check succeeded. */

@@ -10,6 +10,8 @@ import { fitHumanFaceHairRibbonRows } from "./fitHumanFaceHairRibbonRows";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { selectHumanFaceHairStations } from "./selectHumanFaceHairStations";
+import { buildHumanFaceHairShaftMesh } from "./buildHumanFaceHairShaftMesh";
+import type { IHumanFaceHairContactStation } from "./IHumanFaceHairContactStation";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 
@@ -20,7 +22,10 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Root tangent and finite stem curvature therefore survive as actual rows.
  * UV v and taper use cumulative metric over every original station.
  *
- * Width is the density owner's coverage proxy, not an authored shaft diameter.
+ * Legacy width is the density owner's coverage proxy, not an authored shaft diameter.
+ * A layer with explicit terminalShaftDiameter delegates to the physical shaft
+ * owner using the same curves, native registrations and separation readers.
+ * Actual station membership is published by whichever representation emits it.
  * The old zero-width root fan is represented explicitly by positive stem rows:
  * a stem row's half width is capped by its own positive signed skin gap. The
  * 1-Lipschitz distance ball keeps that whole transverse row nonpenetrating.
@@ -77,58 +82,14 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
  * Original pairs/topology/centres remain; actual widths may decrease under whole
  * geometry constraints and are reported separately from nominal coverage.
- *
- * @evidence contracts/common.md#principled-implementation Each curve becomes a
- *   ribbon centred on its own polyline: the transverse frame starts from the
- *   first non-parallel tangent and is carried along the kept stations by the
- *   minimal rotation between successive averaged tangents (Rodrigues), then
- *   re-projected off the tangent to remove drift, so the ribbon does not twist
- *   except where the curve does. Antiparallel tangents have no unique minimal
- *   rotation and refuse. The half width is the taper's radius, and where a
- *   corner would enter the skin it is solved back by a safeguarded Newton step
- *   on the corner's own signed distance, falling back on the provable bound free
- *   distance minus clearance, and both sides take the tighter width so the
- *   ribbon stays centred. Stem rows retain a radius no larger than their measured skin gap, while free rows retain the existing requested gap. Skipping a query when the 1-Lipschitz bound already
- *   certifies the full width changes no vertex. Ribbon-to-ribbon contact and
- *   self-intersection are not established, as the comment says.
- * @evidence contracts/common.md#clear-and-simple-design One owner of the
- *   ribbon, taking the station choice from selectHumanFaceHairStations and the
- *   shared contact proof from humanFaceHairFreeDistanceBound; frame transport,
- *   width fit and triangle assembly stay together because they share the running
- *   frame and the witness sample.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
- *   case for a subject or style: widths, taper and clearance come from the
- *   density, the layer and the same query the integrator used, and a station
- *   that cannot be fitted refuses instead of being patched.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   the frame construction, facing, fitting rule, the certified skip, ownership
- *   of the buffers and what is not established.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
- *   function builds one mesh for all the curves of a layer; the hair builder
- *   names the part and its material.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle document's fields without varying
- *   a form; the document type owns their meaning.
- * @evidence contracts/modeling.md#emitted-geometry A curve with k retained stations emits 2k-1 vertices and 2k-3 triangles. All stem stations through freeFrom are retained; only the free remainder follows the existing tolerance. Source rows preserve the initial chord and finite stem curvature without resampling.
- * @evidence contracts/modeling.md#spatial-conventions Curve stations and query
- *   are metres in the head frame; tangents and frames are unit vectors; UV u is
- *   the ribbon side and v the cumulative arc length over the measured total,
- *   which the taper shares. No portrait millimetre conversion is applied.
- * @evidence contracts/modeling.md#shared-boundaries The same current skin query defines each row's fit. Stem half widths are bounded by their own positive signed gap and free corners retain the requested gap. The root vertex remains the surface attachment. Those preliminary row/corner facts only bound the initial profile. fitHumanFaceHairRibbonRows then certifies the complete source and actual Float32 rows/convex cells under the remaining root budget, with bounded canonical root-support contact and strict separation from every other host face. Nominal density coverage stays fixed while actual fitted width may decrease. Hair-to-hair nonintersection remains unproved and the assembled builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
- *   no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
- *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
- *   admission of the hairstyle document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
- *   shapes a human form through this function; it reads quantities the hairstyle
- *   document already names and admits.
  */
 export function buildHumanFaceHairMesh(
   curves: IAutoMovieHumanFaceHairCurve[],
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance">,
+  layer: Pick<IAutoMovieHumanFaceHair.Layer, "taper" | "clearance" | "terminalShaftDiameter">,
   props: IHumanFaceHairMeshContext,
 ): IAutoMovieMesh {
+  if (layer.terminalShaftDiameter !== undefined)
+    return buildHumanFaceHairShaftMesh(curves, layer.terminalShaftDiameter, layer.clearance, props);
   if (
     props.separation === undefined ||
     props.separation === null ||
@@ -343,6 +304,7 @@ export function buildHumanFaceHairMesh(
     });
     positions.push(points[0].x, points[0].y, points[0].z);
     uvs.push(0.5, 0);
+    const contactStations: IHumanFaceHairContactStation[] = [{ vertices: [offset], radius: 0, arcLength: 0 }];
     for (let order = 1; order < fittedRows.length; order++) {
       const rowData = fittedRows[order];
       for (const side of [-1, 1]) {
@@ -354,9 +316,12 @@ export function buildHumanFaceHairMesh(
         uvs.push((side + 1) / 2, rowData.v);
       }
       const row = offset + 2 * order - 1;
+      contactStations.push({ vertices: [row, row + 1], radius: rowData.radius, arcLength: rowData.v * curve.length });
       if (order === 1) indices.push(offset, row, row + 1);
       else indices.push(row - 2, row, row - 1, row - 1, row, row + 1);
     }
+    props.progress?.(ordinal);
+    props.observeContactCurve?.({ attachment: props.attachments[ordinal], stations: contactStations });
   });
   const point = (id: number) =>
     Vector3.create(

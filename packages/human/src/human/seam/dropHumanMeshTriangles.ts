@@ -20,24 +20,13 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * corner table.
  * Physical source rows are copied and survivor references follow this same
  * compaction; unused source rows remain valid without renaming any source ID.
- *
- * @evidence contracts/common.md#principled-implementation Removing every triangle with a marked corner and then the unreferenced vertices, with one renumbering applied to every parallel attribute array, is the standard compaction of an indexed mesh and keeps each attribute attached to its vertex.
- * @evidence contracts/common.md#clear-and-simple-design One pass marks the surviving triangles, one renumbers the vertices, and each attribute array is gathered by the same table.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No attribute is dropped or recomputed; a mesh without indices refuses instead of being guessed at.
- * @evidence contracts/common.md#meaningful-documentation The comment states what is removed, what is renumbered, which arrays follow and the refusal.
- * @evidence contracts/modeling.md#part-identity-and-grouping The result is the same part with fewer triangles; nothing is renamed or merged.
- * @evidence contracts/modeling.md#emitted-geometry The function only removes primitives that a neighbouring part now owns.
- * @evidence contracts/modeling.md#spatial-conventions Positions are copied unchanged in the caller's frame and unit.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function only removes the triangles; the boundary they leave is joined by the seam that calls it.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the seam that calls it is observed as assembled.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
+ * An optional survivor receipt carries internal material fields through that
+ * exact renumbering; it adds no vertex, face or changed numerical operation.
  */
 export function dropHumanMeshTriangles(
   mesh: IAutoMovieMesh,
   drop: (vertex: number) => boolean,
+  receiveSurvivors?: (vertices: readonly number[]) => void,
 ): IAutoMovieMesh {
   if (mesh.indices === null)
     throw new Error("Dropping triangles needs an indexed mesh.");
@@ -69,6 +58,7 @@ export function dropHumanMeshTriangles(
     });
     return output;
   };
+  receiveSurvivors?.(survivors);
   return {
     positions: gather(mesh.positions, 3),
     normals: mesh.normals === null ? null : gather(mesh.normals, 3),

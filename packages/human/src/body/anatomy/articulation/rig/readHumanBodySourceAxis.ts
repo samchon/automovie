@@ -9,15 +9,6 @@ import { readHumanBodySourceProfile } from "./readHumanBodySourceProfile";
  * Direct source coordinates and their public driver cannot silently override
  * each other. This helper consumes source bounds, not a universal ROM table.
  *
- * @evidence contracts/common.md#principled-implementation Direct and driven coordinates are distinguished before one value is admitted against its source range.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns authority conflict, units, profile conversion and final scalar admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate authored authorities refuse; neither goal is silently discarded or clamped.
- * @evidence contracts/common.md#meaningful-documentation States absolute coordinates, explicit zero, omission and the source-bound qualification.
- * @evidence contracts/modeling.md#parameter-channels Each bone/axis address retains its own neutral, side, unit and source driver.
- * @evidence contracts/modeling.md#spatial-conventions Joint rotations use degrees and translations metres, with conversion delegated to the recorded profile.
- * @evidence contracts/anatomy.md#anatomical-source Reads the axis author's declared account and support rather than creating anatomical defaults.
- * @evidence contracts/anatomy.md#permitted-range Finite coordinates outside their source interval refuse unchanged; coupled support belongs to the source/assembly admission owner.
- * @evidence contracts/anatomy.md#parametric-authority Goals address closed anatomical bone/motion names, with no raw geometry authoring inputs.
  * @author Samchon
  */
 export function readHumanBodySourceAxis(

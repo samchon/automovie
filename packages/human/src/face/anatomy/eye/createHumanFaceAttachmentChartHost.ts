@@ -18,20 +18,6 @@ import type { IHumanFaceAttachmentChartHost } from "./structures/IHumanFaceAttac
  * Admission and every later query share privately copied material vertex,
  * coordinate and triangle tables. The caller retains its chart and host;
  * this reader stores neither host geometry nor continuation metadata.
- *
- * @evidence contracts/common.md#principled-implementation Oriented 2D area coordinates locate a point in one positive source triangle and retain that triangle's original host incidence.
- * @evidence contracts/common.md#clear-and-simple-design One immutable coordinate and triangle table answers station coordinates and actual skin attachments.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact source IDs and oriented incidence replace coordinate welding or nearest-point retries.
- * @evidence contracts/common.md#meaningful-documentation States producer embedding responsibility, exact correspondence, units and refusal.
- * @evidence contracts/modeling.md#shared-boundaries The returned seat addresses the original skin triangle, so drawing and tissue attachment share one current surface.
- * @evidence contracts/modeling.md#spatial-conventions Only dimensionless u,v and host triangle IDs enter; the skin host supplies head-frame metres later.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads attachment metadata without assigning a rendered part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Source material coordinates add no personal authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits resident attachment seats rather than render primitives.
- * @evidenceExclude contracts/modeling.md#rendered-observation Attached tissue and assembly consumers own observation; this numerical reader has no separate display.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The chart carries source topology, not measured tissue dimensions.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source-domain admission supplies no physiological interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal authoring input.
  */
 export function createHumanFaceAttachmentChartHost(
   chart: IAutoMovieHumanFaceAttachmentChart,

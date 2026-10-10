@@ -29,20 +29,6 @@ import { validateHumanPersonSourceDomain } from "./validateHumanPersonSourceDoma
  * coverage; each selected parent must occur in the vertex's actual cells, whose
  * support has already been admitted. Counts, IDs and affine fractions are
  * dimensionless; this operation converts no positions or frames.
- *
- * @evidence contracts/common.md#principled-implementation Positive barycentric determinants and directed-edge cancellation certify each parent's oriented complementary partition; exact shared interval endpoints establish complete boundary coverage without a fitted tolerance.
- * @evidence contracts/common.md#clear-and-simple-design One admission boundary owns source plan compatibility, domains and coverage before the performed normal evaluator consumes the copied records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A label alone cannot admit a pair, and missing cells, duplicate edges and reversed source charts refuse instead of being filled or discarded.
- * @evidence contracts/common.md#meaningful-documentation Defines ownership, legacy and partial-generation behavior, chart versus physical validity, dimensions and the interval proof.
- * @evidence contracts/modeling.md#shared-boundaries Both partitions use one ordered source table; internal edges cancel by canonical sample identity and the original source boundary is fully retained.
- * @evidence contracts/modeling.md#spatial-conventions Source identifiers and affine fractions are dimensionless. No coordinates or anatomical measurements are interpreted.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Validates supplied cell charts and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored shape or performance channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly observes the performed surface; chart admission displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The source chart contains no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Index domains are not biological ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This compiler provenance is not a personal shaping input.
  */
 export function validateHumanPersonSourcePartitions(
   props: IAutoMovieHumanPersonSourcePartitionsProps,

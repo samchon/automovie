@@ -11,19 +11,6 @@ import type { IHumanPersonHairContactProps } from "./IHumanPersonHairContactProp
  * with the face producer's optional occlusion bake, final-face measurement
  * observer and pre-cull hair-contact observer.
  *
- * @evidence contracts/common.md#principled-implementation The source generation defines evaluation; optional observers consume the actual states at their declared stages without replacing geometry.
- * @evidence contracts/common.md#clear-and-simple-design One generation, one optional bake, one optional census switch and independent optional observers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document value or tolerance is carried.
- * @evidence contracts/common.md#meaningful-documentation States each option's stage, omission and failure effects.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The props define no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The props are not a shaping channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The props emit no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The generation states its own frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The generation owns the boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The props are not observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The props carry no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The props admit no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The props do not shape a person.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonGenerationBuilderProps {
@@ -38,20 +25,6 @@ export interface IAutoMovieHumanPersonGenerationBuilderProps {
    * canonical head frame, at static-export precision. Omission performs no
    * extra measurement. Failed builds and internal closure-reference builds
    * publish nothing; source qualifications and unknowns remain in the result.
-   *
-   * @evidence contracts/common.md#principled-implementation The callback receives the registry's readings from the same final model the builder returns.
-   * @evidence contracts/common.md#clear-and-simple-design One optional post-validation observer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The observer cannot replace geometry, source registration or a measurement result.
-   * @evidence contracts/common.md#meaningful-documentation States precision, omission, publication stage and failure semantics.
-   * @evidence contracts/modeling.md#spatial-conventions Each registry quantity retains its explicit unit and canonical head-frame definition.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The callback defines no anatomical part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels The callback changes no authored value.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator owns emission.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The evaluator owns source-shared skin.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Consumers observe the returned final model.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Registry owners retain all protocols and qualifications.
-   * @evidenceExclude contracts/anatomy.md#permitted-range The callback admits no anatomical range.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority The callback introduces no authoring channel.
    */
   observeFaceMeasurements?: (
     readings: readonly AutoMovieHumanFaceMeasurementReading[],
@@ -62,20 +35,6 @@ export interface IAutoMovieHumanPersonGenerationBuilderProps {
    * and performed body just before hair contact. Omission allocates no
    * snapshot. Contact admission and final validation still run normally, so
    * an observation is not a successful build or a contact-quality verdict.
-   *
-   * @evidence contracts/common.md#principled-implementation The clear stage copies and freezes its actual input rather than letting an observer replace or mutate geometry.
-   * @evidence contracts/common.md#clear-and-simple-design One optional pre-contact observer reuses the existing consumer boundary.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Observation preserves signed-query admission, document range and requested clearance.
-   * @evidence contracts/common.md#meaningful-documentation States immutability, omitted cost, publication stage and the difference from build success.
-   * @evidence contracts/modeling.md#spatial-conventions Snapshot coordinates and clearance are in the shared person metre frame.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The body and hair producers own parts.
-   * @evidenceExclude contracts/modeling.md#parameter-channels The observer changes no authoring input.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Producers own emitted populations.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries The contact consumer owns clearance.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Numerical snapshots establish no appearance judgment.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Producers retain biological meaning and source qualifications.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Observation admits no anatomical range.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority The callback introduces no numerical authoring channel.
    */
   observeHairContact?: (snapshot: IHumanPersonHairContactProps) => void;
 

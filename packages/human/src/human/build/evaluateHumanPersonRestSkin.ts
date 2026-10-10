@@ -37,20 +37,6 @@ import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
  * evaluated, so this is the full evaluator's rest skin only where those
  * stages leave the skin unchanged; a consumer compares the two before
  * relying on it.
- *
- * @evidence contracts/common.md#principled-implementation It reuses the full evaluator's compiled plan, document derivation and forming step, replacing only the stages the rest skin does not depend on.
- * @evidence contracts/common.md#clear-and-simple-design Body state, face rest, head carry, one forming call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The documentation states which build stages are skipped and that a consumer must compare against the full evaluator; no posed document is accepted silently, the pose is removed.
- * @evidence contracts/common.md#meaningful-documentation States each layer's source, the skipped stages and the comparison duty.
- * @evidence contracts/modeling.md#spatial-conventions Rest metres of the person frame; the head carry is the eye-centre translation.
- * @evidence contracts/modeling.md#shared-boundaries The forming step gives each shared sample one rest value.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function forms skin positions and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The partition owners evaluate the channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no model.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The partition owners admit the document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input.
  */
 export function evaluateHumanPersonRestSkin(
   compiled: IAutoMovieHumanPersonCompiledGeneration,

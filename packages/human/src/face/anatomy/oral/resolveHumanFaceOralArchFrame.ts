@@ -28,20 +28,6 @@ import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDist
  * the authored vault transition width, not a certified continuous maximum
  * or an acquired anatomical width. The lining reaches its supplied vault
  * height at and beyond this positive span; no exact-maximum gate uses it.
- *
- * @evidence contracts/common.md#principled-implementation Ordinary least squares on the sixteen ring centres gives the plane the rings lie about; the frame is completed by projection and a cross product, both exact for unit vectors.
- * @evidence contracts/common.md#clear-and-simple-design One resolver owns the plane, the order and the span every lining formula reads.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads every registered crown of the arch, absent or present, and refuses a degenerate plane instead of falling back to head axes.
- * @evidence contracts/common.md#meaningful-documentation States the fit, its conditioning premise, the ordering rule and how the span is read.
- * @evidence contracts/modeling.md#part-identity-and-grouping Orders the arch's crowns by registered identity into one group.
- * @evidence contracts/modeling.md#spatial-conventions Converts head-frame metres to arch-frame `(u, v, a)` metres at this one boundary.
- * @evidence contracts/modeling.md#shared-boundaries Every lining surface of the arch reads this frame, so their heights share one reference.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes already shaped positions and no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining built in this frame.
- * @evidence contracts/anatomy.md#anatomical-source Licensed source cervical ports define the plane; it is a geometric convention and no measured occlusal or Frankfort relation.
- * @evidence contracts/anatomy.md#permitted-range Refuses a ring-centre population that spans no plane.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function resolveHumanFaceOralArchFrame(
   members: readonly IHumanFaceOralCrown[],

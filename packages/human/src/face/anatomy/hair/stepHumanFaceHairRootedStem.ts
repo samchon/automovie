@@ -29,20 +29,6 @@ import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
  * the stem refuses with a HumanFaceHairStemRefusalError whose detail records
  * the last stations and every trial here. Trials are recorded only once one is
  * clipped, so an unclipped station allocates nothing for the record.
- *
- * @evidence contracts/common.md#principled-implementation A per-station turn bound with a strict-progress admission cannot decay geometrically; the maximum-margin goal and the interval certificate keep their owners.
- * @evidence contracts/common.md#clear-and-simple-design Owns one stem station's chord choice, apart from the free walk and the curve bookkeeping.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No step halving, tolerance, waypoint or subject case; a stuck stem refuses by name.
- * @evidence contracts/common.md#meaningful-documentation States the first-chord rule, the fixed turn bound, the admission and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Positions, chords and clearances are head-frame metres; directions are unit vectors.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidence contracts/modeling.md#emitted-geometry The admitted chord's end becomes an emitted stem station.
- * @evidence contracts/modeling.md#shared-boundaries Every chord is exterior-certified on the one host collider; root support is never widened.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical geometry only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
  */
 export function stepHumanFaceHairRootedStem(
   props: IHumanFaceHairRootedStemStep,

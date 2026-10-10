@@ -18,20 +18,6 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
  * values for one person's age or sex have no answer.
  *
  * The result is a new document and the person's are not modified.
- *
- * @evidence contracts/common.md#principled-implementation The two axes are affine in the same macro on each side of its middle, so the map is exact where both reach and a stated clamp where the face's axis ends; refusing a face that states an axis keeps one source of truth.
- * @evidence contracts/common.md#clear-and-simple-design One branch on the link, one refusal and two channel writes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is supplied; the node positions are the studies' named constants and the clamp is stated.
- * @evidence contracts/common.md#meaningful-documentation The comment states the mapping, the clamp, the omission rule and the refusal.
- * @evidence contracts/modeling.md#parameter-channels Both target channels are the face's own signed axes with zero at neutral; the function writes them from the body's axes, whose zero is the same macro one half, and documents that a face stating either is refused.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function relates two documents and defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The values are dimensionless axes.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; the linked person is observed in the viewer.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The age macro is the source's own axis, not a measured growth curve, and the function adds no value beyond the two studies' node positions.
- * @evidenceExclude contracts/anatomy.md#permitted-range The ranges of both axes are the bases' and are checked by the builders.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function adds no input; it removes the face's duplicate of two body inputs.
  */
 export function deriveHumanPersonFace(
   document: IAutoMovieHumanPersonDocument,

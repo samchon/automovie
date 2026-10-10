@@ -31,20 +31,6 @@ import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance
  * source, and the numbers exist so an owner can state one. An area without a
  * triangle of its own, or one that leaves no remainder, produces a reading
  * marked unavailable instead of being skipped.
- *
- * @evidence contracts/common.md#principled-implementation Splitting one surface by a named vertex set and reading one side against the other with the shared signed query and crossing census measures a self-relation with the instrument every other face relation uses; the mixed ring is excluded because its triangles touch both sides by construction.
- * @evidence contracts/common.md#clear-and-simple-design The population is the basis's own named areas, so a new area is measured without a second list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No area name is known here; an unreadable area is reported unavailable, never omitted.
- * @evidence contracts/common.md#meaningful-documentation States the split, what each number means, the report-only status and the unavailable case.
- * @evidence contracts/modeling.md#shared-boundaries The reading is the measured state of the join between a named area and its surrounding skin; it guarantees nothing and reports where the join crosses.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres on the performed positions; positive is outside the surrounding skin.
- * @evidence contracts/modeling.md#part-identity-and-grouping The subject of each reading is the skin surface and the area name, the identity the basis gives it.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The reader reports numbers; rendered observation of these areas is recorded in the campaign rounds.
- * @evidence contracts/anatomy.md#permitted-range No relation is judged because no permitted interval was read for auricular projection, groove depth or nostril form on this surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The reader carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader defines no authoring input.
  */
 export function readHumanFaceSkinRegionRelations(
   input: IHumanFaceAssemblyCensusInput,

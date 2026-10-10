@@ -4,16 +4,13 @@ import type { IAutoMovieHumanConstructionAdmission } from "../../common/structur
 import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceResidentSourceRegion } from "../basis/IHumanFaceResidentSourceRegion";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "./IAutoMovieHumanFacePeriocularMappingReport";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
 
 /**
  * All requested face geometry and its separate, unchanged admission outcome.
  * A rejected construction is inspectable, never an accepted editor state.
  * The numerical document remains the only editable source of the geometry.
- *
- * @evidence contracts/common.md#principled-implementation The complete model and exact source correspondence accompany their independent admission outcome.
- * @evidence contracts/common.md#clear-and-simple-design A single result retains geometry, generated hair IDs, reference and oral source transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No rejected geometry is relabelled an accepted editor result.
- * @evidence contracts/common.md#meaningful-documentation Documents model ownership, source correspondence and the numerical document boundary.
  *
  * @author Samchon
  */
@@ -26,6 +23,12 @@ export interface IAutoMovieHumanFaceConstruction {
 
   /** Actual generated hair identities needed by the person's existing carry. */
   hairPartIds: readonly string[];
+
+  /** Actual emitted per-part station layout and profile clearance, retained with the model's owned hair. */
+  hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout>;
+
+  /** Exact registered material skin seats, keyed by physical domain then ID. */
+  materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
 
   /** Exact retained native region correspondence from this model's own gather. */
   sourceRegions: readonly IHumanFaceResidentSourceRegion[];

@@ -16,20 +16,6 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * band whose breadth is smaller than every band within the next 10 mm above
  * it holds the two points. The band and window widths are a stated convention.
  * No such band refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation The narrowest forehead breadth is found on each skin; the skin approximation of a bony landmark is named.
- * @evidence contracts/common.md#clear-and-simple-design One band pass and one forward scan.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No minimum refuses; the approximation and the conventions are documented.
- * @evidence contracts/common.md#meaningful-documentation States the protocol sentence, the approximation, the walk and both conventions.
- * @evidence contracts/modeling.md#spatial-conventions Right is -X; heights along +Y; anterior is +Z.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 5.2.13 and names the skin approximation of the palpated crest.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function findHumanFrontotemporalia(
   head: IAutoMovieHumanHeadSkin,

@@ -12,6 +12,9 @@ export interface IHumanFaceReferencePreparation {
   /** Owned shape-only arrays after lid seating and before persistent skin relief. */
   shaped?: IHumanFaceNativePose["shaped"];
 
+  /** Same shape-only skin after lid seating, retained before persistent relief for material-guide registration. */
+  materialReference?: ReadonlyMap<string, readonly number[]>;
+
   /** Apply persistent relief and final source replay once, returning owned head-frame metre arrays. */
   complete(): Map<string, number[]> | undefined;
 }
