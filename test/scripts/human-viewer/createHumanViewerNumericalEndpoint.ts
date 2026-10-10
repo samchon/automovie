@@ -8,7 +8,10 @@ import type { IHumanViewerNumericalEndpoint } from "./IHumanViewerNumericalEndpo
  * The event stream is the owned process lifetime; endpoint/frame disposal
  * cancels actual computation. Individual port retirement withdraws its result
  * authority while the shared realm remains resident. No browser evaluator
- * or preview-cache fallback is introduced.
+ * or preview-cache fallback is introduced. A failed stream or post ends this
+ * endpoint once, releases its owned session, and refuses every later post.
+ * Explicit disposal releases the same resources without reporting a failure.
+ *
  * @evidence contracts/common.md#principled-implementation The same devalue codec preserves structured result types and references on both sides while correlation remains with the numerical port.
  * @evidence contracts/common.md#clear-and-simple-design One stream carries actual readiness, progress and replies; posts carry only original requests.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This owned adapter implements a protocol; it changes no foreign Worker method or model value.
@@ -17,15 +20,23 @@ import type { IHumanViewerNumericalEndpoint } from "./IHumanViewerNumericalEndpo
 export function createHumanViewerNumericalEndpoint(): IHumanViewerNumericalEndpoint {
   const controller = new AbortController();
   let session: string | undefined;
+  let terminal: Error | undefined;
   let open: (value: string) => void = () => {};
   let failed: (error: Error) => void = () => {};
   const ready = new Promise<string>((resolve, reject) => { open = resolve; failed = reject; });
   ready.catch(() => undefined);
+  const release = (): void => {
+    controller.abort();
+    if (session !== undefined)
+      void fetch("/numerical/" + session, { method: "DELETE", keepalive: true }).catch(() => undefined);
+  };
   const endpoint: IHumanViewerNumericalEndpoint = {
     onmessage: null,
     onerror: null,
     postMessage: (message) => {
+      if (terminal !== undefined) throw terminal;
       void ready.then(async (id) => {
+        if (terminal !== undefined) throw terminal;
         const response = await fetch("/numerical/" + id, {
           method: "POST",
           body: stringify(message),
@@ -36,17 +47,19 @@ export function createHumanViewerNumericalEndpoint(): IHumanViewerNumericalEndpo
       }).catch(report);
     },
     terminate: () => {
-      controller.abort();
-      failed(new Error("The owned Node numerical endpoint was retired."));
-      if (session !== undefined)
-        void fetch("/numerical/" + session, { method: "DELETE", keepalive: true }).catch(() => undefined);
+      if (terminal !== undefined) return;
+      terminal = new Error("The owned Node numerical endpoint was retired.");
+      failed(terminal);
+      release();
     },
   };
   const report = (cause: unknown): void => {
-    if (controller.signal.aborted) return;
+    if (terminal !== undefined) return;
     const error = cause instanceof Error ? cause : new Error(String(cause));
+    terminal = error;
     failed(error);
-    endpoint.onerror?.(new ErrorEvent("error", { message: error.message }));
+    release();
+    endpoint.onerror?.(new ErrorEvent("error", { message: error.message, error }));
   };
   void (async () => {
     const response = await fetch("/numerical/events", { signal: controller.signal });
@@ -63,6 +76,7 @@ export function createHumanViewerNumericalEndpoint(): IHumanViewerNumericalEndpo
       pending += decoder.decode(value, { stream: true });
       let at: number;
       while ((at = pending.indexOf("\n")) !== -1) {
+        if (terminal !== undefined) return;
         const line = pending.slice(0, at);
         pending = pending.slice(at + 1);
         const message = parse(line) as HumanViewerNumericalMessage;

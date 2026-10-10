@@ -11,6 +11,10 @@ import { humanViewerProtocol } from "./humanViewerProtocol";
 import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken";
 import { createHumanViewerNumericalEndpoint } from "./createHumanViewerNumericalEndpoint";
 import type { IHumanViewerNodeAuthority } from "./IHumanViewerNodeAuthority";
+import type { IHumanViewerNumericalEndpoint } from "./IHumanViewerNumericalEndpoint";
+import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest";
+import { assertHumanViewerSingleCompile } from "./assertHumanViewerSingleCompile";
+import { readHumanViewerCompiles } from "./readHumanViewerCompiles";
 
 type Result = ConnectedFaceResult | ConnectedBodyResult;
 
@@ -23,10 +27,15 @@ type Result = ConnectedFaceResult | ConnectedBodyResult;
  * so the next page or server can find it. Only numerical results reach disk;
  * photographs stay in the page's display layer. A worker failure rejects
  * every request it still owed. Each stage is reported to the page's work
- * telemetry and timed in its spans.
+ * telemetry and timed in its spans. After a previously ready transport fails,
+ * only a new admission or build request opens a replacement. Concurrent new
+ * requests share its readiness; failed work is never replayed. Its fresh
+ * checked source must still match this page's initial browser revision.
+ * Initial startup failure, source incompatibility and frame disposal cannot
+ * recover inside this page. Optional persistence never revives a lost realm.
  *
- * @evidence contracts/common.md#principled-implementation The cache key is the catalogue's content digest, so a cached model always belongs to the document, basis and source it is read for.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the worker, its pending requests and build counters; viewports see only the product port protocol.
+ * @evidence contracts/common.md#principled-implementation Catalogue digests bind cached models; a replacement realm supplies fresh checked startup authority and must match the page's original browser revision before dispatch.
+ * @evidence contracts/common.md#clear-and-simple-design One owner holds the endpoint, shared readiness, pending requests and permanent source refusal; viewports see only the product port protocol.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Builds through the product runtimes and persists their actual results.
  * @evidence contracts/common.md#meaningful-documentation States cache order, persistence boundary and failure effect.
  */
@@ -34,7 +43,7 @@ export function createHumanViewerNumericalPort(
   props: ICreateHumanViewerNumericalPortProps,
 ) {
   const { work, spans } = props;
-  const worker = createHumanViewerNumericalEndpoint();
+  let worker = createHumanViewerNumericalEndpoint();
   const pending = new Map<number, IHumanViewerPendingBuild>();
   const admissions = new Map<number, IHumanViewerPendingAdmission>();
   let sequence = 0;
@@ -45,71 +54,119 @@ export function createHumanViewerNumericalPort(
   /** Actual Node authority, announced only after its checked modules loaded. */
   let announceCompiles: (authority: IHumanViewerNodeAuthority) => void = () => {};
   let rejectCompiles: (error: Error) => void = () => {};
-  const workerCompiles = new Promise<IHumanViewerNodeAuthority>((resolve, reject) => {
+  let workerCompiles = new Promise<IHumanViewerNodeAuthority>((resolve, reject) => {
     announceCompiles = resolve;
     rejectCompiles = reject;
   });
   // Observed so an early worker failure is not an unhandled rejection.
   workerCompiles.catch(() => undefined);
-  worker.onmessage = ({ data }) => {
-    if ("type" in data && data.type === "progress") {
-      if (pending.has(data.id)) work("build", data);
-      return;
-    }
-    if ("type" in data && data.type === "persistence") {
-      persistence = data;
-      console.info("HUMAN_CACHE " + JSON.stringify(data));
-      return;
-    }
-    if ("type" in data && data.type === "ready") {
-      if (data.protocol !== humanViewerProtocol) {
-        workerFailure = new Error(
-          "The numerical worker runs an incompatible viewer protocol",
-        );
-        rejectCompiles(workerFailure);
-        for (const request of pending.values()) request.reject(workerFailure);
-        for (const admission of admissions.values())
-          admission.reject(workerFailure);
-        pending.clear();
-        admissions.clear();
-        worker.terminate();
-        return;
-      }
-      announceCompiles(data.authority);
-      return;
-    }
-    if ("type" in data) return;
-    const admission = admissions.get(data.id);
-    if (admission !== undefined) {
-      admissions.delete(data.id);
-      if (data.admission === true && data.reason !== undefined) admission.resolve(data.reason);
-      else admission.reject(new Error(data.error));
-      return;
-    }
-    const request = pending.get(data.id);
-    pending.delete(data.id);
-    if (request === undefined) return;
-    work("numeric-reply");
-    if (data.success && data.value !== undefined) {
-      ++builds;
-      buildMs = data.buildMs ?? 0;
-      request.resolve(data.value);
-    } else request.reject(new Error(data.error ?? "The Node numerical reply has no result."));
-  };
-  /** Why the worker can no longer answer, or null while it can. */
+  /** The browser source the first actual checked realm was bound to. */
+  let initialRevision: string | undefined;
+  /** Permanent source refusal belongs to this page until its generation is replaced. */
+  let sourceRefusal: Error | null = null;
+  /** Explicit frame retirement is permanent, unlike a lost admitted transport. */
+  let disposed = false;
+  /** Why the current endpoint can no longer answer, or null while it can. */
   let workerFailure: Error | null = null;
-  worker.onerror = (error) => {
-    workerFailure = new Error(
-      "The numerical worker failed: " +
-        (error.message || "it could not load its modules"),
-    );
-    rejectCompiles(workerFailure);
-    for (const request of pending.values())
-      request.reject(new Error(error.message));
+  const fail = (error: Error): void => {
+    workerFailure = error;
+    rejectCompiles(error);
+    for (const request of pending.values()) request.reject(error);
+    for (const request of admissions.values()) request.reject(error);
     pending.clear();
-    for (const request of admissions.values()) request.reject(workerFailure);
     admissions.clear();
     work("failed");
+  };
+  const observe = (): void => {
+    const endpoint = worker;
+    worker.onmessage = ({ data }) => {
+      if (endpoint !== worker || disposed) return;
+      if ("type" in data && data.type === "progress") {
+        if (pending.has(data.id)) work("build", data);
+        return;
+      }
+      if ("type" in data && data.type === "persistence") {
+        persistence = data;
+        console.info("HUMAN_CACHE " + JSON.stringify(data));
+        return;
+      }
+      if ("type" in data && data.type === "ready") {
+        try {
+          if (data.protocol !== humanViewerProtocol)
+            throw new Error(
+              "The numerical worker runs an incompatible viewer protocol",
+            );
+          if (initialRevision !== undefined)
+            assertHumanViewerSingleCompile(
+              readHumanViewerCompiles(), data.authority, initialRevision,
+            );
+          initialRevision ??= data.authority.revision;
+          announceCompiles(data.authority);
+        } catch (cause) {
+          sourceRefusal = cause instanceof Error ? cause : new Error(String(cause));
+          fail(sourceRefusal);
+          endpoint.terminate();
+        }
+        return;
+      }
+      if ("type" in data) return;
+      const admission = admissions.get(data.id);
+      if (admission !== undefined) {
+        admissions.delete(data.id);
+        if (data.admission === true && data.reason !== undefined) admission.resolve(data.reason);
+        else admission.reject(new Error(data.error));
+        return;
+      }
+      const request = pending.get(data.id);
+      pending.delete(data.id);
+      if (request === undefined) return;
+      work("numeric-reply");
+      if (data.success && data.value !== undefined) {
+        ++builds;
+        buildMs = data.buildMs ?? 0;
+        request.resolve(data.value);
+      } else request.reject(new Error(data.error ?? "The Node numerical reply has no result."));
+    };
+    worker.onerror = (error) => {
+      if (endpoint !== worker || disposed) return;
+      fail(
+        new Error(
+          "The numerical worker failed: " +
+            (error.message || "it could not load its modules"),
+          { cause: error.error },
+        ),
+      );
+    };
+  };
+  observe();
+  /** Install synchronously so concurrent new requests share one checked startup. */
+  const acquire = (): Promise<IHumanViewerNumericalEndpoint> => {
+    if (sourceRefusal !== null) return Promise.reject(sourceRefusal);
+    if (workerFailure !== null && (disposed || initialRevision === undefined))
+      return Promise.reject(workerFailure);
+    if (workerFailure !== null) {
+      worker.terminate();
+      workerFailure = null;
+      workerCompiles = new Promise<IHumanViewerNodeAuthority>((resolve, reject) => {
+        announceCompiles = resolve;
+        rejectCompiles = reject;
+      });
+      workerCompiles.catch(() => undefined);
+      worker = createHumanViewerNumericalEndpoint();
+      observe();
+    }
+    const endpoint = worker;
+    return workerCompiles.then(() => endpoint);
+  };
+  /** A settled old readiness promise cannot dispatch through a replacement. */
+  const dispatch = (
+    endpoint: IHumanViewerNumericalEndpoint,
+    message: IHumanViewerNumericalRequest,
+  ): void => {
+    if (endpoint !== worker)
+      throw new Error("The numerical connection was replaced before dispatch");
+    if (workerFailure !== null) throw workerFailure;
+    endpoint.postMessage(message);
   };
   return {
     /** Ask the original domain owner with the exact loaded source; no model or disk cache participates. */
@@ -120,22 +177,23 @@ export function createHumanViewerNumericalPort(
     ): Promise<string | null> => {
       if (domain !== "face" && domain !== "body" && domain !== "person")
         return Promise.reject(new Error("Document admission needs an existing numerical domain."));
-      if (workerFailure !== null) return Promise.reject(workerFailure);
-      return new Promise((resolve, reject) => {
-        const id = ++sequence;
-        admissions.set(id, { resolve, reject });
-        try {
-          worker.postMessage({
-            id,
-            domain,
-            basis,
-            input: { document, operation: "admit" },
-          });
-        } catch (cause) {
-          admissions.delete(id);
-          reject(cause instanceof Error ? cause : new Error(String(cause)));
-        }
-      });
+      return acquire().then(
+        (endpoint) => new Promise<string | null>((resolve, reject) => {
+          const id = ++sequence;
+          admissions.set(id, { resolve, reject });
+          try {
+            dispatch(endpoint, {
+              id,
+              domain,
+              basis,
+              input: { document, operation: "admit" },
+            });
+          } catch (cause) {
+            admissions.delete(id);
+            reject(cause instanceof Error ? cause : new Error(String(cause)));
+          }
+        }),
+      );
     },
     /** A product worker port for one catalogue document. */
     port: <Input, Output>(
@@ -152,7 +210,7 @@ export function createHumanViewerNumericalPort(
         terminate: () => {
           stopped = true;
           abort.abort();
-          if (persistedId !== undefined)
+          if (persistedId !== undefined && workerFailure === null && !disposed)
             worker.postMessage({ persistence: "discard", id: persistedId });
           for (const workerId of requests) {
             pending
@@ -199,10 +257,11 @@ export function createHumanViewerNumericalPort(
           const build = (): Promise<Result> =>
             spans.measure(
               "workerMs",
-              () =>
-                new Promise<Result>((resolve, reject) => {
-                  if (workerFailure !== null) {
-                    reject(workerFailure);
+              async () => {
+                const endpoint = await acquire();
+                return new Promise<Result>((resolve, reject) => {
+                  if (stopped) {
+                    reject(new Error("The numerical connection was released"));
                     return;
                   }
                   work("build");
@@ -219,19 +278,27 @@ export function createHumanViewerNumericalPort(
                       reject(error);
                     },
                   });
-                  worker.postMessage({
-                    id: workerId,
-                    domain: selected.domain,
-                    basis: selected.basis,
-                    input: {
-                      document: inputDocument,
-                      operation: inputOperation,
-                      occlusion: ao,
-                    },
-                    cache:
-                      cacheable && token !== null ? { key, token } : undefined,
-                  });
-                }),
+                  try {
+                    dispatch(endpoint, {
+                      id: workerId,
+                      domain: selected.domain,
+                      basis: selected.basis,
+                      input: {
+                        document: inputDocument,
+                        operation: inputOperation,
+                        occlusion: ao,
+                      },
+                      cache:
+                        cacheable && token !== null ? { key, token } : undefined,
+                    });
+                  } catch (cause) {
+                    pending.get(workerId)!.reject(
+                      cause instanceof Error ? cause : new Error(String(cause)),
+                    );
+                    pending.delete(workerId);
+                  }
+                });
+              },
             );
           void (async () => {
             // The persisted codec owns admitted previews only. Construction
@@ -303,13 +370,17 @@ export function createHumanViewerNumericalPort(
       workerFailure === null ? workerCompiles : Promise.reject(workerFailure),
 
     /** Flush optional persistence only after the completed display or PNG read. */
-    persist: (): void => worker.postMessage({ persistence: "flush" }),
+    persist: (): void => {
+      if (workerFailure === null && !disposed)
+        worker.postMessage({ persistence: "flush" });
+    },
 
     /** Last independently completed cache write, failure or cancellation. */
     persistence: (): unknown => persistence,
 
     /** Frame retirement releases the worker and every promise it still owns. */
     dispose: (): void => {
+      disposed = true;
       const error = new Error("The numerical frame was retired");
       workerFailure = error;
       rejectCompiles(error);
