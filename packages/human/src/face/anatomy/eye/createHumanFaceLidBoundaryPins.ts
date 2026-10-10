@@ -21,20 +21,6 @@ import type { IHumanFaceLidBoundaryPinsInput } from "./structures/IHumanFaceLidB
  * failure. The returned map addresses only the supplied boundary vertices;
  * the annulus displacement owner expands their source aliases. Changes
  * invalidate that displacement field and its seated geometry derivatives.
- *
- * @evidence contracts/common.md#principled-implementation A positive native-edge metric supplies each pin-to-pin segment's arc-length parameter; affine displacement reproduces exact endpoint values and cyclic wrapping covers the complete boundary. One pin has the unique chosen constant continuation.
- * @evidence contracts/common.md#clear-and-simple-design Admit source cycle and alias pins, measure each native edge once, then traverse each pinned span once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the supplied native cycle without path fitting, planar projection, coordinate welding or per-part exceptions; contradictory source-alias constraints refuse.
- * @evidence contracts/common.md#meaningful-documentation States source incidence ownership, cyclic and single-pin behavior, exact-pin preservation, failure effects and the non-physiological interpolation convention.
- * @evidence contracts/modeling.md#spatial-conventions Native positions, edge lengths and displacement vectors remain in head-local metres without conversion.
- * @evidence contracts/modeling.md#shared-boundaries Source-owned cycle identity and seating-owned exact pins provide one boundary definition for the annulus consumer.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part and supplies displacements for existing skin.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes resolved station constraints rather than channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Creates no vertex, triangle or curve primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The seating consumer owns observation of the resulting assembled boundary.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Arc-length interpolation is a source convention, not a clinical value or material law.
- * @evidenceExclude contracts/anatomy.md#permitted-range Numerical validity establishes no physiological range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no public input through which a caller sculpts a person.
  */
 export function createHumanFaceLidBoundaryPins(
   input: IHumanFaceLidBoundaryPinsInput,

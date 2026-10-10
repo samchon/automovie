@@ -16,20 +16,6 @@ import type { IAutoMovieHumanFaceSourcePosePlan } from "../structures/IAutoMovie
  * corner, inconsistent alias or unsupported sample refuses without changing
  * supplied arrays. The source compiler and closure owner still own the joined
  * geometry, contact, attributes and final observation.
- *
- * @evidence contracts/common.md#principled-implementation Reads performed original corners and the official ordered affine chart, avoiding the missing weight-times-position terms of independently skinned interpolated vertices. Existing cut samples are preserved and unsupported parent geometry refuses.
- * @evidence contracts/common.md#clear-and-simple-design One dense ordered replay over the retained native prefix; scalar chart evaluation belongs to interpolateHumanBasisSourceTriangle.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Sample domains select the declared source representation, with no person, vertex or fixture exceptions and no coordinate renormalization.
- * @evidence contracts/common.md#meaningful-documentation States performed ordering, domains, units, ownership and refusal effects.
- * @evidence contracts/modeling.md#spatial-conventions The caller's common metre/head frame passes through; sample identities and chart coordinates are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Replays supplied source points and defines no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no person-authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Adds no primitive; the compiler owns the fixed vertex and triangle population.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Consumes compiled source correspondence; the compiler and closure owner construct the joined boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation Owns source arithmetic, with observation retained by the compiler and face assembly.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries no anatomical value, tissue model or biological bound.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source index and chart domains are mathematical domains.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Compiled provenance is not a personal sculpt input.
  */
 export function replayHumanFaceSourceRefinements(
   plan: IAutoMovieHumanFaceSourcePosePlan | undefined,

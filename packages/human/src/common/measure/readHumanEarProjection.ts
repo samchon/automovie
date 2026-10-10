@@ -18,20 +18,6 @@ import { humanHeadPlanePoints } from "./humanHeadPlanePoints";
  * behind the ear at the same height, not the palpated process). The reading
  * is the lateral (X) distance between them. A height that cuts no ear or no
  * scalp behind it refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation The ear point and the scalp reference are found on each skin at the given height.
- * @evidence contracts/common.md#clear-and-simple-design One section and two maxima.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A section without an ear or a scalp reference refuses; the reference is a documented convention.
- * @evidence contracts/common.md#meaningful-documentation States the protocol sentence, the section, the reference convention and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Horizontal is the XZ plane of the head frame; the distance is along X, metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 6.4.33 and names the scalp reference as a convention.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanEarProjection(
   head: IAutoMovieHumanHeadSkin,

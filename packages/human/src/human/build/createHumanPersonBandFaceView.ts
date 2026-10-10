@@ -22,20 +22,6 @@ const BAND_SURFACE = "person-neck-band";
  * band back without emitting it.
  *
  * Refuses a generation without band rows.
- *
- * @evidence contracts/common.md#principled-implementation A separate surface keeps the face producer the single evaluator of face channels without changing the topology its closure, contact and hair checks were admitted on.
- * @evidence contracts/common.md#clear-and-simple-design One pass collects the support, one pass over the body triangles builds the surface and its vertex map, and the rows are re-addressed through that map in ascending order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Positions, rows and UVs are copied from the generation; no value is invented and no vertex is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the support rule, the vertex order, what is copied and what the shared-sample copies carry.
- * @evidence contracts/modeling.md#shared-boundaries The band surface uses the same body triangles the body partition emits, so its values meet the face cells at the shared samples the evaluator owns.
- * @evidence contracts/modeling.md#part-identity-and-grouping The band surface is an evaluation view; the evaluator never emits it, and the body partition keeps emitting those cells.
- * @evidence contracts/modeling.md#spatial-conventions Body neutral positions in the shared metre, Y-up, +Z-forward frame; UVs are the body regions' own corner pairs.
- * @evidenceExclude contracts/modeling.md#parameter-channels No channel is added; band rows belong to existing face endpoints.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The view is compiled data, not emitted geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The view is not rendered.
- * @evidenceExclude contracts/anatomy.md#anatomical-source No anatomical value is added.
- * @evidenceExclude contracts/anatomy.md#permitted-range Nothing is admitted here.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The view is compiled source data.
  */
 export function createHumanPersonBandFaceView(
   generation: IAutoMovieHumanPersonGeneration,

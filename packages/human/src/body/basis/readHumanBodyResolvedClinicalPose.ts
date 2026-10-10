@@ -32,20 +32,6 @@ import { readHumanBodyAdmittedJointRotation } from "./readHumanBodyAdmittedJoint
  * A registered anatomical source graph can request `actualFrames`, which
  * reads every performed frame through the same inverse instead of assuming
  * that authored public rows already describe independent source articulation.
- *
- * @evidence contracts/common.md#principled-implementation Uses the engine's inverse of jointToQuaternion on inverse(parent world) times child world with the local rest removed, reusing its axes and clinical rest frames. A constrained child's proved shared-axis neutral-abduction/twist left product combines scalar flexion algebraically, preserving exact sagittal endpoints. Root and noncommuting products retain the engine inverse's numerical convention.
- * @evidence contracts/common.md#clear-and-simple-design One index of actual resolved bones and one pass over the supplied skeleton, with no second skeleton or angle extraction formula.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads actual parent relations and rotations, without named-child exceptions or a replacement angle total.
- * @evidence contracts/common.md#meaningful-documentation States the composition order, frame ownership, read-only behavior and source-rig meaning.
- * @evidence contracts/modeling.md#spatial-conventions Rotations are unit quaternion frames in the shared right-handed body space; the engine inverse converts local articulation to the skeleton's clinical degrees.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part or assembly.
- * @evidence contracts/modeling.md#parameter-channels Reads each existing bone's named clinical flexion, abduction and twist with its own neutral/sign frame. It reports their actual combined result without changing the authored channels or treating a scalar rhythm contribution as an independent motion.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no shared surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation Reads frames for the owning assembly and draws no result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Introduces no anatomical value or range; the supplied skeleton owns the source frame.
- * @evidenceExclude contracts/anatomy.md#permitted-range Range admission belongs to the caller.
- * @evidence contracts/anatomy.md#parametric-authority Returns the existing named clinical motion coordinates through the engine's inverse, without a personal surface input.
  */
 export function readHumanBodyResolvedClinicalPose(
   input: IHumanBodyResolvedClinicalPoseInput,

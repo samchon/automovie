@@ -24,20 +24,6 @@ import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
  * A station whose decision cannot be recomputed because that budget is
  * exhausted reports null instead of replacing the refusal with a budget error.
  * This runs only when a stem refuses, so admitted locks pay nothing for it.
- *
- * @evidence contracts/common.md#principled-implementation Reports the walk's own measurements and recomputes earlier decisions with the same deterministic owners and inputs.
- * @evidence contracts/common.md#clear-and-simple-design One owner of refusal reporting, apart from the walk's admission logic.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Runs only on refusal; it changes no admission, geometry or admitted work.
- * @evidence contracts/common.md#meaningful-documentation States what is reported, how earlier decisions are recovered and the budget case.
- * @evidence contracts/modeling.md#spatial-conventions Positions and clearances are head-frame metres; directions are unit vectors.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry A refused stem emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The contact and interval own the boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical state only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
  */
 export function describeHumanFaceHairStemRefusal(
   props: IHumanFaceHairStemRefusalContext,

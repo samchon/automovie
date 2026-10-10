@@ -15,11 +15,6 @@ import type { IHumanMeshPhysicalSourceTable } from "./IHumanMeshPhysicalSourceTa
  * Present metadata and its accessor must agree with resident Float32 geometry.
  * The existing engine resolver admits aliases and nullable legacy semantics;
  * returned arrays are owned and no primitive or caller record is mutated.
- *
- * @evidence contracts/common.md#principled-implementation One decoded boundary restores lossless source-pair/null lineage and delegates coordinate agreement to the existing engine resolver.
- * @evidence contracts/common.md#clear-and-simple-design Physical incidence is a separate namespace from source-part intervals and anatomical qualification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source IDs are not Float32 attributes, output vertex ordinals, normal islands or inferred coordinate contact.
- * @evidence contracts/common.md#meaningful-documentation States reference encoding, absence, malformed presence, source identity and ownership.
  */
 export function readHumanMeshPhysicalVertices(
   primitive: Primitive,

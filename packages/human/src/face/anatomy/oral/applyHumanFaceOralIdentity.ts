@@ -13,15 +13,6 @@ import { readHumanFaceOralCrowns } from "./readHumanFaceOralCrowns";
  * Tongue identity and independent tip performance fade from the source root.
  * Call with performance omitted for the shape-only reference. Inputs remain
  * immutable and omission returns the original map without allocating.
- * @evidence contracts/common.md#principled-implementation Source-port centres separate crown size from arch placement, and the same transformed arrays feed rigid articulation and contact.
- * @evidence contracts/common.md#clear-and-simple-design One numerical identity owner changes existing source arrays; assembly alone constructs the lining.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No hidden clamp, clinical mean, personal mesh or ordinal-grade conversion enters.
- * @evidence contracts/modeling.md#parameter-channels Independent crown extents, arch centre placement, tongue identity and root-faded tongue performance retain their separate inputs.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres convert once into Y-up head-frame metres before the existing jaw transform.
- * @evidence contracts/modeling.md#shared-boundaries Crown cervical ordinals remain exact shared ports for the gingival producer.
- * @evidence contracts/anatomy.md#anatomical-source Licensed coarse source crowns and tongue are transformed by authored extents; clinical long axes and tissue mechanics remain unknown.
- * @evidence contracts/anatomy.md#permitted-range Nonpositive dimensions and nonfinite or unrepresentable transformed coordinates refuse without replacing the input.
- * @evidence contracts/anatomy.md#parametric-authority Only named dimensions and tip motions enter.
  * @author Samchon
  */
 export function applyHumanFaceOralIdentity(

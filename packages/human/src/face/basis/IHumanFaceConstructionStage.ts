@@ -4,11 +4,6 @@ import type { IAutoMovieHumanFacePeriocularMappingReport } from "../structures/I
 
 /** One owned geometry stage whose original admission and publication remain separate.
  *
- * @evidence contracts/common.md#principled-implementation One stage retains the exact geometry, original checks and success-only publication operation.
- * @evidence contracts/common.md#clear-and-simple-design Three responsibilities separate geometry, admission and observers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Inspection cannot call the successful publication path implicitly.
- * @evidence contracts/common.md#meaningful-documentation States result ownership and the unchanged admission tasks.
- *
  * @author Samchon
  */
 export interface IHumanFaceConstructionStage {

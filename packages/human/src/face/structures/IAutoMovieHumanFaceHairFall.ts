@@ -17,16 +17,6 @@
  * gravity only for an upright head. No hold length of combed or styled hair
  * was read from a measurement; `reach` is authored.
  *
- * @evidence contracts/common.md#principled-implementation An exponential hand-over from one unit direction to another along arc length is the same form the layer's lift and parting already decay by, so the field stays one continuous kinematic field with one more term.
- * @evidence contracts/common.md#clear-and-simple-design One number; omission keeps every existing hairstyle bit for bit.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The record names no style or subject and does not move a lock after integration.
- * @evidence contracts/common.md#meaningful-documentation States the formula, what happens on the scalp, and what the convention does not model.
- * @evidence contracts/modeling.md#parameter-channels `reach` varies one trait, how far along a lock the combed direction persists; larger keeps the comb longer and omission keeps it forever.
- * @evidence contracts/modeling.md#spatial-conventions Metres of centreline arc length; the hanging direction is -Y of the neutral head frame.
- * @evidence contracts/anatomy.md#anatomical-source No value is carried; the hold of styled hair was not read from any measurement and the field is an authored styling control.
- * @evidence contracts/anatomy.md#permitted-range The hairstyle admission requires a positive finite reach; no physiological bound exists for a styling convention.
- * @evidence contracts/anatomy.md#parametric-authority A named styling length chosen by the author; it addresses no strand, vertex or curve.
- *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHairFall {

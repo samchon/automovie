@@ -18,19 +18,6 @@
  * site. With no site at all every distance is `1e20`, a finite stand-in for
  * infinity that keeps the parabola intersections defined, and every source is
  * `-1`.
- *
- * @evidence contracts/common.md#principled-implementation The lower envelope of the parabolas rooted at the sites is the exact squared distance along one axis, and the squared Euclidean distance is a sum over axes, so three passes of it give the exact distance to the nearest site between voxel centres; the parabola intersections stay finite because an empty column starts at 1e20 rather than infinity. Carrying the site index through the passes returns the nearest site itself.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: a distance transform over a caller-owned grid, with no notion of a surface, a body or a garment.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No consumer, grid or site is special-cased; the result depends on the sites and dimensions alone.
- * @evidence contracts/common.md#meaningful-documentation The comment states the method, the layout, the unit, the empty-site convention and what the source means when sites tie.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is a grid operation and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only a distance per voxel of the grid the caller sized.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays; its consumer answers that chapter.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function.
  */
 export function measureHumanBodyDistanceField(props: {
   dimensions: readonly [number, number, number];

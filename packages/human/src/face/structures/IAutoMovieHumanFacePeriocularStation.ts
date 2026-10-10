@@ -1,4 +1,5 @@
 import type { AutoMovieHumanFacePeriocularStationRole } from "./AutoMovieHumanFacePeriocularStationRole";
+import type { IAutoMovieHumanFacePeriocularStationBoundary } from "./IAutoMovieHumanFacePeriocularStationBoundary";
 
 /** One closed host-skin row with explicit source correspondence and authored role.
  *
@@ -13,4 +14,7 @@ export interface IAutoMovieHumanFacePeriocularStation {
   sourceVertices: number[];
   /** Original licensed source indices corresponding to those same columns. */
   nativeVertices: number[];
+
+  /** Optional source-published native course through this same ordered anchor row. */
+  boundary?: IAutoMovieHumanFacePeriocularStationBoundary;
 }

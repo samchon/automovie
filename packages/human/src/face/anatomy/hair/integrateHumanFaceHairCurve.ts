@@ -11,10 +11,12 @@ import { humanFaceHairLength } from "./humanFaceHairLength";
 import { walkHumanFaceHairCurve } from "./walkHumanFaceHairCurve";
 
 /**
- * Integrate one metric lock, choosing its exit elevation inside the root's
- * cited range so its stem can clear the skin.
+ * Integrate one metric lock at its authored elevation, or the legacy scalp
+ * placement interval when that scalar is absent. An authored target is walked
+ * once and its refusal propagates without borrowing scalp clinical angles.
  *
- * The lock is first walked at the range's lower end, the emergence convention.
+ * Without an authored elevation, the lock is first walked at the scalp range's
+ * lower end, the existing emergence convention.
  * Where that walk is admitted the result is exactly the convention's, so a
  * feasible root is unchanged. Only a stem refusal (HumanFaceHairStemRefusalError)
  * means the convention's exit cannot clear the skin under the construction
@@ -32,20 +34,6 @@ import { walkHumanFaceHairCurve } from "./walkHumanFaceHairCurve";
  * memory only reuses deterministic answers. The walk itself is
  * walkHumanFaceHairCurve; regional guide length and post-clump strand
  * metric/contact retain their existing owners.
- *
- * @evidence contracts/common.md#principled-implementation The convention is kept wherever admitted, and otherwise the elevation is searched only inside the cited interval, using the walk's own admission as the test.
- * @evidence contracts/common.md#clear-and-simple-design Owns the elevation choice only; the walk, the stem step and the emergence direction keep their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No azimuth change, subject case or elevation outside the cited range; failed endpoint attempts refuse without claiming every intermediate elevation is impossible.
- * @evidence contracts/common.md#meaningful-documentation States the order of trials, the search, its non-monotone limit and what propagates.
- * @evidence contracts/modeling.md#spatial-conventions Elevations are degrees above the tangent plane; lengths are head-frame metres.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads the authored layer without defining a channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidence contracts/modeling.md#emitted-geometry Returns the admitted walk's curve unchanged.
- * @evidence contracts/modeling.md#shared-boundaries Every admitted elevation's stem is exterior-certified on the one host collider by the walk.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The range owner states the cited angles.
- * @evidence contracts/anatomy.md#permitted-range Elevations never leave the cited interval.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; it reads quantities the hairstyle document already names and admits.
  */
 export function integrateHumanFaceHairCurve(
   props: IHumanFaceHairIntegration,
@@ -65,6 +53,8 @@ export function integrateHumanFaceHairCurve(
         query: props.query,
       }),
   };
+  if (layer.emergenceAngleDegrees !== undefined)
+    return walkHumanFaceHairCurve(props, metric, layer.emergenceAngleDegrees);
   const range = humanFaceHairEmergenceRange(
     layer.hairline,
     Vector3.subtract(props.reference, props.origin),

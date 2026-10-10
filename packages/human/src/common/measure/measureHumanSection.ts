@@ -40,20 +40,6 @@ import type { IAutoMovieHumanSectionReading } from "./IAutoMovieHumanSectionRead
  * pulled around the body reads: it bridges the gluteal cleft, the
  * inframammary fold and the navel as the ISO 8559-1 and ANSUR tape girths
  * do, and equals the perimeter on a convex section.
- *
- * @evidence contracts/common.md#principled-implementation A plane cuts a triangle exactly when its corners lie on both sides, edge crossings are interpolated linearly and keyed by their edge so neighbours share them, the loop is walked through those keys, and the tape girth is the convex hull perimeter of the planar loop (Andrew's monotone chain). On-plane vertices count positive, admitting endpoint crossings while retaining two crossing edge keys per straddling triangle. The optional triangle list only narrows which triangles are read and must contain every straddler in ascending order; the result is then identical to a full walk.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: the cut of a triangle surface by a plane and the loop nearest a seed. The plane, the seed and the candidate triangles are the caller's; no anatomy is held here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No landmark, rule or expected girth is named, and the candidate list is only a narrowing of the same exact test.
- * @evidence contracts/common.md#meaningful-documentation The comment states the method, the loop selection, the tape convention, the null answers, the cost and the candidate-list contract.
- * @evidence contracts/modeling.md#spatial-conventions Positions, plane and results are metres in the frame of the surface the caller passes, and the body faces +Z; the only conversion is the named orthonormal plane frame used for the hull.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function measures a section and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only measurements of a section.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function holds no anatomy; the rule that places the plane carries the source.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a body.
  */
 export function measureHumanSection(
   positions: number[],

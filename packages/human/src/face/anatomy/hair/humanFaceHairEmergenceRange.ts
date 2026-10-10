@@ -30,20 +30,6 @@ const HAIRLINE_TOP_DEGREES = 20;
  * frontal hairline to the mid scalp by the hairline's own coverage ramp, the
  * same ramp every other hairline rule reads, so each end stays between its two
  * sourced figures.
- *
- * @evidence contracts/common.md#principled-implementation Each end is the coverage-weighted blend of two sourced figures, so it lies between them; the lower end is the existing emergence convention.
- * @evidence contracts/common.md#clear-and-simple-design One owner of the cited angles and their blend, read by the emergence direction and the obstacle-aware root.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or style changes either end; the unmodelled temporal figure is stated, not guessed.
- * @evidence contracts/common.md#meaningful-documentation States the source, its limits, the convention and the role of the range tops.
- * @evidence contracts/modeling.md#spatial-conventions Elevations are degrees above the local tangent plane; the chart is neutral head-frame metres.
- * @evidenceExclude contracts/modeling.md#parameter-channels Reads the hairstyle hairline without defining a channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidence contracts/anatomy.md#anatomical-source Shapiro & Shapiro 2013, section Proper Angle and Direction: mid scalp 30 to 45, frontal hairline 15 to 20, temporal 5 to 10 degrees; a placement guide with no population or method.
- * @evidence contracts/anatomy.md#permitted-range Both ends lie inside the cited ranges for the root's coverage.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived from chart and hairline, not an authored control.
  */
 export function humanFaceHairEmergenceRange(
   hairline: IAutoMovieHumanFaceHair.Layer["hairline"],

@@ -20,19 +20,6 @@ import type { IAutoMovieHumanBasisSourceIntersection } from "./IAutoMovieHumanBa
  * performed cells. Changing connectivity or source bindings needs recompilation;
  * a single open partition cannot supply the other half's performed geometry.
  *
- * @evidence contracts/common.md#principled-implementation Stable original IDs, an oriented parent tree and one frozen ordered affine cut table preserve the source lineage through partitioning; performed-cell coverage and geometry remain separate consumer checks.
- * @evidence contracts/common.md#clear-and-simple-design Original IDs and appended virtual sample IDs address one table; each surface supplies only its vertex and triangle maps alongside the shared definition.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No generation label substitutes for compatibility or coverage checks, and the metadata encodes no per-person coordinates.
- * @evidence contracts/common.md#meaningful-documentation States count versus coordinate meaning, index domains, ownership, cut/bake order, performed evaluation and the incomplete-partition limitation.
- * @evidence contracts/modeling.md#shared-boundaries The offline publisher supplies both surfaces with the same ordered cut table and virtual sample IDs; the assembly evaluates their shared normal field once after performance rather than recomputing opposite-edge fractions.
- * @evidence contracts/modeling.md#spatial-conventions Counts and IDs are dimensionless integers and affine t is dimensionless. No coordinates or frame conversions are stored; performed geometry stays in the consuming surfaces' common metre frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This provenance record defines no anatomical part or assembly.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no authoring channel or conversion from an anatomical value.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It records an existing source tree and surface bindings without emitting geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The record carries mathematical lineage; the source compiler and consuming assembly retain observation of geometry and normals.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The record carries no anatomical value, proportion, landmark or tissue behavior.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source index domains are not anatomical ranges.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This compiled provenance is not an input through which a caller shapes a person.
  * @author Samchon
  */
 export interface IAutoMovieHumanBasisSourcePartition {

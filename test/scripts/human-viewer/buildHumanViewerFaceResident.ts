@@ -1,5 +1,5 @@
-import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene";
-import { createConnectedFaceViewport } from "@automovie/playground/src/human/face/connectedViewport";
+import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene.ts";
+import { createConnectedFaceViewport } from "@automovie/playground/src/human/face/connectedViewport.ts";
 
 import type { IBuildHumanViewerFaceResidentProps } from "./IBuildHumanViewerFaceResidentProps";
 import type { IHumanViewerResident } from "./IHumanViewerResident";

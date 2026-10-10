@@ -13,19 +13,6 @@ import { HUMAN_FACE_OBSERVATION_RULES } from "./HUMAN_FACE_OBSERVATION_RULES";
  * the document naming its path and the rule's reason. Admission changes no
  * value; kept observations never move shape.
  *
- * @evidence contracts/common.md#principled-implementation Each field resolves through one explicit longest-match rule, so the outcome for any supplied value is decided before evaluation.
- * @evidence contracts/common.md#clear-and-simple-design One admission walks targets and observation leaves against two registries.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unruled field, an unregistered target or an unrepresentable value refuses by name; none is dropped or clamped.
- * @evidence contracts/common.md#meaningful-documentation States leaf traversal, rule matching, the three refusals and that admission changes nothing.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Admission names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Admission moves no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Admission emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Admission compares no coordinate; target units are the measurements'.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Admission builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The editor shows the readings.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The rules state why each field is kept or refused; the measurements state their protocols.
- * @evidence contracts/anatomy.md#permitted-range A value the basis cannot represent (a non-permanent dentition, a non-erupted tooth, a habitual-closure reference) is refused by name, never mapped onto the nearest representable state.
- * @evidence contracts/anatomy.md#parametric-authority Only registered measurement targets and the documented clinical vocabulary enter; no vertex, curve or proxy shape is admitted.
  * @author Samchon
  */
 export function admitHumanFaceAnatomicalRequest(

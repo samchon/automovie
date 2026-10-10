@@ -28,20 +28,6 @@ interface IClippedCorner {
  * This is a piecewise-linear scalar boundary, not the analytic angular profile.
  * Convex clipped triangles need at most two triangles; repeated corners at an
  * exact endpoint are omitted without an area tolerance.
- *
- * @evidence contracts/common.md#principled-implementation Sutherland-Hodgman clipping of a triangle by its affine scalar field produces a convex polygon; a fan preserves its winding. Each crossing uses the cut's canonical edge identity and fraction.
- * @evidence contracts/common.md#clear-and-simple-design One polygon walk supplies both source topology and corner interpolation stencils to the seam and mesh consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact endpoint identity removes repeated corners; no subject, tolerance or triangle identifier changes the rule.
- * @evidence contracts/common.md#meaningful-documentation States scalar meaning, shared-edge ownership, corner attributes, mutation and approximation.
- * @evidence contracts/modeling.md#emitted-geometry Each original triangle emits zero, one or two triangles from its retained convex polygon.
- * @evidence contracts/modeling.md#shared-boundaries Adjacent triangles use the identical crossing source vertex and frozen fraction, including across UV charts.
- * @evidence contracts/modeling.md#spatial-conventions Fractions and indices are dimensionless; margins retain their caller's common unit.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Clips existing triangles and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes internal scalar samples and no authored channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation Owns no displayed part; the assembled seam owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits no anatomical input.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no user input.
  */
 export function clipHumanPersonTriangles(
   sources: readonly number[],

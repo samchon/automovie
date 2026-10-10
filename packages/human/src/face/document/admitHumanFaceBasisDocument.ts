@@ -4,6 +4,7 @@ import { assertPortraitEyebrowProfile } from "../anatomy/brow/assertPortraitEyeb
 import { createPortraitIrisMaterials } from "../anatomy/eye/createPortraitIrisMaterials";
 import { resolveHumanFaceOpticalProfile } from "../anatomy/eye/resolveHumanFaceOpticalProfile";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
+import { assertHumanFaceFacialHair } from "../anatomy/hair/assertHumanFaceFacialHair";
 import { assertHumanFaceLashPopulation } from "../anatomy/lash/assertHumanFaceLashPopulation";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
@@ -19,6 +20,8 @@ export function admitHumanFaceBasisDocument(
   const document = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
   if (document.hair !== undefined && document.hair !== null)
     assertHumanFaceHair(document.hair);
+  if (document.facialHair !== undefined && document.facialHair !== null)
+    assertHumanFaceFacialHair(document.facialHair);
   for (const fields of Object.values(document.skin ?? {}))
     createPortraitColourField(fields);
   // Iris pigments are refused on load and save by the same endpoint check

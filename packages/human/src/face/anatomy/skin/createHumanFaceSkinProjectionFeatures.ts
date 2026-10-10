@@ -22,19 +22,6 @@ import type { IHumanFaceSkinProjectionFeatures } from "./IHumanFaceSkinProjectio
  * endpoints and final displayed points round to binary64. Degenerate native
  * geometry refuses; no tolerance weld or substitute triangle enters.
  *
- * @evidence contracts/common.md#principled-implementation Nearest point on a closed triangle lies on its plane interior, an edge or a vertex. Linear guide projection is affine on each feature, with linear domain inequalities.
- * @evidence contracts/common.md#clear-and-simple-design Owns native feature construction and conservative geometric pruning; envelope comparison stays with its separate owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Pruning follows an available native point and actual boxes, not region labels, width or a fixed reach.
- * @evidence contracts/common.md#meaningful-documentation States nearest-domain completeness, numerical normalization and geometry refusal.
- * @evidence contracts/modeling.md#spatial-conventions A named origin and scale transport the same head-frame metres without changing geometry.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Processes an existing skin course and creates no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes internal geometry without adding an anatomical authoring control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive or source vertex.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The final course owner checks native feature continuity; this helper does not certify a tissue join.
- * @evidenceExclude contracts/modeling.md#rendered-observation The calling relief owners observe the resulting skin.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Performs geometry arithmetic and introduces no physiological quantity.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input ranges remain with the relief callers.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No personal curve or vertex authoring is exposed.
  * @author Samchon
  */
 export function createHumanFaceSkinProjectionFeatures(

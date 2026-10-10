@@ -9,20 +9,6 @@ import type { IAutoMovieHumanFaceHairTraits } from "../../structures/IAutoMovieH
  * is read only when its normalized plane points along +X and its source chart
  * is available. Private bias, root envelope and guides remain compatibility
  * data outside this view. Editing one displayed trait preserves that data.
- *
- * @evidence contracts/common.md#principled-implementation The inverse unit mapping retains explicit regional axis identity and returns a closed comb choice only for an exact unit axis; no angular nearest-choice approximation occurs.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies current named values to the product editor without reimplementing conversions there.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported legacy direction fields are not coerced into a styling choice.
- * @evidence contracts/common.md#meaningful-documentation States view-only use, omitted choices and preserved compatibility fields.
- * @evidence contracts/modeling.md#parameter-channels Each returned trait is the existing layer's named value and not a default; absent operation stays absent.
- * @evidence contracts/modeling.md#spatial-conventions Metres become millimetres and radians degrees; signed sagittal offset is relative to the actual shared domain origin.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The layer owns part identity.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Shared source and contact owners construct attachment.
- * @evidenceExclude contracts/modeling.md#rendered-observation The reader displays no geometry.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The trait owners state authored styling qualification.
- * @evidenceExclude contracts/anatomy.md#permitted-range Input is an existing admitted population, not a new clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority This view adds no authoring authority and expands no private geometry.
  */
 export function readHumanFaceHairTraits(
   basis: IAutoMovieHumanFaceBasis,

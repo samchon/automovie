@@ -2,8 +2,8 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
-import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport";
-import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene";
+import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport.ts";
+import { disposeHumanPreview } from "@automovie/playground/src/human/common/previewScene.ts";
 
 import type { IBuildHumanViewerBodyResidentProps } from "./IBuildHumanViewerBodyResidentProps";
 import type { IHumanViewerResident } from "./IHumanViewerResident";
@@ -13,8 +13,8 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
 /**
  * Build and publish a body, or a whole person, through the product body
  * viewport: the worker answers the body protocol with the composed model, and
- * only the document text differs. Only the group and its parts' arrays stay
- * alive with the resident. A refused build releases the numerical connection
+ * only the document text differs. The group, its parts' arrays and the
+ * construction's placement reading stay with the resident. A refused build releases the numerical connection
  * and controls before propagating its cause, so an undisplayed projection
  * cannot remain staged for a later capture's optional cache flush.
  *
@@ -58,6 +58,11 @@ export async function buildHumanViewerBodyResident<
     return {
       stage,
       admission: construction?.admission,
+      rigReading: construction?.model.rigReading,
+      exportConstruction: async () => ({
+        operation: "exportConstruction",
+        ...(await stage.exportConstruction(props.document)),
+      }),
       resize: props.host.resize,
       group,
       release: () => {

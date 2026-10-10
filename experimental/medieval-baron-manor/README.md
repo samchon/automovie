@@ -25,6 +25,10 @@ pnpm --filter medieval-baron-manor lint
 
 The current production selection and evidence stages live in `src/lint.config.ts`. `src/spaces/manor.ts` returns the environment directly from the authored geometry, instances, and world transforms; it reads no generated JSON. The public website consumes the same model and texture source. Run `pnpm --filter @automovie/website dev` from the workspace root to inspect it.
 
+The `./textured-scene` export resolves to [the TypeScript texture and scene adapter](src/instances/manor-textured.ts). [The geometry owner](src/models/manor.ts), [roof](src/models/buildManorRoof.ts), and [presentation](src/models/buildManorPresentation.ts) retain the authored construction, observations and articulation. The website's normal Vite build produces the browser JavaScript; it does not serve these TypeScript files directly.
+
+[The instance inventory](src/instances/manor-inventory.ts) uses the browser-safe public engine materializer for the same explicit placements, seed and prototype radii. Its runtime digests describe the current compiled fields. This mesh inventory declares no design model recipes, so the kernel records that absence rather than inventing a recipe digest. The actual mesh prototypes remain supplied to the GPU consumer. Source lint and actual browser observation qualify the typed delivery separately from the production's design and visual reviews.
+
 ## Canonical command routes
 
 Use the commands declared in `package.json`:

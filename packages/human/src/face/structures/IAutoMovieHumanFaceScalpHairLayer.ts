@@ -12,19 +12,6 @@ import type { IAutoMovieHumanFaceHairlineAngles } from "./IAutoMovieHumanFaceHai
  * basis owns licensed source geometry and chart origin. This numerical record
  * cannot supply private roots, guide curves, tie vertices or surface patches.
  *
- * @evidence contracts/common.md#principled-implementation Named regional measurements and closed comb choices compile into the existing styling fields, preserving one generation and contact implementation.
- * @evidence contracts/common.md#clear-and-simple-design One population composes independently owned length, boundary, curl, part and finish records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source-independent person geometry or clinical reconstruction enters.
- * @evidence contracts/common.md#meaningful-documentation States omitted styling meanings and numerical rather than biological controls.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each layer retains one stable population ID and shared source domain.
- * @evidence contracts/modeling.md#parameter-channels Counts, independent regional lengths and styling traits remain separate; absent part and fall add neither operation.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres and degrees convert once to neutral head metres and radians; anatomical left is +X, superior +Y and anterior +Z.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Existing generation owners emit the requested population.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The source domain and contact owners construct the actual root attachment.
- * @evidenceExclude contracts/modeling.md#rendered-observation The coupled builder observes realised hair.
- * @evidence contracts/anatomy.md#anatomical-source All values are authored styling or numerical accuracy controls; follicle biology, clinical population calibration and hidden tissue remain unknown.
- * @evidenceExclude contracts/anatomy.md#permitted-range Existing hair admission bounds numerical representation rather than biological capacity.
- * @evidence contracts/anatomy.md#parametric-authority Only shared identities, named scalars and closed styling choices enter.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceScalpHairLayer {

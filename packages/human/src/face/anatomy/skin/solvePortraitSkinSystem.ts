@@ -22,20 +22,6 @@
  * Changing this solve changes attached/refined skin and derived face exports.
  * Only local arrays are changed, so failure cannot leave a partially edited
  * caller mesh.
- *
- * @evidence contracts/common.md#principled-implementation Jacobi-preconditioned conjugate gradients solves a symmetric positive definite system in at most n exact steps; the caller (blendPortraitSkin) supplies the graph-Laplacian operator, whose Dirichlet reduction is positive definite when every free vertex reaches a pin. The residual is recomputed from b - Ax before convergence is accepted, so recursive roundoff cannot hide an unfinished solve, and exhausting 4n iterations or a non-positive step refuses instead of returning a partial interpolation.
- * @evidence contracts/common.md#clear-and-simple-design One solver with one stopping rule; the operator and its diagonal belong to the caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case: a numerical breakdown or non-convergence throws and no compensating path retries.
- * @evidence contracts/common.md#meaningful-documentation Cites the algorithm, states the tolerance (128 epsilons of the boundary scale with a 1 mm floor), the units of the residual and what a converged residual does not prove.
- * @evidence contracts/modeling.md#spatial-conventions The right-hand side is a weighted displacement in millimetres and the residual is normalised to millimetres; the function converts nothing.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping solvePortraitSkinSystem is a pure computation and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels solvePortraitSkinSystem defines and consumes no parameter channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry solvePortraitSkinSystem decides no primitive population of a form.
- * @evidenceExclude contracts/modeling.md#shared-boundaries solvePortraitSkinSystem constructs no surface that meets another part.
- * @evidenceExclude contracts/modeling.md#rendered-observation solvePortraitSkinSystem owns no part, group or joint that a viewer displays; its consumers own the observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source solvePortraitSkinSystem carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range solvePortraitSkinSystem admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority solvePortraitSkinSystem defines no input through which a caller shapes a human form.
  */
 export function solvePortraitSkinSystem(
   multiply: (values: number[]) => number[],

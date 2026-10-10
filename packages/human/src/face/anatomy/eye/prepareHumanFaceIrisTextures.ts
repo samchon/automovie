@@ -18,19 +18,6 @@ const SCLERA_BAND = (2 * Math.PI) / 180;
  * sclera colour of the ring just outside the painted iris is recorded. Results
  * are keyed by material ID; the globes are read only.
  *
- * @evidence contracts/common.md#principled-implementation Decoding and rasterization depend only on the neutral globe, so they run once and every pigment reuses them.
- * @evidence contracts/common.md#clear-and-simple-design One preparation stage from globes to decoded textures with their prepared eyes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The sclera colour is averaged from the texture itself; no colour is chosen per asset.
- * @evidence contracts/common.md#meaningful-documentation States the sharing rule, the raster margin, the sclera average and the result key.
- * @evidence contracts/modeling.md#spatial-conventions Disc lengths are basis metres, angles radians and texels row-major pixel indices; the sclera mean is linear RGB.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The stage prepares textures and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels prepareHumanFaceIrisTextures defines and consumes no shaping channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry prepareHumanFaceIrisTextures emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries prepareHumanFaceIrisTextures builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The painted texture is observed under the pigment rule that consumes prepareHumanFaceIrisTextures's result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source prepareHumanFaceIrisTextures carries basis geometry and texture, not an anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range prepareHumanFaceIrisTextures admits or bounds no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority prepareHumanFaceIrisTextures defines no input through which a caller shapes a face.
  * @author Samchon
  */
 export function prepareHumanFaceIrisTextures(

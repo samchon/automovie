@@ -12,19 +12,6 @@
  * - `geometry-not-validated`: no generator with held-out surface validation exists for the part.
  * - `contact-not-validated`: the part's contact with its neighbours is not validated.
  *
- * @evidence contracts/common.md#principled-implementation A closed set separates missing input, missing source representation and domain failure.
- * @evidence contracts/common.md#clear-and-simple-design One named union shared by the skin and every part.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every refusal names its cause instead of a generic failure.
- * @evidence contracts/common.md#meaningful-documentation Each member's meaning is stated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reason qualifies a part; it defines none.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It carries no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Consumers display the reason; it renders nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It is not an authoring input.
  * @author Samchon
  */
 export type AutoMovieHumanBodyAnatomicalUnavailableReason =

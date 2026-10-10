@@ -19,6 +19,8 @@ export function describeConnectedPersonFaceProgress(
     progress.basis +
     ":" +
     progress.phase +
-    (progress.checkOwner === undefined ? "" : ":" + progress.checkOwner)
+    (progress.geometryOwner === undefined
+      ? progress.checkOwner === undefined ? "" : ":" + progress.checkOwner
+      : ":" + progress.geometryOwner)
   );
 }

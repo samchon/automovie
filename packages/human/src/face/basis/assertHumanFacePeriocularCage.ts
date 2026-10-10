@@ -9,19 +9,6 @@ import type { IAutoMovieHumanFacePeriocularCage } from "../structures/IAutoMovie
  * Both anatomical
  * halves cover one closed row with only their shared canthal endpoints.
  * Tissue roles and eligibility remain publisher-qualified authoring choices.
- * @evidence contracts/common.md#principled-implementation Exact view-to-canonical-tree sample correspondence, complete joins, source receipts and the registered finish are checked without confusing native author ordinals with compacted tree IDs.
- * @evidence contracts/common.md#clear-and-simple-design One source admission owner serves lid, tissue and ocular generators.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Labels or guessed indices do not replace native correspondence.
- * @evidence contracts/common.md#meaningful-documentation Separates actual source identity from anatomical qualifications this check cannot establish.
- * @evidence contracts/modeling.md#shared-boundaries Upper and lower rows share the exact declared canthi and complete source column population.
- * @evidence contracts/modeling.md#spatial-conventions Head-view indices map to canonical source-tree sample IDs; native author ordinals remain a separate receipt domain and no conversion is repeated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads publisher-owned identities without defining parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no geometry.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no shape or motion control.
- * @evidenceExclude contracts/modeling.md#rendered-observation Preserves correspondence for the generator and viewer; claims no appearance.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Biological qualification remains with the source publisher.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds no physiological quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no authoring input.
  */
 export function assertHumanFacePeriocularCage(
   basis: IAutoMovieHumanFaceBasis,

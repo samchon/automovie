@@ -38,20 +38,6 @@ const RESOLUTION_METRES = 0.0005;
  * the channels it left at an envelope limit (secondary measurements excluded): limits held means the targets are
  * beyond the channels' reach together; none held means the iteration did not
  * converge.
- *
- * @evidence contracts/common.md#principled-implementation The person is read by the same rules it is solved for, on the same rest skin, and the free choice is fixed by a stated departure measure rather than by which channel is tried first.
- * @evidence contracts/common.md#clear-and-simple-design One problem statement handed to the one bounded solver, one remeasure.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel outside the table moves to hide a miss; an unmet solve refuses with its closest readings instead of returning them as a solution.
- * @evidence contracts/common.md#meaningful-documentation States the channels, the choice rule, the acceptance, the remeasure and both refusals.
- * @evidence contracts/modeling.md#spatial-conventions Targets and readings are metres of the person frame at rest.
- * @evidence contracts/modeling.md#parameter-channels Sets only the table's channels, each a distinct effect, within their envelopes.
- * @evidence contracts/anatomy.md#anatomical-source The acceptance is half the resolution of the cited source's recorded measurements.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function is not displayed; the solved person is observed on the viewer.
- * @evidenceExclude contracts/anatomy.md#permitted-range The channels' envelopes bound the solve; a target is not refused for lying outside the source population.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The solve converts measurements into existing channels; it defines no new input.
  */
 export function solveHumanPersonHead(
   props: IAutoMovieHumanPersonHeadSolveProps,

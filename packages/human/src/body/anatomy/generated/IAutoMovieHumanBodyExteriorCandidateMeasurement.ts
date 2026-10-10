@@ -5,8 +5,6 @@ import type { IAutoMovieHumanBodyExteriorCandidateSection } from "./IAutoMovieHu
  * Requested and achieved readings of one bound surface target.
  * All lengths are metres; final and Float32 output share the same instrument.
  *
- * @evidence contracts/common.md#clear-and-simple-design Names the fulfilled measurement instead of embedding an anonymous object type.
- * @evidence contracts/common.md#meaningful-documentation Records path, instrument, protocol, target, output, precision boundary and signed residual.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorCandidateMeasurement {

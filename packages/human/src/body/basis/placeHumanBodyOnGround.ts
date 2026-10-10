@@ -1,4 +1,5 @@
 import { validateModel } from "@automovie/engine";
+import type { IAutoMovieModel } from "@automovie/interface";
 
 import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
@@ -16,20 +17,8 @@ import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMo
  * rest landmarks stay fixed; posed bones, unsplit skin and every static part
  * receive that one translation so the person builder carries the head with
  * the same body. No weight, friction, balance or physiological claim follows.
- *
- * @evidence contracts/common.md#principled-implementation Subtracting the minimum final foot gap from every performed Y coordinate puts that minimum on the same fixed horizontal plane without changing relative geometry.
- * @evidence contracts/common.md#clear-and-simple-design One existing final-surface instrument determines one translation shared by the model, skin and posed bone frames.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing ground or either foot refuses by name; the ground is never moved and angles are never clamped.
- * @evidence contracts/common.md#meaningful-documentation States the explicit placement, airborne higher foot, preserved rest frame and mechanical limits.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It transforms existing parts and defines none.
- * @evidence contracts/modeling.md#parameter-channels The consumer opts into lowest-foot placement; omission preserves the source-root pose.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It retains every primitive and copies only positions.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the source Y-up frame; translation is vertical relative to the unchanged joint-ground plane.
- * @evidence contracts/modeling.md#shared-boundaries Every part, unsplit surface and posed frame takes one translation, preserving their relative boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation Body and person assembly consumers own observation of the placed result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It supplies a geometric placement and no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Pose owners retain their admission; placement admits no clinical range.
- * @evidence contracts/anatomy.md#parametric-authority The public request is a named geometric support choice and never an authored surface or vertex offset.
+ * A supplied pre-garment sourceSkinModel receives that same translation;
+ * contact must not compare its old frame with the placed posedSurfaces.
  */
 export function placeHumanBodyOnGround(
   props: IHumanBodyGroundPlacementProps,
@@ -65,9 +54,9 @@ export function placeHumanBodyOnGround(
       position: { ...bone.posed.position, y: bone.posed.position.y + shift },
     },
   });
-  const model = {
-    ...build.model,
-    parts: build.model.parts.map((part) => {
+  const translateModel = (input: IAutoMovieModel): IAutoMovieModel => ({
+    ...input,
+    parts: input.parts.map((part) => {
       if (
         part.geometry.type !== "mesh" ||
         part.transform !== null ||
@@ -87,7 +76,8 @@ export function placeHumanBodyOnGround(
         },
       };
     }),
-  };
+  });
+  const model = translateModel(build.model);
   const validation = validateModel({ model });
   if (!validation.success)
     throw new Error(
@@ -98,6 +88,9 @@ export function placeHumanBodyOnGround(
     ...build,
     groundPlaneHeightMetres,
     model,
+    ...(build.sourceSkinModel === undefined ? {} : {
+      sourceSkinModel: translateModel(build.sourceSkinModel),
+    }),
     posedSurfaces: build.posedSurfaces.map((surface) => ({
       ...surface,
       positions: translate(surface.positions),

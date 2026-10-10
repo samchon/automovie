@@ -45,7 +45,7 @@
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "tsx src/viewer/server.ts",
+    "viewer": "ttsx -P package.json src/viewer/server.ts",
     "self-check": "tsx src/review/self-check.cts",
     "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
     "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"

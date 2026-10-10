@@ -36,20 +36,6 @@ import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
  * over the stations before an obstacle instead of becoming a kink. Nothing is
  * admitted here; the exterior interval still certifies every real chord. Every
  * ray spends one unit of the shared lock budget. Inputs are unchanged.
- *
- * @evidence contracts/common.md#principled-implementation A turn by θ under curvature turn(h)/h needs about θ / turn(h) chords; checking whether deferring one station still leaves an admissible turn begins the turn at the last station that keeps one, using the integrator's own chord admission.
- * @evidence contracts/common.md#clear-and-simple-design Owns only when a stem begins a turn; the goal, the turn bound and chord certification keep their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No waypoint, subject, wall slide or tolerance; the per-station turn bound is never exceeded and no plan is admitted without the interval owner.
- * @evidence contracts/common.md#meaningful-documentation States the look-ahead range, both plans, the decision and what stays certified elsewhere.
- * @evidence contracts/modeling.md#spatial-conventions Positions and lengths are head-frame metres; directions are unit vectors; turns are radians.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no station; the integrator admits it.
- * @evidence contracts/modeling.md#shared-boundaries Reads the one host collider ahead of the stem and keeps every chord within its exterior certificate.
- * @evidenceExclude contracts/modeling.md#rendered-observation The hair builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Numerical geometry only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Derived state, not a personal control.
  */
 export function anticipateHumanFaceHairRootedStem(
   props: IHumanFaceHairRootedLookahead,

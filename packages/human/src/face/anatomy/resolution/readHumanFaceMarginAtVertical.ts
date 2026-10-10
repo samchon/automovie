@@ -13,20 +13,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * centre. A row the line does not cross returns a gap naming the row, and a
  * basis without the periocular registration returns its gap.
  *
- * @evidence contracts/common.md#principled-implementation Intersects the registered posed margin row with the vertical, so the point follows the lid on every shape.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the row's segments.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never snaps to the nearest vertex; a missed crossing returns its gap.
- * @evidence contracts/common.md#meaningful-documentation States the crossing rule, the landmarks it yields and the gaps.
- * @evidence contracts/modeling.md#spatial-conventions The vertical is head-frame +Y at constant X, metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows the palpebrale superius and inferius definitions of the periocular studies the eye parameter type cites.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The periocular registration names the parts; the reader names none.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
- *
  * @author Samchon
  */
 export function readHumanFaceMarginAtVertical(

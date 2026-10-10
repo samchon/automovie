@@ -13,11 +13,6 @@ import type { IAutoMovieHumanBodyAtlasQualification } from "./IAutoMovieHumanBod
  * every atlas member of this primitive exactly once in actual source order;
  * source rights, acquisition and registration remain explicit. This admits
  * correspondence, not source authenticity or clinical validity.
- *
- * @evidence contracts/common.md#principled-implementation Exact schema and source-member joins bind reference-only qualification to actual accessor intervals admitted by the common owner.
- * @evidence contracts/common.md#clear-and-simple-design One namespace reader delegates interval arithmetic and owns atlas metadata admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A material label or atlas surface cannot certify personal anatomy.
- * @evidence contracts/common.md#meaningful-documentation States legacy absence, refusal and the limits of readback authority.
  */
 export function readHumanBodyAtlasAssetCorrespondence(
   primitive: Primitive,

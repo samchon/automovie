@@ -31,19 +31,6 @@ import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCo
  * it require regeneration and observation; bitwise equivalence is not claimed.
  * No source vertex, topology, numerical trait or anatomical range is changed.
  *
- * @evidence contracts/common.md#principled-implementation A triangle's closed feature domains cover every closest point; the finite quadratic lower envelope gives its piecewise affine nearest projection.
- * @evidence contracts/common.md#clear-and-simple-design Feature construction, certified comparisons, envelope selection and arc reading each have one owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No width-driven subdivisions, arbitrary minimum width, iteration cap, geodesic substitution or inter-sheet bridge enters.
- * @evidence contracts/common.md#meaningful-documentation States the represented geometry, tie policy, discontinuity refusal and derivative invalidation.
- * @evidence contracts/modeling.md#spatial-conventions All public positions and lengths remain head-frame metres; internal origin/scale changes only numerical units.
- * @evidence contracts/modeling.md#shared-boundaries Each affine span belongs to an actual native feature, and feature transitions require shared native support and arithmetic continuity.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Compiles a curve on an existing part and creates no new part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes the existing caller-owned guide without adding an authoring control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive or new source vertex.
- * @evidenceExclude contracts/modeling.md#rendered-observation The relief callers own the assembled skin observations.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Transports registered guide geometry without assigning physiological quantities.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical admission remains with the relief callers and source registrations.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal sculpting input; guides are internal caller-owned source constructions.
  * @author Samchon
  */
 export function compileHumanFaceProjectedSkinCourse(

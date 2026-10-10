@@ -8,19 +8,6 @@ import type { IHumanBodyConstructionProgress } from "./IHumanBodyConstructionPro
  * metadata absence. Physical-source registration changes no coordinates and
  * supplies no clinical tissue certification.
  *
- * @evidence contracts/common.md#principled-implementation Supplies actual topology or cross-partition source ownership without altering geometry evaluation.
- * @evidence contracts/common.md#clear-and-simple-design Named constructor inputs are admitted exactly and their owners validate the source records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Registration never infers incidence from contact or substitutes an empty endpoint for external geometry.
- * @evidence contracts/common.md#meaningful-documentation States source equality, omission and the separate physical admission responsibility.
- * @evidenceExclude contracts/modeling.md#spatial-conventions Carries no spatial quantity.
- * @evidence contracts/modeling.md#parameter-channels The external source preserves the body's existing gain owner and identifies its actual head contribution.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Source regions keep their identities.
- * @evidence contracts/modeling.md#emitted-geometry Selects which physical correspondence the emitted static model carries, without moving any vertex.
- * @evidence contracts/modeling.md#shared-boundaries Registered incidence lets split regions declare the same physical point across seams.
- * @evidenceExclude contracts/modeling.md#rendered-observation The builder's consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Topology registration carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority A construction option, not a personal control.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisBuilderOptions {

@@ -7,10 +7,6 @@ import type { IAutoMovieHumanBodyArticularQualification } from "./IAutoMovieHuma
  * a registered personal centre, clinical certification or a whole bone surface.
  * No requested context or editable anatomical document is restored from this.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the common interval owner and separates the candidate qualification from geometry identity.
- * @evidence contracts/common.md#clear-and-simple-design One readback combines two independently owned primitive namespaces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tissue or held-out error is inferred from the target sphere.
- * @evidence contracts/common.md#meaningful-documentation States reference-only provenance and the unavailable whole anatomy.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyArticularAssetCorrespondence {

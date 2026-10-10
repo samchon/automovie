@@ -25,20 +25,6 @@ import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
  * boundary samples, extends the face view over the band's body cells, and
  * tables the body's rest rows at the shared and band vertices and the neutral
  * eye-centre anchor. Each failure refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Everything that depends on the generation alone is compiled once, so the evaluator and the rest reader cannot diverge.
- * @evidence contracts/common.md#clear-and-simple-design Admission, then the tables, in data order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Incompatible views refuse by name; nothing is matched by position.
- * @evidence contracts/common.md#meaningful-documentation States every table and refusal.
- * @evidence contracts/modeling.md#shared-boundaries Maps every shared sample to its head and body vertex once.
- * @evidence contracts/modeling.md#spatial-conventions Neutral positions and the anchor are metres of the generation's frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The views own their channels.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function compileHumanPersonGeneration(
   generation: IAutoMovieHumanPersonGeneration,

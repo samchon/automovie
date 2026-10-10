@@ -3,4 +3,4 @@
  * this identity when their admission or request envelope changes incompatibly;
  * source content revisions remain the independent geometry/cache authority.
  */
-export const humanViewerProtocol = "automovie-human-viewer/3";
+export const humanViewerProtocol = "automovie-human-viewer/4";

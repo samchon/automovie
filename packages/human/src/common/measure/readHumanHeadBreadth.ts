@@ -21,20 +21,6 @@ import { humanHeadEar } from "./humanHeadEar";
  * Triangle exclusion removes the declared ear's lateral extent even above
  * the area height bound. The height condition separately excludes lower
  * non-ear scalp; both predicates retain their own source-derived population.
- *
- * @evidence contracts/common.md#principled-implementation The ears are left out as declared areas and the bound is read from those areas on each skin.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the triangles that remain.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty side refuses; the bound is the ear's own top, not a constant.
- * @evidence contracts/common.md#meaningful-documentation States the exclusion, the bound, the extent and why both conditions are needed.
- * @evidence contracts/modeling.md#spatial-conventions Right is -X and the extent is along X of the person frame, metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 6.4.46 as the rule cites it.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing; the rule's range is a report.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanHeadBreadth(
   head: IAutoMovieHumanHeadSkin,

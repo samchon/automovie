@@ -6,12 +6,6 @@ import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePerioc
  * columns use their row-zero endpoint; all other source identities are kept.
  * The shell producer and mapping reader consume this same topology, so the
  * reader cannot measure a different triangulation from the generated shell.
- *
- * @evidence contracts/common.md#principled-implementation The indexed quotient identifies only source-declared repeated endpoints and retains every regular grid cell.
- * @evidence contracts/common.md#clear-and-simple-design One incidence owner serves shell construction and mapping observation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate distance, part identity or area tolerance selects aliases.
- * @evidence contracts/common.md#meaningful-documentation States the source quotient and its shared consumers.
- * @evidence contracts/modeling.md#shared-boundaries Both sheets and their side walls read the same canonical perimeter.
  */
 export function createHumanFacePeriocularTopology(
   input: IHumanFacePeriocularGrid,

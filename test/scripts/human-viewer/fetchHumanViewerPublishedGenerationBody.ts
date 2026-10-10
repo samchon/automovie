@@ -2,7 +2,7 @@ import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanPersonBodyView,
 } from "@automovie/human";
-import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
+import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset.ts";
 
 import { humanViewerBasisDigests } from "./humanViewerBasisDigests";
 import { humanViewerBasisTokens } from "./humanViewerBasisTokens";

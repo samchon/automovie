@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { uploadTemple } from "../../viewer/scene.mjs";
+import { uploadTemple } from "../../viewer/scene";
 import type { ViewerPayload } from "../../viewer/payload";
 
 const payload = (uvs?: number[]): ViewerPayload => ({

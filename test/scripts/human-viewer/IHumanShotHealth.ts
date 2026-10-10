@@ -29,4 +29,7 @@ export interface IHumanShotHealth {
 
   /** Recent page and source errors. */
   errors: string[];
+
+  /** Explicit startup or source failure reported by the answering server. */
+  sourceError?: string | null;
 }

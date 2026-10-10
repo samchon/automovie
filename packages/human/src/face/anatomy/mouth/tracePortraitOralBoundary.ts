@@ -16,20 +16,6 @@
  * checked before a downstream enclosure copies them. This topology owner does
  * not establish clearance, tissue thickness or the enclosed cavity shape.
  * Changing its order or coordinates changes lining winding and seam identity.
- *
- * @evidence contracts/common.md#principled-implementation On a manifold, consistently oriented triangle surface each interior edge is used once in each direction, so the directed edges that appear once are exactly the boundary and each boundary vertex has one outgoing edge; following the seed's outgoing edges therefore traces one closed cycle. The function checks the premises (complete triangles, distinct vertices, opposed manifold edges, no branching) before following it.
- * @evidence contracts/common.md#clear-and-simple-design One topology owner returning indices; the lining that consumes it copies coordinates and adds no second boundary estimate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No proximity search or coordinate coincidence stands in for the topology; every refusal is a violated premise.
- * @evidence contracts/common.md#meaningful-documentation The comment states the surface premises, the orientation of the result, what is checked and what is not established (clearance, tissue thickness or cavity shape).
- * @evidence contracts/modeling.md#spatial-conventions Inputs are host vertex identities and head-frame millimetre positions; positions are only read.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function traces a cycle and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidence contracts/modeling.md#shared-boundaries It selects the free skin cycle the lining is joined to, so the lining's rim is built from the skin's own boundary vertices, not from a second estimate. It refuses a surface without a free cycle at the seed, so the join cannot silently open.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; it refuses a collapsed or nonfinite rim.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function.
  */
 export function tracePortraitOralBoundary(
   surface: {

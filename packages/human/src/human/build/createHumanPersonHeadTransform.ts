@@ -25,20 +25,6 @@ import type { IAutoMovieHumanPersonHeadTransformProps } from "../structures/IAut
  * `direction` rotates a normal, which a rigid motion leaves unit length.
  * `shift` is the translation of the rest frame alone, for callers that skin a
  * surface with several bones and need its rest positions first.
- *
- * @evidence contracts/common.md#principled-implementation `posed ∘ rest⁻¹` is the change of frame of a bone, and a vertex fixed to the bone follows that one rigid transform; the shift by the joint's displacement expresses the neutral-frame point in the shaped rest frame before the change of frame is applied.
- * @evidence contracts/common.md#clear-and-simple-design One rotation matrix and one translation, built once from the bone's two frames.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a bone or a body; a non-unit rotation is normalized by the engine's quaternion product, and the matrix is read from the rotation itself.
- * @evidence contracts/common.md#meaningful-documentation The comment states the formula, which parts it serves and why it is exact for them.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the shared Y-up, +Z-anterior frame; the conversion from the neutral frame to the shaped rest frame is the named `shift`, and the change of frame is the one explicit step.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function transforms points and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
 export function createHumanPersonHeadTransform(
   props: IAutoMovieHumanPersonHeadTransformProps,

@@ -1,6 +1,6 @@
 import type { IAutoMovieLibrarySourceOwner } from "@automovie/interface";
 
-import { buildManorEnvironment } from "../manorEnvironment.js";
+import { buildManorEnvironment } from "../manorEnvironment";
 
 /**
  * Registers the authored manor as an in-memory library environment.

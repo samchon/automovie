@@ -15,19 +15,6 @@ import { humanPersonHeadShapeFieldUnit } from "./humanPersonHeadShapeFieldUnit";
  * Unsupported source bounds or duplicate raw channel authorship refuse without
  * changing the caller. The effective copy contains resolved body weights while
  * saving retains the original numerical request and clinical observations.
- *
- * @evidence contracts/common.md#principled-implementation Signed source-unit differences divide by their sampled directional unit magnitude and route through one registered body channel.
- * @evidence contracts/common.md#clear-and-simple-design Compile source records once and resolve requested fields into one effective copy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No implicit field, nearby landmark, source-rest coordinate or copied driver equation substitutes for registration.
- * @evidence contracts/common.md#meaningful-documentation States source units, zero availability, bounds, duplicate authorship and caller/save ownership.
- * @evidence contracts/modeling.md#parameter-channels The source record maps each trait to one signed channel; existing common-root drivers own its cross-partition coupling.
- * @evidence contracts/modeling.md#spatial-conventions Millimetre/degree differences become dimensionless source weights.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The existing endpoint evaluator owns geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The shared generation owns source boundaries and aliases.
- * @evidenceExclude contracts/modeling.md#rendered-observation Person/source owners observe the emitted result.
- * @evidence contracts/anatomy.md#anatomical-source Source qualifications and sampled support belong to registration; this conversion makes no clinical-normal or reconstruction claim.
- * @evidence contracts/anatomy.md#permitted-range Authored source bounds and body-channel admission refuse unsupported requests without clamping.
- * @evidence contracts/anatomy.md#parametric-authority Only closed anatomical source traits can select numerical endpoints.
  */
 export function createHumanPersonHeadShapeResolver(
   generation: IAutoMovieHumanPersonGeneration,

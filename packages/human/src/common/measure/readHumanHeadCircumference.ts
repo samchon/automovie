@@ -29,20 +29,6 @@ import { measureHumanSection } from "./measureHumanSection";
  * the glabella or above its level, or a plane that closes no loop, refuses by
  * name. The reading's points include `ear-clearance` when the ears set the
  * plane.
- *
- * @evidence contracts/common.md#principled-implementation Reuses the body's tape instrument on a plane set by the head's own points.
- * @evidence contracts/common.md#clear-and-simple-design One slope from the opisthocranion held to the two conditions, one pass over the ear triangles, one section.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The plane is moved only by the protocol's own conditions, constructions rather than tolerances; impossible planes refuse.
- * @evidence contracts/common.md#meaningful-documentation States the plane, the two conditions that move it, the instrument and the refusals.
- * @evidence contracts/modeling.md#spatial-conventions The plane is level along X of the person frame; the girth is metres.
- * @evidence contracts/anatomy.md#anatomical-source Follows ANSUR II 6.4.47 as the rule cites it.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing; its reading carries the points a render marks.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing; the rule's range is a report.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function readHumanHeadCircumference(
   head: IAutoMovieHumanHeadSkin,

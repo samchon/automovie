@@ -12,13 +12,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * admits contact on the skin boundary within the existing source tolerance;
  * no source depth, profile or tolerance is modified to make a shaft fit.
  * Inter-shaft interaction and follicle histology remain distinct acquisitions.
- * @evidence contracts/common.md#principled-implementation Actual Float32 shaft/skin geometry takes signed and triangle crossing instruments instead of trusting a tangent-plane normal estimate.
- * @evidence contracts/common.md#clear-and-simple-design One skin query serves all shafts of one actual band, followed by the existing crossing census.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No retry, input shortening or source tolerance change hides a failed attachment.
- * @evidence contracts/common.md#meaningful-documentation States boundary contact, height-field limits, output precision and the separate inter-shaft/follicle acquisition.
- * @evidence contracts/modeling.md#shared-boundaries Shaft clearance reads the same performed host skin whose depth placed the population.
- * @evidence contracts/modeling.md#spatial-conventions Actual meshes and source tolerance stay in head-frame metres.
- * @evidence contracts/anatomy.md#permitted-range Geometric skin clearance admits no measured implantation or clinical density interval.
  */
 export function assertHumanFaceBrowContact(
   skin: IAutoMovieMesh,

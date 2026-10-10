@@ -18,11 +18,6 @@ import { readHumanFaceOralCrowns } from "./readHumanFaceOralCrowns";
  * of gingival/palatal material regions, with the resident owner's existing
  * reach and cover policy. Final soft lip strips are not rigid obstacles.
  *
- * @evidence contracts/common.md#principled-implementation Actual displayed crown incidence and original source closure form each closed query; one shared jaw motion carries both native crowns and new lining.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent crowns remove real query geometry; no guessed cap or replacement tolerance enters.
- * @evidence contracts/modeling.md#shared-boundaries Source cervical closure is reused exactly and generated lining query points match drawing before the same rigid motion.
- * @evidence contracts/modeling.md#spatial-conventions Both query states use source head-frame metres and the existing mandibular quaternion/translation.
- * @evidence contracts/anatomy.md#anatomical-source Crown query caps are source numerical closures; open lining is authored visible tissue rather than reconstructed hidden anatomy.
  * @author Samchon
  */
 export function poseHumanFaceOralAssembly(

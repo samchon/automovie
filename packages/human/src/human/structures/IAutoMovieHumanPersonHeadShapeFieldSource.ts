@@ -7,12 +7,6 @@ import type { AutoMovieHumanPersonHeadShapeField } from "./AutoMovieHumanPersonH
  * channel's signed weight preserves the requested direction. The original
  * provider and endpoint replay own geometry and physical admission.
  *
- * @evidence contracts/common.md#principled-implementation Each direction names its actual sampled source endpoint and unit magnitude, so conversion requires no inferred geometry or copied body-driver equation.
- * @evidence contracts/common.md#clear-and-simple-design One trait record supplies identity, units, source bounds and a single body-channel owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No endpoint or biological norm is synthesized by this record.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes source support, signed weights and endpoint provenance.
- * @evidence contracts/modeling.md#spatial-conventions Units are millimetres or degrees in the provider's declared anatomical frame; weights are dimensionless.
- * @evidence contracts/anatomy.md#anatomical-source This registration reports source-authored support and sampled geometry; it makes no clinical or personal-reconstruction claim.
  * @author Samchon
  */
 export interface IAutoMovieHumanPersonHeadShapeFieldSource {

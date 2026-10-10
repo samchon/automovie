@@ -7,9 +7,6 @@ import { isHumanFaceOralToothId } from "./isHumanFaceOralToothId";
  * Incidence supplies the boundary, without a height threshold or clinical
  * reinterpretation of the source's coarse root. Original source indices are
  * preserved for dental contact, reference measurement and common gingiva.
- * @evidence contracts/common.md#principled-implementation One triangle incidence census supplies exact crown boundaries shared by sizing and lining.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing, disconnected or nonmanifold registrations instead of guessing cervical vertices.
- * @evidence contracts/anatomy.md#anatomical-source Reads licensed source crown registrations; the open root is a source port, not a measured clinical CEJ.
  * @author Samchon
  */
 export function readHumanFaceOralCrowns(

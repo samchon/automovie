@@ -12,20 +12,6 @@ import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
  * that goal; interval/contact admission still belongs to the integrator.
  * Root support is never widened and no blocker identity or waypoint is stored.
  * Points/steps are current head metres, normals unitless, budget caller-owned.
- *
- * @evidence contracts/common.md#principled-implementation Unit normal bisectors attain sqrt((1+n0.n1)/2) as the maximum common directional margin; original turn limiting and actual exterior admission remain separate requirements.
- * @evidence contracts/common.md#clear-and-simple-design Owns current/trial steering only, apart from contact and interval proof.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No saved host, subject, wall slide, support exception or budget reset.
- * @evidence contracts/common.md#meaningful-documentation States preview timing, units, ownership and limits of the directional proposal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no author channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no station; the owning walker certifies it.
- * @evidence contracts/modeling.md#spatial-conventions Uses current head metres and unit directions.
- * @evidence contracts/modeling.md#shared-boundaries Reads the existing same-collider contact and never changes original root support or clearance.
- * @evidenceExclude contracts/modeling.md#rendered-observation The builder owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries numerical geometry only.
- * @evidenceExclude contracts/anatomy.md#permitted-range Defines no clinical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal control.
  */
 export function steerHumanFaceHairRootedStep(
   props: IHumanFaceHairRootedSteering,

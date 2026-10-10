@@ -54,20 +54,6 @@ const scalar = (
  * deviations where a standard deviation was read, and authored otherwise;
  * they are editing envelopes and not clinical ranges. A stack that the
  * constructed lid cannot hold is refused by the lid frame with its shortfall.
- *
- * @evidence contracts/common.md#principled-implementation The stack is arithmetically consistent as an authored cross-site convention; the cited study's different acquisition sites prevent treating the sum or its remainder as measured anatomy, and emitted-lid admission remains necessary.
- * @evidence contracts/common.md#clear-and-simple-design One constant owns every default and envelope; the catalogue reads it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Values come from sources and their arithmetic, not from a subject, a document or a refusal to be cleared.
- * @evidence contracts/common.md#meaningful-documentation Gives the stack arithmetic, the source of each term, what is derived or authored, and the limits of the sources.
- * @evidence contracts/modeling.md#parameter-channels Each tissue keeps two independent absolute dimensions; the defaults are coupled only by the stated arithmetic.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres, measured through the lid from its skin.
- * @evidence contracts/anatomy.md#anatomical-source Surve et al. 2018 and Hwang 2013 were read in full text; the cited Hwang et al. 2006 original abstract supplies its cadaver population and microscopy protocol. Means from different sites supply authored offsets and the unknown conjunctival thickness remains an authored remainder.
- * @evidence contracts/anatomy.md#permitted-range Envelopes are three standard deviations around read means or authored; admission of a combination against the lid belongs to the lid frame.
- * @evidence contracts/anatomy.md#parametric-authority Describes the named tissue dimensions of the public tissue section; adds no input.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Describes dimensions of existing tissue identities.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The tissue builder owns the displayed result.
  */
 export const HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS: IAutoMovieHumanFacePeriocularTissueDescriptor[] =
   (["upper", "lower"] as const).flatMap((lid) => {

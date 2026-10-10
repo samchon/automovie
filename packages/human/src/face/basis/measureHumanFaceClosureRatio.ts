@@ -21,19 +21,6 @@ import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
  * closure endpoint that does not narrow this aperture cannot seal it, and the
  * state refuses by name rather than clamping.
  *
- * @evidence contracts/common.md#principled-implementation Because posing is affine in rest position, the posed aperture at gain g is d − g·(d − d_closed) exactly, so r = d/(d − d_closed) is the gain whose result is margin contact.
- * @evidence contracts/common.md#clear-and-simple-design One measure owns the closure gain from two posed pairs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance or budget absorbs a residual gap; a closure that cannot narrow the aperture refuses.
- * @evidence contracts/common.md#meaningful-documentation States both apertures, the affine argument, the weight meaning, the closed case and the refusal.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The measure names no part.
- * @evidence contracts/modeling.md#parameter-channels The closure channel's weight keeps one meaning: one is margin contact, a fraction closes that fraction of the current aperture.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The measure emits no geometry; the evaluator applies the gain.
- * @evidence contracts/modeling.md#spatial-conventions Basis metres along the contact frame's opening direction.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The measure builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The evaluator's summary reports the final aperture.
- * @evidence contracts/anatomy.md#anatomical-source The requirement defines closure weight one as lip seal at the vermilion margin.
- * @evidence contracts/anatomy.md#permitted-range A closed aperture gives zero gain; an endpoint that cannot seal refuses instead of being extrapolated.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The measure is not an input; the closure weight is.
  * @author Samchon
  */
 export function measureHumanFaceClosureRatio(

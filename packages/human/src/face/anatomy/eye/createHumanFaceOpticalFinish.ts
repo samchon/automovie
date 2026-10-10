@@ -29,17 +29,6 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * scleral backing hides the empty rendered scene; it is not retinal anatomy.
  * Each generated sample is bound to the document, source generation and side,
  * so cornea/sclera shading aliases retain their common limbal point identity.
- *
- * @evidence contracts/common.md#principled-implementation Neutral source pigment is resampled by normalized iris polar correspondence; current authored palette and source material gain are applied downstream without changing geometry.
- * @evidence contracts/common.md#clear-and-simple-design One compiled source pigment table supplies the finish of the actual optical assembly.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No patient-specific colours or hidden anatomical defaults are introduced; source pigment comes from its licensed texture.
- * @evidence contracts/common.md#meaningful-documentation States pigment correspondence, source limits, rendering approximations and physical ownership.
- * @evidence contracts/modeling.md#part-identity-and-grouping Emits the four optical surfaces under one side-specific identity.
- * @evidence contracts/modeling.md#shared-boundaries Generated physical point IDs preserve the shared limbal aliases across sclera and cornea.
- * @evidence contracts/modeling.md#spatial-conventions Geometry remains head-frame metres; colours are linear RGB and radial progress is dimensionless.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries source painting and authored finishes without inferred tissue measurements.
- * @evidenceExclude contracts/anatomy.md#permitted-range The palette owner admits RGB; the optical profile admits geometry.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Introduces no independent shape input.
  */
 export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis) {
   const sources = new Map(

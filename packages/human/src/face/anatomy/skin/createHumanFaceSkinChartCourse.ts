@@ -18,19 +18,6 @@ import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCo
  * continue to read their original immutable native host state; a callback's
  * captured geometry is owned by the chart, not copied by this metric reader.
  *
- * @evidence contracts/common.md#principled-implementation Native affine lengths and cumulative stations give physical arc lookup; the shared Euclidean span reader supplies the existing extrinsic distance.
- * @evidence contracts/common.md#clear-and-simple-design One metric owner serves brow frame lookup and regional relief reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No free-guide station, chart-distance proxy, geodesic or tolerance substitutes for native length.
- * @evidence contracts/common.md#meaningful-documentation States constant intervals, representability, metric meaning and source frame ownership.
- * @evidence contracts/modeling.md#spatial-conventions Points and distances are head-frame metres; interval fractions are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries Frames and distance consume the same lifted native intervals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Measures an existing course.
- * @evidenceExclude contracts/modeling.md#parameter-channels Adds no control.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Attached and relief consumers own observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source No clinical measurement is introduced.
- * @evidenceExclude contracts/anatomy.md#permitted-range Source support and contact owners retain admission.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Adds no personal curve input.
  * @author Samchon
  */
 export function createHumanFaceSkinChartCourse(

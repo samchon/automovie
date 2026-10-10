@@ -23,20 +23,6 @@ import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
  * signed gap of each lip margin chain vertex against the opposite chain,
  * given as minimum, median and maximum. The contact owner computes them;
  * this owner only carries them into the construction report.
- *
- * @evidence contracts/common.md#principled-implementation Lining and crowns are read with the shared signed and crossing instrument on emitted coordinates, within the reach for which the reference sheets have a side.
- * @evidence contracts/common.md#clear-and-simple-design One reader enumerates lining parts and dental colliders; the oral owners keep construction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Lining is selected by its identity class, every collider is read, and the tolerance is the source contact tolerance.
- * @evidence contracts/common.md#meaningful-documentation States what counts as lining, the condition, the reach and the origin of the lip gaps.
- * @evidence contracts/modeling.md#shared-boundaries Reads the boundary between generated lining and source crowns; the oral owners construct both sides.
- * @evidence contracts/modeling.md#spatial-conventions Head-frame metres.
- * @evidence contracts/anatomy.md#permitted-range Refuses lining that intersects a crown; this is a geometric condition and claims no periodontal dimension.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads existing identities.
- * @evidenceExclude contracts/modeling.md#parameter-channels Consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical admission; the oral assembly owner owes the rendered observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Supplies no biological value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no input.
  */
 export function readHumanFaceOralLiningSpace(
   input: IHumanFaceAssemblyCensusInput,

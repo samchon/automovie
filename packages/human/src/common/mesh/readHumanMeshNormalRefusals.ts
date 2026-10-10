@@ -8,11 +8,6 @@ import { triangleAreaVector } from "./triangleAreaVector";
  * original directions and physical identities belong to the actual mesh.
  * Area sums describe this resident mesh only; a shared normal's construction
  * population can be larger. No direction, topology or admission changes.
- *
- * @evidence contracts/common.md#principled-implementation Reads the unchanged failed vertex population and sums the actual winding-based triangle area vectors at those vertices.
- * @evidence contracts/common.md#clear-and-simple-design One read-only diagnostic owns normal and local incidence context for the existing guard.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No normalization, fallback direction or vertex deletion occurs.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes local diagnostic area from a potentially larger shared normal construction.
  */
 export function readHumanMeshNormalRefusals(
   mesh: IAutoMovieMesh,

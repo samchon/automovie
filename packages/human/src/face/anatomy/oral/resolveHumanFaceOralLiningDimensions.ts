@@ -28,20 +28,6 @@ import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimen
  *   sublingual sulcus below the lingual gingival margin.
  * - The vestibular wall clearance defaults to the collar thickness, and the
  *   posterior reach to the wall clearance.
- *
- * @evidence contracts/common.md#principled-implementation Named lengths with a stated origin replace the cervical mesh-edge length, which is a property of the source tessellation and not of any tissue.
- * @evidence contracts/common.md#clear-and-simple-design One owner resolves every lining default and its two dependent defaults.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Contract-defined defaults only; a nonpositive or nonfinite value refuses and nothing is clamped.
- * @evidence contracts/common.md#meaningful-documentation Keeps each default's quantity, protocol, population and the inference made from it beside the value.
- * @evidence contracts/modeling.md#parameter-channels Vault, collar height, collar thickness, wall clearance and posterior reach vary separate traits; wall clearance follows thickness and posterior reach follows wall clearance only when omitted.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres in the document convert once to metres here.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Resolves numbers; the lining owner groups parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The lining owner constructs the boundaries.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining.
- * @evidence contracts/anatomy.md#anatomical-source Huang 2024 and Moosa 2024 as stated above, each limited to its site and population; thickness and floor depth are authored conventions with no read source.
- * @evidence contracts/anatomy.md#permitted-range Admits positive finite lengths and refuses others with the caller's document unchanged; no anatomical upper bound is claimed.
- * @evidence contracts/anatomy.md#parametric-authority Reads only the named oral arch and space dimensions.
  */
 export function resolveHumanFaceOralLiningDimensions(
   oral: IAutoMovieHumanFaceOral,

@@ -226,7 +226,7 @@ export const partOverlapRows = (id: string, body: string) => {
         const samePair = (relation: {parts?:string}) => relation.parts === `${a.key}/${b.key}` ||
       relation.parts === `${b.key}/${a.key}`;
     const cutKey = `${a.key}/${b.key}`;
-    if (cutBeams && Object.hasOwn(cutBeams, cutKey) && cutBeams[cutKey]) continue;
+    if (cutBeams && Object.entries(cutBeams).some(([key, tangent]) => key === cutKey && tangent)) continue;
     const clearances = shapes.filter((row) => samePair(row) &&
       /clearance|separation|zero-volume/.test(row.kind));
     if (clearances.length && clearances.every((row) => row.pass)) continue;

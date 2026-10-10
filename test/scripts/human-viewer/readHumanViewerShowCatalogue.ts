@@ -1,12 +1,10 @@
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 
 /**
- * The catalogue a show reads. The published catalogue answers at once; when
- * it lacks the document while some input is still undecided, the document
- * may be among those awaiting admission, so the settled catalogue is read
- * instead, which answers only after the pending admissions have their
- * verdicts. A document missing from a catalogue with nothing undecided is
- * unknown, and the show refuses it.
+ * Read only the selected document's descriptor and domain verdict. A pending
+ * input waits for its own sidecars and admission; unrelated published states
+ * and candidate files never become prerequisites for this show. Explicit full
+ * catalogue settlement remains a separate inspection operation.
  *
  * @evidence contracts/common.md#principled-implementation A pending document is awaited until its owner decides, never refused as unknown while undecided.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One settled read replaces any polling or delay.
@@ -16,7 +14,7 @@ export async function readHumanViewerShowCatalogue(
   doc: string,
 ): Promise<HumanViewerCatalogue> {
   const published = (await (
-    await fetch("/docs")
+    await fetch("/docs?doc=" + encodeURIComponent(doc))
   ).json()) as HumanViewerCatalogue;
   if (
     published.documents.some((entry) => entry.id === doc) ||
@@ -24,6 +22,6 @@ export async function readHumanViewerShowCatalogue(
   )
     return published;
   return (await (
-    await fetch("/docs?settled=1")
+    await fetch("/docs?settled=1&doc=" + encodeURIComponent(doc))
   ).json()) as HumanViewerCatalogue;
 }

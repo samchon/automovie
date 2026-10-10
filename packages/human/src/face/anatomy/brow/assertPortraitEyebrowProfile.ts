@@ -12,18 +12,6 @@ import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlaceme
  * highest root, because a flow supplies its own tips. Nothing here is a
  * measured hair dimension, so a profile that passes is drawable and not
  * necessarily anatomical. The profile is read and never modified.
- *
- * @evidence contracts/common.md#principled-implementation Each refusal is the negation of a condition the fibre builder relies on: finite positive dimensions so the tube and ribbon are defined, taper below one so the tip radius stays positive, an integral segment count so the lattice exists, and a root band plus span inside [0,1] so every fibre stays over the brow band. The span bound uses the largest value of the default span law so the check cannot admit a profile the builder would extend past the brow.
- * @evidence contracts/common.md#clear-and-simple-design A single guard function in front of the builder, delegating flow validation to the flow owner instead of repeating it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is named after a subject or fixture and no other module is patched; the function reads the profile and throws.
- * @evidence contracts/common.md#meaningful-documentation The comment lists what is refused, why the span bound uses 0.34, that the flow is validated by its owner, and that passing means drawable and not anatomical.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function validates a parameter record and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines no channel; it tests values of fields another declaration owns.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it bounds the fibre count so that a request cannot allocate an unbounded population.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The function converts no unit or frame; each field is tested in the unit its type states.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part and displays nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts and defines no input.
  */
 export function assertPortraitEyebrowProfile(
   shape: IPortraitEyebrowProfile,

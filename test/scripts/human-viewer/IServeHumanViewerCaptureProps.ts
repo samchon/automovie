@@ -37,6 +37,9 @@ export interface IServeHumanViewerCaptureProps {
   /** Current catalogue. */
   inventory: () => IHumanViewerCatalogue;
 
+  /** Demand admission for an explicitly requested document without settling unrelated inputs. */
+  settleDocument?: (doc: string) => Promise<IHumanViewerCatalogue>;
+
   /** Source generation the page has ready, empty while none is. */
   readyRevision: () => string;
 

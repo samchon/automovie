@@ -33,20 +33,6 @@ import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovi
  * held-axis rotation as a physiological motion. No admitted equivalent chart
  * means refusal. Quaternion agreement uses a 1e-12 component arithmetic
  * tolerance, not a clinical angular uncertainty or a registration claim.
- *
- * @evidence contracts/common.md#principled-implementation Uses the existing inverse, forward conversion and pose admission together; a coordinate is returned only when it represents the actual orientation inside the declared joint domain.
- * @evidence contracts/common.md#clear-and-simple-design Checks the actual authored chart, principal chart and one order-specific alternate chart without searching a new motion model.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No bone-name exception, range reduction or caller-value clamping selects a chart; absent admissible equivalents refuse.
- * @evidence contracts/common.md#meaningful-documentation Gives the two rotation orders, equivalent-chart equations, handedness, frame lift and arithmetic limits.
- * @evidence contracts/modeling.md#spatial-conventions The articulation is a unit quaternion in bone-local rig axes. Equivalent rig degrees are lifted through the existing sign/neutral frame into clinical degrees.
- * @evidence contracts/modeling.md#parameter-channels Preserves the existing flexion, abduction and twist meanings and nullable-axis policy rather than introducing another motion input.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Reads a rig coordinate and defines no geometry part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Constructs no surface or volume boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The source assembly owns observation of its performed geometry; this helper selects numerical coordinates.
- * @evidence contracts/anatomy.md#anatomical-source The clinical labels and bounds retain the supplied source rig's qualification; equivalent quaternion charts establish no measured personal capacity.
- * @evidence contracts/anatomy.md#permitted-range Each candidate passes existing validatePose, including held axes and coupled swing bounds. A candidate outside the source domain or unlike the actual rotation is discarded without changing the request.
- * @evidence contracts/anatomy.md#parametric-authority The helper reports existing named motions from their actual performed rotation, without public vertex, matrix or anatomical sculpt inputs.
  */
 export function readHumanBodyAdmittedJointRotation(
   rig: IAutoMovieHumanBodySkeletonRig,

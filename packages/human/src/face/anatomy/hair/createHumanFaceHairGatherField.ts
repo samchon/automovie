@@ -21,51 +21,6 @@ import type { IHumanFaceHairGatherFieldProps } from "./IHumanFaceHairGatherField
  * query and immutable gradient vectors for one evaluated face, together with
  * the tie triangle and a private copy of its point. Replacing caller buffers
  * or moving the caller anchor does not alter this compiled field.
- *
- * @evidence contracts/common.md#principled-implementation Distances from the
- *   tie triangle's vertices are propagated by Dijkstra over the growth domain's
- *   edge graph using the current edge lengths, which gives the shortest path
- *   along mesh edges, an upper bound on the true geodesic and so coarser than
- *   it. On each triangle the gradient of the linear interpolant solves g . ab =
- *   riseB and g . ac = riseC in the triangle's own basis, and a station follows
- *   minus the gradient of the triangle the open-sheet query selects. Inside the
- *   tie triangle the interpolant's minimum is at a vertex, so the exact tangent
- *   toward the anchor is used, which is stated and prevents an orbit. Welding by
- *   exact coordinates keeps a UV seam from cutting the graph. Selecting the
- *   nearest vertex by scan is quadratic in the domain's vertex count.
- * @evidence contracts/common.md#clear-and-simple-design One closure over the
- *   compiled distances, gradients and query; the integrator owns contact,
- *   turning limits and refusal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
- *   case for a subject or shape: a disconnected graph or a degenerate triangle
- *   refuses.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   the metric, the approximation, the refusals and the ownership of the
- *   returned closure.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
- *   function computes a value and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle document's fields without varying
- *   a form; the document type owns their meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
- *   no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Positions and edge
- *   lengths are metres of the current face in the head frame, and the result is
- *   a unit direction tangent to the scalp in that frame.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function
- *   compiles a private open-sheet query for direction lookup and builds no
- *   displayed surface or boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function
- *   owns no part, group or joint and displays nothing; the builder that owns the
- *   assembled hair is where the result is observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
- *   no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
- *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
- *   admission of the hairstyle document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
- *   shapes a human form through this function; it reads quantities the hairstyle
- *   document already names and admits.
  */
 export function createHumanFaceHairGatherField(
   props: IHumanFaceHairGatherFieldProps,

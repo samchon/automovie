@@ -18,8 +18,6 @@ export const HUMAN_BODY_UNDERWEAR: IAutoMovieHumanBodyUnderwear.ITable = {
   material: "underwear",
   color: { r: 0.62, g: 0.62, b: 0.6 },
   roughness: 0.85,
-  offsetMetres: 0.003,
-  spanMetres: 0.04,
   uncovered: ["leftUpperArm", "rightUpperArm"],
   landmarks: {
     pelvis: "joint-pelvis",

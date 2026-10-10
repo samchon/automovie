@@ -5,20 +5,6 @@ import type { IAutoMovieHumanFaceStylingDescriptor } from "../../structures/IAut
  * These entries mirror the established runtime admission, including open bounds
  * and dependencies; they supply no clinical interval or universal neutral.
  * Current values come from the owning document reader or an identity skin gain.
- *
- * @evidence contracts/common.md#principled-implementation Metadata retains exact scalar domains and dependent runtime conditions instead of inventing UI limits.
- * @evidence contracts/common.md#clear-and-simple-design One owner table is shared with the product editor; current values remain document-owned.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific default, geometric correction or clinical calibration is supplied.
- * @evidence contracts/common.md#meaningful-documentation Each descriptor states units, trait qualification and dependent conditions.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Metadata names existing traits rather than parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels The input owners state trait meaning.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Metadata emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The input and converter owners define coordinate meaning.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Metadata builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Metadata displays no form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Inputs are authored styling without clinical calibration.
- * @evidenceExclude contracts/anatomy.md#permitted-range These are numerical styling domains rather than physiological bounds.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Metadata adds no authoring input.
  */
 export const HUMAN_FACE_HAIR_TRAITS: readonly IAutoMovieHumanFaceStylingDescriptor[] =
   [

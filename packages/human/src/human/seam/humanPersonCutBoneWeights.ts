@@ -7,20 +7,6 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * slots and differing endpoint bone orders preserve their meaning. No influence
  * is discarded at a crossing; the face skin owner applies its own final limit.
  * Read-only dimensionless inputs return an owned map, not a pose operator.
- *
- * @evidence contracts/common.md#principled-implementation Bone-wise affine interpolation preserves the convex weight combination, including endpoints with different influence identities; accumulation avoids slot-order interpolation.
- * @evidence contracts/common.md#clear-and-simple-design A single reader supplies original and crossing weights to both seam consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No intermediate pruning substitutes for the full edge weight field.
- * @evidence contracts/common.md#meaningful-documentation States accumulation, interpolation, ownership and final pruning responsibility.
- * @evidence contracts/modeling.md#spatial-conventions Weights and edge fractions are dimensionless.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Defines no authored channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Reads the seam's frozen cut and constructs no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Owns no displayed form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Defines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admits no anatomical input.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no user input.
  */
 export function humanPersonCutBoneWeights<T extends string>(
   skin: {

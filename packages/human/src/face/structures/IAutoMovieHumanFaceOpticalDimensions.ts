@@ -8,19 +8,6 @@
  * refracted entrance-pupil observation do not implicitly supply these values.
  * Source registration owns placement; none of these dimensions owns a pivot.
  *
- * @evidence contracts/common.md#principled-implementation Separates the supplied globe, limbus, curvature, thickness, iris extent, physical aperture and iris depth; no dimension fills another one.
- * @evidence contracts/common.md#clear-and-simple-design One complete record describes one side; the document owns side selection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No personal vertex, sculpt curve or population default is an input.
- * @evidence contracts/common.md#meaningful-documentation States units, constructed surfaces and why clinical measurements cannot be silently converted.
- * @evidence contracts/modeling.md#parameter-channels Each length names its geometric role and unit; the profile owner converts it once and admits joint feasibility.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Describes dimensions and defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The geometry builder owns sampling and incidence.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The shared profile owns the limbal interface.
- * @evidenceExclude contracts/modeling.md#rendered-observation The connected builder owns displayed parts.
- * @evidence contracts/modeling.md#spatial-conventions All lengths are explicit millimetres except central thickness in micrometres, and depth is posterior from the registered anterior support.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Carries caller-supplied dimensions and introduces no measured anatomical number.
- * @evidenceExclude contracts/anatomy.md#permitted-range Geometric feasibility is admitted by the profile, without claiming a physiological range.
- * @evidence contracts/anatomy.md#parametric-authority Defines dimensions of named ocular components instead of editing source vertices or fitting a personal mesh.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceOpticalDimensions {

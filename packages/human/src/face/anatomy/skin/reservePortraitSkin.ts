@@ -19,20 +19,6 @@ import { IPortraitComponentHost } from "../../surface/structures/IPortraitCompon
  * reservations remain the assembler's responsibility; overlapping cuts refuse
  * there before attachment. This supplies an unambiguous planar chart, not an
  * anatomical section, tangent match, or arbitrary 3D intersection certificate.
- *
- * @evidence contracts/common.md#principled-implementation Growing the selected faces by whole vertex-adjacent rings, and taking the first region whose directed boundary is one simple loop that leaves the inner loop inside and admits a planar annulus with the proposed seam, guarantees a usable containing boundary without a guessed radius. Each unsuccessful step adds at least one face or the call refuses, so it terminates.
- * @evidence contracts/common.md#clear-and-simple-design Select, test, grow; the annulus admission belongs to the engine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific landmark list or metric radius.
- * @evidence contracts/common.md#meaningful-documentation States the frame, the growth rule, termination, that the host is never mutated and what the reservation does not certify.
- * @evidence contracts/modeling.md#shared-boundaries The returned boundary is a loop of resident host vertices that the component's seam is later joined to; it fails to exist (refuses) when no simple containing boundary can be grown.
- * @evidence contracts/modeling.md#spatial-conventions Construction millimetres with +Y up and +Z anterior; the engine receives XY in metres.
- * @evidenceExclude contracts/anatomy.md#anatomical-source reservePortraitSkin carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range reservePortraitSkin admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority reservePortraitSkin defines no input through which a caller shapes a human form.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping reservePortraitSkin is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels reservePortraitSkin defines and consumes no parameter channel of a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry reservePortraitSkin emits no primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation reservePortraitSkin owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function reservePortraitSkin(
   host: IPortraitComponentHost,

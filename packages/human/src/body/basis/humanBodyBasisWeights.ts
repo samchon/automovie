@@ -53,15 +53,6 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * sum where it exceeds one: a mixed body wears a blend of its traits'
  * corrections instead of their sum, and a body on one example alone wears it
  * as solved.
- *
- * @evidence contracts/common.md#principled-implementation Channel weights are checked against their envelopes, then each corrective is the product form min(1, weight times the clamped ramps of all its drivers), so a corrective fires only where every driver is present, which a sum would not give. Shoulder kernels are clamped geodesic fall-offs in SO(3), normalised by the sum of their family where it exceeds one so kernels solved at neighbouring poses interpolate (the pose-space-deformation argument of Lewis et al. 2000, with normalised overlap in place of a radial-basis solve). The omitted shoulder goal is the shaped rest handed in by `shoulderRest`, else the basis's A-pose, and the kernels, elevation drivers and couplings read that one map, so the goal omitted and the goal written as the rest select one deformation. The premise is that no shaped rest sits inside a kernel support; admission guarantees it for the basis A-pose, and a measurement over 916 r16 shapes (channel extremes, macro corners and random mixes) found the nearest rest 29 degrees outside every support, but a different basis or shape space could break it and would then activate the kernel at rest.
- * @evidence contracts/common.md#clear-and-simple-design One function orders admission, coupling, kernels, ramps and the two normalisations; the per-basis corrective plan is memoised once because an admitted basis is immutable, and the shaped rest is one optional parameter owned by its own resolver rather than recomputed here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No person, fixture or measurement result is special-cased, and no foreign object is patched. The memoised plan is a WeakMap keyed by the immutable admitted basis. The optional rest map exists for an actual supported difference, a body whose arms hang off the A-pose, and a measurement path without a skeleton passes none.
- * @evidence contracts/common.md#meaningful-documentation States the product form, both ramp definitions, the kernel normalisation and its source, the shape-example blend, the meaning of an omitted goal under `shoulderRest`, and that the inputs are read and not mutated.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It defines and groups no part; it turns a document into channel weights and corrective activations.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no primitive; the activations scale rows the evaluator applies later.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no surface or boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the posed form.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,

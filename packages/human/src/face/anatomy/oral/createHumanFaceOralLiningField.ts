@@ -46,20 +46,6 @@ import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDist
  * The half ellipse and the linear collar are authored profiles. No read
  * source gives the coronal or sagittal section of the palate, the gingival
  * contour or the sublingual sulcus as a curve.
- *
- * @evidence contracts/common.md#principled-implementation Inverse-distance interpolation over ring edges reproduces each ring's height along its whole length, and adding a nonnegative rise keeps the surface on the apical side of the rings the crowns hang from.
- * @evidence contracts/common.md#clear-and-simple-design One field replaces separate rim, interior and wall height rules.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tooth, arch side or document is special-cased; the two arches differ only by their frame and vault dimension.
- * @evidence contracts/common.md#meaningful-documentation States the formula, the side rule, the guarantee and the configuration in which it can fail.
- * @evidence contracts/modeling.md#shared-boundaries The lining meets each crown on its exact cervical ring, where the rise is zero, and its regions are samples of one function.
- * @evidence contracts/modeling.md#spatial-conventions Arch-frame metres; apical positive in both arches.
- * @evidence contracts/modeling.md#parameter-channels Collar height, collar thickness, wall clearance and vault each enter one term.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The lining builder owns the parts.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The lining builder owns the sampling.
- * @evidenceExclude contracts/modeling.md#rendered-observation The oral assembly observes the lining.
- * @evidence contracts/anatomy.md#anatomical-source The dimensions carry their sources at the dimension resolver; the profile shapes are authored conventions with no read section data.
- * @evidenceExclude contracts/anatomy.md#permitted-range The dimension resolver admits the lengths.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Defines no authoring input.
  */
 export function createHumanFaceOralLiningField(
   frame: IHumanFaceOralArchFrame,

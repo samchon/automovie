@@ -66,64 +66,6 @@ const requireDirection = humanFaceHairFrame.direction;
  * contact projector's fibre-path clearance by that step and a floating-point margin. Such a step
  * uses the exact same candidate the contact projector would return; stations
  * near skin still take the original projection and bisection path.
- *
- * @evidence contracts/common.md#principled-implementation The lock is a
- *   ray-preserving initial chord and curved certified stem followed by a fixed-step integral of a direction field: each station moves one sampling
- *   step along the combed direction, projected by the contact rule to keep the
- *   skin clearance, so the polyline is the geometry that is meshed and no spline
- *   is refit. The step is bisected back if the projection moves farther than the
- *   step, so every chord is at most one step, which with the 1-Lipschitz signed
- *   distance is what keeps the requested clearance along each chord. A step is
- *   skipped from a query only when the distance already sampled proves it free,
- *   and the last chord is cut to the remaining length, so the lock is exactly
- *   the authored metric length. A step the contact blocks entirely, a length
- *   shorter than the emergence and an exhausted budget refuse and never return a
- *   shorter lock. The premises are a closed, consistently oriented collider and
- *   a field that is finite; the root fan and hair-to-hair contact are not
- *   covered, as the comment says. A stem ends only at the same full free clearance, with intersection-free exterior intervals owned by createHumanFaceHairExteriorInterval.
- * @evidence contracts/common.md#clear-and-simple-design The function keeps the
- *   walk, the contact and the length. The gathering state lives in
- *   createHumanFaceHairGatherStage through createHumanFaceHairCurveStart, the turn limit in limitHumanFaceHairTurn,
- *   the contact rule in humanFaceHairContact and the field in
- *   evaluateHumanFaceHairDirection, so each formula has one owner and the walk
- *   reads as a sequence of named steps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
- *   case for a subject or style and no foreign state: every lock meets the same
- *   field, contact and turn limit, and a step that cannot be taken refuses with
- *   where it stopped instead of sliding along the wall or shortening the lock.
- * @evidence contracts/common.md#meaningful-documentation The comment states
- *   what is integrated and returned, who owns the points, the clearance argument
- *   and its limits, the refusals and the free-step certificate.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
- *   function computes a value and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function
- *   defines no channel and reads the hairstyle document's fields without varying
- *   a form; the document type owns their meaning.
- * @evidence contracts/modeling.md#emitted-geometry The stations are the length
- *   divided by the sampling step, so a lock is a few hundred stations at the
- *   published steps and its cost grows with authored length over step. Both are
- *   bounded by the million-interval budget that assertHumanFaceHair enforces
- *   before allocation and the million-station budget the builder counts.
- * @evidence contracts/modeling.md#spatial-conventions Root, reference, origin,
- *   stations, step, clearance and length are metres in the head frame, the
- *   reference and origin are neutral chart positions used only for the field and
- *   the regional length, directions are unit vectors and the arc length in error
- *   messages is converted to millimetres for reading only.
- * @evidence contracts/modeling.md#shared-boundaries The lock meets the skin
- *   through an explicitly retained surface-boundary stem whose chords are exterior-certified on the same collider. freeFrom begins the unchanged half-step plus requested-clearance free-path rule, also consumed by the hierarchy placer. The join can open only where
- *   the collider is not embedded, which the builder's closure and the
- *   deformation own, and it then refuses.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function
- *   owns no part, group or joint and displays nothing; the builder that owns the
- *   assembled hair is where the result is observed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
- *   no anatomical value of its own.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
- *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
- *   admission of the hairstyle document.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
- *   shapes a human form through this function; it reads quantities the hairstyle
- *   document already names and admits.
  */
 export function walkHumanFaceHairCurve(
   props: IHumanFaceHairIntegration,

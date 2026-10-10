@@ -6,10 +6,6 @@ import type { IAutoMovieHumanStaticPartInterval } from "./IAutoMovieHumanStaticP
  * or anatomical parts. Construction owns the ordered prepared populations;
  * the reader admits their complete partition without reconstructing a merge.
  *
- * @evidence contracts/common.md#principled-implementation Separates source IDs from material names and binds intervals to their carrying primitive.
- * @evidence contracts/common.md#clear-and-simple-design One versioned record describes one actual merged primitive.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomical qualification or authored geometry is inferred from a source ID.
- * @evidence contracts/common.md#meaningful-documentation Specifies element units, ownership and the source identity limitation.
  * @author Samchon
  */
 export interface IAutoMovieHumanStaticPartCorrespondence {

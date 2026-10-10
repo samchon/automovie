@@ -25,20 +25,6 @@ import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
  * Shading normals are recomputed on the actual emitted triangles: varying
  * thickness changes a sheet's tangent planes, so skin normals cannot be
  * carried unchanged to its offsets or rim strips.
- *
- * @evidence contracts/common.md#principled-implementation A region bounded by two offsets of one surface is closed exactly by those offsets and a strip along each open edge; orientation follows from reversing the inner sheet.
- * @evidence contracts/common.md#clear-and-simple-design Two sheets and one rim pass; no resampling and no separate topology.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The shell is built from the layer faces as given; self-crossing reported by the surface builder is left visible.
- * @evidence contracts/common.md#meaningful-documentation States the construction, the count and what the shell is not.
- * @evidence contracts/modeling.md#part-identity-and-grouping The subcutaneous adipose layer is one part, the region between the dermis and the fascia over the whole skin.
- * @evidence contracts/modeling.md#emitted-geometry Twice the skin's vertices and triangles plus two triangles per open edge; the count follows the skin's resolution and nothing else.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the frame of the given faces; outward orientation on both sheets.
- * @evidence contracts/modeling.md#shared-boundaries The outer and inner sheets reuse the supplied dermal and fascial vertices exactly, and opposite edge incidence supplies their rim strips; this does not certify the offsets' global embedding.
- * @evidenceExclude contracts/modeling.md#parameter-channels The thickness field owns the channels.
- * @evidenceExclude contracts/modeling.md#rendered-observation The assembly consumer owns observation of the emitted part.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The thickness field owns the values and their sources.
- * @evidenceExclude contracts/anatomy.md#permitted-range The surface builder owns the limited offset observations; the admission consumer judges them.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
 export function createHumanBodySubcutaneousShell(
   surfaces: IHumanBodyLayerSurfaces,

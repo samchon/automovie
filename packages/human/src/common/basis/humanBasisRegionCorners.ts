@@ -18,17 +18,6 @@ import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
  *
  * The result depends on the region alone. Nothing about the basis's shape,
  * pose or document enters it, so a caller compiles it once per basis.
- *
- * @evidence contracts/common.md#principled-implementation Numbering render vertices by first appearance of the pair (shared vertex, UV) reproduces the seam-splitting the material separation performs, and keeping the pair as the key is what keeps two corners that share a vertex but not a UV apart.
- * @evidence contracts/common.md#clear-and-simple-design One function owns the numbering, and both the gatherer and any stage that scatters back read this table.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No basis, subject or document is consulted; the table follows from the region's corners alone.
- * @evidence contracts/common.md#meaningful-documentation The comment states what the two returned arrays index, why the UV pair is part of the key and who must share the table.
- * @evidence contracts/modeling.md#spatial-conventions Indices only; no unit or frame enters.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function numbers the render vertices of one region and defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it numbers the corners the region already has.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary between parts.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed form; the regions it numbers are observed by their owners.
  */
 export function humanBasisRegionCorners(
   region: IHumanMaterialRegion,

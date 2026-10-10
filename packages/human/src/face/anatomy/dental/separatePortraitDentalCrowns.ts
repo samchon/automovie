@@ -16,18 +16,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * which both dental owners place them, and each mesh owns its buffers.
  * The engine solves along one axis, so a row that bends back on itself in X
  * is outside its limit; an arch's posterior continuation is not sampled.
- *
- * @evidence contracts/common.md#principled-implementation Neighbouring crowns are separated from their complete surfaces by the engine's one sequence separation: a forward longest-path pass over ray-parallel clearance measurements along X, so every pair reaches the requested minimum with the least travel, then the common half-range is removed so the row stays centred. Only X moves, so each crown keeps its shape, normals, Y and Z. The premise is the engine's ray-parallel limit along one axis and an X-ordered sequence.
- * @evidence contracts/common.md#clear-and-simple-design One function shared by the row and the legacy crown placement, replacing an inline block.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; a zero gap is the least separation a body can have and is not a threshold tuned to a result.
- * @evidence contracts/common.md#meaningful-documentation The comment states why nominal spacing overlaps, the order requirement, that a zero gap is touching crowns and the engine's one-axis limit.
- * @evidence contracts/modeling.md#part-identity-and-grouping The function moves the crowns of one group and defines no part of its own; the group that calls it owns the order.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes one gap and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Crowns are head-frame or group millimetres; the engine solves in metres, converted at the two named boundaries of this function.
- * @evidence contracts/modeling.md#shared-boundaries It defines the proximal boundary between neighbouring crowns once for both dental owners, from the complete surfaces: they touch at most and never interpenetrate. A row that bends back on itself in X is outside the one-axis solution.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond a named gap in millimetres.
  */
 export function separatePortraitDentalCrowns(
   crowns: readonly IAutoMovieMesh[],

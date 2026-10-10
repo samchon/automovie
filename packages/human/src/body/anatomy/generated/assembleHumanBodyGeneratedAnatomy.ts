@@ -17,19 +17,6 @@ import type { IAutoMovieHumanBodyRegionPartsInput } from "./IAutoMovieHumanBodyR
  * prohibit its generation or certify its biological validity. The shared skin
  * remains a candidate exterior with the same independent validation boundary.
  *
- * @evidence contracts/common.md#principled-implementation Regions own their reasons; the assembly only combines them, refuses duplicates and names the unanswered default.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the registry and the closed id set.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No part becomes resolved here and no region can overwrite another's answer.
- * @evidence contracts/common.md#meaningful-documentation States the duplicate refusal and both defaults.
- * @evidence contracts/modeling.md#part-identity-and-grouping The report keys every named part once, under the closed part id set.
- * @evidenceExclude contracts/modeling.md#parameter-channels It defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidenceExclude contracts/modeling.md#spatial-conventions It carries no spatial value.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The exterior builder owns the shared skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The exterior consumer displays the report.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Region resolvers own their source reasons.
- * @evidenceExclude contracts/anatomy.md#permitted-range Region resolvers own their refusals.
- * @evidenceExclude contracts/anatomy.md#parametric-authority It converts no input.
  * @author Samchon
  */
 export function assembleHumanBodyGeneratedAnatomy(

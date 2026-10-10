@@ -57,7 +57,7 @@ for (const [building, directory] of definitions) {
   if (building !== "future")
     for (const file of readdirSync(
       resolve(production, "public/textures"),
-    ).sort())
+    ).sort((a, b) => a < b ? -1 : a > b ? 1 : 0))
       hash
         .update(file)
         .update(readFileSync(resolve(production, "public/textures", file)));

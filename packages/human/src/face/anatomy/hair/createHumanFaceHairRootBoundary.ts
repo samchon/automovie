@@ -40,20 +40,6 @@ import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference"
  * alone never classifies a ray crossing or excuses a distant intersection.
  * Caller mutations of buffers, weight arrays or returned arrays cannot rewrite
  * the compiled index. A new current collider needs a new index.
- *
- * @evidence contracts/common.md#principled-implementation The minimal barycentric support defines a triangle face, edge or vertex; intersecting the support vertices' incident triangle lists returns exactly its root-star in original index order. Exact coordinate equivalence matches the collider's identity without moving it.
- * @evidence contracts/common.md#clear-and-simple-design One compilation owns current incidence and each resolver only selects support and intersects the smallest local list. Root seating and later ray admission remain with their existing owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, per-root corrective or tolerance weld is stored. Derived sampler metadata selects only an existing feature and never authors geometry.
- * @evidence contracts/common.md#meaningful-documentation States the current-snapshot consumers, original ordinal meaning, support-only interpretation, costs, ownership and the closure and crossing limitations.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It indexes derived feature identity and defines no displayed part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels It consumes derived triangle support, not a channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It returns existing triangle ordinals and emits no primitive.
- * @evidence contracts/modeling.md#spatial-conventions Source coordinates are current head-frame metres, while indices and weights select dimensionless topology. No coordinate or unit conversion occurs.
- * @evidence contracts/modeling.md#shared-boundaries Exact coincident-coordinate identity joins the same split vertices as the current signed collider, and original skin ordinals survive closure fan append. It does not prove surface continuity or ray clearance.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns a numerical index and displays no part; the hair builder owns observation of the assembled result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source It adds no anatomical value, proportion or tissue behavior.
- * @evidenceExclude contracts/anatomy.md#permitted-range It admits computational metadata, not a living anatomical range.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Root triangle and support come from the shared sampler and are not a new caller authoring field.
  */
 export function createHumanFaceHairRootBoundary(
   props: IHumanFaceHairRootBoundaryProps,

@@ -11,19 +11,6 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * its open edges. The volume is that of the modelled surface, whose extent is
  * the asset's, not a measured anatomical boundary.
  *
- * @evidence contracts/common.md#principled-implementation The divergence-theorem sum is exact for a closed oriented triangle surface and undefined for an open one, which refuses.
- * @evidence contracts/common.md#clear-and-simple-design One reader for any closed basis surface's volume.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An open surface is a named gap; no hole is capped to manufacture a volume.
- * @evidence contracts/common.md#meaningful-documentation States the formula, the closure requirement, the unit and that the extent is the asset's.
- * @evidence contracts/modeling.md#spatial-conventions Cubic centimetres from metre positions in the basis head frame.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader names no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader is not a channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The reader builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation Measurements report what it reads.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The modelled surface's extent is the asset's; no anatomical volume is claimed.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader bounds no value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader is not an input.
  * @author Samchon
  */
 export function readHumanFaceSurfaceVolume(

@@ -7,9 +7,6 @@ import { isHumanFaceOralSourceSha256 } from "./isHumanFaceOralSourceSha256";
  * Exact cervical rows and component ordinals distinguish authority from a
  * generation label. The raw-input fingerprint remains producer provenance;
  * no runtime anatomical validity follows from a SHA-256 string.
- * @evidence contracts/common.md#principled-implementation Exact original neutral cervical rows and native component/cycle ordinals are checked before generated aliases are used.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or mismatched producer witnesses refuse rather than borrowing skin sample IDs or fitting source coordinates.
- * @evidence contracts/anatomy.md#anatomical-source Registers source authoring correspondence without certifying clinical CEJ, axes or tissue.
  * @author Samchon
  */
 export function assertHumanFaceOralSupport(

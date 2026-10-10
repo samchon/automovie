@@ -8,10 +8,6 @@ import type { IAutoMovieTextureReference } from "@automovie/interface";
  * binding's own sampling intent, absent for a legacy string binding, which
  * keeps the writer's clamp-to-edge default and no UV transform.
  *
- * @evidence contracts/common.md#principled-implementation A structured binding keeps its declared sampler and UV transform through export instead of being refused or flattened to the legacy default.
- * @evidence contracts/common.md#clear-and-simple-design One named record carries exactly what the writer needs from either binding form.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The record carries the binding's values unchanged; no sampling is invented for a legacy binding.
- * @evidence contracts/common.md#meaningful-documentation States each field, its source and the legacy default.
  * @author Samchon
  */
 export interface IHumanGltfTextureReference {

@@ -15,13 +15,6 @@ import type { IHumanFacePeriocularShellInput } from "./structures/IHumanFacePeri
  * nonredundant cell, requested coordinate and thickness remains unchanged.
  * Normals come from the actual resident incidence, without a fallback or an
  * area threshold. Unrelated projection collapse still fails normal admission.
- *
- * @evidence contracts/common.md#principled-implementation A collapsed parameter column has one endpoint per sheet; indexed quotienting creates the ordinary tapered-solid fan instead of repeated zero-area grid rows.
- * @evidence contracts/common.md#clear-and-simple-design One shell owner shares sheet, perimeter and pole incidence for posterior and anterior tissue paths.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint identities come from the source support; no name, side, profile, normal fallback or tolerance chooses a repair.
- * @evidence contracts/common.md#meaningful-documentation States the quotient, preserved dimensions and the remaining projection-collapse refusal.
- * @evidence contracts/modeling.md#shared-boundaries Both sheets and perimeter consume one endpoint map, so the tapered boundary remains closed.
- * @evidence contracts/modeling.md#spatial-conventions Coordinates stay canonical head-frame metres; normals are dimensionless area-weighted directions.
  */
 export function createHumanFacePeriocularShellMesh(
   input: IHumanFacePeriocularShellInput,

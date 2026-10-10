@@ -5,20 +5,6 @@ import type { IAutoMovieHumanSkinLandmarkHolder } from "./IAutoMovieHumanSkinLan
  * and every point is a vertex of a declared surface. A point outside its
  * surface refuses by name. Face and body bases admit theirs through this one
  * owner.
- *
- * @evidence contracts/common.md#principled-implementation Points are checked once at basis admission, so a rule never reads an index the basis does not hold.
- * @evidence contracts/common.md#clear-and-simple-design One pass over the declared points.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-range point refuses instead of being clamped or skipped.
- * @evidence contracts/common.md#meaningful-documentation States both conditions, the refusal and the shared owner.
- * @evidence contracts/modeling.md#spatial-conventions Admits indices into the basis's own surfaces.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The conditions are topological, not anatomical.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function assertHumanSkinLandmarks(
   basis: IAutoMovieHumanSkinLandmarkHolder,

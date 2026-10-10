@@ -19,20 +19,6 @@ import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
  * segment. The closed loop nearest the segment is kept and its tape girth
  * reported (`measureHumanSection`). A missing landmark, a missing sample,
  * a degenerate segment or a plane that closes no loop answers null.
- *
- * @evidence contracts/common.md#principled-implementation The girth is read on the one joined skin with the body section instrument, so person and body girths share one instrument.
- * @evidence contracts/common.md#clear-and-simple-design Join, place the plane, read the section.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No section is read on one half and extrapolated; a site the skin cannot close answers null.
- * @evidence contracts/common.md#meaningful-documentation States the plane, the loop choice and the null cases.
- * @evidence contracts/modeling.md#spatial-conventions Metres in the model frame; the plane normal is the landmark segment's direction.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The reader defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The reader consumes no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The reader emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The join owns the boundary identity; the reader cuts the joined skin.
- * @evidenceExclude contracts/modeling.md#rendered-observation The reader displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The rule owns the measurement's definition and source.
- * @evidenceExclude contracts/anatomy.md#permitted-range The reader admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The reader converts no input.
  */
 export function readHumanPersonGirth(
   model: IAutoMovieModel,

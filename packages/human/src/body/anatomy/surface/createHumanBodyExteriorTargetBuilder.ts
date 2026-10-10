@@ -30,20 +30,6 @@ import { collectHumanBodyExteriorRequests } from "./collectHumanBodyExteriorRequ
  * value is the emitted body's, not the rest reader's the inverse used. A
  * document without a bound target refuses as `missing-anatomical-input`.
  * Every named internal part reports through `assembleHumanBodyGeneratedAnatomy`.
- *
- * @evidence contracts/common.md#principled-implementation The target table, rule table, channel inverse, body builder, Float32 boundary and part assembly each keep their sole responsibility.
- * @evidence contracts/common.md#clear-and-simple-design One compiled source registration produces one physical candidate beside the assembled anatomical availability.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unregistered observations, unmet residuals and inconsistent targets refuse; no population mean, default or unknown tissue is fabricated.
- * @evidence contracts/common.md#meaningful-documentation States the solve order, the final Float32 reading, the refusals and the unsupported context.
- * @evidence contracts/modeling.md#parameter-channels Named absolute targets condition only their bound source channels; private weights are not authored inputs.
- * @evidence contracts/modeling.md#spatial-conventions Final and Float32 readings use the same source-rest metre frame and oriented instrument.
- * @evidence contracts/modeling.md#emitted-geometry The admitted basis builder supplies the actual shared exterior, read after the real Float32 boundary.
- * @evidence contracts/modeling.md#shared-boundaries All targets are met on one compiled body evaluation and one skin.
- * @evidence contracts/modeling.md#part-identity-and-grouping Source regions retain their identities; named anatomical parts report through their region owners.
- * @evidence contracts/modeling.md#rendered-observation The connected exterior runtime consumes this physical model and qualification together.
- * @evidence contracts/anatomy.md#anatomical-source Each fulfilled target carries its instrument's protocol against the cited survey definition and supplies no held-out tissue validation.
- * @evidence contracts/anatomy.md#permitted-range Actual channel reach, the inverse tolerance and the pass limit refuse unsupported or contradictory targets without extrapolation.
- * @evidence contracts/anatomy.md#parametric-authority The body document supplies only named physical targets, never vertex or morph edits.
  */
 export function createHumanBodyExteriorTargetBuilder(
   input: IAutoMovieHumanBodyExteriorTargetSource,

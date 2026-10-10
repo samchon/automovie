@@ -40,17 +40,6 @@ import type { IAutoMovieHumanBodyUnderwearCoverageProps } from "../structures/IA
  * left). A missing landmark, or a nipple vertex outside its surface when the
  * style reads it, refuses with the name. The fractions are convention set by
  * rendering, not measured from a garment standard.
- *
- * @evidence contracts/common.md#principled-implementation Every edge is an explicit rule on shaped landmarks, so the field scales with the body it is read on; each piece is a signed distance-like value whose zero is the edge and whose sign is inside, so the minimum of the pieces is the intersection and the maximum the union, and the arm term is steep enough never to bind away from the arm. The rules are convention (a blocking-pass costume), stated as such in the table, not a garment standard.
- * @evidence contracts/common.md#clear-and-simple-design One responsibility: turn the landmark rules into a field over a point and its arm weight. The clipping of triangles by the field and the lift belong to their own files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the table's rules and the document's landmarks enter; no vertex list, body or fixture is named, and the nipple is the basis's named skin point read from the rest skin.
- * @evidence contracts/common.md#meaningful-documentation The comment states every piece of the field, its frame and its sign, what the nipple is and is not, the arm term and the refusals.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function is a field and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only a field value.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The fractions are costume convention, and the landmarks are the basis's own; the function carries no anatomical measurement.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
- * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a human form through this function; the style is a closed choice.
  */
 export function createHumanBodyUnderwearCoverage(
   props: IAutoMovieHumanBodyUnderwearCoverageProps,

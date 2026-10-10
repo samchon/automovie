@@ -1,4 +1,8 @@
 export * from "./IAutoMovieHumanFaceBasis";
+export * from "./IAutoMovieHumanFacePeriocularStationBoundary";
+export type * from "./IAutoMovieHumanFaceFacialHair";
+export type * from "./IAutoMovieHumanFaceFacialHairProfile";
+export type * from "./IAutoMovieHumanFaceFacialHairSite";
 export * from "./IAutoMovieHumanFaceBasisArticulation";
 export * from "./IAutoMovieHumanFaceBasisChannel";
 export * from "./IAutoMovieHumanFaceBasisCorrective";
@@ -32,6 +36,7 @@ export * from "./IAutoMovieHumanFaceControlMap";
 export * from "./IAutoMovieHumanFaceComponentTree";
 export * from "./IAutoMovieHumanFaceDetailChannel";
 export * from "./IAutoMovieHumanFaceDocument";
+export * from "./IAutoMovieHumanFaceEditorProps";
 export * from "./IAutoMovieHumanFaceEditorSnapshot";
 export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";

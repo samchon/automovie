@@ -18,19 +18,6 @@
  * pose validator refuses. Scapulohumeral couplings and the pelvifemoral
  * rhythm both read their curves through this one owner.
  *
- * @evidence contracts/common.md#principled-implementation Piecewise-linear interpolation between strictly increasing knots, zero below the first and held past the last; the first-knot tolerance absorbs a documented one-ulp cone-formula error so the rest adds nothing.
- * @evidence contracts/common.md#clear-and-simple-design One evaluator shared by every declared coordination curve instead of a copy per coupling kind.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The tolerance is a nanodegree float-error allowance at the first knot only, not a tuning of any curve.
- * @evidence contracts/common.md#meaningful-documentation States the three regions, the admission premises, the tolerance's reason and the knot reading rule.
- * @evidence contracts/modeling.md#parameter-channels Converts a driving joint angle into the declared coordination increment of the driven joint.
- * @evidence contracts/modeling.md#spatial-conventions Input and output are clinical degrees.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The evaluator reads a curve and defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator emits no geometry.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The evaluator builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The pose resolver and editor observe the coordinated pose.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The curve's source belongs to the basis declaration that supplies it.
- * @evidenceExclude contracts/anatomy.md#permitted-range Admission bounds the curve; the evaluator reads it.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The evaluator is not a caller input.
  * @author Samchon
  */
 export function evaluateHumanBodyRhythmCurve(

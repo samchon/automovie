@@ -42,7 +42,7 @@ const checks = [
   ["model-source-audit.cts", "--fixture"],
 ];
 let failures = 0;
-let total = checks.length;
+const total = checks.length;
 for (const args of checks) {
   const lint = args.includes("--lint");
   const command = lint

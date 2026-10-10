@@ -11,19 +11,6 @@ import type { AutoMovieHumanBodyToeBone } from "./rig/AutoMovieHumanBodyToeBone"
  * rotation composes on top of the toes bone's, which stays the common
  * metatarsophalangeal motion.
  *
- * @evidence contracts/common.md#principled-implementation A relative pose on top of the toes bone keeps existing documents' meaning.
- * @evidence contracts/common.md#clear-and-simple-design Bone, flexion and an optional splay.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Splay at an interphalangeal hinge is refused by admission rather than ignored.
- * @evidence contracts/common.md#meaningful-documentation States the sign, axis and composition.
- * @evidence contracts/modeling.md#part-identity-and-grouping Each row addresses one phalanx.
- * @evidence contracts/modeling.md#parameter-channels Named motions in degrees, not vertex edits.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits no geometry.
- * @evidence contracts/modeling.md#spatial-conventions Degrees about axes derived from the foot frame and the phalanx direction.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It builds no boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation The body builder's consumer renders the result.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The toe range constant owns the ranges and their status.
- * @evidenceExclude contracts/anatomy.md#permitted-range The toe range constant and admission own the bounds.
- * @evidence contracts/anatomy.md#parametric-authority Each value is a named physiological motion.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyToePose {

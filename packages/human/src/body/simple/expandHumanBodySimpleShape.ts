@@ -78,20 +78,6 @@ const CONVERGENCE = 1e-5;
  * requested simple value again with the same numerical budgets. A simple
  * request incompatible with those targets refuses rather than deleting the
  * targets or storing their derived channels as personal authoring.
- *
- * @evidence contracts/common.md#principled-implementation Table terms are summed before envelope projection so the inverse reads the same combined channel map. Sequential measured-reach inversions warm up a simultaneous shared-body solve; unresolved systems retain complete strict reach sampling. A final shared-body assertion checks every canonical requested reading after stature reconciliation. The optional detailed-residue result is the difference of two expansions, which is exact only where readings add over channels, so it is solved again from where it stands and passes the same assertion.
- * @evidence contracts/common.md#clear-and-simple-design One compiler orders table expansion, measured inversion, canonical verification and optional residue transfer; numerical iteration and measurement definitions have separate owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No person or photograph is selected. The numerical budgets and pass counts are stated policies, not anatomical limits; measured-reach refusal remains separate from transient warm-up saturation.
- * @evidence contracts/common.md#meaningful-documentation States the simple-to-detailed conversion, coupled physical readings, omitted measurements, refusal, detailed residue and the precise boundary of canonical target verification.
- * @evidence contracts/modeling.md#spatial-conventions Requested stature and tapes use metres and mass uses kilograms; measurement owners read the shaped rest skin and channel weights remain dimensionless.
- * @evidence contracts/modeling.md#parameter-channels The simple fields compile into existing detailed basis channels through the declared term and measurement tables; omitted tapes are not read back during residue transfer and unknown table channels are skipped.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This compiler defines no part or group.
- * @evidenceExclude contracts/modeling.md#emitted-geometry It emits detailed weights; the body builder owns the resulting surface.
- * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface or boundary.
- * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the emitted form.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The simple table and measurement owners define the anatomical formulas and constants; this compiler introduces only explicitly numerical acceptance budgets.
- * @evidenceExclude contracts/anatomy.md#permitted-range The table and basis own admitted parameter envelopes; this compiler enforces those existing envelopes without defining a new physiological interval.
- * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to canonical raw weights. Existing anatomical targets retain authority over their registered channels: private effective weights are removed from storage and their unchanged targets are re-resolved before all requested simple readings are checked again.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,

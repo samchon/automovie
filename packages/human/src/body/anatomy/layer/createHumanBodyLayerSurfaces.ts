@@ -10,7 +10,10 @@ import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInpu
  * by the skin thickness, the fascial face by the skin and subcutaneous
  * thickness together. The normal is the area-weighted mean of the incident
  * triangle normals, computed here from the given positions so the offset
- * follows the evaluated surface and not a stored shading normal. This is the
+ * follows the evaluated surface and not a stored shading normal. A whole
+ * person supplies its actual continued exterior: canonical origin incidence
+ * selects the same native body samples from its complete normal/ray domain.
+ * The native thickness field and output order remain unchanged. This is the
  * one place the two faces are computed; the offline registration reads this
  * function's output instead of repeating the rule.
  *
@@ -23,20 +26,6 @@ import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInpu
  * observation. Neither the origin nor a metric exclusion band is shifted.
  * Both offset sheets are compared with the original triangle orientations.
  * All offsets retain the requested thickness; failures are never repaired.
- *
- * @evidence contracts/common.md#principled-implementation Reports normal-ray thickness ratios and both offset orientations on the supplied triangles; topology excludes origin incidence without claiming these limited observations establish true reach or global embedding.
- * @evidence contracts/common.md#clear-and-simple-design One pass for normals, one for the offsets and the reach rays, one for triangle orientation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Thickness is applied as given; a vertex beyond reach is counted and located, not shortened.
- * @evidence contracts/common.md#meaningful-documentation States the offset rule, both validity conditions and the case neither detects.
- * @evidence contracts/modeling.md#emitted-geometry Both faces have exactly the skin's vertices; the count follows the skin's resolution.
- * @evidence contracts/modeling.md#spatial-conventions Positions in and out are metres in the same frame; the normal is outward and the offset is against it.
- * @evidence contracts/modeling.md#shared-boundaries The skin, the subcutaneous layer and the deep tissues meet on these two faces, which have no definition other than this offset of the skin.
- * @evidence contracts/anatomy.md#permitted-range Reports the conventional half-normal-ray condition, missing positive reach and offset inversion without altering thickness; these observations alone do not admit anatomical thickness or certify embedding.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part.
- * @evidenceExclude contracts/modeling.md#parameter-channels The thickness field owns its channels.
- * @evidenceExclude contracts/modeling.md#rendered-observation The faces are not displayed; the shell's consumer owns observation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The thickness field owns the values and their sources.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no authoring input.
  */
 export function createHumanBodyLayerSurfaces(
   input: IHumanBodyLayerSurfacesInput,
@@ -65,11 +54,25 @@ export function createHumanBodyLayerSurfaces(
     )
   )
     throw new Error("Layer thickness must be finite and nonnegative.");
-  const areaOf = (surface: readonly number[], at: number): number[] => {
+  const exterior = input.exterior;
+  const queryPositions = exterior?.mesh.positions ?? positions;
+  const queryIndices = exterior?.mesh.indices ?? indices;
+  const queryCount = queryPositions.length / 3;
+  const origins = exterior?.originVertices ?? Array.from({ length: count }, (_, vertex) => vertex);
+  if (
+    queryPositions.length % 3 !== 0 || queryIndices.length === 0 ||
+    queryIndices.length % 3 !== 0 || !queryPositions.every(Number.isFinite) ||
+    queryIndices.some((vertex) => !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= queryCount) ||
+    origins.length !== count || origins.some((vertex, native) =>
+      !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= queryCount ||
+      [0, 1, 2].some((axis) => queryPositions[vertex * 3 + axis] !== positions[native * 3 + axis])) ||
+    (exterior !== undefined && exterior.mesh.indices === null)
+  ) throw new Error("Layer exterior must carry exact native origins in a finite indexed common frame.");
+  const areaOf = (surface: readonly number[], at: number, triangles: readonly number[] = indices): number[] => {
     const [a, b, c] = [
-      indices[at] * 3,
-      indices[at + 1] * 3,
-      indices[at + 2] * 3,
+      triangles[at] * 3,
+      triangles[at + 1] * 3,
+      triangles[at + 2] * 3,
     ];
     const u = [
       surface[b] - surface[a],
@@ -87,30 +90,31 @@ export function createHumanBodyLayerSurfaces(
       u[0] * v[1] - u[1] * v[0],
     ];
   };
-  const normals = new Array<number>(positions.length).fill(0);
-  const incident = Array.from({ length: count }, () => new Set<number>());
-  for (let at = 0; at < indices.length; at += 3) {
-    const area = areaOf(positions, at);
+  const queryNormals = new Array<number>(queryPositions.length).fill(0);
+  const incident = Array.from({ length: queryCount }, () => new Set<number>());
+  for (let at = 0; at < queryIndices.length; at += 3) {
+    const area = areaOf(queryPositions, at, queryIndices);
     if (!area.every(Number.isFinite))
       throw new Error("Skin triangle area is not representable.");
     for (let corner = 0; corner < 3; corner++) {
-      incident[indices[at + corner]].add(at / 3);
+      incident[queryIndices[at + corner]].add(at / 3);
       for (let axis = 0; axis < 3; axis++)
-        normals[indices[at + corner] * 3 + axis] += area[axis];
+        queryNormals[queryIndices[at + corner] * 3 + axis] += area[axis];
     }
   }
-  for (let at = 0; at < normals.length; at += 3) {
-    const length = Math.hypot(normals[at], normals[at + 1], normals[at + 2]);
+  for (let at = 0; at < queryNormals.length; at += 3) {
+    const length = Math.hypot(queryNormals[at], queryNormals[at + 1], queryNormals[at + 2]);
     if (!(length > 0) || !Number.isFinite(length))
       throw new Error(
         "Skin vertex " + at / 3 + " has no finite area-weighted normal.",
       );
-    for (let axis = 0; axis < 3; axis++) normals[at + axis] /= length;
+    for (let axis = 0; axis < 3; axis++) queryNormals[at + axis] /= length;
   }
+  const normals = origins.flatMap((vertex) => queryNormals.slice(vertex * 3, vertex * 3 + 3));
   const cast = createAutoMovieMeshRayCaster({
-    positions: [...positions],
-    normals,
-    indices: [...indices],
+    positions: [...queryPositions],
+    normals: queryNormals,
+    indices: [...queryIndices],
     uvs: null,
     skin: null,
   });
@@ -147,7 +151,7 @@ export function createHumanBodyLayerSurfaces(
       inward,
       Infinity,
       0,
-      { excludedTriangles: incident[vertex] },
+      { excludedTriangles: incident[origins[vertex]] },
     );
     if (reach === null || !(reach > 0) || !Number.isFinite(reach)) {
       unmeasuredReachVertices++;

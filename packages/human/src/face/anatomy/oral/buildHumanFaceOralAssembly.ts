@@ -44,16 +44,6 @@ import { resolveHumanFaceOralLiningDimensions } from "./resolveHumanFaceOralLini
  * owner along the whole facial rim. Between the terminal crowns the rim has
  * no wall and a posterior opening is retained rather than labelled a reconstructed pharynx.
  *
- * @evidence contracts/common.md#principled-implementation One source cervical population defines crown holes, constrained lining triangles and their shared aliases, and one arch-frame height field places every generated point; the engine owns polygon admission.
- * @evidence contracts/common.md#clear-and-simple-design One rest-space assembly composes the arch frame, the lining field and the refinement into the dental lining and its exact peripheral wall rim.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No old incompatible gum outline, guessed clinical CEJ, bounding-box closure patch or tolerance repair enters.
- * @evidence contracts/modeling.md#part-identity-and-grouping Separates maxillary and mandibular gingiva, palate, floor and peripheral lining walls under head and jaw owners.
- * @evidence contracts/modeling.md#emitted-geometry A height field over the arch plane expresses gingiva, vault and floor; its triangle count follows the arch area over the squared cervical spacing, and the wall has two points per outline sample.
- * @evidence contracts/modeling.md#shared-boundaries Crown holes retain original dental ordinals and native coordinates; generated subdivisions and wall rims share exact point identities.
- * @evidence contracts/modeling.md#spatial-conventions Rest positions are head-frame metres; the arch frame converts to and from its lateral, anterior and apical coordinates.
- * @evidence contracts/anatomy.md#anatomical-source Licensed source roots supply the ports; the dimension resolver cites the vault and collar sources, and envelope, profile shapes and regional split remain authored geometry with unknown pharyngeal acquisition.
- * @evidence contracts/anatomy.md#permitted-range The common region kernel refuses crossing roots; finite positive authored clearances refuse without clamping.
- * @evidence contracts/anatomy.md#parametric-authority Named arch and space dimensions enter without personal sections or vertices.
  * @author Samchon
  */
 export function buildHumanFaceOralAssembly(

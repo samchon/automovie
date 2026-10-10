@@ -1,4 +1,5 @@
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
@@ -31,27 +32,15 @@ import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterial
  * Both sides sample the same immutable input sheet and accumulate into one
  * owned copy, so one side never changes the other's reference. Both consume
  * a registered material-chart course independently of width; the alar
- * registration's first native incident facet defines its chart frame and
- * both endpoints retain their native identities. Unsupported chart folds
- * refuse. A changed course
+ * registration's published material disk retains both endpoints' native
+ * identities through the current host. Missing source coverage and unsupported
+ * continuation refuse. A changed course
  * representation invalidates affected relief and contact-reference derivatives.
  * The pose owner must also call this on its shape-only contact reference with neutral smile,
  * so resting relief belongs to identity while performed relief takes the same
  * contact floor and budget as the remaining tissue performance. Common normal
  * construction and whole-person source-cell admission remain downstream.
  *
- * @evidence contracts/common.md#principled-implementation Smooth compact transverse and endpoint kernels displace the actual anterior sheet, sampled from immutable live geometry; contributions sum once into owned positions.
- * @evidence contracts/common.md#clear-and-simple-design One source-relative regional producer; depth sampling remains the shared engine instrument.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Registered anatomical endpoints and lip margin are required; no guessed vertex or clinical-grade conversion stands in.
- * @evidence contracts/common.md#meaningful-documentation States the guide and displacement conventions, identity/performance distinction, ownership, refusal and contact-reference responsibility.
- * @evidence contracts/modeling.md#part-identity-and-grouping Shapes the nasolabial region of the existing skin and adds no separate layer part.
- * @evidence contracts/modeling.md#parameter-channels Left and right resting depths are independent from their own smile amplitude; width changes compact support rather than the requested depth.
- * @evidence contracts/modeling.md#emitted-geometry Preserves every source vertex and triangle; fine relief resolution remains limited by the source's sampling.
- * @evidence contracts/modeling.md#spatial-conventions Converts millimetres once to Y-up +Z-anterior head-frame metres; valleys displace along the host's negative outward normal.
- * @evidence contracts/modeling.md#shared-boundaries Registered lip-margin vertices are untouched and the guide contribution vanishes at its alar and oral endpoints; other neighboring geometry still requires coupled contact observation.
- * @evidence contracts/anatomy.md#anatomical-source Uses the source's registered alar-curvature and cheilion identities; the constructed course and relief kernels are conventions, not measured tissue or a photonumeric inverse.
- * @evidence contracts/anatomy.md#permitted-range Nonfinite, negative or degenerate numerical inputs refuse unchanged; contact and source-cell guards judge geometric combinations, without claiming a clinical physiological envelope.
- * @evidence contracts/anatomy.md#parametric-authority Only named regional depths and width enter; source identities stay in the basis and personal vertices or curves cannot be authored.
  * @author Samchon
  */
 export function applyHumanFaceNasolabialRelief(
@@ -59,6 +48,7 @@ export function applyHumanFaceNasolabialRelief(
   positions: ReadonlyMap<string, readonly number[]>,
   weights: ReadonlyMap<string, number>,
   relief: IAutoMovieHumanFaceSkinRelief | undefined,
+  reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.nasolabial === undefined) return positions;
   const rows = (["left", "right"] as const).flatMap((side) => {
@@ -118,10 +108,11 @@ export function applyHumanFaceNasolabialRelief(
       throw new Error(
         "Nasolabial relief needs the same skin's registered complete lip margin.",
       );
-    const held = new Set([
-      ...basis.contact.margin.upper,
-      ...basis.contact.margin.lower,
-    ]);
+    const margin = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+    // Holding actual nonzero native support keeps the material contact course
+    // invariant under this separately authored persistent relief field.
+    const held = new Set([...margin.upper, ...margin.lower].flatMap((point) =>
+      point.vertices.filter((_, axis) => point.weights[axis] !== 0)));
     for (const row of rows.filter((item) => item.ala.surface === index)) {
       held.add(row.ala.vertex);
       held.add(row.corner.vertex);
@@ -157,10 +148,11 @@ export function applyHumanFaceNasolabialRelief(
         changed,
         course: createHumanFaceSkinMaterialCourse({
           host,
-          positions: source,
-          indices: surface.indices,
+          surface,
+          referencePositions: reference.get(surface.id) ?? [],
+          domain: row.side === "left" ? "nasolabialLeft" : "nasolabialRight",
           supportVertices: [row.ala.vertex, row.corner.vertex],
-          guide: [a, b],
+          guide: [{ vertex: row.ala.vertex }, { vertex: row.corner.vertex }],
         }),
         widthMetres: row.width,
         offsetMetres: -row.depth,

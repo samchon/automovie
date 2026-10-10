@@ -16,20 +16,6 @@ import type { IHumanFaceOcularCapFoot } from "./structures/IHumanFaceOcularCapFo
  * with the coefficients, including the receiver of a method evaluator. The evaluator must retain the same profile internally;
  * the normal profile owner closes over its resolved local scalar values.
  *
- * @evidence contracts/common.md#principled-implementation Exact rational coefficients retain all stationary roots of the admitted quartic profile, and actual profile evaluation compares their distances with both endpoints.
- * @evidence contracts/common.md#clear-and-simple-design Immutable profile coefficients are compiled once; each query supplies only its two meridian coordinates.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No curvature region, sample grid or iteration budget selects a minimum.
- * @evidence contracts/common.md#meaningful-documentation States parameter normalization and the separate final factored evaluation boundary.
- * @evidence contracts/modeling.md#spatial-conventions Radius and axial coordinate use the admitted profile's metre meridian frame.
- *
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
- * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
- * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
- * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
- * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
- * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
  */
 export class HumanFaceOcularCapMetric {
   private readonly length: IHumanExactFraction;
@@ -81,40 +67,12 @@ export class HumanFaceOcularCapMetric {
   }
 
   /** The same real polynomial at an exact radial coordinate, before output rounding.
-   *
-   * @evidence contracts/common.md#principled-implementation The registered quartic coefficients are evaluated as exact fractions at the requested radius.
-   * @evidence contracts/common.md#clear-and-simple-design heightAtRadius keeps its specific numerical operation with the shared owning implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts heightAtRadius retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
-   * @evidence contracts/common.md#meaningful-documentation Read the real quartic cap height at an exact radius before output rounding; radius and height use profile metres.
-   * @evidence contracts/modeling.md#spatial-conventions Ocular metric coordinates use profile metres and dimensionless or radian patch parameters; derivative quantities retain their stated units.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
    */
   heightAtRadius(radius: IHumanExactFraction): IHumanExactFraction {
     return this.heightAtParameter(Fraction.divide(radius, this.length));
   }
 
   /** Exact meridian second derivative of the same represented-input profile.
-   *
-   * @evidence contracts/common.md#principled-implementation The derivative is obtained algebraically from the same quartic coefficients and normalized radius.
-   * @evidence contracts/common.md#clear-and-simple-design secondDerivativeAtRadius keeps its specific numerical operation with the shared owning implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts secondDerivativeAtRadius retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
-   * @evidence contracts/common.md#meaningful-documentation Read the same cap polynomial second derivative at an exact metre radius; the result has inverse-metre units.
-   * @evidence contracts/modeling.md#spatial-conventions Ocular metric coordinates use profile metres and dimensionless or radian patch parameters; derivative quantities retain their stated units.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
    */
   secondDerivativeAtRadius(radius: IHumanExactFraction): IHumanExactFraction {
     const square = Fraction.multiply(this.length, this.length);
@@ -131,20 +89,6 @@ export class HumanFaceOcularCapMetric {
   }
 
   /** Return the nearest cap radius; equal represented costs keep the smaller radius.
-   *
-   * @evidence contracts/common.md#principled-implementation Complete stationary-root isolation and endpoint comparison bound the nearest metric without a convexity assumption.
-   * @evidence contracts/common.md#clear-and-simple-design foot keeps its specific numerical operation with the shared owning implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts foot retains represented inputs and explicit numerical failure instead of substituting a geometry-specific threshold.
-   * @evidence contracts/common.md#meaningful-documentation Select a represented cap radius from both endpoints and all stationary intervals, retaining a complete distance enclosure.
-   * @evidence contracts/modeling.md#spatial-conventions Ocular metric coordinates use profile metres and dimensionless or radian patch parameters; derivative quantities retain their stated units.
-   * @evidenceExclude contracts/modeling.md#part-identity-and-grouping Numerical representations and operations define no anatomical part.
-   * @evidenceExclude contracts/modeling.md#parameter-channels Existing source and parameter owners supply values; this operation introduces no authoring channel.
-   * @evidenceExclude contracts/modeling.md#emitted-geometry Emits no render primitive.
-   * @evidenceExclude contracts/modeling.md#shared-boundaries Computes numerical data; construction owners define geometric joins.
-   * @evidenceExclude contracts/modeling.md#rendered-observation Numerical data has no independent rendered output; geometry consumers observe their results.
-   * @evidenceExclude contracts/anatomy.md#anatomical-source Adds no clinical measurement, acquisition protocol or anatomical default.
-   * @evidenceExclude contracts/anatomy.md#permitted-range Anatomical input admission remains with the profile and source owners.
-   * @evidenceExclude contracts/anatomy.md#parametric-authority Does not expose personal sculpting or a clinical conversion.
    */
   foot(rho: number, zeta: number): IHumanFaceOcularCapFoot {
     const zero = Fraction.create(0n),
@@ -254,7 +198,6 @@ export class HumanFaceOcularCapMetric {
 
   /**
    * Evaluate the one exact quartic height at dimensionless t=r/L.
-   *
    */
   private heightAtParameter(t: IHumanExactFraction): IHumanExactFraction {
     const q = Fraction.multiply(t, t);

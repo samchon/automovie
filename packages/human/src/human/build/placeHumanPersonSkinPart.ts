@@ -14,20 +14,6 @@ import type { IAutoMovieHumanPersonSkinPartProps } from "../structures/IAutoMovi
  * so both halves share one physical identity per sample. Other domains (parts
  * the skin does not own) keep theirs. A part without that registration
  * refuses by name.
- *
- * @evidence contracts/common.md#principled-implementation Positions and normals are read through the registered sample of each render vertex, so the emitted halves meet at one value.
- * @evidence contracts/common.md#clear-and-simple-design Check the registration, copy, move the domain, write positions and normals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unregistered or mismatched part refuses; no vertex is matched by position.
- * @evidence contracts/common.md#meaningful-documentation States what is checked, what each vertex takes and the refusal.
- * @evidence contracts/modeling.md#spatial-conventions Posed metres and unit normals of the person frame.
- * @evidence contracts/modeling.md#shared-boundaries A shared sample reads the same position and normal on both halves and one physical identity.
- * @evidence contracts/modeling.md#emitted-geometry Emits the part's own triangles with its positions and normals replaced.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The part keeps its own identity.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function displays nothing.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range The function admits nothing.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function converts no input.
  */
 export function placeHumanPersonSkinPart(
   props: IAutoMovieHumanPersonSkinPartProps,

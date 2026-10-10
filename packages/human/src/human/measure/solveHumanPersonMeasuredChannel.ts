@@ -28,20 +28,6 @@ import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
  * outside the measurement's source sample is solved and reported as
  * `outside-source-sample`, because that range describes the population the
  * source measured, not a limit on a person.
- *
- * @evidence contracts/common.md#principled-implementation One instrument, one channel and the shared inverse; the solve reads the actual final skin at every trial.
- * @evidence contracts/common.md#clear-and-simple-design Admission, a trial reader, the shared inverse and one final reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A generation without the head rows is refused by name, and a target outside the source population is reported, not clamped.
- * @evidence contracts/common.md#meaningful-documentation States the instrument, the rest trial, what the result keeps and every refusal.
- * @evidence contracts/modeling.md#parameter-channels Changes only the one named body channel of the document.
- * @evidence contracts/modeling.md#spatial-conventions The target and the reading are metres.
- * @evidence contracts/anatomy.md#anatomical-source Reports whether the target lies within the source sample the measurement cites.
- * @evidence contracts/anatomy.md#permitted-range The reach is the channel's evaluated envelope on the actual skin; the population range bounds nothing.
- * @evidence contracts/anatomy.md#parametric-authority Converts a measured target into the channel weight that produces it.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The solver defines no part.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The evaluator emits the geometry; the solver only reads it.
- * @evidenceExclude contracts/modeling.md#shared-boundaries The evaluator owns the boundary; the instrument reads across it.
- * @evidenceExclude contracts/modeling.md#rendered-observation The solver displays nothing.
  */
 export function solveHumanPersonMeasuredChannel(
   props: IAutoMovieHumanPersonMeasuredChannelProps,

@@ -29,19 +29,6 @@ import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
  * depth, the tongue's half-width there and the arch's, and no input is
  * changed.
  *
- * @evidence contracts/common.md#principled-implementation Containment in plan is compared ring by ring: the lingual face of the arch is the row's guide ellipse moved inward along its normal by the crown half-depth (the parallel curve, sampled at 128 angles and read by linear interpolation), and the tongue's ring half-width is its authored half-width times the ellipse envelope at that station. The inner curve's depth is monotone for a crown depth below the arch's radius of curvature, which the comment states as the limit; behind the ellipse's end the room is the full lingual half-width.
- * @evidence contracts/common.md#clear-and-simple-design One function of two profiles and a shared recess, called once by document resolution; it changes no input.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named, and no threshold is tuned: the bound is the geometry of the caller's own arch and tongue.
- * @evidence contracts/common.md#meaningful-documentation The comment states the frame, the arch construction, what is compared, what is not (heights, the jaw, the palate, a protruded tongue) and the limit of the offset curve, and the refusal names the depth and both widths.
- * @evidence contracts/modeling.md#spatial-conventions Millimetres in the shared lower-lip-anchor frame with X across the arch and depth posterior; the depth of a tongue ring is its recess plus its length times its station, less the row's recess.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function compares two profiles and defines no part or group.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes profile dimensions and defines no channel.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
- * @evidence contracts/modeling.md#shared-boundaries It defines, once, where the tongue's lateral boundary meets the lower arch's lingual face at rest, so the two parts cannot be authored to interpenetrate laterally; it does not cover the height, the palate, the opening jaw or the lining.
- * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function stores no anatomical value; it derives the bound from the arch the caller supplies.
- * @evidence contracts/anatomy.md#permitted-range The bound on the tongue's width is derived from the structure that limits it, the lower dental arch: at each depth the half-width may not exceed the arch's lingual half-width, and a tongue tip inside the incisors is refused because it would share a volume with enamel. It is a combination check, since each of the tongue's and the arch's dimensions is admitted alone. A refusal reports the depth and both widths and leaves the caller's values unchanged; a tongue wholly in front of the arch is outside the check.
- * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input through which a caller shapes a face; it refuses a combination of inputs declared elsewhere.
  * @author Samchon
  */
 export function assertPortraitTongueWithinArch(
