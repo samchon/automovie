@@ -2,7 +2,7 @@
 
 ## Development
 
-- Ground anatomical claims (dimensions, positions, ranges, tissue relationships) in scientific evidence. State assumptions and uncertainty. Preserve the provenance and rights of every reference.
+- Ground anatomical claims under the contracts skill's [Anatomical Source](../contracts/anatomy.md#anatomical-source) chapter, and keep the provenance and rights of every reference.
 - Author the geometry in this package. Its construction (surfaces, cross-sections, topology, blending) is design work: mark it authored and accept it by measurement and rendering against references. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence. A missing source is no reason to import geometry.
 - Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
 - Develop anatomy as connected parts.

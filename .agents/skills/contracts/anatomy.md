@@ -1,6 +1,6 @@
 # Anatomical Principles
 
-These chapters apply to declarations that own anatomical values, controls, ranges or conversions. The package authors the geometry; external meshes, atlases and scans are measurement references. Anatomical claims require measurements, tissue relationships and supported conditions.
+These chapters apply to declarations that own anatomical values, controls, ranges or conversions. Geometry construction is authored; anatomical claims require measurements, tissue relationships and supported conditions.
 
 ## Anatomical Source
 
