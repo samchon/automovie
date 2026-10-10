@@ -5,6 +5,8 @@
 - Ground anatomy in scientific evidence. State assumptions and uncertainty. Preserve source provenance and rights.
 - Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
 - Develop anatomy as connected parts.
+- Author the geometry in this package. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence.
+- Generate skin and interior tissue from one shared skeleton and rest frame so their correspondence holds by construction. Do not reconcile independently sourced geometry through registration or optimization.
 - Distinguish numerical, clinical and visual judgments. Missing or refused results remain unverified.
 - Preserve the last valid state when an operation fails.
 
@@ -28,7 +30,7 @@ Audit every 30 minutes.
 4. Find the causes of repeated symptoms, failed premises and representation limits.
 5. Choose the fastest method at the same quality and full scope. Assess resources, duplicate work and waits. Parallelize independent work.
 6. Check roles, skills, actor rechecks and outputs. Distinguish running work from idle workers. Respect writing and execution grants. Reassign, combine or retire owners.
-7. Change strategy when premises fail or visual gains stall. Execute the change and verify its result.
+7. Change strategy when premises fail or visual gains stall. Gains stall when two consecutive renders under matching conditions show no improvement. Change the source, correspondence or representation, because a new solver, tolerance or parameterization on the same representation is not a strategy change. Execute the change before the next audit and verify its result. Record a verdict on every foundational alternative an owner proposes.
 8. Record audit times, missed checks, corrections and the next due time. Keep each actor's audit separate.
 
 Keep the viewer available between audits.
