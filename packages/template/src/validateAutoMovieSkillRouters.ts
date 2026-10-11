@@ -2,7 +2,7 @@
  * Admit the generated project's complete instruction routes before publication.
  * Initial renderScaffold creation supplies an immutable population of
  * project-relative files before publishFiles installs the completed candidate.
- * Normalize paths, admit the five router identities/frontmatter, then resolve
+ * Normalize paths, admit each present skill's frontmatter, then resolve
  * every Markdown topic link against that same population. No filesystem reads
  * or writes occur here. A broken conditional route must refuse the candidate
  * before the publication owner can install project-owned instructions. Non-Markdown
@@ -13,16 +13,6 @@ import { projectAutoMovieMarkdownSyntax } from "@automovie/evidence";
 import path from "node:path";
 import { isMap, parseDocument } from "yaml";
 
-const AUTO_MOVIE_SKILL_NAMES = [
-  "contract",
-  "evidence-graph",
-  "production-lifecycle",
-  "review-verification",
-  "source-authoring",
-] as const;
-const AUTO_MOVIE_SKILL_NAME_SET: ReadonlySet<string> = new Set(
-  AUTO_MOVIE_SKILL_NAMES,
-);
 
 /**
  * One synthetic project-root-relative Markdown source.
@@ -145,13 +135,13 @@ export const validateAutoMovieInstructionDocumentLinks = (
 };
 
 /**
- * Validate installed H1-only routers and every conditional Markdown topic route.
+ * Validate present skill metadata and every local Markdown topic route.
  *
  * Link resolution is performed over an explicit source population so missing
  * files, missing anchors, and root escapes are ordinary deterministic cases.
  * A directory route is accepted only when at least one source is resident
  * below that directory. Topic documents retain their ordinary heading structure;
- * only SKILL.md carries the router/frontmatter restrictions.
+ * SKILL.md supplies the skill name, description and title.
  *
  * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Refuses an instruction entry point that cannot reach the procedure it advertises.
  * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Keeps every shipped authoring route inside the generated project's complete instruction and contract source population.
@@ -170,29 +160,21 @@ export const validateAutoMovieSkillRouterLinks = (
     file.startsWith(".agents/skills/"),
   );
   const expected = new Set(
-    AUTO_MOVIE_SKILL_NAMES.map((name) => `.agents/skills/${name}/SKILL.md`),
+    skillFiles.filter(([file]) => file.endsWith("/SKILL.md")).map(([file]) => file),
   );
-  for (const [file] of skillFiles) {
-    const name = file.split("/")[2];
-    if (
-      name === undefined ||
-      !AUTO_MOVIE_SKILL_NAME_SET.has(name) ||
-      (file.endsWith("/SKILL.md") && !expected.has(file))
-    )
-      throw new Error(`${file}: unexpected production skill path.`);
-  }
   for (const file of expected) {
-    const markdown = files.get(file);
-    if (markdown === undefined)
-      throw new Error(`${file}: required production skill router is missing.`);
+    const markdown = files.get(file)!;
     const name = file.split("/")[2]!;
     const body = validateSkillFrontmatter(file, markdown, name);
     const headings = visibleLines(body).filter((line) =>
       /^#{1,6}\s+\S/u.test(line),
     );
-    if (headings.length !== 1 || !headings[0]!.startsWith("# "))
+    if (
+      headings.filter((line) => line.startsWith("# ")).length !== 1 ||
+      !headings[0]?.startsWith("# ")
+    )
       throw new Error(
-        `${file}: every SKILL.md is an H1-only index and router.`,
+        `${file}: every SKILL.md must begin with one H1 title.`,
       );
     for (const match of body.matchAll(/\[[^\]]*\]\(([^)]+)\)/gu))
       validateAutoMovieInstructionLink(sources, file, match[1]!);

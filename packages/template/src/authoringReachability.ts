@@ -80,40 +80,13 @@ type AutoMovieAuthoringCapability =
   | "acceptance"
   | "camera-actions";
 
-type AutoMovieAuthoringRoute =
-  | ".agents/skills/production-lifecycle/settings.md"
-  | ".agents/skills/production-lifecycle/configuration.md"
-  | ".agents/skills/production-lifecycle/screenplays.md"
-  | ".agents/skills/production-lifecycle/naturalness.md"
-  | ".agents/skills/production-lifecycle/briefs.md"
-  | ".agents/skills/source-authoring/index.md"
-  | ".agents/skills/source-authoring/design-branches.md"
-  | ".agents/skills/source-authoring/compilation.md"
-  | ".agents/skills/source-authoring/models-and-motions.md"
-  | ".agents/skills/source-authoring/composition.md"
-  | ".agents/skills/source-authoring/cinematography.md"
-  | ".agents/skills/source-authoring/sound.md"
-  | ".agents/skills/source-authoring/spatial-design.md";
+type AutoMovieAuthoringRoute = "README.md" | "docs/README.md" | ".agents/skills/3d-modeling/SKILL.md";
 
 /**
  * Runtime copy of the route union, so a row handed to the inspector at runtime
  * is held to the same closed document set the type admits at compile time.
  */
-const ROUTE_REGISTRY = {
-  ".agents/skills/production-lifecycle/settings.md": true,
-  ".agents/skills/production-lifecycle/configuration.md": true,
-  ".agents/skills/production-lifecycle/screenplays.md": true,
-  ".agents/skills/production-lifecycle/naturalness.md": true,
-  ".agents/skills/production-lifecycle/briefs.md": true,
-  ".agents/skills/source-authoring/index.md": true,
-  ".agents/skills/source-authoring/design-branches.md": true,
-  ".agents/skills/source-authoring/compilation.md": true,
-  ".agents/skills/source-authoring/models-and-motions.md": true,
-  ".agents/skills/source-authoring/composition.md": true,
-  ".agents/skills/source-authoring/cinematography.md": true,
-  ".agents/skills/source-authoring/sound.md": true,
-  ".agents/skills/source-authoring/spatial-design.md": true,
-} satisfies Record<AutoMovieAuthoringRoute, true>;
+const ROUTE_REGISTRY = { "README.md": true, "docs/README.md": true, ".agents/skills/3d-modeling/SKILL.md": true } satisfies Record<AutoMovieAuthoringRoute, true>;
 
 /**
  * One public capability's complete route from author decision to consumer.
@@ -137,7 +110,7 @@ export interface IAutoMovieAuthoringReachabilityRow {
   kind: AutoMovieAuthoringProductionKind;
   /** Generated-project document or source location that owns the decision. */
   owner: string | null;
-  /** Generated-project skill that teaches the author how to reach the owner. */
+  /** Generated-project document that points to the owner and installed public APIs. */
   route: AutoMovieAuthoringRoute | null;
   /** Typed value or document passed directly to the named public consumer. */
   input: string | null;
@@ -211,86 +184,86 @@ const field = (
 const PRODUCTION_DESIGN_FIELD_ROUTES = {
   id: field(
     "@automovie/production validateAutoMovieProductionGraph identity validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   title: field(
     "@automovie/production validateAutoMovieProductionGraph text validation",
-    ".agents/skills/production-lifecycle/settings.md",
+    "README.md",
   ),
   logline: field(
     "@automovie/production validateAutoMovieProductionGraph text validation",
-    ".agents/skills/production-lifecycle/settings.md",
+    "README.md",
   ),
   targetRuntimeSeconds: field(
     "@automovie/production validateAutoMovieProductionGraph runtime validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   visualDelivery: field(
     "@automovie/production validateAutoMovieProductionGraph delivery configuration validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
     VISUAL_DELIVERIES,
   ),
   visualDeliveryLanes: field(
     "@automovie/production validateAutoMovieProductionGraph occurrence-lane validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   mixedVisualDeliveryPolicy: field(
     "@automovie/production validateAutoMovieProductionGraph lane-crossing validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   storyClock: field(
     "@automovie/engine autoMovieStoryTime",
-    ".agents/skills/production-lifecycle/settings.md",
+    "README.md",
   ),
   lighting: field(
     "@automovie/engine resolveProductionLighting",
-    ".agents/skills/source-authoring/cinematography.md",
+    "README.md",
   ),
   renderBudgets: field(
     "@automovie/render assessAutoMovieRenderBudget",
-    ".agents/skills/source-authoring/composition.md",
+    "README.md",
   ),
   externalMotions: field(
     "@automovie/ingest adoptAutoMovieExternalMotion",
-    ".agents/skills/source-authoring/models-and-motions.md",
+    "README.md",
     EXTERNAL_MOTION_MODES,
   ),
   captionReadabilityProfiles: field(
     "@automovie/production validateAutoMovieProductionGraph caption profile validation",
-    ".agents/skills/source-authoring/sound.md",
+    "README.md",
   ),
   sound: field(
     "@automovie/engine deriveProductionSoundPlan",
-    ".agents/skills/source-authoring/sound.md",
+    "README.md",
   ),
   renderTiers: field(
     "@automovie/production validateAutoMovieProductionGraph render tier validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
     RENDER_TIERS,
   ),
   repaint: field(
     "@automovie/production validateAutoMovieProductionGraph repaint configuration validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   simulation: field(
     "@automovie/production validateAutoMovieProductionGraph simulation configuration validation",
-    ".agents/skills/source-authoring/design-branches.md",
+    "docs/README.md",
   ),
   environmentContext: field(
     "@automovie/engine validateAutoMovieEnvironmentContext",
-    ".agents/skills/source-authoring/spatial-design.md",
+    "README.md",
   ),
   frameFormat: field(
     "@automovie/engine resolveProductionFrameRate",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
   artDirection: field(
     "@automovie/production validateAutoMovieProductionGraph art-direction validation",
-    ".agents/skills/production-lifecycle/settings.md",
+    "README.md",
   ),
   deliverables: field(
     "@automovie/production validateAutoMovieProductionGraph deliverable validation",
-    ".agents/skills/production-lifecycle/configuration.md",
+    "README.md",
   ),
 } satisfies Record<
   AutoMovieProductionDesignField,
@@ -302,7 +275,7 @@ const BASE_ROUTE_DEFINITIONS = {
     owner: "docs/settings",
     input: "Markdown H2 evidence hosts",
     consumer: "@automovie/evidence production graph",
-    route: ".agents/skills/production-lifecycle/settings.md",
+    route: "README.md",
   },
   "design-branches": {
     owner:
@@ -311,14 +284,14 @@ const BASE_ROUTE_DEFINITIONS = {
       "reviewed TypeScript values passed directly to selected package APIs",
     consumer:
       "@automovie/engine geometry, material, spatial, instance and motion APIs",
-    route: ".agents/skills/source-authoring/design-branches.md",
+    route: "docs/README.md",
   },
   "production-sources": {
     owner: "project-authored TypeScript modules under src",
     input: "lint.config.ts source populations and their typed source exports",
     consumer:
       "@automovie/evidence source graph and selected public runtime APIs",
-    route: ".agents/skills/source-authoring/compilation.md",
+    route: "README.md",
   },
   "external-model-inspection": {
     choices: AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES,
@@ -326,7 +299,7 @@ const BASE_ROUTE_DEFINITIONS = {
     input: "exact source bytes and an explicit inspection profile",
     consumer:
       "@automovie/ingest inspectAutoMovieExternalModelBytes; automovie inspect-external",
-    route: ".agents/skills/source-authoring/models-and-motions.md",
+    route: "README.md",
   },
 } satisfies Record<
   Exclude<
@@ -406,22 +379,22 @@ const timedRows = (
     consumer: "@automovie/engine compileDefinedShot and cutSequence",
     route:
       kind === "film"
-        ? ".agents/skills/production-lifecycle/naturalness.md"
-        : ".agents/skills/production-lifecycle/briefs.md",
+        ? "README.md"
+        : "README.md",
   }),
   applicable(kind, "acceptance", {
     owner: "project-authored shot contracts and review expectations under src",
     input:
       "IAutoMovieDefinedShot registration, build callback, context and runtime",
     consumer: "@automovie/engine compileDefinedShot contract realization",
-    route: ".agents/skills/source-authoring/compilation.md",
+    route: "README.md",
   }),
   applicable(kind, "camera-actions", {
     choices: AUTO_MOVIE_CAMERA_ACTIONS,
     owner: "project-authored frame actions under src",
     input: 'IAutoMovieActionCall verb "frame" move',
     consumer: "@automovie/engine compileCameraMove",
-    route: ".agents/skills/source-authoring/cinematography.md",
+    route: "README.md",
   }),
 ];
 

@@ -1,6 +1,6 @@
 ---
 name: issue-campaign
-description: Defines the repository-wide issue campaign for automovie: exhaustive discovery, wiki-backed candidate adjudication, vetted issue publication, then implementation of every accepted issue in dependency order in one checkout and one branch, closed by one integration Self-Review and CI on a single cycle pull request. Use for broad audits, many issue candidates, or repeated issue-to-pull-request campaigns; do not use for one already-defined issue or an ordinary pull request.
+description: Defines the repository-wide issue campaign for automovie: exhaustive discovery, candidate adjudication, vetted issue publication, then implementation of every accepted issue in dependency order in one checkout and one branch, closed by one integration Self-Review and CI on a single cycle pull request. Use for broad audits, many issue candidates, or repeated issue-to-pull-request campaigns; do not use for one already-defined issue or an ordinary pull request.
 ---
 
 # Issue Campaign
@@ -26,21 +26,17 @@ A campaign's scale and duration demand stronger evidence and deeper consequence 
 
 Read the project, development and review skills first.
 
-## Campaign knowledge base
+## Campaign record
 
-Create `.wiki/08-campaigns/<campaign>/` with a short filesystem-safe name, in Korean like the rest of `.wiki/`. Reconcile an existing campaign directory instead of deleting it or assuming a blank slate.
-
-Keep concise, current documents for the campaign scope and its architecture, validation ownership, product boundaries and provenance; experiments, reproductions and related issue and pull-request history; every raw candidate with its evidence, dependencies and final disposition; combinations, splits, rejections and deferrals with their evidence; and, when those phases apply, the published-issue DAG, the cycle pull request, CI and Self-Review iterations, blockers, timing and cleanup state.
-
-Record raw candidates before fact-checking, so overlapping observations can be combined, split, rewritten, rejected or deferred without losing why. The knowledge base is not the issue body: `.wiki` is gitignored and a fresh implementer never sees it.
+Keep the current scope, raw candidates, evidence, dependencies and dispositions in the task's working notes while adjudicating. Publish the accepted scope and evidence in self-contained issue bodies. When implementation is authorized, record the issue DAG, verification, blockers and cleanup in the cycle pull-request chronology. No separate local knowledge-base directory is required.
 
 ## Discover, adjudicate and publish
 
 Each discovery round follows the [review skill's law](../review/SKILL.md#non-negotiable-review-law) over the entire declared scope:
 
-1. Audit the whole declared scope and its consequence surface: source, tests, documentation, CI, packaging, consumers and open and closed decisions. For affected visual output, use the viewer-verification skill; for a generated consumer, run its actual scripts; for platform or upstream-source claims, inspect that behavior and provenance. Source reading alone cannot settle those applicable claims.
+1. Audit the whole declared scope and its consequence surface: source, tests, documentation, CI, packaging, consumers and open and closed decisions. For affected visual output, use 3D modeling's visual debugging procedure; for a generated consumer, run its actual scripts; for platform or upstream-source claims, inspect that behavior and provenance. Source reading alone cannot settle those applicable claims.
 2. Audit the current implementation and its history against the development skill's [Forbidden](../development/SKILL.md#forbidden) section as a retrospective contract and not only a rule for future changes. A violation is a meaningful candidate even when it predates the campaign or passes every test at 100% coverage, and resemblance or stylistic preference proves nothing.
-3. Record every raw candidate with its evidence in the knowledge base before adjudication, and discard no suspicion because it looks duplicative or inconvenient.
+3. Record every raw candidate with its evidence in the task's working notes before adjudication, and discard no suspicion because it looks duplicative or inconvenient.
 4. Adjudicate each candidate: reopen its evidence and reproduce the behavior, verify ownership, provenance and any claimed **Forbidden** classification from purpose, control flow, consequence and history, trace the full consequence surface, and compare open and closed issues and pull requests. Record accept, partial acceptance, rewrite, combine, split, reject or defer with the supporting evidence, so later rounds do not rediscover a rejected premise as new.
 5. If any meaningful candidate survived, run another complete round over the entire scope at the same repository state. A change to the target branch before that empty round is claimed makes the round stale, so rerun it against the new baseline. Adjudicate what it produced, re-audit, and repeat until one round adds no meaningful candidate. Only that empty round closes discovery.
 6. Publish only the adjudicated form, covering the whole accumulated pool, and only with user authorization or under a standing autonomous mandate.
@@ -50,7 +46,7 @@ A round audits the current integrated state again in full. A merged cycle change
 
 ### Self-contained issue body
 
-Write enough context for a fresh AI agent to implement from the issue alone, without the local `.wiki`, the discovery conversation or unstated repository knowledge. Cover these sections when they apply; **Scope** is always present:
+Write enough context for a fresh AI agent to implement from the issue alone, without private working notes, the discovery conversation or unstated repository knowledge. Cover these sections when they apply; **Scope** is always present:
 
 - **Problem:** current and expected behavior, impact and affected users.
 - **Evidence:** exact reproduction, outputs or renders, stable symbols, verified root cause, ownership and provenance. For a **Forbidden** violation, prove the classification from behavior, control flow and history instead of naming the prohibition. Line numbers are navigation and not proof.
@@ -77,7 +73,7 @@ An issue is one topic, not one package. Walk the topic down the contract before 
 
 The table is the floor. A topic that also crosses the scaffold, the viewer, CI, the evidence configuration or a skill lists that layer beside the six. "Not applicable" is an answer and silence is not: write the layer down with the reason, because a layer the body never mentions is a layer nobody decided about.
 
-Point at the skill that owns each layer's obligation and copy none of it. The [evidence graph skill](../evidence-graph/SKILL.md) owns the two document layers and how a public export cites them, the [scaffold skill](../scaffold/SKILL.md) owns the authoring skill a generated project ships, and the development skill's [producer-lands-with-its-consumer rule](../development/SKILL.md#work-rules) owns reachability inside one change.
+Point at the owner of each layer's obligation and copy none of it. The [evidence graph skill](../evidence-graph/SKILL.md) owns the two document layers and public citations, the [scaffold skill](../scaffold/SKILL.md) owns generated-project material, and the development skill's [producer-lands-with-its-consumer rule](../development/SKILL.md#work-rules) owns reachability inside one change.
 
 The failure this prevents is a capability that exists and cannot be reached. Published, documented and reachable are three different states, so the guide layer answers how an author arrives at the capability and not whether its name appears somewhere.
 

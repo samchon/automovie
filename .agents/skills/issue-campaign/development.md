@@ -29,7 +29,7 @@ Claim the whole cycle before implementing anything:
 2. Create one implementation-free commit with `git commit --allow-empty`.
 3. Push the branch and open one draft pull request.
 4. Reference every cycle issue by number, mark verification pending, and state that the pull request owns the complete accepted cycle.
-5. Record the checkout, branch, pull request, head SHA, issue set, order and external temporary-asset ledger in `.wiki`.
+5. Record the checkout, branch, head SHA, issue set, order and external temporary-asset ledger in the pull-request chronology.
 
 Put no closing keyword in the claim body. It is written before any code exists, so a claim-time `Closes #n` list closes whatever the cycle later drops, defers, narrows or disproves and hides the analysis those issues carry. The cycle's closing set is the union of the commit closing lines, which makes the merge close exactly what landed.
 

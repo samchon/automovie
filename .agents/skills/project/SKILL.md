@@ -48,7 +48,7 @@ The [root package map](../../../README.md#packages) and each package README own 
 - `template/scaffold` owns the generated authoring harness under the [scaffold skill](../scaffold/SKILL.md); `cli` and `create-automovie` install it. `evidence` turns a production's typed declaration into its separate contract graph.
 - `docs` owns repository requirements/specifications; `config` owns shared TypeScript/lint policy; `test` owns the pure-unit suite under the [development skill](../development/SKILL.md#testing).
 - The four retained architectural productions under `experimental/` feed the public website and are not disposable sandboxes. The [website README](../../../website/README.md) owns that handoff and deployment.
-- `.wiki/` is ignored working knowledge under the [documentation skill](../documentation/wiki.md); `.references/` holds ignored downloaded research materials.
+- `.references/` holds ignored downloaded research materials.
 
 ## Commands
 

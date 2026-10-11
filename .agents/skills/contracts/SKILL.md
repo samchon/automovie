@@ -7,7 +7,7 @@ description: Defines the implementation acknowledgments that maintained source d
 
 A declaration answers each chapter its package's `evidence.config.ts` selects with `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The [review skill](../review/SKILL.md) judges whether the answers are true. Changing the selection requires a separately verified configuration change.
 
-Product promises and system contracts belong to the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract to the scaffold's shipped `contract` skill.
+Product promises and system contracts belong to the [evidence graph skill](../evidence-graph/SKILL.md). A generated production's selected contract documents and declaration own its contract.
 
 ## Answering a chapter
 

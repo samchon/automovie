@@ -14,4 +14,4 @@ Plain and direct: state the fact and stop. Use the literal phrase where one exis
 
 Apply these rules to prose you write or revise, and leave a corpus-wide re-voicing as its own topic, since rewriting a settled instruction for style alone risks changing what it requires.
 
-Check these rules directly while reviewing instructions, package READMEs, scaffold Markdown and TypeScript comments. They stop at the shipped contract corpus under `packages/template/scaffold/docs`, where [screenplay naturalness](../../../packages/template/scaffold/.agents/skills/production-lifecycle/naturalness.md#qualified-complete-reading) owns authored language and forbids starting from a phrase list. Code syntax, literal values and quoted historical evidence keep their original meaning and are not prose to rewrite.
+Check these rules directly while reviewing instructions, package READMEs, scaffold Markdown and TypeScript comments. They stop at the shipped contract corpus under `packages/template/scaffold/docs`. Code syntax, literal values and quoted historical evidence keep their original meaning and are not prose to rewrite.

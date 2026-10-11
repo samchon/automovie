@@ -29,9 +29,8 @@ import { fileURLToPath } from "node:url";
  * Never create a branch merely because the scaffold names it.
  *
  * Naturalness revises dialogue, narration, and audience-read language only;
- * mechanically exact physical descriptions are copied unchanged. Follow
- * `.agents/skills/production-lifecycle/naturalness.md` for the revision scope
- * and upstream-repair procedure. Film and brief also require completed
+ * mechanically exact physical descriptions are copied unchanged.
+ * Film and brief also require completed
  * productionSources as the parallel typed assembly input to filmSources.
  */
 export const productionEvidence = {
