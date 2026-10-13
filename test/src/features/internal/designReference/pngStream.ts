@@ -2,12 +2,12 @@ import zlib from "node:zlib";
 import { pngChunk } from "./pngChunk";
 
 /** Author a small RGBA datastream with exact independently stated extent and optional compressed IDAT bytes. */
-export const pngStream = (
+export function pngStream(
   width: number,
   height: number,
   withIdat: boolean,
-): Uint8Array => {
-  const header = Buffer.alloc(13);
+): Uint8Array {
+  const header: Buffer = Buffer.alloc(13);
   header.writeUInt32BE(width, 0);
   header.writeUInt32BE(height, 4);
   header.set([8, 6, 0, 0, 0], 8);
@@ -24,4 +24,4 @@ export const pngStream = (
       : []),
     pngChunk("IEND", new Uint8Array()),
   ]);
-};
+}

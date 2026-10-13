@@ -1,7 +1,9 @@
-import { AutoMovieUtf8Error, decodeAutoMovieUtf8 } from "@automovie/production";
+import { AutoMovieUtf8Error } from "../../../../packages/production/src/production/AutoMovieUtf8Error";
+import { decodeAutoMovieUtf8 } from "../../../../packages/production/src/production/decodeAutoMovieUtf8";
 import { TestValidator } from "@nestia/e2e";
 
-const failure = (bytes: readonly number[]): unknown => {
+/** Observe the actual typed decoder refusal without replacing its category or offset. */
+function failure(bytes: readonly number[]): unknown {
   try {
     return decodeAutoMovieUtf8({
       record: "src/shot.ts",
@@ -13,10 +15,23 @@ const failure = (bytes: readonly number[]): unknown => {
       ? [error.code, error.record, error.offset, error.category]
       : error;
   }
-};
+}
 
-/** Strict UTF-8 admits scalar text and classifies every malformed sequence. */
-export const test_production_strict_utf8 = (): void => {
+/**
+ * Strict UTF-8 retains scalar text, BOM policy and first-proving-byte refusals after source-owner splitting.
+ *
+ * Scenarios:
+ *
+ * 1. Preserve authored scalar text and distinguish initial stripping from an interior BOM.
+ * 2. Refuse isolated continuations, truncated/invalid tails, overlong forms, surrogate scalars and out-of-range encodings at their existing offsets.
+ * 3. Keep the initial-BOM reject failure in the same public Error identity.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes the actual strict decoder on authored byte sequences and asserts returned text or its Error code/record/offset/category; a permissive or offset-shifting decoder fails these existing cases.
+ * @evidence contracts/testing.md#independent-expectations Explicit malformed bytes and their first proving offsets come from UTF-8 leader/continuation and scalar-range rules. Authored text/BOM positions determine exact output; categories retain this API's declared refusal mapping rather than using decoder output as an oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Covers valid text, initial/interior BOMs, adjacent malformed leaders/tails and scalar bounds, with truncated variants distinguishing proving offsets. Structured JSON owns downstream syntax/encoding translation and this test certifies no rendering or Unicode normalization.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_strict_utf8 entry reaches portable scalar decoding directly from maintained source with no process, browser, installation, GPU or dynamic case driver.
+ */
+export function test_production_strict_utf8(): void {
   TestValidator.equals(
     "valid scalar text, one leading BOM and an interior BOM are distinct",
     [
@@ -77,9 +92,10 @@ export const test_production_strict_utf8 = (): void => {
     "a JSON-domain BOM refusal remains typed",
     failureWithBom() instanceof AutoMovieUtf8Error,
   );
-};
+}
 
-const failureWithBom = (): unknown => {
+/** Observe the existing initial-BOM reject policy through the product decoder. */
+function failureWithBom(): unknown {
   try {
     decodeAutoMovieUtf8({
       record: "record.json",
@@ -89,4 +105,4 @@ const failureWithBom = (): unknown => {
   } catch (error) {
     return error;
   }
-};
+}
