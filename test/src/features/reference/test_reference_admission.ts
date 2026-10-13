@@ -1,29 +1,33 @@
-import { AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS } from "@automovie/evidence";
-import {
-  createAutoMovieReferenceProvider,
-  parseAutoMovieReferenceRequest,
-} from "@automovie/mcp";
+import { createAutoMovieReferenceProvider } from "../../../../packages/mcp/src/createAutoMovieReferenceProvider";
+import { parseAutoMovieReferenceRequest } from "../../../../packages/mcp/src/parseAutoMovieReferenceRequest";
+import type { AutoMovieReferenceResult } from "../../../../packages/mcp/src/structures/AutoMovieReferenceResult";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * Only canonical authored Markdown requests reach the read capability.
  *
  * Scenarios:
- * 1. All authored layers share the allowed path and schema source.
+ * 1. The thirteen independently named authored layers are admitted.
  * 2. Traversal, aliases, reserved names, forbidden populations and extensions refuse.
  * 3. Schema, location and budget boundaries fail before any read operation.
+ * 4. Windows superscript device aliases refuse while ordinary Unicode names admit.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The real provider and request parser receive allowed and refused identities; an injected read capability counts whether path and schema refusals reach source access.
+ * @evidence contracts/testing.md#independent-expectations Expected layer names, refusal categories and numeric schema endpoints are independently stated; superscript reserved names are literal identities rather than generated from the implementation regex.
+ * @evidence contracts/testing.md#distinguishing-cases Cases span all authored layers, forbidden path components, Windows aliases, malformed locations, unknown operations and inclusive numeric endpoints; physical-path races belong to reader tests.
+ * @evidence contracts/testing.md#execution-ownership This portable asynchronous unit entry exercises the provider's injected read/list port without launching processes, opening native files or starting an MCP server.
  */
-export const test_reference_admission = async (): Promise<void> => {
-  let reads = 0;
-  const provider = createAutoMovieReferenceProvider({
-    read: async () => {
+export async function test_reference_admission(): Promise<void> {
+  let reads: number = 0;
+  const provider: ReturnType<typeof createAutoMovieReferenceProvider> = createAutoMovieReferenceProvider({
+    read: async (): Promise<Uint8Array> => {
       ++reads;
       return new Uint8Array();
     },
-    list: async () => [],
+    list: async (): Promise<readonly string[]> => [],
   });
-  for (const layer of AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS) {
-    const result = await provider({ operation: "get_index_of_layer", layer });
+  for (const layer of ["briefs", "instances", "maps", "materials", "models", "motions", "research", "screenplays", "scripts", "settings", "spaces", "systems", "treatments"]) {
+    const result: AutoMovieReferenceResult = await provider({ operation: "get_index_of_layer", layer });
     TestValidator.predicate(`layer ${layer}`, result.ok);
   }
   for (const file of [
@@ -51,8 +55,13 @@ export const test_reference_admission = async (): Promise<void> => {
     "docs/settings/a#x.md",
     'docs/settings/a"x.md',
     "docs/settings/com¹.md",
+    "docs/settings/COM².md",
+    "docs/settings/COM³.md",
+    "docs/settings/LPT¹.md",
+    "docs/settings/LPT².md",
+    "docs/settings/LPT³.md",
   ]) {
-    const result = await provider({ operation: "get_index_of_file", file });
+    const result: AutoMovieReferenceResult = await provider({ operation: "get_index_of_file", file });
     TestValidator.equals(
       `path ${JSON.stringify(file)}`,
       result.ok ? "success" : result.error.code,
@@ -65,7 +74,7 @@ export const test_reference_admission = async (): Promise<void> => {
     "docs/settings/a.md#",
     "docs/settings/a.md#a#b",
   ]) {
-    const result = await provider({
+    const result: AutoMovieReferenceResult = await provider({
       operation: "read_section_without_annotations",
       location,
     });
@@ -81,7 +90,7 @@ export const test_reference_admission = async (): Promise<void> => {
     { operation: "get_index_of_layer", layer: "accounts" },
     { operation: "get_index_of_layer", layer: "settings", limit: 0 },
   ]) {
-    const result = await provider(input);
+    const result: AutoMovieReferenceResult = await provider(input);
     TestValidator.equals(
       "request failure classification",
       result.ok ? "success" : result.error.code,
@@ -145,10 +154,10 @@ export const test_reference_admission = async (): Promise<void> => {
         limit,
       }) !== null,
     );
-  const allowed = await provider({
+  const allowed: AutoMovieReferenceResult = await provider({
     operation: "get_index_of_file",
     file: "docs/settings/한글 space.md",
   });
   TestValidator.predicate("Unicode and spaces allowed", allowed.ok);
   TestValidator.equals("allowed read happens once", reads, 1);
-};
+}

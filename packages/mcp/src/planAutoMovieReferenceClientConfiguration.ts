@@ -6,24 +6,24 @@ import { z } from "zod";
 import { digest } from "./internal/digest";
 import type { IAutoMovieReferenceClientConfigurationRequest } from "./structures/IAutoMovieReferenceClientConfigurationRequest";
 import type { IAutoMovieReferenceClientConfigurationPlan } from "./structures/IAutoMovieReferenceClientConfigurationPlan";
-import { fail } from "./internal/referenceError";
+import { fail } from "./internal/fail";
 
 // The package publishes a CommonJS require entry with the same public declarations.
 // Resolve those ESM declarations as types while retaining synchronous registration.
-const { parse, stringify } = require("smol-toml") as typeof Toml;
+const { parse, stringify }: typeof Toml = require("smol-toml") as typeof Toml;
 
-const OWNER = "automovie_reference";
-const BEGIN = "# automovie-reference managed begin v1";
-const END = "# automovie-reference managed end v1";
-const object = z.record(z.string(), z.unknown());
-const command = {
+const OWNER: string = "automovie_reference";
+const BEGIN: string = "# automovie-reference managed begin v1";
+const END: string = "# automovie-reference managed end v1";
+const object: z.ZodRecord<z.ZodString,z.ZodUnknown> = z.record(z.string(), z.unknown());
+const command: {command:z.ZodString;args:z.ZodTuple<[z.ZodString,z.ZodLiteral<"--root">,z.ZodString],null>} = {
   command: z.string(),
   args: z.tuple([z.string(), z.literal("--root"), z.string()]),
 };
-const claudeServer = z
+const claudeServer: z.ZodObject<{type:z.ZodLiteral<"stdio">;command:z.ZodString;args:typeof command.args}> = z
   .object({ type: z.literal("stdio"), ...command })
   .strict();
-const codexServer = z.object({ ...command, cwd: z.string() }).strict();
+const codexServer: z.ZodObject<{command:z.ZodString;args:typeof command.args;cwd:z.ZodString}> = z.object({ ...command, cwd: z.string() }).strict();
 
 
 
@@ -38,6 +38,15 @@ const codexServer = z.object({ ...command, cwd: z.string() }).strict();
  * registration that agrees apart from that machine fact is preserved
  * byte-for-byte, because nothing there proves this toolchain wrote it. Other
  * JSON values and all unrelated TOML bytes remain the user's configuration.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Strict generated schemas admit owned Claude entries; Codex ownership requires a checksum-delimited independent table whose removal and parsed values agree with the complete document.
+ * @evidence contracts/common.md#clear-and-simple-design Planning returns complete candidates without publishing; JSON ownership is value-based while TOML ownership preserves all bytes outside its proven managed span.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Machine-specific Node executable changes do not redefine registration ownership; edited or ambiguous blocks refuse instead of overwriting unrelated user values.
+ * @evidence contracts/common.md#meaningful-documentation The comment states candidate ownership and executable update semantics; conflict errors tell the caller to resolve the owned entry explicitly.
+ * @evidence contracts/performance.md#efficient-algorithms For C configuration characters, JSON/TOML parsing and marker scans require O(C) work with several complete parsed documents and candidate strings retained during planning.
+ * @evidence contracts/performance.md#reuse-equivalent-work Parsed schemas and checksum helpers are shared, while each supplied configuration is parsed afresh because authored bytes and ownership markers determine validity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only two candidate strings escape; caller-owned input text and temporary parsed maps are released after planning, with no filesystem handle or publication task.
  */
 export function planAutoMovieReferenceClientConfiguration(
   request: IAutoMovieReferenceClientConfigurationRequest,
@@ -49,26 +58,26 @@ export function planAutoMovieReferenceClientConfiguration(
     "--root",
     request.root,
   ];
-  const claude = {
+  const claude: z.infer<typeof claudeServer> = {
     type: "stdio" as const,
     command: request.nodeExecutable,
     args,
   };
-  const codex = { command: request.nodeExecutable, args, cwd: request.root };
+  const codex: z.infer<typeof codexServer> = { command: request.nodeExecutable, args, cwd: request.root };
   const document: Record<string, unknown> =
     request.claude === undefined ? {} : json(request.claude);
   const servers: Record<string, unknown> =
     document.mcpServers === undefined ? {} : record(document.mcpServers);
-  const existing = servers[OWNER];
+  const existing: unknown = servers[OWNER];
   if (existing !== undefined) {
-    const admitted = claudeServer.safeParse(existing);
+    const admitted: ReturnType<typeof claudeServer.safeParse> = claudeServer.safeParse(existing);
     if (!admitted.success || !owned(admitted.data))
       fail(
         "CONFIGURATION_CONFLICT",
         "The Claude automovie_reference entry is user-owned or edited; remove that entry to let synchronization manage it, then synchronize again.",
       );
   }
-  const claudeContent =
+  const claudeContent: string =
     request.claude !== undefined && isDeepStrictEqual(existing, claude)
       ? request.claude
       : `${JSON.stringify({ ...document, mcpServers: { ...servers, [OWNER]: claude } }, null, 2)}\n`;
@@ -100,7 +109,7 @@ function bin(root: string): string {
 }
 
 function record(input: unknown): Record<string, unknown> {
-  const parsed = object.safeParse(input);
+  const parsed: ReturnType<typeof object.safeParse> = object.safeParse(input);
   return parsed.success
     ? parsed.data
     : fail(
@@ -147,7 +156,7 @@ function toml(
 // whenever a project was created by one Node install and synchronized by
 // another.
 function owned(value: { args: [string, "--root", string] }): boolean {
-  const root = value.args[2];
+  const root: string = value.args[2];
   return (
     path.isAbsolute(root) &&
     path.resolve(root) === root &&
@@ -156,21 +165,21 @@ function owned(value: { args: [string, "--root", string] }): boolean {
 }
 
 function planCodex(source: string, next: z.infer<typeof codexServer>): string {
-  const document = toml(source);
+  const document: Record<string,unknown> = toml(source);
   const servers: Record<string, unknown> =
     document.mcp_servers === undefined ? {} : record(document.mcp_servers);
-  const existing = servers[OWNER];
-  const body = `[mcp_servers.${OWNER}]\n${stringify(next).trimEnd()}\n`;
-  const block = `${BEGIN} sha256:${digest(body)}\n${body}${END}\n`;
-  const begins = [
+  const existing: unknown = servers[OWNER];
+  const body: string = `[mcp_servers.${OWNER}]\n${stringify(next).trimEnd()}\n`;
+  const block: string = `${BEGIN} sha256:${digest(body)}\n${body}${END}\n`;
+  const begins: RegExpExecArray[] = [
     ...source.matchAll(
       /^# automovie-reference managed begin v1 sha256:([0-9a-f]{64})\r?\n/gmu,
     ),
   ];
-  const ends = [
+  const ends: RegExpExecArray[] = [
     ...source.matchAll(/^# automovie-reference managed end v1(?:\r?\n|$)/gmu),
   ];
-  const marked = source.includes(BEGIN) || source.includes(END);
+  const marked: boolean = source.includes(BEGIN) || source.includes(END);
   if (!marked) {
     if (existing !== undefined) {
       // No marker means nothing proves this toolchain wrote the span, so these
@@ -179,7 +188,7 @@ function planCodex(source: string, next: z.infer<typeof codexServer>): string {
       // which is a machine fact. Comparing that too would refuse the whole run
       // over a Node path, which is the same permanent failure this criterion
       // exists to remove, and the user could not act on it from here.
-      const entry = codexServer.safeParse(existing);
+      const entry: ReturnType<typeof codexServer.safeParse> = codexServer.safeParse(existing);
       if (
         !entry.success ||
         !isDeepStrictEqual({ ...entry.data, command: next.command }, next)
@@ -190,7 +199,7 @@ function planCodex(source: string, next: z.infer<typeof codexServer>): string {
         );
       return source;
     }
-    const candidate = `${source}${source.length === 0 || source.endsWith("\n") ? "" : "\n"}${block}`;
+    const candidate: string = `${source}${source.length === 0 || source.endsWith("\n") ? "" : "\n"}${block}`;
     // The TOML parser owns whether an existing inline/dotted table may be extended.
     // A new absolute table header cannot change the preserved prefix's values.
     toml(candidate, "CONFIGURATION_CONFLICT");
@@ -206,26 +215,26 @@ function planCodex(source: string, next: z.infer<typeof codexServer>): string {
       "CONFIGURATION_CONFLICT",
       "Codex managed registration markers are incomplete or ambiguous.",
     );
-  const begin = begins[0];
-  const end = ends[0];
-  const bodyStart = begin.index + begin[0].length;
+  const begin: RegExpExecArray = begins[0];
+  const end: RegExpExecArray = ends[0];
+  const bodyStart: number = begin.index + begin[0].length;
   if (bodyStart > end.index)
     fail(
       "CONFIGURATION_CONFLICT",
       "Codex managed registration markers are reversed.",
     );
-  const previousBody = source.slice(bodyStart, end.index);
+  const previousBody: string = source.slice(bodyStart, end.index);
   if (digest(previousBody) !== begin[1])
     fail(
       "CONFIGURATION_CONFLICT",
       "The managed Codex registration was edited; preserve and resolve the conflict explicitly.",
     );
-  const previous = toml(previousBody, "CONFIGURATION_CONFLICT");
+  const previous: Record<string,unknown> = toml(previousBody, "CONFIGURATION_CONFLICT");
   const previousServers: Record<string, unknown> =
     previous.mcp_servers === undefined ? {} : record(previous.mcp_servers);
-  const admitted = codexServer.safeParse(previousServers[OWNER]);
-  const { mcp_servers: _servers, ...otherOptions } = previous;
-  const { [OWNER]: _owner, ...otherServers } = previousServers;
+  const admitted: ReturnType<typeof codexServer.safeParse> = codexServer.safeParse(previousServers[OWNER]);
+  const { mcp_servers: _servers, ...otherOptions }: Record<string,unknown> = previous;
+  const { [OWNER]: _owner, ...otherServers }: Record<string,unknown> = previousServers;
   if (
     !admitted.success ||
     !owned(admitted.data) ||
@@ -238,9 +247,9 @@ function planCodex(source: string, next: z.infer<typeof codexServer>): string {
       "CONFIGURATION_CONFLICT",
       "The managed Codex block does not contain only the generated reference registration.",
     );
-  const prefix = source.slice(0, begin.index);
-  const suffix = source.slice(end.index + end[0].length);
-  const rest = toml(prefix + suffix, "CONFIGURATION_CONFLICT");
+  const prefix: string = source.slice(0, begin.index);
+  const suffix: string = source.slice(end.index + end[0].length);
+  const rest: Record<string,unknown> = toml(prefix + suffix, "CONFIGURATION_CONFLICT");
   if (record(rest.mcp_servers ?? {})[OWNER] !== undefined)
     fail(
       "CONFIGURATION_CONFLICT",

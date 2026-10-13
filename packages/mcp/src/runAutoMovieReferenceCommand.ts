@@ -1,31 +1,28 @@
 import { createAutoMovieReferenceProvider } from "./createAutoMovieReferenceProvider";
 import { createAutoMovieReferenceReader } from "./createAutoMovieReferenceReader";
-import { ReferenceError } from "./internal/referenceError";
+import { ReferenceError } from "./internal/ReferenceError";
 import type { IAutoMovieReferenceReader } from "./structures/IAutoMovieReference";
+import type { IAutoMovieReferenceCommandRuntime } from "./IAutoMovieReferenceCommandRuntime";
 
-/**
- * The local command's injected read and output capabilities.
+
+/** Run one local JSON reference request and return its process exit status.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation The command requires one root and one JSON request, binds the reader before dispatch and writes one result envelope with a status determined by ok.
+ * @evidence contracts/common.md#clear-and-simple-design Reader binding and stdout/stderr effects are explicit ports; portable provider semantics remain transport-independent.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid JSON and startup failures use sanitized messages; no external exception text is copied into output.
+ * @evidence contracts/common.md#meaningful-documentation The runtime member comments state read binding and output ownership; usage/startup errors return one and successful results return zero.
+ * @evidence contracts/performance.md#efficient-algorithms Parsing and serializing one envelope adds O(request and output length) work to provider costs; no process or server is launched.
+ * @evidence contracts/performance.md#reuse-equivalent-work One bound reader serves the single request; effectful writes and binding are not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The runtime owns output streams and reader lifetime; this invocation retains only its current request and result until completion.
  */
-export interface IAutoMovieReferenceCommandRuntime {
-  /** Bind the explicit command-line root before dispatching its one JSON request. */
-  reader(root: string): Promise<IAutoMovieReferenceReader>;
-  /** Write the single result JSON envelope and its trailing newline. */
-  stdout(value: string): void;
-  /** Write usage or sanitized startup diagnostics separately from result output. */
-  stderr(value: string): void;
-}
-
-/** Run one local JSON reference request and return its process exit status. */
 export async function runAutoMovieReferenceCommand(
   argv: readonly string[],
   runtime: IAutoMovieReferenceCommandRuntime = {
     reader: createAutoMovieReferenceReader,
-    stdout: (value) => {
+    stdout: (value: string) : void => {
       process.stdout.write(value);
     },
-    stderr: (value) => {
+    stderr: (value: string) : void => {
       process.stderr.write(value);
     },
   },
@@ -54,7 +51,7 @@ export async function runAutoMovieReferenceCommand(
     );
     return 1;
   }
-  const result = await createAutoMovieReferenceProvider(reader)(input);
+  const result: Awaited<ReturnType<ReturnType<typeof createAutoMovieReferenceProvider>>> = await createAutoMovieReferenceProvider(reader)(input);
   runtime.stdout(`${JSON.stringify(result)}\n`);
   return result.ok ? 0 : 1;
 }

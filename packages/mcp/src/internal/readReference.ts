@@ -2,16 +2,26 @@ import type { IAutoMovieReferenceContent } from "../structures/IAutoMovieReferen
 import type { ParsedReference } from "./ParsedReference";
 import { compactReferenceHeading } from "./compactReferenceHeading";
 import { retainReferenceSource } from "./retainReferenceSource";
-import { fail } from "./referenceError";
+import { fail } from "./fail";
 
 type Heading = ParsedReference["headings"][number];
 
 /**
  * Select an exact file or heading subtree and return only its original visible pieces.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Expected revision must match; an exact unique H2 through H4 anchor selects its original body and descendant span, whose parsed comments are omitted losslessly.
+ * @evidence contracts/common.md#clear-and-simple-design Selection, stale checks and optional piece-map publication use one parsed snapshot and shared omission helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, ambiguous or unsupported anchors refuse, and oversized-result handling remains the provider's complete-envelope responsibility.
+ * @evidence contracts/common.md#meaningful-documentation Options document exact anchor, stale revision and opt-in detail; result metadata identifies the selected original interval and retained source text.
+ * @evidence contracts/performance.md#efficient-algorithms Anchor selection scans H headings, omission selects K comments in O(log A plus K), and diagnostics scan U unterminated intervals; content copying is proportional to selected text.
+ * @evidence contracts/performance.md#reuse-equivalent-work Digest, ancestry and comment positions are reused from the supplied snapshot; detail maps use the same retained slices as content.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned text and optional span arrays transfer to the response owner; the parsed source remains caller-owned and no I/O is initiated.
  */
 export function readReference(
   parsed: ParsedReference,
   options: {
+
     /** Explicit authored anchor; absent selects the whole file rather than one subtree. */
     anchor?: string;
 
@@ -32,8 +42,8 @@ export function readReference(
     );
   let heading: Heading | null = null;
   if (options.anchor !== undefined) {
-    const found = parsed.headings.filter(
-      (candidate) => candidate.anchor === options.anchor,
+    const found: Heading[] = parsed.headings.filter(
+      (candidate: Heading) : boolean => candidate.anchor === options.anchor,
     );
     if (found.length === 0)
       fail(
@@ -49,11 +59,11 @@ export function readReference(
     if (heading.depth < 2 || heading.depth > 4)
       fail("UNSUPPORTED_DEPTH", "Section reads support only H2, H3 and H4.");
   }
-  const interval =
+  const interval: ParsedReference["annotations"][number] =
     heading === null
       ? { start: 0, end: parsed.source.length }
       : { start: heading.bodyStart, end: heading.subtreeEnd };
-  const projection = retainReferenceSource(parsed.source, parsed.annotations, interval);
+  const projection: ReturnType<typeof retainReferenceSource> = retainReferenceSource(parsed.source, parsed.annotations, interval);
   return {
     file: parsed.file,
     revision: parsed.revision,
@@ -63,8 +73,8 @@ export function readReference(
     heading: heading === null ? null : compactReferenceHeading(heading),
     content: projection.content,
     diagnostics: parsed.unterminated
-      .filter((item) => item.start < interval.end && item.end > interval.start)
-      .map((item) => ({
+      .filter((item: ParsedReference["annotations"][number]) : boolean => item.start < interval.end && item.end > interval.start)
+      .map((item: ParsedReference["annotations"][number]) : IAutoMovieReferenceContent["diagnostics"][number] => ({
         code: "UNTERMINATED_ANNOTATION",
         range: parsed.range(item),
       })),

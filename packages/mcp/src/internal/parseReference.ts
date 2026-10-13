@@ -3,7 +3,8 @@ import type { Nodes } from "mdast";
 import type { IAutoMovieReferenceRange } from "../structures/IAutoMovieReference";
 import type { ParsedReference } from "./ParsedReference";
 import { digest } from "./digest";
-import { MAX_SOURCE_BYTES, fail } from "./referenceError";
+import { MAX_SOURCE_BYTES } from "./MAX_SOURCE_BYTES";
+import { fail } from "./fail";
 import { parseReferenceSyntax } from "./parseReferenceSyntax";
 import { retainReferenceSource } from "./retainReferenceSource";
 
@@ -12,11 +13,20 @@ type Heading = ParsedReference["headings"][number];
 
 /**
  * Parse syntax through trusted libraries, then select only original offsets.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Fatal UTF-8 decode captures byte digest before asynchronous syntax work; trusted parser positions drive HTML comment masking, original coordinates, heading ancestry and explicit-anchor ambiguity.
+ * @evidence contracts/common.md#clear-and-simple-design One parsed snapshot owns source, revision and interval metadata reused by navigation and projection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Comment-like code is masked from HTML parsing, headings are not regenerated, and ambiguous or unsupported-depth anchors remain explicit rather than guessed.
+ * @evidence contracts/common.md#meaningful-documentation The comment and snapshot members identify original UTF-16 offsets, parser-trusted positions and current-source identity; parse failures become sanitized parser refusals.
+ * @evidence contracts/performance.md#efficient-algorithms For L source characters, A comments and H headings, syntax parsing and coordinate scanning dominate; comment sorting is O(A log A), heading projections use O(H log A plus visible text), and coordinates use binary search over line starts.
+ * @evidence contracts/performance.md#reuse-equivalent-work One source revision, line-start array, comment population and heading ancestry serve every view of the same snapshot; no parse is cached across requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The 8 MiB byte ceiling bounds input, while ASTs, masked text, decoded text and interval arrays coexist during parsing; returned closures retain source coordinate facts only for their snapshot lifetime.
  */
 export async function parseReference(
   file: string,
   bytes: Uint8Array,
-  syntax = parseReferenceSyntax,
+  syntax: typeof parseReferenceSyntax = parseReferenceSyntax,
 ): Promise<ParsedReference> {
   if (bytes.byteLength > MAX_SOURCE_BYTES)
     fail("RESOURCE_LIMIT", "Source exceeds the 8 MiB file limit.");
@@ -28,9 +38,9 @@ export async function parseReference(
   } catch {
     return fail("INVALID_UTF8", "Source is not valid UTF-8.");
   }
-  const revision = digest(bytes);
-  const sourceBytes = bytes.byteLength;
-  const { tree, Parser } = await syntax(source).catch(() =>
+  const revision: string = digest(bytes);
+  const sourceBytes: number = bytes.byteLength;
+  const { tree, Parser }: Awaited<ReturnType<typeof parseReferenceSyntax>> = await syntax(source).catch(() : never =>
     fail(
       "PARSER_ERROR",
       "Markdown parsing failed; inspect the canonical source.",
@@ -39,7 +49,7 @@ export async function parseReference(
   const annotations: Interval[] = [];
   const unterminated: Interval[] = [];
   const html: Interval[] = [];
-  const visit = (node: Nodes): void => {
+  const visit: (node: Nodes) => void = (node: Nodes): void => {
     if (node.type === "html") {
       html.push({
         start: node.position!.start.offset!,
@@ -51,7 +61,7 @@ export async function parseReference(
   // Keep HTML context across inline AST nodes while code and escaped text are
   // masked without moving any original UTF-16 offset.
   const htmlParts: string[] = [];
-  let htmlCursor = 0;
+  let htmlCursor: number = 0;
   for (const interval of html) {
     htmlParts.push(
       " ".repeat(interval.start - htmlCursor),
@@ -61,13 +71,13 @@ export async function parseReference(
   }
   htmlParts.push(" ".repeat(source.length - htmlCursor));
   try {
-    const parser = new Parser(
+    const parser: InstanceType<Awaited<ReturnType<typeof parseReferenceSyntax>>["Parser"]> = new Parser(
       {
-        oncomment() {
-          const start = parser.startIndex;
+        oncomment() : void {
+          const start: number = parser.startIndex;
           if (!source.startsWith("<!--", start)) return;
-          const end = Math.min(parser.endIndex + 1, source.length);
-          const interval = { start, end };
+          const end: number = Math.min(parser.endIndex + 1, source.length);
+          const interval: Interval = { start, end };
           annotations.push(interval);
           if (source.slice(end - 3, end) !== "-->") unterminated.push(interval);
         },
@@ -81,25 +91,25 @@ export async function parseReference(
       "HTML parsing failed; inspect the canonical source.",
     );
   }
-  annotations.sort((a, b) => a.start - b.start);
-  const lineStarts = [0];
-  for (let i = 0; i < source.length; ++i) {
+  annotations.sort((a: Interval, b: Interval) : number => a.start - b.start);
+  const lineStarts: number[] = [0];
+  for (let i: number = 0; i < source.length; ++i) {
     if (source[i] === "\r") {
       if (source[i + 1] === "\n") ++i;
       lineStarts.push(i + 1);
     } else if (source[i] === "\n") lineStarts.push(i + 1);
   }
-  const position = (offset: number) => {
-    let low = 0;
-    let high = lineStarts.length;
+  const position: (offset: number) => IAutoMovieReferenceRange["start"] = (offset: number) : IAutoMovieReferenceRange["start"] => {
+    let low: number = 0;
+    let high: number = lineStarts.length;
     while (low + 1 < high) {
-      const middle = Math.floor((low + high) / 2);
+      const middle: number = Math.floor((low + high) / 2);
       if (lineStarts[middle] <= offset) low = middle;
       else high = middle;
     }
     return { offset, line: low + 1, column: offset - lineStarts[low] + 1 };
   };
-  const range = (interval: Interval): IAutoMovieReferenceRange => ({
+  const range: (interval: Interval) => IAutoMovieReferenceRange = (interval: Interval): IAutoMovieReferenceRange => ({
     start: position(interval.start),
     end: position(interval.end),
   });
@@ -107,26 +117,26 @@ export async function parseReference(
   const ancestry: Heading[] = [];
   for (const node of tree.children) {
     if (node.type !== "heading") continue;
-    const start = node.position!.start.offset!;
-    const end = node.position!.end.offset!;
-    const first = node.children[0];
-    const last = node.children[node.children.length - 1];
-    const visible =
+    const start: number = node.position!.start.offset!;
+    const end: number = node.position!.end.offset!;
+    const first: Extract<Nodes,{type:"heading"}>["children"][number] | undefined = node.children[0];
+    const last: Extract<Nodes,{type:"heading"}>["children"][number] | undefined = node.children[node.children.length - 1];
+    const visible: string =
       first === undefined
         ? ""
         : retainReferenceSource(source, annotations, {
             start: first.position!.start.offset!,
             end: last.position!.end.offset!,
           }).content;
-    const anchored = /(?:^|[ \t]+)\{#([^{}\s#]+)\}[ \t]*$/u.exec(visible);
-    const anchor = anchored === null ? null : anchored[1];
+    const anchored: RegExpExecArray | null = /(?:^|[ \t]+)\{#([^{}\s#]+)\}[ \t]*$/u.exec(visible);
+    const anchor: string | null = anchored === null ? null : anchored[1];
     while (
       ancestry.length > 0 &&
       ancestry[ancestry.length - 1].depth >= node.depth
     )
       ancestry.pop()!.subtreeEnd = start;
-    const parent = ancestry[ancestry.length - 1];
-    let bodyStart = end;
+    const parent: Heading | undefined = ancestry[ancestry.length - 1];
+    let bodyStart: number = end;
     if (source[bodyStart] === "\r") ++bodyStart;
     if (source[bodyStart] === "\n") ++bodyStart;
     const heading: Heading = {
@@ -147,7 +157,7 @@ export async function parseReference(
     headings.push(heading);
     ancestry.push(heading);
   }
-  const counts = new Map<string, number>();
+  const counts: Map<string,number> = new Map<string, number>();
   for (const heading of headings)
     if (heading.anchor !== null)
       counts.set(heading.anchor, (counts.get(heading.anchor) ?? 0) + 1);

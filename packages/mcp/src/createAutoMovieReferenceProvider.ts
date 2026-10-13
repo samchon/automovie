@@ -2,13 +2,11 @@ import { digest } from "./internal/digest";
 import { indexReference } from "./internal/indexReference";
 import { parseReference } from "./internal/parseReference";
 import { readReference } from "./internal/readReference";
-import {
-  MAX_FILES,
-  MAX_LAYER_BYTES,
-  MAX_SOURCE_BYTES,
-  ReferenceError,
-  fail,
-} from "./internal/referenceError";
+import { MAX_FILES } from "./internal/MAX_FILES";
+import { MAX_LAYER_BYTES } from "./internal/MAX_LAYER_BYTES";
+import { MAX_SOURCE_BYTES } from "./internal/MAX_SOURCE_BYTES";
+import { ReferenceError } from "./internal/ReferenceError";
+import { fail } from "./internal/fail";
 import {
   admitReferencePath,
   splitReferenceLocation,
@@ -28,36 +26,45 @@ import type {
  *
  * Each request reads current bytes. Layer continuation hashes the complete ordered
  * file revisions observed by that request, without claiming atomicity across files.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Strict schemas admit four operations; exact path policy precedes reads, source revisions bind stale checks and continuation, and complete serialized envelopes must fit their declared budget.
+ * @evidence contracts/common.md#clear-and-simple-design One stateless dispatcher shares navigation and projection helpers between SDK and local transports without claiming an atomic multi-file snapshot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Oversized sources, duplicate inventory identities, stale revisions and oversized results refuse instead of truncating content or reflecting external exception text.
+ * @evidence contracts/common.md#meaningful-documentation The comment states current-source reads and non-atomic continuation; classified failures carry provider-authored recovery text.
+ * @evidence contracts/performance.md#efficient-algorithms A layer sorts F paths in O(F log F), copies and hashes at most 32 MiB, and parses up to 100 page files; repeated growing-page serialization costs O(P squared) output size and remains an acknowledged bounded cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within a layer request each copied file's digest is shared by continuation and its parse; no result is reused across independent current-source requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A request retains at most 10,000 paths and 32 MiB of copied sources plus one page's parsed outputs; provider closures retain only the reader, with no handles or background tasks.
  */
 export function createAutoMovieReferenceProvider(
   reader: IAutoMovieReferenceReader,
 ): (input: unknown) => Promise<AutoMovieReferenceResult> {
-  return async (input) => {
-    const request = parseAutoMovieReferenceRequest(input);
+  return async (input: unknown) : Promise<AutoMovieReferenceResult> => {
+    const request: ReturnType<typeof parseAutoMovieReferenceRequest> = parseAutoMovieReferenceRequest(input);
     if (request === null)
       return {
         ok: false,
         error: autoMovieReferenceRequestError(input),
       };
     try {
-      const fits = (data: unknown): boolean =>
+      const fits: (data: unknown) => boolean = (data: unknown): boolean =>
         Buffer.byteLength(JSON.stringify({ ok: true, data }), "utf8") <=
         request.budgetBytes;
-      const load = async (file: string) => {
+      const load: (file: string) => ReturnType<typeof parseReference> = async (file: string) : ReturnType<typeof parseReference> => {
         admitReferencePath(file);
         return parseReference(file, await reader.read(file));
       };
       let data: Extract<AutoMovieReferenceResult, { ok: true }>["data"];
       switch (request.operation) {
         case "get_index_of_layer": {
-          const paths = [...(await reader.list(request.layer))].sort(
-            (a, b) => Number(a > b) - Number(a < b),
+          const paths: string[] = [...(await reader.list(request.layer))].sort(
+            (a: string, b: string) : number => Number(a > b) - Number(a < b),
           );
           if (paths.length > MAX_FILES)
             fail("RESOURCE_LIMIT", "Layer exceeds the 10,000 file limit.");
           if (
             new Set(paths).size !== paths.length ||
-            paths.some((file) => !file.startsWith(`docs/${request.layer}/`))
+            paths.some((file: string) : boolean => !file.startsWith(`docs/${request.layer}/`))
           )
             fail(
               "PATH_IDENTITY_CHANGED",
@@ -65,22 +72,22 @@ export function createAutoMovieReferenceProvider(
             );
           const files: { file: string; bytes: Uint8Array; revision: string }[] =
             [];
-          let sourceBytes = 0;
+          let sourceBytes: number = 0;
           for (const file of paths) {
             admitReferencePath(file);
-            const inputBytes = await reader.read(file);
+            const inputBytes: Uint8Array = await reader.read(file);
             if (inputBytes.byteLength > MAX_SOURCE_BYTES)
               fail("RESOURCE_LIMIT", "Source exceeds the 8 MiB file limit.");
             sourceBytes += inputBytes.byteLength;
             if (sourceBytes > MAX_LAYER_BYTES)
               fail("RESOURCE_LIMIT", "Layer exceeds the 32 MiB source limit.");
             // An injected reader may reuse its buffer on the next read.
-            const bytes = Uint8Array.from(inputBytes);
+            const bytes: Uint8Array = Uint8Array.from(inputBytes);
             files.push({ file, bytes, revision: digest(bytes) });
           }
-          const revision = digest(
+          const revision: string = digest(
             JSON.stringify(
-              files.map(({ file, revision: fileRevision }) => [
+              files.map(({ file, revision: fileRevision }: {file: string;bytes:Uint8Array;revision:string}): [string,string] => [
                 file,
                 fileRevision,
               ]),
@@ -94,7 +101,7 @@ export function createAutoMovieReferenceProvider(
               "STALE_REFERENCE",
               "Layer changed; restart its index without a continuation.",
             );
-          const offset = request.continuation?.offset ?? 0;
+          const offset: number = request.continuation?.offset ?? 0;
           if (offset > files.length)
             fail(
               "INVALID_CONTINUATION",
@@ -108,9 +115,9 @@ export function createAutoMovieReferenceProvider(
             files: [],
             continuation: null,
           };
-          const limit = Math.min(offset + (request.limit ?? 20), files.length);
-          for (let cursor = offset; cursor < limit; ++cursor) {
-            const item = files[cursor];
+          const limit: number = Math.min(offset + (request.limit ?? 20), files.length);
+          for (let cursor: number = offset; cursor < limit; ++cursor) {
+            const item: typeof files[number] = files[cursor];
             page.files.push(
               indexReference(await parseReference(item.file, item.bytes)),
             );
@@ -139,7 +146,7 @@ export function createAutoMovieReferenceProvider(
           data = readReference(await load(request.file), request);
           break;
         case "read_section_without_annotations": {
-          const location = splitReferenceLocation(request.location);
+          const location: ReturnType<typeof splitReferenceLocation> = splitReferenceLocation(request.location);
           data = readReference(await load(location.file), {
             ...request,
             anchor: location.anchor,

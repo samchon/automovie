@@ -45,6 +45,6 @@ export const referenceErrors = loadSourceModule<{
 }>(
   path.resolve(
     __dirname,
-    "../../../../packages/mcp/src/internal/referenceError.ts",
+    "../../../../packages/mcp/src/internal/ReferenceError.ts",
   ),
 );

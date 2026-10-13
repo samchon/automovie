@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { startAutoMovieMcpServer } from "./createAutoMovieMcpServer";
+import { startAutoMovieMcpServer } from "./startAutoMovieMcpServer";
 
 async function main(argv: readonly string[]): Promise<void> {
   if (argv.length !== 2 || argv[0] !== "--root")
