@@ -1,4 +1,5 @@
 import {
+  IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieBuiltSpace,
@@ -19,130 +20,33 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
 import { AUTOMOVIE_OBSERVATION_EYE_HEIGHT } from "./constants/AUTOMOVIE_OBSERVATION_EYE_HEIGHT";
 import { AUTOMOVIE_OBSERVATION_INSET_LADDER } from "./constants/AUTOMOVIE_OBSERVATION_INSET_LADDER";
 import { AUTOMOVIE_OBSERVATION_PROBE } from "./constants/AUTOMOVIE_OBSERVATION_PROBE";
+import { outlineCentroid } from "./outlineCentroid";
 import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
+import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/** Area-weighted centroid of a planar outline, or its vertex mean when flat. */
-const outlineCentroid = (
-  outline: readonly IAutoMoviePlanarPoint[],
-): IAutoMoviePlanarPoint => {
-  let doubleArea = 0;
-  let x = 0;
-  let y = 0;
-  for (let index = 0; index < outline.length; index++) {
-    const from = outline[index]!;
-    const to = outline[(index + 1) % outline.length]!;
-    const cross = from.x * to.y - to.x * from.y;
-    doubleArea += cross;
-    x += (from.x + to.x) * cross;
-    y += (from.y + to.y) * cross;
-  }
-  if (Math.abs(doubleArea) <= AUTOMOVIE_OBSERVATION_EPSILON)
-    return {
-      x: outline.reduce((sum, point) => sum + point.x, 0) / outline.length,
-      y: outline.reduce((sum, point) => sum + point.y, 0) / outline.length,
-    };
-  return { x: x / (3 * doubleArea), y: y / (3 * doubleArea) };
-};
+/** A station's aimed pose, or null when it could not be placed. */
+type IStationPose = IAutoMovieSpaceObservationStation["pose"];
 
-/** The first point of a ladder toward the interior centre that lands inside. */
-const settle = (
-  space: IAutoMovieBuiltSpace,
-  from: IAutoMovieVector3,
-  centre: IAutoMovieVector3,
-): IAutoMovieVector3 | null => {
-  for (const fraction of AUTOMOVIE_OBSERVATION_INSET_LADDER) {
-    const point = Vector3.lerp(from, centre, fraction);
-    if (builtSpaceContainsPoint(space, point)) return point;
-  }
-  return null;
-};
+/** The four outward centre views, along world `-x`, `+x`, `-z` and `+z`. */
+const CENTRE_VIEWS: readonly (readonly [string, IAutoMovieVector3])[] = [
+  ["center-x-minus", { x: -1, y: 0, z: 0 }],
+  ["center-x-plus", { x: 1, y: 0, z: 0 }],
+  ["center-z-minus", { x: 0, y: 0, z: -1 }],
+  ["center-z-plus", { x: 0, y: 0, z: 1 }],
+];
 
-/** Aim one station at a target, or refuse it when the two coincide. */
-const aim = (
-  position: IAutoMovieVector3,
-  target: IAutoMovieVector3,
-): IAutoMovieSpaceObservationStation["pose"] => {
-  const offset = Vector3.subtract(target, position);
-  if (Vector3.length(offset) <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
-  return { position, direction: Vector3.normalize(offset), target };
-};
-
-/** The interior point every other interior station is measured against. */
-const interiorCentre = (
-  space: IAutoMovieBuiltSpace,
-  bounds: IAutoMovieSubjectBox,
-): IAutoMovieVector3 | null => {
-  const middle = {
-    x: (bounds.min.x + bounds.max.x) / 2,
-    y: (bounds.min.y + bounds.max.y) / 2,
-    z: (bounds.min.z + bounds.max.z) / 2,
-  };
-  if (builtSpaceContainsPoint(space, middle)) return middle;
-  // A space split into several cells, or pierced by a void, can miss its own
-  // box centre. A convex cell contains the mean of its own corners, and that
-  // cell is part of the space's own union, so the first cell closing a volume
-  // supplies an interior point without a second containment test. A cell that
-  // closes nothing supplies no corners and is passed over.
-  for (const cell of space.cells) {
-    const vertices = builtConvexCellVertices(cell);
-    if (vertices.length === 0) continue;
-    return Vector3.scale(
-      vertices.reduce((sum, vertex) => Vector3.add(sum, vertex), {
-        x: 0,
-        y: 0,
-        z: 0,
-      }),
-      1 / vertices.length,
-    );
-  }
-  return null;
-};
-
-/** World centre of one opening's void, or of its host face when uncut. */
-const openingCentre = (
-  environment: IAutoMovieBuiltEnvironment,
-  opening: IAutoMovieBuiltOpening,
-): IAutoMovieVector3 | null => {
-  const face = environment.boundaries.find(
-    (candidate) => candidate.id === opening.boundary,
-  )?.face;
-  if (face === undefined) return null;
-  const profile = opening.profile;
-  let planar = outlineCentroid(face.outline);
-  if (profile !== undefined) {
-    const box = polygonBounds(outlineHull(profile));
-    planar = {
-      x: (box.min.x + box.max.x) / 2,
-      y: (box.min.y + box.max.y) / 2,
-    };
-  }
-  return Vector3.add(
-    face.origin,
-    Quaternion.rotateVector(face.rotation, {
-      x: planar.x,
-      y: planar.y,
-      z: 0,
-    }),
-  );
-};
-
-/** Where an eye stands to read one opening from inside the space it serves. */
-const thresholdPose = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  space: IAutoMovieBuiltSpace;
-  opening: IAutoMovieBuiltOpening;
-  anchor: IAutoMovieVector3;
-}): IAutoMovieSpaceObservationStation["pose"] => {
-  const mouth = openingCentre(props.environment, props.opening);
-  if (mouth === null) return null;
-  const settled = settle(
-    props.space,
-    { ...mouth, y: props.anchor.y },
-    props.anchor,
-  );
-  return settled === null ? null : aim(settled, props.anchor);
-};
+/** The four inward corner views, by which box corner each starts from. */
+const CORNER_VIEWS: readonly (readonly [
+  string,
+  "min" | "max",
+  "min" | "max",
+])[] = [
+  ["corner-x-minus-z-minus", "min", "min"],
+  ["corner-x-minus-z-plus", "min", "max"],
+  ["corner-x-plus-z-minus", "max", "min"],
+  ["corner-x-plus-z-plus", "max", "max"],
+];
 
 /**
  * The closed interior observation population one logical space owes.
@@ -158,124 +62,212 @@ const thresholdPose = (props: {
  * it is returned, which is what separates an interior observation from a
  * turntable that circles the room from outside and photographs its walls.
  *
- * Centre views look along world `±x` and `±z` from an anchor at reading height;
- * corner and threshold eyes are pulled along `AUTOMOVIE_OBSERVATION_INSET_LADDER`
- * toward the anchor until one lands inside, and look at it. Threshold stations
- * are sorted by opening id. A shelled space whose box centre falls in a void or
- * notch gets no anchor, so every pose of it is null. Throws for an undeclared
- * space id.
+ * The anchor stands at reading height, `AUTOMOVIE_OBSERVATION_EYE_HEIGHT` or
+ * half the volume's height when that is less, above an interior point: the
+ * volume box's centre when the space contains it, otherwise the mean corner of
+ * the first cell that closes a volume. When the raised anchor falls outside a
+ * space that narrows with height, the interior point itself is used. Centre
+ * views look along world `±x` and `±z` from the anchor; corner and threshold
+ * eyes are pulled along `AUTOMOVIE_OBSERVATION_INSET_LADDER` toward the anchor
+ * until one lands inside, and look at it. A threshold eye starts at the
+ * opening's centre, its profile's box centre or else its host face's centroid,
+ * at anchor height. Stations come centre, corner, then threshold, with
+ * threshold stations sorted by opening id. A shelled space whose box centre
+ * falls in a void or notch gets no anchor, so every pose of it is null, as is
+ * a threshold pose whose host boundary states no face, and any pose whose eye could not be placed or coincides with its target. Throws
+ * an `Error` for an undeclared space id.
+ *
+ * @param environment Building record holding the space.
+ * @param spaceId Logical space to observe.
+ * @returns Eight interior stations plus one per opening on the space's boundaries, or none for a volume-less space.
+ *
+ * @evidence contracts/common.md#principled-implementation Every eye is moved along a fixed inset ladder toward an interior anchor and accepted only where `builtSpaceContainsPoint` proves it inside the stated volume, so no station is placed by assumption; the anchor is the box centre or a convex cell's corner mean, which a convex cell always contains. A shelled space with a hollow centre has no fallback, a limitation the documentation states.
+ * @evidence contracts/common.md#clear-and-simple-design Station roles are two fixed tables and one opening pass over shared settle and aim helpers; containment, volume bounds, face centroid and the space lookup are the shared architecture helpers rather than copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space, opening or room type; the eye height, probe length and inset ladder are named observation constants applied to every space alike.
+ * @evidence contracts/common.md#meaningful-documentation States the closed population and why each role exists, the containment proof, how the anchor is chosen and its fallback, each role's direction and start point, the station order, every null pose case, and the thrown refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Builds a boundary index once, so selecting and centring the space's openings is linear in the opening and boundary counts plus a sort of the selected openings; each station costs at most one containment test per ladder rung.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call from the caller's mutable record; within the call the anchor and boundary index serve every station.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the boundary index only for the call; the caller owns the returned station list, bounded by eight plus the space's opening count.
  */
 export const builtSpaceObservationStations = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieSpaceObservationStation[] => {
-  const space = environment.spaces.find(
-    (candidate) => candidate.id === spaceId,
-  );
-  if (space === undefined)
-    throw new Error(
-      `built environment "${environment.id}" has no logical space "${spaceId}"`,
-    );
+  const space: IAutoMovieBuiltSpace = requireBuiltSpace(environment, spaceId);
   if (builtSpaceStatesVolume(space) === false) return [];
-  const bounds = builtSpaceVolumeBounds(space);
-  const interior = bounds === null ? null : interiorCentre(space, bounds);
-  // The eye stands at reading height above the space's own floor, and a space
-  // whose stated volume narrows with height can leave that point outside
-  // itself, so the interior point it was derived from is kept as the fallback.
-  const placed =
-    bounds === null || interior === null
-      ? null
-      : {
-          bounds,
-          anchor: ((eye: IAutoMovieVector3) =>
-            builtSpaceContainsPoint(space, eye) ? eye : interior)({
-            ...interior,
-            y:
-              bounds.min.y +
-              Math.min(
-                AUTOMOVIE_OBSERVATION_EYE_HEIGHT,
-                (bounds.max.y - bounds.min.y) / 2,
-              ),
-          }),
-        };
+  const bounds: IAutoMovieSubjectBox | null = builtSpaceVolumeBounds(space);
+  const anchor: IAutoMovieVector3 | null =
+    bounds === null ? null : readingAnchor(space, bounds);
   const stations: IAutoMovieSpaceObservationStation[] = [];
-  for (const [id, direction] of [
-    ["center-x-minus", { x: -1, y: 0, z: 0 }],
-    ["center-x-plus", { x: 1, y: 0, z: 0 }],
-    ["center-z-minus", { x: 0, y: 0, z: -1 }],
-    ["center-z-plus", { x: 0, y: 0, z: 1 }],
-  ] as const)
+  for (const [id, direction] of CENTRE_VIEWS)
     stations.push({
       id,
       role: "center",
       opening: null,
       pose:
-        placed === null
+        bounds === null || anchor === null
           ? null
           : aim(
-              placed.anchor,
+              anchor,
               Vector3.add(
-                placed.anchor,
+                anchor,
                 Vector3.scale(
                   direction,
                   Math.max(
-                    placed.bounds.max.x - placed.bounds.min.x,
-                    placed.bounds.max.z - placed.bounds.min.z,
+                    bounds.max.x - bounds.min.x,
+                    bounds.max.z - bounds.min.z,
                     AUTOMOVIE_OBSERVATION_PROBE,
                   ),
                 ),
               ),
             ),
     });
-  for (const [id, sx, sz] of [
-    ["corner-x-minus-z-minus", "min", "min"],
-    ["corner-x-minus-z-plus", "min", "max"],
-    ["corner-x-plus-z-minus", "max", "min"],
-    ["corner-x-plus-z-plus", "max", "max"],
-  ] as const)
+  for (const [id, sx, sz] of CORNER_VIEWS)
     stations.push({
       id,
       role: "corner",
       opening: null,
       pose:
-        placed === null
+        bounds === null || anchor === null
           ? null
-          : ((settled: IAutoMovieVector3 | null) =>
-              settled === null ? null : aim(settled, placed.anchor))(
-              settle(
-                space,
-                {
-                  x: placed.bounds[sx].x,
-                  y: placed.anchor.y,
-                  z: placed.bounds[sz].z,
-                },
-                placed.anchor,
-              ),
+          : settledPose(
+              space,
+              { x: bounds[sx].x, y: anchor.y, z: bounds[sz].z },
+              anchor,
             ),
     });
-  for (const opening of environment.openings
-    .filter((candidate) =>
-      environment.boundaries.some(
-        (boundary) =>
-          boundary.id === candidate.boundary &&
-          boundary.spaces.includes(spaceId),
-      ),
+  const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
+    environment.boundaries.map(
+      (boundary: IAutoMovieBuiltBoundary): [string, IAutoMovieBuiltBoundary] => [
+        boundary.id,
+        boundary,
+      ],
+    ),
+  );
+  const openings: IAutoMovieBuiltOpening[] = environment.openings
+    .filter(
+      (opening: IAutoMovieBuiltOpening): boolean =>
+        boundaries.get(opening.boundary)?.spaces.includes(spaceId) === true,
     )
-    .slice()
-    .sort((left, right) => compareAutoMovieRenderIds(left.id, right.id)))
+    .sort((left: IAutoMovieBuiltOpening, right: IAutoMovieBuiltOpening): number =>
+      compareAutoMovieRenderIds(left.id, right.id),
+    );
+  for (const opening of openings) {
+    const mouth: IAutoMovieVector3 | null =
+      anchor === null
+        ? null
+        : openingCentre(boundaries.get(opening.boundary)!, opening);
     stations.push({
       id: `threshold-${opening.id}`,
       role: "threshold",
       opening: opening.id,
       pose:
-        placed === null
+        anchor === null || mouth === null
           ? null
-          : thresholdPose({
-              environment,
-              space,
-              opening,
-              anchor: placed.anchor,
-            }),
+          : settledPose(space, { ...mouth, y: anchor.y }, anchor),
     });
+  }
   return stations;
+};
+
+/**
+ * The point every interior station is measured against, at reading height.
+ *
+ * The eye stands at reading height above the space's own floor, and a space
+ * whose stated volume narrows with height can leave that point outside itself,
+ * so the interior point it was derived from is kept as the fallback.
+ */
+const readingAnchor = (
+  space: IAutoMovieBuiltSpace,
+  bounds: IAutoMovieSubjectBox,
+): IAutoMovieVector3 | null => {
+  const interior: IAutoMovieVector3 | null = interiorCentre(space, bounds);
+  if (interior === null) return null;
+  const eye: IAutoMovieVector3 = {
+    ...interior,
+    y:
+      bounds.min.y +
+      Math.min(
+        AUTOMOVIE_OBSERVATION_EYE_HEIGHT,
+        (bounds.max.y - bounds.min.y) / 2,
+      ),
+  };
+  return builtSpaceContainsPoint(space, eye) ? eye : interior;
+};
+
+/** An interior point of the space, or null when none is found. */
+const interiorCentre = (
+  space: IAutoMovieBuiltSpace,
+  bounds: IAutoMovieSubjectBox,
+): IAutoMovieVector3 | null => {
+  const middle: IAutoMovieVector3 = {
+    x: (bounds.min.x + bounds.max.x) / 2,
+    y: (bounds.min.y + bounds.max.y) / 2,
+    z: (bounds.min.z + bounds.max.z) / 2,
+  };
+  if (builtSpaceContainsPoint(space, middle)) return middle;
+  // A space split into several cells, or pierced by a void, can miss its own
+  // box centre. A convex cell contains the mean of its own corners, and that
+  // cell is part of the space's own union, so the first cell closing a volume
+  // supplies an interior point without a second containment test. A cell that
+  // closes nothing supplies no corners and is passed over.
+  for (const cell of space.cells) {
+    const vertices: IAutoMovieVector3[] = builtConvexCellVertices(cell);
+    if (vertices.length === 0) continue;
+    return Vector3.scale(
+      vertices.reduce(
+        (sum: IAutoMovieVector3, vertex: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(sum, vertex),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / vertices.length,
+    );
+  }
+  return null;
+};
+
+/** Pull an eye toward the anchor until it lands inside, then aim it there. */
+const settledPose = (
+  space: IAutoMovieBuiltSpace,
+  from: IAutoMovieVector3,
+  anchor: IAutoMovieVector3,
+): IStationPose => {
+  for (const fraction of AUTOMOVIE_OBSERVATION_INSET_LADDER) {
+    const point: IAutoMovieVector3 = Vector3.lerp(from, anchor, fraction);
+    if (builtSpaceContainsPoint(space, point)) return aim(point, anchor);
+  }
+  return null;
+};
+
+/** Aim one station at a target, or refuse it when the two coincide. */
+const aim = (
+  position: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+): IStationPose => {
+  const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
+  if (Vector3.length(offset) <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
+  return { position, direction: Vector3.normalize(offset), target };
+};
+
+/**
+ * World centre of one opening's void, or of its host face when uncut, or null
+ * when the host boundary states no face to place it on.
+ */
+const openingCentre = (
+  boundary: IAutoMovieBuiltBoundary,
+  opening: IAutoMovieBuiltOpening,
+): IAutoMovieVector3 | null => {
+  const face: IAutoMovieBuiltBoundary["face"] = boundary.face;
+  if (face === undefined) return null;
+  let planar: IAutoMoviePlanarPoint;
+  if (opening.profile === undefined) planar = outlineCentroid(face.outline);
+  else {
+    const box: { min: IAutoMoviePlanarPoint; max: IAutoMoviePlanarPoint } =
+      polygonBounds(outlineHull(opening.profile));
+    planar = { x: (box.min.x + box.max.x) / 2, y: (box.min.y + box.max.y) / 2 };
+  }
+  return Vector3.add(
+    face.origin,
+    Quaternion.rotateVector(face.rotation, { x: planar.x, y: planar.y, z: 0 }),
+  );
 };

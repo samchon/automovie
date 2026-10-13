@@ -1,10 +1,12 @@
 import {
+  IAutoMovieDerivedArtifact,
   IAutoMovieDesignImpact,
   IAutoMovieDesignLineage,
+  IAutoMovieDesignSubject,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { validateDesignLineage } from "./validateDesignLineage";
+import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
  * Name exactly the derived artifacts a set of changed identities invalidates.
@@ -24,52 +26,59 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * @param lineage Lineage whose `derived` inputs define the edges.
  * @param changed Subject or derived-artifact ids that changed.
  * @returns The changed ids, the derived artifacts they reach, and every other derived artifact.
+ *
+ * @evidence contracts/common.md#principled-implementation Breadth-first reachability from the changed ids over the reversed `inputs` edges, visiting each identity once, so the invalidated set is exactly the derived artifacts with a dependency path to a change; validation guarantees every edge endpoint is declared.
+ * @evidence contracts/common.md#clear-and-simple-design One dependents index and one walk, with the validation guard shared by every lineage query, so the answer and its complement come from the same traversal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no identity or artifact kind; an undeclared changed id is refused rather than silently ignored, because a typo would otherwise report nothing invalidated.
+ * @evidence contracts/common.md#meaningful-documentation States the backward walk and an example chain, why the complement is returned, that a changed artifact counts itself, the dedup and order of all three lists, and every refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the identities plus derivation edges: the dependents index is built by appending in place and the queue is read by index, replacing array copies per edge and `shift` per visit that made both steps quadratic; the three lists are then sorted.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one change set per call from the caller's mutable record; the index is rebuilt each call because a cached one could not prove the lineage unchanged.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The index, queue and visited set live only for the call and are linear in the lineage size; the caller owns the returned lists.
  */
 export const designLineageImpact = (
   lineage: IAutoMovieDesignLineage,
   changed: readonly string[],
 ): IAutoMovieDesignImpact => {
-  requireValidLineage(lineage);
-  const known = new Set([
-    ...lineage.subjects.map((subject) => subject.id),
-    ...lineage.derived.map((artifact) => artifact.id),
+  requireValidDesignLineage(lineage);
+  const derivedIds: Set<string> = new Set(
+    lineage.derived.map(
+      (artifact: IAutoMovieDerivedArtifact): string => artifact.id,
+    ),
+  );
+  const known: Set<string> = new Set([
+    ...lineage.subjects.map(
+      (subject: IAutoMovieDesignSubject): string => subject.id,
+    ),
+    ...derivedIds,
   ]);
   for (const id of changed)
     if (!known.has(id))
       throw new Error(
         `design lineage "${lineage.id}" has no identity "${id}" to trace`,
       );
-  const dependents = new Map<string, string[]>();
+  const dependents: Map<string, string[]> = new Map();
   for (const artifact of lineage.derived)
-    for (const input of artifact.inputs)
-      dependents.set(input, [...(dependents.get(input) ?? []), artifact.id]);
-  const derivedIds = new Set(lineage.derived.map((artifact) => artifact.id));
-  const invalidated = new Set<string>();
-  const visited = new Set<string>();
-  const queue = [...changed];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (visited.has(current)) continue;
-    visited.add(current);
-    if (derivedIds.has(current)) invalidated.add(current);
-    for (const dependent of dependents.get(current) ?? [])
-      queue.push(dependent);
-  }
+    for (const input of artifact.inputs) {
+      const list: string[] | undefined = dependents.get(input);
+      if (list === undefined) dependents.set(input, [artifact.id]);
+      else list.push(artifact.id);
+    }
+  const visited: Set<string> = new Set(changed);
+  const queue: string[] = [...visited];
+  for (let index: number = 0; index < queue.length; ++index)
+    for (const dependent of dependents.get(queue[index]!) ?? [])
+      if (!visited.has(dependent)) {
+        visited.add(dependent);
+        queue.push(dependent);
+      }
+  const invalidated: string[] = queue
+    .filter((id: string): boolean => derivedIds.has(id))
+    .sort(compareCodeUnits);
   return {
     changed: [...new Set(changed)].sort(compareCodeUnits),
-    invalidated: [...invalidated].sort(compareCodeUnits),
+    invalidated,
     unaffected: [...derivedIds]
-      .filter((id) => !invalidated.has(id))
+      .filter((id: string): boolean => !visited.has(id))
       .sort(compareCodeUnits),
   };
-};
-
-const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
-  const validated = validateDesignLineage({ lineage });
-  if (validated.success === false) {
-    const first = validated.violations[0]!;
-    throw new Error(
-      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
-    );
-  }
 };

@@ -1,134 +1,30 @@
 import {
   AutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltFloatingBody,
-  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltPopulation,
   IAutoMovieBuiltSupportSweepReport,
-  IAutoMovieVector3,
+  IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
+import { IAutoMovieBuiltPlacementBody } from "./IAutoMovieBuiltPlacementBody";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
-import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
+import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./constants/AUTOMOVIE_SUPPORT_TOLERANCE";
+import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
- * Contact slack used when project source does not choose one, in metres. This
- * is the placement epsilon the prop kernel judges its own contact with, so an
- * unqualified building relation and an unqualified prop relation call the same
- * distance "touching".
- */
-const DEFAULT_SUPPORT_TOLERANCE = 1e-9;
+/** One resolved body of the building, with the locator that names it. */
+interface IResolvedBody {
+  locator: AutoMovieBuiltPlacementBodyLocator;
+  body: IAutoMovieBuiltPlacementBody;
+}
 
-/**
- * The boxes a locator's body actually fills, one per drawn part where it has
- * them and the reported box otherwise.
- *
- * An element resolves to its parts, because a multi-part body's union box is
- * mostly air and a test written against it answers about the box rather than
- * the body. Every other locator has no part structure to consult and keeps the
- * one box it reports, and so does an element that draws nothing.
- *
- * The parts arrive through `lookup` rather than from a fixed source, because
- * one caller asks about a single pair and another has already resolved the whole
- * building. The rule about what to do with the answer is the same either way,
- * and writing it twice is how the two stop agreeing.
- */
-const solidBoxes = (
-  locator: AutoMovieBuiltPlacementBodyLocator,
-  reported: IAutoMovieBuiltPlacementBounds,
-  lookup: (id: string) => readonly IWorldBox[] | null | undefined,
-): readonly IWorldBox[] => {
-  if (locator.kind !== "element") return [reported];
-  const parts = lookup(locator.id);
-  return parts === null || parts === undefined || parts.length === 0
-    ? [reported]
-    : parts;
-};
-
-/**
- * Every body of one building, resolved once with its own extent.
- *
- * A sweep resolves each body exactly once and then works on boxes. That order is
- * what makes a whole-building check affordable: resolving an element means
- * tessellating its model and walking its transform chain, and comparing two boxes
- * is arithmetic, so the resolutions are the cost and repeating them per pair is
- * how a sweep becomes unusable.
- */
-const builtEnvironmentBodies = (
-  environment: IAutoMovieBuiltEnvironment,
-): {
-  resolved: {
-    body: AutoMovieBuiltPlacementBodyLocator;
-    bounds: IAutoMovieBuiltPlacementBounds;
-  }[];
-  unresolved: AutoMovieBuiltPlacementBodyLocator[];
-} => {
-  const resolved: {
-    body: AutoMovieBuiltPlacementBodyLocator;
-    bounds: IAutoMovieBuiltPlacementBounds;
-  }[] = [];
-  const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
-  const locators: AutoMovieBuiltPlacementBodyLocator[] = [
-    ...environment.elements.map(
-      (element): AutoMovieBuiltPlacementBodyLocator => ({
-        kind: "element",
-        id: element.id,
-      }),
-    ),
-    ...(environment.populations ?? []).map(
-      (population): AutoMovieBuiltPlacementBodyLocator => ({
-        kind: "population",
-        id: population.set.id,
-      }),
-    ),
-  ];
-  for (const body of locators) {
-    const bounds = builtEnvironmentPlacementBounds({
-      environment,
-      target: body,
-    });
-    if (bounds === null) unresolved.push(body);
-    else resolved.push({ body, bounds });
-  }
-  return { resolved, unresolved };
-};
-
-/** Whether two boxes share footprint area, exact contact excluded. */
-/**
- * A world-space box, whichever resolution produced it.
- *
- * The measuring helpers read six numbers and nothing else, so a part box is
- * admissible wherever a body's reported bounds are. Keeping them typed as the
- * reported bounds would have forced a fabricated `basis` onto every part, which
- * is a claim about how the part was resolved that nobody made.
- */
-type IWorldBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
-
-const footprintOverlaps = (left: IWorldBox, right: IWorldBox): boolean =>
-  left.min.x < right.max.x &&
-  left.max.x > right.min.x &&
-  left.min.z < right.max.z &&
-  left.max.z > right.min.z;
-
-/**
- * The first index of a top-height-descending list at or below one height.
- *
- * A binary search rather than a scan, because the bodies above a subject are the
- * many in a tall building and reading past them is the cost this ordering exists
- * to avoid.
- */
-const firstAtOrBelow = (
-  descending: readonly { bounds: IWorldBox }[],
-  ceiling: number,
-): number => {
-  let low = 0;
-  let high = descending.length;
-  while (low < high) {
-    const middle = (low + high) >>> 1;
-    if (descending[middle]!.bounds.max.y > ceiling) low = middle + 1;
-    else high = middle;
-  }
-  return low;
-};
+/** One solid a body fills, with the body that owns it. */
+interface ICandidateSolid {
+  solid: IAutoMovieSubjectBox;
+  owner: IResolvedBody;
+}
 
 /**
  * Find every placed body in a building with clear air under it.
@@ -152,88 +48,93 @@ const firstAtOrBelow = (
  * a back panel and two boards has a box spanning the floor to head height, and
  * everything standing on a board is under its top and over its bottom without
  * touching anything. Eight scroll cases seated exactly on such a shelf were
- * reported as floating by the height of a panel they were nowhere near.
+ * reported as floating by the height of a panel they were nowhere near. The
+ * subject keeps its union box, because a body's underside is the lowest point
+ * it has.
  *
- * `groundY` is the plane a footing legitimately rests on, and it defaults to the
- * world origin's height. Without it every ground-borne element reports as
- * floating, which is a sweep nobody can read.
+ * Every element and population is a body. A body whose underside is within
+ * the tolerance of `groundY` is grounded, one whose nearest part below is
+ * within the tolerance is borne, and every other resolved body is listed as
+ * floating with that nearest part's owner and clearance, or null when nothing
+ * is under it. `groundY` defaults to the world origin's height; without it
+ * every ground-borne element would report as floating, which is a sweep nobody
+ * can read. A body the record carries no vertices for is judged as the stated
+ * point it is, and its `element-origin-point` basis travels with the finding,
+ * which is how a caller reads "floating" as a claim about a point.
  *
- * A body the record carries no vertices for is judged as the stated point it is.
- * Its underside and its top are the same height, so it is classified like any
- * other body and its `element-origin-point` basis travels with the finding, which
- * is how a caller reads "floating" as a claim about a point.
+ * Throws a `RangeError` when the tolerance is negative or non-finite, or
+ * `groundY` is not finite. `measured` counts resolved bodies, `compared` the
+ * candidate parts examined, and `unresolved` lists the bodies that occupy no
+ * place.
  *
- * Throws when the tolerance is negative or non-finite, or `groundY` is not
- * finite. `compared` counts the candidate parts examined.
+ * @param props.environment Building record to sweep.
+ * @param props.groundY World height a body may rest on directly, in metres.
+ * @param props.tolerance Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE` when omitted.
+ * @returns The counts, the floating bodies and the unresolved bodies.
  *
+ * @evidence contracts/common.md#principled-implementation Candidate parts are sorted by descending top height, so the first footprint-overlapping part at or below a subject's underside, found from a binary-searched start, is the highest part beneath it; the premise is axis-aligned part boxes from the same staging the single-relation query reads.
+ * @evidence contracts/common.md#clear-and-simple-design Body resolution is the shared `resolveBuiltPlacementBody` over one `builtEnvironmentPartBoxes` table, the footprint test is `builtFootprintsOverlap`, and the default slack is the constant shared with the status query, so this function owns only the sweep and its classification.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no element, population or part; the ground plane is an input with a stated default rather than an exemption for particular bodies, and an invalid tolerance or ground height is refused rather than defaulted.
+ * @evidence contracts/common.md#meaningful-documentation States what is measured and what is not claimed, why parts replace boxes, the grounded, borne and floating classes, the `groundY` default and why it exists, how a point body reads, each refusal, and what every count means.
+ * @evidence contracts/performance.md#efficient-algorithms The building is staged once for every element's parts, then the B bodies' P solids are sorted in O(P log P); each subject binary-searches past the solids above it and stops at the first overlap below, so the scan is O(B log P) plus the non-overlapping solids passed over, which `compared` reports, and O(B·P) in the worst case where no solid below a subject overlaps it.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within one sweep the single staging and part table are shared by every body's resolution instead of restaging the building per body; across calls nothing is cached because the record is the caller's mutable data.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
  * @author Samchon
  */
 export const builtEnvironmentSupportSweep = (props: {
   environment: IAutoMovieBuiltEnvironment;
-  /** World height a body may rest on directly. Defaults to `0`. */
+  /** World height a body may rest on directly, in metres. Defaults to `0`. */
   groundY?: number;
-  /** Contact slack in metres. Defaults to the engine's placement epsilon. */
+  /** Contact slack in metres. Defaults to `AUTOMOVIE_SUPPORT_TOLERANCE`. */
   tolerance?: number;
 }): IAutoMovieBuiltSupportSweepReport => {
-  const tolerance = props.tolerance ?? DEFAULT_SUPPORT_TOLERANCE;
+  const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
     );
-  const groundY = props.groundY ?? 0;
+  const groundY: number = props.groundY ?? 0;
   if (!Number.isFinite(groundY))
     throw new RangeError(
       `building ground height must be finite, but was ${String(groundY)}`,
     );
 
-  const { resolved, unresolved } = builtEnvironmentBodies(props.environment);
-  // What a body might rest on is a drawn part, not a union box. A shelf's union
-  // spans the floor to the top of its back panel and is mostly air, so a case
-  // standing on its lower board found nothing at or below its own underside and
-  // was reported as floating over an empty room. The subject keeps its union,
-  // because a body's underside is the lowest point it has.
-  const boxes = builtEnvironmentPartBoxes(props.environment);
-  const partsById = (id: string) => boxes.get(id);
-  const candidates = resolved.flatMap((owner) =>
-    solidBoxes(owner.body, owner.bounds, partsById).map((bounds) => ({
-      bounds,
-      owner,
-    })),
-  );
+  const { resolved, unresolved } = resolveBodies(props.environment);
   // Descending by top height, so the first footprint hit at or below a subject's
-  // underside is the nearest part under it and the walk can stop there. The
-  // alternative is reading every body for every body, which is the shape that
-  // makes a whole-building check something nobody runs twice.
-  const descending = [...candidates].sort(
-    (left, right) => right.bounds.max.y - left.bounds.max.y,
-  );
+  // underside is the nearest part under it and the walk can stop there.
+  const descending: ICandidateSolid[] = resolved
+    .flatMap((owner: IResolvedBody): ICandidateSolid[] =>
+      owner.body.solids.map(
+        (solid: IAutoMovieSubjectBox): ICandidateSolid => ({ solid, owner }),
+      ),
+    )
+    .sort(
+      (left: ICandidateSolid, right: ICandidateSolid): number =>
+        right.solid.max.y - left.solid.max.y,
+    );
   const floating: IAutoMovieBuiltFloatingBody[] = [];
-  let grounded = 0;
-  let borne = 0;
-  let compared = 0;
+  let grounded: number = 0;
+  let borne: number = 0;
+  let compared: number = 0;
   for (const subject of resolved) {
-    if (subject.bounds.min.y <= groundY + tolerance) {
+    const bounds: IAutoMovieSubjectBox = subject.body.bounds;
+    if (bounds.min.y <= groundY + tolerance) {
       ++grounded;
       continue;
     }
-    const ceiling = subject.bounds.min.y + tolerance;
-    let nearest: {
-      body: AutoMovieBuiltPlacementBodyLocator;
-      clearance: number;
-    } | null = null;
+    let nearest: IAutoMovieBuiltFloatingBody["below"] = null;
     for (
-      let index = firstAtOrBelow(descending, ceiling);
+      let index: number = firstAtOrBelow(descending, bounds.min.y + tolerance);
       index < descending.length;
       ++index
     ) {
-      const candidate = descending[index]!;
+      const candidate: ICandidateSolid = descending[index]!;
       if (candidate.owner === subject) continue;
       ++compared;
-      if (footprintOverlaps(subject.bounds, candidate.bounds) === false)
-        continue;
+      if (builtFootprintsOverlap(bounds, candidate.solid) === false) continue;
       nearest = {
-        body: candidate.owner.body,
-        clearance: subject.bounds.min.y - candidate.bounds.max.y,
+        body: candidate.owner.locator,
+        clearance: bounds.min.y - candidate.solid.max.y,
       };
       break;
     }
@@ -242,8 +143,8 @@ export const builtEnvironmentSupportSweep = (props: {
       continue;
     }
     floating.push({
-      body: subject.body,
-      basis: subject.bounds.basis,
+      body: subject.locator,
+      basis: subject.body.bounds.basis,
       below: nearest,
     });
   }
@@ -255,4 +156,72 @@ export const builtEnvironmentSupportSweep = (props: {
     floating,
     unresolved,
   };
+};
+
+/**
+ * Every element and population of one building, resolved once.
+ *
+ * The building is staged once for every element's parts, and each body is
+ * then resolved from that table. Resolving an element means tessellating its
+ * model and walking its transform chain, so repeating it per body is the cost
+ * that would make a whole-building sweep unusable.
+ */
+const resolveBodies = (
+  environment: IAutoMovieBuiltEnvironment,
+): {
+  resolved: IResolvedBody[];
+  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+} => {
+  const parts: Map<string, IAutoMovieSubjectBox[]> =
+    builtEnvironmentPartBoxes(environment);
+  const locators: AutoMovieBuiltPlacementBodyLocator[] = [
+    ...environment.elements.map(
+      (element: IAutoMovieBuiltElement): AutoMovieBuiltPlacementBodyLocator => ({
+        kind: "element",
+        id: element.id,
+      }),
+    ),
+    ...(environment.populations ?? []).map(
+      (
+        population: IAutoMovieBuiltPopulation,
+      ): AutoMovieBuiltPlacementBodyLocator => ({
+        kind: "population",
+        id: population.set.id,
+      }),
+    ),
+  ];
+  const resolved: IResolvedBody[] = [];
+  const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
+  for (const locator of locators) {
+    const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody({
+      environment,
+      target: locator,
+      parts: (elementId: string): IAutoMovieSubjectBox[] | undefined =>
+        parts.get(elementId),
+    });
+    if (body === null) unresolved.push(locator);
+    else resolved.push({ locator, body });
+  }
+  return { resolved, unresolved };
+};
+
+/**
+ * The first index of a top-height-descending list at or below one height.
+ *
+ * A binary search rather than a scan, because the bodies above a subject are the
+ * many in a tall building and reading past them is the cost this ordering exists
+ * to avoid.
+ */
+const firstAtOrBelow = (
+  descending: readonly ICandidateSolid[],
+  ceiling: number,
+): number => {
+  let low: number = 0;
+  let high: number = descending.length;
+  while (low < high) {
+    const middle: number = (low + high) >>> 1;
+    if (descending[middle]!.solid.max.y > ceiling) low = middle + 1;
+    else high = middle;
+  }
+  return low;
 };

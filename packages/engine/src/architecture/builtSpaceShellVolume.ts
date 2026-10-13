@@ -1,4 +1,7 @@
-import { IAutoMovieSpaceShell } from "@automovie/interface";
+import {
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Volume, in cubic metres, enclosed by a closed outward-wound shell.
@@ -11,17 +14,31 @@ import { IAutoMovieSpaceShell } from "@automovie/interface";
  * {@link builtEnvironmentSpaceFidelity}'s answer, not this one's.
  *
  * A shell wound inward returns the negative of its volume, and a triangle
- * naming a missing vertex is skipped; validation refuses both an open shell and
- * an out-of-range index before this is reached.
+ * naming a missing vertex is skipped, as is a trailing index group shorter
+ * than three; validation refuses an open shell and an out-of-range index
+ * before this is reached.
  *
+ * @param shell Closed triangle shell, in metres.
+ * @returns Signed enclosed volume in cubic metres, positive for outward winding.
+ *
+ * @evidence contracts/common.md#principled-implementation The signed volume of a closed triangulated surface is one sixth of the sum of `a · (b × c)` over its outward-wound triangles, by the divergence theorem; the premise is a closed, consistently wound shell, which validation enforces, and the sum is independent of the origin only under that premise.
+ * @evidence contracts/common.md#clear-and-simple-design One accumulation loop over the index triples, with voids handled by winding rather than by a separate record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shell; a missing vertex is skipped rather than guessed, and the documentation says validation refuses that record before this runs.
+ * @evidence contracts/common.md#meaningful-documentation States the formula, the unit, how voids and inward winding read, what is skipped, and which caller answers for fidelity.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the triangle indices with constant extra space, linear in the triangle count.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure sum over one shell value that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond scalars and retains nothing.
  * @author Samchon
  */
 export const builtSpaceShellVolume = (shell: IAutoMovieSpaceShell): number => {
-  let sum = 0;
-  for (let face = 0; face + 2 < shell.triangles.length; face += 3) {
-    const a = shell.vertices[shell.triangles[face]!];
-    const b = shell.vertices[shell.triangles[face + 1]!];
-    const c = shell.vertices[shell.triangles[face + 2]!];
+  let sum: number = 0;
+  for (let face: number = 0; face + 2 < shell.triangles.length; face += 3) {
+    const a: IAutoMovieVector3 | undefined =
+      shell.vertices[shell.triangles[face]!];
+    const b: IAutoMovieVector3 | undefined =
+      shell.vertices[shell.triangles[face + 1]!];
+    const c: IAutoMovieVector3 | undefined =
+      shell.vertices[shell.triangles[face + 2]!];
     if (a === undefined || b === undefined || c === undefined) continue;
     sum +=
       a.x * (b.y * c.z - b.z * c.y) +

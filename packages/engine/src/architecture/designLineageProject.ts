@@ -1,4 +1,9 @@
-import { IAutoMovieDesignLineage } from "@automovie/interface";
+import {
+  AutoMovieDesignPresence,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignPhaseSnapshot,
+  IAutoMovieDesignPhaseState,
+} from "@automovie/interface";
 
 import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
 
@@ -31,18 +36,33 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  * @param phase Construction phase id, or null for the completed work.
  * @param records Records matched to lineage subjects by `id`.
  * @returns A new array of the same record objects, filtered.
+ *
+ * @evidence contracts/common.md#principled-implementation Presence comes from `designLineagePhaseSnapshot` and is indexed by subject id, so each record is kept exactly when its subject is `present` or undeclared; the premise is that a record's `id` is the lineage subject id it stands for.
+ * @evidence contracts/common.md#clear-and-simple-design A generic filter over `{ id }` records that reuses the snapshot's presence answer, so no consumer recomputes what stands at a phase.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no record or subject; undeclared ids pass through by the stated contract so a partial plan cannot empty a production, and the documentation states that no compiled consumer is wired to this yet.
+ * @evidence contracts/common.md#meaningful-documentation States the generic mechanism, its unmet wiring, the pass-through rule and where typos are caught, order and identity preservation, which presences are dropped, the null-phase meaning, and the inherited refusals.
+ * @evidence contracts/performance.md#efficient-algorithms One snapshot, one presence index linear in the lifecycles, and one filtering pass linear in the records.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Projects one record list per call from the caller's mutable lineage; nothing is cached across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the snapshot and index only for the call; the returned array is new but shares the input record objects.
  */
 export const designLineageProject = <T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
   records: readonly T[],
 ): T[] => {
-  const snapshot = designLineagePhaseSnapshot(lineage, phase);
-  const presence = new Map(
-    snapshot.states.map((state) => [state.subject, state.presence] as const),
+  const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
+    lineage,
+    phase,
   );
-  return records.filter((entry) => {
-    const state = presence.get(entry.id);
+  const presence: Map<string, AutoMovieDesignPresence> = new Map(
+    snapshot.states.map(
+      (
+        state: IAutoMovieDesignPhaseState,
+      ): [string, AutoMovieDesignPresence] => [state.subject, state.presence],
+    ),
+  );
+  return records.filter((entry: T): boolean => {
+    const state: AutoMovieDesignPresence | undefined = presence.get(entry.id);
     return state === undefined || state === "present";
   });
 };

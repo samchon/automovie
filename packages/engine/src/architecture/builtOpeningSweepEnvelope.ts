@@ -1,29 +1,21 @@
 import {
+  IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
-  IAutoMovieConnectorCarriage,
-  IAutoMovieConnectorState,
   IAutoMovieMovablePanel,
-  IAutoMovieOperationState,
-  IAutoMovieQuaternion,
+  IAutoMovieSubjectBox,
   IAutoMovieTravelMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { unionSubjectBoxes } from "../film/unionSubjectBoxes";
 import { Matrix4 } from "../math/Matrix4";
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieOpeningSweep } from "./IAutoMovieOpeningSweep";
-
-/**
- * Slack, in radians, on the full turn a revolute panel may travel.
- *
- * Validation and the swept-envelope solver share this on purpose: the cap is
- * what bounds the solver's critical-angle walk, so a range the validator waved
- * through but the solver could not enumerate would be a hang rather than a
- * disagreement.
- */
-const FULL_TURN_EPSILON = 1e-6;
+import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
+import { builtPointBounds } from "./builtPointBounds";
+import { AUTOMOVIE_FULL_TURN_EPSILON } from "./constants/AUTOMOVIE_FULL_TURN_EPSILON";
+import { requireBuiltOpening } from "./requireBuiltOpening";
 
 /**
  * The world volume each panel of an opening sweeps across its whole travel.
@@ -36,79 +28,108 @@ const FULL_TURN_EPSILON = 1e-6;
  * Nothing here judges whether a person can pass the leaf: this is the volume a
  * later clearance or collision analysis reads, not its verdict.
  *
- * The answer is **per panel, and only that panel's own travel**. Ancestors
- * stand where the environment's current state puts them, so an inner folding
- * leaf is measured against the outer leaf as it currently stands. That is the
- * volume this leaf sweeps from where the design has it, not the union over
- * every configuration a chain of leaves could reach between its named states. A
+ * The answer is per panel, and only that panel's own travel. Ancestors stand
+ * where the environment's current state puts them, so an inner folding leaf is
+ * measured against the outer leaf as it currently stands. That is the volume
+ * this leaf sweeps from where the design has it, not the union over every
+ * configuration a chain of leaves could reach between its named states. A
  * caller wanting that union asks for each state in turn and takes the hull
  * itself; inventing it here would quietly report a chain's envelope under one
  * panel's name.
  *
  * Each entry is a world-space axis-aligned box over the four corners of the
- * panel's `width` by `height` leaf. An opening without an operation answers an
- * empty list. Throws when the opening does not exist, a panel's element is
- * missing, or a travel has an infinite limit or spans more than a full turn.
+ * panel's `width` by `height` leaf, in panel order. An opening without an
+ * operation answers an empty list. Throws an `Error` when the opening does not
+ * exist, a panel's element is missing, or a travel has an infinite limit or a
+ * revolute travel spans more than a full turn plus
+ * `AUTOMOVIE_FULL_TURN_EPSILON`, the cap `validateBuiltEnvironment` applies.
+ *
+ * @param environment Building record holding the opening.
+ * @param openingId Id of the opening whose panels are swept.
+ * @returns One swept box per panel, in panel order.
+ *
+ * @evidence contracts/common.md#principled-implementation A revolute corner's world coordinate is `c + b cos t + d sin t`, whose extremes over `[min, max]` are the endpoints plus every `phase + kπ` inside the range, so the box is exact rather than sampled; a prismatic corner is linear in its travel and extreme at its limits. The premise is a finite travel of at most one turn, which validation enforces and this function refuses by name otherwise.
+ * @evidence contracts/common.md#clear-and-simple-design Staging comes from `builtEnvironmentWorldMatrices` and the opening lookup from `requireBuiltOpening`; the panel's base frame is its parent's staged matrix times its rest transform, which removes only its own travel without restaging the building per panel.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no opening or panel; the full-turn cap is the shared contract constant rather than a private copy, and an unenumerable travel is refused instead of truncated.
+ * @evidence contracts/common.md#meaningful-documentation States the exact solve, that ancestors stand at the current state and only the panel's own travel is swept, why no chain union is formed, the box's corners and order, and every refusal with the cap it uses.
+ * @evidence contracts/performance.md#efficient-algorithms One staging pass linear in the element count, then constant work per panel corner, at most a handful of critical angles per axis because travel is capped at one turn; this replaces restaging the whole building once per panel.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening per call from the caller's mutable record; within the call one staging and one element index serve every panel.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrices and element index only for the call and returns new sweep records; nothing is retained.
  */
 export const builtOpeningSweepEnvelope = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
 ): IAutoMovieOpeningSweep[] => {
-  const opening = requireOpening(environment, openingId);
-  const operation = opening.operation;
+  const opening: IAutoMovieBuiltOpening = requireBuiltOpening(
+    environment,
+    openingId,
+  );
+  const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;
   if (operation === undefined) return [];
-  const staged = operationDeltas(environment);
-  return operation.panels.map((panel) => {
-    requireEnumerableTravel(environment, panel);
-    // The panel's own travel is what is being measured, so it is the one joint
-    // left at rest; every other joint, its ancestors included, stands where the
-    // environment's current state puts it.
-    const held = new Map(staged);
-    held.delete(panel.element);
-    const base = requireTravellerMatrix(
-      environment,
-      worldMatricesOf(environment, held),
-      panel,
-      "panel",
-    );
-    const corners: IAutoMovieVector3[] = [
-      { x: 0, y: 0, z: 0 },
-      { x: panel.width, y: 0, z: 0 },
-      { x: panel.width, y: panel.height, z: 0 },
-      { x: 0, y: panel.height, z: 0 },
-    ];
-    const swept = corners.map((corner) =>
-      sweptCornerBounds(base, panel.motion, corner),
-    );
-    return {
-      panel: panel.id,
-      element: panel.element,
-      min: {
-        x: Math.min(...swept.map((bound) => bound.min.x)),
-        y: Math.min(...swept.map((bound) => bound.min.y)),
-        z: Math.min(...swept.map((bound) => bound.min.z)),
-      },
-      max: {
-        x: Math.max(...swept.map((bound) => bound.max.x)),
-        y: Math.max(...swept.map((bound) => bound.max.y)),
-        z: Math.max(...swept.map((bound) => bound.max.z)),
-      },
-    };
-  });
+  const staged: Map<string, number[]> =
+    builtEnvironmentWorldMatrices(environment);
+  const elements: Map<string, IAutoMovieBuiltElement> = new Map(
+    environment.elements.map(
+      (element: IAutoMovieBuiltElement): [string, IAutoMovieBuiltElement] => [
+        element.id,
+        element,
+      ],
+    ),
+  );
+  return operation.panels.map(
+    (panel: IAutoMovieMovablePanel): IAutoMovieOpeningSweep => {
+      requireEnumerableTravel(environment, panel);
+      const base: number[] = restingFrame(environment, elements, staged, panel);
+      const corners: IAutoMovieVector3[] = [
+        { x: 0, y: 0, z: 0 },
+        { x: panel.width, y: 0, z: 0 },
+        { x: panel.width, y: panel.height, z: 0 },
+        { x: 0, y: panel.height, z: 0 },
+      ];
+      const swept: IAutoMovieSubjectBox = unionSubjectBoxes(
+        corners.map(
+          (corner: IAutoMovieVector3): IAutoMovieSubjectBox =>
+            sweptCornerBounds(base, panel.motion, corner),
+        ),
+      )!;
+      return {
+        panel: panel.id,
+        element: panel.element,
+        min: swept.min,
+        max: swept.max,
+      };
+    },
+  );
 };
 
-const requireOpening = (
+/**
+ * The world frame a panel's leaf stands in with its own travel at rest.
+ *
+ * The panel's own displacement is the last factor of its local matrix and
+ * moves nothing above it, so its parent's staged matrix times its rest
+ * transform is exactly the staging with that one joint removed.
+ */
+const restingFrame = (
   environment: IAutoMovieBuiltEnvironment,
-  openingId: string,
-): IAutoMovieBuiltOpening => {
-  const opening = environment.openings.find(
-    (candidate) => candidate.id === openingId,
+  elements: ReadonlyMap<string, IAutoMovieBuiltElement>,
+  staged: ReadonlyMap<string, number[]>,
+  panel: IAutoMovieMovablePanel,
+): number[] => {
+  const element: IAutoMovieBuiltElement | undefined = elements.get(
+    panel.element,
   );
-  if (opening === undefined)
+  if (element === undefined)
     throw new Error(
-      `built environment "${environment.id}" has no opening "${openingId}"`,
+      `built environment "${environment.id}" has no element "${panel.element}" for panel "${panel.id}"`,
     );
-  return opening;
+  const rest: number[] = Matrix4.compose(
+    element.transform.translation,
+    element.transform.rotation,
+    element.transform.scale,
+  );
+  return element.parent === null
+    ? rest
+    : Matrix4.multiply(staged.get(element.parent)!, rest);
 };
 
 /**
@@ -117,203 +138,38 @@ const requireOpening = (
  * The solver walks the critical angles the travel actually crosses, so an
  * infinite limit or a range spanning more than a full turn is not a wrong
  * answer waiting to happen: it is a walk that never reaches its end.
- * {@link validateBuiltEnvironment} refuses both by name and shares the very same
- * cap, so this only ever fires on a record that was never validated — and on
- * one of those, a named refusal is the only acceptable outcome.
+ * `validateBuiltEnvironment` refuses both by name with the same cap, so this
+ * only fires on a record that was never validated, and on one of those a named
+ * refusal is the only acceptable outcome.
  */
 const requireEnumerableTravel = (
   environment: IAutoMovieBuiltEnvironment,
   panel: IAutoMovieMovablePanel,
 ): void => {
-  const { min, max } = panel.motion;
+  const { min, max }: IAutoMovieTravelMotion = panel.motion;
   if (
     Number.isFinite(min) === false ||
     Number.isFinite(max) === false ||
     (panel.motion.kind === "revolute" &&
-      max - min > 2 * Math.PI + FULL_TURN_EPSILON)
+      max - min > 2 * Math.PI + AUTOMOVIE_FULL_TURN_EPSILON)
   )
     throw new Error(
       `panel "${panel.id}" of built environment "${environment.id}" travels [${min}, ${max}], which no swept envelope can enumerate`,
     );
 };
 
-const requireTravellerMatrix = (
-  environment: IAutoMovieBuiltEnvironment,
-  matrices: ReadonlyMap<string, number[]>,
-  traveller: { id: string; element: string },
-  label: string,
-): number[] => {
-  const world = matrices.get(traveller.element);
-  if (world === undefined)
-    throw new Error(
-      `built environment "${environment.id}" has no element "${traveller.element}" for ${label} "${traveller.id}"`,
-    );
-  return world;
-};
-
-/**
- * World matrices for every element, optionally displaced by panel travel.
- *
- * A joint displacement is applied after the element's own local transform and
- * therefore rides down the hierarchy, which is what makes a folding leaf work
- * without a second parenting notion: parent its element to the leaf it folds
- * against and the outer leaf's travel carries it.
- */
-const worldMatricesOf = (
-  environment: IAutoMovieBuiltEnvironment,
-  joints: ReadonlyMap<string, number[]> = new Map(),
-): Map<string, number[]> => {
-  const byId = new Map(
-    environment.elements.map((element) => [element.id, element]),
-  );
-  const matrices = new Map<string, number[]>();
-  const read = (id: string): number[] => {
-    const cached = matrices.get(id);
-    if (cached !== undefined) return cached;
-    const element = byId.get(id)!;
-    const rest = Matrix4.compose(
-      element.transform.translation,
-      element.transform.rotation,
-      element.transform.scale,
-    );
-    const joint = joints.get(id);
-    const local = joint === undefined ? rest : Matrix4.multiply(rest, joint);
-    const world =
-      element.parent === null
-        ? local
-        : Matrix4.multiply(read(element.parent), local);
-    matrices.set(id, world);
-    return world;
-  };
-  environment.elements.forEach((element) => read(element.id));
-  return matrices;
-};
-
-/** The element-local displacement one moving member carries at one value. */
-const travelDelta = (
-  motion: IAutoMovieTravelMotion,
-  value: number,
-): number[] => {
-  const axis = Vector3.normalize(motion.axis);
-  if (motion.kind === "prismatic")
-    return Matrix4.compose(
-      Vector3.scale(axis, value),
-      { x: 0, y: 0, z: 0, w: 1 },
-      { x: 1, y: 1, z: 1 },
-    );
-  const half = value / 2;
-  const sine = Math.sin(half);
-  const rotation: IAutoMovieQuaternion = {
-    x: axis.x * sine,
-    y: axis.y * sine,
-    z: axis.z * sine,
-    w: Math.cos(half),
-  };
-  // Turning about a pivot is a turn about the origin plus the offset that puts
-  // the pivot back where it was.
-  return Matrix4.compose(
-    Vector3.subtract(
-      motion.pivot,
-      Quaternion.rotateVector(rotation, motion.pivot),
-    ),
-    rotation,
-    { x: 1, y: 1, z: 1 },
-  );
-};
-
-/**
- * The element-local displacement every moving member carries in a named state.
- *
- * The default is the environment's own current state; a caller asking for
- * another state gets that one instead, which is how a shot stages the same
- * building with its doors open without editing the record. An opening or run
- * that has no such state simply does not move, so asking for `open` swings the
- * doors that can open and leaves every other opening, and every lift, exactly
- * where it was.
- *
- * Openings and runs share one table because they share one rule: an element
- * carries one displacement. Validation refuses a work where two members claim
- * the same element, so the table is a merge of disjoint keys rather than a
- * race, and whichever member owns the element owns it everywhere.
- *
- * A state that names no value for a member leaves that member at rest.
- * `validateBuiltEnvironment` refuses such a record by name, and answering at
- * rest is what keeps a query over an unvalidated one from failing on a value it
- * was never given.
- */
-const operationDeltas = (
-  environment: IAutoMovieBuiltEnvironment,
-  stateId?: string,
-): Map<string, number[]> => {
-  const deltas = new Map<string, number[]>();
-  for (const opening of environment.openings) {
-    const operation = opening.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyPanelState(operation.panels, state, deltas);
-  }
-  for (const connector of environment.connectors) {
-    const operation = connector.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyCarriageState(operation.carriages, state, deltas);
-  }
-  return deltas;
-};
-
-/** Place every panel of one opening at the travel a named state gives it. */
-const applyPanelState = (
-  panels: readonly IAutoMovieMovablePanel[],
-  state: IAutoMovieOperationState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const panel of panels) {
-    const entry = state.panels.find((value) => value.panel === panel.id);
-    if (entry === undefined) continue;
-    deltas.set(panel.element, travelDelta(panel.motion, entry.value));
-  }
-};
-
-/** Place every carriage of one run at the travel a named state gives it. */
-const applyCarriageState = (
-  carriages: readonly IAutoMovieConnectorCarriage[],
-  state: IAutoMovieConnectorState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const carriage of carriages) {
-    const entry = state.carriages.find(
-      (value) => value.carriage === carriage.id,
-    );
-    if (entry === undefined) continue;
-    deltas.set(carriage.element, travelDelta(carriage.motion, entry.value));
-  }
-};
-
 /** Apply a column-major matrix to a point. */
 const applyMatrix = (
   matrix: readonly number[],
   point: IAutoMovieVector3,
-): IAutoMovieVector3 => ({
-  x:
-    matrix[0]! * point.x +
-    matrix[4]! * point.y +
-    matrix[8]! * point.z +
-    matrix[12]!,
-  y:
-    matrix[1]! * point.x +
-    matrix[5]! * point.y +
-    matrix[9]! * point.z +
-    matrix[13]!,
-  z:
-    matrix[2]! * point.x +
-    matrix[6]! * point.y +
-    matrix[10]! * point.z +
-    matrix[14]!,
-});
+): IAutoMovieVector3 => {
+  const moved: IAutoMovieVector3 = applyDirection(matrix, point);
+  return {
+    x: moved.x + matrix[12]!,
+    y: moved.y + matrix[13]!,
+    z: moved.z + matrix[14]!,
+  };
+};
 
 /** Apply a column-major matrix's linear part to a direction. */
 const applyDirection = (
@@ -330,63 +186,52 @@ const sweptCornerBounds = (
   base: readonly number[],
   motion: IAutoMovieTravelMotion,
   corner: IAutoMovieVector3,
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-  const axis = Vector3.normalize(motion.axis);
-  if (motion.kind === "prismatic") {
-    const ends = [motion.min, motion.max].map((value) =>
-      applyMatrix(base, Vector3.add(corner, Vector3.scale(axis, value))),
-    );
-    return boundsOf(ends);
-  }
-  const offset = Vector3.subtract(corner, motion.pivot);
-  const along = Vector3.scale(axis, Vector3.dot(axis, offset));
-  const center = applyMatrix(base, Vector3.add(motion.pivot, along));
-  const cosine = applyDirection(base, Vector3.subtract(offset, along));
-  const sine = applyDirection(base, Vector3.cross(axis, offset));
+): IAutoMovieSubjectBox => {
+  const axis: IAutoMovieVector3 = Vector3.normalize(motion.axis);
+  if (motion.kind === "prismatic")
+    return builtPointBounds(
+      [motion.min, motion.max].map(
+        (value: number): IAutoMovieVector3 =>
+          applyMatrix(base, Vector3.add(corner, Vector3.scale(axis, value))),
+      ),
+    )!;
+  const offset: IAutoMovieVector3 = Vector3.subtract(corner, motion.pivot);
+  const along: IAutoMovieVector3 = Vector3.scale(
+    axis,
+    Vector3.dot(axis, offset),
+  );
+  const center: IAutoMovieVector3 = applyMatrix(
+    base,
+    Vector3.add(motion.pivot, along),
+  );
+  const cosine: IAutoMovieVector3 = applyDirection(
+    base,
+    Vector3.subtract(offset, along),
+  );
+  const sine: IAutoMovieVector3 = applyDirection(
+    base,
+    Vector3.cross(axis, offset),
+  );
   const reach = (component: "x" | "y" | "z"): { low: number; high: number } => {
-    const phase = Math.atan2(sine[component], cosine[component]);
-    const angles = [motion.min, motion.max];
-    const first = Math.ceil((motion.min - phase) / Math.PI);
-    const last = Math.floor((motion.max - phase) / Math.PI);
-    for (let step = first; step <= last; ++step)
+    const phase: number = Math.atan2(sine[component], cosine[component]);
+    const angles: number[] = [motion.min, motion.max];
+    const first: number = Math.ceil((motion.min - phase) / Math.PI);
+    const last: number = Math.floor((motion.max - phase) / Math.PI);
+    for (let step: number = first; step <= last; ++step)
       angles.push(phase + step * Math.PI);
-    const values = angles.map(
-      (angle) =>
+    const values: number[] = angles.map(
+      (angle: number): number =>
         center[component] +
         cosine[component] * Math.cos(angle) +
         sine[component] * Math.sin(angle),
     );
     return { low: Math.min(...values), high: Math.max(...values) };
   };
-  const x = reach("x");
-  const y = reach("y");
-  const z = reach("z");
+  const x: { low: number; high: number } = reach("x");
+  const y: { low: number; high: number } = reach("y");
+  const z: { low: number; high: number } = reach("z");
   return {
     min: { x: x.low, y: y.low, z: z.low },
     max: { x: x.high, y: y.high, z: z.high },
   };
-};
-
-/**
- * The axis-aligned box containing every given point.
- *
- * Folded rather than spread through `Math.min`, because the callers are no
- * longer only the four corners of a leaf: measuring a space's contents hands
- * this every vertex the space draws, and a spread of that many arguments is a
- * stack overflow rather than a slow answer.
- */
-const boundsOf = (
-  points: readonly IAutoMovieVector3[],
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-  const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
-  const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
-  for (const point of points) {
-    min.x = Math.min(min.x, point.x);
-    min.y = Math.min(min.y, point.y);
-    min.z = Math.min(min.z, point.z);
-    max.x = Math.max(max.x, point.x);
-    max.y = Math.max(max.y, point.y);
-    max.z = Math.max(max.z, point.z);
-  }
-  return { min, max };
 };

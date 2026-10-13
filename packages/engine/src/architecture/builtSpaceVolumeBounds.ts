@@ -1,30 +1,12 @@
 import {
   IAutoMovieBuiltSpace,
+  IAutoMovieConvexSpaceCell,
   IAutoMovieSubjectBox,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
-
-/** Grow a box by one point, creating it when there is none yet. */
-const includePoint = (
-  box: IAutoMovieSubjectBox | null,
-  point: IAutoMovieVector3,
-): IAutoMovieSubjectBox =>
-  box === null
-    ? { min: { ...point }, max: { ...point } }
-    : {
-        min: {
-          x: Math.min(box.min.x, point.x),
-          y: Math.min(box.min.y, point.y),
-          z: Math.min(box.min.z, point.z),
-        },
-        max: {
-          x: Math.max(box.max.x, point.x),
-          y: Math.max(box.max.y, point.y),
-          z: Math.max(box.max.z, point.z),
-        },
-      };
+import { builtPointBounds } from "./builtPointBounds";
 
 /**
  * The world box one logical space's own stated volume occupies.
@@ -37,17 +19,26 @@ const includePoint = (
  * The box is world-space in metres. Every listed shell vertex counts, used by a
  * triangle or not, and an unbounded cell contributes only the corners it has,
  * so its extent can be understated.
+ *
+ * @param space Logical space whose stated volume is boxed.
+ * @returns A new world box, or null when the space states no corner.
+ *
+ * @evidence contracts/common.md#principled-implementation The box of a polyhedron is the box of its vertices: a shell's listed vertices, or the corners `builtConvexCellVertices` cuts from each convex cell's half-spaces, folded by `builtPointBounds`; an unbounded cell has no complete corner set, a limitation the documentation states.
+ * @evidence contracts/common.md#clear-and-simple-design One branch per volume spelling feeding the shared point fold, so the bounds of either spelling come from the same arithmetic.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space; a space with no corners answers null rather than an invented origin box.
+ * @evidence contracts/common.md#meaningful-documentation States both spellings, the null cases, the frame and unit, that unused shell vertices count, and that an unbounded cell can understate the extent.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the shell's vertex count, or in the cells' cut corners, with one fold that allocates a single box instead of a new box per point.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure read of one space value per call that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the cut corner list only for the call; the caller owns the returned box.
  */
 export const builtSpaceVolumeBounds = (
   space: IAutoMovieBuiltSpace,
-): IAutoMovieSubjectBox | null => {
-  let box: IAutoMovieSubjectBox | null = null;
-  if (space.shell !== undefined) {
-    for (const vertex of space.shell.vertices) box = includePoint(box, vertex);
-    return box;
-  }
-  for (const cell of space.cells)
-    for (const vertex of builtConvexCellVertices(cell))
-      box = includePoint(box, vertex);
-  return box;
-};
+): IAutoMovieSubjectBox | null =>
+  builtPointBounds(
+    space.shell !== undefined
+      ? space.shell.vertices
+      : space.cells.flatMap(
+          (cell: IAutoMovieConvexSpaceCell): IAutoMovieVector3[] =>
+            builtConvexCellVertices(cell),
+        ),
+  );

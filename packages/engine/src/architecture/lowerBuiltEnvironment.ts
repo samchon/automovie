@@ -1,18 +1,21 @@
 import {
+  IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
-  IAutoMovieConnectorCarriage,
-  IAutoMovieConnectorState,
-  IAutoMovieMovablePanel,
-  IAutoMovieOperationState,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConstraintViolation,
   IAutoMovieQuaternion,
   IAutoMovieSpace,
-  IAutoMovieTravelMotion,
+  IAutoMovieStageSetPiece,
+  IAutoMovieSurface,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
 
 /**
@@ -33,45 +36,58 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * expanded into set pieces. That is what makes the building the one owner of its
  * own repeated parts: the set the production world stages and the set a space
  * query measures are the same record, so no second copy of a placement law can
- * drift away from the first.
+ * drift away from the first. The `instanceSets` key is omitted rather than
+ * emitted empty when the record has no population, so such a record merges
+ * exactly as it did before populations existed.
  *
  * Node ids are `<environment id>/<element id>` and stage space ids are
- * `<environment id>/<space id>`; only elements with a model become set pieces.
- * The returned contribution shares the environment's own model, surface and
- * population objects rather than copying them. A record that fails
+ * `<environment id>/<space id>`; only elements with a model become set pieces,
+ * in element order. Each stage space carries its own surfaces in record order
+ * and the walkable ids among them in the record's walkable order. The returned
+ * contribution shares the environment's own model, surface and population
+ * objects rather than copying them. A record that fails
  * `validateBuiltEnvironment` throws an `Error` naming its first violation.
+ *
+ * @param environment Building record to lower.
+ * @returns The models, set pieces, stage spaces, building record and compact populations the building contributes.
+ *
+ * @evidence contracts/common.md#principled-implementation Element world matrices come from `builtEnvironmentWorldMatrices`, the parent-to-child `Matrix4` composition under the current operating state that every element query also reads, and are split back to TRS with `Matrix4.decompose` and a renormalized rotation; the premise is a record `validateBuiltEnvironment` accepted, which is checked first.
+ * @evidence contracts/common.md#clear-and-simple-design Lowering only maps an accepted record onto contribution fields; staging is owned by `builtEnvironmentWorldMatrices` instead of a private copy, and populations pass through as their own set records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no building, element or space; the omitted `instanceSets` key is the contribution contract's way of saying "none", kept so a population-free record merges unchanged rather than to satisfy a fixture.
+ * @evidence contracts/common.md#meaningful-documentation States the world flattening, the applied operating state, why populations stay compact, the id formats, the orders of set pieces, surfaces and walkable ids, the shared objects, the omitted key, and the thrown refusal.
+ * @evidence contracts/performance.md#efficient-algorithms One validation pass, one staging pass linear in the element count, and one pass each over surfaces and walkable ids grouped by space, so the stage spaces cost linear time instead of rescanning every surface per space.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lowers one record per call from the caller's mutable data; nothing is cached because no key could prove an earlier lowering still matches the record.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrices and the per-space groupings only for the call; the caller owns the returned contribution, which shares the record's own models, surfaces and population sets.
  */
 export const lowerBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieSubjectContribution => {
-  const validated = validateBuiltEnvironment({ environment });
+  const validated: IAutoMovieValidation = validateBuiltEnvironment({
+    environment,
+  });
   if (validated.success === false) {
-    const first = validated.violations[0]!;
+    const first: IAutoMovieConstraintViolation = validated.violations[0]!;
     throw new Error(
       `built environment "${environment.id}" is invalid at ${first.path}: ${first.expected}`,
     );
   }
 
-  const matrices = worldMatricesOf(environment, operationDeltas(environment));
-  const populations = environment.populations ?? [];
-  const spaces: IAutoMovieSpace[] = environment.spaces.map((space) => {
-    const surfaces = environment.surfaces
-      .filter((entry) => entry.space === space.id)
-      .map((entry) => entry.surface);
-    const surfaceIds = new Set(surfaces.map((surface) => surface.id));
-    return {
-      id: `${environment.id}/${space.id}`,
-      surfaces,
-      walkable: environment.walkable.filter((id) => surfaceIds.has(id)),
-    };
-  });
-
+  const matrices: Map<string, number[]> =
+    builtEnvironmentWorldMatrices(environment);
+  const populations: IAutoMovieBuiltPopulation[] =
+    environment.populations ?? [];
   return {
     models: environment.models,
     set: environment.elements
-      .filter((element) => element.model !== null)
-      .map((element) => {
-        const world = Matrix4.decompose(matrices.get(element.id)!);
+      .filter(
+        (element: IAutoMovieBuiltElement): boolean => element.model !== null,
+      )
+      .map((element: IAutoMovieBuiltElement): IAutoMovieStageSetPiece => {
+        const world: {
+          position: IAutoMovieVector3;
+          rotation: IAutoMovieQuaternion;
+          scale: IAutoMovieVector3;
+        } = Matrix4.decompose(matrices.get(element.id)!);
         return {
           node: `${environment.id}/${element.id}`,
           model: element.model!,
@@ -80,157 +96,47 @@ export const lowerBuiltEnvironment = (
           scale: world.scale,
         };
       }),
-    spaces,
+    spaces: stageSpaces(environment),
     builtEnvironments: [environment],
-    // A population is contributed as the compact set it already is, never
-    // expanded into set pieces: the whole point of declaring 2,392 slates as
-    // one record is that nothing downstream has to hold 2,392 of anything. The
-    // key is omitted rather than emitted empty so a record without populations
-    // merges byte-for-byte as it did before the field existed.
     ...(populations.length === 0
       ? {}
-      : { instanceSets: populations.map((population) => population.set) }),
+      : {
+          instanceSets: populations.map(
+            (
+              population: IAutoMovieBuiltPopulation,
+            ): IAutoMovieBuiltPopulation["set"] => population.set,
+          ),
+        }),
   };
 };
 
-/**
- * World matrices for every element, optionally displaced by panel travel.
- *
- * A joint displacement is applied after the element's own local transform and
- * therefore rides down the hierarchy, which is what makes a folding leaf work
- * without a second parenting notion: parent its element to the leaf it folds
- * against and the outer leaf's travel carries it.
- */
-const worldMatricesOf = (
+/** One stage space per logical space, carrying its own support patches. */
+const stageSpaces = (
   environment: IAutoMovieBuiltEnvironment,
-  joints: ReadonlyMap<string, number[]> = new Map(),
-): Map<string, number[]> => {
-  const byId = new Map(
-    environment.elements.map((element) => [element.id, element]),
+): IAutoMovieSpace[] => {
+  const surfaces: Map<string, IAutoMovieSurface[]> = new Map();
+  const owner: Map<string, string> = new Map();
+  for (const entry of environment.surfaces) {
+    const list: IAutoMovieSurface[] | undefined = surfaces.get(
+      entry.space,
+    );
+    if (list === undefined) surfaces.set(entry.space, [entry.surface]);
+    else list.push(entry.surface);
+    owner.set(entry.surface.id, entry.space);
+  }
+  const walkable: Map<string, string[]> = new Map();
+  for (const id of environment.walkable) {
+    const space: string | undefined = owner.get(id);
+    if (space === undefined) continue;
+    const list: string[] | undefined = walkable.get(space);
+    if (list === undefined) walkable.set(space, [id]);
+    else list.push(id);
+  }
+  return environment.spaces.map(
+    (space: IAutoMovieBuiltSpace): IAutoMovieSpace => ({
+      id: `${environment.id}/${space.id}`,
+      surfaces: surfaces.get(space.id) ?? [],
+      walkable: walkable.get(space.id) ?? [],
+    }),
   );
-  const matrices = new Map<string, number[]>();
-  const read = (id: string): number[] => {
-    const cached = matrices.get(id);
-    if (cached !== undefined) return cached;
-    const element = byId.get(id)!;
-    const rest = Matrix4.compose(
-      element.transform.translation,
-      element.transform.rotation,
-      element.transform.scale,
-    );
-    const joint = joints.get(id);
-    const local = joint === undefined ? rest : Matrix4.multiply(rest, joint);
-    const world =
-      element.parent === null
-        ? local
-        : Matrix4.multiply(read(element.parent), local);
-    matrices.set(id, world);
-    return world;
-  };
-  environment.elements.forEach((element) => read(element.id));
-  return matrices;
-};
-
-/** The element-local displacement one moving member carries at one value. */
-const travelDelta = (
-  motion: IAutoMovieTravelMotion,
-  value: number,
-): number[] => {
-  const axis = Vector3.normalize(motion.axis);
-  if (motion.kind === "prismatic")
-    return Matrix4.compose(
-      Vector3.scale(axis, value),
-      { x: 0, y: 0, z: 0, w: 1 },
-      { x: 1, y: 1, z: 1 },
-    );
-  const half = value / 2;
-  const sine = Math.sin(half);
-  const rotation: IAutoMovieQuaternion = {
-    x: axis.x * sine,
-    y: axis.y * sine,
-    z: axis.z * sine,
-    w: Math.cos(half),
-  };
-  // Turning about a pivot is a turn about the origin plus the offset that puts
-  // the pivot back where it was.
-  return Matrix4.compose(
-    Vector3.subtract(
-      motion.pivot,
-      Quaternion.rotateVector(rotation, motion.pivot),
-    ),
-    rotation,
-    { x: 1, y: 1, z: 1 },
-  );
-};
-
-/**
- * The element-local displacement every moving member carries in a named state.
- *
- * The default is the environment's own current state; a caller asking for
- * another state gets that one instead, which is how a shot stages the same
- * building with its doors open without editing the record. An opening or run
- * that has no such state simply does not move, so asking for `open` swings the
- * doors that can open and leaves every other opening, and every lift, exactly
- * where it was.
- *
- * Openings and runs share one table because they share one rule: an element
- * carries one displacement. Validation refuses a work where two members claim
- * the same element, so the table is a merge of disjoint keys rather than a
- * race, and whichever member owns the element owns it everywhere.
- *
- * A state that names no value for a member leaves that member at rest.
- * `validateBuiltEnvironment` refuses such a record by name, and answering at
- * rest is what keeps a query over an unvalidated one from failing on a value it
- * was never given.
- */
-const operationDeltas = (
-  environment: IAutoMovieBuiltEnvironment,
-  stateId?: string,
-): Map<string, number[]> => {
-  const deltas = new Map<string, number[]>();
-  for (const opening of environment.openings) {
-    const operation = opening.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyPanelState(operation.panels, state, deltas);
-  }
-  for (const connector of environment.connectors) {
-    const operation = connector.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyCarriageState(operation.carriages, state, deltas);
-  }
-  return deltas;
-};
-
-/** Place every panel of one opening at the travel a named state gives it. */
-const applyPanelState = (
-  panels: readonly IAutoMovieMovablePanel[],
-  state: IAutoMovieOperationState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const panel of panels) {
-    const entry = state.panels.find((value) => value.panel === panel.id);
-    if (entry === undefined) continue;
-    deltas.set(panel.element, travelDelta(panel.motion, entry.value));
-  }
-};
-
-/** Place every carriage of one run at the travel a named state gives it. */
-const applyCarriageState = (
-  carriages: readonly IAutoMovieConnectorCarriage[],
-  state: IAutoMovieConnectorState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const carriage of carriages) {
-    const entry = state.carriages.find(
-      (value) => value.carriage === carriage.id,
-    );
-    if (entry === undefined) continue;
-    deltas.set(carriage.element, travelDelta(carriage.motion, entry.value));
-  }
 };
