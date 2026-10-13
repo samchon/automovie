@@ -15,7 +15,7 @@ import type { IHumanBodySourceResidentMesh } from "./IHumanBodySourceResidentMes
  * @evidence contracts/common.md#clear-and-simple-design One compaction boundary owns resident correspondence/normals; assembly admission retains anatomical weights and original directions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unused malformed attributes cannot disappear, coincident vertices are not welded, and unused bookkeeping vertices receive no invented normal.
  * @evidence contracts/common.md#meaningful-documentation The prose defines source ownership, referenced/nonindexed populations, deterministic ordering and geometric-normal reconstruction.
- * @evidence contracts/performance.md#efficient-algorithms Validation, reference marking and ascending native-ordinal selection cost O(V+T) for V native vertices and T indices; aligned attribute copying costs O(R) for R residents, with O(V+R) lookup/output storage and no sorting.
+ * @evidence contracts/performance.md#efficient-algorithms Attribute validation, marking and ascending ordinal selection cost O(V+T), and resident copying O(R). Optional physical correspondence additionally validates S source rows and their key text through engine, with O(V+S) temporary identity storage; ordinal/output storage is O(V+R), without sorting.
  * @evidence contracts/performance.md#reuse-equivalent-work Fully referenced geometry reuses its mesh when normals need no rebuild; otherwise one correspondence selects every attribute.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns selected arrays/correspondence and borrows source descriptors; temporary ordinal lookup storage dies on return or refusal.
  */

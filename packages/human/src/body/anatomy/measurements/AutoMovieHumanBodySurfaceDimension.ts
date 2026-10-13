@@ -1,7 +1,7 @@
 /**
  * An exterior metric target or an observed scalar with acquisition context.
  *
- * The owning landmark field decides whether this is a girth or a straight distance. A fictional target has no invented measurement device or scan. Observation uncertainty is omitted when unknown rather than set to zero.
+ * The owning landmark field decides whether this is a girth, straight distance or skin-surface path length. A fictional target has no invented measurement device or scan. Observation uncertainty is omitted when unknown rather than set to zero.
  *
  * @evidence contracts/common.md#principled-implementation A discriminated union separates desired exterior size from observed acquisition context using metric scalars.
  * @evidence contracts/common.md#clear-and-simple-design Generic method/posture parameters let the owning landmark narrow protocols without duplicating the observation structure.
@@ -23,14 +23,14 @@ export type AutoMovieHumanBodySurfaceDimension<
       /** Distinguishes a desired exterior size from an acquisition. */
       readonly kind: "target";
 
-      /** Exterior distance or girth in metres, interpreted by its owning landmark. */
+      /** Exterior straight distance, surface path length or girth in metres, interpreted by its owning landmark. */
       readonly metres: number;
     }
   | {
       /** Distinguishes a desired exterior size from an acquisition. */
       readonly kind: "observed";
 
-      /** Exterior distance or girth in metres, interpreted by its owning landmark. */
+      /** Exterior straight distance, surface path length or girth in metres, interpreted by its owning landmark. */
       readonly metres: number;
 
       /** Device/protocol identity permitted by the owning exterior measurement. */

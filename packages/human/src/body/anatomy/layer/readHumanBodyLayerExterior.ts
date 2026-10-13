@@ -13,7 +13,7 @@ import type { IHumanBodyLayerExteriorInput } from "./IHumanBodyLayerExteriorInpu
  * @evidence contracts/common.md#clear-and-simple-design The reader owns canonical geometry/incidence recovery while caller selection/frame and downstream topology/embedding remain separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Disagreeing aliases or missing native samples refuse; no coordinate average or proximity weld manufactures source correspondence.
  * @evidence contracts/common.md#meaningful-documentation The prose states identity-based recovery, exact alias equality, owned outputs and unproved topology/embedding interpretation.
- * @evidence contracts/performance.md#efficient-algorithms For V input vertices, T indices and S native samples, source validation/canonical maps scan O(V+T+S) with output and ordinal storage proportional to actual populations.
+ * @evidence contracts/performance.md#efficient-algorithms For V input vertices, T indices and S requested native samples, canonical recovery scans O(V+T+S). Engine correspondence admission additionally visits every physical source row and its key text; temporary identity and output storage scale with all these populations, including unused source rows.
  * @evidence contracts/performance.md#reuse-equivalent-work One physical-ID slot map serves all skin parts and requested origins, while shared physical-source resolution uses the existing engine owner.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned exterior arrays/origin map are owned; per-input ordinal maps are temporary and source meshes remain untouched.
  */

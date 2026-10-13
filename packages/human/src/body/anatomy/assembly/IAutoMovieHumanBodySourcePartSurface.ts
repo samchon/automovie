@@ -24,7 +24,7 @@ export interface IAutoMovieHumanBodySourcePartSurface {
   /** Original acquired or authored source identity, rights and acquisition conditions. */
   source: IAutoMovieHumanBodyAtlasSource;
 
-  /** SHA-256 of JSON.stringify(mesh), bound by source admission and publisher. */
+  /** Publisher-declared SHA-256 of JSON.stringify(mesh). Synchronous replay checks digest spelling; the static export qualification owner recomputes and compares the original mesh digest. */
   compiledMeshSha256: string;
 
   /** Actual registered boundary; skin is null because the separate named binding owns attachment. */

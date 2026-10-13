@@ -4,11 +4,11 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/
 /**
  * What a region's part resolver reads: the document's anatomy, if any, and the compiled source basis.
  *
- * Document admission preserves anatomical measurements and registered raw observations before this carrier reaches a region resolver. A consumer without anatomical input (the shape-weight body editor) omits `targets` and receives each part's source reason without inventing an age, stature or mass; completeness of a document stays with document admission. The basis lets a resolver state that a defining landmark or tissue boundary is absent from the source.
+ * Document admission preserves anatomical measurements and registered raw observations before this carrier reaches a region resolver. A consumer without anatomy omits targets and receives each region's unavailable reports without invented age, stature or mass; document completeness stays admission-owned. The basis supplies optional inspection context, but current fixed region reports do not inspect it or prove source landmarks or tissues absent.
  *
- * @evidence contracts/common.md#principled-implementation Optional admitted anatomy and compiled basis supply region requests and actual landmark/tissue availability without invented demographic inputs.
+ * @evidence contracts/common.md#principled-implementation Optional admitted anatomy supplies region requests and the basis supplies source context; current fixed reports state registry limitations without inspecting source availability or inventing demographics.
  * @evidence contracts/common.md#clear-and-simple-design Document completeness remains admission-owned while region consumers receive only their generation context.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted targets preserve source unavailable reasons rather than inventing age, stature, mass or anatomy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted targets preserve region unavailable reports rather than inventing demographics, anatomy or an inspected source-absence claim.
  * @evidence contracts/common.md#meaningful-documentation Members state registered observations, anatomy omission and compiled exterior basis ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Region input records run no anatomical resolver or source availability algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowed basis/targets describe dependencies without cached region completion.
