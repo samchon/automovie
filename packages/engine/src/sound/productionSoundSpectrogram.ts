@@ -1,10 +1,11 @@
+import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 
 /** Draw a fixed-window log-magnitude spectrogram from exact mixed PCM. */
 export const productionSoundSpectrogram = (
   pcm: Float32Array,
-  width = 512,
-  height = 192,
+  width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram.width,
+  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram.height,
 ): IAutoMovieProductionSoundRaster => {
   assertRasterSize(width, height);
   if (pcm.length % 2 !== 0)

@@ -45,7 +45,6 @@ const audio = (): IAutoMovieProductionAudioProbe => ({
     boxes: [box()],
     codec: "Opus",
     trackChannels: 2,
-    trackSampleRate: 48_000,
   }),
 });
 
@@ -68,6 +67,11 @@ const refused = (closure: () => unknown, message: string): boolean => {
  *    impossible `dOps` fields fail before profile comparison.
  * 3. Every current-profile field, including signed gain and presentation clocks,
  *    has a one-field negative twin that cannot pass through codec abbreviation.
+ * 4. Relations RFC 7845 permits parse as observed rather than as malformed: an
+ *    informational input rate other than 48 kHz, and a family 255 mapping that
+ *    outputs fewer channels than the streams decode. Relations it forbids are
+ *    refused: a family 1 box above eight channels and more than 255 decoded
+ *    channels, each beside its accepted boundary twin.
  */
 export const test_production_opus_sample_description = (): void => {
   const current = audio();
@@ -79,7 +83,6 @@ export const test_production_opus_sample_description = (): void => {
     boxes: [{ ...absentFamilyZeroTail, OutputChannelCount: 1 }],
     codec: "opus.0",
     trackChannels: 1,
-    trackSampleRate: 48_000,
   });
   const familyOne = productionOpusDescription({
     boxes: [
@@ -93,7 +96,6 @@ export const test_production_opus_sample_description = (): void => {
     ],
     codec: "Opus",
     trackChannels: 2,
-    trackSampleRate: 48_000,
   });
   TestValidator.equals(
     "the parser preserves normalized family-zero and ordered nonzero mappings",
@@ -135,7 +137,6 @@ export const test_production_opus_sample_description = (): void => {
           boxes: [value],
           codec: "opus",
           trackChannels: 2,
-          trackSampleRate: 48_000,
         }),
       "malformed-dOps",
     );
@@ -149,7 +150,6 @@ export const test_production_opus_sample_description = (): void => {
             boxes: [box()],
             codec: "mp4a",
             trackChannels: 2,
-            trackSampleRate: 48_000,
           }),
         "sampleEntry",
       ),
@@ -159,7 +159,6 @@ export const test_production_opus_sample_description = (): void => {
             boxes: undefined,
             codec: "opus",
             trackChannels: 2,
-            trackSampleRate: 48_000,
           }),
         "observed 0",
       ),
@@ -169,7 +168,6 @@ export const test_production_opus_sample_description = (): void => {
             boxes: [box(), box()],
             codec: "opus",
             trackChannels: 2,
-            trackSampleRate: 48_000,
           }),
         "observed 2",
       ),
@@ -193,7 +191,6 @@ export const test_production_opus_sample_description = (): void => {
             boxes: [{ ...box(), OutputChannelCount: 3 }],
             codec: "opus",
             trackChannels: 3,
-            trackSampleRate: 48_000,
           }),
         "family 0 supports mono or stereo",
       ),
@@ -242,6 +239,87 @@ export const test_production_opus_sample_description = (): void => {
       impossibleCounts: true,
       wrongMapLength: true,
       outOfRangeMap: true,
+    },
+  );
+  const rfcRelations = (
+    patch: Partial<ReturnType<typeof box>>,
+    trackChannels: number,
+  ): string => {
+    try {
+      const parsed = productionOpusDescription({
+        boxes: [{ ...box(), ...patch }],
+        codec: "Opus",
+        trackChannels,
+      });
+      return `accepted ${parsed.inputSampleRate} ${parsed.channelMapping.mapping.join(",")}`;
+    } catch (error) {
+      return error instanceof Error && error.message.includes("malformed-dOps")
+        ? "malformed"
+        : `unexpected: ${String(error)}`;
+    }
+  };
+  TestValidator.equals(
+    "RFC 7845 relations parse or refuse by the specification",
+    {
+      informationalInputRate: rfcRelations({ InputSampleRate: 44_100 }, 2),
+      fewerOutputsThanDecoded: rfcRelations(
+        {
+          OutputChannelCount: 1,
+          ChannelMappingFamily: 255,
+          StreamCount: 1,
+          CoupledCount: 1,
+          ChannelMapping: [1],
+        },
+        1,
+      ),
+      familyOneEightChannels: rfcRelations(
+        {
+          OutputChannelCount: 8,
+          ChannelMappingFamily: 1,
+          StreamCount: 5,
+          CoupledCount: 3,
+          ChannelMapping: [0, 6, 1, 2, 3, 4, 5, 7],
+        },
+        8,
+      ),
+      familyOneNineChannels: rfcRelations(
+        {
+          OutputChannelCount: 9,
+          ChannelMappingFamily: 1,
+          StreamCount: 5,
+          CoupledCount: 4,
+          ChannelMapping: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        },
+        9,
+      ),
+      decodedChannelBoundary: rfcRelations(
+        {
+          OutputChannelCount: 1,
+          ChannelMappingFamily: 255,
+          StreamCount: 200,
+          CoupledCount: 55,
+          ChannelMapping: [254],
+        },
+        1,
+      ),
+      decodedChannelLimit: rfcRelations(
+        {
+          OutputChannelCount: 1,
+          ChannelMappingFamily: 255,
+          StreamCount: 200,
+          CoupledCount: 56,
+          ChannelMapping: [0],
+        },
+        1,
+      ),
+    },
+    {
+      informationalInputRate: "accepted 44100 ",
+      fewerOutputsThanDecoded: "accepted 48000 1",
+      familyOneEightChannels: "accepted 48000 0,6,1,2,3,4,5,7",
+      familyOneNineChannels: "malformed",
+      decodedChannelBoundary: "accepted 48000 254",
+      decodedChannelLimit: "malformed",
     },
   );
   const substitutions: Array<

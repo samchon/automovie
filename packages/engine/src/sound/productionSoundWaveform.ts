@@ -1,10 +1,11 @@
+import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 
 /** Draw sample extrema as deterministic waveform evidence. */
 export const productionSoundWaveform = (
   pcm: Float32Array,
-  width = 960,
-  height = 240,
+  width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.width,
+  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.height,
 ): IAutoMovieProductionSoundRaster => {
   assertRasterSize(width, height);
   if (pcm.length % 2 !== 0)

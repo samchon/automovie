@@ -230,7 +230,6 @@ const probeAudioTrack = (
     boxes: description.boxes,
     codec: track.codec,
     trackChannels: audio.channel_count,
-    trackSampleRate: audio.sample_rate,
   });
   const primingSamples = sampleEntry.preSkip;
   const presentationDuration =
