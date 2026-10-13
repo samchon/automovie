@@ -21,9 +21,24 @@ const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
  * fractional, infinite, `NaN`, or beyond-2^53 value is not null and so passes
  * both rules above while naming no draw at all, which is the invented replay
  * handle they exist to prevent. It is therefore refused before either speaks.
+ *
+ * Provider and model must be non-blank, a present request id or prompt must be
+ * non-blank, both digests must be lowercase `sha256:` hex, and when `digest`
+ * is given `outputDigest` must equal it. Findings are returned with `$input`
+ * paths and nothing throws; the irreproducible-seed case is a warning, so it
+ * leaves the validation successful. Input asset paths are checked for
+ * blankness only, not resolved.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks shape per field, compares the recorded output digest with the current bytes' digest the caller supplies, and resolves the seed rules in one ordered chain so an unusable seed is refused before the reproducibility rules read it.
+ * @evidence contracts/common.md#clear-and-simple-design The caller hashes the bytes and passes the digest, so this stays a pure record check with no file or hashing dependency; null for `digest` is how a recorded later transformation opts out of the comparison.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A seed on an irreproducible generation is warned about rather than refused, the one severity split, which the prose justifies as decoration rather than contradiction; no provider or model is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the honesty rules, the seed refusal and why it precedes the others, every field check, the meaning of a null `digest`, the warning severity, and that input paths are not resolved.
+ * @evidence contracts/performance.md#cost-and-resources Constant field checks plus one blankness test per input path and two regular-expression tests, linear in the record's size; nothing is cached or retained beyond the returned violations.
  */
 export const validateGeneratedAcquisition = (props: {
+  /** Generation identity recorded for one set of returned bytes. */
   acquisition: IAutoMovieGeneratedAcquisition;
+
   /**
    * Digest the returned bytes must still have, or null when a recorded local
    * transformation has since replaced them.

@@ -32,6 +32,26 @@ import { compareAutoMovieRenderIds } from "./render";
  * Individual compact instances and placed parts are regenerated only when
  * addressed, so direct inspection remains exact without expanding the normal
  * subject inventory.
+ *
+ * Addresses are `prototype:<model>`, `prototype-part:<model>/<part>`,
+ * `element:<node>`, `element-part:<node>/<part>`, `instance-set:<set>`,
+ * `instance:<set>:slot:<six digits>` or `instance:<set>:<explicit id>`,
+ * `space:<environment>/<space>`, and `building:<environment>/<building>`,
+ * where a built element's node is `<environment>/<element>`. Prototype and
+ * prototype-part bounds are in model coordinates and every other kind's in
+ * world metres. `members` is one page of at most
+ * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` ids in render-id order starting at
+ * `memberOffset`, clamped to the total. An unknown address, or an offset that
+ * is not a whole number of members, throws an `Error`.
+ *
+ * @param artifact Compiled shot artifact and its revision.
+ * @param subjectId Stable subject address in one of the formats above.
+ * @param props Optional paging of the member list.
+ * @evidence contracts/common.md#principled-implementation Tests each subject kind in a fixed order and regenerates only what the addressed kind needs: an instance through `instanceSlot`, content bounds from mesh positions or tessellated shapes through the node or part matrix, and a space's declared bounds from shell vertices or the feasible intersections of each cell's plane triples.
+ * @evidence contracts/common.md#clear-and-simple-design One describe function per subject kind over a per-call context of model, element, child and population indexes; every private helper except the element-part, instance and slot-address ones is a verbatim copy of the helpers in `describeAutoMovieSubjects`, roughly 650 lines kept identical by hand.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A transform-only group reports no transform, bounds or prototype by the rule `builtEnvironmentPlacementBounds` states, a prototype-less compact member is described as `default` with heading-only rotation as `instanceSlot` regenerates it, and a bad member offset is refused rather than rounded; no address is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation Lists every address format, the coordinate space of each kind's bounds, the member page size, order, offset and clamping, and both refusals.
+ * @evidence contracts/performance.md#cost-and-resources Each call rebuilds the context, O(models + elements + populations), then scans kinds linearly with an O(nodes × parts) element-part scan; a building calls `builtEnvironmentElementBounds` per owned element and each call recomposes every world matrix of the work, O(E²), and a skinned model re-resolves its rest pose per bone-attached part. Nothing is cached between calls, so a reviewer opening many subjects pays all of it each time, and the result holds only cloned transforms and new arrays.
  */
 export const describeAutoMovieSubject = (
   artifact: IAutoMovieSubjectArtifact,

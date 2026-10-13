@@ -13,11 +13,32 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * Blocks may touch but not overlap; every base must sit on a declared surface;
  * routes must clear block footprints; every landmark must lie on a walkable
  * surface or within its declared radius of a route.
+ *
+ * Positions are world metres with Y up, and blocks are unrotated boxes. A base
+ * sits on a surface when all four footprint corners lie in or on its XZ
+ * polygon at the surface height within 1e-6 m and no notch of the polygon cuts
+ * the footprint. Route clearance is judged in plan: each segment must miss
+ * every block footprint widened by half the route's formation width, whatever
+ * the block's height. The first contradiction throws an `Error` naming it;
+ * later ones are not reported.
+ *
+ * @evidence contracts/common.md#principled-implementation Uses strict box inequalities so touching blocks pass, footprint corners plus a notch test (no surface vertex strictly inside the footprint and no proper edge crossing, sufficient for a hole-free simple polygon) for support, a slab segment-box test in XZ for routes, and ray casting or point-to-segment distance for landmarks.
+ * @evidence contracts/common.md#clear-and-simple-design One fail-fast pass per rule over plain world records, run once before shots are built; its planar helpers are private and follow their own absolute tolerances rather than the architecture predicates' scale-relative ones.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Tolerances are fixed absolute values (1e-6 m base height, 1e-9 m on-edge distance, `Number.EPSILON` on an orientation product) rather than scale-relative, and route clearance ignores height, so a route passing under a raised block is reported blocked; no block, route or landmark is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States each rule, the units and up axis, the support test, the plan-only route test and its padding, and that only the first contradiction is thrown.
+ * @evidence contracts/performance.md#cost-and-resources O(B²) block pairs, O(B × S × n) support tests over S surfaces of n vertices, O(W × B) segment tests over W route segments, and O(L × (S × n + W)) landmark tests; the landmark pass slices each route's waypoints per landmark, nothing is cached or retained, and the first failure ends the call.
  */
 export const assertWorldPlacements = (input: {
+  /** Static world masses, as axis-aligned world boxes. */
   blocks: readonly IAutoMovieWorldBlock[];
+
+  /** Terrain and floor surfaces that may support a block or hold a landmark. */
   surfaces: readonly IAutoMovieWorldSurface[];
+
+  /** Routes whose segments, widened by half their formation width, must clear every block. */
   routes: readonly IAutoMovieWorldRoute[];
+
+  /** Points of interest that must be reachable from walkable ground or a route. */
   landmarks: readonly IAutoMovieWorldLandmark[];
 }): void => {
   for (let left = 0; left < input.blocks.length; ++left)

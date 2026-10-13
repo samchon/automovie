@@ -41,6 +41,21 @@ const COVERAGE_EPSILON = 1e-12;
  * was cut, and the identity that the mesh, the instance slot, the finish, and
  * the take-off all cite, so a quantity can be traced back to the exact piece it
  * counted.
+ *
+ * Coordinates are the surface's planar (u, v) metres and angles are degrees.
+ * A malformed declaration throws an `Error` naming the field: blank or
+ * duplicate ids, non-finite or non-positive sizes, a non-convex region or
+ * exclusion, overlapping zones or exclusions, a zone spanning more than
+ * `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, or a generated module reaching
+ * beyond its cell's declared reach. Quality defects are not thrown; they are
+ * returned as `findings` (sliver, unsupported-piece, module-overlap,
+ * joint-deviation, grain-break).
+ *
+ * @evidence contracts/common.md#principled-implementation Enumerates the lattice over each convex zone region widened by the reach, clips every module to its region with Sutherland–Hodgman, subtracts its clipped overlap with each pairwise-disjoint convex exclusion, measures joints with separating-axis projections, and draws variants from `seededValue` keyed by an FNV-1a hash of the occurrence id; regions, exclusions and modules are convex, which is why clipping and the axis test are exact.
+ * @evidence contracts/common.md#clear-and-simple-design Validation, lattice generation, quantity summaries and findings are separate private steps over one placements array, and the author's `generate` callback owns module layout while this function owns clipping and measurement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed epsilons (1e-12 m² area, 1e-9 m length, 1e-12 coverage) separate real coverage from rounding and are not tuned to any pattern; a module punched by an exclusion is still placed but also reported as `unsupported-piece`, because the convex kernel cannot build its true shape, rather than passed silently.
+ * @evidence contracts/common.md#meaningful-documentation States the deterministic run order, the only randomness source, the clipping and absence rule, the units, every thrown refusal, and that quality defects are returned as findings.
+ * @evidence contracts/performance.md#cost-and-resources Dominated by cells × modules per cell × (one region clip + E exclusion clips), plus a bucket grid that confines neighbour pairs to adjacent buckets but degrades toward all-pairs when one oversized module sets the cell size, while the zone-overlap check recomputes earlier zones' hulls, O(Z²) hulls instead of O(Z). Nothing is cached, and the placements array grows with every surviving module until it is returned, bounded per zone at `AUTOMOVIE_MAX_PATTERN_CELLS` (1,000,000) cells but unbounded in modules per cell.
  */
 export const generateAutoMovieSurfacePattern = (props: {
   pattern: IAutoMovieSurfacePattern;

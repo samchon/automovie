@@ -9,6 +9,17 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * A self-crossing outline has no interior, so every later question about what
  * is inside it would answer arbitrarily. Adjacent edges are skipped because
  * they legitimately meet at the corner they share.
+ *
+ * Contact uses the same scale-relative `PLANAR_EPSILON` tolerance as the other
+ * planar predicates, so a vertex lying on a non-adjacent edge counts as
+ * touching. The point count is not checked: a two-point ring is reported
+ * simple, and callers test area or point count separately.
+ *
+ * @evidence contracts/common.md#principled-implementation Tests every non-adjacent edge pair for any shared point, a proper crossing or an endpoint on the other segment, using a tolerant orientation sign; a ring is simple exactly when no such pair touches.
+ * @evidence contracts/common.md#clear-and-simple-design A direct pairwise test with no sweep structure, sized for authored outlines; the private `side`, `segmentsCross`, `segmentsTouch` and `pointOnSegment` helpers are duplicated in `polygonsOverlap` and partly in `pointInPolygon` and `polygonInside`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The only exemption is the adjacent-edge pair, including the wrap-around pair, which share a corner by construction; no outline is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States why simplicity matters, the adjacent-edge exemption, the contact tolerance, and that a degenerate two-point ring is not refused here.
+ * @evidence contracts/performance.md#cost-and-resources O(n²) segment tests for n vertices with an early exit on the first contact; Shamos–Hoey would be O(n log n), but authored outlines are small, and the test allocates, caches and retains nothing.
  */
 export const polygonIsSimple = (
   polygon: readonly IAutoMoviePlanarPoint[],

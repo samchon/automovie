@@ -54,8 +54,22 @@ const AXIS_EPSILON = 1e-12;
  * and filing it here would let a section's geometry inherit a plan's scale.
  * Correlating two sheets is the authored building's job, through evidence that
  * may cite any candidate of any document.
+ *
+ * Observed points are in frame units and must lie within the frame's
+ * `bounds` (0 to width, 0 to height); each primitive family has a fixed point
+ * count, and only `text` and `level-marker` carry literal text. A frame needs
+ * finite, non-zero, non-parallel axes and a settled scale that names one of
+ * its candidates. Findings are returned with `$input` paths and nothing
+ * throws; the asset bytes behind `digest` are not read here.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks each layer of the record against its own declared facts: frame scalars and axes, primitive point counts from one family table and point extents against the owning frame, candidate and issue references by id set, and each observed analysis's candidates against the frame that analysis read, using the primitive-to-frame map.
+ * @evidence contracts/common.md#clear-and-simple-design `PRIMITIVE_POINTS` is the single list of mark families, frames are validated by one private `validateFrame`, and the remaining sections share one collector; `collectIds`, `validateReferences`, `nonEmpty` and the `unit` and `AXIS_EPSILON` pair are copies of helpers defined in sibling validators and `designReferenceWorldPoint`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses an invented settled scale and a cross-sheet candidate filed under one analysis instead of accepting either, and treats the 1e-12 axis threshold as the definition of no direction; no document, frame or primitive kind is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the four layers and why they must stay apart, each refusal family, the frame-unit extents and point counts, the axis and scale rules, that findings are returned, and that bytes are not read.
+ * @evidence contracts/performance.md#cost-and-resources Linear in frames, scale candidates, primitives and their points, candidates with their alternatives and issues, and analysis outcomes, except that each analysis candidate builds a set of the foreign frames its primitives sit on; nothing is cached across calls, so `promoteDesignObservations` and the production gate each validate the same reference again, and every map is released on return.
  */
 export const validateDesignReference = (props: {
+  /** Observed design reference to validate. */
   reference: IAutoMovieDesignReference;
 }): IAutoMovieValidation => {
   const { reference } = props;

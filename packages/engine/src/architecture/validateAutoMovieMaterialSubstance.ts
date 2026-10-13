@@ -13,8 +13,23 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * negative density, an absorption above one, or a vapour resistance below still
  * air are not measurements a later study can use, and a study that silently
  * consumes them reports a number nobody can trace back to a defect.
+ *
+ * A null property is unmeasured and passes. A present one must be finite and
+ * in range: density, specific heat and service life above 0, thermal
+ * conductivity at least 0, sound absorption within [0, 1], and vapour
+ * resistance at least 1. The id and classification must be non-blank, and a
+ * present name or surface id too. Every finding is returned with a `$input`
+ * path; nothing throws, and the surface id is not resolved against any
+ * material.
+ *
+ * @evidence contracts/common.md#principled-implementation Applies each property's physical lower bound or closed range, with vapour resistance bounded by still air (µ = 1) and absorption by a fraction; non-finite values fail every bound because each test checks `Number.isFinite` first.
+ * @evidence contracts/common.md#clear-and-simple-design One flat sequence of field checks through private `above`, `atLeast` and `nonEmpty` helpers; the collector's own `range` method covers closed ranges only, which is why the half-open bounds have local helpers, and `nonEmpty` repeats the copy in every sibling validator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Ships no substance values and checks no classification against a catalogue, because both are production content; null is the contract's unmeasured state, not a default.
+ * @evidence contracts/common.md#meaningful-documentation States who owns the values, every bound and whether it is strict, the null meaning, that findings are returned rather than thrown, and that the surface id is not resolved.
+ * @evidence contracts/performance.md#cost-and-resources A fixed set of ten field checks on one record writing into one collector whose violations are returned; nothing is cached and nothing else is held.
  */
 export const validateAutoMovieMaterialSubstance = (props: {
+  /** Substance record to range-check. */
   substance: IAutoMovieMaterialSubstance;
 }): IAutoMovieValidation => {
   const { substance } = props;

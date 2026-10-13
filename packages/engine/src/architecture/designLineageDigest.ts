@@ -15,6 +15,15 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * Windows and POSIX and after any reshuffle of its arrays. Every separator is
  * written here rather than taken from the platform, which is why no newline
  * convention can reach the bytes.
+ *
+ * Returns a `sha256:` digest of the lineage record; an invalid lineage throws
+ * an `Error` instead of being digested.
+ *
+ * @evidence contracts/common.md#principled-implementation Writes each section as length-prefixed records tagged by section, sorts records and nested id lists by code unit, joins with `\n`, and hashes with the engine's FIPS 180-4 `autoMovieRenderDigest`; length prefixes make boundaries unforgeable and sorting removes authoring order.
+ * @evidence contracts/common.md#clear-and-simple-design One record kind per lineage section in a fixed section order, with the asset-citation omission explained where the derived section is written; `record` and `requireValidLineage` are private copies of helpers repeated in sibling lineage files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaves `artifact.assets` out on the premise, enforced by `validateDesignLineage`, that a citation equals the cited subject's declared digest; if that rule were relaxed the digest would stop covering citations without any change here.
+ * @evidence contracts/common.md#meaningful-documentation States the code-unit and length-prefixed serialization, the platform and reshuffle invariance, the digest format, and the refusal of an invalid lineage.
+ * @evidence contracts/performance.md#cost-and-resources One validation pass, a copy and O(n log n) sort per section of n records, and one SHA-256 pass linear in the joined text; nothing is cached, so digesting an unchanged lineage twice repeats all of it, and only the 71-character digest outlives the call.
  */
 export const designLineageDigest = (
   lineage: IAutoMovieDesignLineage,

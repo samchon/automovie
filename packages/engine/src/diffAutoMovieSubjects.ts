@@ -22,6 +22,22 @@ import { compareAutoMovieRenderIds } from "./render";
  * and reshaped when its placement and reusable structure changed together.
  * Prototype consequences and per-slot prototype changes remain aggregate
  * counts instead of member-sized change arrays.
+ *
+ * One absolute `tolerance` (default 1e-6) is applied to every number compared,
+ * whether a metre, a scale factor, a count or a seed, and to rotations as
+ * `1 - |cos(half the angle between them)|`. Subjects are matched by id, and
+ * lists come out in render-id order. `unchanged` is a summary: the total plus
+ * at most `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or
+ * non-finite tolerance throws a `RangeError`.
+ *
+ * @param beforeArtifact Compiled artifact of the earlier revision.
+ * @param afterArtifact Compiled artifact of the later revision.
+ * @param tolerance Absolute comparison tolerance, as described above.
+ * @evidence contracts/common.md#principled-implementation Builds an id-keyed inventory per artifact from `describeAutoMovieSubjects`, splits each common subject into placement (transform, owner, space, prototype) and kind-specific shape, and compares each structurally with `tolerantEqual`, which treats a quaternion and its negation as one rotation through the normalized `1 - |dot|`.
+ * @evidence contracts/common.md#clear-and-simple-design Inventory, classification and fanout are separate private steps, and prototype fanout calls `selectInstancePrototype`, the member regenerator's own draw, so a counted prototype change is one a regenerated member would show.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `selectedPrototype` catches the regenerator's `Error` and matches the message suffix `references missing prototype` to read the slot as that prototype, a compensation tied to another module's wording that becomes a thrown error if the message changes; the single absolute tolerance also makes metres, scale factors, counts, seeds and rotation cosines share one threshold.
+ * @evidence contracts/common.md#meaningful-documentation States that added and removed are exclusive, that a subject can be both moved and reshaped, the aggregate counts, how the tolerance applies and its refusal, the ordering, and the unchanged summary.
+ * @evidence contracts/performance.md#cost-and-resources Two full inventories dominate, then each common subject recovers its shape by linear `find` or by a `flatMap` over every environment's spaces or units, O(D × T); each changed prototype or prototype part re-selects every slot of every instance set, O(changes × total slots), with no cache of slot selections. Nothing outlives the returned diff.
  */
 export const diffAutoMovieSubjects = (
   beforeArtifact: IAutoMovieSubjectArtifact,

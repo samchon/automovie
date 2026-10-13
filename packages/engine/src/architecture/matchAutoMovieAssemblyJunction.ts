@@ -16,10 +16,26 @@ import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
  * Roles are matched as declared: the caller decides what a role name means, and
  * a build-up that spends the same role over several layers has those layers
  * summed and spanned together rather than silently reduced to the first one.
+ *
+ * Spans are compared as numbers on one measuring line, so both build-ups must
+ * have been resolved against the same axis and origin; nothing here checks
+ * that. `overlap` is negative when the spans are apart, and a role is
+ * `aligned` when the gap is no larger than `tolerance`. A negative or
+ * non-finite tolerance throws an `Error`.
+ *
+ * @evidence contracts/common.md#principled-implementation Collapses each side's layers per role into the union interval [min, max] and summed thickness, then compares interval overlap `min(max) - max(min)` against the tolerance; the premise that both spans share one coordinate line is the caller's, as is the meaning of each role name.
+ * @evidence contracts/common.md#clear-and-simple-design One role map per side and two passes, left then right, separate continuous roles from roles present on only one side; it reads resolved assemblies only, so resolution and validation stay with `resolveAutoMovieMaterialAssembly`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No role name such as insulation or barrier is special-cased; a role split by another layer is spanned as one interval, so a gap inside one side's own role is not reported, a stated limitation of summing rather than reducing.
+ * @evidence contracts/common.md#meaningful-documentation States the shared-line premise, the sign of `overlap`, the alignment rule, the tolerance unit (metres) and its refusal, and that repeated roles are summed and spanned together.
+ * @evidence contracts/performance.md#cost-and-resources Linear in the two layer counts with constant-time role lookups through two short-lived maps; matching one wall against several neighbours rebuilds its role map per call, and nothing is cached or retained.
  */
 export const matchAutoMovieAssemblyJunction = (props: {
+  /** Build-up on one side of the junction, resolved on the shared line. */
   left: IAutoMovieResolvedAssembly;
+
+  /** Build-up on the other side, resolved on the same line as `left`. */
   right: IAutoMovieResolvedAssembly;
+
   /** Greatest metre gap between two spans still counted as aligned. */
   tolerance: number;
 }): IAutoMovieAssemblyJunction => {

@@ -26,9 +26,24 @@ const GEOMETRIC_PRIMITIVES = new Set(["line", "polyline", "region"]);
  * The result is therefore never a design. It is a proposal the authored
  * building source may accept, reject, or contradict; the source of truth stays
  * the TypeScript that a human and a coding agent wrote.
+ *
+ * Gates run in a fixed order and the first failing one names the withholding:
+ * `unobserved`, `ambiguous-candidate`, `open-issue`, `low-confidence`,
+ * `unsupported-geometry` (only line, polyline and region carry an outline),
+ * then `unknown-scale`. A promoted candidate carries one world-metre outline
+ * per primitive it reads, in the candidate's primitive order. An invalid
+ * reference or a floor outside [0, 1] throws an `Error`.
+ *
+ * @evidence contracts/common.md#principled-implementation Validates the reference, indexes frames, primitives and open issues, records which candidates an `observed` analysis produced, and applies each gate in order before mapping points through `designReferenceWorldPoint`; validation guarantees every cited primitive and frame resolves, which is why the non-null lookups hold.
+ * @evidence contracts/common.md#clear-and-simple-design Owns only the promotion gates and the three output lists; metric conversion and scale settlement stay in `designReferenceWorldPoint` and `designFrameScale`, so this cannot disagree with them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The default floor of 1 is a contract-defined default that withholds anything uncertain; arcs, text and level markers are withheld by family, not by id, and nothing is promoted on partial evidence.
+ * @evidence contracts/common.md#meaningful-documentation States that the result is a proposal, the gate order and reasons, which primitive families carry geometry, the outline unit and order, the floor default and range, and the refusals.
+ * @evidence contracts/performance.md#cost-and-resources One validation pass plus linear work over analyses, candidates, cited primitives and their points with map and set lookups; nothing is cached, so promoting one reference at two floors validates and indexes it twice, and the lookup maps die with the call while the result holds new world points.
  */
 export const promoteDesignObservations = (props: {
+  /** Observed reference whose candidates are judged; validated before use. */
   reference: IAutoMovieDesignReference;
+
   /**
    * Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a
    * certain reading promotes unless the caller consciously lowers the bar.
