@@ -57,16 +57,16 @@ The [scaffold README](./packages/template/scaffold/README.md#canonical-command-r
 | [`@automovie/interface`](./packages/interface)               | Shared data contracts for authoring, production design, generated output, evidence, review, and delivery.                           |
 | [`@automovie/engine`](./packages/engine)                     | Deterministic motion, geometry, physics, film-grammar, validation, and shot-realization engine.                                     |
 | [`@automovie/evidence`](./packages/evidence)                 | Reusable film, brief, and library authoring evidence-graph construction and topology validation.                                   |
-| [`@automovie/viewer`](./packages/viewer)                     | Three.js viewer for compiler-owned scenes, shots, films, evidence views, and imported models.                                           |
+| [`@automovie/viewer`](./packages/viewer)                     | Three.js display, capture and inspection runtime for scenes, films, imported models and numerical Human results.                     |
 | [`@automovie/render`](./packages/render)                     | Render planning, deterministic frame evaluation, and video export helpers.                                                          |
 | [`@automovie/ingest`](./packages/ingest)                     | Digest-bound glTF, GLB, and VRM inspection for registered external models.                                                          |
-| [`@automovie/human`](./packages/human)                       | Procedural facial anatomy, identity and expression documents, numerical editor state, and static facial-asset export.                |
+| [`@automovie/human`](./packages/human)                       | Numerical face, body and person construction, shared basis assets, replayable documents, measurements and static asset export.      |
 | [`@automovie/archetypes`](./packages/archetypes)             | Primitive model archetype catalogue: parameter schemas, bounds, and geometry builders behind one registry.                          |
 | [`@automovie/production`](./packages/production)             | Deterministic production library: the compiler, tracked project store, capture, inspection, and render job.                          |
 | [`@automovie/template`](./packages/template)                 | The scaffold every production is created from, the shared contracts its evidence graph cites, and the library that renders both.     |
 | [`automovie`](./packages/cli)                                | One-way project creation, Markdown TOC maintenance, external-asset inspection, and capability routes.                               |
 | [`create-automovie`](./packages/create-automovie)            | Package-manager-native one-command project creator.                                                                                 |
-| [`@automovie/playground`](./packages/playground)             | Browser demonstrations for inspecting deterministic models, motion, cameras, and imported assets.                                   |
+| [`@automovie/playground`](./packages/playground)             | Browser demonstrations, Human editing and inspection applications, and their example parameter sets.                              |
 
 ## Repository development
 
@@ -81,7 +81,7 @@ The build CI workflow runs `pnpm run build` followed by `pnpm run evidence` as s
 
 Requirements:
 
-- Node.js 22 or newer
+- Node.js 22.23.2 or newer
 - pnpm 10
 
 Run the playground with:
@@ -89,6 +89,14 @@ Run the playground with:
 ```bash
 pnpm --filter @automovie/playground dev
 ```
+
+Start the resident Human inspection application as an attached job with:
+
+```bash
+pnpm --filter @automovie/playground human:viewer ensure
+```
+
+Open `http://127.0.0.1:5175/view`. Playground's [run guide](./packages/playground/README.md#run) owns instance selection, controls and capture storage. A ready HTTP response establishes service readiness; model display, orbit, zoom, pan and part selection require observation in the actual browser.
 
 Run the website with:
 

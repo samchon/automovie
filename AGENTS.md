@@ -7,7 +7,7 @@
 Follow the literal request; it is the contract, not a hint at what the user "really" wants.
 
 - **The user outranks a skill.** A direct instruction outranks this file and every skill, and a standing instruction recorded here keeps that authority until the user changes it. Infer no override from a terse request or a deadline.
-- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the pull-request chronology or the `.wiki/` worklog, not in the durable rule.
+- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the pull-request chronology, not in the durable rule.
 - **Scope is the user's to widen.** Expand or reinterpret the task only on an explicit hand-off ("you decide"), and report an unrelated defect as a follow-up unless the requested behavior cannot work without fixing it. Inside the goal, act with full initiative.
 - **Choose the principled course.** Decide from correctness, evidence and durable consequence. Size, difficulty and blast radius change how much investigation a decision needs, never the standard it must meet.
 - **Evidence precedes correction.** Treat a report, a claim that something is wrong or missing, and your own recall of anything outside this repository as hypotheses. Verify the real code, output and history first.
@@ -19,8 +19,7 @@ Follow the literal request; it is the contract, not a hint at what the user "rea
   - Stop only where nothing can move without the user or a skill withholds the action. Session length is never a reason, and confirmation before a destructive or outward-facing action still applies.
 - **Background work never ends the turn.** While a build, test run or CI job runs, keep reviewing, developing or researching the next item, and check the job with a targeted command instead of sleeping.
 - **Collect every symptom before correcting.** When a check or review reports failures, read all of them, find the shared cause, and fix the class in one pass.
-- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, whether the current method is the fastest and most efficient feasible way to meet the same correctness, acceptance conditions and complete scope, and whether what you learned changes the plan. Compare feasible alternatives using observed bottlenecks, duplicate work and unnecessary waits, and adjust the method when the evidence supports a better path. Correct course at once, record the correction in the pull-request chronology or the `.wiki/` worklog, and continue.
-- **Record every user instruction** in the `.wiki/` worklog at once, and keep a superseded one beside its replacement ([`.wiki/` document](.agents/skills/documentation/wiki.md)).
+- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, whether the current method is the fastest and most efficient feasible way to meet the same correctness, acceptance conditions and complete scope, and whether what you learned changes the plan. Compare feasible alternatives using observed bottlenecks, duplicate work and unnecessary waits, and adjust the method when the evidence supports a better path. Correct course at once, record the correction in the pull-request chronology, and continue.
 - **Ship each topic as its own PR** and never commit to `master` directly. The [pull-request skill](.agents/skills/pull-request/SKILL.md) owns the flow and the merge conditions.
 
 ## Skills
@@ -45,7 +44,7 @@ The self-contained harness every generated project inherits (`packages/template`
 
 ### [Documentation](.agents/skills/documentation/SKILL.md)
 
-`.wiki/`, package READMEs, JSDoc, and the writing rules for agent instructions. Read before writing docs or instructions.
+Package READMEs, JSDoc, and the writing rules for agent instructions. Read before writing docs or instructions.
 
 ### [Evidence Graph](.agents/skills/evidence-graph/SKILL.md)
 
@@ -65,11 +64,7 @@ Assignment, shared ownership and intermediate acceptance for a long mission. Rea
 
 ### [3D Modeling](.agents/skills/3d-modeling/SKILL.md)
 
-What automovie models and refuses to model, and the verification every geometry change owes. Read before any model, geometry, rig, morph or asset-pipeline work.
-
-### [Viewer Verification](.agents/skills/viewer-verification/SKILL.md)
-
-Inspecting renders through Playwright with a real GPU context. Read before claiming a viewer or render change works.
+Modeling boundaries and visual debugging of geometry, rigs, assets, viewer behavior, materials, lighting and motion. Read before modeling or changing visual output and before claiming a visual change works.
 
 ### [Pull Request Submission](.agents/skills/pull-request/SKILL.md)
 

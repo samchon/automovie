@@ -2,11 +2,15 @@ import { placementChildNode } from "@automovie/engine";
 import type { IAutoMoviePropSpec } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation";
-import type { IBuildPropArticulationProps } from "./IBuildPropArticulationProps";
-import { applyTransform } from "./applyTransform";
+import type { IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation.js";
+import type { IBuildPropArticulationProps } from "./IBuildPropArticulationProps.js";
+import { applyTransform } from "./applyTransform.js";
 
-/** One prop joint's rest placement, restored before every frame. */
+/**
+ * One prop joint's rest placement, restored before every frame.
+ *
+ * @author Samchon
+ */
 interface IJointRest {
   /** Joint object mutated by playback and restored before the next sample. */
   object: THREE.Object3D;

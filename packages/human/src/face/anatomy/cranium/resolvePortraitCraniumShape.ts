@@ -1,4 +1,5 @@
 import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
+import type { IPortraitCranialStation } from "./structures/IPortraitCranialStation";
 
 /**
  * Resolve the cranial stations and cap controls into owned copies before the
@@ -30,7 +31,7 @@ export function resolvePortraitCraniumShape(
   chinY: number,
   input: IPortraitCraniumShape = {},
 ) {
-  const stations = structuredClone(
+  const stations = structuredClone<readonly IPortraitCranialStation[]>(
     input.stations ?? [
       {
         z: -18,

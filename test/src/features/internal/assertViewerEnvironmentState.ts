@@ -147,7 +147,7 @@ export const assertViewerEnvironmentState = (
     toneMapping: THREE.ACESFilmicToneMapping,
     exposure: 1.25,
     shadows: true,
-    shadowType: THREE.PCFSoftShadowMap,
+    shadowType: THREE.PCFShadowMap,
   });
   beauty.restore();
   beauty.restore();

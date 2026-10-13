@@ -6,10 +6,11 @@
  * endpoint exists on the connected skin or joint landmarks. A missing row set
  * means that population does not move. The endpoint is measured displacement
  * data in the basis frame, not a claim that a muscle or bone has this shape.
- * The current source study records its initial extraction and later channel
- * additions in the receipts indexed by
- * `erased-data`; other licensed bases
- * supply their own provenance and revision identity.
+ * The basis publisher owns its source provenance and revision identity.
+ * The shipped generation's upstream and extraction ancestry is retained in
+ * `erased-data`; its historical input
+ * paths and hashes identify original inputs, not maintained receipt locations.
+ * Other licensed bases supply their own provenance and revision identity.
  *
  * The basis owns order, sign, range and explicit left/right mirror identity.
  * A channel value cannot establish physiological validity or skin contact;
@@ -36,6 +37,7 @@ export interface IAutoMovieHumanBodyBasisChannel {
 
   /** Finite dimensionless envelope including zero; refuse values outside it. */
   minimum: number;
+
   /** Positive end of the same dimensionless envelope. */
   maximum: number;
 

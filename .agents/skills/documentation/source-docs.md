@@ -2,7 +2,7 @@
 
 ## Package READMEs
 
-Each package's `README.md` is English and practical: what the package is, why it exists, its domain folders or public surface, and the conventions a contributor needs. It stands alone from the ignored `.wiki`, so it links durable architecture to committed requirements, specifications, JSDoc or another tracked owner and never to a private working path.
+Each package's `README.md` is English and practical: what the package is, why it exists, its domain folders or public surface, and the conventions a contributor needs. It links durable architecture to committed requirements, specifications, JSDoc or another tracked owner and never to a private working path.
 
 When a README falls inside a committed requirement or specification population, the [evidence graph skill](../evidence-graph/SKILL.md) owns its participation. Do not remove it from that population by filename while editing prose, and do not decide an evidence exclusion from documentation structure alone.
 

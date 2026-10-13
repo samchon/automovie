@@ -21,7 +21,6 @@ Choosing any of these three means the approach is already wrong.
 - **Preserve committed traceability.** For a public export selected by the repository triangle, update its direct requirement and specification citations with the implementation under the [evidence graph skill](../evidence-graph/SKILL.md). A package outside that triangle, such as `human`, retains the implementation-checklist responsibilities selected by its active configuration under the [contracts skill](../contracts/SKILL.md).
 - **A producer lands with the consumer that calls it.** A validated, fully covered solver that no product path reaches is public surface with maintenance cost and no effect on any frame. Wire it to its consumer in the same change, register it on a reviewed package README or the shipped authoring skill, or mark a deliberately early API `@publicUnconsumed <planned consumer>: <reason>`, naming a concrete future component and why the API must land first (`none`, `unknown` and `TBD` are invalid). Test-only reach never counts as wiring. Self-Review traces each new public callable to its consumer, document or valid declaration.
 - **Prove changed gates are armed.** When adding or changing a lint rule, evidence selector, coverage threshold or CI job, run an invalid case and confirm the intended diagnostic or assertion fails after compilation. Count selected declarations for population checks. A failure in an unrelated guard proves nothing about the target. Restore each temporary probe by edit before proceeding, preserving other working-tree changes. Use typed invalid inputs for type-enforced boundaries. Routine edits do not require disabling every guard.
-- **Update the matching `.wiki/` doc in the same change** when behavior, architecture or a decision changes, under the [documentation skill](../documentation/wiki.md).
 
 ## Source file structure
 
@@ -32,10 +31,6 @@ Give each public identity its own file, named after it: one exported symbol per 
 Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines establishes no responsibility. Preserve public behavior and the real consumer path during a split, and apply the per-change test obligation to the extracted code.
 
 Each file also owes the documentation skill's [Source-file context](../documentation/source-docs.md#source-file-context), and the size limit never excuses missing context. An existing oversized file is an unresolved violation, not a precedent: name it in the task's consequence surface and do not report that surface compliant until it is resolved.
-
-## Implementation strategy
-
-When you choose among uncertain implementation methods or revisit repeated failed corrections, apply the shared [implementation strategy procedure](../../../packages/template/scaffold/.agents/skills/source-authoring/implementation-strategy.md). For repository development, committed requirements and specifications own the intended behavior, `.wiki/` records research and decisions, this skill owns implementation and testing, and the review and pull-request skills own review and delivery.
 
 ## Consequence Analysis
 
@@ -88,7 +83,7 @@ Before a validation run, identify its actual inputs, required write freeze, exec
 When a runtime or transform fails despite correct source, check for emitted artifacts beside that source before changing logic. A loader can prefer stale JavaScript that lacks the configured transform. Use the owning project command and `--noEmit` for diagnostic type checks; preserve other sessions' files while inspecting that shadowing.
 
 - **Bug fix**: name the failing case and expected behavior, and add a repro test that fails before the fix and passes after.
-- **Feature**: name the observable behavior and exercise it through its real consumer path; verify a render or viewer change visually under the [viewer-verification skill](../viewer-verification/SKILL.md).
+- **Feature**: name the observable behavior and exercise it through its real consumer path; verify a render or viewer change under [3D modeling's visual debugging procedure](../3d-modeling/SKILL.md#visual-debugging).
 - **Refactor**: name what stays unchanged, and rely on the suite or a behavior-locking probe.
 
 ## Change Integrity

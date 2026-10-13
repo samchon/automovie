@@ -1,8 +1,8 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions";
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
+import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions.js";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
  * Wrap an imported runtime object as an {@link IAutoMovieModelObject}.

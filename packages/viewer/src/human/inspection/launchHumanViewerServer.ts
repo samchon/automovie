@@ -1,0 +1,63 @@
+import { type ChildProcess, spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+
+import { ProcessOwnership } from "../../process/ProcessOwnership.js";
+
+import type { IHumanShotContext } from "./IHumanShotContext.js";
+
+/**
+ * Start the viewer as a hidden child of this process: the plain-Node launcher,
+ * which holds the port at once and builds the server under the viewer's ttsx
+ * project as its own child. Everything the server prints, its fatal error included,
+ * reaches both this client's stderr and the port's log file, with a start
+ * line and the exit code, so a dead server always leaves its cause on disk.
+ * Stopping this client (SIGINT, SIGTERM) stops the child it owns.
+ *
+ * @evidence contracts/common.md#principled-implementation The client that starts a server owns it as its child, and stops only that child.
+ * @evidence contracts/common.md#clear-and-simple-design One launcher attachment owns the captured child identity, output forwarding and corresponding signal-listener cleanup.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Spawns the maintained hidden launcher and stops only its creation-checked child without executable-name selection or recursive taskkill expansion.
+ * @evidence contracts/common.md#meaningful-documentation States the logging and the ownership on stop.
+ * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The client that starts a server owns it as its child, and stops only that child.
+ * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One launcher attachment owns the captured child identity, output forwarding and corresponding signal-listener cleanup.
+ */
+export function launchHumanViewerServer(
+  context: IHumanShotContext,
+): ChildProcess {
+  // The plain-Node launcher holds the port at once and builds the server as
+  // its child, so the viewer answers "starting" from its first moment.
+  const owned = spawn(
+    process.execPath,
+    [path.join(context.directory, "human-viewer-launcher.mts")],
+    {
+      cwd: path.join(context.root, "packages/playground"),
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  ProcessOwnership.own(owned);
+  fs.mkdirSync(context.storage, { recursive: true });
+  const log = fs.createWriteStream(context.logFile, { flags: "a" });
+  log.write(
+    `\n=== ${new Date().toISOString()} human-shot ${context.command} starts server.mts on port ${context.port} (client pid ${process.pid}, server pid ${owned.pid})\n`,
+  );
+  const forward = (bytes: Buffer): void => {
+    process.stderr.write(bytes);
+    log.write(bytes);
+  };
+  owned.stdout!.on("data", forward);
+  owned.stderr!.on("data", forward);
+  owned.once("exit", (code, signal) => {
+    process.removeListener("SIGINT", stop);
+    process.removeListener("SIGTERM", stop);
+    log.end(
+      `=== ${new Date().toISOString()} server exited with code ${code} signal ${signal}\n`,
+    );
+  });
+  const stop = (): void => {
+    ProcessOwnership.stopChild(owned);
+  };
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
+  return owned;
+}

@@ -26,6 +26,22 @@ export interface IConnectedBodyViewport<Model> {
   /** Release a model that will not be drawn. */
   dispose: (model: Model) => void;
 
+  /**
+   * Await requested resource retirement without rolling back an already published model.
+   *
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the committed body available while resource cleanup completes.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates cleanup completion from the synchronous display publication.
+   */
+  settleRetirements: () => Promise<void>;
+
+  /**
+   * Retire the viewport's resources without terminating its borrowed renderer or numerical connection.
+   *
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ends owned body display resources without ending borrowed host services.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reports the owned retirement result to the viewport's caller.
+   */
+  close: () => Promise<void>;
+
   /** Export a document as GLB bytes. */
   export: (
     document: IAutoMovieHumanBodyBasisDocument,

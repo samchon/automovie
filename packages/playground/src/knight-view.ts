@@ -13,6 +13,7 @@ import {
 } from "@automovie/interface";
 import { AutoMoviePlayer, buildModel, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
+import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 import { DEFAULT_HORSE, buildHorse } from "./horse";
 import { HORSE_CLIPS } from "./horse-motion";
@@ -205,24 +206,30 @@ const handle = mountViewer(canvas, scene, camera, (elapsed) => {
 ): void => {
   step(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 
 // ── clip selector ────────────────────────────────────────────────────────────
 const bar = document.querySelector<HTMLDivElement>("#clips");
+let selectedClip = clipName;
+const selectClip = (name: string): void => {
+  horseClip = horseClips[name]!;
+  horsePlayer.setMotion(horseClip);
+  selectedClip = name;
+  if (bar !== null) for (const el of bar.children) el.className = el.textContent === name ? "on" : "";
+};
 if (bar !== null) {
   for (const name of Object.keys(horseClips)) {
     const b = document.createElement("button");
     b.textContent = name;
     b.className = name === clipName ? "on" : "";
     b.addEventListener("click", () => {
-      horseClip = horseClips[name]!;
-      horsePlayer.setMotion(horseClip);
-      for (const el of bar.children)
-        el.className = el.textContent === name ? "on" : "";
+      selectClip(name);
     });
     bar.appendChild(b);
   }
 }
+registerViewerSelection({ names: Object.keys(horseClips), read: () => selectedClip, select: selectClip });
 
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,

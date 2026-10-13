@@ -1,4 +1,4 @@
-import type { BoxKind, DataStream } from "mp4box";
+import type { BoxKind } from "mp4box";
 
 import { assertProductionVideoProfile } from "../delivery/assertProductionVideoProfile";
 import { resolveProductionVideoProfile } from "../delivery/resolveProductionVideoProfile";
@@ -66,18 +66,23 @@ export const normalizeProductionH264Mp4 = (bytes: Uint8Array): Uint8Array => {
   return normalized;
 };
 
-/** Writable nclx box because the installed parser exposes no colr writer. */
+/**
+ * An eleven-byte ISO nclx payload written by the native box data writer.
+ *
+ * The colour parser inherits the generic Box writer. Supplying its public
+ * payload preserves that writer and its own size/header accounting instead of
+ * replacing a method on a foreign object. H.273 assigns the three 16-bit code
+ * points; the high bit of the final byte carries the full-range flag.
+ */
 const productionSrgbColorBox = (): BoxKind => {
   const box = new (residentMp4Box().BoxParser.box.colr)();
-  box.write = function (stream: DataStream): void {
-    this.size = 11;
-    this.writeHeader(stream);
-    stream.writeString("nclx");
-    stream.writeUint16(AUTOMOVIE_MP4_SRGB_COLOUR.primaries);
-    stream.writeUint16(AUTOMOVIE_MP4_SRGB_COLOUR.transfer);
-    stream.writeUint16(AUTOMOVIE_MP4_SRGB_COLOUR.matrix);
-    // The full-range flag is the high bit of the byte that follows.
-    stream.writeUint8(AUTOMOVIE_MP4_SRGB_COLOUR.fullRange ? 0x80 : 0x00);
-  };
+  const payload = new Uint8Array(11);
+  payload.set([0x6e, 0x63, 0x6c, 0x78]);
+  const fields = new DataView(payload.buffer);
+  fields.setUint16(4, AUTOMOVIE_MP4_SRGB_COLOUR.primaries);
+  fields.setUint16(6, AUTOMOVIE_MP4_SRGB_COLOUR.transfer);
+  fields.setUint16(8, AUTOMOVIE_MP4_SRGB_COLOUR.matrix);
+  payload[10] = Number(AUTOMOVIE_MP4_SRGB_COLOUR.fullRange) << 7;
+  box.data = payload;
   return box;
 };

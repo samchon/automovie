@@ -8,7 +8,10 @@
         "transform": "@ttsc/lint",
         "configFile": "lint.config.ts"
       }
-    ]
+    ],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true
   },
   "include": [
     "src"

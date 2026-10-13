@@ -53,7 +53,7 @@ Answer: the boundaries built or consumed, the shared definition, the continuity 
 
 Apply to declarations that own a part, a group of parts or the joint between two parts, and whose result a viewer displays.
 
-- Observe the current final output through the viewer-verification procedure: opposing views, rest, intermediate states, supported extremes, return and relevant shape-motion combinations.
+- Observe the current final output through 3D modeling's visual debugging procedure: opposing views, rest, intermediate states, supported extremes, return and relevant shape-motion combinations.
 - Judge close and at the shot's use distance, because a proxy that reads far can fail close and close detail can vanish far. Judge the silhouette at use distance.
 - Inspect in assembled context with beauty or clay and the structural pass that exposes the suspected failure. A joint owner observes the pair and an assembly owner the assembly; a transport or numerical helper has no whole-render obligation.
 - Record the source revision, inputs, views, results and limits in the owning issue or review record. Missing, stale, unavailable or occluded output stays unverified. Reobserve affected results and neighbors when an input, source or consumer changes.

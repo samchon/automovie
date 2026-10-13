@@ -1,16 +1,20 @@
 import { IAutoMovieMaterial } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
-import { applyDetailNormal } from "./detailNormalShading";
-import { applyMaterialOverlays } from "./materialOverlayShading";
-import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture";
-import { applySubsurfaceShading } from "./subsurfaceShading";
+import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
+import { applyDetailNormal } from "./detailNormalShading/index.js";
+import { applyMaterialOverlays } from "./materialOverlayShading/index.js";
+import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
+import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /**
  * Build a `three.js` physical PBR material from an automovie material. It
  * carries the material's name, or its id when unnamed, as the glTF export
  * does, so a preview can recognise a finish by it.
+ * The producer owns its new material before resolving texture bindings. Setup
+ * failure retires that material and preserves cleanup causes; resolver textures
+ * and shared shader tables remain owned by their actual producers.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
@@ -19,10 +23,11 @@ export const buildMaterial = (
   material: IAutoMovieMaterial,
   resolveTexture?: IAutoMovieTextureResolver,
 ): THREE.MeshPhysicalMaterial => {
+  return constructAutoMovieOwnedResources((own) => {
   const c = material.baseColor;
   const alphaMode =
     material.alphaMode ?? (material.opacity < 1 ? "blend" : "opaque");
-  const std = new THREE.MeshPhysicalMaterial({
+  const std = own(new THREE.MeshPhysicalMaterial({
     name: material.name ?? material.id,
     color: new THREE.Color(c.r, c.g, c.b),
     metalness: material.metallic,
@@ -36,7 +41,7 @@ export const buildMaterial = (
     ior: material.ior ?? 1.5,
     thickness: material.thickness ?? 0,
     clearcoat: material.clearcoat ?? 0,
-  });
+  }));
   if (material.subsurfaceRadius !== undefined)
     applySubsurfaceShading(std, material.subsurfaceRadius);
   std.map = resolveAutoMovieMaterialTexture(
@@ -116,4 +121,5 @@ export const buildMaterial = (
     );
   else if (std.emissiveMap !== null) std.emissive.setRGB(1, 1, 1);
   return std;
+  });
 };

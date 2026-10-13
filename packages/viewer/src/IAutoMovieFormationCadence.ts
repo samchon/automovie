@@ -1,4 +1,4 @@
-import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake";
+import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 
 /**
  * Cycles one unit has turned over, and the take it is performing now.

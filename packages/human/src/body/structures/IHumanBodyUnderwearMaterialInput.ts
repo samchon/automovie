@@ -17,4 +17,7 @@ export interface IHumanBodyUnderwearMaterialInput {
 
   /** Fabric material already registered in the final model. */
   material: IAutoMovieMaterial;
+
+  /** Signed normal lift from this final skin frame, metres. */
+  offsetMetres: number;
 }

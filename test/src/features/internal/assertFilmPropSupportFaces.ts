@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { propRegistry, propSet } from "../film/propPlacementFixtures";
+import { propRegistry, propSet } from "./propPlacementFixtures";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
 import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
 import { namedFacts, nclose } from "./predicates";

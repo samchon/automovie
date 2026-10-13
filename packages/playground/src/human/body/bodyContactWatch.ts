@@ -1,5 +1,6 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 /**
  * Read the committed body's skin contact after an editing pause and report
@@ -29,6 +30,8 @@ export function createBodyContactWatch<
     measure: boolean,
   ) => Promise<Model>;
   dispose: (model: Model) => void;
+  /** Completion of the actual viewport's disposal requests, not a timer or a success guess. */
+  settleRetirements: () => Promise<void>;
   isCurrent: (ticket: number) => boolean;
   report: (text: string) => void;
   delayMs?: number;
@@ -66,8 +69,11 @@ export function createBodyContactWatch<
           }
           props
             .build(document, true)
-            .then((model) => {
-              props.dispose(model);
+            .then(async (model) => {
+              await createAutoMovieResourceRetirement([
+                () => props.dispose(model),
+                () => props.settleRetirements(),
+              ])();
               const text = describe(model.crossings);
               if (props.isCurrent(ticket) && text !== null) props.report(text);
             })
@@ -76,7 +82,7 @@ export function createBodyContactWatch<
               // it owns the status line
               if (props.isCurrent(ticket))
                 props.report(
-                  "Contact reading failed: " +
+                  "Contact reading or resource retirement failed: " +
                     (error instanceof Error ? error.message : String(error)),
                 );
             })

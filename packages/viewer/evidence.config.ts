@@ -1,5 +1,27 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
+/** Inspection, process and completed-display transports retain their owners. */
+const serviceSources = [
+  "src/human/inspection/**/*.ts",
+  "src/human/inspection/**/*.mts",
+  "src/process/**/*.ts",
+  "src/inspection/**/*.ts",
+  "src/inspection/**/*.mts",
+  "src/IAutoMovieViewerCompleted*.ts",
+  "src/IAutoMovieViewerDisplay*.ts",
+  "src/createViewerCamera*.ts",
+  "src/createViewerDisplay*.ts",
+  "src/publishViewerCompleted*.ts",
+  "src/human/common/*ViewportTransfer*.ts",
+];
+/** Framing, layout and calibration families define observation geometry. */
+const observationSources = [
+  "src/human/inspection/*Calibration*.ts",
+  "src/human/inspection/*calibration*.ts",
+  "src/human/inspection/frameHumanViewer*.ts",
+  "src/human/inspection/layoutHumanViewer*.ts",
+];
+
 /**
  * The public viewer surface answers for stable contract populations.
  *
@@ -10,9 +32,35 @@ import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 const graph: IEvidenceConfig = {
   claims: [
     {
+      name: "inspection, process and completed-display transports answer common implementation principles",
+      type: "typescript",
+      files: serviceSources,
+      symbol: ["type", "function"],
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/common.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
+      name: "inspection observation geometry answers modeling principles",
+      type: "typescript",
+      files: observationSources,
+      symbol: ["type", "function"],
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/modeling.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
       name: "public viewer exports implement requirements",
       type: "typescript",
-      files: ["src/**/*.ts"],
+      files: ["src/**/*.ts", "src/**/*.mts"],
       evidenceExcludeCarriers: ["src/**/AutoMovieViewer*EvidenceExclusions.ts"],
       symbol: ["type", "function", "property"],
       reference: [
@@ -33,7 +81,7 @@ const graph: IEvidenceConfig = {
     {
       name: "public viewer exports implement specifications",
       type: "typescript",
-      files: ["src/**/*.ts"],
+      files: ["src/**/*.ts", "src/**/*.mts"],
       evidenceExcludeCarriers: ["src/**/AutoMovieViewer*EvidenceExclusions.ts"],
       symbol: ["type", "function", "property"],
       reference: [

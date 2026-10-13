@@ -89,7 +89,7 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
  * its independent evaluation. With a field, it carries the final formed body
  * skin, garment and layers together, so those outputs share one exterior.
  * The derived `sourceSkinModel` retains these same final joined parts before
- * fabric partition, in the same placed frame, for source/layer observation.
+ * fabric cutting and lift, in the same placed frame, for source/layer observation.
  *
  * There is no cut evaluation, collar conform, boundary subdivision or normal
  * fairing. What a seam stage absorbed is not hidden: where the two

@@ -1,42 +1,44 @@
-import { mountGallery } from "@automovie/website/gallery";
 import { TestValidator } from "@nestia/e2e";
 
-import { websiteGalleryFixture } from "../internal/websiteGalleryFixture";
+import { GalleryUnit } from "../internal/GalleryUnit";
+import { createGalleryContent } from "../internal/createGalleryContent";
 
 /**
- * A failed capture names the recovery path; changing view restores an image.
- * A late failure from a replaced capture cannot remove the current picture.
+ * Image replacement transfers failure authority and releases the prior binding.
+ * A late error cannot replace the current picture; direct capture URLs remain
+ * authored data. Native error text and rendering are actual browser observations.
  *
  * Scenarios:
- * 1. Fail the visible exterior: show a readable failure and retain its full URL.
- * 2. Select a room, replace it, then fail the old image: the new image survives.
+ * 1. Attach an exterior: its current failure is admitted and its direct URL retained.
+ * 2. Replace with a room then exterior: each old failure is refused and binding released.
+ * 3. Dispose twice: all pending failures are invalidated and release occurs once.
  */
 export const test_website_gallery_image_recovery = (): void => {
-  const f = websiteGalleryFixture();
-  const dispose = mountGallery(f.document);
-  f.openers[0].click();
-  f.element("#gallery-picture img").dispatchEvent(
-    new f.dom.window.Event("error"),
-  );
-  TestValidator.predicate(
-    "failure supplies a recovery instruction",
-    f.element("#gallery-picture").textContent!.includes("Open full image"),
-  );
-  TestValidator.equals(
-    "failed image keeps direct URL",
-    f.element<HTMLAnchorElement>("#gallery-original").href,
-    "https://example.org/AutoMovie/shots/place-1.png",
-  );
-  f.element<HTMLButtonElement>("#gallery-views button:nth-child(2)").click();
-  const old = f.element<HTMLImageElement>("#gallery-picture img");
-  TestValidator.equals("new view restores an image", old.alt, "Place 1 room 1");
-  f.element<HTMLButtonElement>("#gallery-views button:nth-child(1)").click();
-  const current = f.element<HTMLImageElement>("#gallery-picture img");
-  old.dispatchEvent(new f.dom.window.Event("error"));
-  TestValidator.predicate(
-    "late failure cannot replace current image",
-    f.element("#gallery-picture img") === current,
-  );
-  dispose();
-  f.dom.window.close();
+  const lifecycle = new GalleryUnit.ImageLifecycle();
+  const guards: ((effect: () => void) => void)[] = [];
+  const released: number[] = [];
+  let picture = "image";
+  const attach = (whenCurrent: (effect: () => void) => void) => {
+    const index = guards.push(whenCurrent) - 1;
+    picture = "image";
+    return () => { released.push(index); };
+  };
+  const content = createGalleryContent();
+  lifecycle.replace(attach);
+  guards[0](() => { picture = "failure"; });
+  TestValidator.equals("failed exterior retains direct capture", [picture, GalleryUnit.selection(content, 0, 0).image.src], ["failure", "https://example.org/AutoMovie/shots/place-1.png"]);
+  lifecycle.replace(attach);
+  guards[0](() => { picture = "old-exterior-failure"; });
+  TestValidator.equals("room replacement releases exterior", [picture, released], ["image", [0]]);
+  TestValidator.equals("room is authored replacement", GalleryUnit.selection(content, 0, 1).image.alt, "Place 1 room 1");
+  lifecycle.replace(attach);
+  guards[1](() => { picture = "old-room-failure"; });
+  TestValidator.equals("late room error cannot replace current picture", [picture, released], ["image", [0, 1]]);
+  let currentEffects = 0;
+  guards[2](() => { currentEffects++; });
+  TestValidator.equals("current replacement retains authority", currentEffects, 1);
+  lifecycle.dispose();
+  lifecycle.dispose();
+  for (const guard of guards) guard(() => { currentEffects++; });
+  TestValidator.equals("disposal invalidates callbacks and releases once", [currentEffects, released], [1, [0, 1, 2]]);
 };

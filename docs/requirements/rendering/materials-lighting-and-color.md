@@ -16,11 +16,15 @@ External asset의 supported physically based channel, texture transform, alpha m
 
 Image format, byte digest, declared color space, alpha mode, semantic channel, dimensions, wrap, filter와 mip-like representation을 검증하고 그 의미에 맞게 decode해야 한다. 같은 file을 color data와 numeric data로 사용할 때 서로 다른 decode intent를 가져야 한다.
 
+Decode sharing preserves the actual source object without promising one GPU allocation for all bindings. Native sampler, component representation, color decoding and fixed upload flags identify resident variants. Environment decoding follows actual decoded component type independently of explicit internal storage width. Unsupported native sampling or storage stays explicit; a complete supported binding sampler may replace inherited sampler state. These host facts also supply the resident memory bound owned by [Render Budget](budgets.md#rendering-geometry-memory-budget).
+
 ### Lighting Evaluation {#rendering-lighting-evaluation}
 
 Light type, transform, intensity와 unit-like meaning, color 또는 temperature, shaping, shadow와 environment contribution을 fixed scene state에서 평가해야 한다. Light enumeration order나 prior frame shadow state가 결과를 바꾸어서는 안 된다.
 
 ### Scene-linear와 Display {#rendering-scene-display-color}
+
+Film beauty transitions consume display-resolved source pictures. Each source keeps its own effective view transform, exposure and material tone-mapping eligibility exactly once, so fade weight one and a dissolve between identical sources reproduce that source's direct picture. Preview and delivery use the same declared composition domain; a runtime or color-domain change invalidates previous frame identities.
 
 Lighting calculation, scene-linear intermediate, tone mapping 또는 view transform, display-referred preview와 encoded output color를 구분해야 한다. Input texture, render buffer와 output metadata의 color identity를 receipt에서 추적할 수 있어야 한다.
 

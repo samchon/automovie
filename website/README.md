@@ -28,7 +28,8 @@ The TypeScript program includes the workspace productions it actually imports, s
 | Path | Role |
 | --- | --- |
 | `index.html`, `src/collection.css` | Responsive four-building collection. Static markup owns the catalog and captured views. |
-| `src/collection.ts`, `src/gallery.ts`, `src/gallery.css` | Modal enhancement, view/building navigation, failure recovery, and page lifecycle. The private package's `./gallery` and `./collection` exports let repository unit tests use its typed workspace boundary. |
+| `src/collection.ts`, `src/gallery.ts`, `src/gallery.css` | Native modal mounting, image rendering and page lifecycle. The existing `./gallery` mount and `./collection` application entries retain their signatures. |
+| `src/gallery/` | Building/view selection, activation and backdrop admission, current-image failure authority, and final-page disposal policy. The native mount consumes these private owners; units supply owned observations without replacing browser methods. Native modal behavior remains a browser validation boundary. |
 | `public/shots/` | Original production captures and their provenance. |
 | `tour/index.html`, `src/tour.css`, `src/tour.ts` | Shared live 3D tour page, loading/error recovery, GPU and page lifecycle. |
 | `src/tourData.ts`, `src/tourExport.ts`, `build/exportScenes.cts` | Build-time native transport and authored-camera handoff. |

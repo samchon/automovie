@@ -6,6 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
+import { assertAutoMovieSemanticMaskCapacity } from "./assertAutoMovieSemanticMaskCapacity";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
 import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
@@ -75,10 +76,7 @@ export const deriveAutoMovieSemanticMask = (
       );
     claimed.add(claim.id);
   }
-  if (claims.length > AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES)
-    throw new Error(
-      `semantic mask needs ${claims.length} entries, above the bounded maximum ${AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES}; derive one mask per building unit instead of one for the whole work`,
-    );
+  assertAutoMovieSemanticMaskCapacity(claims.length);
   const slots = collectSlotClaims(subject, claims.length);
   const entries = allocate([...claims, ...slots.claims]);
   const payload: Omit<IAutoMovieSemanticMask, "digest"> = {
@@ -91,7 +89,11 @@ export const deriveAutoMovieSemanticMask = (
   return { ...payload, digest: digestAutoMovieSemanticMask(payload) };
 };
 
-/** One entity awaiting a colour. */
+/**
+ * One entity awaiting a colour.
+ *
+ * @author Samchon
+ */
 interface IClaim {
   id: string;
   kind: IAutoMovieSemanticMaskEntry["kind"];

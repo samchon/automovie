@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps";
+import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";
 
 /**
  * Put an inspection-owned section on an already-built scene, and hand back the

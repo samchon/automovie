@@ -7,9 +7,9 @@ import { compileHumanPersonGeneration } from "@automovie/human/human/build/compi
 import { createHumanPersonGenerationBuilder } from "@automovie/human/human/build/createHumanPersonGenerationBuilder";
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 
-import { describeConnectedBodyConstructionProgress } from "../body/describeConnectedBodyConstructionProgress";
+import { describeConnectedBodyConstructionProgress } from "@automovie/human/body/runtime/describeConnectedBodyConstructionProgress";
 import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
-import { describeConnectedPersonFaceProgress } from "./describeConnectedPersonFaceProgress";
+import { describeConnectedPersonFaceProgress } from "@automovie/human/human/runtime/describeConnectedPersonFaceProgress";
 
 /**
  * Join a person generation's head and body views, compile it and build its

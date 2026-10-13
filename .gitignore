@@ -8,6 +8,8 @@
 node_modules/
 packages/cli/.cache/
 packages/template/.cache/
+packages/human/.human-build-*/
+packages/human/.human-build.lock
 lib/
 dist/
 
@@ -38,10 +40,6 @@ packages/template/scaffold/src/**/*.d.ts
 test/src/**/*.js
 test/src/**/*.js.map
 test/src/**/*.d.ts
-# Portable studies share that native TypeScript program and emission behavior.
-test/studies/**/*.js
-test/studies/**/*.js.map
-test/studies/**/*.d.ts
 
 # Python bytecode from the offline Blender extraction modules
 __pycache__/

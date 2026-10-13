@@ -9,8 +9,8 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
-import { applyTransform } from "./applyTransform";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import { applyTransform } from "./applyTransform.js";
 
 /**
  * Apply a {@link IAutoMoviePose} to a built model by running the engine's

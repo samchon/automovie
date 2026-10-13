@@ -1,9 +1,10 @@
 import { AutoMovieTextureBinding } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader";
-import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
-import { textureBindingAsset } from "./textureBindingAsset";
+import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
+import { textureBindingAsset } from "./textureBindingAsset.js";
+import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
+import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 
 /**
  * One shot's decoded texture assets: loaded once, handed out per binding, and
@@ -28,10 +29,20 @@ import { textureBindingAsset } from "./textureBindingAsset";
  * one upload across bindings, updates or renderers.
  *
  * The cache is per shot rather than per model because a shot is the lifetime a
- * host can actually end: {@link dispose} releases every clone it issued and
- * every source it decoded, exactly once however many times it is called, and a
+ * host can actually end: {@link dispose} attempts every distinct Texture it
+ * owns once and preserves failed retirement, however many times it is called. A
  * cache that has been disposed refuses further work rather than quietly
  * decoding into a bucket nobody will empty.
+ * The first issuance fixes the original's inputs before native copy starts and
+ * verifies its successful or failed completion. Later original
+ * or uncontrolled issued-wrapper changes make its facts uncertified, even after
+ * properties are restored. Normal material and exclusive environment owners
+ * acknowledge their own supported transitions. A different live cache cannot
+ * acquire this cache's original or issued wrapper; distinct wrappers may still
+ * share decoded pixels. A detached Source can leave an earlier native upload
+ * alive after public disposal and therefore makes completion indeterminate.
+ * An issued binding wrapper cannot return through the loader as a decoder
+ * original, including an alias inside this same cache.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
@@ -40,7 +51,12 @@ export class AutoMovieTextureCache {
   private readonly pending = new Map<string, Promise<THREE.Texture>>();
   private readonly sources = new Map<string, THREE.Texture>();
   private readonly issued: THREE.Texture[] = [];
+  /** Actual failed or indeterminate wrappers retained after public bookkeeping closes. */
+  private readonly uncertainRetirements = new Set<THREE.Texture>();
+  private readonly allocationOwner = {};
   private disposed = false;
+  /** One completion outcome, including a failure, shared by every close caller. */
+  private disposal: Promise<void> | undefined;
 
   /** Build a cache over one host-owned loader. */
   public constructor(private readonly load: IAutoMovieTextureLoader) {
@@ -52,7 +68,14 @@ export class AutoMovieTextureCache {
         throw new Error(
           `Texture asset "${asset}" was never primed into this shot cache.`,
         );
-      const clone = source.clone();
+      const allocation = AutoMovieTextureCacheAllocationAuthority.beginIssue(source);
+      let clone: THREE.Texture;
+      try { clone = source.clone(); }
+      catch (error) {
+        AutoMovieTextureCacheAllocationAuthority.finishIssue(allocation);
+        throw error;
+      }
+      AutoMovieTextureCacheAllocationAuthority.finishIssue(allocation, clone);
       this.issued.push(clone);
       return clone;
     };
@@ -102,7 +125,7 @@ export class AutoMovieTextureCache {
    * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
    * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
    */
-  public readonly resolve: IAutoMovieTextureResolver;
+  public readonly resolve: (binding: AutoMovieTextureBinding) => THREE.Texture;
 
   /** How many distinct assets this cache has decoded. */
   public get size(): number {
@@ -110,31 +133,86 @@ export class AutoMovieTextureCache {
   }
 
   /**
-   * Release every issued clone and every decoded source, exactly once.
+   * Read host-decoded upload facts for preflight before the first GPU draw.
+   * The source object supplies its dimensions, component width and inherited
+   * sampling; material bindings still select their separate resident variants.
+   * The texture token names the cache's original object. For environment
+   * derivative ownership, call {@link readAutoMovieTextureSource} on the actual
+   * resolved environment clone instead of substituting this original object.
+   * Before any clone is issued the host may prepare its decoded original. After
+   * issue, this observation checks every owned wrapper's actual tuple/version;
+   * clone-created shared Source.version increments do not invalidate it.
+   *
+   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Exposes decoded source facts from the same objects whose clones the material resolver returns.
+   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Connects loaded texture facts to the public render budget assessment without author-supplied memory numbers.
+   */
+  public describeSources() {
+    this.assertLive();
+    return [...this.sources].map(([asset, texture]) =>
+      readAutoMovieTextureSource(asset, texture));
+  }
+
+  /**
+   * Attempt every distinct issued clone and decoded source exactly once.
    *
    * In-flight decodes are awaited before release, so a host that tears a shot
    * down mid-load frees what it started rather than leaking whatever landed
-   * after the teardown.
+   * after the teardown. The loader must settle independently of this release;
+   * awaiting cache disposal from inside its own decode would await itself.
+   * Concurrent and repeated callers receive the same completion promise. Every
+   * public retirement is attempted even when another listener throws. A single
+   * failure preserves its original identity; multiple failures retain their
+   * original values in attempt order. A failed attempt is not physical release.
+   * Detached Source history also rejects completion after every attempt: native
+   * disposal looks up the current Source and cannot certify the old footprint.
+   * Retain that context's unknown residency until its physical release; neither
+   * an empty cache nor a new cache in the same context proves it was retired.
    *
    * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
    * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
+   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Attempts every owned texture retirement and preserves one shared failed or successful completion.
+   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Prevents one disposal listener failure or in-flight decode from skipping another owned lifetime.
    */
-  public async dispose(): Promise<void> {
-    if (this.disposed) return;
+  public dispose(): Promise<void> {
+    if (this.disposal !== undefined) return this.disposal;
     this.disposed = true;
+    this.disposal = this.release();
+    return this.disposal;
+  }
+
+  /** Drain settled ownership without allowing one native event to skip another. */
+  private async release(): Promise<void> {
     const settled = await Promise.allSettled(this.pending.values());
-    for (const clone of this.issued) clone.dispose();
-    this.issued.length = 0;
+    const textures = new Set(this.issued);
     for (const result of settled)
-      if (result.status === "fulfilled") result.value.dispose();
+      if (result.status === "fulfilled") textures.add(result.value);
+    this.issued.length = 0;
     this.pending.clear();
     this.sources.clear();
+    const failures: unknown[] = [];
+    for (const texture of textures) {
+      this.uncertainRetirements.add(texture);
+      AutoMovieTextureCacheAllocationAuthority.beginRetirement(texture);
+      let failed = false;
+      try { texture.dispose(); } catch (error) {
+        failed = true;
+        failures.push(error);
+      }
+      const uncertain = AutoMovieTextureCacheAllocationAuthority.finishRetirement(texture);
+      if (uncertain !== undefined) failures.push(uncertain);
+      if (!failed && uncertain === undefined) this.uncertainRetirements.delete(texture);
+    }
+    if (failures.length === 1) throw failures[0];
+    if (failures.length > 1)
+      throw new AggregateError(failures, "Texture cache retirement failed.");
   }
 
   private decodeOnce(asset: string): Promise<THREE.Texture> {
     const existing = this.pending.get(asset);
     if (existing !== undefined) return existing;
-    const decoding = this.load(asset).then((texture) => {
+    // Register ownership before a host loader can synchronously request close.
+    const decoding = Promise.resolve().then(() => this.load(asset)).then((texture) => {
+      AutoMovieTextureCacheAllocationAuthority.claim(this.allocationOwner, texture);
       this.sources.set(asset, texture);
       return texture;
     });

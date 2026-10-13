@@ -1,66 +1,32 @@
-import { mountGallery } from "@automovie/website/gallery";
 import { TestValidator } from "@nestia/e2e";
 
-import { websiteGalleryFixture } from "../internal/websiteGalleryFixture";
+import { GalleryUnit } from "../internal/GalleryUnit";
+import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
 
 /**
- * Arrow keys cycle the current building's images, with browser shortcuts and
- * unrelated keys retaining their default behavior.
+ * Plain arrows wrap the current building's views. Native keys and modified
+ * arrows retain their browser meaning without interception or selection change.
  *
  * Scenarios:
- * 1. Move right through two rooms and wrap; move left across the other boundary.
- * 2. Send Tab and each modified arrow: neither view nor default action changes.
+ * 1. Three forward steps and two backward steps traverse both view boundaries.
+ * 2. Tab, Escape, other keys and every modifier retain the last selection.
  */
 export const test_website_gallery_keyboard = (): void => {
-  const f = websiteGalleryFixture();
-  const dispose = mountGallery(f.document);
-  f.openers[0].click();
-  for (const [key, expected] of [
-    ["ArrowRight", "Room 1"],
-    ["ArrowRight", "Room 2"],
-    ["ArrowRight", "Exterior"],
-    ["ArrowLeft", "Room 2"],
-    ["ArrowLeft", "Room 1"],
-  ]) {
-    const event = new f.dom.window.KeyboardEvent("keydown", {
-      key,
-      bubbles: true,
-      cancelable: true,
-    });
-    f.dialog.dispatchEvent(event);
-    TestValidator.equals(
-      "arrow selects the adjacent view",
-      f.element("#gallery-caption").textContent,
-      expected,
-    );
-    TestValidator.predicate(
-      "handled arrow suppresses page scroll",
-      event.defaultPrevented,
-    );
+  const { host, facts } = createGalleryHostFacts();
+  const controller = new GalleryUnit.Controller(host, [3]);
+  const click = { button: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false };
+  controller.open(0, "capture", click, () => {});
+  let intercepted = 0;
+  for (const expected of [1, 2, 0]) {
+    TestValidator.equals("forward arrow consumed", controller.key({ ...click, key: "ArrowRight" }, () => { intercepted++; }), true);
+    TestValidator.equals("forward view", facts.view, expected);
   }
-  for (const options of [
-    { key: "Tab" },
-    { key: "ArrowRight", ctrlKey: true },
-    { key: "ArrowRight", metaKey: true },
-    { key: "ArrowRight", altKey: true },
-    { key: "ArrowRight", shiftKey: true },
-  ]) {
-    const event = new f.dom.window.KeyboardEvent("keydown", {
-      ...options,
-      bubbles: true,
-      cancelable: true,
-    });
-    f.dialog.dispatchEvent(event);
-    TestValidator.equals(
-      "shortcut leaves view unchanged",
-      f.element("#gallery-caption").textContent,
-      "Room 1",
-    );
-    TestValidator.predicate(
-      "shortcut retains default",
-      !event.defaultPrevented,
-    );
+  for (const expected of [2, 1]) {
+    controller.key({ ...click, key: "ArrowLeft" }, () => { intercepted++; });
+    TestValidator.equals("backward view", facts.view, expected);
   }
-  dispose();
-  f.dom.window.close();
+  for (const patch of [{ key: "Tab" }, { key: "Escape" }, { key: "Enter" }, { key: "ArrowRight", ctrlKey: true }, { key: "ArrowLeft", metaKey: true }, { key: "ArrowRight", shiftKey: true }, { key: "ArrowLeft", altKey: true }])
+    TestValidator.equals("native key retained", controller.key({ ...click, ...patch }, () => { intercepted++; }), false);
+  TestValidator.equals("only arrows changed selection", [facts.view, intercepted], [1, 5]);
+  controller.dispose();
 };

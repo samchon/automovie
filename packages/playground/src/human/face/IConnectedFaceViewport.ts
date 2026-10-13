@@ -31,6 +31,22 @@ export interface IConnectedFaceViewport<Model> {
   /** Release a model that will not be drawn. */
   dispose: (model: Model) => void;
 
+  /**
+   * Await requested resource retirement without rolling back an already published model.
+   *
+   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Separates actual resource cleanup from the committed displayed face.
+   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Completes asynchronous retirement outside synchronous history publication.
+   */
+  settleRetirements: () => Promise<void>;
+
+  /**
+   * Retire the viewport's resources without terminating its borrowed renderer or numerical connection.
+   *
+   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Ends the owned face display resources at the viewport's lifetime boundary.
+   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Leaves borrowed renderer and numerical transport lifetime to their owners.
+   */
+  close: () => Promise<void>;
+
   /** Fit the camera to the drawn model. */
   fitView: () => void;
 

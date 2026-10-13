@@ -45,8 +45,8 @@ import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
  * feed `resolveHumanBodyBuildPose`; the shared rest and lean evaluations feed
  * `createHumanBodyAppearance` and `createHumanBodySurfaceParts`; posed toe
  * ray phalanges (`resolveHumanBodyToeRays`) join those transforms for skinning. Underwear is
- * assigned to complementary material regions of the final skin after source
- * and layer readings. The basic garment adds no displaced cloth surface.
+ * cut from the final skin and lifted along its normals after source and
+ * layer readings. Anatomy and contact continue to read the intact skin.
  * The pose resolver owns clinical angles and pelvic rhythm, the appearance
  * stage owns material caches, and the surface stage owns skinning and sag.
  * Keeping their results in this order makes colour, relief, gravity and cloth
@@ -75,7 +75,7 @@ import { resolveHumanBodyToeRays } from "./resolveHumanBodyToeRays";
  * skin. Preparation owns one admitted document snapshot, so later caller edits
  * cannot combine already evaluated skin with different anatomy or placement.
  * Its dress operation supplies that admitted choice's shared rest coverage;
- * final composition partitions its skin without a second body evaluation.
+ * final composition cuts and lifts fabric without a second body evaluation.
  * The optional physicalSource constructor mode registers actual native
  * indexed incidence or declared canonical source samples before UV gathering.
  * Omission preserves the existing model and metadata absence. Registration
@@ -272,7 +272,7 @@ export function createHumanBodyBasisBuilder(
     materials.push(...atlas.materials);
     const sourcePartOffset = parts.length;
     const sourceMaterialOffset = materials.length;
-    // Rest coverage is prepared once; final skin consumers own material clipping.
+    // Rest coverage is prepared once; final skin consumers own cutting and lift.
     const garment = document.underwear === undefined ? undefined
       : (dress ??= createHumanBodyUnderwear(basis))({
           underwear: document.underwear, rest: restAll(),
@@ -323,6 +323,7 @@ export function createHumanBodyBasisBuilder(
           const region = garment.regions.get(part.id);
           return region === undefined ? [part] : applyHumanBodyUnderwearMaterial({
             part, field: region.field, sources: region.sources, material: garment.material,
+            offsetMetres: garment.offsetMetres,
           });
         }),
         materials: [...completed.model.materials.filter((material) => material.id !== garment.material.id), garment.material],

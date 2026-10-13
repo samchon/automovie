@@ -1,9 +1,7 @@
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { createPortraitColourField } from "./createPortraitColourField";
-import {
-  type IPortraitSkinColourRegion,
-  type PortraitSkinColourSite,
-} from "./structures/IPortraitSkinColourRegion";
+import type { IPortraitSkinColourRegion } from "./structures/IPortraitSkinColourRegion";
+import type { PortraitSkinColourSite } from "./structures/PortraitSkinColourSite";
 
 /**
  * Landmarks of the fixed 478-landmark basis that stand for each named site. The

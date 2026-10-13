@@ -1,9 +1,7 @@
-import {
-  digest,
-  indexReference,
-  parseReference,
-  readReference,
-} from "./internal/parseReference";
+import { digest } from "./internal/digest";
+import { indexReference } from "./internal/indexReference";
+import { parseReference } from "./internal/parseReference";
+import { readReference } from "./internal/readReference";
 import {
   MAX_FILES,
   MAX_LAYER_BYTES,

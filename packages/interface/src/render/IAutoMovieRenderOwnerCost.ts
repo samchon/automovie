@@ -5,6 +5,7 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  *
  * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderOwnerCost` as the portable data boundary for the rendering compile render distinction requirement.
  * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderOwnerCost` for the spec render artifact lifecycle system contract.
+ * @author Samchon
  */
 export interface IAutoMovieRenderOwnerCost {
   /**
@@ -45,7 +46,9 @@ export interface IAutoMovieRenderOwnerCost {
   metric: AutoMovieRenderMetric;
 
   /**
-   * Whether the row is the owner's own cost or one further whole-frame pass.
+   * Whether the row is editable source cost, a further whole-frame pass or
+   * shared renderer-owned storage. `runtime` has no author-editable owner;
+   * its cost remains in totals and omitted accounting, outside owner ranking.
    *
    * `own` is what the owner itself puts in the frame. `pass` is a complete
    * further submission of geometry the `own` rows already paid for, such as a
@@ -70,7 +73,7 @@ export interface IAutoMovieRenderOwnerCost {
    * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes whether an attributed cost is an editable owner or repeated frame-pass work so the budget decision can rank the former without dropping the latter.
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types the owner/pass distinction required by budget preflight ranking and accounting.
    */
-  kind?: "own" | "pass";
+  kind?: "own" | "pass" | "runtime";
 
   /**
    * Exact contribution in the metric's unit.

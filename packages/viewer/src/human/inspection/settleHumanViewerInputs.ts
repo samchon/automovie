@@ -1,0 +1,24 @@
+import type { IHumanViewerSettleable } from "./IHumanViewerSettleable.js";
+
+/**
+ * Read until the off-request work the reading starts has all finished: each
+ * finished sidecar or view read can start an admission, so the loop ends only
+ * when one reading leaves every owner idle.
+ *
+ * @evidence contracts/common.md#principled-implementation Ends on the owners' own idleness, never on a delay.
+ * @evidence contracts/common.md#clear-and-simple-design One fixed-point loop coordinates supplied owners; each owner retains its own pending work and settlement predicate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Re-reads after real owner settlement without a retry-by-time cap, invented verdict or weaker admission for a slow input.
+ * @evidence contracts/common.md#meaningful-documentation States why one pass is not enough.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Ends on the owners' own idleness, never on a delay.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One fixed-point loop coordinates supplied owners; each owner retains its own pending work and settlement predicate.
+ */
+export async function settleHumanViewerInputs<T>(
+  read: () => T,
+  owners: readonly IHumanViewerSettleable[],
+): Promise<T> {
+  for (;;) {
+    const value = read();
+    if (owners.every((owner) => !owner.busy())) return value;
+    await Promise.all(owners.map((owner) => owner.settled()));
+  }
+}

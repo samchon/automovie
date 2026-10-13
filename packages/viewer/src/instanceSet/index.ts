@@ -1,6 +1,6 @@
 /** Instance-set construction, accounting and slot identities with independent source owners. */
-export * from "../IBuildInstancedInstanceSetProps";
-export * from "../IAutoMovieInstanceSetViewerStats";
-export * from "../IAutoMovieInstanceSetViewerObject";
-export * from "../buildInstancedInstanceSet";
-export * from "../regenerateInstanceSlot";
+export * from "../IBuildInstancedInstanceSetProps.js";
+export * from "../IAutoMovieInstanceSetViewerStats.js";
+export * from "../IAutoMovieInstanceSetViewerObject.js";
+export * from "../buildInstancedInstanceSet.js";
+export * from "../regenerateInstanceSlot.js";

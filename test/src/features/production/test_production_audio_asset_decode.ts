@@ -2,7 +2,7 @@ import { decodeProductionAudioAsset } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
-import { productionWav } from "./productionMediaFixtures";
+import { productionWav } from "../internal/productionMedia/productionWav";
 
 /** The finished-film sound plan's own rate, which every decode targets. */
 const PLAN_RATE = 48_000;

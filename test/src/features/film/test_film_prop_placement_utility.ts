@@ -36,7 +36,7 @@ import {
   propSet,
   sculpture,
   table,
-} from "./propPlacementFixtures";
+} from "../internal/propPlacementFixtures";
 
 const box = (
   minX: number,

@@ -25,7 +25,7 @@
 - **State the rule before its reason.** Use negative phrasing only for a named failure the affirmative rule does not already exclude, because "X, not Y" leaves the reader to derive the instruction.
 - **Separate requirements from defaults.** Mark what is mandatory and what is a starting point, and name the mode a rule applies to when modes differ.
 - **Use one term per concept.** A second word for the same thing reads as a second thing.
-- **Point instead of paraphrasing.** Link to the `.wiki/`, a README, source JSDoc or command help instead of restating it. A skill carries cross-cutting rules and conventions, not a second copy of project docs.
+- **Point instead of paraphrasing.** Link to a README, source JSDoc or command help instead of restating it. A skill carries cross-cutting rules and conventions, not a second copy of project docs.
 - **State the task, its acceptance condition and its finish line.** Leave the amount of reasoning to the agent and never ask it to write its reasoning into the response. Give a long task a checkable completion condition and a task list the agent updates; a turn that ends without a tool call is a report, so an instruction that lets the agent stop after reporting leaves work open. Name the specific early stops to avoid and the stops that are wanted, and the concrete patterns to avoid or produce, then check which ones the first result used, because the agent responds to named patterns and a general instruction mostly swaps one default for another.
 - **Send the agent to the sources.** For a loosely specified task, name the places to look before acting, including ones the request does not mention, because the agent otherwise starts quickly and misses them.
 
@@ -41,7 +41,7 @@ A capability router belongs in `SKILL.md`, and a rule shared by every phase stay
 | --- | --- |
 | Root `AGENTS.md` | The product identity, repository-wide attitude and the skill index. Its H2 surface is `Attitude`, `Skills` and `Maintenance`, and it restates no skill procedure. |
 | Repository `.agents/skills/<name>/SKILL.md` | One concern's trigger, exclusions, shared invariants and direct routes. The directory and frontmatter `name` agree. |
-| Documentation skill | Instruction classification, layout and writing form, link integrity, package README and JSDoc form, the `.wiki/` record, and instruction-diff review. |
+| Documentation skill | Instruction classification, layout and writing form, link integrity, package README and JSDoc form, and instruction-diff review. |
 | Development skill | Source and test rules, consequence analysis, the changed-position coverage obligation, validation and change integrity. |
 | Contracts skill | The implementation checklist chapters, and the rule that each question has exactly one chapter owner. |
 | Review skill | Whole-surface, fresh-round review semantics and Self-Review. |

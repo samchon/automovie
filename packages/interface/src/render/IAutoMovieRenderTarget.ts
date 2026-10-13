@@ -30,7 +30,16 @@ export interface IAutoMovieRenderTarget {
    * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `protocol` as the portable data boundary for the rendering compile render distinction requirement.
    * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `protocol` for the spec render artifact lifecycle system contract.
    */
-  protocol: "automovie.render-target.v1";
+  protocol: "automovie.render-target.v1" | "automovie.render-target.v2";
+
+  /**
+   * Host-decoded upload fact identity. Version two targets include this digest;
+   * legacy version one targets omit it and cannot certify those host facts.
+   *
+   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Binds the report to decoded representation facts beyond its source file bytes.
+   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Keeps texture upload identity in the measured target rather than ambient host state.
+   */
+  textureDigest?: AutoMovieContentDigest;
 
   /**
    * Who draws the frame.

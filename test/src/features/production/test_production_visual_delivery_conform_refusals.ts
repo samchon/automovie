@@ -9,10 +9,8 @@ import {
 } from "@automovie/render/node";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  productionH264Mp4,
-  productionInterframeH264Mp4,
-} from "./productionMediaFixtures";
+import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
+import { productionInterframeH264Mp4 } from "../internal/productionMedia/productionInterframeH264Mp4";
 
 const WIDTH = 16;
 const HEIGHT = 16;
@@ -91,16 +89,16 @@ const conform = (film: IAutoMovieFilmTimeline, lanes: Lane[]): Uint8Array =>
  *    after every occurrence was placed.
  */
 export const test_production_visual_delivery_conform_refusals =
-  async (): Promise<void> => {
-    const encode = (frameCount: number, width = WIDTH, height = HEIGHT) =>
-      productionH264Mp4({ width, height, fps: FPS, frameCount });
-    const three = await encode(3);
-    const two = await encode(2);
-    const narrow = await encode(2, WIDTH - 8, HEIGHT - 8);
-    const whole = await encode(5);
-    const one = await encode(1);
+  (): void => {
+    const sampleInput = (frameCount: number, width = WIDTH, height = HEIGHT) =>
+      productionSampleMp4({ width, height, fps: FPS, frameCount });
+    const three = sampleInput(3);
+    const two = sampleInput(2);
+    const narrow = sampleInput(2, WIDTH - 8, HEIGHT - 8);
+    const whole = sampleInput(5);
+    const one = sampleInput(1);
     // The x264 fixture's second frame is a predicted frame, the only non-sync
-    // sample any fixture carries: the resident encoder keys every frame.
+    // sample used here. The authored sample-table inputs are all sync samples.
     const interframe = productionInterframeH264Mp4();
     const assembled = assembleProductionChunkVideoMp4({
       chunks: [three, two],

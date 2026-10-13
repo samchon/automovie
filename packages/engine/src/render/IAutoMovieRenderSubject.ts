@@ -10,6 +10,7 @@ import {
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
+import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
 import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 
 /**
@@ -129,4 +130,13 @@ export interface IAutoMovieRenderSubject {
    * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Makes absent texture facts an explicit not-run gap in preflight.
    */
   textures?: readonly IAutoMovieRenderTextureSource[];
+
+  /**
+   * Other live shots and retained texture storage in the same graphics context.
+   * Omission describes a fresh context containing only this subject.
+   *
+   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes retained context resources beside the current drawable source closure.
+   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves host-owned residency through the shared mask and inventory input boundary.
+   */
+  textureResidency?: IAutoMovieRenderTextureResidency;
 }

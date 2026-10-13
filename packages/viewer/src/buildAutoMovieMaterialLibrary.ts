@@ -1,10 +1,10 @@
 import { resolveAutoMovieMaterial } from "@automovie/engine";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import type { IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary";
-import type { IBuildAutoMovieMaterialLibraryProps } from "./IBuildAutoMovieMaterialLibraryProps";
-import { buildMaterial } from "./buildMaterial";
-import { materialTextureBindings } from "./materialTextureBindings";
+import type { IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary.js";
+import type { IBuildAutoMovieMaterialLibraryProps } from "./IBuildAutoMovieMaterialLibraryProps.js";
+import { buildMaterial } from "./buildMaterial.js";
+import { materialTextureBindings } from "./materialTextureBindings.js";
 
 /**
  * Build the exact model material identities requested by simulated surfaces.

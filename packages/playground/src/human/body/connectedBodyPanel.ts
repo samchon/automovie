@@ -22,6 +22,7 @@ import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/
 import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { connectedBodyReach } from "../common/connectedBodyReach";
@@ -46,6 +47,9 @@ import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
  * Mount the body's shape, measurement and pose controls around an injected
  * numerical viewport. Weight ranges, measurement rules, joint ranges and rest
  * angles all come from the admitted basis; the panel formats and binds them.
+ * Retirement is awaited outside the synchronous history publication. A
+ * cleanup refusal reports the current committed body without restoring an
+ * earlier document or destroying its newly published preview.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Provides grouped shape controls in millimetres where a rule exists, clinical joint controls, the simple tier, presets, history, file IO, contact check and orbit/clay/face display for one connected body.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Accepts a measured target in millimetres and shows its neutral and source endpoint readings while the worker solves the current body.
@@ -117,17 +121,28 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   const contacts = createBodyContactWatch({
     build: viewport.build,
     dispose: viewport.dispose,
+    settleRetirements: viewport.settleRetirements,
     isCurrent: intents.isCurrent,
     report: (text) => {
       element("body-status").textContent += String.fromCharCode(10) + text;
     },
   });
-  const show = (model: Model): void => {
-    viewport.publish(model);
+  const seatHead = (model: Model): void => {
     props.seat(
       element<HTMLInputElement>("face").checked ? model : null,
       editor?.snapshot().document ?? draft,
     );
+  };
+  const settle = async (): Promise<void> => {
+    try {
+      await viewport.settleRetirements();
+    } catch (cause) {
+      throw new Error(
+        "Resource cleanup failed; the displayed body is retained: " +
+          (cause instanceof Error ? cause.message : String(cause)),
+        { cause },
+      );
+    }
   };
   const refresh = (): void => {
     const state = editor!.snapshot();
@@ -161,14 +176,21 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     if (!intents.isCurrent(ticket)) return false;
     draft = structuredClone(next);
     status("Building the latest body…", "building");
-    const success = await editor!.edit(next);
-    if (!intents.isCurrent(ticket)) return false;
-    if (success) show(editor!.snapshot().model);
-    refresh();
-    if (!success)
-      humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
-    if (success) void contacts.after(editor!.snapshot().document, ticket);
-    return success;
+    try {
+      const success = await editor!.edit(next);
+      if (intents.isCurrent(ticket)) {
+        if (success) seatHead(editor!.snapshot().model);
+        refresh();
+        if (!success) humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
+      }
+      await settle();
+      if (!intents.isCurrent(ticket)) return false;
+      if (success) void contacts.after(editor!.snapshot().document, ticket);
+      return success;
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+      return false;
+    }
   };
   const applyText = async (
     text: string,
@@ -219,8 +241,15 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
-  element<HTMLInputElement>("face").onchange = () => {
-    if (editor !== undefined) show(editor.snapshot().model);
+  element<HTMLInputElement>("face").onchange = async () => {
+    if (editor === undefined) return;
+    const ticket = intents.currentTicket();
+    try {
+      seatHead(editor.snapshot().model);
+      await settle();
+    } catch (error) {
+      if (intents.isCurrent(ticket)) refuse(error);
+    }
   };
   underwear.onchange = () => {
     const next = structuredClone(draft);
@@ -245,10 +274,16 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     element("body-" + action).onclick = async () => {
       const ticket = withdraw();
       status("Restoring the selected body…", "building");
-      const success = await editor![action]();
-      if (!intents.isCurrent(ticket)) return;
-      if (success) show(editor!.snapshot().model);
-      refresh();
+      try {
+        const success = await editor![action]();
+        if (intents.isCurrent(ticket)) {
+          if (success) seatHead(editor!.snapshot().model);
+          refresh();
+        }
+        await settle();
+      } catch (error) {
+        if (intents.isCurrent(ticket)) refuse(error);
+      }
     };
   // the trunk's joints the age posture bends, which pose presets keep
   const standing: string[] = [
@@ -354,7 +389,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
       const femoral = bodyFemoralReading(posed.femoralHeads);
       const ground = bodyGroundReading(posed.groundSupport);
-      viewport.dispose(posed);
+      await createAutoMovieResourceRetirement([
+        () => viewport.dispose(posed),
+        () => settle(),
+      ])();
       if (!intents.isCurrent(ticket)) return;
       const text = contacts.describe(reading);
       status(
@@ -393,18 +431,25 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     try {
       const model = await viewport.build(props.initial);
       if (!intents.isCurrent(ticket)) {
-        viewport.dispose(model);
+        await createAutoMovieResourceRetirement([
+          () => viewport.dispose(model),
+          () => settle(),
+        ])();
         return;
       }
       editor = createHumanFaceEditor({
         document: props.initial,
         model,
         build: viewport.build,
+        publish: viewport.publish,
+        dispose: viewport.dispose,
       });
-      show(model);
+      viewport.publish(model);
+      seatHead(model);
       viewport.fitView();
       element<HTMLFieldSetElement>("editing").disabled = false;
       refresh();
+      await settle();
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
     }
@@ -413,5 +458,6 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     ready,
     snapshot: () => editor?.snapshot(),
     change: (document: IAutoMovieHumanBodyBasisDocument) => change(document),
+    load: (text: string) => applyText(text),
   };
 }

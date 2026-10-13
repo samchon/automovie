@@ -1,10 +1,12 @@
 import {
   IAutoMovieSceneEnvironment,
+  IAutoMovieLight,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { isRecord } from "./isRecord";
+import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
 
 const TONE_MAPPINGS = new Set(["none", "acesFilmic"]);
 const SHADOW_TYPES = new Set(["pcf", "pcfSoft", "vsm"]);
@@ -18,6 +20,8 @@ const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
  */
 export const validateSceneEnvironment = (props: {
   environment: IAutoMovieSceneEnvironment;
+  /** Admitted scene light traits; contextual refusals retain their scene paths. */
+  lights?: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];
 }): IAutoMovieValidation => {
   const out = new ViolationCollector();
   const value: unknown = props.environment;
@@ -89,6 +93,14 @@ export const validateSceneEnvironment = (props: {
         'shadow type must be "pcf", "pcfSoft", or "vsm"',
         value.shadows.type,
       );
+    if (props.lights !== undefined &&
+        typeof value.shadows.enabled === "boolean" &&
+        SHADOW_TYPES.has(value.shadows.type as string)) {
+      const profile = resolveAutoMovieShadowProfile({
+        lights: props.lights, shadows: props.environment.shadows,
+      });
+      if (!profile.success) out.items.push(...profile.violations);
+    }
   }
   return out.toValidation();
 };

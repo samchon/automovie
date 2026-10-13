@@ -16,13 +16,17 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
-import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement";
-import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig";
-import { applyExpression } from "./applyExpression";
-import { applyPose } from "./applyPose";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";
+import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
+import { applyExpression } from "./applyExpression.js";
+import { applyPose } from "./applyPose.js";
 
-/** One joint's three solver states, retained in this player's spring map. */
+/**
+ * One joint's three solver states, retained in this player's spring map.
+ *
+ * @author Samchon
+ */
 interface IAxisSprings {
   /** Flexion value and velocity carried between bounded solver updates. */
   flexion: ISpringStep;

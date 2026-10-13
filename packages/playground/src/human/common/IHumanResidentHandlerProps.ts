@@ -1,4 +1,4 @@
-import type { HumanResidentReply } from "./HumanResidentReply";
+import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 
 /**
  * Preparation and reply transport for one resident numerical runtime. Each

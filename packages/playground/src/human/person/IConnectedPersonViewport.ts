@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
-import type { IConnectedBodyConstructionExportResult } from "../body/IConnectedBodyConstructionExportResult";
+import type { IConnectedBodyConstructionExportResult } from "@automovie/human/body/runtime/IConnectedBodyConstructionExportResult";
 import type { IConnectedPersonConstructionPreview } from "./IConnectedPersonConstructionPreview";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 
@@ -40,6 +40,22 @@ export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
 
   /** Release a model that will not be drawn. */
   dispose(model: Model): void;
+
+  /**
+   * Await retirement requests after the synchronous document/model commit.
+   *
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the current person's committed pair across a resource-cleanup failure.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Completes cleanup outside the synchronous person publication callback.
+   */
+  settleRetirements(): Promise<void>;
+
+  /**
+   * Retire viewport resources while leaving its borrowed renderer and connection to their owners.
+   *
+   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ends the person's owned display resources at its actual viewport lifetime boundary.
+   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reports owned GPU retirement without taking the host connection's lifetime.
+   */
+  close(): Promise<void>;
 
   /** Export the static GLB of a person document. */
   export(

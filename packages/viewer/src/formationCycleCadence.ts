@@ -1,7 +1,7 @@
 import type { IAutoMovieFormationCadenceSegment } from "@automovie/engine";
 
-import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence";
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
+import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence.js";
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 
 /**
  * Fold one unit's cue segments into the cycles its members have turned over.

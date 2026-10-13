@@ -11,9 +11,9 @@ import { IAutoMovieHumanFaceChannelScale } from "../structures/IAutoMovieHumanFa
  * The connected editor calls this once per loaded basis and prints the result
  * beside each control. These distances quantify the endpoint's geometric
  * response; they do not turn its dimensionless weight into a named anatomical
- * measurement or establish a physiological editing range. The whole-face
- * fitting studies under `erased-data` use these figures to price
- * a shape weight by the geometry it commits instead of by its raw magnitude.
+ * measurement or establish a physiological editing range. Consumers compare
+ * a channel's geometric endpoint effect rather than treating equal
+ * dimensionless weights as equal displacements.
  *
  * A channel that drives a joint is measured as the builder poses it: its
  * endpoint rows are the rest-space residual, so the figure a reader needs is

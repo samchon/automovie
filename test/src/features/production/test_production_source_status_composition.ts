@@ -19,11 +19,23 @@ const { createAutoMovieProductionSourceStatus } = loadSourceModule<{
     };
     authoringEvidence?: IAutoMovieProductionEvidence;
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
+    runtime?: {
+      listFiles: (root: string) => string[];
+      moduleCache: () => Readonly<Record<string, unknown>>;
+    };
   }): () => IAutoMovieBuildProjectOutput;
 }>(productionModule("createAutoMovieProductionSourceStatus.ts"));
 
-/** A project root that does not exist, so its generated root cannot be listed. */
-const ROOT = path.join(__dirname, "absent-source-status-project");
+/** Logical project identity; all runtime observations come from its owned port. */
+const ROOT = path.join(__dirname, "source-status-project");
+
+/** An unavailable inventory and an empty loader, without filesystem inspection. */
+const runtime = {
+  listFiles: (_root: string): string[] => {
+    throw new Error("The runtime cannot provide its generated inventory.");
+  },
+  moduleCache: (): Readonly<Record<string, unknown>> => ({}),
+};
 
 const GRAPH: IAutoMovieProductionDesignGraph = {
   production: null,
@@ -85,9 +97,9 @@ const countedEvidence = (): {
  * The composed status only reuses what it can read.
  *
  * The composition reads snapshots through the project handle and the builder's
- * own generated-root walk, and judges them against the evidence a compile
+ * own generated inventory port, and judges them against the evidence a compile
  * would read now: the live reader when one is supplied, otherwise the fixed
- * declaration. A builder-owned root that cannot be listed leaves no snapshot,
+ * declaration. An inventory the runtime cannot supply leaves no snapshot,
  * so every call runs the builder's gate and returns its answer.
  *
  * Scenarios:
@@ -121,6 +133,7 @@ export const test_production_source_status_composition = (): void => {
     builder: liveBuilder.builder,
     authoringEvidence: liveFixed.evidence,
     currentAuthoringEvidence: () => liveRead.evidence,
+    runtime,
   });
   const liveAnswers = [liveStatus(), liveStatus()];
 
@@ -130,6 +143,7 @@ export const test_production_source_status_composition = (): void => {
     project: projectOf(),
     builder: fixedBuilder.builder,
     authoringEvidence: fixed.evidence,
+    runtime,
   });
   const fixedAnswers = [fixedStatus(), fixedStatus()];
 

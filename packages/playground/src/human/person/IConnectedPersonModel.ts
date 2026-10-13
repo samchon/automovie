@@ -1,6 +1,6 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 
-import type { IConnectedBodyPreviewResult } from "../body/IConnectedBodyPreviewResult";
+import type { IConnectedBodyPreviewResult } from "@automovie/human/body/runtime/IConnectedBodyPreviewResult";
 
 /**
  * The part of a built person preview the person panel reads: how many

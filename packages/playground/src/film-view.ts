@@ -1,46 +1,32 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
 import {
   HUMANOID_JOINT_AXES,
-  IAutoMovieActorContext,
-  blockBeat,
-  cutSequence,
-  makeActorSynthesizer,
-  performShot,
   resolveSequencePlayback,
-  stageScene,
 } from "@automovie/engine";
 import {
   AutoMovieGuidePass,
-  AutoMoviePrimitiveShape,
-  IAutoMovieBlocking,
-  IAutoMovieModel,
-  IAutoMovieMotion,
-  IAutoMoviePerformance,
-  IAutoMovieScript,
   IAutoMovieShot,
-  IAutoMovieStage,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import { type IAutoMovieSequenceRenderFrame } from "@automovie/render";
 import {
   AutoMoviePlayer,
-  IAutoMovieRenderModeHandle,
   applyCaptureCanvasSize,
   applyObjectMotion,
   applyObjectMotions,
   applyPose,
-  applyRenderMode,
+  renderAutoMovieScenePass,
   applySceneFog,
   assertAutoMovieViewerCameraDepthPrecision,
   buildLight,
   buildModel,
   buildSpaceObject,
   mountViewer,
-  renderCrossDissolve,
+  renderAutoMovieFilmFrame,
+  type IAutoMovieViewerCompletedFrame,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { DEFAULT_STICKMAN, buildStickman } from "./stickman";
+import { compilePursuitFilm } from "./film/compilePursuitFilm";
+import { registerFilmViewerApplication } from "./viewer/registerFilmViewerApplication";
 
 // The film pipeline end to end, on screen: the same tracked TypeScript values
 // a coding agent authors (script → staging → blocking → performance → assemble),
@@ -50,345 +36,13 @@ import { DEFAULT_STICKMAN, buildStickman } from "./stickman";
 // capture-shots.ts bakes the identical film every run.
 
 // ── the coding-agent-authored stage values ──────────────────────────────────
-const script: IAutoMovieScript = {
-  logline: "A pursuer closes the distance; the one waiting never turns.",
-  theme: "inevitability at walking pace",
-  cast: [
-    { node: "walker", character: "the pursuer", modelRef: "stickman" },
-    { node: "waiter", character: "the one who waits", modelRef: "stickman" },
-  ],
-  beats: [
-    {
-      id: "approach",
-      name: "the approach",
-      summary: "the walker crosses the floor toward the waiter's back",
-      durationHint: 3,
-    },
-    {
-      id: "face-off",
-      name: "the face-off",
-      summary: "both hold; the camera circles the waiter",
-      durationHint: 2.5,
-    },
-  ],
-};
+import {script} from "./film/script";
+import {staging} from "./film/staging";
+import {blockings} from "./film/blockings";
+import {performances} from "./film/performances";
 
-const staging: IAutoMovieStage = {
-  scene: { id: "scene-pursuit", name: "the pursuit" },
-  plan: "walker starts 2.95 m behind the waiter, both facing +Z; a 12 × 10 m floor carries the walk, a low wall closes the far side; the camera stands side-on and follows the walker in.",
-  actors: [
-    { node: "walker", position: { x: 0, y: 0, z: -2.4 }, facingDeg: 0 },
-    { node: "waiter", position: { x: 0, y: 0, z: 0.55 }, facingDeg: 0 },
-  ],
-  // Set pieces (#1173): one unit box model resized per placement. The wall,
-  // crate, and physical floor slab are the SAME `block` model at three sizes,
-  // which is the point of `scale`.
-  set: [
-    {
-      node: "floor-slab",
-      model: "block",
-      position: { x: 0, y: -0.05, z: 0 },
-      scale: { x: 12, y: 0.1, z: 10 },
-    },
-    {
-      node: "wall-back",
-      model: "block",
-      position: { x: 0, y: 0.9, z: -4.6 },
-      scale: { x: 12, y: 1.8, z: 0.24 },
-    },
-    {
-      node: "crate",
-      model: "block",
-      position: { x: -1.6, y: 0.25, z: -1.2 },
-      facingDeg: 24,
-      scale: 0.5,
-    },
-  ],
-  // The space is the floor's MEANING: one walkable patch under the whole walk.
-  // `buildSpaceObject` carries it into every structural guide pass but writes no
-  // beauty colour or depth; the explicit slab above is the visible floor.
-  space: {
-    id: "space-pursuit",
-    surfaces: [
-      {
-        id: "floor",
-        kind: "floor",
-        polygon: [
-          { x: -6, y: 0, z: -5 },
-          { x: 6, y: 0, z: -5 },
-          { x: 6, y: 0, z: 5 },
-          { x: -6, y: 0, z: 5 },
-        ],
-        anchor: { x: 0, y: 0, z: 0 },
-        rampTo: null,
-      },
-    ],
-    walkable: ["floor"],
-  },
-  cameras: [
-    {
-      node: "cam-main",
-      position: { x: 2.2, y: 1.4, z: -0.8 },
-      lookAt: { kind: "node", node: "walker" },
-      fovDeg: 40,
-      near: 0.1,
-      far: 1000,
-      depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 0.6 },
-    },
-  ],
-  lights: [
-    {
-      node: "sun",
-      role: "sun",
-      direction: { x: -1, y: -1.4, z: 0.4 },
-      intensity: 1.4,
-    },
-  ],
-};
-
-const blockings: IAutoMovieBlocking[] = [
-  {
-    beat: "approach",
-    analysis: "the distance itself is the drama: the walk must read whole.",
-    rationale:
-      "a medium follow keeps the walker's stride and the shrinking gap in one frame.",
-    actors: [
-      {
-        node: "walker",
-        beats: "walks the 2.25 m to just behind the waiter, eyes on him",
-        anchors: [{ t: 2.8, cue: "the last step lands" }],
-      },
-      { node: "waiter", beats: "stands dead still, facing away" },
-    ],
-    camera: {
-      framing: "full",
-      move: "follow",
-      on: { kind: "node", node: "walker" },
-    },
-    duration: 3,
-  },
-  {
-    beat: "face-off",
-    analysis: "stillness after motion: the circle asks who moves first.",
-    rationale:
-      "an orbiting close-up on the waiter turns his stillness into tension.",
-    actors: [
-      { node: "walker", beats: "holds one pace behind, watching" },
-      { node: "waiter", beats: "holds, jaw set" },
-    ],
-    camera: {
-      framing: "full",
-      move: "orbit",
-      on: { kind: "node", node: "waiter" },
-    },
-    duration: 2.5,
-  },
-];
-
-const performances: IAutoMoviePerformance[] = [
-  {
-    beat: "approach",
-    plan: "one locomote covers the whole beat; the head tracks the waiter; the camera follows.",
-    draft: [
-      {
-        verb: "locomote",
-        actor: "walker",
-        start: 0,
-        duration: 3,
-        gait: "walk",
-        to: { kind: "point", point: { x: 0, y: 0, z: -0.15 } },
-      },
-      {
-        verb: "lookAt",
-        actor: "walker",
-        start: 0,
-        duration: 3,
-        to: { kind: "node", node: "waiter" },
-      },
-      { verb: "hold", actor: "waiter", start: 0, duration: 3 },
-      {
-        verb: "frame",
-        actor: "cam-main",
-        start: 0,
-        duration: "auto",
-        framing: "full",
-        move: "follow",
-        on: { kind: "node", node: "walker" },
-      },
-    ],
-    revise: {
-      review: "stride covers the gap; the follow keeps both in frame.",
-      final: null,
-    },
-    duration: 3,
-  },
-  {
-    beat: "face-off",
-    plan: "both hold; the camera orbits the waiter in close.",
-    draft: [
-      { verb: "hold", actor: "walker", start: 0, duration: 2.5 },
-      {
-        verb: "emote",
-        actor: "waiter",
-        start: 0,
-        duration: 2.5,
-        preset: "angry",
-        intensity: 0.8,
-      },
-      {
-        verb: "frame",
-        actor: "cam-main",
-        start: 0,
-        duration: "auto",
-        framing: "full",
-        move: "orbit",
-        on: { kind: "node", node: "waiter" },
-      },
-    ],
-    revise: {
-      review: "nothing moves but the camera, as blocked.",
-      final: null,
-    },
-    duration: 2.5,
-  },
-];
-
-// ── rigs + the content seam ──────────────────────────────────────────────────
-const walkerRig = buildStickman(DEFAULT_STICKMAN);
-const waiterRig = buildStickman(DEFAULT_STICKMAN);
-const rigOf: Record<string, ReturnType<typeof buildStickman> | undefined> = {
-  walker: walkerRig,
-  waiter: waiterRig,
-};
-/** The rig of a performing node; set pieces have none and never pose. */
-const rigFor = (node: string): ReturnType<typeof buildStickman> => {
-  const rig = rigOf[node];
-  if (rig === undefined) throw new Error(`node "${node}" has no rig`);
-  return rig;
-};
-
-/**
- * The one skeleton-less model every set piece is realised from: a 1 m unit box,
- * resized per placement through the staged node's scale (#1173). One primitive
- * standing in for a wall and a crate is exactly the "rough stages, primitive
- * props" bet: the model registry stays at one entry, staging owns the sizes.
- */
-const UNIT_BOX: AutoMoviePrimitiveShape = {
-  type: "box",
-  width: 1,
-  height: 1,
-  depth: 1,
-};
-const blockModel: IAutoMovieModel = {
-  id: "block",
-  name: "set block",
-  origin: "generated",
-  parts: [
-    {
-      id: "body",
-      name: "body",
-      geometry: { type: "primitive", shape: UNIT_BOX },
-      material: "stone",
-      attachedBone: null,
-      transform: null,
-    },
-  ],
-  skeleton: null,
-  body: null,
-  materials: [
-    {
-      id: "stone",
-      name: "stone",
-      baseColor: { r: 0.72, g: 0.73, b: 0.76, a: 1, hex: null },
-      metallic: 0,
-      roughness: 0.9,
-      emissive: null,
-      opacity: 1,
-      baseColorTexture: null,
-    },
-  ],
-  asset: null,
-};
-/**
- * The model realising one staged node: a set piece's shared block, or the
- * node's own rig. Keyed on the NODE (not the model id) because both actors
- * share the one `stickman` cast `modelRef` while owning separate rigs.
- */
-const modelForNode = (node: { id: string; model: string }): IAutoMovieModel =>
-  node.model === blockModel.id ? blockModel : rigFor(node.id).model;
-
-// The canonical humanoid walk from the engine's gait library: bent knees
-// (neutral-centered so they stay in ROM), contralateral arm swing, already
-// tuned. The demo drops it straight into the actor context; no hand-authoring.
-const WALK = HUMANOID_GAITS.walk;
-
-const staged = stageScene(script, staging);
-if (staged.success !== true) throw new Error("staging failed");
-
-const nodePositions = new Map<string, IAutoMovieVector3>(
-  staged.scene.nodes.map((n) => [n.id, n.transform.translation]),
-);
-// Only the rigged cast gets a motion context; a set piece never performs.
-const actorNodes = staged.scene.nodes.filter((n) => rigOf[n.id] !== undefined);
-const contexts = new Map<string, IAutoMovieActorContext>(
-  actorNodes.map((n) => [
-    n.id,
-    {
-      skeleton: rigFor(n.id).skeleton.id,
-      gaits: [WALK],
-      position: n.transform.translation,
-      speed: 0.75,
-      facingDeg: 0,
-      eyeHeight: 1.45,
-      restPose: {
-        skeleton: rigFor(n.id).skeleton.id,
-        root: null,
-        joints: [],
-      },
-    },
-  ]),
-);
-const synthesize = makeActorSynthesizer(contexts, nodePositions);
-
-// ── the ladder: block → perform → cut ────────────────────────────────────────
-const shots: IAutoMovieShot[] = [];
-const motionsByShot = new Map<string, Record<string, IAutoMovieMotion>>();
-performances.forEach((performance, i) => {
-  const blocked = blockBeat(script, staged, blockings[i]!);
-  if (blocked.success !== true)
-    throw new Error(`blocking failed: ${JSON.stringify(blocked.violations)}`);
-  const performed = performShot({
-    script,
-    staged,
-    performance,
-    synthesize,
-    skeleton: (node) => rigFor(node).skeleton,
-    blocking: blocked.blocking,
-  });
-  if (performed.success !== true)
-    throw new Error(`perform failed: ${JSON.stringify(performed.violations)}`);
-  shots.push(performed.shot);
-  motionsByShot.set(performed.shot.id, performed.motions);
-});
-
-const cut = cutSequence(
-  {
-    sequence: { id: "seq-pursuit", name: "the pursuit" },
-    fps: 30,
-    entries: shots.map((s, i) => ({
-      shot: s.id,
-      trim: null,
-      // dissolve the approach into the face-off close-up (a soft reveal); the
-      // first entry has nothing to transition from.
-      transition:
-        i === 1 ? { kind: "crossDissolve" as const, duration: 0.6 } : null,
-    })),
-    pacing: "the walk dissolves into the face-off close-up.",
-    continuity: "the walker ends where the close-up finds him.",
-  },
-  shots,
-);
-if (cut.success !== true) throw new Error("cut failed");
+const { staged, rigOf, rigFor, modelForNode, shots, motionsByShot, cut } =
+  compilePursuitFilm({ script, staging, blockings, performances });
 
 /**
  * Compiled running time, in seconds, of the two-shot pursuit demonstration.
@@ -544,56 +198,42 @@ const poseShot = (shot: IAutoMovieShot, time: number): void => {
   else applyObjectMotion(shot.cameraMotion, time, () => camera);
 };
 
-// The last manifest frame drawn, so `__afPass` can re-render the SAME frame
-// composition (including a cross-dissolve) under a guide-pass override rather
-// than a plain single-pass render over the incoming-only posed scene (#1250).
+// The last exact source samples are reused when the capture host requests a pass.
 let lastSequenceFrame: SequenceRenderFrameSample | null = null;
+let completedPass: AutoMovieGuidePass = "beauty";
+let completedFrame: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined;
+let completedLayers: { shot: string; time: number; weight: number; pass: AutoMovieGuidePass;
+  camera: { position: number[]; quaternion: number[]; projection: number[]; world: number[] };
+  models: { id: string; name: string; kind: string; world: number[] }[] }[] = [];
 
-// Draw one manifest frame sample. Without a `pass`: on a hard cut it only poses
-// the live shot and returns false (the caller renders single-pass); inside a
-// transition it composites the outgoing tail and the incoming shot itself and
-// returns true. With a `pass` it always renders here (returning true): the cut
-// under the pass override, or the dissolve with the override applied to each
-// half so both shots reach the guide frame (#1250).
-const drawSequenceFrame = (
-  frame: SequenceRenderFrameSample,
-  pass?: AutoMovieGuidePass,
-): boolean => {
+const drawSequenceFrame = (frame: SequenceRenderFrameSample, pass: AutoMovieGuidePass = "beauty", seconds?: number): boolean => {
   lastSequenceFrame = frame;
-  const live = shotById.get(frame.shot)!;
-  const withPass =
-    pass === undefined
-      ? undefined
-      : (render: () => void): void => {
-          // Apply/restore per render so the pose overlay is built from whatever
-          // shot is posed at that moment (the dissolve halves differ).
-          const handle = applyRenderMode(scene, pass);
-          render();
-          handle.restore();
-        };
-  if (frame.blend === null) {
-    poseShot(live, frame.shotTimeSeconds);
-    if (withPass === undefined) return false;
-    withPass(() => renderer.render(scene, camera));
-    return true;
-  }
-  const b = frame.blend;
-  const outgoing = shotById.get(b.shot)!;
-  renderCrossDissolve(
-    renderer,
-    scene,
-    camera,
-    () => poseShot(outgoing, b.shotTimeSeconds),
-    () => poseShot(live, frame.shotTimeSeconds),
-    b.alpha,
-    withPass,
-  );
+  const incoming = {shot:frame.shot,time:frame.shotTimeSeconds,weight:frame.blend===null?1:frame.blend.alpha};
+  const layers = frame.blend===null ? [incoming] : [
+    {shot:frame.blend.shot,time:frame.blend.shotTimeSeconds,weight:1-frame.blend.alpha},incoming,
+  ];
+  completedLayers = [];
+  renderAutoMovieFilmFrame(renderer,layers,pass,(layer,selectedPass)=>{
+    poseShot(shotById.get(layer.shot)!,layer.time);
+    renderAutoMovieScenePass(renderer,scene,camera,staged.scene.environment,selectedPass);
+    const models: { id: string; name: string; kind: string; world: number[] }[] = [];
+    scene.traverseVisible((object) => {
+      if ("isMesh" in object && object.isMesh === true) models.push({ id: object.uuid,
+        name: object.name, kind: object.type, world: object.matrixWorld.toArray() });
+    });
+    completedLayers.push({ ...layer, pass: selectedPass,
+      camera: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(),
+        projection: camera.projectionMatrix.toArray(), world: camera.matrixWorld.toArray() }, models });
+  });
+  completedPass = pass;
+  completedFrame = { scene, camera, pass, facts: { sequence: lastSequenceFrame, layers: completedLayers } };
+  handle.completeFrame(seconds);
   return true;
 };
 
-const drawFrame = (seconds: number): boolean => {
+const drawFrame = (seconds: number, displayedSeconds?: number): boolean => {
   const sample = resolveSequencePlayback(cut.sequence, shots, seconds);
-  if (sample === null) return false;
+  if (sample === null) { completedFrame = undefined; return false; }
   return drawSequenceFrame({
     shot: sample.shot,
     shotTimeSeconds: sample.time,
@@ -605,19 +245,18 @@ const drawFrame = (seconds: number): boolean => {
             shotTimeSeconds: sample.blend.time,
             alpha: sample.blend.alpha,
           },
-  });
+  }, completedPass, displayedSeconds);
 };
 
 const renderSequenceFrame = (frame: SequenceRenderFrameSample): void => {
-  if (!drawSequenceFrame(frame)) renderer.render(scene, camera);
+  drawSequenceFrame(frame);
 };
 
 const renderShotOnly = (sample: SequenceRenderShotSample): void => {
   const shot = shotById.get(sample.shot);
   if (shot === undefined)
     throw new Error(`unknown film shot "${sample.shot}" for sequence probe`);
-  poseShot(shot, sample.shotTimeSeconds);
-  renderer.render(scene, camera);
+  drawSequenceFrame({ shot: shot.id, shotTimeSeconds: sample.shotTimeSeconds, blend: null }, "beauty");
 };
 
 // ── mount + deterministic seek contract (capture-shots.ts) ───────────────────
@@ -647,7 +286,16 @@ const handle = mountViewer(
   },
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
   // guide passes read back crisp and byte-stable across hosts.
-  capMode ? { antialias: false, pixelRatio: 1 } : undefined,
+  { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
+    completedFrame: () => completedFrame,
+    redrawCompleted: () => {
+      if (lastSequenceFrame !== null) drawSequenceFrame(lastSequenceFrame, completedPass);
+      else {
+        renderAutoMovieScenePass(renderer, scene, camera, staged.scene.environment, completedPass);
+        completedFrame = { scene, camera, pass: completedPass };
+        handle.completeFrame();
+      }
+    } },
 );
 const renderer = handle.renderer;
 const cameraDepthPrecision = assertAutoMovieViewerCameraDepthPrecision({
@@ -656,31 +304,28 @@ const cameraDepthPrecision = assertAutoMovieViewerCameraDepthPrecision({
   realized: camera,
 });
 const draw = (t: number): void => {
-  if (!drawFrame(t)) renderer.render(scene, camera);
+  if (!drawFrame(t, t)) {
+    renderer.render(scene, camera);
+    completedPass = "beauty";
+    completedFrame = { scene, camera, pass: completedPass };
+    handle.completeFrame(t);
+  }
 };
 if (freezeAt !== null && Number.isFinite(freezeAt)) draw(freezeAt);
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => draw(t);
-// `__afPass` switches the guide pass a capturer screenshots (#1165): re-render
-// the LAST seeked frame's composition under the requested pass, so one seek
-// yields every pass of that frame. Re-composing the frame (rather than a plain
-// single-pass render over the posed scene) is what carries a cross-dissolve
-// into the guide passes. Otherwise a transition frame's passes, and its beauty
-// frame, showed only the incoming shot (#1250). The frame drives its own
-// apply/restore, so no override lingers across passes.
-let passHandle: IAutoMovieRenderModeHandle | null = null;
+// Capture guide requests draw the same samples through the dominant-layer owner.
 (
   window as unknown as { __afPass: (pass: AutoMovieGuidePass) => void }
 ).__afPass = (pass: AutoMovieGuidePass): void => {
-  passHandle?.restore();
-  passHandle = null;
   if (lastSequenceFrame !== null) drawSequenceFrame(lastSequenceFrame, pass);
   else {
-    // No frame recorded yet (a freeze that resolved to no sample): fall back to
-    // a single-pass override of the current scene.
-    passHandle = applyRenderMode(scene, pass);
-    renderer.render(scene, camera);
+    // A guide requested before any seek still closes its own reversible pass.
+    renderAutoMovieScenePass(renderer,scene,camera,staged.scene.environment,pass);
+    completedPass = pass;
+    completedFrame = { scene, camera, pass };
+    handle.completeFrame();
   }
 };
 (
@@ -693,6 +338,19 @@ let passHandle: IAutoMovieRenderModeHandle | null = null;
     __afSeekSequenceShot: (sample: SequenceRenderShotSample) => void;
   }
 ).__afSeekSequenceShot = renderShotOnly;
+registerFilmViewerApplication({
+  capture: () => ({ frame: lastSequenceFrame, pass: completedPass }),
+  shots: new Set(shotById.keys()),
+  restore: (frame, pass) => {
+    if (frame !== null) drawSequenceFrame(frame, pass);
+    else {
+      renderAutoMovieScenePass(renderer, scene, camera, staged.scene.environment, pass);
+      completedPass = pass;
+      completedFrame = { scene, camera, pass };
+      handle.completeFrame();
+    }
+  },
+});
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,
   duration: FILM_DURATION,
