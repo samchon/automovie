@@ -4,6 +4,8 @@ import { createAutoMovieResourceRetirement } from "../../../createAutoMovieResou
 import { reportAutoMovieResourceRetirement } from "../../../reportAutoMovieResourceRetirement.js";
 import type { HumanObservationPass } from "./HumanObservationPass.js";
 import type { HumanObservationView } from "./HumanObservationView.js";
+import type { IHumanObservationHooks } from "./IHumanObservationHooks.js";
+import { HumanObservationOutlineMesh } from "./HumanObservationOutlineMesh.js";
 import { createHumanObservationAlbedoPass } from "./createHumanObservationAlbedoPass.js";
 import { getHumanObservationBounds } from "./getHumanObservationBounds.js";
 import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefinition.js";
@@ -11,9 +13,9 @@ import { isHumanObservationAuxiliary } from "./isHumanObservationAuxiliary.js";
 import { placeHumanObservationCamera } from "./placeHumanObservationCamera.js";
 
 /** Width of the outline pass rim on screen, CSS pixels. */
-const RIM_PIXELS = 2;
+const RIM_PIXELS: number = 2;
 /** Distance used before any subject is displayed, metres. */
-const FALLBACK_DISTANCE = 0.65;
+const FALLBACK_DISTANCE: number = 0.65;
 
 /**
  * The review hooks of one human viewport: exact camera placement, named
@@ -58,6 +60,14 @@ const FALLBACK_DISTANCE = 0.65;
  * @param host.height Height of the drawing surface in CSS pixels, which sets the outline's width.
  * @param host.invalidateShadows Notify the viewport when its cached caster display changes.
  * @param host.invalidateDisplay Notify the owning completion producer after explicit camera, pass or visibility changes.
+ *
+ * @evidence contracts/common.md#principled-implementation Current root meshes and posed world bounds drive canonical camera framing and inspection passes; exact look restores Cartesian values after native orbit synchronization. Finite valid camera/sphere inputs remain caller premises.
+ * @evidence contracts/common.md#clear-and-simple-design One display owner tracks requested pass/isolation/hiding, borrowing numerical geometry/camera/orbit while helpers own canonical view, bounds and albedo material rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown names refuse before requested state changes and source-hidden meshes remain hidden. Visual-only outline shells implement Three's raycast dispatch in their own Mesh subclass without replacing acquired foreign methods, changing layers or altering render values. These calculations supply no raster observation or physiological acceptance.
+ * @evidence contracts/common.md#meaningful-documentation Documents metre/degree framing, root-versus-companion scope, deferred apply/finish, synchronous borrowed-state withdrawal and independently awaited owned material retirement.
+ * @evidence contracts/performance.md#efficient-algorithms Mesh collection traverses reached scene nodes and framing samples posed vertices; restoration and shown-population membership use identity Sets rather than repeated array scans. Temporary material/hull work follows changed root population, while native posed/instanced bounds remain their owner's cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Fixed pass materials and canonical view/bounds helpers are shared; mutable root/transform state is reread. Close shares one completion/cause and departed roots restore their own borrowed state without resetting still-shown outline ownership.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns six fixed pass materials plus albedo replacements and input-sized hull/swapped/hidden maps until restoration/close, without a count cap. Close first restores borrowed visibility/material/override synchronously and independently retires owned materials; geometry/source textures/clay/GPU context remain borrowed.
  */
 export function createHumanObservation(host: {
   scene: THREE.Scene;
@@ -76,21 +86,28 @@ export function createHumanObservation(host: {
   invalidateShadows?: () => void;
   /** Notify the display owner after an explicit view, pass or visibility request. */
   invalidateDisplay?: () => void;
-}) {
-  const { camera, orbit } = host;
-  const originalOverride = host.scene.overrideMaterial;
-  let closed = false;
-  const requireOpen = (): void => {
+}): {
+  hooks: IHumanObservationHooks;
+  close: () => Promise<void>;
+  settleRetirements: () => Promise<void>;
+  restore: () => void;
+  override: (clayEnabled: boolean) => THREE.Material | null;
+  apply: () => void;
+} {
+  const { camera, orbit }: Pick<typeof host, "camera" | "orbit"> = host;
+  const originalOverride: THREE.Material | null = host.scene.overrideMaterial;
+  let closed: boolean = false;
+  const requireOpen: () => void = (): void => {
     if (closed) throw new Error("This observation owner has been closed.");
   };
   let pass: HumanObservationPass = "beauty";
   let isolated: Set<string> | null = null;
-  const hidden = new Set<string>();
+  const hidden: Set<string> = new Set<string>();
   // the meshes this stage hid, so that it restores only those and never
   // shows a mesh something else hid
-  const hiddenByUs = new Set<THREE.Mesh>();
+  const hiddenByUs: Set<THREE.Mesh> = new Set<THREE.Mesh>();
   // nothing is written to the scene until a hook is used
-  let engaged = false;
+  let engaged: boolean = false;
   const materials: Record<
     Exclude<HumanObservationPass, "beauty" | "clay" | "outline" | "albedo">,
     THREE.Material
@@ -126,13 +143,13 @@ void main() {
   };
   // the outline pass swaps each mesh's own material for this white one, since
   // a scene-wide override would repaint the rim as well
-  const white = new THREE.MeshBasicMaterial(
+  const white: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial(
     getHumanObservationPassDefinition("outline").parameters,
   );
-  const albedo = createHumanObservationAlbedoPass();
-  const swapped = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
+  const albedo: ReturnType<typeof createHumanObservationAlbedoPass> = createHumanObservationAlbedoPass();
+  const swapped: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   // the silhouette rim is the back faces pushed out along their normals
-  const rim = new THREE.ShaderMaterial({
+  const rim: THREE.ShaderMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: { thickness: { value: 0 } },
     vertexShader: `uniform float thickness;
@@ -142,14 +159,14 @@ void main() {
 }`,
     fragmentShader: "void main() { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); }",
   });
-  const hulls = new Map<THREE.Mesh, THREE.Mesh>();
-  const ownedMaterials = new Set([...Object.values(materials), white, rim]);
+  const hulls: Map<THREE.Mesh, THREE.Mesh> = new Map<THREE.Mesh, THREE.Mesh>();
+  const ownedMaterials: Set<THREE.Material> = new Set([...Object.values(materials), white, rim]);
 
-  const meshes = (): THREE.Mesh[] => {
-    const found = new Set<THREE.Mesh>();
+  const meshes: () => THREE.Mesh[] = (): THREE.Mesh[] => {
+    const found: Set<THREE.Mesh> = new Set<THREE.Mesh>();
     for (const root of host.roots())
-      root.traverse((object) => {
-        const mesh = object as THREE.Mesh;
+      root.traverse((object: THREE.Object3D) : void => {
+        const mesh: THREE.Mesh = object as THREE.Mesh;
         if (
           mesh.isMesh === true &&
           !isHull(mesh) &&
@@ -159,19 +176,19 @@ void main() {
       });
     return [...found];
   };
-  const isHull = (mesh: THREE.Mesh): boolean => mesh.material === rim;
-  const subject = (): { center: THREE.Vector3; radius: number } | null => {
-    const box = getHumanObservationBounds(meshes());
+  const isHull: (mesh: THREE.Mesh) => boolean = (mesh: THREE.Mesh): boolean => mesh.material === rim;
+  const subject: () => { center: THREE.Vector3; radius: number } | null = (): { center: THREE.Vector3; radius: number } | null => {
+    const box: THREE.Box3 = getHumanObservationBounds(meshes());
     if (box.isEmpty()) return null;
-    const sphere = box.getBoundingSphere(new THREE.Sphere());
+    const sphere: THREE.Sphere = box.getBoundingSphere(new THREE.Sphere());
     return { center: sphere.center, radius: sphere.radius };
   };
-  const fitDistance = (radius: number, fov = camera.fov): number => {
-    const vertical = THREE.MathUtils.degToRad(fov / 2);
-    const horizontal = Math.atan(Math.tan(vertical) * camera.aspect);
+  const fitDistance: (radius: number, fov?: number) => number = (radius: number, fov: number = camera.fov): number => {
+    const vertical: number = THREE.MathUtils.degToRad(fov / 2);
+    const horizontal: number = Math.atan(Math.tan(vertical) * camera.aspect);
     return (1.1 * radius) / Math.sin(Math.min(vertical, horizontal));
   };
-  const place = (view: {
+  const place: IHumanObservationHooks["look"] = (view: {
     position: readonly [number, number, number];
     target: readonly [number, number, number];
     fov: number;
@@ -194,42 +211,45 @@ void main() {
     host.invalidateDisplay?.();
   };
 
-  const unmatched = (ids: readonly string[] | null): string[] => {
-    const names = new Set(meshes().map((mesh) => mesh.name));
-    return (ids ?? []).filter((id) => !names.has(id));
+  const unmatched: (ids: readonly string[] | null) => string[] = (ids: readonly string[] | null): string[] => {
+    const names: Set<string> = new Set(meshes().map((mesh: THREE.Mesh) : string => mesh.name));
+    return (ids ?? []).filter((id: string) : boolean => !names.has(id));
   };
-  const restoreOutline = (
+  const restoreOutline: (selected?: readonly THREE.Mesh[]) => void = (
     selected: readonly THREE.Mesh[] = [...new Set([...swapped.keys(), ...hulls.keys()])],
-  ): void => reportAutoMovieResourceRetirement([
-    ...[...swapped].filter(([mesh]) => selected.includes(mesh)).map(([mesh, own]) => () => {
+  ): void => {
+    const selectedMeshes: Set<THREE.Mesh> = new Set(selected);
+    reportAutoMovieResourceRetirement([
+    ...[...swapped].filter(([mesh]: [THREE.Mesh, THREE.Material | THREE.Material[]]) : boolean => selectedMeshes.has(mesh)).map(([mesh, own]: [THREE.Mesh, THREE.Material | THREE.Material[]]) : () => void => () : void => {
       mesh.material = own;
       swapped.delete(mesh);
     }),
-    ...[...hulls].filter(([mesh]) => selected.includes(mesh)).map(([mesh, hull]) => () => {
+    ...[...hulls].filter(([mesh]: [THREE.Mesh, THREE.Mesh]) : boolean => selectedMeshes.has(mesh)).map(([mesh, hull]: [THREE.Mesh, THREE.Mesh]) : () => void => () : void => {
       hull.removeFromParent();
       hulls.delete(mesh);
     }),
+    ]);
+  };
+  const restoreMaterials: () => void = (): void => reportAutoMovieResourceRetirement([
+    () : void => albedo.clear(), restoreOutline,
   ]);
-  const restoreMaterials = (): void => reportAutoMovieResourceRetirement([
-    () => albedo.clear(), restoreOutline,
-  ]);
-  const restoreHidden = (selected: readonly THREE.Mesh[] = [...hiddenByUs]): void => reportAutoMovieResourceRetirement(
-    selected.map((mesh) => () => { mesh.visible = true; hiddenByUs.delete(mesh); }),
+  const restoreHidden: (selected?: readonly THREE.Mesh[]) => void = (selected: readonly THREE.Mesh[] = [...hiddenByUs]): void => reportAutoMovieResourceRetirement(
+    selected.map((mesh: THREE.Mesh) : () => void => () : void => { mesh.visible = true; hiddenByUs.delete(mesh); }),
   );
   const withdrawalFailures: unknown[] = [];
-  const retirement = createAutoMovieResourceRetirement([
-    () => reportAutoMovieResourceRetirement(withdrawalFailures.map((error) => () => { throw error; })),
-    () => albedo.close(),
-    ...[...ownedMaterials].map((material) => () => material.dispose()),
+  const retirement: () => Promise<void> = createAutoMovieResourceRetirement([
+    () : void => reportAutoMovieResourceRetirement(withdrawalFailures.map((error: unknown) : () => void => () : void => { throw error; })),
+    (): Promise<void> => albedo.close(),
+    ...[...ownedMaterials].map((material: THREE.Material) : () => void => () : void => material.dispose()),
   ]);
-  const close = (): Promise<void> => {
-    const completion = retirement();
+  const close: () => Promise<void> = (): Promise<void> => {
+    const completion: Promise<void> = retirement();
     if (!closed) {
       closed = true;
       try {
         reportAutoMovieResourceRetirement([
-          () => albedo.restoreBorrowed(), restoreOutline, restoreHidden,
-          () => {
+          () : void => albedo.restoreBorrowed(), restoreOutline, restoreHidden,
+          () : void => {
             if (host.scene.overrideMaterial !== null && ownedMaterials.has(host.scene.overrideMaterial))
               host.scene.overrideMaterial = originalOverride;
           },
@@ -238,9 +258,9 @@ void main() {
     }
     return completion;
   };
-  const hooks = {
+  const hooks: IHumanObservationHooks = {
     /** Actual display camera and orbit target in metres, with vertical field of view in degrees. */
-    camera: () => ({
+    camera: () : ReturnType<IHumanObservationHooks["camera"]> => ({
       position: camera.position.toArray(),
       target: orbit.target.toArray(),
       fov: camera.fov,
@@ -264,11 +284,11 @@ void main() {
       name: HumanObservationView,
       options: { distance?: number; fov?: number; pitch?: number } = {},
     ): void => {
-      const seen = subject();
-      const fov = options.fov ?? camera.fov;
+      const seen: { center: THREE.Vector3; radius: number } | null = subject();
+      const fov: number = options.fov ?? camera.fov;
       const center: [number, number, number] =
         seen === null ? [0, 0, 0] : seen.center.toArray();
-      const distance =
+      const distance: number =
         options.distance ??
         (seen === null ? FALLBACK_DISTANCE : fitDistance(seen.radius, fov));
       place({
@@ -291,7 +311,7 @@ void main() {
       fov?: number;
       pitch?: number;
     }): void => {
-      const fov = region.fov ?? camera.fov;
+      const fov: number = region.fov ?? camera.fov;
       place({
         ...placeHumanObservationCamera(
           region.view ?? "front",
@@ -306,27 +326,31 @@ void main() {
     /**
      * Show only the named parts, or every part this stage hid again with
      * `null`. Returns the names no displayed part carries, so a misspelled
-     * name shows as an unmatched entry and not as a blank frame.
+     * name refuses before changing the prior selection or display state.
      */
     isolate: (ids: readonly string[] | null): string[] => {
       requireOpen();
+      const missing: string[] = unmatched(ids);
+      if (missing.length !== 0) return missing;
       engaged = true;
       isolated = ids === null ? null : new Set(ids);
       host.invalidateDisplay?.();
-      return unmatched(ids);
+      return missing;
     },
 
     /**
      * Hide the named parts, or show every part this stage hid again with
-     * `null`. Returns the names no displayed part carries.
+     * `null`. Unknown names refuse before changing the prior selection.
      */
     hide: (ids: readonly string[] | null): string[] => {
       requireOpen();
+      const missing: string[] = unmatched(ids);
+      if (missing.length !== 0) return missing;
       engaged = true;
       hidden.clear();
       for (const id of ids ?? []) hidden.add(id);
       host.invalidateDisplay?.();
-      return unmatched(ids);
+      return missing;
     },
 
     /** Choose how the subject is drawn; `beauty` restores the product frame. */
@@ -340,7 +364,7 @@ void main() {
     },
 
     /** The names of the displayed parts, in scene order. */
-    parts: (): string[] => meshes().map((mesh) => mesh.name),
+    parts: (): string[] => meshes().map((mesh: THREE.Mesh) : string => mesh.name),
 
     /** The current display state of the hooks. */
     state: (): {
@@ -380,21 +404,22 @@ void main() {
     apply: (): void => {
       requireOpen();
       if (!engaged) return;
-      const shown = meshes();
-      const outlineRestore = [...new Set([...swapped.keys(), ...hulls.keys()])]
-        .filter((mesh) => pass !== "outline" || !shown.includes(mesh));
-      const hiddenRestore = [...hiddenByUs].filter((mesh) => !shown.includes(mesh));
+      const shown: THREE.Mesh[] = meshes();
+      const shownMeshes: Set<THREE.Mesh> = new Set(shown);
+      const outlineRestore: THREE.Mesh[] = [...new Set([...swapped.keys(), ...hulls.keys()])]
+        .filter((mesh: THREE.Mesh) : boolean => pass !== "outline" || !shownMeshes.has(mesh));
+      const hiddenRestore: THREE.Mesh[] = [...hiddenByUs].filter((mesh: THREE.Mesh) : boolean => !shownMeshes.has(mesh));
       reportAutoMovieResourceRetirement([
-        () => { if (pass !== "albedo") albedo.clear(); },
-        () => restoreOutline(outlineRestore),
-        () => restoreHidden(hiddenRestore),
+        () : void => { if (pass !== "albedo") albedo.clear(); },
+        () : void => restoreOutline(outlineRestore),
+        () : void => restoreHidden(hiddenRestore),
       ]);
       requireOpen();
       // Admission precedes visibility mutation so a refused new group remains intact.
       if (pass === "albedo") albedo.apply(shown);
       requireOpen();
       for (const mesh of shown) {
-        const wanted =
+        const wanted: boolean =
           (isolated === null || isolated.has(mesh.name)) &&
           !hidden.has(mesh.name);
         if (!wanted && mesh.visible) {
@@ -407,10 +432,10 @@ void main() {
           host.invalidateShadows?.();
         }
       }
-      const seen = pass === "depth" || pass === "outline" ? subject() : null;
+      const seen: { center: THREE.Vector3; radius: number } | null = pass === "depth" || pass === "outline" ? subject() : null;
       if (pass === "depth" && seen !== null) {
-        const distance = camera.position.distanceTo(seen.center);
-        const uniforms = (materials.depth as THREE.ShaderMaterial).uniforms;
+        const distance: number = camera.position.distanceTo(seen.center);
+        const uniforms: THREE.ShaderMaterial["uniforms"] = (materials.depth as THREE.ShaderMaterial).uniforms;
         uniforms.near.value = Math.max(0, distance - seen.radius);
         uniforms.far.value = distance + seen.radius;
       }
@@ -433,10 +458,9 @@ void main() {
           swapped.set(mesh, mesh.material);
           mesh.material = white;
         }
-        let hull = hulls.get(mesh);
+        let hull: THREE.Mesh | undefined = hulls.get(mesh);
         if (hull === undefined) {
-          hull = new THREE.Mesh(mesh.geometry, rim);
-          hull.raycast = () => {};
+          hull = new HumanObservationOutlineMesh(mesh.geometry, rim);
           hulls.set(mesh, hull);
           mesh.add(hull);
         }

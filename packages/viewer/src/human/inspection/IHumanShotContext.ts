@@ -1,6 +1,13 @@
 /**
- * What every `human-shot` step reads: the request, the viewer port and the
- * paths of this checkout's records and outputs.
+ * What every `human-shot` step reads: the request, the viewer port and the paths of this checkout's records and outputs.
+ *
+ * @evidence contracts/common.md#principled-implementation The human-shot client carries parsed request fields and resolved checkout/storage/loopback paths to its existing control and capture steps.
+ * @evidence contracts/common.md#clear-and-simple-design One context keeps port, ownership record and append-only launch log coherent across probe, start, stop and capture operations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unanswered port does not authorize killing or launching over it; probeMs only bounds one health request, not numerical or GPU work.
+ * @evidence contracts/common.md#meaningful-documentation Names mutable storage, record/log paths, output default and health timeout milliseconds; process ownership still requires creation-stamp checks.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no IO; individual client steps own network probes, process queries and capture byte writes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The command shares resolved path/port configuration across its steps while each health probe reads current listener authority.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The client owns this request context; strings retain no native process/browser handles, and capture output bytes belong to the write operation.
  *
  * @author Samchon
  */

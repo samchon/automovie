@@ -1,17 +1,15 @@
 import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput.js";
 
 /**
- * One preview request from the resident page to the numerical worker.
+ * One correlated preview, construction, export or admission request from the resident page to its checked numerical realm. The basis token names published, candidate-packet or paired-view byte authority, with displayed digest portions shortened to twelve hex characters. The source route checks the selected bytes before the numerical owner uses them.
  *
- * `basis` names the file the runtime is built from, always with its digest:
- * `published@<d12>` is the domain's published basis (`published@<face12>.<body12>`
- * for a person on the two published bases), `published-generation@<head12>.<body12>`
- * the published one-skin generation's head and body files,
- * `published-generation-body@<body12>` a body document on that generation's
- * body view file, `candidate-generation:<name>@<head12>.<body12>` an input's
- * separate typed head/body views, and any other
- * `<name>@<digest12>` a candidate dropped beside a hand-written document (for a
- * person, one packet: a face/body basis pair or a one-skin source generation).
+ * @evidence contracts/common.md#principled-implementation Binds one original domain operation/document to an actual basis token and optional preview persistence key/frame authority.
+ * @evidence contracts/common.md#clear-and-simple-design Separates correlation, numerical input and cache-write authorization from host initialization and transport readiness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Basis tokens display truncated digest portions and are not collision-impossibility proof; routes check current owner bytes and domain admission remains separate.
+ * @evidence contracts/common.md#meaningful-documentation Documents supported published/candidate packet/view tokens and optional cache authority; requests include admission/construction/export as well as preview.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no fetch/build; numerical source owners resolve basis bytes and product owners pay document/model costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Preview reuse requires equivalent selected JSON, basis/source key and AO mode; construct/export bypass preview cache and replies remain individually correlated.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The transport retains requests until actual reply/retirement, with no count/byte cap enforced by this interface or native handle embedded.
  *
  * @author Samchon
  */

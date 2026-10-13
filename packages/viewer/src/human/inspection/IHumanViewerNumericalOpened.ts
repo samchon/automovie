@@ -1,6 +1,14 @@
 /**
  * One owned Node session, retired when its event transport closes.
  *
+ * @evidence contracts/common.md#principled-implementation Announces the host-generated session token before checked readiness so posts and retirement target the same owned process.
+ * @evidence contracts/common.md#clear-and-simple-design Separates transport opening identity from loaded source authority and numerical result messages.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An opened session is not checked-ready; readiness before this correlation token is explicitly refused by the endpoint.
+ * @evidence contracts/common.md#meaningful-documentation Documents the opened discriminator and opaque random token without treating it as source or document digest.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no dispatch; the host creates one UUID and the endpoint stores one session string.
+ * @evidence contracts/performance.md#reuse-equivalent-work Concurrent posts share readiness under this session, not any earlier endpoint token or equal request label.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The token lives with its event stream/endpoint until terminal retirement; the server owns process termination and live/retiring maps.
+ *
  * @author Samchon
  */
 export interface IHumanViewerNumericalOpened {
