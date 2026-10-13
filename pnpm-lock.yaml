@@ -175,24 +175,6 @@ importers:
         specifier: catalog:typescript
         version: 7.0.2
 
-  docs:
-    devDependencies:
-      '@ttsc/evidence':
-        specifier: catalog:samchon
-        version: 0.30.4(@ttsc/lint@0.30.4)
-      '@ttsc/lint':
-        specifier: catalog:samchon
-        version: 0.30.4
-      '@wrtnlabs/evidence':
-        specifier: catalog:samchon
-        version: 0.5.0(ttsc@0.30.4)(typescript@7.0.2)
-      ttsc:
-        specifier: catalog:samchon
-        version: 0.30.4
-      typescript:
-        specifier: catalog:typescript
-        version: 7.0.2
-
   experimental/ancient-civic-temple:
     dependencies:
       '@automovie/archetypes':
@@ -613,15 +595,9 @@ importers:
         specifier: catalog:samchon
         version: 15.1.0(ttsc@0.30.4)
     devDependencies:
-      '@ttsc/evidence':
-        specifier: catalog:samchon
-        version: 0.30.4(@ttsc/lint@0.30.4)
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.30.4
-      '@wrtnlabs/evidence':
-        specifier: catalog:samchon
-        version: 0.5.0(ttsc@0.30.4)(typescript@7.0.2)
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
