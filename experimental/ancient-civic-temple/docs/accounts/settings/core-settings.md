@@ -1,49 +1,49 @@
-# 설정 population의 소유와 일관성
+# Ownership and consistency of the settings population
 
-## 독립 사실의 주소 {#canonical-addresses}
+## Addresses of independent facts {#canonical-addresses}
 
 <!--
-@evidence obligations/core/settings.md#addressable-canon 방 기능과 물체 형상을 30-interiors/35-objects로 나누고 대지·먼 지형, 운영 접근·접근성·관찰 프레임, 실행 권한·커밋 절차를 각각 별도 H2로 읽었다. 표는 그 소유를 연결하며 별도 사실을 표 속에 숨기지 않는다.
+@evidence obligations/core/settings.md#addressable-canon Room functions and object forms were read separately in 30-interiors/35-objects, with separate H2s for site/distant terrain, operator access/accessibility/review frames, and execution authority/commit procedure. The table links these owners without hiding independent facts inside it.
 -->
 
 <!--
 -->
 
-제실의 공간 역할은 [sanctuary](../../settings/30-interiors.md#sanctuary), 제단의 물체 비례는 [altar](../../settings/35-objects.md#altar)다. 두 소유는 접근 여백과 물체 크기를 서로 참조하고 같은 치수를 복사하지 않는다. 업무방에서 쓰는 책상과 스툴은 하나의 [작업 집기 관계](../../settings/35-objects.md#workstation)를 가지며 관리실의 작성과 기록실의 열람 역할은 각 방이 따로 소유한다. 건물의 [사용 포락](../../settings/10-building.md#use-profile)과 [바닥 단차](../../settings/10-building.md#ground-access), [국소 대지](../../settings/40-environment.md#site)와 [먼 지형](../../settings/40-environment.md#distant-terrain)은 서로 다른 결정 조건이다. 00-delivery의 소유 지도·작동 주체 표·제작 대상 표는 이 주소들을 분류하며 새 물체 형상이나 방 규칙의 유일한 거처가 아니다. 50-production은 reference 권위·표현 수준·CJS·GPU·실행·판정·계측·Git 절차의 독립 변경을 각각 주소로 노출한다.
+The sanctuary's spatial role belongs to [sanctuary](../../settings/30-interiors.md#sanctuary), and the altar's object proportions belong to [altar](../../settings/35-objects.md#altar). The two owners reference access margins and object size without copying the same dimensions. Desks and stools used in the workrooms share one [workstation relationship](../../settings/35-objects.md#workstation), while the administration room's writing role and the records room's reading role belong to their respective rooms. The building's [use envelope](../../settings/10-building.md#use-profile) and [floor level changes](../../settings/10-building.md#ground-access), and its [local site](../../settings/40-environment.md#site) and [distant terrain](../../settings/40-environment.md#distant-terrain), have different decision conditions. The ownership map, operative-subject table and production-subject table in 00-delivery classify these addresses; they are not the sole home of new object forms or room rules. 50-production exposes independent changes to reference authority, fidelity, CJS, GPU, execution, acceptance, measurement and Git procedure through separate addresses.
 
-## 건물 전체의 시각 규칙 {#visual-system}
+## Building-wide visual rules {#visual-system}
 
 <!--
-@evidence obligations/core/settings.md#production-visual-grammar 외피의 낮은 날개/높은 제실 박공과 공통 팔레트를 실내 용도·물체 크기·낮 조명에 대조했다. 분수/신상 예외는 방 소유에서 해결하고 배경은 신전과 하늘을 분리하는 보조 역할로 제한된다.
+@evidence obligations/core/settings.md#production-visual-grammar Low wings, the high sanctuary gable and the common exterior palette were compared with interior uses, object sizes and daylight. Fountain/statue exceptions are resolved by their room owners, and the background is restricted to supporting separation of temple and sky.
 -->
 
 <!--
 -->
 
-10-building의 단층·한 중정·직사각 관계 위에 20-envelope가 낮은 기와 날개와 높은 후면 박공, 두꺼운 입구·석주·목재 보를 얹는 시각 규칙을 정한다. 같은 파일의 황토 회벽·밝은 돌·어두운 목재는 35-objects의 제단·책상·도기에서 유지된다. 적갈색 띠는 중정/제실에 있고 업무방에는 밝은 회벽을 둔다는 예외가 분명하다. 30-interiors의 낮은 원형 분수는 image 04의 잔형으로 바뀌지 않고 인체 신상은 무문양 감실·용기로 대체된다. 주광은 40-environment의 맑고 건조한 낮으로 공통이며 등잔은 30-interiors에서 꺼져 있다. 배경의 낮은 건물·수관·능선은 이 건물의 박공·포치·출입구를 가리지 않는다. 생성 그림이나 파생 rendition은 선택하지 않았으므로 별도 prompt·generator가 이 규칙을 다시 결정하지 않는다.
+Over the single-storey, one-courtyard rectangular relationships in 10-building, 20-envelope establishes the visual rules of low tiled wings, a high rear gable, a thick entrance, stone columns and timber beams. Ochre plaster, light stone and dark wood from the same file continue through the altar, desks and pottery in 35-objects. The exception is explicit: a reddish-brown band belongs in the courtyard/sanctuary, while workrooms use light plaster. The low circular fountain in 30-interiors does not become the chalice form in image 04, and the human-form cult statue is replaced by an undecorated niche and vessel. Daylight follows the clear, dry day in 40-environment throughout, and lamps are unlit in 30-interiors. Low background buildings, tree crowns and ridges do not hide this building's gable, porch or entrances. No generated image or derived rendition was selected, so no separate prompt/generator redecides these rules.
 
-## 암묵값으로 남기지 않은 사실 {#defaults-boundary}
+## Facts not left implicit {#defaults-boundary}
 
 <!--
-@evidence obligations/core/settings.md#minimal-departure 고대라는 명칭으로 비워 두기 쉬운 주광·문 열림·수위·등잔·문서 내용·사용 포락을 실제 소유에서 확정했다. 연대·신격·실물 배관·인물은 암묵 복원 대상이 아니라 명시적 제외다.
+@evidence obligations/core/settings.md#minimal-departure Daylight, door opening, water level, lamps, document content and use envelopes, which an ancient label could leave unstated, are settled by their actual owners. Period, deity, real plumbing and characters are explicit exclusions rather than implicit restoration tasks.
 -->
 
 <!--
 -->
 
-이 신전은 알려진 유적의 기본값에 의존하지 않는다. [시민 정체성](../../settings/10-building.md#civic-identity)은 특정 연대·신격을 제외하고, [개구부](../../settings/20-envelope.md#openings)는 열린 기본 상태와 유리 없는 작은 채광구를 정한다. [설비](../../settings/30-interiors.md#services)는 고정 수위·노즐 표시·꺼진 등잔·음향 부재를 정해 실제 수리망을 추정할 필요가 없게 한다. [문서](../../settings/35-objects.md#scrolls)는 읽히는 본문과 가짜 역사 문구를 두지 않으며, [이용 조건](../../settings/10-building.md#use-profile)은 인간 평균치 대신 저작 포락과 제외 사용을 밝힌다. 관찰에 결과를 주지 않는 실제 사회제도나 건물 밖 생활사는 새 설정으로 확장하지 않는다. 이 제외를 이후 편의에 따라 되돌려 필요한 설비·인물을 무단 도입할 수 없다.
+This temple does not rely on defaults from a known archaeological site. [Civic identity](../../settings/10-building.md#civic-identity) excludes a specific period/deity, and [openings](../../settings/20-envelope.md#openings) establish the default open state and small unglazed light openings. [Services](../../settings/30-interiors.md#services) establish a fixed water level, nozzle indication, unlit lamps and absent sound so no actual hydraulic network needs to be inferred. [Documents](../../settings/35-objects.md#scrolls) contain no readable body text or invented historical wording, and [use conditions](../../settings/10-building.md#use-profile) state authored envelopes and excluded uses instead of human averages. Actual social institutions or life outside the building that do not affect observation are not expanded into new settings. Later convenience cannot reverse these exclusions to introduce unauthorized services or characters.
 
-## 설정 사이의 양립 조건 {#coherence}
+## Compatibility among settings {#coherence}
 
 <!--
-@evidence obligations/core/settings.md#internal-coherence 좌표/면적/단차/사용 포락과 물체 범위를 비교하고 국소 대지와 먼 배경, 방 역할과 설비 상태, CJS 전달과 GPU 판정의 서로 다른 책임을 아래에 대조했다. 수치 양립은 허용 범위의 검사이며 아직 없는 평면·렌더의 통과 주장이 아니다.
+@evidence obligations/core/settings.md#internal-coherence Coordinates, area, level changes, use envelopes and object ranges were compared, followed below by the distinct responsibilities of local site versus distant background, room role versus service state, and CJS delivery versus GPU judgment. Numeric compatibility checks admissible ranges and does not claim acceptance of an absent plan or render.
 -->
 
 <!--
 -->
 
-약 430㎡는 410~450㎡ 안에 있고 그 분모에는 중정과 서비스 마당이 포함되며 도로는 빠진다. +Z 정면 기준으로 우측 방은 정면에서 관리실→기록실→보관실이고 후면 우측에 서비스 마당이 온다. 이 좌표와 방 순서를 실내 파일도 따른다. 주랑 순폭 1.5m는 보행 폭 0.6m 두 개의 합 1.2m보다 크고, 문 순폭 0.9m는 0.8m 운반 포락보다 크다. 이는 선택 입력의 산술 여지일 뿐 문짝·회전·실제 배치 비충돌 증거가 아니다. 큰 가구 최초 반입은 사용 보증 밖이므로 폭 1.3m 책상과 작은 봉헌물의 0.9m 문 기준을 같은 반입 주장으로 혼동하지 않는다.
+Approximately 430㎡ lies within 410~450㎡, whose denominator includes the courtyard and service yard but excludes the road. With +Z as the front, right-side rooms run from front to rear as administration→records→storage, with the service yard at rear right. The interior file follows these coordinates and room order. The colonnade's 1.5m clear width exceeds two 0.6m walking widths totaling 1.2m, and a 0.9m door clear width exceeds the 0.8m carrying envelope. These are arithmetic margins between selected inputs, not proof of collision-free leaves, turns or actual placement. Initial delivery of large furniture is outside the use guarantee, so a 1.3m desk and the 0.9m door criterion for small offerings must not be confused as one delivery claim.
 
-제단 높이는 석단 상면 기준이고 주랑 Y=0과 같다고 두지 않는다. 주랑 바닥은 연속 높이, 중정/제단 석단은 같은 층의 국소 단차이므로 복층 금지와 양립한다. 서비스 길은 문턱 허용값 이내 연결이 요구되며 정문의 낮은 계단 허용을 그 경로의 면제로 사용하지 않는다. 네 바깥면에서 각각 25m 나간 직사각형 국소 대지와 40~100m 먼 능선은 용도와 거리 범위가 나뉘고 사이에 별도 보행 구역을 납품한다고 하지 않는다. 제실의 상부 채광과 주광, 꺼진 등잔, 물이 흐르지 않는 기록실, 수반 내부에서 끝나는 표시 설비가 같은 건조한 개관 상태다.
+Altar height is relative to the platform top rather than assumed equal to colonnade Y=0. The colonnade floor has continuous height, and the courtyard/altar platforms are local level changes on the same storey, compatible with the prohibition on multiple storeys. The service path must connect within the allowed threshold value; permission for low front-entrance steps does not exempt that route. The rectangular local site extending 25m from each of the four outer faces and distant ridges at 40~100m have separate purposes and distance ranges; no separate walking area between them is promised. Sanctuary upper lighting and daylight, unlit lamps, a records room with no flowing water, and represented services ending inside the basin belong to the same dry, open state.
 
-소프트웨어 전달은 CJS producer가 실제 형상을 제공하고 클라이언트는 이를 그리는 관계다. CommonJS 유지와 browser 렌더의 공존은 그 경계에서 요구되며 현재 runtime 성공은 주장하지 않는다. 스키마·lint 통과와 GPU 판정은 별개다. stage는 독립 판정에 따라 움직이고 후속 design/source는 부모 review 전에 열지 않는다. 이 account는 settings 허용 조건들의 비교를 닫을 뿐 지붕 접합·실제 층 귀속·물리 통행·RENDERER·시각 동등성을 닫지 않는다.
+Software delivery pairs a CJS producer supplying actual geometry with a client drawing it. Preservation of CommonJS and coexistence with browser rendering are required at this boundary, without claiming current runtime success. Schema/lint acceptance and GPU judgment are separate. Stages move through independent judgment, and downstream design/source does not open before parent review. This account closes only the comparison of admissible settings conditions; it does not close roof joints, actual storey assignment, physical passage, RENDERER or visual equivalence.
