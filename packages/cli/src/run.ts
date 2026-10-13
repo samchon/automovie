@@ -7,12 +7,10 @@ import {
 } from "@automovie/template";
 import * as path from "node:path";
 
-import {
-  type AutoMovieCommand,
-  readAutoMovieCommandArguments,
-} from "./commandArguments";
+import type { AutoMovieCommand } from "./AutoMovieCommand";
+import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
-import { renderAutoMovieScaffoldNextSteps } from "./scaffoldNextSteps";
+import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
 
 const USAGE: string = `automovie: scaffold an automovie project
 
@@ -48,7 +46,7 @@ Options:
  * @evidence contracts/common.md#meaningful-documentation The comment states which argv positions are skipped, each command's output and effects, how the project name and target are derived, that partial files stay, and the exit codes with the stack-free stderr format.
  * @evidence contracts/performance.md#efficient-algorithms `start` is linear in the scaffold's file count and bytes: one render, one publication pass, and one map over the completed receipt for the listing; `help` and `version` do constant work beyond reading one `package.json`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serves one process invocation with one effectful publication, and publication must not be shared or replayed between calls, so nothing is reused.
- * @evidence contracts/performance.md#bound-retention-and-release-resources `run` retains the rendered file map and the publication receipt only for the call, bounded by the scaffold's size; file descriptors are opened and closed per file inside the template's publication on every outcome, and no task or handle outlives the call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources `run` retains the rendered map and receipt for the call, bounded by scaffold size; the template attempts per-file descriptor release on every outcome and reports close failures without proving those handles were released. This dispatcher acquires no handle or asynchronous task itself.
  */
 export function run(argv: readonly string[]): number {
   try {

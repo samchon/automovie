@@ -1,0 +1,98 @@
+import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
+import * as path from "node:path";
+
+
+/**
+ * Validate a rendered file map and freeze it as a publication candidate,
+ * before any directory or file is touched.
+ *
+ * Throws when a value is not a string, a key contains NUL, a target resolves
+ * to the root or outside it, or two targets collide. Targets are compared
+ * after lower-casing, so `A.txt` and `a.txt` collide on every platform, and a
+ * file also collides with any file below it, such as `a` and `a/b`.
+ * Lower-casing approximates the case folding of Windows and macOS file systems
+ * and does not apply Unicode normalization.
+ *
+ * @param props.files Map from root-relative path to UTF-8 text.
+ * @param props.root Directory the candidate is published under.
+ * @returns Frozen entries in the map's insertion order.
+ *
+ * @evidence contracts/common.md#principled-implementation Containment uses `path.resolve` and `path.relative`, refusing an empty, `..`, `..` plus separator, or absolute remainder; collisions are found with a hash map of lower-cased targets, one lookup for an exact repeat and one per ancestor directory for a file below another file. Lower-casing is the stated approximation of case-insensitive file systems and ignores Unicode normalization.
+ * @evidence contracts/common.md#clear-and-simple-design This owner validates and encodes with one private collision walk; publishFiles coordinates mutation, ensureScaffoldFileDirectory captures descendant directories, and writeScaffoldFile owns target admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No path or file name is special-cased; case-only collisions are refused on every platform so that one rendered map is publishable on any host, and the runtime string check exists for untyped JavaScript callers rather than for a test.
+ * @evidence contracts/common.md#meaningful-documentation The comment lists every refusal, the case-folding rule and its limits, the parameters' meaning, and that entries keep insertion order.
+ * @evidence contracts/performance.md#efficient-algorithms Time is the total content bytes for encoding plus one hash lookup per file and per ancestor directory below the root, linear in files times depth; this replaces a pairwise scan over the sorted entries that was quadratic in file count.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner runs once per call over its own input and has no completed or in-flight work from another caller that could stand in for it.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned candidate retains each file's bytes as a frozen array owned by the caller; the collision map is local and released on return, and no handle is opened.
+ * @author Samchon
+ */
+export const planScaffoldPublication: (props: { files: Readonly<Record<string, string>>; root: string; }) => readonly IScaffoldPublicationEntry[] = (props: {
+  files: Readonly<Record<string, string>>;
+  root: string;
+}): readonly IScaffoldPublicationEntry[] => {
+  const root: string = path.resolve(props.root);
+  const entries: IScaffoldPublicationEntry[] = Object.entries(props.files).map(
+    ([relative, content]: [string, string]): IScaffoldPublicationEntry => {
+      if (typeof content !== "string")
+        throw new Error(`scaffold content is not text: ${relative}`);
+      if (relative.includes("\0"))
+        throw new Error(`refusing invalid scaffold path: ${relative}`);
+      const target: string = path.resolve(root, relative);
+      const inside: string = path.relative(root, target);
+      if (
+        inside.length === 0 ||
+        inside === ".." ||
+        inside.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(inside)
+      )
+        throw new Error(`refusing to write outside "${root}": ${relative}`);
+      return Object.freeze({
+        bytes: Object.freeze(Array.from(Buffer.from(content, "utf8"))),
+        relative,
+        target,
+      });
+    },
+  );
+  assertDistinctScaffoldTargets(root, entries);
+  return Object.freeze(entries);
+};
+
+
+/**
+ * Throw when two entries name the same target, ignoring case, or when one
+ * entry's target is an ancestor directory of another's.
+ */
+const assertDistinctScaffoldTargets: (root: string, entries: readonly IScaffoldPublicationEntry[]) => void = (
+  root: string,
+  entries: readonly IScaffoldPublicationEntry[],
+): void => {
+  const owners: Map<string, IScaffoldPublicationEntry> = new Map<
+    string,
+    IScaffoldPublicationEntry
+  >();
+  for (const entry of entries) {
+    const key: string = canonicalScaffoldPath(entry.target);
+    const previous: IScaffoldPublicationEntry | undefined = owners.get(key);
+    if (previous !== undefined) throw scaffoldPathCollision(previous, entry);
+    owners.set(key, entry);
+  }
+  for (const entry of entries)
+    for (
+      let directory: string = path.dirname(entry.target);
+      directory !== root;
+      directory = path.dirname(directory)
+    ) {
+      const ancestor: IScaffoldPublicationEntry | undefined = owners.get(
+        canonicalScaffoldPath(directory),
+      );
+      if (ancestor !== undefined) throw scaffoldPathCollision(ancestor, entry);
+    }
+};
+
+const scaffoldPathCollision: (first: IScaffoldPublicationEntry, second: IScaffoldPublicationEntry) => Error = (
+  first: IScaffoldPublicationEntry,
+  second: IScaffoldPublicationEntry,
+): Error =>
+  new Error(`scaffold paths collide: ${first.relative}, ${second.relative}`);
+
+const canonicalScaffoldPath: (value: string) => string = (value: string): string => value.toLowerCase();

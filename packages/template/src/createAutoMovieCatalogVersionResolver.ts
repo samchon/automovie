@@ -9,6 +9,7 @@ import {
   parseDocument,
 } from "yaml";
 
+
 /**
  * Parse a pnpm workspace manifest once and return a lookup of its catalog
  * entries.
@@ -33,7 +34,7 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work Every lookup made through one returned function shares the single parsed document, which is equivalent because the manifest text is immutable and the document is never modified; a different manifest needs a new call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains the parsed document and its first diagnostic for as long as the caller holds the function, one document per call, and owns no handle.
  */
-export const createAutoMovieCatalogVersionResolver = (
+export const createAutoMovieCatalogVersionResolver: (workspace: string) => ((catalog: string, dependency: string) => string) = (
   workspace: string,
 ): ((catalog: string, dependency: string) => string) => {
   const document: Document = parseDocument(workspace, {
@@ -71,7 +72,7 @@ export const createAutoMovieCatalogVersionResolver = (
   };
 };
 
-const requireMapping = (
+const requireMapping: (node: Node | null, context: string, owner: string) => YAMLMap = (
   node: Node | null,
   context: string,
   owner: string,
@@ -81,8 +82,9 @@ const requireMapping = (
   return node;
 };
 
+
 /** The value under `key` among the direct scalar keys of `mapping`. */
-const requireDirect = (
+const requireDirect: (mapping: YAMLMap, key: string, context: string, owner: string) => Node | null = (
   mapping: YAMLMap,
   key: string,
   context: string,
@@ -97,7 +99,7 @@ const requireDirect = (
   return (pair.value as Node | null) ?? null;
 };
 
-const resolveNode = (
+const resolveNode: (node: Node | null, document: Document, context: string) => Node | null = (
   node: Node | null,
   document: Document,
   context: string,

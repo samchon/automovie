@@ -9,23 +9,23 @@ interface IWorkspaceManifestVersion {
   version: string;
 }
 
-const NEWLINE = String.fromCharCode(10);
+const NEWLINE: string = String.fromCharCode(10);
 
-const HERE = __dirname;
-const ROOT = resolve(HERE, "../../..");
+const HERE: string = __dirname;
+const ROOT: string = resolve(HERE, "../../..");
 
-const packageVersion = (relative: string): string => {
-  const manifest = JSON.parse(
+const packageVersion: (relative: string) => string = (relative: string): string => {
+  const manifest: IWorkspaceManifestVersion = JSON.parse(
     readFileSync(resolve(ROOT, relative, "package.json"), "utf8"),
   ) as IWorkspaceManifestVersion;
   return `^${manifest.version}`;
 };
 
-const workspaceYaml = (): string =>
+const workspaceYaml: () => string = (): string =>
   readFileSync(resolve(ROOT, "pnpm-workspace.yaml"), "utf8");
 
 /** Read each workspace input once before resolving the scaffold placeholders. */
-const resolveTemplateVersions = (): Record<string, string> =>
+const resolveTemplateVersions: () => Record<string, string> = (): Record<string, string> =>
   resolveAutoMovieTemplateDependencyVersions({
     workspace: workspaceYaml(),
     packages: {
@@ -51,7 +51,7 @@ const resolveTemplateVersions = (): Record<string, string> =>
  * already prettier-canonical: `JSON.stringify` quotes its keys and the
  * repository's own `format:check` would flag the result of every sync.
  */
-const renderAutoMovieTemplateVersionsModule = (
+const renderAutoMovieTemplateVersionsModule: (versions: Readonly<Record<string, string>>) => string = (
   versions: Readonly<Record<string, string>>,
 ): string =>
   [
@@ -61,7 +61,7 @@ const renderAutoMovieTemplateVersionsModule = (
     "/** Dependency versions baked into the scaffold, kept in sync with this repo. */",
     "export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {",
     ...Object.entries(versions).map(
-      ([key, value]) => `  ${key}: ${JSON.stringify(value)},`,
+      ([key, value]: [string, string]): string => `  ${key}: ${JSON.stringify(value)},`,
     ),
     "};",
     "",
@@ -77,7 +77,7 @@ if (
   process.argv[1] !== undefined &&
   resolve(process.argv[1]) === resolve(__filename)
 ) {
-  const target = resolve(__dirname, "../src/templateVersions.ts");
+  const target: string = resolve(__dirname, "../src/AUTOMOVIE_TEMPLATE_VERSIONS.ts");
   writeFileSync(
     target,
     renderAutoMovieTemplateVersionsModule(resolveTemplateVersions()),

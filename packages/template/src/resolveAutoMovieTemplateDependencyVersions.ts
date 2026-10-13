@@ -1,6 +1,7 @@
 import type { IAutoMovieTemplateDependencyVersionsProps } from "./IAutoMovieTemplateDependencyVersionsProps";
 import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogVersionResolver";
 
+
 /**
  * Build the version table behind the scaffold's `{{version:<key>}}` tokens.
  *
@@ -24,12 +25,12 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidence contracts/performance.md#reuse-equivalent-work All eighteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty strings, is retained by the caller.
  */
-export const resolveAutoMovieTemplateDependencyVersions = (
+export const resolveAutoMovieTemplateDependencyVersions: (props: IAutoMovieTemplateDependencyVersionsProps) => Record<string, string> = (
   props: IAutoMovieTemplateDependencyVersionsProps,
 ): Record<string, string> => {
   const catalogVersion: (catalog: string, dependency: string) => string =
     createAutoMovieCatalogVersionResolver(props.workspace);
-  const exactCatalogVersion = (catalog: string, dependency: string): string =>
+  const exactCatalogVersion: (catalog: string, dependency: string) => string = (catalog: string, dependency: string): string =>
     catalogVersion(catalog, dependency).replace(/^[~^]/u, "");
   return {
     archetypes: props.packages.archetypes,

@@ -1,4 +1,5 @@
-export * from "./commandArguments";
+export * from "./AutoMovieCommand";
+export * from "./readAutoMovieCommandArguments";
 export * from "./deriveAutoMovieProjectName";
 export * from "./run";
-export * from "./scaffoldNextSteps";
+export * from "./renderAutoMovieScaffoldNextSteps";

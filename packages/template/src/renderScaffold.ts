@@ -6,7 +6,8 @@ import type { IAutoMovieScaffoldSourceEntry } from "./IAutoMovieScaffoldSourceEn
 import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
 import { renderScaffoldEntries } from "./renderScaffoldEntries";
 import { scaffoldAssetDirectory } from "./scaffoldAssetDirectory";
-import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./templateVersions";
+import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./AUTOMOVIE_TEMPLATE_VERSIONS";
+
 
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map.
@@ -37,7 +38,7 @@ import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./templateVersions";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads the scaffold as installed now and is made once per CLI run, so no earlier render is equivalent to reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Reads use `readFileSync`, which closes each file before returning; the source list lives only for the call, and the returned map, which holds the whole rendered scaffold in memory, is owned by the caller.
  */
-export const renderScaffold = (
+export const renderScaffold: (props: IAutoMovieScaffoldProps) => Record<string, string> = (
   props: IAutoMovieScaffoldProps,
 ): Record<string, string> => {
   const name: string = props.name.trim();

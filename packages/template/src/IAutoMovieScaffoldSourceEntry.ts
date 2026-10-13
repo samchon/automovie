@@ -18,6 +18,7 @@ export interface IAutoMovieScaffoldSourceEntry {
   /** File text before line-ending normalization and token rendering. */
   content: string;
 
+
   /**
    * Path relative to the scaffold root, with the host's separator, before the
    * `_gitignore` rename and token rendering.

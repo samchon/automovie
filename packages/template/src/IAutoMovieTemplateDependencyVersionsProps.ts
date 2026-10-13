@@ -1,5 +1,6 @@
 import type { IAutoMovieWorkspacePackageVersions } from "./IAutoMovieWorkspacePackageVersions";
 
+
 /**
  * Inputs of {@link resolveAutoMovieTemplateDependencyVersions}, read by the
  * caller before resolution so the resolver itself touches no file.
@@ -19,6 +20,7 @@ export interface IAutoMovieTemplateDependencyVersionsProps {
    * must contain every catalog and dependency the resolver reads.
    */
   workspace: string;
+
 
   /** Ranges of the workspace's own packages, copied into the table unchanged. */
   packages: IAutoMovieWorkspacePackageVersions;

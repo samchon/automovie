@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+
 /**
  * Absolute path of the bundled `scaffold` directory.
  *
@@ -20,7 +21,7 @@ import * as path from "node:path";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result is recomputed on each call because the existence check must observe the installed package, and the CLI calls it once per process.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a string and opens no handle.
  */
-export const scaffoldAssetDirectory = (): string => {
+export const scaffoldAssetDirectory: () => string = (): string => {
   const directory: string = path.resolve(__dirname, "..", "scaffold");
   if (!fs.existsSync(directory))
     throw new Error(`scaffold assets are missing: ${directory}`);

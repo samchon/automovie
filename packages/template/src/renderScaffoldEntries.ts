@@ -3,6 +3,7 @@ import * as path from "node:path";
 import type { IAutoMovieScaffoldSourceEntry } from "./IAutoMovieScaffoldSourceEntry";
 import { renderTemplate } from "./renderTemplate";
 
+
 /** One source entry after rendering, keeping its source path for diagnostics. */
 interface IRenderedScaffoldEntry {
   content: string;
@@ -15,11 +16,13 @@ interface IRenderedScaffoldEntry {
  * a Windows checkout with `core.autocrlf` would otherwise ship CRLF. The tree
  * is text only, so the replacement cannot corrupt binary content.
  */
-const normalizeLineEndings = (content: string): string =>
+const normalizeLineEndings: (content: string) => string = (content: string): string =>
   content.replaceAll("\r\n", "\n");
 
+
 /** Join path segments with `/` so map keys do not depend on the host. */
-const toPosix = (value: string): string => value.split(path.sep).join("/");
+const toPosix: (value: string) => string = (value: string): string => value.split(path.sep).join("/");
+
 
 /**
  * The rendered key for one scaffold-relative path.
@@ -30,7 +33,7 @@ const toPosix = (value: string): string => value.split(path.sep).join("/");
  * renames a packed `.gitignore` to `.npmignore`; nested files of that name
  * stay ordinary paths.
  */
-const renderKey = (
+const renderKey: (relative: string, variables: Readonly<Record<string, string>>) => string = (
   relative: string,
   variables: Readonly<Record<string, string>>,
 ): string => {
@@ -43,6 +46,7 @@ const renderKey = (
     variables,
   );
 };
+
 
 /**
  * Render a list of scaffold sources into a `{ posixPath: content }` map,
@@ -68,7 +72,7 @@ const renderKey = (
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every entry renders distinct text once; there is no repeated computation within a call, and a new call receives a new source list.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The rendered list and its sorted copy live only for the call; the returned map holds one string per entry and is owned by the caller.
  */
-export const renderScaffoldEntries = (
+export const renderScaffoldEntries: (entries: readonly IAutoMovieScaffoldSourceEntry[], variables: Readonly<Record<string, string>>) => Record<string, string> = (
   entries: readonly IAutoMovieScaffoldSourceEntry[],
   variables: Readonly<Record<string, string>>,
 ): Record<string, string> => {

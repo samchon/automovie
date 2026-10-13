@@ -23,11 +23,13 @@ export interface IScaffoldParentPublicationRequest {
    */
   bytes: Uint8Array;
 
+
   /**
    * One path segment to create: not empty, `.`, or `..`, and free of `/`,
    * `\`, and NUL. Anything else is refused before any native call.
    */
   childName: string;
+
 
   /**
    * `<device>:<inode>` identity, as formatted by `scaffoldPhysicalIdentity`,
@@ -35,6 +37,7 @@ export interface IScaffoldParentPublicationRequest {
    * `parent-changed` and nothing is created.
    */
   expectedParentIdentity: string;
+
 
   /** Absolute path used only to open the parent handle. */
   parentPath: string;
