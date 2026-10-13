@@ -1,3 +1,4 @@
+import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
 /**
  * `node src/human/inspection/human-viewer-launcher.mts` from `packages/playground/`: the
  * starting owner of one resident viewer. It runs under plain Node, so it
@@ -35,28 +36,28 @@ import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanVie
 import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
 import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 
-const directory = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(directory, "../../../../..");
-const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
-const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const record = path.join(storage, instance.record);
+const directory: string = path.dirname(fileURLToPath(import.meta.url));
+const root: string = path.resolve(directory, "../../../../..");
+const storage: string = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
+const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const record: string = path.join(storage, instance.record);
 /** Output lines kept for the starting `/health`, enough for a type error report. */
-const KEPT_LINES = 60;
+const KEPT_LINES: number = 60;
 
-let phase = "type-checking and building the server";
-let since = new Date().toISOString();
+let phase: string = "type-checking and building the server";
+let since: string = new Date().toISOString();
 let failure: string | null = null;
 let upstream: number | null = null;
 const output: string[] = [];
-const enter = (name: string): void => {
+const enter: (name: string) => void = (name: string): void => {
   phase = name;
   since = new Date().toISOString();
   console.log(`LAUNCHER ${since} ${name}`);
 };
 
 /** The starting answers: `/health` reports the phase, everything else is refused for now. */
-const starting = http.createServer((request, response) => {
-  const route = new URL(request.url ?? "/", instance.origin).pathname;
+const starting: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> = http.createServer((request: http.IncomingMessage, response: http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage; }): void => {
+  const route: string = new URL(request.url ?? "/", instance.origin).pathname;
   response.setHeader("Content-Type", "application/json");
   if (route === "/health") {
     response.end(
@@ -86,33 +87,33 @@ const starting = http.createServer((request, response) => {
   );
 });
 /** Connections the launcher answers itself, closed when the server takes over. */
-const answered = new Set<net.Socket>();
-const front = net.createServer((socket) => {
+const answered: Set<net.Socket> = new Set<net.Socket>();
+const front: net.Server = net.createServer((socket: net.Socket): void => {
   if (upstream !== null) {
-    const back = net.connect(upstream, "127.0.0.1");
+    const back: net.Socket = net.connect(upstream, "127.0.0.1");
     socket.pipe(back).pipe(socket);
-    socket.on("error", () => back.destroy());
-    back.on("error", () => socket.destroy());
+    socket.on("error", (): net.Socket => back.destroy());
+    back.on("error", (): net.Socket => socket.destroy());
     return;
   }
   answered.add(socket);
-  socket.on("close", () => answered.delete(socket));
+  socket.on("close", (): boolean => answered.delete(socket));
   starting.emit("connection", socket);
 });
 
 let child: ReturnType<typeof spawn> | null = null;
 /** Stop the server tree this launcher started and remove the record. */
-const stop = (code: number): void => {
+const stop: (code: number) => void = (code: number): void => {
   if (child?.pid !== undefined && child.exitCode === null) {
     ProcessOwnership.stopChild(child);
   }
   fs.rmSync(record, { force: true });
   process.exit(code);
 };
-process.once("SIGINT", () => stop(0));
-process.once("SIGTERM", () => stop(0));
+process.once("SIGINT", (): void => stop(0));
+process.once("SIGTERM", (): void => stop(0));
 
-front.once("error", (error) => {
+front.once("error", (error: Error): never => {
   console.error(
     `LAUNCHER could not hold port ${instance.port}: ${error.message}`,
   );
@@ -121,10 +122,10 @@ front.once("error", (error) => {
 front.listen(
   instance.port,
   "127.0.0.1",
-  () =>
-    void (async () => {
+  (): undefined =>
+    void (async (): Promise<void> => {
       fs.mkdirSync(storage, { recursive: true });
-      const processStartedAt = ProcessOwnership.read(process.pid);
+      const processStartedAt: string | null = ProcessOwnership.read(process.pid);
       if (processStartedAt === null)
         throw new Error("Could not establish this launcher's process identity");
       const owned: IHumanViewerRecord = {
@@ -137,18 +138,18 @@ front.listen(
       enter("type-checking and building the server");
       // A free internal port for the server: the operating system picks one, and
       // the server listens on it strictly, so a port taken meanwhile fails loudly.
-      const probe = net.createServer();
-      await new Promise<undefined>((resolve) => {
-        probe.listen(0, "127.0.0.1", () => resolve(undefined));
+      const probe: net.Server = net.createServer();
+      await new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
+        probe.listen(0, "127.0.0.1", (): void => resolve(undefined));
       });
-      const address = probe.address();
-      const internal =
+      const address: string | net.AddressInfo | null = probe.address();
+      const internal: number =
         address !== null && typeof address === "object" ? address.port : 0;
-      await new Promise<undefined>((resolve) => {
-        probe.close(() => resolve(undefined));
+      await new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
+        probe.close((): void => resolve(undefined));
       });
-      const require = createRequire(path.join(directory, "server.mts"));
-      const ttsx = path.join(
+      const require: NodeJS.Require = createRequire(path.join(directory, "server.mts"));
+      const ttsx: string = path.join(
         path.dirname(require.resolve("ttsc/package.json")),
         "lib/launcher/ttsx.js",
       );
@@ -172,13 +173,13 @@ front.listen(
         },
       );
       ProcessOwnership.own(child);
-      let pending = "";
-      const read =
-        (target: NodeJS.WriteStream) =>
+      let pending: string = "";
+      const read: (target: NodeJS.WriteStream) => (bytes: Buffer) => void =
+        (target: NodeJS.WriteStream): (bytes: Buffer) => void =>
         (bytes: Buffer): void => {
           target.write(bytes);
           pending += bytes.toString("utf8");
-          const lines = pending.split(/\r?\n/);
+          const lines: string[] = pending.split(/\r?\n/);
           pending = lines.pop() ?? "";
           for (const line of lines) {
             output.push(line);
@@ -199,8 +200,8 @@ front.listen(
         };
       child.stdout!.on("data", read(process.stdout));
       child.stderr!.on("data", read(process.stderr));
-      child.once("exit", (code, signal) => {
-        const exitCode = code ?? 1;
+      child.once("exit", (code: number | null, signal: NodeJS.Signals | null): void => {
+        const exitCode: number = code ?? 1;
         if (upstream === null) {
           failure =
             `the server did not start: its build or startup exited with code ${code ?? "none"}` +

@@ -1,3 +1,5 @@
+import type { IHumanViewerReferenceInfo } from "@automovie/viewer/human/inspection/IHumanViewerReferenceInfo";
+import type { HumanViewerHandle } from "@automovie/viewer/human/inspection/HumanViewerHandle";
 /**
  * Keep the committed viewport visible while a source generation prepares off
  * screen. Interactive swaps require a completed model and GPU finish; the
@@ -15,6 +17,7 @@ import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/Hu
 import type { IHumanViewerCandidateHold } from "./IHumanViewerCandidateHold";
 import type { IHumanViewerFrameMessage } from "./IHumanViewerFrameMessage";
 import type { IHumanViewerWindow } from "@automovie/viewer/human/inspection/IHumanViewerWindow";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
 import { createHumanViewerHostAdmission } from "./createHumanViewerHostAdmission";
 import { createHumanViewerHostHandle } from "./createHumanViewerHostHandle";
@@ -27,35 +30,39 @@ import { serializeHumanViewerAddress } from "@automovie/viewer/human/inspection/
 import { humanViewerDefaultDocument } from "../examples/humanViewerDefaultDocument.js";
 
 type Child = Window & IHumanViewerWindow;
+let closed: boolean = false;
+const listeners: AbortController = new AbortController();
+const pendingHolds: Set<Promise<void>> = new Set();
 let active: HTMLIFrameElement | undefined;
 let candidate: HTMLIFrameElement | undefined;
 /** A source change arrived while a candidate was still preparing. */
-let again = false;
+let again: boolean = false;
 let committed: ReturnType<typeof createHumanViewerGeneration> | undefined;
-let generation = 0;
+let generation: number = 0;
 /** Only an address whose display completed; failed hash navigation is not replayed. */
 let displayedAddress: string | undefined;
 /** Each browser tab owns one latest-image slot across its source generations. */
-const displaySession = crypto.randomUUID();
+const displaySession: `${string}-${string}-${string}-${string}-${string}` = crypto.randomUUID();
 // The server's admissions reach the newest loaded viewer frame through this
 // bridge, which exists from now on, with or without a committed generation.
 Object.assign(window, {
-  __humanViewerAdmission: createHumanViewerHostAdmission(() => [
+  __humanViewerAdmission: createHumanViewerHostAdmission((): (HTMLIFrameElement | undefined)[] => [
     candidate,
     active,
   ]),
 });
-const stage = document.querySelector<HTMLElement>("#stage")!;
-const error = document.querySelector<HTMLDivElement>("#error")!;
-const progress = document.querySelector<HTMLElement>("#progress")!;
-const { begin, settle } = createHumanViewerHostProgress(progress);
-let goodAt = "";
+const stage: HTMLElement = document.querySelector<HTMLElement>("#stage")!;
+const error: HTMLDivElement = document.querySelector<HTMLDivElement>("#error")!;
+const progress: HTMLElement = document.querySelector<HTMLElement>("#progress")!;
+const { begin, settle }: ReturnType<typeof createHumanViewerHostProgress> = createHumanViewerHostProgress(progress);
+let goodAt: string = "";
 /** Source failures survive a successful display from the retained generation. */
 let sourceError: string | undefined;
 let displayError: string | undefined;
-let sourceNotice = false;
-const renderMessages = (): void => {
-  const message = displayError ?? sourceError;
+let sourceNotice: boolean = false;
+const renderMessages: () => void = (): void => {
+  if (closed) return;
+  const message: string | undefined = displayError ?? sourceError;
   error.textContent = message ?? "";
   error.style.display = message === undefined ? "none" : "block";
   banner.hidden = sourceError === undefined && displayError === undefined && !sourceNotice;
@@ -67,30 +74,31 @@ const renderMessages = (): void => {
     banner.textContent = "Display error; the last completed model is retained. " + displayError.slice(0, 300);
   else banner.textContent = "The source changed. Click to redraw with the same address.";
 };
-const showError = (message: string, scope: "source" | "display" = "source"): void => {
+const showError: (message: string, scope?: "source" | "display") => void = (message: string, scope: "source" | "display" = "source"): void => {
   settle();
   if (scope === "source") sourceError = message;
   else displayError = message;
   console.log((scope === "source" ? "HUMAN_ERROR " : "HUMAN_DISPLAY_ERROR ") + message.slice(0, 500));
   renderMessages();
 };
-const recoveredDisplay = (): void => {
+const recoveredDisplay: () => void = (): void => {
   if (displayError === undefined) return;
   displayError = undefined;
   console.log("HUMAN_DISPLAY_RECOVERED");
   renderMessages();
 };
-let navigationVersion = 0;
-const controls = mountHumanViewerControls({
+let navigationVersion: number = 0;
+const controls: { navigate: (address: HumanViewerAddress) => void; catalogue: (catalogue: HumanViewerCatalogue) => void; show: (address: HumanViewerAddress, parts: readonly string[]) => void; photo: (info: Pick<IHumanViewerReferenceInfo, "available" | "camera">) => void; close: () => void; } = mountHumanViewerControls({
   navigate: async (address: HumanViewerAddress): Promise<void> => {
-    const version = ++navigationVersion;
-    const owner = committed;
+    if (closed) throw new Error("The viewer host is closed.");
+    const version: number = ++navigationVersion;
+    const owner: { handle: HumanViewerHandle; retire: () => void; } | undefined = committed;
     if (owner === undefined) throw new Error("No completed viewport can accept navigation.");
     begin(address.doc);
     try {
       await owner.handle.show(address);
       if (version !== navigationVersion || owner !== committed) return;
-      const observed = owner.handle.address();
+      const observed: HumanViewerAddress = owner.handle.address();
       displayedAddress = serializeHumanViewerAddress(observed);
       history.replaceState(null, "", "#" + displayedAddress);
       controls.show(observed, owner.handle.parts());
@@ -106,24 +114,25 @@ const controls = mountHumanViewerControls({
   },
 });
 /** Ask whether a local photograph exists for the displayed document. */
-const loadPhoto = async (doc: string): Promise<void> => {
+const loadPhoto: (doc: string) => Promise<void> = async (doc: string): Promise<void> => {
   controls.photo(await loadHumanViewerReferenceInfo(doc));
 };
-const refreshCatalogue = async (): Promise<void> => {
+const refreshCatalogue: () => Promise<void> = async (): Promise<void> => {
   controls.catalogue(
     (await (await fetch("/docs")).json()) as HumanViewerCatalogue,
   );
 };
-const banner = document.querySelector<HTMLElement>("#banner")!;
-const auto = document.querySelector<HTMLInputElement>("#auto")!;
+const banner: HTMLElement = document.querySelector<HTMLElement>("#banner")!;
+const auto: HTMLInputElement = document.querySelector<HTMLInputElement>("#auto")!;
 let quiet: ReturnType<typeof setTimeout> | undefined;
 /**
  * The source changed while the page is open. Nothing is reloaded: a banner
  * offers a redraw that keeps the address, and with the option on the redraw
  * happens by itself once edits have been quiet for twenty seconds.
  */
-const resident = new URLSearchParams(location.search).has("resident");
+const resident: boolean = new URLSearchParams(location.search).has("resident");
 function changedSource(): void {
+  if (closed) return;
   sourceNotice = true;
   sourceError = undefined;
   // The server's own page has no one to ask: it redraws at once.
@@ -132,7 +141,7 @@ function changedSource(): void {
   clearTimeout(quiet);
   if (auto.checked) quiet = setTimeout(prepare, 20000);
 }
-banner.addEventListener("click", () => prepare());
+banner.addEventListener("click", (): void => prepare(), { signal: listeners.signal });
 /**
  * Start a candidate generation. A candidate already preparing is never
  * discarded: it finishes, ready or failed, and one more candidate follows if
@@ -142,18 +151,19 @@ banner.addEventListener("click", () => prepare());
  * the source is published as stale, which the server reports.
  */
 function prepare(): void {
+  if (closed) return;
   clearTimeout(quiet);
   banner.hidden = true;
   if (candidate !== undefined) {
     again = true;
     return;
   }
-  const ticket = ++generation;
-  const frame = document.createElement("iframe");
+  const ticket: number = ++generation;
+  const frame: HTMLIFrameElement = document.createElement("iframe");
   frame.title = "Human GPU viewport";
   frame.style.visibility = "hidden";
-  let address = "";
-  const restore = displayedAddress !== undefined;
+  let address: string = "";
+  const restore: boolean = displayedAddress !== undefined;
   try {
     address = serializeHumanViewerAddress(
       parseHumanViewerAddress(restore ? displayedAddress! : location.hash, humanViewerDefaultDocument),
@@ -166,10 +176,10 @@ function prepare(): void {
   candidate = frame;
   // The page is opened only once its hold is open, so compile withdrawal is
   // held for every module it and its worker request.
-  void openHumanViewerCandidateHold()
-    .then((hold) => {
-      if (candidate !== frame) {
-        void hold.release();
+  const opening: Promise<void> = openHumanViewerCandidateHold()
+    .then(async (hold: IHumanViewerCandidateHold): Promise<void> => {
+      if (closed || candidate !== frame) {
+        await hold.release();
         return;
       }
       holds.set(frame, hold);
@@ -181,26 +191,33 @@ function prepare(): void {
         address;
       stage.append(frame);
     })
-    .catch((failure: unknown) => {
+    .catch((failure: unknown): void => {
+      if (closed) throw failure;
       if (candidate === frame) candidate = undefined;
       showError("The generation hold could not be opened: " + String(failure));
       followUp();
     });
+  pendingHolds.add(opening);
+  void opening.finally((): void => { pendingHolds.delete(opening); }).catch((failure: unknown): void => {
+    console.error("HUMAN_RETIREMENT_ERROR", failure);
+  });
 }
 /** The hold of each candidate frame, released once it loaded or ended. */
-const holds = new Map<HTMLIFrameElement, IHumanViewerCandidateHold>();
+const holds: Map<HTMLIFrameElement, IHumanViewerCandidateHold> = new Map<HTMLIFrameElement, IHumanViewerCandidateHold>();
 /** Release a frame's hold and resolve with the label its window received. */
-const releaseHold = (frame: HTMLIFrameElement): Promise<string | null> => {
-  const hold = holds.get(frame);
+const releaseHold: (frame: HTMLIFrameElement) => Promise<string | null> = (frame: HTMLIFrameElement): Promise<string | null> => {
+  const hold: IHumanViewerCandidateHold | undefined = holds.get(frame);
   return hold === undefined ? Promise.resolve(null) : hold.release();
 };
 /** Start the candidate a source change asked for while another was preparing. */
 function followUp(): void {
+  if (closed) return;
   if (!again) return;
   again = false;
   prepare();
 }
-addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
+addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>): void => {
+  if (closed) return;
   if (event.origin !== location.origin) return;
   if (event.source === active?.contentWindow && event.data.type === "human:error") {
     showError(event.data.error ?? "The active viewport failed.", "display");
@@ -222,9 +239,9 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   ) {
     // The message can arrive after a newer queued show finished. Read the
     // committed viewport's actual state instead of replaying an older notice.
-    const handle = (active!.contentWindow as Child).__humanViewer;
-    const shown = handle.address();
-    const observed = serializeHumanViewerAddress(shown);
+    const handle: HumanViewerHandle = (active!.contentWindow as Child).__humanViewer;
+    const shown: HumanViewerAddress = handle.address();
+    const observed: string = serializeHumanViewerAddress(shown);
     if (candidate !== undefined && displayedAddress !== observed)
       again = true;
     displayedAddress = observed;
@@ -257,7 +274,7 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
     return;
   }
   if (event.data.type !== "human:ready") return;
-  const ready = candidate;
+  const ready: HTMLIFrameElement = candidate;
   if (event.data.restoreError !== undefined && active !== undefined) {
     void releaseHold(ready);
     holds.delete(ready);
@@ -267,8 +284,8 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
     followUp();
     return;
   }
-  const restored = new URLSearchParams(ready.contentWindow!.location.search).get("restore") === "1";
-  const attempted = serializeHumanViewerAddress(
+  const restored: boolean = new URLSearchParams(ready.contentWindow!.location.search).get("restore") === "1";
+  const attempted: string = serializeHumanViewerAddress(
     parseHumanViewerAddress(ready.contentWindow!.location.hash),
   );
   // A successful selection made while this candidate prepared owns the
@@ -289,7 +306,7 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
     displayedAddress = event.data.address;
     history.replaceState(null, "", "#" + event.data.address);
   }
-  const label = releaseHold(ready);
+  const label: Promise<string | null> = releaseHold(ready);
   if (active !== undefined) holds.delete(active);
   committed?.retire();
   active?.remove();
@@ -306,11 +323,11 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   committed = createHumanViewerGeneration(
     (active.contentWindow as Child).__humanViewer,
   );
-  const handle = createHumanViewerHostHandle(committed.handle);
+  const handle: HumanViewerHandle = createHumanViewerHostHandle(committed.handle);
   Object.assign(window, { __humanViewer: handle });
   // The revision this generation's code is, as its window proved it, or
   // "-" when it is not proven (the server then reports its frames stale).
-  void label.then((proven) =>
+  void label.then((proven: string | null): void =>
     console.log("HUMAN_READY " + handle.revision() + " " + (proven ?? "-")),
   );
   if (event.data.restoreError !== undefined) {
@@ -321,33 +338,59 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>) => {
   }
   followUp();
   void refreshCatalogue()
-    .then(() => {
+    .then((): Promise<void> | undefined => {
       if (resident) return;
       controls.show(handle.address(), handle.parts());
       return loadPhoto(handle.address().doc);
     })
-    .catch((failure: unknown) => showError(String(failure)));
-});
-addEventListener("hashchange", (event: HashChangeEvent) => {
+    .catch((failure: unknown): void => showError(String(failure)));
+}, { signal: listeners.signal });
+addEventListener("hashchange", (event: HashChangeEvent): void => {
   if (active === undefined) return;
   try {
     // Consecutive hash events each retain their own requested address.
-    const address = parseHumanViewerAddress(new URL(event.newURL).hash);
+    const address: HumanViewerAddress = parseHumanViewerAddress(new URL(event.newURL).hash);
     controls.navigate(address);
   } catch (failure) {
     showError(String(failure), "display");
   }
-});
-const sourceEvents = new EventSource("/source-events");
+}, { signal: listeners.signal });
+const sourceEvents: EventSource = new EventSource("/source-events");
 let sourceRevision: string | undefined;
-sourceEvents.addEventListener("message", (event: MessageEvent<string>) => {
-  const current = (JSON.parse(event.data) as { revision: string }).revision;
+sourceEvents.addEventListener("message", (event: MessageEvent<string>): void => {
+  if (closed) return;
+  const current: string = (JSON.parse(event.data) as { revision: string }).revision;
   if (current === sourceRevision) return;
-  const changed = sourceRevision !== undefined;
+  const changed: boolean = sourceRevision !== undefined;
   sourceRevision = current;
   if ((active !== undefined && committed?.handle.revision() !== current) ||
       (active === undefined && changed))
     changedSource();
+}, { signal: listeners.signal });
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (event.persisted || closed) return;
+  closed = true;
+  ++navigationVersion;
+  ++generation;
+  again = false;
+  clearTimeout(quiet);
+  const frames: HTMLIFrameElement[] = [active, candidate].filter((frame: HTMLIFrameElement | undefined): frame is HTMLIFrameElement => frame !== undefined);
+  const owner: ReturnType<typeof createHumanViewerGeneration> | undefined = committed;
+  active = undefined;
+  candidate = undefined;
+  committed = undefined;
+  const close: () => Promise<void> = createAutoMovieResourceRetirement([
+    (): void => listeners.abort(),
+    (): void => controls.close(),
+    (): void => settle(),
+    (): void => sourceEvents.close(),
+    (): void => owner?.retire(),
+    ...frames.map((frame: HTMLIFrameElement): () => void => (): void => frame.remove()),
+    ...[...holds.values()].map((hold: IHumanViewerCandidateHold): () => Promise<void> => async (): Promise<void> => { await hold.release(); }),
+    ...[...pendingHolds].map((opening: Promise<void>): () => Promise<void> => (): Promise<void> => opening),
+  ]);
+  void close().finally((): void => { holds.clear(); }).catch((failure: unknown): void => {
+    console.error("HUMAN_RETIREMENT_ERROR", failure);
+  });
 });
-addEventListener("pagehide", () => sourceEvents.close(), { once: true });
 prepare();

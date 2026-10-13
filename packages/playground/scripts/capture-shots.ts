@@ -19,11 +19,9 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
-import { DEFAULT_CHROME_EXECUTABLE } from "./chromeExecutable";
-import {
-  type IAutoMoviePlaygroundOperationFailure,
-  preserveCleanupFailure,
-} from "./preserveCleanupFailure";
+import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
+import type { IAutoMoviePlaygroundOperationFailure } from "./IAutoMoviePlaygroundOperationFailure";
+import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
 declare global {
   interface Window {
@@ -31,10 +29,10 @@ declare global {
   }
 }
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const shotsDir = path.resolve(here, "../../../.shots");
-const BASE = process.env.BASE ?? "http://localhost:5173";
-const CHROME = DEFAULT_CHROME_EXECUTABLE;
+const here: string = path.dirname(fileURLToPath(import.meta.url));
+const shotsDir: string = path.resolve(here, "../../../.shots");
+const BASE: string = process.env.BASE ?? "http://localhost:5173";
+const CHROME: string = DEFAULT_CHROME_EXECUTABLE;
 
 // [page, query (no t/cap), durationSeconds, frames, width, height, out, fps]
 type Shot = readonly [
@@ -199,21 +197,21 @@ const SHOTS: readonly Shot[] = [
   ],
 ];
 
-const only = process.argv[2];
-const shots = only ? SHOTS.filter((s) => s[6].includes(only)) : SHOTS;
+const only: string = process.argv[2];
+const shots: readonly Shot[] = only ? SHOTS.filter((s: Shot): boolean => s[6].includes(only)) : SHOTS;
 if (shots.length === 0) {
   console.error(`no shots match "${only}"`);
   process.exit(1);
 }
 
-const even = (n: number): number => n - (n % 2);
+const even: (n: number) => number = (n: number): number => n - (n % 2);
 
-const browser = await chromium.launch({
+const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
   executablePath: CHROME,
   headless: true,
 });
 
-const capture = async ([
+const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = async ([
   page,
   q,
   dur,
@@ -223,32 +221,32 @@ const capture = async ([
   out,
   fps,
 ]: Shot): Promise<void> => {
-  const W = even(w);
-  const H = even(h);
-  const dest = path.join(shotsDir, out);
+  const W: number = even(w);
+  const H: number = even(h);
+  const dest: string = path.join(shotsDir, out);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
-  const pg = await browser.newPage({
+  const pg: Awaited<ReturnType<typeof browser.newPage>> = await browser.newPage({
     viewport: { width: W, height: H },
     deviceScaleFactor: 1,
   });
   let completion: string | undefined;
   let pageFailure: IAutoMoviePlaygroundOperationFailure | undefined;
   try {
-    const sep = q ? "&" : "";
+    const sep: "" | "&" = q ? "&" : "";
     // Pass the even frame size in the URL too (#1251): the viewer pins `#view` to
     // exactly W×H, so the element screenshot is that size even if the viewport
     // above ever drifts. Viewport and canvas now agree by contract, not luck.
     await pg.goto(`${BASE}/${page}?${q}${sep}cap=1&w=${W}&h=${H}`, {
       waitUntil: "load",
     });
-    await pg.waitForFunction(() => typeof window.__afSeek === "function");
+    await pg.waitForFunction((): boolean => typeof window.__afSeek === "function");
     // frame only the 3D: hide any UI overlay (clip-selector bar) that would
     // otherwise overlap the canvas in the element screenshot
     await pg.addStyleTag({ content: "#clips{display:none!important}" });
-    const view = pg.locator("#view");
+    const view: ReturnType<typeof pg.locator> = pg.locator("#view");
 
-    const enc = await createH264MP4Encoder();
+    const enc: Awaited<ReturnType<typeof createH264MP4Encoder>> = await createH264MP4Encoder();
     let encoderFailure: IAutoMoviePlaygroundOperationFailure | undefined;
     try {
       enc.width = W;
@@ -257,12 +255,12 @@ const capture = async ([
       enc.quantizationParameter = 20; // lower = higher quality
       enc.initialize();
 
-      const t0 = Date.now();
-      for (let i = 0; i < n; i++) {
-        const t = (dur * i) / (n - 1);
-        await pg.evaluate((tt) => window.__afSeek(tt), t);
-        const buf = await view.screenshot({ type: "png" });
-        const png = PNG.sync.read(buf);
+      const t0: number = Date.now();
+      for (let i: number = 0; i < n; i++) {
+        const t: number = (dur * i) / (n - 1);
+        await pg.evaluate((tt: number): void => window.__afSeek(tt), t);
+        const buf: Buffer<ArrayBufferLike> = await view.screenshot({ type: "png" });
+        const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(buf);
         enc.addFrameRgba(new Uint8Array(png.data));
       }
       enc.finalize();
@@ -272,7 +270,7 @@ const capture = async ([
       encoderFailure = { error };
       throw error;
     } finally {
-      await preserveCleanupFailure(encoderFailure, "capture encoder", () =>
+      await preserveCleanupFailure(encoderFailure, "capture encoder", (): void =>
         enc.delete(),
       );
     }
@@ -280,7 +278,7 @@ const capture = async ([
     pageFailure = { error };
     throw error;
   } finally {
-    await preserveCleanupFailure(pageFailure, "capture page", () => pg.close());
+    await preserveCleanupFailure(pageFailure, "capture page", (): Promise<void> => pg.close());
   }
   console.log(completion);
 };
@@ -292,7 +290,7 @@ try {
   browserFailure = { error };
   throw error;
 } finally {
-  await preserveCleanupFailure(browserFailure, "capture browser", () =>
+  await preserveCleanupFailure(browserFailure, "capture browser", (): Promise<void> =>
     browser.close(),
   );
 }

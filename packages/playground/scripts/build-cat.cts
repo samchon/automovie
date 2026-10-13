@@ -2,7 +2,8 @@ import { exportModelToGLB } from "@automovie/render/node";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { DEFAULT_CAT, buildCat } from "../src/cat";
+import { DEFAULT_CAT } from "../src/DEFAULT_CAT";
+import { buildCat } from "../src/buildCat";
 
 /**
  * Generate `cat.glb` from the stick-cat AST: the quadruped counterpart to
@@ -12,19 +13,19 @@ import { DEFAULT_CAT, buildCat } from "../src/cat";
  *
  * @author Samchon
  */
-export const main = async (): Promise<void> => {
-  const { model } = buildCat(DEFAULT_CAT);
-  const glb = await exportModelToGLB(model);
+const main: () => Promise<void> = async (): Promise<void> => {
+  const { model }: ReturnType<typeof buildCat> = buildCat(DEFAULT_CAT);
+  const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(model);
   // Derived artifact (the viewer renders from the AST), regenerable scratch.
-  const dir = resolve(__dirname, "../../../.shots/cat");
+  const dir: string = resolve(__dirname, "../../../.shots/cat");
   mkdirSync(dir, { recursive: true });
-  const out = resolve(dir, "cat.glb");
+  const out: string = resolve(dir, "cat.glb");
   writeFileSync(out, glb);
   console.log(`wrote ${out} (${glb.length} bytes)`);
 };
 
 if (resolve(process.argv[1] ?? "") === resolve(__filename))
-  void main().catch((error: unknown) => {
+  void main().catch((error: unknown): void => {
     console.error(error);
     process.exitCode = 1;
   });

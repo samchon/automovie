@@ -22,15 +22,23 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * root band). The emergence angle is the profile's optional member and may be
  * removed alone; the others belong to the record.
  *
+ * @evidence contracts/common.md#principled-implementation Lid descriptors preserve owner defaults, bounds, measured/derived/authored classification and grounds, while brow/grain metadata uses the actual complete owner record and leaves unpublished per-member bounds absent.
+ * @evidence contracts/common.md#clear-and-simple-design The producer transports existing owner metadata/default records while catalogue path preparation and original anatomical/profile admission remain downstream.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authoring envelopes are not clinical ranges, no new brow population is fitted, hidden default record members are preserved by seeding and only the documented optional emergence field is individually removable.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains two-field tissue completeness, owner default grounds, missing brow bounds, whole-record seeds and optional emergence removal.
+ * @evidence contracts/performance.md#efficient-algorithms Two side passes visit t tissue descriptors, b brow entries and g grain scalars, creating O(t+b+g) fixed-size paths/records plus qualification text; numeric-entry filtering and bounded unit-key comparisons add no geometry traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Existing owner records are borrowed as seeds across their descriptors, while fresh catalogue records avoid sharing mutable UI metadata; no numerical result or earlier catalogue is cached here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The function retains no output and acquires no form/worker/geometry resources; returned descriptors borrow small owner seed records until catalogue refresh/removal/close releases their references.
+ *
  * @author Samchon
  */
 export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInputDescriptor[] {
-  const spaced = (name: string): string =>
+  const spaced: (name: string) => string = (name: string): string =>
     name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
-  const sides = ["left", "right"] as const;
-  const tissues = sides.flatMap((side) =>
-    HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS.flatMap((tissue) => {
-      const seed = {
+  const sides: readonly ["left", "right"] = ["left", "right"];
+  const tissues: IConnectedPersonInputDescriptor[] = sides.flatMap((side: "left" | "right"): IConnectedPersonInputDescriptor[] =>
+    HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS.flatMap((tissue: (typeof HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS)[number]): IConnectedPersonInputDescriptor[] => {
+      const seed: { inwardOffsetMm: number; thicknessMm: number } = {
         inwardOffsetMm: tissue.inwardOffset.defaultMm,
         thicknessMm: tissue.thickness.defaultMm,
       };
@@ -44,7 +52,7 @@ export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInput
           ["thicknessMm", "thickness", tissue.thickness],
         ] as const
       ).map(
-        ([member, label, scalar]): IConnectedPersonInputDescriptor => ({
+        ([member, label, scalar]: readonly [string, string, (typeof HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS)[number]["inwardOffset"]]): IConnectedPersonInputDescriptor => ({
           path: ["face", "periocularTissues", side, tissue.tissue, member],
           group: "Lid tissue shells · " + side,
           label: spaced(tissue.tissue) + " " + label,
@@ -66,9 +74,9 @@ export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInput
       );
     }),
   );
-  const brows = sides.flatMap((side) =>
+  const brows: IConnectedPersonInputDescriptor[] = sides.flatMap((side: "left" | "right"): IConnectedPersonInputDescriptor[] =>
     Object.entries(HUMAN_FACE_BROW_POPULATION).flatMap(
-      ([member, value]): IConnectedPersonInputDescriptor[] =>
+      ([member, value]: [string, (typeof HUMAN_FACE_BROW_POPULATION)[keyof typeof HUMAN_FACE_BROW_POPULATION]]): IConnectedPersonInputDescriptor[] =>
         typeof value !== "number" ||
         member === "segments" ||
         member === "densitySeed"
@@ -106,9 +114,9 @@ export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInput
             ],
     ),
   );
-  const grain = sides.flatMap((side) =>
+  const grain: IConnectedPersonInputDescriptor[] = sides.flatMap((side: "left" | "right"): IConnectedPersonInputDescriptor[] =>
     Object.entries(HUMAN_FACE_BROW_POPULATION.grain ?? {}).map(
-      ([member, value]): IConnectedPersonInputDescriptor => ({
+      ([member, value]: [string, NonNullable<(typeof HUMAN_FACE_BROW_POPULATION)["grain"]>[keyof NonNullable<(typeof HUMAN_FACE_BROW_POPULATION)["grain"]>]]): IConnectedPersonInputDescriptor => ({
         path: ["face", "brows", side, "grain", member],
         group: "Brow grain · " + side,
         label: spaced(member),

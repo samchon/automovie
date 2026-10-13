@@ -7,6 +7,9 @@ import {
 import {
   AutoMovieGuidePass,
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMoviePlayer,
@@ -19,36 +22,39 @@ import {
 import * as THREE from "three";
 import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
-import { DEFAULT_CAT, buildCat } from "./cat";
-import { CAT_CLIPS } from "./cat-motion";
-import { QUADRUPED_JOINT_AXES, QUADRUPED_REST_FRAME } from "./quadruped-rig";
-import { DEFAULT_STICKMAN, buildStickman } from "./stickman";
-import { STICKMAN_CLIPS } from "./stickman-motion";
+import { DEFAULT_CAT } from "./DEFAULT_CAT";
+import { buildCat } from "./buildCat";
+import { CAT_CLIPS } from "./CAT_CLIPS";
+import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
+import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
+import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
+import { buildStickman } from "./buildStickman";
+import { STICKMAN_CLIPS } from "./STICKMAN_CLIPS";
 
-const params = new URLSearchParams(location.search);
-const isCat = params.get("char") === "cat";
+const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
+const isCat: boolean = params.get("char") === "cat";
 // `?rom=1` freezes the figure at rest and draws each joint's flexion gamut.
-const showRom = params.get("rom") === "1";
+const showRom: boolean = params.get("rom") === "1";
 
 // ── build the chosen character + its clips ──────────────────────────────────
 // The cat is a quadruped (legs point down at rest) so it uses the default
 // clinical axes; the human T-pose rig opts into HUMANOID_JOINT_AXES.
-const { model, skeleton } = isCat
+const { model, skeleton }: ReturnType<typeof buildCat> = isCat
   ? buildCat(DEFAULT_CAT)
   : buildStickman(DEFAULT_STICKMAN);
-const object = buildModel(model);
-const clips = isCat ? CAT_CLIPS(skeleton.id) : STICKMAN_CLIPS(skeleton.id);
-const jointAxes = isCat ? QUADRUPED_JOINT_AXES : HUMANOID_JOINT_AXES;
-const defaultClip = isCat ? "idle" : "jumpingJack";
+const object: ReturnType<typeof buildModel> = buildModel(model);
+const clips: Record<string, IAutoMovieMotion> = isCat ? CAT_CLIPS(skeleton.id) : STICKMAN_CLIPS(skeleton.id);
+const jointAxes: typeof HUMANOID_JOINT_AXES | typeof QUADRUPED_JOINT_AXES = isCat ? QUADRUPED_JOINT_AXES : HUMANOID_JOINT_AXES;
+const defaultClip: "idle" | "jumpingJack" = isCat ? "idle" : "jumpingJack";
 
-const clipName =
+const clipName: string =
   params.get("clip") !== null && params.get("clip")! in clips
     ? params.get("clip")!
     : defaultClip;
-const restFrames = isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
+const restFrames: typeof HUMANOID_REST_FRAME | typeof QUADRUPED_REST_FRAME = isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
 // `?clamp=1` enforces ROM; the cat's tail gets spring follow-through so it
 // trails and overshoots the body instead of snapping (turn off with ?spring=0).
-const catTailSpring =
+const catTailSpring: { joints: AutoMovieHumanoidBone[]; stiffness: number; damping: number; } | undefined =
   isCat && params.get("spring") !== "0"
     ? {
         joints: [
@@ -60,7 +66,7 @@ const catTailSpring =
         damping: 9,
       }
     : undefined;
-const player = new AutoMoviePlayer(
+const player: AutoMoviePlayer = new AutoMoviePlayer(
   object,
   skeleton,
   clips[clipName]!,
@@ -72,35 +78,35 @@ const player = new AutoMoviePlayer(
 
 // `?t=<seconds>` freezes one sampled frame (deterministic capture); otherwise
 // the clip plays live off the render loop.
-const frozen = params.get("t");
-const freezeAt = frozen !== null ? Number(frozen) : null;
+const frozen: string | null = params.get("t");
+const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (!showRom && freezeAt !== null && Number.isFinite(freezeAt))
   player.update(freezeAt);
 
 // ── scene scaffolding ───────────────────────────────────────────────────────
-const scene = new THREE.Scene();
+const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 scene.background = new THREE.Color(0xf2f4f8);
 scene.add(object.object);
 
 // a large floor so a traveling clip (followed by the camera) always has ground
 // scrolling beneath it instead of walking off the edge of a small grid
-const grid = new THREE.GridHelper(40, 80, 0xb8c0cc, 0xd5dbe4);
+const grid: THREE.GridHelper = new THREE.GridHelper(40, 80, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
 
-const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1);
+const hemi: THREE.HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1);
 scene.add(hemi);
-const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(2, 4, 3);
 scene.add(sun);
 
 // `?az=<deg>` orbits the camera (0 = front, 90 = right side) so sagittal clips
 // like walk/hop can be inspected from the side.
-const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 100);
-const az = (Number(params.get("az") ?? 0) * Math.PI) / 180;
-const target = isCat ? 0.26 : 0.92;
-const dist = isCat ? 1.7 : 3.8;
-const ctr = isCat ? 0.12 : 0; // cat trunk centre is forward of the hips
-const camY = target + (isCat ? 0.22 : 0.1);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 1, 0.05, 100);
+const az: number = (Number(params.get("az") ?? 0) * Math.PI) / 180;
+const target: 0.26 | 0.92 = isCat ? 0.26 : 0.92;
+const dist: 3.8 | 1.7 = isCat ? 1.7 : 3.8;
+const ctr: 0 | 0.12 = isCat ? 0.12 : 0; // cat trunk centre is forward of the hips
+const camY: number = target + (isCat ? 0.22 : 0.1);
 
 // `?follow=1` makes the camera ride along with the character's root as a
 // traveling clip (stroll/sprint/prowl/bound) carries it across the floor,
@@ -108,10 +114,10 @@ const camY = target + (isCat ? 0.22 : 0.1);
 // figure stays framed while the ground scrolls past (a tracking shot). The
 // root translation the engine bakes via travelMotion lands on `object.object`,
 // so we just read its world position each frame.
-const followMode = params.get("follow") === "1";
-const followCamera = (): void => {
-  const px = object.object.position.x;
-  const pz = object.object.position.z;
+const followMode: boolean = params.get("follow") === "1";
+const followCamera: () => void = (): void => {
+  const px: number = object.object.position.x;
+  const pz: number = object.object.position.z;
   camera.position.set(
     px + dist * Math.sin(az),
     camY,
@@ -127,30 +133,30 @@ if (followMode) followCamera();
 // Each joint's `constraint.flexion` [min,max] swept about its flexion axis (the
 // same axis the engine validates against), drawn at rest so the figure's whole
 // range of motion is visible at once, the joint-limit idea made tangible.
-const buildRomFans = (): void => {
+const buildRomFans: () => void = (): void => {
   scene.updateMatrixWorld(true);
-  const pos = new THREE.Vector3();
-  const quat = new THREE.Quaternion();
-  const scl = new THREE.Vector3();
+  const pos: THREE.Vector3 = new THREE.Vector3();
+  const quat: THREE.Quaternion = new THREE.Quaternion();
+  const scl: THREE.Vector3 = new THREE.Vector3();
   for (const b of skeleton.bones) {
-    const flex = b.constraint?.flexion;
+    const flex: { min: number; max: number } | null | undefined = b.constraint?.flexion;
     if (flex === null || flex === undefined) continue;
-    const child = skeleton.bones.find((x) => x.parent === b.bone);
-    const tb = object.bones.get(b.bone);
+    const child: ReturnType<typeof skeleton.bones.find> = skeleton.bones.find((x: IAutoMovieBone): boolean => x.parent === b.bone);
+    const tb: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get(b.bone);
     if (child === undefined || tb === undefined) continue;
     tb.matrixWorld.decompose(pos, quat, scl);
-    const childDir = new THREE.Vector3(
+    const childDir: THREE.Vector3 = new THREE.Vector3(
       child.rest.translation.x,
       child.rest.translation.y,
       child.rest.translation.z,
     );
-    const a = jointAxes?.[b.bone]?.flexion ?? { x: 1, y: 0, z: 0 };
-    const axis = new THREE.Vector3(a.x, a.y, a.z);
+    const a: IAutoMovieVector3 = jointAxes?.[b.bone]?.flexion ?? { x: 1, y: 0, z: 0 };
+    const axis: THREE.Vector3 = new THREE.Vector3(a.x, a.y, a.z);
     const arc: THREE.Vector3[] = [];
-    const N = 28;
-    for (let i = 0; i <= N; ++i) {
-      const deg = flex.min + ((flex.max - flex.min) * i) / N;
-      const q = new THREE.Quaternion().setFromAxisAngle(
+    const N: number = 28;
+    for (let i: number = 0; i <= N; ++i) {
+      const deg: number = flex.min + ((flex.max - flex.min) * i) / N;
+      const q: THREE.Quaternion = new THREE.Quaternion().setFromAxisAngle(
         axis,
         (deg * Math.PI) / 180,
       );
@@ -160,7 +166,7 @@ const buildRomFans = (): void => {
           .add(childDir.clone().applyQuaternion(q).applyQuaternion(quat)),
       );
     }
-    const outline = [pos.clone(), ...arc, pos.clone()];
+    const outline: THREE.Vector3[] = [pos.clone(), ...arc, pos.clone()];
     scene.add(
       new THREE.Line(
         new THREE.BufferGeometry().setFromPoints(outline),
@@ -179,21 +185,21 @@ if (showRom) buildRomFans();
 // The head's forward (+Z, where the eyes are) tracks a target orbiting in front
 // of the face: each frame compute the world look direction and convert it to the
 // head bone's local rotation via the engine's aimRotation.
-const lookMode = params.get("look") === "1";
-const headBone = object.bones.get("head");
-const aimHead = (elapsed: number): void => {
+const lookMode: boolean = params.get("look") === "1";
+const headBone: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("head");
+const aimHead: (elapsed: number) => void = (elapsed: number): void => {
   if (headBone === undefined) return;
   scene.updateMatrixWorld(true);
-  const parentQ = new THREE.Quaternion();
+  const parentQ: THREE.Quaternion = new THREE.Quaternion();
   headBone.parent!.getWorldQuaternion(parentQ);
   // a target circling in front of the head (forward +Z, sweeping x/y)
-  const dir = new THREE.Vector3(
+  const dir: THREE.Vector3 = new THREE.Vector3(
     0.6 * Math.cos(elapsed * 1.5),
     0.45 * Math.sin(elapsed * 1.5),
     0.9,
   ).normalize();
-  const a = aimRotation({ x: 0, y: 0, z: 1 }, { x: dir.x, y: dir.y, z: dir.z });
-  const world = new THREE.Quaternion(a.x, a.y, a.z, a.w);
+  const a: ReturnType<typeof aimRotation> = aimRotation({ x: 0, y: 0, z: 1 }, { x: dir.x, y: dir.y, z: dir.z });
+  const world: THREE.Quaternion = new THREE.Quaternion(a.x, a.y, a.z, a.w);
   headBone.quaternion.copy(parentQ.invert().multiply(world));
 };
 
@@ -201,30 +207,30 @@ const aimHead = (elapsed: number): void => {
 // The right arm reaches a moving target: aim the upper arm off the shoulder→goal
 // line by the engine's solveTwoBoneIK `lift`, then point the forearm at the goal
 //, the hand lands on the target, the elbow bending as it moves in and out.
-const reachMode = params.get("reach") === "1";
-const segLen = (b: string): number => {
-  const t = skeleton.bones.find((x) => x.bone === b)?.rest.translation;
+const reachMode: boolean = params.get("reach") === "1";
+const segLen: (b: string) => number = (b: string): number => {
+  const t: IAutoMovieVector3 | undefined = skeleton.bones.find((x: IAutoMovieBone): boolean => x.bone === b)?.rest.translation;
   return t ? Math.hypot(t.x, t.y, t.z) : 0.25;
 };
-const L1 = segLen("rightLowerArm"); // shoulder → elbow
-const L2 = segLen("rightHand"); // elbow → wrist
-const reachTarget = new THREE.Mesh(
+const L1: number = segLen("rightLowerArm"); // shoulder → elbow
+const L2: number = segLen("rightHand"); // elbow → wrist
+const reachTarget: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
   new THREE.SphereGeometry(0.04, 16, 12),
   new THREE.MeshStandardMaterial({ color: 0xe5484d }),
 );
 if (reachMode) scene.add(reachTarget);
-const FWD = { x: -1, y: 0, z: 0 }; // right-arm rest points down its −X local axis
-const toThree = (q: { x: number; y: number; z: number; w: number }) =>
+const FWD: { x: number; y: number; z: number; } = { x: -1, y: 0, z: 0 }; // right-arm rest points down its −X local axis
+const toThree: (q: { x: number; y: number; z: number; w: number; }) => THREE.Quaternion = (q: { x: number; y: number; z: number; w: number }): THREE.Quaternion =>
   new THREE.Quaternion(q.x, q.y, q.z, q.w);
 
-const reach = (elapsed: number): void => {
-  const upper = object.bones.get("rightUpperArm");
-  const lower = object.bones.get("rightLowerArm");
+const reach: (elapsed: number) => void = (elapsed: number): void => {
+  const upper: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("rightUpperArm");
+  const lower: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("rightLowerArm");
   if (upper === undefined || lower === undefined) return;
   scene.updateMatrixWorld(true);
-  const root = new THREE.Vector3().setFromMatrixPosition(upper.matrixWorld);
+  const root: THREE.Vector3 = new THREE.Vector3().setFromMatrixPosition(upper.matrixWorld);
   // target circles in front of and beside the right shoulder, in and out
-  const goal = root
+  const goal: THREE.Vector3 = root
     .clone()
     .add(
       new THREE.Vector3(
@@ -235,27 +241,27 @@ const reach = (elapsed: number): void => {
     );
   reachTarget.position.copy(goal);
 
-  const toGoal = goal.clone().sub(root);
-  const dir = toGoal.clone().normalize();
-  const { lift } = solveTwoBoneIK(L1, L2, toGoal.length());
-  const pole = new THREE.Vector3(0, -1, -0.4).normalize();
-  const bendAxis = new THREE.Vector3().crossVectors(dir, pole).normalize();
-  const upperDir = dir
+  const toGoal: THREE.Vector3 = goal.clone().sub(root);
+  const dir: THREE.Vector3 = toGoal.clone().normalize();
+  const { lift }: ReturnType<typeof solveTwoBoneIK> = solveTwoBoneIK(L1, L2, toGoal.length());
+  const pole: THREE.Vector3 = new THREE.Vector3(0, -1, -0.4).normalize();
+  const bendAxis: THREE.Vector3 = new THREE.Vector3().crossVectors(dir, pole).normalize();
+  const upperDir: THREE.Vector3 = dir
     .clone()
     .applyQuaternion(
       new THREE.Quaternion().setFromAxisAngle(bendAxis, (lift * Math.PI) / 180),
     );
-  const elbow = root.clone().add(upperDir.clone().multiplyScalar(L1));
-  const handDir = goal.clone().sub(elbow).normalize();
+  const elbow: THREE.Vector3 = root.clone().add(upperDir.clone().multiplyScalar(L1));
+  const handDir: THREE.Vector3 = goal.clone().sub(elbow).normalize();
 
-  const parentQ = new THREE.Quaternion();
+  const parentQ: THREE.Quaternion = new THREE.Quaternion();
   upper.parent!.getWorldQuaternion(parentQ);
-  const upperWorld = toThree(aimRotation(FWD, upperDir));
+  const upperWorld: THREE.Quaternion = toThree(aimRotation(FWD, upperDir));
   upper.quaternion.copy(parentQ.clone().invert().multiply(upperWorld));
   upper.updateWorldMatrix(true, false);
-  const upperWorldQ = new THREE.Quaternion();
+  const upperWorldQ: THREE.Quaternion = new THREE.Quaternion();
   upper.getWorldQuaternion(upperWorldQ);
-  const lowerWorld = toThree(
+  const lowerWorld: THREE.Quaternion = toThree(
     aimRotation(FWD, { x: handDir.x, y: handDir.y, z: handDir.z }),
   );
   lower.quaternion.copy(upperWorldQ.invert().multiply(lowerWorld));
@@ -263,7 +269,7 @@ const reach = (elapsed: number): void => {
 
 // One frame of animation at `elapsed` seconds, shared by the live render loop
 // and the deterministic capture hook below.
-const frame = (elapsed: number): void => {
+const frame: (elapsed: number) => void = (elapsed: number): void => {
   if (reachMode) reach(elapsed);
   else if (lookMode) aimHead(elapsed);
   else if (!showRom) {
@@ -272,10 +278,10 @@ const frame = (elapsed: number): void => {
   }
 };
 
-const canvas = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
 // `?cap=1` hands frame timing to the capturer (window.__afSeek) instead of the
 // wall clock, so a recorder can step through deterministically in one session.
-const capMode = params.get("cap") === "1";
+const capMode: boolean = params.get("cap") === "1";
 // Pin the capture canvas to the render plan's exact frame size (#1251), so a
 // headless screenshot of `#view` is that size regardless of the host window.
 if (capMode)
@@ -285,17 +291,17 @@ if (capMode)
     Number(params.get("h")),
   );
 let observedPass: AutoMovieGuidePass = "beauty";
-const handle = mountViewer(
+const handle: ReturnType<typeof mountViewer> = mountViewer(
   canvas,
   scene,
   camera,
-  (elapsed) => {
+  (elapsed: number): void => {
     if (!capMode && freezeAt === null) frame(elapsed);
   },
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
   // guide passes read back crisp and byte-stable across hosts.
   { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
-    completedFrame: () => ({ scene, camera, pass: observedPass }) },
+    completedFrame: (): { scene: THREE.Scene<THREE.Object3DEventMap>; camera: THREE.PerspectiveCamera; pass: AutoMovieGuidePass; } => ({ scene, camera, pass: observedPass }) },
 );
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
@@ -319,26 +325,26 @@ let passHandle: IAutoMovieRenderModeHandle | null = null;
 };
 
 // ── clip selector (live switching) ──────────────────────────────────────────
-const bar = document.querySelector<HTMLDivElement>("#clips");
-let activeClip = clipName;
-const selectClip = (name: string): void => {
+const bar: HTMLDivElement | null = document.querySelector<HTMLDivElement>("#clips");
+let activeClip: string = clipName;
+const selectClip: (name: string) => void = (name: string): void => {
   activeClip = name;
   player.setMotion(clips[name]!);
   if (bar !== null) for (const el of bar.children) el.className = el.textContent === name ? "on" : "";
 };
 if (bar !== null) {
   for (const name of Object.keys(clips)) {
-    const b = document.createElement("button");
+    const b: HTMLButtonElement = document.createElement("button");
     b.textContent = name;
     b.className = name === activeClip ? "on" : "";
-    b.addEventListener("click", () => {
+    b.addEventListener("click", (): void => {
       selectClip(name);
     });
     bar.appendChild(b);
   }
 }
-registerViewerSelection({ names: Object.keys(clips), read: () => activeClip, select: selectClip,
-  pass: { read: () => observedPass, restore: (pass) => {
+registerViewerSelection({ names: Object.keys(clips), read: (): string => activeClip, select: selectClip,
+  pass: { read: (): AutoMovieGuidePass => observedPass, restore: (pass: AutoMovieGuidePass): void => {
     passHandle?.restore(); passHandle = applyRenderMode(scene, pass); observedPass = pass;
   } } });
 
@@ -346,6 +352,6 @@ registerViewerSelection({ names: Object.keys(clips), read: () => activeClip, sel
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,
   clip: clipName,
-  boneCount: () => object.bones.size,
-  partCount: () => model.parts.length,
+  boneCount: (): number => object.bones.size,
+  partCount: (): number => model.parts.length,
 };

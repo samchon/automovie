@@ -2,7 +2,7 @@ import { assembleHumanBodyGeneratedAnatomy } from "@automovie/human/body/anatomy
 import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { renderBodyMeasuredControls } from "../body/bodyMeasuredControls";
+import { renderBodyMeasuredControls } from "../body/renderBodyMeasuredControls";
 import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { mountBodyJointControls } from "../body/mountBodyJointControls";
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
@@ -34,32 +34,41 @@ import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyCo
  * anatomical parts not generated with their reason (from the generated
  * anatomy report, assembled once with no request), and the source channels
  * no measurement names. The joint group ends with the motions the rig holds.
+ * The shape-only measured solver returns a reading before complete-person anatomy/admission; its report remains a solver reading rather than independent final-person readback. Rendering preserves drafts, but the numerical transports and panel own pending work and close.
+ *
+ * @evidence contracts/common.md#principled-implementation Paired evaluable reach drives measured scales/solves and explicit unavailable rows, while body/anatomy/pose edits share the panel's complete-person intent and transaction authority.
+ * @evidence contracts/common.md#clear-and-simple-design This section owns group/search/bone and input drafts, delegates canonical measured/joint/anatomy row rendering, and leaves numerical construction/admission/history to existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing endpoints/tissues/held motions stay named, reach is not extrapolated and shape-only solver readings do not claim independent final-person anatomy or accepted history.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies paired reach, generated no-request anatomy, draft/selection ownership, solver-reading provenance and separate pending-work lifetime.
+ * @evidence contracts/performance.md#efficient-algorithms Initial mount computes real measured channel displacement scales and one generated no-request anatomy report, retaining their actual source/numerical traversal costs; each repaint searches and builds the selected measured/anatomy/pose rows plus corresponding reach annotations, with existing row owners accounting for their scans.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One scale Map, reach and no-request anatomy report are reused within the source-bound mounted section; mutable document state is read at event/render time rather than cached across edits.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The section retains one source-bound scale/report set, finite source-channel/target draft maps and current bone/search state; repaint replaces row DOM, parent close removes the section, and externally retained handles or pending transport tasks remain their actual owners' responsibility.
  *
  * @author Samchon
  */
 export function mountConnectedPersonBodyControls(
   props: IConnectedPersonBodyControlsProps,
-) {
-  const { dom } = props;
-  const reach = props.reach;
-  const unavailable = new Set(props.body.unavailableTargets ?? []);
-  const scales = new Map(
+): { /** Repaint selected controls from current body draft while preserving text drafts. */ render: () => void } {
+  const { dom }: Pick<IConnectedPersonBodyControlsProps, "dom"> = props;
+  const reach: IConnectedPersonBodyControlsProps["reach"] = props.reach;
+  const unavailable: Set<string> = new Set(props.body.unavailableTargets ?? []);
+  const scales: Map<string, ReturnType<typeof measureHumanBodyBasisChannels>[number]> = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
-      (scale) => [scale.id, scale],
+      (scale: ReturnType<typeof measureHumanBodyBasisChannels>[number]): [string, ReturnType<typeof measureHumanBodyBasisChannels>[number]] => [scale.id, scale],
     ),
   );
-  const kind = props.section.querySelector<HTMLSelectElement>(
+  const kind: HTMLSelectElement = props.section.querySelector<HTMLSelectElement>(
     '[data-role="control-kind"]',
   )!;
-  const container = props.section.querySelector<HTMLElement>(
+  const container: HTMLElement = props.section.querySelector<HTMLElement>(
     '[data-role="basis-controls"]',
   )!;
-  const groups = bodyMeasuredGroups(reach.basis.channels, scales);
+  const groups: string[] = bodyMeasuredGroups(reach.basis.channels, scales);
   // no request is stated, so every part answers with its source reason
-  const anatomy = assembleHumanBodyGeneratedAnatomy({ basis: props.body });
-  const targetDrafts = new Map<string, string>();
+  const anatomy: ReturnType<typeof assembleHumanBodyGeneratedAnatomy> = assembleHumanBodyGeneratedAnatomy({ basis: props.body });
+  const targetDrafts: Map<string, string> = new Map();
   for (const group of ["anatomy", ...groups, "pose"]) {
-    const option = dom.createElement("option");
+    const option: HTMLOptionElement = dom.createElement("option");
     option.value = group;
     option.textContent =
       group === "pose"
@@ -69,16 +78,16 @@ export function mountConnectedPersonBodyControls(
           : "Measurement · " + group;
     kind.append(option);
   }
-  const drafts = new Map<string, string>();
+  const drafts: Map<string, string> = new Map();
   let bone: AutoMovieHumanoidBone = "neck";
-  const search = dom.createElement("input");
+  const search: HTMLInputElement = dom.createElement("input");
   search.type = "search";
   search.placeholder = "Find a body control: neck, waist, shoulder, knee…";
   search.setAttribute("aria-label", "Find a body control");
   search.style.width = "100%";
   container.before(search);
-  const render = (): void => {
-    const query = search.value.toLowerCase().replace(/\s/g, "");
+  const render: () => void = (): void => {
+    const query: string = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
     if (kind.value === "pose") {
       mountBodyJointControls({
@@ -88,11 +97,11 @@ export function mountConnectedPersonBodyControls(
         bone,
         query,
         current: props.current,
-        select: (selected) => {
+        select: (selected: AutoMovieHumanoidBone): void => {
           bone = selected;
         },
         redraw: render,
-        change: (next) => {
+        change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>): void => {
           void props.change(next);
         },
         refuse: props.refuse,
@@ -110,7 +119,7 @@ export function mountConnectedPersonBodyControls(
         current: props.current,
         reserve: props.reserve,
         isCurrent: props.isCurrent,
-        change: (next, ticket) => props.change(next, ticket),
+        change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>, ticket: number): Promise<boolean> => props.change(next, ticket),
         busy: props.busy,
         report: props.report,
         refuse: props.refuse,
@@ -132,7 +141,7 @@ export function mountConnectedPersonBodyControls(
       reserve: props.reserve,
       isCurrent: props.isCurrent,
       solve: props.solve,
-      change: (next, ticket) => props.change(next, ticket),
+      change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>, ticket: number): Promise<boolean> => props.change(next, ticket),
       busy: props.busy,
       report: props.report,
       refuse: props.refuse,

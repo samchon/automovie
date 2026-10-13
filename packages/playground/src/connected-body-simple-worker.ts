@@ -1,4 +1,10 @@
 /// <reference lib="webworker" />
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleWhole";
+import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
+import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
+import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleShape";
+import type { IAutoMovieHumanBodyMeasuredChannelSolution } from "@automovie/human/body/structures/IAutoMovieHumanBodyMeasuredChannelSolution";
 /**
  * A worker that owns the body editor's simple tier: it loads the body
  * partition view of the published person generation once and answers expansion, projection and one measured detailed
@@ -25,13 +31,15 @@ import type { IBodySimpleSolveMessage } from "./human/body/IBodySimpleSolveMessa
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { connectedBodyReach } from "./human/common/connectedBodyReach";
+import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
-const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.all([
-  readConnectedHeadView(),
-  readConnectedBodyView(),
-]).then(([head, view]) => {
-  const whole = createConnectedBodySimpleWhole(head, view);
+const scope: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
+const source: ReturnType<typeof readConnectedPersonSourceUrls> = readConnectedPersonSourceUrls(scope.name, location.href);
+const prepared: Promise<readonly [IAutoMovieHumanBodyBasis, IAutoMovieHumanBodySimpleWhole]> = Promise.all([
+  readConnectedHeadView(source?.head),
+  readConnectedBodyView(source?.body),
+]).then(([head, view]: [IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView]): readonly [IAutoMovieHumanBodyBasis, IAutoMovieHumanBodySimpleWhole] => {
+  const whole: IAutoMovieHumanBodySimpleWhole = createConnectedBodySimpleWhole(head, view);
   // Detailed body-only measurements retain the body's own authoring reach;
   // expansion consumes the whole reader's paired reach itself; projection
   // reads a held shape and needs no inverse bracket.
@@ -44,11 +52,11 @@ scope.onmessage = async (
     | IBodySimpleProjectMessage
     | IBodySimpleSolveMessage
   >,
-) => {
-  const request = event.data;
+): Promise<void> => {
+  const request: IBodySimpleExpandMessage | IBodySimpleProjectMessage | IBodySimpleSolveMessage = event.data;
   try {
-    const [basis, whole] = await prepared;
-    const result =
+    const [basis, whole]: Awaited<typeof prepared> = await prepared;
+    const result: IAutoMovieHumanBodySimpleShape | Record<string, number> | IAutoMovieHumanBodyMeasuredChannelSolution =
       request.kind === "expand"
         ? expandHumanBodySimpleShape(basis, whole, request.simple, request.over)
         : request.kind === "project"

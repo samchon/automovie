@@ -6,5 +6,5 @@
  *
  * @author Samchon
  */
-export const CONNECTED_BODY_WHOLE_SOURCE =
+export const CONNECTED_BODY_WHOLE_SOURCE: string =
   "whole person; head: standard face (convention)";

@@ -4,7 +4,7 @@
  */
 import { startPlaygroundViewerHost } from "./startPlaygroundViewerHost.mjs";
 
-void startPlaygroundViewerHost().catch((cause: unknown) => {
+void startPlaygroundViewerHost().catch((cause: unknown): void => {
   console.error(cause);
   process.exitCode = 1;
 });

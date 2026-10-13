@@ -6,14 +6,16 @@
  * owners as the connected face page. The head shown on the neck is that
  * generation's head view with the default face, evaluated with each body
  * document by the product person runtime in its own worker
- * (`createConnectedBodyHeadSeat`), so the neck meets the head exactly as the
- * one-skin person carries it. The head never enters the body document or its
- * export.
+ * (`createConnectedBodyHeadSeat`). The companion uses that generation's numerical
+ * head/body seam; this wiring alone does not establish observed neck continuity
+ * or healthy displayed geometry. The head stays outside the body document and export.
  */
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import { connectedBodyEditorPoses } from "./human/body/connectedBodyEditorPoses";
-import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
+import { mountConnectedBodyPanel } from "./human/body/mountConnectedBodyPanel";
 import { createConnectedBodyHeadSeat } from "./human/body/createConnectedBodyHeadSeat";
 import { createConnectedBodyInitialDocument } from "./human/body/createConnectedBodyInitialDocument";
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
@@ -22,21 +24,33 @@ import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
+import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 async function main(): Promise<void> {
-  const basis = (await readConnectedBodyView()).body;
+  const source: ReturnType<typeof readConnectedPersonSourceUrls> = readConnectedPersonSourceUrls(location.search, location.href);
+  const basis: Awaited<ReturnType<typeof readConnectedBodyView>>["body"] = (await readConnectedBodyView(source?.body)).body;
   let viewport!: ReturnType<typeof createConnectedBodyPageViewport>;
-  const panel = mountConnectedBodyPanel(
+  const simple: ReturnType<typeof createConnectedBodySimpleSolvers> = createConnectedBodySimpleSolvers();
+  const seat: ReturnType<typeof createConnectedBodyHeadSeat> = createConnectedBodyHeadSeat({
+    source: basis.anatomicalAssembly,
+    viewport: (): ReturnType<typeof createConnectedBodyPageViewport> => viewport,
+    status: (text: string): void => {
+      document.querySelector<HTMLDivElement>("#body-status")!.textContent += "\n" + text;
+    },
+    preparing: (active: boolean): void =>
+      setConnectedBodyPreparing(document, "the head view on this body", active),
+  });
+  const panel: ReturnType<typeof mountConnectedBodyPanel> = mountConnectedBodyPanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
       basis,
       initial: createConnectedBodyInitialDocument(basis.id),
-      simple: createConnectedBodySimpleSolvers(),
+      simple,
       poses: [...connectedBodyEditorPoses],
-      viewport: (canvas) =>
+      viewport: (canvas: HTMLCanvasElement): ReturnType<typeof createConnectedBodyPageViewport> =>
         (viewport = createConnectedBodyPageViewport(
           canvas,
-          (bodyDocument) =>
+          (bodyDocument: IAutoMovieHumanBodyBasisDocument): string =>
             serializeHumanBodyBasisDocument(
               bodyDocument,
               basis.anatomicalAssembly,
@@ -44,29 +58,25 @@ async function main(): Promise<void> {
           undefined,
           basis.anatomicalAssembly,
         )),
-      seat: createConnectedBodyHeadSeat({
-        source: basis.anatomicalAssembly,
-        viewport: () => viewport,
-        status: (text) => {
-          document.querySelector<HTMLDivElement>("#body-status")!.textContent +=
-            "\n" + text;
-        },
-        preparing: (active) =>
-          setConnectedBodyPreparing(
-            document,
-            "the head view on this body",
-            active,
-          ),
-      }),
+      seat,
       download: downloadConnectedFile,
     },
   );
+  const close: () => Promise<void> = createAutoMovieResourceRetirement([
+    panel.close,
+    seat.close,
+    simple.close,
+  ]);
+  window.addEventListener("pagehide", (event: PageTransitionEvent): void => {
+    if (!event.persisted)
+      void close().catch((error: unknown): void => { console.error(error); });
+  });
   registerPlaygroundEditor({ ready: panel.ready,
-    document: () => panel.snapshot()?.document,
+    document: (): IAutoMovieHumanBodyBasisDocument | undefined => panel.snapshot()?.document,
     load: panel.load, controls: document });
   await panel.ready;
 }
-void main().catch((error: unknown) => {
+void main().catch((error: unknown): void => {
   window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLDivElement>("#app")!.textContent =
     error instanceof Error ? error.message : String(error);

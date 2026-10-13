@@ -1,7 +1,7 @@
 import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
 import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/document/createHumanBodyShoulderPose";
 
-import type { BodyPosePreset } from "./bodyPosePresets";
+import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
  * The body editor's pose presets, in button order. Angles are clinical

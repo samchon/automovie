@@ -1,4 +1,7 @@
 /// <reference lib="webworker" />
+import type { ConnectedFaceResult } from "@automovie/human/face/runtime/ConnectedFaceResult";
+import type { IAutoMovieHumanFaceBasis } from "@automovie/human/face/structures/IAutoMovieHumanFaceBasis";
+import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 /**
  * Prepare the page-selected basis once per resident worker. The repository
  * bundles no basis: the page passes the caller's `faceSource` URL in the
@@ -11,18 +14,18 @@ import type { ConnectedFaceRequest } from "@automovie/human/face/runtime/Connect
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import { createConnectedFaceRuntime } from "@automovie/human/face/runtime/createConnectedFaceRuntime";
-import { createHumanResidentHandler } from "./human/common/residentHandler";
+import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
 import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
 
-const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = Promise.resolve()
-  .then(() => readConnectedFaceSourceUrl(scope.name, location.href))
-  .then((source) => readConnectedFaceAsset({ read: () => fetch(source) }))
-  .then((basis) => createConnectedFaceRuntime({ basis }));
-const handle = createHumanResidentHandler({
+const scope: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
+const prepared: Promise<(request: ConnectedFaceRequest) => Promise<ConnectedFaceResult>> = Promise.resolve()
+  .then((): string => readConnectedFaceSourceUrl(scope.name, location.href))
+  .then((source: string): Promise<IAutoMovieHumanFaceBasis> => readConnectedFaceAsset({ read: (): Promise<Response> => fetch(source) }))
+  .then((basis: IAutoMovieHumanFaceBasis): (request: ConnectedFaceRequest) => Promise<ConnectedFaceResult> => createConnectedFaceRuntime({ basis }));
+const handle: (request: IHumanResidentRequest<ConnectedFaceRequest>) => Promise<void> = createHumanResidentHandler({
   prepare: prepared,
-  send: (reply) => {
-    const transfer =
+  send: (reply: HumanResidentReply<ConnectedFaceResult>): void => {
+    const transfer: ArrayBuffer[] =
       reply.success && reply.value.operation === "export"
         ? [reply.value.glb.buffer]
         : [];
@@ -31,6 +34,6 @@ const handle = createHumanResidentHandler({
 });
 scope.onmessage = (
   event: MessageEvent<IHumanResidentRequest<ConnectedFaceRequest>>,
-) => {
+): void => {
   void handle(event.data);
 };

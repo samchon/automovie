@@ -1,3 +1,7 @@
+import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
+import type { IHumanViewerProbe } from "@automovie/viewer/human/inspection/IHumanViewerProbe";
+import type { IHumanShotHealth } from "@automovie/viewer/human/inspection/IHumanShotHealth";
+import type { IHumanViewerSilence } from "@automovie/viewer/human/inspection/IHumanViewerSilence";
 /**
  * Thin session-owned client for the resident viewer. Start `ensure` as a
  * background session job; it alone starts a server, owns it as its child and
@@ -34,11 +38,11 @@ import { launchHumanViewerServer } from "@automovie/viewer/human/inspection/laun
 import { stopHumanViewerServer } from "@automovie/viewer/human/inspection/stopHumanViewerServer";
 import { watchHumanViewer } from "@automovie/viewer/human/inspection/watchHumanViewer";
 
-const directory = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(directory, "../../../../..");
-const storage = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
-const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const request = parseHumanShotRequest(process.argv.slice(2));
+const directory: string = path.dirname(fileURLToPath(import.meta.url));
+const root: string = path.resolve(directory, "../../../../..");
+const storage: string = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
+const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const request: { command: "ensure" | "status" | "stop" | "watch" | "render" | "sheet" | "compare" | "warm"; query: string; output: string | null; } = parseHumanShotRequest(process.argv.slice(2));
 const context: IHumanShotContext = {
   directory,
   root,
@@ -56,11 +60,11 @@ const context: IHumanShotContext = {
 let owned: ChildProcess | undefined;
 
 async function main(): Promise<void> {
-  const probe = await probeHumanViewer(context);
-  const health = probe.health;
+  const probe: IHumanViewerProbe = await probeHumanViewer(context);
+  const health: IHumanShotHealth | null | undefined = probe.health;
   if (request.command === "status") {
     if (health === null || health === undefined) {
-      const silence = describeHumanShotSilence(context, health === null);
+      const silence: IHumanViewerSilence = describeHumanShotSilence(context, health === null);
       console.log(JSON.stringify(silence));
       process.exitCode = silence.answer === "absent" ? 3 : 4;
       return;
@@ -82,7 +86,7 @@ async function main(): Promise<void> {
   // A capture never waits for a server to become ready: it asks a ready one
   // or ends at once with the reason, so it cannot outlive its answer.
   if (health === null || health === undefined) {
-    const silence = describeHumanShotSilence(context, health === null);
+    const silence: IHumanViewerSilence = describeHumanShotSilence(context, health === null);
     console.error(
       silence.answer === "absent"
         ? `No human viewer listens on port ${instance.port}; start one with ` +
@@ -101,9 +105,9 @@ async function main(): Promise<void> {
   }
   await captureHumanViewerShot(context);
 }
-void main().catch((error: unknown) => {
-  const owner = owned?.pid;
-  let stopped = false;
+void main().catch((error: unknown): void => {
+  const owner: number | undefined = owned?.pid;
+  let stopped: boolean = false;
   let stopError: unknown;
   if (owned)
     try {

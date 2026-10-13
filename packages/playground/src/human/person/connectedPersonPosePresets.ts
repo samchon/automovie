@@ -1,7 +1,7 @@
 import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
 import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/document/createHumanBodyShoulderPose";
 
-import type { BodyPosePreset } from "../body/bodyPosePresets";
+import type { BodyPosePreset } from "../body/BodyPosePreset";
 
 /**
  * The connected person editor's pose presets: rest, the arm poses the body

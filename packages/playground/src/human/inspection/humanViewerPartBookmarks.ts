@@ -1,11 +1,11 @@
 import type { IHumanViewerPartBookmark } from "./IHumanViewerPartBookmark";
 
-const face = (
+const face: (id: string, region: string, label: string, meshes: string[], doc?: string) => IHumanViewerPartBookmark = (
   id: string,
   region: string,
   label: string,
   meshes: string[],
-  doc = "connected-reference",
+  doc: string = "connected-reference",
 ): IHumanViewerPartBookmark => ({ id, region, label, doc, meshes });
 
 /**

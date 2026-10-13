@@ -1,3 +1,22 @@
+import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
+import type { IHumanViewerCatalogue } from "@automovie/viewer/human/inspection/IHumanViewerCatalogue";
+import type { IHumanViewerNumericalRequest } from "@automovie/viewer/human/inspection/IHumanViewerNumericalRequest";
+import type { IHumanViewerPersistenceCommand } from "@automovie/viewer/human/inspection/IHumanViewerPersistenceCommand";
+import type { IHumanViewerAdmissionReply } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionReply";
+import type { IHumanViewerAdmissionBridge } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionBridge";
+import type { HumanViewerWork } from "@automovie/viewer/human/inspection/HumanViewerWork";
+import type { IHumanViewerHeap } from "@automovie/viewer/human/inspection/IHumanViewerHeap";
+import type { IHumanViewerHeapUsage } from "@automovie/viewer/human/inspection/IHumanViewerHeapUsage";
+import type { HumanViewerLane } from "@automovie/viewer/human/inspection/HumanViewerLane";
+import type { IHumanViewerQueueStatus } from "@automovie/viewer/human/inspection/IHumanViewerQueueStatus";
+import type { IHumanViewerCaptureStage } from "@automovie/viewer/human/inspection/IHumanViewerCaptureStage";
+import type { IHumanViewerResidentTrimReading } from "@automovie/viewer/human/inspection/IHumanViewerResidentTrimReading";
+import type { IHumanViewerWorkerHeap } from "@automovie/viewer/human/inspection/IHumanViewerWorkerHeap";
+import type { HumanViewerAddress } from "@automovie/viewer/human/inspection/HumanViewerAddress";
+import type { IHumanViewerPhases } from "@automovie/viewer/human/inspection/IHumanViewerPhases";
+import type { IHumanViewerCaptureStatus } from "@automovie/viewer/human/inspection/IHumanViewerCaptureStatus";
+import type { HumanViewerMiddleware } from "@automovie/viewer/human/inspection/HumanViewerMiddleware";
+import type { IHumanViewerHealth } from "@automovie/viewer/human/inspection/IHumanViewerHealth";
 /**
  * Loopback-only resident GPU server, started as an attached session job:
  * `pnpm exec ttsx -P src/human/inspection/tsconfig.json src/human/inspection/server.mts`.
@@ -18,6 +37,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import type { IHumanViewerAdmissionWindow } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionWindow";
 import type { IHumanViewerEdit } from "@automovie/viewer/human/inspection/IHumanViewerEdit";
@@ -59,22 +79,22 @@ import { createHumanViewerReferenceFaceDocument } from "../examples/createHumanV
 import { readHumanViewerStandardPeople } from "../examples/readHumanViewerStandardPeople.js";
 import { readHumanViewerSubjectPeople } from "../examples/readHumanViewerSubjectPeople.js";
 
-const applicationDirectory = path.dirname(fileURLToPath(import.meta.url));
+const applicationDirectory: string = path.dirname(fileURLToPath(import.meta.url));
 // Live source inspection uses the declared workspace entry. A packaged runtime
 // resolves its own compiled entry and is a different consumer contract; it must
 // not be guessed into this checkout's source workers and source-only aliases.
-const runtimeEntry = fileURLToPath(import.meta.resolve("@automovie/viewer/human/inspection/createHumanViewerSource"));
+const runtimeEntry: string = fileURLToPath(import.meta.resolve("@automovie/viewer/human/inspection/createHumanViewerSource"));
 if (!runtimeEntry.endsWith(".mts"))
   throw new Error("Live Human inspection requires the declared workspace source entry.");
-const directory = path.dirname(runtimeEntry);
+const directory: string = path.dirname(runtimeEntry);
 /** The launcher that owns this server's port and record, or null when it was started directly. */
-const owner =
+const owner: number | null =
   process.env[humanViewerLaunch.ownerVariable] === undefined
     ? null
     : Number(process.env[humanViewerLaunch.ownerVariable]);
 /** Port, origin and per-process files, chosen by `HUMAN_VIEWER_PORT` (default 5175). */
-const instance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const automaticWarmSetting = process.env.HUMAN_VIEWER_AUTO_WARM;
+const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const automaticWarmSetting: string | undefined = process.env.HUMAN_VIEWER_AUTO_WARM;
 if (
   automaticWarmSetting !== undefined &&
   automaticWarmSetting !== "" &&
@@ -82,9 +102,9 @@ if (
   automaticWarmSetting !== "off"
 )
   throw new Error("HUMAN_VIEWER_AUTO_WARM must be on or off when set.");
-const automaticWarm = automaticWarmSetting !== "off";
+const automaticWarm: boolean = automaticWarmSetting !== "off";
 console.log("human-viewer automatic warm: " + (automaticWarm ? "on" : "off"));
-const source = createHumanViewerSource(directory, applicationDirectory, {
+const source: ReturnType<typeof createHumanViewerSource> = createHumanViewerSource(directory, applicationDirectory, {
   documentsFile: path.resolve(applicationDirectory, "../examples/faces.json"),
   bodyExamplesFile: path.resolve(applicationDirectory, "../examples/bodies.json"),
   cameraPosesFile: path.resolve(applicationDirectory, "../examples/cameras/poses-lens-frame.json"),
@@ -92,19 +112,19 @@ const source = createHumanViewerSource(directory, applicationDirectory, {
   standardPeople: readHumanViewerStandardPeople,
   subjectPeople: readHumanViewerSubjectPeople,
 });
-const { root, storage, basisFiles, inputsDirectory, revisions, catalogue } =
+const { root, storage, basisFiles, inputsDirectory, revisions, catalogue }: typeof source =
   source;
-let inventory = catalogue();
-const sourceEvents = createHumanViewerSourceEvents(() => inventory.revision);
-const numerical = createHumanViewerNodeService({
+let inventory: IHumanViewerCatalogue = catalogue();
+const sourceEvents: ReturnType<typeof createHumanViewerSourceEvents> = createHumanViewerSourceEvents((): string => inventory.revision);
+const numerical: ReturnType<typeof createHumanViewerNodeService> = createHumanViewerNodeService({
   origin: instance.origin,
   directory,
-  revision: () => inventory.revision,
+  revision: (): string => inventory.revision,
   inputs: source.numericalInputs,
 });
-const controller = createHumanViewerCatalogueController({
+const controller: ReturnType<typeof createHumanViewerCatalogueController> = createHumanViewerCatalogueController({
   source,
-  publish: (next) => {
+  publish: (next: IHumanViewerCatalogue): void => {
     inventory = next;
   },
   page: (): IHumanViewerPageState =>
@@ -117,11 +137,11 @@ const controller = createHumanViewerCatalogueController({
   // instead of leaving the rescan waiting on a page that cannot answer. A
   // verdict counts only from a frame whose code is the current revision: a
   // frame on a held or older compile judges with other code than the key names.
-  admit: async (domain, text, basis) => {
-    const reply = await lifetime.run(() =>
+  admit: async (domain: string, text: string, basis: string): Promise<IHumanViewerAdmissionReply> => {
+    const reply: IHumanViewerAdmissionReply = await lifetime.run((): Promise<IHumanViewerAdmissionReply> =>
       residency.page.evaluate(
-        (input) => {
-          const bridge = (window as unknown as IHumanViewerAdmissionWindow)
+        (input: { domain: string; text: string; basis: string; protocol: string; }): Promise<IHumanViewerAdmissionReply> | { available: boolean; reason: null; token: null; } => {
+          const bridge: IHumanViewerAdmissionBridge | undefined = (window as unknown as IHumanViewerAdmissionWindow)
             .__humanViewerAdmission;
           if (bridge !== undefined && bridge.protocol !== input.protocol)
             throw new Error(
@@ -148,18 +168,18 @@ const {
   settleInputs,
   readDocument,
   settleDocument,
-} = controller;
-let sourceUpdating = false;
-const heap = createHumanViewerHeapGauge(() => residency.readHeap());
-const lifetime = createHumanViewerCaptureLifetime();
+}: typeof controller = controller;
+let sourceUpdating: boolean = false;
+const heap: { sample: (work: HumanViewerWork) => void; status: () => IHumanViewerHeap; mark: () => void; windowPeak: () => number | null; } = createHumanViewerHeapGauge((): Promise<IHumanViewerHeapUsage> => residency.readHeap());
+const lifetime: ReturnType<typeof createHumanViewerCaptureLifetime> = createHumanViewerCaptureLifetime();
 // Edits arrive in bursts, so a revision warms only after sixty quiet seconds.
-const warmReadiness = createHumanViewerWarmReadiness(
-  (revision) => {
+const warmReadiness: { source: (revision: string) => void; hardware: () => void; } = createHumanViewerWarmReadiness(
+  (revision: string): void => {
     if (automaticWarm)
       void warmHumanViewerRevision({
         revision,
-        inventory: () => inventory,
-        readyRevision: () => residency.readyRevision,
+        inventory: (): IHumanViewerCatalogue => inventory,
+        readyRevision: (): string => residency.readyRevision,
         thumbnailFile,
         capture: capturer.capture,
         queue,
@@ -169,28 +189,28 @@ const warmReadiness = createHumanViewerWarmReadiness(
   { stableMs: 60000 },
 );
 /** Requests allowed to wait behind the running one before a new one is refused. */
-const QUEUE_LIMIT = 12;
-const queue = createHumanViewerQueue({
+const QUEUE_LIMIT: number = 12;
+const queue: ReturnType<typeof createHumanViewerQueue> = createHumanViewerQueue({
   limit: QUEUE_LIMIT,
   patience: 3,
-  now: () => performance.now(),
+  now: (): number => performance.now(),
   // Background warming starts only when no modeler has asked for a minute.
   quietMs: 60000,
 });
-const { startup, phase } = createHumanViewerStartupPhase(
+const { startup, phase }: ReturnType<typeof createHumanViewerStartupPhase> = createHumanViewerStartupPhase(
   "starting the development server",
 );
-const residency = createHumanViewerResidency({
+const residency: ReturnType<typeof createHumanViewerResidency> = createHumanViewerResidency({
   origin: instance.origin,
-  inventory: () => inventory,
-  publish: () => {
+  inventory: (): IHumanViewerCatalogue => inventory,
+  publish: (): void => {
     inventory = catalogue();
   },
   lifetime,
   phase,
-  progress: () => stages.progress(),
-  sample: (work) => heap.sample(work),
-  sourceReady: (revision) => warmReadiness.source(revision),
+  progress: (): void => stages.progress(),
+  sample: (work: HumanViewerWork): void => heap.sample(work),
+  sourceReady: (revision: string): void => warmReadiness.source(revision),
   retryAdmissions,
 });
 /** The last edit that reached a build. */
@@ -205,15 +225,15 @@ const warming: IHumanViewerWarming = {
   lastFailure: null,
 };
 /** Capture stage telemetry; actual renderer failures own recovery. */
-const stages = createHumanViewerStageWatch();
+const stages: ReturnType<typeof createHumanViewerStageWatch> = createHumanViewerStageWatch();
 /** Capture once: older reports cannot adopt this server, including a reused PID. */
-const compilationProcessStartedAt = ProcessOwnership.read(process.pid);
+const compilationProcessStartedAt: string | null = ProcessOwnership.read(process.pid);
 if (compilationProcessStartedAt === null)
   throw new Error("The compilation reader has no process creation identity.");
 /** What this actual server's compiler last reported, read from the file it writes. */
-const sourceStatus = () =>
+const sourceStatus: () => { error: string | null; goodAt: string | null; } = (): { error: string | null; goodAt: string | null; } =>
   readHumanViewerCompilationStatus(
-    () => fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"),
+    (): string => fs.readFileSync(path.join(storage, instance.sourceStatus), "utf8"),
     { pid: process.pid, processStartedAt: compilationProcessStartedAt },
   );
 /**
@@ -223,16 +243,16 @@ const sourceStatus = () =>
  * Resident geometry and decode copies still occupy the browser's heap, so
  * moving computation does not remove this guard or change its existing limit.
  */
-const RENDERER_HEAP_LIMIT = 2.8e9;
-const residentTrim = createHumanViewerResidentTrim({
+const RENDERER_HEAP_LIMIT: number = 2.8e9;
+const residentTrim: { before: (domain: "face" | "body" | "person") => Promise<void>; learn: (domain: "face" | "body" | "person") => void; room: () => Record<"face" | "body" | "person", number>; trim: () => Promise<void>; status: () => IHumanViewerResidentTrimReading | null; } = createHumanViewerResidentTrim({
   limit: RENDERER_HEAP_LIMIT,
   // 300 MB below the limit, about twelve people: a trim then pays for its
   // collection once instead of on every following capture.
   target: RENDERER_HEAP_LIMIT - 3e8,
-  page: (collect) => (collect ? residency.readLiveHeap() : residency.readHeap()),
-  workers: (collect) => residency.readWorkerHeaps(collect),
-  evict: () =>
-    residency.page.evaluate(() =>
+  page: (collect: boolean): Promise<IHumanViewerHeapUsage> => (collect ? residency.readLiveHeap() : residency.readHeap()),
+  workers: (collect: boolean): Promise<IHumanViewerWorkerHeap[]> => residency.readWorkerHeaps(collect),
+  evict: (): Promise<boolean> =>
+    residency.page.evaluate((): Promise<boolean> =>
       (window as unknown as IHumanViewerWindow).__humanViewer.evict(),
     ),
   mark: heap.mark,
@@ -242,17 +262,17 @@ const residentTrim = createHumanViewerResidentTrim({
   // their room from their first capture, which runs while the heap is small.
   seeds: { face: 0, body: 0, person: 1.26e9 },
 });
-const capturer = createHumanViewerCapture({
-  page: () => residency.page,
-  renderer: () => residency.renderer,
-  startup: () =>
+const capturer: { capture: (address: HumanViewerAddress) => Promise<Buffer>; edited: (at: number) => void; responded: (http: IHumanViewerPhases) => IHumanViewerPhases; build: () => string; status: () => IHumanViewerCaptureStatus; } = createHumanViewerCapture({
+  page: (): typeof residency.page => residency.page,
+  renderer: (): string => residency.renderer,
+  startup: (): string =>
     (residency.pageWait ?? startup.phase + " since " + startup.since) +
     (residency.errors.length === 0
       ? ""
       : "; last error: " + residency.errors[residency.errors.length - 1]),
-  readyRevision: () => residency.readyRevision,
-  pageRevision: () => residency.pageRevision,
-  inventory: () => inventory,
+  readyRevision: (): string => residency.readyRevision,
+  pageRevision: (): string => residency.pageRevision,
+  inventory: (): IHumanViewerCatalogue => inventory,
   lifetime,
   trim: residentTrim.trim,
   makeRoom: residentTrim.before,
@@ -260,36 +280,36 @@ const capturer = createHumanViewerCapture({
   stages,
 });
 /** Candidate loading windows: they hold compile withdrawal and label each candidate's code. */
-const windows = createHumanViewerGenerationWindows({
+const windows: { open: () => string; close: (token: string) => void; edited: () => void; label: (token: string | null) => Promise<string | null | undefined>; current: (token: string | null) => boolean; closeAll: () => void; holding: () => number; } = createHumanViewerGenerationWindows({
   gate: humanViewerCompileGate,
-  revision: () => inventory.revision,
-  updating: () => sourceUpdating,
-  closed: () => retryAdmissions("a candidate window closed"),
+  revision: (): string => inventory.revision,
+  updating: (): boolean => sourceUpdating,
+  closed: (): void => retryAdmissions("a candidate window closed"),
 });
 /**
  * Wait until the source settles: a generation of the
  * current revision is ready, or the current revision's candidate failed and
  * the last good generation is what can draw.
  */
-const settleGeneration = (): Promise<void> =>
+const settleGeneration: () => Promise<void> = (): Promise<void> =>
   waitForHumanViewerGeneration(
-    () =>
+    (): boolean =>
       residency.readyRevision !== "" &&
       !sourceUpdating &&
       (residency.readyRevision === inventory.revision ||
         residency.errors.length !== 0),
-    (ms) =>
-      new Promise<undefined>((resolve) => {
+    (ms: number): Promise<undefined> =>
+      new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
         setTimeout(resolve, ms);
       }),
   );
-const thumbnails = createHumanViewerThumbnailStore(
+const thumbnails: { prune: (revision: string) => void; stale: (file: string, revision: string) => string | null; } = createHumanViewerThumbnailStore(
   createNodeHumanViewerThumbnailDisk(fs, path.join),
   path.join(storage, instance.thumbnails),
   path.join,
 );
-const pruneThumbnails = (): void => thumbnails.prune(inventory.revision);
-const thumbnailFile = (search: string): string | null =>
+const pruneThumbnails: () => void = (): void => thumbnails.prune(inventory.revision);
+const thumbnailFile: (search: string) => string | null = (search: string): string | null =>
   humanViewerThumbnailFile(
     search,
     path.join(storage, instance.thumbnails),
@@ -298,33 +318,33 @@ const thumbnailFile = (search: string): string | null =>
 
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
-  const middleware = createHumanViewerMiddleware({
+  const middleware: HumanViewerMiddleware = createHumanViewerMiddleware({
     origin: instance.origin,
     sourceEvents,
     pages: serveHumanViewerPages(applicationDirectory),
-    display: serveHumanViewerDisplay({ root, storage, port: instance.port, origin: instance.origin, revision: () => inventory.revision }),
-    health: () =>
+    display: serveHumanViewerDisplay({ root, storage, port: instance.port, origin: instance.origin, revision: (): string => inventory.revision }),
+    health: (): IHumanViewerHealth =>
       assembleHumanViewerHealth({
         port: instance.port,
         storage,
-        inventory: () => inventory,
-        renderer: () => residency.renderer,
-        readyRevision: () => residency.readyRevision,
+        inventory: (): IHumanViewerCatalogue => inventory,
+        renderer: (): string => residency.renderer,
+        readyRevision: (): string => residency.readyRevision,
         sourceStatus,
-        errors: () => residency.errors,
-        sourceUpdating: () => sourceUpdating,
-        work: () => residency.work,
+        errors: (): string[] => residency.errors,
+        sourceUpdating: (): boolean => sourceUpdating,
+        work: (): HumanViewerWork | null => residency.work,
         heap,
         owner,
         revisions,
         queue,
         queueLimit: QUEUE_LIMIT,
-        lastEdit: () => lastEdit,
+        lastEdit: (): IHumanViewerEdit | null => lastEdit,
         capture: capturer,
         warming,
         startup,
         admission: admission.status,
-        relaunches: () => residency.relaunches,
+        relaunches: (): number => residency.relaunches,
         trim: residentTrim.status,
         holding: windows.holding,
         stage: stages.current,
@@ -332,12 +352,12 @@ async function main(): Promise<void> {
     numerical,
     generation: { windows },
     heap: {
-      readLiveHeap: () => residency.readLiveHeap(),
-      readWorkerHeaps: () => residency.readWorkerHeaps(true),
-      work: () => residency.work,
-      readyRevision: () => residency.readyRevision,
+      readLiveHeap: (): Promise<IHumanViewerHeapUsage> => residency.readLiveHeap(),
+      readWorkerHeaps: (): Promise<IHumanViewerWorkerHeap[]> => residency.readWorkerHeaps(true),
+      work: (): HumanViewerWork | null => residency.work,
+      readyRevision: (): string => residency.readyRevision,
     },
-    data: () => ({
+    data: (): ReturnType<Parameters<typeof createHumanViewerMiddleware>[0]["data"]> => ({
       storage,
       referenceDirectory: source.referenceDirectory,
       cameraPosesFile: source.cameraPosesFile,
@@ -349,17 +369,17 @@ async function main(): Promise<void> {
       readDocument,
       settleDocument,
       currentCode: windows.current,
-      publish: (nextInventory) => {
+      publish: (nextInventory: IHumanViewerCatalogue): void => {
         inventory = nextInventory;
       },
     }),
     capture: {
       cameraPosesDirectory: path.dirname(source.cameraPosesFile),
       queue,
-      inventory: () => inventory,
-      readyRevision: () => residency.readyRevision,
-      renderer: () => residency.renderer,
-      page: () => residency.page,
+      inventory: (): IHumanViewerCatalogue => inventory,
+      readyRevision: (): string => residency.readyRevision,
+      renderer: (): string => residency.renderer,
+      page: (): typeof residency.page => residency.page,
       lifetime,
       capture: capturer,
       settle: settleGeneration,
@@ -373,18 +393,18 @@ async function main(): Promise<void> {
     instance,
     owner,
     middleware,
-    createVite: () => createHumanViewerViteServer(middleware),
+    createVite: (): ReturnType<typeof createHumanViewerViteServer> => createHumanViewerViteServer(middleware),
     publishRevision: sourceEvents.publish,
     watching: {
-      inputs: () => {
+      inputs: (): void => {
         inventory = catalogue();
       },
-      updating: (value) => {
+      updating: (value: boolean): void => {
         sourceUpdating = value;
       },
-      publish: (files, moved) => {
+      publish: (files: string[], moved: string[]): void => {
         lastEdit = {
-          files: files.map((file) => path.relative(root, file)),
+          files: files.map((file: string): string => path.relative(root, file)),
           at: new Date().toISOString(),
           moved,
         };
@@ -393,25 +413,25 @@ async function main(): Promise<void> {
         pruneThumbnails();
       },
       error: residency.error,
-      reached: () => { windows.edited(); void numerical.shutdown(); },
+      reached: (): void => { windows.edited(); void numerical.shutdown(); },
     },
-    inventory: () => inventory,
+    inventory: (): IHumanViewerCatalogue => inventory,
     openPage: residency.open,
     firstReady: residency.firstReady,
-    renderer: () => residency.renderer,
+    renderer: (): string => residency.renderer,
     phase,
-    ready: () => {
+    ready: (): void => {
       pruneThumbnails();
       warmReadiness.hardware();
     },
-    closeRenderer: async () => {
-      sourceEvents.close();
-      await numerical.shutdown();
-      await residency.close();
-    },
+    closeRenderer: createAutoMovieResourceRetirement([
+      (): void => sourceEvents.close(),
+      (): Promise<void> => numerical.shutdown(),
+      (): Promise<void> => residency.close(),
+    ]),
   });
 }
-void main().catch((error: unknown) => {
+void main().catch((error: unknown): never => {
   console.error(error);
   process.exit(1);
 });

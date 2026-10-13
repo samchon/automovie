@@ -4,16 +4,22 @@ import type { IAutoMovieHumanFaceSkinRelief } from "@automovie/human/face/struct
 import type { IConnectedPersonSkinReliefControlsProps } from "./IConnectedPersonSkinReliefControlsProps";
 
 /**
- * Edit source-host regional skin identity independently of performed folds.
- * Existing nasolabial settings and raw clinical observations are preserved.
- * Blank regions are omitted; an authored region requires its support width.
- * The person worker owns geometry admission, last-valid history and saving.
+ * Edit eight source-host skin regions independently of performed folds, preserving nasolabial settings and clinical observations. Blank regions are omitted; an authored region requires support width. Values describe authored millimetres and a performed fraction, while generation admission and panel history/save remain separate owners.
+ *
+ * @evidence contracts/common.md#principled-implementation Finite scalar overrides form sparse region records with required support width, and replacing only skinRelief.regions preserves the distinct nasolabial population and other person data.
+ * @evidence contracts/common.md#clear-and-simple-design One region-field map builds controls and reads/refreshes them; one commit uses the ordinary person transaction rather than a separate geometry path.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Clinical age/severity and unentered dimensions are not inferred. Successful publication may be accepted history or a labelled refused construction draft; reported application alone does not establish admission.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies region omission, required width, independent fold performance and the owners of admission/history.
+ * @evidence contracts/performance.md#efficient-algorithms Eight fixed regions and their field lists bound form/refresh work; each commit clones the complete person document before the worker's geometry construction cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Refresh reuses controls while preserving active input text, but edits are new effects and retain no cached numerical model here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The fixed input map and handlers live with the panel DOM until replacement/disposal. There is no local close or pending-click cap; panel and transport owners handle stale intents, numerical shutdown and frame retirement.
+ *
  * @author Samchon
  */
 export function mountConnectedPersonRegionalSkinControls(
   props: IConnectedPersonSkinReliefControlsProps,
-) {
-  const regions = [
+): { refresh: () => void } {
+  const regions: readonly ["forehead", "glabellar", "marionetteLeft", "marionetteRight", "philtralLeft", "philtralRight", "perioralUpper", "perioralLower"] = [
     "forehead",
     "glabellar",
     "marionetteLeft",
@@ -23,14 +29,14 @@ export function mountConnectedPersonRegionalSkinControls(
     "perioralUpper",
     "perioralLower",
   ] as const;
-  const common = [
+  const common: readonly ["restOffsetMm", "foldDepthMm", "performance", "widthMm"] = [
     "restOffsetMm",
     "foldDepthMm",
     "performance",
     "widthMm",
   ] as const;
-  const inputs = new Map<string, HTMLInputElement>();
-  const fields = (
+  const inputs: Map<string, HTMLInputElement> = new Map();
+  const fields: (region: (typeof regions)[number]) => readonly (keyof IAutoMovieHumanFaceRegionalRelief)[] = (
     region: (typeof regions)[number],
   ): readonly (keyof IAutoMovieHumanFaceRegionalRelief)[] =>
     region === "forehead"
@@ -38,19 +44,19 @@ export function mountConnectedPersonRegionalSkinControls(
       : region === "glabellar"
         ? [...common, "lengthMm"]
         : common;
-  const help = props.dom.createElement("p");
+  const help: HTMLParagraphElement = props.dom.createElement("p");
   help.textContent =
     "Regional source skin: positive resting offset adds an outward ridge along the local skin normal, negative adds an inward hollow. Fold depth and its performed fraction are independent. Forehead guide height and length are authored dimensions; clinical age and severity grades remain observations.";
   props.container.append(help);
   for (const region of regions) {
-    const details = props.dom.createElement("details"),
-      summary = props.dom.createElement("summary");
+    const details: HTMLDetailsElement = props.dom.createElement("details"),
+      summary: HTMLElement = props.dom.createElement("summary");
     summary.textContent = region;
     details.append(summary);
     for (const field of fields(region)) {
-      const row = props.dom.createElement("div"),
-        label = props.dom.createElement("label"),
-        input = props.dom.createElement("input");
+      const row: HTMLDivElement = props.dom.createElement("div"),
+        label: HTMLLabelElement = props.dom.createElement("label"),
+        input: HTMLInputElement = props.dom.createElement("input");
       row.className = "row";
       input.type = "number";
       input.step = "any";
@@ -64,13 +70,13 @@ export function mountConnectedPersonRegionalSkinControls(
     }
     props.container.append(details);
   }
-  const commit = async (
+  const commit: (regions: IAutoMovieHumanFaceSkinRelief.Regions | undefined) => Promise<void> = async (
     regions: IAutoMovieHumanFaceSkinRelief.Regions | undefined,
   ): Promise<void> => {
-    const ticket = props.reserve();
+    const ticket: number = props.reserve();
     props.busy("Applying regional skin...");
     try {
-      const person = structuredClone(props.current());
+      const person: ReturnType<typeof props.current> = structuredClone(props.current());
       if (regions === undefined) {
         if (person.face.skinRelief !== undefined) {
           delete person.face.skinRelief.regions;
@@ -88,23 +94,23 @@ export function mountConnectedPersonRegionalSkinControls(
       if (props.isCurrent(ticket)) props.refuse(error);
     }
   };
-  const apply = props.dom.createElement("button"),
-    remove = props.dom.createElement("button");
+  const apply: HTMLButtonElement = props.dom.createElement("button"),
+    remove: HTMLButtonElement = props.dom.createElement("button");
   apply.type = "button";
   remove.type = "button";
   apply.id = "skin-regions-apply";
   remove.id = "skin-regions-remove";
   apply.textContent = "Apply regional skin";
   remove.textContent = "Remove regional skin";
-  apply.onclick = () => {
+  apply.onclick = (): void => {
     try {
       const record: IAutoMovieHumanFaceSkinRelief.Regions = {};
       for (const region of regions) {
         const values: Partial<IAutoMovieHumanFaceRegionalRelief> = {};
         for (const field of fields(region)) {
-          const text = inputs.get(region + ":" + field)!.value.trim();
+          const text: string = inputs.get(region + ":" + field)!.value.trim();
           if (text === "") continue;
-          const value = Number(text);
+          const value: number = Number(text);
           if (!Number.isFinite(value))
             throw new Error(
               "A finite regional skin " +
@@ -127,14 +133,14 @@ export function mountConnectedPersonRegionalSkinControls(
       props.refuse(error);
     }
   };
-  remove.onclick = () => void commit(undefined);
+  remove.onclick = (): void => void commit(undefined);
   props.container.append(apply, remove);
   return {
     refresh: (): void => {
-      const record = props.current().face.skinRelief?.regions;
+      const record: IAutoMovieHumanFaceSkinRelief.Regions | undefined = props.current().face.skinRelief?.regions;
       for (const region of regions)
         for (const field of fields(region)) {
-          const input = inputs.get(region + ":" + field)!;
+          const input: HTMLInputElement = inputs.get(region + ":" + field)!;
           if (props.dom.activeElement !== input)
             input.value = record?.[region]?.[field]?.toString() ?? "";
         }

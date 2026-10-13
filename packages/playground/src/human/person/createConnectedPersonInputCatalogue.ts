@@ -31,19 +31,27 @@ import { createConnectedPersonSkinAppearanceInputs } from "./createConnectedPers
  * `CONNECTED_PERSON_UNDESCRIBED_INPUTS` names those. The lash count carries
  * no descriptor of its own, so its bounds are null.
  *
+ * @evidence contracts/common.md#principled-implementation Face shape/registered head/lash/default/material/hair/skin descriptors come from their actual owning tables and current document populations, preserving source qualification, literal path keys and other-owner exclusions.
+ * @evidence contracts/common.md#clear-and-simple-design This catalogue composes existing metadata producers while the original owners retain geometric support/validation and the panel owns authored transactions/history.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Expression and excluded aliased channels are not offered as independent neutral identity, unpublished count bounds stay null and authoring envelopes do not become observed population anatomy.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies owner descriptor families, source envelopes, population-dependent rows, unlisted metadata gaps and numerical admission ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Local passes visit c face channels, h head fields and upper/lower parameter tables once with constant expected excluded Set lookup; composing downstream default/material/hair/skin producers adds their actual metadata, validation and source-domain lookup costs, and concatenation copies O(d) final descriptor references.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One call composes a current source/document catalogue without retaining older rows or their seeds; owner constants are read directly but document-dependent numerical metadata is not treated as a reusable geometry cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary family arrays leave with the call and no cache/native resource is acquired; returned descriptors retain ordinary owner seeds/current population metadata until the mounted catalogue refreshes or closes.
+ *
  * @author Samchon
  */
 export function createConnectedPersonInputCatalogue(
   props: IConnectedPersonInputCatalogueProps,
 ): IConnectedPersonInputDescriptor[] {
-  const spaced = (name: string): string =>
+  const spaced: (name: string) => string = (name: string): string =>
     name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
-  const shape = props.face.channels
+  const shape: IConnectedPersonInputDescriptor[] = props.face.channels
     .filter(
-      (channel) => channel.kind === "shape" && !props.excluded.has(channel.id),
+      (channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number]): boolean => channel.kind === "shape" && !props.excluded.has(channel.id),
     )
     .map(
-      (channel): IConnectedPersonInputDescriptor => ({
+      (channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number]): IConnectedPersonInputDescriptor => ({
         path: ["face", "shape", channel.id],
         group: "Face shape channels",
         label: spaced(channel.id),
@@ -60,9 +68,9 @@ export function createConnectedPersonInputCatalogue(
           "Weight on the basis's authored endpoints; the envelope bounds interpolation of those endpoints, not population anatomy.",
       }),
     );
-  const head = (props.headShape?.fields ?? []).map(
-    (field): IConnectedPersonInputDescriptor => {
-      const parts = field.id.split(".");
+  const head: IConnectedPersonInputDescriptor[] = (props.headShape?.fields ?? []).map(
+    (field: NonNullable<IConnectedPersonInputCatalogueProps["headShape"]>["fields"][number]): IConnectedPersonInputDescriptor => {
+      const parts: string[] = field.id.split(".");
       return {
         path: ["headShape", field.id],
         group: "Head traits · " + parts.slice(0, -1).map(spaced).join(" "),
@@ -79,14 +87,14 @@ export function createConnectedPersonInputCatalogue(
       };
     },
   );
-  const lashRow = (
+  const lashRow: (row: "upper" | "lower", parameters: readonly IConnectedPersonParameterSource[]) => IConnectedPersonInputDescriptor[] = (
     row: "upper" | "lower",
     parameters: readonly IConnectedPersonParameterSource[],
-  ) =>
+  ): IConnectedPersonInputDescriptor[] =>
     (["left", "right"] as const).flatMap(
-      (side): IConnectedPersonInputDescriptor[] => {
-        const group = "Lashes · " + row + " " + side;
-        const omission =
+      (side: "left" | "right"): IConnectedPersonInputDescriptor[] => {
+        const group: string = "Lashes · " + row + " " + side;
+        const omission: string =
           "the whole row is absent together and then keeps the basis's lash cards";
         return [
           {
@@ -105,7 +113,7 @@ export function createConnectedPersonInputCatalogue(
               "Explicit shaft count; the lash owner publishes no descriptor for it and admits it by its own check.",
           },
           ...parameters.map(
-            (parameter): IConnectedPersonInputDescriptor => ({
+            (parameter: IConnectedPersonParameterSource): IConnectedPersonInputDescriptor => ({
               path: ["face", "lashes", row, side, parameter.id],
               group,
               label: spaced(parameter.id),
@@ -127,21 +135,21 @@ export function createConnectedPersonInputCatalogue(
         ];
       },
     );
-  const lashes = [
+  const lashes: IConnectedPersonInputDescriptor[] = [
     ...lashRow("upper", portraitEyelashParameters),
     ...lashRow("lower", humanFaceLowerLashParameters),
   ];
-  const materials = [
+  const materials: IConnectedPersonInputDescriptor[] = [
     ...createConnectedPersonMaterialInputs(props.face.materials, "face"),
     ...(props.body === undefined
       ? []
       : createConnectedPersonMaterialInputs(props.body.materials, "body")),
   ];
-  const hair =
+  const hair: IConnectedPersonInputDescriptor[] =
     props.person === undefined
       ? []
       : createConnectedPersonHairInputs(props.face, props.person);
-  const facialHair =
+  const facialHair: IConnectedPersonInputDescriptor[] =
     props.person === undefined
       ? []
       : createConnectedPersonFacialHairInputs(props.person);

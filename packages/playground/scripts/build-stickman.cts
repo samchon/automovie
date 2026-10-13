@@ -2,7 +2,8 @@ import { exportModelToGLB } from "@automovie/render/node";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { DEFAULT_STICKMAN, buildStickman } from "../src/stickman";
+import { DEFAULT_STICKMAN } from "../src/DEFAULT_STICKMAN";
+import { buildStickman } from "../src/buildStickman";
 
 /**
  * Generate `stickman.glb` from the stick-figure AST.
@@ -15,20 +16,20 @@ import { DEFAULT_STICKMAN, buildStickman } from "../src/stickman";
  *
  * @author Samchon
  */
-export const main = async (): Promise<void> => {
-  const { model } = buildStickman(DEFAULT_STICKMAN);
-  const glb = await exportModelToGLB(model);
+const main: () => Promise<void> = async (): Promise<void> => {
+  const { model }: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+  const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(model);
   // The glb is a derived artifact: the viewer renders from the AST, so this is
   // regenerable scratch (like the screenshots), not committed source.
-  const dir = resolve(__dirname, "../../../.shots/human");
+  const dir: string = resolve(__dirname, "../../../.shots/human");
   mkdirSync(dir, { recursive: true });
-  const out = resolve(dir, "stickman.glb");
+  const out: string = resolve(dir, "stickman.glb");
   writeFileSync(out, glb);
   console.log(`wrote ${out} (${glb.length} bytes)`);
 };
 
 if (resolve(process.argv[1] ?? "") === resolve(__filename))
-  void main().catch((error: unknown) => {
+  void main().catch((error: unknown): void => {
     console.error(error);
     process.exitCode = 1;
   });

@@ -12,15 +12,23 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * is therefore offered only at its face owner. Bounds are renderer domains,
  * and the person builder still refuses an incompatible source or zero cheek.
  *
+ * @evidence contracts/common.md#principled-implementation Actual source RGB seeds the complete colour record and material roughness supplies its own default, while the derived body skin colour stays edited through the face owner.
+ * @evidence contracts/common.md#clear-and-simple-design Descriptor generation separates renderer-domain metadata from source material validation, document path copying and complete-person admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Linear finish bounds are not physiological ranges, initial colour edits preserve untouched source components and optional colour removal removes the whole record.
+ * @evidence contracts/common.md#meaningful-documentation The comment specifies linear RGB/source seed provenance, independent roughness, whole-colour removal and derived skin-colour ownership.
+ * @evidence contracts/performance.md#efficient-algorithms One material pass creates at most four fixed-size descriptors per material, O(m) time/output storage plus material/path label characters; seam-skin exclusion is a constant identity comparison and no geometry/texture payload is read.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each catalogue receives independent descriptor/path/seed records for its source material state; this cheap linear metadata producer retains no previous output or numerical cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Produced metadata contains copied RGB scalars and source finish values, not renderer allocations; no result is retained after return and catalogue lifetime owns descriptor reachability.
+ *
  * @author Samchon
  */
 export function createConnectedPersonMaterialInputs(
   materials: readonly IAutoMovieMaterial[],
   partition: "face" | "body",
 ): IConnectedPersonInputDescriptor[] {
-  return materials.flatMap((material) => {
-    const path = [partition, "materials", material.id];
-    const common = {
+  return materials.flatMap((material: IAutoMovieMaterial): IConnectedPersonInputDescriptor[] => {
+    const path: string[] = [partition, "materials", material.id];
+    const common: Omit<IConnectedPersonInputDescriptor, "path" | "label" | "unit" | "ownerDefault" | "seed"> = {
       group:
         (partition === "face" ? "Face" : "Body") +
         " material · " +
@@ -36,7 +44,7 @@ export function createConnectedPersonMaterialInputs(
     const colour: IConnectedPersonInputDescriptor[] =
       partition === "body" && material.id === HUMAN_PERSON_SEAM.skinMaterial
         ? []
-        : (["r", "g", "b"] as const).map((channel) => ({
+        : (["r", "g", "b"] as const).map((channel: "r" | "g" | "b"): IConnectedPersonInputDescriptor => ({
             ...common,
             path: [...path, "color", channel],
             label: "linear " + channel.toUpperCase() + " reflectance",

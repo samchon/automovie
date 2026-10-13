@@ -18,19 +18,21 @@ import {
 import { applyPose, buildModel, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { DEFAULT_HORSE, buildHorse } from "./horse";
-import { horseGallop } from "./horse-motion";
-import { buildKnight } from "./knight";
-import { QUADRUPED_JOINT_AXES, QUADRUPED_REST_FRAME } from "./quadruped-rig";
+import { DEFAULT_HORSE } from "./DEFAULT_HORSE";
+import { buildHorse } from "./buildHorse";
+import { horseGallop } from "./horseGallop";
+import { buildKnight } from "./buildKnight";
+import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
+import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
 
 // ── Parthian shot, at the gallop: two knights charge across the field (camera
 // tracking), the lead archer twists back in the saddle and looses an arrow at
 // his pursuer. The arrow is a real ballistic projectile; the hit is DETECTED
 // (in the moving target's frame), and the detected contact unhorses him: his
 // horse gallops on while he tumbles to the turf and recedes. ~10s. ────────────
-const params = new URLSearchParams(location.search);
+const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
 
-const j = (
+const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -39,24 +41,24 @@ const j = (
   abduction: a.abduction ?? 0,
   twist: a.twist ?? 0,
 });
-const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
-const tf = (t: IAutoMovieVector3): IAutoMovieTransform => ({
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const tf: (t: IAutoMovieVector3) => IAutoMovieTransform = (t: IAutoMovieVector3): IAutoMovieTransform => ({
   translation: t,
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
-const blend = (
+const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
+const blend: (a: IAutoMovieJointPose[], b: IAutoMovieJointPose[], t: number) => IAutoMovieJointPose[] = (
   a: IAutoMovieJointPose[],
   b: IAutoMovieJointPose[],
   t: number,
 ): IAutoMovieJointPose[] => {
-  const bones = new Set([...a, ...b].map((x) => x.bone));
-  const at = (arr: IAutoMovieJointPose[], bone: AutoMovieHumanoidBone) =>
-    arr.find((x) => x.bone === bone);
-  return [...bones].map((bone) => {
-    const pa = at(a, bone);
-    const pb = at(b, bone);
+  const bones: Set<AutoMovieHumanoidBone> = new Set([...a, ...b].map((x: IAutoMovieJointPose): AutoMovieHumanoidBone => x.bone));
+  const at: (arr: IAutoMovieJointPose[], bone: AutoMovieHumanoidBone) => IAutoMovieJointPose | undefined = (arr: IAutoMovieJointPose[], bone: AutoMovieHumanoidBone): IAutoMovieJointPose | undefined =>
+    arr.find((x: IAutoMovieJointPose): boolean => x.bone === bone);
+  return [...bones].map((bone: AutoMovieHumanoidBone): { bone: AutoMovieHumanoidBone; flexion: number; abduction: number; twist: number; } => {
+    const pa: IAutoMovieJointPose | undefined = at(a, bone);
+    const pb: IAutoMovieJointPose | undefined = at(b, bone);
     return {
       bone,
       flexion: lerp(pa?.flexion ?? 0, pb?.flexion ?? 0, t),
@@ -67,33 +69,33 @@ const blend = (
 };
 
 // ── two mounts + riders (face +Z, the charge direction) ──────────────────────
-const horseA = buildHorse(DEFAULT_HORSE);
-const horseB = buildHorse(DEFAULT_HORSE);
-const archer = buildKnight({ lance: false }); // flees with a bow
-const target = buildKnight(); // pursues couching a lance
-const horseAObj = buildModel(horseA.model);
-const horseBObj = buildModel(horseB.model);
-const archerObj = buildModel(archer.model);
-const targetObj = buildModel(target.model);
+const horseA: ReturnType<typeof buildHorse> = buildHorse(DEFAULT_HORSE);
+const horseB: ReturnType<typeof buildHorse> = buildHorse(DEFAULT_HORSE);
+const archer: ReturnType<typeof buildKnight> = buildKnight({ lance: false }); // flees with a bow
+const target: ReturnType<typeof buildKnight> = buildKnight(); // pursues couching a lance
+const horseAObj: ReturnType<typeof buildModel> = buildModel(horseA.model);
+const horseBObj: ReturnType<typeof buildModel> = buildModel(horseB.model);
+const archerObj: ReturnType<typeof buildModel> = buildModel(archer.model);
+const targetObj: ReturnType<typeof buildModel> = buildModel(target.model);
 
-const aRig = new THREE.Group(); // archer (leading)
-const bRig = new THREE.Group(); // target (pursuing, behind)
+const aRig: THREE.Group<THREE.Object3DEventMap> = new THREE.Group(); // archer (leading)
+const bRig: THREE.Group<THREE.Object3DEventMap> = new THREE.Group(); // target (pursuing, behind)
 aRig.add(horseAObj.object, archerObj.object);
 bRig.add(horseBObj.object, targetObj.object);
 
-const gallopA = horseGallop(horseA.skeleton.id);
-const gallopB = horseGallop(horseB.skeleton.id);
+const gallopA: ReturnType<typeof horseGallop> = horseGallop(horseA.skeleton.id);
+const gallopB: ReturnType<typeof horseGallop> = horseGallop(horseB.skeleton.id);
 const saddle: IAutoMovieAttachment = {
   parentBone: "spine",
   offset: tf(v(0, -0.72, -0.04)),
 };
 
 // charge kinematics: both travel +Z at V; archer leads by gap G
-const V = 6.0;
-const G = 3.8;
-const DUR = 9;
-const aZ = (t: number): number => V * t + G; // archer (front)
-const bZ = (t: number): number => V * t; // target (behind)
+const V: number = 6.0;
+const G: number = 3.8;
+const DUR: number = 9;
+const aZ: (t: number) => number = (t: number): number => V * t + G; // archer (front)
+const bZ: (t: number) => number = (t: number): number => V * t; // target (behind)
 
 // ── rider poses ──────────────────────────────────────────────────────────────
 const ride: IAutoMovieJointPose[] = [
@@ -139,37 +141,37 @@ const struck: IAutoMovieJointPose[] = [
 
 // ── timing + the arrow (lead the moving target; detect in the target frame) ──
 // the archer flees, then SNAPS around to loose, a fast twist just before release
-const DRAW_START = 4.9;
-const RELEASE = 5.4;
-const g = v(0, -3.4, 0);
+const DRAW_START: number = 4.9;
+const RELEASE: number = 5.4;
+const g: IAutoMovieVector3 = v(0, -3.4, 0);
 // positions frozen at release
-const A0 = v(0, 1.55, aZ(RELEASE) + 0.15); // bow muzzle, just ahead of the archer
-const B0 = v(0, 1.5, bZ(RELEASE)); // target torso at release
+const A0: IAutoMovieVector3 = v(0, 1.55, aZ(RELEASE) + 0.15); // bow muzzle, just ahead of the archer
+const B0: IAutoMovieVector3 = v(0, 1.5, bZ(RELEASE)); // target torso at release
 // aim in the TARGET's frame: arrow must cover −Z by ~(G) plus a little arc
-const TAU = 0.42; // intended time of flight
-const relVel = v(0, 1.4, -(A0.z - B0.z + 0.05) / TAU);
-const targetTorso = { center: B0, radius: 0.55 };
-const hit = projectileSphereHit(
+const TAU: number = 0.42; // intended time of flight
+const relVel: IAutoMovieVector3 = v(0, 1.4, -(A0.z - B0.z + 0.05) / TAU);
+const targetTorso: { center: IAutoMovieVector3; radius: number; } = { center: B0, radius: 0.55 };
+const hit: ReturnType<typeof projectileSphereHit> = projectileSphereHit(
   { origin: A0, velocity: relVel, gravity: g },
   targetTorso,
   1.5,
 );
-const FLIGHT = hit ? hit.time : TAU;
-const HIT_AT = RELEASE + FLIGHT;
-const hitWorldZ = B0.z + V * FLIGHT; // where the (moving) target is struck
+const FLIGHT: number = hit ? hit.time : TAU;
+const HIT_AT: number = RELEASE + FLIGHT;
+const hitWorldZ: number = B0.z + V * FLIGHT; // where the (moving) target is struck
 // world launch velocity = relative aim + the rider's forward carry
-const arrowVel = v(relVel.x, relVel.y, relVel.z + V);
+const arrowVel: IAutoMovieVector3 = v(relVel.x, relVel.y, relVel.z + V);
 console.log(
   `[archery] hit=${hit ? "yes" : "NO"} flight=${FLIGHT.toFixed(3)} hitZ=${hitWorldZ.toFixed(2)}`,
 );
 
-const arrow = new THREE.Group();
-const shaft = new THREE.Mesh(
+const arrow: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
+const shaft: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
   new THREE.CylinderGeometry(0.013, 0.013, 0.72, 8),
   new THREE.MeshStandardMaterial({ color: 0x6b4a2b }),
 );
 shaft.rotation.x = Math.PI / 2;
-const ahead = new THREE.Mesh(
+const ahead: THREE.Mesh<THREE.ConeGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
   new THREE.ConeGeometry(0.032, 0.11, 8),
   new THREE.MeshStandardMaterial({ color: 0xcfd3da, metalness: 0.4 }),
 );
@@ -177,31 +179,31 @@ ahead.rotation.x = Math.PI / 2;
 ahead.position.z = 0.41;
 arrow.add(shaft, ahead);
 arrow.visible = false;
-const bow = new THREE.Mesh(
+const bow: THREE.Mesh<THREE.TorusGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
   new THREE.TorusGeometry(0.28, 0.02, 8, 24, Math.PI * 1.2),
   new THREE.MeshStandardMaterial({ color: 0x3a2a18 }),
 );
 
 // ── scene ────────────────────────────────────────────────────────────────────
-const scene = new THREE.Scene();
+const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 scene.background = new THREE.Color(0xeaf0f7);
 scene.add(aRig, bRig, arrow);
-const bowHand = archerObj.bones.get("leftHand");
+const bowHand: THREE.Object3D<THREE.Object3DEventMap> | undefined = archerObj.bones.get("leftHand");
 if (bowHand) {
   bow.rotation.y = Math.PI / 2;
   bowHand.add(bow);
 }
 scene.add(new THREE.GridHelper(160, 320, 0xb8c0cc, 0xd5dbe4));
 scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1));
-const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(4, 6, 2);
 scene.add(sun);
 
-const camera = new THREE.PerspectiveCamera(46, 1, 0.05, 400);
-const az = (Number(params.get("az") ?? 58) * Math.PI) / 180;
-const dist = Number(params.get("dist") ?? 7.5);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(46, 1, 0.05, 400);
+const az: number = (Number(params.get("az") ?? 58) * Math.PI) / 180;
+const dist: number = Number(params.get("dist") ?? 7.5);
 
-const setRider = (
+const setRider: (riderObj: typeof archerObj, sk: typeof archer.skeleton, joints: IAutoMovieJointPose[], seat: IAutoMovieTransform) => void = (
   riderObj: typeof archerObj,
   sk: typeof archer.skeleton,
   joints: IAutoMovieJointPose[],
@@ -216,7 +218,7 @@ const setRider = (
   );
 };
 
-const step = (t: number): void => {
+const step: (t: number) => void = (t: number): void => {
   // gallop cycles (in place); rigs carry the forward travel
   applyPose(
     horseAObj,
@@ -235,19 +237,19 @@ const step = (t: number): void => {
   aRig.position.z = aZ(t);
   bRig.position.z = bZ(t);
 
-  const seatA = resolveAttachment(
+  const seatA: IAutoMovieTransform = resolveAttachment(
     sampleMotion(gallopA, t).pose,
     horseA.skeleton,
     saddle,
   );
-  const seatB = resolveAttachment(
+  const seatB: IAutoMovieTransform = resolveAttachment(
     sampleMotion(gallopB, t).pose,
     horseB.skeleton,
     saddle,
   );
 
   // archer: ride → twist into the draw between DRAW_START and RELEASE, hold
-  const dw = Math.min(
+  const dw: number = Math.min(
     Math.max((t - DRAW_START) / (RELEASE - DRAW_START), 0),
     1,
   );
@@ -258,8 +260,8 @@ const step = (t: number): void => {
   if (t < HIT_AT) {
     setRider(targetObj, target.skeleton, ride, seatB);
   } else {
-    const p = Math.min((t - HIT_AT) / 1.4, 1);
-    const localZ = hitWorldZ - bRig.position.z - 0.3 * p; // hold world z, drift back a touch
+    const p: number = Math.min((t - HIT_AT) / 1.4, 1);
+    const localZ: number = hitWorldZ - bRig.position.z - 0.3 * p; // hold world z, drift back a touch
     const fall: IAutoMovieTransform = {
       translation: {
         x: seatB.translation.x + 0.5 * p,
@@ -274,13 +276,13 @@ const step = (t: number): void => {
 
   // arrow flight (world)
   if (t >= RELEASE && t <= HIT_AT + 0.04) {
-    const s = projectileAt(
+    const s: ReturnType<typeof projectileAt> = projectileAt(
       { origin: A0, velocity: arrowVel, gravity: g },
       t - RELEASE,
     );
     arrow.visible = true;
     arrow.position.set(s.position.x, s.position.y, s.position.z);
-    const q = aimRotation({ x: 0, y: 0, z: 1 }, s.velocity);
+    const q: ReturnType<typeof aimRotation> = aimRotation({ x: 0, y: 0, z: 1 }, s.velocity);
     arrow.quaternion.set(q.x, q.y, q.z, q.w);
   } else {
     arrow.visible = false;
@@ -288,11 +290,11 @@ const step = (t: number): void => {
 
   // camera tracks the chase (midpoint of the two riders), then on impact eases
   // down onto the fallen knight while the riderless horse gallops out of frame
-  const post = Math.min(Math.max((t - HIT_AT) / 0.7, 0), 1);
-  const chaseZ = bZ(Math.min(t, HIT_AT)) + G * 0.5;
-  const followZ = chaseZ - post * (G * 0.5); // ease from midpoint to the fallen knight
-  const camD = dist - post * 1.6; // dolly in a touch
-  const lookY = 1.1 - post * 0.65;
+  const post: number = Math.min(Math.max((t - HIT_AT) / 0.7, 0), 1);
+  const chaseZ: number = bZ(Math.min(t, HIT_AT)) + G * 0.5;
+  const followZ: number = chaseZ - post * (G * 0.5); // ease from midpoint to the fallen knight
+  const camD: number = dist - post * 1.6; // dolly in a touch
+  const lookY: number = 1.1 - post * 0.65;
   camera.position.set(
     camD * Math.sin(az),
     2.0 - post * 0.7,
@@ -301,13 +303,13 @@ const step = (t: number): void => {
   camera.lookAt(0, lookY, followZ);
 };
 
-const frozen = params.get("t");
-const freezeAt = frozen !== null ? Number(frozen) : null;
+const frozen: string | null = params.get("t");
+const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (freezeAt !== null && Number.isFinite(freezeAt)) step(freezeAt);
 
-const canvas = document.querySelector<HTMLCanvasElement>("#view")!;
-const capMode = params.get("cap") === "1";
-const handle = mountViewer(canvas, scene, camera, (elapsed) => {
+const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const capMode: boolean = params.get("cap") === "1";
+const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
   if (!capMode && freezeAt === null) step(elapsed % DUR);
 });
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (

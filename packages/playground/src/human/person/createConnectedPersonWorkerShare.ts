@@ -1,5 +1,6 @@
 import type { ConnectedPersonWorkerEnd } from "./ConnectedPersonWorkerEnd";
 import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare";
+import { reportAutoMovieResourceRetirement } from "@automovie/viewer";
 
 /**
  * Share one resident person worker between the preview transport and the
@@ -16,6 +17,15 @@ import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare"
  * either may have the request in flight. Terminating either end retires the
  * worker for both: the other end is told through its error callback, and each
  * transport gets the end of a fresh worker the next time it asks.
+ * Reply routing assumes this worker's own object-shaped protocol output. Callback dispatch/retirement attempts are independent and synchronous so one callback failure does not suppress its peer, and actual failures remain reported by the canonical retirement policy.
+ *
+ * @evidence contracts/common.md#principled-implementation One live physical worker routes resident success envelopes and measurement replies to their own ends, progress reaches both independently, and retirement permanently refuses old posts while notifying affected transports.
+ * @evidence contracts/common.md#clear-and-simple-design The share owns physical acquisition/routing/retirement only; existing preview and measurement transports keep request correlation, numerical protocols and pending settlement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The two ends are not separate physical workers, retired endpoints cannot silently post to a dead thread and a throwing callback does not prevent peer notification or hide actual retirement failures.
+ * @evidence contracts/common.md#meaningful-documentation The comment specifies one-generation sharing, object-output routing premise, independent callback attempts, peer refusal and fresh acquisition after retirement.
+ * @evidence contracts/performance.md#efficient-algorithms Acquisition creates one worker and two fixed endpoint objects; each reply tests at most two protocol markers and dispatches at most two callbacks, with numerical/source loading and per-transport queue costs preserved downstream rather than counted as constant computations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Preview and measurement share the same live resident generation because both protocols evaluate its identical paired views; retirement clears that identity and later acquisition creates a new worker instead of reusing stale endpoints.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One share retains at most one live worker and two live ends; retirement clears live fields, detaches native handlers and attempts physical termination plus peer callbacks independently. Retired ends kept externally remain caller-owned; pending requests have no share-local count cap and leave through their actual transports' settlement/close.
  *
  * @author Samchon
  */
@@ -25,61 +35,77 @@ export function createConnectedPersonWorkerShare(
   let live: Worker | undefined;
   let preview: ConnectedPersonWorkerEnd | undefined;
   let measure: ConnectedPersonWorkerEnd | undefined;
-  const retired = (): ErrorEvent =>
+  const retired: () => ErrorEvent = (): ErrorEvent =>
     new ErrorEvent("error", {
       message: "The shared person worker was retired.",
     });
-  const end = (
+  function retire(worker: Worker, notifications: readonly (() => void)[]): void {
+    if (live !== worker) return;
+    live = undefined;
+    preview = undefined;
+    measure = undefined;
+    reportAutoMovieResourceRetirement([
+      (): void => { worker.onmessage = null; },
+      (): void => { worker.onerror = null; },
+      (): void => { worker.onmessageerror = null; },
+      (): void => worker.terminate(),
+      ...notifications,
+    ]);
+  }
+  const end: (worker: Worker, peer: () => ConnectedPersonWorkerEnd | undefined) => ConnectedPersonWorkerEnd = (
     worker: Worker,
     peer: () => ConnectedPersonWorkerEnd | undefined,
   ): ConnectedPersonWorkerEnd => ({
     onmessage: null,
     onerror: null,
     onmessageerror: null,
-    postMessage: (message: unknown) => worker.postMessage(message),
-    terminate: () => {
+    postMessage: (message: unknown): void => {
+      if (live !== worker) throw new Error("The shared person worker was retired.");
+      worker.postMessage(message);
+    },
+    terminate: (): void => {
       if (live !== worker) return;
-      const other = peer();
-      live = undefined;
-      worker.terminate();
-      other?.onerror?.call(worker, retired());
+      const other: ConnectedPersonWorkerEnd | undefined = peer();
+      retire(worker, [(): void => { other?.onerror?.call(worker, retired()); }]);
     },
   });
-  const open = (): void => {
+  const open: () => void = (): void => {
     if (live !== undefined) return;
-    const worker = factory();
-    const previewEnd = end(worker, () => measureEnd);
-    const measureEnd = end(worker, () => previewEnd);
+    const worker: Worker = factory();
+    const previewEnd: ConnectedPersonWorkerEnd = end(worker, (): ConnectedPersonWorkerEnd => measureEnd);
+    const measureEnd: ConnectedPersonWorkerEnd = end(worker, (): ConnectedPersonWorkerEnd => previewEnd);
     live = worker;
     preview = previewEnd;
     measure = measureEnd;
-    worker.onmessage = (event: MessageEvent) => {
+    worker.onmessage = (event: MessageEvent<object>): void => {
       if (live !== worker) return;
       const data: object = event.data;
-      if ("progress" in data || "success" in data)
-        previewEnd.onmessage?.call(worker, event);
-      if ("progress" in data || !("success" in data))
-        measureEnd.onmessage?.call(worker, event);
+      reportAutoMovieResourceRetirement([
+        (): void => { if ("progress" in data || "success" in data) previewEnd.onmessage?.call(worker, event); },
+        (): void => { if ("progress" in data || !("success" in data)) measureEnd.onmessage?.call(worker, event); },
+      ]);
     };
-    worker.onerror = (event) => {
+    worker.onerror = (event: ErrorEvent): void => {
       if (live !== worker) return;
-      live = undefined;
-      worker.terminate();
-      previewEnd.onerror?.call(worker, event);
-      measureEnd.onerror?.call(worker, event);
+      retire(worker, [
+        (): void => { previewEnd.onerror?.call(worker, event); },
+        (): void => { measureEnd.onerror?.call(worker, event); },
+      ]);
     };
-    worker.onmessageerror = (event) => {
+    worker.onmessageerror = (event: MessageEvent<unknown>): void => {
       if (live !== worker) return;
-      previewEnd.onmessageerror?.call(worker, event);
-      measureEnd.onmessageerror?.call(worker, event);
+      reportAutoMovieResourceRetirement([
+        (): void => { previewEnd.onmessageerror?.call(worker, event); },
+        (): void => { measureEnd.onmessageerror?.call(worker, event); },
+      ]);
     };
   };
   return {
-    preview: () => {
+    preview: (): ConnectedPersonWorkerEnd => {
       open();
       return preview!;
     },
-    measure: () => {
+    measure: (): ConnectedPersonWorkerEnd => {
       open();
       return measure!;
     },

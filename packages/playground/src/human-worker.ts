@@ -19,14 +19,14 @@
  * arrival order once it is installed. An unknown role answers every request
  * with a failure instead of staying silent.
  */
-const scope = self as unknown as DedicatedWorkerGlobalScope;
-const role = new URLSearchParams(scope.name).get("worker");
+const scope: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
+const role: string | null = new URLSearchParams(scope.name).get("worker");
 const held: MessageEvent[] = [];
-const hold = (event: MessageEvent): void => {
+const hold: (event: MessageEvent) => void = (event: MessageEvent): void => {
   held.push(event);
 };
 scope.onmessage = hold;
-const load = (): Promise<unknown> => {
+const load: () => Promise<unknown> = (): Promise<unknown> => {
   if (role === "body") return import("./connected-body-worker");
   if (role === "body-anatomy") return import("./connected-body-anatomy-worker");
   if (role === "body-head") return import("./connected-body-head-worker");
@@ -38,9 +38,9 @@ const load = (): Promise<unknown> => {
   );
 };
 void load()
-  .then(() => {
+  .then((): void => {
     // the role installed its handler while its module was evaluated
-    const handler = scope.onmessage;
+    const handler: DedicatedWorkerGlobalScope["onmessage"] = scope.onmessage;
     if (handler === hold || handler === null)
       throw new Error(
         "The human worker role " +
@@ -49,9 +49,9 @@ void load()
       );
     for (const event of held.splice(0)) handler.call(scope, event);
   })
-  .catch((error: unknown) => {
-    const message = error instanceof Error ? error.message : String(error);
-    const refuse = (event: MessageEvent): void => {
+  .catch((error: unknown): void => {
+    const message: string = error instanceof Error ? error.message : String(error);
+    const refuse: (event: MessageEvent) => void = (event: MessageEvent): void => {
       scope.postMessage({ id: event.data?.id, success: false, error: message });
     };
     scope.onmessage = refuse;

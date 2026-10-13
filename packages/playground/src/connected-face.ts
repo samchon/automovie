@@ -6,26 +6,25 @@
  * Both face.html and connected-face.html mount this same numerical editor.
  * The selected photo never participates in this replay.
  */
-import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import type { IAutoMovieHumanFaceBasis, IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import simpleControls from "./human/examples/face-controls.json";
 import studyDocuments from "./human/examples/faces.json";
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import { createHumanWorker } from "./human/common/createHumanWorker";
-import { createHumanResidentPort } from "./human/common/residentPort";
+import { createHumanResidentPort } from "./human/common/createHumanResidentPort";
+import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
-import { mountConnectedFacePanel } from "./human/face/connectedPanel";
+import { mountConnectedFacePanel } from "./human/face/mountConnectedFacePanel";
 import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
-import { createConnectedFaceViewport } from "@automovie/viewer/human/face/createConnectedFaceViewport";
+import { createConnectedFaceBrowserViewport } from "@automovie/viewer/human/face/createConnectedFaceBrowserViewport";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
-  const source = readConnectedFaceSourceUrl(location.search, location.href);
-  const basis = await readConnectedFaceAsset({
-    read: () => fetch(source),
+  const source: string = readConnectedFaceSourceUrl(location.search, location.href);
+  const basis: IAutoMovieHumanFaceBasis = await readConnectedFaceAsset({
+    read: (): Promise<Response> => fetch(source),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
     id: "connected-reference",
@@ -34,15 +33,14 @@ async function main(): Promise<void> {
     shape: {},
     expression: {},
   };
-  let viewport!: ReturnType<typeof createConnectedFaceViewport>;
-  const panel = mountConnectedFacePanel(
+  const panel: ReturnType<typeof mountConnectedFacePanel<Awaited<ReturnType<ReturnType<typeof createConnectedFaceBrowserViewport>["build"]>>>> = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
       basis,
       initial,
       controlMap: simpleControls,
       componentTree: connectedFaceComponents,
-      studies: studyDocuments.map((document) =>
+      studies: studyDocuments.map((document: (typeof studyDocuments)[number]): IAutoMovieHumanFaceBasisDocument =>
         parseHumanFaceBasisDocument(JSON.stringify(document)),
       ),
       presets: [
@@ -55,45 +53,29 @@ async function main(): Promise<void> {
         { name: "Wink", expression: { eyeBlinkRight: 1 } },
         { name: "Pucker", expression: { mouthPucker: 0.5 } },
       ],
-      viewport: (canvas) => {
-        const loader = new THREE.TextureLoader();
-        return (viewport = createConnectedFaceViewport({
+      viewport: (canvas: HTMLCanvasElement): ReturnType<typeof createConnectedFaceBrowserViewport> =>
+        createConnectedFaceBrowserViewport({
           canvas,
           pixelRatio: devicePixelRatio,
-          renderer: new THREE.WebGLRenderer({
-            canvas,
-            antialias: true,
-            preserveDrawingBuffer: true,
-          }),
-          orbit: (stageCamera) => new OrbitControls(stageCamera, canvas),
-          worker: () =>
+          worker: (): ReturnType<Parameters<typeof createConnectedFaceBrowserViewport>[0]["worker"]> =>
             createHumanResidentPort(
               createHumanWorker(
                 "worker=face&faceSource=" + encodeURIComponent(source),
               ),
             ),
-          loadTexture: (asset) => loader.loadAsync(asset),
-          observeResize: (resize) => {
-            new ResizeObserver(resize).observe(canvas);
-          },
-        }));
-      },
-      download: (filename, bytes, mime) => {
-        const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      },
+        }),
+      download: downloadConnectedFile,
     },
   );
   registerPlaygroundEditor({ ready: panel.ready,
-    document: () => panel.snapshot()?.document,
+    document: (): IAutoMovieHumanFaceBasisDocument | undefined => panel.snapshot()?.document,
     load: panel.load, controls: document });
+  addEventListener("pagehide", (event: PageTransitionEvent): void => {
+    if (!event.persisted) void panel.close().catch((error: unknown): void => { console.error(error); });
+  });
   await panel.ready;
 }
-void main().catch((error: unknown) => {
+void main().catch((error: unknown): void => {
   window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLDivElement>("#app")!.textContent =
     error instanceof Error ? error.message : String(error);
