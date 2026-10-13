@@ -12,7 +12,7 @@ Installation is one-way: the installed files belong to the project, and the CLI 
 
 ## API
 
-The package exports `run`, the argument parser `readAutoMovieCommandArguments`, and the next-step text `renderAutoMovieScaffoldNextSteps`.
+The package exports `run`, the argument parser `readAutoMovieCommandArguments`, the project-name rule `deriveAutoMovieProjectName`, and the next-step text `renderAutoMovieScaffoldNextSteps`.
 
 ## Development checks
 
