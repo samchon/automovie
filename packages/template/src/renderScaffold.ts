@@ -3,14 +3,9 @@ import * as path from "node:path";
 
 import type { IAutoMovieScaffoldProps } from "./IAutoMovieScaffoldProps";
 import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
-import { renderAutoMovieLanguageContracts } from "./renderAutoMovieLanguageContracts";
 import { renderScaffoldEntries } from "./renderScaffoldEntries";
 import { scaffoldAssetDirectory } from "./scaffoldAssetDirectory";
 import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./templateVersions";
-import {
-  validateAutoMovieInstructionDocumentLinks,
-  validateAutoMovieSkillRouterLinks,
-} from "./instructionRoutes";
 
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map:
@@ -43,29 +38,17 @@ export const renderScaffold = (
     throw new Error(
       `scaffold project name "${name}" must be one portable directory segment`,
     );
-  const variables: Record<string, string> = { name, language: props.language };
+  const variables: Record<string, string> = { name };
   for (const [key, value] of Object.entries(AUTOMOVIE_TEMPLATE_VERSIONS))
     variables[`version:${key}`] = value;
 
   const root = scaffoldAssetDirectory();
-  const languageEntries = Object.entries(
-    renderAutoMovieLanguageContracts({ language: props.language }),
-  ).map(([relative, content]) => ({ content, relative }));
   const files = renderScaffoldEntries(
-    [
-      ...listAutoMovieScaffoldFiles(root).map((relative) => ({
-        content: fs.readFileSync(path.join(root, relative), "utf8"),
-        relative,
-      })),
-      ...languageEntries,
-    ],
+    listAutoMovieScaffoldFiles(root).map((relative) => ({
+      content: fs.readFileSync(path.join(root, relative), "utf8"),
+      relative,
+    })),
     variables,
   );
-  const instructionSources = Object.entries(files).map(([path, content]) => ({
-    path,
-    content,
-  }));
-  validateAutoMovieSkillRouterLinks(instructionSources);
-  validateAutoMovieInstructionDocumentLinks(instructionSources, "AGENTS.md");
   return files;
 };

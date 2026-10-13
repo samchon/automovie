@@ -1,37 +1,20 @@
 # @automovie/template
 
-`@automovie/template` is the public materializer for a new AutoMovie authoring project. Its API renders and installs the bundled `scaffold` once; the installed files then belong to the project.
+`@automovie/template` renders and installs the bundled `scaffold` for a new AutoMovie production. The installed files then belong to the project; package upgrades never overwrite them.
 
-## Generated-project contract
+## Generated project
 
-Every rendered project is self-contained:
+- `AGENTS.md` routes the shipped skills, and `CLAUDE.md` only imports it.
+- `.agents/skills/3d-modeling` and `.agents/skills/contracts/common.md` are byte copies of the repository's own, synced by `build/syncScaffoldInstructions.ts`; `.agents/skills/contracts/SKILL.md` says how production source answers that checklist.
+- `evidence.config.ts` has every exported type and function under `src` answer `contracts/common.md` through `@wrtnlabs/evidence`; `lint.config.ts` configures source correctness lint.
+- The scaffold ships no production content, viewer stub, or provider-specific hook.
 
-- the scaffold's [contract document inventory](./scaffold/docs/README.md) is installed inside the generated project's `docs` root;
-- `docs/contracts` contains production-specific additive targets;
-- one typed `lint.config.ts` owns the production shape, population scope, branch stages, local claims, and evidence graph;
-- `.agents/skills/3d-modeling` supplies modeling and visual debugging guidance;
-- `AGENTS.md` routes those skills, while `CLAUDE.md` only imports the provider-neutral router.
-
-`renderScaffold` excludes working artifacts from its source population. A `node_modules`, `.git`, or `.cache` directory in the scaffold, and any file carrying a builder-output shape, belong to whoever ran a tool in that directory rather than to the template, and none reaches a generated project. That exclusion is load-bearing rather than tidy: the repository ignores the paths a stray type-check emits under the scaffold, so nothing else in the toolchain can see one, and a generated project's loader prefers an emitted `.js` to the `.ts` beside it.
-
-The scaffold's [static-document policy](./scaffold/README.md#static-document-updates) owns installed instructions, contracts, and other project files. Updating the package does not update those files.
-
-The scaffold's [canonical command routes](./scaffold/README.md#canonical-command-routes) own its explicit ES-module and single-file transformation contract, including type import syntax and full-program source validation.
-
-The source inventory carries its root ignore rules in `scaffold/_gitignore`, which the materializer installs as `.gitignore`. This keeps npm's pack-time `.gitignore` to `.npmignore` rename from changing the generated project's Git boundary. A direct `.gitignore` source remains supported; supplying both root identities is a collision and refuses the candidate.
-
-Initial scaffold candidates validate local targets and heading links from every shipped Markdown skill topic as well as the production `SKILL.md` router and `AGENTS.md`. The complete installation population includes referenced README, configuration and asset files. Skill frontmatter and a leading H1 identify each entry; procedure headings remain ordinary Markdown. A broken sibling route refuses creation before publication. Later project-owned edits follow the static-document policy.
-
-Generated graph evaluation never resolves evidence targets from `node_modules/@automovie/template`. The package ships the scaffold bytes that become project-owned inputs; `@automovie/evidence` supplies the reusable graph mechanics that validate those local inputs.
-
-The scaffold supplies no production content, viewer stub, template variant, or provider-specific hook. Its [ownership boundary](./scaffold/README.md#ownership) governs source, static assets, and configuration. The coding agent authors the concrete runtime and view its requested production needs; creation does not register an MCP client.
+`renderScaffold` excludes working artifacts from its source population: a `node_modules`, `.git`, or `.cache` directory, or a file with a builder-output shape, belongs to whoever ran a tool there, and a generated project's loader would prefer an emitted `.js` to the `.ts` beside it. The scaffold's ignore rules ship as `scaffold/_gitignore` and install as `.gitignore`, because npm renames a packed `.gitignore` to `.npmignore`; supplying both root identities is refused.
 
 ## Public API
 
-`renderScaffold` returns a deterministic project-relative file map for initial installation. `publishFiles` validates and freezes that complete candidate, then returns a receipt naming every completed file and the first refused or parent-bound partial effect; `writeFiles` preserves the throwing compatibility API. New slots are created through Koffi-backed POSIX `openat` or Windows `NtCreateFile` parent-handle-relative adapters, so neither creation nor verification follows a successor child pathname. The package also exports the scaffold snapshot helpers used by those operations. It supplies no post-install instruction regenerator or updater.
+`renderScaffold` returns a deterministic project-relative file map with `{{name}}` and the catalog-resolved `{{version:*}}` tokens substituted. `publishFiles` validates and freezes that candidate, then returns a receipt naming every completed file and the first refused or parent-bound partial effect; `writeFiles` keeps the throwing API. New slots are created through Koffi-backed POSIX `openat` or Windows `NtCreateFile` parent-handle-relative adapters, so neither creation nor verification follows a successor child pathname.
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
-
-`resolveAutoMovieTemplateDependencyVersions` interprets supplied workspace version ranges and catalog text without filesystem access. The build script acquires those inputs and emits the scaffold's version placeholders, including the standalone evidence CLI and native source guards.
+`pnpm run build` syncs the scaffold's version placeholders and shared instructions, then compiles with source correctness lint. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.

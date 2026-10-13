@@ -33,7 +33,7 @@
     "plugins": [
       {
         "transform": "@ttsc/lint",
-        "configFile": "source.lint.config.ts"
+        "configFile": "lint.config.ts"
       }
     ]
   },
@@ -45,12 +45,10 @@
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "evidence": "evidence --config evidence.config.ts && npm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence"
   },
   "dependencies": {
     "@automovie/archetypes": "{{version:archetypes}}",
-    "automovie": "{{version:cli}}",
     "@automovie/engine": "{{version:engine}}",
     "@automovie/human": "{{version:human}}",
     "@automovie/ingest": "{{version:ingest}}",
@@ -59,13 +57,10 @@
     "@automovie/render": "{{version:render}}"
   },
   "devDependencies": {
-    "@automovie/evidence": "{{version:evidence}}",
-    "@automovie/template": "{{version:template}}",
     "@ttsc/lint": "{{version:ttscLint}}",
     "@types/node": "{{version:nodeTypes}}",
     "ttsc": "{{version:ttsc}}",
     "typescript": "{{version:typescript}}",
-    "@wrtnlabs/evidence": "{{version:evidenceCli}}",
-    "@ttsc/evidence": "{{version:evidenceLint}}"
+    "@wrtnlabs/evidence": "{{version:evidenceCli}}"
   }
 }
