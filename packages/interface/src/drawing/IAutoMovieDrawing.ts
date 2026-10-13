@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
 import { IAutoMovieDrawingAnnotation } from "./IAutoMovieDrawingAnnotation";
 import { IAutoMovieDrawingDimension } from "./IAutoMovieDrawingDimension";
@@ -109,5 +108,5 @@ export interface IAutoMovieDrawing {
   gaps: IAutoMovieDrawingGap[];
 
   /** SHA-256 digest over the canonical JSON of every other field. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

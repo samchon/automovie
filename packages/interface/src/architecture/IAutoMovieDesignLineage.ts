@@ -22,8 +22,8 @@ import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
  *
  * @evidence contracts/common.md#principled-implementation Coherence is checked by `validateDesignLineage` in the shot runtime (unique ids, acyclic revision, phase and derivation graphs, a resolving head, total lifecycles, head-stamped derived artifacts) and binding by `validateDesignLineageBinding` in the production builder against the ids the compiled buildings, models, and asset uses publish.
  * @evidence contracts/common.md#clear-and-simple-design One record holds the seven lists a lineage answers from, each owned by its own member type, and points at foreign graphs only through subject ids, so no building type gains a phase or variant field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Staleness is refused rather than warned and no default lifecycle is invented; the remaining gap is that two different lineages sharing one id are not refused, and the builder binds the last one it reads, which the `id` documentation states.
- * @evidence contracts/common.md#meaningful-documentation States that the record annotates foreign ids, what its absence means, when coherence and binding are checked, the head every artifact must stamp, the minimum revision count, and the unrefused id reuse.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Staleness is refused and no lifecycle is invented; canonically equal lineages may be shared across shots, while different lineages with one id refuse compilation before either can become an accepted binding.
+ * @evidence contracts/common.md#meaningful-documentation States foreign identity annotation, absence semantics, coherence and binding gates, artifact head stamps, minimum revisions and canonical-equality sharing with conflicting-id refusal.
  * @author Samchon
  */
 export interface IAutoMovieDesignLineage {
@@ -33,8 +33,8 @@ export interface IAutoMovieDesignLineage {
   /**
    * Stable, non-blank lineage identity within the production.
    *
-   * Reuse is not refused: when two shots declare different lineages under one
-   * id, the production build binds only the one it reads last.
+   * Canonically equal lineages may be shared across shots. Different lineages
+   * under one id refuse compilation rather than replace one another.
    */
   id: string;
 

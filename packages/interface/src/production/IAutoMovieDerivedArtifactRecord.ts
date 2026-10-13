@@ -1,10 +1,13 @@
-import type { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEncoding";
 import { IAutoMovieDerivedArtifactDependency } from "./IAutoMovieDerivedArtifactDependency";
 
 /**
  * Tracked identity of one explicitly generated deterministic artifact.
  *
+ * @evidence contracts/common.md#principled-implementation Generator and sorted declared-input identities form a domain-separated basis digest, while a separate output digest identifies exact emitted bytes; verification rechecks both before making the encoded artifact available to source context.
+ * @evidence contracts/common.md#clear-and-simple-design Output path and encoding sit beside generator, dependencies, basis identity and byte identity, separating what produced the artifact from how source code receives its payload.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Matching output bytes alone cannot hide a changed generator or input basis, and outputs stay within the dedicated derived namespace rather than overwriting source or undeclared assets.
+ * @evidence contracts/common.md#meaningful-documentation Gives the derived path boundary, normalized generator identity, sorted raw input identities, domain-separated basis and exact output digest, with UTF-8 or base64 transport.
  * @author Samchon
  */
 export interface IAutoMovieDerivedArtifactRecord {
@@ -21,8 +24,8 @@ export interface IAutoMovieDerivedArtifactRecord {
   inputs: IAutoMovieDerivedArtifactDependency[];
 
   /** Domain-separated digest of generator and declared input identities. */
-  basisDigest: AutoMovieContentDigest;
+  basisDigest: string;
 
   /** SHA-256 of the exact artifact bytes. */
-  outputDigest: AutoMovieContentDigest;
+  outputDigest: string;
 }

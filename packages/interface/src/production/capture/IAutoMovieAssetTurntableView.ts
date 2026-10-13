@@ -3,9 +3,12 @@ import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 /**
  * One view an asset review must be able to see before it can complete.
  *
- * The set is declared by the review contract rather than by the caller, so a
- * turntable request cannot under-cover the asset by choosing convenient angles.
+ * The review contract supplies the required view set; the caller cannot reduce coverage by choosing convenient angles.
  *
+ * @evidence contracts/common.md#principled-implementation captureAutoMovieProductionTurntable derives the exact rig-dependent review views and captures each through the same current-frame and receipt-reopen path, retaining a null frame for any refused view.
+ * @evidence contracts/common.md#clear-and-simple-design View identity and camera/pass parameters sit beside the resulting PNG path, exposing complete required coverage without copying the full receipt into each summary row.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused view cannot be replaced by another angle, and extreme-range views are chosen from the actual compiled rig rather than treating an unreadable model as unrigged.
+ * @evidence contracts/common.md#meaningful-documentation Defines required view identity, degree angles, rig pose, render pass and refusal-null path with view-specific correction diagnostics.
  * @author Samchon
  */
 export interface IAutoMovieAssetTurntableView {
@@ -27,8 +30,7 @@ export interface IAutoMovieAssetTurntableView {
   /**
    * Project-relative PNG path, or null when this view was refused.
    *
-   * A null path is not a gap the caller may fill by choosing another angle. The
-   * diagnostic naming this view states what to correct.
+   * A null path is not a gap the caller may fill by choosing another angle. The diagnostic naming this view states what to correct.
    */
   frame: string | null;
 }

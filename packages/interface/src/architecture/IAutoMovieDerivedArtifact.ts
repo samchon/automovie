@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieDesignAssetCitation } from "./IAutoMovieDesignAssetCitation";
 import { IAutoMovieDesignStamp } from "./IAutoMovieDesignStamp";
 
@@ -62,5 +61,5 @@ export interface IAutoMovieDerivedArtifact {
    * SHA-256 of the output's own bytes, as the author recorded it; validation
    * checks only its lowercase `sha256:` hex form and never rehashes the output.
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

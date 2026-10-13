@@ -1,24 +1,17 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
 import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 
 /**
- * A bounded verdict: every budgeted render cost, what it measured, and who pays
- * for it.
+ * A bounded verdict: every budgeted render cost, what it measured, and who pays for it.
  *
- * The report is deliberately O(1) in the size of the production. It carries one
- * finding per metric and at most
- * {@link AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS} dominant owners per finding,
- * with the remainder counted rather than listed. A report that grew with the
- * scene would be the thing nobody reads on the artifact that most needs
- * reading, and truncating silently would make it a lie, so the omitted owners
- * and their omitted cost are both stated.
+ * Each fixed metric carries at most the caller-selected positive safe integer K dominant owners, defaulting to the engine's contributor limit, with omitted owners and cost counted. Fixed K bounds the finding population; the complete report still retains its borrowed target asset inventory and variable-length source and recovery strings.
  *
- * A finding never reports a missing analysis as a pass. `unsupported` and
- * `not-run` are first-class outcomes that make the whole report `incomplete`,
- * because "we did not look" and "we looked and it was fine" are different facts
- * and only one of them clears an artifact.
+ * A finding never reports a missing analysis as a pass. `unsupported` and `not-run` are first-class outcomes that make the whole report `incomplete`, because "we did not look" and "we looked and it was fine" are different facts and only one of them clears an artifact.
  *
+ * @evidence contracts/common.md#principled-implementation Budget evaluation emits one finding per fixed metric, reduces aggregate state by over then incomplete precedence and hashes fixed-position JSON tuples covering every finding field, including contributor sources and recovery, plus mask and target identity.
+ * @evidence contracts/common.md#clear-and-simple-design Fixed metrics and caller-selected top-K attribution bound new finding records while omitted counts and costs preserve remaining attribution; borrowed target assets and string bytes still determine full retained or serialized report size.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Aggregate within with all unbudgeted findings is explicitly no agreed budget, not universal clearance; unsupported and not-run cannot become measured success and stale target identity invalidates reuse.
+ * @evidence contracts/common.md#meaningful-documentation Defines state precedence, unbudgeted aggregate meaning, fixed metric order, bounded attribution and mask/target/digest binding.
  * @author Samchon
  */
 export interface IAutoMovieRenderReport {
@@ -32,29 +25,21 @@ export interface IAutoMovieRenderReport {
   tier: string;
 
   /**
-   * Worst outcome across findings: `over` when any budgeted metric exceeds its
-   * limit, otherwise `incomplete` when any metric is `unsupported` or
-   * `not-run`, otherwise `within`.
+   * Worst outcome across findings: `over` when any budgeted metric exceeds its limit, otherwise `incomplete` when any metric is `unsupported` or `not-run`, otherwise `within`.
    *
-   * `within` means exactly "nothing measured exceeded a declared limit and no
-   * analysis is missing". It does NOT mean the production is budgeted: a legacy
-   * production that declares no budget reports `within` with every finding
-   * `unbudgeted` and the tier spelled `unbudgeted`, which is the documented
-   * default and is deliberately distinguishable from a production that declared
-   * limits and met them.
+   * `within` means exactly "nothing measured exceeded a declared limit and no analysis is missing". It does NOT mean the production is budgeted: a legacy production that declares no budget reports `within` with every finding `unbudgeted` and the tier spelled `unbudgeted`, which is the documented default and is deliberately distinguishable from a production that declared limits and met them.
    */
   status: "within" | "over" | "incomplete";
 
   /**
    * One finding per metric, in the fixed metric order.
    *
-   * Fixed length, so the report's size never depends on how large the
-   * production is.
+   * The metric count is fixed; contributor arrays follow the caller's K bound and strings retain their actual byte lengths.
    */
   findings: IAutoMovieRenderFinding[];
 
   /** Digest of the semantic mask this report is evidence beside. */
-  mask: AutoMovieContentDigest;
+  mask: string;
 
   /** Renderer, settings and assets the measurement is bound to. */
   target: IAutoMovieRenderTarget;
@@ -62,5 +47,5 @@ export interface IAutoMovieRenderReport {
   /**
    * Digest over the protocol, tier, findings, mask digest and target digest.
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

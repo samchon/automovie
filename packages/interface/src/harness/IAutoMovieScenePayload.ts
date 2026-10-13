@@ -1,13 +1,7 @@
 /**
- * What a `scene` node of the screenplay tree carries: the screenplay slug of
- * where and when the scene happens, plus optional scene-setting prose.
+ * What a `scene` node of the screenplay tree carries: the screenplay slug of where and when the scene happens, plus optional scene-setting prose.
  *
- * `screenplaySceneSlug` formats it as `INT. LOCATION - TIMEOFDAY`, with
- * location and time upper-cased; the plain-text screenplay prints that slug and
- * the description, and the caption sidecar labels every beat under the scene
- * with it. The production store refuses a stored payload whose flag is not
- * `INT` or `EXT`, whose location or time of day is blank, or whose description
- * is blank rather than `null`.
+ * `screenplaySceneSlug` formats it as `INT. LOCATION - TIMEOFDAY`, with location and time upper-cased; the plain-text screenplay prints that slug and the description, and the caption sidecar labels every beat under the scene with it. The production store refuses a stored payload whose flag is not `INT` or `EXT`, whose location or time of day is blank, or whose description is blank rather than `null`.
  *
  * @evidence contracts/common.md#principled-implementation Follows the screenplay slug convention of interior or exterior, location and time of day, so one formatter produces the heading every reader of the tree shows.
  * @evidence contracts/common.md#clear-and-simple-design Three slug fields and one optional prose line; the staged set the scene plays on is a separate record, so this payload stays authoring text.

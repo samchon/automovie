@@ -1,5 +1,4 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCompiledFormationHero } from "./IAutoMovieCompiledFormationHero";
 import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
@@ -8,7 +7,13 @@ import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated formation runtime; it never stores every anonymous slot.
+ * Compact generated formation runtime; it never stores every anonymous slot. Slot bounds and centroid describe member placement points; projectionRadius supplies the separate conservative member extent for view tests.
+ *
+ * @evidence contracts/common.md#principled-implementation Layout, anchor, heading, seed and snapshotted terrain regenerate every slot deterministically; chunk summaries and ordered hero promotions derive from those same positions, while the record digest identifies all compiled inputs and summaries.
+ * @evidence contracts/common.md#clear-and-simple-design The runtime stores compact placement laws and bounded chunk summaries instead of every anonymous member; explicit heroes and representation tiers add only the exceptions and view choices consumers need.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Viewer and oracle read the compiled terrain snapshot rather than mutable world design, hero slots leave anonymous batches, and phase seed changes cycle position without inventing an unrelated cadence.
+ * @evidence contracts/common.md#meaningful-documentation Gives compact storage ownership, safe seed and count, metre anchor and slot bounds, terrain-order semantics, hero exclusion, LOD inputs, phase-only generation and complete digest coverage.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledFormation {
   /** Generated formation format. */
@@ -35,14 +40,7 @@ export interface IAutoMovieCompiledFormation {
   /**
    * World terrain under this formation, snapshotted at compile time.
    *
-   * A member's height is the ground under that member, so the ground has to
-   * travel with the formation: the viewer and the source oracle regenerate slot
-   * heights from this snapshot without consulting mutable world design, exactly
-   * as a compiled instance set carries the route it follows. Only the surfaces
-   * whose extent reaches the formation's own footprint are kept, and their
-   * declared order is preserved because the first surface containing a point is
-   * the one a member stands on. Empty when the world declared no terrain under
-   * the unit, which places every member at the anchor's height.
+   * A member's height is the ground under that member, so the ground has to travel with the formation: the viewer and the source oracle regenerate slot heights from this snapshot without consulting mutable world design, exactly as a compiled instance set carries the route it follows. Only the surfaces whose extent reaches the formation's own footprint are kept, and their declared order is preserved because the first surface containing a point is the one a member stands on. Empty when the world declared no terrain under the unit, which places every member at the anchor's height.
    */
   ground: IAutoMovieWorldDesign["surfaces"];
 
@@ -52,7 +50,7 @@ export interface IAutoMovieCompiledFormation {
   /** Full safe-integer design seed. */
   seed: number;
 
-  /** Exact bounds of all slots. */
+  /** Bounds of all slot placement points, before member-radius expansion. */
   bounds: IAutoMovieFormationBounds;
 
   /** Exact arithmetic centroid of all slots. */
@@ -73,11 +71,7 @@ export interface IAutoMovieCompiledFormation {
   /**
    * Deterministic per-slot phase generator contract.
    *
-   * Phase is where in its cycle one member stands, never how fast that cycle
-   * runs: cadence follows the ground a member's own unit covers under its cues,
-   * so a compiled cycle length would be a second answer to a question the cue
-   * already answers, and a seeded one would be unrelated to what the unit
-   * does.
+   * Phase is where in its cycle one member stands, never how fast that cycle runs: cadence follows the ground a member's own unit covers under its cues, so a compiled cycle length would be a second answer to a question the cue already answers, and a seeded one would be unrelated to what the unit does.
    */
   phase: {
     /** Domain-separated safe-integer seed. */
@@ -85,5 +79,5 @@ export interface IAutoMovieCompiledFormation {
   };
 
   /** Digest of every field above except this digest. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

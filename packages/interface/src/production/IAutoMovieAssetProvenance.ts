@@ -1,18 +1,25 @@
 import { IAutoMovieGeneratedAcquisition } from "../architecture/IAutoMovieGeneratedAcquisition";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieAssetLicense } from "./IAutoMovieAssetLicense";
 import { IAutoMovieAssetProcessingStep } from "./IAutoMovieAssetProcessingStep";
 import { IAutoMovieAssetUse } from "./IAutoMovieAssetUse";
 import { IAutoMovieExternalModelProvenance } from "./IAutoMovieExternalModelProvenance";
 import { IAutoMovieExternalMotionProvenance } from "./IAutoMovieExternalMotionProvenance";
 
-/** Byte identity and consumer bindings for one project asset. */
+/**
+ * Current byte identity, acquisition metadata and live uses of one project asset. The inventory hashes current bytes; original-source and licence facts are descriptive.
+ *
+ * @evidence contracts/common.md#principled-implementation Canonical asset path and SHA-256 bind current bytes to nonempty typed consumer uses; optional model and motion ledgers carry inspected execution facts, and generation metadata is admitted through its own provenance gate.
+ * @evidence contracts/common.md#clear-and-simple-design One ledger entry keeps current identity separate from optional original acquisition, generation, licence and ordered processing history, avoiding a false equation between processed bytes and original source bytes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Descriptive source and licence fields cannot prove current byte identity or legal authority; model and motion provenance cannot select an unregistered appearance or animation take merely by being present.
+ * @evidence contracts/common.md#meaningful-documentation Defines canonical project path, current and original digest ownership, ordered processing, nonempty live-use ledger, required external-model facts and the nonselecting role of motion inspection metadata.
+ * @author Samchon
+ */
 export interface IAutoMovieAssetProvenance {
   /** Canonical project-relative current asset path. */
   path: string;
 
   /** SHA-256 of the current bytes at {@link path}. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 
   /** Optional descriptive record of an earlier source revision. */
   original?: {
@@ -20,7 +27,7 @@ export interface IAutoMovieAssetProvenance {
     url: string;
 
     /** SHA-256 of the acquired original bytes. */
-    digest: AutoMovieContentDigest;
+    digest: string;
   };
 
   /** Optional descriptive generation record. */
@@ -43,8 +50,7 @@ export interface IAutoMovieAssetProvenance {
   model?: IAutoMovieExternalModelProvenance;
 
   /**
-   * Inspected motion facts when these bytes are adopted as animation input.
-   * Omitted for non-motion assets; presence never selects a take.
+   * Inspected motion facts when these bytes are adopted as animation input. Omitted for non-motion assets; presence never selects a take.
    */
   motion?: IAutoMovieExternalMotionProvenance;
 }

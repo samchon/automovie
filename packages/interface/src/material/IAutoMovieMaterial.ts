@@ -3,24 +3,18 @@ import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 
 /**
- * A physically-based (PBR) surface material: the "what it's made of and how it
- * catches light" of a character or object surface.
+ * A physically-based (PBR) surface material: the "what it's made of and how it catches light" of a character or object surface.
  *
- * Fields mirror the glTF 2.0 metallic-roughness model so a generated material
- * maps 1:1 onto `three.js` `MeshStandardMaterial`, VRM/MToon inputs, and glTF
- * export. Every coefficient is a scalar documented to `[0, 1]` or an
- * {@link IAutoMovieColor}; the whole material is a small numeric record, which
- * is exactly why an LLM can author or tweak it ("make it more metallic",
- * "rougher", "warmer base color") through structured output; the engine
- * range-checks the coefficients.
+ * The base fields follow glTF's metallic-roughness model; the viewer builds a `MeshPhysicalMaterial` and adds the documented subsurface, detail-normal and overlay effects. glTF export omits those three extensions. The engine validates coefficient domains before rendering.
  *
- * Texture _maps_ (image-based base color / normal / roughness) are referenced
- * by id rather than embedded: the pixel payload is an asset the engine
- * resolves, not something the LLM emits.
+ * Texture images are referenced assets. Their payload and GPU lifetime belong to the renderer's texture resolver, rather than this authoring record.
  *
- * Reference: glTF 2.0 `pbrMetallicRoughness`
- * (https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
+ * Reference: glTF 2.0 `pbrMetallicRoughness` (https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
  *
+ * @evidence contracts/common.md#principled-implementation Metallic, roughness and linear colour describe the base reflectance model; `validateModel` admits their domains, and `buildMaterial` maps the admitted fields to physical material parameters and separately composes the optional shader effects.
+ * @evidence contracts/common.md#clear-and-simple-design One optical record owns reflectance, alpha and texture slots; physical density and construction layers use separate substance and assembly types, and image bytes stay behind asset references.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No finish name selects a shader or numerical preset; explicit alpha mode overrides opacity-derived defaults, and unsupported glTF subsurface, detail-normal and overlay effects are documented as omitted rather than claimed as exported.
+ * @evidence contracts/common.md#meaningful-documentation States coefficient bounds, linear colour, texture slot colour roles, alpha defaults, normal-map composition and metre-valued transmission and subsurface properties, including export omissions and resolver ownership.
  * @author Samchon
  */
 export interface IAutoMovieMaterial {
@@ -42,21 +36,17 @@ export interface IAutoMovieMaterial {
   roughness: number;
 
   /**
-   * Emissive (self-illumination) color, or `null` for a non-emitting surface.
-   * Distinct from a black base color: this surface _adds_ light.
+   * Emissive (self-illumination) color, or `null` for a non-emitting surface. Adds surface radiance without creating a scene light.
    */
   emissive: IAutoMovieColor | null;
 
   /**
-   * Opacity, `[0, 1]`. `1` = opaque. Below `1` the engine enables alpha
-   * blending. (Mirrors `baseColor.a`; kept explicit for the common author
-   * gesture "make it 50% transparent".)
+   * Surface alpha in `[0, 1]`, independent of `baseColor.a` in the viewer. Without `alphaMode`, values below one select alpha blending.
    */
   opacity: number;
 
   /**
-   * Id of an optional base-color texture map. `null` = flat `baseColor` only.
-   * The image is an engine-resolved asset, never LLM-emitted pixels.
+   * Id of an optional base-color texture map. `null` = flat `baseColor` only. The image is an engine-resolved asset, never LLM-emitted pixels.
    */
   baseColorTexture: AutoMovieTextureBinding | null;
 
@@ -67,8 +57,7 @@ export interface IAutoMovieMaterial {
   normalTexture?: AutoMovieTextureBinding | null;
 
   /**
-   * Finite multiplier applied to the normal map's XY channels; negative flips
-   * them.
+   * Finite multiplier applied to the normal map's XY channels; negative flips them.
    */
   normalScale?: number;
 
@@ -85,8 +74,7 @@ export interface IAutoMovieMaterial {
   doubleSided?: boolean;
 
   /**
-   * Explicit alpha handling. Omitted derives legacy blend behavior from
-   * opacity.
+   * Explicit alpha handling. Omitted derives legacy blend behavior from opacity.
    */
   alphaMode?: "opaque" | "mask" | "blend";
 
@@ -106,37 +94,22 @@ export interface IAutoMovieMaterial {
   clearcoat?: number;
 
   /**
-   * Distance light travels under the surface before it leaves again, per
-   * primary, in metres: the diffuse mean free path of a translucent tissue
-   * such as skin (red farthest). A renderer blurs the diffuse response over
-   * the surface by it, so a lit side bleeds soft and red into the shadowed
-   * one where the surface curves within that distance and a flat surface
-   * stays Lambertian. glTF has no ratified extension for it, so an exported
-   * asset omits it. Omitted, the diffuse response is Lambertian.
+   * Distance light travels under the surface before it leaves again, per primary, in metres: the diffuse mean free path of a translucent tissue such as skin (red farthest). A renderer blurs the diffuse response over the surface by it, so a lit side bleeds soft and red into the shadowed one where the surface curves within that distance and a flat surface stays Lambertian. glTF has no ratified extension for it, so an exported asset omits it. Omitted, the diffuse response is Lambertian.
    */
   subsurfaceRadius?: { r: number; g: number; b: number };
 
   /**
-   * Optional second tangent-space normal map, blended over `normalTexture`
-   * (whiteout: the two maps' slopes add), usually a fine relief tiled with its
-   * own transform over a coarser map bound once across the surface. glTF has
-   * one normal slot, so an exported asset keeps `normalTexture` and omits this
-   * one. Without a `normalTexture` it stands in as the normal map.
+   * Optional second tangent-space normal map, blended over `normalTexture` (whiteout: the two maps' slopes add), usually a fine relief tiled with its own transform over a coarser map bound once across the surface. glTF has one normal slot, so an exported asset keeps `normalTexture` and omits this one. Without a `normalTexture` it stands in as the normal map.
    */
   detailNormalTexture?: AutoMovieTextureBinding | null;
 
   /**
-   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor;
-   * omitted, one.
+   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor; omitted, one.
    */
   detailNormalScale?: number;
 
   /**
-   * Surface layers composited over this material in order, each where its
-   * own image covers (veins under a skin, the nail plates at its
-   * fingertips), at most four: a renderer samples up to two images for each
-   * on top of the material's own. glTF has no ratified extension for them, so
-   * an exported asset omits them. Omitted or empty, the material shows alone.
+   * Surface layers composited over this material in order, each where its own image covers (veins under a skin, the nail plates at its fingertips), at most four: a renderer samples up to two images for each on top of the material's own. glTF has no ratified extension for them, so an exported asset omits them. Omitted or empty, the material shows alone.
    */
   overlays?: IAutoMovieMaterialOverlay[];
 }

@@ -4,11 +4,12 @@ import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary
 /**
  * One compact compiled formation projected into subject-review identity.
  *
- * Formations are not part of the structural-description vocabulary: treating a
- * bounded formation runtime as an instance set would erase its slot, hero,
- * formation-motion, and LOD semantics. Subject review therefore carries the
- * builder-owned formation record directly while sharing only identity,
- * revision, kind, and bounded member summary with other subject descriptions.
+ * Subject review carries the compiled formation directly so slot, hero, formation-motion and LOD semantics survive the projection into a shared subject identity.
+ *
+ * @evidence contracts/common.md#principled-implementation resolveAutoMovieSubjectReviewUnit projects the compiled formation with its artifact revision and bounded member summary; the formation kind preserves semantics that a structural instance-set description cannot represent.
+ * @evidence contracts/common.md#clear-and-simple-design Shares only review identity and member summary with other subject descriptions while retaining the existing compact formation record rather than inventing a second formation model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the builder-owned formation and actual member count, not sampled geometry promoted to a structural description or an estimated crowd size.
+ * @evidence contracts/common.md#meaningful-documentation Defines revision ownership, namespaced identity, distinct kind, exact compiled record and bounded hero sample.
  *
  * @author Samchon
  */

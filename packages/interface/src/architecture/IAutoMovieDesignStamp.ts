@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 
 /**
  * The exact view one derived artifact was produced under.
@@ -29,5 +28,5 @@ export interface IAutoMovieDesignStamp {
   phase: string | null;
 
   /** SHA-256 over the lowering configuration that produced the artifact. */
-  configuration: AutoMovieContentDigest;
+  configuration: string;
 }

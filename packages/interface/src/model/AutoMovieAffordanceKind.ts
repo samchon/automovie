@@ -1,10 +1,7 @@
 /**
- * What an affordance point is **for**: the closed set of interaction semantics
- * an object can declare (D011: the geometry stays a crude proxy, the meaning is
- * rich data).
+ * The closed set of contacts an object can declare independently of its rig.
  *
- * The set is deliberately minimal, covering the interactions the pipeline
- * already computes with:
+ * The set is deliberately minimal, covering the interactions the pipeline already computes with:
  *
  * - `"stack-top"`: a face another object can rest on (a crate lid, a table top).
  *   The only kind that carries an `extent`; its corners feed the #601
@@ -15,6 +12,10 @@
  *   sconce, a peg hole, a bottle mouth).
  * - `"hook"`: a hanging point (a lantern ring, a coat peg).
  *
+ * @evidence contracts/common.md#principled-implementation Contact semantics distinguish a supporting face from three point contacts; affordance validation requires an extent only for stack-top, and prop relation validation selects stack-top, socket or hook according to the relation kind.
+ * @evidence contracts/common.md#clear-and-simple-design Four literals discriminate the existing affordance record rather than assigning behavior from descriptive names; contact frames and the supporting footprint remain on that record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Table, grip and lantern examples do not select runtime branches; a support relation with the wrong affordance kind is refused instead of relabelled to fit.
+ * @evidence contracts/common.md#meaningful-documentation Explains the purpose of all four contact kinds, the stack-top extent and support judgment, and the limitation that handle contact does not provide finger-wrap IK.
  * @author Samchon
  */
 export type AutoMovieAffordanceKind =

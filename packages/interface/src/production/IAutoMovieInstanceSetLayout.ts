@@ -1,7 +1,15 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMovieExplicitInstanceTransform } from "./IAutoMovieExplicitInstanceTransform";
 
-/** Compact deterministic placement algorithm for a general instance set. */
+/**
+ * Compact deterministic placement law for a general instance set.
+ *
+ * @evidence contracts/common.md#principled-implementation The closed union selects centered columns and ordered rows, uniform-area disk scatter, route arc-length placement, layered lattice or exact authored local transforms; instanceSlot applies the set heading and anchor except for route XZ coordinates.
+ * @evidence contracts/common.md#clear-and-simple-design Each layout arm owns only its placement parameters; count, seed, variation and resolved route snapshot remain with the containing design or compiled set.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Grid and lattice capacity must cover the count, explicit transforms name every slot, and route placement requires the referenced finite positive-length route rather than substituting the set anchor.
+ * @evidence contracts/common.md#meaningful-documentation Defines layout axes, meter dimensions, capacity, route reference and jitter, and stable explicit slot ordering; local layouts are turned about the set anchor.
+ * @author Samchon
+ */
 export type IAutoMovieInstanceSetLayout =
   | {
       /** Rectangular grid. */
@@ -14,7 +22,13 @@ export type IAutoMovieInstanceSetLayout =
       columns: number;
 
       /** Positive center-to-center spacing in meters. */
-      spacing: { x: number; z: number };
+      spacing: {
+        /** Distance between adjacent local-X columns. */
+        x: number;
+
+        /** Distance between adjacent local-Z rows. */
+        z: number;
+      };
     }
   | {
       /** Uniform seeded disk scatter. */
@@ -30,7 +44,7 @@ export type IAutoMovieInstanceSetLayout =
       /** Existing route id. */
       route: string;
 
-      /** Maximum lateral offset from the route centerline in meters. */
+      /** Finite non-negative maximum lateral offset from the route centerline in meters. */
       lateralJitter: number;
     }
   | {
@@ -50,7 +64,7 @@ export type IAutoMovieInstanceSetLayout =
       spacing: IAutoMovieVector3;
     }
   | {
-      /** Source-authored exact transform block. */
+      /** Source-authored local transform block, placed under the set heading and anchor. */
       kind: "explicit";
 
       /** One exact entry per declared slot, in stable slot order. */

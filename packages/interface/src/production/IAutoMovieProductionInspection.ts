@@ -4,7 +4,15 @@ import { IAutoMovieProductionDesignInventory } from "./IAutoMovieProductionDesig
 import { IAutoMovieProductionNextAction } from "./IAutoMovieProductionNextAction";
 import { IAutoMovieProductionRenderStatus } from "./IAutoMovieProductionRenderStatus";
 
-/** Compact project status for CLI and lint consumers. */
+/**
+ * Compact current project status for CLI and lint consumers.
+ *
+ * @evidence contracts/common.md#principled-implementation Inspection combines current revision and typed graph inventory with source ownership, structural diagnostics, discovered render status and caption measurements, then exposes concrete ordered correction actions.
+ * @evidence contracts/common.md#clear-and-simple-design Groups status by design, source and render responsibility while keeping caption analysis outside the generated edit so measure-only reporting does not change compile bytes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Bound source existence and discovered render manifests are status facts, not proof of build or delivery success; missing and unsafe sources and unowned generated paths remain explicit.
+ * @evidence contracts/common.md#meaningful-documentation Defines revision, inventory, source presence and ownership lists, diagnostics, renders, external caption report and actionable next steps.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionInspection {
   /** Current project revision. */
   revision: number;
@@ -33,9 +41,7 @@ export interface IAutoMovieProductionInspection {
   /**
    * Current caption readability measurements and outcomes for the film edit.
    *
-   * This report is outside the generated edit so a production declaring no
-   * profile retains byte-identical compiled output while still exposing a
-   * measure-only result.
+   * This report is outside the generated edit so a production declaring no profile retains byte-identical compiled output while still exposing a measure-only result.
    */
   captionReadability: IAutoMovieCaptionReadabilityReport;
 

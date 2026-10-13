@@ -7,14 +7,14 @@
  * starting at the impact with an `"auto"` span and a blow coming from one
  * metre up the projectile's incoming path, and `performShot` adds that action
  * to the performance under the launch's `onHit` path. The reaction needs a
- * single struck node, so it is withheld without a violation when the aim is a
- * point or a group; the `contact` event is still emitted. `performShot`
- * refuses an `onHit` aimed at a camera, which cannot perform.
+ * single struck actor, so performShot refuses onHit for a point or group aim,
+ * which identifies no individual struck body, and for a camera, which cannot
+ * perform. Those target kinds remain valid flight aims when onHit is absent.
  *
  * @evidence contracts/common.md#principled-implementation The recoil's direction comes from the solved landing velocity, falling back to the origin-to-impact sightline when the projectile arrives still, so the body flinches along the real incoming path.
  * @evidence contracts/common.md#clear-and-simple-design Two fields mirror the `react` verb's force and unbalance, because the engine expands this record into a `react` and reuses that verb's synthesis and range-of-motion gate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No target is special-cased; a reaction with no single node to recoil is withheld rather than assigned to a group member, a stated rule `performShot`'s tests pin.
- * @evidence contracts/common.md#meaningful-documentation States the expansion into `react` with its start, span and source, the withheld case and its remaining event, and the camera refusal; members give the force range and its effect and what `unbalance` does and does not do.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A point or group does not identify which actor was struck, so the gate refuses that onHit declaration rather than silently dropping it or choosing a group member; a camera cannot receive actor recoil.
+ * @evidence contracts/common.md#meaningful-documentation States react expansion, impact timing and incoming source, the single-struck-actor requirement and point, group and camera refusals; members give force bounds and the limits of unbalance behavior.
  * @author Samchon
  */
 export interface IAutoMovieOnHitReaction {

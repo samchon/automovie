@@ -1,15 +1,7 @@
 /**
  * What a placement relation points at.
  *
- * Every arm cites an existing stable id rather than restating geometry: a built
- * environment owns its spaces, elements, boundaries, openings and support
- * surfaces, and another prop spec owns its affordances. `validatePropPlacements`
- * accepts only the target kinds the relation kind admits (see
- * {@link IAutoMoviePropRelation}), refuses an environment id that names no or
- * several environments, an id missing from that environment's list, and a
- * building target outside the environment of the prop's `in-space` relation.
- * `propAnchorFrame` turns a target into a world frame, answering `null` for a
- * `space` and for any target it cannot find.
+ * Every arm cites an existing stable id rather than restating geometry: a built environment owns its spaces, elements, boundaries, openings and support surfaces, and another prop spec owns its affordances. `validatePropPlacements` accepts only the target kinds the relation kind admits (see {@link IAutoMoviePropRelation}), refuses an environment id that names no or several environments, an id missing from that environment's list, and a building target outside the environment of the prop's `in-space` relation. `propAnchorFrame` turns a target into a world frame, answering `null` for a `space` and for any target it cannot find.
  *
  * @evidence contracts/common.md#principled-implementation A closed union on `kind` whose building arms pair an environment id with one id from the matching environment list and whose prop arm pairs a staged prop node with an affordance id on its model; `validatePropPlacements` resolves each against the shot's environment and prop registries, refusing missing and ambiguous ids rather than taking the first match.
  * @evidence contracts/common.md#clear-and-simple-design Six arms, one per kind of record a relation can cite, each carrying only the two ids that locate that record, so the relation table and the anchor dispatch switch on `kind` without optional fields.
@@ -26,12 +18,9 @@ export type IAutoMoviePropRelationTarget =
   | IAutoMoviePropRelationTarget.IPropAffordance;
 export namespace IAutoMoviePropRelationTarget {
   /**
-   * A logical space of a built environment, the only target an `in-space`
-   * relation accepts.
+   * A logical space of a built environment, the only target an `in-space` relation accepts.
    *
-   * A space is a region with no frame, so `propAnchorFrame` answers `null` for
-   * it; containment is measured against the space's cells by the placement
-   * geometry pass.
+   * A space is a region with no frame, so `propAnchorFrame` answers `null` for it; containment is measured against the space's cells by the placement geometry pass.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to one entry of the environment's `spaces` list by id, which is the record whose cells the containment check reads.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the space's cells and units stay on the environment record.
@@ -51,11 +40,9 @@ export namespace IAutoMoviePropRelationTarget {
   }
 
   /**
-   * A visible or grouping element of a built environment, accepted by
-   * `attached` and `suspended` relations.
+   * A visible or grouping element of a built environment, accepted by `attached` and `suspended` relations.
    *
-   * Its anchor frame is the element's rest-pose world transform, so operating
-   * states such as an open door are ignored.
+   * Its anchor frame is the element's rest-pose world transform, so operating states such as an open door are ignored.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to one entry of the environment's `elements` list, and the anchor composes that element's rest matrices up its parent chain.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the element's transform and hierarchy stay on the environment record.
@@ -75,11 +62,9 @@ export namespace IAutoMoviePropRelationTarget {
   }
 
   /**
-   * A separation between spaces, such as a wall, floor or ceiling, accepted by
-   * an `against-boundary` relation.
+   * A separation between spaces, such as a wall, floor or ceiling, accepted by an `against-boundary` relation.
    *
-   * Its anchor frame is the rest-pose world transform of the first element
-   * that realizes the boundary.
+   * Its anchor frame is the rest-pose world transform of the first element that realizes the boundary.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to one entry of the environment's `boundaries` list, whose first realizing element supplies the anchor.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; which elements realize the boundary stays on the boundary record.
@@ -101,8 +86,7 @@ export namespace IAutoMoviePropRelationTarget {
   /**
    * A passage cut through a boundary, accepted by a `fill-opening` relation.
    *
-   * Its anchor frame is the rest-pose world transform of the opening's filling
-   * element, or `null` for an open cut with no fill.
+   * Its anchor frame is the rest-pose world transform of the opening's filling element, or `null` for an open cut with no fill.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to one entry of the environment's `openings` list; containment inside the fill's reveal is measured by the placement geometry pass.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the reveal and the fill element stay on the opening record.
@@ -122,13 +106,9 @@ export namespace IAutoMoviePropRelationTarget {
   }
 
   /**
-   * A support surface assigned to a logical space, accepted by an
-   * `on-support` relation.
+   * A support surface assigned to a logical space, accepted by an `on-support` relation.
    *
-   * The prop's bearing on the surface's face is measured, so a prop floating
-   * above it, sunk into it or standing beside it is refused. Its anchor frame
-   * is a point inside the widest convex piece of the surface at the surface's
-   * height there, or `null` for a surface with no area.
+   * The prop's bearing on the surface's face is measured, so a prop floating above it, sunk into it or standing beside it is refused. Its anchor frame is a point inside the widest convex piece of the surface at the surface's height there, or `null` for a surface with no area.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to the environment `surfaces` entry whose `surface.id` matches, the scene surface record whose footprint and height rule both the bearing check and the anchor read.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; footprint and height stay on the surface record.
@@ -148,15 +128,9 @@ export namespace IAutoMoviePropRelationTarget {
   }
 
   /**
-   * A contact point declared by another prop's model, accepted by
-   * `on-support`, `attached` and `suspended` relations.
+   * A contact point declared by another prop's model, accepted by `on-support`, `attached` and `suspended` relations.
    *
-   * The cited prop must differ from the citing one and be declared once, and
-   * the affordance must have the kind the relation needs: `stack-top` to rest
-   * on, `socket` to attach, `hook` to hang. A prop resting on a `stack-top` is
-   * measured against its face; contact relations between props may not form a
-   * cycle. The anchor frame is the affordance's frame under the staged piece's
-   * transform.
+   * The cited prop must differ from the citing one and be declared once, and the affordance must have the kind the relation needs: `stack-top` to rest on, `socket` to attach, `hook` to hang. A prop resting on a `stack-top` is measured against its face; contact relations between props may not form a cycle. The anchor frame is the affordance's frame under the staged piece's transform.
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves through the prop registry to one spec and then to an affordance id on its model; `validatePropAffordanceTarget` checks identity, uniqueness, presence and kind in that order, and `validatePropSupportCycles` refuses a cycle.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the contact frame and its kind stay on the cited prop's model.

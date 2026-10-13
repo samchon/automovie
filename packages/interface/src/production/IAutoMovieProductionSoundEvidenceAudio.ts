@@ -1,6 +1,13 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
-/** Final encoded audio identity retained by sound evidence. */
+/**
+ * Final encoded audio identity retained by the sibling sound evidence record.
+ *
+ * @evidence contracts/common.md#principled-implementation Render-relative path, nonzero byte length and SHA-256 digest identify the exact encoded audio sibling whose media probe and semantic sound evidence are checked during final delivery.
+ * @evidence contracts/common.md#clear-and-simple-design A small byte-identity record joins sound evidence to encoded output without embedding the audio payload or repeating its parsed codec facts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The closed audio/mp4 media type does not itself prove valid audio; resident bytes, size, digest and the delivery Opus profile are independently checked.
+ * @evidence contracts/common.md#meaningful-documentation Defines render-root-relative sibling path, closed media type and exact encoded byte size and digest.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionSoundEvidenceAudio {
   /** Render-root-relative sibling audio path. */
   path: string;
@@ -12,5 +19,5 @@ export interface IAutoMovieProductionSoundEvidenceAudio {
   bytes: number;
 
   /** Digest of the exact sibling audio bytes. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

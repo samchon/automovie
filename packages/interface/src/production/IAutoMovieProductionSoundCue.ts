@@ -1,19 +1,18 @@
 /**
  * One authored timeline cue lowered into the deterministic procedural score.
+ *
+ * @evidence contracts/common.md#principled-implementation The normalized cue maps a unit-rate source trim and fade spans onto the film frame clock, retaining exact asset identity, gain and bus; the host validates decoded source duration and the mixer reads finite samples within the admitted trim.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps reusable source extent distinct from selected duration and source offset; decoded PCM remains a caller-supplied input rather than a codec or filesystem responsibility inside deterministic mixing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing decoded assets currently use the documented procedural bus stand-in, so this plan alone does not prove adopted-asset playback; source-overflow, invalid spans and non-finite supplied samples refuse.
+ * @evidence contracts/common.md#meaningful-documentation Defines exact asset and cue identity, global frame placement, unit-rate trim ceiling, fades, gain, bus and procedural seed, including the missing-buffer stand-in limitation.
+ * @author Samchon
  */
 export interface IAutoMovieProductionSoundCue {
   /** Exact authored cue id. */
   id: string;
 
   /**
-   * The asset this cue plays.
-   *
-   * Carried because a cue is a statement about a particular sound, and a plan
-   * that dropped the name could only ever be rendered as a stand-in for one:
-   * the renderer took the id to seed its noise and then had nothing left to
-   * play. A caller decodes the asset and hands the samples in, exactly as it
-   * already does for synthesized dialogue, so decoding stays outside the
-   * deterministic mix and the mix stays a pure function of what it is given.
+   * Asset whose decoded mono samples the caller supplies at the mix clock. The mixer currently uses a procedural bus stand-in when this buffer is absent, so callers requiring exact asset playback must provide it.
    */
   asset: string;
 
@@ -29,11 +28,7 @@ export interface IAutoMovieProductionSoundCue {
   /**
    * Complete source-asset duration on the production frame clock.
    *
-   * This is the asset's identity and the ceiling the trim fits inside, never a
-   * selected span or a playback-rate control: the cue reads
-   * `durationFrames` frames from `sourceOffsetFrame` at unit rate, and
-   * `sourceOffsetFrame + durationFrames` may not exceed this value. Planning
-   * verifies it against the decoded asset's own sample count.
+   * This is the asset's identity and the ceiling the trim fits inside, never a selected span or a playback-rate control: the cue reads `durationFrames` frames from `sourceOffsetFrame` at unit rate, and `sourceOffsetFrame + durationFrames` may not exceed this value. Planning verifies it against the decoded asset's own sample count.
    */
   sourceDurationFrames: number;
 

@@ -1,6 +1,14 @@
 import type { IAutoMovieRenderBundleManifest } from "./IAutoMovieRenderBundleManifest";
 
-/** One discovered renderer-owned evidence bundle. */
+/**
+ * One discovered render bundle with separate freshness and current-design ownership status.
+ *
+ * @evidence contracts/common.md#principled-implementation Inspection reads the verified bundle target and compares its target-local fingerprint with current compiled inputs; separate graph membership determines whether the target still exists even when a bundle is stale.
+ * @evidence contracts/common.md#clear-and-simple-design Current answers freshness and owned answers continued target membership, so old iterations and deleted-shot output remain distinguishable without parsing ids from directory names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreadable or unresolvable targets conservatively retain owned true rather than asserting unownership from failed inspection; this status never deletes a bundle or authorizes automatic cleanup.
+ * @evidence contracts/common.md#meaningful-documentation Defines project-relative bundle path, target-local freshness, nullable verified target and conservative ownership meaning.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionRenderStatus {
   /** Project-relative bundle manifest. */
   path: string;
@@ -9,31 +17,18 @@ export interface IAutoMovieProductionRenderStatus {
   current: boolean;
 
   /**
-   * What this bundle was rendered for, verbatim from its own manifest, or
-   * `null` when that manifest cannot be read.
+   * What this bundle was rendered for, verbatim from its own manifest, or `null` when that manifest cannot be read.
    *
-   * The path already spells the target, and spelling is not addressing: a
-   * consumer had to parse a shot id out of a directory name and diff it against
-   * the compile manifest by hand. Handing back the manifest's own target makes
-   * the same question one comparison.
+   * Consumers can compare this declared target with the current design without parsing ownership from the bundle directory name.
    */
   target: IAutoMovieRenderBundleManifest["target"] | null;
 
   /**
    * Whether the design still carries the target this bundle was rendered for.
    *
-   * `current` alone conflates two states a reader must separate. Measured on one
-   * production, 42 render entries held 39 `current: false` — 38 of them
-   * superseded renders of shots that still exist, which is the ordinary debris
-   * of iteration, and **one** the render of a shot the design no longer carries,
-   * which is the only row anybody should act on. Nothing on the entry told them
-   * apart.
+   * A stale bundle can belong to a current target or a target removed from the design; this field distinguishes those cases independently of freshness.
    *
-   * False is a claim, so it is made only where ownership was actually resolved:
-   * a target whose manifest could not be read, or whose kind this cannot
-   * resolve, reports `true` rather than accusing a bundle of being unowned on a
-   * failure to look. Deletion stays the reader's decision either way; this
-   * surface says what is there, and never removes it.
+   * An unreadable manifest or unresolvable target conservatively reports `true`; only resolved absence from the current design reports `false`. The status does not delete a bundle.
    */
   owned: boolean;
 }

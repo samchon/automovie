@@ -1,73 +1,28 @@
 import { IAutoMovieColor } from "../color/IAutoMovieColor";
 
 /**
- * The scene's atmosphere: exponential distance fog, the one cue that makes
- * depth readable on open ground.
+ * Scene-wide exponential-squared depth fog matching the viewer's FogExp2 projection.
  *
- * Without it a scene has no distance at all. Every surface is shaded the same
- * way at one meter and at four hundred, so a far ridge and a near wall read as
- * the same object at the same remove, and the only way to suggest depth is to
- * spend the particle budget on alpha billboards standing in for haze. Fog is
- * the cheap, exact, camera-independent alternative: it costs no particles, it
- * applies to every drawn surface, and it is one declaration for the whole scene
- * rather than a volume per region.
+ * Transmittance is `T(d) = exp(-(density * d)^2)` and the rendered color is `subject * T(d) + color * (1 - T(d))`, where `d` is camera-axis depth rather than radial distance. The squared law is the renderer's convention rather than physical Beer-Lambert extinction and gives equal attenuation to opposite signed depths.
  *
- * ## The law
+ * Density is inverse metres; half-transmittance occurs at `sqrt(ln(2)) / density`, approximately `0.8326 / density` metres. Zero density gives unit transmission.
  *
- * A viewing ray crossing a uniformly scattering medium keeps a fraction of the
- * subject's own color, its **transmittance**, and takes the rest from the
- * medium:
- *
- *     T(d)     = exp(-(density * d)^2)
- *     rendered = subject * T(d) + color * (1 - T(d))
- *
- * Where `d` is the camera-space **depth** of the shaded point (its distance
- * along the camera's forward axis, not its radial distance).
- *
- * The squared exponent is not a choice. It is exactly what the renderer's fog
- * shader computes, `fogFactor = 1.0 - exp(-fogDensity * fogDensity * vFogDepth
- *
- * - VFogDepth)`in`three.js`'s `fog_fragment.glsl`under`FOG_EXP2`, with `vFogDepth
- *   = -mvPosition.z`from`fog_vertex.glsl`. A physically pure Beer-Lambert
- *   medium would extinguish as `exp(-density * d)`; adopting the shader's own
- *   law instead means the number an offline consumer derives on the CPU is the
- *   number the GPU actually painted, rather than an approximation of it that
- *   drifts with distance. {@link sceneFogTransmittance} is that single shared
- *   derivation.
- *
- * Because the law is even in `d`, a point behind the camera attenuates like one
- * the same distance in front. That too is the shader's behavior; a caller that
- * cares reads the sign of the depth itself.
- *
- * ## Choosing a density
- *
- * `density` is per meter and its readable anchor is the **half-visibility
- * distance**, where a subject keeps half its own color:
- *
- *     d(T = 1/2) = sqrt(ln 2) / density ~= 0.8326 / density
- *
- * So `0.01 /m` is a clear day with a soft horizon (half at ~83 m, 2% left at
- * 200 m); `0.05 /m` is heavy weather (half at ~17 m); `0.002 /m` is the barely
- * perceptible aerial perspective of a wide vista (half at ~416 m). Zero is a
- * vacuum and renders exactly as no fog at all.
- *
+ * @evidence contracts/common.md#principled-implementation The shared fog transmittance uses exp of negative squared density-times-camera-depth to match the viewer's FogExp2 shader, with inverse-meter density and zero as unit transmission.
+ * @evidence contracts/common.md#clear-and-simple-design One scene-wide density and linear target color describe the supported depth cue without per-region particle or volumetric simulation data.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This squared-depth renderer law is not physical Beer-Lambert extinction and treats opposite signed depths equally; structural guide passes suspend fog rather than tint exact geometry evidence.
+ * @evidence contracts/common.md#meaningful-documentation Defines camera-axis depth, density units, transmittance and half-visibility formulas, zero state and linear color with unused alpha.
  * @author Samchon
  */
 export interface IAutoMovieFog {
   /**
-   * Extinction coefficient per meter, `>= 0`. Half-visibility sits at `0.8326 /
-   * density` meters; `0` is a vacuum.
+   * Extinction coefficient per meter, `>= 0`. Half-visibility sits at `0.8326 / density` meters; `0` is a vacuum.
    */
   density: number;
 
   /**
-   * The color the atmosphere tends to at full extinction: what an infinitely
-   * distant subject becomes. Linear components, like every other
-   * {@link IAutoMovieColor}; the alpha slot is opacity-irrelevant here, so
-   * `null` is its ordinary value.
+   * The color the atmosphere tends to at full extinction: what an infinitely distant subject becomes. Linear components, like every other {@link IAutoMovieColor}; the alpha slot is opacity-irrelevant here, so `null` is its ordinary value.
    *
-   * A scene usually wants this to match its background, otherwise the horizon
-   * cuts a visible seam where fogged geometry meets unfogged sky.
+   * A scene usually wants this to match its background, otherwise the horizon cuts a visible seam where fogged geometry meets unfogged sky.
    */
   color: IAutoMovieColor;
 }

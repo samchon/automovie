@@ -278,7 +278,6 @@ export const AUTOMOVIE_DIAGNOSTIC_CODES = [
   "source-scene-content-invalid",
   "source-scene-coverage-incomplete",
   "source-scene-physics-invalid",
-  "source-shot-nondeterministic",
   "source-template-sentinel",
   "source-transpile-failed",
   "stage-invalid",

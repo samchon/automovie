@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
 import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
 import { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
@@ -60,5 +59,5 @@ export interface IAutoMovieDrawingSchedule {
   gaps: IAutoMovieDrawingGap[];
 
   /** SHA-256 digest over the canonical JSON of every other field. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

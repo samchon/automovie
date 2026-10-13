@@ -2,19 +2,16 @@ import { IAutoMovieGaitCycle } from "./IAutoMovieGaitCycle";
 import { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
 
 /**
- * A time-based animation clip: an ordered sequence of keyframes over a fixed
- * duration, targeting one skeleton.
+ * A time-based animation clip: an ordered sequence of keyframes over a fixed duration, targeting one skeleton.
  *
- * This is automovie's top-level _motion_ AST and the deterministic-export
- * anchor: the engine samples it (interpolating per `easing`) into dense frames
- * for the viewer, or compiles it to VRMA / VMD / glTF animation. Storing sparse
- * keyframes + easing (rather than baked frames) keeps the LLM's output small
- * and is what the temporal verifier checks for coherence: monotonic time,
- * bounded per-keyframe angular velocity, every keyframe pose within ROM.
+ * This is automovie's top-level _motion_ AST and the deterministic-export anchor: the engine samples it (interpolating per `easing`) into dense frames for the viewer, or compiles it to VRMA / VMD / glTF animation. Storing sparse keyframes + easing (rather than baked frames) keeps the LLM's output small and is what the temporal verifier checks for coherence: monotonic time, bounded per-keyframe angular velocity, every keyframe pose within ROM.
  *
- * The clip is frame-rate independent: `duration` and keyframe `time`s are in
- * seconds, sampled at whatever fps the consumer renders.
+ * The clip is frame-rate independent: `duration` and keyframe `time`s are in seconds, sampled at whatever fps the consumer renders.
  *
+ * @evidence contracts/common.md#principled-implementation An ordered sparse timeline is sampled in seconds using each outgoing frame's easing, joint-angle interpolation and root quaternion slerp; validateMotion requires finite positive duration, increasing bounded times, target-rig poses and supported interpolation controls.
+ * @evidence contracts/common.md#clear-and-simple-design The clip owns identity, target skeleton, duration and loop semantics around reusable keyframes; optional gait-cycle provenance adds continuity without altering the general sampler representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Frame rate belongs to the consumer rather than the stored animation, and a missing cyclic provenance record is not inferred from a gait name; the author remains responsible for a looping clip's endpoint continuity.
+ * @evidence contracts/common.md#meaningful-documentation States second-based timing, at least two ordered keyframes, one target rig, loop wrapping and author-owned seam continuity, and gait-cycle absence and beat-handoff behavior.
  * @author Samchon
  */
 export interface IAutoMovieMotion {
@@ -32,23 +29,17 @@ export interface IAutoMovieMotion {
   duration: number;
 
   /**
-   * Whether the clip loops seamlessly. When `true`, the engine expects the last
-   * keyframe to be continuous with the first.
+   * Whether sampling wraps time modulo duration. The author must make the last pose continuous with the first; motion validation does not prove the seam.
    */
   loop: boolean;
 
   /**
-   * Keyframes in strictly increasing `time` order. At least two are required: a
-   * clip needs a start and an end to interpolate between.
+   * Keyframes in strictly increasing `time` order. At least two are required: a clip needs a start and an end to interpolate between.
    */
   keyframes: IAutoMovieKeyframe[];
 
   /**
-   * The gait cycle this motion carries ({@link IAutoMovieGaitCycle}), when it
-   * was baked from or composed around a cyclic locomotion, lets the beat-end
-   * handoff read a stride phase off a non-looping composite. Absent/`null` = no
-   * cycle to resume. Evolving-schema optional (the `tree?`/`space?` precedent):
-   * pre-cycle motions stay valid unchanged.
+   * The gait cycle this motion carries ({@link IAutoMovieGaitCycle}), when it was baked from or composed around a cyclic locomotion, lets the beat-end handoff read a stride phase off a non-looping composite. Absent/`null` = no carried cycle; a looping clip can still resume its duration-based phase.
    */
   gaitCycle?: IAutoMovieGaitCycle | null;
 }

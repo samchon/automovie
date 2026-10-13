@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 import { IAutoMovieAnalysisOutcome } from "./IAutoMovieAnalysisOutcome";
 import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
@@ -48,7 +47,7 @@ export interface IAutoMovieAnalysisRun {
    * Digest of the canonical settings text the run was configured with, written
    * `sha256:` followed by 64 lowercase hex digits.
    */
-  settings: AutoMovieContentDigest;
+  settings: string;
 
   /** What the run produced, or why it produced nothing. */
   outcome: IAutoMovieAnalysisOutcome;
@@ -57,5 +56,5 @@ export interface IAutoMovieAnalysisRun {
    * Digest over protocol, version, id, domain, subject, input revision, solver,
    * settings and outcome, in the same `sha256:` form; validation recomputes it.
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

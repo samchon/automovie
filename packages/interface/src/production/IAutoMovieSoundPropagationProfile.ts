@@ -1,9 +1,12 @@
 /**
  * Production-selected bounded direct-path propagation model.
  *
- * AutoMovie supplies the calculation, not atmospheric content. Every physical
- * scalar and the cut-boundary decision are declared by the production.
+ * The production selects every physical scalar and the cut-boundary decision; the engine applies the declared bounded calculation.
  *
+ * @evidence contracts/common.md#principled-implementation Propagation divides effective source/listener distance by declared positive speed, rounds delay once to film frames, applies the softened inverse-square gain and optional decibel-per-meter high-frequency amplitude loss, then honors the selected cut-boundary policy.
+ * @evidence contracts/common.md#clear-and-simple-design One production-owned profile groups speed, distance and spectral laws, segment-boundary choice and explicit assumptions while event receipts carry the calculated arrival and gains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Spectral none returns null rather than claiming zero measured absorption, and arrivals outside the finished film refuse; no atmospheric speed or cut policy is inferred when a profile is absent.
+ * @evidence contracts/common.md#meaningful-documentation Defines speed units, exact gain law, non-negative coefficient, optional spectral model units, cut carry/trim behavior and authored physical assumptions.
  * @author Samchon
  */
 export interface IAutoMovieSoundPropagationProfile {

@@ -3,12 +3,12 @@ import { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSour
 /**
  * What one library source module is told about the owner it is building.
  *
- * A library has no shot, so a library owner receives no scene, no clock, and no
- * staged world. What it receives is its own address, because the module has to
- * be able to state which completed decision it is realizing without reading a
- * file. Verified precomputed inputs arrive through the build context; the
- * builder still performs no filesystem access or implicit generation.
+ * A library owner receives its design address and verified precomputed inputs instead of a shot scene or clock. Source can therefore realize the selected decision without choosing a different owner or implicitly generating dependencies.
  *
+ * @evidence contracts/common.md#principled-implementation createAutoMovieLibraryOwnerContexts projects graph-admitted production, branch, document and H2 identity and the attempt's verified derivation closure into each owner evaluation.
+ * @evidence contracts/common.md#clear-and-simple-design Separates owner identity from contribution output and exposes only current declared artifacts; the context has no shot-only staging API.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Context construction uses admitted owner addresses and current artifact bytes; it does not discover undeclared inputs, run a generator or fabricate a library clock.
+ * @evidence contracts/common.md#meaningful-documentation Defines namespace, branch, project-relative document, exact anchor and verified artifact map supplied to one owner.
  * @author Samchon
  */
 export interface IAutoMovieLibraryBuildContext {
@@ -25,8 +25,7 @@ export interface IAutoMovieLibraryBuildContext {
   anchor: string;
 
   /**
-   * Declared precomputed artifacts whose basis and output bytes the builder
-   * verified before execution, keyed by project-relative output path.
+   * Declared precomputed artifacts whose basis and output bytes the builder verified before execution, keyed by project-relative output path.
    */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
 }

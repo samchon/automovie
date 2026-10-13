@@ -1,6 +1,13 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
-/** Versioned, comparable identity of the host capture runtime. */
+/**
+ * Versioned identity of the installed capture runtime and observed graphics path. System browser channels remain explicitly unsealed; package or configured executables carry content identity.
+ *
+ * @evidence contracts/common.md#principled-implementation Capture identity combines dependency-closed package content, browser support and executable provenance, platform, raster scale and actual WebGL vendor and renderer; canonical capture validation checks the closure and protocol before comparing receipts.
+ * @evidence contracts/common.md#clear-and-simple-design Package closure, browser selection, platform, launch mode and graphics are separate record groups, exposing which observation supplies each part of capture reproducibility.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Package version strings alone cannot stand in for byte identity, and a system channel explicitly declares its unsealed boundary rather than borrowing the digest of another executable or support tree.
+ * @evidence contracts/common.md#meaningful-documentation Describes package and browser-support digests with file and byte counts, executable selection and unavailability, host architecture, device scale, requested backend and actual graphics identity.
+ * @author Samchon
+ */
 export interface IAutoMovieCaptureRuntimeIdentity {
   /** Capture identity schema and semantics. */
   protocolVersion: "automovie.capture-runtime.v2";
@@ -15,15 +22,14 @@ export interface IAutoMovieCaptureRuntimeIdentity {
   };
 
   /**
-   * Content identity of every installed package and browser support byte that
-   * can participate in the captured frame.
+   * Content identity of every installed package and browser support byte that can participate in the captured frame.
    */
   runtimeClosure: {
     /** Capture-closure schema and semantics. */
     protocolVersion: "automovie.capture-runtime-closure.v1";
 
     /** Canonical digest of the complete package and browser-support identity. */
-    contentDigest: AutoMovieContentDigest;
+    contentDigest: string;
 
     /** Complete dependency-closed installed package generations. */
     packages: Array<{
@@ -34,7 +40,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
       version: string;
 
       /** Digest of every captured package file path and byte digest. */
-      contentDigest: AutoMovieContentDigest;
+      contentDigest: string;
 
       /** Number of captured package files. */
       files: number;
@@ -53,7 +59,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
           source: "package-owned" | "configured-executable";
 
           /** Digest of every support-file path and byte digest. */
-          contentDigest: AutoMovieContentDigest;
+          contentDigest: string;
 
           /** Number of captured support files. */
           files: number;
@@ -85,7 +91,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     source: "package-owned" | "system-channel" | "configured-executable";
 
     /** SHA-256 of the executable, unavailable only for a system channel. */
-    executableDigest: AutoMovieContentDigest | null;
+    executableDigest: string | null;
   };
 
   /** Host operating-system boundary. */

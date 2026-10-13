@@ -1,4 +1,12 @@
-/** Parser-independent evidence calculated from the final mixed PCM. */
+/**
+ * Measurements calculated from the final limited, pre-encode mixed PCM; event windows observe combined energy rather than isolating individual emitters.
+ *
+ * @evidence contracts/common.md#principled-implementation The mixer measures its 48 kHz stereo PCM for frame count, loudness, peak and near-silent spans, then searches one-frame windows around expected emission or propagated arrival for mixed-signal energy peaks.
+ * @evidence contracts/common.md#clear-and-simple-design One analysis record accompanies the exact PCM generation before encoding, keeping parser-derived encoded-media facts and the semantic sound plan separate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null loudness means no measurable integrated level and clippingSamples is zero by the preceding finite-PCM limiter invariant; eventAlignment cannot attribute energy to one event or prove its absence outside the searched window.
+ * @evidence contracts/common.md#meaningful-documentation Defines the pre-encode measurement source, PCM clock and units, nullable loudness, limiter-derived clipping count and the mixed-window limitation of event alignment.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionSoundAnalysis {
   /** Analysis schema. */
   version: 1;
@@ -24,7 +32,7 @@ export interface IAutoMovieProductionSoundAnalysis {
   /** Longest contiguous near-silent span. */
   longestSilenceSeconds: number;
 
-  /** Per-event energy evidence centered on the authoritative event frame. */
+  /** Combined-mix energy measurements within one frame of each expected emission or arrival; unrelated sound can contribute. */
   eventAlignment: Array<{
     /** Stable sound occurrence id. */
     id: string;
@@ -38,7 +46,7 @@ export interface IAutoMovieProductionSoundAnalysis {
     /** Absolute frame-clock error. */
     errorFrames: number;
 
-    /** Whether observable energy lands within one production frame. */
+    /** Whether the searched mixed-signal window has observable energy and its selected peak is within one frame; not an isolated-event proof. */
     passed: boolean;
   }>;
 }

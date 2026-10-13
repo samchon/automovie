@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 
 /**
  * The bytes of one imported input, as they stood when an artifact read them.
@@ -30,5 +29,5 @@ export interface IAutoMovieDesignAssetCitation {
   subject: string;
 
   /** SHA-256 that subject carried at the moment this artifact was produced. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

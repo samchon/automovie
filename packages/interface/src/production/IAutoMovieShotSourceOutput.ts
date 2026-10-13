@@ -19,7 +19,15 @@ import { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
 import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
 
-/** Engine-compiled shot source before production materialization is added. */
+/**
+ * Engine-compiled shot source and retained semantic carriers before builder production materialization.
+ *
+ * @evidence contracts/common.md#principled-implementation Source compilation lowers the admitted thin program into scene, motions and shot while retaining authored semantic models, environments, simulation bindings and provenance and exact event sample times for later production joins and realization.
+ * @evidence contracts/common.md#clear-and-simple-design Separates required engine artifacts and event samples from optional source-owned semantic carriers and compact cue populations, so production can materialize its own inputs without treating source as final dense output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional compact cues materialize as empty lists when omitted, and source event samples are independently checked against authoritative windows and predicates rather than accepted as realized proof by id alone.
+ * @evidence contracts/common.md#meaningful-documentation Defines retained ownership and provenance, structured simulation and planting/service bindings, sampled event timing, derived engine artifacts and optional compact cue omission.
+ * @author Samchon
+ */
 export interface IAutoMovieShotSourceOutput {
   /**
    * Source-owned generated models retained for materialization and evidence.
@@ -81,15 +89,12 @@ export interface IAutoMovieShotSourceOutput {
   motions: IAutoMovieMotion[];
 
   /**
-   * Optional compact formation-level cues. The builder materializes an empty
-   * list when omitted; source never emits arbitrary per-member curves.
+   * Optional compact formation-level cues. The builder materializes an empty list when omitted; source never emits arbitrary per-member curves.
    */
   formationMotions?: IAutoMovieFormationMotion[];
 
   /**
-   * Optional sparse per-member exceptions inside compact formations. The
-   * builder materializes an empty list when omitted; the cost is the number of
-   * exceptions, never the number of members.
+   * Optional sparse per-member exceptions inside compact formations. The builder materializes an empty list when omitted; the cost is the number of exceptions, never the number of members.
    */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
 

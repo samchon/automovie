@@ -1,7 +1,15 @@
 import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
 import { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
 
-/** One compact query over the current compiled production. */
+/**
+ * One bounded geometry question over the current compiled production. Shot times are finite nonnegative seconds; ambiguous recurring actors require an explicit shot. Camera answers project roots and do not prove pixel visibility.
+ *
+ * @evidence contracts/common.md#principled-implementation Query-discriminated operands select distance, rig reach, resolved pose, ground, formation, effect, exact film time or camera projection; the production oracle establishes compile freshness before measureAutoMovieGeometry resolves their current records.
+ * @evidence contracts/common.md#clear-and-simple-design Each arm carries only its question's selectors and time, keeping render capture separate from numerical geometry; optional shot identity disambiguates actors without making every world query name a shot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale compile, missing selector or ambiguous actor is refused rather than measured from a guessed shot; camera root projection is not presented as an occlusion measurement.
+ * @evidence contracts/common.md#meaningful-documentation Gives each query's operands, shot-local second units and default times, exact global frame input, actor disambiguation and the root-projection visibility limitation.
+ * @author Samchon
+ */
 export type AutoMovieGeometryQuery =
   | {
       /** Distance query. */
@@ -99,8 +107,7 @@ export type AutoMovieGeometryQuery =
     }
   | {
       /**
-       * Camera root-point projection query; pixel occlusion remains a
-       * frame-review concern.
+       * Camera root-point projection query; pixel occlusion remains a frame-review concern.
        */
       query: "camera";
 

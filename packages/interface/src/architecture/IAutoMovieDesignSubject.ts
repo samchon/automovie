@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 
 /**
  * One stable identity this lineage is allowed to speak about.
@@ -47,5 +46,5 @@ export interface IAutoMovieDesignSubject {
    * The value is authored; no gate checks it against the asset manifest's
    * digest for the same bytes.
    */
-  digest: AutoMovieContentDigest | null;
+  digest: string | null;
 }

@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
 import { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
 
@@ -44,5 +43,5 @@ export interface IAutoMovieQuantityReport {
   gaps: IAutoMovieDrawingGap[];
 
   /** SHA-256 digest over the canonical JSON of every other field. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

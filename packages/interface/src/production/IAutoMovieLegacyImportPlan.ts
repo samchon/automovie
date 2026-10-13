@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { IAutoMovieLegacyImportInventoryEntry } from "./IAutoMovieLegacyImportInventoryEntry";
 import { IAutoMovieLegacyOwnedDirectoryBaseline } from "./IAutoMovieLegacyOwnedDirectoryBaseline";
@@ -9,16 +8,20 @@ import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 /**
  * Immutable, non-destructive interpretation of one resident legacy project.
  *
- * Drafts are evidence-backed starting points, not active production truth.
- * Applying the plan persists this document and provenance without inventing
- * source or claiming that the production builder can already succeed.
+ * Drafts are evidence-backed starting points; applying the plan persists provenance and unresolved source TODOs without claiming that the production builder can already succeed.
+ *
+ * @evidence contracts/common.md#principled-implementation A domain-separated canonical JSON fingerprint covers every semantic member except itself, binding revision, exact legacy inventory, rollback baseline, conservative drafts and diagnostics into one immutable migration interpretation.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps recovered drafts and explicit source TODOs together with the captured evidence and rollback fence; active source authoring and later production compilation remain separate steps.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts assertAutoMovieLegacyImportPlan checks exact schema, safe revision, canonical inventories, ordered directory baselines and recomputed fingerprint; unrecoverable source is a TODO rather than invented executable content.
+ * @evidence contracts/common.md#meaningful-documentation Defines non-destructive draft semantics, fingerprint coverage, revision, inventory, rollback ownership and unresolved source and diagnostic records.
+ * @author Samchon
  */
 export interface IAutoMovieLegacyImportPlan {
   /** Import-plan format. */
   version: 1;
 
   /** Domain-separated identity of every field below except this fingerprint. */
-  fingerprint: AutoMovieContentDigest;
+  fingerprint: string;
 
   /** Legacy monotonic revision captured by this plan. */
   legacyRevision: number;

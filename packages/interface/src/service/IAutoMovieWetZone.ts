@@ -1,22 +1,16 @@
 import { AutoMovieWetGrade } from "./AutoMovieWetGrade";
 
 /**
- * One wet or waterproofed region, bound to a logical space of the served
- * environment.
+ * One wet or waterproofed region, bound to a logical space of the served environment.
  *
- * A shower room, a plant room with a floor gully, a fountain surround and a
- * roof terrace are the same record at different grades. The point of stating it
- * is that "there is a drain in the render" and "the water has somewhere to go"
- * are different claims: a zone names the membrane that holds the water in, how
- * far it turns up the walls, which way the floor falls, which drains it falls
- * to, and where it hands over to a drier region. Those are the facts a leak is
- * found in, and none of them are visible in a still frame.
+ * A shower room, a plant room with a floor gully, a fountain surround and a roof terrace are the same record at different grades. The point of stating it is that "there is a drain in the render" and "the water has somewhere to go" are different claims: a zone names the membrane that holds the water in, how far it turns up the walls, which way the floor falls, which drains it falls to, and where it hands over to a drier region. Those are the facts a leak is found in, and none of them are visible in a still frame.
  *
- * The zone is the architecture-facing half of the drainage graph and cites both
- * halves by stable id: boundaries come from the built environment, drains come
- * from the service network. It carries no geometry of its own, so it can never
- * disagree with either.
+ * The zone is the architecture-facing half of the drainage graph and cites both halves by stable id: boundaries come from the built environment, drains come from the service network. It carries no geometry of its own, so it can never disagree with either.
  *
+ * @evidence contracts/common.md#principled-implementation Wet-zone admission joins one logical space to membrane boundaries, declared floor fall, connected waste drains and transitions to ordinally drier regions, requiring full obligations for wet or immersed grades.
+ * @evidence contracts/common.md#clear-and-simple-design Architecture owns spatial extent and boundaries while the service graph owns drains; the zone adds their coordination obligations without duplicating geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Membrane, slope and sealed sleeves are explicit checked declarations rather than simulated leak proof or a conclusion drawn from tiled appearance.
+ * @evidence contracts/common.md#meaningful-documentation Defines environment-space joins, ordinal exposure, membrane and meter upturn, dimensionless fall, drain ownership and drier-boundary thresholds.
  * @author Samchon
  */
 export interface IAutoMovieWetZone {
@@ -30,36 +24,27 @@ export interface IAutoMovieWetZone {
   grade: AutoMovieWetGrade;
 
   /**
-   * Ids of the boundaries the waterproof membrane covers. A `wet` or `immersed`
-   * zone is expected to have every boundary of its space covered; anything left
-   * out is a surface the water can reach and the membrane cannot.
+   * Ids of the boundaries the waterproof membrane covers. A `wet` or `immersed` zone is expected to have every boundary of its space covered; anything left out is a surface the water can reach and the membrane cannot.
    */
   membrane: string[];
 
   /**
-   * Height in metres the membrane turns up beyond the floor plane; a finite
-   * number `>= 0`. `0` states a floor-only membrane, which is a decision rather
-   * than an omission.
+   * Height in metres the membrane turns up beyond the floor plane; a finite number `>= 0`. `0` states a floor-only membrane, which is a decision rather than an omission.
    */
   upturn: number;
 
   /**
-   * Fall of the floor toward the drains as a dimensionless rise-over-run ratio;
-   * a finite number `>= 0`. A `wet` or `immersed` zone needs it greater than
-   * `0` or the water stands where it lands.
+   * Fall of the floor toward the drains as a dimensionless rise-over-run ratio; a finite number `>= 0`. A `wet` or `immersed` zone needs it greater than `0` or the water stands where it lands.
    */
   slope: number;
 
   /**
-   * Ids of the network nodes the floor falls to. Each is expected to carry an
-   * outgoing waste-water port and to stand inside {@link space}.
+   * Ids of the network nodes the floor falls to. Each is expected to carry an outgoing waste-water port and to stand inside {@link space}.
    */
   drains: string[];
 
   /**
-   * Ids of the boundaries where this zone hands over to a drier region: the
-   * upstand at a shower door, the step at a terrace threshold. Every boundary
-   * joining a `wet` or `immersed` zone to a drier space is expected to appear.
+   * Ids of the boundaries where this zone hands over to a drier region: the upstand at a shower door, the step at a terrace threshold. Every boundary joining a `wet` or `immersed` zone to a drier space is expected to appear.
    */
   thresholds: string[];
 }

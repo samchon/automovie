@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieAnalysisDomainRollup } from "./IAutoMovieAnalysisDomainRollup";
 import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
 
@@ -59,5 +58,5 @@ export interface IAutoMovieAnalysisReport {
    * Digest over protocol, version, status, revision, every rollup field, the
    * listed gaps and {@link omittedGaps}; gaps past the bound are not covered.
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

@@ -1,9 +1,16 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
 import { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
 import { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
 
-/** Content-addressed receipt for one locally synthesized Kokoro line. */
+/**
+ * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; this repository currently validates and consumes the schema but contains no synthesis writer for it.
+ *
+ * @evidence contracts/common.md#principled-implementation The receipt binds line, immutable Kokoro revision, inference/cache identity, native PCM digest and sample clock, runtime assets and derived mouth timing; production sound evidence compares the current supplied receipt population before final delivery.
+ * @evidence contracts/common.md#clear-and-simple-design Groups generator provenance, exact source generation and timing beside optional actor join, separating synthesized-byte identity from later mix and encoded audio identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The fixed model and revision describe this supported receipt format rather than a provider-neutral runtime; source, license and terms date are optional descriptive metadata, and there is currently no repository writer proving synthesis or rights review from this record alone.
+ * @evidence contracts/common.md#meaningful-documentation Defines schema epoch, cache and model identity, provenance limits, generation instant, native PCM units and digest, runtime closure, phoneme/viseme clocks and legacy join omission.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionTtsReceipt {
   /** Receipt schema. */
   version: 6;
@@ -12,7 +19,7 @@ export interface IAutoMovieProductionTtsReceipt {
   line: string;
 
   /** Content address over text, voice, model, and inference arguments. */
-  cacheKey: AutoMovieContentDigest;
+  cacheKey: string;
 
   /** Local Kokoro model identity. */
   model: "onnx-community/Kokoro-82M-v1.0-ONNX";
@@ -52,8 +59,7 @@ export interface IAutoMovieProductionTtsReceipt {
   };
 
   /**
-   * UTC instant captured immediately before the generator call that produced
-   * this receipt's immutable PCM.
+   * UTC instant captured immediately before the generator call that produced this receipt's immutable PCM.
    */
   generatedAt: string;
 
@@ -64,7 +70,7 @@ export interface IAutoMovieProductionTtsReceipt {
   sourceSamples: number;
 
   /** Digest of cached little-endian Float32 PCM bytes. */
-  pcmDigest: AutoMovieContentDigest;
+  pcmDigest: string;
 
   /** Kokoro phoneme stream joined in synthesis order. */
   phonemes: string;
@@ -78,7 +84,7 @@ export interface IAutoMovieProductionTtsReceipt {
     path: string;
 
     /** Digest of the exact bytes consumed by synthesis. */
-    digest: AutoMovieContentDigest;
+    digest: string;
   }>;
 
   /** Mouth targets derived from the same chunk sample clock. */
@@ -87,8 +93,7 @@ export interface IAutoMovieProductionTtsReceipt {
   /**
    * Join from final-byte viseme timing to the authored speaking actor.
    *
-   * Optional only for legacy receipts. New receipts record an available or
-   * not-run outcome rather than silently dropping mouth motion.
+   * Optional only for legacy receipts. New receipts record an available or not-run outcome rather than silently dropping mouth motion.
    */
   lipSync?: IAutoMovieProductionLipSyncJoin;
 }

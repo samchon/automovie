@@ -2,13 +2,20 @@ import { IAutoMovieSceneBeatCoverage } from "./IAutoMovieSceneBeatCoverage";
 import { IAutoMovieSceneDisposition } from "./IAutoMovieSceneDisposition";
 import { IAutoMovieScreenplayParticipant } from "./IAutoMovieScreenplayParticipant";
 
-/** One indexed screenplay scene whose prose remains in Markdown. */
+/**
+ * One stable screenplay scene or permanent deletion tombstone whose narrative prose remains in Markdown.
+ *
+ * @evidence contracts/common.md#principled-implementation Stable scene ids join exact treatment coverage, story-time identity, participants and catalog location, while status and phase-local disposition determine downstream coverage and preserve lock references through deletion.
+ * @evidence contracts/common.md#clear-and-simple-design The scene ledger stores addressable semantic relationships and an optional per-scene document path; full narrative prose remains in its authoritative document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An OMITTED scene is a tombstone with no prose path, and explicit unknown story time differs from a missing carrier; neither omission nor a descriptive index entry proves shot realization.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable numbering and insertion form, title, active/tombstone status, split-document addressing, exact promises, location, story time, participants and local exemption.
+ * @author Samchon
+ */
 export interface IAutoMovieScreenplayScene {
   /**
    * Stable scene number, such as `SCN-010`.
    *
-   * After lock, inserted scenes use the `SCN-A11` form and existing ids remain
-   * forever addressable.
+   * After lock, inserted scenes use the `SCN-A11` form and existing ids remain forever addressable.
    */
   id: string;
 
@@ -19,12 +26,9 @@ export interface IAutoMovieScreenplayScene {
   status: "active" | "OMITTED";
 
   /**
-   * Project-relative document holding this scene's prose, when the screenplay
-   * is split one file per scene.
+   * Project-relative document holding this scene's prose, when the screenplay is split one file per scene.
    *
-   * Omit it while the screenplay is a single document; the index's
-   * `screenplay.path` is then the address. An `OMITTED` tombstone has no prose
-   * to hold, so it carries no path either.
+   * Omit it while the screenplay is a single document; the index's `screenplay.path` is then the address. An `OMITTED` tombstone has no prose to hold, so it carries no path either.
    */
   path?: string;
 
@@ -37,8 +41,7 @@ export interface IAutoMovieScreenplayScene {
   /**
    * Exact story-time identity stated by the authoritative prose carrier.
    *
-   * Use `unknown` when the story deliberately leaves the time unresolved. An
-   * absent carrier is different from that explicit state and is refused.
+   * Use `unknown` when the story deliberately leaves the time unresolved. An absent carrier is different from that explicit state and is refused.
    */
   storyTime: string;
 

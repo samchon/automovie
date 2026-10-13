@@ -1,8 +1,15 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { AutoMovieRepaintObservationVerdict } from "./AutoMovieRepaintObservationVerdict";
 import { IAutoMovieRepaintObservationMember } from "./IAutoMovieRepaintObservationMember";
 
-/** Versioned aggregate observation over one exact current visual member set. */
+/**
+ * Versioned aggregate playback observation over one exact current ordered visual member set.
+ *
+ * @evidence contracts/common.md#principled-implementation Sequence admission compares production, compile, timeline, baseline, canonical member population and observed artifact digest, then requires completed status and passing verdicts on every independent temporal axis.
+ * @evidence contracts/common.md#clear-and-simple-design Separates observation basis and playback artifact from the five review verdicts, retaining intentional baseline deltas instead of treating every visible difference as drift.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Current ordered membership and artifact bytes must match; stale selected receipts, incomplete playback or any non-pass axis refuse, while verdicts remain explicit external observations rather than an invented automatic image-quality score.
+ * @evidence contracts/common.md#meaningful-documentation Defines current basis, baseline scope and intended deltas, ordered lane population, observed artifact identity, playback context and independent completion and verdict fields.
+ * @author Samchon
+ */
 export interface IAutoMovieRepaintSequenceObservation {
   /** Closed observation protocol version; any other value is a malformed receipt. */
   version: 1;
@@ -11,10 +18,10 @@ export interface IAutoMovieRepaintSequenceObservation {
   productionId: string;
 
   /** Compile fingerprint the observation was performed against; a later compile stales it. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /** Film timeline fingerprint the ordered member set was read from. */
-  timelineFingerprint: AutoMovieContentDigest;
+  timelineFingerprint: string;
 
   /** Continuity baseline the observation judged drift against. */
   baseline: {
@@ -35,7 +42,7 @@ export interface IAutoMovieRepaintSequenceObservation {
   members: IAutoMovieRepaintObservationMember[];
 
   /** Digest of the canonical ordered member population, recomputed on every read. */
-  memberSetDigest: AutoMovieContentDigest;
+  memberSetDigest: string;
 
   /** Observed playback artifact and the exact bytes the verdicts were read from. */
   artifact: {
@@ -43,7 +50,7 @@ export interface IAutoMovieRepaintSequenceObservation {
     path: string;
 
     /** Digest of the observed artifact bytes at observation time. */
-    digest: AutoMovieContentDigest;
+    digest: string;
   };
 
   /** Playback runtime and presentation context the sequence was observed under. */

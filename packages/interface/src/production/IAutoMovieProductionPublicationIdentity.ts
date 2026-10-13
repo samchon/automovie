@@ -1,9 +1,16 @@
 import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import type { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 
-/** Recomputable identity of one exact render-plan generation and runtime. */
+/**
+ * Recomputable identity of one exact render-plan generation and byte-affecting runtime closure.
+ *
+ * @evidence contracts/common.md#principled-implementation Canonical JSON hashing binds compile and edit identity, installed capture and encoder closure, tier projection, complete chunk frame mappings and non-video track digests; semantic admission verifies an exact per-deliverable partition before recomputing the fingerprint.
+ * @evidence contracts/common.md#clear-and-simple-design Groups runtime, tier, formats, chunk projection and track identity so publication can be compared with the current plan without embedding full source bytes or every frame record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A self-consistent identity alone is insufficient: final validation compares the current final-tier plan, and malformed digests, duplicate slots, gaps, overlaps and foreign pass/kind pairings refuse.
+ * @evidence contracts/common.md#meaningful-documentation Defines protocol epochs, current compile/edit and runtime identities, independent tier family, full-rate versus output formats, half-open chunk boundaries and canonical fingerprint coverage.
+ * @author Samchon
+ */
 export interface IAutoMovieProductionPublicationIdentity {
   /** Closed identity protocol. */
   protocolVersion: "automovie.production-publication.v4";
@@ -15,10 +22,10 @@ export interface IAutoMovieProductionPublicationIdentity {
   productionId: string;
 
   /** Exact builder input used by the plan. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /** Exact builder-owned edit used by the plan. */
-  editFingerprint: AutoMovieContentDigest;
+  editFingerprint: string;
 
   /** Complete installed capture, dialogue, and encoder closure. */
   runtimeIdentity: {
@@ -26,10 +33,10 @@ export interface IAutoMovieProductionPublicationIdentity {
     protocolVersion: "automovie.production-render-runtime.v3";
 
     /** Digest of declared viewer, capture, asset, and package inputs. */
-    sourceDigest: AutoMovieContentDigest;
+    sourceDigest: string;
 
     /** Final-byte dialogue generation, or null for a silent plan. */
-    dialogueRuntimeIdentity: AutoMovieContentDigest | null;
+    dialogueRuntimeIdentity: string | null;
 
     /** Exact browser and graphics capture closure. */
     capture: IAutoMovieCaptureRuntimeIdentity;
@@ -43,7 +50,7 @@ export interface IAutoMovieProductionPublicationIdentity {
       version: string;
 
       /** Digest of the installed executable closure. */
-      closureDigest: AutoMovieContentDigest;
+      closureDigest: string;
 
       /** Closed video codec. */
       codec: "h264";
@@ -92,7 +99,7 @@ export interface IAutoMovieProductionPublicationIdentity {
     slot: string;
 
     /** Content-addressed chunk identity. */
-    id: AutoMovieContentDigest;
+    id: string;
 
     /** Owning deliverable. */
     deliverable: string;
@@ -110,24 +117,24 @@ export interface IAutoMovieProductionPublicationIdentity {
     frameEndExclusive: number;
 
     /** Digest of the complete exact frame mapping. */
-    frames: AutoMovieContentDigest;
+    frames: string;
   }>;
 
   /** Canonical identities of every non-video publication track. */
   tracks: {
     /** Canonical caption-track digest. */
-    captions: AutoMovieContentDigest;
+    captions: string;
 
     /** Canonical dialogue-track digest. */
-    audio: AutoMovieContentDigest;
+    audio: string;
 
     /** Canonical source-audio inventory digest. */
-    audioAssets: AutoMovieContentDigest;
+    audioAssets: string;
 
     /** Canonical film-effect runtime digest. */
-    effects: AutoMovieContentDigest;
+    effects: string;
   };
 
   /** Digest of the canonical identity fields above. */
-  fingerprint: AutoMovieContentDigest;
+  fingerprint: string;
 }

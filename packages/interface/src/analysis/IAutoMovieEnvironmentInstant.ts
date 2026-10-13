@@ -9,7 +9,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * keeps its own sources.
  *
  * @evidence contracts/common.md#principled-implementation Declared sun direction and illuminances that `validateAutoMovieEnvironmentContext` checks: finite non-zero sun, non-negative finite illuminances, null or finite temperature, null or `[0, 1]` humidity, and a zero direct beam whenever the normalized sun has a non-positive dot product with the ground's up.
- * @evidence contracts/common.md#clear-and-simple-design Scalar fields for the sun, sky and outdoor air quantities the daylight and envelope solvers read, nullable where a study does not need them; `outdoorRelativeHumidity` has no consumer yet, a field ahead of its reader that stays because interface core types change only on request.
+ * @evidence contracts/common.md#clear-and-simple-design Scalar fields hold declared sun, sky and outdoor air quantities, nullable where a study does not need them; outdoorRelativeHumidity currently has validation but no analysis consumer, so it promises no humidity-dependent result.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No solar position algorithm or weather default exists; an instant without outdoor air temperature makes the envelope study return `not-run` instead of assuming a value, and the unread humidity field is stated as unread.
  * @evidence contracts/common.md#meaningful-documentation States why the sun is declared, the units and ranges of every quantity, the horizon rule and its reference, the null meaning of both outdoor fields, and which solver reads which field.
  * @author Samchon

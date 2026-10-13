@@ -3,22 +3,17 @@ import { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
 /**
  * An ordered layer build-up applied to one host element.
  *
- * This is the third of the three material records the requirement separates:
- * the substance, the visible surface, and the assembly. It exists because a
- * single colour cannot say that a wall is 300 mm of structure, cavity,
- * insulation, barrier, and board, and because that build-up — not the colour —
- * is what sets the wall's overall thickness, the depth of a window reveal, and
- * which layers survive a junction with the next wall.
+ * This is the third of the three material records the requirement separates: the substance, the visible surface, and the assembly. It exists because a single colour cannot say that a wall is 300 mm of structure, cavity, insulation, barrier, and board, and because that build-up; not the colour; is what sets the wall's overall thickness, the depth of a window reveal, and which layers survive a junction with the next wall.
  *
- * The stack is measured, not drawn: {@link axis} names the host-local direction
- * the layers advance along, {@link sense} whether they advance with or against
- * that axis, and {@link offset} where the first layer's outer face sits relative
- * to the host's reference plane. That triple is what lets a build-up be stated
- * once and applied to a wall, a floor, and a soffit without rewriting it for
- * each.
+ * The stack is measured, not drawn: {@link axis} names the host-local direction the layers advance along, {@link sense} whether they advance with or against that axis, and {@link offset} where the first layer's outer face sits relative to the host's reference plane. That triple is what lets a build-up be stated once and applied to a wall, a floor, and a soffit without rewriting it for each.
  *
- * The engine ships no build-ups. A layered wall, a tiled floor, and a coffered
- * ceiling are all the same record with the production's own layers in it.
+ * The engine ships no build-ups. A layered wall, a tiled floor, and a coffered ceiling are all the same record with the production's own layers in it.
+ *
+ * @evidence contracts/common.md#principled-implementation Ordered layers advance on one host-local axis with a signed offset and sense; `resolveAutoMovieMaterialAssembly` validates the build-up before accumulating thickness into layer placements, preserving the stated order.
+ * @evidence contracts/common.md#clear-and-simple-design Assembly orientation and exposed ends live once around the ordered layer list, while each layer owns substance, finish and wrapping; the host owns the dimension the validator compares against the sum.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No wall or material catalogue is embedded; exposed-face finish and wrapping rules apply to authored stacks, including the single-layer case whose two faces share one layer.
+ * @evidence contracts/common.md#meaningful-documentation Gives local-axis, sense and metre-offset semantics, end exposure rules and nonempty layer ordering, including who supplies production-specific build-ups.
+ * @author Samchon
  */
 export interface IAutoMovieMaterialAssembly {
   /** Stable assembly id. */
@@ -31,17 +26,14 @@ export interface IAutoMovieMaterialAssembly {
   sense: "positive" | "negative";
 
   /**
-   * Signed metre offset from the host's reference plane to the outer face of
-   * the first layer. Zero puts the stack's first face on the reference plane.
+   * Signed metre offset from the host's reference plane to the outer face of the first layer. Zero puts the stack's first face on the reference plane.
    */
   offset: number;
 
   /**
    * Whether each end of the stack is exposed to view.
    *
-   * `first` is the face the first layer presents, `last` the face the final
-   * layer presents. An exposed end must be finished and a concealed end must
-   * not be, which is how a missing finish and a wasted one are both caught.
+   * `first` is the face the first layer presents, `last` the face the final layer presents. An exposed end must be finished and a concealed end must not be, which is how a missing finish and a wasted one are both caught.
    */
   faces: {
     /** Exposure of the face the first layer presents. */

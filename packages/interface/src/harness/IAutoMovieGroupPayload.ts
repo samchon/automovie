@@ -1,19 +1,15 @@
 /**
- * The payload of a group node in the screenplay refinement tree: why its
- * children belong together, such as a montage or an exchange.
+ * A screenplay refinement group explains why its children belong together, such as a montage or exchange.
  *
- * `renderScreenplay` prints the rationale as a bracketed `[<rationale>]` line
- * before the group's children, and nothing else reads it. `validateScriptTree`
- * checks the group's place in the tree but not this text, so a blank rationale
- * is accepted and printed as `[]`.
+ * renderScreenplay prints the rationale in brackets before the children. validateScriptTree requires nonblank prose and checks the group's place in the refinement tree.
  *
- * @evidence contracts/common.md#principled-implementation Free prose, because a group's reason for existing is editorial meaning that only a person or model reads; the tree structure, not this payload, is what the validator checks.
+ * @evidence contracts/common.md#principled-implementation Free prose expresses editorial grouping meaning while tree admission requires it to be nonblank; graph rules independently validate where the group and its children may occur.
  * @evidence contracts/common.md#clear-and-simple-design One field is the whole payload, following the refinement tree's rule that each node kind carries its own shape rather than shared reasoning slots.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The text is printed verbatim and never parsed to change structure or motion, and the documentation states that a blank rationale is not refused.
- * @evidence contracts/common.md#meaningful-documentation States the node it belongs to, its one consumer and output form, and that its content is unvalidated; the member says it is prose.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rationale is printed verbatim without being parsed into motion or rearranging children; blank prose refuses rather than producing an empty bracketed heading.
+ * @evidence contracts/common.md#meaningful-documentation Defines group editorial ownership, bracketed screenplay output and the nonblank admission rule.
  * @author Samchon
  */
 export interface IAutoMovieGroupPayload {
-  /** The grouping rationale, in prose. */
+  /** Nonblank prose explaining the grouping. */
   rationale: string;
 }

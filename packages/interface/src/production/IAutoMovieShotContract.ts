@@ -6,7 +6,15 @@ import { IAutoMovieShotParticipant } from "./IAutoMovieShotParticipant";
 import { IAutoMovieShotReviewFrame } from "./IAutoMovieShotReviewFrame";
 import { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
 
-/** A code-bound shot contract, not a dense keyframe list. */
+/**
+ * Source-bound shot obligations measured against compiled performance, camera and event output.
+ *
+ * @evidence contracts/common.md#principled-implementation A canonical source registration and finite frame-grid duration bind the shot to explicit participants, boundary-state predicates, event windows and required review samples; realizeShotContract grades those obligations from compiled artifacts.
+ * @evidence contracts/common.md#clear-and-simple-design Separates narrative identity and source binding from measurable opening, closing, camera and event obligations, leaving dense motion and scene construction to the source and engine pipeline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Echoed ids and camera intent prose do not prove realization; occlusion ratio remains an external current-frame review requirement rather than a builder-measured mask statistic, and style intent suppresses only its named heuristic.
+ * @evidence contracts/common.md#meaningful-documentation Defines source path admission, shot seconds and frame clock, independent story pin, participant and predicate obligations, camera limits and required visual evidence.
+ * @author Samchon
+ */
 export interface IAutoMovieShotContract {
   /** Non-blank stable shot id, unique under portable case folding. */
   id: string;
@@ -17,8 +25,7 @@ export interface IAutoMovieShotContract {
   /** Coding-agent-owned source export. */
   source: {
     /**
-     * Canonical project-relative POSIX TypeScript path. Backslashes, absolute
-     * paths, dot segments and case-variant aliases are refused.
+     * Canonical project-relative POSIX TypeScript path. Backslashes, absolute paths, dot segments and case-variant aliases are refused.
      */
     module: string;
 
@@ -34,25 +41,19 @@ export interface IAutoMovieShotContract {
   evidence?: IAutoMovieSceneEvidence[];
 
   /**
-   * Finite shot runtime in seconds, strictly above zero and on the production
-   * frame clock.
+   * Finite shot runtime in seconds, strictly above zero and on the production frame clock.
    */
   durationSeconds: number;
 
   /**
    * Where this shot's local time zero lands on the production story clock.
    *
-   * Omitted means the shot asserts nothing about story time, which is the
-   * default. A pin is legal only once the production declares `storyClock`, and
-   * a cross-shot criterion may only compare events in pinned shots. Pinning is
-   * independent of the edit: the pin says when the shot happened, never where
-   * it is cut.
+   * Omitted means the shot asserts nothing about story time, which is the default. A pin is legal only once the production declares `storyClock`, and a cross-shot criterion may only compare events in pinned shots. Pinning is independent of the edit: the pin says when the shot happened, never where it is cut.
    */
   storyTime?: IAutoMovieShotStoryTime;
 
   /**
-   * Unique deliberate film-grammar exceptions. Each value suppresses only its
-   * corresponding heuristic diagnostic; unrelated facts remain visible.
+   * Unique deliberate film-grammar exceptions. Each value suppresses only its corresponding heuristic diagnostic; unrelated facts remain visible.
    */
   styleIntent?: AutoMovieGrammarStyleIntent[];
 
@@ -71,17 +72,14 @@ export interface IAutoMovieShotContract {
     intent: string;
 
     /**
-     * Non-empty unique compiled scene-node or formation ids that must remain
-     * readable.
+     * Non-empty unique compiled scene-node or formation ids that must remain readable.
      */
     requiredSubjects: string[];
 
     /**
      * Finite maximum allowed pixel-occlusion ratio, inclusive from zero to one.
      *
-     * The builder projects subject root points but does not measure this
-     * ratio. The external reviewer must compare current mask, depth, outline or
-     * beauty frames against it.
+     * The builder projects subject root points but does not measure this ratio. The external reviewer must compare current mask, depth, outline or beauty frames against it.
      */
     maxOcclusionRatio: number;
   };

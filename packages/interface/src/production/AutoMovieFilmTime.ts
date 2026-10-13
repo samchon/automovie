@@ -1,5 +1,11 @@
 /**
- * One non-negative film time authored as an exact frame or frame-grid second.
+ * One non-negative film time authored as an exact frame or frame-grid second. Frame values must be safe integers; second values must resolve to the production's frame grid. Supply one representation per value.
+ *
+ * @evidence contracts/common.md#principled-implementation An explicit frame count or grid-aligned second value expresses one exact production-clock boundary; film timeline compilation converts either representation to the canonical integer frame grid before edit and audio interval arithmetic.
+ * @evidence contracts/common.md#clear-and-simple-design Two authoring forms share one time type without carrying an independent frame rate per timestamp; the production's frame format owns that conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Seconds do not authorize approximate cuts between frames, and no clip-specific frame clock overrides the production grid; callers must supply one time representation.
+ * @evidence contracts/common.md#meaningful-documentation Gives zero-based frames, nonnegative time, safe-integer frame counts and exact grid-aligned seconds, with the production owning the frame rate.
+ * @author Samchon
  */
 export type AutoMovieFilmTime =
   | {

@@ -1,11 +1,18 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
-import { AutoMovieContentDigest } from "../AutoMovieContentDigest";
 import { IAutoMovieDiagnostic } from "../IAutoMovieDiagnostic";
 import { IAutoMovieReviewTarget } from "../IAutoMovieReviewTarget";
 import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 import { IAutoMovieCaptureReceipt } from "./IAutoMovieCaptureReceipt";
 
-/** Result of producing one actual current evidence frame. */
+/**
+ * One current registry-owned evidence-frame capture or explicit refusal.
+ *
+ * @evidence contracts/common.md#principled-implementation Capture resolves current production registry membership, delegates decoded PNG generation to the oracle and reopens the committed bundle through its exact target and frame receipt before returning success.
+ * @evidence contracts/common.md#clear-and-simple-design Success groups frame metadata and receipt beside the affected review target, while refusal nulls both and supplies attributed diagnostics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Provider-reported pixels alone are insufficient; stale target or receipt identity and non-reopenable output refuse instead of manufacturing evidence metadata.
+ * @evidence contracts/common.md#meaningful-documentation Defines verified capture effect, production and review ownership, receipt and frame refusal nulls, snapped time and exact PNG identity.
+ * @author Samchon
+ */
 export interface IAutoMovieCaptureFrame {
   /**
    * True only after decoded pixels and their receipt are atomically committed.
@@ -36,7 +43,7 @@ export interface IAutoMovieCaptureFrame {
     path: string;
 
     /** Exact PNG digest. */
-    digest: AutoMovieContentDigest;
+    digest: string;
 
     /** Decoded pixel width. */
     width: number;
@@ -54,7 +61,15 @@ export interface IAutoMovieCaptureFrame {
  *
  */
 export namespace IAutoMovieCaptureFrame {
-  /** One actual evidence-frame request. */
+  /**
+   * One registry-target frame request with optional bounded raster dimensions.
+   *
+   * @evidence contracts/common.md#principled-implementation A closed target selects current shot time or asset turntable state; optional positive dimensions configure the existing production-bound PNG capture path.
+   * @evidence contracts/common.md#clear-and-simple-design Request fields remain grouped under the capture result's namespace so one public file identity exposes the paired input and output contract.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Dimensions cannot exceed admitted production raster limits, and no arbitrary scene graph or file output enters through this request.
+   * @evidence contracts/common.md#meaningful-documentation Defines exact target ownership and optional positive integer raster bounds.
+   * @author Samchon
+   */
   export interface IProps {
     /** Compiler-registry target and its frame identity. */
     target: AutoMovieCaptureTarget;

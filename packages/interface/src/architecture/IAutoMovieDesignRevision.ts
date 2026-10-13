@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 
 /**
  * One immutable state of the authored design source.
@@ -25,5 +24,5 @@ export interface IAutoMovieDesignRevision {
   parent: string | null;
 
   /** SHA-256 over the authored source this revision names. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

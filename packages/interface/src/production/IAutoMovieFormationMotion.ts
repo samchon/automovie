@@ -5,8 +5,13 @@ import { IAutoMovieFormationMotionState } from "./IAutoMovieFormationMotionState
 /**
  * One source-authored compact formation cue.
  *
- * Capability labels do not grant this motion. The source explicitly authors
- * each cue, while arbitrary per-slot curves remain outside the public shape.
+ * Capability labels do not grant this motion; source code authors each cue explicitly.
+ *
+ * @evidence contracts/common.md#principled-implementation sampleFormationMotion interpolates finite authored states on a shot-local interval; formationSlotPosition blends the previous completed layout toward the cue layout, using the design slots before the first reform.
+ * @evidence contracts/common.md#clear-and-simple-design One cue owns its participant, interval, endpoints and easing; gait names remain in the member profile instead of a second gait vocabulary.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No capability label creates a cue or per-slot curve. Sequential reform retains the prior completed target and layout-free cues preserve it; this assumes admitted cue chronology and does not add a visual-quality guarantee.
+ * @evidence contracts/common.md#meaningful-documentation Fields identify interval endpoint conventions, profile-owned gait selection and the current layout interpolation origin.
+ * @author Samchon
  */
 export interface IAutoMovieFormationMotion {
   /** Stable cue id, unique inside one shot. */
@@ -19,39 +24,18 @@ export interface IAutoMovieFormationMotion {
   action: AutoMovieFormationCapability;
 
   /**
-   * Which of the unit figure's declared gaits its members perform here.
+   * Profile-owned gait name the unit's members perform during this cue.
    *
-   * A cue says where a unit goes; this says what its members are doing while
-   * they go there, and it is the whole of how one group holds, then moves, then
-   * holds again inside a single shot. The name is the figure's own
-   * (`IAutoMovieGait.name`), so the vocabulary belongs to whoever authored the
-   * recipe rather than to a fixed list: a cycle a crowd can perform is a cycle
-   * a cue can call for.
-   *
-   * Omitted, the cue's `action` label is tried as a gait name, and the figure's
-   * first declared gait performs when nothing carries that name. A named gait
-   * no figure of the unit declares is refused rather than silently replaced.
+   * Omitted, the cue's `action` label is tried as a gait name, and the figure's first declared gait performs when nothing carries that name. A named gait no figure of the unit declares is refused rather than silently replaced.
    */
   gait?: string;
 
   /**
    * The arrangement this unit is in when the cue ends.
    *
-   * A unit's `layout` is a design constant: it says how the unit is arranged,
-   * once, for the whole production. That is the right unit for how a crowd is
-   * built and the wrong one for a crowd that re-forms -- a line becoming a
-   * column, a block falling into an arc, a scatter closing into ranks. Spacing
-   * alone cannot say it: opening and closing an arrangement is not changing
-   * it.
+   * Each member interpolates from the previous completed arrangement to this target in the unit frame; the first layout cue starts at its design slot. Completed targets remain between cues, and a later layout cue uses that retained arrangement as its origin.
    *
-   * Each member travels from its place in the design's arrangement to its place
-   * in this one, in the unit's own frame, on this cue's declared easing. Any
-   * two arrangements re-form into one another whatever their kinds, because
-   * what is blended is where a member stands and not the parameters that put it
-   * there.
-   *
-   * Omitted, the unit keeps the arrangement it is already in, and the compiled
-   * cue is byte-identical to one authored before this channel existed.
+   * Omitted, sampling retains the preceding layout state, or the design arrangement if none was authored.
    */
   layout?: IAutoMovieFormationDesign["layout"];
 

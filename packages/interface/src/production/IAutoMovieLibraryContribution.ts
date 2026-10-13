@@ -5,24 +5,14 @@ import { IAutoMovieModel } from "../model/IAutoMovieModel";
 /**
  * What one library source owner hands back to the builder.
  *
- * Every payload is one a consumer already reads. A built environment becomes
- * the compiled topology the required observation population is derived from, a
- * model becomes the compiled recipe a canonical turntable is judged against,
- * and an adopted environment context becomes the world a map owner is measured
- * against. Completion is branch-specific: a map owner returns at least one
- * context, a model owner at least one model, and a space owner at least one
- * environment, without borrowing another branch's carrier. Material, instance,
- * motion, and system sources remain valid authoring populations, but cannot be
- * materialized as standalone library results until their own public carrier
- * exists.
+ * Completion is branch-specific: maps publish contexts, models publish models, and spaces publish built environments. Each completed owner supplies at least one result in its own carrier; material, instance, motion and system owners currently have no standalone result carrier and are refused.
  *
- * `contexts` is optional where the other two are required, and the asymmetry is
- * the upgrade rather than a preference: every library source written before it
- * existed returns the two, and a project that has not been touched since is not
- * in error. An absent list and an empty one say the same thing here -- this
- * owner adopted no world at the DTO boundary. The builder nevertheless
- * refuses an empty map-owner completion, because absence is not delivery.
+ * Omitted contexts and an empty list both mean no adopted context, preserving older environment/model sources. A map owner with no context still fails completion.
  *
+ * @evidence contracts/common.md#principled-implementation Branch admission checks a nonempty own semantic carrier, domain validation and unique published identities; the materialized library retains accepted contribution provenance for observation and review.
+ * @evidence contracts/common.md#clear-and-simple-design Three existing semantic carriers share one owner return shape, with branch validation preventing nested data from being mistaken for another branch's completed output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty and cross-branch completion refuse, unsupported standalone carriers refuse explicitly, and optional contexts preserves older model/space source shape without letting an empty map pass.
+ * @evidence contracts/common.md#meaningful-documentation States supported branch-to-carrier ownership, nonempty completion, unsupported carriers and context omission; arrays preserve authored order.
  * @author Samchon
  */
 export interface IAutoMovieLibraryContribution {
@@ -33,16 +23,7 @@ export interface IAutoMovieLibraryContribution {
   models: IAutoMovieModel[];
 
   /**
-   * Adopted environment contexts this owner publishes, in author order.
-   *
-   * A map owner adopts the world its work is designed against -- the north it
-   * is oriented to, the ground its elevations are measured from, and the
-   * instants it is answered at. Until this existed the production design
-   * carried exactly one context for the whole production and no owner
-   * contributed it, so no map owner could be measured against anything: the
-   * derived population was empty and an empty population passes every check
-   * that compares against it.
-   * Only a `maps` owner may use this carrier as its completed result.
+   * Adopted environment contexts in author order; only a maps owner may publish this carrier as its completed result.
    */
   contexts?: IAutoMovieEnvironmentContext[];
 }

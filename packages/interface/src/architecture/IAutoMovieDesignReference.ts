@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieDesignReferenceMedia } from "./AutoMovieDesignReferenceMedia";
 import { IAutoMovieDesignAnalysis } from "./IAutoMovieDesignAnalysis";
 import { IAutoMovieDesignIssue } from "./IAutoMovieDesignIssue";
@@ -21,8 +20,8 @@ import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
  *
  * @evidence contracts/common.md#principled-implementation `validateDesignReference` checks the document as a self-consistent observation (unique ids, resolving links, point counts, in-frame points, settled scales that name a candidate), and `designReferenceDiagnostics` rehashes the asset bytes with SHA-256, sniffs the container, and checks frames against the measured sheet.
  * @evidence contracts/common.md#clear-and-simple-design Frames, primitives, analyses, candidates, and issues are five separate lists so seeing, reading, proposing, and doubting stay distinct layers, and only `promoteDesignObservations` turns any of them into metres.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading is promoted by the gate and no scale is invented; the remaining gap is that a second, different document under an existing id is kept last-read-wins by the production builder instead of being refused, which the `id` documentation states.
- * @evidence contracts/common.md#meaningful-documentation States that the record is evidence only and how the building cites it, every production refusal on the bytes, the at-least-one-frame rule, that analyses include empty ones, and the unrefused id collision.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading is promoted by the gate and no scale is invented; the builder permits canonically equal documents shared across shots but refuses different documents under one stable id instead of choosing a last writer.
+ * @evidence contracts/common.md#meaningful-documentation States evidence-only use, building citations, byte and media refusals, nonempty frames, retained empty analyses and canonical-equality sharing with conflicting-id refusal.
  * @author Samchon
  */
 export interface IAutoMovieDesignReference {
@@ -32,9 +31,8 @@ export interface IAutoMovieDesignReference {
   /**
    * Stable, non-blank document identity within the production.
    *
-   * Two shots may stage the same document. A different document under the
-   * same id is not refused today: the production build keeps the one it reads
-   * last.
+   * Shots may share canonically equal documents under one id. Different
+   * documents under the same id refuse compilation rather than replace one another.
    */
   id: string;
 
@@ -42,7 +40,7 @@ export interface IAutoMovieDesignReference {
   asset: string;
 
   /** SHA-256 of those bytes at the moment the observation was made. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 
   /** Container family the asset bytes are declared to be. */
   media: AutoMovieDesignReferenceMedia;

@@ -24,5 +24,4 @@ export * from "./IAutoMovieNodeChannel";
 export * from "./IAutoMovieParentDriver";
 export * from "./IAutoMoviePointerChannel";
 export * from "./IAutoMovieProfileBinding";
-export * from "./IAutoMovieProfileControl";
 export * from "./IAutoMovieSpringDriver";

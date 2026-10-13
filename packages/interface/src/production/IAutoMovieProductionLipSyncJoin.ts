@@ -1,8 +1,13 @@
 /**
  * Actor join for visemes derived from one final dialogue receipt.
  *
- * Mouth motion stays on emission time. It layers only the mouth target over
- * authored expression and does not move to delayed listener-arrival time.
+ * Mouth motion layers over authored expression at emission time; audio propagation delay affects listener arrival separately.
+ *
+ * @evidence contracts/common.md#principled-implementation joinAutoMovieDialogueVisemes resolves exactly one explicit speaker binding and validates final-byte frame ranges before producing an emission-timed mouth layer; absent or ambiguous joins return a closed not-run reason.
+ * @evidence contracts/common.md#clear-and-simple-design The union separates usable actor composition metadata from a missing-join fact, leaving the viseme timeline and actual expression sampling in their own records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Speaker identity is not guessed from cast order, external audio receives no fabricated phonemes, and mouth motion is not shifted to delayed listener arrival.
+ * @evidence contracts/common.md#meaningful-documentation Defines explicit actor resolution, emission clock, mouth-only composition and the three unavailable-binding reasons.
+ * @author Samchon
  */
 export type IAutoMovieProductionLipSyncJoin =
   | {

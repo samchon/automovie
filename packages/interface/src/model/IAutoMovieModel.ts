@@ -10,8 +10,7 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
 /**
  * A 3D model: the riggable subject that poses, motions, and expressions drive.
  *
- * This is automovie's central geometry container, and it deliberately unifies
- * the two things the project animates:
+ * This is automovie's central geometry container, and it deliberately unifies the two things the project animates:
  *
  * - A **character** is a model _with_ a humanoid `skeleton`: poses and motions
  *   articulate its bones;
@@ -19,12 +18,12 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  *   materials but no joints, and is moved as a whole (placed in a scene, or
  *   parented to a character's bone as a held item).
  *
- * A model bundles its geometry (`parts`), its rig (`skeleton`, optional), and
- * its `materials` behind one id; downstream layers cite it by `id` and never
- * need to know whether it was generated from primitives or imported as a mesh
- * (that is `origin`). The LLM authors parts, materials, and the skeleton's ROM
- * (never raw vertex arrays, which arrive only via import).
+ * A model bundles its geometry (`parts`), its rig (`skeleton`, optional), and its `materials` behind one id; downstream layers cite it by `id` and never need to know whether it was generated from primitives or imported as a mesh (that is `origin`). The LLM authors parts, materials, and the skeleton's ROM or a deterministic mesh generator; opaque vertex arrays are not authored by hand.
  *
+ * @evidence contracts/common.md#principled-implementation Stable model identity joins parts, materials and an optional skeleton; validateModel checks their references and numeric domains, while imported appearances carry a compiler-sealed digest closure and authoritative bone indices rather than runtime name inference.
+ * @evidence contracts/common.md#clear-and-simple-design One model groups reusable geometry and capabilities separately from scene placement; each part owns a geometry representation, origin owns provenance, and optional body, contacts and profiles add their respective semantic inputs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated meshes must come from reviewed generators, and imported visual bytes do not invent physics or inherit traits; the deterministic proxy and sealed asset ledger remain the owners of those distinct facts.
+ * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, part and material ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
  * @author Samchon
  */
 export interface IAutoMovieModel {
@@ -43,24 +42,17 @@ export interface IAutoMovieModel {
   parts: IAutoMovieModelPart[];
 
   /**
-   * The humanoid rig: bones, hierarchy, rest pose, and anatomical ROM. `null`
-   * for a non-articulated object/prop. A model with a skeleton is a character;
-   * one without is an object.
+   * The humanoid rig: bones, hierarchy, rest pose, and anatomical ROM. `null` for a non-articulated object/prop. A model with a skeleton is a character; one without is an object.
    */
   skeleton: IAutoMovieSkeleton | null;
 
   /**
-   * The physical body: mass, center of mass, friction, restitution. `null` when
-   * the model has no declared physics (a static prop or set piece);
-   * physical-plausibility feedback is only computed for models with a body.
+   * The physical body: mass, center of mass, friction, restitution. `null` when the model has no declared physics (a static prop or set piece); physical-plausibility feedback is only computed for models with a body.
    */
   body: IAutoMovieBody | null;
 
   /**
-   * Semantic contact points the object declares: stackable tops, handles,
-   * sockets, hooks ({@link IAutoMovieAffordance}). Optional evolving-schema
-   * field (the `space?` / `events?` pattern): absent or `null` means the model
-   * declares no affordances, and nothing downstream changes.
+   * Semantic contact points the object declares: stackable tops, handles, sockets and hooks ({@link IAutoMovieAffordance}). Absent or null declares no contact points for affordance-based placement and support.
    */
   affordances?: IAutoMovieAffordance[] | null;
 
@@ -68,17 +60,14 @@ export interface IAutoMovieModel {
   materials: IAutoMovieMaterial[];
 
   /**
-   * Id of an engine-resolved binary payload (the imported glTF/VRM file backing
-   * an `imported` model), or `null` when the geometry is fully described by
-   * `parts` (a generated model).
+   * Id of an engine-resolved binary payload (the imported glTF/VRM file backing an `imported` model), or `null` when the geometry is fully described by `parts` (a generated model).
    */
   asset: string | null;
 
   /**
    * Compiler-sealed execution facts for an imported appearance.
    *
-   * The viewer loads only this digest closure. Humanoid node indices come from
-   * ingest or authoritative VRM metadata, never a runtime name guess.
+   * The viewer loads only this digest closure. Humanoid node indices come from ingest or authoritative VRM metadata, never a runtime name guess.
    */
   imported?: {
     /** Fixed normalization profile proved from the resident model bytes. */
@@ -93,7 +82,7 @@ export interface IAutoMovieModel {
       asset: string;
 
       /** SHA-256 of the model bytes compiled for this level. */
-      digest: `sha256:${string}`;
+      digest: string;
 
       /** Fixed normalization profile proved for this level. */
       profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
@@ -117,7 +106,7 @@ export interface IAutoMovieModel {
       path: string;
 
       /** SHA-256 sealed by the builder. */
-      digest: `sha256:${string}`;
+      digest: string;
     }>;
 
     /** Authoritative normalized humanoid slot to glTF node index mapping. */
@@ -136,9 +125,7 @@ export interface IAutoMovieModel {
   /**
    * Declarative profiles bound to this runtime model.
    *
-   * Omitted means the model proves no semantic engine capability. Imported
-   * appearance does not inherit traits unless its registered deterministic
-   * proxy supplies them.
+   * Omitted means the model proves no semantic engine capability. Imported appearance does not inherit traits unless its registered deterministic proxy supplies them.
    */
   profiles?: IAutoMovieProfile[];
 }

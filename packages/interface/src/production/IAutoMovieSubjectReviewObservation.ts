@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMovieSubjectReviewPose } from "./IAutoMovieSubjectReviewPose";
 import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
@@ -6,10 +5,12 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 /**
  * Receipt for one subject observation made from an inspection-owned viewpoint.
  *
- * The `kind` discriminator deliberately differs from frame evidence. A shot
- * capture therefore cannot satisfy subject coverage merely because it contains
- * the subject.
+ * The distinct subject-view kind and deliveryEvidence false keep subject inspection separate from delivered film-frame evidence.
  *
+ * @evidence contracts/common.md#principled-implementation A passed observation binds exact target and subject revision to current compile, ordered viewpoint plan, camera pose, actual capture runtime and inspected artifact bytes; production reopens records and artifacts before coverage classification.
+ * @evidence contracts/common.md#clear-and-simple-design The receipt carries provenance for one inspection-owned viewpoint without claiming screenplay time or delivery eligibility, which belong to film-frame evidence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime and changed artifact bytes remain ineligible rather than being normalized to current observations.
+ * @evidence contracts/common.md#meaningful-documentation Defines production and artifact-qualified target, current revision/compile/plan/runtime identities, exact camera and image digest, terminal verdict and delivery exclusion.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewObservation {
@@ -29,10 +30,10 @@ export interface IAutoMovieSubjectReviewObservation {
   revision: string;
 
   /** Current source compile identity used for the observation. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /** Canonical identity of the exact ordered plan and its poses. */
-  planIdentity: AutoMovieContentDigest;
+  planIdentity: string;
 
   /** Required viewpoint identity this observation answers. */
   viewpoint: string;
@@ -47,7 +48,7 @@ export interface IAutoMovieSubjectReviewObservation {
   artifact: string;
 
   /** Content digest of the exact inspected artifact. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 
   /** Only a terminal passed observation can satisfy coverage. */
   verdict: "passed";

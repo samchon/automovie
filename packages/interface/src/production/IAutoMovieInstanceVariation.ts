@@ -1,39 +1,68 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/** Seed-derived per-instance visual and semantic variation. */
+/**
+ * Seed-derived per-instance visual and semantic variation.
+ *
+ * @evidence contracts/common.md#principled-implementation Independent seed-and-slot salts sample admitted scale, rotation, palette, visibility and named numeric ranges; equal range endpoints remain constant and explicit slot values override their stated channels.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps shared variation laws on the compact set while regenerated slots carry their resolved values; optional axis scale, Euler offsets and visibility extend the basic scale, palette and traits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Palette entries are actual sRGB swatches decoded before linear shading, not labels or linear triples; omission of enhanced channels preserves the legacy slot shape rather than injecting extra fields.
+ * @evidence contracts/common.md#meaningful-documentation Defines positive scale ranges, degree Euler order, visibility probability, exact color encoding and named trait bounds with explicit override behavior.
+ * @author Samchon
+ */
 export interface IAutoMovieInstanceVariation {
   /** Inclusive uniform scale range, both strictly above zero. */
-  scale: { min: number; max: number };
+  scale: {
+    /** Positive lower endpoint. */
+    min: number;
+
+    /** Positive upper endpoint, at least min. */
+    max: number;
+  };
 
   /** Optional independent scale ranges per local axis. */
-  scale3?: { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+  scale3?: {
+    /** Positive lower endpoint on each local axis. */
+    min: IAutoMovieVector3;
+
+    /** Upper endpoint on each local axis, at least its corresponding minimum. */
+    max: IAutoMovieVector3;
+  };
 
   /** Optional seeded XYZ Euler offsets in degrees, applied after facing. */
   rotationDeg?: {
-    x: { min: number; max: number };
-    y: { min: number; max: number };
-    z: { min: number; max: number };
+    /** Inclusive finite X-axis rotation range in degrees. */
+    x: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
+
+    /** Inclusive finite Y-axis rotation range in degrees. */
+    y: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
+
+    /** Inclusive finite Z-axis rotation range in degrees. */
+    z: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
   };
 
-  /** Seeded probability that a procedural slot is visible. */
+  /** Seeded visibility probability in [0, 1]; omission keeps every procedural slot visible. */
   visibleProbability?: number;
 
   /**
-   * Non-empty exact `#RRGGBB` palette choices applied per instance.
-   *
-   * An entry is the color itself rather than a label for one, so the viewer
-   * decodes it from sRGB to linear with `srgbHexToLinearColor` before it
-   * reaches the instance. A model recipe palette is decoded by that same
-   * function on its way into `baseColor`, so the identical swatch authored
-   * either way now renders the identical color.
-   *
-   * `IAutoMovieColor` holds the opposite convention: its components are
-   * authored linear and its `hex` is a derived label the renderer never
-   * decodes. Reach for `srgbHexToLinearColor` when carrying a swatch across
-   * that boundary. Pasting the digits straight into a triple renders about
-   * 2.3x too bright at midtones, and instanced slots covering the same surface
-   * as such a material is how one production ended up drawing one roof in two
-   * colors.
+   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer decodes them with `srgbHexToLinearColor`, as it does model recipe palettes. `IAutoMovieColor` instead stores linear components and a derived hex label, so use the same conversion when moving a swatch into that contract.
    */
   palette: string[];
 

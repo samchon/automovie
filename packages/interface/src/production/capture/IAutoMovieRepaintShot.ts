@@ -3,7 +3,15 @@ import { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
 import { IAutoMovieRepaintReceipt } from "./IAutoMovieRepaintReceipt";
 import { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
 
-/** Result of one optional diffusion rendition request. */
+/**
+ * Result of one repaint candidate generation, kept separate from guarded active selection.
+ *
+ * @evidence contracts/common.md#principled-implementation Repaint execution binds current source, references, parameters and adopted runtime to an immutable request and bounded attempts; media-validated atomic candidate publication sets repainted while a separate selection transaction sets selected.
+ * @evidence contracts/common.md#clear-and-simple-design Separate generated and selected booleans distinguish candidate existence from active delivery, and nullable request and receipt identify admission failure before a request exists versus later attempt refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A successful candidate does not automatically become active or completed visual review; rejected or stale attempt bytes stay outside accepted receipt lineage and exact diagnostics remain visible.
+ * @evidence contracts/common.md#meaningful-documentation Defines generation versus selection effects, immutable retry request identity, production and shot, accepted receipt nulls and attributed refusal diagnostics.
+ * @author Samchon
+ */
 export interface IAutoMovieRepaintShot {
   /** True only after media parsing and atomic receipt commit. */
   repainted: boolean;
@@ -12,8 +20,7 @@ export interface IAutoMovieRepaintShot {
   selected: boolean;
 
   /**
-   * Immutable request identity that a transport retry resumes, or null when
-   * validation refused before a request existed.
+   * Immutable request identity that a transport retry resumes, or null when validation refused before a request existed.
    */
   requestId: string | null;
 
@@ -35,7 +42,15 @@ export interface IAutoMovieRepaintShot {
  *
  */
 export namespace IAutoMovieRepaintShot {
-  /** One structure-preserving shot rendition request. */
+  /**
+   * One shot repaint request with fixed role-specific references and exact generation controls.
+   *
+   * @evidence contracts/common.md#principled-implementation The exact production and current registry shot join to the production's declared repaint adoption, references and parameters before the host creates immutable request identity.
+   * @evidence contracts/common.md#clear-and-simple-design Input selects shot and appearance guidance while deterministic source acquisition, execution policy and adoption authority remain production-owned.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A caller cannot substitute arbitrary source geometry or silently choose a provider; current admitted design and fixed reference bytes gate the request.
+   * @evidence contracts/common.md#meaningful-documentation Defines production and shot addressing, non-collapsible manifest references and exact controls retained by the candidate receipt.
+   * @author Samchon
+   */
   export interface IProps {
     /** Exact production namespace owning the shot. */
     productionId: string;

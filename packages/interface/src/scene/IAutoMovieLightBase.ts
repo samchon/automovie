@@ -2,7 +2,15 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
 import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
 
-/** Fields shared by every light kind. */
+/**
+ * Shared light identity, world placement, linear emission and explicitly admitted shadow state.
+ *
+ * @evidence contracts/common.md#principled-implementation Kind-specific intensity units and transform state feed the viewer light adapter; validated position/rotation and emission pointer channels animate them while the scene's shadow master switch controls actual map work.
+ * @evidence contracts/common.md#clear-and-simple-design Common fields avoid duplicating identity and color across light kinds, with shadow tuning linked explicitly to castShadow rather than implicit host presets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Area shadow flags refuse, shadow controls are required exactly for casting punctual sources, and authored light flags do not override a disabled scene shadow policy.
+ * @evidence contracts/common.md#meaningful-documentation Defines transform and channel ownership, linear color, lux/candela/nit units and requested versus actually rendered shadow state.
+ * @author Samchon
+ */
 export interface IAutoMovieLightBase {
   /** Stable id. */
   id: string;
@@ -10,11 +18,7 @@ export interface IAutoMovieLightBase {
   /**
    * World placement. For directional light only the orientation matters.
    *
-   * Animatable, like every other field here: a shot's `lightMotions` reaches
-   * the translation through `/lights/<id>/position` and the rotation through
-   * `/lights/<id>/rotation`, so a light may travel and turn over time. `scale`
-   * is the one component no channel writes — a punctual light has no extent for
-   * a scale to describe.
+   * Animatable, like every other field here: a shot's `lightMotions` reaches the translation through `/lights/<id>/position` and the rotation through `/lights/<id>/rotation`, so a light may travel and turn over time. `scale` is the one component no channel writes; a punctual light has no extent for a scale to describe.
    */
   transform: IAutoMovieTransform;
 
@@ -22,32 +26,21 @@ export interface IAutoMovieLightBase {
   color: IAutoMovieColor;
 
   /**
-   * Radiant intensity, `>= 0`: lux for directional, candela for point/spot, and
-   * nits (candela per square metre) for an area panel, whose emitted power is
-   * therefore its intensity times its own area.
+   * Radiant intensity, `>= 0`: lux for directional, candela for point/spot, and nits (candela per square metre) for an area panel, whose emitted power is therefore its intensity times its own area.
    */
   intensity: number;
 
   /**
    * Whether this source casts a shadow map. Omitted preserves legacy output.
    *
-   * What this light WOULD cast, not what the frame renders: a scene's
-   * `environment.shadows.enabled` is the master switch and turning it off
-   * renders no shadow map for any light, which is also how the render budget
-   * prices it. A scene declaring no environment leaves the decision to the host
-   * renderer, exactly as it did before environments existed.
+   * What this light WOULD cast, not what the frame renders: a scene's `environment.shadows.enabled` is the master switch and turning it off renders no shadow map for any light, which is also how the render budget prices it. A scene declaring no environment leaves the decision to the host renderer, exactly as it did before environments existed.
    *
-   * Only the three punctual kinds can cast one. A rectangular area source is
-   * analytically integrated rather than rasterized from a light-space camera,
-   * so `three.js` renders no shadow map for it and the engine refuses
-   * `castShadow` on an {@link IAutoMovieAreaLight} instead of accepting a flag
-   * no frame would honor.
+   * Only the three punctual kinds can cast one. A rectangular area source is analytically integrated rather than rasterized from a light-space camera, so `three.js` renders no shadow map for it and the engine refuses `castShadow` on an {@link IAutoMovieAreaLight} instead of accepting a flag no frame would honor.
    */
   castShadow?: boolean;
 
   /**
-   * Deterministic shadow-camera tuning, required exactly when `castShadow` is
-   * true.
+   * Deterministic shadow-camera tuning, required exactly when `castShadow` is true.
    */
   shadow?: IAutoMovieLightShadow;
 }
