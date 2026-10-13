@@ -26,7 +26,6 @@
     "@modelcontextprotocol/sdk": "catalog:reference",
     "htmlparser2": "catalog:reference",
     "mdast-util-from-markdown": "catalog:reference",
-    "smol-toml": "catalog:reference",
     "zod": "catalog:reference"
   },
   "devDependencies": {

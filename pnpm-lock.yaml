@@ -62,9 +62,6 @@ catalogs:
     mdast-util-from-markdown:
       specifier: ^2.0.3
       version: 2.0.3
-    smol-toml:
-      specifier: ^1.8.0
-      version: 1.8.0
     zod:
       specifier: ^4.5.4
       version: 4.5.4
@@ -640,9 +637,6 @@ importers:
       mdast-util-from-markdown:
         specifier: catalog:reference
         version: 2.0.3
-      smol-toml:
-        specifier: catalog:reference
-        version: 1.8.0
       zod:
         specifier: catalog:reference
         version: 4.5.4
@@ -3120,10 +3114,6 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  smol-toml@1.8.0:
-    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
-    engines: {node: '>= 18'}
-
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -5234,8 +5224,6 @@ snapshots:
       side-channel-weakmap: 1.0.2
 
   slash@3.0.0: {}
-
-  smol-toml@1.8.0: {}
 
   source-map-js@1.2.1: {}
 
