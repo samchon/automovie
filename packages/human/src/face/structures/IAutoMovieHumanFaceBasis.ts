@@ -23,6 +23,14 @@ import type { IAutoMovieHumanFacePeriocular } from "./IAutoMovieHumanFacePeriocu
  * rigid-joint simulation. Metadata names what a control does; it does not prove
  * anatomical correctness, nonpenetration or likeness of arbitrary combinations.
  *
+ * @evidence contracts/common.md#principled-implementation One revisioned connected source owns ordered channels, exact surfaces/correspondence, landmarks and optional articulated/contact/generated registrations. The builder compiles a private copy and evaluates existing source-authored endpoints, with explicit physical/measurement admission limits.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry, controls, qualified supports and resident finishes have separate named owners while sharing one metre-based head frame and immutable revision identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Channel metadata does not prove anatomy or likeness, authored trajectories/envelopes are not universal physiology, and changing topology or correspondence requires a new identity rather than matching asset names.
+ * @evidence contracts/common.md#meaningful-documentation The comment supplies frame/units/source ownership and inference limits; members detail corrective activation, source registration, articulation/contact ordering, qualified generated supports and optional omissions.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This basis schema executes no endpoint evaluation, contact solve or model validation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Immutable identity supplies reuse premises, but pose, attachment and bake cache policies belong to the compiled builders/readers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The licensed-source caller owns the supplied arrays/materials; the type opens no asset stream or task and the runtime compiler owns its resident copy.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasis {
@@ -165,10 +173,12 @@ export interface IAutoMovieHumanFaceBasis {
   /**
    * The coupled oral contact the basis evaluates after articulation: lip
    * closure scaled to the aperture it has to close, the tongue's passage
-   * through the incisors and lips, and soft tissue kept outside the rigid
-   * dental and ocular surfaces. Every quantity is measured on the evaluated document,
-   * never read from a per-person table, and an impossible combination is
-   * refused by name with the millimetres that decide it rather than clamped.
+   * through the incisors and lips, and bounded rigid-contact corrections
+   * against dental and ocular surfaces. Geometric readings use the evaluated
+   * document, while authored floors and budgets qualify admission. Retained
+   * source rest penetration is not removed globally; an admitted correction
+   * budget can refuse a requested combination with the deciding millimetres
+   * rather than clamp its controls.
    *
    * `lips` and `incisors` name the vermilion seam and incisal edge midline
    * vertex pairs, found once on the shared topology, whose posed separations

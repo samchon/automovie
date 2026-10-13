@@ -1,4 +1,7 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
+import type { IAutoMovieModel } from "@automovie/interface";
+
+import type { IAutoMovieHumanGltfExport } from "../../common/export/IAutoMovieHumanGltfExport";
 import type { IAutoMovieHumanFaceContactSummary } from "../../index";
 import { createHumanFaceBasisBuilder } from "../basis/createHumanFaceBasisBuilder";
 import { readHumanFacePartCensus } from "../basis/readHumanFacePartCensus";
@@ -6,15 +9,26 @@ import { summarizeHumanFaceArticulation } from "../basis/summarizeHumanFaceArtic
 import { parseHumanFaceBasisDocument } from "../document/parseHumanFaceBasisDocument";
 import { createHumanFaceOralExportQualification } from "../export/createHumanFaceOralExportQualification";
 import { exportHumanFace } from "../export/exportHumanFace";
+import type { IAutoMovieHumanFaceBasisBuilder } from "../structures/IAutoMovieHumanFaceBasisBuilder";
+import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanFaceConstruction } from "../structures/IAutoMovieHumanFaceConstruction";
 
 import type { ConnectedFaceRequest } from "./ConnectedFaceRequest";
+import type { ConnectedFaceResult } from "./ConnectedFaceResult";
 import type { IConnectedFaceRuntimeProps } from "./IConnectedFaceRuntimeProps";
 
 /**
- * The ambient occlusion a preview or export bakes when asked: 32 rays a
+ * The ambient occlusion an opted-in operation bakes: 32 rays a
  * vertex, 1024 texels a side (about 0.3 mm of the face per texel).
+ * That physical scale is approximate and varies with the authored UV domain.
+ *
+ * One two-scalar setting serves the lazily compiled occlusion builder. It does
+ * not alter geometry admission or promise a universal physical texel scale;
+ * bake equivalence, ray buffers and texture lifetime belong to that builder.
+ *
+ * @author Samchon
  */
-const FACE_OCCLUSION = { rays: 32, size: 1024 };
+const FACE_OCCLUSION: { rays: number; size: number } = { rays: 32, size: 1024 };
 
 /**
  * Prepare reusable numerical resources for one connected face worker.
@@ -32,22 +46,43 @@ const FACE_OCCLUSION = { rays: 32, size: 1024 };
  * does not publish the builder's success-only contact observation and never
  * serves as an admitted preview or export.
  *
+ * @param props Caller-owned basis and optional actual owner-boundary observer.
+ * @returns Resident numerical operation closure; parsing/admission errors reject its promise.
+ *
+ * @evidence contracts/common.md#principled-implementation One parsed numerical document and shared basis drive ordinary admission, separate construction inspection and qualified static export. Success contact comes from the builder's observer; construction returns null contact and the owner's unchanged admission, with optional report-only crossings.
+ * @evidence contracts/common.md#clear-and-simple-design A resident closure owns one ordinary builder and one lazily compiled occlusion builder, branching only on the three explicit operations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused construction is never returned as preview/export success, progress reflects owner callbacks, and the runtime supplies no asset, default measurement, anatomical certification or extra geometry solve.
+ * @evidence contracts/common.md#meaningful-documentation The comment states shared numerical ownership, optional bake/census and the distinct construction publication rule; props/request/result declarations state transport ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Compilation occurs once per ordinary runtime and once on first occlusion use; optional crossing measurement runs only when requested, and GLB writing runs only for export.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both paths reuse resident builders and their producer-owned pose/bake caches; a successful build's contact callback avoids a second evaluation solely to obtain that report.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains at most two builders and the latest contact observation. The resident worker caller owns runtime lifetime and delivery; no independent worker/task is launched here and returned models/bytes belong to callers.
+ *
+ * @author Samchon
  */
-export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
+export function createConnectedFaceRuntime(
+  props: IConnectedFaceRuntimeProps,
+): (request: ConnectedFaceRequest) => Promise<ConnectedFaceResult> {
   let contact: IAutoMovieHumanFaceContactSummary | null = null;
-  const observe = (summary: IAutoMovieHumanFaceContactSummary | null) => {
+  const observe: (summary: IAutoMovieHumanFaceContactSummary | null) => void = (
+    summary: IAutoMovieHumanFaceContactSummary | null,
+  ): void => {
     contact = summary;
   };
-  const evaluate = createHumanFaceBasisBuilder(props.basis, {
-    observe,
-    observeConstructionProgress: props.progress,
-  });
+  const evaluate: IAutoMovieHumanFaceBasisBuilder = createHumanFaceBasisBuilder(
+    props.basis,
+    {
+      observe,
+      observeConstructionProgress: props.progress,
+    },
+  );
   // The builder that also bakes the face's ambient occlusion, made on the
   // first request that asks for it.
   let occluded: ReturnType<typeof createHumanFaceBasisBuilder> | undefined;
-  return async (request: ConnectedFaceRequest) => {
-    const document = parseHumanFaceBasisDocument(request.document);
-    const builder =
+  return async (request: ConnectedFaceRequest): Promise<ConnectedFaceResult> => {
+    const document: IAutoMovieHumanFaceBasisDocument = parseHumanFaceBasisDocument(
+      request.document,
+    );
+    const builder: IAutoMovieHumanFaceBasisBuilder =
       request.occlusion === true
         ? (occluded ??= createHumanFaceBasisBuilder(props.basis, {
             observe,
@@ -56,7 +91,9 @@ export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
           }))
         : evaluate;
     if (request.operation === "construct") {
-      const construction = builder.construct(document);
+      const construction: IAutoMovieHumanFaceConstruction = builder.construct(
+        document,
+      );
       return {
         operation: "construct" as const,
         model: construction.model,
@@ -77,9 +114,9 @@ export function createConnectedFaceRuntime(props: IConnectedFaceRuntimeProps) {
             : null,
       };
     }
-    const model = builder(document);
+    const model: IAutoMovieModel = builder(document);
     if (request.operation === "export") {
-      const { glb } = await exportHumanFace(
+      const { glb }: IAutoMovieHumanGltfExport = await exportHumanFace(
         model,
         await createHumanFaceOralExportQualification(
           props.basis,
