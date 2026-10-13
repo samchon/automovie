@@ -1,7 +1,7 @@
 /**
- * Browser entry for the connected person editor. It reads the published
+ * Browser entry for the connected person editor. It reads the caller-selected
  * person generation's head and body files (the head and body partition views
- * of one connected skin), opens the standard person (the CC0 reference face
+ * of one connected skin), opens the standard person (the reference face
  * on the neutral body, one linked identity) and mounts the person panel over
  * one resident person worker that answers preview and measurement. All
  * evaluation happens in that worker through the product person runtime.

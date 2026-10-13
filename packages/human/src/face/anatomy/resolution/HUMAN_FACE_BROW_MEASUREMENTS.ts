@@ -39,7 +39,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
+          "missing registration: the medial limbus that fixes this vertical; the eye proxy carries no limbus",
       };
     },
   },
@@ -69,7 +69,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
+          "missing registration: the lateral limbus that fixes this vertical; the eye proxy carries no limbus",
       };
     },
   },
@@ -80,7 +80,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the left medial limbus; the CC0 eye proxy carries no limbus",
+          "missing registration: the left medial limbus; the eye proxy carries no limbus",
       };
     },
   },
@@ -109,7 +109,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the medial limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
+          "missing registration: the medial limbus that fixes this vertical; the eye proxy carries no limbus",
       };
     },
   },
@@ -139,7 +139,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the lateral limbus that fixes this vertical; the CC0 eye proxy carries no limbus",
+          "missing registration: the lateral limbus that fixes this vertical; the eye proxy carries no limbus",
       };
     },
   },
@@ -150,7 +150,7 @@ export const HUMAN_FACE_BROW_MEASUREMENTS: readonly IHumanFaceMeasurement[] = [
     read: () => {
       return {
         reason:
-          "missing registration: the right medial limbus; the CC0 eye proxy carries no limbus",
+          "missing registration: the right medial limbus; the eye proxy carries no limbus",
       };
     },
   },

@@ -2,7 +2,7 @@ import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
 
 /**
  * Select a complete caller-owned source pair from editor or worker parameters.
- * Omission keeps the published source. A partial pair refuses before loading;
+ * Omission selects nothing, since no generation is bundled; a partial pair refuses before loading;
  * relative URLs resolve against the supplying page before worker propagation.
  * Fetch and the product generation owner retain byte, schema and identity checks.
  *

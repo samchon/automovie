@@ -41,5 +41,5 @@ test/src/**/*.js
 test/src/**/*.js.map
 test/src/**/*.d.ts
 
-# Python bytecode from the offline Blender extraction modules
+# Python bytecode
 __pycache__/

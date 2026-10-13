@@ -24,7 +24,7 @@ import type { IAutoMovieHumanBodyVeinsOverlay } from "./IAutoMovieHumanBodyVeins
  * male/female lower-limb segmentation distinguishes bones, muscles, cartilage,
  * ligaments, and two fat/fascia compartments (Andreassen et al. 2023,
  * doi:10.1038/s41597-022-01905-2); those are separate anatomical structures,
- * not displacements to infer from this skin array alone. The current source
+ * not displacements to infer from this skin array alone. The current
  * study records initial topology and skin-weight extraction in its extraction
  * receipt and subsequent bilateral weight changes in its symmetry receipt.
  * @author Samchon

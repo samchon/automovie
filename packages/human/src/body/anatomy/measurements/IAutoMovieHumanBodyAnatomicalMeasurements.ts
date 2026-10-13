@@ -19,7 +19,7 @@ import type { IAutoMovieHumanBodyCompositionMeasurements } from "./IAutoMovieHum
  * complete detailed tier requires age, standing stature and body mass.
  * an estimator must identify its observed population and error or return an
  * unavailable part. This record
- * is not the current source `shape` channel map and is not yet interpreted by
+ * is not the current basis `shape` channel map and is not yet interpreted by
  * the legacy connected-skin builder. Extending modeled anatomy adds a named
  * component file and a field here, never a catch-all vertex array or a loose
  * `Record<string, number>` of shape weights.

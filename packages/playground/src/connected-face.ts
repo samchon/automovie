@@ -1,6 +1,7 @@
 /**
  * Browser entry for the reusable connected-prior editor. Native browser IO
- * resolves one application-selected CC0 basis; all editing, history, numerical
+ * resolves the one basis the caller selects with `faceSource`; the repository
+ * bundles none. All editing, history, numerical
  * admission and rendering delegate to the human package and resident viewport.
  * Both face.html and connected-face.html mount this same numerical editor.
  * The selected photo never participates in this replay.
@@ -10,7 +11,6 @@ import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/pars
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import faceBasisUrl from "erased-data";
 import simpleControls from "./human/examples/face-controls.json";
 import studyDocuments from "./human/examples/faces.json";
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
@@ -18,17 +18,18 @@ import { createHumanWorker } from "./human/common/createHumanWorker";
 import { createHumanResidentPort } from "./human/common/residentPort";
 import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
 import { mountConnectedFacePanel } from "./human/face/connectedPanel";
+import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
 import { createConnectedFaceViewport } from "@automovie/viewer/human/face/createConnectedFaceViewport";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
+  const source = readConnectedFaceSourceUrl(location.search, location.href);
   const basis = await readConnectedFaceAsset({
-    read: () =>
-      fetch(faceBasisUrl),
+    read: () => fetch(source),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
     id: "connected-reference",
-    name: "CC0 connected reference",
+    name: "Connected reference",
     basis: basis.id,
     shape: {},
     expression: {},
@@ -66,7 +67,11 @@ async function main(): Promise<void> {
           }),
           orbit: (stageCamera) => new OrbitControls(stageCamera, canvas),
           worker: () =>
-            createHumanResidentPort(createHumanWorker("worker=face")),
+            createHumanResidentPort(
+              createHumanWorker(
+                "worker=face&faceSource=" + encodeURIComponent(source),
+              ),
+            ),
           loadTexture: (asset) => loader.loadAsync(asset),
           observeResize: (resize) => {
             new ResizeObserver(resize).observe(canvas);

@@ -9,7 +9,7 @@
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC5432089/). Szentpetery's 600-person
  * study found substantial age and sex variation and warned against one
  * universal normal cutoff (https://www.jofph.com/articles/10.11607/jofph.7206).
- * The selected CC0 basis's 8.3 mm forward and 6.6 mm lateral endpoints are
+ * The selected basis's 8.3 mm forward and 6.6 mm lateral endpoints are
  * source-authored supported displacements, not population limits or a measured
  * individual trajectory. This display conversion adds no free XYZ authoring.
  */

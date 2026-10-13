@@ -6,8 +6,8 @@ import type { IAutoMovieHumanFacePeriocularSide } from "./IAutoMovieHumanFacePer
  * lashes, globes, lid margins and canthi of each eye.
  *
  * Every eye-region consumer reads roles from this record instead of matching
- * asset names. The source producer publishes it with the basis, from CC0 data
- * files or from a manifest that reads the CC0 base mesh with a stated frame.
+ * asset names. The source producer publishes it with the basis, from data
+ * files or from a manifest that reads the base mesh with a stated frame.
  * Vertex rows index the named surfaces of the same basis; positions are read
  * on the final shaped and posed Float32 surfaces. A basis without this record
  * has no periocular registration, and features that need it refuse by name.

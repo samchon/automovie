@@ -12,7 +12,7 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * The chart is the hit of the support's chosen neutral axis on the eye
  * proxy's front, carried by its native triangle and barycentric weights
  * `(1-u-v, u, v)`, so it follows shape and gaze with the posed triangle. This
- * is a named approximation: the CC0 eye proxy has no separate cornea or pupil
+ * is a named approximation: the eye proxy has no separate cornea or pupil
  * surface, so the chart point stands for the pupil centre in forward gaze. A
  * basis without that eye's optical support returns a registration gap.
  *

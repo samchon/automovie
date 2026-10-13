@@ -1,8 +1,8 @@
 import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
 
 /**
- * The regions of the plain default underwear, placed on the shipped basis's
- * landmarks (source joint cubes, and for the bra the left nipple-areola fill's
+ * The regions of the plain default underwear, placed on the basis's
+ * landmarks (its joint landmarks, and for the bra the left nipple-areola fill's
  * centre vertex, the skin landmark the bust girth is measured at).
  *
  * The fractions were set by rendering the neutral, female, male, child and

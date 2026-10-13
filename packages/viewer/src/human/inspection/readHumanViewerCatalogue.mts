@@ -71,7 +71,7 @@ export function readHumanViewerCatalogue(
   const generation = props.independentInput === true ? null : (
     props.generation ??
     ((): IHumanViewerRejectedInput => ({
-      file: "erased-data",
+      file: "published person generation",
       pending: false,
       reason: "person generation files are not published yet",
     }))

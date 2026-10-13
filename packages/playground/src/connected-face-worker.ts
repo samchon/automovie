@@ -1,9 +1,9 @@
 /// <reference lib="webworker" />
 /**
- * Prepare the application's one shared basis once per resident worker. A literal
- * module-relative URL gives the bundler that exact asset dependency; an arbitrary
- * filename template would also package historical personal data in the directory.
- * Numerical documents never select an external resource. The asset is decoded
+ * Prepare the page-selected basis once per resident worker. The repository
+ * bundles no basis: the page passes the caller's `faceSource` URL in the
+ * worker name, and a missing selection refuses before any fetch. Numerical
+ * documents never select an external resource. The asset is decoded
  * by content, because a server may hand over the gzip bytes or, with a
  * `Content-Encoding` header, bytes the browser has already inflated.
  */
@@ -12,13 +12,13 @@ import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHuma
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import { createConnectedFaceRuntime } from "@automovie/human/face/runtime/createConnectedFaceRuntime";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
-import faceBasisUrl from "erased-data";
+import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
-const prepared = readConnectedFaceAsset({
-  read: () =>
-    fetch(faceBasisUrl),
-}).then((basis) => createConnectedFaceRuntime({ basis }));
+const prepared = Promise.resolve()
+  .then(() => readConnectedFaceSourceUrl(scope.name, location.href))
+  .then((source) => readConnectedFaceAsset({ read: () => fetch(source) }))
+  .then((basis) => createConnectedFaceRuntime({ basis }));
 const handle = createHumanResidentHandler({
   prepare: prepared,
   send: (reply) => {

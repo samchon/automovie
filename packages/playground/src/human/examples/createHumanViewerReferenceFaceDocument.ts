@@ -12,7 +12,7 @@ export function createHumanViewerReferenceFaceDocument(
 ): IHumanViewerReferenceFaceDocument {
   return {
     id: humanViewerDefaultDocument,
-    name: "CC0 connected reference",
+    name: "Connected reference",
     basis: face.id,
     shape: {},
     expression: {},

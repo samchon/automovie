@@ -28,7 +28,9 @@ import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js
  * Open the published input and source revision owners for one server directory.
  * The host refreshes basis versions before publishing a source edit batch;
  * catalogue readers share that memo and the graph's current domain digests.
- * Application-owned paths and factories supply every named example. One
+ * Application-owned paths and factories supply every named example. The
+ * repository ships no basis or person generation; published ones are files an
+ * operator places in the ignored storage's `published` directory. One
  * checked-loader scope feeds both numerical startup witnesses and the browser
  * admission revision; unrelated checked-project edits leave model keys intact.
  */
@@ -46,22 +48,17 @@ export function createHumanViewerSource(
     humanViewerStorage(root, undefined),
     "references",
   );
+  const publishedDirectory = path.join(storage, "published");
   const basisFiles = {
-    face: path.join(
-      root,
-      "erased-data",
-    ),
-    body: path.join(
-      root,
-      "erased-data",
-    ),
+    face: path.join(publishedDirectory, "face.basis.json.gz"),
+    body: path.join(publishedDirectory, "body.basis.json.gz"),
   };
   /** The published one-skin person generation views, read off the request path. */
   /** The source owner's subject people on the published generation. */
   const { subjectPeopleFile, documentsFile, bodyExamplesFile, cameraPosesFile } = exampleSources;
   const generationFiles: IHumanViewerGenerationFiles = {
-    head: path.join(root, "erased-data"),
-    body: path.join(root, "erased-data"),
+    head: path.join(publishedDirectory, "person.head.json.gz"),
+    body: path.join(publishedDirectory, "person.body.json.gz"),
   };
   const inputsDirectory = path.join(storage, "inputs");
   const slash = (file: string): string => file.replaceAll("\\", "/");

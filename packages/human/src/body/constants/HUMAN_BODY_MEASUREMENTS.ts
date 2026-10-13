@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
 /**
  * Measurement rules by body channel id.
  *
- * A rule names the landmarks of the shipped basis (source joint cubes, and for
+ * A rule names the landmarks of the basis (its joint landmarks, and for
  * the bust a vertex of its skin) and the public measurement definition it
  * approximates. Trunk girths are horizontal sections between midline
  * landmarks: the bust at the nipple's height, and otherwise searched for

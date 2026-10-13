@@ -15,8 +15,11 @@ export interface IHumanViewerExampleSources {
   /** Application-authored face document array. */
   documentsFile: string;
 
-  /** Application-authored people on the published generation. */
-  subjectPeopleFile: string;
+  /**
+   * Application-authored people on the published generation; absent means
+   * the subject people derived from the face documents.
+   */
+  subjectPeopleFile?: string;
 
   /** Application-authored body parameter sets. */
   bodyExamplesFile: string;

@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 /**
  * Authored abdominal overhang and flank-fat response to age, BMI and sex. The visible skin endpoints are not segmented abdominal fat or a clinical measurement.
  *
- * The rows are authored derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
+ * The rows are authored skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
  */
 export const HUMAN_BODY_SIMPLE_SHAPE_ABDOMINAL_FAT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
   [

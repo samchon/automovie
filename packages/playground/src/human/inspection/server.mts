@@ -86,7 +86,6 @@ const automaticWarm = automaticWarmSetting !== "off";
 console.log("human-viewer automatic warm: " + (automaticWarm ? "on" : "off"));
 const source = createHumanViewerSource(directory, applicationDirectory, {
   documentsFile: path.resolve(applicationDirectory, "../examples/faces.json"),
-  subjectPeopleFile: path.resolve(applicationDirectory, "../examples/people.json"),
   bodyExamplesFile: path.resolve(applicationDirectory, "../examples/bodies.json"),
   cameraPosesFile: path.resolve(applicationDirectory, "../examples/cameras/poses-lens-frame.json"),
   reference: createHumanViewerReferenceFaceDocument,

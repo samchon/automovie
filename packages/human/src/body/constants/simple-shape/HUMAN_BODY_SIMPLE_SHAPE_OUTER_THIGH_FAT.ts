@@ -5,7 +5,7 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 /**
  * Sex- and age-conditioned outer-thigh fat appearance. This is an authored gynoid distribution proxy on the shared skin, not an adipose compartment volume.
  *
- * The rows are authored derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
+ * The rows are authored skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
  */
 export const HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
   [

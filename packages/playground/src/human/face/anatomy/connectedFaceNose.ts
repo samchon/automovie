@@ -1,9 +1,7 @@
 import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
 
 /**
- * Nasal source controls over the one connected skin surface. The source CC0
- * target provenance is pinned at
- * the upstream source .
+ * Nasal source controls over the one connected skin surface.
  * Root, dorsum, tip and ala are useful authoring scopes, not independent
  * cartilage meshes or population-derived biological ranges. The shape axes
  * keep their authored source geometry until a measured anatomical study can

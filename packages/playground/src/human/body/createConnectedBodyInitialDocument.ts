@@ -17,7 +17,7 @@ export function createConnectedBodyInitialDocument(
   )!.baseColor;
   return {
     id: "connected-body",
-    name: "CC0 connected body",
+    name: "Connected body",
     basis,
     shape: {},
     skinColour: { cheek: { r: cheek.r, g: cheek.g, b: cheek.b } },

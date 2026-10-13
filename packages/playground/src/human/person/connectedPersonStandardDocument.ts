@@ -2,7 +2,7 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 /**
  * The standard person the connected person editor opens with and Reset
- * returns to: the CC0 reference face on the neutral body, one linked
+ * returns to: the reference face on the neutral body, one linked
  * identity, no shape, expression or pose authored. The basis ids are the
  * published generation's head and body view ids.
  *
@@ -14,7 +14,7 @@ export function connectedPersonStandardDocument(
 ): IAutoMovieHumanPersonDocument {
   return {
     id: "connected-person",
-    name: "CC0 connected person",
+    name: "Connected person",
     population: "linked",
     face: {
       id: "connected-person-face",

@@ -2,7 +2,7 @@
  * Shape-dependent joint landmarks in the common right-handed, Y-up,
  * Z-forward body and face frame, in metres.
  *
- * The current source study uses centroids of its source joint cubes as points;
+ * The current study uses centroids of its source joint cubes as points;
  * its extraction receipt records their origin and the common collar frame.
  * `evaluateHumanBodyShape` applies the same endpoint names to landmarks and
  * skin so `resolveHumanBodySkeleton` places pivots after shape evaluation.

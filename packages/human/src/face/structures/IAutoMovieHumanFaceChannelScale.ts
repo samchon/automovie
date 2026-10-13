@@ -4,7 +4,7 @@ import { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovie
  * How far one unit of a connected-basis channel actually moves the surface.
  *
  * A basis channel is a dimensionless authored weight, so the same numeric edit
- * means a different amount of geometry on every control: on the shipped CC0
+ * means a different amount of geometry on every control: on the shipped
  * head one unit of `philtrumVolume` displaces tens of micrometres while one
  * unit of `globalAgeStructure` displaces centimetres. An editor that shows only
  * the envelope therefore shows a range without an anatomical quantity, and a

@@ -23,8 +23,8 @@ export interface IHumanViewerWatchedSource {
   /** Published face subjects. */
   documentsFile: string;
 
-  /** The generation's subject people; an edit rereads the catalogue. */
-  subjectPeopleFile: string;
+  /** The generation's subject people, if any; an edit rereads the catalogue. */
+  subjectPeopleFile?: string;
 
   /** Playground body examples; an edit rereads the catalogue. */
   bodyExamplesFile: string;

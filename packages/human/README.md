@@ -25,7 +25,7 @@ Resident numerical runtimes keep their admitted basis and evaluated document acr
 
 The corresponding request and result declarations live beside their runtimes. Preview, construction and static export remain distinct results; a construction report retains the numerical owner's refusals.
 
-Required CC0 basis and paired source-view assets ship under `erased-data`, with their source manifest and source license. Example documents and parameter sets belong to Playground's [`src/human/examples`](../playground/src/human/examples). The [Playground run guide](../playground/README.md#run) owns the Human inspection application; [Viewer](../viewer/README.md) supplies its display and capture runtime. Numerical construction, clinical qualification, visual quality and likeness are separate judgments.
+The package ships no basis or person-generation data file; a caller supplies the basis its runtimes evaluate. Example documents and parameter sets belong to Playground's [`src/human/examples`](../playground/src/human/examples). The [Playground run guide](../playground/README.md#run) owns the Human inspection application; [Viewer](../viewer/README.md) supplies its display and capture runtime. Numerical construction, clinical qualification, visual quality and likeness are separate judgments.
 
 ## Whole-person solve support
 

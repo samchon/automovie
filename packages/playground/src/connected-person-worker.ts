@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * Resident worker of the connected person editor. It reads the published
+ * Resident worker of the connected person editor. It reads the caller-selected
  * person generation's head and body files once, joins them in the product
  * person runtime and answers the body editor's request protocol (preview,
  * construction and export) for person documents, and the person editor's

@@ -3,8 +3,6 @@ import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
 /**
  * Selected basis's periocular hierarchy. The paired globes, brow cards and
  * lashes are three resident meshes; lids and canthi remain on the shared skin.
- * Source endpoints are CC0 source extra targets at
- * the upstream source .
  * MRI observations in https://pmc.ncbi.nlm.nih.gov/articles/PMC7392398/
  * show that ocular rotation can be eccentric and translated. This source's
  * gaze endpoint fit is an authored approximation, not a universal fixed COR.

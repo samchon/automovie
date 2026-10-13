@@ -4,7 +4,7 @@
  * the fine editor: the saved document still stores its basis weight, while a
  * human reads and enters degrees. Kim et al. measured ocular duction ranges
  * in 261 healthy people aged 5–91 by a modified limbus test
- * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/); the current CC0 basis
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/); the current basis
  * reaches only about 10–15 degrees per gaze endpoint, not that study's full
  * observed range. Demer and Clark found gaze-dependent translation and a
  * varying rotation centre (https://pubmed.ncbi.nlm.nih.gov/31239125/), so

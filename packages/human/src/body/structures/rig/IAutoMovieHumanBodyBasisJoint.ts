@@ -25,10 +25,8 @@ import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBo
  * that line. This population observation identifies a missing anatomical
  * frame; it is not a fixed sideways correction to apply to every arm.
  * The basis publisher owns its landmark protocol, constraint sources and valid
- * range. The shipped generation's upstream and extraction ancestry is retained
- * in `erased-data`; historical input
- * paths and hashes there do not provide a maintained receipt or establish
- * clinical qualification. Other bases carry their own source and valid range.
+ * range, and a basis carries its own source and valid range; neither
+ * establishes clinical qualification.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisJoint {

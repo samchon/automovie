@@ -22,7 +22,7 @@ export function subscribeHumanViewerSources(
     generationDirectory,
     ...Object.values(source.basisFiles),
     source.documentsFile,
-    source.subjectPeopleFile,
+    ...(source.subjectPeopleFile === undefined ? [] : [source.subjectPeopleFile]),
     source.bodyExamplesFile,
   ]);
   const changes = new Set<string>();

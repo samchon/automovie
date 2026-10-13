@@ -15,8 +15,8 @@ import type { IAutoMovieHumanPersonMeasurement } from "../structures/IAutoMovieH
  *   anterior and lateral neck landmarks (5.2.29). Those landmarks are not
  *   registered on the source skin.
  * - Neck length has no anthropometric protocol: ANSUR II defines none, and
- *   source tool's `measure-neck-height` ruler path is a source control, not a
- *   surveyed length.
+ *   the basis's neck-height ruler path is a source control, not a surveyed
+ *   length.
  * - ANSUR II measured adult soldiers aged 17 to 58. How the protocols apply
  *   to children and older adults is not covered by this source.
  *
@@ -39,10 +39,8 @@ export const HUMAN_PERSON_MEASUREMENTS: Record<
    * spans both sexes.
    *
    * The instrument's plane passes through the body view's skin landmark
-   * `neck-anterior-midline`: base basemesh vertex 803, the anterior midline
-   * vertex of source tool's own
-   * neck-circumference ruler loop (`plugins/0_modeling_a_measurement.py`,
-   * `measure/measure-neck-circ-decr|incr`). The loop belongs to the same
+   * `neck-anterior-midline`, the anterior midline vertex of the basis's own
+   * neck-circumference ruler loop. The loop belongs to the same
    * source as the `measure-neck-circ` targets the solving channel carries.
    * The plane is perpendicular to the `joint-neck`→`joint-head` segment.
    *
