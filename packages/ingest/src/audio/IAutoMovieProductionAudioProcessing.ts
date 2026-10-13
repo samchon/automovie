@@ -1,7 +1,5 @@
 /**
- * The deterministic conversion `decodeProductionAudioAsset` applied to turn a
- * WAVE source into mono mixer input, recorded so a render plan can check it
- * against the source format it claims.
+ * The deterministic conversion `decodeProductionAudioAsset` applied to turn a WAVE source into mono mixer input, recorded so a render plan can check it against the source format it claims.
  *
  * @evidence contracts/common.md#principled-implementation The lineage records exactly the two operations the decoder performs, a fixed-coefficient downmix and a rate change, so a plan reproduces the conversion from `kind`, `matrix` and `outputSampleRate` without trusting the samples.
  * @evidence contracts/common.md#clear-and-simple-design One flat record names the stage combination and its parameters; the render package's wave identity validator reads these four fields and nothing else.
@@ -13,11 +11,7 @@
  * @author Samchon
  */
 export interface IAutoMovieProductionAudioProcessing {
-  /**
-   * Stages applied, in source order: `copy` for mono at the target rate,
-   * `downmix` for stereo at the target rate, `resample` for mono at another
-   * rate, and `downmix-resample` for stereo at another rate.
-   */
+  /** Stages applied, in source order: `copy` for mono at the target rate, `downmix` for stereo at the target rate, `resample` for mono at another rate, and `downmix-resample` for stereo at another rate. */
   kind: "copy" | "downmix" | "resample" | "downmix-resample";
 
   /** Mixer-facing channel count; the decoder always folds to mono. */
@@ -26,9 +20,6 @@ export interface IAutoMovieProductionAudioProcessing {
   /** Output rate in samples per second, the rate the caller requested. */
   outputSampleRate: number;
 
-  /**
-   * Downmix coefficients with one row per output channel and one column per
-   * source channel: `[[1]]` for mono and `[[0.5, 0.5]]` for stereo.
-   */
+  /** Downmix coefficients with one row per output channel and one column per source channel: `[[1]]` for mono and `[[0.5, 0.5]]` for stereo. */
   matrix: readonly (readonly number[])[];
 }

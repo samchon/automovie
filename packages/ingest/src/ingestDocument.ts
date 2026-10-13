@@ -1,81 +1,16 @@
-import {
-  AutoMovieInterpolation,
-  AutoMovieNodeKind,
-  IAutoMovieClip,
-  IAutoMovieNode,
-  IAutoMovieTrack,
-} from "@automovie/interface";
-import type {
-  Accessor,
-  Animation,
-  AnimationChannel,
-  AnimationSampler,
-  Camera,
-  Document,
-  Node as GLTFNode,
-  Mesh,
-  Root,
-  Skin,
-  vec3,
-  vec4,
-} from "@gltf-transform/core";
-
+import type { Document, Root, Node as GLTFNode, Mesh, Camera, Skin, vec3, vec4, Animation, AnimationChannel, AnimationSampler, Accessor } from "@gltf-transform/core";
+import type { IAutoMovieIngestResult } from "./IAutoMovieIngestResult";
+import type { IAutoMovieNode, IAutoMovieClip, IAutoMovieTrack, AutoMovieInterpolation, AutoMovieNodeKind } from "@automovie/interface";
 import { accessorValues } from "./internal/accessorValues";
 
 /**
- * The core node graph and clips one parsed glTF/GLB document maps to.
+ * Map a parsed glTF/GLB {@link Document} onto automovie's core node graph and animation clips, with no three.js and no humanoid assumptions.
  *
- * Ids are positional: node `node_{i}` is the document's `i`-th node, clip
- * `clip_{i}` its `i`-th animation, and mesh, camera and skin references are the
- * decimal index of that resource in its root list. The ids are therefore stable
- * for one document revision and never collide when names repeat, but they do
- * not survive a re-export that reorders the lists.
+ * Current repository callers exercise this parsed-document mapper through tests. The production asset inventory uses the separate byte inspector and host loaders; this export does not establish a wired parsed-document runtime import flow.
  *
- * @evidence contracts/common.md#principled-implementation Positional ids follow glTF's own index-based references, so a node, clip, mesh, camera or skin id equals its index in the document's lists and cross-references resolve without name lookup.
- * @evidence contracts/common.md#clear-and-simple-design The result is the two lists the engine already consumes, nodes and clips, with no wrapper around either.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The documentation states that positional ids do not survive a re-export that reorders the lists rather than presenting them as content identity.
- * @evidence contracts/common.md#meaningful-documentation The comments give the id scheme for every referenced resource, the parent meaning of each node, and the order, looping and duration meaning of each clip.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the mapper's return value and runs no code.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A result type has no work of its own that could be shared.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; the arrays it names are created by `ingestDocument` and owned by its caller.
- * @author Samchon
- */
-export interface IAutoMovieIngestResult {
-  /**
-   * Every glTF node in document order as a core node whose `parent` names the
-   * node that lists it as a child, or `null` for a root.
-   */
-  nodes: IAutoMovieNode[];
-
-  /**
-   * One non-looping clip per glTF animation in document order, its tracks in
-   * channel order and its duration the latest keyframe time in seconds.
-   */
-  clips: IAutoMovieClip[];
-}
-
-/**
- * Map a parsed glTF/GLB {@link Document} onto automovie's core node graph and
- * animation clips, with no three.js and no humanoid assumptions.
+ * `@gltf-transform/core` parses the bytes headlessly, and this mapper rewrites its structures structurally so props, cameras and characters import the same way. Every node keeps its local TRS, its parent, and the mesh, camera and skin it carries; a skin joint is a `bone` even when it also carries a mesh, then a mesh node is `mesh`, a camera node `camera`, and anything else `group`. Lights are not read. Every animation channel becomes a node track with the glTF sampler's keyframes, its interpolation mapped LINEAR, STEP and CUBICSPLINE to `linear`, `step` and `cubicspline` with an absent one read as LINEAR as glTF specifies, and its values decoded from normalized integers where the accessor declares them. Humanoid retargeting is the separate {@link humanoidSkeleton} stage.
  *
- * `@gltf-transform/core` parses the bytes headlessly, and this mapper rewrites
- * its structures structurally so props, cameras and characters import the same
- * way. Every node keeps its local TRS, its parent, and the mesh, camera and
- * skin it carries; a skin joint is a `bone` even when it also carries a mesh,
- * then a mesh node is `mesh`, a camera node `camera`, and anything else
- * `group`. Lights are not read. Every animation channel becomes a node track
- * with the glTF sampler's keyframes, its interpolation mapped LINEAR, STEP and
- * CUBICSPLINE to `linear`, `step` and `cubicspline` with an absent one read as
- * LINEAR as glTF specifies, and its values decoded
- * from normalized integers where the accessor declares them. Humanoid
- * retargeting is the separate {@link humanoidSkeleton} stage.
- *
- * A channel that the engine's sample pass could not replay throws instead of
- * importing: no target node, no or unknown target path, no sampler, no input
- * or output data, an unknown interpolation, keyframe times that are not
- * finite, non-negative and strictly increasing, non-finite output values, or an
- * output length that disagrees with the keyframe count, the path's component
- * count and the cubic-spline tangent triple.
+ * A channel that the engine's sample pass could not replay throws instead of importing: no target node, no or unknown target path, no sampler, no input or output data, an unknown interpolation, keyframe times that are not finite, non-negative and strictly increasing, non-finite output values, or an output length that disagrees with the keyframe count, the path's component count and the cubic-spline tangent triple.
  *
  * @param doc Parsed document; it is only read.
  * @returns New arrays the caller owns, sharing no storage with the document.
@@ -89,7 +24,7 @@ export interface IAutoMovieIngestResult {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The lookup maps are local and released on return or throw; the result retains new node records and per-track copies of keyframe data proportional to the document's animation size, owned by the caller, and no handle or task.
  * @author Samchon
  */
-export const ingestDocument = (doc: Document): IAutoMovieIngestResult => {
+export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (doc: Document): IAutoMovieIngestResult => {
   const root: Root = doc.getRoot();
   const gltfNodes: GLTFNode[] = root.listNodes();
 
@@ -179,7 +114,7 @@ const INTERPOLATIONS: Readonly<Record<string, AutoMovieInterpolation>> = {
 };
 
 /** Map each item to its decimal list index. */
-const indexIds = <T>(items: T[]): Map<T, string> => {
+const indexIds: <T>(items: T[]) => Map<T, string> = <T>(items: T[]): Map<T, string> => {
   const map: Map<T, string> = new Map<T, string>();
   items.forEach((item: T, i: number): void => {
     map.set(item, `${i}`);
@@ -187,7 +122,7 @@ const indexIds = <T>(items: T[]): Map<T, string> => {
   return map;
 };
 
-const kindOf = (node: GLTFNode, joints: Set<GLTFNode>): AutoMovieNodeKind =>
+const kindOf: (node: GLTFNode, joints: Set<GLTFNode>) => AutoMovieNodeKind = (node: GLTFNode, joints: Set<GLTFNode>): AutoMovieNodeKind =>
   joints.has(node)
     ? "bone"
     : node.getMesh() !== null
@@ -196,14 +131,14 @@ const kindOf = (node: GLTFNode, joints: Set<GLTFNode>): AutoMovieNodeKind =>
         ? "camera"
         : "group";
 
-const toTrack = (
+const toTrack: (channel: AnimationChannel, idByNode: Map<GLTFNode, string>) => IAutoMovieTrack = (
   channel: AnimationChannel,
   idByNode: Map<GLTFNode, string>,
 ): IAutoMovieTrack => {
   const target: GLTFNode | null = channel.getTargetNode();
   if (target === null) throw new Error("animation channel must target a node");
   const targetId: string = idByNode.get(target)!;
-  const fail = (message: string): never => {
+  const fail: (message: string) => never = (message: string): never => {
     throw new Error(`animation channel for node "${targetId}" ${message}`);
   };
 

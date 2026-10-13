@@ -1,34 +1,15 @@
 import { IAutoMovieFaceTemplate } from "@automovie/interface";
-import type {
-  Accessor,
-  Document,
-  Mesh,
-  Primitive,
-  PrimitiveTarget,
-} from "@gltf-transform/core";
-
+import type { Accessor, Document, Mesh, Primitive, PrimitiveTarget } from "@gltf-transform/core";
 import { accessorValues } from "./internal/accessorValues";
 
 /**
- * Extract an {@link IAutoMovieFaceTemplate} from a parsed glTF/GLB
- * {@link Document}: the import side of the face editor.
+ * Extract an {@link IAutoMovieFaceTemplate} from a parsed glTF/GLB {@link Document} for a caller supplying fixed morph-target data.
  *
- * A face asset carries its editable shape as glTF morph targets on one
- * primitive: `POSITION` is the resting face and each target holds per-vertex
- * deltas under a parameter name, such as an `identity` likeness or a semantic
- * slider. The first primitive with targets, in mesh then primitive order, is
- * rewritten into the flat arrays the engine's `morphFace` consumes; later
- * morphed primitives are ignored. A target is named by its own name, else by
- * the same index in `mesh.extras.targetNames`, the convention three.js and
- * most exporters write. Normalized integer accessors, as `KHR_mesh_quantization`
- * allows, are decoded to the values they mean, and every target becomes an own
- * key of `targets`, including one named `__proto__`.
+ * This exported mapper currently has test callers in this repository; the face editor does not call it through a runtime import flow. It describes a portable conversion seam, not a completed editor asset-ingress feature.
  *
- * Structural defects make the asset unusable for deterministic morphing, so
- * they throw rather than degrade: no morphed primitive, a morphed primitive
- * without `POSITION` data, a target that cannot be named, two targets with one
- * name, a target without `POSITION` delta data, or a delta array whose length
- * differs from the resting face.
+ * A face asset carries its editable shape as glTF morph targets on one primitive: `POSITION` is the resting face and each target holds per-vertex deltas under a parameter name, such as an `identity` likeness or a semantic slider. The first primitive with targets, in mesh then primitive order, is rewritten into the flat arrays the engine's `morphFace` consumes; later morphed primitives are ignored. A target is named by its own name, else by the same index in `mesh.extras.targetNames`, the convention three.js and most exporters write. Normalized integer accessors, as `KHR_mesh_quantization` allows, are decoded to the values they mean, and every target becomes an own key of `targets`, including one named `__proto__`.
+ *
+ * Structural defects make the asset unusable for deterministic morphing, so they throw rather than degrade: no morphed primitive, a morphed primitive without `POSITION` data, a target that cannot be named, two targets with one name, a target without `POSITION` delta data, or a delta array whose length differs from the resting face.
  *
  * @param doc Parsed document; it is only read.
  * @returns A new template whose arrays the caller owns.
@@ -42,14 +23,14 @@ import { accessorValues } from "./internal/accessorValues";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the name index map and entry list are temporary and die with the call; the returned arrays, proportional to vertices times targets, are new and owned by the caller.
  * @author Samchon
  */
-export const ingestFaceTemplate = (doc: Document): IAutoMovieFaceTemplate => {
+export const ingestFaceTemplate: (doc: Document) => IAutoMovieFaceTemplate = (doc: Document): IAutoMovieFaceTemplate => {
   for (const mesh of doc.getRoot().listMeshes())
     for (const prim of mesh.listPrimitives())
       if (prim.listTargets().length !== 0) return templateOf(mesh, prim);
   throw new Error("document has no primitive with morph targets");
 };
 
-const templateOf = (mesh: Mesh, prim: Primitive): IAutoMovieFaceTemplate => {
+const templateOf: (mesh: Mesh, prim: Primitive) => IAutoMovieFaceTemplate = (mesh: Mesh, prim: Primitive): IAutoMovieFaceTemplate => {
   const posAccessor: Accessor | null = prim.getAttribute("POSITION");
   if (posAccessor === null)
     throw new Error("morphed primitive has no POSITION attribute");

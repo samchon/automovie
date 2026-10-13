@@ -3,19 +3,9 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 /**
  * Compose a parent-local TRS over a child-local TRS into one local transform.
  *
- * Folding a skipped helper node into the bone beneath it needs this, so the
- * emitted rest stays relative to the nearest kept ancestor. The result is the
- * standard rig decomposition `t = t_p + R_p (s_p * t_c)`, `r = r_p r_c`,
- * `s = s_p * s_c` with component-wise scale products. The translation is
- * always exact; the rotation and scale are exact when the parent scale commutes
- * with the child rotation, as a uniform parent scale or an identity child
- * rotation does. Otherwise the true product contains shear that a TRS cannot
- * hold, and the result drops it. Rotations are expected to be unit
- * quaternions; a non-unit parent rotation scales the rotated translation.
+ * Folding a skipped helper node into the bone beneath it needs this, so the emitted rest stays relative to the nearest kept ancestor. The result is the standard rig decomposition `t = t_p + R_p (s_p * t_c)`, `r = r_p r_c`, `s = s_p * s_c` with component-wise scale products. The translation is always exact; the rotation and scale are exact when the parent scale commutes with the child rotation, as a uniform parent scale or an identity child rotation does. Otherwise the true product contains shear that a TRS cannot hold, and the result drops it. Rotations are expected to be unit quaternions; a non-unit parent rotation scales the rotated translation.
  *
- * The arithmetic order is fixed, so the same inputs produce bit-identical
- * output, which lets an external-motion source rig be compared with exact
- * equality against the inspected basis.
+ * The arithmetic order is fixed, so the same inputs produce bit-identical output, which lets an external-motion source rig be compared with exact equality against the inspected basis.
  *
  * @param parent Transform of the node nearer the root.
  * @param child Transform expressed in `parent`'s space.
@@ -30,7 +20,7 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing; its single result object belongs to the caller.
  * @author Samchon
  */
-export const composeLocalTransform = (
+export const composeLocalTransform: (parent: IAutoMovieTransform, child: IAutoMovieTransform) => IAutoMovieTransform = (
   parent: IAutoMovieTransform,
   child: IAutoMovieTransform,
 ): IAutoMovieTransform => {

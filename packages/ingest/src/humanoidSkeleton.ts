@@ -1,56 +1,32 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
-import type {
-  Document,
-  Node as GLTFNode,
-  Skin,
-  vec3,
-  vec4,
-} from "@gltf-transform/core";
-
+import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+import type { Document, Node as GLTFNode, Skin, vec3, vec4 } from "@gltf-transform/core";
 import { composeLocalTransform } from "./internal/composeLocalTransform";
 import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
 
 /**
- * Retarget a parsed glTF's skins onto a normalized humanoid
- * {@link IAutoMovieSkeleton} by matching joint names to
- * {@link AutoMovieHumanoidBone} slots.
+ * Retarget a parsed glTF's skins onto a normalized humanoid {@link IAutoMovieSkeleton} by matching joint names to {@link AutoMovieHumanoidBone} slots.
  *
- * Every skin is read in document order and the first joint to claim a slot
- * keeps it, because exporters bind clothes, hair and accessories as separate
- * skins in no guaranteed order and the body rig must be found wherever it sits.
- * A joint name maps through the glTF/Blender, Mixamo, VRM-style and Unreal
- * mannequin aliases; fingers, eyes and jaw are not mapped.
+ * This naming-based mapper currently has test callers in this repository. Production motion adoption uses an explicit mapping against inspected nodes, so this export does not establish a production rig-inference flow.
  *
- * The hierarchy is rebuilt over mapped joints only: a bone's parent is its
- * nearest mapped ancestor in the node tree, and the local TRS of every skipped
- * helper node between them composes into the bone's rest, because
- * {@link IAutoMovieBone.rest} is relative to `parent` and a dropped helper
- * offset or roll would misplace every bone beneath it. The composition is exact
- * unless a skipped helper combines non-uniform scale with a rotated child. A
- * root bone keeps its own local TRS, since armature and scene transforms belong
- * to the imported object rather than the skeleton. Bones carry no constraint.
+ * Every skin is read in document order and the first joint to claim a slot keeps it, because exporters bind clothes, hair and accessories as separate skins in no guaranteed order and the body rig must be found wherever it sits. A joint name maps through the supported Blender-style, Mixamo, VRM-style and Unreal mannequin aliases; fingers, eyes and jaw are not mapped.
+ *
+ * The hierarchy is rebuilt over mapped joints only: a bone's parent is its nearest mapped ancestor in the node tree, and the local TRS of every skipped helper node between them composes into the bone's rest, because {@link IAutoMovieBone.rest} is relative to `parent` and a dropped helper offset or roll would misplace every bone beneath it. The composition is exact unless a skipped helper combines non-uniform scale with a rotated child. A root bone keeps its own local TRS, since armature and scene transforms belong to the imported object rather than the skeleton. Bones carry no constraint.
  *
  * @param doc Parsed document; it is only read.
  * @param skeletonId Id for the returned skeleton.
  * @returns The skeleton with bones in first-claim order, or `null` when the
- *   document has no skin or no joint maps to `hips`, the required root; the
- *   caller then treats the model as a non-articulated object.
+ * document has no skin or no joint maps to `hips`, the required root; the caller then treats the model as a non-articulated object.
  *
  * @evidence contracts/common.md#principled-implementation Slots come from a normalized alias table, the hierarchy from a child-to-parent map walked to the nearest mapped ancestor, and each rest from composing skipped helper TRS with `composeLocalTransform`; that composition drops the shear a non-uniform helper scale under a rotated child would need, the limitation the documentation states.
  * @evidence contracts/common.md#clear-and-simple-design The function owns slot claiming and hierarchy rebuilding, while name normalization and transform composition live in internal modules the byte inspector and motion adoption share, so the alias table and the composition formula each exist once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias table names published rig conventions, not fixture rigs; the table is a `Map`, so a joint named after an `Object.prototype` member such as `constructor` maps to nothing instead of an inherited function, and first-claim order is the documented rule for duplicate slots.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias table is this importer's declared naming vocabulary, not proof of bone anatomy; the table is a `Map`, so a joint named after an `Object.prototype` member such as `constructor` maps to nothing instead of an inherited function, and first-claim order is the documented rule for duplicate slots.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the every-skin first-claim rule and its reason, the covered naming conventions and unmapped fingers, eyes and jaw, the helper composition and its exactness, the root-bone exception, the null cases, and that constraints are left empty.
  * @evidence contracts/performance.md#efficient-algorithms Cost is linear in joints across skins plus nodes and their children for the parent map, plus, per mapped bone, its walk to the nearest mapped ancestor; the hash maps make each lookup constant time, and the parent map is the only full node scan.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one document once and the result depends on that document alone, so there is no work across requests to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The slot and parent maps and the helper arrays are local and released on return or throw; the returned skeleton holds new transform objects proportional to the mapped bones, at most the humanoid slot count, owned by the caller.
  * @author Samchon
  */
-export const humanoidSkeleton = (
+export const humanoidSkeleton: (doc: Document, skeletonId?: string) => IAutoMovieSkeleton | null = (
   doc: Document,
   skeletonId: string = "skeleton",
 ): IAutoMovieSkeleton | null => {
@@ -102,7 +78,7 @@ export const humanoidSkeleton = (
   return { id: skeletonId, bones };
 };
 
-const localTransform = (node: GLTFNode): IAutoMovieTransform => {
+const localTransform: (node: GLTFNode) => IAutoMovieTransform = (node: GLTFNode): IAutoMovieTransform => {
   const t: vec3 = node.getTranslation();
   const r: vec4 = node.getRotation();
   const s: vec3 = node.getScale();

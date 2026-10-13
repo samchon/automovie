@@ -2,14 +2,9 @@ import type { IAutoMovieProductionAudioProcessing } from "./IAutoMovieProduction
 import type { IAutoMovieProductionWaveSourceFormat } from "./IAutoMovieProductionWaveSourceFormat";
 
 /**
- * One decoded WAVE source: its declared facts, the exact processing applied,
- * and the mono samples the mixer plays.
+ * One decoded WAVE source: its declared facts, the exact processing applied, and the mono samples the mixer plays.
  *
- * The `source*` facts and `durationSeconds` describe the file before downmix
- * and resampling, because a render plan records them as the asset's identity;
- * only `samples` and `processing` describe the output. Reporting the output as
- * the source would let a resampled asset claim the plan's rate and hide a
- * duration disagreement.
+ * The `source*` facts and `durationSeconds` describe the file before downmix and resampling, because a render plan records them as the asset's identity; only `samples` and `processing` describe the output. Reporting the output as the source would let a resampled asset claim the plan's rate and hide a duration disagreement.
  *
  * @evidence contracts/common.md#principled-implementation The record separates the source envelope facts from the conversion lineage and the converted samples, so a consumer can verify the samples' rate and channel count from `processing` against the declared `sourceFormat`.
  * @evidence contracts/common.md#clear-and-simple-design Source facts, processing and samples are three named parts of one decoder result instead of separate return paths, and the render package reuses the two nested types as its wave identity.
@@ -39,9 +34,6 @@ export interface IAutoMovieDecodedProductionAudioAsset {
   /** The downmix and resampling applied to produce `samples`. */
   processing: IAutoMovieProductionAudioProcessing;
 
-  /**
-   * Finite mono samples in [-1, 1] for PCM sources at
-   * `processing.outputSampleRate`; a new buffer the caller owns.
-   */
+  /** Finite mono samples in [-1, 1] for PCM sources at `processing.outputSampleRate`; a new buffer the caller owns. */
   samples: Float32Array;
 }
