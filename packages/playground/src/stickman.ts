@@ -12,7 +12,7 @@ import {
 } from "@automovie/interface";
 
 /**
- * Proportions of the **stick figure** ("졸라맨"), the deliberately minimal test
+ * Proportions of the **stick figure**, the deliberately minimal test
  * character. Where {@link IHumanoidParams} fills the rig with capsule "flesh",
  * the stick figure keeps every segment a thin uniform rod and the head a single
  * sphere: the most legible possible body to read a pose or a motion off of.

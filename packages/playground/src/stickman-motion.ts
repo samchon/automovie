@@ -506,7 +506,7 @@ export const shadowbox = (sk: string): IAutoMovieMotion => {
     j("spine", { flexion: -16 }),
     j("leftUpperArm", { flexion: -28, abduction: 124 }),
   ]);
-  // right knee strike (니킥): drive the knee up, crunch down, hands clinch
+  // right knee strike: drive the knee up, crunch down, hands clinch
   const chamberKnee = merge([
     j("rightUpperLeg", { flexion: -64 }),
     j("rightLowerLeg", { flexion: 104 }),
