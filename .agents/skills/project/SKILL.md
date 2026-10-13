@@ -38,5 +38,5 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 ## Commands
 
 - The workspace runs Node 22.23.2; `human` and generated projects require at least that, because older Node 22 loaders can expose an unevaluated ES module in a mixed CommonJS and ES-module graph.
-- `pnpm run build` compiles with correctness lint only; `pnpm run evidence` separately checks checklist answers and native guards.
+- `pnpm run build` compiles with correctness lint and the shared native declaration guards; `pnpm run evidence` separately checks checklist answers.
 - CI runs build and evidence in `build.yml` and the suite in `test.yml`; `website.yml` also deploys on a `master` push.
