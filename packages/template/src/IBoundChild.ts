@@ -6,7 +6,6 @@ import { type IBoundChildStatus } from "./IBoundChildStatus";
  * tables with `ucrtbase.dll`, so a Windows handle is never lowered to a CRT
  * descriptor; every byte, flush, inspection, and close goes through the
  * handle itself.
- 
  *
  * @evidence contracts/common.md#principled-implementation A held child exposes positioned byte transfer, status, flush and close without converting Windows HANDLEs into unrelated C-runtime descriptors.
  * @evidence contracts/common.md#clear-and-simple-design The publication sequence consumes one child contract while each native adapter owns its actual file primitive.

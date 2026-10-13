@@ -16,7 +16,6 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * rather than from a pathname stat, so the decision and the write look at the
  * same file. Rewriting the inode is admissible only while exactly one entry
  * names it, because every other name would observe the write.
- 
  *
  * @evidence contracts/common.md#principled-implementation One ordinary single-link file descriptor is verified against pathname generations before truncation, after write/readback and after close.
  * @evidence contracts/common.md#clear-and-simple-design The replacement owner groups positioned writing and resident verification while shared ownership and snapshot helpers define identity.

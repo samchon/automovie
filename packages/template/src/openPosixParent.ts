@@ -86,7 +86,6 @@ export const openPosixParent: (parentPath: string) => IBoundParent = (parentPath
     },
   };
 };
-
 const posixChild: (descriptor: number) => IBoundChild = (descriptor: number): IBoundChild => ({
   close: (): void => fs.closeSync(descriptor),
   read: (

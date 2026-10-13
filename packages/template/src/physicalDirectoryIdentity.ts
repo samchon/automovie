@@ -10,7 +10,6 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
  * the opened directory reports the volume serial, which is also what the
  * native parent handle reports at publication. The inode equality check pins
  * the descriptor to the directory the caller just inspected.
- 
  *
  * @evidence contracts/common.md#principled-implementation A directory opened for reading is fstat'ed and its inode is compared with the earlier lstat before device-and-inode formatting.
  * @evidence contracts/common.md#clear-and-simple-design Descriptor identity extraction has one owner shared by ordinary capture and new-empty-directory qualification.
