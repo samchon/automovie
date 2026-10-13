@@ -8,7 +8,7 @@ import {namedFacts,throwsError} from "../internal/predicates";
  *
  * Scenarios:
  * 1. Authored positive geometry retains its independent topology and dimensional expectations.
- * 2. Every associated invalid row refuses at the same diagnostic beside supported input.
+ * 2. Every associated invalid row refuses at the same diagnostic beside supported input: skinning, a member index past its own vertices, and a member attribute not aligned to its vertices.
  */
 export const test_geometry_procedural_merge=():void=>{
   const plainWall=buildAutoMovieWall({width:2,height:2,depth:.2,openings:[]});
@@ -56,6 +56,26 @@ export const test_geometry_procedural_merge=():void=>{
           { ...nonIndexed, skin: { joints: [], boneIndices: [], weights: [] } },
         ]),
       "procedural rigid-mesh merge does not accept skinning",
+    ],
+    [
+      // Rebasing an index past the member's own vertices would silently point
+      // it at the next member's first vertex.
+      "member index past its own vertices",
+      () =>
+        mergeAutoMovieMeshes([
+          { ...nonIndexed, indices: [0, 1, 3] },
+          nonIndexed,
+        ]),
+      "mesh merge member[0] indexes a vertex the mesh does not carry",
+    ],
+    [
+      "member normals shorter than its vertices",
+      () =>
+        mergeAutoMovieMeshes([
+          nonIndexed,
+          { ...nonIndexed, normals: [0, 0, 1, 0, 0, 1] },
+        ]),
+      "mesh merge member[1] needs one normal per vertex",
     ],
   ];
   for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));

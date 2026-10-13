@@ -62,8 +62,11 @@ const summary = (
  * 7. An empty mesh is not watertight, because no edges is not the same as no
  *    holes.
  * 8. Negative twins: an empty face list, a two-corner face, a non-finite corner, a
- *    collinear face, a reflex face, and a self-intersecting bow-tie face are
- *    each refused, as is a non-planar face.
+ *    collinear face, a reflex face, a self-intersecting bow-tie face, and a
+ *    pentagram that turns twice without a reflex corner are each refused, as is
+ *    a non-planar face.
+ * 9. A convex face whose first corner lies straight on an edge is admitted with
+ *    the normal its other corners give, not refused as enclosing no area.
  */
 export const test_geometry_procedural_topology = (): void => {
   const prism = extrudeAutoMovieProfile({
@@ -360,10 +363,44 @@ export const test_geometry_procedural_topology = (): void => {
       () => buildAutoMoviePolyhedron([[b0, b1, b2, { x: -1, y: 0.5, z: 2 }]]),
       "polyhedron face[0] is not planar",
     ],
+    [
+      // Every corner of a pentagram turns the same way, so the reflex test
+      // passes it; only its total turning of 4 pi tells it from a pentagon.
+      "pentagram face",
+      () =>
+        buildAutoMoviePolyhedron([
+          [0, 2, 4, 1, 3].map((k: number) => ({
+            x: Math.cos(((90 + 72 * k) * Math.PI) / 180),
+            y: 0,
+            z: Math.sin(((90 + 72 * k) * Math.PI) / 180),
+          })),
+        ]),
+      "polyhedron face[0] must be convex",
+    ],
   ];
   for (const [name, callback, message] of refusals)
     TestValidator.predicate(
       `${name} is refused by its own diagnostic`,
       throwsError(callback, message),
     );
+
+  // The first corner sits on the middle of the bottom edge, so its own two
+  // edges are parallel; the square is still convex, planar and one metre wide.
+  const straightFirst = buildAutoMoviePolyhedron([
+    [
+      { x: 0.5, y: 0, z: 0 },
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 0, z: 1 },
+      { x: 1, y: 0, z: 1 },
+      { x: 1, y: 0, z: 0 },
+    ],
+  ]);
+  TestValidator.equals(
+    "a straight first corner is admitted with its face's normal",
+    {
+      triangles: straightFirst.indices!.length / 3,
+      normal: straightFirst.normals!.slice(0, 3),
+    },
+    { triangles: 3, normal: [0, 1, 0] },
+  );
 };

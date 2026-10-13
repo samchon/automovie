@@ -1,5 +1,5 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** A model part holding one triangle from three hand-typed corners. */
@@ -21,7 +21,7 @@ const part = (id: string, corners: number[][]) => ({
   transform: null,
 });
 
-const model = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
+const model = (parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
   id: "crossing",
   name: "crossing",
   origin: "imported",
@@ -72,6 +72,9 @@ const above = [
  * 3. Only the crossing pair appears when a model holds three parts, two of which are clear.
  * 4. Parts whose geometry is not a mesh are skipped rather than refused.
  * 5. A model of one part, or of none, reports nothing.
+ * 6. Parts are measured where their transforms place them: a part authored
+ *    clear but moved through the floor crosses it, and a part authored
+ *    through the floor but moved away does not.
  */
 export const test_geometry_model_crossings = (): void => {
   TestValidator.equals(
@@ -159,5 +162,41 @@ export const test_geometry_model_crossings = (): void => {
         coplanar: 2,
       },
     ],
+  );
+  // `above` spans z 1..2; lowered by 1.5 it spans -0.5..0.5 and its edges
+  // pierce the floor at (0.25, 0.25) and (0.5, 0.25), both inside it.
+  const moved = (
+    id: string,
+    corners: number[][],
+    z: number,
+  ): IAutoMovieModelPart => ({
+    ...part(id, corners),
+    transform: {
+      translation: { x: 0, y: 0, z },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+  });
+  TestValidator.equals(
+    "a part moved through the floor crosses it",
+    measureAutoMovieModelCrossings(
+      model([part("floor", floor), moved("lowered", above, -1.5)]),
+    ),
+    [
+      {
+        part: "floor",
+        other: "lowered",
+        triangles: 1,
+        otherTriangles: 1,
+        coplanar: 0,
+      },
+    ],
+  );
+  TestValidator.equals(
+    "a part moved off the floor no longer crosses it",
+    measureAutoMovieModelCrossings(
+      model([part("floor", floor), moved("raised", blade, 5)]),
+    ),
+    [],
   );
 };

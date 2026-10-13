@@ -1,4 +1,4 @@
-import type { buildAutoMovieMeshQueryHierarchy } from "@automovie/engine";
+import type { IAutoMovieMeshQueryHierarchy } from "@automovie/engine";
 import type { IHumanBodyUnderwearEnvelopeCentre } from "./IHumanBodyUnderwearEnvelopeCentre";
 
 /** Actual immutable envelope centres and one complete posed material triangle. */
@@ -10,7 +10,7 @@ export interface IHumanBodyUnderwearFaceFieldInput {
   centres: readonly IHumanBodyUnderwearEnvelopeCentre[];
 
   /** Existing finite centre hierarchy; it owns no new geometric population. */
-  root: ReturnType<typeof buildAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>>;
+  root: IAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>;
 
   /** One actual qualified centre supplying the complete face distance bound. */
   seed: readonly number[];

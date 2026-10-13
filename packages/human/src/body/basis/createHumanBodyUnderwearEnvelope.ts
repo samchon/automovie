@@ -1,4 +1,7 @@
-import { buildAutoMovieMeshQueryHierarchy } from "@automovie/engine";
+import {
+  type IAutoMovieMeshQueryHierarchy,
+  buildAutoMovieMeshQueryHierarchy,
+} from "@automovie/engine";
 
 import { readHumanBodyUnderwearFaceField } from "./readHumanBodyUnderwearFaceField";
 import type { IHumanBodyUnderwearEnvelopeCentre } from "./IHumanBodyUnderwearEnvelopeCentre";
@@ -6,7 +9,7 @@ import type { IHumanBodyUnderwearEnvelopeCentre } from "./IHumanBodyUnderwearEnv
 import type { IHumanBodyUnderwearEnvelope } from "./IHumanBodyUnderwearEnvelope";
 import type { IHumanBodyUnderwearEnvelopeInput } from "./IHumanBodyUnderwearEnvelopeInput";
 
-type CentreNode = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>>;
+type CentreNode = IAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>;
 
 /**
  * Compile one continuous distance to the qualified exterior ball centres.
