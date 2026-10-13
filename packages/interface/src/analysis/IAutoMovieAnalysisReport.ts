@@ -5,17 +5,21 @@ import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
 /**
  * A bounded verdict over every analysis run of one design revision.
  *
- * The report is O(1) in the size of the production: one row per domain and at
- * most the summarizer's gap bound of listed gaps (the engine's
- * `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`, 16, unless the caller passes another
- * positive bound), with the remainder counted rather than dropped. Bounding it
- * without saying so would be a lie, so {@link omittedGaps} is always stated.
+ * The report has one row per domain and at most the summarizer's gap bound of
+ * listed gaps (the engine's `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`, 16, unless
+ * the caller passes another positive bound), so its size does not grow with the
+ * number of runs. Gaps past the bound are counted in {@link omittedGaps}, which
+ * is always stated.
  *
- * {@link status} can never be cleared by silence. A required domain nobody
- * answered, a run that read a superseded revision, and a metric no adapter
- * could produce all land in {@link gaps} and force `incomplete`, and a report
- * must declare at least one required domain to exist at all.
+ * Silence never clears {@link status}. A required domain nobody answered, a run
+ * that read a superseded revision, and a metric no adapter could produce all
+ * land in {@link gaps} and force `incomplete`, and the summarizer refuses to
+ * build a report that requires no domain.
  *
+ * @evidence contracts/common.md#principled-implementation `summarizeAutoMovieAnalysis` validates every run, folds them into the six fixed domain rows, and sets status by precedence: a missed metric of a current solved run gives `misses`, else any gap gives `incomplete`, else `meets`; the digest is SHA-256 over a newline-joined canonical text of the listed fields.
+ * @evidence contracts/common.md#clear-and-simple-design Fixed rollup rows plus a bounded gap list and an omitted count keep the artifact readable at a glance, and the digest field seals it without a separate signature record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refused runs, stale runs, value-less metrics and unanswered required domains all become gaps, a miss outranks gaps by design, and truncation is never silent because the omitted count is digested; omitted gap text is not covered, which the digest member states.
+ * @evidence contracts/common.md#meaningful-documentation States the status precedence and exact meaning of `meets`, the gap bound and its default, gap ordering, the omitted count, the non-blank revision, and which fields the digest covers.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisReport {
@@ -26,13 +30,13 @@ export interface IAutoMovieAnalysisReport {
   protocol: "automovie.analysis-report.v1";
 
   /**
-   * Worst outcome: `misses` when any measured metric violates its declared
-   * target, otherwise `incomplete` when anything is missing or stale, otherwise
-   * `meets`.
+   * Worst outcome: `misses` when any metric of a current-revision run violates
+   * its declared target, otherwise `incomplete` when anything is missing or
+   * stale, otherwise `meets`.
    *
-   * `meets` means exactly "every required domain answered against this
-   * revision, every metric produced a value, and every declared target was
-   * satisfied". It never means "nothing objected".
+   * `meets` means exactly "every submitted run solved against this revision,
+   * every required domain has a run, every metric produced a value, and every
+   * declared target was satisfied". It never means "nothing objected".
    */
   status: "meets" | "misses" | "incomplete";
 
@@ -48,7 +52,7 @@ export interface IAutoMovieAnalysisReport {
    */
   gaps: IAutoMovieAnalysisGap[];
 
-  /** Gaps the bound left out. */
+  /** Gaps the bound left out; zero when every gap is listed. */
   omittedGaps: number;
 
   /**

@@ -5,14 +5,18 @@ import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
 
 /**
  * One analysis run: what was asked, of which design revision, by which solver,
- * and what honestly came back.
+ * and what came back.
  *
- * {@link inputRevision} is what makes a result perishable. A run that read
- * revision `r7` is evidence about `r7` and about nothing else, so a report
- * assembled at `r8` reports it as stale rather than counting it as an answer.
- * {@link digest} seals the whole record, so an artifact whose outcome was edited
- * after the fact fails validation instead of passing as a measurement.
+ * {@link inputRevision} makes a result perishable. A run that read revision
+ * `r7` is evidence about `r7` only, so a report assembled at `r8` counts it as
+ * stale rather than as an answer. {@link digest} seals the record, so a run
+ * whose outcome was edited after sealing fails validation instead of passing as
+ * a measurement.
  *
+ * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text and the record, then runs `validateAutoMovieAnalysisRun` and throws on the first violation; the validator recomputes the digest, so the stored seal is checked against the same canonical text that produced it.
+ * @evidence contracts/common.md#clear-and-simple-design The settings are stored only as a digest because a run must prove what it was configured with, not replay it; the solver and outcome stay nested records the digest reads in fixed order.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical digest text joins header fields with unescaped newlines and solver fields with `|`, so moving either character across a field boundary keeps the digest; `autoMovieAnalysisRunDigest` documents this remaining limitation and validation does not forbid the characters.
+ * @evidence contracts/common.md#meaningful-documentation States why the input revision makes a result stale, what the digest seals and that validation recomputes it, the digest text form, and the id uniqueness a report enforces.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisRun {
@@ -22,7 +26,7 @@ export interface IAutoMovieAnalysisRun {
   /** Versioned run protocol. */
   protocol: "automovie.analysis-run.v1";
 
-  /** Stable run identity; a report refuses two runs with the same id. */
+  /** Non-blank stable run identity; a report refuses two runs with one id. */
   id: string;
 
   /** Domain this run answers for. */
@@ -46,7 +50,7 @@ export interface IAutoMovieAnalysisRun {
    */
   settings: AutoMovieContentDigest;
 
-  /** Honest outcome. */
+  /** What the run produced, or why it produced nothing. */
   outcome: IAutoMovieAnalysisOutcome;
 
   /**

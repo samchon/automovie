@@ -5,16 +5,21 @@ import { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
 /**
  * What one analysis run actually produced.
  *
- * Three arms, and only the first one may carry results. `unsupported` means the
- * host has no adapter for what was asked; `not-run` means an adapter exists but
- * its input was not supplied. Both carry a reason and a remedy and structurally
- * have nowhere to put a metric, a sample or a warning, so an absent analysis
- * cannot be dressed as a clean one by any amount of field-filling.
+ * Only the `solved` arm may carry results. `unsupported` means the host has no
+ * adapter for what was asked; `not-run` means an adapter exists but its input
+ * was not supplied. Both carry a reason and a remedy and have no field for a
+ * metric, a sample or a warning, so an absent analysis cannot be dressed as a
+ * clean one.
  *
- * This is the same three-arm shape the design-observation contract uses, with
- * `observed` renamed to `solved`: a thermal solver computes, it does not
- * observe, and the two negative arms deliberately keep their exact spelling so
- * one project has one vocabulary for "we did not look".
+ * The shape matches `IAutoMovieDesignAnalysisOutcome` with `observed` renamed
+ * to `solved`, because a solver computes rather than observes; the two
+ * negative arms keep the same spelling in both contracts.
+ *
+ * @evidence contracts/common.md#principled-implementation A discriminated union on `status` makes results structurally unreachable on the two negative arms; `validateAutoMovieAnalysisRun` additionally requires at least one metric with unique keys, at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` samples keyed to measured metrics, and non-blank reason and remedy.
+ * @evidence contracts/common.md#clear-and-simple-design Three inline arms with no shared base type, since the negative arms share only two strings and the run digest serializes them as one reason-remedy pair.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty `solved` result is refused rather than accepted as a pass, and the validator reports an unknown status instead of treating it as one of the known arms.
+ * @evidence contracts/common.md#meaningful-documentation Gives what each arm means, which arm may hold results, the metric, sample and warning bounds of a solved run, and the relation to the design-observation outcome.
+ * @author Samchon
  */
 export type IAutoMovieAnalysisOutcome =
   | {

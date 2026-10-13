@@ -4,10 +4,16 @@
  * The list is closed because the report rolls up by domain and a rollup over an
  * open vocabulary silently loses whatever it has never heard of. Naming a
  * domain here is not a claim that it is solved: a domain with no adapter is
- * answered by an `unsupported` run, which is the point of the vocabulary.
+ * answered by an `unsupported` run.
  *
- * The order reports roll up in is the engine's `AUTOMOVIE_ANALYSIS_DOMAINS`
+ * Reports roll up in the order of the engine's `AUTOMOVIE_ANALYSIS_DOMAINS`
  * table, not the member order of this union.
+ *
+ * @evidence contracts/common.md#principled-implementation A closed string union mirrored by the engine's `AUTOMOVIE_ANALYSIS_DOMAINS` table, which `isAutoMovieAnalysisDomain` checks so run validation refuses an unknown domain and the summarizer throws on one it is asked to require.
+ * @evidence contracts/common.md#clear-and-simple-design Plain literals with no per-domain metadata; ordering and the guard live in the engine table, keeping this package free of runtime values.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsolved domains such as `moisture` are listed without an adapter claim; a request with no adapter must come back as an `unsupported` run, never as a solved one.
+ * @evidence contracts/common.md#meaningful-documentation States why the list is closed, that membership does not imply an adapter exists, and which table fixes the rollup order.
+ * @author Samchon
  */
 export type AutoMovieAnalysisDomain =
   | "daylight"

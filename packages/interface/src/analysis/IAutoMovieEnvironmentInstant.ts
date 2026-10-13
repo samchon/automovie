@@ -3,14 +3,19 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One moment of sun and sky, exactly as the production declares it.
  *
- * The sun direction is an input, not a computation. A repository that derived
- * it from a place and a calendar would be shipping named locations and climate
- * data as content; what the product owes is the contract and the solvers, so a
+ * The sun direction is an input, not a computation. Deriving it from a place
+ * and a calendar would ship named locations and climate data as content, so a
  * production states the direction and the illuminance it wants answered and
  * keeps its own sources.
+ *
+ * @evidence contracts/common.md#principled-implementation Declared sun direction and illuminances that `validateAutoMovieEnvironmentContext` checks: finite non-zero sun, non-negative finite illuminances, null or finite temperature, null or `[0, 1]` humidity, and a zero direct beam whenever the normalized sun has a non-positive dot product with the ground's up.
+ * @evidence contracts/common.md#clear-and-simple-design Scalar fields for the sun, sky and outdoor air quantities the daylight and envelope solvers read, nullable where a study does not need them; `outdoorRelativeHumidity` has no consumer yet, a field ahead of its reader that stays because interface core types change only on request.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No solar position algorithm or weather default exists; an instant without outdoor air temperature makes the envelope study return `not-run` instead of assuming a value, and the unread humidity field is stated as unread.
+ * @evidence contracts/common.md#meaningful-documentation States why the sun is declared, the units and ranges of every quantity, the horizon rule and its reference, the null meaning of both outdoor fields, and which solver reads which field.
+ * @author Samchon
  */
 export interface IAutoMovieEnvironmentInstant {
-  /** Stable instant identity, unique within the context. */
+  /** Non-blank stable instant identity, unique within the context. */
   id: string;
 
   /**
@@ -21,7 +26,7 @@ export interface IAutoMovieEnvironmentInstant {
   /** Ordering key in seconds from the production's own epoch; finite. */
   time: number;
 
-  /** World direction from the site toward the sun; non-zero. */
+  /** World direction from the site toward the sun; finite and non-zero. */
   sun: IAutoMovieVector3;
 
   /**
