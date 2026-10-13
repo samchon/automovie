@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./math/*": "./src/math/*.ts",
+    "./validation/constants/SHA256_DIGEST_PATTERN": "./src/validation/constants/SHA256_DIGEST_PATTERN.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -41,6 +42,10 @@
       "./math/*": {
         "types": "./lib/math/*.d.ts",
         "default": "./lib/math/*.js"
+      },
+      "./validation/constants/SHA256_DIGEST_PATTERN": {
+        "types": "./lib/validation/constants/SHA256_DIGEST_PATTERN.d.ts",
+        "default": "./lib/validation/constants/SHA256_DIGEST_PATTERN.js"
       },
       "./package.json": "./package.json"
     }

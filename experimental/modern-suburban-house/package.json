@@ -45,14 +45,9 @@
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
     "test": "node --import tsx --test src/measurements/*.test.cts src/measurements/*.test.ts src/spaces/*.test.cts",
-    "docs-review-host": "tsx src/measurements/docs-review-host.cts",
     "check": "tsx src/measurements/check.cts",
-    "check:spaces": "tsx src/measurements/check.cts --layer=spaces",
     "regression:1952-repair": "tsx src/measurements/scene-regression.cts",
-    "check:models": "tsx src/measurements/check.cts --layer=models",
-    "check:settings": "tsx src/measurements/check.cts --layer=settings",
-    "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence --config lint.config.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

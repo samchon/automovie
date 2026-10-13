@@ -576,6 +576,9 @@ importers:
 
   packages/ingest:
     dependencies:
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../engine
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
@@ -885,6 +888,9 @@ importers:
       three:
         specifier: catalog:three
         version: 0.186.0
+      typescript-compiler:
+        specifier: npm:typescript@5.9.3
+        version: typescript@5.9.3
       vite:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.19.20)

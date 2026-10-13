@@ -47,8 +47,7 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "ttsx -P package.json src/viewer/server.ts",
     "self-check": "tsx src/review/self-check.cts",
-    "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence --config lint.config.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

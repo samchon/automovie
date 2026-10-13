@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@gltf-transform/core": "catalog:gltf"
   },

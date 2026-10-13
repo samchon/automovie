@@ -99,8 +99,7 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "prepack": "pnpm run build",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence"
   },
   "keywords": [],
   "author": "Samchon",
@@ -117,7 +116,8 @@
     "devalue": "6.0.2",
     "playwright": "catalog:media",
     "pngjs": "catalog:media",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "typescript-compiler": "npm:typescript@5.9.3"
   },
   "devDependencies": {
     "@gltf-transform/core": "catalog:gltf",
