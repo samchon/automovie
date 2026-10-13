@@ -7,10 +7,6 @@ import type { HumanObservationView } from "@automovie/viewer/human/common/observ
  * Frame centres and radii use the displayed model's metres. Reference images
  * are optional local display resources and never enter model cache identities.
  *
- * @evidence contracts/common.md#principled-implementation A finite display record keeps model selection distinct from camera and material selection.
- * @evidence contracts/common.md#clear-and-simple-design One address representation serves both browser navigation and capture requests.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Document identities are data supplied by the catalogue, without subject-specific behavior.
- * @evidence contracts/common.md#meaningful-documentation Documents display ownership and metre-based framing independently of anatomical inputs.
  * @author Samchon
  */
 export interface HumanViewerAddress {

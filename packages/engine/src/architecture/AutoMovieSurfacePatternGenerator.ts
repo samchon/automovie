@@ -21,11 +21,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * positive size, every corner within `reach` of the cell origin) and the run
  * throws on the first one that fails.
  *
- * @evidence contracts/common.md#principled-implementation A caller-supplied pure function from one lattice cell to module candidates; the engine enumerates cells over the region bounds widened by `reach` and divided by `period`, so every cell whose modules could touch the region is called exactly once.
- * @evidence contracts/common.md#clear-and-simple-design One function type is the whole extension point, so square, running bond, herringbone and invented layouts need no engine preset, option or bond enum.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Purity is a premise the engine cannot check, so an impure generator would break determinism silently; what it does check is each candidate's id, finiteness, size and reach, throwing on the first violation.
- * @evidence contracts/common.md#meaningful-documentation States the call order, the cell bound, each cell field with its units, the purity requirement, and which candidate faults are refused.
- * @evidenceExclude contracts/performance.md#cost-and-resources A function signature with no body; the engine calls it once per lattice cell, capped at one million cells per zone, never memoizes a cell, and keeps none of the returned arrays after copying centre and size into placements.
  * @author Samchon
  */
 export type AutoMovieSurfacePatternGenerator = (cell: {

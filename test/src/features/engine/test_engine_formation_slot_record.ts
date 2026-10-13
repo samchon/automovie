@@ -7,7 +7,6 @@ const UNIT = { id: "levy", modelRecipe: "member", facingDeg: 30, seed: 42 };
 const AT = { x: 1, y: 2.5, z: -3 };
 
 /**
- *
  * One formation slot regenerates to the member record its identity law names.
  *
  * The node, actor, recipe, heading and position are each computed here from the
@@ -25,10 +24,6 @@ const AT = { x: 1, y: 2.5, z: -3 };
  * 4. The phase follows the slot and the seed: the neighbouring slot and another
  *    seed draw different phases, while another actor, position, recipe or heading
  *    at the same slot and seed leaves it unchanged, and it lies in [0, 1).
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `formationSlotRecord` for anonymous and hero members and asserts the whole record and the phase relations; it catches a hero named by its slot instead of its actor, an anonymous node padded to the wrong width or truncated past six digits, a recipe, heading or position not carried through, a phase that changes between calls, differs between hero and anonymous spellings of one slot, ignores the slot or seed, or is perturbed by actor, position, recipe or heading.
- * @evidence contracts/testing.md#independent-expectations Node strings, recipe, heading and position are written from the record law in `formationSlotRecord`'s doc comment and the literal inputs; the phase is never compared to a value computed with the kernel's seeding domain, only to itself across calls and inputs and to the [0, 1) range of a normalized phase, so a wrong but stable domain constant would pass and is out of this oracle's reach.
- * @evidence contracts/testing.md#distinguishing-cases Anonymous and hero spellings of slot 7, slot 0 for padding and slot 1,234,567 as the first width past six digits, neighbour slot 8 and seed 43 as the inputs that must move the phase, and a changed recipe, heading, actor and position as the inputs that must not; agreement of design and compiled regenerators belongs to test_engine_compiled_formation_slot.
  */
 export const test_engine_formation_slot_record = (): void => {
   const phase = formationSlotRecord(UNIT, 7, {

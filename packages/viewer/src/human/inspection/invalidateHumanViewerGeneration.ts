@@ -10,11 +10,6 @@ import type { IHumanViewerModuleNode } from "./IHumanViewerModuleNode.js";
  * prevents Vite from caching their obsolete result for subsequent requests.
  *
  * This operation withdraws compile and served-source authority; numerical output-byte integrity remains with its separate owner.
- *
- * @evidence contracts/common.md#principled-implementation Invalidates the whole runtime transform population whose generated schemas share the compiler generation.
- * @evidence contracts/common.md#clear-and-simple-design One ordered operation withdraws compiler authority before served module authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Injects supported graph invalidation rather than deleting foreign cache entries.
- * @evidence contracts/common.md#meaningful-documentation Explains type-only dependency reach and in-flight snapshot ownership.
  */
 export function invalidateHumanViewerGeneration<
   Module extends IHumanViewerModuleNode,

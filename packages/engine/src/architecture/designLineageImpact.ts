@@ -24,11 +24,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * @param lineage Lineage whose `derived` inputs define the edges.
  * @param changed Subject or derived-artifact ids that changed.
  * @returns The changed ids, the derived artifacts they reach, and every other derived artifact.
- * @evidence contracts/common.md#principled-implementation Inverts the declared `inputs` into a dependents index and runs a breadth-first reachability walk from the changed ids with a visited set; validation guarantees the derivation graph is acyclic, though the visited set would also stop a cycle.
- * @evidence contracts/common.md#clear-and-simple-design Builds the reverse index locally from `derived` instead of storing reverse edges on the record, so the lineage keeps one direction of truth; the `requireValidLineage` helper is a verbatim copy shared with sibling lineage files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown changed id is refused rather than ignored, and no artifact kind is special-cased; reachability follows declared inputs only, so an input the author forgot to declare is invisible to impact.
- * @evidence contracts/common.md#meaningful-documentation Gives the walk direction, the complement returned beside the invalidated set, sorting and deduplication, that a changed artifact invalidates itself, and the refusals.
- * @evidence contracts/performance.md#cost-and-resources Meant to be O(V + E) over identities and declared input edges after one full validation, but `queue.shift()` costs O(queue) per pop and the dependents index grows by array spread per input, so a large fan-in is quadratic, both needless; no index is cached across change sets and all of them are released on return.
  */
 export const designLineageImpact = (
   lineage: IAutoMovieDesignLineage,

@@ -17,10 +17,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * creature poses with no directed target (a cat's stretch/sit, a tail flick)
  * are a `hold` plus an `emote`.
  *
- * @evidence contracts/common.md#principled-implementation A closed string-literal union, so parallel generations converge on one spelling per family and `note` carries the specialization; the reference synthesizer dispatches on the kind alone, with no per-rig variant of any family.
- * @evidence contracts/common.md#clear-and-simple-design One flat list commented as humanoid, creature and escape groups rather than per-species enums, because every actor shares the humanoid bone vocabulary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `guard`, `rear`, `buck`, `paw` and `custom` return `null` from the reference synthesizer, and `compilePerformance` skips a null clip without a violation, so such a gesture compiles successfully having performed nothing.
- * @evidence contracts/common.md#meaningful-documentation States why the set is closed, how `note` refines it, which kinds the reference synthesizer animates, which need a rig and target, and which currently produce no motion.
  * @author Samchon
  */
 export type AutoMovieGestureKind =

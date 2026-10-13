@@ -8,11 +8,6 @@ import type { planHumanViewerSheet } from "./planHumanViewerSheet.js";
  * canvas. The injected capture operation owns GPU admission; this owner checks
  * that the source revision stays unchanged across the complete sheet. It
  * returns PNG bytes and writes no file or reference-photo layer.
- *
- * @evidence contracts/common.md#principled-implementation Serial cell capture and a final revision comparison prevent a sheet from mixing source generations.
- * @evidence contracts/common.md#clear-and-simple-design Sheet composition has explicit capture, revision and browser inputs instead of server-global ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Composes the actual captured cells and authored axis labels without fixture or subject recognition.
- * @evidence contracts/common.md#meaningful-documentation Defines GPU admission ownership, matrix ordering and the no-file-write boundary.
  */
 export async function renderHumanViewerSheet(props: {
   page: Page;

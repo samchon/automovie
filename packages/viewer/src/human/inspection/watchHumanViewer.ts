@@ -12,11 +12,6 @@ import { launchHumanViewerServer } from "./launchHumanViewerServer.js";
  * exited. Slow or unanswered probes never kill a process. The watcher owns
  * the started server as a child, so
  * stopping the watcher stops it. It never returns.
- *
- * @evidence contracts/common.md#principled-implementation Ownership of the child process, not the record file, decides every kill.
- * @evidence contracts/common.md#clear-and-simple-design One watcher delegates its probe, restart predicate and owned-child launch instead of maintaining a second source or graphics service.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Starts only on actual refused-port and ended-own-child conditions; slow probes or elapsed polling time never terminate an answering process.
- * @evidence contracts/common.md#meaningful-documentation States the start and ownership rules without a silence deadline.
  */
 export async function watchHumanViewer(
   context: IHumanShotContext,

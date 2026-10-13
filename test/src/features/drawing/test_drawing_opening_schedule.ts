@@ -25,7 +25,6 @@ import {
 } from "../internal/predicates";
 
 /**
- *
  * A door schedule is the plan counted, so the two cannot disagree about how
  * many doors the building has.
  *
@@ -55,10 +54,6 @@ import {
  *    clockwise or counter-clockwise, and a concave outline is ear-clipped
  *    rather than fanned.
  * 8. An invalid design is refused before anything is scheduled.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieDrawingSchedule` for openings and connectors, `deriveAutoMovieDrawing`, and the exported void and face helpers (`autoMovieOpeningExtent`, `autoMovieOpeningArea`, `autoMovieOpeningOutlinePoints`, `autoMovieOpeningHasArc`, `autoMovieOpeningFillExtent`, `autoMovieBoundaryShellTriangles`, `autoMovieBoundaryFacePoint`, `triangulateAutoMoviePolygon`), asserting whole schedule rows, totals, gaps, digests, chord counts, areas and triangle counts; it catches a schedule that drifts from the plan's openings, a leaf's size printed as a void's, a zero printed for an unmeasured type, marks that depend on authoring order, a member list that grows without bound, a ramp scheduled at its widest section, an arc area taken from its chords, a clockwise face that loses its caps, and a concave outline fanned outside itself.
- * @evidence contracts/testing.md#independent-expectations Sizes are fixture arithmetic (0.9 x 2.1 = 1.89 m2, two half-turn bulges of chord 0.6 making a 0.3 m circle of area 0.09 pi, the ramp's narrowest 1.2 and lowest 2.2 sections, a 2 x 2 face extruded 0.5 m into 4 x 2 side plus 2 x 2 cap triangles, the L-shape's 5 m2 against a fan's 9 and its n - 2 = 4 triangles); 32 chords follow from the published pi / 16 arc step over two half-turns, eleven ports against the row's published member bound of eight must list eight, starting at `port-00`, and count three omitted, with the bound written as a literal so a changed cap fails here, and the mark order is the model, width, height, basis rule the scenario states.
- * @evidence contracts/testing.md#distinguishing-cases Positive profile, fill and unmeasured bases, including a leaf whose model is runtime-only and one with no triangles; eleven ports over the member bound; five extra doors and a lit vent separating every ordering tier; reversed authoring order and a repeat run compared by digest; constant and sampled connector sections; straight, shallow-bulge, zero-length-edge, zero-bulge and right-bulging outlines; both windings, a triangle, a square, a two-corner refusal and a concave L; an invalid unit refused; room rows are owned by the space-schedule test and the plan's own opening marks by the sheet-set test.
  */
 export const test_drawing_opening_schedule = (): void => {
   const environment = drawingEnvironment();

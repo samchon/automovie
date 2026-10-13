@@ -16,10 +16,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * skipped. A target at the owner's own position gives no direction, and the
  * owner then turns toward the identity world rotation.
  *
- * @evidence contracts/common.md#principled-implementation Two-step aim constraint: `rotationBetween` gives the atan2-based shortest arc from the normalized `aimAxis` to the target direction, then a roll about that direction aligns the projected `upAxis` with the projected `worldUp`; the roll is skipped below a 1e-8 projection length, and a target coinciding with the owner is an unresolved degenerate case that yields the identity rotation.
- * @evidence contracts/common.md#clear-and-simple-design The fields are exactly what `applyAim` reads: owner, target, the aim and up axes in the owner frame, the world up reference and the blend; the up pair stays on the driver because the roll about the aim direction is otherwise undefined.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No owner or target id is special-cased; the only compensations are the parallel-roll skip and the finite, non-zero axis checks in `validateAimVector`, both grounded in the aim math having no answer there.
- * @evidence contracts/common.md#meaningful-documentation States the pass the aim runs in, the two-step rotation, what the blend keeps, that limits never clamp it, the degenerate cases and the throwing inputs, and gives each axis its frame.
  * @author Samchon
  */
 export interface IAutoMovieAimDriver {

@@ -10,11 +10,6 @@ import type { HumanViewerControlPlan } from "./HumanViewerControlPlan.js";
  * all refused and never killed. The module has no imports and uses only syntax
  * Node strips, so the control script that applies it starts without the
  * project type check that `ttsx` performs.
- *
- * @evidence contracts/common.md#principled-implementation Ownership is proven by equality of the recorded pid and the pid the live server reports.
- * @evidence contracts/common.md#clear-and-simple-design One pure decision serves the node-strippable control script.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No process is selected by name and no pid comes from anywhere but the record.
- * @evidence contracts/common.md#meaningful-documentation States ownership, refusal reasons and why the module has no imports.
  */
 export function planHumanViewerControl(
   command: "status" | "stop",

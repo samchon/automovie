@@ -32,12 +32,6 @@ const unitPlane = (plane: {
  * Planes are normalized first, a plane whose normal is shorter than
  * `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, and corners closer than that
  * tolerance are merged. Points are world-space and unordered.
- *
- * @evidence contracts/common.md#principled-implementation Solves every triple of normalized planes by Cramer's rule with determinant `a · (b x c)`, skips near-singular triples, keeps a point every plane admits within `AUTOMOVIE_OBSERVATION_EPSILON`, and merges duplicates where several planes meet at one corner.
- * @evidence contracts/common.md#clear-and-simple-design One exported solver with a private plane normalizer, shared by the volume-bounds and observation-station queries; `describeAutoMovieSubject` and `describeAutoMovieSubjects` still carry their own triple-intersection solver with a different tolerance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No plane count or axis alignment is special-cased; dropping degenerate normals and merging coincident corners are the only compensations, both decided by the one observation tolerance.
- * @evidence contracts/common.md#meaningful-documentation States why a cell needs solving, the triple-intersection method, the membership rule, the tolerance used for degenerate planes and duplicates, the frame, and that an unbounded cell returns fewer points.
- * @evidence contracts/performance.md#cost-and-resources Cubic in plane count for the triples, and each candidate adds a linear admission test and a linear duplicate scan over corners found so far, `O(P^4)` worst case on a cell of a handful of planes; results are not cached, so `builtSpaceObservationStations` can solve one cell twice.
  */
 export const builtConvexCellVertices = (
   cell: IAutoMovieConvexSpaceCell,

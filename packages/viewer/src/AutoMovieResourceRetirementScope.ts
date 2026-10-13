@@ -10,11 +10,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * issuing a second attempt. Settlement reports the stored causes; it neither
  * retries failed physical retirement nor authorizes replacing a borrowed GPU
  * context. Preview preparation uses it before allocating another cache.
- *
- * @evidence contracts/common.md#principled-implementation Pending and failed records retain actual release functions and causes until successful retirement; admission and close enforce one owned lifetime.
- * @evidence contracts/common.md#clear-and-simple-design One scope owns allocation admission, withdrawal and failed-retirement retention for both preview renderers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure remains explicit instead of retrying unknown native releases, guessing allocation state or ending borrowed contexts.
- * @evidence contracts/common.md#meaningful-documentation States registration timing, settlement, sticky failure and the physical lifetime boundary.
  */
 export class AutoMovieResourceRetirementScope {
   private closed = false;

@@ -13,11 +13,6 @@ import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail.js";
  * built. Each document is its own queue entry: a request in a higher lane
  * starts as soon as the one running finishes. A new source revision ends the
  * pass; a checked source generation may start a subsequent warm pass.
- *
- * @evidence contracts/common.md#principled-implementation The thumbnail key is the document's own render query, so warming and serving share one cache.
- * @evidence contracts/common.md#clear-and-simple-design One function binds the server's disk, capture and queue to the warm pass.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses ordinary capture addresses and the bulk lane without fixture-specific rendering, weaker admission or time-based cancellation of active work.
- * @evidence contracts/common.md#meaningful-documentation States priority, yielding and withdrawal.
  */
 export async function warmHumanViewerRevision(
   props: IWarmHumanViewerRevisionProps,

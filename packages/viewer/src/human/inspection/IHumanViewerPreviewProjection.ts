@@ -3,12 +3,6 @@
  * numerical readings. Display and photograph data are not members, so they
  * cannot reach the disk through this projection.
  *
- * @evidence contracts/common.md#principled-implementation An explicit member list keeps display metadata out of persistence.
- * @evidence contracts/common.md#meaningful-documentation Names every persisted member.
- *
- * @evidence contracts/common.md#clear-and-simple-design The projection lists numerical model and readings explicitly instead of persisting arbitrary result members.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Display state and photographs have no fields in the disk projection, and construction is not converted into preview.
- *
  * @author Samchon
  */
 export interface IHumanViewerPreviewProjection {

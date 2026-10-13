@@ -15,11 +15,6 @@ import type { IHumanViewerWorkerHeap } from "./IHumanViewerWorkerHeap.js";
  * vanishes while being read (its session detaches or its target is
  * destroyed) ends that read and is left out; no read waits on a worker that
  * can no longer answer.
- *
- * @evidence contracts/common.md#principled-implementation Each worker isolate reports its own heap through the protocol, the same accounting the page reading uses.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns attaching, asking and detaching for every worker.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses supported CDP worker targets and actual isolate replies, leaving lost targets unread rather than estimating their heap or sampling unrelated Node processes.
- * @evidence contracts/common.md#meaningful-documentation States the transport, the collection option and the vanished case.
  */
 export async function readHumanViewerWorkerHeaps(
   browser: Browser,

@@ -7,12 +7,6 @@ import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
  * taken. Readings are taken at each work-stage transition the page reports,
  * so a transient allocation inside one stage can exceed the recorded peak.
  *
- * @evidence contracts/common.md#principled-implementation Reports measured heap use beside the work stage instead of inferring memory from counts.
- * @evidence contracts/common.md#meaningful-documentation States when readings are taken and what they can miss.
- *
- * @evidence contracts/common.md#clear-and-simple-design Last reading, peak, sample count and unavailable cause express measured heap telemetry and its gaps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or failed reads remain null with their cause rather than becoming zero-byte success.
- *
  * @author Samchon
  */
 export interface IHumanViewerHeap {

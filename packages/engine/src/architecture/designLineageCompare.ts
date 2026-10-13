@@ -28,11 +28,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * @param left Id of the variant reported on the `left` side.
  * @param right Id of the variant reported on the `right` side.
  * @returns The shared revision, both ids, the untouched subjects, and every differing (subject, aspect) pair.
- * @evidence contracts/common.md#principled-implementation Keys each change by a length-prefixed (subject, aspect) record so authored text cannot forge a separator, walks the union of both key sets, and reports keys whose values differ; validation allows one change per key per variant, so neither map loses an entry.
- * @evidence contracts/common.md#clear-and-simple-design Validation, variant lookup and the base refusal precede a two-map comparison; `requireValidLineage` is copied verbatim into five sibling lineage files and `record` into three more, so the refusal wording or key encoding has to be changed in every copy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Values are compared by exact string equality, so two spellings of one value read as a difference; no variant, subject or aspect is special-cased, and differing bases are refused rather than diffed.
- * @evidence contracts/common.md#meaningful-documentation Documents what a null side means, the code-unit ordering, what `common` contains, and the three conditions that throw.
- * @evidence contracts/performance.md#cost-and-resources A full `validateDesignLineage` pass dominates each call, then O(C log C) over the two variants' C changes and O(S log S) over S subjects for `common`; there is no cache, so `designLineageDecisionComparisons`, having validated already, pays one more validation per option pair, and the maps and sets built here are released on return.
  */
 export const designLineageCompare = (
   lineage: IAutoMovieDesignLineage,

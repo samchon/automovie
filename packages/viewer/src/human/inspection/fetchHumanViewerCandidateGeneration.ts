@@ -16,10 +16,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * their source partitions and geometry. Neither view is reduced or inserted
  * into the personal numerical document; this changes transport only.
  *
- * @evidence contracts/common.md#principled-implementation The existing typed head/body view decomposition preserves the generation while bounding each decoded JSON string to one view.
- * @evidence contracts/common.md#clear-and-simple-design Two sequential verified reads return the tuple the product runtime already joins.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Both actual file digests are requested and the product owner retains full schema, generation and physical admission.
- * @evidence contracts/common.md#meaningful-documentation States token ownership, individual decoding and unchanged personal input meaning.
  * @author Samchon
  */
 export async function fetchHumanViewerCandidateGeneration(

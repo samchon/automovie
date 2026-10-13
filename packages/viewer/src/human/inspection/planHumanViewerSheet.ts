@@ -8,11 +8,6 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
  * Subjects and body states resolve against the supplied published identities;
  * mesh admission belongs to the display hook that receives the resulting cell.
  * The bounded product prevents accidental unbounded captures on a resident GPU.
- *
- * @evidence contracts/common.md#principled-implementation Repeated flatMap forms the ordered Cartesian product, preserving each axis choice in its label.
- * @evidence contracts/common.md#clear-and-simple-design Pure planning precedes rendering; the same address parser owns field admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves subjects from the actual inventory rather than a second subject list.
- * @evidence contracts/common.md#meaningful-documentation States axis order, mesh admission and the capture population limit.
  */
 export function planHumanViewerSheet(
   base: HumanViewerAddress,

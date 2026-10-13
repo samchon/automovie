@@ -12,10 +12,6 @@ import { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
  * stylized/toon path and `acesFilmic` for the photoreal path; `pixelFormat` is
  * pinned for player compatibility and reproducibility.
  *
- * @evidence contracts/common.md#principled-implementation Separates delivery from content so one shot renders at draft or final settings; `ffmpegArgs` passes `pixelFormat`, `crf`, fps and size to libx264, and `planSequenceRender` throws when `target` differs from the sequence id.
- * @evidence contracts/common.md#clear-and-simple-design `codec` and `pixelFormat` are single-literal types that pin the one encoder path `ffmpegArgs` implements while keeping the choice visible in every spec value.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `crf` reaches ffmpeg with no range or integer check anywhere in the repository, so an out-of-range value fails only inside the encoder; `toneMapping` is a default that a scene `environment` overrides.
- * @evidence contracts/common.md#meaningful-documentation Documents the frame-count formula, scene-over-spec precedence for tone mapping, that structural passes bypass tone mapping, the CRF scale, and that `crf` is unvalidated.
  * @author Samchon
  */
 export interface IAutoMovieRenderSpec {

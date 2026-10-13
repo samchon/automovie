@@ -8,11 +8,6 @@
  * applied, so every module a loading candidate asks for comes from the
  * compile it started on; the last hold's release applies the recorded
  * withdrawal at once, and the next candidate loads the next compile.
- *
- * @evidence contracts/common.md#principled-implementation A loading candidate sees one compile, so every candidate finishes; edits during the hold reach the next compile.
- * @evidence contracts/common.md#clear-and-simple-design One owner counts holds and the recorded withdrawal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Records actual compile withdrawal until the last loading hold ends, without editing source or expiring a valid candidate by age.
- * @evidence contracts/common.md#meaningful-documentation States why withdrawal is held and when it is applied.
  */
 export function createHumanViewerCompileGate() {
   let holds = 0;

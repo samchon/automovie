@@ -1,11 +1,6 @@
 /**
  * One owned Node session, retired when its event transport closes.
  *
- * @evidence contracts/common.md#principled-implementation An opaque owned-session token correlates subsequent posts with the numerical event transport.
- * @evidence contracts/common.md#clear-and-simple-design The opened envelope contains only its discriminant and session correlation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The host generates the session token rather than deriving process ownership from a document id.
- * @evidence contracts/common.md#meaningful-documentation The session belongs to one event transport and is retired when that connection closes.
- *
  * @author Samchon
  */
 export interface IHumanViewerNumericalOpened {

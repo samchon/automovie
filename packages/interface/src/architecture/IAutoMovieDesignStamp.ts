@@ -12,10 +12,6 @@ import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
  * revision, and an artifact computed from another artifact must carry the same
  * stamp as its input.
  *
- * @evidence contracts/common.md#principled-implementation Identifies a view by revision, variant, phase, and configuration digest; `validateDesignLineage` requires the revision to equal `head`, a variant whose base is that revision, a resolving phase, and field-by-field equality with every upstream artifact's stamp.
- * @evidence contracts/common.md#clear-and-simple-design Four required fields with nulls for the base design and phase-independent output; `configuration` is authored and is not compared with `designLineageViewDigest`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No field is optional, as the prose explains; the two nulls are the contract's explicit base-design and phase-independent states rather than missing data.
- * @evidence contracts/common.md#meaningful-documentation States what each field identifies, the null meanings, the head and variant-base rules, and the same-stamp rule between derived inputs.
  * @author Samchon
  */
 export interface IAutoMovieDesignStamp {

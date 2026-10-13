@@ -17,11 +17,6 @@ import { resolveHumanViewerReference } from "./resolveHumanViewerReference.js";
  * in `references` matched by subject; body photographs sit in
  * `references/body` and are matched by its manifest. Returns whether the
  * request was one of the routes, so the caller can fall through otherwise.
- *
- * @evidence contracts/common.md#principled-implementation Read-only existing reference resources and optional camera metadata remain display inputs and never numerical basis or cache authority.
- * @evidence contracts/common.md#clear-and-simple-design One route adapter shares reference resolution across metadata, document badges and image streaming.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Streams original local photographs without fitting anatomical parameters, copying them into numerical persistence or synthesizing missing references.
- * @evidence contracts/common.md#meaningful-documentation Defines the three endpoints, face/body lookup conventions, no-store image response and absent-reference behavior.
  */
 export function serveHumanViewerReference(
   props: IServeHumanViewerReferenceProps,

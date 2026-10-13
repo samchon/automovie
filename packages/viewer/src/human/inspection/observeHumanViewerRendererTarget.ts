@@ -22,11 +22,6 @@ const RENDER_PROCESS_GONE = "Render process gone.";
  * own session is not a failure. A closed page or browser connection is
  * terminal for this page: every later capture is refused with the cause, so
  * the capture it interrupted is released instead of holding the queue.
- *
- * @evidence contracts/common.md#principled-implementation Browser-root crash/destruction signals identify the owned target independently of its stalled renderer session.
- * @evidence contracts/common.md#clear-and-simple-design One observer owns the failure listeners and their removal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrelated targets, an observer-only session detach and elapsed time do not release capture ownership.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes renderer settlement from transport loss and defines observer disposal.
  */
 export async function observeHumanViewerRendererTarget(
   options: IHumanViewerRendererTargetOptions,

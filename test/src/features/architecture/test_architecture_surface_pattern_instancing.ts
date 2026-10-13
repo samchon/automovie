@@ -27,7 +27,6 @@ const FLOOR = {
 };
 
 /**
- *
  * Laid modules become exact instance slots, and cut pieces refuse to pretend.
  *
  * A repeated tile is the case GPU instancing exists for, so a pattern run has
@@ -53,10 +52,6 @@ const FLOOR = {
  *    declared count. With one variant the draw is always zero.
  * 6. A frame that is not orthonormal, a non-positive thickness, and a prototype
  *    table that cannot cover a drawn variant are each refused.
- *
- * @evidence contracts/testing.md#behavioral-verification Feeds laid stack-bond runs to `autoMoviePatternInstanceTransforms` on a wall frame, a floor frame and a quarter-turned module, asserting slot ids, translations, rotated basis vectors, quaternion unit length, per-axis scale, cut ids, prototype selection and seven refusals; it catches a rotation reduced to a yaw about world up, axes mapped onto the wrong face direction or a mirrored normal, a uniform scale, a cut piece instanced, a prototype picked by slot index instead of variant, and an invalid frame, thickness or short table accepted.
- * @evidence contracts/testing.md#independent-expectations Expected axes come from the frame definitions: the floor's `u = +z`, `v = +x` give a normal `z cross x = +y`, and a 90 degree module carries local X onto the wall's `+y` and local Y onto `-x`; centres `(0.25, 0.25)` and `(1.75, 0.75)` follow from 0.5 m squares on a 2 by 1 m field; variant facts are relations (repeatable for one seed, different for the next seed, within `[0, 3)`, all zero for one variant), so the oracle does not pin which prototype any single slot draws.
- * @evidence contracts/testing.md#distinguishing-cases Identity wall, re-handed floor and in-plane rotation are the positive placements; a 1.75 m field supplies the two cut occurrences that must stay out of the slot list; omitting the table leaves `prototype` undefined while an empty table is refused; non-finite, non-unit, non-perpendicular frames and zero thickness each fail alone; facet panels belong to the facets test and texture transforms to the texture test.
  */
 export const test_architecture_surface_pattern_instancing = (): void => {
   const laid = generateAutoMovieSurfacePattern({

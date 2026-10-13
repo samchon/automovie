@@ -8,11 +8,6 @@ import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerS
  * checked-loader input edits
  * refresh their digests before publication. The caller owns the watcher and
  * catalogue; this subscription owns only edit ordering and its pending batch.
- *
- * @evidence contracts/common.md#principled-implementation Basis authority refresh precedes source digest computation and catalogue publication, and only a moved browser generation emits its redraw notification.
- * @evidence contracts/common.md#clear-and-simple-design One subscription owns reached-edit admission, batching and cancellation while callers own storage and catalogue state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Edits are admitted by the actual import graph and input boundaries without matching subjects or fixtures.
- * @evidence contracts/common.md#meaningful-documentation Defines local-input and generation-view rescans, publication ordering and watcher ownership.
  */
 export function subscribeHumanViewerSources(
   props: ISubscribeHumanViewerSourcesProps,

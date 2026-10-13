@@ -11,11 +11,6 @@ import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
  * gender channel a sex, any other shape channel a build, and no channel the
  * neutral body. The order of the catalogue is kept inside each section, so a
  * new document appears without this owner learning its name.
- *
- * @evidence contracts/common.md#principled-implementation Groups supplied document content by domain, local identity, pose and shape keys while preserving catalogue order and explicitly pending candidate entries.
- * @evidence contracts/common.md#clear-and-simple-design One projection derives navigation labels and sections without copying a numerical solver or owning document admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Grouping follows actual domain and channel content rather than a list of known people; pending candidates are not silently discarded or certified as admitted.
- * @evidence contracts/common.md#meaningful-documentation States precedence among local, face, person and body categories, content-based body grouping and stable within-section order.
  */
 export function describeHumanViewerDocuments(
   catalogue: Pick<HumanViewerCatalogue, "documents"> & Partial<Pick<HumanViewerCatalogue, "rejected">>,

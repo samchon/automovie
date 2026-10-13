@@ -5,7 +5,6 @@ import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts } from "../internal/predicates";
 
 /**
- *
  * A room schedule says out loud that it states nothing about what encloses a
  * room.
  *
@@ -43,10 +42,6 @@ import { namedFacts } from "../internal/predicates";
  * 2. An opening and a connector owe no enclosure gap. They are not enclosed by
  *    boundaries, they *are* the separation or the passage, and widening the gap
  *    to every subject would file a gap nothing could ever close.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieDrawingSchedule` once per subject (`space`, `opening`, `connector`) and looks up the `space-enclosure` entry in each returned `gaps` list, asserting it exists with status `unsupported` for rooms and is absent for the other two; it catches the gap being dropped from room schedules, filed as `not-run` as if an author could close it, or spread onto subjects that are the separation themselves.
- * @evidence contracts/testing.md#independent-expectations Presence follows from the subject rule in scenario 2 and the status from the gap vocabulary's meaning, `unsupported` for a derivation the product does not have against `not-run` for input an author has not supplied, which is the `#2032` correction; the reason and remedy sentences are fixed text in the engine, so their wording is deliberately not compared.
- * @evidence contracts/testing.md#distinguishing-cases One positive subject (rooms) and two negatives (openings, connectors) over the same fixture, so only the subject decides the outcome; the gap's position among all room gaps is owned by test_drawing_space_schedule, and `builtEnvironmentSpaceBoundaries`, the query the remedy points readers to, is not called here.
  */
 export const test_drawing_space_enclosure_gap = (): void => {
   const gapOf = (subject: "space" | "opening" | "connector") =>

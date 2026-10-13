@@ -268,7 +268,6 @@ const verdicts = (
 };
 
 /**
- *
  * Asking a plan for metres is the one place an image could quietly become a
  * design, so this pins that the answer is a refusal by default and a proposal
  * at best. Every candidate lands in exactly one pile, each withholding names
@@ -301,10 +300,6 @@ const verdicts = (
  *    coordinate.
  * 10. An invalid reference and an out-of-range confidence floor both throw instead
  *     of returning a partial promotion.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `promoteDesignObservations`, `designReferenceWorldPoint` and `designFrameScale` over one pavilion sheet and edited copies and asserts the promoted, withheld-with-reason and skipped piles, the promoted metric outline and semantic, determinism and non-mutation, world points under axes, scale and a placement transform, frame scales, and refusals; it catches ambiguity broken by confidence or order, a reading promoted below the floor, past an open issue, as text, under an unsettled scale or without an analysis claiming it, a barren analysis dropped, an input mutated, a transform applied in the wrong order, a NaN from a zero axis, and a partial promotion of an invalid reference.
- * @evidence contracts/testing.md#independent-expectations Verdicts follow the fixture's own facts (two candidates naming each other as alternatives, a 0.6 confidence against the default floor, the open occlusion issue, the text primitive, the section frame with no chosen scale, the unclaimed stray candidate); metres are hand arithmetic at 0.01 m per unit with sheet y on world z, so (100, 100), (100, 500), (300, 500) map to (1, 0, 1), (1, 0, 5), (3, 0, 5), and (500, 400) under scale 2, a quarter turn about y and translation (10, 1, -2) maps to (18, 1, -12); the default floor's exact value is only bounded between 0.6 and 1 by these cases.
- * @evidence contracts/testing.md#distinguishing-cases The base sheet with one promotion and five distinct withholdings; the competing pair at a lowered floor; the pair made unopposed at the default and a lowered floor; the issue closed; the section scale settled; the stray reading claimed; a floor of zero; repeated promotion and the untouched source; a point left of and above the anchor, an unnormalized axis, a placement transform, a zero axis and an unsettled scale; frame scale settled, unsettled and pointing at an unknown candidate; an invalid primitive reference and floors of -0.1, 1.5 and NaN; validation of the reference record itself is owned by test_architecture_design_reference.
  */
 export const test_architecture_design_observation_promotion = (): void => {
   const base = verdicts(() => {});

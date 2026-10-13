@@ -19,10 +19,6 @@ import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
  * no longer hash to {@link digest}, whose bytes are a different container than
  * {@link media}, or whose asset carries no `design-reference` use naming it.
  *
- * @evidence contracts/common.md#principled-implementation Keeps frames, primitives, candidates, issues, and analyses as separate layers in one versioned document; `validateDesignReference` checks every internal reference, and `designReferenceDiagnostics` re-hashes the asset, inspects its container and measured extent, and requires a typed use authorizing the document.
- * @evidence contracts/common.md#clear-and-simple-design Identity, byte binding, and five arrays; the building source cites it through separate evidence records, so no field here can carry a design conclusion.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Version is the literal 1 and an unmeasurable container leaves frame bounds unverified rather than approximated; the production build keys documents by id in a map, so a second document reusing an id with different content replaces the first and `design-reference-duplicate` never fires.
- * @evidence contracts/common.md#meaningful-documentation States the asset path and digest meaning, the declared media, each layer's role, the frame floor, which byte-level refusals the production gate applies, and that id reuse is not refused.
  * @author Samchon
  */
 export interface IAutoMovieDesignReference {

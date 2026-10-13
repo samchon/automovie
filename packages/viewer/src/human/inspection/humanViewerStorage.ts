@@ -15,10 +15,6 @@ import path from "node:path";
  * when its resolved path also remains outside the repository. No directory is
  * created by resolution, so status and failed configuration stay read-only.
  *
- * @evidence contracts/common.md#principled-implementation Resolves real ancestors before enforcing the ignored-tree boundary and shares one result across the viewer's writers and control readers.
- * @evidence contracts/common.md#clear-and-simple-design One path selection owns the environment override and default for every process.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves real ancestors and refuses a link-crossed repository boundary instead of silently choosing another runtime directory or deleting active input data.
- * @evidence contracts/common.md#meaningful-documentation States the default, relative-path base, reference separation and refusal boundary.
  * @author Samchon
  */
 export function humanViewerStorage(

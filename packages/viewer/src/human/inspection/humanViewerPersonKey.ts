@@ -9,11 +9,6 @@ import type { IHumanViewerPersonKeyProps } from "./IHumanViewerPersonKeyProps.js
  * Both basis bytes and all three runtime authorities participate. An explicit
  * tuple preserves boundaries even when a diagnostic supplies short digests;
  * display size, camera and source frame are not numerical document inputs.
- *
- * @evidence contracts/common.md#principled-implementation Composition dependencies participate independently of the isolated face and body builders.
- * @evidence contracts/common.md#clear-and-simple-design Published and handwritten people call one identity formula.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Identity hashes the document as read and actual runtime digests without subject-specific invalidation.
- * @evidence contracts/common.md#meaningful-documentation Names numerical provenance and the display state that stays outside it.
  */
 export function humanViewerPersonKey(
   props: IHumanViewerPersonKeyProps,

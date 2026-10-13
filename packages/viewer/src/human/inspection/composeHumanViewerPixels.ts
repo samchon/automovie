@@ -3,11 +3,6 @@
  * difference image. This is an image comparison, not a likeness score or a
  * geometry objective. Alpha is copied in the pair and made opaque in the map.
  * Caller-owned arrays remain unchanged; incompatible dimensions refuse.
- *
- * @evidence contracts/common.md#principled-implementation Per-channel absolute subtraction visualizes exact byte differences without optimizing model inputs.
- * @evidence contracts/common.md#clear-and-simple-design A pure pixel operation has no filesystem, reference-resource or GPU ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every pixel uses the same arithmetic; no subject or view special case is present.
- * @evidence contracts/common.md#meaningful-documentation Defines map semantics, alpha behavior and input ownership.
  */
 export function composeHumanViewerPixels(
   width: number,

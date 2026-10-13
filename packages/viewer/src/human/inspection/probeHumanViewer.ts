@@ -11,11 +11,6 @@ import { humanViewerProtocol } from "./humanViewerProtocol.js";
  * body while the server starts or restarts, is an unanswered port
  * (undefined): something listens, and the caller waits rather than starting
  * or killing anything. Only an answering foreign program is an error.
- *
- * @evidence contracts/common.md#principled-implementation The connection outcome, not elapsed time alone, separates absent from unanswered.
- * @evidence contracts/common.md#clear-and-simple-design One health probe supplies connection classification and verifies service protocol and selected storage before returning its answer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A timed-out or malformed response remains unanswered; it never authorizes killing a listener or substituting a different viewer session.
- * @evidence contracts/common.md#meaningful-documentation States the three outcomes and the error.
  */
 export async function probeHumanViewer(
   context: IHumanShotContext,

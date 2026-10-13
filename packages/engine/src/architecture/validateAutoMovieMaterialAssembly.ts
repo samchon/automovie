@@ -39,12 +39,6 @@ const THICKNESS_EPSILON = 1e-9;
  * at once with a `$input` path, and none throws. With `host`, the summed
  * thickness must equal the host's within 1e-9 m; with `substances`, every
  * non-cavity layer's material must name one of them by id.
- *
- * @evidence contracts/common.md#principled-implementation Checks enumerations, finiteness and uniqueness per field, finish placement by layer index (only the terminal layers can present a face), wrap order by the leading and trailing runs of wrapping layers, and the host sum with a fixed 1e-9 m slack for floating-point summation.
- * @evidence contracts/common.md#clear-and-simple-design Groups the rules as the requirement does, layer conflicts inline, finish and wrap defects in two private passes, and the dimension check last; it collects into one `ViolationCollector`, and `resolveAutoMovieMaterialAssembly` reuses it unchanged.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A membrane is the one substance allowed zero thickness and a cavity the one that may cite no material, both contract-defined distinctions; the omitted `substances` and `host` props skip their checks by documented choice, not by fallback.
- * @evidence contracts/common.md#meaningful-documentation States the three rule groups and examples of each, the single-layer finish rule, the wrap rule, the host tolerance in metres, the meaning of the two optional props, and that findings are returned, not thrown.
- * @evidence contracts/performance.md#cost-and-resources Linear in the layer count with sets for substance and layer ids, rebuilt on every call because nothing is cached; the collector and sets are local, and only the returned violations outlive the call.
  */
 export const validateAutoMovieMaterialAssembly = (props: {
   /** Layered build-up to judge. */

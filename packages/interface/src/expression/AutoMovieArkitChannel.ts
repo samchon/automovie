@@ -20,10 +20,6 @@
  * Reference: Apple ARKit `ARFaceAnchor.blendShapes`
  * (https://developer.apple.com/documentation/arkit/arfaceanchor/blendshapes).
  *
- * @evidence contracts/common.md#principled-implementation A string-literal union of Apple's 52 blend-shape location keys spelled verbatim, so the compiler checks a channel name and each name addresses the same morph on any ARKit-compatible rig; weights are validated to `[0, 1]` by `validateExpression` and clamped again by the viewer.
- * @evidence contracts/common.md#clear-and-simple-design One flat union grouped by comments (eyes 14, jaw 4, mouth 23, brows 5, cheeks 3, nose 2, tongue 1) rather than nested per-region types, because an expression override addresses a channel by a single name.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Limitation: the runtime lists in `validateExpression` (`ARKIT_CHANNELS`) and `applyExpression` are maintained by hand and typed only for membership, so a channel added to this union and missed there would be refused by validation and never reset by the viewer.
- * @evidence contracts/common.md#meaningful-documentation Cites the Apple reference and the runtimes sharing the vocabulary, the `[0, 1]` weight convention and its enforcer, and the two runtime copies a new channel must reach.
  * @author Samchon
  */
 export type AutoMovieArkitChannel =

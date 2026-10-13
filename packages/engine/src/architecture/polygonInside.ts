@@ -15,12 +15,6 @@ import { pointInPolygon } from "./pointInPolygon";
  * edge that leaves only through outer vertices, such as an edge laid flush
  * across a notch whose two corners it touches, is not detected, because a
  * crossing must be interior to both segments.
- *
- * @evidence contracts/common.md#principled-implementation Requires every inner vertex to pass the boundary-inclusive `pointInPolygon` test and no inner edge to properly cross an outer edge; that is complete for convex outers, but an inner edge passing out of a concave outer only through outer vertices satisfies both tests, an unresolved degeneracy.
- * @evidence contracts/common.md#clear-and-simple-design Composes the shared `pointInPolygon` with a private crossing test, but its `side` helper and the `segmentsCross` logic are verbatim copies of code in `polygonIsSimple` and `polygonsOverlap` rather than one shared module.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Counting only proper crossings is the contract that lets flush edges pass, and nothing is special-cased; the missed vertex-only exit is stated as a limitation rather than compensated for.
- * @evidence contracts/common.md#meaningful-documentation States the flush-edge rule, the shared frame and simplicity premise, exactness for convex outers, and the concave vertex-touching case it misses.
- * @evidence contracts/performance.md#cost-and-resources O(n·m) for n inner and m outer points, n containment tests of O(m) and n·m segment tests, returning at the first failure; it allocates nothing and caches nothing between the per-opening and per-panel calls validation makes.
  */
 export const polygonInside = (
   inner: readonly IAutoMoviePlanarPoint[],

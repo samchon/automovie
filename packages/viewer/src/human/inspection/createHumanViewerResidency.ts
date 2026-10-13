@@ -17,11 +17,6 @@ import { watchHumanViewerMainFrame } from "./watchHumanViewerMainFrame.js";
  * replacement releases the failed capture lifetime before renewing it; readiness
  * belongs to whichever opening actually reaches a live source generation.
  * Heap readers always follow that same resident page and browser.
- *
- * @evidence contracts/common.md#principled-implementation Physical renderer settlement and current page identity preserve capture ownership during recovery.
- * @evidence contracts/common.md#clear-and-simple-design Browser state, heap sessions, console observers and replacement share one resource lifetime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual renderer settlement or browser loss selects owned replacement; source errors remain source refusals and no age deadline clears a valid model.
- * @evidence contracts/common.md#meaningful-documentation States replacement readiness, capture cancellation and heap ownership.
  */
 export function createHumanViewerResidency(
   props: ICreateHumanViewerResidencyProps,

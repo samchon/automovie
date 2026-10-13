@@ -9,11 +9,6 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
  * admissions: catalogue admission keeps its own already displayed generation
  * or refuses a known newer descriptor, including a pending candidate. This
  * read never treats that candidate as drawable or loads its newer runtime.
- *
- * @evidence contracts/common.md#principled-implementation A pending document is awaited until its owner decides, never refused as unknown while undecided.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts One settled read replaces any polling or delay.
- * @evidence contracts/common.md#meaningful-documentation States when the settled catalogue is read and what a missing document then means.
- * @evidence contracts/common.md#clear-and-simple-design One selected-document read chooses immediate published generation or the existing settled-document endpoint; full-catalogue settlement stays separate.
  */
 export async function readHumanViewerShowCatalogue(
   doc: string,

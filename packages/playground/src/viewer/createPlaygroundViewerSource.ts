@@ -21,11 +21,6 @@ import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPubli
  * Dependency manifests and the lockfile identify installed versions. This is
  * a declared application disk scope, not a certificate of every SDK file or
  * every transformed browser response. GPU acceptance records those separately.
- *
- * @evidence contracts/common.md#principled-implementation Declared maintained source, emitted modules, data, configuration and version manifests remain separate witnessed inputs; the actual publication lock gates their adoption.
- * @evidence contracts/common.md#clear-and-simple-design One application binding reuses the disk witness and maintained-file reader while keeping source membership and ordinary runtime-output roots explicit.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved publication refuses new candidates without expiring a lock by age or borrowing another host's source authority.
- * @evidence contracts/common.md#meaningful-documentation Names the checkout roots, missing/emitted membership, watcher ownership and limits of SDK/transformed-response coverage.
  */
 export function createPlaygroundViewerSource(root: string) {
   const playground = path.join(root, "packages/playground");

@@ -27,11 +27,6 @@ const element = <T extends HTMLElement>(id: string): T =>
  * Bind ordinary controls to the caller's navigation transaction, displaying
  * only acknowledged address/parts while newer gestures compose with the latest
  * pending intent. Numerical documents and completed frames remain downstream.
- *
- * @evidence contracts/common.md#principled-implementation Intent versions release only their own pending navigation; display acknowledgments update committed controls, and switching documents clears old mesh restrictions.
- * @evidence contracts/common.md#clear-and-simple-design One pending-versus-observed address owner composes control edits and address entry while existing helpers own part sets, camera replay and shared render/sheet serialization.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses real control events and the supplied navigation promise rather than replaying events or pretending a requested document rendered; copied photographs change observation pose only.
- * @evidence contracts/common.md#meaningful-documentation States hash commitment, consecutive-intent composition, terminal acknowledgment ownership, document-scoped meshes and the common address behind capture links.
  */
 export function mountHumanViewerControls(props: {
   navigate: (address: HumanViewerAddress) => Promise<void>;

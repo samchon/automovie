@@ -22,7 +22,6 @@ const refuses = (
   );
 
 /**
- *
  * Every input a pattern run refuses, each beside the value one step away that
  * it accepts.
  *
@@ -51,10 +50,6 @@ const refuses = (
  *    and a module reaching further from its cell origin than the zone
  *    declared.
  * 7. A lattice larger than the cell limit is refused before it is walked.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `generateAutoMovieSurfacePattern` with one malformed field per case and checks through `throwsError` that it throws with the naming fragment, plus three accepting runs; it catches a validator that silently repairs a reflex or collinear region, double-counts overlapping zones or exclusions, lets a generated module escape its declared reach, admits a fractional seed or variant count, or enumerates a million-plus lattice instead of refusing it first.
- * @evidence contracts/testing.md#independent-expectations Each malformed value sits one step outside the documented domain (`-1e-9` joint, `1 + 1e-9` minimum piece, seed 1.5, variants 2.5, reach 0.4 against a 0.5 module's 0.5 corner offset, a 1000 m region at a 1 mm pitch far above the one-million cell limit), and the accepting twins sit on the limit itself; message fragments are the published refusal wording, so a refusal fired for the wrong reason with matching text would pass.
- * @evidence contracts/testing.md#distinguishing-cases Owns every pattern-run refusal: envelope scalars, zone identity and lattice, region shape, zone overlap against an edge-sharing pair that lays eight modules, exclusion identity and shape against a touching pair, generated-module identity, finiteness, size and reach, and the cell budget; the all-boundary envelope of zero joint, minimum 1, seed 0 and one variant must still lay eight modules; instancing and texture refusals belong to their own tests.
  */
 export const test_architecture_surface_pattern_refusals = (): void => {
   TestValidator.equals(

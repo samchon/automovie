@@ -11,10 +11,6 @@ import { IAutoMovieStage } from "./IAutoMovieStage";
  * scene, both `blocking` and `performance` to carry the contract beat and
  * duration exactly, and `eventSamples` to sample each contract event once.
  *
- * @evidence contracts/common.md#principled-implementation Bundles every input of the engine ladder as returned data, and `compileDefinedShot` checks it against the registration before running `stageScene`, `blockBeat`, `performShot` and `realizeShotContract` in that order.
- * @evidence contracts/common.md#clear-and-simple-design Production extends it as `IAutoMovieProductionShotProgram` with optional models, cues and clips instead of widening this base, so the engine path carries only what `compileDefinedShot` consumes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `eventSamples` must hold exactly one finite sample per contract event inside its window and no undeclared or duplicated id, so a builder cannot invent or drop a measured event.
- * @evidence contracts/common.md#meaningful-documentation States the scene, beat and duration equalities, the per-event sampling rule and the seconds unit of sample times, and links the actor `model` field the builder relies on.
  * @author Samchon
  */
 export interface IAutoMovieShotProgram {

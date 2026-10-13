@@ -8,12 +8,6 @@ import type { createHumanViewerViewportHost } from "./createHumanViewerViewportH
 /**
  * What a face resident is built from.
  *
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#principled-implementation Face document, AO choice and original face request/result port reach the same product viewport host.
- * @evidence contracts/common.md#clear-and-simple-design Viewport ownership is supplied once beside explicit preview or construction selection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Ambient occlusion and construction are authored options; neither depends on an example face identity.
- *
  * @author Samchon
  */
 export interface IBuildHumanViewerFaceResidentProps {
@@ -31,13 +25,6 @@ export interface IBuildHumanViewerFaceResidentProps {
    */
   operation?: "preview" | "construct";
 
-  /**
-   * Open the numerical port for this document.
-   *
-   * @evidence contracts/common.md#principled-implementation The factory provides the original Face request/result protocol to the product viewport.
-   * @evidence contracts/common.md#clear-and-simple-design A single supplied factory opens the resident's numerical connection.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the supported face port without replacing Worker globals or bypassing admission.
-   * @evidence contracts/common.md#meaningful-documentation The factory creates a connection owned by the face resident and retired on release.
-   */
+  /** Open the numerical port for this document. */
   worker: () => HumanResidentPort<ConnectedFaceRequest, ConnectedFaceResult>;
 }

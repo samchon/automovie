@@ -10,11 +10,6 @@ import { probeHumanViewer } from "./probeHumanViewer.js";
  * that exits or reports a source failure fails with the actual cause. An
  * answering preparation has no overall deadline. An unanswered health probe
  * never establishes process death or authorizes terminating valid work.
- *
- * @evidence contracts/common.md#principled-implementation Readiness comes from the server's own health; the owner stays attached to its child.
- * @evidence contracts/common.md#clear-and-simple-design One attachment loop delegates health classification to the probe and child lifetime to its existing process handle.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preparation has no overall deadline; only the actual owned exit or reported source failure ends startup, never an unanswered probe or substituted image.
- * @evidence contracts/common.md#meaningful-documentation States the attachment and the failure causes.
  */
 export async function awaitHumanViewerReady(
   context: IHumanShotContext,

@@ -38,11 +38,6 @@ import { compareAutoMovieRenderIds } from "./render";
  *
  * @param artifact Compiled shot artifact and its revision.
  * @returns One description per stored subject, sorted by id.
- * @evidence contracts/common.md#principled-implementation Walks each stored table once, models with their parts, scene nodes, instance sets, then each environment's groups, spaces and units, and sorts by `compareAutoMovieRenderIds`, so the inventory does not depend on table order.
- * @evidence contracts/common.md#clear-and-simple-design Its private helpers are a verbatim subset of those in `describeAutoMovieSubject`, roughly 650 duplicated lines with no shared module, so a description rule fixed in one file must be repeated in the other or the inventory and the addressed answer drift.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Groups and units are listed because the record owns them though no scene node stages them, and parts and instances are left to the addressed form so the inventory is sized by stored records; no subject is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what is enumerated and what is left out, where the omitted kinds are answered, why groups and units are included, the sort order, and the first-page members.
- * @evidence contracts/performance.md#cost-and-resources Each element re-finds its node by linear search, O(N²) over N nodes, and re-tessellates its model rather than reusing the prototype's model-space points; each space filters every space, element and population and recomposes the world matrices, O(S × (S + E)), and each unit recomposes them per owned element, O(E²). Nothing is cached, `diffAutoMovieSubjects` pays this for both artifacts, and only the sorted descriptions are kept.
  */
 export const describeAutoMovieSubjects = (
   artifact: IAutoMovieSubjectArtifact,

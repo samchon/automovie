@@ -9,11 +9,6 @@ import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevis
  * actual checkout root. Resolved paths outside that physical root are refused
  * before existence or bytes can enter a source graph; a foreign symlink is
  * not relabelled as missing optional source. Directories are not source files.
- *
- * @evidence contracts/common.md#clear-and-simple-design One disk adapter serves the server's first digests and the worker's later ones.
- * @evidence contracts/common.md#principled-implementation Native physical-path checks precede regular-file selection and UTF-8 reads; foreign symlinks refuse the receipt while missing or unreadable local source remains absent.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the requested file without expected-source substitution, private compiler-cache lookup or mutation of filesystem methods.
- * @evidence contracts/common.md#meaningful-documentation States the caller-owned checkout, foreign-boundary refusal, regular-file requirement and optional unreadable result.
  */
 export function createNodeHumanViewerResolveIo(root: string): ICreateHumanViewerRevisionsProps["io"] {
   const actualRoot = fs.realpathSync.native(root);

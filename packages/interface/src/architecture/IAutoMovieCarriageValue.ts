@@ -1,11 +1,4 @@
-/**
- * The travel one named state gives one carriage.
- *
- * @evidence contracts/common.md#principled-implementation A state assigns each carriage a value inside its motion range; when `serves` names a space whose subtree states a volume, validation composes the work's world matrices under that state and tests the driven element's origin with `builtEnvironmentContainsPoint`.
- * @evidence contracts/common.md#clear-and-simple-design One value per carriage per state, keyed by carriage id, keeps operating states as lookup tables rather than motion scripts with timing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A served space whose subtree states no volume is skipped instead of failed, and the check tests only the element's origin, not its whole body, so a car straddling a floor line can pass.
- * @evidence contracts/common.md#meaningful-documentation States the unit by motion kind, the stops `serves` may name, the null meaning, and exactly which point the engine tests and when it skips.
- */
+/** The travel one named state gives one carriage. */
 export interface IAutoMovieCarriageValue {
   /** Carriage id inside the same operation; listed once per state. */
   carriage: string;

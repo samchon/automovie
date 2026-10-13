@@ -37,12 +37,6 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * Throws on a blank revision, a gap bound that is not a positive safe integer,
  * an empty or unknown required domain, a run that fails validation, and a run
  * id reported twice.
- *
- * @evidence contracts/common.md#principled-implementation One pass over the runs into per-domain counters seeded from `AUTOMOVIE_ANALYSIS_DOMAINS`, one pass over that table for missing required answers, a precedence rule for the status, and a SHA-256 digest over a newline-joined canonical text of the bounded report.
- * @evidence contracts/common.md#clear-and-simple-design Delegates run acceptance to `validateAutoMovieAnalysisRun` and the domain list to its constant, so this function owns only the rollup, the gap list and the verdict.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No domain, run id or status is special-cased; the default bound is the exported `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`, and a non-required domain's gaps still count toward `incomplete` because every submitted metric must produce a value.
- * @evidence contracts/common.md#meaningful-documentation States which inputs throw, that gaps come from every submitted run, the verdict precedence, gap ordering and bound, and what the digest covers.
- * @evidence contracts/performance.md#cost-and-resources Linear in runs plus their metrics and samples, dominated by the validator re-hashing every run, which has no cache because a deserialized run must be re-proven unedited. Every gap is held until the final slice although only `maxGaps` are listed and the rest are only counted, so transient memory grows with total gaps instead of the bound; the returned report keeps the listed slice.
  */
 export const summarizeAutoMovieAnalysis = (props: {
   /** Runs to roll up; each is validated before it is counted. */

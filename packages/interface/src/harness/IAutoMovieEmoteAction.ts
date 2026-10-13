@@ -10,10 +10,6 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * no ramp in or out; blendshape weights are left `null`. `performShot` refuses
  * an intensity outside `[0, 1]`.
  *
- * @evidence contracts/common.md#principled-implementation Emits a constant expression channel (`preset`, `intensity`) over the action span, which `compilePerformance` keeps only when the action's region is `face`, the default, so an emote never collides with body content and an overridden region masks the expression away.
- * @evidence contracts/common.md#clear-and-simple-design Adds only the preset and its strength to the shared base; the synthesizer fills `blendshapes` with `null`, so per-blendshape weights are not authorable through this verb.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No preset is special-cased; the clip has no ease in or out, so the preset appears at full `intensity` at `start`, and only the intensity range is validated here.
- * @evidence contracts/common.md#meaningful-documentation States the region, the held two-keyframe clip and its default length, the absent ramp, the intensity range and its refusal.
  * @author Samchon
  */
 export interface IAutoMovieEmoteAction extends IAutoMovieActionBase {

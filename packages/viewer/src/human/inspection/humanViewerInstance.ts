@@ -16,11 +16,6 @@ const DEFAULT_PORT = 5175;
  * that is not an unprivileged integer port is refused with the reason.
  * The module has no runtime imports and uses only syntax Node strips, so the
  * control script can load it without the project type check.
- *
- * @evidence contracts/common.md#principled-implementation One environment value selects the port and every per-process file together, so ownership records cannot cross between viewers.
- * @evidence contracts/common.md#clear-and-simple-design One pure function serves server, clients and control script.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a malformed port instead of falling back silently to the default.
- * @evidence contracts/common.md#meaningful-documentation States the default, the per-port file names and why the module is import-free.
  */
 export function humanViewerInstance(
   value: string | undefined,

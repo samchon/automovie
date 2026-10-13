@@ -21,12 +21,6 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * every block footprint widened by half the route's formation width, whatever
  * the block's height. The first contradiction throws an `Error` naming it;
  * later ones are not reported.
- *
- * @evidence contracts/common.md#principled-implementation Uses strict box inequalities so touching blocks pass, footprint corners plus a notch test (no surface vertex strictly inside the footprint and no proper edge crossing, sufficient for a hole-free simple polygon) for support, a slab segment-box test in XZ for routes, and ray casting or point-to-segment distance for landmarks.
- * @evidence contracts/common.md#clear-and-simple-design One fail-fast pass per rule over plain world records, run once before shots are built; its planar helpers are private and follow their own absolute tolerances rather than the architecture predicates' scale-relative ones.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Tolerances are fixed absolute values (1e-6 m base height, 1e-9 m on-edge distance, `Number.EPSILON` on an orientation product) rather than scale-relative, and route clearance ignores height, so a route passing under a raised block is reported blocked; no block, route or landmark is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States each rule, the units and up axis, the support test, the plan-only route test and its padding, and that only the first contradiction is thrown.
- * @evidence contracts/performance.md#cost-and-resources O(B²) block pairs, O(B × S × n) support tests over S surfaces of n vertices, O(W × B) segment tests over W route segments, and O(L × (S × n + W)) landmark tests; the landmark pass slices each route's waypoints per landmark, nothing is cached or retained, and the first failure ends the call.
  */
 export const assertWorldPlacements = (input: {
   /** Static world masses, as axis-aligned world boxes. */

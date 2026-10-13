@@ -12,11 +12,6 @@ import { planHumanViewerReference } from "./planHumanViewerReference.js";
  * and draw its landmarks. A failed reference-info request fails the show:
  * a requested comparison is never silently dropped. Returns the composition a
  * capture must reproduce, or null when no photograph is shown.
- *
- * @evidence contracts/common.md#principled-implementation The photograph's own camera places the render, so the comparison is like for like.
- * @evidence contracts/common.md#meaningful-documentation States the failure and the result.
- * @evidence contracts/common.md#clear-and-simple-design The shared reference plan/layout own availability, mode and pixel fitting while this adapter owns DOM application, camera placement and landmark display.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the selected document's decoded local reference and explicit camera receipt through supported DOM/camera APIs; a requested comparison is never silently replaced by a different photo.
  */
 export async function showHumanViewerReference(
   props: IShowHumanViewerReferenceProps,

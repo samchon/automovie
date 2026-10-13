@@ -65,11 +65,6 @@ const partsOfElement =
  * box is mostly air; a population or a partless element keeps its one reported
  * box. A missing operand makes the status `unresolved` and is listed by side.
  *
- * @evidence contracts/common.md#principled-implementation Resolves both reported boxes, then tests positive-volume overlap part against part through `propBoundsOverlap`, which counts exact face contact as contact rather than intrusion; either unresolved side yields `unresolved`.
- * @evidence contracts/common.md#clear-and-simple-design Defect: `solidBoxes` and `IWorldBox` are copied into the overlap sweep, the support sweep and support status even though `solidBoxes`'s own comment says writing that rule twice is how copies stop agreeing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Populations stay compact, a partless element keeps its reported box, and both bases come back so an origin-point miss is never mistaken for a measured one; no locator is exempted.
- * @evidence contracts/common.md#meaningful-documentation States the face-contact kernel, the part-by-part test and its reason, the compact population handling, the unresolved status, and why the bases travel with a `separate` verdict.
- * @evidence contracts/performance.md#cost-and-resources Defect: each operand's box restages the whole hierarchy and an element operand stages it again for its parts, up to four `O(E)` stagings per pair plus `O(P_l P_r)` part tests; nothing is memoized, so a caller testing many pairs belongs on the sweep.
  * @author Samchon
  */
 export const builtEnvironmentPlacementOverlap = (props: {

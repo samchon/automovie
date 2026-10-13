@@ -5,11 +5,6 @@
  * lowering. Path boundaries, queries and declarations are handled before
  * invoking the compiler. A watcher event invalidates provenance when
  * `affects` says it can change the compile.
- *
- * @evidence contracts/common.md#principled-implementation A path-segment boundary selects one complete source owner without treating sibling prefixes as members.
- * @evidence contracts/common.md#clear-and-simple-design Selection and lifecycle are pure adapters; the public compiler API owns transformation and proof.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses an injected supported transform operation rather than replacing dependency methods.
- * @evidence contracts/common.md#meaningful-documentation Explains runtime-transform ownership independently of canonical type and lint validation.
  */
 export function createHumanViewerTransform<Result>(
   sourceRoot: string,

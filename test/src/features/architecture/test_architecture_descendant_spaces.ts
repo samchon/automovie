@@ -6,7 +6,6 @@ import { boxCell, originTransform } from "../internal/envelopeFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- *
  * The containment fold every space query performs, stated once.
  *
  * Six queries in this package already walk a space's descendants to answer what
@@ -25,10 +24,6 @@ import { namedFacts, throwsError } from "../internal/predicates";
  *    comparing populations compare the same list.
  * 5. A space the record does not hold is refused by name rather than answered
  *    with an empty subtree, which would read as a real room containing nothing.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentDescendantSpaces` on a three-deep hierarchy authored out of order and asserts the returned id lists and the refusal; it catches a fold that stops at one level, omits the queried space itself, climbs to ancestors or siblings, keeps authored order, or answers an absent space with an empty list.
- * @evidence contracts/testing.md#independent-expectations The lists are read off the declared parent links (`wing` and `hall` under `house`, `upper` under `hall`, `attic` and `gallery` under `upper`) and sorted by code unit by hand; the refusal is matched by the environment and space ids, not the full message.
- * @evidence contracts/testing.md#distinguishing-cases The root naming every depth, a leaf naming only itself, an intermediate space naming only its own subtree, and an absent space refused; the space queries that use this fold, such as containment and the building census, are owned by test_architecture_built_environment and test_architecture_building_census.
  */
 export const test_architecture_descendant_spaces = (): void => {
   const record = storeys();

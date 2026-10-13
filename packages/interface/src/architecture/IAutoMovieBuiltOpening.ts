@@ -1,14 +1,7 @@
 import { IAutoMovieOpeningOperation } from "./IAutoMovieOpeningOperation";
 import { IAutoMovieOpeningProfile } from "./IAutoMovieOpeningProfile";
 
-/**
- * One traversable or visible opening through a boundary.
- *
- * @evidence contracts/common.md#principled-implementation An opening cites its host boundary by id, and a stated profile's bulge-aware hull is tested by polygon containment against the host face outline and by polygon overlap against earlier voids on the same boundary.
- * @evidence contracts/common.md#clear-and-simple-design Geometry and operation are optional members owned by the opening rather than by the boundary it cuts, so a relation-only door still validates and a boundary stays a plain separation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A void on a faceless host is refused rather than placed in an assumed plane, and a closed leaf larger than its void is refused while a smaller one is allowed for paired leaves and sashes.
- * @evidence contracts/common.md#meaningful-documentation States what a profile demands of the host, what omitting profile or operation means, the null fill meaning and that boundary and fill ids must resolve.
- */
+/** One traversable or visible opening through a boundary. */
 export interface IAutoMovieBuiltOpening {
   /** Stable opening identity. */
   id: string;

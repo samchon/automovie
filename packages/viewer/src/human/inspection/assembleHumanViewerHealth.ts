@@ -5,11 +5,6 @@ import { humanViewerProtocol } from "./humanViewerProtocol.js";
  * The `/health` answer. A ready server can draw; it may be drawing the last
  * good build while the newest source fails, which `serving` and
  * `sourceError` say.
- *
- * @evidence contracts/common.md#principled-implementation Readiness, staleness and the source error are reported apart, so a stale but drawing server is not read as current.
- * @evidence contracts/common.md#clear-and-simple-design One function assembles the answer from the server's accessors.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the owners' actual readiness, source, renderer and queue observations without certifying anatomy from HTTP success or replacing a stale source label.
- * @evidence contracts/common.md#meaningful-documentation States what ready and stale mean.
  */
 export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
   const inventory = sources.inventory();

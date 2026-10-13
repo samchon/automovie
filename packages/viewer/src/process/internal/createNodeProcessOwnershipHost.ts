@@ -8,11 +8,6 @@ import { WindowsProcessOwnershipPrograms } from "./WindowsProcessOwnershipProgra
  * identity, Windows snapshot/handle operations and POSIX signals stay here;
  * the controller owns capture state and decides whether they may be requested.
  * No public test mode or foreign-method replacement changes this composition.
- *
- * @evidence contracts/common.md#principled-implementation Connects the canonical controller to supported native discovery and termination effects with the real platform selector.
- * @evidence contracts/common.md#clear-and-simple-design One production composition owns the native effect port supplied to the public facade.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses maintained effects without changing OS methods or exposing test-only options.
- * @evidence contracts/common.md#meaningful-documentation States controller-versus-host responsibilities and canonical production composition.
  */
 export function createNodeProcessOwnershipHost(): IProcessOwnershipHost {
   return {

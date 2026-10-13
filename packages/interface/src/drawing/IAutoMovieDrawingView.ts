@@ -26,10 +26,6 @@ import { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
  * two are parallel, when `scale` is not a finite positive number, or when
  * `depth` or `overhead` is negative or not finite.
  *
- * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` builds an orthonormal page basis with its normal opposite `direction`, right as `up x normal` and up re-orthogonalized, negating right for a reflected ceiling plan; each drawable is then banded by signed plane distance into overhead, hidden, cut and projected linework using `depth` and `overhead`, and a degenerate vector, bad scale or negative band throws first.
- * @evidence contracts/common.md#clear-and-simple-design The view is a question with no geometry of its own: one field each for the space filter, the kind filter, feature-referencing dimension and note specs, and the pen, with `discipline` a free label copied to the output rather than a type hierarchy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared name in `spaces` becomes a `view-space-filter` gap rather than a blank sheet, while an unmatched element kind is deliberately not a gap because kinds have no registry; neither rule singles out a particular view or discipline.
- * @evidence contracts/common.md#meaningful-documentation Gives each field's frame and unit, the plan, ceiling and elevation conventions for `direction` and `up`, what `null` depth and overhead mean, descendant inclusion in `spaces`, the refusal conditions, and that `scale` changes only serialization.
  * @author Samchon
  */
 export interface IAutoMovieDrawingView {

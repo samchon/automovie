@@ -5,11 +5,6 @@ import { serializeHumanViewerAddress } from "@automovie/viewer/human/inspection/
  * The handle the host page publishes for the committed generation. It
  * forwards every call to that generation's handle; `show` also writes the
  * shown address into the host's own location hash, so a reload keeps it.
- *
- * @evidence contracts/common.md#principled-implementation The committed generation's original handle completes show before the wrapper serializes its actual observed address into history.
- * @evidence contracts/common.md#clear-and-simple-design One wrapper adds only the hash update to the committed handle.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Delegates through the supported handle without replacing frame/worker methods or publishing a requested address before its show operation succeeds.
- * @evidence contracts/common.md#meaningful-documentation States the forwarding and the one addition.
  */
 export function createHumanViewerHostHandle(
   viewer: HumanViewerHandle,

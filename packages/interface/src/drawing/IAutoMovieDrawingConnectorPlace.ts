@@ -10,10 +10,6 @@
  * building unit those stops resolve to: stops that resolve to no unit are
  * ignored, and stops in two different units give `null`.
  *
- * @evidence contracts/common.md#principled-implementation Membership by declared stop identity, the same exact-match rule `builtEnvironmentSpaceConnectors` applies, so a schedule row and a space query agree on where a connector is.
- * @evidence contracts/common.md#clear-and-simple-design One discriminant, one nullable building and one sorted list, the minimum a schedule row needs to place a connector beside the space and opening place variants.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `building` is `null` when stops span units instead of naming the first one, and stops without a unit are skipped rather than forcing `null`.
- * @evidence contracts/common.md#meaningful-documentation States which spaces count as stops, their deduplication and order, and every rule deciding `building`.
  * @author Samchon
  */
 export interface IAutoMovieDrawingConnectorPlace {

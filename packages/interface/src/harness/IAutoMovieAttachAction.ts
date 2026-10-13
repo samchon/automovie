@@ -12,10 +12,6 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * `compileAttach` puts the child's origin exactly on the bone frame with no
  * grip offset, and an `"auto"` duration keeps the coupling to the shot end.
  *
- * @evidence contracts/common.md#principled-implementation A rigid fixed-joint coupling baked by `compileAttach`: each sample runs the parent's FK through `resolveAttachment` and composes the bone frame onto the parent's world placement, so the child inherits position and orientation together.
- * @evidence contracts/common.md#clear-and-simple-design Adds only `parent` and `bone` to the shared base, because the coupling carries no offset; a persistent rider belongs in staging mounts rather than a repeated per-shot action.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No parent or bone is special-cased; with no grip offset field the child's origin lands on the bone origin, so a carried prop must be modelled with its grip at its own origin.
- * @evidence contracts/common.md#meaningful-documentation States what is coupled to what, the refusals, that the child's origin rides the bone with no offset, how `"auto"` spans, and when to prefer a staged mount.
  * @author Samchon
  */
 export interface IAutoMovieAttachAction extends IAutoMovieActionBase {

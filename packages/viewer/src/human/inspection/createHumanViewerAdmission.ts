@@ -26,11 +26,6 @@ import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission.js
  * the documents.
  *
  * Admission identity is the document id and current numerical key. This owner does not acquire production workspace leases.
- *
- * @evidence contracts/common.md#principled-implementation A document is drawable only after its owner admitted it at its exact cache key; a transport failure is never stored as the owner's verdict.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds verdicts, waiting documents and requests in flight; page access, republication and retry triggers are injected.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no schema of its own, refuses with the owner's reason, and never polls.
- * @evidence contracts/common.md#meaningful-documentation States the pending states, the request and retry policy, failure handling and growth bound.
  */
 export function createHumanViewerAdmission(
   props: ICreateHumanViewerAdmissionProps,

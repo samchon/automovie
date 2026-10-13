@@ -4,10 +4,6 @@
  * absolute timestamps from different processes are never subtracted together.
  * Missing fields describe stages this observation did not record.
  *
- * @evidence contracts/common.md#principled-implementation Optional durations distinguish measured stages without inventing timings for stages not observed.
- * @evidence contracts/common.md#clear-and-simple-design One record carries the capture pipeline stages reported by health and request telemetry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fields contain actual stage durations rather than document-specific estimates.
- * @evidence contracts/common.md#meaningful-documentation States milliseconds, independent monotonic clocks and omitted-stage meaning.
  * @author Samchon
  */
 export interface IHumanViewerPhases {

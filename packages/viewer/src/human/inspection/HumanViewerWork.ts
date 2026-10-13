@@ -4,10 +4,6 @@
  * committed generation. Wall-clock milliseconds locate observations; they
  * are not subtracted from the worker's independent performance clock.
  *
- * @evidence contracts/common.md#principled-implementation Source and frame identity retain stage ownership while scalar counters expose resource and request state.
- * @evidence contracts/common.md#clear-and-simple-design One telemetry record carries only progress and resource counts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports actual request stages and renderer counters rather than document-specific estimates.
- * @evidence contracts/common.md#meaningful-documentation Defines identity, timing and the exclusion of model and photograph bytes.
  * @author Samchon
  */
 export interface HumanViewerWork {

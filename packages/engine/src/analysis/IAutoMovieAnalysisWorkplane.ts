@@ -1,7 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- *
  * A grid of measurement points on one plane, rectangular when its two axes are
  * perpendicular.
  *
@@ -21,11 +20,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * are not orthogonalized: two non-perpendicular axes give a parallelogram grid.
  * A grid may hold at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` cells.
  *
- * @evidence contracts/common.md#principled-implementation Samples cell centres at `(i + 0.5) * size / count` along each normalized axis and takes the measured face from the right-handed cross product, so face selection is an authored declaration.
- * @evidence contracts/common.md#clear-and-simple-design Stated in the plane's own axes so every orientation is one shape; the analyzer derives the normal once and every sample shares it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never infers the measured face from results; the axes are not orthogonalized, so a skewed pair yields a parallelogram grid rather than a refusal.
- * @evidence contracts/common.md#meaningful-documentation States the cell-centre rule, the face convention, axis normalization, the parallelogram case, the metre units and the cell bound.
- * @evidenceExclude contracts/performance.md#cost-and-resources A record; the analyzer's cost scales with `countU * countV` and belongs to the daylight analyzer. Read by one study, whose normal and sky directions the analyzer derives once from it. Three vectors and four numbers owned by the request for one study.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisWorkplane {

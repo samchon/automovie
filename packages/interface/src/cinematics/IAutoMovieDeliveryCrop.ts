@@ -9,10 +9,6 @@
  * resolutions. `resolveAutoMovieDeliveryCrop` throws a `RangeError` for a
  * malformed window instead of clamping it.
  *
- * @evidence contracts/common.md#principled-implementation Normalized pixel-edge coordinates make the window independent of resolution; `resolveAutoMovieDeliveryCrop` requires finite edges in [0, 1] with `left < right` and `top < bottom` and returns a fresh copy so consumers never alias caller input.
- * @evidence contracts/common.md#clear-and-simple-design Four scalars and no pixel sizes, because the window is projected onto whatever raster the frame format names; an omitted crop resolves to the whole-gate constant.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed crop raises `RangeError` rather than being clamped into range, and edge inclusivity is fixed by contract, so a contact exactly on `right` or `bottom` is delivered.
- * @evidence contracts/common.md#meaningful-documentation States the coordinate frame and origin, which edges are inclusive, the interval of each edge, the failure on a malformed window, and that the window maps back onto the full raster.
  * @author Samchon
  */
 export interface IAutoMovieDeliveryCrop {

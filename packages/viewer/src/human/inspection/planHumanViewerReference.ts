@@ -3,11 +3,6 @@
  * no layer, including when an address requested one. The public plan contains
  * only presentation values: no bytes, local filename or source path can enter
  * a capture manifest through this representation.
- *
- * @evidence contracts/common.md#principled-implementation Missing references produce no layer; each finite closed mode maps to its own layout semantics.
- * @evidence contracts/common.md#clear-and-simple-design Presentation is independent of local file resolution and numerical model compilation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference composition changes pixels only and never optimizes anatomical inputs.
- * @evidence contracts/common.md#meaningful-documentation Explains absent-reference behavior and the photograph-free plan boundary.
  */
 export function planHumanViewerReference(
   available: boolean,

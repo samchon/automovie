@@ -10,11 +10,6 @@ import type { HumanViewerAddress } from "./HumanViewerAddress.js";
  * and reports why, and only a failure of the standard document itself fails
  * the candidate. A worker that cannot load is a generation failure and is
  * passed on unchanged.
- *
- * @evidence contracts/common.md#principled-implementation One document's refusal stays that document's error; generation readiness depends only on the generation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The fallback is the caller's supplied catalogue default, never an example chosen by name in this library.
- * @evidence contracts/common.md#meaningful-documentation States why the first address may fail, the fallback and what still fails the candidate.
- * @evidence contracts/common.md#clear-and-simple-design The first-display owner separates worker-generation failure from one requested document's failure while the caller owns the fallback address.
  */
 export async function showHumanViewerFirstAddress(
   requested: HumanViewerAddress,

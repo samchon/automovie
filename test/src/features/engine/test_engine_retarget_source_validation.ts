@@ -60,7 +60,6 @@ const motion = (flexion: number, times = [0, 1]): IAutoMovieMotion => ({
 });
 
 /**
- *
  * Retargeting admits only motion already valid in its declared source rig.
  *
  * Scenarios:
@@ -71,10 +70,6 @@ const motion = (flexion: number, times = [0, 1]): IAutoMovieMotion => ({
  *    the source rig's authored ROM.
  * 3. A clip with a reversed source clock is refused at its source-motion path
  *    before conversion can relabel it as target motion.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `retargetHumanoidMotion` with contacts disabled for a source-valid clip, a clip past the source rig's flexion limit, and a clip whose key times run backwards, asserting validation success, the target skeleton id, a null motion on refusal, and the violation kind and path; it catches validation run only against the wider target rig so a source ROM breach is laundered, a reversed clock relabelled as target motion, and a violation reported at the wrong keyframe path.
- * @evidence contracts/testing.md#independent-expectations Acceptance of 20 degrees and refusal of 60 degrees follow from the authored source limit of 30 degrees against the target's 180; the `rom` and `temporal` kinds and the `$input.motion...` paths restate where the source clip carries the offending value; the accepted case checks only success and target id, so the converted joint values are not pinned here.
- * @evidence contracts/testing.md#distinguishing-cases Positive in-range clip; negative source-ROM breach that the target would accept, which is the case this test owns; negative reversed clock at keyframe 1; joint conversion, proportions and contact preservation belong to `test_motion_retarget_humanoid` and the `test_motion_retarget_contact_*` tests.
  */
 export const test_engine_retarget_source_validation = (): void => {
   const source = skeleton("source-rig", 30);

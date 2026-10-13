@@ -8,10 +8,6 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  * same-stem names (`noseWidth`, `noseLength`, `noseHump`, `nostrilWidth`,
  * `noseBridge`).
  *
- * @evidence contracts/common.md#principled-implementation Eight leaves mapped by `flattenHead` onto nose morph names, with projection, tip angle and base height landing on `noseProject`, `nosePoint` and `noseBaseH`, each an additive delta of the caller's template.
- * @evidence contracts/common.md#clear-and-simple-design All nasal controls in one flat record, including the radix-height `bridge` and the dorsal `hump` that the face vocabulary's nose lacks.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The three renamed nose fields are fixed entries in the `flattenHead` map; no value is scaled, clamped or derived from another on the way.
- * @evidence contracts/common.md#meaningful-documentation Adds the owning document, the range, neutral omission and the renamed morph names; members give direction for width, length, hump, tip and bridge.
  * @author Samchon
  */
 export interface IAutoMovieHeadNose {

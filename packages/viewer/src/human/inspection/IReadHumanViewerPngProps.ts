@@ -6,10 +6,6 @@ import type { IHumanViewerComposition } from "./IHumanViewerComposition.js";
 /**
  * What a capture reads its PNG from.
  *
- * @evidence contracts/common.md#principled-implementation PNG reading finishes the displayed stage and checks that renderer's error state before using its canvas.
- * @evidence contracts/common.md#clear-and-simple-design The stage, renderer and optional photograph composition are explicit inputs to one capture boundary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A photo comparison stays a distinct composition; its canvas bytes do not establish numerical or anatomical acceptance.
- * @evidence contracts/common.md#meaningful-documentation Identifies the drawn stage, checked renderer, render canvas and nullable photograph overlay.
  * @author Samchon
  */
 export interface IReadHumanViewerPngProps {

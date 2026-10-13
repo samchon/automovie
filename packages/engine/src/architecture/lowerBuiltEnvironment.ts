@@ -40,12 +40,6 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * The returned contribution shares the environment's own model, surface and
  * population objects rather than copying them. A record that fails
  * `validateBuiltEnvironment` throws an `Error` naming its first violation.
- *
- * @evidence contracts/common.md#principled-implementation Composes each element's local TRS with its operating-state joint delta and its parent's world matrix by memoized recursion, then decomposes the world matrix back to TRS; validation's shear check guarantees every composed matrix decomposes without loss, and its acyclicity check bounds the recursion.
- * @evidence contracts/common.md#clear-and-simple-design Lowering owns only flattening and grouping; `worldMatricesOf`, `travelDelta`, `operationDeltas` and the two apply helpers are private copies of code repeated in eight other architecture files, `validateBuiltEnvironment` among them, and this copy's `stateId` parameter is never passed, an option kept for no caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Omits the `instanceSets` key when there are no populations so older records merge byte for byte, a documented compatibility choice; no element kind or model is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the world-TRS flattening, the state application, the compact population hand-off, the node and space id formats, the shared object references, and the refusal.
- * @evidence contracts/performance.md#cost-and-resources A full validation runs first, then world matrices are composed once per element through a per-call memo, while each logical space filters every surface and walkable id, O(S × (F + W)) where one grouping pass would be linear. Nothing is cached across calls, so the validator's own matrix composition is redone here and an authored subject lowering in each `render` revalidates an unchanged record; the memo dies with the call.
  */
 export const lowerBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,

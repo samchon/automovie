@@ -8,11 +8,6 @@ import type { IHumanViewerInputs } from "./IHumanViewerInputs.js";
  * admitted entry is drawable, any other is listed as `viewer-authored <id>`
  * with the owner's reason and whether it is still pending, so a wrong shape
  * surfaces at `/docs` rather than only as a render refusal.
- *
- * @evidence contracts/common.md#principled-implementation A viewer-authored document is drawable only after its owner admitted it.
- * @evidence contracts/common.md#clear-and-simple-design One step owns the verdict split; the admission itself is injected.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every example follows the injected original admission, including its pending state, with no fixture exemption or downgraded preview verdict.
- * @evidence contracts/common.md#meaningful-documentation States what is drawable and how the rest is listed.
  */
 export function admitHumanViewerAuthoredEntries(
   entries: readonly IHumanViewerCatalogueEntry[],

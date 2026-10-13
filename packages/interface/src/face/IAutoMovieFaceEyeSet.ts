@@ -14,10 +14,6 @@ import { IAutoMovieFaceEye } from "./IAutoMovieFaceEye";
  * left/right. The Set/single naming split is deliberate: "EyeSet" vs "Eye"
  * cannot be confused by a tool-calling model the way "Eyes" vs "Eye" can.
  *
- * @evidence contracts/common.md#principled-implementation A pair-level `spacing` scalar plus two optional sides; `flattenFace` emits `eyeSpacingR` and `eyeSpacingL` as each resolved side's offset plus `spacing`, so spacing alone still moves both eyes when no side is defined.
- * @evidence contracts/common.md#clear-and-simple-design Relations between the eyes live here and per-eye traits in `IAutoMovieFaceEye`, with the `Set` suffix chosen so a model cannot confuse the pair type with the single one.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts With only `spacing` set the reported path is `eyes.spacing`, and with a side's offset set the summed weight is reported at that offset; both come from the one mapping validation and morphing share, with no separate spacing check.
- * @evidence contracts/common.md#meaningful-documentation States the side rule first, that there is no `both` field, the subject-side convention, the direction of spacing, and that it is range-checked together with each side's offset.
  * @author Samchon
  */
 export interface IAutoMovieFaceEyeSet {

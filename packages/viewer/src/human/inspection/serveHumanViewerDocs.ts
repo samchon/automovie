@@ -9,11 +9,6 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js
  * document reads its verdict. A `doc` selector reads and settles only that
  * document, leaving the host's complete inventory intact. Returns whether the
  * path was `/docs`.
- *
- * @evidence contracts/common.md#clear-and-simple-design The route only publishes the host's catalogue; composition and settling belong to the host.
- * @evidence contracts/common.md#principled-implementation Publishes either current descriptors or owner-settled admission, with selected-document settlement preserving the host's complete inventory.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Pending and refused entries retain their original verdicts; a selected read does not manufacture readiness or waive another document's numerical schema.
- * @evidence contracts/common.md#meaningful-documentation States both answers and when each is given.
  */
 export function serveHumanViewerDocs(
   props: IServeHumanViewerDataProps,

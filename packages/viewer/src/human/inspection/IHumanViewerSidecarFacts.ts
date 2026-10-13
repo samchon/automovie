@@ -4,10 +4,6 @@ import type { IHumanViewerPersonSidecar } from "./IHumanViewerPersonSidecar.js";
 /**
  * What the input reader learned from one sidecar file, kept until the file's stamp changes so a rescan neither rereads nor rehashes unchanged bytes.
  *
- * @evidence contracts/common.md#principled-implementation Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
- * @evidence contracts/common.md#clear-and-simple-design One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unreadable sidecar keeps its failure and nullable identity fields rather than becoming a fabricated valid basis.
- * @evidence contracts/common.md#meaningful-documentation Documents stamp-based reuse, SHA-256, file-kind identities and the unreadable-byte state.
  * @author Samchon
  */
 export interface IHumanViewerSidecarFacts {

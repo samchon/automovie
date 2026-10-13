@@ -13,11 +13,6 @@ import { createAutoMovieResourceRetirement } from "../../createAutoMovieResource
  * The caller supplies digest keys, the
  * size function and a disposer, so the same policy owns numerical and GPU
  * residents. A failed build is never inserted by the caller.
- *
- * @evidence contracts/common.md#principled-implementation Bounds selected residents by measured array size and separately retains pending or failed retirement bytes until the supplied owner's completion succeeds; neither sum certifies physical GPU release.
- * @evidence contracts/common.md#clear-and-simple-design Budget, size and disposal are explicit inputs; one cache-local set retains actual unfinished retirement completions while key computation stays with provenance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The eviction policy treats every document identically and cannot turn failed release into freed budget or a silently successful settlement.
- * @evidence contracts/common.md#meaningful-documentation Describes synchronous recency selection, awaited release, retained failure bytes and the array-accounting limit beside the oversize policy.
  */
 export function createHumanViewerCache<Value>(
   budget: number,
@@ -116,10 +111,6 @@ export function createHumanViewerCache<Value>(
  * owner settles successfully. Failure remains an original value, not a new
  * successful completion or evidence of physical release.
  *
- * @evidence contracts/common.md#principled-implementation Keeps measured array bytes paired with the real retirement promise and its independently observed original rejection.
- * @evidence contracts/common.md#clear-and-simple-design The cache-local record describes one withdrawn owner without a separate service or global lifetime registry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A recorded rejection stays available to settlement and cannot be counted as successful release.
- * @evidence contracts/common.md#meaningful-documentation States byte units, actual promise ownership and the absence meaning of an unobserved failure.
  * @author Samchon
  */
 interface IHumanViewerCacheRetirement<Value> {

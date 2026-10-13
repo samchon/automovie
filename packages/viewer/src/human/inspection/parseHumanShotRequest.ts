@@ -3,11 +3,6 @@
  * Display admission remains with the shared address parser on the server.
  * Output is an optional caller-selected local PNG; lifecycle commands accept
  * no display fields. Unknown switches and incomplete output arguments refuse.
- *
- * @evidence contracts/common.md#principled-implementation A closed command set separates lifecycle and image operations and preserves each query value through URL encoding.
- * @evidence contracts/common.md#clear-and-simple-design Argument admission has no process, port or filesystem effects.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Commands use the same HTTP query protocol as bookmarks and never recognize subjects specially.
- * @evidence contracts/common.md#meaningful-documentation Documents lifecycle restrictions and local output selection.
  */
 export function parseHumanShotRequest(args: readonly string[]): {
   command:

@@ -9,11 +9,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * supplies no atomic rollback of the original product setters.
  * The mounted producer owns scene resources, playback and completed frames;
  * the page bridge retains the prior page when this restoration refuses.
- *
- * @evidence contracts/common.md#principled-implementation Validates membership before invoking the product-owned selection setter and verifies its result.
- * @evidence contracts/common.md#clear-and-simple-design Reuses the same page application transfer owner for both selectable clip products.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No widget replay, inferred choice or named default substitutes for current state.
- * @evidence contracts/common.md#meaningful-documentation Defines ownership and the candidate refusal boundary.
  */
 export function registerViewerSelection(props: {
   /** Product-owned selectable names admitted during transfer. */

@@ -16,10 +16,6 @@
  * The ledger balances: `volume` equals the step-0 volume plus `sourceVolume`
  * minus `drainVolume` and `outflowVolume`, up to floating-point rounding.
  *
- * @evidence contracts/common.md#principled-implementation A pure function of `(domain, step)` computed by re-integrating from the authored state with only correctly rounded IEEE-754 operations, so any seek order reproduces the same bits; the price of that purity is a full re-integration per seek.
- * @evidence contracts/common.md#clear-and-simple-design Flat `number[]` arrays in the documented cell and face orders plus four ledger scalars, what the surface derivation, spray sampler and mass-balance check need, with no handle to a running solver.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No step or domain is special-cased; the ledger terms let the balance be checked instead of a renormalization hiding loss, and a non-finite state throws at the step it first appears.
- * @evidence contracts/common.md#meaningful-documentation States the index formulas for cells and both face arrays, units, the exact time relation, the ledger meanings since step 0, the balance identity, the per-seek cost, and when production throws.
  * @author Samchon
  */
 export interface IAutoMovieFluidState {

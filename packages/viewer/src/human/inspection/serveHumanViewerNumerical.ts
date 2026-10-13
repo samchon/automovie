@@ -9,11 +9,6 @@ import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChange
  * Bind owned Node sessions to a lossless event stream and original requests.
  * Closing that stream or deleting its session cancels actual computation;
  * neither a numerical failure nor a rejected construction is rewritten.
- *
- * @evidence contracts/common.md#principled-implementation The pinned shared codec retains typed arrays, backing bytes and scalar distinctions through the existing product protocol.
- * @evidence contracts/common.md#clear-and-simple-design Routes only session lifetime and messages; the Node service owns evaluation and source authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves original domain, operation, correlation and source-change refusal identity; no browser evaluator or preview downgrade replaces the checked Node request.
- * @evidence contracts/common.md#meaningful-documentation States lossless transport and actual session cancellation.
  */
 export function serveHumanViewerNumerical(props: IServeHumanViewerNumericalProps): boolean {
   const prefix = "/numerical/";

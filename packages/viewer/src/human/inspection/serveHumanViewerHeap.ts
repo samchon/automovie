@@ -6,11 +6,6 @@ import type { IServeHumanViewerHeapProps } from "./IServeHumanViewerHeapProps.js
  * collected. Browser workers are read independently through the supplied
  * worker-heap owner; Node numerical-process heaps are outside this renderer
  * report. A reading that cannot be taken answers 503 with the cause.
- *
- * @evidence contracts/common.md#principled-implementation Reports the live size after collection, not live plus garbage.
- * @evidence contracts/common.md#clear-and-simple-design Combines supplied page and browser-worker readings outside GPU scheduling without adding a second heap budget or process sampler.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports observed renderer heap values or their actual failure and never estimates absent Node heaps or declares a model valid from memory usage.
- * @evidence contracts/common.md#meaningful-documentation States the queue independence and the failure answer.
  */
 export function serveHumanViewerHeap(props: IServeHumanViewerHeapProps): void {
   void Promise.all([props.readLiveHeap(), props.readWorkerHeaps()])

@@ -12,11 +12,6 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * a public disposal call does not certify physical GPU retirement. Nested
  * constructors register a child's resources only after that child succeeds;
  * the child owns its own refusal, preventing duplicate retirement by its parent.
- *
- * @evidence contracts/common.md#principled-implementation Registers concrete disposable objects before later initialization can fail and uses identity deduplication for shared owned resources.
- * @evidence contracts/common.md#clear-and-simple-design One synchronous allocation transaction serves geometry, material and model producers without changing their public values or signatures.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Retires producer-owned resources through their public operations without altering SDK methods or acquiring borrowed textures.
- * @evidence contracts/common.md#meaningful-documentation States registration timing, successful ownership transfer, nested failure, independent cleanup and the native-retirement limit.
  */
 export function constructAutoMovieOwnedResources<Value>(
   construct: (own: <Resource extends { dispose(): void }>(resource: Resource) => Resource) => Value,

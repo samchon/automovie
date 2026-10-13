@@ -5,7 +5,6 @@ import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
 import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContributions";
 
 /**
- *
  * A subject that is a collection of subjects.
  *
  * A cluster holds figures, a group holds clusters, a village holds buildings, a
@@ -21,46 +20,26 @@ import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContr
  *
  * Membership is not checked for cycles: a group that lists itself, directly or
  * through a member, recurses in `render` until the call stack overflows.
- *
- * @evidence contracts/common.md#principled-implementation The composite pattern over `AutoMovieSubject`: a group is itself a subject whose default `render` folds its members' contributions, so clusters, units and maps nest to any depth behind one interface.
- * @evidence contracts/common.md#clear-and-simple-design Adds only `members()` and a default `render` to the base, so a subclass states membership and arrangement and overrides `render` only to merge an extra contribution of its own with `super.render`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no member kind or layout; `TMember` bounds members to `AutoMovieSubject<unknown>`, and a membership cycle is not detected, so a self-listing group overflows the stack instead of being refused.
- * @evidence contracts/common.md#meaningful-documentation States the nesting levels it models, that `render` composes members by default, how an override keeps members' output, and the unchecked membership cycle.
- * @evidenceExclude contracts/performance.md#cost-and-resources The class adds no algorithm beyond its `render` method, whose traversal cost is answered on that method. Keeps no store of member contributions at class level; the per-call recomputation is answered on `render`. Declares no fields; members are held by the subclass that returns them from `members()`, for as long as the group instance lives.
  */
 export abstract class AutoMovieSubjectGroup<
   TDesign,
   TMember extends AutoMovieSubject<unknown>,
 > extends AutoMovieSubject<TDesign> {
   /**
-   *
    * The subjects this group holds, in a stable order.
    *
    * Called on every `render`, so this order is the merge order and therefore
    * fixes the bytes of the shot program; returning another order on a later
    * call changes the output.
-   *
-   * @evidence contracts/common.md#principled-implementation Order is the group's contract with `mergeAutoMovieSubjectContributions`, which concatenates in the order given, so a deterministic member order yields a deterministic shot program.
-   * @evidence contracts/common.md#clear-and-simple-design A method rather than a constructor argument, so a subclass may derive members from its own design (a formation's count, a village's lots) instead of storing a second list.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The base checks neither order stability nor duplicates; a member listed twice contributes twice, and the builder's own id checks are what report the resulting collision.
-   * @evidence contracts/common.md#meaningful-documentation States that the order is the merge order and fixes the output bytes, and that the method runs on every render.
-   * @evidenceExclude contracts/performance.md#cost-and-resources Abstract with no body; whether the list is built per call or returned from a field is the subclass's cost. Not memoized by the base; a subclass that builds members per call pays that on each `render` and may keep its own list instead. Returns a read-only array the subclass owns; the base drops its reference once `render` has mapped it.
    */
   public abstract members(): readonly TMember[];
 
   /**
-   *
    * Merge every member's authored contribution in stable member order.
    *
    * Each call renders every member again with the same context and merges the
    * results. Nothing is cached, so a nested group re-renders its whole subtree
    * on every call.
-   *
-   * @evidence contracts/common.md#principled-implementation Maps `members()` through each member's `render` with the caller's context and hands the list to `mergeAutoMovieSubjectContributions`, which concatenates each field in member order without deduplication.
-   * @evidence contracts/common.md#clear-and-simple-design Default composition lives here so a subclass states only what it holds, and an override adding a banner or route calls `super.render` and merges, keeping the members' sections intact.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies no per-member filter or fix-up; ids colliding across members pass through to the builder's uniqueness checks instead of being collapsed here.
-   * @evidence contracts/common.md#meaningful-documentation States the stable order, the absence of caching, and that nested groups re-render their subtree on every call.
-   * @evidence contracts/performance.md#cost-and-resources Time and space are linear in the entries contributed across the whole subtree plus one intermediate array of member contributions per nesting level; the full walk is needed because every entry is copied into the merged record. Shares nothing between calls or between groups: the shot context is an input and no identity keys a stored contribution, so a member reachable through two groups is rendered once per path. Allocates the member-contribution list and the merged arrays per call and keeps neither; the caller owns the returned record.
    */
   public render(
     context: IAutoMovieShotBuildContext,

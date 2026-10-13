@@ -14,11 +14,6 @@ import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChange
  * Explicit disposal releases the same resources without reporting a failure.
  * A measured source change preserves its error identity on both the stream
  * and a rejected post, whichever reaches the browser first.
- *
- * @evidence contracts/common.md#principled-implementation The same devalue codec preserves structured result types and references on both sides while correlation remains with the numerical port.
- * @evidence contracts/common.md#clear-and-simple-design One stream carries actual readiness, progress and replies; posts carry only original requests.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts This owned adapter implements a protocol; it changes no foreign Worker method or model value.
- * @evidence contracts/common.md#meaningful-documentation States codec parity and stream-owned cancellation.
  */
 export function createHumanViewerNumericalEndpoint(): IHumanViewerNumericalEndpoint {
   const controller = new AbortController();

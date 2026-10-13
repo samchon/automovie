@@ -6,10 +6,6 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  * rather than nested. `flattenHead` projects the fields onto `jawWidth`,
  * `jawDrop`, `chinLength`, `chinWidth` and `chinProject`.
  *
- * @evidence contracts/common.md#principled-implementation Five leaves mapped by `flattenHead` onto `jawWidth`, `jawDrop`, `chinLength`, `chinWidth` and `chinProject`, each an additive delta of the caller's template.
- * @evidence contracts/common.md#clear-and-simple-design Jaw and chin share one flat record, unlike the nested `IAutoMovieFaceJaw`, because every head group is one level deep.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `chinProjection` is the only field whose morph name is shortened, to `chinProject`; it is a fixed table entry and no jaw value is derived from another.
- * @evidence contracts/common.md#meaningful-documentation Adds the owning document, the range, neutral omission, the flattened chin and every morph name; members give each direction except `drop`, whose direction the template decides.
  * @author Samchon
  */
 export interface IAutoMovieHeadJaw {

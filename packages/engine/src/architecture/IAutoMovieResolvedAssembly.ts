@@ -10,11 +10,6 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * summed `total`, while the last layer's own `end` is accumulated layer by
  * layer, so the two can differ by floating-point rounding.
  *
- * @evidence contracts/common.md#principled-implementation A running cursor from the offset along the declared sense gives each layer its `[start, end]`, so layer spans tile the build-up without gaps and `total` is the plain thickness sum.
- * @evidence contracts/common.md#clear-and-simple-design Keeps both the signed `start` and `end` and the ordered `extent`, so callers that care about stacking sense and callers that need an interval each read their own field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid build-up throws before any coordinate exists, and no layer role or substance changes how a layer is placed.
- * @evidence contracts/common.md#meaningful-documentation States the producer and its precondition, the frame and unit, how start, end and extent relate, layer order, and the rounding difference between the two end values.
- * @evidenceExclude contracts/performance.md#cost-and-resources A record from one linear pass over the layers after validation, owning fresh layer copies; junction and reveal queries take it as input instead of resolving again.
  * @author Samchon
  */
 export interface IAutoMovieResolvedAssembly {

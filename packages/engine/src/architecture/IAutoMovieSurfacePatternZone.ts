@@ -8,11 +8,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * owns exactly the pieces inside it, and a neighbouring zone meets it along a
  * shared border that the neighbour scan measures across.
  *
- * @evidence contracts/common.md#principled-implementation A zone is a lattice (origin and period) plus an author-stated reach, which lets the run enumerate exactly the cells whose modules can touch the convex region instead of guessing a margin.
- * @evidence contracts/common.md#clear-and-simple-design Region, lattice, reach, material and generator are the five inputs one module program needs; a second bond or a grain turn is another zone rather than an option on this one.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A module reaching past the stated reach is refused rather than dropped at the edge, a non-convex or overlapping region is refused by the run, and no zone id has special meaning.
- * @evidence contracts/common.md#meaningful-documentation States the face-local metre frame of region and origin, per-axis positivity of period and reach, why reach must be stated, id uniqueness, clipping to the region, and what a null material means.
- * @evidenceExclude contracts/performance.md#cost-and-resources Computes nothing itself; its period and reach set the run's enumeration size, the lattice cells over the region's box widened by reach and refused above `AUTOMOVIE_MAX_PATTERN_CELLS`, and it retains only its points and a reference to the generator closure.
  * @author Samchon
  */
 export interface IAutoMovieSurfacePatternZone {

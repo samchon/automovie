@@ -5,11 +5,6 @@
  * This owner supplies no elapsed-time policy and never restarts a process;
  * after a physically settled failure the host may renew it for a replacement
  * page.
- *
- * @evidence contracts/common.md#principled-implementation Only physical settlement releases a dispatched capture; uncertain transport failure refuses new dispatch without passing queue ownership.
- * @evidence contracts/common.md#clear-and-simple-design One pending set owns capture cancellation and one failure value rejects later requests against the failed transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual transport failure signals rather than a document-specific deadline or retry.
- * @evidence contracts/common.md#meaningful-documentation States queue ownership, explicit failure and the absence of a restart policy.
  */
 export function createHumanViewerCaptureLifetime() {
   const pending = new Set<(error: Error) => void>();

@@ -45,12 +45,6 @@ const outlineCentroid = (
  * lands inside the space, its owning building, and an aspect of roof,
  * underside, or facade read from the normal's vertical component against
  * `AUTOMOVIE_ENVELOPE_FACADE_LIMIT`. Sorted by boundary id in code-unit order.
- *
- * @evidence contracts/common.md#principled-implementation Places outline vertices and the area-weighted centroid through the face's TRS, flips the authored normal when an `AUTOMOVIE_OBSERVATION_PROBE` step along it lands inside the one space, and classifies aspect from the normal's `y`.
- * @evidence contracts/common.md#clear-and-simple-design Defect: `outlineCentroid` is copied in `builtSpaceObservationStations`; the query returns one flat sorted list that corners and the census filter by building.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A probe landing outside keeps the authored direction, which also covers a face standing off the volume by its wall thickness; a zero-area outline falls back to its vertex mean, and a faceless or unknown-space boundary is skipped.
- * @evidence contracts/common.md#meaningful-documentation States the exposure rule, the outward-normal correction, the aspect classification and its limit, the world frame, the per-face fields, and the sort order.
- * @evidence contracts/performance.md#cost-and-resources Defect: each exposed face calls `builtEnvironmentBuildingOfSpace`, which rebuilds every building's descendant set, making the call `O(F B S D)` where a space-to-building map built once would be linear; the space index is built once per call, vertex placement is linear in outline points, and nothing is cached.
  */
 export const builtEnvironmentEnvelopeFaces = (
   environment: IAutoMovieBuiltEnvironment,

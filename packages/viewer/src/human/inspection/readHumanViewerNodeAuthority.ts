@@ -10,11 +10,6 @@ import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js
  * Confirm the source bytes after the public checked loader admitted this realm.
  * A changed byte refuses readiness; the Node version and owning project come
  * from this execution, and no browser compilation identity is manufactured.
- *
- * @evidence contracts/common.md#principled-implementation Loaded-source witnesses must equal the host's pre-start bytes before any request can run.
- * @evidence contracts/common.md#clear-and-simple-design One readiness receipt separates Node loading from browser transformations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rehashes original host-witnessed files and reads the actual installed loader version rather than borrowing a browser compile stamp or accepting altered startup bytes.
- * @evidence contracts/common.md#meaningful-documentation States actual loader authority and source-change refusal.
  */
 export function readHumanViewerNodeAuthority(
   input: IHumanViewerNodeWorkerData,

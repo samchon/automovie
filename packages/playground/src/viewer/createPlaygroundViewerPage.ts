@@ -9,11 +9,6 @@ import type { IPlaygroundViewerPage } from "./IPlaygroundViewerPage";
  * inputs, and offer a checked candidate to its same-origin parent. Hidden
  * candidates observe but never save before commitment. Only a visible hosted
  * interactive page receives a session; standalone/offline pages are untouched.
- *
- * @evidence contracts/common.md#principled-implementation Actual native frames and a post-load source check precede candidate publication.
- * @evidence contracts/common.md#clear-and-simple-design One page owner joins application transfer, product completion and the shared bounded saver.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No DOM event replay, fabricated ready camera, SDK replacement or elapsed-time retry supplies authority.
- * @evidence contracts/common.md#meaningful-documentation Defines restore, publication, source and bitmap commitment boundaries.
  */
 export function createPlaygroundViewerPage(): IPlaygroundViewerPage | undefined {
   const parameters = new URLSearchParams(location.search);

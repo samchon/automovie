@@ -11,11 +11,6 @@ import { planHumanViewerThumbnailPrune } from "./planHumanViewerThumbnailPrune.j
  * current revision and that one previous revision and removes the rest, since
  * only these can still be shown. Nothing outside the thumbnail folder is read
  * or removed, and the numerical result cache is not touched.
- *
- * @evidence contracts/common.md#principled-implementation The previous revision is the newest older directory by modification time, which is the last revision that drew pictures.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the folder policy; the host supplies the disk and decides what to answer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale pictures are labelled stale and never relabelled as current.
- * @evidence contracts/common.md#meaningful-documentation States the retention rule, the stale answer and what is never touched.
  */
 export function createHumanViewerThumbnailStore(
   disk: IHumanViewerThumbnailDisk,

@@ -15,11 +15,6 @@ import type { IRunHumanViewerCompileProps } from "./IRunHumanViewerCompileProps.
  * output, because invalidations can overlap runs, and removes it once read.
  * Every run is logged with its duration and file count, and a failure is
  * logged with the compiler's reason and thrown.
- *
- * @evidence contracts/common.md#principled-implementation Isolates the synchronous compiler in a child process and returns only a complete result or the named failure.
- * @evidence contracts/common.md#clear-and-simple-design One function owns running the compile; watching and publication stay with the caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Runs the maintained compiler entry and consumes its complete output or failure without patching SDK emit, expiring work by age or publishing a partial generation.
- * @evidence contracts/common.md#meaningful-documentation States the process boundary, the logging and the failure effect.
  */
 export async function runHumanViewerCompile(
   props: IRunHumanViewerCompileProps,

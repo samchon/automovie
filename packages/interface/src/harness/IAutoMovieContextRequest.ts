@@ -33,10 +33,6 @@ import { IAutoMovieMeasureDistanceRequest } from "./IAutoMovieMeasureDistanceReq
  * Only the stored family has a resolver in this repository: `readSlateContext`
  * answers it from the slate. No source answers the three engine queries yet.
  *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `type`, so a host dispatches each query with one literal switch; `readSlateContext` answers the five stored queries from the slate, while the three engine queries have no resolver in this repository, an unresolved limitation.
- * @evidence contracts/common.md#clear-and-simple-design Stored and engine queries share one union because the agent sees them as one read surface; each request type carries only the ids and times its answer needs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No request is special-cased; `readSlateContext` throws on an unknown type and on a slate holding two shots or two beat ends with the requested id, rather than returning the first match.
- * @evidence contracts/common.md#meaningful-documentation States the two families, which request belongs to each, their intended any-order use, and that only the stored family has a resolver today.
  * @author Samchon
  */
 export type IAutoMovieContextRequest =

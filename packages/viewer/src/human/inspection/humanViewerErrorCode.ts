@@ -4,11 +4,6 @@
  * one level down), or null when none carries a code. The module has no
  * imports and uses only syntax Node strips, so the plain-Node control script
  * can load it.
- *
- * @evidence contracts/common.md#principled-implementation Classifies a failure by the operating system's code rather than by message text.
- * @evidence contracts/common.md#clear-and-simple-design One bounded cause traversal returns the first actual string code or an explicit unknown result.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads supplied error properties without rewriting failures, parsing localized messages or adopting an unanswered listener as a dead process.
- * @evidence contracts/common.md#meaningful-documentation States where the code is looked for.
  */
 export function humanViewerErrorCode(error: unknown): string | null {
   for (let current: unknown = error, depth = 0; depth < 8; ++depth) {

@@ -5,7 +5,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- *
  * Final language revision cannot change the frozen screenplay address space.
  *
  * Scenarios:
@@ -15,10 +14,6 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Draft annotations refuse and evidence-stage citations cannot swap parents.
  * 5. Later-stage annotations and revised body language preserve identity;
  *    group titles remain exact in every stage.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieFinalScreenplayPopulation` with resident and final file lists, a construction identity map and the `readFinal` and `readGroupTitles` seams, asserting acceptance, the number of final reads, the groups visited, and refusal message fragments; it catches a disabled pass that still reads or tolerates residue, a final population that drops, adds, renames or reorders a file, a changed H1, heading count, depth, anchor, lineage, title or order, evidence tags authored in draft, a citation or review row pointing at another construction file or unit, and a renamed delivery-group title.
- * @evidence contracts/testing.md#independent-expectations Outcomes restate the documented freeze: the final pass may revise body language but not the construction address space, may cite only its exact construction counterpart, and may annotate only from evidence onward; the zero read count and the two visited groups follow from the inputs, and each refusal is matched by the fragment that names its rule.
- * @evidence contracts/testing.md#distinguishing-cases Positive disabled empty population, evidence and review annotation, and revised dialogue; negatives for residue, an empty active population, four file-list changes, the H1, seven heading-identity changes, a draft annotation, five wrong-counterpart citations across `@evidence`, `@evidenceReview`, `@evidenceExclude` and `@evidenceExcludeReview`, and a group title; claim construction for these hosts belongs to `test_evidence_final_screenplay_claims`.
  */
 export const test_evidence_final_screenplay_population = (): void => {
   const document: IAutoMovieScreenplayDocumentIdentity = {

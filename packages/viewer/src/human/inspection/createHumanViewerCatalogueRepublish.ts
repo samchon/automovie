@@ -4,11 +4,6 @@
  * becomes ready; rebuilding the catalogue synchronously for each of them
  * blocks ordinary requests on that same thread. A request made
  * while one is scheduled is folded into it, so a burst costs one rebuild.
- *
- * @evidence contracts/common.md#principled-implementation Republication follows the last verdict of a burst, never each one, without delaying beyond the current turn.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the pending request.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Coalesces actual republication requests without suppressing verdicts or using elapsed time to restart an active viewport.
- * @evidence contracts/common.md#meaningful-documentation States the measured cause and the folding rule.
  */
 export function createHumanViewerCatalogueRepublish(
   rebuild: () => void,

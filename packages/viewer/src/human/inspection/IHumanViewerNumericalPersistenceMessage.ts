@@ -1,11 +1,6 @@
 /**
  * Optional admitted-preview persistence remains independent of construction.
  *
- * @evidence contracts/common.md#principled-implementation Stored, cancelled and failed report optional preview persistence independently of model completion.
- * @evidence contracts/common.md#clear-and-simple-design One cache key, result state and optional measured durations describe the persistence owner outcome.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Persistence notifications cannot turn construction into an admitted preview or rewrite numerical output.
- * @evidence contracts/common.md#meaningful-documentation Cache encoding and writing durations are milliseconds of their own operations; error accompanies failed persistence.
- *
  * @author Samchon
  */
 export interface IHumanViewerNumericalPersistenceMessage {

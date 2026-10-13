@@ -23,11 +23,6 @@ import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChange
  * previously compiled dependencies in a later numerical generation.
  * A changed source ends its stream with the original measured refusal before
  * releasing the owned process; a concurrent post carries the same identity.
- *
- * @evidence contracts/common.md#principled-implementation Public ttsc/register refuses a bad owning project; source witnesses and actual readiness establish the realm independently of browser stamps.
- * @evidence contracts/common.md#clear-and-simple-design One owned process per event session has its own public-loader cache identity and preserves runtime residency without blocking the HTTP/GPU host.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Executes original product requests, with no preview reclassification or private loader mutation.
- * @evidence contracts/common.md#meaningful-documentation States checked loading, source identity and stream-owned cancellation.
  */
 export function createHumanViewerNodeService(props: ICreateHumanViewerNodeServiceProps) {
   const sessions = new Map<string, ChildProcess>();

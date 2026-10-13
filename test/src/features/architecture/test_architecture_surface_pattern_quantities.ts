@@ -5,7 +5,6 @@ import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
- *
  * Openings, drains, and a second zone, measured as quantity rather than drawn
  * over.
  *
@@ -37,10 +36,6 @@ import { namedFacts, nclose } from "../internal/predicates";
  *    apart as well as together.
  * 6. A non-zero joint turns the area the modules did not cover into a joint
  *    length, instead of reporting zero.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `generateAutoMovieSurfacePattern` with an opening and a drain over a 1.75 m field, a shaft swallowing one module, two side-by-side zones, and an empty generator at a 10 mm joint; asserting cut kinds, punched areas, coverages, totals, per-zone records, finding order, measured values and the joint length catches a cut kind that cannot say `both`, an exclusion area charged to the wrong piece or not subtracted from the net region, a swallowed module kept at zero area, zones merged in the take-off, and joint length left at zero.
- * @evidence contracts/testing.md#independent-expectations Every number is rectangle arithmetic on the declared polygons: the 0.3 m opening leaves `0.25 - 0.09 = 0.16` m2 at 0.64 coverage, the edge module keeps `0.125 - 0.01 = 0.115` m2 at 0.46, so it is the one sliver under 0.5 while the plain edge piece at exactly 0.5 is not, `1.75 - 0.1 = 1.65` m2 is covered of 2 m2 consumed for a 0.175 ratio, and `2 / 0.01 = 200` m of joint; the unsupported-piece detail is matched by two phrases only.
- * @evidence contracts/testing.md#distinguishing-cases All four cut kinds occur in one run, a minimum-piece boundary sits exactly at 0.5 beside a 0.46 failure, an exclusion that swallows a module whole drops it instead of reporting it, two zones are reported apart and summed, and the joint case contrasts the zero-joint empty run owned by the courses test; overlapping exclusions and other malformed declarations are owned by the refusals test.
  */
 export const test_architecture_surface_pattern_quantities = (): void => {
   const punched = generateAutoMovieSurfacePattern({

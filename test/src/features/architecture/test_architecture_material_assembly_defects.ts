@@ -27,7 +27,6 @@ const twoLayer = (
   });
 
 /**
- *
  * Every contradiction a layered build-up can carry, each beside a twin that
  * differs by one property and must stay clean.
  *
@@ -65,10 +64,6 @@ const twoLayer = (
  *    anchored at either face, at both, and at neither is not.
  * 9. A host thickness that is not a positive finite number is refused before the
  *    sum is compared with it.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieMaterialAssembly` with and without a substance table and a host, and asserts success, violation kind and path, violation count, and for finish defects the single violation's path and expected-text fragment; it catches malformed envelope fields, blank or duplicate layer identity, substance conflicts such as a zero-thickness solid or a cavity with a substance or finish, an unresolved substance without a table to resolve it, finish defects confused with one another or reported twice for a one-layer stack, a buried wrapping layer, and an invalid host thickness, while refusing nothing on each one-property twin.
- * @evidence contracts/testing.md#independent-expectations Each expectation follows the build-up rules stated in the doc comment applied by hand to the fixture: the path is the field the case changes, the finish verdict follows from which faces are exposed and which layers carry a finish, a wrapping run is valid only when anchored at a face, and the 0.1 m plus 0.01 m stack matches a 0.11 m host; finish defects are told apart by fragments of the validator's expectation text, so wording outside those fragments is unpinned.
- * @evidence contracts/testing.md#distinguishing-cases The clean baseline; six envelope faults with the empty stack shown to raise exactly one violation; three identity faults; eight substance conflicts beside an accepted zero-thickness membrane; table-free, incomplete-table and complete-table resolution; doubled, buried, missing and wasted finishes beside a stack finished at both exposed ends; five single-layer face combinations; a buried wrap beside leading, trailing, both-end, none and all wrapping runs; zero and NaN hosts beside a matching one; host dimension mismatch and junctions are owned by test_architecture_material_assembly_dimension and test_architecture_material_assembly_junction.
  */
 export const test_architecture_material_assembly_defects = (): void => {
   TestValidator.equals(

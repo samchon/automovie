@@ -6,11 +6,6 @@ import type { HumanViewerAddress } from "./HumanViewerAddress.js";
  * reference photograph or its landmarks: a document with a photograph and one
  * without would otherwise produce captures of different widths that cannot be
  * differenced. The photograph comparison is `ref` on one document.
- *
- * @evidence contracts/common.md#principled-implementation Differencing needs equal dimensions, which only photograph-free captures guarantee.
- * @evidence contracts/common.md#clear-and-simple-design One function owns what a comparison draws.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes only display layers and never a document.
- * @evidence contracts/common.md#meaningful-documentation States why photograph layers are removed.
  */
 export function forHumanViewerComparison(
   address: HumanViewerAddress,

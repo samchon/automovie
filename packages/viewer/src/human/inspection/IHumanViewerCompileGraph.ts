@@ -3,12 +3,6 @@
  * relative to the human package. Every file named here is watched, so an
  * edit to a type-only dependency or a config still invalidates the build.
  *
- * @evidence contracts/common.md#meaningful-documentation Names every reported input group.
- *
- * @evidence contracts/common.md#principled-implementation Import edges, globals, configurations and resolution reads enumerate real compiler input authority.
- * @evidence contracts/common.md#clear-and-simple-design Resolution candidates remain optional because not every compiler report supplies them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Type-only dependencies and configuration bytes remain watched inputs rather than being dismissed as non-runtime text.
- *
  * @author Samchon
  */
 export interface IHumanViewerCompileGraph {

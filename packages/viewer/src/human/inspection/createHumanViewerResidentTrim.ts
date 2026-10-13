@@ -20,11 +20,6 @@ import type { IHumanViewerResidentTrimReading } from "./IHumanViewerResidentTrim
  * counted without being released here. Insufficient headroom is reported
  * and capture continues, so this is measured, best-effort retention
  * management rather than hard production-job admission or pause.
- *
- * @evidence contracts/common.md#principled-implementation Eviction compares the page and worker usedSize readings with the supplied limit and target; it does not guarantee admission headroom.
- * @evidence contracts/common.md#clear-and-simple-design One owner reads, decides and asks the page to release; the page owns its residents.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document-specific sizes; the limit is checked against measured heaps.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes measured JavaScript heaps from resident typed-array budgets and states collection, eviction and insufficient-headroom behavior.
  */
 export function createHumanViewerResidentTrim(
   props: ICreateHumanViewerResidentTrimProps,

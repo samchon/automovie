@@ -97,12 +97,6 @@ const FULL_TURN_EPSILON = 1e-6;
  * Every finding is returned with a `$input` path, warnings included; nothing
  * throws. Lowering, drawing, scheduling and quantity take-off refuse a record
  * this rejects.
- *
- * @evidence contracts/common.md#principled-implementation Resolves every id reference through sets built once per table, finds hierarchy cycles by colour-marked depth-first search, checks shells for closure by matching each directed edge with exactly one reverse edge and for orientation by positive signed volume, and finds shear by a decompose-recompose round trip at 1e-8 relative error; the staged checks run only on an error-free record because they compose matrices that dangling or cyclic parents would break.
- * @evidence contracts/common.md#clear-and-simple-design One collector threads through private validators per record kind, and the staged checks are gated behind the structural ones; the private `worldMatricesOf`, `operationDeltas`, `travelDelta`, `collectIds`, `validateReferences` and `nonEmpty` helpers are copies of code repeated across the lineage, reference and placement files rather than shared.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Named tolerances (1e-3 m step run, 1e-6 rad slope, 1e-6 unit-quaternion norm, 1e-6 rad full-turn slack shared with the sweep solver) are contract choices stated beside their constants, and a dangling reference reported on its own path is deliberately not reported again by later checks; no building, element kind or fixture is special-cased.
- * @evidence contracts/common.md#meaningful-documentation Lists the check groups in their order, the gate that holds back the staged checks and why, the `$input` paths, that findings are returned rather than thrown, and which consumers depend on a passing record.
- * @evidence contracts/performance.md#cost-and-resources Mostly linear passes with id sets, but opening hosts and building roots are found by linear `find`, opening voids are compared all-pairs across the work before filtering by boundary, O(O²), and the staged checks compose all E world matrices for the rest pose and again per alternative or serving state, O((1 + states) × E), though only the moved subtree is then inspected. No result is cached, so lowering, drawing, scheduling, take-off and the production runtime each revalidate the same record and recompose its matrices; the collector, sets and matrix tables are released on return.
  */
 export const validateBuiltEnvironment = (props: {
   /** Building record to validate. */

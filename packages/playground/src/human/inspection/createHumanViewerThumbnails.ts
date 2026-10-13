@@ -18,11 +18,6 @@ import { planHumanViewerThumbnailRevision } from "./planHumanViewerThumbnailRevi
  * Observe visible gallery cards and retain server-rendered response bytes under
  * their actual revision authority; cache unavailability leaves ordinary fetch
  * behavior and a retained stale picture remains visible while replacement waits.
- *
- * @evidence contracts/common.md#principled-implementation Visible-card scheduling bounds concurrency at two, and response revision/stale headers decide cache authority instead of the revision remembered before the request.
- * @evidence contracts/common.md#clear-and-simple-design One observer owns visible/started card sets and one request lane; the separate revision planner owns whether response bytes are current and cacheable.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses normal fetch, Cache and IntersectionObserver APIs; only actual server-rendered bytes are retained, and neither offscreen cards nor unavailable cache invent a completed picture.
- * @evidence contracts/common.md#meaningful-documentation States card/frame inputs, bounded bulk scheduling, stale-image retention, response-based cache identity and clear-before-redraw ownership.
  */
 export function createHumanViewerThumbnails(props: {
   /** The source revision the server reports now; a picture from another is stale. */

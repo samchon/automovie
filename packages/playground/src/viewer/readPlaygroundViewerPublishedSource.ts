@@ -10,11 +10,6 @@ import type { IPlaygroundViewerPublicationReader } from "./IPlaygroundViewerPubl
  * locked read returns a shallow copy with an admission error; it does not mutate
  * the held receipt. Effect failures propagate from their owners. This sequence
  * does not claim an atomic filesystem snapshot or renderer rollback.
- *
- * @evidence contracts/common.md#principled-implementation A producer's actual lock gates admission, and the first unlocked read refreshes any receipt captured during publication.
- * @evidence contracts/common.md#clear-and-simple-design One source-read boundary composes the held receipt, publication state and existing refresh operation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A lock cannot expire by age, and the reader never certifies intermediate membership as a completed publication.
- * @evidence contracts/common.md#meaningful-documentation Defines held-receipt identity, lock refusal, refresh order and propagated effect failures without claiming an atomic filesystem snapshot.
  */
 export function readPlaygroundViewerPublishedSource<T extends {
   /**

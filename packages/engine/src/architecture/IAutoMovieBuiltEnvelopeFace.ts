@@ -14,11 +14,6 @@ import { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
  * boundary with no face, or whose one space does not resolve, yields no
  * record.
  *
- * @evidence contracts/common.md#principled-implementation The outline is placed by the face's own origin and rotation, the centroid is the shoelace area-weighted centroid (the vertex mean when the doubled area is within `1e-6`), and the outward normal flips the authored `+Z` when a 1 mm probe along it lands inside the space.
- * @evidence contracts/common.md#clear-and-simple-design Keeps the authored `kind` beside the derived `aspect`, so a reader sees both while geometry depends only on the derived one.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The probe distance is the documented `AUTOMOVIE_OBSERVATION_PROBE`; a probe landing outside keeps the authored direction, which also covers a face standing off its volume by the wall thickness.
- * @evidence contracts/common.md#meaningful-documentation States the exposure rule, the producer and ordering, how normal, centroid and vertices are derived and in which frame, that the label is untrusted, and the thickness unit.
- * @evidenceExclude contracts/performance.md#cost-and-resources A record owning fresh world vectors; the producer is linear in boundaries and outline vertices plus one containment probe per exposed face, and every call rebuilds the whole list with no per-environment cache.
  * @author Samchon
  */
 export interface IAutoMovieBuiltEnvelopeFace {

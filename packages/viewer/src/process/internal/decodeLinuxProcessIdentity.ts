@@ -7,11 +7,6 @@
  * These inputs are the host's complete native records, not authored overrides.
  * The Linux kernel proc documentation lists start_time after it_real_value:
  * https://www.kernel.org/doc/html/latest/filesystems/proc.html
- *
- * @evidence contracts/common.md#principled-implementation Joins boot identity with the kernel's exact decimal start ticks and locates fields after the complete command name.
- * @evidence contracts/common.md#clear-and-simple-design One native-record decoder owns Linux identity formatting without file access.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads supplied native facts without executable-name ownership or guessed wall-clock identity.
- * @evidence contracts/common.md#meaningful-documentation States the stat field derivation, command-name delimiter and exact tick representation.
  */
 export function decodeLinuxProcessIdentity(boot: string, stat: string): string {
   return boot.trim() + ":" + stat.slice(stat.lastIndexOf(")") + 2).split(" ")[19];

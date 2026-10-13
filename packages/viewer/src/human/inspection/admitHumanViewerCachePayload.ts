@@ -15,11 +15,6 @@ const CACHE_FIELDS = new Set([
  * could carry display or photograph data onto disk, so it refuses rather than
  * being dropped or re-encoded. Throws the reason; the caller stores the bytes
  * as received.
- *
- * @evidence contracts/common.md#principled-implementation Refuses any member outside the numerical projection instead of filtering it.
- * @evidence contracts/common.md#clear-and-simple-design One validator owns cache payload admission; storage stays with the route.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The accepted field set is the numerical preview protocol; unexpected display or photograph members cause refusal instead of silent filtering.
- * @evidence contracts/common.md#meaningful-documentation States the accepted members and why others refuse.
  */
 export function admitHumanViewerCachePayload(body: Buffer): void {
   const payload: unknown = JSON.parse(body.toString("utf8"));

@@ -6,10 +6,6 @@
  * makes the member a generated stand-in that `forgeCast` must forge; a non-null
  * one must resolve to a registered runtime model and is never forged.
  *
- * @evidence contracts/common.md#principled-implementation Joins a dramatic character to a scene node id, and the staged scene resolves the node's model as `modelRef ?? node`, so imported and generated bodies go through one lookup rule.
- * @evidence contracts/common.md#clear-and-simple-design Three fields: the node join, the character text for the model, and an optional model reference whose `null` selects generation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No character is special-cased; `modelRef: null` is the contract spelling of a generated stand-in, a blank reference is refused, and forging a member that already has a reference is refused.
- * @evidence contracts/common.md#meaningful-documentation States node uniqueness, what `character` is for, both meanings of `modelRef`, and which pass forges or resolves each.
  * @author Samchon
  */
 export interface IAutoMovieCastMember {

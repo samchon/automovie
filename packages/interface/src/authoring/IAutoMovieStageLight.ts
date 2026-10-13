@@ -8,10 +8,6 @@ import { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
  * Each family takes exactly its own parameters: a field that cannot act on the
  * declared family is refused, not ignored.
  *
- * @evidence contracts/common.md#principled-implementation `validateLightPlacementShape` makes each family's parameters exact: aimed families need `direction`, positioned ones need `position`, `range` is point and spot only, `coneAngle` spot only, `width` and `height` area only, and an inapplicable field is refused.
- * @evidence contracts/common.md#clear-and-simple-design One record with optional fields covers four families instead of a discriminated union; `lightTypeOf` reads the family and defaults an omitted `type` to `directional`, and the per-family rules live in the validator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `lowerLightPlacement` defaults an omitted spot `coneAngle` to 45 degrees and an omitted `color` to white with null alpha; `castShadow` on an area light is refused because three.js renders no shadow map for it.
- * @evidence contracts/common.md#meaningful-documentation States each field's family, the 45-degree cone default, the shadow-settings pairing, the area-light shadow refusal, and that `role` is ignored by lowering.
  * @author Samchon
  */
 export interface IAutoMovieStageLight {

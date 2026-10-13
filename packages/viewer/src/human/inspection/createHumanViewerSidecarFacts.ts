@@ -24,11 +24,6 @@ const gunzipAsync = promisify(gunzip);
  * it. Facts stay valid while the file's stamp is unchanged, so a rescan never
  * reads an unchanged sidecar again. A read failure is kept as the file's
  * failure reason, never hidden.
- *
- * @evidence contracts/common.md#principled-implementation Reads asynchronously, hashes chunk by chunk, inflates on the zlib pool, and reports a file still being read instead of blocking for it.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds sidecar facts, their stamps and the reads in flight.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A file is never admitted before its digest and identity are actually known.
- * @evidence contracts/common.md#meaningful-documentation States the pending state, the republication signal, stamp validity and failure reporting.
  */
 export function createHumanViewerSidecarFacts(
   props: ICreateHumanViewerSidecarFactsProps,

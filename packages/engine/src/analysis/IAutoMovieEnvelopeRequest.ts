@@ -8,7 +8,6 @@ import { IAutoMovieEnvelopeBridge } from "./IAutoMovieEnvelopeBridge";
 import { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
 
 /**
- *
  * Everything one envelope study is configured with.
  *
  * `analyzeAutoMovieEnvelope` throws on a blank id, subject or revision, an
@@ -18,11 +17,6 @@ import { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
  * malformed target. A null instant, or one without an outdoor air temperature,
  * yields two `not-run` runs.
  *
- * @evidence contracts/common.md#principled-implementation Supplies the boundary conditions of the steady-state network (indoor air and humidity, one outdoor air temperature) and the network itself, so heat flow and surface condensation are both closed forms over it.
- * @evidence contracts/common.md#clear-and-simple-design One request yields a thermal and a moisture run sharing one settings digest, so a report rolls them up separately while proving they read the same envelope.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No exterior temperature is assumed: a missing instant or outdoor temperature produces `not-run` runs naming the missing input.
- * @evidence contracts/common.md#meaningful-documentation States the refusals, the run id suffixes, the not-run cases, and the assembly bound.
- * @evidenceExclude contracts/performance.md#cost-and-resources An input record; solving is linear in assemblies, layers and bridges, a cost of the analyzer. Solved once per call, and inside that call both runs read the same per-assembly solution and settings text. Owned by the caller; nothing derived from it is retained after the two runs are returned.
  * @author Samchon
  */
 export interface IAutoMovieEnvelopeRequest {

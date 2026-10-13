@@ -20,7 +20,6 @@ import {
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
- *
  * One design, one revision, and every sheet and every count the building needs.
  *
  * The other drawing cases each prove one derivation against hand arithmetic.
@@ -53,10 +52,6 @@ import { namedFacts, nclose } from "../internal/predicates";
  *    rather than drawing a building that does not need it.
  * 6. Every sheet serializes to a sidecar carrying its own digest and the one
  *    environment they all came from.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieDrawing` for six views, `deriveAutoMovieDrawingSchedule`, `measureAutoMovieQuantities` and `autoMovieDrawingToSvg` on one environment and its two edits, and asserts each sheet's convention fields, opening marks, schedule rows, opening count and area totals, which digests change after a wall moves, the door leaf's elevation span, finish regions and declared gaps; it catches an artifact that keeps its own copy of the openings and misses an added door, a cut that still drafts a wall it removed, a child leaf that does not follow its parent wall, and a sheet whose sidecar names another environment or digest.
- * @evidence contracts/testing.md#independent-expectations Counts and areas are fixture arithmetic: three authored openings, a 0.9 x 2.1 door void of 1.89 m2 plus a 0.3 m radius oculus of 0.09 pi, an added 1 x 2.1 void of exactly 2.1, a 10 x 6 hall of 60 m2, the leaf at x 1.05..1.95 mirrored to page -1.95..-1.05 by an elevation looking along +z and shifted -0.5 by the wall's move; which sheets change follows from the cut heights (ceiling at 3.05 m, section beyond z = 3) and the services filter to footings, and the `door-01` and `door-02` marks with their model-first order are the schedule's documented numbering, not a recount.
- * @evidence contracts/testing.md#distinguishing-cases Positive edits are one added void and one moved wall, against unchanged sheets for the ceiling plan, section and services plan that must not move; the finish plan's filled hall against the ceiling's unfinished roof deck and the elevation's empty region list; per-artifact gaps for build-up, service network, opening performance, material quantity, cut waste and hidden lines; per-derivation arithmetic, staleness, schedule grouping and take-off refusals are owned by the annotation, opening-schedule, space-schedule and quantity-report tests.
  */
 export const test_drawing_sheet_set = (): void => {
   const environment = drawingEnvironment();

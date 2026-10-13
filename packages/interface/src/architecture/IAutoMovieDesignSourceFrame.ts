@@ -18,10 +18,6 @@ import { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate
  * shear the mapping. {@link up}, {@link north}, {@link level}, and {@link view}
  * are validated but never read by the mapping or by promotion.
  *
- * @evidence contracts/common.md#principled-implementation An affine map from source units to world metres built from the anchor, the settled scale, normalized axes, and the origin, followed by the optional transform; validation refuses parallel axes but not skewed ones, which is an unresolved premise the mapping silently shears.
- * @evidence contracts/common.md#clear-and-simple-design The frame alone owns the mapping and the scale choice, so primitives stay in source units; bounds and anchor are source-space while axes, origin, up, and north are world-space.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A null `scale` blocks promotion instead of defaulting to one metre per unit; axes are normalized rather than demanded unit length, and no drawing view changes the arithmetic.
- * @evidence contracts/common.md#meaningful-documentation States the mapping formula, page indexing and its single-page limit, source units of bounds, the anchor range, axis and origin meaning, null meanings, and which fields only record the drawing.
  * @author Samchon
  */
 export interface IAutoMovieDesignSourceFrame {

@@ -6,16 +6,11 @@ import { createInstanceVariationPlacement as crowd } from "../internal/createIns
 const COUNT = 2_000;
 
 /**
- *
  * Instance rotations compose the authored heading before fixed offsets, while per-axis scales are independent draws and uniform scale remains the same value on all axes.
  *
  * Scenarios:
  * 1. Sixteen fixed quaternion twins follow the hand-derived quarter-turn and 30-degree offset.
  * 2. All 2,000 axis draws stay in range, are independent, and the uniform twin repeats exactly.
- *
- * @evidence contracts/testing.md#behavioral-verification Regenerates slots with `instanceSlot` and asserts each member's rotation quaternion under a 90-degree heading with and without a fixed 30-degree x offset, then each `scale3` axis under per-axis ranges and under uniform scale; it catches composing the offset before the heading, dropping either rotation, drawing all three scale axes from one sample, an axis that escapes its range, and a uniform set whose `scale3` differs from its `scale`.
- * @evidence contracts/testing.md#independent-expectations The heading quaternion `(0, sqrt(1/2), 0, sqrt(1/2))` is the half-angle form of a quarter turn about +Y, and the composed value `(h sin15, h cos15, -h sin15, h cos15)` is the hand product of that heading with a 30-degree +X turn; axis ranges restate the authored `scale3`, and the 90% independence threshold is statistical, since two shared draws would make every x and y offset equal.
- * @evidence contracts/testing.md#distinguishing-cases Positive heading alone and heading with a zero-width offset range, so every one of 16 members must land exactly; per-axis ranges with distinct bounds; boundary of uniform scale with no `scale3`, where the three axes must repeat the scalar; seeded scalar ranges belong to `test_engine_instance_slot_range_seed`, and the presence of these output fields to `test_engine_instance_slot_variation`.
  */
 export const test_engine_instance_transform_axes = (): void => {
   // 7. Rotation composes the heading, then the seeded offset.

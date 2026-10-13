@@ -12,11 +12,6 @@ import viewerConfig from "./vite.config.mjs";
  * subscribed to, so every later source edit would be silently lost while
  * health still read current. Server-side viewer code takes effect when the
  * server is started again.
- *
- * @evidence contracts/common.md#principled-implementation The watcher the host subscribes to lives as long as the server.
- * @evidence contracts/common.md#clear-and-simple-design One normal server composition retains the supplied config value and prepends the host's middleware while keeping the existing plugins.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses Vite's supported configFile and configureServer inputs; no private watcher mutation or timed restart substitutes for the host's original subscription lifetime.
- * @evidence contracts/common.md#meaningful-documentation States why no config file is used.
  */
 export function createHumanViewerViteServer(
   middleware: HumanViewerMiddleware,

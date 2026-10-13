@@ -3,11 +3,6 @@
  * its original Error, a failed or signal-ended command reports stderr, and a
  * successful command must supply JSON. This interprets typed operation results;
  * it neither creates a process nor establishes native handle correctness.
- *
- * @evidence contracts/common.md#principled-implementation Spawn and exit outcomes are interpreted before JSON payload admission, preserving the original operational failure.
- * @evidence contracts/common.md#clear-and-simple-design Owns result interpretation separately from actual subprocess creation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Consumes host results without replacing spawn or native process methods.
- * @evidence contracts/common.md#meaningful-documentation Defines failure precedence and the successful JSON transport requirement.
  */
 export function decodeWindowsProcessResult(result: {
   error?: Error;

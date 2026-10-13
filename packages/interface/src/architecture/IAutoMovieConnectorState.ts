@@ -3,10 +3,6 @@ import { IAutoMovieCarriageValue } from "./IAutoMovieCarriageValue";
 /**
  * One named operating state of a run and the travel it gives each carriage.
  *
- * @evidence contracts/common.md#principled-implementation Pairs a state name with one rest-relative value per carriage and a three-valued drive; validation keeps each value finite and inside its carriage's travel range and refuses `reverse` on a connector whose `bidirectional` is false.
- * @evidence contracts/common.md#clear-and-simple-design The drive sits on the state rather than on each carriage because a run is driven one way at a time; no engine computation reads `drive` today, so it is a validated record for later traversal work.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No state id is reserved, so `level-3` or `ascending` are author vocabulary; the only constants are the three drive literals the contract defines.
- * @evidence contracts/common.md#meaningful-documentation States the stable-name role of `id`, the exactly-once carriage rule, what each drive value means relative to `from` and `to`, the one-way restriction, and that no computation consumes the drive.
  * @author Samchon
  */
 export interface IAutoMovieConnectorState {

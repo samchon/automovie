@@ -12,12 +12,6 @@ import {
  * the same reason validation refuses it.
  *
  * Throws for an undeclared space id and for a space no building unit owns.
- *
- * @evidence contracts/common.md#principled-implementation Returns the first building whose root space's descendant set, built by a fixed-point pass over parent links, contains the space; validation guarantees exactly one owner, so the first match is the only one.
- * @evidence contracts/common.md#clear-and-simple-design Defect: its private `descendantSpaces` and `requireSpace` duplicate the exported `builtEnvironmentDescendantSpaces` instead of calling it or sharing one helper.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No default owner is guessed for an unowned space; it throws for the reason validation refuses it, and no building or space id is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States why ownership is a real question in a multi-unit work, that a validated record answers it for every space, and both refusals.
- * @evidence contracts/performance.md#cost-and-resources Defect: rebuilds a whole descendant set per building, `O(B S D)` in buildings, spaces and tree depth, where walking the space's own parent chain would be linear; nothing is cached, so envelope faces (once per face) and the drawing schedule (once per space) repeat every walk.
  */
 export const builtEnvironmentBuildingOfSpace = (
   environment: IAutoMovieBuiltEnvironment,

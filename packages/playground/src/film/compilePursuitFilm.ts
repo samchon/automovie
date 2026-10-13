@@ -11,11 +11,6 @@ import type { ICompilePursuitFilm } from "./ICompilePursuitFilm";
  * engine still owns each compilation and reports its original refusal.
  * No scene, browser, rendering loop or capture is created by this boundary.
  * Blockings correspond by index to performances, as in the authored example.
- *
- * @evidence contracts/common.md#principled-implementation Runs the original staging, actor synthesis, blocking, performance and cut owners in dependency order with typed authored inputs.
- * @evidence contracts/common.md#clear-and-simple-design The compile phase owns its example registry and runtime outputs while the browser entry retains scene lowering and playback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Example rig and set-piece content remains in Playground; no engine implementation or render result is substituted.
- * @evidence contracts/common.md#meaningful-documentation Separates authored input, example registry and compiler refusals from displayed-frame observation.
  */
 export const compilePursuitFilm: ICompilePursuitFilm = (props) => {
   const { script, staging, blockings, performances } = props;

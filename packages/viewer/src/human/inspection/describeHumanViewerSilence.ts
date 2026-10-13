@@ -9,11 +9,6 @@ import type { IHumanViewerSilenceFacts } from "./IHumanViewerSilenceFacts.js";
  * for it; the recorded pid and its liveness say whose listener it probably is.
  * The module has no runtime imports and uses only syntax Node strips, so the
  * plain-Node control script can load it.
- *
- * @evidence contracts/common.md#principled-implementation The connection outcome, not the elapsed time alone, separates an absent viewer from a slow one.
- * @evidence contracts/common.md#clear-and-simple-design One pure description serves `human-shot status` and the control script.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpret silence as readiness or as absence.
- * @evidence contracts/common.md#meaningful-documentation States what each outcome allows and why the module is import-free.
  */
 export function describeHumanViewerSilence(
   facts: IHumanViewerSilenceFacts,

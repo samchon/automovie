@@ -24,7 +24,6 @@ const crossing = [
 ];
 
 /**
- *
  * Every planar consumer shares one hygiene decision and keeps its own API law.
  *
  * The region boundary returns a message instead of repaired geometry; the
@@ -44,10 +43,6 @@ const crossing = [
  *    another hole is refused, while a redundant straight point and two disjoint
  *    holes are accepted.
  * 5. Drawing keeps its own short-ring diagnostic ahead of the shared boundary.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `triangulateAutoMovieRegion`, `triangulateAutoMoviePolygon`, `autoMoviePlanarRegionFailure` and `footprintConvexPieces` and asserts area, ring and triangle counts, returned failure phrases, thrown errors and piece counts; it catches a hole left in the area, one consumer accepting a self-crossing ring another refuses, a footprint inventing pieces for a ring with no region or ignoring its cached zero area, a refusal firing on a straight redundant point or disjoint holes, and the drawing short-ring message being replaced by the shared one.
- * @evidence contracts/testing.md#independent-expectations Area 15 is 16 m2 of square less 1 m2 of hole, two rings is outer plus one hole, and two triangles is n - 2 for a quadrilateral; each refusal is matched by the phrase the region constructor's doc comment lists for that defect (three points, finite, repeats, no area, doubles back, crosses itself, touch or cross, inside, outside), so the oracle pins which condition fired but not the edge indices or label in the message.
- * @evidence contracts/testing.md#distinguishing-cases Positive holed square and disjoint holes; negative self-crossing, non-finite, duplicate, touching, outside and nested-hole inputs plus short, collinear and spiked rings; the redundant straight point is the adjacent input beside the spike that must stay accepted, and the stale zero area is the degenerate footprint; triangulation coverage, winding and source indices belong to test_geometry_region_triangulation and test_geometry_region_source_identities, and footprint voids to test_space_footprint_voids.
  */
 export const test_engine_canonical_planar_region = (): void => {
   const holed = triangulateAutoMovieRegion({

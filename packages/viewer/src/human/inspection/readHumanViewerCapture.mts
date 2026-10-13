@@ -17,11 +17,6 @@ import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
  * Capture page timing and PNG data under the caller's selected source revision.
  * The actual ready bridge applies the address and finishes its frame; an absent
  * bridge or a different loaded source refuses instead of waiting on another page.
- *
- * @evidence contracts/common.md#principled-implementation Checks the loaded bridge revision before showing and reads PNG, build count and timing from that same actual page operation.
- * @evidence contracts/common.md#clear-and-simple-design One page evaluation owns display and capture ordering; queue serialization and revision selection remain with its caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the existing product bridge without server-side geometry rebuilding, synthetic screenshots or a wait for a missing generation to appear.
- * @evidence contracts/common.md#meaningful-documentation States ready-bridge preconditions, source refusal and the difference between numerical build and display timing.
  */
 export async function readHumanViewerCapture(
   page: Pick<Page, "evaluate">,

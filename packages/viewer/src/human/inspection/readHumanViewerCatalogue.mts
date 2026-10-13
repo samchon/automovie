@@ -25,11 +25,6 @@ import { readHumanViewerStandardBodies } from "./readHumanViewerStandardBodies.j
  * catalogue publication; without a usable generation the standard people and
  * body states are listed as rejected with the reason instead of falling back
  * to the legacy bases.
- *
- * @evidence contracts/common.md#principled-implementation Document, basis and source digests identify the numerical generation independently of display state.
- * @evidence contracts/common.md#clear-and-simple-design A small orchestrator names the group order; every group has its own reader.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Published subjects and standard states supply the population without consumer-specific cases.
- * @evidence contracts/common.md#meaningful-documentation Describes the groups, their order, cache authority and identity refusal.
  */
 export function readHumanViewerCatalogue(
   props: IReadHumanViewerCatalogueProps,

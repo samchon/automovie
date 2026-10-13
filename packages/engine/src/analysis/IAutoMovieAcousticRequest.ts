@@ -6,7 +6,6 @@ import { IAutoMovieAcousticSource } from "./IAutoMovieAcousticSource";
 import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
 
 /**
- *
  * Everything one room-acoustic study is configured with.
  *
  * `analyzeAutoMovieAcoustics` throws on a blank id, subject or revision, a
@@ -15,11 +14,6 @@ import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
  * Every field except `id`, `subject` and `inputRevision` enters the settings
  * digest; those three go into the run header.
  *
- * @evidence contracts/common.md#principled-implementation Describes one diffuse-field room by volume and broadband surface absorption, which is exactly what Sabine's equation and the room constant consume.
- * @evidence contracts/common.md#clear-and-simple-design Keeps surfaces, partitions, sources and receivers as separate lists because each feeds a different closed form; empty partition, source and receiver lists are allowed and become gaps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no frequency bands or impulse response, so the speech transmission index is reported `unsupported` rather than estimated from these fields.
- * @evidence contracts/common.md#meaningful-documentation States what the analyzer refuses, which lists may be empty and what that yields, the receiver bound, and which fields enter the settings digest.
- * @evidenceExclude contracts/performance.md#cost-and-resources An input record; solving is linear in its lists apart from the receiver-by-source distance product, a cost of the analyzer. Each request is solved once into one sealed run; identical requests seal identical digests, yet the engine keeps no cache keyed by them. Owned by the caller; the analyzer copies its fields into a settings string and retains nothing after returning the run.
  * @author Samchon
  */
 export interface IAutoMovieAcousticRequest {

@@ -22,7 +22,6 @@ import {
 } from "../internal/predicates";
 
 /**
- *
  * A door is a hole in a wall, a leaf inside that hole, and a state the leaf
  * stands in, and this pins that the three agree. The boundary carries a located
  * face, the opening carries the void it cuts in that face, and the panel
@@ -61,10 +60,6 @@ import {
  * 11. Fifty-one malformed openings are each refused at their own path, including a
  *     state the scene could not stage even though the record's current one can,
  *     and the untouched fixture produces no violation path at all.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtBoundaryWallCut`, `buildAutoMovieWall`, `inspectAutoMovieMeshTopology`, `builtOpeningPanelPlacements`, `builtOpeningSweepEnvelope` and `lowerBuiltEnvironment` over a partition of every opening family and asserts the wall cut's panel, voids and frame, the cut wall's triangle count, volume and finiteness, panel placements per state, staged leaf positions, swept envelopes, refusals and violation paths; it catches a void detached from its opening id, a round void not bounded exactly, a cut that adds no hole, a fold that ignores its parent leaf, a staged leaf at rest when the record is open, a sampled envelope that misses an interior critical angle, an unbounded travel walked, and a malformed opening accepted.
- * @evidence contracts/testing.md#independent-expectations Numbers are read off the partition drawn in the world XY plane: the 9 by 3 by 0.2 panel, the door void at x 1 sized 2 by 2.1, the 0.4 m oculus bounded by a 0.8 m square at (8, 1.6), a quarter turn `(0, sin 45, 0, cos 45)` carrying the fold's hinge from +x to -z, the 1 m leaf sweeping x 1..2 and z -1..0, the 0.8 m sash peaking at `4 + 0.8 cos 0` inside its travel, and the slide spanning x 6..7; the cut-wall comparison is relational (more triangles, less volume than the solid wall), so it pins that holes exist, not their exact tessellation.
- * @evidence contracts/testing.md#distinguishing-cases Positive folding door, double-acting sash, sliding shutter, oculus, arch and geometry-less gap; the record's state against a named one and a stripped operation lowering as rest; a state missing a panel value answered at rest while validation refuses it; an operation-less opening answering empty; refusals for unknown opening, state and boundary, a faceless boundary, a dangling panel element, unbounded and over-a-full-turn travel; fifty-one malformed openings via `assertBuiltOpeningTestRefusals` beside the untouched partition producing no path; the wall mesh kernel's own triangulation is owned by the geometry tests.
  */
 export const test_architecture_built_opening = (): void => {
   const source = partition();

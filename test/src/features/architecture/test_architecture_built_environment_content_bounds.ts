@@ -254,7 +254,6 @@ const residence = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
 });
 
 /**
- *
  * A declared space is not where its contents are, and the box says which.
  *
  * The `#1902` experiment placed review cameras at the corners of a space's own
@@ -292,10 +291,6 @@ const residence = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
  *    inventing a degenerate box, beside the empty node list of the same space.
  * 8. An undeclared space id is refused by name, exactly as every other query in
  *    the file refuses it.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentSpaceContentBounds` beside `validateBuiltEnvironment`, `builtEnvironmentSpaceNodes` and `builtEnvironmentContainsPoint` and asserts the world min and max of staged content per space, the node list it agrees with, containment of a corner and of the content centre, the null answer for an empty space and the refusal of an unknown one; it catches bounds taken from the declared cell, an unassigned, sibling-space or model-less element counted as content, a descendant space left out, a mesh part transform or a referenced model ignored, and an operated leaf measured at rest.
- * @evidence contracts/testing.md#independent-expectations Every bound is hand arithmetic over unit primitives at whole-metre placements: towers at x 9.5 and 13.5 scaled 1 by 4 by 5 give x 9..14, y 0..4, z 6..11, the 0.1 m leaf at x 9 reaches 8.95, the unit-cube mesh scaled 2, 0.2, 2.6 and offset -0.4 under an element at (11, 2, 7.5) reaches z 5.8..8.4 and y 1.9..2.1, the unowned vault reference contributes its origin y 3.9, and the leaf opened 0.9 m along -x reaches 8.05; an unowned model reference contributes a point only, so its true extent is outside this oracle.
- * @evidence contracts/testing.md#distinguishing-cases Positive parent space with a descendant, a descendant on its own, and the same space with the door closed and open; negative eaves with no space, a table in a sibling space and a model-less assembly at y 8 that would each move a bound; a corner of the declared cell that is inside the space but outside the content; an empty space answering null and an undeclared id refused; per-element bounds of parts and their refusals are owned by test_architecture_built_environment_element_bounds and test_architecture_element_part_bounds_refusals.
  */
 export const test_architecture_built_environment_content_bounds = (): void => {
   const closed = residence();

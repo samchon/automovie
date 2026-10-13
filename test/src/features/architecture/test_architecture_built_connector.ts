@@ -24,7 +24,6 @@ import {
 } from "../internal/predicates";
 
 /**
- *
  * A connector is a measurable shape, not a labelled edge between two rooms.
  * This pins that a spiral stair is expressible at all, that a varying section
  * is read where the route actually is, that a stated slope and a stated step
@@ -51,10 +50,6 @@ import {
  * 7. Twenty-three malformed connectors are each refused at their own path,
  *    including both spellings at once and neither spelling.
  * 8. The pre-geometry scalar record lowers exactly as before.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtConnectorGeometry`, `builtConnectorSectionAt` and `lowerBuiltEnvironment` over a six-family connector graph and asserts validity, station positions and facings, rise, run, length, slope, arc-length station parameters, section width and clear height, refusals and violation paths, and the staged node set; it catches facings dropped or invented, index-fraction stations, a section read at the wrong place or not interpolated, a slope or step count that contradicts its route accepted, and both or neither section spelling accepted.
- * @evidence contracts/testing.md#independent-expectations Values are hand arithmetic on the fixture: the 4 m by 3 m flight is 5 m long at `atan2(3, 4)`, the 8 m plus 8 m corridor puts its middle station at 0.5 and interpolates width 2.25 and clear height 2.4 at a quarter, the helix of radius 1.5 rises 0.75 per quarter turn and repeats its plan position after four, facings are compared to `yaw(k * pi / 2)` written out, and each violation path names the field its mutation breaks; the staged node is the environment id joined to the one modelled element.
- * @evidence contracts/testing.md#distinguishing-cases Positive spiral, varying corridor, ramp, flight, escalator and moving walk; a constant section at three parameters against a varying one at five; a facing-less corridor answering null; refusals for an unknown connector, parameter 1.5 and NaN, an empty route, a route that never moves and no section; twenty-three malformed connectors via `assertBuiltConnectorTestRefusals` beside the untouched graph producing no path; carriage operation and landings are owned by test_architecture_built_connector_operation.
  */
 export const test_architecture_built_connector = (): void => {
   const source = levels();

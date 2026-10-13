@@ -12,11 +12,6 @@ import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGener
  * are actual body constructor dependencies. The key hashes the document, both
  * view digests and the body and person source digests. The viewer authors these documents,
  * so the caller admits them like hand-written inputs.
- *
- * @evidence contracts/common.md#principled-implementation Binds each standard body state to the exact view bytes it is built on.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns the standard-body group; admission stays with the caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps each caller-supplied shape and pose state with both actual generation digests instead of substituting another body or bypassing domain admission.
- * @evidence contracts/common.md#meaningful-documentation States the basis, the unchanged states and the key inputs.
  */
 export function readHumanViewerStandardBodies(
   props: IReadHumanViewerStandardBodiesProps,

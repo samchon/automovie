@@ -93,11 +93,6 @@ const placedPartBoxes = (
  * puts the element; an element whose parts draw no vertex gets its single
  * origin box.
  *
- * @evidence contracts/common.md#principled-implementation Places each drawn part like the renderer and folds one axis-aligned box per part instead of one union; part boxes lie inside the union box, so they can only withdraw contacts the union would falsely report.
- * @evidence contracts/common.md#clear-and-simple-design Defect: the single-element counterpart of `builtEnvironmentPartBoxes`, with the staging and part-box helpers copied into both files and into `builtEnvironmentElementBounds` instead of one module serving all three.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Null for an undeclared or transform-only element mirrors the union query, and the origin box for a vertex-less element is the same documented fallback; no part count or model is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what the union box cannot say, when to read part boxes instead, the shared null readings, the world frame and part order, and the operating-state placement.
- * @evidence contracts/performance.md#cost-and-resources Defect: restages every element's world matrix and every operation delta, `O(E + members)`, to box one element's parts, then pays tessellation linear in that element's vertices; nothing is cached, so support status and the pairwise overlap query restage per operand while only the sweeps stage once through `builtEnvironmentPartBoxes`.
  * @author Samchon
  */
 export const builtEnvironmentElementPartBounds = (

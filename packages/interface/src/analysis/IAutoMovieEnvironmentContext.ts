@@ -22,10 +22,6 @@ import { IAutoMovieReferenceGround } from "./IAutoMovieReferenceGround";
  * they are declared in and the solvers that read them, never a catalogue of
  * climates or places.
  *
- * @evidence contracts/common.md#principled-implementation Conditions are declared values checked by `validateAutoMovieEnvironmentContext`: metre units, non-zero finite north and ground-up directions, strictly increasing finite instant times, unique instant and occluder ids, and no id equal to a reserved building id.
- * @evidence contracts/common.md#clear-and-simple-design Site conditions live in their own record beside the built environment so no lowering or take-off path can reach them, and occluders reuse the half-space plane type instead of a second solid format.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-order instants are refused rather than sorted; `north` is validated and folded into the daylight settings digest, but no solver reads it, so it is a declared field without a consumer today.
- * @evidence contracts/common.md#meaningful-documentation States read-only ownership and which ids the build reserves against it, metre units, instant ordering and its reason, that north is currently unread, and that the package ships no climate or place data.
  * @author Samchon
  */
 export interface IAutoMovieEnvironmentContext {

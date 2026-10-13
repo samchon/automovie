@@ -67,11 +67,6 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * because nothing distinguishes it from one real element standing at the
  * origin.
  *
- * @evidence contracts/common.md#principled-implementation Folds one box over the world vertices of every drawn element assigned to the subtree, placed under the current operating state, and over each subtree population's placement-law box; an element without vertices contributes its world origin.
- * @evidence contracts/common.md#clear-and-simple-design Defect: carries another copy of `descendantSpaces`, `requireSpace`, the staging and delta helpers, `placedElementPoints` and `boundsOf`, instead of sharing element placement with `builtEnvironmentElementBounds`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty subtree is null rather than a degenerate box, only an undeclared id is refused, and a population widens the box by its declared envelope, a conservative bound rather than member-by-member extents.
- * @evidence contracts/common.md#meaningful-documentation States the declared-versus-content distinction with the measured stair case, the subtree scope, the operating-state frame, the population widening and its basis, the origin fallback, and what null means.
- * @evidence contracts/performance.md#cost-and-resources Stages every element once, `O(E + members)`, then tessellates and transforms each drawn subtree vertex, which dominates; all points are gathered into one array before folding, `O(V)` memory where a running fold would be constant, and nothing is cached across spaces.
  * @author Samchon
  */
 export const builtEnvironmentSpaceContentBounds = (

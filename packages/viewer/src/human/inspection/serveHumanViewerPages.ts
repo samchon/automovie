@@ -7,11 +7,6 @@ import path from "node:path";
  * Vite still transforms requested modules, but its HTML/config invalidations
  * cannot replace a completed model. Source replacement follows the viewer's
  * own revision notification and checked candidate protocol.
- *
- * @evidence contracts/common.md#principled-implementation Fixed application entry routing supplies original HTML while the viewer's source candidate protocol independently owns model replacement.
- * @evidence contracts/common.md#clear-and-simple-design One fixed route map serves entry pages before Vite, leaving module transformation and source watching to their existing owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses ordinary filesystem response streaming rather than patching a foreign reload function or restarting a completed viewport after a file edit.
- * @evidence contracts/common.md#meaningful-documentation Explains HMR-client separation, continued module transformation and the application's checked source-replacement authority.
  */
 export function serveHumanViewerPages(directory: string) {
   const pages = new Map([

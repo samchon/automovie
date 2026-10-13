@@ -9,11 +9,6 @@ import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerA
  * candidate publication. Current widgets merely reflect restored actual view.
  * Load or equality failure may leave the candidate changed; transaction rollback
  * remains with the editor rather than this adapter.
- *
- * @evidence contracts/common.md#principled-implementation Transfers the displayed editor document, including a retained construction draft, and verifies the validated load produced the same values.
- * @evidence contracts/common.md#clear-and-simple-design One binding reuses application parsing/transactions without creating another document evaluator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no simulated input event, inferred parameter or expected-model substitution.
- * @evidence contracts/common.md#meaningful-documentation Defines equality, empty editors and view reflection boundaries.
  */
 export function registerPlaygroundEditor(props: {
   /** Completion of this editor's initial transaction; rejection refuses the candidate. */

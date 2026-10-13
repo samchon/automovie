@@ -11,11 +11,6 @@ import { readHumanViewerCameraAddress } from "./readHumanViewerCameraAddress.js"
  * Adapt actual inspection completion and visible reference layers to the shared
  * bitmap saver. The unchanged host owns commitment. Observed camera and loaded
  * source remain distinct from requests; hidden candidates never commit.
- *
- * @evidence contracts/common.md#principled-implementation The original viewport finishes before actual camera/address sampling and synchronous bitmap copying.
- * @evidence contracts/common.md#clear-and-simple-design One adapter reuses the shared encoder and existing reference compositor without duplicating queues or writers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Observes the original native viewport without SDK changes, artificial pixels or time-based admission.
- * @evidence contracts/common.md#meaningful-documentation Defines completion, composition and commitment ownership.
  */
 export function createHumanViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;

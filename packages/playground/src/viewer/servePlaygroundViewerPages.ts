@@ -11,11 +11,6 @@ import path from "node:path";
  * The browser bridge owns restoration and completion admission after loading.
  * An owned inline boundary precedes module loading: a failed bridge dependency
  * reports its actual error to the retained parent even when no module evaluates.
- *
- * @evidence contracts/common.md#principled-implementation Routes only existing top-level HTML entries and admits a requested child only with a valid token, generation and current readable source revision; the browser bridge separately owns restoration and completed-frame admission.
- * @evidence contracts/common.md#clear-and-simple-design Keeps retained-host HTML and original child HTML in one pre-Vite routing boundary while normal module requests remain with Vite's transform middleware.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The capability query serves the original entry, and the owned pre-module error reporter preserves dependency failures without a reload client or fabricated readiness; neither path certifies model or GPU output.
- * @evidence contracts/common.md#meaningful-documentation Explains retained-parent ownership, explicit child revision admission and pre-module failure reporting; file-read failure returns an actual error while unmatched routes remain with the next middleware.
  */
 export function servePlaygroundViewerPages(props: {
   /** The normal Playground directory containing its committed HTML entries. */

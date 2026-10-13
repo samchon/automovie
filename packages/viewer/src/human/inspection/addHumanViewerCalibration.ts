@@ -6,7 +6,6 @@ import { humanViewerCalibrationRig } from "./humanViewerCalibrationRig.js";
 const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
 
 /**
- *
  * Put the hand-typed calibration spheres into a displayed model group, or
  * take them out. Any earlier rig is removed first, so the cached group never
  * carries two and a frame without `calibrate` never carries one. The spheres
@@ -14,11 +13,6 @@ const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
  * overrides. The auxiliary group is excluded from subject parts, bounds,
  * isolation and manual outline replacements by the product observation owner.
  * The rig is added after camera framing and never changes that measured basis.
- *
- * @evidence contracts/common.md#principled-implementation Basic materials preserve the independent colour keys under global overrides and the auxiliary group stays outside subject operations.
- * @evidence contracts/common.md#clear-and-simple-design One function owns the rig's presence in a group.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds fixed independent geometry and never alters the subject or its numerical cache.
- * @evidence contracts/common.md#meaningful-documentation States ordering with framing, lighting independence and removal.
  */
 export function addHumanViewerCalibration(
   root: THREE.Object3D,

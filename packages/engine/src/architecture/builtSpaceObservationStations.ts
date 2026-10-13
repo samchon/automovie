@@ -164,12 +164,6 @@ const thresholdPose = (props: {
  * are sorted by opening id. A shelled space whose box centre falls in a void or
  * notch gets no anchor, so every pose of it is null. Throws for an undeclared
  * space id.
- *
- * @evidence contracts/common.md#principled-implementation Anchors at the volume box centre, or failing containment the first closed cell's corner mean, raised to eye height when still inside, and settles corner and threshold eyes along the inset ladder; defect: that fallback reads cells only, so a shelled space missing its box centre gets all-null poses.
- * @evidence contracts/common.md#clear-and-simple-design Defect: `outlineCentroid` duplicates the copy in `builtEnvironmentEnvelopeFaces`; the pose helpers (`settle`, `aim`, `interiorCentre`, `thresholdPose`) stay private to this one query.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unplaceable station keeps its id with a null pose instead of being dropped or put outside, a volume-less space owes no stations, and a threshold aims from the profile hull's centre or the face centroid.
- * @evidence contracts/common.md#meaningful-documentation States the closed population, view directions and reading-height anchor, the inset ladder, threshold order, what a volume-less space owes, the shelled-void gap, the containment proof, and the refusal.
- * @evidence contracts/performance.md#cost-and-resources Eight stations plus one per opening, each settled through at most the ladder's length of containment tests; the opening filter scans boundaries per opening, `O(O B)`, where a set of this space's boundary ids would be linear, and the first cell can be solved twice; nothing is cached.
  */
 export const builtSpaceObservationStations = (
   environment: IAutoMovieBuiltEnvironment,

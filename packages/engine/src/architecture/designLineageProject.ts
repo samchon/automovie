@@ -31,11 +31,6 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  * @param phase Construction phase id, or null for the completed work.
  * @param records Records matched to lineage subjects by `id`.
  * @returns A new array of the same record objects, filtered.
- * @evidence contracts/common.md#principled-implementation Matches records to snapshot states by exact `id` equality and keeps a record whose subject is `present` or undeclared, the additive-lineage rule the prose states; the snapshot already validated the lineage and the phase.
- * @evidence contracts/common.md#clear-and-simple-design A generic filter over anything with an `id`, so all four intended consumers could share one call; it adds no logic beyond a presence map over the snapshot.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Passing undeclared ids through is a documented contract choice, with binding validation as the owner of typos; no record kind or subject is special-cased, and the prose admits no production stage calls it.
- * @evidence contracts/common.md#meaningful-documentation States the generic mechanism, the absence of production callers, the pass-through rule, order and identity preservation, and the null-phase meaning.
- * @evidence contracts/performance.md#cost-and-resources One snapshot with its validation, an O(S) presence map and an O(N) filter of N records; the snapshot is neither cached nor accepted as an argument, so phasing several lists at one phase rebuilds it per list, and the result references the caller's record objects without copies.
  */
 export const designLineageProject = <T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,

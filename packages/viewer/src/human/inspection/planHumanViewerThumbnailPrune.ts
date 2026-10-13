@@ -10,11 +10,6 @@ import { humanViewerThumbnailDirectory } from "./humanViewerThumbnailDirectory.j
  * disk. Names only: the caller deletes, and nothing outside the thumbnail
  * folder is named. The numerical result cache is keyed by document and is
  * never pruned here.
- *
- * @evidence contracts/common.md#principled-implementation A revision-keyed directory makes staleness a name comparison and recency a modification-time order, so the kept set is exact.
- * @evidence contracts/common.md#clear-and-simple-design One pure planner owns the retention rule and the directory naming.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Removes only derived pictures of superseded revisions, never source, basis or the numerical cache.
- * @evidence contracts/common.md#meaningful-documentation States what is kept, why, and what is never touched.
  */
 export function planHumanViewerThumbnailPrune(
   entries: readonly { name: string; mtimeMs: number }[],

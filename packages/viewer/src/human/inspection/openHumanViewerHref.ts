@@ -11,11 +11,6 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
  * a 160-pixel clay square; the sheet explicitly enumerates the supported views.
  * The caller supplies document identity; this function starts no generation
  * and supplies no example parameters or runtime provenance.
- *
- * @evidence contracts/common.md#principled-implementation All route variants reuse the same parser and serializer, and thumbnail pass/extent changes remain explicit.
- * @evidence contracts/common.md#clear-and-simple-design Four links are derived from one supplied observation address without duplicating its field encoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The document comes from the caller; thumbnail extent and sheet views are inspection product conventions rather than named-subject special cases.
- * @evidence contracts/common.md#meaningful-documentation Describes route differences, caller document ownership and the absence of generation or provenance claims.
  */
 export function openHumanViewerHref(
   doc: string,

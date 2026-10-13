@@ -11,11 +11,6 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch.js";
  * refused. The printed record names the revision, staleness, renderer and
  * time. A frame drawn by an older source generation is kept for reference
  * but exits 5, since it does not show the current source.
- *
- * @evidence contracts/common.md#principled-implementation A stale frame is saved but never reported as a current observation.
- * @evidence contracts/common.md#clear-and-simple-design One CLI capture step delegates transport retry, retains the response image and reports its supplied source and renderer headers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Writes the server's actual returned image without synthesizing a frame, hiding staleness or allowing an ordinary repository path outside selected runtime storage.
- * @evidence contracts/common.md#meaningful-documentation States the output location rule, the record and the stale exit code.
  */
 export async function captureHumanViewerShot(
   context: IHumanShotContext,

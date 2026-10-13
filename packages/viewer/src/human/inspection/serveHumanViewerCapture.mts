@@ -42,11 +42,6 @@ const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-con
  * product viewport and returns binary GLB with the original admission headers.
  * The full admission remains available from `/parts` on the same construction;
  * exporting a refused draft never turns it into an admitted preview.
- *
- * @evidence contracts/common.md#principled-implementation Admission precedes queueing, and only generation-change refusals are retried on the settled generation.
- * @evidence contracts/common.md#clear-and-simple-design One handler owns the GPU routes; capture, queue and page state stay with their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale thumbnails and stale generations are labelled stale rather than served as current.
- * @evidence contracts/common.md#meaningful-documentation States admission, thumbnail order, response provenance and refusal.
  */
 export function serveHumanViewerCapture(
   props: IServeHumanViewerCaptureProps,

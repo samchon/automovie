@@ -37,12 +37,6 @@ const includePoint = (
  * The box is world-space in metres. Every listed shell vertex counts, used by a
  * triangle or not, and an unbounded cell contributes only the corners it has,
  * so its extent can be understated.
- *
- * @evidence contracts/common.md#principled-implementation For a shell folds every listed vertex into a box, and for cells folds the corners `builtConvexCellVertices` solves per cell; with nothing to fold the answer stays null.
- * @evidence contracts/common.md#clear-and-simple-design Defect: `describeAutoMovieSubject` and `describeAutoMovieSubjects` keep their own cell-corner solver and box fold with a `Number.EPSILON * 64` admission tolerance instead of calling this, so a declared extent can differ between the two paths.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No origin box is substituted for an empty answer; unreferenced shell vertices and unbounded cells are taken as listed rather than repaired.
- * @evidence contracts/common.md#meaningful-documentation States that both spellings answer here, the vertex and corner sources, the frame and unit, the null cases, and the unreferenced-vertex and unbounded-cell effects.
- * @evidence contracts/performance.md#cost-and-resources Linear in shell vertices, or the cell solver's work per cell (cubic in planes), and `includePoint` allocates a fresh box per point where a mutable fold would allocate once; nothing is cached, which is why the station query can solve a cell twice.
  */
 export const builtSpaceVolumeBounds = (
   space: IAutoMovieBuiltSpace,

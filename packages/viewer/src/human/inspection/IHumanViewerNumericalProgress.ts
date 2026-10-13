@@ -6,12 +6,6 @@
  *
  * The worker identifies its actual completed numerical boundary and monotonic durations. Those timings are not an estimate of total planned work or remaining time.
  *
- * @evidence contracts/common.md#principled-implementation Carries actual owner completion and same-clock elapsed measurements without estimating remaining work.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes the stage interval from cumulative time and request ownership.
- *
- * @evidence contracts/common.md#clear-and-simple-design One request id connects stage and cumulative same-clock timings to the build still awaited by the page.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A progress message contains completed work only, with no estimated completion percentage or age-based restart authority.
- *
  * @author Samchon
  */
 export interface IHumanViewerNumericalProgress {

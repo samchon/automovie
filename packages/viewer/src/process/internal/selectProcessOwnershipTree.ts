@@ -7,11 +7,6 @@ import { requireProcessId } from "./requireProcessId.ts";
  * BigInt to preserve adjacent microseconds beyond Number's exact integer range.
  * The result contains owned records in parent-first order. A missing or reused
  * root and ambiguous snapshot refuse before any native handle is terminated.
- *
- * @evidence contracts/common.md#principled-implementation Unique PID/birth records and exact integer creation order exclude stale parent links without floating-point time collapse.
- * @evidence contracts/common.md#clear-and-simple-design One immutable traversal owns ancestry admission independently of native handle acquisition or termination.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses ambiguous records and reused roots instead of using unchecked recursive process termination.
- * @evidence contracts/common.md#meaningful-documentation States exact stamp arithmetic, immutable inputs, output order and refusal before effects.
  */
 export function selectProcessOwnershipTree(
   snapshot: ReadonlyArray<{ pid: number; parentPid: number; createdAt: string }>,

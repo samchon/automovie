@@ -3,11 +3,6 @@
  * remain ordinary values. Unknown array tags, malformed array elements and
  * non-preview payloads refuse rather than reaching GPU preparation as stale or
  * corrupted cached data. No filesystem or reference configuration is read.
- *
- * @evidence contracts/common.md#principled-implementation Closed array tags reconstruct exact Float32 and Uint32 kinds and reject malformed protocol envelopes.
- * @evidence contracts/common.md#clear-and-simple-design Disk decoding has no model-building or display responsibility.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the persisted numerical data, without recognizing documents or fixtures.
- * @evidence contracts/common.md#meaningful-documentation Defines supported tags and corruption refusal.
  */
 export function decodeHumanViewerPreview(text: string): unknown {
   const value = JSON.parse(text, (_key, entry) => {

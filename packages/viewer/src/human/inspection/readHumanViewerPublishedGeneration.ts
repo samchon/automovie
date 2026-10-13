@@ -12,11 +12,6 @@ import type { IReadHumanViewerPublishedGenerationProps } from "./IReadHumanViewe
  * id, the head view must carry a `face` basis id and the body view a `body`
  * basis id; those ids are what the standard people's documents name. The
  * person owner joins and admits the views themselves when it builds.
- *
- * @evidence contracts/common.md#principled-implementation Takes the basis ids from the views and refuses a missing or mismatched pair rather than substituting another path.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns the generation verdict; reading and catalogue composition stay with their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never falls back to the legacy face and body pair for the standard people.
- * @evidence contracts/common.md#meaningful-documentation States the existence, pending, id and member rules.
  */
 export function readHumanViewerPublishedGeneration(
   props: IReadHumanViewerPublishedGenerationProps,

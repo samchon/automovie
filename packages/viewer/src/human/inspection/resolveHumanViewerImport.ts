@@ -19,11 +19,6 @@ const SOURCE = [".ts", ".mts", ".cts", ".tsx", ".js", ".mjs", ".json", ".wasm"];
  * With no export map, only the declared root main entry is supported. Public
  * assets and compiled targets retain their declared path and bytes as well.
  * Paths are forward-slash and absolute; an unavailable target returns null.
- *
- * @evidence contracts/common.md#principled-implementation Relative module kinds retain their emitted extension mapping, while workspace ownership follows the actual declared export and ordered active Node conditions.
- * @evidence contracts/common.md#clear-and-simple-design One resolver separates relative-source probing from public manifest selection without a private-package leaf fallback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, blocked or unsupported public targets remain unknown; an existing private file cannot override the package's declared route.
- * @evidence contracts/common.md#meaningful-documentation States the current inspection source consumers, separate normal browser authority, manifest selection and actual target ownership.
  */
 export function resolveHumanViewerImport(
   specifier: string,

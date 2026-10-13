@@ -9,10 +9,6 @@ import { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
  * not two that can disagree. `fluidSurfaceGeometry` produces it and throws when
  * the state's `domain` is not the domain's id.
  *
- * @evidence contracts/common.md#principled-implementation One vertex per cell centre at `origin.y + bed + depth` with central-difference surface normals, triangulating only quads whose four corners are wet and non-solid, so the drawn water is a direct projection of the solved depth field.
- * @evidence contracts/common.md#clear-and-simple-design Mesh, bounds and per-vertex flow travel as one record keyed by domain and step, so a viewer uploads one object and never recomputes geometry or flow from the state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No basin shape is special-cased; dry vertices stay in the buffer so vertex and cell indices match while their quads are dropped, and `bounds` covers emitted triangles only so a drained rim does not widen culling.
- * @evidence contracts/common.md#meaningful-documentation States the vertex order, the quad rule, the normal, UV and winding conventions, the meaning of a `null` bound, the flow unit and alignment, its current reader, and the foreign-state refusal.
  * @author Samchon
  */
 export interface IAutoMovieFluidSurface {

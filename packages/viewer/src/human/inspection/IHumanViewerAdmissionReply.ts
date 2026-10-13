@@ -2,12 +2,6 @@
  * What the host page's admission bridge answers: whether a viewer frame that
  * carries the human runtime could judge the document, and its owner's verdict.
  *
- * @evidence contracts/common.md#principled-implementation An unavailable bridge is a state of its own, never read as a refusal or an admission.
- * @evidence contracts/common.md#meaningful-documentation Names both members and their combinations.
- *
- * @evidence contracts/common.md#clear-and-simple-design Availability, nullable refusal reason and judging-frame token contain the complete bridge outcome.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unavailable frame cannot produce a current-generation token or be treated as an admitted document.
- *
  * @author Samchon
  */
 export interface IHumanViewerAdmissionReply {

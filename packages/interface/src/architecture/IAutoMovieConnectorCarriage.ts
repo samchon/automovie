@@ -11,11 +11,6 @@ import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
  *
  * An element may be driven by only one carriage or panel in the whole work,
  * because every moving member writes its displacement into one shared table.
- *
- * @evidence contracts/common.md#principled-implementation A carriage applies one revolute or prismatic displacement after its element's rest transform, so the travel rides down the element hierarchy to anything parented below the car.
- * @evidence contracts/common.md#clear-and-simple-design The rest pose stays the element's own transform and states only add a displacement, so a lift car is placed once and each state is a number rather than a second placement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A second carriage or panel driving the same element is refused rather than letting the later displacement overwrite the earlier one, and a carriage element outside the run's elements is refused.
- * @evidence contracts/common.md#meaningful-documentation States which elements a carriage may drive, that one element has one driver, the rest-pose meaning, and the single degree of freedom.
  */
 export interface IAutoMovieConnectorCarriage {
   /** Stable carriage identity within the connector. */

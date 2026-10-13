@@ -23,10 +23,6 @@
  * plane, and nothing checks that a `plan` looks down or that a `section` plane
  * is vertical.
  *
- * @evidence contracts/common.md#principled-implementation One orthographic projection parameterized by cut and side: `autoMovieDrawingHasCut` is false only for `elevation`, and `autoMovieDrawingFrame` negates the page right axis only for `reflected-ceiling-plan`, so each convention differs from the others by exactly those two decisions.
- * @evidence contracts/common.md#clear-and-simple-design Four literals name drafting conventions rather than algorithms; geometry comes from the view vectors, so `plan` and `section` share every line of code and differ only in the plane the author sets.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The ceiling-plan mirror is one negated frame axis rather than a per-consumer flip, and no literal is checked against the view direction, which the prose states instead of implying.
- * @evidence contracts/common.md#meaningful-documentation Explains what each convention removes and draws as `cut` or `projected`, why the ceiling plan is mirrored, that an elevation has no cut, and that the label is not checked against the view vectors.
  * @author Samchon
  */
 export type AutoMovieDrawingProjection =

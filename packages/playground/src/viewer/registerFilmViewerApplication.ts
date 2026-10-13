@@ -11,11 +11,6 @@ import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerA
  * frames. This adapter restores a captured sample through that producer; the
  * page bridge owns candidate replacement and retains the prior completed page
  * when restoration fails.
- *
- * @evidence contracts/common.md#principled-implementation Restores validated actual film samples and pass through the original draw owner.
- * @evidence contracts/common.md#clear-and-simple-design One application adapter uses existing page handoff and film rendering.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No synthetic composite, guessed shot or fake camera supplies completion.
- * @evidence contracts/common.md#meaningful-documentation Defines sample validation and retained-page failure effects.
  */
 export function registerFilmViewerApplication(props: {
   /** The original film owner's last completed frame and guide pass, captured together. */

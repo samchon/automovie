@@ -82,7 +82,6 @@ const actorFrame = (step: number, shoulderX: number) => ({
 });
 
 /**
- *
  * Moving attachments and shared capsules follow one fixed-step pose snapshot.
  *
  * Scenarios:
@@ -109,10 +108,6 @@ const actorFrame = (step: number, shoulderX: number) => ({
  *    repeated, non-finite, blank, foreign and zero-radius records.
  * 9. A particle coincident with a point, horizontal or diagonal capsule escapes
  *    to finite positions.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `simulateAutoMovieWearableSoftBody`, `simulateSoftBody`, `simulateSoftBodyWithBoundaries` and `validateSoftBodyDomain` on a two-particle cape and asserts particle coordinates, contact counts, budget records, step, validation violations and refusal fragments; it catches an anchor read from the rest pose instead of the current bone or node, a capsule taken from the wrong frame or not resolved, a stiff link that does not transmit anchor motion, a static path that drifts, a missing or duplicated boundary fact simulated with a fallback, and NaN escaping a degenerate capsule.
- * @evidence contracts/testing.md#independent-expectations The anchor's x 1 and 1.25 are the bone position and the node position plus its 0.25 m offset; the free particle's `1 - 1/sqrt(5)` is a full projection of its 0.5 m rest link from (0, 0.5) toward the anchor at (1, 1); 0.25 is the capsule radius, read on z because the solver's stated least-aligned-axis rule sends a particle on a vertical axis along -z; four boundary records are two steps of one anchor and one capsule; the degenerate escapes are checked only for finiteness, not position.
- * @evidence contracts/testing.md#distinguishing-cases Positive bone- and node-bound anchors, capsule-only and named-state domains, a stiff and a slack link, and a distant capsule that must not touch the cloth; boundary of a static curtain with zero motion and of point, horizontal and diagonal degenerate capsules; about forty negatives across validation, wearable admission and the lower boundary solver; free fall, wind, static colliders and live wearable selection belong to `test_soft_body_free_fall_hand_math`, `test_soft_body_wind_gust`, `test_soft_body_collision` and `test_soft_body_live_wearable_selection`.
  */
 export const test_engine_wearable_soft_body = (): void => {
   const solved = simulateAutoMovieWearableSoftBody({

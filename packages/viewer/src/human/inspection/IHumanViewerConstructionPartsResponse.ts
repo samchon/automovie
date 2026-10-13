@@ -9,12 +9,6 @@ import type { HumanViewerAddress } from "./HumanViewerAddress.js";
  * report states whether the owner's physical checks accepted that instance.
  * Drawing or listing parts does not change the report.
  *
- * @evidence contracts/common.md#principled-implementation Preserves the original construction admission and generated mesh names as separate readings.
- * @evidence contracts/common.md#meaningful-documentation States the two authorities without equating construction with acceptance.
- *
- * @evidence contracts/common.md#clear-and-simple-design Part names, admission, address and source revision coexist as separate readings from one displayed construction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Visible mesh names cannot overwrite a refused owner admission or imply physical construction acceptance.
- *
  * @author Samchon
  */
 export interface IHumanViewerConstructionPartsResponse {

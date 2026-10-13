@@ -34,7 +34,6 @@ const bounded = (
 };
 
 /**
- *
  * The box a population fills is read off its placement law, corner by corner.
  *
  * A compact set is a law rather than a list, so the region it spans is a
@@ -77,10 +76,6 @@ const bounded = (
  * 11. An empty, incomplete explicit, or `along-route` set is refused by name,
  *    because a useful bound needs one transform per slot and a building record
  *    carries no world route.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtInstanceSetPlacementBounds` on grid, lattice, explicit, scatter and along-route set designs with prototype boxes and asserts the returned min and max or the refusal; it catches a short last row or unused columns measured as full, an anchor or heading ignored, lattice layers counted past the used slots, explicit transforms beyond the count measured, a scatter disk turned by its heading, a prototype box not carried through heading, scale range or fixed rotation, a varying rotation that under-encloses its corners, hidden random or clock state, and an unboundable set answered instead of refused.
- * @evidence contracts/testing.md#independent-expectations Every bound is the layout contract worked by hand: slot `(column - (columns - 1) / 2) * spacing.x`, `row * spacing.z`, turned by `facingDeg` about the anchor, so a 45 degree 3 by 2 grid reaches `sqrt 2` with four slots and `2 sqrt 2` with six; lattice layers rise by `layer * spacing.y`; the scatter is the radius-3 disk; scale 0.5..2 of a box at x 1..2 spans 0.5..4; a 90 degree roll of a 2, 3, 1 scaled box spans x -3..0, y 0..4; the varying rotation bound is the sphere of radius `|(1, 2, 3)| = sqrt 14`, which pins that conservative choice, so a tighter correct enclosure would fail it.
- * @evidence contracts/testing.md#distinguishing-cases Full and partly filled grids, a short row against the same grid filled, a three-layer lattice against one partial layer, explicit slots against a fifth unclaimed transform, a scatter with a heading, a single rotated slot, a uniform scale range, a fixed rotation with non-uniform scale and a degenerate flat axis, a varying rotation repeated for determinism; refusals for along-route, an empty count and an incomplete explicit list; how populations join a space's content is owned by test_architecture_built_environment_populations and malformed population records by test_architecture_built_population_refusals.
  */
 export const test_architecture_built_population_placement_bounds = (): void => {
   TestValidator.equals(

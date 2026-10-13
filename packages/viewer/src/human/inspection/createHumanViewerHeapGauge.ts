@@ -8,11 +8,6 @@ import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
  * transitions instead of queuing behind a renderer that may be busy. A failed
  * reading leaves the last value as it was and is reported as `unavailable`
  * with its cause; the gauge observes and never affects captures.
- *
- * @evidence contracts/common.md#principled-implementation Samples the isolate's own heap accounting at actual stage transitions, with at most one reading outstanding.
- * @evidence contracts/common.md#clear-and-simple-design The caller supplies the reader; this owner keeps only last, peak and count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Records readings as measured, with no document-specific estimate.
- * @evidence contracts/common.md#meaningful-documentation States when readings occur and how a failed reading is reported.
  */
 export function createHumanViewerHeapGauge(
   read: () => Promise<IHumanViewerHeapUsage>,

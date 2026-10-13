@@ -24,11 +24,6 @@ import { readHumanViewerNodeInputs } from "./readHumanViewerNodeInputs.js";
  * without invalidating unrelated face, body or person computation-cache keys.
  *
  * `reaches` checks import/resolution candidates, explicit checked files and supported source additions inside the checked roots without rereading bytes. `changed` refreshes invalidated source-text memo entries and recomputes the digests; the complete checked Node byte/membership witness is rehashed for browser/admission on each batch. It reports actual moved domains while the caller retains candidate replacement and numerical-cache decisions.
- *
- * @evidence contracts/common.md#principled-implementation Sorted supported import graphs determine numerical-domain digests, while the browser/admission digest additionally joins the exact existing Node-loader byte/membership witness and published basis authority.
- * @evidence contracts/common.md#clear-and-simple-design Shared source/existence memos serve the four graph digests and their reached-file lookup without another numerical cache.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Real source and declared external inputs determine revision movement, including missing resolution candidates, without named-subject hashes or a substituted frame's identity.
- * @evidence contracts/common.md#meaningful-documentation Separates face, body, person composition and browser dependencies and defines membership refresh and extra compiler inputs.
  */
 export function createHumanViewerRevisions(
   props: ICreateHumanViewerRevisionsProps,

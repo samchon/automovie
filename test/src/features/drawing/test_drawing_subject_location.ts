@@ -5,7 +5,6 @@ import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- *
  * Every subject a schedule counts states where it is.
  *
  * The requirement asks each subject for a location, and two of the three
@@ -44,10 +43,6 @@ import { namedFacts, throwsError } from "../internal/predicates";
  *    `separates` is never empty and the derivation needs no case for it. The
  *    refusal is asserted here rather than assumed, because the JSDoc on the
  *    field rests on it.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieDrawingSchedule` for openings, connectors and spaces and asserts each row's `place` discriminant, the opening's host boundary, separated regions and building, the connector's ascending stops and building, the absence of `opening-location` and `connector-location` gaps, and the validation refusal of a boundary citing no region; it catches a row left with a `null` place, a connector reporting only some stops, a retired gap merely relabelled, and a room variant that lost its contents, adjacency or connector lists to the union.
- * @evidence contracts/testing.md#independent-expectations Expected places are read off the fixture's declarations: all three openings sit on boundary `north`, which names only `hall`; both connectors declare stops `hall` and `roof-deck`; the fixture's one building is `unit-a`; the refusal fragments are the validator's path and rule for an empty `spaces` list; the room check asserts only field presence and types, so its values are left to the space-schedule test.
- * @evidence contracts/testing.md#distinguishing-cases Each of the three subjects is a positive case for its own variant, the absent location gaps are the negative cases, and the boundary emptied of regions is the malformed input refused before scheduling; a boundary separating two regions and a connector with more than two stops are not exercised here, and full row equality including sizes is owned by the opening-schedule test.
  */
 export const test_drawing_subject_location = (): void => {
   const environment = drawingEnvironment();

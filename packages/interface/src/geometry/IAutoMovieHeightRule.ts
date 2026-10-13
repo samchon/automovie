@@ -11,10 +11,6 @@
  * answers the same height on every machine and every run. The rule ignores the
  * footprint; the record that carries it says where the surface exists.
  *
- * @evidence contracts/common.md#principled-implementation `surfaceHeightAt` evaluates `constant` as a level, `plane` as `originHeight + slopeX * x + slopeZ * z`, and `heightfield` by bilinear interpolation with lattice coordinates clamped to the edge, so heights are continuous, exact at samples, and never extrapolated.
- * @evidence contracts/common.md#clear-and-simple-design A three-member union discriminated on `kind`, the smallest set covering level ground, a single tilt and authored relief; the world terrain and a scene's standable surface both cite it so one function answers both.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate is special-cased; a `samples` array shorter than declared reads `0` instead of `NaN` in `surfaceHeightAt`, a fallback for unvalidated input that `validateSpace` and `validateProductionDesign` refuse up front.
- * @evidence contracts/common.md#meaningful-documentation States the formula and metre unit of each kind, the row-major sample order and count, the lattice minimums, edge clamping, interpolation, determinism, and that the footprint bounds the surface.
  * @author Samchon
  */
 export type IAutoMovieHeightRule =

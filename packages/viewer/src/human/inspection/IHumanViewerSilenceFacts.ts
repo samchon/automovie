@@ -1,10 +1,6 @@
 /**
  * What a client learned when the viewer port gave no health answer.
  *
- * @evidence contracts/common.md#principled-implementation A refused connection is independent from process-record existence and the duration of the unanswered probe.
- * @evidence contracts/common.md#clear-and-simple-design Observed connection and recorded-process facts are carried before the status owner derives an action.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Recorded liveness does not turn a refused or unanswered port into an inferred ready viewer.
- * @evidence contracts/common.md#meaningful-documentation Documents the refused connection, port, millisecond probe duration, nullable PID and observed liveness.
  * @author Samchon
  */
 export interface IHumanViewerSilenceFacts {

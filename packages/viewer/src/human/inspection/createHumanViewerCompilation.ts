@@ -28,11 +28,6 @@ import type { IHumanViewerCompiledSource } from "./IHumanViewerCompiledSource.js
  * Each module is returned with the identity of the compile that produced it
  * (its completion time and sequence), so the served code can say which
  * compile a page or worker loaded.
- *
- * @evidence contracts/common.md#principled-implementation Every module in a generation comes from one completed project transformation and any invalidation withdraws that authority.
- * @evidence contracts/common.md#clear-and-simple-design One compiler callback owns generation and a map owns module lookup.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Stores actual transformed source rather than generated validators or expected outputs.
- * @evidence contracts/common.md#meaningful-documentation Explains complete-generation publication, failure and input-watch obligations.
  */
 export function createHumanViewerCompilation(
   compile: () => Promise<Record<string, string>>,

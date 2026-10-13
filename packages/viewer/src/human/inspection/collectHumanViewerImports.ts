@@ -31,11 +31,6 @@ const OTHER = new RegExp(
  * dependency list, so changing a declared target invalidates its graph. A
  * specifier that leaves the repository's own source, or a file that cannot be
  * read, ends its branch. The list is sorted, so equal graphs give equal lists.
- *
- * @evidence contracts/common.md#principled-implementation Follows the supported source import forms and actual named-export owners, including type dependencies, to build a deterministic sorted dependency set.
- * @evidence contracts/common.md#clear-and-simple-design One traversal shares a source-text memo and delegates path resolution and re-export ownership to their dedicated adapters.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Import clauses and real source reads decide dependencies; unrelated files or named subjects are never inserted to manipulate revision hashes.
- * @evidence contracts/common.md#meaningful-documentation States supported import forms, named versus whole-module reach, unreadable/external boundaries and stable ordering.
  */
 export function collectHumanViewerImports(props: {
   entries: readonly string[];

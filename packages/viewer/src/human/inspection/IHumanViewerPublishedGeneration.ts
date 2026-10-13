@@ -3,12 +3,6 @@
  * standard people on it: the view basis ids their documents name and the
  * digests of both view files for their cache keys.
  *
- * @evidence contracts/common.md#principled-implementation Names the basis ids read from the views themselves and keys the people by both files' bytes.
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#clear-and-simple-design Paired view ids and both byte digests are the minimal facts needed to construct and key standard people.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Matching generation names alone cannot substitute for both selected view files' content witnesses.
- *
  * @author Samchon
  */
 export interface IHumanViewerPublishedGeneration {

@@ -8,7 +8,6 @@ import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- *
  * A space can be asked what encloses it, and answers with the boundary itself.
  *
  * `IAutoMovieBuiltBoundary` has always carried the fact: a `kind` the interface
@@ -61,10 +60,6 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 5. An unknown space is refused by name rather than answered with an empty
  *    list, which is the difference between "nothing encloses this room" and
  *    "there is no such room".
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentSpaceBoundaries` and, as the control, `builtEnvironmentAdjacentSpaces` over the drawing fixture and asserts the returned boundary ids, kinds, realizing elements and faces, the empty answer for the containing building, and the refusal of an unknown space; it catches boundaries reduced to ids or stripped of kind, elements or face, an unbuilt boundary filtered out, enclosure matched through containment so a parent inherits its rooms' boundaries, and an unknown space answered with an empty list.
- * @evidence contracts/testing.md#independent-expectations Expected rows are read off the fixture's declared boundaries: `north` names `hall` with kind `wall` and element `north-wall`, `parapet` names `roof-deck` with no element, and nothing names `site`; adjacency is expected to answer the far space `roof-deck` and never a boundary id; the refusal is matched by the space id and phrase, not the whole message.
- * @evidence contracts/testing.md#distinguishing-cases Positive built wall and declared-but-unbuilt parapet; negative containing building that encloses nothing, a room whose enclosure names no ceiling, and adjacency never answering with a boundary; an unknown space refused; boundary validation is owned by test_architecture_built_environment and the reflected ceiling drawing by the drawing tests.
  */
 export const test_architecture_built_environment_enclosure = (): void => {
   const environment = drawingEnvironment();

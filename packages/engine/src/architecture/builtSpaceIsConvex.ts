@@ -12,11 +12,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * even when its triangles happen to bound a convex solid, and so does a space
  * that states no volume.
  *
- * @evidence contracts/common.md#principled-implementation True only for a celled space with one cell, since a single cell is convex by contract while a shell may carry notches or voids the record does not rule out.
- * @evidence contracts/common.md#clear-and-simple-design A single boolean expression over the two volume fields, used by `validateWaterFeatures` to choose the corner-only test.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A convex shell answers false, a conservative choice that sends it down the exact path instead of inspecting its triangles; no space id is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what a caller decides with the answer, why corner tests are exact only on a convex region, and the shell and volume-less cases that answer false.
- * @evidence contracts/performance.md#cost-and-resources Constant time: one field test and one length comparison with no geometry inspected, nothing allocated and nothing retained.
  * @author Samchon
  */
 export const builtSpaceIsConvex = (space: IAutoMovieBuiltSpace): boolean =>

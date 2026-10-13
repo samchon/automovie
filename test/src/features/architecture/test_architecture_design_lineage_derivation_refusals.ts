@@ -14,7 +14,6 @@ const accepts = (edit: Parameters<typeof brokenLineage>[0]): boolean =>
   validateDesignLineage({ lineage: brokenLineage(edit) }).success;
 
 /**
- *
  * Pin every way an alternative or a derived output can stop being trustworthy.
  *
  * Two families of defect live here. An alternative stops being an alternative
@@ -67,10 +66,6 @@ const accepts = (edit: Parameters<typeof brokenLineage>[0]): boolean =>
  *    differing phase, and accepted once the pair agrees on either.
  * 10. An alternative that changes nothing is accepted: an empty change set is a
  *     scheme that keeps the base, not a malformed record.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateDesignLineage` on the renovation lineage one edit away from coherent and asserts that each edit is refused at its own violation path or accepted; it catches variants, changes and decisions with blank, duplicated, unknown or straddling identities, a double edit of one aspect, artifacts squatting on subject ids, lacking or repeating inputs or forming a cycle, malformed or stale stamps, a stamp disagreeing with its input, missing, wrong, unread, source-content or doubled asset citations, and an unfair comparison pair, without refusing the valid neighbours of those edits.
- * @evidence contracts/testing.md#independent-expectations Each path is the field the single edit touches in the fixture (`variants[i]`, `decisions[0]`, `derived[i]` and their members), with the fixture's derivation graph deciding which output a replaced texture digest leaves stale (`derived[3]` and `derived[9]`, the two that read it); the refusal kind defaults to `type` and is `range` for the two minimum-count rules, as the validator's documented split states.
- * @evidence contracts/testing.md#distinguishing-cases Eighteen alternative and decision cases and twenty-eight artifact cases, each a negative edit except the positive twins: an empty change set, an output dropping both the imported input and its quote, bytes replaced together with every quote, and a comparison pair moved together onto one configuration or one phase, which show the rules track agreement rather than a constant; structural refusals of subjects, revisions and phases are owned by test_architecture_design_lineage_structure_refusals.
  */
 export const test_architecture_design_lineage_derivation_refusals =
   (): void => {

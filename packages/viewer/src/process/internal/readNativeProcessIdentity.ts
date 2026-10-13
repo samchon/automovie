@@ -13,11 +13,6 @@ import { WindowsProcessOwnershipPrograms } from "./WindowsProcessOwnershipProgra
  * interpretation. Linux reads boot identity with start ticks, Windows reads a
  * retained process handle, and other POSIX hosts use ps creation dates. This
  * host effect does not grant stop authority or remove POSIX signal races.
- *
- * @evidence contracts/common.md#principled-implementation Supplies OS creation facts through native Windows handles, Linux procfs or ps rather than PID occupancy alone.
- * @evidence contracts/common.md#clear-and-simple-design Owns actual platform discovery and delegates result interpretation to cohesive pure decoders.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not infer process ownership by name, age, timeout or private SDK state.
- * @evidence contracts/common.md#meaningful-documentation States the admitted-selector precondition, platform transport and absence of granted termination authority.
  */
 export function readNativeProcessIdentity(pid: number): string | null {
   if (process.platform === "win32")

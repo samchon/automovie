@@ -9,7 +9,6 @@ import { geometrySelectorTestValues as values } from "../internal/geometrySelect
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- *
  * Distance, ground and pose queries resolve selectors, actors and terrain from
  * the compiled records they are handed, and refuse by name what those records
  * cannot answer.
@@ -35,10 +34,6 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 5. A performed actor's root is its node plus the pose root at the performance's
  *    local time; a held actor reports its node, its authored pose, or an empty
  *    pose; a time outside the shot and a missing motion refuse.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieGeometry` through the shared selector helpers for distance, ground and pose queries and asserts metres, surface id, walkability, held flag, joint count, root coordinates and refusal messages; it catches a bone measured in model space without its node's scale and quarter turn, an object-motion path ignored at its sample time, an actor resolved from the wrong shot or silently picked when several shots hold it, ground taken from a non-containing surface, and a pose that drops the performance's start offset.
- * @evidence contracts/testing.md#independent-expectations Numbers are hand geometry from the fixture: the 3-4-12 triangle gives 13, the well at (6, 0, 8) gives 10, the left hand at 0.75 m out and 1.4 m up summed from the skeleton's rest offsets becomes (10, 2.8, -1.5) after doubling and a +Y quarter turn, the head sits 1.7 m up, the cart covers half of eight metres at t = 2, the ramp is 1 + 4 * 0.5 = 3 m at z = 5, and the walker's root is its node z 5 plus the clip's one-metre forward root; refusals match message fragments rather than whole messages.
- * @evidence contracts/testing.md#distinguishing-cases Positive point, landmark, actor-root, bone, other-shot and path cases; boundaries at sample time zero and at both shot edges; negatives for negative and NaN time, an absent landmark with and without a world, a skeletonless bone, an unresolved bone, an actor ambiguous across shots, absent actors and shots, a missing model and a missing motion; ground over a walkable ramp, an unwalkable ledge, empty space and no world. Camera and film-time, effect, formation and reach queries belong to their sibling `test_engine_geometry_query_*` tests.
  */
 export const test_engine_geometry_query_selectors = (): void => {
   const handWorld = { x: 10, y: 2.8, z: -1.5 };

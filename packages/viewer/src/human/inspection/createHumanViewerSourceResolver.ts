@@ -25,11 +25,6 @@ const EMITTED: Readonly<Record<string, readonly string[]>> = {
  * listing spells them, so a module has one id however an import spells it.
  * Imports outside the roots, bare specifiers, queries and anything the
  * listings cannot resolve are left to Vite, which resolves them as before.
- *
- * @evidence contracts/common.md#principled-implementation The id is the file's real path read from the directory listing, the same id Vite's realpath gives, without a system call per import.
- * @evidence contracts/common.md#clear-and-simple-design One resolver owns the listings and their invalidation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never guesses: an import the listings do not resolve goes to Vite unchanged.
- * @evidence contracts/common.md#meaningful-documentation States the profiled cause, why listings give real paths, the case rule and what is left to Vite.
  */
 export function createHumanViewerSourceResolver(roots: readonly string[]) {
   const normalize = (file: string): string =>

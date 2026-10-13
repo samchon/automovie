@@ -14,7 +14,6 @@ import {
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
- *
  * Where an interior station stands is settled against the room, not assumed.
  *
  * A room's own extent is the obvious place to lay stations out from, and it is
@@ -49,10 +48,6 @@ import { namedFacts, vclose } from "../internal/predicates";
  * 7. An opening in a space with no extent at all keeps its threshold station
  *    without the opening ever being placed, because there is no anchor to walk
  *    toward.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtSpaceObservationStations` on five irregular spaces and asserts station counts, placed counts, anchor positions, aim targets and null poses; it catches an anchor taken from a bounding-box centre that lies outside a tetrahedron shell or in an L notch, an eye lifted to reading height out of a wedge, a closing-nothing cell supplying corners, a corner aimed at itself in a point volume, and a station dropped instead of left unplaced.
- * @evidence contracts/testing.md#independent-expectations Positions come from the fixtures' own planes by hand: the wedge box centre `(2, 2, 1)` sits on the `x <= y` cut while `(2, 1.6, 1)` does not, the long arm's corner mean is `(2, 1.5, 0.5)`, the point volume's probe is the one-millimetre constant, and `4 + 4 + 1 = 9` stations follow from the documented population; only the `center-x-minus` position is compared for the wedge and the notch, which leaves the other three centre stations unchecked on the premise that all four stand on one anchor.
- * @evidence contracts/testing.md#distinguishing-cases Owns the degenerate anchors: a half-space-only cell, a shelled space without cells, a reading height outside the volume, a skipped open cell before a closing one, a zero-extent volume, a boundary without a face and a face fifty metres away; the rectangular and L-shaped baselines, threshold ordering and the missing-space refusal belong to test_architecture_space_stations.
  */
 export const test_architecture_space_station_placement = (): void => {
   TestValidator.equals(

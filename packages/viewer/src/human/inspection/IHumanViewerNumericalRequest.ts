@@ -13,12 +13,6 @@ import type { IHumanViewerNumericalInput } from "./IHumanViewerNumericalInput.js
  * `<name>@<digest12>` a candidate dropped beside a hand-written document (for a
  * person, one packet: a face/body basis pair or a one-skin source generation).
  *
- * @evidence contracts/common.md#principled-implementation The worker needs the request id, the domain runtime, the candidate source and the runtime input, nothing else.
- * @evidence contracts/common.md#meaningful-documentation States the candidate naming and what a person candidate holds.
- *
- * @evidence contracts/common.md#clear-and-simple-design Request id, domain, basis token and original input are the numerical request boundary; optional cache authority travels separately.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The domain dispatches to the existing product runtime and the basis token retains digest authority rather than a subject-specific override.
- *
  * @author Samchon
  */
 export interface IHumanViewerNumericalRequest {

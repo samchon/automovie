@@ -27,11 +27,6 @@ const CONTAINMENT_EPSILON = 1e-9;
  * slack is `1e-9` in the plane's own scale, which is metres only when the
  * normal is unit length; the contract allows unnormalized normals.
  *
- * @evidence contracts/common.md#principled-implementation A celled space contains a point when some cell admits it on every plane within `CONTAINMENT_EPSILON`, and a shelled space uses the Van Oosterom-Strackee winding number after an on-surface test, so voids cancel and no ray direction is chosen; the cell slack scales with each unnormalized normal's length.
- * @evidence contracts/common.md#clear-and-simple-design One exported reader for both volume spellings, with private solid-angle and on-triangle helpers, so no consumer branches on cells versus shell.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The surface-first test is a stated compensation for the solid angle's degeneracy at edges and vertices, and a triangle naming a missing vertex is skipped, which only a shell validation never saw can carry.
- * @evidence contracts/common.md#meaningful-documentation States the two spellings and the empty case, the single-reader rule with its consumers, that boundary points are inside, the scale of the cell slack, and on the helper the winding-number method and why the surface is tested first.
- * @evidence contracts/performance.md#cost-and-resources Linear in cell planes for a celled space and in triangles for a shell, one `atan2` and one on-triangle test per triangle; there is no spatial index or per-shell cache, so every point against a dense shell pays every triangle.
  * @author Samchon
  */
 export const builtSpaceContainsPoint = (

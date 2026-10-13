@@ -9,10 +9,6 @@
  * only the render plan's transition spans, so `fade` samples like
  * `crossDissolve`.
  *
- * @evidence contracts/common.md#principled-implementation The incoming entry starts `duration` seconds early and `resolveFromTimeline` blends the outgoing tail with incoming weight `elapsed / duration`, a linear cross-fade over the overlap.
- * @evidence contracts/common.md#clear-and-simple-design Two fields and no easing or color options; the timeline arithmetic in `sequenceTimeline` and `cutSequence` reads only `duration`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `kind: "fade"` is accepted and copied onto render-plan `transitionSpans`, but sequence frame samples blend the two shots exactly as for `crossDissolve`, so a fade renders as a dissolve.
- * @evidence contracts/common.md#meaningful-documentation States the overlap semantics, the played-span and adjacent-overlap limits, the blend weight, and that the two kinds currently sample identically.
  * @author Samchon
  */
 export interface IAutoMovieTransition {

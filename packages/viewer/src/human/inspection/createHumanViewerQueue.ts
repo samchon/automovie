@@ -27,11 +27,6 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * actual task settles; rejecting a promise does not stop work on the page.
  *
  * Capacity bounds cover waiting requests per lane and one physically unsettled callback. This scheduler supplies neither a production claim wait graph nor storage or network credit policy.
- *
- * @evidence contracts/common.md#principled-implementation Serial GPU ownership, per-lane FIFO, bounded foreground streaks and cancellation settlement preserve scheduling fairness without overlapping work on one page.
- * @evidence contracts/common.md#clear-and-simple-design One queue owns waiting entries, active settlement and scheduling; task execution remains the supplied callback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Limits waiting work and postpones bulk scheduling without cancelling an active task, changing its model or restarting the viewer because time passed.
- * @evidence contracts/common.md#meaningful-documentation Defines lanes, waiting capacity, quiet bulk scheduling and why a cancelled active requester retains its slot until actual settlement.
  */
 export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
   if (!Number.isInteger(props.limit) || props.limit < 1)

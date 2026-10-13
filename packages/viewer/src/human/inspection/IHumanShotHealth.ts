@@ -3,12 +3,6 @@
  *
  * This wire projection contributes answering-listener, source, device, availability and cause facts. Its ready flag is independent of displayed-model and control acceptance; it does not implement job ETA or credential redaction.
  *
- * @evidence contracts/common.md#principled-implementation The service identity separates this viewer from another program on the port.
- * @evidence contracts/common.md#meaningful-documentation Names each member the client depends on.
- *
- * @evidence contracts/common.md#clear-and-simple-design The client projects only the service, process, revision, readiness and error facts its commands consume.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Protocol and storage are optional to describe actual older replies; absence does not manufacture compatibility or readiness.
- *
  * @author Samchon
  */
 export interface IHumanShotHealth {

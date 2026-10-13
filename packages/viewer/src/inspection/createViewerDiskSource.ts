@@ -13,11 +13,6 @@ import path from "node:path";
  * Refresh reads current bytes before publishing a revision. Files outside the
  * supplied scope, including browser-transformed responses, are not certified
  * by this witness. Callers must still check the revision after candidate load.
- *
- * @evidence contracts/common.md#principled-implementation Ordered path-to-byte digests and missing-root entries identify the declared disk inputs; failed reads retain the previous receipt with a refusal instead of publishing partial membership. Sequential reads do not claim an atomic filesystem snapshot.
- * @evidence contracts/common.md#clear-and-simple-design One refresh owns traversal, hashing and revision changes, while the application supplies maintained membership, publication admission and watcher scheduling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Standard Node filesystem reads and SHA-256 cover caller-declared inputs; real-directory cycle detection limits repeated traversal without substituting cache results or treating source edits as rebuilt modules.
- * @evidence contracts/common.md#meaningful-documentation Names input ownership, missing roots, symlink traversal, source/output separation and the caller's post-load revision check.
  */
 export function createViewerDiskSource(props: {
   /** Checkout root used to name retained source receipts. */

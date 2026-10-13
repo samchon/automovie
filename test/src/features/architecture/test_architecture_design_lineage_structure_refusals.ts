@@ -11,7 +11,6 @@ import {
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- *
  * Pin every way a lineage's identity, revision, phase, and lifecycle graphs can
  * stop being able to answer their own questions.
  *
@@ -45,10 +44,6 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *    an identity nothing published, refuses a derived artifact squatting on a
  *    published identity, and does not complain about published identities the
  *    lineage simply does not track.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateDesignLineage` on the renovation lineage one edit away from coherent and `validateDesignLineageBinding` against a published id list, and asserts success or the violation kind and path; it catches a blank id or wrong version, duplicated, blank, unlabelled or malformed-digest subjects, missing, dangling, cyclic or malformed revisions and head, phases with no label, dangling or repeated prerequisites or a cycle, lifecycles about unknown subjects, duplicated, dangling or missing, removals that do not follow installation including across incomparable branches, and bindings that miss an unpublished subject or a derived artifact squatting on a published id.
- * @evidence contracts/testing.md#independent-expectations Each path is the field the single edit touches in the fixture, indexed by hand (`subjects[11]` for the pushed duplicate, `lifecycles[3]` for `shoring-frame`, `subjects[2]` for `wall-west` whose lifecycle is dropped, `subjects[5]` for `opening-door`, `derived[6]` for `render-lobby`); the ordering rules follow the fixture's prerequisite graph, where `shore` and `strip` are incomparable siblings, and the kind is `type` except the documented `range` for an empty revision list.
- * @evidence contracts/testing.md#distinguishing-cases The coherent lineage and a clean binding that also carries an untracked published id, as the positive twins; twenty-three single-edit refusals, including removal in the installing phase, removal on an incomparable branch, and a dead-ended prerequisite chain that must still report the ordering defect; a binding with an unpublished subject and one with a squatting artifact; alternative, decision and derived-artifact refusals are owned by test_architecture_design_lineage_derivation_refusals.
  */
 export const test_architecture_design_lineage_structure_refusals = (): void => {
   const published = [

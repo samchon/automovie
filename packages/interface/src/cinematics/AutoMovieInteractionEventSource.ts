@@ -8,10 +8,6 @@
  * - `scriptedCue`: an `attachTo` handoff placed at the authored action times.
  * - `sampledProximity`: a contact or fall found by sampling body geometry.
  *
- * @evidence contracts/common.md#principled-implementation Tags the producer of each event: `compileLaunch` writes `collisionSolver` and `impactOutput`, `handoffEvents` writes `scriptedCue`, and `detectBodyCollision`, `detectFreeFall` and `detectSupportToppling` write `sampledProximity`.
- * @evidence contracts/common.md#clear-and-simple-design Kept separate from the event kind so one category such as `contact` can come from either a solved trajectory or a sampled proximity test without multiplying kind names.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No consumer in the repository branches on the source; only `appendShotMetadataArtifact` checks membership, through an untyped `Set` that must be kept in step with this union by hand.
- * @evidence contracts/common.md#meaningful-documentation Maps each value to its producer and states that the tag describes provenance rather than the visual result.
  * @author Samchon
  */
 export type AutoMovieInteractionEventSource =

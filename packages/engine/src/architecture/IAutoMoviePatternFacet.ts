@@ -29,11 +29,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * pattern did not lay or a zone another facet already names; zones without a
  * facet stay on the call's main frame.
  *
- * @evidence contracts/common.md#principled-implementation Re-bases one zone's developed coordinates onto a flat panel by subtracting the anchor and applying the panel frame, which is the unrolling of a folded or curved host read backwards.
- * @evidence contracts/common.md#clear-and-simple-design Keyed by zone, so a fold is authored as a zone border and no per-piece panel assignment exists; unnamed zones fall back to the one main frame.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine never splits a piece across a fold or guesses its panel; an unknown or repeated zone throws instead of being ignored.
- * @evidence contracts/common.md#meaningful-documentation States the developed-surface model, the anchor's role, the placement formula, the one-panel-per-piece rule, and the refusals.
- * @evidenceExclude contracts/performance.md#cost-and-resources A small record resolved into a zone-keyed map once per instancing call and looked up per occurrence; that map is discarded when the call returns.
  * @author Samchon
  */
 export interface IAutoMoviePatternFacet {

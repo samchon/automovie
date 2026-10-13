@@ -15,11 +15,6 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
  * Returns whether the path was a basis route.
  *
  * These refusals concern the selected local basis digest and current response bytes. They do not establish a complete frame dependency or receipt closure.
- *
- * @evidence contracts/common.md#principled-implementation Every basis is served only as the bytes its document's key names.
- * @evidence contracts/common.md#clear-and-simple-design One route owns basis resolution; verification is the shared streamer's.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Restricts domain and candidate names, requires the caller's digest and serves verified original bytes without choosing a substitute basis after refusal.
- * @evidence contracts/common.md#meaningful-documentation States the accepted forms and the 400, 404 and 409 answers.
  */
 export function serveHumanViewerBasis(
   props: IServeHumanViewerDataProps,

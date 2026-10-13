@@ -6,11 +6,6 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * identity; this reporter supplies readable aggregate descriptions to callers
  * whose status transport displays Error.message. Opaque empty aggregates and
  * a sole primary cause retain their actual original object.
- *
- * @evidence contracts/common.md#principled-implementation Reuses restoration's ordered original causes after all independent attempts have completed.
- * @evidence contracts/common.md#clear-and-simple-design One synchronous reporter is shared by individual retirement and scope settlement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports actual causes without retrying owners or inventing successful physical retirement.
- * @evidence contracts/common.md#meaningful-documentation States timing, primary identity and the message-based status consumer.
  */
 export function reportAutoMovieResourceRetirement(
   reporting: readonly (() => void)[],

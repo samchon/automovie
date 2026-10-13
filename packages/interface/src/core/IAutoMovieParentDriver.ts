@@ -7,10 +7,6 @@
  * influence and no kept offset, so an enabled component snaps the owner onto
  * the parent, and limits never clamp the result. A non-boolean flag throws.
  *
- * @evidence contracts/common.md#principled-implementation Decomposes both world matrices into position, rotation and scale and recomposes the owner from a per-component choice, which is exact for the TRS part of each matrix; shear in either matrix cannot survive that decomposition.
- * @evidence contracts/common.md#clear-and-simple-design Three booleans and two node ids with no influence or offset field, because `applyParent` implements a hard snap and the record holds only what that solver reads.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No owner or parent is special-cased; snapping without an offset is the stated contract rather than a hidden compensation, and non-boolean flags throw instead of being coerced.
- * @evidence contracts/common.md#meaningful-documentation States the world-space pass, the per-component replacement, the missing influence and offset, that limits do not apply, and the flag failure.
  * @author Samchon
  */
 export interface IAutoMovieParentDriver {

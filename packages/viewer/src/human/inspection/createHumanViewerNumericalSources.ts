@@ -19,11 +19,6 @@ import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime.js";
  * borrow the identical typed views, so anatomy context cannot come from a
  * different source than the later runtime. One latest asset per source kind
  * is retained; loading a replacement clears the prior cache entry.
- *
- * @evidence contracts/common.md#principled-implementation Existing digest-checked source readers supply both preflight and construction without a reduced anatomical context or alternate schema.
- * @evidence contracts/common.md#clear-and-simple-design Shared paired views and bounded legacy-source caches own loading; domain owners still admit documents and build geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source, document or verdict is synthesized or read from numerical model caches.
- * @evidence contracts/common.md#meaningful-documentation States shared source ownership and latest-asset retention.
  */
 export function createHumanViewerNumericalSources(origin = "") {
   const tokens = humanViewerBasisTokens;

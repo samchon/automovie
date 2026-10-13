@@ -8,11 +8,6 @@ import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage.js";
  * whose renderer exited is replaced without starting another browser. Heap
  * readings use a CDP session of their own, so they never wait behind capture
  * calls on the page's session.
- *
- * @evidence contracts/common.md#principled-implementation The GPU flags select the hardware renderer the server verifies afterwards; heap reads do not share the capture session.
- * @evidence contracts/common.md#clear-and-simple-design One browser/page/CDP lifetime reuses a connected browser while dedicated heap access remains separate from capture requests.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses supported Chromium launch and CDP APIs; actual reported hardware must still be verified and an existing browser is not replaced merely by elapsed time.
- * @evidence contracts/common.md#meaningful-documentation States the renderer flags and the session separation.
  */
 export async function launchHumanViewerPage(
   reuse?: Browser,

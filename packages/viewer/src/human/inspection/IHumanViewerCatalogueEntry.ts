@@ -7,12 +7,6 @@
  * participate in the owning server and browser check without moving domain
  * schema admission into the server's catalogue projection.
  *
- * @evidence contracts/common.md#principled-implementation Leaves schema admission with the domain owner and keeps only catalogue identity on the server.
- * @evidence contracts/common.md#clear-and-simple-design One wire record serves server publication; the page's typed view narrows it.
- * @evidence contracts/common.md#meaningful-documentation States what the server examines and who admits the rest.
- *
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest-bearing basis tokens identify the actual source generation; the server never derives acceptance from a document name.
- *
  * @author Samchon
  */
 export interface IHumanViewerCatalogueEntry {

@@ -8,10 +8,6 @@
  * validator cannot check. Inside a profile, `node` is a semantic key that
  * `bindProfile` maps through the binding's `boneMap` and placement prefix.
  *
- * @evidence contracts/common.md#principled-implementation Uses the glTF animation-target paths, keyed by `channelKey` as `node:<id>:<path>`; `channelIsRotation` selects slerp for the `rotation` path because component-wise lerp moves a quaternion off the unit sphere.
- * @evidence contracts/common.md#clear-and-simple-design A node id and a closed path enum suffice because each path's width and interpolation follow from the path itself, so this arm needs no value type field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown path throws in `channelKey` rather than being keyed anyway, and the `weights` width is left unchecked by design since only the model knows its morph count.
- * @evidence contracts/common.md#meaningful-documentation Gives the width and component order per path, the slerp rule for rotation, the unchecked weights width, and the semantic-key meaning of `node` inside a profile.
  * @author Samchon
  */
 export interface IAutoMovieNodeChannel {

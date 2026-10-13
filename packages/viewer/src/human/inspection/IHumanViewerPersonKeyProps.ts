@@ -3,12 +3,6 @@ import type { IHumanViewerPersonKeyDigest } from "./IHumanViewerPersonKeyDigest.
 /**
  * The inputs of a person's numerical cache key.
  *
- * @evidence contracts/common.md#principled-implementation Every authority the composed build reads participates in the key.
- * @evidence contracts/common.md#meaningful-documentation Names each participating input.
- *
- * @evidence contracts/common.md#clear-and-simple-design The original document, both basis digests and all three numerical source digests form one cache-input contract.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A composed Person key cannot ignore face or body source changes or substitute a display-only revision.
- *
  * @author Samchon
  */
 export interface IHumanViewerPersonKeyProps {

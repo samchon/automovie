@@ -66,11 +66,6 @@ import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGe
  * its bytes, its sidecars, the bases, the generation and the source digests
  * are unchanged, so republishing the catalogue for an admission verdict does
  * not re-read and re-hash every input; only admission is applied again.
- *
- * @evidence contracts/common.md#principled-implementation Actual document, sidecar, basis and numerical-source identities determine keys; pending sidecar reads and owner admission remain distinct from rejected inputs.
- * @evidence contracts/common.md#clear-and-simple-design A per-file memo owns parsed candidates while injected I/O, sidecar facts and admission retain their independent authorities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Original documents and exact paired or packet bases enter normal admission, with no fabricated missing companion, subject-specific exemption or downgraded constructor.
- * @evidence contracts/common.md#meaningful-documentation Defines supported packet arrangements, incompatible combinations, key dependencies and the difference between pending facts and refused documents.
  */
 export function readHumanViewerInputs(
   props: IReadHumanViewerInputsProps,

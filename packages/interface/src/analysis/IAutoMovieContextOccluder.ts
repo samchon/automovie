@@ -12,11 +12,6 @@ import { IAutoMovieHalfSpacePlane } from "../architecture/IAutoMovieHalfSpacePla
  * point out of the mass. Validation checks the plane count, non-zero finite
  * normals and finite offsets only; it does not prove the intersection is
  * non-empty or bounded.
- *
- * @evidence contracts/common.md#principled-implementation A convex mass as a half-space intersection lets the daylight solver run an analytic slab test per ray; boundedness is an unchecked premise, so an unbounded plane set passes validation and blocks every ray that enters it, however far away.
- * @evidence contracts/common.md#clear-and-simple-design Only id, label and planes are carried, with no material or interior, which keeps the record usable as a shading blocker and unusable as owned building geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Context occluders and authored shading solids share `validateSolidPlanes`, so a neighbour's mass is held to the same four-plane, finite, non-zero rule; the missing boundedness check is a stated gap, not a compensation.
- * @evidence contracts/common.md#meaningful-documentation States the inside convention of each plane, the four-plane minimum and why, id uniqueness within the context, and that emptiness and boundedness are not validated.
  */
 export interface IAutoMovieContextOccluder {
   /**

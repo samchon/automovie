@@ -16,7 +16,6 @@ import { builtTopologyTestYaw as yaw } from "../internal/builtTopologyTestYaw";
 import { namedFacts, qclose, vclose } from "../internal/predicates";
 
 /**
- *
  * A floor is one classification among many, never the root of the hierarchy.
  *
  * This pins the shapes the requirement calls for against the record as it
@@ -55,10 +54,6 @@ import { namedFacts, qclose, vclose } from "../internal/predicates";
  *    by half-spaces at all.
  * 10. The door leaf filling the front-door opening is staged like any other
  *     element.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtEnvironmentBuildingOfSpace`, `builtEnvironmentSpaceNodes`, `builtEnvironmentContainsPoint`, `builtEnvironmentAdjacentSpaces` and `lowerBuiltEnvironment` over a two-unit citadel and asserts validity, owners, the duplex's staged nodes, containment across mezzanine, void, root and dome cells, sky-bridge adjacency from both ends, and the staged position, rotation, scale and model of lowered pieces; it catches a space attributed to the wrong unit, a duplex limited to one slab, a void counted inside its storey, a cross-unit connector reported from one end only, a child placed by a re-derived yaw or without its unit's tilt, and a cited mesh or door leaf left unstaged.
- * @evidence contracts/testing.md#independent-expectations Positions are hand composition of the fixture's literal transforms: the wing slab at local x 4 under a wing yawed 30 degrees at (6, 9, 0) lands at `(6 + 4 cos 30, 9, -4 sin 30)` with rotation `yaw(30)`, the annex upper slab at (6, 4.2, 0) under a root tilted 5 degrees at x 30 lands at `(30 + 6 cos 5 - 4.2 sin 5, 6 sin 5 + 4.2 cos 5, 0)` with rotation `roll(5)`, quaternions written out by the fixture helpers rather than the engine, and containment answers follow the hand-placed convex cells; the dome's curved shell is outside the oracle because only its bounding cell is a logical volume.
- * @evidence contracts/testing.md#distinguishing-cases Positive containment of the mezzanine point in both hall and mezzanine, the atrium centre in atrium and root, and a point west of the void in storey-2; negative the atrium centre outside storey-2, the west point outside the atrium, and a point above the dome's cell outside rotunda; ownership in both units; adjacency from both bridge ends; yaw about y against roll about z; single-unit lowering and refusals are owned by test_architecture_built_environment and convex cell geometry by test_architecture_convex_cell_vertices.
  */
 export const test_architecture_built_environment_topology = (): void => {
   const citadel = work();

@@ -8,11 +8,6 @@ import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenera
  * answers a token's label once its window is closed (`{ label }`, null when
  * the candidate's code is not a proven revision). Returns whether the path
  * was one of them.
- *
- * @evidence contracts/common.md#principled-implementation The hold lives exactly as long as the client's open request, so no vanished client keeps compiles withheld.
- * @evidence contracts/common.md#clear-and-simple-design One route adapter binds the generation owner's token and label to the HTTP response lifetime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Response closure releases the actual hold without an age limit, forged source label or forced candidate replacement.
- * @evidence contracts/common.md#meaningful-documentation States both routes, the release rule and the answer.
  */
 export function serveHumanViewerGeneration(
   props: IServeHumanViewerGenerationProps,

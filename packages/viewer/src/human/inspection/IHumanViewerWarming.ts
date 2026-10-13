@@ -4,10 +4,6 @@ import type { IHumanViewerWarmLastFailure } from "./IHumanViewerWarmLastFailure.
 /**
  * Progress of the current background warm pass, as `/health` reports it.
  *
- * @evidence contracts/common.md#principled-implementation Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
- * @evidence contracts/common.md#clear-and-simple-design Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Skipped documents retain explicit reasons and do not contribute to the successful draw counter.
- * @evidence contracts/common.md#meaningful-documentation Explains warm revision, total/done/skipped counts, nullable current document and retained latest failure.
  * @author Samchon
  */
 export interface IHumanViewerWarming {

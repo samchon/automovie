@@ -5,11 +5,6 @@ import type { HumanViewerLane } from "./HumanViewerLane.js";
  *
  * Waiting, running and last-settled facts contribute local queue observation. They are independent of a whole production plan, wait-relation graph or completed-frame acceptance.
  *
- * @evidence contracts/common.md#principled-implementation Per-lane waiting counts and nullable active and completed request readings preserve distinct queue states.
- * @evidence contracts/common.md#clear-and-simple-design One status record reports current work and the latest completion without exposing queue nodes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Duration reports actual running work and never authorizes cancelling a task merely by its age.
- * @evidence contracts/common.md#meaningful-documentation Null running and last values mean idle and no previous completion, while all durations are milliseconds.
- *
  * @author Samchon
  */
 export interface IHumanViewerQueueStatus {

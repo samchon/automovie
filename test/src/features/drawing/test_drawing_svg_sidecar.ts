@@ -13,7 +13,6 @@ import {
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- *
  * The sheet a person reads and the sidecar a machine reads are one file.
  *
  * Scale is honoured as drafting scale, so the arithmetic is checkable: at 1:50
@@ -47,10 +46,6 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 8. The same drawing serializes to the same bytes twice.
  * 9. A pen that does not belong to the drawing, and a pen with a bad weight, dash
  *    or text height, are each refused at their own message.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `autoMovieDrawingToSvg` on drawings from `deriveAutoMovieDrawing` and asserts the exact root tag, one exact cut `<line>`, per-role stroke weights and dash arrays, the region, opening, dimension, note and gap marks with their `data-*` attributes, XML escaping, empty rather than `null` attributes, byte equality across two runs and five refusal messages; it catches a missing y flip, a scale not applied as drafting millimetres, a sheet sized from linework alone that leaves an annotation outside the viewBox, unescaped note markup or apostrophes, a dropped gap marker, a dash on a solid role, and a pen from another view silently applied.
- * @evidence contracts/testing.md#independent-expectations Sizes follow the drafting rule of 1000 / 50 = 20 mm per metre: the 10 x 6 m plan plus a 10 mm margin each side is 220 x 140 mm, an empty extent is 20 x 20 mm, the wall's 0.2 m cut is 4 mm from y 14 to 12.4, the slab diagonal runs (10,10) to (210,130) with its centre at (110,70); weights and dashes are the fixture pen's authored values, escapes are the XML entity table, the 60 m2 area and 0.6 m oculus are fixture arithmetic, and the root tag's digest is read back from the same drawing, so it proves the digest is carried rather than what it hashes.
- * @evidence contracts/testing.md#distinguishing-cases Covers resolved and stale dimensions and notes, a profiled and an unprofiled opening, a finished room and an unfinished ceiling region, a line whose element has no space, hand-built stale records with a null reason, a blank sheet, a note-only sheet and the same sheet whose target is missing; refusals for a foreign view, zero and NaN weights, a negative dash and zero text height sit beside an accepted all-solid pen; feature resolution belongs to the annotation test, and the cut-plane classification that assigns each role is reached here only through the role marks, not checked line by line.
  */
 export const test_drawing_svg_sidecar = (): void => {
   const environment = drawingEnvironment();

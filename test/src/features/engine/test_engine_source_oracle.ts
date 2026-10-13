@@ -63,7 +63,6 @@ const crowd = materializeCompiledInstanceSet({
 });
 
 /**
- *
  * A shot source's deterministic helpers answer from the compiled runtime the
  * production holds.
  *
@@ -86,10 +85,6 @@ const crowd = materializeCompiledInstanceSet({
  *    would give.
  * 5. An id without a compiled record refuses by name, including one only an
  *    inherited object property would answer.
- *
- * @evidence contracts/testing.md#behavioral-verification Builds an oracle with `createAutoMovieSourceOracle` over a compiled formation, a compiled instance set and a slope, then asserts its formation and instance members for every slot, its distance, its ground height on and off the slope, the hero node, members raised by the slope, prototype shares, and refusals for unknown and prototype-chain ids; it catches an oracle that re-reads the compiled set as a design and counts its default prototype twice, members placed at the anchor height instead of on the ground, and a lookup that answers `toString` or `constructor` from the object prototype.
- * @evidence contracts/testing.md#independent-expectations Distance 13 is the 3-4-12 triangle, ground 3 m is the ramp's 1 + 4 * 0.5 at z = 5, and the 25/50/25 shares are the 1:2:1 weights after the default is prepended once, within about 3.6 binomial standard deviations over 2,000 draws; member equality compares the oracle against `compiledFormationSlot` and `instanceSlot` because the contract is that both regenerate the same member, so a defect shared by those regenerators is caught only by the share check.
- * @evidence contracts/testing.md#distinguishing-cases Positive members for all 12 formation slots and 2,000 instance slots, the named hero slot, ground on a surface and over nothing; negatives for a missing formation and instance set and for inherited property names; formation layout and slope following in depth belong to `test_engine_compiled_formation_slot` and `test_engine_compiled_formation_runtime`, and prototype weighting at the selector to `test_engine_prototype_selection`.
  */
 export const test_engine_source_oracle = (): void => {
   const oracle = createAutoMovieSourceOracle({

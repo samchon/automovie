@@ -9,11 +9,6 @@ import type { HumanViewerAddress } from "./HumanViewerAddress.js";
  * Numerical documents, build inputs and cache identities are untouched.
  * A resident Node client may predate the shadow field while its browser code
  * has updated; that missing field preserves the existing enabled-light state.
- *
- * @evidence contracts/common.md#principled-implementation Restores explicit display state in the order consumed by camera framing and uses product hooks for every scene mutation.
- * @evidence contracts/common.md#clear-and-simple-design Owns visibility admission independently of DOM, numerical building and camera placement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Calls the viewport's supported setters without changing renderer internals or special-casing documents.
- * @evidence contracts/common.md#meaningful-documentation Explains reused-state restoration, ordering, ownership and refusal before frame delivery.
  */
 export function applyHumanViewerVisibility(
   stage: {

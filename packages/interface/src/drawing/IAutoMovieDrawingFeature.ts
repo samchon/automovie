@@ -10,10 +10,6 @@ import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
  * find it. Both outcomes are correct; a stale number that still looks right is
  * the only wrong one.
  *
- * @evidence contracts/common.md#principled-implementation Positional addressing over computed families: `resolveAutoMovieDrawingFeature` welds vertices and undirected edges at six decimals and sorts them numerically, takes faces in emission order, and treats a changed `count` as a different feature rather than relocating the target.
- * @evidence contracts/common.md#clear-and-simple-design Element, optional part, kind, index and optional count address any computed feature without storing coordinates that would go stale.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Faces are not canonicalized as vertices and edges are, so reordering parts renumbers face targets and `count` cannot notice when the triangle total is unchanged; stated in the prose and reported as a finding.
- * @evidence contracts/common.md#meaningful-documentation States how each family is ordered, the axis and centroid index rules, what a `null` part means, and what `count` protects against.
  * @author Samchon
  */
 export interface IAutoMovieDrawingFeature {

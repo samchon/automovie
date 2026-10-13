@@ -10,11 +10,6 @@ import { readHumanViewerFrameToken } from "@automovie/viewer/human/inspection/re
  * must not fall back to the older displayed frame's numerical source. With no
  * loaded current frame the bridge answers unavailable instead of failing, and the
  * frame that loads later announces itself so the server asks again.
- *
- * @evidence contracts/common.md#principled-implementation The newest loaded source judges, and an absent frame is reported as unavailable rather than as a verdict.
- * @evidence contracts/common.md#clear-and-simple-design One bridge owns the choice of frame; the frames own the owners' admissions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A preparing frame without the supported protocol or admission endpoint remains unavailable; the bridge cannot borrow the older displayed generation's verdict or invent a successful envelope.
- * @evidence contracts/common.md#meaningful-documentation States the frame order, the reason for it and the unavailable answer.
  */
 export function createHumanViewerHostAdmission(
   frames: () => readonly (HTMLIFrameElement | undefined)[],

@@ -9,11 +9,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * packet at `/basis/person`: a face/body basis pair or a one-skin source
  * generation.
  *
- * @evidence contracts/common.md#principled-implementation Prefix discrimination selects a published digest route; other tokens are URL-encoded as candidate identifiers so token punctuation cannot change the query structure.
- * @evidence contracts/common.md#clear-and-simple-design One route choice preserves the existing domain and delegates publication suffix validation to the digest parser.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects the server's publication or candidate resource without subject-specific paths or a reconstructed basis fallback.
- * @evidence contracts/common.md#meaningful-documentation Defines both token forms, digest refusal authority and the person packet's existing representation alternatives.
- *
  * @author Samchon
  */
 export function humanViewerBasisUrl(domain: string, token: string): string {

@@ -19,7 +19,6 @@ type ITtscEvidenceGraphMarkdownReference = Extract<
 >;
 
 /**
- *
  * A local obligation is covered by relevant H2s in the complete layer, while
  * principles keep their per-unit checklist. Only AutoMovie's configuration
  * output is examined; native evidence evaluation is outside this unit.
@@ -34,10 +33,6 @@ type ITtscEvidenceGraphMarkdownReference = Extract<
  * 5. Shared accounts retain family order, ownership, and their input failures.
  * 6. The obligation reference is an explicit error, and canonical admission
  *    refuses claim-level overrides or a weakened target reference.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `createAutoMovieProductionObligationClaim`, `createAutoMovieProductionPrincipleClaim`, `createAutoMoviePopulationAccountClaims` and `createAutoMovieAuthoredPopulationFiles`, and admits the results through `validateAutoMovieLocalContractClaims`, asserting owner files, trimmed name, symbol, reference policy and severity, disabled flags per stage, the pilot disposition, population globs per scope, the alternate root, shared family order, and refusals; it catches an obligation turned into a per-unit checklist, a claim enabled at draft or reset, a caller-narrowed denominator, a claim-level severity override or warning-level target accepted, a malformed, cross-layer or traversing account or document path accepted, and shared families reordered or duplicated.
- * @evidence contracts/testing.md#independent-expectations Expectations restate the documented local-contract shape: an obligation is error-level H2 coverage over its account and the layer population, principles stay independent checklists without exclusion, only evidence and review activate, film pilots narrow to their partition while resets and libraries keep the complete glob, and shared account names follow their obligation file; refusals use `throwsError` without fragments, so a case refused for another reason would also pass.
- * @evidence contracts/testing.md#distinguishing-cases Positive claims for every stage, pilot, reset, complete and library scopes, the flat alternate root, a multi-document principle and the empty shared family; nineteen invalid obligation declarations, three ungoverned principle symbols, six invalid shared inputs and six override attempts; admission against residents and heading counts belongs to `test_evidence_local_account_admission`, and native lowering to `test_evidence_local_account_projection`.
  */
 export const test_evidence_local_account_claim = (): void => {
   const props: IAutoMovieProductionObligationClaimProps = {

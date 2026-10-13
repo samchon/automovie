@@ -37,10 +37,6 @@ import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
  * right length, depths within the design depth, flows off solid cells, and a
  * stable step. It does not re-check them while integrating.
  *
- * @evidence contracts/common.md#principled-implementation A linearized shallow-water field on an Arakawa C grid with flux-form first-order upwind continuity and a per-cell positivity limiter, which conserves volume except through declared sources, drains and `open` edges; it presumes a record `validateFluidDomain` accepted and omits momentum advection by design.
- * @evidence contracts/common.md#clear-and-simple-design Lattice, solver settings, edges, per-cell arrays and declared flows sit in one record with no building reference, so the same domain stands alone or is bound to a space by `IAutoMovieWaterFeature`; flat row-major arrays make a state index equal a cell index.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `version: 1` and `units: "meter"` are contract discriminants that validation checks; the record has no initial velocity field, so the solver never special-cases an authored current, and sprays stay outside the conserved depth field by contract.
- * @evidence contracts/common.md#meaningful-documentation States the index order and axes, the `origin.y` datum for bed and surface, the depth and solid-cell rules, the per-list caps, the velocity-at-rest start, that spray is not conserved water, and that the CPU state is the normative one.
  * @author Samchon
  */
 export interface IAutoMovieFluidDomain {

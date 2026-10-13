@@ -7,10 +7,6 @@ import { IAutoMovieFaceCheek } from "./IAutoMovieFaceCheek";
  * cheeks (the symmetric shorthand); when both are defined, each side stands
  * alone.
  *
- * @evidence contracts/common.md#principled-implementation The cheek pair's sides are resolved by `flattenFace`: a lone defined cheek feeds both `cheekFullness` targets and two defined cheeks each feed their own.
- * @evidence contracts/common.md#clear-and-simple-design Holds only the two sides, since no trait relates the cheeks to each other the way spacing relates the eyes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Left feeds the `L` suffix and right the `R` suffix as the subject sees them, through the same loop that resolves eyes and brows rather than cheek-specific code.
- * @evidence contracts/common.md#meaningful-documentation States the side rule for one versus two defined cheeks, and each member says when it applies to both cheeks.
  * @author Samchon
  */
 export interface IAutoMovieFaceCheekSet {

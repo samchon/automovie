@@ -3,7 +3,6 @@ import { IAutoMovieAnalysisRun } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 
 /**
- *
  * The digest that seals one run's contents.
  *
  * Exported because a run that arrived as JSON has to be checkable by the same
@@ -16,11 +15,6 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * `id`, `subject`, `inputRevision` or the solver strings yields the same
  * digest, and run validation does not forbid either character.
  *
- * @evidence contracts/common.md#principled-implementation SHA-256 over a fixed-order text of every field that changes what the run claims, with each metric, sample and warning JSON-encoded on its own line, so one run digests identically on every host.
- * @evidence contracts/common.md#clear-and-simple-design Exported so `sealAutoMovieAnalysisRun` and `validateAutoMovieAnalysisRun` share one canonical form; the private text builder is the only other piece.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unescaped newline and `|` separators make the canonical text ambiguous for free-text header and solver fields, a canonicalization defect stated here rather than fixed.
- * @evidence contracts/common.md#meaningful-documentation States why it is exported, which fields enter the text, the digest form, and the separator ambiguity.
- * @evidence contracts/performance.md#cost-and-resources Linear in metrics, samples (at most 4096) and warnings to build the text, then one pure-TypeScript SHA-256 pass over its UTF-8 bytes, which are materialized as a number array. Not memoized: `sealAutoMovieAnalysisRun` computes the digest and then its own validation recomputes it over the same draft, so every seal hashes the run text twice. The line array, text and byte array live only for the call, and the digest string is the only output.
  * @author Samchon
  */
 export const autoMovieAnalysisRunDigest = (

@@ -22,10 +22,6 @@ import { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
  * that states a volume (the four corner cells decide a convex basin, every cell
  * any other). A basin that states no volume is not measured.
  *
- * @evidence contracts/common.md#principled-implementation A one-directional binding: the feature names environment, space, rim boundaries and domain by id, and `validateWaterFeatures` checks each citation plus point-in-space containment of cell centres, deciding a convex basin by its corner cells and any other basin cell by cell.
- * @evidence contracts/common.md#clear-and-simple-design The only record where architecture and fluid ids meet, so neither the built environment nor the fluid domain references the other, and no geometry is restated here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `null` material is the contract spelling of the renderer default and a blank id is refused instead of being read as that default; a semantic-only basin that states no volume is left unmeasured rather than given an invented one.
- * @evidence contracts/common.md#meaningful-documentation States who owns each cited id, what each mode does and that the `flowing` hint has no reader yet, when `boundaries` may be empty, the material default rule, and every way validation refuses a binding.
  * @author Samchon
  */
 export interface IAutoMovieWaterFeature {

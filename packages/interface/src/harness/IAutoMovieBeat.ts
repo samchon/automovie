@@ -5,10 +5,6 @@
  * per-beat slice files, so ids must be non-blank, unique, and free of
  * case-insensitive collisions.
  *
- * @evidence contracts/common.md#principled-implementation A prose plan keyed by a stable id, joined to its compiled shot by the `shot:` prefix and to an optional script-tree beat node through `IAutoMovieBeatPayload.beat`.
- * @evidence contracts/common.md#clear-and-simple-design Four fields, identity, a short name, the blocking brief and a length hint; direction, dialogue and captions live on the tree's beat payload instead of widening this record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No beat id is special-cased; the uniqueness, case-collision and non-blank checks exist because the id becomes a shot id and a slice filename, and `durationHint` stays a hint that blocking may change.
- * @evidence contracts/common.md#meaningful-documentation States how the id is reused, its uniqueness rules, the role of `summary`, and that `durationHint` is a positive estimate in seconds.
  * @author Samchon
  */
 export interface IAutoMovieBeat {

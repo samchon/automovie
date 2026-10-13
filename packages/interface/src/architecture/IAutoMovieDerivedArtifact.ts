@@ -15,10 +15,6 @@ import { IAutoMovieDesignStamp } from "./IAutoMovieDesignStamp";
  * computed under a different stamp, or when a cited byte digest differs from
  * the subject's current one.
  *
- * @evidence contracts/common.md#principled-implementation Records an output as a node of a derivation graph with declared inputs, its stamp, its own digest, and one byte citation per imported input; `validateDesignLineage` refuses input cycles, a stamp off `head`, an input artifact under a different stamp, and a citation that disagrees with its subject's digest.
- * @evidence contracts/common.md#clear-and-simple-design Byte citations sit beside the stamp because the stamp is a view shared by compared alternatives while the bytes belong to this computation; `kind` is an open string read only by the fairness rule between alternatives of one decision.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No output family is special-cased; same-kind artifacts across one decision's options must share configuration and phase, and `digest` is authored and never recomputed from the output bytes by any validator.
- * @evidence contracts/common.md#meaningful-documentation States the id's distinctness from subjects, the at-least-one input rule, the exactly-one-citation rule and why citations are separate, the staleness refusals, and that the output digest is author-recorded.
  * @author Samchon
  */
 export interface IAutoMovieDerivedArtifact {

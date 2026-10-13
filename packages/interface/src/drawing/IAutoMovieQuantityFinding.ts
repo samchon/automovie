@@ -18,10 +18,6 @@ import { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContributor";
  * because a volume stated as overlapping cells is summed rather than unioned,
  * and every other subject is `exact`.
  *
- * @evidence contracts/common.md#principled-implementation `finish` rounds each owner's sum, sorts by value descending and then owner by UTF-16 code unit, keeps the first `maxContributors` (default `AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS`, 8) and folds the rest into `omittedOwners` and `omittedValue`; `total` sums every rounded owner value before the cut, so named plus omitted reconciles with it up to the final rounding.
- * @evidence contracts/common.md#clear-and-simple-design Total, owner count, basis, bounded contributors and the omitted tallies share one record per subject, so a reader reconciles the take-off without a second list or a lookup into the report.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis is a subject-level constant rather than per-measurement detection: `space-volume` is labelled `approximate` with the cell-union explanation even when every space is a shell measured exactly, which overstates uncertainty but never understates it.
- * @evidence contracts/common.md#meaningful-documentation States the owner bound and how left-out owners are counted and summed, the deterministic tie-break, which subject is approximate and why, that `approximation` is `null` when exact, and that every number uses `unit`.
  * @author Samchon
  */
 export interface IAutoMovieQuantityFinding {

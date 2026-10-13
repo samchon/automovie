@@ -27,12 +27,6 @@ const PLANE_EPSILON = 1e-12;
  * The parallel test compares the raw `dot(normal, direction)` with `1e-12`, so
  * it is the one place an authored normal's length matters: a very short normal
  * widens the band of directions read as parallel to its plane.
- *
- * @evidence contracts/common.md#principled-implementation Cyrus-Beck clipping of the parametric ray against each half-space, narrowing `[enter, exit]` from `[0, maxDistance]` with an early return once it empties; exact for convex solids, assuming `direction` is unit so the parameter is metres.
- * @evidence contracts/common.md#clear-and-simple-design Takes bare planes rather than a solid record so the test depends only on geometry, while `autoMovieRayObstructed` owns iteration over a list of solids.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The parallel branch is geometric, not a fixture case: within the `1e-12` band the ray never crosses that plane, so only its side decides; the band is absolute on the unnormalized dot product, which is the stated limitation for very short normals.
- * @evidence contracts/common.md#meaningful-documentation States the half-space convention, the hit condition, the inside-start and on-face results, that normal length leaves the parameter unchanged, and the one test where it does not.
- * @evidence contracts/performance.md#cost-and-resources One pass over the planes, O(planes) with two dot products each and no allocation, returning early on a separating parallel plane or an emptied interval. No cache and no retained state; the caller decides how often it runs.
  */
 export const autoMovieSolidBlocks = (props: {
   /** World-space ray origin in metres. */

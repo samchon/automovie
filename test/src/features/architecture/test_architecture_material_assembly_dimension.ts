@@ -5,7 +5,6 @@ import { assembly, layer, substance } from "../internal/materialFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- *
  * A wet wall stated once and measured on the host's own line.
  *
  * The build-up is render, blockwork, a ventilated cavity, a zero-thickness
@@ -27,10 +26,6 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *    it actually got: the negative twin of scenario 4.
  * 6. Substance references resolve against a supplied table, and an unknown one is
  *    refused: the negative twin of the resolving run.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `resolveAutoMovieMaterialAssembly` on a five-layer wet wall and its mirrored twin and asserts the preserved identity and layer fields, total, start, end, extent and each layer's start, end and centre, plus the host and substance-table refusals; it catches layers placed out of running-sum order, a membrane given a span or advancing the cursor, a negative sense that does not mirror from its offset, a total that changes with direction, a host mismatch accepted, and an unresolved substance accepted.
- * @evidence contracts/testing.md#independent-expectations Coordinates are hand running sums of 0.02, 0.1, 0.05, 0 and 0.0125 m: starts 0, 0.02, 0.12, 0.17, 0.17, total 0.1825, centres at each span's midpoint, and the mirrored stack from 0.25 m descending to 0.0675 m; the host twin is that total and one millimetre over it; refusals match the assembly id, path and phrase rather than the full message, so the sum the message reports is not checked.
- * @evidence contracts/testing.md#distinguishing-cases Positive positive-sense stack from zero, negative-sense stack from 0.25 m on another axis, a matching host and a complete substance table; the zero-thickness membrane boundary; negative a host 1 mm off and a table missing the first layer's substance; rule-by-rule build-up defects are owned by test_architecture_material_assembly_defects and junctions by test_architecture_material_assembly_junction.
  */
 export const test_architecture_material_assembly_dimension = (): void => {
   const layers = () => [

@@ -6,10 +6,6 @@
  * can raise a cell past it during the solve, where the checked bound no longer
  * applies.
  *
- * @evidence contracts/common.md#principled-implementation Explicit fixed-step integration with backward-Euler drag, `(u - dt * g * dη/dx) / (1 + dt * drag)`, whose stability is checked once by the Courant number at `referenceDepth`; a source filling a cell past that depth can leave the checked bound mid-solve, an unresolved limitation.
- * @evidence contracts/common.md#clear-and-simple-design Six scalars the integrator and validator read directly, with no adaptive-step or scheme option, because a fixed step is what makes a state a function of `(domain, step)`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No gravity or step value is special-cased; `9.81` appears only as an example, and an unstable step is refused by validation instead of being silently shortened.
- * @evidence contracts/common.md#meaningful-documentation States the unit and bound of every field, how drag enters the update, what wet means, that `referenceDepth` drives the Courant check and caps only initial depth, and that `maxSteps` bounds a seek.
  * @author Samchon
  */
 export interface IAutoMovieFluidSolver {

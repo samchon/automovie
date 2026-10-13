@@ -23,7 +23,6 @@ const { projectAutoMovieNativeClaims } = loadSourceModule<{
 );
 
 /**
- *
  * Native evaluation must not erase the declaration a manifest still consumes.
  *
  * Scenarios:
@@ -31,10 +30,6 @@ const { projectAutoMovieNativeClaims } = loadSourceModule<{
  *    companion requirements while retaining every structural relationship.
  * 2. Mixed error/warning references retain selectors and structural policy without companion requirements.
  * 3. Frozen declarations and empty populations remain unchanged by projection.
- *
- * @evidence contracts/testing.md#behavioral-verification Admits an obligation claim, a principle claim and a native TypeScript claim with mixed error and warning references through `validateAutoMovieLocalContractClaims`, freezes them, and calls `projectAutoMovieNativeClaims`, asserting claim order, the absence of `autoMovieBinding`, a new record per claim, every other field retained with each reference's `requireReview` set false, no added fields, the untouched serialized input, and an empty result for no claims; it catches projection that leaks binding metadata to the native evaluator, keeps companion review rows, drops or reorders references, changes severity, exclusion or cardinality, writes into the frozen declaration, or reorders claims.
- * @evidence contracts/testing.md#independent-expectations Expected records are the caller's own claims with `autoMovieBinding` removed and `requireReview: false` on every reference, which is the projection the function documents; the input's `JSON.stringify` taken before projection is the oracle for non-mutation, so a mutation that leaves the serialization equal would not be seen.
- * @evidence contracts/testing.md#distinguishing-cases Positive local obligation, local principle and metadata-free native claim in one list, a reference list mixing severities, and the empty list boundary; a single empty reference list belongs to `test_evidence_native_empty_reference_projection`, a scalar native reference to `test_evidence_native_scalar_companion_removal`, and binding validation to `test_evidence_local_account_projection`.
  */
 export const test_evidence_native_claim_projection = (): void => {
   const blank = createBlankAutoMovieProductionEvidence(

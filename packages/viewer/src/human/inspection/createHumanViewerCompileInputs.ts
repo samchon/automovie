@@ -8,11 +8,6 @@ import path from "node:path";
  * compile every event under the package counts. Other watched files (viewer
  * screens, other packages, inputs, outputs) never withdraw a compile, so an
  * unrelated save cannot replace the modules a page is still loading.
- *
- * @evidence contracts/common.md#principled-implementation A compile is withdrawn only by a change to what it read or may read.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the last compile's inputs and answers for each event.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual compile inputs and source membership decide withdrawal; unrelated viewer output or test saves never trigger a compensating compile reset.
- * @evidence contracts/common.md#meaningful-documentation States what counts, the membership rule and the state before the first compile.
  */
 export function createHumanViewerCompileInputs(
   human: string,

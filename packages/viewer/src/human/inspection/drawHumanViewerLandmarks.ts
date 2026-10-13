@@ -8,11 +8,6 @@ import type { IHumanViewerLandmarkSurface } from "./IHumanViewerLandmarkSurface.
  * The overlay is shown only when the address asked for landmarks and a
  * photograph is displayed; otherwise it is emptied and hidden. Markers carry
  * their group name and no path or image data.
- *
- * @evidence contracts/common.md#principled-implementation The view box equals the capture extent, so marker coordinates are capture pixels.
- * @evidence contracts/common.md#clear-and-simple-design One function owns the overlay; positions come from the shared layout.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, photograph or landmark is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the coordinate frame and visibility rule.
  */
 export function drawHumanViewerLandmarks(
   svg: IHumanViewerLandmarkSurface,

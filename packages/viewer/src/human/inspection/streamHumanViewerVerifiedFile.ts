@@ -14,11 +14,6 @@ import type { ServerResponse } from "node:http";
  * the cause.
  *
  * Digest admission retains the existing local twelve-to-sixty-four hexadecimal prefix protocol. It does not establish full-digest equality or remote acquisition history.
- *
- * @evidence contracts/common.md#principled-implementation The bytes sent are the bytes hashed, so a stale or replaced basis is refused, never served under the old digest.
- * @evidence contracts/common.md#clear-and-simple-design One owner serves every digest-named basis route.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Hashes and sends the same original file bytes, refusing a digest mismatch instead of relabeling changed data or serving an expected asset fixture.
- * @evidence contracts/common.md#meaningful-documentation States the single read, the 409 and 500 answers and the memory held.
  */
 export function streamHumanViewerVerifiedFile(
   response: ServerResponse,

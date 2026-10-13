@@ -111,7 +111,6 @@ const PART_BONES: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- *
  * The articulated archetype builds one exact figure, not merely thirteen parts.
  *
  * Counting parts is the assertion that cannot fail: a builder that hung every
@@ -140,10 +139,6 @@ const PART_BONES: ReadonlyArray<readonly [string, string]> = [
  *    is turned a quarter circle about `z`, in opposite senses left and right,
  *    while the head and hands ride their bones without a local transform.
  * 6. The compact projection bound is half the figure's own height.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `STICKMAN_ARCHETYPE.build` and `STICKMAN_ARCHETYPE.projectionRadius` and asserts the built skeleton's bone order, parents, constraints and rest symmetry, the parts' order, bones, material, input-driven radii and arm rotations, and the projection bound; it catches a limb hung from the wrong parent, a built bone list that drifts from the declared one, a mirrored sign, a capsule whose radius and length are exchanged, an arm turned in the wrong sense, and an unreadable height producing a non-zero bound.
- * @evidence contracts/testing.md#independent-expectations Parentage is the anatomical chain of a body, the mirror is the reflection `x -> -x` of the left side, radii are the `headRadius` and `limbRadius` passed in, the quarter turn is `(0, 0, -/+sin 45, cos 45)` written out rather than rebuilt through the builder's quaternion helper, and the bound is half the declared height; the builder's own height fractions are deliberately not asserted, so a proportion change passes and only the structure, symmetry and input-driven dimensions are pinned.
- * @evidence contracts/testing.md#distinguishing-cases Positive two-metre figure for skeleton, parts, shapes and rotations; left against right for each mirrored limb and turn; boxes wide against deep so a key swap fails; an unreadable string height measuring a zero bound; admission of the declared parameter ranges is not exercised here, and humanoid gaits over these bone names belong to test_motion_humanoid_gaits.
  */
 export const test_archetypes_stickman_rig = (): void => {
   TestValidator.equals(

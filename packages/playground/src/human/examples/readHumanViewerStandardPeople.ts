@@ -13,11 +13,6 @@ import { humanViewerPublishedGenerationBasis } from "@automovie/viewer/human/ins
  * built under a key or a worker memo that names the old views, and the key
  * follows both view digests. The Playground authors these documents, so the
  * caller admits them like hand-written inputs.
- *
- * @evidence contracts/common.md#principled-implementation Binds each standard person to the exact view bytes it is built on.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns the standard-people group; admission stays with the caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Catalogue examples retain the supplied reference, body states and paired basis digests; no fitted subject geometry or admitted-preview exception is introduced.
- * @evidence contracts/common.md#meaningful-documentation States the documents, the linked population and the token.
  */
 export function readHumanViewerStandardPeople(
   props: IReadHumanViewerStandardPeopleProps,

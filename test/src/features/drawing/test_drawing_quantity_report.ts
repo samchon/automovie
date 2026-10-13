@@ -20,7 +20,6 @@ import {
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- *
  * The design is measured, and every number says whether it can be believed.
  *
  * All of it is hand arithmetic over the fixture. The hall is 10 x 6 on plan, so
@@ -51,10 +50,6 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 7. A cell's cross-section is exact where the cut passes through it, empty where
  *    it does not, and reported as unbounded where the design never closed it.
  * 8. A malformed bound and an invalid design are refused at their own messages.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieQuantities`, `autoMovieDrawingCellVolume`, `autoMovieDrawingCellSection`, `autoMovieDrawingPolygonArea` and, for the unbounded plan, `deriveAutoMovieDrawing`, asserting each finding's unit, total, owner count, basis, approximation presence, contributor order, omitted owners and value, the gap list and refusals; it catches a cell-sum volume labelled exact, a subject that vanishes when nothing is measured, a bound that drops owners from the total, contributors not ordered by value then id, an unclosed cell measured as zero or as a horizon, unnormalized or repeated planes changing a volume, and a fractional or zero bound accepted.
- * @evidence contracts/testing.md#independent-expectations Every figure is hand arithmetic on the fixture: a 10 x 6 hall floor of 60 m2, 180 + 30 = 210 m3, 1.89 + 0.09 pi = 2.172743 m2, `sqrt(3^2 + 2^2) = 3.605551` plus a 3-4-5 ramp of 5 m, six elements and five model uses over four models; probe cells are 2 x 3 x 4 = 24, a 2 m cube's 8 with an edge-only plane, a unit cube less a 1/6 corner tetrahedron, and a 2 x 4 = 8 m2 plan section at the 1.2 m cut; totals are rounded to six decimals, so the oracle tolerates only that rounding, and the approximation text itself is not compared, only that volume carries one and floor area does not.
- * @evidence contracts/testing.md#distinguishing-cases Positive full report; a bound of 2 omitting four owners, the default bound omitting none, and a bound of 1 accepted beside 1.5 and 0 refused; a design with no openings reporting zero over zero owners; an unbounded extra cell skipped in the volume and declared as a gap on both report and plan; degenerate cells (open column, open wedge, four parallel planes), a two-point polygon, a section above the cut and one from contradictory half-spaces; an invalid version refused; opening and space schedules belong to their own tests and the cross-artifact opening count to the sheet-set test.
  */
 export const test_drawing_quantity_report = (): void => {
   const environment = drawingEnvironment();

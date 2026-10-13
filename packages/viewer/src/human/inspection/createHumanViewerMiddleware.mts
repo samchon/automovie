@@ -10,11 +10,6 @@ import { serveHumanViewerNumerical } from "./serveHumanViewerNumerical.js";
 /**
  * Route HTTP requests through their existing domain owners before Vite serves
  * the page. Request-local URL/response bindings never become cached host state.
- *
- * @evidence contracts/common.md#clear-and-simple-design One dispatcher owns route ordering; data, capture and source-window owners retain their predicates.
- * @evidence contracts/common.md#principled-implementation Same-origin URL parsing feeds existing route owners in a fixed order, with unmatched requests delegated to Vite.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Routes original requests without reclassifying numerical operations, replacing failed captures or patching Vite handlers.
- * @evidence contracts/common.md#meaningful-documentation States request-local ownership and route ordering.
  */
 export function createHumanViewerMiddleware(
   props: ICreateHumanViewerMiddlewareProps,

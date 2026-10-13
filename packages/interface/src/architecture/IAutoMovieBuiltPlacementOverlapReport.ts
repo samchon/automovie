@@ -13,10 +13,6 @@ import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementO
  * that re-stages the whole element hierarchy, so resolving every body costs
  * time quadratic in the element count whatever `compared` reads.
  *
- * @evidence contracts/common.md#principled-implementation `builtEnvironmentPlacementOverlapSweep` sorts resolved bodies by lower x, keeps an active list pruned on x, tests union boxes and confirms part against part; each body resolution re-composes every element matrix, an unshared quadratic cost outside `compared`.
- * @evidence contracts/common.md#clear-and-simple-design Census counts sit beside the findings so an empty pair list can be read against how many bodies were measured and how many were left unresolved.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Pruning is on one axis only, so bodies sharing an x range still cost up to quadratic union tests, which `compared` exposes instead of hiding; the hierarchy restaging per body is a real defect the count does not show.
- * @evidence contracts/common.md#meaningful-documentation States what each count measures and omits, the order of pairs and of unresolved bodies, and that unresolved bodies were never compared.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapReport {

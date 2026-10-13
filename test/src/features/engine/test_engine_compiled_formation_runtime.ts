@@ -96,7 +96,6 @@ const strip = (
   worldRamp({ id, from, to, width, baseHeight: 0, rise: 0, walkable: true });
 
 /**
- *
  * A formation compiles to a compact record that stores what regenerates its
  * members, and to the same record wherever it compiles.
  *
@@ -126,10 +125,6 @@ const strip = (
  * 7. Omitted recipes, radii and terrain compile a record with no terrain, one
  *    near tier and a half-metre radius, and a hero outside the formation refuses
  *    compilation.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `materializeCompiledFormation` on one 1,025-member rank and asserts chunk ranges, anonymous counts, bounds, centroids, hero order and transforms, tier list, recipe digest, model ids, member radius, terrain snapshot and record digest; it catches an off-by-one chunk split, a hero counted as anonymous, heroes left in declaration order or unturned by the heading, the hero tier leaking into the anonymous batch, a radius fallback taken in the wrong order or without the centimetre floor, a surface off the footprint snapshotted or reordered, a digest that ignores the seed or the terrain, and a `NaN` recipe parameter that aborts the whole compilation.
- * @evidence contracts/testing.md#independent-expectations Positions are hand geometry of slot `s` at `x = s - 512`, so the first chunk spans -512..511 with centroid -0.5 and the last holds 512; the quarter heading is the axis-angle quaternion `(0, sqrt 1/2, 0, sqrt 1/2)`; radii are the declared table values; the recipe and record digests are recomputed with the Node builder's `canonicalAutoMovieJsonBytes` and `digestAutoMovieBytes`, an implementation independent of the kernel, while model ids are compared to `productionRuntimeModelId`, so that check pins wiring rather than the id spelling.
- * @evidence contracts/testing.md#distinguishing-cases The 1,025-member rank is the exact-limit-plus-one chunk boundary; heroes declared out of slot order and a quarter heading distinguish ordering and rotation; declared, undeclared and tier-free recipes, four radius tables down to the centimetre floor, surfaces on all four sides beside two under the rank, a changed seed, and a hero at slot 5 of a two-member unit for the refusal; an absent far-tier recipe and a `NaN`-height base recipe must still compile, but the spelling of the marker digest either receives is a package-private choice and is not pinned here, member regeneration belongs to test_engine_compiled_formation_slot, and query use to test_engine_geometry_query_formation.
  */
 export const test_engine_compiled_formation_runtime = (): void => {
   // 1. Chunks.

@@ -18,11 +18,6 @@ import { serveHumanViewerRescan } from "./serveHumanViewerRescan.js";
  * Return whether a data route answered this request, leaving GPU routes to
  * the host. Specific person-view paths precede the general basis family so
  * each existing resource owner retains its own response and admission.
- *
- * @evidence contracts/common.md#principled-implementation Specific generation-view routes precede general basis routes and short-circuit at the actual resource owner.
- * @evidence contracts/common.md#clear-and-simple-design One ordered dispatcher composes catalogue, reference, basis, rescan and cache endpoints without duplicating their I/O rules.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Delegates original requests and published document identities without substituting a cached image for numerical data or patching route implementations.
- * @evidence contracts/common.md#meaningful-documentation States handled-request meaning, GPU separation and the reason for overlapping-path route order.
  */
 export function serveHumanViewerData(
   props: IServeHumanViewerDataProps,

@@ -16,11 +16,6 @@ const BLOCK = 65536;
  * Pieces end between JSON tokens or Unicode code points, so encoding each
  * piece as UTF-8 preserves surrogate pairs. Typed arrays keep the existing
  * Float32/Uint32 tags; ordinary JSON objects retain their property order.
- *
- * @evidence contracts/common.md#principled-implementation JSON tokens and native primitive escaping preserve the existing value representation; typed-array iteration avoids an additional complete numeric array.
- * @evidence contracts/common.md#clear-and-simple-design One projected serializer serves both Blob persistence and the compatible string encoder.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Chunk boundaries affect transport allocation only, without discarding vertices, metadata or numerical precision.
- * @evidence contracts/common.md#meaningful-documentation Defines projection, Unicode boundaries, typed-array tags and ownership.
  */
 export function* encodeHumanViewerPreviewChunks(
   value: IHumanViewerPreviewProjection,

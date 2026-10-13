@@ -7,11 +7,6 @@ import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus.js";
  * requests can wait behind everything, a `ui` request only behind the running
  * one and the `ui` requests already waiting. The count is the line as it stands
  * at admission; later arrivals of a higher lane can still move ahead of it.
- *
- * @evidence contracts/common.md#principled-implementation Counts exactly the entries the queue's lane order starts first.
- * @evidence contracts/common.md#clear-and-simple-design A pure projection of the queue status for the response header.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads only the published status.
- * @evidence contracts/common.md#meaningful-documentation States what is counted and that later arrivals can overtake.
  */
 export function humanViewerQueuePosition(
   status: IHumanViewerQueueStatus,

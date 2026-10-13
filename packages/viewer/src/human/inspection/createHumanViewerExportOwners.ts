@@ -32,11 +32,6 @@ const STARRED = /\bexport\s+\*\s*(?:as\s+([\w$]+)\s*)?from\s*["']([^"']+)["']/g;
  * Each file's export table is read once and each answer is remembered, so a
  * package index with hundreds of `export *` lines costs one pass, and a cycle
  * ends its branch with `null`, which makes the caller depend on the whole file.
- *
- * @evidence contracts/common.md#principled-implementation Supported declaration and re-export forms trace a named dependency to its actual source; unresolved or cyclic ownership remains explicitly unknown.
- * @evidence contracts/common.md#clear-and-simple-design Export-table and answer memos share one traversal while the import resolver retains path semantics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source export declarations decide reach; a cycle or unreadable owner does not invent a fixture-specific dependency or suppress the caller's whole-file fallback.
- * @evidence contracts/common.md#meaningful-documentation Lists supported re-export forms, named-import purpose and the null result's conservative dependency meaning.
  */
 export function createHumanViewerExportOwners(props: {
   root: string;

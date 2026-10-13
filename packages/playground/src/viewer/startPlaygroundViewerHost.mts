@@ -27,11 +27,6 @@ import { servePlaygroundViewerPages } from "./servePlaygroundViewerPages.js";
  * rootDir and owns its emitted files under Playground's ignored lib directory.
  * Startup therefore checks and transforms the regular project without writing
  * JavaScript beside another package's maintained source or bypassing plugins.
- *
- * @evidence contracts/common.md#principled-implementation Composes Vite's public configuration and server APIs with the original source, page and display owners; source changes publish candidate notifications while browser restoration and actual hardware completion remain separate admission responsibilities.
- * @evidence contracts/common.md#clear-and-simple-design One loopback host wires the source receipt, event stream and retained-page router; its original configuration and watcher lifetime remain fixed, with event-loop batching only grouping real source edits.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Strict port binding refuses occupied ports without adopting their processes, HMR is disabled to preserve the retained display, and no elapsed deadline restarts the host or expires publication ownership.
- * @evidence contracts/common.md#meaningful-documentation Defines port and storage ownership, OS creation metadata and startup receipt scope; transformed responses, installed SDK identity and actual browser output require their own acceptance rather than a listening-server claim.
  */
 export async function startPlaygroundViewerHost(): Promise<void> {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");

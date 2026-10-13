@@ -20,11 +20,6 @@ import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
  * first frame; the HTTP layer adds queue and response time to the phases.
  *
  * The checks contribute ready-source, renderer and original-page capture admission. Complete canonical runtime identity and required font, decoder and requested-pass closure remain with the capture profile owner.
- *
- * @evidence contracts/common.md#principled-implementation A frame is accepted only when the generation it was drawn under is still the ready one.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds capture state transitions; the host supplies page and generation through accessors.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses software rendering instead of returning its frame.
- * @evidence contracts/common.md#meaningful-documentation States refusals, generation selection, discard and the telemetry kept.
  */
 export function createHumanViewerCapture(
   props: ICreateHumanViewerCaptureProps,

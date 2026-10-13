@@ -17,10 +17,6 @@ import { AutoMovieChannelValueType } from "./AutoMovieChannelValueType";
  * and a pointer track there would validate and then do nothing (#1339). A
  * pointer no applier resolves is refused on every shot clip until one lands.
  *
- * @evidence contracts/common.md#principled-implementation RFC 6901 addressing with an explicit `valueType`, because a pointer string carries no width; `parseLightPointer` decodes `~1` then `~0` and rejects any pointer that is not the canonical encoding of what it decodes to.
- * @evidence contracts/common.md#clear-and-simple-design The pointer and its width are the whole record; what a target means lives in the applier that parses it, such as `parseLightPointer`, rather than in extra fields here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Shot transform clips refuse pointer tracks because no applier writes them, yet the driver graph still accepts pointer outputs whose values `resolveFrame` never returns, the validated-but-unapplied pattern #1339 names, reported as a finding.
- * @evidence contracts/common.md#meaningful-documentation States the key namespace, which consumers apply pointers, that `resolveFrame` does not return pointer values, that profile binding leaves them unmapped, and which shot fields refuse them.
  * @author Samchon
  */
 export interface IAutoMoviePointerChannel {

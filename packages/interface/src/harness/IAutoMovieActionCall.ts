@@ -31,10 +31,6 @@ import { IAutoMovieReactAction } from "./IAutoMovieReactAction";
  * its clip table. A verb the injected synthesizer answers with `null` is
  * skipped without a violation.
  *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `verb`, so TypeScript narrows each member's fields and `performShot` dispatches validation and compilation with one literal comparison per action.
- * @evidence contracts/common.md#clear-and-simple-design Eleven verb interfaces sharing `IAutoMovieActionBase`, each adding only its own fields; the camera is one more verb, so a shot's timeline holds actors and the lens in one list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No verb is special-cased outside its own branch; verbs the reference synthesizer does not animate rely on dedicated compile passes or host clips, and a `null` synthesis is skipped by `compilePerformance` rather than reported.
- * @evidence contracts/common.md#meaningful-documentation States the thin-to-dense contract, the discriminant, the shared timeline fields, which engine pass realizes each verb family, that the camera is a verb, and what happens to a `null` synthesis.
  * @author Samchon
  */
 export type IAutoMovieActionCall =

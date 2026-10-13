@@ -3,11 +3,6 @@
  * lost. Native context events, rather than elapsed time, own the transition.
  * The original viewport/model/camera remain resident and redraw after Three
  * restores its context. Only this display's image URLs and listeners are owned.
- *
- * @evidence contracts/common.md#principled-implementation A bitmap decoded from a completed display survives context loss; restoration redraws the retained model through its original viewport.
- * @evidence contracts/common.md#clear-and-simple-design One owner pairs native context events with one retained image and explicit disposal.
- * @evidence contracts/common.md#meaningful-documentation States retained resources, native recovery and image lifetime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Native context events and decoded completed-display blobs govern retention; restoration redraws the original resident without replacing SDK methods or restarting on an age threshold.
  */
 export function createHumanViewerGpuDisplay(props: {
   canvas: HTMLCanvasElement;

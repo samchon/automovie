@@ -52,7 +52,6 @@ const field = worldRamp({
 });
 
 /**
- *
  * A production's compiled populations are keyed by id in code-unit order, and
  * each record is the one its own kernel compiles from the same inputs.
  *
@@ -68,10 +67,6 @@ const field = worldRamp({
  *    instance-set kernel's output for the same world, recipes and radii.
  * 3. No formations, and a world that declares no instance sets or an empty list,
  *    compile to empty inventories.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `materializeCompiledFormationInventory` and `materializeCompiledInstanceSetInventory` and asserts the record key order, the terrain and radius each record received, whole-record equality with a direct kernel compile, and empty results; it catches keys left in insertion order or sorted by locale, recipes, radii or terrain not handed through to each kernel call, an inventory that rewrites a record, and a world without `instanceSets` that throws or emits a stray key.
- * @evidence contracts/testing.md#independent-expectations Key order comes from UTF-16 code-unit order, where `B` (0x42) and `X` (0x58) precede every lower-case letter, so "B,a,b" and "X,x,y" are written out by hand; the 0.75 and 2 m radii are the declared table; record equality uses the per-unit kernel as the reference, so it proves delegation and leaves the record's content to the kernel tests.
- * @evidence contracts/testing.md#distinguishing-cases Three formation ids and three set ids mixing case are each listed in an order that is neither sorted nor reverse-sorted, one formation compiled over a ramp it reaches, and three empty shapes (no formations, `instanceSets` absent, `instanceSets` empty); chunking, digests and tiers are owned by test_engine_compiled_formation_runtime and test_engine_compiled_instance_set_runtime.
  */
 export const test_engine_compiled_population_inventory = (): void => {
   const radii = new Map([

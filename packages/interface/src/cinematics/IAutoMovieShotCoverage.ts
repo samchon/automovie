@@ -8,10 +8,6 @@ import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
  * assembles one take per staged camera, and a render/diffusion host picks or
  * intercuts them without re-performing the shot.
  *
- * @evidence contracts/common.md#principled-implementation `performShot` compiles one take per validated blocking coverage intent through `compileCameraCoverage`, playing that single intent from time 0 across the whole beat with the take's own staged camera as the solve parameter.
- * @evidence contracts/common.md#clear-and-simple-design Repeats the hero take's camera, move and intent fields in plural form so a host can switch angles without re-performing, and carries no timing because a coverage angle spans the beat.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The artifact gate refuses a take on the hero camera, a repeated camera and an unknown scene camera, the same rules `performShot` applied before compiling, so stored and freshly compiled takes obey one rule set.
- * @evidence contracts/common.md#meaningful-documentation States that the camera is never the hero, the null meaning of a static move, and that the intent list uses the same record as the hero take.
  * @author Samchon
  */
 export interface IAutoMovieShotCoverage {

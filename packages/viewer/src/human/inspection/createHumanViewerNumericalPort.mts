@@ -36,11 +36,6 @@ type Result = ConnectedFaceResult | ConnectedBodyResult;
  * recover inside this page. Optional persistence never revives a lost realm.
  *
  * Current-key cache access and a non-successful GET fallback preserve numerical source authority. This transport does not provide output-digest validation, corruption quarantine or a complete production cache outcome taxonomy.
- *
- * @evidence contracts/common.md#principled-implementation Catalogue digests bind cached models; a replacement realm supplies fresh checked startup authority and must match the page's original browser revision before dispatch.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the endpoint, shared readiness, pending requests and permanent source refusal; viewports see only the product port protocol.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Builds through the product runtimes and persists their actual results.
- * @evidence contracts/common.md#meaningful-documentation States cache order, persistence boundary and failure effect.
  */
 export function createHumanViewerNumericalPort(
   props: ICreateHumanViewerNumericalPortProps,

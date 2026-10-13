@@ -17,11 +17,6 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
  * whether the path was one of the two views.
  *
  * The availability and byte check concern the selected local digest-named view. Workflow dependency substitution remains with the caller.
- *
- * @evidence contracts/common.md#principled-implementation Serves only the view bytes the requesting document's key names.
- * @evidence contracts/common.md#clear-and-simple-design One route owns both views; verification is the shared streamer's.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects only the explicitly published or named split view and checks its requested digest, without fabricating a missing companion or falling back to a different generation.
- * @evidence contracts/common.md#meaningful-documentation States the 400, 404 and 409 answers.
  */
 export function serveHumanViewerGenerationView(
   props: IServeHumanViewerDataProps,

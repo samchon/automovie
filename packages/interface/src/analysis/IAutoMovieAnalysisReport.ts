@@ -16,10 +16,6 @@ import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
  * could produce all land in {@link gaps} and force `incomplete`, and a report
  * must declare at least one required domain to exist at all.
  *
- * @evidence contracts/common.md#principled-implementation `summarizeAutoMovieAnalysis` validates every run, folds them into the six fixed domain rows, and sets status by precedence: any measured miss gives `misses`, else any gap gives `incomplete`, else `meets`; the digest is SHA-256 over a newline-joined canonical text of the listed fields.
- * @evidence contracts/common.md#clear-and-simple-design A fixed rollup array plus a bounded gap list with an omitted count keeps the artifact size independent of run count, and the digest seals it without a separate signature record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The summarizer throws when no domain is required, and stale runs, refused runs, value-less metrics and unanswered required domains all become gaps; a miss outranks gaps on purpose, so an incomplete report containing a miss reads `misses`.
- * @evidence contracts/common.md#meaningful-documentation States the status precedence and the exact meaning of `meets`, the gap bound and its default, gap ordering, the omitted count, and which fields the digest covers.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisReport {

@@ -36,11 +36,6 @@ import {
  * The returned boundaries are the record's own objects in record order, not
  * copies. Throws for an undeclared space id.
  *
- * @evidence contracts/common.md#principled-implementation Filters the boundary list for records whose `spaces` list the id exactly, without descendant folding, and returns each record whole.
- * @evidence contracts/common.md#clear-and-simple-design Defect: its `requireSpace` is one of about ten private copies across the space queries; the query itself is one filter with no further layer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact matching is the rule adjacency and connectors already follow, so a storey returns its own enclosure and not its rooms' partitions; no boundary kind is filtered out, and an undeclared id throws.
- * @evidence contracts/common.md#meaningful-documentation States what adjacency discards and this keeps, the storey-assigned slab case behind it, the exact-match rule, why `kind` and `elements` come back intact, that results are shared references, and the refusal.
- * @evidence contracts/performance.md#cost-and-resources One existence scan over spaces and one pass over boundaries with an `includes` on each short space list, `O(S + B)`; it allocates only the filtered array of shared references and caches nothing.
  * @author Samchon
  */
 export const builtEnvironmentSpaceBoundaries = (

@@ -27,7 +27,6 @@ import {
 } from "../internal/predicates";
 
 /**
- *
  * A run that moves is a run with named states, and the states have to be true.
  *
  * A lift that stops at four floors is one shaft, so this pins that the floors
@@ -66,10 +65,6 @@ import {
  *    run — which the two-way lift's own reverse state is the twin of — an
  *    element two members try to drive at once, and a state the scene could not
  *    stage even though the record's current one can.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtConnectorGeometry`, `builtConnectorCarriagePlacements`, `lowerBuiltEnvironment`, `builtEnvironmentAdjacentSpaces` and `builtEnvironmentSpaceConnectors` over a work of moving and static runs and asserts landing positions, carriage positions, rotations and served spaces per state, the staged car height, adjacency sets, connector lists, refusals and violation paths; it catches a landing placed by station index, a car staged at rest when the record stands elsewhere, a counterweight claimed to serve a floor, a one-way run that reaches back, a revolving wing that travels instead of turning, and a car that does not stand in the floor it claims accepted.
- * @evidence contracts/testing.md#independent-expectations Values are hand arithmetic on the three-metre storey fixture: the lift landing at 0.5 of a 6 m climb is at y = 3, the chute's 2 m and 4 m segments put half its length 1 m into the second at y = 3, each car value is the 0.5 m rest plus the state's travel, the counterweight moves opposite, the wing's half-turned rotation is `yaw(pi / 3)` written out, and adjacency follows the declared from, to, landing order and direction.
- * @evidence contracts/testing.md#distinguishing-cases Positive lift, escalator, chute, revolving gate and static stair; a two-point and an uneven three-point landing route; a stalled zero-length segment placed without dividing by zero; the record's own state against named ones, a stripped operation returning to rest, a state naming no value for a carriage, and an unresolved current state; adjacency from both ends and a landing of a two-way run, a one-way landing reaching only forward, and an untouched space reaching nothing; refusals for an unknown connector, state or vanished carriage element; thirty-one malformed runs via `assertBuiltConnectorOperationTestRefusals` beside the untouched work producing no path; route metrics and sections are owned by test_architecture_built_connector.
  */
 export const test_architecture_built_connector_operation = (): void => {
   const source = runs();

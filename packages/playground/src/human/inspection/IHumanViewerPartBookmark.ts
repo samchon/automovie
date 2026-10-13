@@ -7,10 +7,6 @@
  * isolated, and marks one whose mesh the document no longer reports, so a
  * renamed mesh shows up at once instead of as a silent blank frame.
  *
- * @evidence contracts/common.md#principled-implementation Exact reported mesh names bind an isolated bookmark to its supplied document, and a missing name remains an explicit gallery observation.
- * @evidence contracts/common.md#clear-and-simple-design One bookmark record owns label, region, document identity and the mesh group displayed together; rendering remains with the viewer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A human-readable anatomical label cannot supply nonexistent geometry; the gallery checks the supplied mesh identities rather than inventing a part.
- * @evidence contracts/common.md#meaningful-documentation States identity and grouping fields, exact mesh matching and the visible consequence of renamed or absent meshes.
  * @author Samchon
  */
 export interface IHumanViewerPartBookmark {

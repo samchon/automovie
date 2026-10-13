@@ -31,10 +31,6 @@ import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
  * with unescaped `|` and newline separators, so authored text containing them
  * can make two different records hash alike.
  *
- * @evidence contracts/common.md#principled-implementation A pure function of design and view: `deriveAutoMovieDrawing` validates the environment, projects through one frame, rounds every coordinate to six decimals, sorts lines by role, layer, owner and endpoints and regions, openings and gaps by id through `compareAutoMovieRenderIds`, drops duplicate strokes, and hashes a canonical text with a pure SHA-256.
- * @evidence contracts/common.md#clear-and-simple-design One record carries the view's declared settings, the resolved frame and every derived collection, so a consumer can check any number against the design without the view or a second call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical text leaves out `version` and dimension endpoints and does not escape its separators, so two records can differ without changing the digest; stated in the prose and reported as a finding instead of hidden behind the determinism claim.
- * @evidence contracts/common.md#meaningful-documentation States the one-way design-to-drawing rule, the unit, rounding and scale of page coordinates, the ordering of each array, and exactly what the digest covers and misses.
  * @author Samchon
  */
 export interface IAutoMovieDrawing {

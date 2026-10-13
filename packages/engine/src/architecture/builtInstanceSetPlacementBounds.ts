@@ -40,11 +40,6 @@ const UNIT_QUATERNION_EPSILON = 1e-6;
  * transforms, or the prototype box, cannot be bounded. The box is world-space,
  * in metres.
  *
- * @evidence contracts/common.md#principled-implementation Validates into a violation collector, then bounds an explicit layout by each stored transform's rotated, scaled prototype corners, a grid or lattice by its hull corners (short final row included) plus one prototype offset, and a scatter by its disk; a varying seeded rotation is bounded by the enclosing origin-centred sphere.
- * @evidence contracts/common.md#clear-and-simple-design Defect: the file is 582 lines, over the 500-line source limit, because the population validators sit beside the bounding fold; those checks also repeat what the production builder validates again.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `along-route` throws because a building cannot resolve a world route, the sphere for varying rotation is a stated conservative bound rather than a guess at sampled angles, and visibility variation never shrinks the box.
- * @evidence contracts/common.md#meaningful-documentation States the two inputs, how each layout is bounded and why, the conservative sphere, that explicit transforms cost only stored data, that visibility never shrinks the box, the frame, and both refusals.
- * @evidence contracts/performance.md#cost-and-resources Constant work for grid, lattice and scatter regardless of count (at most ten hull points and sixty-four scaled corners), linear in stored transforms for an explicit layout, and validation linear in the same; nothing is cached, so per-population calls from content and placement queries rebuild the box each time.
  * @author Samchon
  */
 export const builtInstanceSetPlacementBounds = (

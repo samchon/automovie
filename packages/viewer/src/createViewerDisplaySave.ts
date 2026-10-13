@@ -10,11 +10,6 @@ import { createViewerDisplayPublication } from "./createViewerDisplayPublication
  * commit admits the same staged bitmap, or copies a direct active display.
  * Commit/change return whether synchronous copying succeeded; asynchronous
  * encoding or HTTP failures are reported separately and do not certify IO.
- *
- * @evidence contracts/common.md#principled-implementation Pixels and observed facts are synchronously copied before encoding.
- * @evidence contracts/common.md#clear-and-simple-design One bitmap queue serves supported producers without duplicating writers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the supplied canvas using standard toBlob copying without another model render, forged camera or SDK mutation.
- * @evidence contracts/common.md#meaningful-documentation Defines completion, commitment, bounded work and failure ownership.
  */
 export function createViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;

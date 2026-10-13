@@ -12,11 +12,6 @@ import type * as THREE from "three";
  * Texture collection covers direct material texture slots, as used by the
  * decoded standard-material previews. Shader uniform textures have their own
  * producer lifetime and are not acquired by this subtree collector.
- *
- * @evidence contracts/common.md#principled-implementation Collects actual owned objects before callbacks can mutate the subtree; identity deduplication follows shared resource ownership.
- * @evidence contracts/common.md#clear-and-simple-design One collector serves cached and decoded subtree owners with explicit texture ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses public subtree and material roles without creating replacement resources or changing foreign methods.
- * @evidence contracts/common.md#meaningful-documentation States ownership, material roles, callback ordering and the direct texture-slot boundary.
  */
 export function collectAutoMovieOwnedResources(
   group: THREE.Object3D,

@@ -13,7 +13,6 @@ import { builtPlacementTestSupport as support } from "../internal/builtPlacement
 import { throwsError } from "../internal/predicates";
 
 /**
- *
  * Building placement review reuses authored geometry and compact population
  * bounds instead of asking a reviewer to infer support from rendered pixels.
  *
@@ -38,10 +37,6 @@ import { throwsError } from "../internal/predicates";
  * 7. An extent-free body is never silently confused with a measured one: it
  *    bears from its origin and clears its neighbour, and both answers carry the
  *    basis that says no volume was measured.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentPlacementBounds`, `builtEnvironmentSupportStatus` and `builtEnvironmentPlacementOverlap` beside `validateBuiltEnvironment` and asserts world boxes with their basis, bearing and suspension status, signed gap, unresolved sides and bases, overlap status, and tolerance refusals; it catches invented bounds for a missing, transform-only or undeclared population target, a referenced model with no box, contact misclassified at the tolerance boundary, face contact reported as overlap, a known side's basis lost when the other is unresolved, and a negative or infinite tolerance silently accepted.
- * @evidence contracts/testing.md#independent-expectations Boxes and gaps are hand arithmetic on the fixture: the 1 m slab centred at y 0.5 tops out at 1, so cubes centred at 1.5, 1.75 and 1.25 rest, float 0.25 and sink 0.25, the cube at x 5 is off the 4 m slab, a neighbour at x 0.5 overlaps and one at x 1 touches, the three-member grid at anchor (0, 1, 4) with unit spacing spans x -1.5..1.5, y 1..2, z 3.5..4.5, and the floor surface's constant height 1 meets the resting cube's underside; basis labels and unresolved side names are the interface's documented values.
- * @evidence contracts/testing.md#distinguishing-cases Positive element, population and origin-point bounds; null for a missing element, a transform-only root, a missing population and a record with no populations; bearing resting, floating, sunk, off-support, exactly at tolerance 0.25, on a surface, on a population and from an origin point; suspension; unresolved subject, support, both, and a surface with an empty polygon; negative and infinite tolerance refusals; overlapping, touching, separate, population and extent-free operands, and both operands unresolved; multi-part support is owned by test_architecture_built_environment_multipart_support and population member bounds by test_architecture_built_population_placement_bounds.
  */
 export const test_architecture_built_environment_placement = (): void => {
   const source = environment();

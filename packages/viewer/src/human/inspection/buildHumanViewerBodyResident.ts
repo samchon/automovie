@@ -20,11 +20,6 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * publication is followed by awaited owned retirement. Final stage, numerical
  * connection and host cleanup are independent attempts with one shared result;
  * stage-owned cached textures are not disposed again by a group traversal.
- *
- * @evidence contracts/common.md#principled-implementation A person is drawn by the same body stage, not a viewer-only path.
- * @evidence contracts/common.md#meaningful-documentation States the shared path and what is kept.
- * @evidence contracts/common.md#clear-and-simple-design The body viewport serves both body and person documents; one resident owns publication, measured arrays, export access and release.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Build/construct/publication and worker release use the maintained viewport APIs; the adapter neither constructs alternate Human geometry nor accepts a refused model.
  */
 export async function buildHumanViewerBodyResident<
   Document extends

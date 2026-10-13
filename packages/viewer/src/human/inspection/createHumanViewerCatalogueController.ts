@@ -8,11 +8,6 @@ import { settleHumanViewerInputs } from "./settleHumanViewerInputs.js";
  * document against only its own input facts and domain admission. Explicit full
  * settlement still judges the complete inventory. Selection never changes the
  * validator, source-window authority or the host's complete inventory.
- *
- * @evidence contracts/common.md#principled-implementation Demand admission and keyed sidecar completion remove unrelated barriers while retaining each owner's verdict and generation identity.
- * @evidence contracts/common.md#clear-and-simple-design This controller owns catalogue/admission orchestration; source readers and the page retain their existing authorities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Selected settlement narrows only unrelated waiting dependencies; original admission and source-generation authority still decide every drawable entry.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes selectable pending descriptors, drawable admissions and explicit full settlement.
  */
 export function createHumanViewerCatalogueController(
   props: ICreateHumanViewerCatalogueControllerProps,

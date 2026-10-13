@@ -8,11 +8,6 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js
  * those `pending`, with the reason, apart from refusals. The
  * settled catalogue is published to the host before the answer. Returns
  * whether the path was `/rescan`.
- *
- * @evidence contracts/common.md#principled-implementation Answers with decided inputs, keeping pending and refused apart.
- * @evidence contracts/common.md#clear-and-simple-design Settling belongs to the host; this route publishes and answers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes actual settled sidecar and admission outcomes, retaining undecided entries instead of coercing them to success or silently dropping refusals.
- * @evidence contracts/common.md#meaningful-documentation States when it answers and what the answer holds.
  */
 export function serveHumanViewerRescan(
   props: IServeHumanViewerDataProps,

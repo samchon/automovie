@@ -7,11 +7,6 @@ import type { ServerResponse } from "node:http";
  * Closing the server ends only its own event connections. An optional disk-read
  * failure accompanies the retained revision, so an unchanged last-good digest
  * cannot hide an unreadable replacement from the application's candidate owner.
- *
- * @evidence contracts/common.md#principled-implementation Current source publication travels over a separate event stream and has no authority to reload or remove a completed viewport.
- * @evidence contracts/common.md#clear-and-simple-design One client set publishes the owner's revision and releases connections on their actual response lifetime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Sends the supplied revision without patching browser reload methods, manufacturing a successful candidate or restarting the page by age.
- * @evidence contracts/common.md#meaningful-documentation States initial publication, later source notifications and the separation between connection closure and model lifetime.
  */
 export function createHumanViewerSourceEvents(
   revision: () => string,

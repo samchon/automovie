@@ -10,11 +10,6 @@ import { HumanViewerStartingError } from "./HumanViewerStartingError.js";
  * refusal (an invalid address, an unknown document, a refused build, a
  * software renderer on a ready server) is the request's own and answers 422
  * with no retry advice, because asking again cannot change it.
- *
- * @evidence contracts/common.md#principled-implementation Status follows from whether the condition is transient (503) or belongs to the request (422).
- * @evidence contracts/common.md#clear-and-simple-design One pure classification serves every refusal response.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No message text is parsed; the error class decides.
- * @evidence contracts/common.md#meaningful-documentation States why transient and permanent refusals differ.
  */
 export function classifyHumanViewerRefusal(error: unknown): {
   status: 422 | 503;

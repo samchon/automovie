@@ -10,11 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * pose, because a station that disappeared would shrink the denominator exactly
  * where the topology is hardest to read.
  *
- * @evidence contracts/common.md#principled-implementation The population is a fixed derivation (four centre views, four corner views, one threshold per opening on a boundary of the space) and an unplaceable eye nulls `pose` instead of removing the entry, so the station count depends only on the record and never on whether placement succeeded.
- * @evidence contracts/common.md#clear-and-simple-design Four fields: an id, a closed three-value role, an opening id that is non-null only for the threshold role, and one nullable pose object holding the three world vectors that always travel together.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No role or station id is tied to a particular space or fixture; the null pose is the declared outcome for a station whose eye cannot be put inside the volume, so nothing is dropped or moved outside to make a count agree.
- * @evidence contracts/common.md#meaningful-documentation States the closed population, why an unplaceable station keeps its identity, the id spellings, the threshold-only meaning of `opening`, the world frame of the pose, and that the eye is proved inside the stated volume.
- * @evidenceExclude contracts/performance.md#cost-and-resources A record with no behaviour: the containment tests that place each eye are `builtSpaceObservationStations`'s cost, and a station holds two strings, a role and at most three small vectors with no handle, for as long as the caller keeps its array.
  * @author Samchon
  */
 export interface IAutoMovieSpaceObservationStation {

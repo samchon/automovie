@@ -14,10 +14,6 @@ import { IAutoMovieIKPole } from "./IAutoMovieIKPole";
  * influence outside `[0, 1]` throws, as does, for `ccd` and `fabrik`, a chain
  * shorter than two nodes or a non-positive or fractional `iterations`.
  *
- * @evidence contracts/common.md#principled-implementation `twoBone` applies the law of cosines to the two bone lengths and a reach clamped 1e-5 inside the reachable annulus; CCD rotates joints back to front toward the goal and FABRIK alternates tip-pinned and root-pinned passes with full extension for an unreachable goal; both stop at a fixed budget or a 1e-6 m tip error, so the solve is deterministic.
- * @evidence contracts/common.md#clear-and-simple-design One driver type with a `solver` discriminant shares chain, goal, pole and influence across three solvers, and `iterations` is nullable because only the iterative solvers read it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A `twoBone` driver with a chain other than three nodes is deferred rather than quietly handed to another solver; the one compensation is FABRIK's fixed `+X` fallback for coincident joints, which keeps the solve total.
- * @evidence contracts/common.md#meaningful-documentation States the chain-length rule per solver, that only `twoBone` reads `pole`, the iteration default and early stop, what is blended and recomposed, and the throwing inputs.
  * @author Samchon
  */
 export interface IAutoMovieIKDriver {

@@ -5,10 +5,6 @@ import type * as THREE from "three";
  * A controller, when supplied, owns typed state capture/restoration. Consumers
  * observe synchronously and must not treat requested state as rendered facts.
  *
- * @evidence contracts/common.md#principled-implementation The producer supplies its actual scene and camera after drawing rather than an inferred request.
- * @evidence contracts/common.md#clear-and-simple-design One completion shape supports ordinary viewports and handled composites.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No copied renderer, subject lookup or fabricated ready/model state is introduced.
- * @evidence contracts/common.md#meaningful-documentation Defines observation timing and controller ownership.
  * @author Samchon
  */
 export interface IAutoMovieViewerCompletedFrame {

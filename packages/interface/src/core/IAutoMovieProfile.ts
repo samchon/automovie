@@ -25,10 +25,6 @@ import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
  * key, while pointer channels pass through unchanged. No engine pass reads or
  * binds `controls` today.
  *
- * @evidence contracts/common.md#principled-implementation A USD-style applied schema as plain data: semantic keys in limits and drivers are resolved per application by `bindProfile` through the binding's `boneMap`, so one profile serves every bound subtree without being copied.
- * @evidence contracts/common.md#clear-and-simple-design Limits, drivers, controls, traits and gaits sit on one declarative record; `controls` and `traits` have no runtime consumer beyond validation and legacy-record conversion, which this chapter's rule against presumed future needs flags, and `gaits` is a documented one-way reference into motion.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No profile name is special-cased by binding or validation; an unmapped semantic key throws in `bindProfile` instead of silently dropping the limit or driver that cited it.
- * @evidence contracts/common.md#meaningful-documentation States that node references are semantic keys and how they bind, that pointers pass through, which fields lack a runtime consumer, the trait rule and its current readers, and why gaits reach into motion.
  * @author Samchon
  */
 export interface IAutoMovieProfile {

@@ -1,10 +1,6 @@
 /**
  * A message a viewport iframe posts to its host page.
  *
- * @evidence contracts/common.md#principled-implementation Optional payloads distinguish module admission, worker loading, completed display, source failure and failed selected-document restoration.
- * @evidence contracts/common.md#clear-and-simple-design One transport shape carries frame observations while the receiving host owns candidate acceptance and committed state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An address or part list is reported data, not manufactured GPU readiness; restart denotes an actual mixed-compile refusal rather than elapsed waiting.
- * @evidence contracts/common.md#meaningful-documentation Names each message kind, optional payload, restore-only failure and completed address/mesh meaning.
  * @author Samchon
  */
 export interface IHumanViewerFrameMessage {

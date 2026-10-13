@@ -10,7 +10,6 @@ import { drawingCell, drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts } from "../internal/predicates";
 
 /**
- *
  * A room schedule is the index a reviewer works a building from.
  *
  * Every number below is hand arithmetic over the fixture's own declarations.
@@ -37,10 +36,6 @@ import { namedFacts } from "../internal/predicates";
  * 6. Two identical rooms are two rows, marked in an order the authoring order
  *    cannot reach, and the same design schedules the same bytes twice.
  * 7. The schedule says out loud which subjects it does not yet carry.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieDrawingSchedule` with `subject: "space"` on the fixture and nine edited designs and asserts row counts, members, marks, nominal sizes, basis, the whole hall `place`, the deck's separate declared and content boxes, adjacency, the unmeasured site row, gap subjects and statuses, the bounded contents list and digests; it catches rooms collapsed into types, a content box reported as the declared cell (the `#1902` failure), a semantic container printed as zero-sized, membership guessed from id shape, a chamfered or open cell boxed from a guess, and marks that follow authoring order.
- * @evidence contracts/testing.md#independent-expectations Boxes come from the fixture's declarations: the hall cell 0..10 x 0..3 x 0..6 against contents reaching the footing's underside at y -0.7, the deck cell 0..10 x 3..3.5 x 0..6 against the beam's 0..6 x 3..3.4 x 2.85..3.15, the site's content up to the beam top at 3.4, a unit tetrahedron, and a two-cell union from x 0 to 6; four hall elements plus eleven added crates make 15, split at the published member bound of eight into 8 named and 7 counted; gaps are checked by subject and status, and only the geometry gap's leading count of one volumeless space is read from its reason, so the wording of each reason is left free.
- * @evidence contracts/testing.md#distinguishing-cases Positive measured hall and deck, the volumeless site as the unmeasured case, a crowded hall over the bound, a shelled vault, a two-cell wing, a chamfered cell and an open cell refused, an empty cellar with no content box, a faceted apse, two identical rooms kept as two rows, reversed space order and a repeat run equal by digest while an added room changes it; opening and connector place variants are checked only for their discriminant here, with their fields owned by the opening-schedule and subject-location tests and the enclosure gap's absence from other subjects by the enclosure-gap test.
  */
 export const test_drawing_space_schedule = (): void => {
   const environment = drawingEnvironment();

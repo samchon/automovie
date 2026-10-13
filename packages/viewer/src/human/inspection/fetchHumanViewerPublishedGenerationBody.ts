@@ -13,11 +13,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * Browser callers use relative routes; a Node observation caller supplies the
  * same resident viewer's absolute origin.
  *
- * @evidence contracts/common.md#principled-implementation Requests the published body view by its digest and projects its existing body basis; the numerical owner retains basis admission.
- * @evidence contracts/common.md#clear-and-simple-design One asset read followed by the body projection serves both relative-browser and absolute-Node origins.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extracts the supplied view's body without rebuilding its torso, estimating a head or substituting a different publication.
- * @evidence contracts/common.md#meaningful-documentation States the single body digest, returned body-basis projection and origin convention for the two callers.
- *
  * @author Samchon
  */
 export async function fetchHumanViewerPublishedGenerationBody(

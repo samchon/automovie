@@ -43,12 +43,6 @@ const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
  * with `$input` paths and nothing throws; the lineage query functions throw on
  * the first finding instead. Host identities are not checked here;
  * {@link validateDesignLineageBinding} does that.
- *
- * @evidence contracts/common.md#principled-implementation Builds id sets per table, resolves references against them, finds cycles in the revision, phase and derivation graphs by colour-marked recursive depth-first search, checks removal order with a breadth-first prerequisite walk, and compares each derived stamp and citation with the head, upstream stamps and current subject digests; recursion depth equals the longest chain, so a history thousands of revisions deep can exhaust the call stack.
- * @evidence contracts/common.md#clear-and-simple-design One collector and one pass per lineage section in dependency order; `collectIds`, `validateReferences`, `nonEmpty`, `record` and `phasesBefore` are private copies of helpers also defined in `validateBuiltEnvironment`, `validateDesignReference` and the lineage query files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Staleness, missing lifecycles and unfair comparisons are refusals by documented contract rather than warnings; a dangling prerequisite is reported once and not walked further, and no lineage, phase or artifact kind is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what the validator owns and refuses, why staleness refuses and how to order a rebake, why lifecycle coverage is total, the fairness rule, the digest format, and that findings are returned while query functions throw.
- * @evidence contracts/performance.md#cost-and-resources Mostly linear with id sets, but each removing lifecycle rebuilds a phase map and walks prerequisites, O(L × (P + R)), options and variant stamps resolve by linear `find` over variants, and the fairness pass is O(D × A) for D decisions and A derived artifacts. Nothing is cached, so each lineage query function revalidates the same record, and all sets and maps are released on return.
  */
 export const validateDesignLineage = (props: {
   /** Lineage record to validate. */

@@ -21,10 +21,6 @@ import { IAutoMovieTrack } from "./IAutoMovieTrack";
  * or wrapped modulo `duration` when `loop` is set. Two tracks on the same
  * channel within one clip throw.
  *
- * @evidence contracts/common.md#principled-implementation Mirrors a glTF animation as parallel time and value tracks; `sampleClip` normalizes the query time once per clip, clamping or taking a non-negative modulo when `loop` is set, and samples every track at that time, so all channels of the clip share one clock.
- * @evidence contracts/common.md#clear-and-simple-design Holds only identity, duration, loop and tracks; the semantic `IAutoMovieMotion` stays a separate type because pose keyframes and flat channel tracks serve different authors, with `motionToClip` as the one bridge.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel kind is special-cased by the clip itself; the sampler throws on a repeated channel key instead of letting the later track overwrite the earlier one.
- * @evidence contracts/common.md#meaningful-documentation Explains the clip-versus-motion split, how query time is clamped or wrapped, the duration rules of the sampler and the artifact gate, and the one-track-per-channel rule.
  * @author Samchon
  */
 export interface IAutoMovieClip {

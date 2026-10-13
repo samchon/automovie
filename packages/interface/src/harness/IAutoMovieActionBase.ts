@@ -7,10 +7,6 @@ import { AutoMovieBodyRegion } from "../skeleton/AutoMovieBodyRegion";
  * `performShot` validates these before any synthesis and reports each fault at
  * its field path.
  *
- * @evidence contracts/common.md#principled-implementation Places every verb on the shot-local timeline by `start` and `duration`, with `"auto"` delegating length to the synthesizer; `repeat` is expanded by `sequenceMotion` into back-to-back copies that outlast the declared span `performShot` checks, an unresolved disagreement.
- * @evidence contracts/common.md#clear-and-simple-design Shared fields live once on the base interface each verb extends, so the discriminated `IAutoMovieActionCall` union adds only verb-specific fields; region inference stays in the engine's `actionRegion` tables.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `physicsIntent` is documented as silencing plausibility warnings, but no engine path reads it from an action, so the marker currently has no effect; the `fullBody` fallback for verbs absent from the region tables is a stated default.
- * @evidence contracts/common.md#meaningful-documentation States the id rules for `actor`, the bounds of `start`, `duration` and `repeat`, how `"auto"` is sized and spanned, the repeated length, region defaults, and that `physicsIntent` has no reader yet.
  * @author Samchon
  */
 export interface IAutoMovieActionBase {

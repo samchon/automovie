@@ -32,11 +32,6 @@ const AXIS_EPSILON = 1e-12;
  * illuminances finite and at or above zero. Occluder planes follow
  * `validateSolidPlanes`.
  *
- * @evidence contracts/common.md#principled-implementation Collects violations in a `ViolationCollector`; uniqueness and building-owned collisions use `Set`s, ordering is one comparison against the previous finite time, and the horizon rule tests the sign of the normalized sun against the normalized ground up only after both are known non-zero.
- * @evidence contracts/common.md#clear-and-simple-design Delegates solid geometry to `validateSolidPlanes` so occluders and authored shades share one rule, but its private `direction` helper and `AXIS_EPSILON` are copied verbatim in `validateSolidPlanes.ts`, and `nonEmpty` in `validateAutoMovieAnalysisRun.ts`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No context, instant or id is special-cased; meter units, version 1 and strict time order are contract rules, and the horizon check is skipped only when a zero vector has already produced its own violation.
- * @evidence contracts/common.md#meaningful-documentation States the physical and ownership rules, that ordering is validated rather than repaired, the direction and illuminance requirements, what `reserved` holds, and the non-throwing result.
- * @evidence contracts/performance.md#cost-and-resources Linear in instants, occluders and their planes plus `reserved` to build its set, with constant work per instant. No verdict is memoized: the daylight and envelope studies and the production build each re-validate the same context (the last with its own `reserved` set), and all sets and the collector are call-local.
  * @author Samchon
  */
 export const validateAutoMovieEnvironmentContext = (props: {

@@ -28,7 +28,6 @@ const visemes: IAutoMovieProductionViseme[] = [
 ];
 
 /**
- *
  * Final-byte visemes join explicitly, preserve gaps, and seek without history.
  *
  * Scenarios:
@@ -44,10 +43,6 @@ const visemes: IAutoMovieProductionViseme[] = [
  *    negative or reversed line ranges, fractional, empty or overrunning viseme
  *    ranges, an unsupported mouth target, and a negative or fractional sample
  *    frame are each refused.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `joinAutoMovieDialogueVisemes` and `sampleAutoMovieDialogueExpression` and asserts the join record, the full range list, sampled mouth layers and refusals; it catches a gap or tail left uncovered instead of `rest`, the actor picked when the speaker binding is missing or ambiguous, the authored expression replaced or copied by the mouth layer, sampling that depends on the previous frame, and a malformed range or unknown viseme admitted.
- * @evidence contracts/testing.md#independent-expectations The five ranges are the line interval 10..20 cut at the authored viseme boundaries 12, 15, 17 and 19 by hand; the open mouth is the active viseme at full intensity and the gap is `neutral` at zero, as the sampler's doc comment states; `not-run` reasons are the closed union values; refusals are matched by message phrase, which pins the failing check but not the full wording.
- * @evidence contracts/testing.md#distinguishing-cases Positive bound line with interior gaps and a tail; not-run for absent speaker, absent binding and two bindings; refusals for empty timing, overlap, blank actor, fractional start and end, negative start, end equal to start, fractional viseme edges, a zero-length viseme, a viseme past the line end and a bogus target; seek order 13, 16, 13 shows history independence; a frame outside the line and audible-arrival timing are not exercised here.
  */
 export const test_engine_dialogue_viseme_join = (): void => {
   const compiled = joinAutoMovieDialogueVisemes({

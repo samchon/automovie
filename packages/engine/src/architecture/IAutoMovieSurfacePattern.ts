@@ -23,11 +23,6 @@ import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
  * exclusions overlap one another, or whose numeric fields leave the ranges
  * stated below; measured defects of a valid declaration come back as findings.
  *
- * @evidence contracts/common.md#principled-implementation A declarative laying program: per-zone lattices filled by a pure author generator, plus pattern-wide joint, adjacency, minimum-piece and grain limits the run measures; byte-identical output rests on the generator being pure and on `seed` being the only source of variation.
- * @evidence contracts/common.md#clear-and-simple-design Pattern-wide law (joint, exclusions, seed, variant count) lives here and each zone owns its region, lattice and generator, so a material transition is two zones rather than a mode flag on one.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No bond, module size or ornament is built in; the only fixed values are the validated ranges, and overlapping zones or exclusions are refused by name instead of being resolved by declaration order.
- * @evidence contracts/common.md#meaningful-documentation States why a pattern is not a texture repeat, the split between author and engine, how zones express a transition, the metre unit and range of every joint field, what a null grain tolerance means, and which declarations are refused.
- * @evidenceExclude contracts/performance.md#cost-and-resources A declaration that computes nothing itself; its fields bound the generator's cost (pairwise zone and exclusion overlap checks, at most `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells per zone, `adjacency` limiting the neighbour scan), no run result is cached against it, and it retains only its generator closures and polygons while the caller holds it.
  * @author Samchon
  */
 export interface IAutoMovieSurfacePattern {

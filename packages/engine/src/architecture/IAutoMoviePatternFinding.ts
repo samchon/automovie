@@ -17,11 +17,6 @@
  * Per-occurrence findings come first in placement order, then pair findings
  * ordered by their first occurrence and then their partner.
  *
- * @evidence contracts/common.md#principled-implementation Each kind records the raw measurement beside the declared value it was judged against: coverage, punched area, separating-axis gap along the pieces' edge normals, or 180-periodic grain deviation.
- * @evidence contracts/common.md#clear-and-simple-design One record shape for all five kinds, with the unit carried by `kind`, so a reader filters by kind instead of matching five record types.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Thresholds come only from the pattern declaration; the `1e-9` m and `1e-12` coverage epsilons are uniform numeric slack, and pairs further apart than `adjacency` are not judged at all.
- * @evidence contracts/common.md#meaningful-documentation States the occurrence count, measured unit and limit meaning of each kind, the tolerance rule of a joint deviation, and the order of findings and ids.
- * @evidenceExclude contracts/performance.md#cost-and-resources Two numbers, a kind, a detail string and one or two ids inside the run result; pair findings come from a bucket-grid neighbour screen sized to the largest module diagonal plus adjacency, not an all-pairs sweep.
  * @author Samchon
  */
 export interface IAutoMoviePatternFinding {

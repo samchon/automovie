@@ -16,10 +16,6 @@
  * `morphFace` throws only when a trait the document sets has no target; a
  * template may omit names the documents it serves never set.
  *
- * @evidence contracts/common.md#principled-implementation A closed literal union with one name per morph target; `flattenFace` maps every document leaf to one name through its `SINGLE` and `PAIRED` tables, giving the eye, brow and cheek traits an `R` and an `L` target so a lone side can drive both and asymmetry needs no extra geometry.
- * @evidence contracts/common.md#clear-and-simple-design Flat names because glTF morph targets are a flat list, while the anatomical nesting stays in `IAutoMovieFace` and the projection between the two lives once in `flattenFace`, shared by validation and morphing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The compiler keeps the `flattenFace` tables inside this union but not the reverse, so a name added here without a table entry is never produced; nothing checks that a template supplies every name, only that a set trait finds its target.
- * @evidence contracts/common.md#meaningful-documentation Explains the subject-side `R` and `L` suffix convention, which function performs the projection, what a template must supply, and when a missing target fails.
  * @author Samchon
  */
 export type AutoMovieFaceParameterName =

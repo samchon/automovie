@@ -12,16 +12,11 @@ import {
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
 /**
- *
  * Direct-path receipts and the actual native mix preserve emission, cross-cut arrival, exact legacy bytes and trim silence.
  *
  * Scenarios:
  * 1. Distance20 m at 100 m/s delays emission frame 2 to arrival frame 4 at 10 fps, with distance gain 0.2 and spectral gain 0.1.
  * 2. Zero distance preserves exact legacy PCM bytes; trim stays silent and carry starts at sample 19200 with alignment at 0.4 s.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieSoundPropagation` for a 20 m carried path, a zero-distance path and a trimmed path, asserting arrival frame, boundary, distance gain and high-frequency gain, then renders event plans carrying those receipts with `renderProductionSound` and asserts byte identity with the receipt-free plan, the first audible sample, the buffer length and event alignment; it catches arrival computed from the emission frame alone, a cut boundary that truncates a carried sound or lets a trimmed one through, a distance or absorption law applied with the wrong exponent, and a zero-distance receipt that perturbs the legacy mix.
- * @evidence contracts/testing.md#independent-expectations Arrival is 0.2 s plus 20 m at the declared 100 m/s, 0.4 s or frame 4 at 10 fps and sample 19,200 at 48 kHz; gain 0.2 is the softened inverse square `1 / (1 + 0.01 * 20^2)`; 0.1 is 1 dB/m over 20 m; 33,600 samples are seven 10 fps frames at 48 kHz; byte identity compares against the same plan without a receipt rather than a stored buffer, so it cannot catch a defect shared by both mixes.
- * @evidence contracts/testing.md#distinguishing-cases Positive carried-across-cut path; boundary of zero distance with spectral filtering switched off, which must be the identity; negative trim-at-segment path that must stay silent and fail alignment beside the carried twin; malformed propagation inputs belong to `test_engine_sound_propagation_admission`, and the spectral filter's effect on the waveform to `test_engine_sound_propagation_spectral_mix`.
  */
 export const test_engine_sound_propagation = (): void => {
   const { profile, eventPlan, firstAudibleFrame } = createSoundPropagationTestInputs();

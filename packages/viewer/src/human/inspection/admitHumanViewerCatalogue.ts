@@ -12,11 +12,6 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
  * with the generation-change reason. A selectable pending candidate is a
  * known identity, not a drawable admission. The newer inventory cannot judge
  * or replace this page's loaded generation; the host owns its replacement.
- *
- * @evidence contracts/common.md#principled-implementation Revision equality preserves the loaded worker and basis authority before replacing document inventory.
- * @evidence contracts/common.md#clear-and-simple-design One admission function owns catalogue replacement while the host owns source generation changes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never relabels old modules as a newer generation; a document of the newer generation waits for it.
- * @evidence contracts/common.md#meaningful-documentation States what revision equality protects, the stale fallback and the retryable refusal.
  */
 export function admitHumanViewerCatalogue(
   current: HumanViewerCatalogue,

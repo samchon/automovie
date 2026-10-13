@@ -4,11 +4,6 @@ import type { HumanViewerWork } from "./HumanViewerWork.js";
  * Admit a browser progress record before the resident host publishes it.
  * Unknown fields are discarded, and malformed console output cannot throw
  * through the server's event listener.
- *
- * @evidence contracts/common.md#principled-implementation Closed stages and finite nonnegative counters admit only the progress protocol's actual distinctions.
- * @evidence contracts/common.md#clear-and-simple-design One parser owns console-message admission and projection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never recognizes document names or invents a missing stage.
- * @evidence contracts/common.md#meaningful-documentation Defines refusal and metadata-only projection at the browser boundary.
  */
 export function readHumanViewerWork(text: string): HumanViewerWork | null {
   try {

@@ -5,10 +5,6 @@
  * non-blank and unique among the domain's drains. Removed volume accumulates in
  * `IAutoMovieFluidState.drainVolume`.
  *
- * @evidence contracts/common.md#principled-implementation A per-step volume sink of `flowRate * dt`, gated by a sill comparison and a half-open time window and scaled by the same limiter factor as the cell's outgoing face fluxes, so depth never goes negative and the ledger records only what actually left.
- * @evidence contracts/common.md#clear-and-simple-design Cell coordinates rather than a world point, because the solver applies a drain to exactly one lattice cell; the sill and the window are the only gates, and a plain floor drain sets the sill to its bed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No drain kind or cell is special-cased; validation refuses a blank or duplicate id, an out-of-range or solid cell, a negative rate, a non-finite sill, and an `end` that is not after `start`.
- * @evidence contracts/common.md#meaningful-documentation States the flow unit, that the realized rate is limited and how, which surface the sill is compared with and against which datum, the window bounds, the `null` meaning, and where removed volume is counted.
  * @author Samchon
  */
 export interface IAutoMovieFluidDrain {

@@ -6,11 +6,6 @@ import { layoutHumanViewerReference } from "./layoutHumanViewerReference.js";
  * Paint the completed display and its visible reference layers onto an owned
  * surface. Both synchronous capture and asynchronous display saving consume
  * this composition, so split, overlay, swipe and landmarks share one owner.
- *
- * @evidence contracts/common.md#principled-implementation The existing layout and painter reproduce the DOM reference composition without changing its photograph or camera.
- * @evidence contracts/common.md#clear-and-simple-design One compositor supplies a surface independently of PNG encoding.
- * @evidence contracts/common.md#meaningful-documentation States surface ownership and the two encoding consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Creates an owned 2D surface and consumes the shared reference layout/painter with the caller's real canvas and photo, without altering their pixels or substituting a subject-specific composition.
  */
 export function composeHumanViewerReference<Surface extends {
   width: number;

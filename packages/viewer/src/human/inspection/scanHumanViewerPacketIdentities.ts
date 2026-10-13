@@ -16,11 +16,6 @@ const STRUCTURE = [0x22, 0x7b, 0x7d, 0x5b, 0x5d] as const;
  * key or a nested string stand in for it. A malformed packet or a missing
  * top-level id refuses with the reason; which members a caller requires is
  * the caller's decision.
- *
- * @evidence contracts/common.md#principled-implementation Reads identities from the JSON token structure (depth and string state), never from a text pattern that could match inside a nested value.
- * @evidence contracts/common.md#clear-and-simple-design One scan serves every large packet; required members and memoization stay with the callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a malformed packet or non-string id instead of guessing an identity.
- * @evidence contracts/common.md#meaningful-documentation States what is read, why no object tree is built and what refuses.
  */
 export function scanHumanViewerPacketIdentities(
   text: Buffer,

@@ -6,11 +6,6 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure.js";
  * The host owns disk keys, GPU capture and queue admission. Each document is
  * submitted separately so interactive work can run before the next warm item.
  * A newer source or warm generation withdraws this pass before its next item.
- *
- * @evidence contracts/common.md#principled-implementation Each missing document is a separate admitted queue task, and a superseded pass cannot update its successor's counters.
- * @evidence contracts/common.md#clear-and-simple-design The host supplies persistence and capture while this function owns only pass ordering and progress.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies the same cache and generation rules to every document with no fixture-specific warm path.
- * @evidence contracts/common.md#meaningful-documentation Defines queue ownership, yielding and withdrawal when either source or pass authority changes.
  */
 export async function warmHumanViewerDocuments(
   props: IWarmHumanViewerDocumentsProps,

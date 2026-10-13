@@ -13,7 +13,6 @@ import {
 import { throwsError } from "../internal/predicates";
 
 /**
- *
  * Pin the content digest and the deterministic replay handle a derived artifact
  * is supposed to cite.
  *
@@ -44,10 +43,6 @@ import { throwsError } from "../internal/predicates";
  * 7. Two designs that a bare-delimiter serialization would collide digest
  *    differently.
  * 8. An unknown alternative or phase is refused rather than digested.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `designLineageDigest` and `designLineageViewDigest` over the renovation lineage and edited copies and asserts equality, inequality and refusal; it catches a digest that depends on authored array order, ignores an edited value, varies between replays, collapses two alternatives, a phase or the base view into one value, ignores an imported texture's bytes, lets authored text forge a field boundary, or digests an unknown variant or phase.
- * @evidence contracts/testing.md#independent-expectations Each expectation is a relation the digest contract states (stable under replay and reshuffle, sensitive to any authored value, to the view's variant and phase and to subject content digests, and length-prefixed so `ab`+`c` and `a`+`bc` differ), compared digest against digest; no expected digest value is stored, so the exact canonical byte format and hash are outside this oracle and a format change that keeps every relation passes.
- * @evidence contracts/testing.md#distinguishing-cases Positive replay and full reshuffle; negative one edited change value, two alternatives against the base view, one alternative at two phases, a replaced texture requoted everywhere, and the two collision probes; refusals for an unknown variant and phase; validity of the edited copies, including the stale record that moves only the texture, is owned by test_architecture_design_lineage_derivation_refusals.
  */
 export const test_architecture_design_lineage_digest = (): void => {
   const lineage = renovationLineage();

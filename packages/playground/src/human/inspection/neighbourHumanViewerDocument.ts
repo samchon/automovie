@@ -3,11 +3,6 @@
  * ends. A current document that is not in the list gives the first (or, when
  * stepping back, the last) so the previous and next buttons always move. An
  * empty list refuses.
- *
- * @evidence contracts/common.md#principled-implementation Signed single-step modular indexing wraps the supplied order; an absent current id selects the direction's boundary and an empty list refuses.
- * @evidence contracts/common.md#clear-and-simple-design One navigation calculation serves previous and next without retaining another document-selection state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The actual caller list supplies every identity and boundary; no named person or fallback fixture is inserted.
- * @evidence contracts/common.md#meaningful-documentation States both wrap boundaries, absent-current recovery and the explicit empty-list failure.
  */
 export function neighbourHumanViewerDocument(
   ids: readonly string[],

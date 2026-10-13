@@ -6,7 +6,6 @@ import {
 } from "@automovie/interface";
 
 /**
- *
  * Build one metric, resolving whatever target the production declared for it.
  *
  * A target stated in the wrong unit does not silently pass and does not
@@ -24,11 +23,6 @@ import {
  * different units. The first target with the metric's key decides; duplicate
  * keys are refused earlier by `assertAutoMovieAnalysisTargets`.
  *
- * @evidence contracts/common.md#principled-implementation Encodes the metric shape rules: a null value needs a gap and defaults to `not-run`, a value must be finite and gap-free, and a same-key same-unit target decides `meets` or `misses` by its comparison.
- * @evidence contracts/common.md#clear-and-simple-design One builder used by every analyzer, so target resolution and mismatch warnings follow one rule, with the comparison kept as a private helper.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A unit-mismatched target is dropped with a `target-unit-mismatch` warning instead of being compared or converted; no metric key or unit is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the mismatch handling and its reason, the value-or-gap rule, what throws, the `not-run` default, and the exact-string unit comparison.
- * @evidence contracts/performance.md#cost-and-resources A linear `find` over targets per metric makes a run's resolution cost metrics times targets; no key index is built, since one run resolves at most eleven metrics. Each call resolves one metric of one run; the caller-owned warnings array is the only state shared between calls. Returns a new metric record and appends at most one warning to the caller's array, keeping nothing itself.
  * @author Samchon
  */
 export const autoMovieAnalysisMetric = (props: {

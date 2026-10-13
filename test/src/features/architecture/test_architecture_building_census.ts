@@ -10,7 +10,6 @@ import {
 } from "../internal/envelopeFixtures";
 
 /**
- *
  * A building is a denominator, and the census is what states the whole of it.
  *
  * A room-by-room survey is not a survey of a building: an exterior wall, a roof
@@ -33,10 +32,6 @@ import {
  * 3. A connector landing in either of those spaces is named once.
  * 4. Two building units each answer for their own envelope only, in building-id
  *    order, and neither claims the other's face.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentBuildingCensus` and asserts each unit's facade, roof and underside boundaries, corner ids, entrances, volume-stating spaces and connectors; it catches an envelope face counted under the wrong aspect or the other unit, a missing corner, an opening off the envelope reported as an entrance, a volumeless zone charged as a room, a connector named twice for landing in two owned spaces, and units reported out of id order.
- * @evidence contracts/testing.md#independent-expectations Expectations are read off the hand-typed fixtures: `rectangularBuilding` has four walls, one roof, one floor and a door cut through the south wall, so four facades, one roof, one underside, the four `a+b` wall pairs that meet at its corners and one entrance; `loft` states a cell and `west-wing` none; the two-unit record gives each unit exactly its own wall and hall; ids are compared in the census's documented id order rather than copied from a run.
- * @evidence contracts/testing.md#distinguishing-cases Positive one-unit census with a room above, a volumeless named zone that must be left out, and a stair landing in two owned spaces that must be named once; a two-unit record where neither unit may claim the other's face; face aspect derivation and corner geometry themselves are owned by test_architecture_envelope_faces and test_architecture_envelope_corners, and descendant-space walking by test_architecture_descendant_spaces.
  */
 export const test_architecture_building_census = (): void => {
   const census = builtEnvironmentBuildingCensus(furnished());

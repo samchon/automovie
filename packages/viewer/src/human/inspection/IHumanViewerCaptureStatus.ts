@@ -7,12 +7,6 @@ import type { IHumanViewerLastRender } from "./IHumanViewerLastRender.js";
  *
  * These are completed local capture and numerical-build readings. Their counts and cache status do not certify a complete production work plan.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the capture telemetry members.
- *
- * @evidence contracts/common.md#principled-implementation Last capture and numerical-build records preserve drawing and computation as distinct observed outcomes.
- * @evidence contracts/common.md#clear-and-simple-design Last build per domain and recorded builds per document serve their separate telemetry queries.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached capture cannot fabricate a numerical build record merely because the GPU drew it.
- *
  * @author Samchon
  */
 export interface IHumanViewerCaptureStatus {

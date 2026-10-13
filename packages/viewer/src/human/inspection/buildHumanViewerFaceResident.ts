@@ -14,11 +14,6 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * then awaits the stage's actual retirement completion. Final release attempts
  * stage, connection and controls independently and preserves every cause; cached
  * texture wrappers remain with the stage rather than a second group disposer.
- *
- * @evidence contracts/common.md#principled-implementation The resident counts the arrays it actually keeps.
- * @evidence contracts/common.md#meaningful-documentation States what is kept and why.
- * @evidence contracts/common.md#clear-and-simple-design The resident keeps the published group and the viewport's connection, with one cleanup path for failed build and later eviction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical work and GPU publication use the maintained face viewport; no subject-specific fallback model or external method replacement is introduced.
  */
 export async function buildHumanViewerFaceResident(
   props: IBuildHumanViewerFaceResidentProps,

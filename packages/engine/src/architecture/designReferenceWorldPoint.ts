@@ -28,11 +28,6 @@ const AXIS_EPSILON = 1e-12;
  * @param frame Frame the point was read in.
  * @param point Source-space point in the frame's own units.
  * @returns World position in metres.
- * @evidence contracts/common.md#principled-implementation An affine map from the anchor-relative source offset through two normalized direction axes and the settled scale, followed by a scale-rotate-translate placement; an axis no longer than 1e-12 is left unnormalized and so contributes a near-zero term, a case `validateDesignReference` refuses before promotion.
- * @evidence contracts/common.md#clear-and-simple-design Scale settlement is delegated to `designFrameScale`, so the conversion and the promotion gate agree; the private `unit` helper and `AXIS_EPSILON` duplicate the copies in `validateDesignReference`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Has no default scale; an unsettled frame throws, and the only compensation is axis normalization, which the prose justifies as reading the author's direction literally.
- * @evidence contracts/common.md#meaningful-documentation Spells out the mapping, the order of the placement transform, the normalization and its skew consequence, the metre output unit, and the throw for an unsettled scale.
- * @evidence contracts/performance.md#cost-and-resources Constant work per point, one scale lookup, two axis normalizations and at most one quaternion rotation, all recomputed for every point of a frame because nothing is cached; it returns one new vector and retains nothing.
  */
 export const designReferenceWorldPoint = (
   frame: IAutoMovieDesignSourceFrame,

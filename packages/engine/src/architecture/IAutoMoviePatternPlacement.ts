@@ -10,11 +10,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * zero area. `variant` depends only on the pattern seed and `id`, so it does
  * not change when other pieces are added or reordered.
  *
- * @evidence contracts/common.md#principled-implementation Area is the shoelace area of the Sutherland-Hodgman clip of the rotated module against the convex region, minus its clipped intersections with each exclusion; the variant is `seededValue(seed, FNV-1a(id), domain)` scaled to the variant count.
- * @evidence contracts/common.md#clear-and-simple-design One record carries identity, the generator's inputs, measured survival and the clipped outline, so the mesh, instance slot, finish and take-off cite the same occurrence id.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The outline stays the region clip even when an exclusion punched the piece; the lost area is stated in `punchedArea` and reported as a finding rather than drawn as an outline that covers the hole.
- * @evidence contracts/common.md#meaningful-documentation States the producer, the absence rule, the id spelling, frames and units, how area, coverage, cut and variant are derived, and why a punched outline is not the true piece.
- * @evidenceExclude contracts/performance.md#cost-and-resources Each costs one convex clip against the zone region plus one per exclusion, rebuilt per run with no clip shared between identical rectangles; it owns copied centre and size objects and its outline.
  * @author Samchon
  */
 export interface IAutoMoviePatternPlacement {

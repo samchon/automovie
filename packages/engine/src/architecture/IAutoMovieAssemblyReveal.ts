@@ -8,11 +8,6 @@
  * are deducted on every jamb. `width` and `height` are always above zero,
  * because a lining that would consume the opening throws instead.
  *
- * @evidence contracts/common.md#principled-implementation Linings are the leading and trailing runs of consecutive wrapping layers; clear width and height subtract twice `inset`, and `bare` is the total build-up minus both linings.
- * @evidence contracts/common.md#clear-and-simple-design Carries the per-face lining depths and the lining layer ids beside the clear size, so a caller can draw each lining's return without recomputing the runs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `inset = first + last` deducts both face linings from every jamb although they are reported as separate depths from opposite faces; the record carries that producer model as is and has no per-face clear width.
- * @evidence contracts/common.md#meaningful-documentation States the producer, which layers count as lining, how `inset` is derived and applied, the positivity guarantee, and the unit of every field.
- * @evidenceExclude contracts/performance.md#cost-and-resources Six numbers and an id list derived from two linear runs over the layers; no reveal is cached per wall, and it holds no reference to the resolved assembly.
  * @author Samchon
  */
 export interface IAutoMovieAssemblyReveal {

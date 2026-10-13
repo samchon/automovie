@@ -15,11 +15,6 @@ import { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
  * `observed` renamed to `solved`: a thermal solver computes, it does not
  * observe, and the two negative arms deliberately keep their exact spelling so
  * one project has one vocabulary for "we did not look".
- *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `status` makes results unrepresentable in the two negative arms; the validator also requires a solved arm to carry at least one metric and refuses an unknown status that arrived through JSON.
- * @evidence contracts/common.md#clear-and-simple-design Three arms rather than one record with optional result fields, so the run digest and the report branch on a single discriminant and the negative arms share the design-observation spelling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A solved arm with zero metrics is refused and the message points the author to a negative arm, so an empty computation cannot read as clean; no arm is chosen by solver identity.
- * @evidence contracts/common.md#meaningful-documentation Explains each arm's meaning, which arm may carry results, the at-least-one-metric rule, the sample bound and the measured-key constraint on samples.
  */
 export type IAutoMovieAnalysisOutcome =
   | {

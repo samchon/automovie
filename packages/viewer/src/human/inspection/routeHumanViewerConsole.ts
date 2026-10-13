@@ -3,11 +3,6 @@ import type { IRouteHumanViewerConsoleProps } from "./IRouteHumanViewerConsolePr
 /**
  * Route one page console line by its protocol prefix. Lines without one are
  * ordinary page logs and are ignored.
- *
- * @evidence contracts/common.md#clear-and-simple-design One function owns the console protocol prefixes.
- * @evidence contracts/common.md#principled-implementation Exact protocol prefixes dispatch their original payload to the corresponding lifecycle or telemetry owner; unrelated logs have no state authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Forwards existing messages without inspecting rendered pixels, rewriting source failures or guessing lifecycle transitions from ordinary console prose.
- * @evidence contracts/common.md#meaningful-documentation States the ignored case.
  */
 export function routeHumanViewerConsole(
   text: string,

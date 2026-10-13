@@ -14,12 +14,6 @@ import {
  * Each entry names the space that owns the patch, which may be a descendant of
  * the asked space; entries come back in the record's surface order. Throws for
  * an undeclared space id.
- *
- * @evidence contracts/common.md#principled-implementation Keeps the surface entries whose space lies in the subtree and marks each walkable by membership of its id in `environment.walkable`, so support and walkability stay two independent facts.
- * @evidence contracts/common.md#clear-and-simple-design Defect: private copies of the subtree fixed point and the space check; each answer is three plain fields instead of the surface record, which a caller reads by id.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A roof deck is reported as support without being walkable exactly as the record states, and no surface kind or height rule is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States that support and walkability differ, the shared stable surface id, that the owning space may be a descendant, the record order, and the refusal.
- * @evidence contracts/performance.md#cost-and-resources An `O(S D)` subtree pass, one `Set` over the walkable ids built per call so each patch costs a hash lookup, and one linear filter over surface entries; nothing is cached across calls.
  */
 export const builtEnvironmentSpaceSurfaces = (
   environment: IAutoMovieBuiltEnvironment,

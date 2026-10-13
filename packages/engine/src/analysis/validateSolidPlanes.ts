@@ -22,12 +22,6 @@ const AXIS_EPSILON = 1e-12;
  * `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite normals longer than `1e-12`, and
  * finite offsets. Whether the planes enclose a non-empty, bounded region is not
  * checked, so four or more planes describing an unbounded or empty set pass.
- *
- * @evidence contracts/common.md#principled-implementation Compares the plane count with four, the fewest half-spaces that can bound a 3D solid, and checks each normal's components and length and each offset for finiteness; the boundedness of the intersection is left unproven, which is its stated limitation.
- * @evidence contracts/common.md#clear-and-simple-design Takes the caller's collector, path and label, so the context validator reports into its own result while `assertAutoMovieAnalysisSolids` raises the same rule to a throw for authored shades.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No plane, label or caller is special-cased; the count floor is a named constant, and nothing downstream compensates for an unbounded solid, which simply blocks whatever its planes dictate.
- * @evidence contracts/common.md#meaningful-documentation States the append-not-throw contract, the two sharing callers, the exact checks made, and the boundedness check it does not make.
- * @evidence contracts/performance.md#cost-and-resources Linear in planes with constant work each; no pairwise plane test runs, which keeps the pass linear and is why boundedness goes unchecked. Nothing is cached, and violations go into the caller-owned collector with no reference kept here.
  */
 export const validateSolidPlanes = (
   planes: readonly IAutoMovieHalfSpacePlane[],

@@ -15,10 +15,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * sphere enlarged by `hitRadius`. Only joint world positions are written;
  * rotations stay animated. Non-finite or out-of-range parameters throw.
  *
- * @evidence contracts/common.md#principled-implementation Position Verlet with a hard distance constraint after VRM SpringBone: next = cur + (cur - prev)(1 - drag) + g dt², then a `stiffness·dt` pull toward the parent-rotated rest offset, the length restore and the sphere push-out; a `stiffness·dt` above one overshoots the rest pose and is not guarded.
- * @evidence contracts/common.md#clear-and-simple-design Six physical parameters, a chain and an optional inertia frame, with cross-frame positions kept outside the driver in `IAutoMovieSpringState` so the authored record stays immutable data.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The collider push follows the length constraint, the VRM order, so a hit may stretch a bone for one step; a joint exactly at a sphere centre is pushed along `+Y`, the one fixed fallback, and invalid parameters throw instead of being clamped.
- * @evidence contracts/common.md#meaningful-documentation States when the driver steps or defers, the order of one step, that only positions are written, and the unit and range of each parameter.
  * @author Samchon
  */
 export interface IAutoMovieSpringDriver {

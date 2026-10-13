@@ -15,17 +15,12 @@ import {
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
 /**
- *
  * Cue and dialogue ingress distinguish invalid empty spans from bounded decoded and resampled native PCM.
  *
  * Scenarios:
  * 1. An empty cue refuses; a decoded1e-6 sample is exact at its onset, silent beyond its generation and below the absolute loudness gate.
  * 2. A supported short native dialogue is audible and finite; an empty supplied dialogue refuses by line identity.
  * 3. A zero-sample film refuses while the adjacent one-sample frame returns two finite silent stereo values at 48000 Hz.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `renderProductionSound` on cue, dialogue and empty-film plans with caller-supplied decoded PCM and asserts refusal fragments, the cue's onset and post-span samples, a null integrated loudness, an audible finite resampled dialogue, and the one-frame film's samples, rate and peak; it catches a zero-frame cue or empty dialogue mixed as silence, a decoded cue that keeps sounding past its one-frame span, quiet program loudness reported instead of gated, and a film with no samples reported as a valid mix.
- * @evidence contracts/testing.md#independent-expectations The null loudness follows from the BS.1770 absolute gate at -70 LUFS, which a 1e-6 peak cannot clear; silence at sample 2 follows from the cue's one-frame span; `[0, 0]` at 48 kHz is one empty stereo frame. Limitation: the onset check uses the default 1e-6 tolerance around 1e-6, so it would also accept a silent onset, and the resampled dialogue is checked only for audibility and finiteness, not for its interpolated values.
- * @evidence contracts/testing.md#distinguishing-cases Negatives for a zero-frame cue, an empty supplied dialogue line and a zero-frame film; their adjacent positives are a one-frame decoded cue, a two-sample dialogue stretched over four frames and a one-frame film; propagation delay and spectral filtering belong to `test_engine_sound_propagation` and `test_engine_sound_propagation_spectral_mix`, and short-line clocking to `test_engine_sound_short_dialogue_clock`.
  */
 export const test_engine_sound_decoded_pcm_admission = (): void => {
   const { eventPlan } = createSoundPropagationTestInputs();

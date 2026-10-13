@@ -4,12 +4,6 @@
  * same-origin viewport iframes share that isolate, so the reading covers every
  * resident model, witness and cache string the viewer holds.
  *
- * @evidence contracts/common.md#principled-implementation Reads the isolate's own accounting instead of estimating sizes from document counts.
- * @evidence contracts/common.md#meaningful-documentation States which isolate is measured and what it includes.
- *
- * @evidence contracts/common.md#clear-and-simple-design Used and reserved byte counts mirror the two V8 heap quantities without estimating per-model costs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The values are renderer-isolate accounting, not document-count multipliers or encoded-file sizes.
- *
  * @author Samchon
  */
 export interface IHumanViewerHeapUsage {

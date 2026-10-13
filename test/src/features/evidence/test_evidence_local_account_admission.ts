@@ -8,7 +8,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- *
  * Admission depends on declared ownership and supplied physical facts, never
  * on a file's presence alone or an operating-system fixture.
  *
@@ -20,10 +19,6 @@ import { TestValidator } from "@nestia/e2e";
  *    accounts; disabled layers refuse retained accounts.
  * 4. The production factory combines shared and local owners, admits a valid
  *    local extension, and refuses shared/local or special-owner collisions.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMoviePopulationAccountHosts` on declared account entries, resident files and an `readH2Count` seam, then `validateAutoMovieEvidenceAccounts` on graphs whose claims come from `createAutoMovieProductionObligationClaim` and `createAutoMovieProductionPrincipleClaim`, asserting acceptance, refusal, and which targets the seam was asked for; it catches an account admitted for a missing or empty target, a resident file nobody declared or filed under another layer, duplicate account files or targets, a local account that collides with a shared or reserved owner even while disabled, retained residue for a disabled layer, a draft or inactive claim that still demands a file, and a film subject target counted twice.
- * @evidence contracts/testing.md#independent-expectations Outcomes restate the documented ownership rules: physical accounts are optional aggregates, admission depends on declared ownership and supplied heading counts rather than file presence, inactive stages demand nothing, and shared names stay reserved; the read lists are compared to the targets the graph declares, refusals use `TestValidator.error` without a message fragment, so any thrown error satisfies a negative case.
- * @evidence contracts/testing.md#distinguishing-cases Positive one and two accounts, one-heading targets, an absent optional aggregate, inactive draft and review stages, an empty declaration, a blank project and a pilot audit marked inapplicable; negatives for a missing and a zero-heading target, four undeclared or misplaced residents, duplicate file and target, a supplemental collision, disabled residue, a shared/local collision, an undeclared factory resident and a disabled reserved name; claim wording and projection belong to `test_evidence_local_account_claim` and `test_evidence_local_account_projection`.
  */
 export const test_evidence_local_account_admission = (): void => {
   const entry = {

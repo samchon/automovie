@@ -3,11 +3,6 @@ import type { IHumanCaptureCamera } from "@automovie/viewer/human/common/observa
 /**
  * The photograph a document is compared with, and how to place the camera like it.
  *
- * @evidence contracts/common.md#principled-implementation A local photograph reference carries its optional acquisition camera and unit-image landmarks independently of a model document.
- * @evidence contracts/common.md#clear-and-simple-design Only supported local folders, a plain image name, camera and marker observations are transported.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The reference describes an existing image and does not fit subject geometry or manufacture acquisition metadata.
- * @evidence contracts/common.md#meaningful-documentation The camera can be absent and landmarks empty; paths remain plain names inside the selected reference folder.
- *
  * @author Samchon
  */
 export interface IHumanViewerReference {

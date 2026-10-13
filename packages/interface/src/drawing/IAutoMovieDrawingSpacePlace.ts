@@ -6,10 +6,6 @@ import { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBox";
  * Every field is the answer of one built-environment query, so this record
  * repeats what the environment says rather than deriving a second opinion.
  *
- * @evidence contracts/common.md#principled-implementation `spaceOccurrences` fills each field from an environment query (`builtEnvironmentBuildingOfSpace`, `builtEnvironmentSpaceNodes`, `builtEnvironmentSpaceContentBounds`, `builtEnvironmentSpaceFidelity`, adjacency and connector lookups), while `declared` is exact for a shell and for closed axis-aligned cells and `null` for any other cell shape.
- * @evidence contracts/common.md#clear-and-simple-design Declared extent, content extent, membership and relations sit side by side because they answer different reviewer questions, and every list is either bounded or id-only so a crowded room stays a small row.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A population is listed by its single `instance-set:` owner id instead of its members, a declared bound rather than a truncation; `building` is a plain string because validation guarantees each space an owning unit and the query throws otherwise.
- * @evidence contracts/common.md#meaningful-documentation Separates the declared box from the content box, explains the nullable parent and boxes, the member bound, the id spellings in `contents`, how `omittedContents` restores the full count, and how adjacency and connectors are matched.
  * @author Samchon
  */
 export interface IAutoMovieDrawingSpacePlace {

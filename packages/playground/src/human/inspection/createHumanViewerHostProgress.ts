@@ -5,11 +5,6 @@ import type { IHumanViewerHostProgress } from "./IHumanViewerHostProgress";
  * Own the host page's progress line: once a second it says what is being
  * built, for how long, and how many requests wait in the server queue, or
  * that the server is not answering. `settle` stops it and clears the line.
- *
- * @evidence contracts/common.md#principled-implementation Reporting tickets reject old async health replies after begin or settle; queue and elapsed seconds remain observations rather than work-admission facts.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the progress timer and its line.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The one-second interval refreshes text only and cannot stop a service, restart a candidate or turn an unanswered health read into readiness.
- * @evidence contracts/common.md#meaningful-documentation States what the line reports and when it stops.
  */
 export function createHumanViewerHostProgress(
   progress: HTMLElement,

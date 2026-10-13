@@ -21,12 +21,6 @@ const AXIS_EPSILON = 1e-12;
  *
  * `normal` need not be unit length; it is normalized first. Throws when `count`
  * is not a positive safe integer or `normal` has no length.
- *
- * @evidence contracts/common.md#principled-implementation A stratified radial coordinate `(index + 0.5) / count` paired with the base-2 van der Corput angle (a Hammersley set), lifted by Malley's disk-to-hemisphere projection so density follows the cosine, in Duff et al.'s branchless orthonormal basis; a non-finite normal is not refused and would yield NaN directions, and the radical inverse reads the index as 32-bit unsigned, so angles would repeat past 2^32 samples.
- * @evidence contracts/common.md#clear-and-simple-design Takes no sample point because the daylight study's workplane is planar: every grid point shares the normal, so one set built per run serves all of them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No pole is special-cased, since choosing `sign` from `normal.z` keeps `sign + normal.z` away from zero; the half-sample radial offset is the stratification, not a correction for a measured result.
- * @evidence contracts/common.md#meaningful-documentation States the sequence and mapping, why the set is host-independent, when the sky estimate is exact and when it carries sampling error, the normalization of `normal`, and both refusals.
- * @evidence contracts/performance.md#cost-and-resources O(count) time and memory with an O(log index) radical inverse per direction; `count` is the request's `diffuseSamples`, which the daylight caller multiplies by every grid point and solid plane, so it dominates the study. The daylight run builds the set once and shares it across all grid points (valid because it depends only on the run-wide normal and count) and holds the array until it seals the run; nothing caps `count` beyond being a safe integer, so that allocation has no bound.
  */
 export const autoMovieHemisphereDirections = (props: {
   normal: IAutoMovieVector3;

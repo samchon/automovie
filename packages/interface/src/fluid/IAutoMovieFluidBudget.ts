@@ -7,10 +7,6 @@
  * cap, step cap, Courant number) read from the record directly; the render
  * simulation metrics read `cells` and `sprayParticleCap` from this record.
  *
- * @evidence contracts/common.md#principled-implementation Closed-form counts over the grid dimensions, the step cap and the emitter caps, with the Courant number taken from `fluidCourantNumber`, so each figure states what the state arrays and a from-zero seek cost without running the solver.
- * @evidence contracts/common.md#clear-and-simple-design One flat record of eight derived numbers keyed by domain id; only `cells` and `sprayParticleCap` have a reader in this repository (`measureRenderSimulation`), and the other six reach callers only through the exported `fluidDomainBudget`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No domain or size is special-cased; `stateBytes` deliberately counts only the conserved arrays, so it understates the solver's working memory, which also allocates flux, donor, source, drain and scale arrays.
- * @evidence contracts/common.md#meaningful-documentation States the formula behind every count, that the refusal itself happens in `validateFluidDomain`, which fields the render metrics read, why a seek costs from step zero, and that `courant` uses the design depth.
  * @author Samchon
  */
 export interface IAutoMovieFluidBudget {

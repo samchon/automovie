@@ -19,12 +19,6 @@ import { IAutoMovieConnectorGeometry } from "./IAutoMovieConnectorGeometry";
  * signed `y` change, both in metres; stations and landings are placed by
  * arc-length fraction. Throws when the connector does not exist or its route
  * has fewer than two points or zero length.
- *
- * @evidence contracts/common.md#principled-implementation Sums segment lengths for the 3D length and the horizontal run, takes rise as last minus first `y` and slope as `atan2(|rise|, run)`, and places stations and landings by cumulative arc length, which needs a route of at least two points with positive length.
- * @evidence contracts/common.md#clear-and-simple-design Defect: its private `requireConnector` is copied in `builtConnectorSectionAt` and `builtConnectorCarriagePlacements`; otherwise metrics, cumulative lengths and landing interpolation are separate private helpers of this one query.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unauthored station orientation is answered as null instead of a derived heading, and a route with no measurable length throws instead of reporting a zero slope.
- * @evidence contracts/common.md#meaningful-documentation States that station facing is as authored or null and why, the axes run and rise are measured on, the arc-length frame of station and landing positions, and the refusals.
- * @evidence contracts/performance.md#cost-and-resources `O(R + L R)` in route points and landings: the cumulative lengths are computed once and shared by stations and landing lookups, but `routeMetrics` walks the route again to recompute the same 3D length, and each landing walks from the start; nothing is cached across calls.
  */
 export const builtConnectorGeometry = (
   environment: IAutoMovieBuiltEnvironment,

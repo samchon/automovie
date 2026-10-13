@@ -7,11 +7,6 @@ import type { IHumanViewerPersonParts } from "./IHumanViewerPersonParts.js";
  * person; the full schema is admitted by the Person owner when the document is
  * built, and that refusal reaches the render. A missing or malformed name
  * refuses here with the reason, so it is listed among the rejected inputs.
- *
- * @evidence contracts/common.md#principled-implementation Reads only the identities the catalogue compares, leaving schema admission to its owner.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns the two fields the server depends on.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the two original nonempty basis names without inventing a missing side or replacing complete Person schema admission.
- * @evidence contracts/common.md#meaningful-documentation States what is read, what refuses and who admits the rest.
  */
 export function readHumanViewerPersonBases(
   document: object,

@@ -106,11 +106,6 @@ const placedElementPoints = (
  * one environment pays that once per locator, which is worth knowing before
  * putting this inside a loop over thousands of placements.
  *
- * @evidence contracts/common.md#principled-implementation Places each part under its own TRS and then the element's world matrix (parent chain times rest times current-state joint), reads vertices from `tessellate` or the stated mesh, and folds an axis-aligned box; an element without vertices yields its world origin as a degenerate box.
- * @evidence contracts/common.md#clear-and-simple-design Defect: the world-matrix, operation-delta, travel-delta, part-placement, matrix-apply and box-fold helpers are verbatim copies shared with `builtEnvironmentElementPartBounds`, `builtEnvironmentPartBoxes` and `builtEnvironmentSpaceContentBounds`, so one placement rule lives in four files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared or transform-only element answers null instead of throwing because an unresolved locator is the caller's finding, and a runtime model reference contributes its origin point, which the placement-bounds layer labels `element-origin-point`.
- * @evidence contracts/common.md#meaningful-documentation States which callers rely on it and which files copy its code, the current-operating-state frame, the two null readings and why they are not refusals, the origin fallback, and the per-call cost of staging the whole hierarchy.
- * @evidence contracts/performance.md#cost-and-resources Defect: each call stages every element's world matrix and every operation delta, `O(E + members)`, plus linear element and model searches, to measure one element whose ancestor chain is all it needs; nothing is cached, so the overlap and support sweeps and the subject describers, calling it once per element, become quadratic in element count.
  * @author Samchon
  */
 export const builtEnvironmentElementBounds = (

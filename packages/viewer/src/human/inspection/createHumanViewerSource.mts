@@ -31,11 +31,6 @@ import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js
  * Application-owned paths and factories supply every named example. One
  * checked-loader scope feeds both numerical startup witnesses and the browser
  * admission revision; unrelated checked-project edits leave model keys intact.
- *
- * @evidence contracts/common.md#principled-implementation Input-byte versions and reached import graphs jointly identify the numerical generations without rehashing unchanged large bases.
- * @evidence contracts/common.md#clear-and-simple-design One source owner supplies the paths, memo and graph to watching and catalogue publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Cache authority follows actual inputs and imports rather than particular subjects or measurement outcomes.
- * @evidence contracts/common.md#meaningful-documentation Describes input ownership, refresh ordering and catalogue dependency.
  */
 export function createHumanViewerSource(
   directory: string,

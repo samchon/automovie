@@ -12,10 +12,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * until the next move starts, or to the shot end. `compileCameraMove` owns the
  * path each `move` takes.
  *
- * @evidence contracts/common.md#principled-implementation `compileCameraMove` fits the framed distance with `d = (visible / 2) / tan(half-angle)` against the subject's height and width and approaches along the staged bearing, so `framing` and `move` select a deterministic path rather than free camera keys.
- * @evidence contracts/common.md#clear-and-simple-design Two closed enums plus a target, with the lens intents as optional fields that ride to `shot.cameraIntent`; the camera solve never reads `focus` or `focalLength`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or camera is special-cased; overlapping moves are refused instead of resolved by timestamp, and an unknown framing or move literal is a validation error.
- * @evidence contracts/common.md#meaningful-documentation States the single-camera rule, the overlap and `"auto"` behaviour, which compiler owns move paths, that the two lens fields are intent only, and their units.
  * @author Samchon
  */
 export interface IAutoMovieCameraAction extends IAutoMovieActionBase {

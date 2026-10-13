@@ -13,11 +13,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * centre on the sheet measured from `origin`, turned by the piece's grain and
  * divided by the tile size. A non-finite `face` origin is refused with a throw.
  *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `kind`: the module variant fixes the sheet to each piece's centre, and the face variant maps a piece centre to sheet turns by subtracting `origin`, rotating by the grain and dividing by the tile size.
- * @evidence contracts/common.md#clear-and-simple-design Two variants for the two real meanings of a repeated finish, with `origin` present only on the variant that needs it, so a module sheet cannot carry an unused point.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No material or finish name selects a variant; the caller chooses one per call, and the consumer throws on a non-finite origin rather than substituting zero.
- * @evidence contracts/common.md#meaningful-documentation States what each variant shows, where the face sheet is anchored and in which units, how a piece's place is mapped onto it, and the refusal.
- * @evidenceExclude contracts/performance.md#cost-and-resources A two-variant tagged record with no code; its consumer spends constant arithmetic per occurrence on it and keeps no reference to the sheet or its origin.
  * @author Samchon
  */
 export type AutoMoviePatternTextureSheet =

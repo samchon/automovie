@@ -17,11 +17,6 @@ import { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
  * which further spaces it stops at, and where its car stands — so that later
  * work has something exact to read instead of re-deriving it from whatever
  * happened to be modelled.
- *
- * @evidence contracts/common.md#principled-implementation Traversal shape is a world polyline with optional per-station quaternions and either a constant or a sampled section; validation derives net climb and horizontal run from the route and refuses a stated slope off by more than 1e-6 rad or a step total off by more than 1 mm.
- * @evidence contracts/common.md#clear-and-simple-design Slope and step totals are optional claims checked against the route rather than second truths, and width takes exactly one of two spellings; the route-metrics arithmetic itself is written twice, in `validateBuiltEnvironment` and in `builtConnectorGeometry`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unlisted traversal type is `other` rather than a near kind, and slope uses the route's horizontal length rather than the endpoint chord; because it is the net average, a route that rises and then falls reads shallower than its steepest leg.
- * @evidence contracts/common.md#meaningful-documentation States the section spelling rule, how slope is measured and checked, step agreement, landing order, the orientation count, one-way drive limits and what each omitted field means.
  */
 export interface IAutoMovieBuiltConnector {
   /** Stable connector identity. */

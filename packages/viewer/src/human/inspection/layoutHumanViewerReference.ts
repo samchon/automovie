@@ -4,7 +4,6 @@ import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.
 
 
 /**
- *
  * The pixel layout of a capture that shows a reference photograph beside or
  * over the render. The display page draws the photograph as a DOM layer above
  * the canvas, so the canvas alone never contains it. This layout is the same
@@ -18,11 +17,6 @@ import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.
  * Landmarks are observed on the photograph in unit image coordinates, so each
  * marker lands inside the photograph's fitted box, whichever mode places it.
  * The plan reads no image bytes and records no file name or path.
- *
- * @evidence contracts/common.md#principled-implementation Contain-fitting is the uniform scale min(cell/width, cell/height); the other geometry follows from the three closed modes.
- * @evidence contracts/common.md#clear-and-simple-design One pure layout serves the page capture and its unit test.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document, photograph or subject is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States why the canvas lacks the photograph, the units and each mode.
  *
  * @param mode Presentation mode.
  * @param size Square cell side in pixels, positive.

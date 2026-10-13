@@ -6,10 +6,6 @@ import { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
  * exact format for beauty/guide frames, captions, and pose keypoints instead of
  * restating three scalars that can silently diverge across tool calls.
  *
- * @evidence contracts/common.md#principled-implementation `frameTimes` yields `round(duration × fps)` samples at exact `i / fps`, and `ffmpegArgs` pins `-framerate`, `-r` and `-s width×height` from these fields, so the encoded size never follows the capture viewport.
- * @evidence contracts/common.md#clear-and-simple-design One object shared by render, caption and pose-keypoint planning replaces three loose scalars per call; `crop` is optional because delivering the whole gate is the common case.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The even-dimension rule is documented but no library validator enforces it for this type; only the playground render scripts refuse an odd size, so `planSequenceRender` and `ffmpegArgs` accept one.
- * @evidence contracts/common.md#meaningful-documentation States the fps sampling rule, pixel units, the `yuv420p` reason for even axes, that the rule is unenforced by the render package, and that an omitted crop equals the identity window.
  * @author Samchon
  */
 export interface IAutoMovieRenderFrameFormat {

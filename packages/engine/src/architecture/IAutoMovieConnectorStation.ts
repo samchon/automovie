@@ -8,11 +8,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * total, so the first station is `0` and the last `1`. `position` and
  * `rotation` are the connector record's own objects, not copies.
  *
- * @evidence contracts/common.md#principled-implementation Arc-length parametrization of the authored polyline, so uneven spacing between route points does not distort a station's fraction.
- * @evidence contracts/common.md#clear-and-simple-design Pairs each route point with its optional authored facing and its fraction, the three facts a stager needs per point.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `rotation` is `null` when the connector declared no orientations, never a heading derived from the route direction.
- * @evidence contracts/common.md#meaningful-documentation States the producer, ordering, the fraction's definition and end values, the aliasing of position and rotation, and what a `null` rotation means.
- * @evidenceExclude contracts/performance.md#cost-and-resources Computed by one cumulative-length pass and rebuilt per geometry query; its position and rotation are the authored objects themselves, so it allocates nothing for them.
  * @author Samchon
  */
 export interface IAutoMovieConnectorStation {

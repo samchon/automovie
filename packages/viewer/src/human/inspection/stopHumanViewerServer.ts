@@ -11,11 +11,6 @@ import { readHumanViewerRecord } from "./readHumanViewerRecord.js";
  * killed. An absent viewer is reported, not an error. The terminated owner's
  * record remains, because deleting after the port is free could remove a
  * replacement owner's record. The next listener replaces it after binding.
- *
- * @evidence contracts/common.md#principled-implementation Live public-port PID equality selects the owner; the process boundary checks its recorded creation identity before stopping it.
- * @evidence contracts/common.md#clear-and-simple-design Combines the current health answer and saved ownership record before delegating platform termination to the shared process boundary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses unknown or stale ownership, never stops a process by name or age, and leaves the record after termination so a successor's publication cannot be deleted.
- * @evidence contracts/common.md#meaningful-documentation States the refusals and the absent case.
  */
 export function stopHumanViewerServer(
   context: IHumanShotContext,

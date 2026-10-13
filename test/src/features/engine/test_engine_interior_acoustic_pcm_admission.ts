@@ -15,16 +15,11 @@ import {
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
 
 /**
- *
  * PCM clock, shape and path-specific facts refuse their invalid boundaries while the response basis remains supported.
  *
  * Scenarios:
  * 1. Fractional or zero clocks, incomplete/empty frames and non-finite PCM are refused.
  * 2. Transmission outside[0,1], absent or nonpositive T60 and absent or nonpositive direct/diffuse ratio are refused against supported room bases.
- *
- * @evidence contracts/testing.md#behavioral-verification Derives available same-room and cross-room responses with `deriveAutoMovieInteriorAcousticResponse`, then calls `applyAutoMovieInteriorAcousticResponse` with one clock, buffer or response field broken at a time and asserts its refusal fragment; it catches a fractional or zero channel count or rate, a trailing partial frame, an empty buffer, NaN or infinite samples, and a transmission gain, T60 or direct-to-diffuse ratio that is null or out of range being convolved instead of refused.
- * @evidence contracts/testing.md#independent-expectations Each refusal restates the documented admission bound: channels and sample rate are positive integers, samples fill whole finite frames, transmission gain lies in [0, 1], and T60 and the direct-to-diffuse ratio are present and positive; matching is by message fragment, so two bounds sharing a fragment are told apart only by which field the case changed.
- * @evidence contracts/testing.md#distinguishing-cases Asserts first that both bases are available, then sixteen negatives: fractional and zero channels and rate, an incomplete frame, an empty buffer, NaN and both infinities, null, negative and above-one transmission, null and zero T60, and null and zero ratio; the accepted twins and their output belong to `test_engine_interior_acoustic_pcm_paths`, and derivation refusals to `test_engine_interior_acoustic_derivation_admission`.
  */
 export const test_engine_interior_acoustic_pcm_admission = (): void => {
   const { digest, profile, request } = createInteriorAcousticTestInputs();

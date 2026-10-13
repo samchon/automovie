@@ -2,12 +2,6 @@
  * The two parts of a person document whose basis names the catalogue reads;
  * either may be missing or malformed until checked.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the parts read and that they are unchecked.
- *
- * @evidence contracts/common.md#principled-implementation Unknown optional face and body values preserve malformed external Person JSON until each identity is inspected.
- * @evidence contracts/common.md#clear-and-simple-design Only the two preliminary parts are projected for basis-name reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The transport does not assert absent or malformed domain values are already admitted documents.
- *
  * @author Samchon
  */
 export interface IHumanViewerPersonParts {

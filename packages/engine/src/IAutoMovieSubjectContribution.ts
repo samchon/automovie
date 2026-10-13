@@ -29,7 +29,6 @@ import type {
 } from "@automovie/interface";
 
 /**
- *
  * What one subject puts into the shot it appears in.
  *
  * A shot program is assembled from many subjects, so no subject returns one.
@@ -48,11 +47,6 @@ import type {
  * of these field names, so a field added here must also be added there or the
  * merge silently leaves it out.
  *
- * @evidence contracts/common.md#principled-implementation A record of optional read-only arrays, one per program section a subject can own, so merging is per-field concatenation that needs no knowledge of what any entry means.
- * @evidence contracts/common.md#clear-and-simple-design Every section is optional and independently typed, so a prop fills only `set` or `models` and a performer only `actors` and `clips`, and the merge treats all 27 sections alike without a discriminant.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The section names are restated in the merge's `CONTRIBUTION_KEYS` with no compile-time exhaustiveness check; the 27 names match today, but a section added here alone would be dropped without an error.
- * @evidence contracts/common.md#meaningful-documentation States why no subject returns a whole program, why every section is optional, that formations contribute compact cues, the provenance-only role of design references, and the merge's separate key list.
- * @evidenceExclude contracts/performance.md#cost-and-resources Declares data only; merging is linear in contributed entries and that cost belongs to the merge function. A contribution is produced once per subject per shot build and consumed by one merge. Holds read-only arrays referencing subject-owned records; the merged program the caller builds decides how long those entries live.
  * @author Samchon
  */
 export interface IAutoMovieSubjectContribution {

@@ -12,11 +12,6 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
  * the catalogue's rejected inputs, so a schema error is visible at `/rescan`
  * and `/docs` before any render. Returns null for an admitted document and
  * the owner's reason otherwise.
- *
- * @evidence contracts/common.md#principled-implementation The face, body and person owners' admissions decide validity; the viewer adds no schema copy.
- * @evidence contracts/common.md#clear-and-simple-design One function maps a domain to its owner's admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Delegates parsed documents and the original body assembly to the domain admissions without subject-specific validation or preview substitution.
- * @evidence contracts/common.md#meaningful-documentation States where admission runs, why, and the result's meaning.
  */
 export function admitHumanViewerDocument(
   domain: string,

@@ -13,7 +13,6 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- *
  * A room is solved for reverberation, equipment noise and partition
  * performance, and refuses to answer what a broadband estimate cannot.
  *
@@ -54,10 +53,6 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *    target on a reported-but-unsupported metric is left to that metric's gap.
  * 8. Every malformed room is refused at its own message, including a receiver
  *    standing on a source.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `analyzeAutoMovieAcoustics` and asserts the run's metric values, statuses, gap reasons, receiver samples and warnings; it catches a wrong Sabine sum or room constant, a receiver level missing its direct or diffuse term, a composite loss averaged in decibels instead of transmittance, a reverberation time reported for a room with no diffuse field, minus infinity or infinity reported instead of a gap, a target miscounted as unknown, and a validator that admits a malformed room or a receiver on a source.
- * @evidence contracts/testing.md#independent-expectations Every value is the doc comment's hand arithmetic from the published Sabine constant 0.161: 50 m2 sabins, `0.161 * 100 / 50 = 0.322` s, room constant `50 / 0.5 = 100`, `80 + 10 log10(0.06 + 0.04) = 70` dB, `-10 log10((10 * 0.001 + 0.1) / 11) = 20` dB, and `0.161 * 100 / 99` s with a 9900 room constant at 0.99 absorption; gap reasons are matched by phrase, so the oracle pins which condition gapped, not the full wording.
- * @evidence contracts/testing.md#distinguishing-cases Positive declared room; no source, no receiver and a source whose power underflows each gap the level for its own reason; absorption 1 and 0 gap every diffuse-field result while the adjacent 0.99 still reports; no partition and a partition transmitting nothing gap the composite loss; met and missed reverberation targets; an unknown key warned beside a judged one and an unsupported speech-index key not warned; twenty-two malformed inputs including 4097 receivers and a coincident receiver; run sealing and target arithmetic shared by every domain are owned by test_analysis_run_contract.
  */
 export const test_analysis_room_acoustics = (): void => {
   const request = (

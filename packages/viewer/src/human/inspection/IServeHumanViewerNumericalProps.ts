@@ -4,10 +4,6 @@ import type { createHumanViewerNodeService } from "./createHumanViewerNodeServic
 /**
  * Request bindings for the existing typed numerical protocol over loopback HTTP.
  *
- * @evidence contracts/common.md#principled-implementation The loopback numerical route passes the existing typed service protocol through one HTTP request/response binding.
- * @evidence contracts/common.md#clear-and-simple-design One service reference keeps computation and numerical-worker lifetime outside the HTTP transport record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The route's bindings declare no substitute model builder or untyped result-production path.
- * @evidence contracts/common.md#meaningful-documentation Defines the request URL, inbound/outbound transport and existing numerical service authority.
  * @author Samchon
  */
 export interface IServeHumanViewerNumericalProps {

@@ -7,11 +7,6 @@ import { decodeWindowsProcessResult } from "./decodeWindowsProcessResult.ts";
  * carries variable inputs; UTF-16LE EncodedCommand carries the fixed program.
  * The native process result is interpreted by the shared pure decoder. This
  * adapter's process creation and OS behavior need separate real observation.
- *
- * @evidence contracts/common.md#principled-implementation Uses PowerShell's supported encoded program transport and JSON input with explicit result interpretation.
- * @evidence contracts/common.md#clear-and-simple-design Owns the actual hidden subprocess effect without duplicating decoder or identity-admission policy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never interpolates PIDs into shell code or replaces installed or native process methods.
- * @evidence contracts/common.md#meaningful-documentation States transports, window behavior and the real-OS observation boundary.
  */
 export function runWindowsProcessOperation(program: string, input: unknown): unknown {
   const script = "$ErrorActionPreference = 'Stop'\n" +

@@ -28,12 +28,6 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * the last layer's `end` by floating-point rounding. A build-up that fails
  * `validateAutoMovieMaterialAssembly` throws an `Error` naming its first
  * violation.
- *
- * @evidence contracts/common.md#principled-implementation Accumulates a signed cursor from `offset`, advancing by each thickness in the declared sense, so layer faces abut exactly in declaration order; validation guarantees finite, non-negative thicknesses before any arithmetic.
- * @evidence contracts/common.md#clear-and-simple-design Validation, including the optional substance and host checks, is delegated to `validateAutoMovieMaterialAssembly` with the same props, so resolution only places layers and never re-decides validity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws on the first violation instead of returning partial numbers, and copies layer fields without interpreting roles or finishes; no layer or substance is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the unit, axis and signed sense of positions, that `extent` is ordered, how `total` and `end` are derived and may round apart, and the refusal.
- * @evidence contracts/performance.md#cost-and-resources One validation pass and one linear pass over the layers, plus a redundant reduction for `total` that the cursor already held; resolving one assembly for several hosts revalidates it each time, and the result is new layer records with no reference to the props.
  */
 export const resolveAutoMovieMaterialAssembly = (props: {
   /** Layered build-up to place; validated before any position is computed. */

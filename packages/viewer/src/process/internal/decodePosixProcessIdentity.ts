@@ -4,11 +4,6 @@
  * string is absence, not stop authority. Other statuses and spawn errors
  * retain discovery failure. Date precision remains that of the supplied ps
  * format and does not make subsequent PID signalling atomic.
- *
- * @evidence contracts/common.md#principled-implementation Distinguishes supported ps outcomes from spawn/exit failure before accepting a nonempty creation date.
- * @evidence contracts/common.md#clear-and-simple-design Owns discovery-result interpretation independently of executing ps or signalling a PID.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the actual reported creation string rather than guessed age or executable names.
- * @evidence contracts/common.md#meaningful-documentation States absence, failure precedence and retained date precision.
  */
 export function decodePosixProcessIdentity(result: {
   error?: Error;

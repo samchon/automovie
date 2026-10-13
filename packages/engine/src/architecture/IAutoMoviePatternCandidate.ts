@@ -9,11 +9,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * or grain is not finite, whose size is not above zero, or whose corners reach
  * further than the zone's `reach` from the cell origin.
  *
- * @evidence contracts/common.md#principled-implementation A centred rectangle with an in-plane rotation, turned counter-clockwise in the face's (u, v) plane; the same four corners serve the reach check and the convex clip against the zone region.
- * @evidence contracts/common.md#clear-and-simple-design Carries only what the author decides per piece; area, coverage, cut class and variant are added on `IAutoMoviePatternPlacement`, so a generator cannot claim them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Grain and mirror are independent facts: a mirrored pair with equal `grainDeg` is continuous grain by definition, and no bond or layout gets a special grain rule.
- * @evidence contracts/common.md#meaningful-documentation States the frame and units of centre and size, the rotation sense, grain periodicity, what mirroring means and where it becomes visible, and every refusal.
- * @evidenceExclude contracts/performance.md#cost-and-resources A plain record checked in constant time inside the per-cell loop; the engine copies its centre and size into the placement and drops the candidate after its cell.
  * @author Samchon
  */
 export interface IAutoMoviePatternCandidate {

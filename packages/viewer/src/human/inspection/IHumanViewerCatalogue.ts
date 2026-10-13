@@ -6,12 +6,6 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput.js";
  * without the human package's document types. The page reads the same JSON
  * through its typed view, `HumanViewerCatalogue`.
  *
- * @evidence contracts/common.md#principled-implementation Content digests carry cache authority; documents stay unexamined JSON until their owner builds them.
- * @evidence contracts/common.md#meaningful-documentation Names the revision, the documents and the refused or pending entries.
- *
- * @evidence contracts/common.md#clear-and-simple-design One source revision accompanies complete accepted and rejected-or-pending document lists.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Document JSON remains unexamined on this transport until the domain owner returns admission.
- *
  * @author Samchon
  */
 export interface IHumanViewerCatalogue {

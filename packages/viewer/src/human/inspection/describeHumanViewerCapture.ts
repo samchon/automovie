@@ -5,11 +5,6 @@ import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
  * timestamps form durations; wall-clock time locates builds and source edits.
  * A GPU cache hit contributes zero numerical build time even when the worker
  * still remembers the preceding document's build duration.
- *
- * @evidence contracts/common.md#principled-implementation Only same-clock timestamps are subtracted, and an actual build counter change authorizes build telemetry.
- * @evidence contracts/common.md#clear-and-simple-design One pure projection owns stage durations, cache/build distinction and edit-relative timing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual timings and count changes without document-specific estimates.
- * @evidence contracts/common.md#meaningful-documentation Defines both clock domains and the remembered-worker-duration cache boundary.
  */
 export function describeHumanViewerCapture(props: {
   doc: string;

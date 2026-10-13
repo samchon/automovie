@@ -19,11 +19,6 @@ import { createHumanViewerRevisions } from "./createHumanViewerRevisions.js";
  * The checked input scope is transferred unchanged to that worker and stays
  * with the existing Node witness reader. Source reach includes dynamic additions
  * in those checked roots, even when no executed module imports the new file.
- *
- * @evidence contracts/common.md#principled-implementation The import-graph walk and hashing leave the request thread, which was the measured cause of `/health` stalls during edits.
- * @evidence contracts/common.md#clear-and-simple-design One owner holds the published digests and the worker; the digest rules stay in createHumanViewerRevisions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the worker's actual ordered graph result or its failure without inventing a moved domain or reusing an unknown current revision.
- * @evidence contracts/common.md#meaningful-documentation States where each computation runs, the ordering and the failure handling.
  */
 export function createHumanViewerRevisionsWorker(
   props: ICreateHumanViewerRevisionsWorkerProps,

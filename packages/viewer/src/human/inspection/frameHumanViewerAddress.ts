@@ -6,15 +6,9 @@ import type { HumanViewerStage } from "./HumanViewerStage.js";
 import { frameHumanViewerParts } from "./frameHumanViewerParts.js";
 
 /**
- *
  * Point the stage's camera where the address asks: around the named parts or
  * a zoomed whole, at an explicit frame, or along a named view; then an
  * explicit look, when given, replaces the camera position.
- *
- * @evidence contracts/common.md#principled-implementation Every framing is computed from the drawn group and the address, never from document names.
- * @evidence contracts/common.md#meaningful-documentation States the precedence of the framing forms.
- * @evidence contracts/common.md#clear-and-simple-design One dispatcher owns address framing precedence while existing geometry bounds and capture-camera placement own their respective calculations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Consumes exact part names, explicit frame/look values and observed geometry through existing camera APIs; no document-specific centre or camera answer is supplied.
  */
 export function frameHumanViewerAddress(
   stage: HumanViewerStage,

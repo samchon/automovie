@@ -10,7 +10,6 @@ import path from "node:path";
 import { throwsError } from "../internal/predicates";
 
 /**
- *
  * A reset freezes the passed final pilot before complete-population rewriting.
  *
  * Scenarios:
@@ -18,10 +17,6 @@ import { throwsError } from "../internal/predicates";
  * 2. Missing, reordered, or absent reviewed branches and active final refuse the checkpoint.
  * 3. Every construction stage must reset together; retained bodies and tags stay exact.
  * 4. The one-pair library predecessor remains independent of the film final pass.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMoviePopulationTransition` with a film receipt whose retained host comes from `createAutoMovieRetainedPilotHost`, expecting acceptance for the exact checkpoint and a refusal for each altered branch list, stage map and host body, then accepts a one-pair library receipt; it catches a reset admitted with a partial, reordered, missing or extended reviewed ladder, a final naturalness branch left active, construction branches reset piecemeal, and a retained pilot whose prose or evidence tag was rewritten after review.
- * @evidence contracts/testing.md#independent-expectations Accept and refuse outcomes restate the documented checkpoint: the four film branches reviewed in ladder order, the three construction stages at `draft` together, final disabled, and retained bodies and tags byte-identical to the passed pilot; refusals are asserted without a message fragment, so a case refused for an unrelated reason would also pass, and acceptance is asserted only by not throwing.
- * @evidence contracts/testing.md#distinguishing-cases Positive exact film checkpoint, repeated after the negatives to show the inputs were not mutated, and positive library predecessor; negatives for five malformed branch lists, three active final stages, nine construction stage changes, and two edits that touch only the body or only the evidence tag; complete-population claim rewriting belongs to `test_evidence_final_screenplay_population`, and design stage gates to `test_evidence_design_foundation_completion`.
  */
 export const test_evidence_film_reset_checkpoint = (): void => {
   const hosts = [

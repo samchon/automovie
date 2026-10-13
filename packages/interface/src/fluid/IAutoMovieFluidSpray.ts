@@ -13,10 +13,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * does not collide with the bed, the walls, or solid cells. The cell must lie
  * inside the lattice and not be solid.
  *
- * @evidence contracts/common.md#principled-implementation Counter-based seeded sampling: launch time, jittered direction and ballistic position are functions of `seed` and spawn index, so a seek evaluates only the indices alive in `(time - lifetime, time]` instead of replaying history; particles do not collide with the bed or walls.
- * @evidence contracts/common.md#clear-and-simple-design One emitter per record with its rate, launch, appearance and two bounds side by side, sited by cell so its nozzle height follows the solved free surface without a separate height field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No emitter is special-cased; the cap keeps the newest particles and LOD thinning is a deterministic index stride, both computed in `sampleFluidSpray` rather than left to a renderer.
- * @evidence contracts/common.md#meaningful-documentation States each field's unit and bound, the launch schedule and origin, that `spread` jitters the normalized direction, the thinning rule, the cap behaviour, and that particles pass through geometry.
  * @author Samchon
  */
 export interface IAutoMovieFluidSpray {

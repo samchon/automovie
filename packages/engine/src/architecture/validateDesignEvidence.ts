@@ -20,12 +20,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * with `$input.evidence[i]` paths and nothing throws. Two references sharing
  * an id are merged into one candidate set here rather than refused; the
  * production builder reports that collision as `design-reference-duplicate`.
- *
- * @evidence contracts/common.md#principled-implementation Indexes candidate ids by document id, then checks each citation's text fields, document, candidate list and candidate resolution; repeats are keyed by `JSON.stringify` of the (subject, document, candidate) triple, so no character inside an id can forge a collision.
- * @evidence contracts/common.md#clear-and-simple-design Judges citations only and leaves each reference's internal consistency to `validateDesignReference`, which the production gate runs on every document beside this call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Citing an unsettled or ambiguous candidate is allowed by contract, because recording a disputed reading is the point; once a citation's document fails to resolve its candidates are not checked, so one dangling document yields one finding.
- * @evidence contracts/common.md#meaningful-documentation States why an unsettled citation is allowed, every refusal, the returned paths, and how duplicate reference ids are treated here and where they are reported.
- * @evidence contracts/performance.md#cost-and-resources Linear in the total candidates over all references plus the candidates over all citations, with set lookups and one JSON key per cited candidate; nothing is cached across calls, and the index and key set are released when the violations are returned.
  */
 export const validateDesignEvidence = (props: {
   /** Observed documents the citations may point at, keyed by their `id`. */

@@ -12,7 +12,6 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 
 /**
- *
  * Local account metadata is a checked declaration, and its manifest keeps
  * contract addresses distinct from the authored population being compared.
  *
@@ -24,10 +23,6 @@ import { throwsError } from "../internal/predicates";
  * 3. Wrong type, layer, stage, scope, disposition, activation, target count,
  *    cardinality, host, and denominator are refused before projection.
  * 4. Legacy authored obligation metadata fails with a migration requirement.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieLocalContractClaims` and `projectAutoMovieLocalContractClaims` on account, principle, naturalness, pilot-audit, draft, disabled, mixed-reference and default-valued claims, asserting the projected binding records, audit records, enforcement flags, retained host symbols and target counts, and refusals of tampered claims; it catches a native claim projected as a local binding, an account whose target and compared population are merged, a pilot audit that enforces or loses its denominator, a draft binding enforced, a naturalness claim projected under the construction pass, a TypeScript reference treated as a markdown target, and a claim whose binding metadata, activation, target count, host or denominator was altered after construction yet still admitted.
- * @evidence contracts/testing.md#independent-expectations Expected records restate each claim's own construction inputs, the account file and layer glob as host, the document as the single target, the glob alone as the compared population, and the native defaults of root `.` and no symbols when a claim omits them; refusals use `throwsError` without fragments, so a tampered claim refused for another reason would also pass, and no assertion here exercises legacy metadata migration despite scenario 4.
- * @evidence contracts/testing.md#distinguishing-cases Positive account, multi-depth principle, naturalness, audit, draft and disabled claims and a native claim left alone; boundary of claims stripped to native defaults; twenty-one tampered account variants, a mixed typed principle, a naturalness obligation, a naturalness host outside screenplays and a stage mismatch; claim construction refusals belong to `test_evidence_local_account_claim`, and admission against physical accounts to `test_evidence_local_account_admission`.
  */
 export const test_evidence_local_account_projection = (): void => {
   const blank = createBlankAutoMovieProductionEvidence(

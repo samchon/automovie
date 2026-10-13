@@ -5,12 +5,6 @@ import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
  *
  * The reading describes one completed local capture and its actual build/cache history and durations. It does not estimate remaining production work.
  *
- * @evidence contracts/common.md#principled-implementation Distinguishes a cached model from a fresh numerical build by the page's actual build counter.
- * @evidence contracts/common.md#meaningful-documentation Names each reported member.
- *
- * @evidence contracts/common.md#clear-and-simple-design One capture record joins actual document, server duration, numerical-cache status and stage timings.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Since-edit delay remains nullable and does not imply all later captures rebuilt the numerical model.
- *
  * @author Samchon
  */
 export interface IHumanViewerLastRender {

@@ -10,11 +10,6 @@ import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks
  * Failure is reported independently and never changes a successful preview.
  *
  * Stored, cancelled and failed outcomes describe optional preview persistence, independently of its completed numerical preview. They do not classify an entire production job or checkpoint.
- *
- * @evidence contracts/common.md#principled-implementation Uses the unchanged numerical codec and server admission with the producing generation's token; cancellation affects persistence alone.
- * @evidence contracts/common.md#clear-and-simple-design One active controller and one pending job bound retained results and serialize writes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not alter geometry, admission, precision or cache identity.
- * @evidence contracts/common.md#meaningful-documentation States scheduling, memory bounds, cancellation and independent failure.
  */
 export function createHumanViewerPersistence(
   report: (value: IHumanViewerNumericalPersistenceMessage) => void,

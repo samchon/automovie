@@ -9,11 +9,6 @@ import { parseHumanViewerLight } from "./parseHumanViewerLight.js";
  * catalogue admission: parsing a document name does not assert it exists.
  * A missing document needs an explicit caller-supplied default; the library
  * does not choose a named example.
- *
- * @evidence contracts/common.md#principled-implementation URLSearchParams decoding and finite bounds admit the protocol before display effects.
- * @evidence contracts/common.md#clear-and-simple-design The parser owns defaults and refusals for every transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document-specific cases or geometry mutations occur during parsing.
- * @evidence contracts/common.md#meaningful-documentation States the distinction between syntax admission and catalogue admission.
  */
 export function parseHumanViewerAddress(input: string, defaultDocument?: string): HumanViewerAddress {
   const fields = new URLSearchParams(input.replace(/^[#?]/, ""));

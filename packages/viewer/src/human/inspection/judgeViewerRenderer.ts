@@ -12,11 +12,6 @@
  * This reported-string policy cannot prove model display or functioning
  * controls; the caller must observe the actual hardware consumer separately.
  *
- * @evidence contracts/common.md#principled-implementation Refuses blank and named software rasterizers from the reported device string, while leaving actual display and control verification to observation.
- * @evidence contracts/common.md#clear-and-simple-design One renderer-string admission rule serves viewer startup and capture publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the supplied unmasked device description without a fixture-specific hardware exemption or treating HTTP readiness as a rendered frame.
- * @evidence contracts/common.md#meaningful-documentation Lists recognized software devices and states the reported-string policy's limits for visual acceptance.
- *
  * @param renderer The unmasked renderer string the page reports.
  * @returns `real` and, when it is not, the reason to print.
  */

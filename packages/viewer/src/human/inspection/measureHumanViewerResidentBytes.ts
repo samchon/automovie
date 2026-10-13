@@ -8,11 +8,6 @@ import type * as THREE from "three";
  * integer array may take half of that, so the count is an upper bound. Strings,
  * object headers and textures are not counted. The page uses the sum to bound
  * its resident cache by memory rather than by how many documents it holds.
- *
- * @evidence contracts/common.md#principled-implementation Counts the arrays a resident actually holds instead of the number of documents.
- * @evidence contracts/common.md#meaningful-documentation States what is counted, the plain-array upper bound and what is left out.
- * @evidence contracts/common.md#clear-and-simple-design One array counter serves both provided numerical arrays and traversed GPU attribute/index arrays, retaining the documented conservative exclusions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual array byte lengths or the stated eight-byte plain-element bound; it neither treats encoded texture files as resident memory nor certifies a whole-process peak.
  */
 export function measureHumanViewerResidentBytes(
   group: THREE.Group | null,

@@ -6,11 +6,6 @@ import type { IHumanViewerReferenceLayer } from "./IHumanViewerReferenceLayer.js
  * layer is isolated by save and restore, so its opacity and clip window never
  * leak into the next layer. The caller supplies the rendered canvas and the
  * decoded photograph and owns the surface; nothing is written anywhere else.
- *
- * @evidence contracts/common.md#principled-implementation Painter's order with per-layer save/restore is the standard canvas composition of alpha and clip.
- * @evidence contracts/common.md#clear-and-simple-design Pure execution of a layout; every decision lives in the layout.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Draws only what the layout names and special-cases no source.
- * @evidence contracts/common.md#meaningful-documentation States the isolation between layers and the ownership of the surface.
  */
 export function drawHumanViewerReference(
   context: IHumanViewerReferenceContext,

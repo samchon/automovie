@@ -23,12 +23,6 @@ import {
  * `keys` is the whole set the study reports, which for a solver that emits more
  * than one run is the union across them: a moisture target is not unmatched
  * merely because the thermal run has no such metric.
- *
- * @evidence contracts/common.md#principled-implementation Builds a `Set` of the reported keys and appends a warning for each declared target whose key is absent, so applicability is exact string equality between target and metric keys.
- * @evidence contracts/common.md#clear-and-simple-design Shared by the daylight, envelope, acoustics and space-air analyzers, each passing its own warning sink, so the unknown-key rule and its wording live in one place.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No metric or target key is special-cased; targets naming a metric that produced no value are deliberately left unwarned because that metric already reaches the report as a gap.
- * @evidence contracts/common.md#meaningful-documentation States why an unknown key is a warning, which neighbouring rule reports units, the exclusion for valueless metrics, that `keys` is the cross-run union, and the warning code and append order.
- * @evidence contracts/performance.md#cost-and-resources O(keys + targets) with one hashed lookup per target; the envelope analyzer calls it once per run sink with identical inputs, rebuilding the same small key set so both runs carry the warning. The set is call-local and the appended warnings belong to the caller's sink.
  */
 export const warnAutoMovieAnalysisTargetKeys = (props: {
   /** Targets the production declared, already checked. */

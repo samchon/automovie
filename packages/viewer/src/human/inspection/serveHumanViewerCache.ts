@@ -19,11 +19,6 @@ const gzipAsync = promisify(gzip);
  * a per-process temporary name and renamed into place (viewers on other
  * ports share the folder). A missing entry is 404; other methods 405.
  * Returns whether the path was a cache route.
- *
- * @evidence contracts/common.md#principled-implementation Cache authority is the current catalogue key; writes are atomic and admitted.
- * @evidence contracts/common.md#clear-and-simple-design One route owns cache transfer; payload admission is its own validator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Current catalogue keys and generation tokens decide cache authority; stored numerical payloads are admitted without photograph fields, subject-specific exceptions or silently accepted stale results.
- * @evidence contracts/common.md#meaningful-documentation States the 204, 400, 404, 405 and 409 answers and the write path.
  */
 export function serveHumanViewerCache(
   props: IServeHumanViewerDataProps,

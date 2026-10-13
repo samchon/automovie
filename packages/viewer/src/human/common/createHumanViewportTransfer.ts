@@ -6,11 +6,6 @@ import { createViewerCameraState } from "../../createViewerCameraState.js";
  * Transfer only the actual viewport-owned camera and display state. Numerical
  * documents belong to the application transaction and are restored separately.
  * Every field is validated before the candidate viewport is changed.
- *
- * @evidence contracts/common.md#principled-implementation Captures actual observed camera and display hooks rather than requested widgets.
- * @evidence contracts/common.md#clear-and-simple-design One transfer adapter reuses the original observation and material/caster setters.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Restores supported product state without changing geometry, SDK methods or a named preset.
- * @evidence contracts/common.md#meaningful-documentation Separates viewport transfer from numerical document validation.
  */
 export function createHumanViewportTransfer(props: {
   camera: THREE.PerspectiveCamera;

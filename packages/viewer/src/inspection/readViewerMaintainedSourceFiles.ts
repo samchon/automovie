@@ -9,11 +9,6 @@ import { execFileSync } from "node:child_process";
  * Added/unlinked authored files are observed each time, without a fixed census.
  * The returned paths are absolute and ordered; no file bytes are read here.
  * A selected path resolving outside the actual checkout refuses the receipt.
- *
- * @evidence contracts/common.md#principled-implementation Actual Git working-tree membership and checked physical boundaries identify maintained source separately from runtime caches.
- * @evidence contracts/common.md#clear-and-simple-design One membership owner serves numerical witnesses and ordinary Playground source receipts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No named-subject skip, guessed cache result or private SDK mutation supplies membership.
- * @evidence contracts/common.md#meaningful-documentation Defines maintained source, independent data/output roots and physical-path refusal.
  */
 export function readViewerMaintainedSourceFiles(root: string, directories: readonly string[]): string[] {
   const actualRoot = fs.realpathSync.native(root);

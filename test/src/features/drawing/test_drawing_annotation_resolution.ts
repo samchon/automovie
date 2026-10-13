@@ -16,7 +16,6 @@ import {
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /**
- *
  * A dimension follows the wall it is pinned to, or says out loud that it no
  * longer knows which wall that is.
  *
@@ -55,10 +54,6 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
  * 8. A sheet carrying a resolved note declares that it sized the note's anchor and
  *    not the lettering; a sheet whose every note is stale declares nothing,
  *    because it set no text at all.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `resolveAutoMovieDrawingFeature` and `deriveAutoMovieDrawing` and asserts resolved points, directions, feature counts, stale reasons, dimension values, note anchors, the digest change and the `note-text-extent` gap; it catches a target relocated onto a surviving index after the feature count changed, a fractional axis index misreported as a collapsed scale, an ordering that renumbers corners when model parts are reordered, a zero-length welded edge counted as a feature, a dimension kept resolved with one stale end, and a page measure confused with a world measure.
- * @evidence contracts/testing.md#independent-expectations Expected points come from the fixture's 6 x 3 x 0.2 wall placed at its documented world box: corners (0,0,0) and (6,3,0.2), 8 corners, 12 box edges plus 6 face diagonals, 12 triangles, centre (3,1.5,0.1), a 0.5 m shift to (6.5,3,0.2), and a plan page diagonal of `hypot(6, 0.2)`; stale reasons are the full product messages, so a rewording fails this test, and the reorder case compares two resolutions to each other rather than to a numeric oracle.
- * @evidence contracts/testing.md#distinguishing-cases Positive vertex, edge, face, centroid, all three axes and a named part; negative counts authored against 9, 2 and 2, indices 8, 1.5, -1, axis 3, -1 and 1.5, centroid index 1, a missing element, a model-less element (stale for a vertex, still resolved for an axis), a runtime-only model, a missing part, an untriangulated part and a zero-scale axis; stale ends on either side of a dimension; a sliver whose two corners weld; a sheet with one resolved note against one whose notes are all stale; which lines a plan classifies as cut, overhead or hidden is not asserted here, and no drawing test owns that classification beyond the SVG test's per-role marks.
  */
 export const test_drawing_annotation_resolution = (): void => {
   const environment = drawingEnvironment();

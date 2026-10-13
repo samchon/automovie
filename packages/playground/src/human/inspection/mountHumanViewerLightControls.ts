@@ -9,11 +9,6 @@ import { parseHumanViewerLight } from "@automovie/viewer/human/inspection/parseH
  * override on reset. Show restores the bookmark state and hides unsupported
  * Face controls. Empty inputs represent no override, not invented defaults.
  * No scene, renderer or numerical document is mutated by this form.
- *
- * @evidence contracts/common.md#principled-implementation The form and URL share admission, and only admitted selections navigate to a display address.
- * @evidence contracts/common.md#clear-and-simple-design Owns one form's event and state projection with supplied DOM elements and a navigation callback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses local element events without replacing globals or selecting subject-specific light values.
- * @evidence contracts/common.md#meaningful-documentation Explains supported-domain visibility, reset meaning and rejection without navigation.
  */
 export function mountHumanViewerLightControls(props: {
   form: HTMLFormElement;

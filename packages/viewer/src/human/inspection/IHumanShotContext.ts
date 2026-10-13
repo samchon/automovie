@@ -2,12 +2,6 @@
  * What every `human-shot` step reads: the request, the viewer port and the
  * paths of this checkout's records and outputs.
  *
- * @evidence contracts/common.md#clear-and-simple-design One context carries the entry's resolved inputs to each step.
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#principled-implementation Resolved origin, port and per-process record paths identify the viewer each CLI step reads or controls.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Storage and process-record locations come from the selected checkout and instance, not a hardcoded viewer PID.
- *
  * @author Samchon
  */
 export interface IHumanShotContext {

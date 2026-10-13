@@ -31,7 +31,6 @@ const wet = (
   );
 
 /**
- *
  * What a build-up does to an opening cut through it, and what survives a
  * junction with the next build-up.
  *
@@ -69,10 +68,6 @@ const wet = (
  * 8. A role spent over several layers is spanned and summed as one role rather
  *    than reduced to its first layer.
  * 9. A tolerance that is not a finite non-negative number is refused.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `resolveAutoMovieMaterialAssembly`, `autoMovieAssemblyOpeningReveal` and `matchAutoMovieAssemblyJunction` and asserts the finished opening, inset, first and last lining, bare jamb depth and lining layer ids, the junction's continuous roles with spans, signed overlaps and alignment, its broken roles with side and thickness, and the refusals; it catches a lining counted by flag instead of by the run reachable from a face, a one-layer wrap counted twice, an unlined build-up that still narrows the opening, an opening consumed into a negative size, roles aligned whose spans do not meet, a multi-layer role reduced to its first layer, and an invalid tolerance accepted.
- * @evidence contracts/testing.md#independent-expectations Values are hand arithmetic on the stated build-ups: the 0.02 m render and 0.0125 m board wrap both jambs, so 1.2 by 2.1 m finishes at `1.2 - 2 * 0.0325 = 1.135` by 2.035 with 0.15 m bare; the unlined stack leaves 0.1325 m bare; the 0.2 m solo wrap counts once; against the neighbour offset 0.08 m the render, block, barrier and board spans overlap by -0.06, 0.02, -0.08 and -0.0675, so only the block aligns, and cavity and furring break on their own side at 0.05 m; split insulation spans 0..0.12 and overlaps the single 0.1 m batt by 0.1.
- * @evidence contracts/testing.md#distinguishing-cases Positive lined wet wall and offset junction; negative unlined build-up, a hand-built buried wrap that validation would refuse, a single wrapping layer; refusals for zero width, NaN height and openings 0.06 m wide or high that the lining would consume; a role spread over several layers against one layer, with a batten breaking on one side; negative and NaN tolerances; build-up validation is owned by test_architecture_material_assembly_defects and stack coordinates by test_architecture_material_assembly_dimension.
  */
 export const test_architecture_material_assembly_junction = (): void => {
   const resolved = resolve(wet());

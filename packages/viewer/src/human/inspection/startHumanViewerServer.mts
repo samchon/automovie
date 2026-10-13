@@ -16,11 +16,6 @@ import { ProcessOwnership } from "../../process/ProcessOwnership.js";
  * report bound to its actual OS creation. The previous owner's failure or
  * success cannot become this process's startup authority; model inputs, PNGs
  * and historical logs remain separate from this per-owner status.
- *
- * @evidence contracts/common.md#principled-implementation The same ownership record and renderer predicate govern startup and session-owned shutdown.
- * @evidence contracts/common.md#clear-and-simple-design Listening, subscription and shutdown form one lifetime separate from mutable GPU/catalogue state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes status only for the listening process's actual creation, preserves model inputs and captures, and ends ownership on actual shutdown rather than an age limit.
- * @evidence contracts/common.md#meaningful-documentation States launcher versus direct ownership and hardware readiness.
  */
 export async function startHumanViewerServer(
   props: IStartHumanViewerServerProps,

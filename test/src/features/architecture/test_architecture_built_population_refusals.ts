@@ -78,7 +78,6 @@ const refuses = (
   );
 
 /**
- *
  * A building refuses a population it could not answer for.
  *
  * A space query that is handed a population has to bound it, and a population it
@@ -117,10 +116,6 @@ const refuses = (
  *    refusing everything.
  * 11. `builtEnvironmentSpacePopulations` refuses an undeclared space id by name,
  *    exactly as every other space query in the file does.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment` on a one-space work carrying one malformed population at a time and asserts the violation kind and path, plus `builtEnvironmentSpacePopulations` for ownership and an undeclared space; it catches a population bound to an undeclared space, a blank or repeated set id, an inverted or non-finite prototype axis, a route layout, a bad count, anchor, heading, scatter radius, scale or rotation range, grid or lattice axis or capacity, explicit transform count or transform accepted, and a malformed column count reported a second time as capacity.
- * @evidence contracts/testing.md#independent-expectations Each expected path is the input field the case breaks, under the interface's `populations[i].set...` layout, and each kind follows the documented split between identity and reference faults (`type`) and numeric faults (`range`); capacity cases are hand counts (five slots in a 1 by 1 grid, nine in a 2 by 2 by 2 lattice); refusal of an undeclared space is matched by its phrase, not the full message.
- * @evidence contracts/testing.md#distinguishing-cases Positive well-formed population and a point-like prototype validating and owned by its space, so no refusal fires on adjacent valid input; negative unresolved space, blank and duplicate ids, inverted and non-finite prototype, along-route, fractional and zero counts, non-finite anchor and heading, zero scatter radius, nine scale and rotation range faults at minimum, maximum and order, grid rows, spacing and capacity, a NaN column reported once, lattice layers, rise and capacity, and four explicit transform faults; the bounds those valid layouts produce are owned by test_architecture_built_population_placement_bounds.
  */
 export const test_architecture_built_population_refusals = (): void => {
   TestValidator.equals(

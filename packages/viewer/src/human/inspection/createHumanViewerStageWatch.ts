@@ -4,11 +4,6 @@ import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage.js";
  * Observe the running capture's stages without cancelling valid work because
  * time passed. The capture lifetime owns explicit transport failure and
  * physical settlement; this observer cannot release its queue slot early.
- *
- * @evidence contracts/common.md#principled-implementation Awaiting the actual operation preserves queue ownership until completion or the capture lifetime's failure.
- * @evidence contracts/common.md#clear-and-simple-design One observer owns the current stage without a second cancellation policy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Records actual stage and progress timestamps while leaving timeout, cancellation and renderer ownership outside this observer.
- * @evidence contracts/common.md#meaningful-documentation Separates progress telemetry from transport cancellation.
  */
 export function createHumanViewerStageWatch() {
   let current: IHumanViewerCaptureStage | null = null;

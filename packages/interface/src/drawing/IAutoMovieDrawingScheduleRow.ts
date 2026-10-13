@@ -7,10 +7,6 @@ import { IAutoMovieDrawingSchedulePlace } from "./IAutoMovieDrawingSchedulePlace
  * and basis share a row; a room is always a row of its own. Every field but
  * {@link place} is shared by all members of a row.
  *
- * @evidence contracts/common.md#principled-implementation Members are sorted by UTF-16 code unit and cut at `AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS` (8) with the remainder counted, and `mark` numbers rows per kind in canonical order. Unresolved: `place` is copied from the first occurrence in design order while the group key ignores place, so a multi-member opening or connector row reports one member's location and its digest moves when the design reorders those occurrences.
- * @evidence contracts/common.md#clear-and-simple-design Type facts, the bounded member sample and a nullable place sit in one row so the schedule stays one flat list; the grouping decision belongs to the deriver, which keys a room row by its own id.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Grouping by `basis` as well as size keeps void-measured and leaf-measured types in separate rows, and an absent dimension is `null` with a schedule gap rather than a zero placeholder.
- * @evidence contracts/common.md#meaningful-documentation Documents how the mark is assigned, the member bound and omitted count, what each basis measured for openings, connectors and rooms, and that a grouped row's place is its first occurrence's.
  * @author Samchon
  */
 export interface IAutoMovieDrawingScheduleRow {

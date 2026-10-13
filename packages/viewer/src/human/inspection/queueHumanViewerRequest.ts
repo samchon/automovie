@@ -11,11 +11,6 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure.js";
  * removal of waiting work and active-slot settlement. This adapter owns
  * response refusal (logged as `REFUSED` with its cause), listener cleanup
  * and admission of subsequent operations.
- *
- * @evidence contracts/common.md#principled-implementation Uses unfinished response closure for client loss and awaits actual operations before discarding their results.
- * @evidence contracts/common.md#clear-and-simple-design One request adapter owns HTTP cancellation and refusal while the queue retains GPU serialization.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not race physical page work, restart a viewer or rewrite source freshness.
- * @evidence contracts/common.md#meaningful-documentation Separates request completion, physical operation settlement and response-write ownership.
  */
 export function queueHumanViewerRequest<Value>(
   props: IQueueHumanViewerRequestProps<Value>,

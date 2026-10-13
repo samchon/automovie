@@ -38,11 +38,6 @@ const cameraOf = (value: unknown): IHumanCaptureCamera | null => {
  * and landmarks the face review recorded for that subject. A manifest entry
  * whose file name is not a plain image name, or whose file is absent, is
  * ignored. Nothing here reads image bytes or writes anything.
- *
- * @evidence contracts/common.md#principled-implementation Matches existing manifest or plain-image entries and admits finite positive-distance camera metadata without deriving numerical anatomy from photographs.
- * @evidence contracts/common.md#clear-and-simple-design One injected read-only resource lookup selects an optional photograph; camera shape admission remains local to that lookup.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns supplied reference metadata or absence, without synthesized landmarks, hidden image writes or a numerical basis fitted to the image.
- * @evidence contracts/common.md#meaningful-documentation Defines both lookup paths, plain-name and camera constraints, optional absence and the read-only image boundary.
  */
 export function resolveHumanViewerReference(
   doc: string,

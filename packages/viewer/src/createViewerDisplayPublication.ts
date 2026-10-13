@@ -6,11 +6,6 @@
  * releases the caller's pending bitmap and forbids further publication.
  * The active query reports lifecycle availability, including uncommitted
  * staging; it does not assert an admitted display or completed filesystem IO.
- *
- * @evidence contracts/common.md#principled-implementation Candidate snapshot and admitted generation are separate transitions, so a rejected candidate cannot supersede its retained predecessor's saves.
- * @evidence contracts/common.md#clear-and-simple-design One lifecycle operates the existing bitmap owner's copy/start/release ports without a second queue.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No server ordering exception or fabricated frame bypasses parent activation.
- * @evidence contracts/common.md#meaningful-documentation Defines copy refusal, direct commitment, staged activation and disposal effects.
  */
 export function createViewerDisplayPublication(props: {
   copy: () => boolean;

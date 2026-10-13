@@ -11,7 +11,6 @@ const read = loadSourceModule<{ readPlaygroundViewerPublishedSource: Read }>(
 ).readPlaygroundViewerPublishedSource;
 
 /**
- *
  * A producer publication lock refuses new source admission while a completed
  * disk receipt remains held. Unlocking refreshes intermediate membership;
  * a transaction starting during that refresh also refuses admission.
@@ -21,10 +20,6 @@ const read = loadSourceModule<{ readPlaygroundViewerPublishedSource: Read }>(
  * 2. An unlocked completed receipt retains identity; an observed lock requires refresh.
  * 3. A lock appearing during refresh refuses the newly read receipt.
  * 4. Refresh failures propagate rather than certify previously held source.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `readPlaygroundViewerPublishedSource` with `current`, `locked` and `refresh` callbacks over a held receipt and asserts the refresh count, the returned `error`, the returned revision, object identity of an admitted receipt, that the held receipt is never mutated, and the identity of a propagated refresh error; it catches admitting a source while the producer lock exists, skipping the reread of a receipt that recorded the lock, admitting a receipt when the lock appears during refresh, and mutating the caller's displayed state.
- * @evidence contracts/testing.md#independent-expectations Outcomes follow the declaration's stated sequence (refuse while locked, refresh only when the lock input is not the `missing` sentinel, check the lock again after refresh); the held receipt is compared to an independently written literal, and an unrefused result must be the same object `current` returns. Refusal is detected by the presence of `error`, not its wording.
- * @evidence contracts/testing.md#distinguishing-cases Five cases: lock held at first read (no refresh), unlocked receipt already recorded as `missing` (no refresh, same object), unlocked receipt that recorded the lock (one refresh, completed revision), lock appearing after that refresh (refused on the new receipt), and a throwing refresh; how the viewer host displays the refusal is outside this test.
  */
 export function test_viewer_publication_admission(): void {
   for (const scenario of [

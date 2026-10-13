@@ -7,10 +7,6 @@ import { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMovieCam
 /**
  * One camera available to the registered shot.
  *
- * @evidence contracts/common.md#principled-implementation `stageScene` resolves `lookAt` to a point once and aims the camera's -Z there with the shortest-arc `lookRotation`, after refusing a non-finite position, a field of view outside (0, 180), a non-positive near, a far not above near, and a target equal to the position.
- * @evidence contracts/common.md#clear-and-simple-design Lens, clip and depth-precision facts live on the staged camera so `stageScene` copies them straight onto the scene camera; `clearance` is optional because only a camera claiming a physical body needs an envelope.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A node target may name another camera, matching the placement table `performShot` resolves against, and a camera aimed at itself is refused through the zero-length look vector rather than an id comparison.
- * @evidence contracts/common.md#meaningful-documentation Documents degrees, metres, the camera-space frame of the clip distances, that `lookAt` only sets the initial aim, and when `clearance` may be omitted.
  * @author Samchon
  */
 export interface IAutoMovieStageCamera {

@@ -4,11 +4,6 @@
  * its OS creation identity own a report; an earlier server's failure and last
  * success remain unclaimed by its replacement. The callback owns persistence;
  * this parser owns the report shape and never inspects source or image bytes.
- *
- * @evidence contracts/common.md#principled-implementation Error and success time remain independent nullable facts, and unreadable metadata does not invent either fact.
- * @evidence contracts/common.md#clear-and-simple-design One text callback separates status admission from filesystem ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the actual report and does not infer compilation success from a rendered frame.
- * @evidence contracts/common.md#meaningful-documentation States metadata-only input, failure meaning and persistence ownership.
  */
 export function readHumanViewerCompilationStatus(
   read: () => string,

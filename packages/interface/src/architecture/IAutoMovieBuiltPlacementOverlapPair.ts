@@ -11,10 +11,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * volume travels with the pair and the fraction says how much of the smaller
  * body is inside the larger.
  *
- * @evidence contracts/common.md#principled-implementation Volume is the sum over part-box pairs of their axis-aligned intersection volume, and fraction divides it by the smaller body's summed part volume, clamped to one because one body's own overlapping parts are counted more than once.
- * @evidence contracts/common.md#clear-and-simple-design A pair names both bodies, both bases and two grades, so a caller can rank or filter findings without recomputing any geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Face contact drops out through the strict inequalities of the box test, and the clamp at one is a stated compensation for double-counted self-overlap rather than a measured share.
- * @evidence contracts/common.md#meaningful-documentation States the record order of left and right, the cubic-metre unit and how volume sums parts, the fraction denominator and clamp, and the zero-volume origin-point case.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapPair {

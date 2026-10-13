@@ -12,11 +12,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * operations fulfilled; it is not proof that native allocations were freed.
  * The caller retains failed or indeterminate resource ownership until its
  * supported physical lifetime boundary ends.
- *
- * @evidence contracts/common.md#principled-implementation Promise.allSettled attempts independent owners and retains original errors under the existing restoration cause policy.
- * @evidence contracts/common.md#clear-and-simple-design One memoized completion separates synchronous publication from owned asynchronous retirement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Calls supplied release operations without retries, native-counter changes or foreign method replacement.
- * @evidence contracts/common.md#meaningful-documentation Describes start order, memoization, primary causes and the difference between public completion and native release proof.
  */
 export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],

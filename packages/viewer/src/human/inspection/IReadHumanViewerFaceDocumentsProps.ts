@@ -5,10 +5,6 @@ import type { IHumanViewerReferenceFaceDocument } from "./IHumanViewerReferenceF
 /**
  * What the face documents are read from.
  *
- * @evidence contracts/common.md#principled-implementation Face document keys read the published face identity and the source revisions supplied to the reader.
- * @evidence contracts/common.md#clear-and-simple-design One input record separates face basis authority from the subjects-file path and dependency authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader's inputs identify the actual basis and source instead of embedding named-person geometry.
- * @evidence contracts/common.md#meaningful-documentation Documents the published face basis, subjects path and face revision used in document keys.
  * @author Samchon
  */
 export interface IReadHumanViewerFaceDocumentsProps {

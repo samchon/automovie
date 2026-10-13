@@ -10,11 +10,6 @@ import { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
  * waiting to be edited apart, and the containment query would have to pick a
  * winner nobody authored. Stating neither is the third legitimate case, a
  * purely semantic container that locates nothing.
- *
- * @evidence contracts/common.md#principled-implementation A region is a union of convex half-space cells of four or more planes, or one closed triangle shell; validation refuses both at once, a shell with an unmatched or repeated directed edge, and a shell whose signed volume is not positive.
- * @evidence contracts/common.md#clear-and-simple-design Cells stay the ordinary spelling and the shell is an alternative only for pierced or many-faced regions, while `fidelity` is a declared flag rather than a computed property with its own geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A faceted region is never presented as the curve it approximates, `fidelity` is refused on a space that states no volume, and nothing attempts to detect intended curvature from flats.
- * @evidence contracts/common.md#meaningful-documentation States the one-spelling rule, the semantic-container case, the shell's authority for containment, root and parent rules, and what `faceted` obliges derived quantities to say.
  */
 export interface IAutoMovieBuiltSpace {
   /** Stable logical-space identity. */

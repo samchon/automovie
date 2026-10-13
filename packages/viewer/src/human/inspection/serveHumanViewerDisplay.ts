@@ -20,11 +20,6 @@ import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
  * Writes are serialized per tab; other viewer ports and tabs retain ownership.
  *
  * Ordering belongs to one viewer port and tab session. The encoded PNG digest is separate from reported source and view facts; this mutable latest-display slot computes no canonical decoded-pixel identity or immutable final-artifact collision verdict.
- *
- * @evidence contracts/common.md#principled-implementation Validated PNG dimensions and hardware precede atomic publication; the viewport's original source and server source at saving remain distinct, and a failed write retains the previous image.
- * @evidence contracts/common.md#clear-and-simple-design One per-session queue owns ordering and filesystem publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the supplied observed display PNG with its original source and checked ordering, without relabeling it as a newer build, generating pixels or moving logs and cache files into output.
- * @evidence contracts/common.md#meaningful-documentation States image, metadata, ordering and failure ownership.
  */
 export function serveHumanViewerDisplay(props: {
   root: string;

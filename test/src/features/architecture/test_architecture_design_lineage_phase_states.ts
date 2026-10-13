@@ -10,7 +10,6 @@ import { emptyLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
- *
  * Pin retained, demolished, temporary, and new to one per-phase answer that a
  * scene, a drawing, a schedule, and a render all read.
  *
@@ -44,10 +43,6 @@ import { throwsError } from "../internal/predicates";
  * 7. A lineage with no phases still orders and still answers for the completed
  *    work.
  * 8. A phase the plan does not contain is refused rather than answered.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateDesignLineage`, `designLineagePhaseOrder`, `designLineagePhaseSnapshot` and `designLineageProject` and asserts the phase order, each subject's role and presence per phase, the projected id lists of four differently shaped consumer collections, and the refusal of an unknown phase; it catches an order taken from authoring or invented between sibling branches, role and presence collapsed into one field, a demolished wall removed before its phase, a temporary frame present outside its window or present in an incomparable branch, consumers disagreeing at one phase, an undeclared id dropped, and an unknown phase answered.
- * @evidence contracts/testing.md#independent-expectations Every state is read off the authored lifecycles and the prerequisite graph by hand: `survey` first, the siblings `shore` and `strip` in ascending id, then `structure`, `services`, `finishes`; `wall-south` is removed in `strip` so it stands at `shore` and is gone at `strip`; `shoring-frame` is introduced in `shore` and removed in `structure`, so it is pending at `strip`; the completed work removes only those two; subjects introduced later read `new` and `pending`.
- * @evidence contracts/testing.md#distinguishing-cases Positive full snapshots at `strip` and at completion, single-subject reads at `shore` and `structure`, projections at two phases that yield two different sets, an undeclared consumer id that survives both, an empty lineage with no phases, and an unknown phase refused; phase-graph validation is owned by test_architecture_design_lineage_structure_refusals.
  */
 export const test_architecture_design_lineage_phase_states = (): void => {
   const lineage = renovationLineage();

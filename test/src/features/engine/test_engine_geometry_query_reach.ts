@@ -170,7 +170,6 @@ const measure = (
 };
 
 /**
- *
  * A reach query answers each arm's gap from its own rest chain, in the actor's
  * model space, and refuses an actor that has no arm to measure.
  *
@@ -195,10 +194,6 @@ const measure = (
  *    reports the left arm unmeasurable and the right arm's own gap.
  * 5. A collapsed scale on any one axis, an actor with no skeleton, and a skeleton
  *    with no arm chain at all each refuse by name.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieGeometry` with `reach` requests and asserts per-arm measurability, gap and range-of-motion fields, overall reachability, sampled time, and refusals; it catches a gap measured from the root instead of the shoulder, a world-space target left untransformed for a moved and turned actor, a handless or zero-length arm reported as measurable, one broken arm hiding the other's reach, a default time other than zero, and a flattened scale, a rigless actor or an armless skeleton answered with numbers.
- * @evidence contracts/testing.md#independent-expectations Gaps are hand arithmetic on the shared humanoid: shoulder at (0.2, 1.4, 0) with a 0.3 m upper arm and 0.25 m forearm reaching 0.55 m, so a target 0.3 m away gaps 0 and one 2 m away gaps 1.45; the turned actor's world target maps back to 0.3 m after undoing a quarter turn about +Y and a 10 m shift; `leftPoseWithinRom` is compared to `reachPose` plus `validatePose`, the same composition the query uses, so that field is checked for wiring, not for whether the solved pose is anatomically correct.
- * @evidence contracts/testing.md#distinguishing-cases Reachable and unreachable targets on a whole left arm, a handless right arm, a moved quarter-turned actor, and a collapsed left forearm beside a whole right arm; refusals for zero scale on each of x, y and z, no skeleton and no arms; the reach solver and range-of-motion limits belong to test_kinematics_reach and test_kinematics_reach_rom, and selector resolution to test_engine_geometry_query_selectors.
  */
 export const test_engine_geometry_query_reach = (): void => {
   const skeleton = createSkeleton();

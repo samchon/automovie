@@ -97,11 +97,6 @@ const placedPartBoxes = (
  * state puts each element. The map is a snapshot: it does not follow later
  * edits to the record.
  *
- * @evidence contracts/common.md#principled-implementation Stages every element's world matrix once under the current operating state, then boxes each drawn element's parts by placing their tessellated or stated vertices, keeping the origin box for an element whose parts draw nothing.
- * @evidence contracts/common.md#clear-and-simple-design Defect: the bulk counterpart of `builtEnvironmentElementPartBounds`, carrying its own copy of the staging, delta and part-box helpers rather than one module both forms call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Absence for a transform-only element is the documented signal that lets a sweep keep the reported box; a model id missing from the record falls back to the origin box exactly as the single-element form does.
- * @evidence contracts/common.md#meaningful-documentation States why the bulk form exists, that it stages once, why a transform-only element is absent rather than empty, the world frame and operating state, and that the map is a snapshot.
- * @evidence contracts/performance.md#cost-and-resources One hierarchy staging, `O(E + members)`, then tessellating and transforming every drawn vertex once, which dominates; the returned map, keyed by element id, holds one array per drawn element (`O(total parts)` boxes) for as long as the caller keeps it, with no invalidation if the record or state changes.
  * @author Samchon
  */
 export const builtEnvironmentPartBoxes = (

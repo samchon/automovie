@@ -6,11 +6,6 @@ import * as THREE from "three";
  * Parented, manual-matrix and custom-projection cameras are explicitly refused:
  * another owner must transfer those relationships rather than guess them.
  * All unknown state is validated before the original camera is mutated.
- *
- * @evidence contracts/common.md#principled-implementation Captures the complete supported native lens and transforms and refuses invalid or unsupported transfer before mutation.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies camera transfer without a scene, renderer or document copy.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses public Three projection behavior and names unsupported parent/manual/custom relationships without substituting poses.
- * @evidence contracts/common.md#meaningful-documentation Defines lens preservation, supported lifecycle and failure effects.
  */
 export function createViewerCameraState(camera: THREE.Camera) {
   const supported = (): THREE.PerspectiveCamera | THREE.OrthographicCamera => {

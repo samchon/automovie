@@ -14,11 +14,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * the mean of the midpoints of the closest such vertex pairs, so it falls at
  * the middle of a shared edge.
  *
- * @evidence contracts/common.md#principled-implementation Detects a meeting by the closest vertex pairs of two non-parallel facades within the thicker separation plus `AUTOMOVIE_OBSERVATION_EPSILON`, and classifies it by the sign of one facade's outward normal against the direction to the other facade's centroid.
- * @evidence contracts/common.md#clear-and-simple-design Stores both facade ids with the derived point and bisector, so a corner observation can be aimed without reading either face again.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The tolerance is the walls' own thickness, the construction slack two faces of one corner really have; pairs with parallel normals or a turn within epsilon of zero are skipped rather than forced into a kind.
- * @evidence contracts/common.md#meaningful-documentation States the producer and ordering, the meeting rule, how `position`, `kind`, `normal` and `id` are formed, and the order of `facades`.
- * @evidenceExclude contracts/performance.md#cost-and-resources A record owning two fresh vectors and its ids; its producer compares every facade pair and their vertex pairs, O(facades² × vertices²), enumerating cross-building pairs before skipping them, and memoizes nothing.
  * @author Samchon
  */
 export interface IAutoMovieBuiltEnvelopeCorner {

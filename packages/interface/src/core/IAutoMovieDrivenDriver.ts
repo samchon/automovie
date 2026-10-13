@@ -23,10 +23,6 @@ import { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
  * `resolveFrame` returns node matrices and weights only, so a later driver or a
  * limit violation is the only place that value shows.
  *
- * @evidence contracts/common.md#principled-implementation Linear range remap `o0 + (o1 - o0) * t` with an optional clamp of `t` to `[0, 1]`, or the piecewise-linear `curve`; `applyDriven` checks scalar width on both ends first because a width-1 write into a TRS channel would poison the composed world matrices.
- * @evidence contracts/common.md#clear-and-simple-design The linear fields are optional and the curve supersedes them, so one driver type covers both mappings, a curve driver carries no dead range, and both share one source read and one output write.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The equal-ends case defines `t = 0` instead of dividing by zero and an unsampled source uses `inRange[0]` or the first curve point, both documented rules; TRS outputs and multi-morph weights throw rather than being narrowed.
- * @evidence contracts/common.md#meaningful-documentation States the pass it runs in, the scalar-width rules for output and source, the unsampled-source and equal-range answers, the no-clamp default, and that `resolveFrame` does not return pointer outputs.
  * @author Samchon
  */
 export interface IAutoMovieDrivenDriver {

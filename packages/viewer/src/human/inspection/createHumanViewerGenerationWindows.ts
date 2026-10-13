@@ -21,11 +21,6 @@ const KEPT = 64;
  * candidate's own revision instead of whatever `/docs` says when it is asked,
  * and admit its cache writes and admission verdicts only when that revision
  * is current. The latest labels are kept for the pages still using them.
- *
- * @evidence contracts/common.md#principled-implementation A revision is published for a candidate only when its loaded code is proven to be that revision; otherwise it is reported stale, never current.
- * @evidence contracts/common.md#clear-and-simple-design One owner opens, closes and labels windows and holds the gate for them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed or updating window gets an unproven label rather than a manufactured current revision, and an active hold is never expired by elapsed time.
- * @evidence contracts/common.md#meaningful-documentation States the labelling rule, the null case and the growth bound.
  */
 export function createHumanViewerGenerationWindows(
   props: ICreateHumanViewerGenerationWindowsProps,

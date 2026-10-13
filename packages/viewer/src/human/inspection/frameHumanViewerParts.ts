@@ -2,17 +2,11 @@ import * as THREE from "three";
 import {isHumanObservationAuxiliary} from "../common/observation/isHumanObservationAuxiliary.js";
 
 /**
- *
  * Frame exact displayed mesh identities from their world-space geometry, in
  * metres. This selects existing output, never edits a numerical document.
  * Matrix updates refresh derived display transforms before bounding vertices.
  * Missing names, empty populations and collapsed geometry refuse explicitly.
  * Neighbouring meshes affect an assembled selection only when requested.
- *
- * @evidence contracts/common.md#principled-implementation The union of selected transformed vertex bounds encloses precisely the requested displayed meshes.
- * @evidence contracts/common.md#clear-and-simple-design One geometry query owns automatic part framing for gallery and HTTP captures.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Bounds come from actual emitted meshes without anatomical hardcoded centres or subject cases.
- * @evidence contracts/common.md#meaningful-documentation Defines metre units, display-transform mutation and explicit degeneracy refusal.
  */
 export function frameHumanViewerParts(
   root: THREE.Object3D,

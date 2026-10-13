@@ -18,10 +18,6 @@ import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
  * when it does not apply, so a static prop and a mid-stride walker share one
  * shape.
  *
- * @evidence contracts/common.md#principled-implementation A snapshot sampled at the shot end by `resolveBeatEnd`: the transform folds the sampled pose root into the staged placement or takes a baked object clip, velocity is a trailing one-frame finite difference, and plants come from `plantsAtEnd` over the ground-IK output.
- * @evidence contracts/common.md#clear-and-simple-design Static and moving actors share one shape with `null` for absent resumable facts, so the next beat's opening and the continuity linter compare fields without branching on the kind of actor.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor kind is special-cased; the pose root is cleared on purpose so the folded displacement is not applied twice, and a non-looping clip sampled after its end reports zero velocity as its documented hold.
- * @evidence contracts/common.md#meaningful-documentation States the world frame of transform, facing and velocity, why the pose root is cleared, the `null` meaning of each optional field, where the phase comes from, the velocity window, baked-clip overrides, and plant ordering.
  * @author Samchon
  */
 export interface IAutoMovieBeatEndActorState {

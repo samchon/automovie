@@ -13,10 +13,6 @@ import { AutoMovieDrawingGapStatus } from "./AutoMovieDrawingGapStatus";
  * `hidden-line-removal`, appear in every drawing because no design can supply
  * the missing derivation.
  *
- * @evidence contracts/common.md#principled-implementation Mirrors the render report's metric gap with an open subject string, so every derivation that declines to compute something emits one sortable, hashed record instead of omitting it.
- * @evidence contracts/common.md#clear-and-simple-design Four fields, what, which kind of absence, why and how to fix it, shared by the drawing, schedule and quantity report instead of each declaring its own.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Data-dependent gaps are emitted only when the derivation actually lacked input, with the counts and ids interpolated into `reason`, while capability gaps are emitted unconditionally because their derivation does not exist.
- * @evidence contracts/common.md#meaningful-documentation States which artifacts emit the record, the gap ordering, the open subject vocabulary, the always-present capability gaps, and what `reason` and `remedy` must each name.
  * @author Samchon
  */
 export interface IAutoMovieDrawingGap {

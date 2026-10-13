@@ -15,10 +15,6 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * door's size and not the hole's. `none` is the design declining to answer, and
  * the mark then carries no geometry at all rather than a zero-sized one.
  *
- * @evidence contracts/common.md#principled-implementation `openingMark` prefers the opening's own profile, placing its outline on the host boundary face, chording arcs every `AUTOMOVIE_DRAWING_ARC_STEP` radians and sizing it from the bounding hull `outlineHull` derives from the arcs; otherwise it measures the fill element's world triangles (wider horizontal span as width, world Y span as height), and otherwise answers `none`. Validation guarantees a profiled opening's host has a face, so the profile branch does not re-test it.
- * @evidence contracts/common.md#clear-and-simple-design Identity, the basis discriminant and the geometry share one record so every opening in the view's spaces appears, with an empty polygon and `null` sizes expressing absence instead of a second, shape-less mark type.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The fill fallback is a labelled substitution: `basis` says `fill`, the drawing adds an `opening-profile` gap counting such marks, and the polygon stays empty so a leaf's box is never drafted as a hole.
- * @evidence contracts/common.md#meaningful-documentation Explains the three basis answers and why they are not interchangeable, why a `fill` mark has a size but no outline, that arcs are chorded only in the outline, and when width and height are `null`.
  * @author Samchon
  */
 export interface IAutoMovieDrawingOpeningMark {

@@ -156,7 +156,6 @@ const alphabetical = (left: string, right: string): number =>
   left < right ? -1 : left > right ? 1 : 0;
 
 /**
- *
  * Composition is merge: a group of buildings must be exactly the stable
  * concatenation of what its leaves said, however deeply the groups nest, and a
  * lowered building must contribute nothing but its own graphs. This pins both,
@@ -174,10 +173,6 @@ const alphabetical = (left: string, right: string): number =>
  *    space.
  * 4. A lowered building contributes only its built environment, models, set
  *    pieces and spaces, so no external context enters its contribution.
- *
- * @evidence contracts/testing.md#behavioral-verification Renders `AutoMovieSubjectGroup` subclasses over wings that call `lowerBuiltEnvironment` and asserts the merged built environments, models, set nodes and spaces, the equality of a nested and a flat group, the namespacing of every merged node and space, and the key set of one lowered contribution; it catches a group that reorders, deduplicates or drops a leaf's contribution, a nesting level that changes the merge, a node or space emitted without its building prefix, and lowering that adds a contribution field beyond its own graphs.
- * @evidence contracts/testing.md#independent-expectations Expected ids follow from the leaves in declaration order (north with two storeys, south with three, east with one), the documented `building/id` namespacing of lowered nodes and spaces, and the model-less root being unstaged; the nested render is compared to the flat one rather than to a stored snapshot, so an error common to both group shapes would pass that case and is caught only by the explicit flat expectation.
- * @evidence contracts/testing.md#distinguishing-cases Positive flat group of three wings of different heights including a single-storey wing, and a two-level nested campus over the same leaves; a namespacing check over every merged node and space; a single lowered wing for the contribution key set; lowering's placement arithmetic and refusals are owned by test_architecture_built_environment.
  */
 export const test_architecture_built_environment_composition = (): void => {
   const looped = new LoopedWing("north", 3);

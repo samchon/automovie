@@ -293,7 +293,6 @@ const refusalPaths = (
 };
 
 /**
- *
  * An observed drawing is evidence, and evidence is a different kind of thing
  * from a design. This pins the four layers a reference keeps apart — how a
  * sheet is read, what was on it, what someone proposed it meant, and what is
@@ -334,10 +333,6 @@ const refusalPaths = (
  * 10. Every malformed observation, including a rival or an issue subject listed
  *     twice, is refused at its own path.
  * 11. The untouched fixture produces no violation path at all.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `validateDesignReference`, `validateGeneratedAcquisition` and `validateDesignEvidence` and asserts success, violation kind, path and count, and the seed warning and its count; it catches an unsettled scale treated as a defect or a scale naming no candidate accepted, outcomes swapped between observed, unsupported and not-run, a candidate with two origins or read off another sheet, a generated acquisition demanding a URL or seed it need not have, a reproducible claim without a usable seed, a decorative seed failed instead of warned, an output digest checked against replaced bytes, dangling or repeated citations, and a malformed observation field accepted or refused more than once.
- * @evidence contracts/testing.md#independent-expectations Each expected path is the field a single mutation breaks in the hand-built pavilion sheet, study and citations; seed rules follow the interface's replay contract (a whole number within 2^53, negative allowed); the output digest is compared against the fixture's own digest constants; acceptance cases follow the stated boundaries (no URL, no seed, null request and prompt, empty citation ledger, two documents pooling candidates), and the warning and violation counts are exact so an extra complaint fails.
- * @evidence contracts/testing.md#distinguishing-cases Positive clean sheet, text-only and seedless generations, a reproducible seeded one, a negative seed, processed bytes skipping the digest check, clean, empty and pooled citations; negative a missing seed on a reproducible claim, four unusable seeds at both reproducibility settings, a wrong output digest, seven acquisition field faults, six citation faults and seventy-seven malformed observation fields; one malformed field producing exactly one refusal; promotion of candidates into metres is owned by test_architecture_design_observation_promotion.
  */
 export const test_architecture_design_reference = (): void => {
   const source = observation();

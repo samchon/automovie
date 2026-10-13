@@ -15,7 +15,6 @@ import {
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
 /**
- *
  * A room owes nine views from inside itself, and the caller picks none of them.
  *
  * The survey guidance draws a room as one doorway view, four inward views from
@@ -48,10 +47,6 @@ import { namedFacts, throwsError, vclose } from "../internal/predicates";
  * 6. A space that states no volume is a name rather than a room and owes
  *    nothing.
  * 7. A space the record does not hold is refused by name.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls `builtSpaceObservationStations` on the rectangular hall, the hall with an east hatch, the L wing and a volumeless zone, asserting station ids, roles, openings, positions, directions, targets and containment; it catches a reordered or fixed-size population, a corner standing on the wall instead of the first inset rung, a threshold placed off the door face, an uncut opening skipped, a notch corner dropped rather than left unplaced, and a missing space returned empty instead of refused.
- * @evidence contracts/testing.md#independent-expectations Expected metres are typed from the hall's 4 by 3 by 6 extent: centre `(2, 1.5, 3)` at half the 3 m height because it is under twice the 1.6 m eye, corners one twentieth of the way in such as `(0.1, 1.5, 0.15)`, centre targets six metres out, and the south-west aim `(2, 3) / sqrt(13)`; containment is cross-checked with the separate `builtSpaceContainsPoint` predicate, which shares cell semantics with the code under test.
- * @evidence contracts/testing.md#distinguishing-cases Positive nine-station hall, a tenth station from a second uncut opening, the L wing whose plus-plus corner fails every ladder rung, a zone that states no volume returning none, and an unknown space id refused with both ids in the message; wedge, shell, notch-anchor, point-volume and faceless-opening degeneracies belong to test_architecture_space_station_placement.
  */
 export const test_architecture_space_stations = (): void => {
   const record = rectangularBuilding();

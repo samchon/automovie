@@ -8,10 +8,6 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * note sits at the projected point of its target feature, and a stale one keeps
  * its id and text with no position.
  *
- * @evidence contracts/common.md#principled-implementation Projects the resolved feature point through the drawing frame and rounds it to six decimals, so the anchor is recomputed from the current design on each derivation.
- * @evidence contracts/common.md#clear-and-simple-design Mirrors the authored spec with the resolution outcome added, so a consumer matches notes to the view by `id` without consulting the spec.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale note keeps its slot with a reason instead of being dropped, and the unmeasured glyph extent is declared as the `note-text-extent` gap rather than estimated.
- * @evidence contracts/common.md#meaningful-documentation States the unit and rounding of `at`, that it is an anchor rather than a text box, and the null and reason semantics for each status.
  * @author Samchon
  */
 export interface IAutoMovieDrawingAnnotation {

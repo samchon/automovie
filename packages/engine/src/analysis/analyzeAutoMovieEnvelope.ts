@@ -29,7 +29,6 @@ const MAGNUS_A = 17.62;
 const MAGNUS_B = 243.12;
 
 /**
- *
  * Solve one envelope for heat and for surface condensation, as two runs.
  *
  * Two runs rather than one because heat and moisture are two domains a report
@@ -63,11 +62,6 @@ const MAGNUS_B = 243.12;
  * range the coefficients were fitted for. Throws on a malformed request (see
  * {@link IAutoMovieEnvelopeRequest}).
  *
- * @evidence contracts/common.md#principled-implementation Solves the one-dimensional steady-state series resistance network per assembly, derives interior surface temperature and temperature factor from it, adds psi-times-length bridges, and judges condensation against the Magnus dew point, whose fitted temperature range is not checked.
- * @evidence contracts/common.md#clear-and-simple-design Returns separate thermal and moisture runs sharing inputs, solver and settings digest, with one warning list per run so a moisture target's unit mismatch never lands on the thermal run.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps a private copy of the Magnus constants and dew-point formula instead of calling the exported `autoMovieDewPoint`, so the two can drift apart; reverse heat flow is reported as a warning rather than corrected.
- * @evidence contracts/common.md#meaningful-documentation States the network equations, why there are two runs, the unsupported transient, vapour and solar terms, the not-run case, and the duplicated dew-point formula.
- * @evidence contracts/performance.md#cost-and-resources Linear in assemblies, their layers and bridges, plus metrics times targets for target lookup; assemblies are capped at 4096, which keeps the spread `Math.min` and `Math.max` calls within argument limits. Solves each assembly once for both runs' metrics and samples, computes one dew point for every margin, and builds one settings string for both seals; target-key warnings are computed per run over the union of both runs' keys. Allocates per-call arrays proportional to assemblies and keeps none after returning the thermal and moisture runs.
  * @author Samchon
  */
 export const analyzeAutoMovieEnvelope = (props: {

@@ -9,10 +9,6 @@ import { AutoMovieBuiltPlacementSupportLocator } from "./AutoMovieBuiltPlacement
  * `suspended` claim is accepted once both sides resolve; no hanging geometry is
  * measured.
  *
- * @evidence contracts/common.md#principled-implementation A bearing query reuses the prop kernel's two-sided footprint probes between the subject box and the support face, taking the deepest probe as the gap; a suspended query only checks that both locators resolve.
- * @evidence contracts/common.md#clear-and-simple-design A query names subject, support and relation kind and leaves measurement to the engine, so the authored claim and the measured answer stay separate records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A negative or non-finite tolerance throws instead of defaulting; the 1e-9 metre default is declared as a separate constant in each support module rather than imported from one shared definition.
- * @evidence contracts/common.md#meaningful-documentation States the tolerance unit, default and refusal, and the difference between bearing and suspended, including that suspension is not measured.
  * @author Samchon
  */
 export interface IAutoMovieBuiltSupportQuery {
