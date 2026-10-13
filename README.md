@@ -39,7 +39,7 @@ That is the whole delivery mechanism, and it is deliberate. A capability an agen
 ## Start a production
 
 ```bash
-npx create-automovie <dir> --language korean
+npx automovie start <dir> --language korean
 cd <dir>
 npm install --package-lock=false
 npm run lint
@@ -65,7 +65,6 @@ The [scaffold README](./packages/template/scaffold/README.md#canonical-command-r
 | [`@automovie/production`](./packages/production)             | Deterministic production library: the compiler, tracked project store, capture, inspection, and render job.                          |
 | [`@automovie/template`](./packages/template)                 | The scaffold every production is created from, the shared contracts its evidence graph cites, and the library that renders both.     |
 | [`automovie`](./packages/cli)                                | One-way project creation, Markdown TOC maintenance, external-asset inspection, and capability routes.                               |
-| [`create-automovie`](./packages/create-automovie)            | Package-manager-native one-command project creator.                                                                                 |
 | [`@automovie/playground`](./packages/playground)             | Browser demonstrations, Human editing and inspection applications, and their example parameter sets.                              |
 
 ## Repository development

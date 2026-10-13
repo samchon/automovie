@@ -187,7 +187,7 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 - `validateMotion`/`validatePose`/`clampPose` + ROM: 결정론적 오라클. 무엇을 만들든 물리 진실은 엔진이 심판한다.
 - `sampleMotion`/`sampleClip`: 재생 계약. 저작한 클립을 프레임으로 샘플링한다.
 
-[`@automovie/production`](../production)은 이 엔진의 두 번째 저작 API가 아니다. generated project가 자기 스크립트로 돌리는 결정론적 실행 계층(컴파일러, 추적되는 프로젝트 저장소, 캡쳐, 검사, 렌더 잡)일 뿐이다. 저작 하니스는 `npx create-automovie <dir> --language korean`으로 만든다. 언어는 `chinese`, `english`, `japanese`, `korean` 중 하나를 명시한다. The generated harness supplies `lint` and `evidence` commands. Authors write the execution and viewing commands they need in project-owned source using public package APIs.
+[`@automovie/production`](../production)은 이 엔진의 두 번째 저작 API가 아니다. generated project가 자기 스크립트로 돌리는 결정론적 실행 계층(컴파일러, 추적되는 프로젝트 저장소, 캡쳐, 검사, 렌더 잡)일 뿐이다. 저작 하니스는 `npx automovie start <dir> --language korean`으로 만든다. 언어는 `chinese`, `english`, `japanese`, `korean` 중 하나를 명시한다. The generated harness supplies `lint` and `evidence` commands. Authors write the execution and viewing commands they need in project-owned source using public package APIs.
 
 ## 모듈
 

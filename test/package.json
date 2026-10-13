@@ -30,7 +30,6 @@
     "@huggingface/transformers": "catalog:media",
     "@nestia/e2e": "catalog:samchon",
     "automovie": "workspace:^",
-    "create-automovie": "workspace:^",
     "h264-mp4-encoder": "catalog:media",
     "kokoro-js": "catalog:media",
     "libopus-wasm": "catalog:media",

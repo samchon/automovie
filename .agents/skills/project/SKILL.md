@@ -32,7 +32,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 - `human` owns numerical human capability and basis assets.
 - `production` orchestrates engine, evidence, and render with no network authoring surface; `mcp` only reads production Markdown.
 - `archetypes` owns the shipped figure and prop catalogue; a customer's own content stays in its production.
-- `template/scaffold` owns the generated harness; `cli` and `create-automovie` install it; `evidence` builds a production's contract graph.
+- `template/scaffold` owns the generated harness; `cli` installs it; `evidence` builds a production's contract graph.
 - The four productions under `experimental/` feed the public website and are not disposable.
 
 ## Commands
