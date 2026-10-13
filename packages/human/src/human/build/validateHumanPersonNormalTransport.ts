@@ -5,31 +5,33 @@ import type { IAutoMovieHumanPersonSourceWeight } from "../structures/IAutoMovie
 import { validateHumanPersonSourceCoverage } from "./validateHumanPersonSourceCoverage";
 
 /**
- * Admit fixed source normal cells independently of renderer tessellation.
- * Both complementary skins share the same parent-local subdivision tree.
- * Geometric and normal-cell partitions each retain complete positive chart
- * coverage. Dense vertex bindings select actual incident cells and reproduce
- * their canonical geometric preimages; raw bindings retain the existing
- * ordered source chart. Ancestral normal domains remain separate from these
- * deformation-side domains. Returned cells and binding charts are owned.
- * This establishes immutable lineage, not performed source validity or a
- * reference frame. The normal consumer admits those actual coordinates.
+ * Admit fixed normal-cell lineage independently of renderer tessellation. Paired halves share identical ordered parent subdivisions; unlisted parents use one implicit raw cell. Fixed cells and emitted cells each pass positive complete source-chart coverage. Dense bindings select actual incident cells and reproduce canonical preimages through exact ordered two-coordinate arithmetic, retaining ancestral normal selectors separately from deformation domains.
+ *
+ * Both omitted transport records return undefined; partial metadata refuses. IDs/domains/coordinates are dimensionless, and admitted geometric plans/topology are caller premises. Returned cells, dense bindings and coordinate arrays are owned but remain mutable runtime values that consumers must leave unchanged. Actual reference/current finite geometry, differential rank and shading admission belong downstream; metadata proves neither physical embeddedness nor clinical tissue mechanics.
+ *
+ * @evidence contracts/common.md#principled-implementation Compatible fixed subdivisions and dense incident bindings reproduce canonical preimages, with complete chart coverage admitted first for fixed cells and again for emitted normal-cell partitions.
+ * @evidence contracts/common.md#clear-and-simple-design One paired metadata compiler preserves raw-versus-feature cell rules and delegates affine arithmetic/coverage; performed transport owns geometry and reference frames.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing halves, sparse bindings, nonincident selectors and unequal exact charts refuse; mutable copied lineage is not claimed frozen or physically/clinically validated.
+ * @evidence contracts/common.md#meaningful-documentation Prose specifies dimensionless namespaces, implicit raw cells, dense unused slots, owned mutable arrays and downstream actual-geometry limits.
+ * @evidence contracts/performance.md#efficient-algorithms Definition/cell/incidence passes scale with stored source/emitted populations; binding checks pay actual preimage/ID-set searches and exact serialization, while both coverage admissions include their edge/interval sorts.
+ * @evidence contracts/performance.md#reuse-equivalent-work Parent offsets/listed subdivisions and admitted preimage readers serve all emitted bindings; one shared coverage owner checks both source cell trees without independent fitting equations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary definitions/incidence/incident-chart maps expire after admission; only owned fixed cells and binding charts escape, without source handles, asynchronous tasks or a persistent validator cache.
  */
 export function validateHumanPersonNormalTransport(
   props: IAutoMovieHumanPersonNormalTransportValidationProps,
 ): IAutoMovieHumanPersonNormalTransportPlan | undefined {
-  const { plan } = props;
-  const left = props.face.transport;
-  const right = props.body.transport;
+  const { plan }: IAutoMovieHumanPersonNormalTransportValidationProps = props;
+  const left: IAutoMovieHumanPersonNormalTransportValidationProps["face"]["transport"] = props.face.transport;
+  const right: IAutoMovieHumanPersonNormalTransportValidationProps["body"]["transport"] = props.body.transport;
   if (left === undefined && right === undefined) return undefined;
   if (left === undefined || right === undefined)
     throw new Error("Person normal transport needs both compiled halves.");
-  const valid = (value: number, count: number): boolean =>
+  const valid: (value: number, count: number) => boolean = (value: number, count: number): boolean =>
     Number.isSafeInteger(value) && value >= 0 && value < count;
-  const parentCount = plan.face.parentTriangles.length / 3;
-  const definitions = [left, right].map((transport) => {
-    let prior = -1;
-    return Array.from(transport.subdivisions, (one) => {
+  const parentCount: number = plan.face.parentTriangles.length / 3;
+  const definitions: { parent: number; triangles: number[]; domains: number[] }[][] = [left, right].map((transport: NonNullable<typeof left>): typeof definitions[number] => {
+    let prior: number = -1;
+    return Array.from(transport.subdivisions, (one: typeof transport.subdivisions[number]): typeof definitions[number][number] => {
       if (
         one === undefined ||
         !valid(one.parent, parentCount) ||
@@ -37,9 +39,9 @@ export function validateHumanPersonNormalTransport(
         one.triangles.length === 0 ||
         one.triangles.length % 3 !== 0 ||
         one.domains.length !== one.triangles.length ||
-        Array.from(one.triangles).some((id) => !valid(id, plan.sampleCount)) ||
+        Array.from(one.triangles).some((id: number): boolean => !valid(id, plan.sampleCount)) ||
         Array.from(one.domains).some(
-          (id) => !Number.isSafeInteger(id) || id < 0,
+          (id: number): boolean => !Number.isSafeInteger(id) || id < 0,
         )
       )
         throw new Error(
@@ -55,15 +57,15 @@ export function validateHumanPersonNormalTransport(
   });
   if (JSON.stringify(definitions[0]) !== JSON.stringify(definitions[1]))
     throw new Error("Person normal transport subdivisions disagree.");
-  const listed = new Map(definitions[0].map((one) => [one.parent, one]));
+  const listed: Map<number, typeof definitions[number][number]> = new Map(definitions[0].map((one: typeof definitions[number][number]): [number, typeof one] => [one.parent, one]));
   const offsets: number[] = [];
-  const cells = Array.from({ length: parentCount }, (_, parent) => {
+  const cells: IAutoMovieHumanPersonNormalTransportPlan["cells"] = Array.from({ length: parentCount }, (_: unknown, parent: number): IAutoMovieHumanPersonNormalTransportPlan["cells"] => {
     offsets.push(0);
-    const one = listed.get(parent);
-    const triangles =
+    const one: typeof definitions[number][number] | undefined = listed.get(parent);
+    const triangles: readonly number[] =
       one?.triangles ??
       plan.face.parentTriangles.slice(parent * 3, parent * 3 + 3);
-    return Array.from({ length: triangles.length / 3 }, (_, cell) => ({
+    return Array.from({ length: triangles.length / 3 }, (_: unknown, cell: number): IAutoMovieHumanPersonNormalTransportPlan["cells"][number] => ({
       parent,
       samples: triangles.slice(cell * 3, cell * 3 + 3) as [
         number,
@@ -77,22 +79,22 @@ export function validateHumanPersonNormalTransport(
       ],
     }));
   }).flat();
-  let offset = 0;
-  for (let parent = 0; parent < parentCount; parent++) {
+  let offset: number = 0;
+  for (let parent: number = 0; parent < parentCount; parent++) {
     offsets[parent] = offset;
     offset += (listed.get(parent)?.triangles.length ?? 3) / 3;
   }
   validateHumanPersonSourceCoverage({
     parentTriangles: plan.face.parentTriangles,
     cells,
-    preimage: (_, sample) => plan.preimage(sample),
+    preimage: (_: number, sample: number): ReturnType<typeof plan.preimage> => plan.preimage(sample),
   });
-  const sides = [props.face, props.body];
-  const records = [plan.face, plan.body];
-  const transports = [left, right];
-  const bindings = sides.map((side, which) => {
-    const record = records[which];
-    const transport = transports[which];
+  const sides: IAutoMovieHumanPersonNormalTransportValidationProps["face"][] = [props.face, props.body];
+  const records: typeof plan.face[] = [plan.face, plan.body];
+  const transports: NonNullable<typeof left>[] = [left, right];
+  const bindings: IAutoMovieHumanPersonNormalTransportPlan["bindings"] = sides.map((side: typeof sides[number], which: number): IAutoMovieHumanPersonNormalTransportPlan["bindings"][number] => {
+    const record: typeof plan.face = records[which];
+    const transport: NonNullable<typeof left> = transports[which];
     if (
       transport.cells.length !== record.parents.length ||
       transport.bindings.length !== record.samples.length
@@ -100,21 +102,21 @@ export function validateHumanPersonNormalTransport(
       throw new Error(
         "Person normal cell and binding populations must match the surface.",
       );
-    const incidence = Array.from(
+    const incidence: Set<number>[] = Array.from(
       { length: record.samples.length },
-      () => new Set<number>(),
+      (): Set<number> => new Set<number>(),
     );
-    side.indices.forEach((vertex, at) => {
-      const cell = Math.floor(at / 3);
-      const parent = record.parents[cell];
-      const local = transport.cells[cell];
+    side.indices.forEach((vertex: number, at: number): void => {
+      const cell: number = Math.floor(at / 3);
+      const parent: number = record.parents[cell];
+      const local: number = transport.cells[cell];
       if (!valid(local, (listed.get(parent)?.triangles.length ?? 3) / 3))
         throw new Error(
           "Person normal emitted cell names an absent local source cell.",
         );
       incidence[vertex].add(offsets[parent] + local);
     });
-    return Array.from(transport.bindings, (binding, vertex) => {
+    return Array.from(transport.bindings, (binding: typeof transport.bindings[number], vertex: number): IAutoMovieHumanPersonNormalTransportPlan["bindings"][number][number] => {
       if (binding === undefined)
         throw new Error("Person normal bindings must be dense.");
       if (incidence[vertex].size === 0) {
@@ -163,28 +165,28 @@ export function validateHumanPersonNormalTransport(
           "Person feature normal binding needs its ordered two-coordinate chart.",
         );
       interpolateHumanBasisSourceTriangle([0, 1, 0], binding.coordinates);
-      const cell = cells[offsets[binding.parent] + binding.cell];
-      const ids = new Set(
-        cell.samples.flatMap((sample) =>
-          plan.preimage(sample).map((point) => point.id),
+      const cell: typeof cells[number] = cells[offsets[binding.parent] + binding.cell];
+      const ids: Set<number> = new Set(
+        cell.samples.flatMap((sample: number): number[] =>
+          plan.preimage(sample).map((point: IAutoMovieHumanPersonSourceWeight): number => point.id),
         ),
       );
-      const expected = plan.preimage(record.samples[vertex]);
+      const expected: ReturnType<typeof plan.preimage> = plan.preimage(record.samples[vertex]);
       if (
-        [...ids].some((id) => {
-          const value = interpolateHumanBasisSourceTriangle(
+        [...ids].some((id: number): boolean => {
+          const value: number = interpolateHumanBasisSourceTriangle(
             cell.samples.map(
-              (sample) =>
-                plan.preimage(sample).find((point) => point.id === id)
+              (sample: number): number =>
+                plan.preimage(sample).find((point: IAutoMovieHumanPersonSourceWeight): boolean => point.id === id)
                   ?.weight ?? 0,
             ) as [number, number, number],
             binding.coordinates,
           );
           return (
-            value !== (expected.find((point) => point.id === id)?.weight ?? 0)
+            value !== (expected.find((point: IAutoMovieHumanPersonSourceWeight): boolean => point.id === id)?.weight ?? 0)
           );
         }) ||
-        expected.some((point) => !ids.has(point.id))
+        expected.some((point: IAutoMovieHumanPersonSourceWeight): boolean => !ids.has(point.id))
       )
         throw new Error(
           "Person normal chart disagrees with its canonical geometric sample.",
@@ -196,22 +198,22 @@ export function validateHumanPersonNormalTransport(
       };
     });
   });
-  const normalParents = cells.flatMap((cell) => cell.samples);
-  const incidentCharts = new Map<string, IAutoMovieHumanPersonSourceWeight[]>();
-  const emitted = sides.flatMap((side, which) =>
-    records[which].parents.map((parent, cell) => {
-      const normalParent = offsets[parent] + transports[which].cells[cell];
-      const samples = side.indices
+  const normalParents: number[] = cells.flatMap((cell: typeof cells[number]): number[] => cell.samples);
+  const incidentCharts: Map<string, IAutoMovieHumanPersonSourceWeight[]> = new Map<string, IAutoMovieHumanPersonSourceWeight[]>();
+  const emitted: Parameters<typeof validateHumanPersonSourceCoverage>[0]["cells"][number][] = sides.flatMap((side: typeof sides[number], which: number): Parameters<typeof validateHumanPersonSourceCoverage>[0]["cells"][number][] =>
+    records[which].parents.map((parent: number, cell: number): Parameters<typeof validateHumanPersonSourceCoverage>[0]["cells"][number] => {
+      const normalParent: number = offsets[parent] + transports[which].cells[cell];
+      const samples: number[] = side.indices
         .slice(cell * 3, cell * 3 + 3)
-        .map((vertex) => {
-          const sample = records[which].samples[vertex];
-          const binding = bindings[which][vertex]!;
-          const weights = cells[normalParent].samples.includes(sample)
+        .map((vertex: number): number => {
+          const sample: number = records[which].samples[vertex];
+          const binding: NonNullable<typeof bindings[number][number]> = bindings[which][vertex]!;
+          const weights: IAutoMovieHumanPersonSourceWeight[] = cells[normalParent].samples.includes(sample)
             ? [{ id: sample, weight: 1 }]
             : binding.cell === undefined
               ? [...plan.preimage(sample)]
-              : cells[binding.cell].samples.flatMap((id, corner) => {
-                  const weight = interpolateHumanBasisSourceTriangle(
+              : cells[binding.cell].samples.flatMap((id: number, corner: number): IAutoMovieHumanPersonSourceWeight[] => {
+                  const weight: number = interpolateHumanBasisSourceTriangle(
                     [
                       corner === 0 ? 1 : 0,
                       corner === 1 ? 1 : 0,
@@ -221,9 +223,9 @@ export function validateHumanPersonNormalTransport(
                   );
                   return weight > 0 ? [{ id, weight }] : [];
                 });
-          weights.sort((a, b) => a.id - b.id);
-          const key = `${normalParent}:${sample}`;
-          const prior = incidentCharts.get(key);
+          weights.sort((a: IAutoMovieHumanPersonSourceWeight, b: IAutoMovieHumanPersonSourceWeight): number => a.id - b.id);
+          const key: string = `${normalParent}:${sample}`;
+          const prior: IAutoMovieHumanPersonSourceWeight[] | undefined = incidentCharts.get(key);
           if (
             prior !== undefined &&
             JSON.stringify(prior) !== JSON.stringify(weights)
@@ -240,7 +242,7 @@ export function validateHumanPersonNormalTransport(
   validateHumanPersonSourceCoverage({
     parentTriangles: normalParents,
     cells: emitted,
-    preimage: (parent, sample) => incidentCharts.get(`${parent}:${sample}`)!,
+    preimage: (parent: number, sample: number): IAutoMovieHumanPersonSourceWeight[] => incidentCharts.get(`${parent}:${sample}`)!,
   });
   return { cells, bindings };
 }

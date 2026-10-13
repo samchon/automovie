@@ -6,28 +6,31 @@ import type { IAutoMovieHumanPersonSkinPartProps } from "../structures/IAutoMovi
 /**
  * A partition's skin render part placed on the evaluated person skin.
  *
- * The part must carry the partition builder's actual registration: every
- * render vertex names the canonical sample of the skin vertex it reads, in
- * the partition's own source domain. Each render vertex then takes that skin
- * vertex's posed position and its normal from the one normal field, and the
- * part's correspondence moves from the partition's domain to the person's,
- * so both halves share one physical identity per sample. Other domains (parts
- * the skin does not own) keep theirs. A part without that registration
- * refuses by name.
+ * Every supplied render source must match its actual physical canonical sample in the partition's origin domain. Scatter final posed skin positions and one shared normal field (offset measured in vertices), then copy/rebase origin metadata to the person domain. Other domains remain unchanged. Missing or mismatched registration refuses.
+ *
+ * Positions use common person-frame metres and normals are dimensionless. Input mesh alias metadata is engine-admitted before placement; complete source/coordinate/normal populations and performed output validity are upstream/downstream consumer premises, not fully checked again here. Returned positions/normals/physical metadata are owned; untouched geometry attributes remain borrowed.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact per-render source identity admits origin correspondence before final skin/common-normal scattering and person-instance physical rebase.
+ * @evidence contracts/common.md#clear-and-simple-design This adapter owns indexed scatter and domain conversion; performed skin evaluation and final model admission retain their owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/mismatched physical registration refuses without a positional weld; complete field populations and final output validity remain explicit consumer premises.
+ * @evidence contracts/common.md#meaningful-documentation Prose states metre/dimensionless units, vertex normal offset, ownership and the actual before-versus-after admission boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Input alias admission pays its actual source population; source checks/scatter are O(render vertices), and metadata copy/rebase is O(source records) without a geometric search.
+ * @evidence contracts/performance.md#reuse-equivalent-work The existing source-corner table and shared normal field serve all emitted vertices; topology/UVs are reused rather than independently rebuilt.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns changed coordinates/normals and copied physical arrays, borrowing other attributes; local checks retain no source field, task or cache after return.
  */
 export function placeHumanPersonSkinPart(
   props: IAutoMovieHumanPersonSkinPartProps,
 ): IAutoMovieMesh {
-  const { mesh, sources, positions, normals, offset, samples, origin, domain } =
+  const { mesh, sources, positions, normals, offset, samples, origin, domain }: IAutoMovieHumanPersonSkinPartProps =
     props;
   if (mesh.physicalVertices === undefined)
     throw new Error(
       "Person physical registration needs both actual registered skin halves.",
     );
   resolveAutoMovieMeshPhysicalVertices(mesh);
-  sources.forEach((source, vertex) => {
-    const reference = mesh.physicalVertices!.vertices[vertex];
-    const actual =
+  sources.forEach((source: number, vertex: number): void => {
+    const reference: number | null = mesh.physicalVertices!.vertices[vertex];
+    const actual: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] | undefined =
       reference === null
         ? undefined
         : mesh.physicalVertices!.sources[reference];
@@ -46,15 +49,15 @@ export function placeHumanPersonSkinPart(
     positions: mesh.positions.slice(),
     normals: [],
     physicalVertices: {
-      sources: mesh.physicalVertices.sources.map((source) => ({
+      sources: mesh.physicalVertices.sources.map((source: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]): NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] => ({
         ...source,
         domain: source.domain === origin ? domain : source.domain,
       })),
       vertices: mesh.physicalVertices.vertices.slice(),
     },
   };
-  sources.forEach((source, vertex) => {
-    for (let axis = 0; axis < 3; axis++) {
+  sources.forEach((source: number, vertex: number): void => {
+    for (let axis: number = 0; axis < 3; axis++) {
       out.positions[vertex * 3 + axis] = positions[source * 3 + axis];
       out.normals![vertex * 3 + axis] = normals[(source + offset) * 3 + axis];
     }

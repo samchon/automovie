@@ -4,43 +4,28 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHairContactProps";
 
 /**
- * Keep generated hair out of the body's shoulders and chest, at the same
- * clearance the hair document asked of the head.
+ * Apply two sampled station-translation passes against the complete posed body, using each generated hair layout's metre clearance or the legacy ribbon gap.
  *
- * The face builder integrates every strand against the head alone, in the
- * head's own frame, because the head is all it knows. A person also has
- * shoulders, and a long strand, or a strand carried by a turned or tilted
- * head, can end inside them. The person owns that relation, so it is settled
- * here, after the body is posed. The query retains the complete source
- * triangle population: a spatial crop can disconnect a vertex's incident
- * fans even when the original surface is admitted. Its open mode preserves
- * the body's actual cut boundary, and a rim feature says no side and leaves
- * the station alone. Every hair vertex closer than `clearance` to that
- * surface, including the ones inside the body, contributes a displacement
- * to the nearest surface point plus the clearance along the surface's normal
- * there. Stations whose sampled vertices are already clear are not touched,
- * so a head with no contact keeps its hair byte for byte. An empty population allocates no
- * query. The full source hierarchy supplies nearest-feature pruning without
- * altering incidence or imposing a fixed reach on a document clearance.
+ * The engine's open-sheet query admits complete original body incidence and uses nearest-feature pseudonormal side; rim hits leave the station alone. Embedded outward-oriented geometry and meaningful sheet reach remain caller premises. Every pass selects the largest sampled vertex push at one station and translates the whole station. Clear sampled stations stay unchanged and empty hair allocates no query.
  *
- * Geometry-owned stations move as wholes, preserving ribbon width or shaft
- * calibre. A supplied layout identifies each part's own gap and canonical
- * attached root; a root needing a body push refuses without changing its seat.
- * Only legacy ribbon transport derives paired stations from mesh topology.
- * Each non-root station moves as a whole under each
- * translation. Two passes use the largest sampled vertex push at that station;
- * they constrain neither strand arc length nor complete face clearance and
- * do not establish collision-free or biologically valid hair contact. The
- * assembled result and scalp root attachment remain separate observations.
+ * Supplied layouts must partition actual referenced vertices once and retain a singleton radius-zero/arcLength-zero root. A root requiring a push refuses. Only legacy ribbons derive numbered pairs from connected triangle components. Translation preserves station width/calibre but changes centreline lengths and does not certify full-face clearance, global collisions or biological contact. Inputs remain unchanged in the common person metre frame; copied position arrays are owned by the caller.
+ *
+ * @evidence contracts/common.md#principled-implementation Complete open-body incidence supplies actual nearest features; geometry-owned station partitions and gaps route two largest-sampled-push whole-station translations while native roots remain fixed or refuse.
+ * @evidence contracts/common.md#clear-and-simple-design Engine query owns signed nearest geometry, supplied layouts own station identity, and this person relation owns only posed-body pushes; legacy numbering is confined to its fallback helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Body crops and guessed native station membership are absent, rim side remains unresolved, and two passes do not claim complete clearance, fixed strand length or clinical contact.
+ * @evidence contracts/common.md#meaningful-documentation Prose states metre gaps/frame, actual root/layout admission, sheet reach premises and owned output limitations.
+ * @evidence contracts/performance.md#efficient-algorithms One full-body query compilation pays topology/hierarchy costs; two sampled vertex passes use nearest-first queries with O(body triangles) worst-case per point. Layout checks are linear in referenced vertices; legacy component grouping adds per-component vertex sorting.
+ * @evidence contracts/performance.md#reuse-equivalent-work One immutable body query serves all selected hair parts and both passes; station arrays compile once per part and already-clear coordinates retain their bytes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Copied body/query and station/seen maps are invocation-local; only copied hair position arrays escape, with no persistent query cache, timer or running task.
  */
 export function keepHumanPersonHairClear(
   props: IHumanPersonHairContactProps,
 ): number[][] {
-  const { positions, hair, clearance } = props;
+  const { positions, hair, clearance }: IHumanPersonHairContactProps = props;
   if (!(clearance >= 0) || !Number.isFinite(clearance))
     throw new Error("Hair clearance must be a nonnegative finite length.");
-  if (hair.every((part) => part.positions.length === 0))
-    return hair.map((part) => part.positions.slice());
+  if (hair.every((part: IHumanPersonHairContactProps["hair"][number]): boolean => part.positions.length === 0))
+    return hair.map((part: IHumanPersonHairContactProps["hair"][number]): number[] => part.positions.slice());
   const mesh: IAutoMovieMesh = {
     positions: positions.slice(),
     normals: null,
@@ -48,17 +33,17 @@ export function keepHumanPersonHairClear(
     indices: [...props.indices],
     skin: null,
   };
-  const query = createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
-  return hair.map(({ positions: part, indices: triangles, layout }) => {
-    const output = part.slice();
-    const gap = layout?.clearance ?? clearance;
+  const query: ReturnType<typeof createAutoMovieSignedMeshQuery> = createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
+  return hair.map(({ positions: part, indices: triangles, layout }: IHumanPersonHairContactProps["hair"][number]): number[] => {
+    const output: number[] = part.slice();
+    const gap: number = layout?.clearance ?? clearance;
     if (!Number.isFinite(gap) || gap < 0)
       throw new Error("Hair part clearance must be a nonnegative finite length.");
-    const strands = layout === undefined ? humanRibbonStations(triangles) :
-      layout.curves.map((curve) => curve.stations.map((station) => Array.from(station.vertices)));
+    const strands: number[][][] = layout === undefined ? humanRibbonStations(triangles) :
+      layout.curves.map((curve: NonNullable<typeof layout>["curves"][number]): number[][] => curve.stations.map((station: typeof curve.stations[number]): number[] => Array.from(station.vertices)));
     if (layout !== undefined) {
-      const referenced = new Set(triangles);
-      const seen = new Set<number>();
+      const referenced: Set<number> = new Set(triangles);
+      const seen: Set<number> = new Set<number>();
       for (const [curveIndex, curve] of layout.curves.entries()) {
         if (curve.stations.length === 0 || curve.stations[0].radius !== 0 ||
             curve.stations[0].arcLength !== 0 || curve.stations[0].vertices.length !== 1)
@@ -81,23 +66,23 @@ export function keepHumanPersonHairClear(
     // Produced layouts define complete rings or ribbon pairs. The legacy
     // fallback retains only the original ribbon numbering contract.
     for (const strand of strands)
-      for (let pass = 0; pass < 2; pass++)
+      for (let pass: number = 0; pass < 2; pass++)
         for (const [stationIndex, station] of strand.entries()) {
           let push: number[] | null = null;
-          let most = 0;
+          let most: number = 0;
           for (const vertex of station) {
-            const p = [
+            const p: number[] = [
               output[vertex * 3],
               output[vertex * 3 + 1],
               output[vertex * 3 + 2],
             ];
-            const found = query(p);
+            const found: ReturnType<typeof query> = query(p);
             if (found.boundary || found.signedDistance >= gap) continue;
-            const need = [0, 1, 2].map(
-              (axis) =>
+            const need: number[] = [0, 1, 2].map(
+              (axis: number): number =>
                 found.point[axis] + found.normal[axis] * gap - p[axis],
             );
-            const size = Math.hypot(need[0], need[1], need[2]);
+            const size: number = Math.hypot(need[0], need[1], need[2]);
             if (size > most) {
               most = size;
               push = need;
@@ -107,7 +92,7 @@ export function keepHumanPersonHairClear(
             throw new Error("Attached native hair root conflicts with the body's requested clearance.");
           if (push !== null)
             for (const vertex of station)
-              for (let axis = 0; axis < 3; axis++)
+              for (let axis: number = 0; axis < 3; axis++)
                 output[vertex * 3 + axis] += push[axis];
         }
     return output;
@@ -115,35 +100,35 @@ export function keepHumanPersonHairClear(
 }
 
 /**
- * The stations of each strand of a ribbon mesh, root first. A ribbon strand is
- * a connected component of triangles whose vertices are numbered in order: one
- * root vertex, then a left and a right corner per station.
+ * Group legacy ribbon triangles by connected vertex components, sort each component's numeric IDs and interpret its first vertex as root followed by numbered pairs. This is the original legacy numbering premise, not native shaft reconstruction or topology validation; an unmatched last vertex has no station pair.
+ *
+ * Union/root map operations follow actual triangle links without a global mesh cache; root lookup does not implement full rank balancing. Per-component sorting costs O(V log V) in the largest component. Temporary maps and returned station arrays live only within the contact call, and caller triangles remain unchanged.
  */
 function humanRibbonStations(triangles: readonly number[]): number[][][] {
-  const parent = new Map<number, number>();
-  const find = (vertex: number): number => {
-    let root = vertex;
+  const parent: Map<number, number> = new Map<number, number>();
+  const find: (vertex: number) => number = (vertex: number): number => {
+    let root: number = vertex;
     while ((parent.get(root) ?? root) !== root) root = parent.get(root)!;
     parent.set(vertex, root);
     return root;
   };
-  for (let at = 0; at < triangles.length; at += 3)
-    for (let k = 1; k < 3; k++)
+  for (let at: number = 0; at < triangles.length; at += 3)
+    for (let k: number = 1; k < 3; k++)
       parent.set(find(triangles[at + k]), find(triangles[at]));
-  const strands = new Map<number, number[]>();
+  const strands: Map<number, number[]> = new Map<number, number[]>();
   for (const vertex of new Set(triangles)) {
-    const root = find(vertex);
-    let list = strands.get(root);
+    const root: number = find(vertex);
+    let list: number[] | undefined = strands.get(root);
     if (list === undefined) {
       list = [];
       strands.set(root, list);
     }
     list.push(vertex);
   }
-  return [...strands.values()].map((vertices) => {
-    const ordered = vertices.sort((a, b) => a - b);
+  return [...strands.values()].map((vertices: number[]): number[][] => {
+    const ordered: number[] = vertices.sort((a: number, b: number): number => a - b);
     const stations: number[][] = [[ordered[0]]];
-    for (let k = 1; k + 1 < ordered.length; k += 2)
+    for (let k: number = 1; k + 1 < ordered.length; k += 2)
       stations.push([ordered[k], ordered[k + 1]]);
     return stations;
   });
