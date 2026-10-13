@@ -13,6 +13,14 @@ import type {
  * `resolveHumanFaceArticulation` produces one per owner from the expression
  * weights; `poseHumanFaceSurface` applies them through the attachments.
  *
+ * @evidence contracts/common.md#principled-implementation The existing articulation owner supplies rotation about the shaped joint pivot followed by translation; poseHumanFaceSurface evaluates that same affine rigid image for each registered owner weight.
+ * @evidence contracts/common.md#clear-and-simple-design Quaternion, pivot and translation keep transform ordering explicit instead of hiding the joint point in a matrix or rotating about the origin.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This output represents source-authored joint kinematics, not measured physiological motion; the type alone validates no unit quaternion, physical budget or skinning admission.
+ * @evidence contracts/common.md#meaningful-documentation The exact affine formula and metre pivot/translation distinguish shape-following joint location from authored expression rotation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no quaternion composition or vertex transformation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Owner-motion reuse belongs to articulation/pose evaluation, not this output schema.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three caller values create no rig, surface or motion-cache handle.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceRigidMotion {

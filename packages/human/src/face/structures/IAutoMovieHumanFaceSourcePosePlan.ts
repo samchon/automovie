@@ -18,6 +18,14 @@ import type { IAutoMovieHumanBasisSourceChartPoint } from "../../common/basis/IA
  * a generation label alone cannot establish native-prefix correspondence.
  * Geometry, targets, attachments and UVs retain separate preparation checks.
  *
+ * @evidence contracts/common.md#principled-implementation The pose owner supplies its already-posed native prefix to replayHumanFaceSourceRefinements, which evaluates appended samples through their ordered original parent triangle with the shared source interpolation, avoiding noncommuting rest-point skinning.
+ * @evidence contracts/common.md#clear-and-simple-design Generation, native prefix count, original incidence and dense appended chart order keep face-native pose correspondence separate from full-body normal/source IDs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Replay requires matching dense finite layouts, resident distinct native corners, valid parents and exact corner-alias agreement; generation matching cannot alone certify source topology, attachments, UVs or final contact.
+ * @evidence contracts/common.md#meaningful-documentation Prefix/frozen-neck ownership, parent ordinal and ordered dimensionless coordinates explain which samples replay and which retain original source posing.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The plan record performs no native pose or source interpolation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared source correspondence is a reuse premise, not a performed-buffer cache here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Publisher incidence/sample arrays create no posed skin or contact state.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceSourcePosePlan {

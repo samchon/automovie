@@ -14,6 +14,14 @@ import type { IAutoMovieHumanFaceMaterialPatch } from "./IAutoMovieHumanFaceMate
  * Column counts are cage columns counted from the medial join along each lid,
  * the join included. Vertex lists index the cage's host skin surface.
  *
+ * @evidence contracts/common.md#principled-implementation Cage-column counts determine the current medial seating transition; actual native pocket/plica edges or a qualified material patch supply source-normal visible relief instead of the legacy ruled sheet.
+ * @evidence contracts/common.md#clear-and-simple-design Upper/lower bed extents, pocket/path populations and optional material cuts have separate domains under the containing skin cage.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Medial relief requires resident pocket triangles, a supported extent and a plica path following their actual edges; those checks do not establish whole-pocket topology, and authoredConvention/sourceObserved labels certify neither histology nor individual caruncle anatomy or emitted-face clearance.
+ * @evidence contracts/common.md#meaningful-documentation Join-inclusive column counts and resident versus material support identify each source address and the publisher qualification.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The bed record performs no arc reading, native clipping or relief construction.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Registered support is source data, not current-pocket caching implemented here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Publisher index/patch arrays acquire no generated sheet or skin host.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFacePeriocularMedialBed {

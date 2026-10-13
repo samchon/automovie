@@ -5,6 +5,14 @@
  * becoming invented universal slider limits. A current value comes from the
  * document reader, never a universal person's anatomical default.
  *
+ * @evidence contracts/common.md#principled-implementation Shared hair/facial-shaft/skin catalogues expose the runtime owner's units, open/closed bounds, choices and dependent rules; current values remain with the numerical document readers.
+ * @evidence contracts/common.md#clear-and-simple-design Path/label/unit, scalar interval, closed choices and qualification are independent metadata rather than one guessed universal slider range.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null bounds do not become fabricated finite limits, scalar intervals do not replace coupled runtime admission, and styling metadata supplies no physiological default or clinical population calibration.
+ * @evidence contracts/common.md#meaningful-documentation Exclusive flags, optional step and visible dependency/qualification explain the exact numerical authoring domain without converting units.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This descriptor performs no document update or styling validation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared metadata catalogues are data ownership, not evaluated geometry caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Strings/scalars/choice arrays create no hair meshes, skin textures or editor task.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceStylingDescriptor {
