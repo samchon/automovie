@@ -3,6 +3,14 @@
  * expression in these same units; the current expression is evaluated relative
  * to that observation. Omitted channels are zero, which denotes neutral.
  *
+ * @evidence contracts/common.md#principled-implementation Named millimetre/degree/fraction performance is resolved independently on each anatomical side and evaluated relative to the recorded source expression, with zero omissions and finite supported authoring envelopes.
+ * @evidence contracts/common.md#clear-and-simple-design Blink, brow/commissure motion, jaw/lips/tongue and gaze retain their units and owners instead of arbitrary vertex deltas or an undifferentiated weight vector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Opposite sides do not fill omissions, declared envelopes are not universal clinical maxima, and nonzero tongue/jaw motion still requires the admitted profile/hinge and coupled geometry support.
+ * @evidence contracts/common.md#meaningful-documentation Members give signs, physical/fraction units, supported bounds and oral/hinge prerequisites; the parent explains observed-versus-current reference.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This type performs no expression resolution or tissue posing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A saved performance record defines no pose cache or reference-expression reuse strategy.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The personal document owns its optional scalar/pair values; the schema opens no joint or tissue resource.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceExpression {
