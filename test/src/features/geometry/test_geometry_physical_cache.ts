@@ -5,7 +5,6 @@ import { createMeshPhysicalPartitionMatcher } from "../../../../packages/engine/
 import { TestValidator } from "@nestia/e2e";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/predicates";
-import { IAutoMovieMesh } from "@automovie/interface";
 /**
  * Cache reuse requires source meaning and connectivity, not just equal incidence.
  * Scenarios:

@@ -7,7 +7,6 @@ import { pointHullDistance } from "../../../../packages/engine/src/math/pointHul
 import { pointInHull } from "../../../../packages/engine/src/math/pointInHull";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, vclose, throwsError } from "../internal/predicates";
-import { IAutoMovieVector3 } from "@automovie/interface";
 const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
