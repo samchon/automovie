@@ -28,7 +28,7 @@ const requestSchema: z.ZodType<AutoMovieReferenceRequest> = z.discriminatedUnion
  * @evidence contracts/common.md#clear-and-simple-design One parser owns unknown-input admission and returns either a typed request with required budget or null.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed values, unknown operations and extra keys are refused without coercing submitted fields or reflecting their contents.
  * @evidence contracts/common.md#meaningful-documentation The return type documents applied budget and null refusal; the caller owns subsequent error classification.
- * @evidence contracts/performance.md#efficient-algorithms One bounded request shape is parsed with no document scan; constructing the four-member union is module-local fixed work.
+ * @evidence contracts/performance.md#efficient-algorithms The four-member union is module-local fixed work and admitted fields have their schema limits. Strict admission also inspects submitted object keys and constructs refusal issues for invalid fields; an invalid envelope's key count and submitted text are uncapped here. No production document is scanned.
  * @evidence contracts/performance.md#reuse-equivalent-work The fixed union reuses the public operation schemas; request results are not retained across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the admitted request's small value copy escapes; schemas retain no source bytes, file handles or tasks.
  */

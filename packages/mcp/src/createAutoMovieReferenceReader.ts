@@ -29,23 +29,16 @@ const sameFile: (a: IAutoMovieReferenceIdentity, b: IAutoMovieReferenceIdentity)
 /**
  * Bind an absolute production root to a stateless, physically checked Markdown reader.
  *
- * The namespace is checked before opening, before consuming bytes, and after the
- * bounded handle read. A replacement or concurrent write invalidates the result.
- * Windows observations compare pathname identities separately from descriptor
- * identities; a second resident handle corroborates the latter. Own-open ctime
- * drift is tolerated only inside that read, without ignoring identity or mtime.
- * Node's pathname APIs expose observations, not a kernel-level namespace lock;
- * hostile actors with unrestricted concurrent namespace control remain an OS
- * observation boundary rather than something pure unit tests can certify.
+ * The namespace is checked before opening, before consuming bytes, and after the bounded handle read. A replacement or concurrent write detected by those observations invalidates the result. Windows observations compare pathname identities separately from descriptor identities; a second resident handle corroborates the latter. Own-open ctime drift is tolerated only inside that read, without ignoring identity or mtime. Node's pathname APIs expose observations, not a kernel-level namespace lock; hostile actors with unrestricted concurrent namespace control remain an OS observation boundary rather than something pure unit tests can certify.
  *
  *
  * @evidence contracts/common.md#principled-implementation An absolute physical root and its ancestry are pinned; source reads compare pathname and descriptor identities before and after bounded I/O, with a second resident handle on Windows.
  * @evidence contracts/common.md#clear-and-simple-design Root binding, directory checks, file admission and walk operations stay within one read-only capability rather than exposing arbitrary paths to requests.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Linked and special entries, identity changes and concurrent writes refuse; Windows own-open ctime tolerance still checks inode, content size and modification time. Path observations cannot lock a hostile namespace.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Observed linked and special entries, identity changes and version changes refuse; hidden names are skipped during inventory. Windows own-open ctime tolerance still checks inode, content size and modification time. Path observations cannot lock a hostile namespace or prove every concurrent write was detected.
  * @evidence contracts/common.md#meaningful-documentation The comment states Windows comparison differences and the OS observation limit; read/list return current bounded bytes or canonical identities and sanitize I/O failures.
- * @evidence contracts/performance.md#efficient-algorithms For F entries at directory depth D, walking repeats ancestry checks with O(FD) observations, bounded at 32 levels and 10,000 Markdown files; one read copies at most 8 MiB plus overflow detection.
+ * @evidence contracts/performance.md#efficient-algorithms With N enumerated inventory entries including skipped hidden names, Q pinned root ancestors and D layer-relative depth, walking repeats ancestry observations with an O(N(Q + D)) upper bound plus name inspection. Layer descent stops beyond depth 32 and Markdown accumulation stops at entry 10,001, but non-Markdown entries, directory counts, root depth and directory-name arrays are uncapped. A direct read performs O(Q + D) observations and at most 8 MiB plus one overflow byte of I/O; the inventory's depth limit does not govern direct-read paths.
  * @evidence contracts/performance.md#reuse-equivalent-work Pinned root facts are retained but rechecked each operation; current file versions and byte results are never reused merely because paths match.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Root ancestry facts live with the reader. Each primary and Windows corroborating descriptor closes in finally on success or failure; inventories and byte buffers remain request-local.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Q root ancestry observations live with the reader; a walk holds ancestry copies and pending name arrays along its at-most-33 active directory frames, plus up to 10,001 attempted Markdown paths. Directory width and path text are uncapped. A read owns its primary descriptor and, on Windows, one corroborating descriptor; finally blocks await each close attempt on success or refusal, but close failure propagates as IO_ERROR and does not prove physical release. Read buffers and inventories are invocation-local rather than cached.
  */
 export async function createAutoMovieReferenceReader(
   root: string,

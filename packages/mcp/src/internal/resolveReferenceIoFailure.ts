@@ -2,9 +2,7 @@ import { ReferenceError } from "./ReferenceError";
 import { fail } from "./fail";
 
 /**
- * Classify a native read failure without exposing source paths or diagnostics.
- * Intentional reference refusals retain their original identity; primitive and
- * unknown thrown values become a sanitized IO_ERROR instead of being dereferenced.
+ * Classify a native read failure without exposing source paths or diagnostics. Intentional reference refusals retain their original identity; primitive and unknown thrown values become a sanitized IO_ERROR instead of being dereferenced.
  *
  *
  * @evidence contracts/common.md#principled-implementation Intentional ReferenceError instances propagate unchanged; recognized native error codes map to fixed recovery categories and unknown values become IO_ERROR.

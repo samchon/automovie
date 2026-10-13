@@ -10,7 +10,7 @@
  * @evidence contracts/common.md#meaningful-documentation Members state offset and coordinate bases; the type owns no validation.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased coordinate type owns no source string; parseReference's resolver creates scalar offset, line and column records, whose callers retain them without the resolver's line-start array.
  *
  * @author Samchon
  */

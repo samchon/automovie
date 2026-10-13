@@ -15,9 +15,7 @@ const identity: (entry: BigIntStats) => IAutoMovieReferenceIdentity = (entry: Bi
 });
 
 /**
- * Compose the actual Node-compatible physical host. Reads hold a descriptor,
- * consume at most the admitted extent plus one byte and preserve short-read/EOF
- * semantics. The policy that admits those observations lives with the reader.
+ * Compose the actual Node-compatible physical host. Reads hold a descriptor, consume at most the admitted extent plus one byte and preserve short-read/EOF semantics. The policy that admits those observations lives with the reader.
  *
  *
  * @evidence contracts/common.md#principled-implementation Public Node read-only pathname and descriptor APIs supply bigint identity facts; each bounded read loops until EOF or the admitted extent plus one overflow byte.
@@ -26,7 +24,7 @@ const identity: (entry: BigIntStats) => IAutoMovieReferenceIdentity = (entry: Bi
  * @evidence contracts/common.md#meaningful-documentation The comment states descriptor ownership, overflow detection and short-read behavior; callers must close each successfully opened handle.
  * @evidence contracts/performance.md#efficient-algorithms Reading N bytes takes O(N) copying plus short-read calls; a maximum-plus-one buffer and final returned copy coexist during the read.
  * @evidence contracts/performance.md#reuse-equivalent-work One descriptor serves its stat, read and close operations; no pathname or byte result is cached across requests.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The reader owns descriptor release in finally blocks; this adapter owns temporary read buffers until the returned byte copy transfers to the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each successful native.open transfers one descriptor to the reader, which awaits close in finally; a rejected close is a failed release attempt rather than proof that the descriptor was released. This adapter allocates maximum-plus-one bytes and a returned copy per read, whose extent is bounded by the caller-supplied maximum; the production reader admits that maximum at 8 MiB, while this port itself adds no maximum check.
  */
 export function createAutoMovieReferenceFileSystem(
   native: Pick<typeof fs, "lstat" | "realpath" | "readdir" | "open"> = fs,

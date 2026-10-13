@@ -10,7 +10,7 @@ import type { AutoMovieAuthoredDocumentLayer } from "@automovie/evidence";
  * @evidence contracts/common.md#meaningful-documentation Members document current byte reads, canonical enumeration and absent-layer behavior.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased read/list capability opens no path; createAutoMovieReferenceReader returns a closure with pinned root observations, and its actual read implementation owns descriptor acquisition and release per request.
  *
  * @author Samchon
  */
@@ -24,7 +24,7 @@ export interface IAutoMovieReferenceReader {
    * @evidence contracts/common.md#meaningful-documentation The member states current byte reads and production nonmutation.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This signature chooses no runtime algorithm; the supplied concrete operation owns traversal and I/O costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This capability declaration coordinates no cache; the owning operation decides when effects and observations may be reused.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned bytes transfer to the request owner; the concrete reader releases all opened descriptors before completion.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned bytes transfer to the request owner; createAutoMovieReferenceReader awaits finally-block close attempts for every opened descriptor. A rejected close propagates as IO_ERROR and does not certify physical release.
    */
   read(file: string): Promise<Uint8Array>;
 

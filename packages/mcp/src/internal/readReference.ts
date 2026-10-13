@@ -14,7 +14,7 @@ type Heading = ParsedReference["headings"][number];
  * @evidence contracts/common.md#clear-and-simple-design Selection, stale checks and optional piece-map publication use one parsed snapshot and shared omission helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, ambiguous or unsupported anchors refuse, and oversized-result handling remains the provider's complete-envelope responsibility.
  * @evidence contracts/common.md#meaningful-documentation Options document exact anchor, stale revision and opt-in detail; result metadata identifies the selected original interval and retained source text.
- * @evidence contracts/performance.md#efficient-algorithms Anchor selection scans H headings, omission selects K comments in O(log A plus K), and diagnostics scan U unterminated intervals; content copying is proportional to selected text.
+ * @evidence contracts/performance.md#efficient-algorithms Anchor selection scans H headings, omission selects K comments in O(log(A + 1) plus K), and diagnostics scan U unterminated intervals. For T line starts, selected and diagnostic coordinates plus optional detail ranges cost O((K + U + 1) log(T + 1)) in the upper bound; content copying and UTF-8 byte counting inspect the selected text. Results remain invocation-local.
  * @evidence contracts/performance.md#reuse-equivalent-work Digest, ancestry and comment positions are reused from the supplied snapshot; detail maps use the same retained slices as content.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned text and optional span arrays transfer to the response owner; the parsed source remains caller-owned and no I/O is initiated.
  */

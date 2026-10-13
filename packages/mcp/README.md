@@ -17,4 +17,4 @@ automovie-mcp --root /absolute/production
 | `read_section_without_annotations` | One section, with HTML comments removed and everything else original |
 | `read_file_without_annotations` | One whole file, the same way |
 
-Every response stays within a byte budget or is refused whole; a stale revision is refused so the caller rereads the index. `planAutoMovieReferenceClientConfiguration` proposes Claude and Codex client registrations without writing them.
+Every response stays within a byte budget or is refused whole; a stale revision is refused so the caller rereads the index.

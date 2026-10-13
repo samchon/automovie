@@ -2,9 +2,7 @@ import type { IAutoMovieReferenceIdentity } from "../structures/IAutoMovieRefere
 import { fail } from "./fail";
 
 /**
- * Admit a non-directory inventory observation before its name can be published.
- * Linked and special entries are rejected even when they do not end in .md,
- * because silently skipping an alias would change the observed population.
+ * Admit a non-directory inventory observation before its name can be published. Linked and special entries are rejected even when they do not end in .md, because silently skipping an alias would change the observed population.
  *
  *
  * @evidence contracts/common.md#principled-implementation Only a regular file with exactly one native link is admitted after non-directory observation.

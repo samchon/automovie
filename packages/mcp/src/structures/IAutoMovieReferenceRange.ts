@@ -10,7 +10,7 @@ import type { IAutoMovieReferencePosition } from "./IAutoMovieReferencePosition"
  * @evidence contracts/common.md#meaningful-documentation Members document endpoint inclusion and empty-span meaning.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased interval type owns no snapshot; parseReference's resolver returns two scalar position records that navigation or projection callers hold without retaining the coordinate resolver closure.
  *
  * @author Samchon
  */

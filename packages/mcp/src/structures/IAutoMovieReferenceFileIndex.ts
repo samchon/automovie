@@ -11,7 +11,7 @@ import type { IAutoMovieReferenceHeading } from "./IAutoMovieReferenceHeading";
  * @evidence contracts/common.md#meaningful-documentation Members state canonical identity, byte extent, headings and unterminated annotation diagnostics.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased navigation schema allocates no inventory; indexReference returns titles, revisions and coordinate records whose lifetime belongs to the response caller, without the parsed source body's resolver closure or a descriptor.
  *
  * @author Samchon
  */

@@ -24,17 +24,16 @@ import type {
 /**
  * Bind four stateless reference operations to a read-only source capability.
  *
- * Each request reads current bytes. Layer continuation hashes the complete ordered
- * file revisions observed by that request, without claiming atomicity across files.
+ * Each request reads current bytes. Layer continuation hashes the complete ordered file revisions observed by that request, without claiming atomicity across files.
  *
  *
  * @evidence contracts/common.md#principled-implementation Strict schemas admit four operations; exact path policy precedes reads, source revisions bind stale checks and continuation, and complete serialized envelopes must fit their declared budget.
  * @evidence contracts/common.md#clear-and-simple-design One stateless dispatcher shares navigation and projection helpers between SDK and local transports without claiming an atomic multi-file snapshot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Oversized sources, duplicate inventory identities, stale revisions and oversized results refuse instead of truncating content or reflecting external exception text.
  * @evidence contracts/common.md#meaningful-documentation The comment states current-source reads and non-atomic continuation; classified failures carry provider-authored recovery text.
- * @evidence contracts/performance.md#efficient-algorithms A layer sorts F paths in O(F log F), copies and hashes at most 32 MiB, and parses up to 100 page files; repeated growing-page serialization costs O(P squared) output size and remains an acknowledged bounded cost.
+ * @evidence contracts/performance.md#efficient-algorithms A layer first copies and sorts the reader's F paths with O(F log F) string comparisons, then checks the 10,000-file ceiling; an injected over-limit list therefore still incurs copy and sort work. Admitted sources total at most 32 MiB and at most 100 page files are parsed. Repeated growing-page JSON serialization costs the sum of page-prefix sizes, quadratic in page length for equal-sized file indices; source parsing and reader I/O are additional delegated costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Within a layer request each copied file's digest is shared by continuation and its parse; no result is reused across independent current-source requests.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A request retains at most 10,000 paths and 32 MiB of copied sources plus one page's parsed outputs; provider closures retain only the reader, with no handles or background tasks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources An admitted layer retains at most 10,000 paths and 32 MiB of copied source bytes plus a page's parsed outputs, current reader buffer and temporary JSON strings. These are not a bound on total transient allocation: the raw injected inventory is copied before its count check, path text has no aggregate ceiling, and parser structures coexist with source copies. Request locals become collectable on success or refusal; the provider closure retains only its caller-supplied reader and opens no handle or background task.
  */
 export function createAutoMovieReferenceProvider(
   reader: IAutoMovieReferenceReader,

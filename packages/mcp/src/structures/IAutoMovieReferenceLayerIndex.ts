@@ -11,7 +11,7 @@ import type { IAutoMovieReferenceFileIndex } from "./IAutoMovieReferenceFileInde
  * @evidence contracts/common.md#meaningful-documentation Members state complete total, UTF-16 path ordering and next-offset revision binding.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased page type holds no source population itself; createAutoMovieReferenceProvider returns at most one admitted page of file indices and a continuation to its caller, while copied source snapshots remain request-local.
  *
  * @author Samchon
  */

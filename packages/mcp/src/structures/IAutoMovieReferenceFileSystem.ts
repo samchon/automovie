@@ -1,8 +1,7 @@
 import type { IAutoMovieReferenceIdentity } from "./IAutoMovieReferenceIdentity";
 
 /**
- * The reader's own read-only host port. Native operations supply physical facts;
- * reference policy neither replaces their methods nor reproduces a filesystem.
+ * The reader's own read-only host port. Native operations supply physical facts; reference policy neither replaces their methods nor reproduces a filesystem.
  *
  * @evidence contracts/common.md#principled-implementation Native pathname and descriptor observations supply read-only physical identity and bounded bytes.
  * @evidence contracts/common.md#clear-and-simple-design One injected host port separates filesystem effects from portable reference policy.
@@ -10,7 +9,7 @@ import type { IAutoMovieReferenceIdentity } from "./IAutoMovieReferenceIdentity"
  * @evidence contracts/common.md#meaningful-documentation Members state bigint observations, overflow byte and descriptor close ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased host-port schema acquires no descriptor; createAutoMovieReferenceFileSystem returns native capabilities, while createAutoMovieReferenceReader owns each successful open until its corresponding finally close attempt.
  *
  * @author Samchon
  */
@@ -63,7 +62,7 @@ export interface IAutoMovieReferenceFileSystem {
    * @evidence contracts/common.md#meaningful-documentation The member and returned ports state identity, maximum-plus-one overflow detection and unconditional close ownership.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This signature chooses no runtime algorithm; the supplied concrete operation owns traversal and I/O costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This capability declaration coordinates no cache; the owning operation decides when effects and observations may be reused.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The reader closes each successful descriptor in finally on success or refusal, including its Windows corroborating handle.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Each successful descriptor transfers to the reader until its finally close attempt, including the Windows corroborating handle; a rejected close propagates and cannot certify physical release.
    */
   open(location: string): Promise<{
 

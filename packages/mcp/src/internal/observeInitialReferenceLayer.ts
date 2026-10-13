@@ -1,8 +1,5 @@
 /**
- * Observe the initially requested layer. Only its initial absence can become
- * an empty population, and only after the bound root is rechecked. A missing
- * root or a later walk failure must still propagate; this boundary never
- * handles disappearance after a walk has begun.
+ * Observe the initially requested layer. Only its initial absence can become an empty population, and only after the bound root is rechecked. A missing root or a later walk failure must still propagate; this boundary never handles disappearance after a walk has begun.
  *
  *
  * @evidence contracts/common.md#principled-implementation Only ENOENT from the initial requested-layer observation becomes null, after root recheck succeeds; later walk failures are outside this boundary.

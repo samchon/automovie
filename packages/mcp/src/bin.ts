@@ -4,11 +4,11 @@ import { startAutoMovieMcpServer } from "./startAutoMovieMcpServer";
 async function main(argv: readonly string[]): Promise<void> {
   if (argv.length !== 2 || argv[0] !== "--root")
     throw new Error("usage: automovie-mcp --root <absolute-production-root>");
-  const manifest = require("../package.json") as { version: string };
+  const manifest: { version: string } = require("../package.json") as { version: string };
   await startAutoMovieMcpServer(argv[1], manifest.version);
 }
 
-void main(process.argv.slice(2)).catch(() => {
+void main(process.argv.slice(2)).catch((): void => {
   process.stderr.write(
     "automovie-mcp: unable to start; require --root <absolute-production-root> with physical read access.\n",
   );

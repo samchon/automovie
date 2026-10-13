@@ -11,7 +11,7 @@ import type { AutoMovieAuthoredDocumentLayer } from "@automovie/evidence";
  * @evidence contracts/common.md#meaningful-documentation Members state numeric ranges, stale revision meaning, detail opt-in and complete-envelope budgeting.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased request union acquires no source bytes or handle; parseAutoMovieReferenceRequest returns copied scalar request fields to provider dispatch, and the invoking caller owns their lifetime.
  */
 export type AutoMovieReferenceRequest =
   | {

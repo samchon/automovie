@@ -18,13 +18,9 @@ const read: {expectedDigest:z.ZodOptional<z.ZodString>;detail:z.ZodOptional<z.Zo
  * The four narrow input schemas reused by MCP registration and local admission.
  *
  *
- * Strict Zod objects encode the four operation-specific inputs, the shared authored layer tuple, bounded numeric fields and lowercase SHA-256 revision syntax.
- * One schema registry is consumed by both local admission and SDK registration, keeping transport argument grammar identical.
- * Unknown keys and out-of-range values are rejected; root replacement and authoring operations have no schema entry.
- * Each member identifies its operation and optional stale/detail behavior; limits and defaults are applied by schema construction and the request parser.
- * Four schema objects are initialized once; validation traverses one small request envelope and never source documents.
- * The same schema instances serve registration and parsing for the process lifetime, with no source-dependent validation cache.
- * Module-owned schemas retain fixed grammar objects and the shared thirteen-layer tuple, without project bytes or handles.
+ * Strict Zod objects encode the four operation-specific inputs, shared thirteen-layer tuple, numeric limits and lowercase SHA-256 revision syntax. Unknown keys and out-of-range values refuse; root replacement and authoring operations have no schema entry, and optional stale/detail arguments belong only to content reads.
+ *
+ * Four process-owned schema instances serve local admission and SDK registration without a source-dependent result cache. Validation inspects request arguments rather than documents; grammar objects retain no project bytes, handles or tasks, and the parser supplies the absent budget default.
  */
 export const autoMovieReferenceSchemas: {
 

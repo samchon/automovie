@@ -39,7 +39,7 @@ interface Heading extends IAutoMovieReferenceHeading {
  * @evidence contracts/common.md#meaningful-documentation Members state original UTF-16 positions, source revision and coordinate ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased snapshot schema owns no parse itself; parseReference returns decoded source, interval arrays and a resolver closure retaining line starts for the snapshot caller's lifetime, without a file descriptor.
  *
  * @author Samchon
  */

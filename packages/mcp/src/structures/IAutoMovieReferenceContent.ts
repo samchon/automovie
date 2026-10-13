@@ -12,7 +12,7 @@ import type { IAutoMovieReferenceFileIndex } from "./IAutoMovieReferenceFileInde
  * @evidence contracts/common.md#meaningful-documentation Members state source/content byte units, original intervals and detail=true piece-map ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased projection schema owns no parser; readReference returns selected text, heading metadata and optional coordinate arrays to the response owner without retaining the parsed source or descriptor through a resolver closure.
  *
  * @author Samchon
  */

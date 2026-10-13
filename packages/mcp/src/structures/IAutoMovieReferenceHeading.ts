@@ -10,7 +10,7 @@ import type { IAutoMovieReferenceRange } from "./IAutoMovieReferenceRange";
  * @evidence contracts/common.md#meaningful-documentation Members state depth, original title, anchor, location, parent and addressability meanings.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased heading type retains no document itself; parseReference creates title/address strings and scalar coordinate records, and compactReferenceHeading shares those values with navigation or content results for their caller-owned lifetime.
  *
  * @author Samchon
  */

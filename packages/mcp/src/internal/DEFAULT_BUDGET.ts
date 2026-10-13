@@ -2,12 +2,6 @@
 
 /** Default UTF-8 byte allowance for one serialized success envelope.
  *
- * The 64 KiB default supplies an absent complete serialized-success envelope allowance.
- * A default byte policy is distinct from the largest caller-selected allowance.
- * The default does not truncate source text or override an explicit valid budget.
- * The comment identifies UTF-8 serialized success-envelope bytes.
- * Applying the scalar default is O(1); JSON byte counting remains response-owner work.
- * Request parsing shares this one documented default across both transports.
- * The fixed scalar retains no response bytes or task.
+ * Request parsing applies 64 KiB in O(1) only when the complete success-envelope UTF-8 byte allowance is absent, without overriding an explicit budget or truncating content. Both transports share this process-owned scalar; JSON byte counting belongs to the response owner, and the scalar retains no response bytes or task.
  */
 export const DEFAULT_BUDGET: number = 65_536;

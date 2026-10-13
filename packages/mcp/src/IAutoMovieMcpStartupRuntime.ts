@@ -12,7 +12,7 @@ import type { IAutoMovieReferenceReader } from "./structures/IAutoMovieReference
  * @evidence contracts/common.md#meaningful-documentation Members state root binding, installed version and transport ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration chooses no runtime algorithm; its producer owns traversal and parsing costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares a representation without coordinating completed or in-flight operations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-held values retain only their documented fields; implementations own handles and source-lifetime bounds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased startup-port type acquires no transport; startAutoMovieMcpServer invokes its reader, server and transport capabilities, so acquisition and connection lifetime belong to that operation and its eventual caller.
  *
  * @author Samchon
  */
@@ -26,7 +26,7 @@ export interface IAutoMovieMcpStartupRuntime {
    * @evidence contracts/common.md#meaningful-documentation The member documents initial root binding and asynchronous reader transfer.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This signature chooses no runtime algorithm; the supplied concrete operation owns traversal and I/O costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This capability declaration coordinates no cache; the owning operation decides when effects and observations may be reused.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The startup caller receives a bound reader; the implementation owns any temporary filesystem observations and releases its descriptors.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The startup caller receives a bound reader; createAutoMovieReferenceReader retains pinned path observations and opens no descriptor during binding. Its later read operation owns finally-block close attempts, whose rejection cannot prove physical release.
    */
   reader(root: string): Promise<IAutoMovieReferenceReader>;
 

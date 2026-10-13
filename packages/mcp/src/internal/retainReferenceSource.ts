@@ -3,10 +3,7 @@ import type { ParsedReference } from "./ParsedReference";
 type Interval = ParsedReference["annotations"][number];
 
 /**
- * Project an original interval outside the parsed snapshot's ordered comment
- * intervals. Parser heading labels and content reads use the same lossless
- * slices; no non-comment character is regenerated or normalized. The caller
- * supplies original UTF-16 offsets from that snapshot.
+ * Project an original interval outside the parsed snapshot's ordered comment intervals. Parser heading labels and content reads use the same lossless slices; no non-comment character is regenerated or normalized. The caller supplies original UTF-16 offsets from that snapshot.
  *
  *
  * @evidence contracts/common.md#principled-implementation Binary search finds the first intersecting ordered comment interval, then original source slices retain every noncomment character within the caller's UTF-16 span.
