@@ -11,6 +11,13 @@ import { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
  * table is given. `mirror` does not change a slot; it shows only through the
  * texture transform. Every other occurrence is listed in `cut`.
  *
+ * @evidence contracts/common.md#principled-implementation A whole occurrence maps to one full-TRS slot: translation from its centre on its facet or the main frame, rotation from the frame's U turned in-plane with `+Z` on the normal, and per-axis scale from size and thickness.
+ * @evidence contracts/common.md#clear-and-simple-design Two lists, slots and cut ids, so the caller instances one and builds the other as geometry without filtering.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cut piece is never scaled into a wrong-shaped slot; it is listed in `cut` for the caller to build, and `mirror` is left to the texture transform.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, how each slot field is derived, the prototype indexing, the role of `mirror`, and where the remaining occurrences go.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; one constant-time slot per whole occurrence, answered on `autoMoviePatternInstanceTransforms`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Slots are built per call from the run result and not retained between calls or frames.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns both arrays, and every slot's translation, rotation and scale is computed fresh, so no slot aliases the frame or a placement.
  * @author Samchon
  */
 export interface IAutoMoviePatternInstancing {

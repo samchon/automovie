@@ -6,6 +6,13 @@
  * `thickness` within `1e-9` m; a non-finite or non-positive thickness is itself
  * reported as a violation. Omitting `host` skips the comparison.
  *
+ * @evidence contracts/common.md#principled-implementation A one-field record carrying the nominal host depth that validation compares with the summed layer thickness under an absolute `1e-9` m slack, which absorbs floating-point summation error at building scale while still refusing any measurable mismatch.
+ * @evidence contracts/common.md#clear-and-simple-design A record rather than a bare number, so the optional `host` argument of the validator and the resolver says which dimension it carries, and omitting it is the single switch that skips the comparison.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The `1e-9` m slack is one named constant in `validateAutoMovieMaterialAssembly` applied to every assembly alike, and a non-finite or non-positive host depth is reported as a violation instead of being clamped.
+ * @evidence contracts/common.md#meaningful-documentation States the two functions that read it, the equality it imposes and its tolerance, that an invalid host depth is itself a violation, that omitting `host` skips the check, and that the value is metres along the stacking axis.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Has no code of its own; the comparison costs one sum over the layers validation already walks, answered on `validateAutoMovieMaterialAssembly`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller supplies it per validation or resolution call, and neither reader remembers a host or the layer sum computed against it.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A single number owned by the caller's argument object; neither the validator nor the resolver keeps a reference to it after returning.
  * @author Samchon
  */
 export interface IAutoMovieAssemblyHost {

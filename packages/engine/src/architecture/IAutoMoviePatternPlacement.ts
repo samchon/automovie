@@ -7,9 +7,16 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * Produced by `generateAutoMovieSurfacePattern`. The module rectangle is
  * clipped to its zone region; a candidate whose clipped area, or whose area
  * after exclusions, is at most `1e-12` m² is absent rather than recorded with
- * zero area. `variant` depends only on the pattern seed and `id`, so it does
- * not change when other pieces are added or reordered.
+ * zero area. `variant` depends only on the pattern seed, the variant count and
+ * `id`, so it does not change when other pieces are added or reordered.
  *
+ * @evidence contracts/common.md#principled-implementation The module rectangle is clipped to its convex zone region by Sutherland-Hodgman and measured against exclusions by convex clipping, so `area`, `coverage` and `cut` describe the piece as laid; the variant is a seeded draw from the pattern seed, the variant count and the id alone.
+ * @evidence contracts/common.md#clear-and-simple-design Carries identity, provenance, the generated geometry and every derived measurement in one record, so mesh, slot, finish and take-off cite the same occurrence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A fully clipped module is absent rather than recorded at zero area, and a punched piece keeps its convex outline with the loss in `punchedArea` rather than a fabricated non-convex shape.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, when a candidate is absent, the variant's dependence, the id format, units, the coverage range with its rounding caveat, the cut cases, and why joints use `outline` and what `punchedArea` means.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each placement costs a constant clip plus one clip per exclusion, answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run builds placements once, and the instancer, texturer and take-off all read that one list rather than re-laying the pattern.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh points and a fresh outline array owned by the run result.
  * @author Samchon
  */
 export interface IAutoMoviePatternPlacement {
@@ -49,7 +56,10 @@ export interface IAutoMoviePatternPlacement {
   /** Surviving area in square metres: the region clip minus excluded area. */
   area: number;
 
-  /** Surviving fraction of the module's own area, within `(0, 1]`. */
+  /**
+   * Surviving fraction of the module's own area, within `(0, 1]` up to
+   * floating-point rounding of the clipped area.
+   */
   coverage: number;
 
   /**

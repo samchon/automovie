@@ -10,6 +10,13 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * A piece an exclusion reaches keeps its convex outline; the area it lost is
  * reported as `punchedArea` and as an `unsupported-piece` finding.
  *
+ * @evidence contracts/common.md#principled-implementation A convex polygon validated by comparing it with its own convex hull, so subtracting it by convex clipping is exact, and refusing overlapping exclusions keeps the summed subtraction from counting area twice.
+ * @evidence contracts/common.md#clear-and-simple-design An id and a polygon are all an exclusion needs; it applies to every zone so an opening crossing a zone border is stated once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A punched piece keeps its convex outline and is reported as an `unsupported-piece` finding rather than handed back as an outline that quietly covers the opening.
+ * @evidence contracts/common.md#meaningful-documentation States the scope across zones, every refusal with its overlap tolerance, how a reached piece is reported, the uniqueness of the id and the polygon's convexity requirement.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; the run clips each surviving piece against every exclusion, answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The canonical hull of each exclusion is built once per run and reused for every zone and piece in it.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the authored polygon; the run keeps its canonical copy only for the call's duration.
  * @author Samchon
  */
 export interface IAutoMoviePatternExclusion {
