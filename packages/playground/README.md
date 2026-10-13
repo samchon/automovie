@@ -1,73 +1,28 @@
 # @automovie/playground
 
-Browser development surfaces for inspecting engine geometry, poses, motion, cameras and object placement. The face editor renders resident numerical geometry through the AutoMovie viewer. Both face page URLs mount the same editor.
+Private browser pages for developing AutoMovie: Human face, body and person editors, the resident Human inspection application, and pages that exercise engine motion, film and physics. It is not published.
 
 ## Run
 
-The Human inspection application lives in `src/human/inspection`; its UI, document examples and camera parameter examples belong to Playground. Numerical Human computation belongs to `@automovie/human`, while GPU viewports, capture, source authority and server lifetimes belong to `@automovie/viewer`. Example documents are under [`src/human/examples`](src/human/examples), including `faces.json`, `face-controls.json`, `bodies.json` and `cameras/poses-lens-frame.json`. The repository bundles no basis or person generation: the connected editors read the caller's `faceSource` URL, or the `headSource` and `bodySource` pair, and refuse without one, and the Human inspection reads published files only from its ignored storage's `published` directory.
-
-Start the resident inspection application as an attached job with `pnpm --filter @automovie/playground human:viewer ensure`. Open `http://127.0.0.1:5175/view`; `HUMAN_VIEWER_PORT` selects another port and `HUMAN_VIEWER_STORAGE_ROOT` selects its mutable storage. The UI exposes part selection, orbit, zoom, pan, view and material passes, reference comparison and construction export. Source changes retain the last completed model and camera until a checked replacement completes. Actual interactive displays are saved automatically to the checkout's `.shots/output`; metadata, input documents and runtime caches remain in the selected storage. Use the matching `human:viewer status` or `human:viewer:control status` command to inspect that instance.
-
-Use the same port and storage selection for every command addressing an instance. `human:viewer:control status` runs under plain Node so a source type error does not prevent service inspection. Readiness establishes service availability; verify the displayed model and orbit, zoom, pan and part selection in the actual browser before declaring the viewer recovered. Inspect the displayed source generation when comparing a retained model with changed source. Elapsed uptime and a silent health probe do not authorize stopping another owner's process or replacing a valid display.
-
-For the ordinary Playground pages with retained document and camera state, run `pnpm --filter @automovie/playground exec ttsx src/viewer/playground-viewer-host.mts` as an attached job. `PLAYGROUND_VIEWER_PORT` selects an unused loopback port, defaulting to `5173`; `PLAYGROUND_VIEWER_STORAGE_ROOT` selects metadata and cache storage outside `.shots/output`. The host checks the normal Playground project and uses the installed Human browser output, so build `@automovie/human` before the first launch or after changing its numerical source. The viewer serves the original page inside a retained parent; its Source changed button prepares a replacement from the current document and viewport and commits only a completed hardware display. Source or publication failures retain the previous page. A pending or unresolved Human build lock refuses new candidates without an age limit. Existing hosts keep their original server implementation; start an independently owned host to observe changed server code while preserving the earlier instance.
-
 ```bash
-pnpm --filter @automovie/playground dev
+pnpm --filter @automovie/playground dev       # Vite at http://127.0.0.1:5173
 pnpm --filter @automovie/playground build
-pnpm --filter @automovie/playground preview
+pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
+pnpm --filter @automovie/playground human:viewer ensure   # Human inspection at http://127.0.0.1:5175/view
 ```
 
-The default development URL is `http://127.0.0.1:5173`. The development command first builds `@automovie/human`, including its schema-transformed browser entry. After changing human source, rebuild that package and reload the editor. `preview` serves the built `dist` at `http://127.0.0.1:4173`. The connected editors read a selected gzip basis by content, inflating only bytes that open with the gzip magic, so a server that marks `.gz` with `Content-Encoding: gzip` and hands the page inflated JSON (`vite preview`) and one that sends the stored bytes unmarked (a plain static server) both work.
+`dev` builds `@automovie/human` first; rebuild it after changing Human source. The repository holds no Human basis: the connected editors load the URL given as `faceSource`, or the `headSource` and `bodySource` pair, and refuse without one. The inspection application reads only its storage's `published` directory; `HUMAN_VIEWER_PORT` and `HUMAN_VIEWER_STORAGE_ROOT` select another instance, and every command addressing an instance must use the same pair.
 
-## Anatomical face editor
+## Pages
 
-Simple mode presents 26 shape controls, including age structure, facial fullness and paired eyes, lips and ears. Fine detail exposes the underlying shape and performance coordinates. Switching modes does not edit the face. Simple changes preserve paired differences and unlisted detail; the available range narrows when those differences require it. Both modes save the same fine numerical document. Age structure is an authored morphological axis, not a calibrated age in years.
+| Page | Exercises |
+| --- | --- |
+| `face.html`, `connected-face.html` | Face editor: simple and fine shape, expression, skin, eyes and hair, with undo, document save and GLB export |
+| `connected-body.html` | Body editor: shape channels, macro and tape measurements, clinical joint angles, contact check and GLB export |
+| `connected-person.html` | One-person editor, including facial hair |
+| `index.html`, `drivers.html`, `stickman.html` | Procedural proportions, poses, IK, drivers and hand-authored clips |
+| `gesture.html`, `showcase.html`, `film.html` | Engine gestures, actions and the script-to-cut film pipeline |
+| `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
+| `knight.html`, `archery.html`, `spar.html` | Mounted, archery and boxing scenes |
 
-Open `/face.html` or `/connected-face.html` for the [connected whole-face capability](../human/README.md). Fine controls are nested under the face, then anatomical regions and subparts; shape and expression still save the same flat IDs. The basis-bound hierarchy has one owner for each channel, resident surface and appearance field, with the continuous `Human` skin owned by the face root. Search finds both a channel name and its group name without changing hidden values. Each control states its source endpoint displacement in millimetres. Jaw opening and gaze show endpoint rotation in degrees, while forward/lateral jaw excursions show millimetres; the document still saves weights, and these source bounds are not validated population ranges or clinical trajectories. Selection, numerical edits, presets and document loading share undo/redo and last-valid-state recovery. Save document preserves the exact basis revision. Skin pigmentation and scalp hair are numerical fields evaluated by shared generators; personal bitmaps, sculpt fields and groom resource names are refused.
-
-Open `/connected-body.html` for the [connected body capability](../human/README.md). A connected body basis exposes 148 shape channels grouped by region (132 from the source; fourteen individuality traits: gluteal ptosis and projection, the fullness of the breast's lower pole, the abdominal apron, flank and outer-thigh fat, the hip dip, rectus, deltoid and scapular definition, skeletal prominence; and the two musculature definition channels), the eight macro controls (gender, age, muscle, weight, height, proportions, cup size, firmness) and 52 clinical joints. The Simple body section reads the current body back as the numbers a person knows (sex, age, stature in cm, mass in kg, muscle) and its tape measurements (waist, hip, bust, thigh, upper arm and calf girth, shoulder breadth), and applies edited values through the package's expansion over the current shape, so a detailed edit survives; the archetype presets (a slender woman, a bodybuilder, a giant, an elderly man, …) are those same values solved on click, a stature or mass beyond the basis's reach being refused with the reach. A measured channel (bust, waist, hips, thigh, shoulder breadth, limb lengths, stature) states its girth, length or height in millimetres at neutral and at each end; every other channel states what one unit moves. Joints are edited in clinical degrees inside the pinned ranges, with the rest angle marked and an axis the constraint holds shown disabled. An axis a basis coupling drives states the coupled degrees, the coupling and the total beside its slider; the document keeps only what the author wrote. Body and pose presets, numerical edits and document loading share the face editor's undo/redo and last-valid-state recovery; Save document keeps the exact basis revision and Export GLB downloads the current posed static body. The neutral connected face is shown seated on the head bone so the figure is judged whole; it is display only and is not part of the body document or its export. The body page names the face basis by the revision it reads off the head of the face basis asset, not by loading a face study, and when the companion face cannot be built the status line says why and body editing continues. Check contacts reports which skin segments cross in the current pose with the same instrument as the shipped census.
-
-Open `/face.html`. The editor consumes [Human](../human/README.md) and the numerical subject documents in `src/human/examples/faces.json`, which is empty until documents for a selected basis are authored. Photographs are reference inputs for judgment; they are not runtime fitting inputs. The old face-package page and `/head.html` have been retired.
-
-The [numerical hair capability](../human/README.md) replaces personal groom resources with scalar profiles and shared scalp correspondence. Its shared generators preserve numerical authoring; anatomical and visual acceptance still requires actual observation of the assembled face.
-
-The connected worker stays alive across edits. It compiles the basis once and returns resident geometry directly; GLB is encoded only when Export GLB is clicked. Export captures that click's committed document and can finish while later edits continue. Pending or refused previews leave the displayed buffers unchanged. Successful deformations update existing buffers; changed topology or materials stage a replacement group. Texture preparation preserves the exporter's glTF UV orientation. This architecture does not itself establish an interactive latency budget; the current investigation and measurements are tracked in [#2533](https://github.com/samchon/automovie/issues/2533).
-
-Appearance edits reuse the last shape/expression pose in the connected worker. Shared skin positions, articulation, contact and normals are recalculated when either weight set changes. One generated hairstyle is also reused while that pose and its numerical hair values remain the same; other material, skin or iris edits receive owned mesh and finish copies. Both caches hold one state, and every published resident mesh owns its arrays independently of that state.
-
-The connected renderer keeps exact copies of the source positions, normals, UVs, indices and closure requirement that passed Float32 and manifold admission for the displayed frame. It reuses that expensive verdict only when every one of those values is unchanged; it still checks the prepared arrays before publication. A changed shape, hair card or closure obligation takes the full geometry gate. Material and skin-colour changes continue through their ordinary model and resource checks.
-
-The editor consumes [human](../human/README.md), one shared basis and numerical documents. Camera presets, orbit controls and clay help inspect geometry. The Shadows checkbox isolates cast-shadow boundaries from surface form while preserving the direct lights, face document and export. Shadows start enabled; turning them off is an inspection mode, not a change to the anatomical model. The Occlusion checkbox bakes the face's ambient occlusion from its evaluated geometry (the human builder's `occlusion` option, 32 rays and 1024 texels); it starts enabled, and a change applies from the next build. Its fixed-option builder retains one pose's baked images, so appearance-only edits reuse them while shape or expression edits rebake.
-
-Fit frames the complete three-dimensional face and hair envelope for every orbit direction. It accounts for the viewport aspect and optical zoom, and expands the orbit limit and clipping range when needed. This changes only inspection, never the saved face or its exported geometry.
-
-Appearance edits linear RGB and numerical pigmentation fields. Hair layers expose their shared growth domain, population, hairline, six regional lengths, combing, lift, parting, curl, taper and procedural finish. Mean length scales the six canonical lengths together and preserves their ratios. Fine fields remain independently editable. Strip count controls generated geometry and is not a biological density measurement.
-
-Open `/connected-person.html` for the one-person editor. Its numerical input list includes each facial-hair site already stated in the selected document, with shaft count, length, calibre, emergence elevation, head-frontal flow, sampling step, seed and reflected finish and their owner's numerical domains. Zero count or length keeps the profile editable; omitted sites receive no default population. Apply changes one member and Remove record removes the whole selected site through the same person transaction used by history and file actions. These controls do not establish current-source geometry, visual quality or photographic likeness.
-
-A rejected edit preserves the last valid document/model. Undo, redo and reset operate on successful edits. Saved JSON retains numerical values and the shared basis identity. The self-contained GLB contains generated geometry and procedural images for the current expression. It is a derived static export. Generated geometry and unresolved likeness are separate outcomes.
-
-Pure editor adapter tests live in the workspace test package and import this private application's `src/human` modules through its workspace dependency. They construct an in-memory DOM or renderer port without starting a browser. Viewer's [createConnectedFaceViewport](../viewer/src/human/face/createConnectedFaceViewport.ts) composes resident numerical requests, staged geometry and explicit export. Its [createHumanResidentWorker](../viewer/src/human/common/createHumanResidentWorker.ts) correlates replies and recovers after transport failure. Manual frame completion applies the current clay and orbit state before drawing, just as the animation loop does. The connected face stage reuses static shadow maps between edits and refreshes them when geometry is published or clay and shadow casters change; orbiting the camera does not invalidate the maps. Actual GPU captures remain a separate visual check.
-
-## Other pages
-
-- `index.html`: procedural blockman proportions, joint poses and the built-in wave clip.
-- `drivers.html`: three-joint arm, two-bone IK and driver resolution.
-- `stickman.html`: stickman/humanoid and cat clips.
-- `gesture.html`, `showcase.html`: engine gesture/action vocabulary.
-- `film.html`: script/stage/block/perform/cut pipeline output.
-- `launch.html`, `impact.html`, `attach.html`, `trampoline.html`: projectile, impact, attachment and jump actions.
-- `knight.html`, `archery.html`, `spar.html`: mounted, archery and boxing scenes.
-
-## Motion assets
-
-Hand-authored libraries remain in `src/stickman-motion.ts` (including walk/run, wave, dance and shadowbox), `src/horse-motion.ts` (gaits, turns and rear), `src/cat-motion.ts` (gaits, leap, sit, stretch and tail flick) and `src/spar.ts` (the boxing exchange).
-
-Engine-generated motion is exercised by `attach-view.ts`, `launch-view.ts`, `impact-view.ts`, `trampoline-view.ts`, `gesture-view.ts`, `showcase-view.ts` and `film-view.ts`. Model/rig build scripts under `scripts/` produce the GLB scaffolds.
-
-Locomotion migration prioritizes humanoid walk/run/stroll/sprint, horse walk/trot/gallop/travel and cat walk/prowl. Non-gait gestures remain hand-authored until their own action/profile contract exists. A profile-generated replacement first needs regression checks against the existing observable behavior and playground captures for silhouette and timing.
-
-## Development checks
-
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
+Example Human documents and camera presets live in [`src/human/examples`](src/human/examples). A Human change is verified in the actual browser display, not by the success of an unrelated page.
