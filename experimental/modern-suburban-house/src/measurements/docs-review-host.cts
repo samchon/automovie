@@ -8,21 +8,25 @@ const decisionTargets = /#(?:declared-basis|source-support|fact-status)$/;
 const authorityWords = [
   {
     name: "user",
-    row: /사용자 (?:지시|금지|그래프|고정|상층|요구|제작)/,
-    body: /사용자|고정 그래프|상층 그래프/,
+    row: /\buser (?:instruction|prohibition|graph|fixed|upper|requirement|production)/,
+    body: /\buser|fixed graph|upper graph/,
   },
-  { name: "coordinator", row: /조정자/, body: /조정자/ },
+  { name: "coordinator", row: /coordinator/, body: /coordinator/ },
   {
     name: "fixed-graph",
-    row: /(?:고정|상층) 그래프/,
-    body: /(?:고정|상층) 그래프|사용자 그래프/,
+    row: /(?:fixed|upper) graph/,
+    body: /(?:fixed|upper) graph|user graph/,
   },
   {
     name: "author-choice",
-    row: /저작 (?:선택|조건|결정)/,
-    body: /저작 (?:선택|조건|결정)|채택|정한다|정했다/,
+    row: /authoring (?:choice|condition|decision)/,
+    body: /authoring (?:choice|condition|decision)|adopt|\bsets?\b|\bdecides?\b/,
   },
 ];
+/** An exclusive ("only") or contrastive ("but") reason narrows its claim and needs a human read. */
+const exclusive = /\b(?:only|but)\b/i;
+/** Function words too common to tie an attribution to one body sentence. */
+const stopwords = new Set(["with", "from", "that", "this", "into", "then", "also", "each", "them", "they", "their", "while"]);
 
 /** Separate H2 body from evidence comments while preserving source locations.
  * @param  source */
@@ -84,16 +88,18 @@ function measurements(text: string) {
 function attributions(reason: string) {
   const found = [];
   for (const clause of reason.split(/[,.;]\s*/)) {
-    const match = /(.+?)(?:은|는)\s*(조정자|사용자)\s*(?:인계|지시|금지|요구)/.exec(
+    const match = /(.+?)\s+(?:is|are)\s+(?:an?\s+|the\s+)?(coordinator|user)\s+(?:handoff|instruction|prohibition|requirement)/.exec(
       clause,
     );
     if (!match) continue;
     for (const subject of match[1].split("·")) {
-      const terms = subject.match(/[가-힣]{2,}/g) ?? [];
+      const terms = (subject.match(/[A-Za-z]{4,}/g) ?? [])
+        .map((word) => word.toLowerCase())
+        .filter((word) => !stopwords.has(word));
       if (terms.length) found.push({
         authority: match[2],
         subject: subject.trim(),
-        terms: terms.map((word) => word.slice(0, 2)),
+        terms: terms.map((word) => word.slice(0, 4)),
       });
     }
   }
@@ -114,7 +120,7 @@ function inspect(section: ReturnType<typeof sections>[number]) {
       .map((candidate) => candidate.reason).join("\n");
     const numbers = measurements(row.reason);
     if (numbers.length) measuredRows++;
-    if (!numbers.length && !decisionTargets.test(row.target) && !/[^\s]+만\s/.test(row.reason)) {
+    if (!numbers.length && !decisionTargets.test(row.target) && !exclusive.test(row.reason)) {
       otherRows++;
       unmeasuredCandidates.push({
         line: row.line,
@@ -133,7 +139,7 @@ function inspect(section: ReturnType<typeof sections>[number]) {
         value,
       });
     }
-    if (/[^\s]+만\s/.test(row.reason)) {
+    if (exclusive.test(row.reason)) {
       exclusiveRows++;
       exclusiveCandidates.push({
         line: row.line,
@@ -161,10 +167,10 @@ function inspect(section: ReturnType<typeof sections>[number]) {
           value: authority.name,
         });
     }
-    const sentences = section.body.split(/(?<=다\.)\s+|\n+/);
+    const sentences = section.body.split(/(?<=\.)\s+|\n+/);
     for (const claim of attributions(row.reason)) {
       if (!sentences.some(
-        (sentence) => sentence.includes(claim.authority) && claim.terms.some((term) => sentence.includes(term)),
+        (sentence) => sentence.includes(claim.authority) && claim.terms.some((term) => sentence.toLowerCase().includes(term)),
       ))
         findings.push({
           line: row.line,

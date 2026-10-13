@@ -1,71 +1,71 @@
-# 유리와 닫힌 지붕 재료
+# Glass and enclosed roof materials
 
-## 커튼월 투명 유리 {#clear-glass}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 모든 curtainwall pane 중 glass 면과 day·private/night 두 상태를 이 마감에 두고, 새 광학 상태·프라이버시 보증·glare 판은 만들지 않는다고 적어 투명 유리의 약속 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 0.018m, ior 1.5, roughness .09, day #d2e2dc·transmission .94와 private/night #526c64·.38을 정해 구현이 유리 상태값을 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 상태의 의미는 privacy-states, 유리 두께는 glazing-interface 단면에서 받고, 색·투과 수치는 전기변색 실측이 아닌 현재 보이는 상태의 저작 근사라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 낮의 투명 유리와 사적 상태의 tint를, glazing-interface는 실제 pane와 두께를 준다. 이 H2는 상태별 native baseColor·transmission 쌍과 공통 roughness·ior를 정한다.
-@evidence principles/design/materials.md#material-construction-appearance 형상 두께 0.018m와 렌더 thickness·ior를 맞추되 transmission은 가시광 투과율·열 성능이 아니라고 분리해 광학 근사를 제품 성능으로 읽지 않게 한다.
-@evidence principles/design/materials.md#material-binding-interface 기존 curtainwall owner의 pane 면에만 결합하고 texture가 없어 좌표 요구가 없으며, 반사는 기존 sky·PMREM과 주변 재료가 정한다는 호환 조건을 둔다.
-@evidence principles/design/materials.md#material-verification-address 낮/사적 상태 차이와 앞뒤 면·실내 가구의 보임을 material-state-samples와 ref01·03·05에서 반증하고, 새 석재·목재가 바꾼 반사 대비를 회귀 표본에 넣는다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work privacy-states의 공용부·계단 투명과 사적 tint, glazing-interface의 유리 n=-0.009..0.009 단면, 투명 opening들의 pane 분할을 대조했다. 부모가 상태와 두께를 이미 정해 재료가 수리할 결함이 없었다.
-@evidence settings/003-spatial-basis.md#privacy-states 공용부·계단 유리의 낮 투명과 사적 tint를 두 baseColor·transmission 쌍으로 구현 입력화한다.
-@evidence settings/001-production.md#production-visual-grammar 청회색 유리라는 재료 관계를 day #d2e2dc의 옅은 청록 기색과 낮은 roughness로 둔다.
-@evidence spaces/003-surface-ownership.md#glazing-interface 유리 단면 n=-0.009..0.009가 주는 0.018m 두께를 geometry·renderer thickness로 받는다.
-@evidence spaces/003-surface-ownership.md#rear-common-glazing 후면 공용부의 전폭 투명 pane이 ref03의 정원 시야를 주는 대표 면으로 이 마감을 받는다.
-@evidence spaces/003-surface-ownership.md#front-stair-glazing 계단실 두 층의 투명 pane이 ref01 외관에서 실내 계단과 빛을 보이는 면으로 이 마감을 받는다.
-@evidence spaces/003-surface-ownership.md#right-common-glazing 공용부 측면창의 투명 pane이 후면과 같은 상태 쌍을 받아 두 면의 유리가 다르게 읽히지 않는다.
--->
-
-현재 `*-pane-*` 중 glass 면은 기존 curtainwall owner가 유지한다. [창호 인터페이스](../spaces/003-surface-ownership.md#glazing-interface) 단면의 0.018m 유리 두께, ior=1.5, roughness=.09, metallic=0, opacity=1, alphaMode=opaque, clearcoat=0을 보존한다. day는 #d2e2dc·transmission=.94, private/night는 #526c64·transmission=.38이다. 상태의 의미는 [프라이버시 상태](../settings/003-spatial-basis.md#privacy-states)를 따른다. 그 canon이 낮 상태에서 작업실·침실 하부 시선대 위에 두는 '더 밝은 tint 유리'는 이 낮 투명 유리이며, 공용부 유리와 같은 값으로 하부 frosted보다 밝게 보인다. 이 숫자는 전기변색 유리의 광학 실측값이 아니라 현재 보이는 상태의 근사다. 새 상태나 프라이버시 보증을 추가하지 않는다.
-
-texture는 없다. 유리의 반사는 동일한 기존 sky/PMREM과 주변 재료가 결정하며 가짜 하늘 사진·정면 glare 판을 붙이지 않는다. 앞뒤 면과 실내 가구의 보임, 낮과 사적 상태의 차이는 [상태 검사](007-observation.md#material-state-samples)와 ref01·03·05에서 관찰한다. 새 석재·목재 때문에 반사 대비가 바뀌는 것은 이번 재료 회귀 검사에 포함한다. 실제 가시광 투과율·열 성능·시선 차단 성능은 unverified다.
-
-## 반투명 유리 {#frosted-glass}
+## Curtainwall clear glass {#clear-glass}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 작업실·침실 하부 privacy band와 욕실 전체 frosted 면을 facade가 만든 그대로 받고, 프라이버시 강화나 외부 차양의 새 설계는 이 보존 결정에서 승인하지 않는다고 경계를 적는다.
-@evidence principles/core/common.md#substantive-completion #b7ccc0, roughness .70, transmission .28, thickness .018, ior 1.5를 정해 반투명 표현값을 구현이 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 고정 반투명 층의 존재와 위치는 privacy-states와 각 opening H2에서 받고, 거친 투과의 수치는 이 층의 근사 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 고정 반투명 영역의 상태 의미를, glazing-interface와 rear-bath-glazing 등 창 H2는 그 pane 위치를 준다. 이 H2는 roughness .70과 transmission .28의 scalar 응답으로 거친 투과를 정한다.
-@evidence principles/design/materials.md#material-construction-appearance 유리 두께 형상은 유지하고 거친 투과는 렌더 근사일 뿐 시선 차단 성능이 아니라고 나눠, 반투명 외관을 프라이버시 보증으로 읽지 않게 한다.
-@evidence principles/design/materials.md#material-binding-interface 투명/반투명 경계의 높이·개수와 각 면은 spaces owner가 소유하고 재료는 texture 좌표 없이 그 면에만 결합한다는 호환 조건을 둔다.
-@evidence principles/design/materials.md#material-verification-address 같은 opening의 상하 band를 material-state-samples에서 함께 보고, 세라믹처럼 완전히 불투명하거나 낮·밤 상태에서 열린 문과 혼동되면 실패로 둔다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work privacy-states의 하부 시선대와 욕실 고정층, glazing-interface의 하부 띠 상단 F=min(head, S+1.25)와 욕실 창 전체 frosted를 대조했다. 부모가 위치와 상태를 정했고 재료는 응답만 더했다.
-@evidence settings/003-spatial-basis.md#privacy-states 작업실·침실 하부 시선대와 욕실 전체의 고정 반투명 층을 이 응답으로 받는다.
-@evidence spaces/003-surface-ownership.md#glazing-interface bay의 sill부터 min(head, sill+1.25)까지와 욕실 창 전체의 frosted pane 면을 공간 owner에게서 받아 roughness·transmission을 결합한다.
-@evidence spaces/003-surface-ownership.md#rear-bath-glazing 후면 욕실 창 전체가 모든 상태에서 이 frosted 응답을 유지한다.
-@evidence spaces/003-surface-ownership.md#right-bath-glazing 욕실 측면창 전체가 같은 frosted 응답을 받아 두 욕실 창의 프라이버시 읽힘이 같다.
-@evidence spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면창의 sill부터 1.25m 하부 band가 frosted를 받고 위쪽은 투명 유리로 남는다.
-@evidence spaces/003-surface-ownership.md#front-bedroom-glazing 상층 침실 전면창에서 하층 작업실 jamb 분할선으로 나뉜 bay마다 sill부터 1.25m band가 frosted를 받는다.
-@evidence spaces/003-surface-ownership.md#rear-bedroom-glazing 주침실 후면창의 bay마다 하부 band가 frosted를 받는다.
-@evidence spaces/003-surface-ownership.md#left-flex-glazing 작업실 측면창의 하부 band가 frosted를 받는다.
-@evidence spaces/003-surface-ownership.md#left-bedroom-glazing 작은 침실 1 측면창의 하부 band가 frosted를 받는다.
-@evidence spaces/003-surface-ownership.md#left-child-two-glazing 높은 sill 3.90에서 시작하는 작은 침실 2 창의 하부 1.25m가 frosted, 나머지 위쪽이 투명으로 나뉜다.
+@evidence principles/core/common.md#scope-preservation Puts on this finish the glass faces of every curtainwall pane and the two states day and private/night, and writes that no new optical state, privacy guarantee, or glare panel is made, closing the scope of what the clear glass promises.
+@evidence principles/core/common.md#substantive-completion Sets 0.018m, ior 1.5, roughness .09, day #d2e2dc with transmission .94, and private/night #526c64 with .38, so the implementation does not choose glass state values.
+@evidence principles/core/common.md#declared-basis Takes the meaning of the states from privacy-states and the glass thickness from the glazing-interface section, and states that the colour and transmission values are authored approximations of the currently visible states, not electrochromic measurements.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states gives the daytime clear glass and the private-state tint, and glazing-interface gives the actual panes and their thickness. This H2 sets the per-state native baseColor and transmission pairs and the common roughness and ior.
+@evidence principles/design/materials.md#material-construction-appearance Matches the render thickness and ior to the shape thickness 0.018m while separating out that transmission is not visible light transmittance or thermal performance, so the optical approximation is not read as product performance.
+@evidence principles/design/materials.md#material-binding-interface Sets the compatibility condition that it binds only to the pane faces of the existing curtainwall owner, has no coordinate requirement without texture, and leaves reflection to the existing sky, PMREM, and surrounding materials.
+@evidence principles/design/materials.md#material-verification-address Refutes the day/private state difference and the visibility of the front and back faces and interior furniture in material-state-samples and ref01, 03, and 05, and puts the reflection contrast changed by the new stone and wood into the regression samples.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Compared the common area and stair clarity and the private tint of privacy-states, the glass section n=-0.009..0.009 of glazing-interface, and the pane division of the clear openings. The parent already set the states and thickness, so the material had no defect to repair.
+@evidence settings/003-spatial-basis.md#privacy-states Turns the daytime clarity and the private tint of the common area and stair glass into implementation inputs as two baseColor and transmission pairs.
+@evidence settings/001-production.md#production-visual-grammar Expresses the material relation of blue-grey glass as the faint blue-green tinge of day #d2e2dc and a low roughness.
+@evidence spaces/003-surface-ownership.md#glazing-interface Receives the 0.018m thickness given by the glass section n=-0.009..0.009 as the geometry and renderer thickness.
+@evidence spaces/003-surface-ownership.md#rear-common-glazing The full-width clear panes of the rear common area receive this finish as the representative face giving ref03's garden view.
+@evidence spaces/003-surface-ownership.md#front-stair-glazing The clear panes of the two-storey stairwell receive this finish as the face that shows the interior stair and light in the ref01 exterior.
+@evidence spaces/003-surface-ownership.md#right-common-glazing The clear panes of the common area side window receive the same state pair as the rear, so the glass of the two faces does not read differently.
 -->
 
-[프라이버시 상태](../settings/003-spatial-basis.md#privacy-states)의 하부 시선대와 욕실 고정 반투명 층, 곧 lower privacy band 및 욕실의 frosted 면은 `facade.ts`가 생성한 그대로다. 작업실·침실 창의 하부 band는 [창호 인터페이스](../spaces/003-surface-ownership.md#glazing-interface)의 F=min(head, S+1.25)대로 bay마다 sill부터 min(head, sill+1.25)까지, 곧 현재 창에서 sill부터 1.25m이고 그 위는 투명 유리다. 후면·측면 욕실 창은 전체가 frosted다. 색 #b7ccc0, roughness=.70, transmission=.28, geometry/renderer thickness=.018m, ior=1.5를 보존하고 나머지는 [전달 기본값](001-binding-and-scale.md#material-delivery)을 따른다. texture 없이 거친 투과의 근사로 쓴다. 창문 위에 입자 이미지를 붙여 시선 차단을 흉내 내지 않는다.
+The glass faces among the current `*-pane-*` are kept by the existing curtainwall owner. The 0.018m glass thickness of the [glazing interface](../spaces/003-surface-ownership.md#glazing-interface) section, ior=1.5, roughness=.09, metallic=0, opacity=1, alphaMode=opaque, and clearcoat=0 are preserved. Day is #d2e2dc with transmission=.94, and private/night #526c64 with transmission=.38. The meaning of the states follows [Privacy states](../settings/003-spatial-basis.md#privacy-states). The "brighter tinted glass" that canon places above the lower sightline band of the workroom and bedrooms in the day state is this daytime clear glass, which with the same values as the common area glass looks brighter than the lower frosted glass. These numbers are not optical measurements of electrochromic glass but approximations of the currently visible states. No new state or privacy guarantee is added.
 
-투명/반투명 경계의 높이와 개수, curtainwall의 각 실제 면은 spaces owner가 소유한다. [상태 검사](007-observation.md#material-state-samples)는 동일 opening에서 상하 band를 함께 관찰하고 ref04·05의 사생활 제어를 질문으로 유지한다. 반투명 유리가 세라믹처럼 완전히 불투명하거나 낮/밤 상태에서 열린 문과 혼동되면 실패다. 프라이버시 강화와 외부 차양의 새 설계는 이 보존 결정에서 승인된 것이 아니다.
+There is no texture. The glass reflection is determined by the same existing sky/PMREM and the surrounding materials, and no fake sky photograph or frontal glare panel is attached. The visibility of the front and back faces and the interior furniture and the difference between the day and private states are observed in the [state check](007-observation.md#material-state-samples) and ref01, 03, and 05. Changes in reflection contrast caused by the new stone and wood are included in this material regression check. The actual visible light transmittance, thermal performance, and sightline screening performance are unverified.
 
-## PV와 캐노피 구조 보존 {#pv-and-canopy}
+## Translucent glass {#frosted-glass}
 
 <!--
-@evidence principles/core/common.md#scope-preservation cassette70·girder3·rail44·post9, 거터·overflow·outlet과 PV texture·canopy-metal 전체를 보존 대상으로 받아, 재료 층 전체 변경이 v-076이 닫은 캐노피 부재를 건드리지 않게 한다.
-@evidence principles/core/common.md#substantive-completion PV #b9cedb·.19·thickness .012·clearcoat .25와 canopy-metal #626e70·metallic .65·roughness .36을 바꾸지 않을 수치로 고정하고, alpha shadow 근사 유지와 검은 연속판 재발의 회귀 정의를 둔다.
-@evidence principles/core/common.md#declared-basis 부재 수는 v-076이 닫은 roof-face, PV cell texture와 UV binding은 canopy-finish.ts, PV·canopy-metal 응답 수치는 Assembly.material에서 받고, 이를 재료 변경의 보존 경계로 삼는 것은 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation roof-face는 캐노피 형상과 셀 간격을 소유한다. 이 H2는 새 주변 재료가 들어와도 캐노피 응답을 그대로 두는 보존 경계와 그 회귀를 주변 재료·전달의 결함으로 판정하는 규칙을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 셀·투명 여백의 치수는 roof-face geometry와 texture 반복, 반사와 alpha는 렌더 근사로 나누고 발전·각도별 투과·배수 능력을 주장하지 않는다.
-@evidence principles/design/materials.md#material-binding-interface 기존 미터 UV와 cell mask를 그대로 소비하고 새 재료 좌표나 finish를 PV·canopy 면에 겹쳐 쓰지 않는다는 호환 조건을 둔다.
-@evidence principles/design/materials.md#material-verification-address 외관·top·soffit의 셀 간격·frame·rail 리듬을 reference-material-samples의 지붕 회귀 표본에서 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work roof-face의 cassette·rail·girder·배수 부재, roof owner의 canopy-finish.ts 셀 치수, envelope-interface의 module 등분, operative-subjects의 PV 비발전 경계를 대조했다. 보존에 필요한 값이 모두 부모에 있어 수리가 필요 없었다.
-@evidence spaces/003-surface-ownership.md#roof-face v-076이 닫은 캐노피 부재·배수·셀 간격을 재료 변경의 보존 경계로 받는다.
-@evidence spaces/002-spatial-graph.md#envelope-interface PV module의 최대 1.20×1.90m 등분과 0.04m gap을 보존할 반복으로 받아 새 texture 반복으로 대체하지 않는다.
-@evidence settings/002-household.md#operative-subjects 태양광 모듈을 발전 주체가 아닌 보이는 부재로 두는 경계를 셀 표현이 발전 성능을 뜻하지 않는다는 한계로 옮긴다.
+@evidence principles/core/common.md#scope-preservation Receives the lower privacy band of the workroom and bedrooms and the whole frosted face of the bathroom as the facade made them and writes the boundary that a new design for stronger privacy or exterior shading is not approved by this retention decision.
+@evidence principles/core/common.md#substantive-completion Sets #b7ccc0, roughness .70, transmission .28, thickness .018, and ior 1.5, so the implementation does not choose the translucent representation values.
+@evidence principles/core/common.md#declared-basis Takes the existence and position of the fixed translucent layers from privacy-states and each opening H2 and states that the rough-transmission values are this layer's approximation choice.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states gives the state meaning of the fixed translucent zones, and glazing-interface and window H2s such as rear-bath-glazing give the pane positions. This H2 sets the rough transmission as the scalar response of roughness .70 and transmission .28.
+@evidence principles/design/materials.md#material-construction-appearance Keeps the glass thickness shape and separates out that the rough transmission is only a render approximation, not sightline screening performance, so the translucent appearance is not read as a privacy guarantee.
+@evidence principles/design/materials.md#material-binding-interface Sets the compatibility condition that the spaces owner owns the height and count of the clear/translucent boundary and each face, and the material binds only to those faces without texture coordinates.
+@evidence principles/design/materials.md#material-verification-address Views the upper and lower bands of the same opening together in material-state-samples and counts it as a failure if it is completely opaque like ceramic or is confused with an open door in the day or night state.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Compared the lower sightline band and bathroom fixed layer of privacy-states, the lower band top F=min(head, S+1.25) of glazing-interface, and the fully frosted bathroom windows. The parent set the positions and states, and the material only added the response.
+@evidence settings/003-spatial-basis.md#privacy-states Receives the fixed translucent layers of the lower sightline band of the workroom and bedrooms and of the whole bathroom with this response.
+@evidence spaces/003-surface-ownership.md#glazing-interface Receives from the spatial owner the frosted pane faces from each bay's sill to min(head, sill+1.25) and of the whole bathroom window and binds roughness and transmission to them.
+@evidence spaces/003-surface-ownership.md#rear-bath-glazing The whole rear bathroom window keeps this frosted response in every state.
+@evidence spaces/003-surface-ownership.md#right-bath-glazing The whole bathroom side window receives the same frosted response, so the privacy reading of the two bathroom windows is the same.
+@evidence spaces/003-surface-ownership.md#front-flex-glazing The lower band 1.25m up from the sill of the workroom front window receives frosted glass, and the part above stays clear glass.
+@evidence spaces/003-surface-ownership.md#front-bedroom-glazing In the upper bedroom front window, a 1.25m band from the sill of each bay divided by the lower workroom jamb division line receives frosted glass.
+@evidence spaces/003-surface-ownership.md#rear-bedroom-glazing The lower band of each bay of the primary bedroom rear window receives frosted glass.
+@evidence spaces/003-surface-ownership.md#left-flex-glazing The lower band of the workroom side window receives frosted glass.
+@evidence spaces/003-surface-ownership.md#left-bedroom-glazing The lower band of the small bedroom 1 side window receives frosted glass.
+@evidence spaces/003-surface-ownership.md#left-child-two-glazing The small bedroom 2 window, starting at the high sill 3.90, is divided into a frosted lower 1.25m and clear glass for the rest above.
 -->
 
-v-076이 닫은 `roof.ts`의 cassette70·girder3·rail44·post9와 endplate·support base/cap/flashing, 거터·overflow·outlet, 지붕 fascia·drip, `right.ts`의 canopy-metal 배수관·collar·clip·inspection body와 `canopy-finish.ts`의 PV cell baseColor/alpha texture·미터 UV binding·cell mask, [Assembly.material](../../src/house/assembly.ts)이 정하는 PV·canopy-metal 응답을 그대로 소비한다. 거터의 steel 거름망, cassette 체결 bolt·head, support anchor는 [보존 역할](006-wet-and-joinery.md#retained-surfaces)이 이름으로 받는다. PV의 현재 색 #b9cedb, roughness=.19, thickness=.012, clearcoat=.25 및 canopy-metal #626e70·metallic=.65·roughness=.36을 바꾸지 않는다. 태양광 셀·투명 여백의 수치와 반복은 [roof-face](../spaces/003-surface-ownership.md#roof-face)의 owner에 남긴다.
+The lower sightline band and the bathroom's fixed translucent layer of [Privacy states](../settings/003-spatial-basis.md#privacy-states), namely the lower privacy band and the bathroom's frosted faces, are as `facade.ts` generated them. The lower band of the workroom and bedroom windows runs, per the F=min(head, S+1.25) of the [glazing interface](../spaces/003-surface-ownership.md#glazing-interface), from each bay's sill to min(head, sill+1.25), that is, 1.25m from the sill on the current windows, with clear glass above. The rear and side bathroom windows are frosted in full. Colour #b7ccc0, roughness=.70, transmission=.28, geometry/renderer thickness=.018m, and ior=1.5 are preserved, and the rest follows the [delivery defaults](001-binding-and-scale.md#material-delivery). It is used as an approximation of rough transmission without texture. No grain image is attached over the window to imitate sightline screening.
 
-기존 하늘 반사와 alpha shadow 근사는 유지한다. 재료 작업이 canopy의 검은 연속판 증상을 재발시키면 새 주변 재료/전달의 회귀 결함이다. [지붕 회귀](007-observation.md#reference-material-samples)에서 외관·top·soffit의 셀 간격·프레임·rail 리듬을 대조한다. 실제 셀 발전 성능·각도별 투과율·구조와 배수 능력은 이 보존 판정의 범위가 아니다.
+The height and count of the clear/translucent boundary and each actual face of the curtainwall are owned by the spaces owner. The [state check](007-observation.md#material-state-samples) observes the upper and lower bands of the same opening together and keeps the privacy control of ref04 and 05 as questions. It is a failure if the translucent glass is completely opaque like ceramic or is confused with an open door in the day/night state. A new design for stronger privacy or exterior shading is not approved by this retention decision.
+
+## PV and canopy structure retention {#pv-and-canopy}
+
+<!--
+@evidence principles/core/common.md#scope-preservation Receives the 70 cassettes, 3 girders, 44 rails, 9 posts, the gutter, overflow, and outlet, and the PV texture and all canopy-metal as retention targets, so a change to the whole material layer does not touch the canopy members that v-076 closed.
+@evidence principles/core/common.md#substantive-completion Fixes PV #b9cedb, .19, thickness .012, clearcoat .25 and canopy-metal #626e70, metallic .65, roughness .36 as values not to change, and sets the retention of the alpha shadow approximation and the regression definition of a recurrence of the black continuous sheet.
+@evidence principles/core/common.md#declared-basis Takes the member counts from roof-face, which v-076 closed, the PV cell texture and UV binding from canopy-finish.ts, and the PV and canopy-metal response values from Assembly.material, and making these the retention boundary of the material change is this layer's choice.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation roof-face owns the canopy shape and cell spacing. This H2 adds the retention boundary that keeps the canopy response as it is even when new surrounding materials come in, and the rule that judges a regression as a defect of the surrounding materials or delivery.
+@evidence principles/design/materials.md#material-construction-appearance Divides the dimensions of cells and clear margins into roof-face geometry and texture repetition and reflection and alpha into render approximation, claiming no generation, angle-dependent transmission, or drainage capacity.
+@evidence principles/design/materials.md#material-binding-interface Sets the compatibility condition that it consumes the existing metre UVs and cell mask as they are and does not overwrite the PV and canopy faces with new material coordinates or finishes.
+@evidence principles/design/materials.md#material-verification-address Compares the cell spacing, frame, and rail rhythm of the exterior, top, and soffit in the roof regression samples of reference-material-samples.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Compared the cassette, rail, girder, and drainage members of roof-face, the cell dimensions of the roof owner's canopy-finish.ts, the module division of envelope-interface, and the PV non-generation boundary of operative-subjects. All values needed for retention are in the parent, so no repair was needed.
+@evidence spaces/003-surface-ownership.md#roof-face Receives the canopy members, drainage, and cell spacing that v-076 closed as the retention boundary of the material change.
+@evidence spaces/002-spatial-graph.md#envelope-interface Receives the maximum 1.20×1.90m division and the 0.04m gap of the PV modules as the repetition to preserve and does not replace them with a new texture repetition.
+@evidence settings/002-household.md#operative-subjects Moves the boundary that keeps the solar modules as visible members rather than generating subjects into the limit that the cell representation does not mean generation performance.
+-->
+
+It consumes as they are the 70 cassettes, 3 girders, 44 rails, and 9 posts of `roof.ts` that v-076 closed, along with the endplates, support bases, caps, and flashing, the gutter, overflow, and outlet, and the roof fascia and drip, the canopy-metal downpipe, collars, clips, and inspection body of `right.ts`, the PV cell baseColor/alpha texture, metre UV binding, and cell mask of `canopy-finish.ts`, and the PV and canopy-metal responses set by [Assembly.material](../../src/house/assembly.ts). The gutter's steel strainer, the cassette fixing bolts and heads, and the support anchors are received by name by the [retained roles](006-wet-and-joinery.md#retained-surfaces). The current PV colour #b9cedb, roughness=.19, thickness=.012, clearcoat=.25 and canopy-metal #626e70, metallic=.65, roughness=.36 are not changed. The values and repetition of the solar cells and clear margins are left to the owner of [roof-face](../spaces/003-surface-ownership.md#roof-face).
+
+The existing sky reflection and alpha shadow approximation are kept. If the material work brings back the black continuous sheet symptom of the canopy, it is a regression defect of the new surrounding materials or delivery. The [roof regression](007-observation.md#reference-material-samples) compares the cell spacing, frames, and rail rhythm of the exterior, top, and soffit. The actual cell generation performance, angle-dependent transmittance, and structural and drainage capacity are not within the scope of this retention verdict.

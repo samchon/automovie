@@ -1,41 +1,41 @@
-# 상층 계단참과 짧은 복도
+# Upper Landing and the Short Hall
 
-## 하나의 복도에서 다섯 방으로 {#upper-hall-plan}
+## From One Hall to Five Rooms {#upper-hall-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation upper-hall의 L형 두 부분, 다섯 방의 문 위치 소유 관계, 계단 보호 경계, 전면 창의 소속, source owner를 맡는다.
-@evidence principles/core/common.md#substantive-completion 도착 부분 X = [1.87, 3.07]·Z = [-4.71, -3.41] m와 가로 부분 X = [-3.20, 3.07]·Z = [-5.91, -4.71] m, 순폭 1.20 m, 가로 길이 6.27 m를 정한다.
-@evidence principles/core/common.md#declared-basis 도착은 stair-reservation의 위 계단 끝, 계단 보호 경계는 stair-floor-opening에서 받고 문 좌표는 각 방 owner에 있다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "계단 상부참에서 시작하는 짧은 복도 하나"를 도착에서 -Z로 돌아 가로 부분에 닿는 하나의 L형으로 만든다.
-@evidence principles/design/spaces.md#space-topology 복도에서 청회색 침실·올리브 침실·주침실·샤워 욕실·욕조 욕실의 실제 문으로 직접 열리고 서로 다른 복도나 우회로로 나누지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 문 좌표와 경첩측은 각 방 owner, 전면 작은 창은 계단실 owner에서 소비하고 복도에 가짜 창을 만들지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다.
-@evidence settings/10-house.md#upper-hall 순폭 1.20 m의 L형 복도 하나를 숨은 우회로 없이 세 침실·두 욕실의 실제 문과 린넨 접면에 직접 닿게 한다.
-@evidence obligations/design/spaces.md#space-access-circulation 순폭 1.20 m의 두 부분에 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 배정한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work upper-hall의 직접 접근·짧은 복도 조건을 대조했고 위 계단 끝에서 들어오는 순폭 1.20 m L형 복도에서 다섯 방의 실제 문이 열려 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the two L-shaped parts of upper-hall, the ownership relation of the five room door positions, the stair protective boundary, the membership of the front window, and the source owner.
+@evidence principles/core/common.md#substantive-completion Sets the arrival part X = [1.87, 3.07]·Z = [-4.71, -3.41] m and the cross part X = [-3.20, 3.07]·Z = [-5.91, -4.71] m, a clear width of 1.20 m, and a cross length of 6.27 m.
+@evidence principles/core/common.md#declared-basis States that the arrival comes from the upper stair end of stair-reservation and the stair protective boundary from stair-floor-opening, and that the door coordinates are in each room owner.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "one short hall starting at the upper stair landing" into one L that turns in -Z from the arrival to reach the cross part.
+@evidence principles/design/spaces.md#space-topology The hall opens directly to the real doors of the blue-gray bedroom, olive bedroom, primary bedroom, shower bathroom, and tub bathroom, and is not divided into different halls or detours.
+@evidence principles/design/spaces.md#space-boundary-authority The door coordinates and hinge sides are consumed from each room owner and the small front window from the stairwell owner, and no fake window is made in the hall.
+@evidence principles/design/spaces.md#space-verification-address Checks the turn at the stair end, the five entrance doors, and the way back from the ends of both arms with the same use profile.
+@evidence settings/10-house.md#upper-hall Has one L-shaped hall with a clear width of 1.20 m reach the real doors of three bedrooms and two bathrooms and the linen interface directly, without hidden detours.
+@evidence obligations/design/spaces.md#space-access-circulation Assigns to the two parts with a clear width of 1.20 m the turn at the stair end, the five entrance doors, and the way back from the ends of both arms with the same use profile.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared upper-hall's direct access and short hall conditions; the real doors of the five rooms open from the L-shaped hall with a clear width of 1.20 m entered from the upper stair end, so there was no parent revision.
 -->
 
-`upper-hall`은 upper-storey의 [복도 하나](../../settings/10-house.md#upper-hall)다. [위 계단](../02-stair.md#stair-reservation) 끝에서 X = [1.87, 3.07]·Z = [-4.71, -3.41] m의 도착 부분으로 들어와 -Z로 돌아, X = [-3.20, 3.07]·Z = [-5.91, -4.71] m의 가로 부분에 닿는다. 두 직사각형을 합친 L형이며 서로 다른 복도나 숨은 우회로로 나누지 않는다. 순폭 예약은 양 구간 1.20 m, 가로 구간 길이는 6.27 m다. 도착 부분의 Z 방향 깊이는 1.30 m다.
+`upper-hall` is the [one hall](../../settings/10-house.md#upper-hall) of upper-storey. From the end of the [upper stair](../02-stair.md#stair-reservation) one enters the arrival part X = [1.87, 3.07]·Z = [-4.71, -3.41] m, turns in -Z, and reaches the cross part X = [-3.20, 3.07]·Z = [-5.91, -4.71] m. It is an L joining two rectangles and is not divided into different halls or hidden detours. The clear width reservation is 1.20 m in both segments, and the cross segment length is 6.27 m. The Z-direction depth of the arrival part is 1.30 m.
 
-도착면의 +X 쪽은 [청회색 침실](bedroom-three.md#bedroom-three-plan), 가로 부분의 앞쪽 왼쪽은 [올리브 침실](bedroom-two.md#bedroom-two-plan), 뒤쪽은 [주침실](primary.md#primary-plan)과 [샤워 욕실](shower-bath.md#shower-bath-plan), 오른쪽 끝은 [욕조 욕실](tub-bath.md#tub-bath-plan)의 실제 문으로 열린다. 문 좌표와 경첩측은 각 방 owner가 소유하며 복도 바닥으로 돌출하는 문짝을 추가하지 않는다. 가로 부분 앞쪽의 중앙은 [계단 구멍의 뒤쪽 보호 경계](../02-stair.md#stair-floor-opening)다. 도착하는 +X 끝을 막지 않는다.
+The +X side of the arrival surface opens to the real door of the [blue-gray bedroom](bedroom-three.md#bedroom-three-plan), the front left of the cross part to the [olive bedroom](bedroom-two.md#bedroom-two-plan), the back to the [primary bedroom](primary.md#primary-plan) and the [shower bathroom](shower-bath.md#shower-bath-plan), and the right end to the [tub bathroom](tub-bath.md#tub-bath-plan). The door coordinates and hinge sides are owned by each room owner, and no leaf projecting onto the hall floor is added. The center of the front of the cross part is the [rear protective boundary of the stair hole](../02-stair.md#stair-floor-opening). The arriving +X end is not blocked.
 
-`src/spaces/rooms/upper-hall.ts`가 완결 내부와 아래 린넨 접면을 소유한다. FOV로 통로를 넓혀 보이게 하는 대신 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다. 전면 작은 창은 [계단실](../02-stair.md#stair-floor-opening)에 바인딩되고 복도에 별도 가짜 창을 만들지 않는다. 실제 두 팔의 순폭·문틀·회전·각 구석과 가려진 코너의 추가 관찰은 unverified다.
+`src/spaces/rooms/upper-hall.ts` owns the complete interior and the linen interface below. Instead of making the passage look wider with FOV, the turn at the stair end, the five entrance doors, and the way back from the ends of both arms are checked with the same use profile. The small front window is bound to the [stairwell](../02-stair.md#stair-floor-opening), and no separate fake window is made in the hall. The real clear width of both arms, door frames, turning, and the additional observation of each corner and the hidden corner are unverified.
 
-## 도착면 앞쪽 린넨장 {#upper-linen-storage}
+## Linen Closet in Front of the Arrival Surface {#upper-linen-storage}
 <!--
-@evidence principles/core/common.md#scope-preservation 도착면 앞쪽의 닫힌 린넨장, 개구부와 미닫이, 청회색 침실에서 뺀 예약, 다섯 선반과 순차 사용을 맡는다.
-@evidence principles/core/common.md#substantive-completion 장 안쪽 X = [1.87, 3.07], Z = [-3.26, -2.66] m, 높이 2.20 m, upper-linen-opening X = [1.97, 2.97], 선반을 0.25 m부터 0.38 m 간격으로 다섯 단을 정한다.
-@evidence principles/core/common.md#declared-basis 복도 수납의 정체성은 storage 설정, 도착면은 upper-hall-plan에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건"을 도착면 앞의 깊이 0.60 m 선반장과 회전하지 않는 미닫이로 만든다.
-@evidence principles/design/spaces.md#space-topology 린넨장은 사람이 들어가는 방이 아닌 upper-hall의 접면이며 칸막이 포함 예약을 청회색 침실 바닥에서 뺀다.
-@evidence principles/design/spaces.md#space-boundary-authority 양 옆/뒤 0.15 m 칸막이까지 포함한 X = [1.72, 3.22]·Z = [-3.26, -2.51] m 예약을 이 H2에서 두어 청회색 침실 바닥에서 빼고 두 미닫이 문짝을 그 경계 예약 안에서 움직이게 한다.
-@evidence principles/design/spaces.md#space-verification-address 선반·문/물건 점유와 사람의 순차 사용을 평면/단면 및 05 시야에서 검사한다.
-@evidence settings/10-house.md#storage 복도 수납에 린넨 선반과 접힌 수건을 두고 실제 안쪽 깊이를 갖게 한다.
-@evidence settings/10-house.md#upper-hall 린넨장 문을 계단 도착 바닥으로 회전하지 않는 미닫이로 두고 장 사용자가 비켜난 상태에서도 남은 문틀/손잡이가 계단 도착 경로를 침범하지 않게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 "계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건"을 대조했고 도착면 앞의 깊이 0.60 m 선반장과 계단 도착 바닥으로 회전하지 않는 미닫이로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the closed linen closet in front of the arrival surface, its opening and sliding doors, the reservation subtracted from the blue-gray bedroom, five shelves, and sequential use.
+@evidence principles/core/common.md#substantive-completion Sets the closet interior X = [1.87, 3.07], Z = [-3.26, -2.66] m, a height of 2.20 m, upper-linen-opening X = [1.97, 2.97], and five shelves from 0.25 m at 0.38 m spacing.
+@evidence principles/core/common.md#declared-basis The identity of the hall storage comes from the storage setting and the arrival surface from upper-hall-plan.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "the hall storage near the landing has linen shelves and folded towels" into a 0.60 m deep shelf closet in front of the arrival surface with sliding doors that do not swing.
+@evidence principles/design/spaces.md#space-topology The linen closet is an interface of upper-hall, not a room a person walks into, and its reservation including partitions is subtracted from the blue-gray bedroom floor.
+@evidence principles/design/spaces.md#space-boundary-authority Keeps in this H2 the reservation X = [1.72, 3.22]·Z = [-3.26, -2.51] m including the 0.15 m partitions on both sides and the back, subtracting it from the blue-gray bedroom floor, and has the two sliding leaves move inside that boundary reservation.
+@evidence principles/design/spaces.md#space-verification-address Checks the shelf, door/object occupancy and the sequential use of a person in plan/section and the views of 05.
+@evidence settings/10-house.md#storage Places linen shelves and folded towels in the hall storage with real interior depth.
+@evidence settings/10-house.md#upper-hall Keeps the linen closet doors as sliding doors that do not swing onto the stair arrival floor, and keeps the remaining door frame/handles from intruding on the stair arrival route even with the closet user out of the way.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared storage's "the hall storage near the landing has linen shelves and folded towels"; a 0.60 m deep shelf closet in front of the arrival surface with sliding doors that do not swing onto the stair arrival floor makes it hold, so there was no parent revision.
 -->
 
-[복도 도착면](#upper-hall-plan)의 앞쪽에 닫힌 린넨장을 둔다. 장 안쪽 X = [1.87, 3.07], Z = [-3.26, -2.66] m, 높이 2.20 m를 예약한다. 복도와 장 사이의 Z = [-3.41, -3.26] 경계에 `upper-linen-opening`, X = [1.97, 2.97], 바닥부터 높이 2.20 m의 개구부를 두고 미닫이 문짝을 사용한다. 문을 열 때 계단 도착 바닥으로 회전하지 않는다. 장 안쪽 전역과 개구부 아래 X = [1.97, 2.97]·Z = [-3.41, -3.26]에는 [방별 바닥 마감](../03-surface-owners.md#interior-surface-handoff)을 upper-hall owner가 Y = [3.035, 3.06] m에 만든다. 복도의 L형 통행 윤곽과 이 판은 경계에서만 만나며 수납 공간 기록은 마감판이 아니다.
+A closed linen closet is placed in front of the [hall arrival surface](#upper-hall-plan). The closet interior X = [1.87, 3.07], Z = [-3.26, -2.66] m with a height of 2.20 m is reserved. At the Z = [-3.41, -3.26] boundary between the hall and the closet is `upper-linen-opening`, an opening X = [1.97, 2.97] 2.20 m high from the floor, using sliding leaves. Opening the doors does not swing them onto the stair arrival floor. Across the whole closet interior and under the opening X = [1.97, 2.97]·Z = [-3.41, -3.26], the upper-hall owner makes the [per-room floor finish](../03-surface-owners.md#interior-surface-handoff) at Y = [3.035, 3.06] m. The L-shaped passage outline of the hall and this plate meet only at the boundary, and a storage space record is not a finish plate.
 
-양 옆/뒤의 0.15 m 칸막이까지 포함한 X = [1.72, 3.22]·Z = [-3.26, -2.51] m 예약은 [청회색 침실](bedroom-three.md#bedroom-three-plan)의 바닥에서 뺀다. 깊이 0.60 m의 선반장으로 사람이 들어가는 방은 아니다. [복도 수납의 정체성](../../settings/10-house.md#storage)을 따르며 선반·접힌 수건·실제 안쪽 깊이를 후속 fit-out에서 구현한다. 장의 작동과 상부참 사용, 내부와 문틀의 읽힘은 unverified다.
+The reservation X = [1.72, 3.22]·Z = [-3.26, -2.51] m including the 0.15 m partitions on both sides and the back is subtracted from the floor of the [blue-gray bedroom](bedroom-three.md#bedroom-three-plan). It is a 0.60 m deep shelf closet, not a room a person walks into. It follows the [identity of hall storage](../../settings/10-house.md#storage), and the shelves, folded towels, and real interior depth are implemented in later fit-out. The closet operation, upper landing use, and the readability of the interior and door frame are unverified.
 
-다섯 선반의 상면은 상층 완성 바닥 위 0.25 m부터 0.38 m 간격으로 산출하고, 뒤쪽 안쪽 면에서 앞으로 최대 0.55 m 깊이로 두어 앞쪽 문 레일과 분리한다. 두 미닫이 문짝은 장의 경계 예약 안에서 움직이고 수건/용기는 선반 깊이를 넘지 않는다. 한쪽을 열고 린넨을 꺼내는 사용은 도착참 일부를 쓰므로 그 순간 계단 도착자와의 동시 통행을 주장하지 않는다. 장 사용자가 비켜난 상태에서도 남은 문틀/손잡이가 계단의 [도착 경로](#upper-hall-plan)를 침범하지 않아야 한다. 선반·문/물건 점유와 사람의 순차 사용을 평면/단면 및 05 시야에서 추가 검사하며 아직 unverified다.
+The tops of the five shelves are derived from 0.25 m above the upper finished floor at 0.38 m spacing and placed at most 0.55 m deep forward from the back inner face, separated from the front door rails. The two sliding leaves move inside the closet's boundary reservation, and towels/containers do not exceed the shelf depth. Opening one side to take out linen uses part of the arrival landing, so simultaneous passage with someone arriving up the stair at that moment is not claimed. Even with the closet user out of the way, the remaining door frame/handles must not intrude on the stair's [arrival route](#upper-hall-plan). The shelf, door/object occupancy and the sequential use of a person are additionally checked in plan/section and the views of 05, and are still unverified.

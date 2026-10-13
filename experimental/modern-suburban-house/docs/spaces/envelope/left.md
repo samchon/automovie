@@ -1,95 +1,95 @@
-# 왼쪽 박공과 거실 굴뚝
+# Left Gable and the Living Room Chimney
 
-## 주 지붕 끝의 왼쪽 삼각 벽 {#left-roof-closure}
+## Left Triangle Wall at the End of the Main Roof {#left-roof-closure}
 <!--
-@evidence principles/core/common.md#scope-preservation 왼쪽 완결 입면 전체와 주 지붕 끝 삼각 벽, 굴뚝·거실·공용부 주방·주침실·올리브 침실의 벽 바인딩을 맡는다.
-@evidence principles/core/common.md#substantive-completion 본채 왼쪽 외벽 평면에서 주 지붕 앞/뒤 아래면까지 삼각 벽으로 닫고 처마 돌출까지 벽을 부풀리지 않는 폐합을 정한다.
-@evidence principles/core/common.md#declared-basis 왼쪽 외벽 평면은 main-building-extent, 삼각 벽의 주 지붕 앞/뒤 아래면은 roof-profile-datums, 앞뒤 모서리와 굴뚝 몸체 배정은 exterior-boundary-junctions에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass의 삼각 벽과 00-junctions의 지붕 아래면 접촉을 받아, 왼쪽 입면의 노출 마감과 거실·주방·주침실·자녀실의 방 경계 바인딩을 한 owner에 정한다.
-@evidence principles/design/spaces.md#space-topology 왼쪽 벽이 거실·공용부 주방·주침실·올리브 침실의 외부 경계이며 굴뚝 접면을 품는 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 처마 돌출은 지붕 owner, 직선 벽 끝과 굴뚝 몸체의 공통 몸체 배정은 exterior-boundary-junctions가 소유하고 이 owner는 왼쪽 전체의 노출 마감을 연속해 닫는다.
-@evidence principles/design/spaces.md#space-verification-address 왼쪽 전체 입면·두 모서리·삼각 벽과 지붕 아래면 접촉·각 방 창의 실내외 일치를 반증 주소로 둔다.
-@evidence settings/10-house.md#main-mass 본채 왼쪽 외벽을 주 지붕 앞/뒤 아래면까지 오르는 실제 삼각 벽으로 닫고 처마 돌출은 지붕 owner에 남겨 벽을 부풀리지 않는다.
-@evidence settings/20-verification.md#visual-grammar 굴뚝 몸통을 뺀 왼쪽 노출 외벽의 Y = 0.60 m 아래는 벽돌 기단, 위는 백색 사이딩으로 연속해 나누고 창턱을 침범하지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 좌우 방향 주 용마루·경사 30–38°·처마 0.35–0.50 m를 왼쪽 벽 폐합에 적용했고 삼각 벽이 기존 외벽 두께 안에 들어가 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the whole left complete elevation, the triangle wall at the end of the main roof, and the wall bindings of the chimney, living room, common area kitchen, primary bedroom, and olive bedroom.
+@evidence principles/core/common.md#substantive-completion Sets the closure that closes the main block left exterior wall plane up to the front/back undersides of the main roof with a triangle wall without swelling the wall out to the eave projection.
+@evidence principles/core/common.md#declared-basis The left exterior wall plane comes from main-building-extent, the front/back main roof undersides of the triangle wall from roof-profile-datums, and the assignment of the front and back corners and the chimney body from exterior-boundary-junctions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the triangle wall of main-mass and the roof underside contact of 00-junctions, and sets in one owner the exposed finish of the left elevation and the room boundary bindings of the living room, kitchen, primary bedroom, and child's room.
+@evidence principles/design/spaces.md#space-topology Sets the relation in which the left wall is the exterior boundary of the living room, common area kitchen, primary bedroom, and olive bedroom and holds the chimney interface.
+@evidence principles/design/spaces.md#space-boundary-authority The eave projection is owned by the roof owner, the common body assignment of straight wall ends and the chimney body by exterior-boundary-junctions, and this owner closes the exposed finish of the whole left side continuously.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting addresses the whole left elevation, both corners, the contact of the triangle wall with the roof underside, and the interior/exterior match of each room window.
+@evidence settings/10-house.md#main-mass Closes the main block left exterior wall with a real triangle wall rising to the front/back undersides of the main roof, leaving the eave projection to the roof owner without swelling the wall.
+@evidence settings/20-verification.md#visual-grammar Divides the exposed left exterior wall, except the chimney shaft, continuously into a brick base below Y = 0.60 m and white siding above, without encroaching on the window sills.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied main-mass's side-to-side main ridge, 30–38° pitch, and 0.35–0.50 m eaves to the left wall closure; the triangle wall fits inside the existing exterior wall thickness, so there was no parent revision.
 -->
 
-`src/spaces/envelope/left.ts`가 왼쪽 완결 입면을 소유한다. [본채 왼쪽 외벽](../00-building.md#main-building-extent)의 평면에서 [주 지붕 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)까지 삼각 벽으로 닫는다. 전면 박공은 왼쪽 모서리에서 같은 지붕군의 교차선을 소비하므로 왼쪽 외벽에 또 하나의 분리된 상자를 덧붙이지 않는다. 처마 돌출은 지붕 owner가 소유하고 벽이 돌출 끝까지 부풀어 방 폭을 바꾸지 않는다.
+`src/spaces/envelope/left.ts` owns the left complete elevation. It closes the plane of the [main block left exterior wall](../00-building.md#main-building-extent) up to the [front/back undersides of the main roof](../roof/00-junctions.md#roof-profile-datums) with a triangle wall. The front gable consumes the intersection line of the same roof group at the left corner, so no other separate box is added onto the left exterior wall. The eave projection is owned by the roof owner, and the wall does not swell out to the projection end to change the room width.
 
-[시각 문법](../../settings/20-verification.md#visual-grammar)과 [전면에서 정한 공통 경계](front.md#front-roof-closures)의 벽돌 기단 상단 Y = 0.60 m는 굴뚝 몸통을 뺀 왼쪽 외벽의 앞·뒤 구간에서 같은 높이로 이어지고, 그 위는 백색 수평 사이딩이다. 뒤 구간의 거실 창턱 Y = 0.75 m보다 0.15 m 아래에서 갈려 창을 가리지 않는다. 굴뚝은 이미 배정된 벽돌 몸통이므로 기단을 그 접면 안쪽에 다시 만들지 않는다. 이 구분은 한 외벽 두께 안의 실제 면 분할이며 [미해결 지반·구조 기초](../10-ground-floor.md#ground-support-handoff)를 확정하지 않는다.
+The brick base top Y = 0.60 m of the [visual grammar](../../settings/20-verification.md#visual-grammar) and the [common boundary set on the front](front.md#front-roof-closures) continues at the same height across the front and back segments of the left exterior wall except the chimney shaft, and above it is white horizontal siding. It divides 0.15 m below the living room window sill Y = 0.75 m of the back segment, so it does not hide the window. The chimney is an already assigned brick shaft, so the base is not made again inside that interface. This division is a real face division inside one exterior wall thickness and does not settle the [unresolved ground and structural foundation](../10-ground-floor.md#ground-support-handoff).
 
-[벽 두께 안의 지붕 배정](../roof/00-junctions.md#roof-wall-head-junctions)도 같은 교차선을 소비한다. [앞뒤 모서리와 굴뚝 몸체의 배정](../07-boundary-assembly.md#exterior-boundary-junctions)에 따라 직선 벽의 끝과 공통 몸체를 나누되, 왼쪽 전체의 노출 마감은 이 owner가 연속해서 닫는다.
+The [roof assignment inside the wall thickness](../roof/00-junctions.md#roof-wall-head-junctions) consumes the same intersection line too. Per the [assignment of the front and back corners and the chimney body](../07-boundary-assembly.md#exterior-boundary-junctions), the straight wall ends and the common bodies are divided, while this owner closes the exposed finish of the whole left side continuously.
 
-왼쪽 벽에는 아래 [굴뚝 접면](#chimney-roof-interface), 1층 거실·[공용부 주방](../rooms/common.md#common-room-plan)과 2층 주침실·올리브 침실의 실제 경계를 바인딩한다. [측면 창](#left-openings)은 굴뚝을 피하는 위치에 배정한다. 왼쪽 전체 입면과 두 모서리, 삼각 벽과 지붕 아래면의 접촉, 각 방 창의 실내외 일치가 검사 주소다. 실제 면과 창 census·실루엣/재료 판정은 unverified다.
+The left wall binds the [chimney interface](#chimney-roof-interface) below and the real boundaries of the ground-storey living room and [common area kitchen](../rooms/common.md#common-room-plan) and the upper primary bedroom and olive bedroom. The [side windows](#left-openings) are assigned to positions that avoid the chimney. The whole left elevation and both corners, the contact of the triangle wall with the roof underside, and the interior/exterior match of each room window are the inspection addresses. The real face and window census and the silhouette/material judgment are unverified.
 
-## 굴뚝 뒤에서 방으로 열리는 창 {#left-openings}
+## Windows Opening into Rooms Behind the Chimney {#left-openings}
 <!--
-@evidence principles/core/common.md#scope-preservation 왼쪽 벽의 창 배치 전체와 올리브 침실·주방 쪽 벽을 닫는 결정을 함께 맡는다.
-@evidence principles/core/common.md#substantive-completion 왼쪽 외벽 X = [-5.75, -5.50] m에 거실과 주침실 창만 두고 굴뚝을 피하는 배치 원칙을 정한다.
-@evidence principles/core/common.md#declared-basis 창틀은 공통 개구부 인계, 주방 쪽 닫힘은 주방 후면 창 선택, 올리브 침실은 전면 창 선택을 근거로 든다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation kitchen-equipment·bedroom-two 창 조건과 common·front의 선행 창 위치를 받아, 왼쪽 벽 개구부를 living-room·primary-bedroom 두 개로 제한한다.
-@evidence principles/design/spaces.md#space-topology 왼쪽 벽의 창을 living-room과 primary-bedroom에만 속하게 하고 kitchen-dining-family와 bedroom-two의 왼쪽 벽을 닫는다.
-@evidence principles/design/spaces.md#space-boundary-authority 왼쪽 외벽 X = [-5.75, -5.50] m는 본채 외곽의 X = -5.75 m 바깥 면에서 나온 구간이고 굴뚝 몸통 예약은 chimney-roof-interface에서 받아 창 배치가 그 예약을 피하게 한다.
-@evidence principles/design/spaces.md#space-verification-address 창틀/굴뚝 간섭, 가구 접근, 왼쪽 입면과 방 안 시야를 반증 관찰로 둔다.
-@evidence settings/10-house.md#kitchen-equipment "창은 외벽과 조리 배치에 종속"에 따라 주방 왼쪽 벽을 가전/수납에 쓰고 후면 창을 소비한다.
-@evidence obligations/design/spaces.md#space-envelope-interface 왼쪽 입면의 창 유무를 실내의 굴뚝·주방 수납·침실 창 선택과 맞춰 외부 입면과 방 내부가 같은 벽을 묘사하게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work kitchen-equipment의 창 종속 조건과 bedroom-two의 "자기 외벽 창"을 왼쪽 벽에 대조했고 올리브 침실이 전면 창을 쓰므로 측면 창 없이도 설정이 충족돼 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the whole window layout of the left wall together with the decision to close the walls on the olive bedroom and kitchen side.
+@evidence principles/core/common.md#substantive-completion Sets the layout principle of placing only the living room and primary bedroom windows in the left exterior wall X = [-5.75, -5.50] m and avoiding the chimney.
+@evidence principles/core/common.md#declared-basis Cites as bases the common opening handoff for the window frames, the choice of the kitchen rear window for closing the kitchen side, and the choice of the front window for the olive bedroom.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the window conditions of kitchen-equipment and bedroom-two and the prior window positions of common and front, and limits the left wall openings to two, living-room and primary-bedroom.
+@evidence principles/design/spaces.md#space-topology Makes the left wall windows belong only to living-room and primary-bedroom, and closes the left walls of kitchen-dining-family and bedroom-two.
+@evidence principles/design/spaces.md#space-boundary-authority The left exterior wall X = [-5.75, -5.50] m is the interval coming from the X = -5.75 m outer face of the main block outline, and the chimney shaft reservation comes from chimney-roof-interface so the window layout avoids that reservation.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations window frame/chimney interference, furniture access, and the left elevation and in-room views.
+@evidence settings/10-house.md#kitchen-equipment Per "The window is made subordinate to the exterior wall and the cooking layout", uses the kitchen left wall for appliances/storage and consumes the rear window.
+@evidence obligations/design/spaces.md#space-envelope-interface Matches the presence or absence of windows on the left elevation with the interior choices of chimney, kitchen storage, and bedroom windows, so the exterior elevation and the room interiors depict the same wall.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared the window subordination condition of kitchen-equipment and bedroom-two's "a window in its own exterior wall" with the left wall; the olive bedroom uses a front window, so the settings are met without a side window, and there was no parent revision.
 -->
 
-[공통 개구부 인계](../06-openings.md#external-opening-interface)를 적용한다. 본채 왼쪽 외벽의 두께 방향은 [본채 외곽](../00-building.md#main-building-extent)의 X = -5.75 m 바깥 면에서 0.25 m 외벽 예약만큼 들어온 X = [-5.75, -5.50] m다. 창 수를 늘려 입면을 채우는 대신 굴뚝·조리 수납과 실제 방 사용을 함께 고려해, 이 벽의 창은 ground-storey [living-room](../rooms/living.md#living-plan)의 [거실 측면 창](#living-left-window)과 upper-storey [primary-bedroom](../rooms/primary.md#primary-plan)의 [주침실 측면 창](#primary-left-window) 두 개만 둔다. 두 창은 아래 [굴뚝 몸통과 벽난로 앞면 예약](#chimney-roof-interface)을 피하는 위치에 놓인다.
+The [common opening handoff](../06-openings.md#external-opening-interface) is applied. The thickness direction of the main block left exterior wall is X = [-5.75, -5.50] m, coming in by the 0.25 m exterior wall reservation from the X = -5.75 m outer face of the [main block outline](../00-building.md#main-building-extent). Instead of filling the elevation by adding windows, the chimney, cooking storage, and real room use are considered together, and this wall has only two windows: the [living room side window](#living-left-window) of ground-storey [living-room](../rooms/living.md#living-plan) and the [primary bedroom side window](#primary-left-window) of upper-storey [primary-bedroom](../rooms/primary.md#primary-plan). The two windows are placed where they avoid the [chimney shaft and fireplace front reservation](#chimney-roof-interface) below.
 
-올리브 침실 [bedroom-two](../rooms/bedroom-two.md#bedroom-two-plan)는 [자기 외벽 창](../../settings/10-house.md#bedroom-two)으로 [전면 창](front.md#bedroom-two-front-window)을 사용하므로 굴뚝 가까운 측면 창을 덧붙이지 않는다. 공용부 [kitchen-dining-family](../rooms/common.md#common-room-plan)의 주방 쪽 왼쪽 벽은 가전/수납을 위해 닫고 [주방 후면 창](rear.md#kitchen-rear-window)을 소비한다. 실제 창틀/굴뚝 간섭·가구 접근·왼쪽 입면과 방 안 시야는 unverified다.
+The olive bedroom [bedroom-two](../rooms/bedroom-two.md#bedroom-two-plan) uses the [front window](front.md#bedroom-two-front-window) as [the window in its own exterior wall](../../settings/10-house.md#bedroom-two), so no side window near the chimney is added. The kitchen-side left wall of the common area [kitchen-dining-family](../rooms/common.md#common-room-plan) is closed for appliances/storage and consumes the [kitchen rear window](rear.md#kitchen-rear-window). The real window frame/chimney interference, furniture access, and the left elevation and in-room views are unverified.
 
-## 거실 벽난로 뒤쪽의 창 {#living-left-window}
+## Window Behind the Living Room Fireplace {#living-left-window}
 <!--
-@evidence principles/core/common.md#scope-preservation living-room 왼쪽 벽의 수직 창 한 칸과 그 창을 벽난로/굴뚝 예약보다 뒤에 두어 화구와 겹치지 않게 하는 분리를 맡는다.
-@evidence principles/core/common.md#substantive-completion 왼쪽 벽의 Z = [-5.50, -4.30], Y = [0.75, 2.30] m 개구부를 수직 창 한 칸으로 정한다.
-@evidence principles/core/common.md#declared-basis 벽 구간은 left-openings, 창틀은 공통 인계, 벽난로 위치는 chimney-roof-interface에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 거실 설정의 벽난로와 겹치지 않도록 창을 화구보다 뒤쪽 벽에 두는 위치 결정을 더한다.
-@evidence principles/design/spaces.md#space-topology 창을 ground-storey living-room의 왼쪽 외벽 중 벽난로 앞면 예약보다 뒤쪽 구간에 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 굴뚝/벽난로 예약 좌표를 다시 적지 않고 링크된 owner보다 뒤라는 결과만 둔다.
-@evidence principles/design/spaces.md#space-verification-address 거실 가구 뒤 접근, 창/굴뚝 단면, 왼쪽 시야의 읽힘을 반증 관찰로 둔다.
-@evidence settings/10-house.md#living 왼쪽 외벽의 벽난로/굴뚝 예약보다 뒤에 living-room 창을 두어 같은 벽의 화구와 겹치지 않게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 벽난로 위치 조건과 openings의 방-외벽 일치 조건을 대조했고 창을 화구 뒤 Z = [-5.50, -4.30] m에 두어 둘 다 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on one vertical light in the living-room left wall and the separation that places that window behind the fireplace/chimney reservation so it does not overlap the firebox.
+@evidence principles/core/common.md#substantive-completion Sets the opening Z = [-5.50, -4.30], Y = [0.75, 2.30] m of the left wall as one vertical light.
+@evidence principles/core/common.md#declared-basis The wall segment comes from left-openings, the window frame from the common handoff, and the fireplace position from chimney-roof-interface.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds the position decision of placing the window in the wall behind the firebox so it does not overlap the fireplace of the living setting.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the segment of the ground-storey living-room left exterior wall behind the fireplace front reservation.
+@evidence principles/design/spaces.md#space-boundary-authority Does not rewrite the chimney/fireplace reservation coordinates and keeps only the result that it is behind the linked owner.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the access behind the living room furniture, the window/chimney section, and the readability of the left view.
+@evidence settings/10-house.md#living Places the living-room window behind the fireplace/chimney reservation of the left exterior wall so it does not overlap the firebox of the same wall.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared living's fireplace position condition with openings' room-exterior wall match condition; placing the window behind the firebox at Z = [-5.50, -4.30] m makes both hold, so there was no parent revision.
 -->
 
-`living-left-window`는 [왼쪽 벽](#left-openings)의 Z = [-5.50, -4.30], Y = [0.75, 2.30] m 개구부로 ground-storey의 [living-room](../rooms/living.md#living-plan)에 속하는 [방과 외벽이 같은 창](../../settings/10-house.md#openings)이다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 한 칸이다. 아래 [벽난로/굴뚝 예약](#chimney-roof-interface)보다 뒤에 놓여 같은 벽의 화구와 겹치지 않는다. 거실 가구 뒤 접근과 창/굴뚝 단면, 왼쪽 시야의 실제 읽힘은 unverified다.
+`living-left-window` is the opening Z = [-5.50, -4.30], Y = [0.75, 2.30] m of the [left wall](#left-openings), a [window whose room and exterior wall are the same](../../settings/10-house.md#openings), belonging to the ground-storey [living-room](../rooms/living.md#living-plan). It is one vertical light of the [common handoff](../06-openings.md#external-opening-interface). It sits behind the [fireplace/chimney reservation](#chimney-roof-interface) below and does not overlap the firebox of the same wall. The access behind the living room furniture, the window/chimney section, and the real readability of the left view are unverified.
 
-## 주침실 본체의 측면 창 {#primary-left-window}
+## Side Window of the Primary Bedroom Body {#primary-left-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 측면 창 하나와 그 방 소속을 맡는다.
-@evidence principles/core/common.md#substantive-completion 왼쪽 벽의 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 개구부를 수직 창 두 칸으로 정한다.
-@evidence principles/core/common.md#declared-basis 창의 소속은 primary-plan의 주침실 뒤쪽 본체, 벽 구간은 left-openings, 수직 창 형식은 공통 인계에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주침실의 "창과 얇은 커튼"을 뒤쪽 본체의 측면 창으로 위치시키고 앞쪽 복도·자녀실 바인딩을 배제한다.
-@evidence principles/design/spaces.md#space-topology 창을 upper-storey primary-bedroom의 뒤쪽 본체에만 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 주침실 뒤쪽 본체의 Z 범위는 primary-plan에서 받고 창 Z = [-8.90, -7.30] m가 그 안에 든다는 결과만 두며 방의 왼쪽 부분 경계를 다시 정하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 창대/커튼과 침대 주변 경로, 후면 창과 함께 보이는 시야, 실제 단면을 반증 관찰로 둔다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 "창과 얇은 커튼" 가운데 창을 뒤쪽 본체의 측면 두 칸 창으로 실현하고 창대/커튼은 관찰 대상으로 남긴다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창·커튼 요구를 대조했고 Y = [3.91, 5.31] m 두 칸 창을 앞쪽 복도·자녀실이 아닌 주침실 뒤쪽 본체에 두는 것으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on one primary bedroom side window and its room membership.
+@evidence principles/core/common.md#substantive-completion Sets the opening Z = [-8.90, -7.30], Y = [3.91, 5.31] m of the left wall as a two-light vertical window.
+@evidence principles/core/common.md#declared-basis The window's membership comes from the back body of the primary bedroom in primary-plan, the wall segment from left-openings, and the vertical window form from the common handoff.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Places the primary bedroom's "a window, and thin curtains" as a side window of the back body, excluding the front hall and child's room bindings.
+@evidence principles/design/spaces.md#space-topology Makes the window belong only to the back body of upper-storey primary-bedroom.
+@evidence principles/design/spaces.md#space-boundary-authority Receives the Z range of the primary bedroom back body from primary-plan and keeps only the result that window Z = [-8.90, -7.30] m lies inside it, without setting the room's left boundary again.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the sill/curtains and the route around the bed, the view seen together with the rear window, and the real section.
+@evidence settings/10-house.md#primary-bedroom Realizes the window among the primary bedroom's "a window, and thin curtains" as a two-light side window of the back body, and keeps the sill/curtains as observation targets.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared the window and curtain requirement of primary-bedroom; placing the two-light window Y = [3.91, 5.31] m in the primary bedroom back body, not the front hall or a child's room, makes it hold, so there was no parent revision.
 -->
 
-`primary-left-window`는 [왼쪽 벽](#left-openings)의 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 개구부로 upper-storey의 [primary-bedroom](../rooms/primary.md#primary-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸이다. 주침실의 뒤쪽 본체에 속하고 앞쪽 복도나 자녀실로 바인딩하지 않는다. 창대/커튼과 침대 주변 경로, 후면 창과 함께 보이는 시야·실제 단면/프레임은 unverified다.
+`primary-left-window` is the opening Z = [-8.90, -7.30], Y = [3.91, 5.31] m of the [left wall](#left-openings) and belongs to the upper-storey [primary-bedroom](../rooms/primary.md#primary-plan). It is a two-light vertical window of the [common handoff](../06-openings.md#external-opening-interface). It belongs to the back body of the primary bedroom and is not bound to the front hall or a child's room. The sill/curtains and the route around the bed, the view seen together with the rear window, and the real section/frames are unverified.
 
-## 벽난로에서 지붕까지의 굴뚝 {#chimney-roof-interface}
+## Chimney from the Fireplace to the Roof {#chimney-roof-interface}
 <!--
-@evidence principles/core/common.md#scope-preservation 굴뚝 몸통·덮개, 거실 쪽 벽난로 앞면 예약, 주 지붕 notch와 후레싱 접면, 불이 꺼진 정적 상태를 함께 맡는다.
-@evidence principles/core/common.md#substantive-completion 몸통 평면 X = [-6.30, -5.50], Z = [-2.75, -1.65] m, Y = -0.45 m부터 8.90 m, 덮개 Y = [8.90, 9.10] m와 0.10 m 내밈, 실내 앞면 X = [-5.50, -4.95], Z = [-3.00, -1.40], Y = [0, 1.40] m를 정한다.
-@evidence principles/core/common.md#declared-basis 굴뚝 위치는 거실 설정의 왼쪽 외벽 벽난로, 몸통 주위의 지붕 높이는 Mfront에서 읽고 높이 선택이 연소 규정·구조 안전 주장이 아님을 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "벽난로는 왼쪽 외벽의 굴뚝과 단면상 이어지는 위치"를 하나의 chimney 접면을 공유하는 몸통과 실내 앞면의 좌표, 지붕 경계 notch로 만든다.
-@evidence principles/design/spaces.md#space-topology 몸통은 외부, 앞면은 living-room 안에 있고 외벽을 사이에 둔 하나의 접면을 공유하며 주 지붕 왼쪽 경계에 닿는다.
-@evidence principles/design/spaces.md#space-boundary-authority 실내 완결 면은 living owner, 외부와 구조 기준은 이 왼쪽 입면 owner로 나누고 지붕 윤곽은 main-front-roof에서 소비한다.
-@evidence principles/design/spaces.md#space-verification-address 화구부터 굴뚝까지의 단면, 왼쪽 전체 높이, notch의 세 접면, 위에서 본 덮개를 반증 관찰로 둔다.
-@evidence settings/10-house.md#living 꺼진 벽난로의 화구·벽돌 앞면·선반 예약을 거실 문 앞 대기와 떨어진 왼쪽 벽에 두고 굴뚝 몸통과 하나의 chimney 접면을 공유하게 한다.
-@evidence settings/20-verification.md#visual-grammar 벽난로에서 지붕 위로 솟는 벽돌 몸체와 마감 cap을 몸통 높이와 덮개 내밈으로 공간에 예약한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 벽난로-굴뚝 연속, visual-grammar의 벽돌 몸체·cap, main-mass의 처마 범위를 대조했고 몸통이 주 지붕 왼쪽 돌출 끝을 넘어 있어 notch로 해결돼 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on together the chimney shaft and cap, the fireplace front reservation on the living room side, the main roof notch and flashing interfaces, and the unlit static state.
+@evidence principles/core/common.md#substantive-completion Sets the shaft plan X = [-6.30, -5.50], Z = [-2.75, -1.65] m from Y = -0.45 m to 8.90 m, the cap Y = [8.90, 9.10] m with a 0.10 m overhang, and the interior front X = [-5.50, -4.95], Z = [-3.00, -1.40], Y = [0, 1.40] m.
+@evidence principles/core/common.md#declared-basis The chimney position comes from the fireplace on the left exterior wall of the living setting and the roof height around the shaft from Mfront, and states that the height choice is not a claim of combustion code or structural safety.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "a position that connects in section with the chimney of the left exterior wall" into the coordinates of a shaft and an interior front sharing one chimney interface, and a roof boundary notch.
+@evidence principles/design/spaces.md#space-topology The shaft is outside and the front inside living-room, sharing one interface across the exterior wall, and it reaches the left boundary of the main roof.
+@evidence principles/design/spaces.md#space-boundary-authority Divides the interior complete face to the living owner and the exterior and structural reference to this left elevation owner, and consumes the roof outline from main-front-roof.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the section from the firebox to the chimney, the whole left height, the three interfaces of the notch, and the cap seen from above.
+@evidence settings/10-house.md#living Places the firebox, brick front, and mantel reservation of the unlit fireplace on the left wall away from the waiting area in front of the living room door, and has it share one chimney interface with the chimney shaft.
+@evidence settings/20-verification.md#visual-grammar Reserves in space the brick body rising from the fireplace above the roof and the finished cap, as the shaft height and the cap overhang.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared living's fireplace-chimney continuity, visual-grammar's brick body and cap, and main-mass's eave range; the shaft lies past the left overhang end of the main roof, so a notch resolves it, and there was no parent revision.
 -->
 
-[거실 벽난로](../../settings/10-house.md#living)는 왼쪽 외벽에 붙는다. 굴뚝 구조 몸통의 평면 예약은 X = [-6.30, -5.50], Z = [-2.75, -1.65] m다. 외부에서 보이는 몸통은 포치 앞 보행길과 같은 Y = -0.45 m부터 Y = 8.90 m까지, 덮개/상부 형상 예약은 Y = [8.90, 9.10] m로 택한다. 지하 기초·실제 연도/열 성능을 모델링했다는 뜻은 아니다. 덮개 외곽은 몸통보다 수평 0.10 m씩 내밀며 검은 금속 상부와 벽돌 몸통을 구별할 수 있게 한다.
+The [living room fireplace](../../settings/10-house.md#living) attaches to the left exterior wall. The plan reservation of the chimney structural shaft is X = [-6.30, -5.50], Z = [-2.75, -1.65] m. The shaft visible from outside runs from Y = -0.45 m, the same as the walk in front of the porch, to Y = 8.90 m, and the cap/top shape reservation is chosen as Y = [8.90, 9.10] m. This does not mean the underground foundation or the real flue/thermal performance has been modeled. The cap outline overhangs the shaft by 0.10 m horizontally on each side, so the black metal top can be distinguished from the brick shaft.
 
-거실 쪽 벽난로/벽돌 앞면의 공간 예약은 X = [-5.50, -4.95], Z = [-3.00, -1.40], Y = [0, 1.40] m다. [거실의 문 앞 대기](../rooms/living.md#living-plan)와 떨어진 왼쪽 벽에서 화구·벽돌 앞면·선반을 후속 부재로 구성한다. 몸통과 실내 앞면은 하나의 chimney 접면을 공유하며 외벽만 사이에 남긴 무관한 두 장식물로 저작하지 않는다. 실내 벽돌 앞면은 화구 자리 Z = [-2.72, -1.68], Y = [0.23, 0.87] m를 실제 빈 공간으로 남긴 네 닫힌 벽돌 부재가 이 owner에서 만든다. 상부는 Y = 1.30 m에서 멈추고 [화구 안쪽과 목재 선반](../../models/11-living.md#fireplace-insert-mantel)은 models에 맡겨 같은 면을 두 번 만들지 않는다. 실내 완결 면은 living owner, 외부와 구조 기준은 이 왼쪽 입면 owner가 담당한다. 불은 꺼진 상태다.
+The spatial reservation of the fireplace/brick front on the living room side is X = [-5.50, -4.95], Z = [-3.00, -1.40], Y = [0, 1.40] m. On the left wall away from the [waiting area in front of the living room door](../rooms/living.md#living-plan), the firebox, brick front, and mantel are composed as later members. The shaft and the interior front share one chimney interface and are not authored as two unrelated ornaments with only the exterior wall left between them. This owner makes the interior brick front as four closed brick members that leave the firebox place Z = [-2.72, -1.68], Y = [0.23, 0.87] m as real empty space. The top stops at Y = 1.30 m, and the [firebox inside and wooden mantel](../../models/11-living.md#fireplace-insert-mantel) are left to models so the same face is not made twice. The interior complete face is taken by the living owner, and the exterior and structural reference by this left elevation owner. The fire is unlit.
 
-굴뚝 몸통은 [주 지붕의 왼쪽 돌출 끝](../../settings/10-house.md#main-mass)을 넘어 있으므로 지붕 절단은 닫힌 사각 구멍이 아니라 왼쪽 경계에 닿는 notch다. [주 지붕 앞 면](../roof/main-front.md#main-front-roof)의 윤곽에서 몸통 평면과 겹치는 부분을 제외하고, 만나는 선을 따라 후레싱/역후레싱의 실제 두께를 후속 단계에서 붙인다. 전면 박공에 불필요한 두 번째 구멍을 뚫지 않는다. 몸통 주위의 지붕 높이는 [Mfront](../roof/00-junctions.md#roof-profile-datums)에서 읽으며 굴뚝 덮개가 지붕 안으로 묻히면 실패다.
+The chimney shaft lies past the [left overhang end of the main roof](../../settings/10-house.md#main-mass), so the roof cut is not a closed rectangular hole but a notch reaching the left boundary. The part overlapping the shaft plan is excluded from the outline of the [main roof front face](../roof/main-front.md#main-front-roof), and the real thickness of flashing/counter-flashing is attached along the meeting line in a later stage. No unnecessary second hole is cut in the front gable. The roof height around the shaft is read from [Mfront](../roof/00-junctions.md#roof-profile-datums), and it is a failure if the chimney cap is buried inside the roof.
 
-검사 주소는 거실 화구부터 외벽/굴뚝으로 이어지는 단면, 왼쪽 전체 높이, 지붕 경계 notch의 세 접면과 위에서 본 덮개다. 높이 선택은 연소 규정 적합성이나 구조 안전의 주장이 아니다. 실제 부재/void·기초 접촉·후레싱·그림자·프레임은 unverified다.
+The inspection addresses are the section from the living room firebox continuing to the exterior wall/chimney, the whole left height, the three interfaces of the roof boundary notch, and the cap seen from above. The height choice is not a claim of combustion code conformance or structural safety. The real members/voids, foundation contact, flashing, shadows, and frames are unverified.
 
-굴뚝의 검은 금속 cap은 몸통 X=[−6.30,−5.50], Z=[−2.75,−1.65] m에서 사방 0.10 m 돌출한 X=[−6.40,−5.40], Z=[−2.85,−1.55], Y=[8.90,9.10] m의 한 닫힌 판이다. cap 윗면은 왼쪽 뒤 모서리 (X,Z)=(−6.40,−2.85) m에서 U=+X·V=+Z를 시작하고, 네 수직 두께면은 각 면의 왼쪽 아래 모서리에서 수평 접선 길이 U·Y 높이 V를 다시 시작한다. 아랫면은 윗면과 같은 X/Z 축·원점을 쓰되 노출 모서리와 몸통 접합에서 잘라 몸통의 벽돌 UV를 이어 받지 않는다.
+The black metal cap of the chimney is one closed plate X=[−6.40,−5.40], Z=[−2.85,−1.55], Y=[8.90,9.10] m projecting 0.10 m on all sides from the shaft X=[−6.30,−5.50], Z=[−2.75,−1.65] m. The cap top starts U=+X and V=+Z at the left back corner (X,Z)=(−6.40,−2.85) m, and the four vertical thickness faces restart the horizontal tangent length U and the Y height V at the lower left corner of each face. The underside uses the same X/Z axes and origin as the top, but is cut at the exposed corners and the shaft junction and does not continue the brick UV of the shaft.

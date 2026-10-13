@@ -1,37 +1,37 @@
 /**
- * 볼록 평면 다각형 위의 수직 프리즘을 닫힌 면 목록으로 만든다.
- * 하단과 상단은 각각 y=ax+bz+c 평면이며 벽 상단이 실제 지붕 하부를
- * 따르는 경사 면일 수 있다. 입력 다각형은 planar-domain의 방향(rectangle
- * 순서)을 따르고, 출력 면은 engine polyhedron이 바깥 법선을 얻는 순서다.
- * 면마다 방향과 원래 다각형 변 번호를 남겨 호출자가 표면 소유를 정한다.
+ * Builds a vertical prism over a convex planar polygon as a closed face list.
+ * The bottom and top are each a plane y=ax+bz+c, so a wall top can be a sloped face following the
+ * real roof underside. The input polygon follows planar-domain's orientation (rectangle order), and
+ * output faces are in the order from which the engine polyhedron derives outward normals.
+ * Each face keeps its direction and original polygon edge number so the caller decides surface ownership.
  */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { planeHeight, type HeightPlane, type PlanPoint } from "./planar-domain";
 
 export interface PrismFace {
-  /** "top" | "bottom" 또는 다각형 변 번호로 식별되는 옆면. */
+  /** "top" | "bottom", or a side face identified by its polygon edge number. */
   side: "top" | "bottom" | "edge";
   edge: number;
-  /** XZ 바깥 법선(옆면만). 위아래 면은 0 벡터다. */
+  /** XZ outward normal (side faces only). Top and bottom faces carry the zero vector. */
   normal: PlanPoint;
   corners: IAutoMovieVector3[];
 }
 
 /**
- * 모든 꼭짓점에서 상단이 하단보다 높아야 한다. 같거나 뒤집힌 높이는
- * 틈을 숨기는 0 두께 면이 되므로 거부한다(수치 한계 1e-9 m).
+ * The top must be higher than the bottom at every vertex. Equal or reversed heights would make a
+ * zero-thickness face that hides a gap, so they are refused (numeric limit 1e-9 m).
  */
 export const prismFaces = (
   polygon: readonly PlanPoint[],
   bottom: HeightPlane,
   top: HeightPlane,
 ): PrismFace[] => {
-  if (polygon.length < 3) throw new Error("prism: 세 꼭짓점 이상의 평면이 필요합니다.");
+  if (polygon.length < 3) throw new Error("prism: a plane with at least three vertices is required.");
   const low = polygon.map((p) => planeHeight(bottom, p));
   const high = polygon.map((p) => planeHeight(top, p));
   polygon.forEach((_, i) => {
     if (!(high[i]! - low[i]! > 1e-9)) {
-      throw new Error(`prism: 꼭짓점 ${i}의 상단 ${high[i]}가 하단 ${low[i]}보다 높지 않습니다.`);
+      throw new Error(`prism: the top ${high[i]} at vertex ${i} is not higher than the bottom ${low[i]}.`);
     }
   });
   const v = (p: PlanPoint, y: number): IAutoMovieVector3 => ({ x: p.x, y, z: p.z });
@@ -58,5 +58,5 @@ export const prismFaces = (
   return faces;
 };
 
-/** 상수 높이 평면. */
+/** A constant-height plane. */
 export const levelPlane = (height: number): HeightPlane => ({ x: 0, z: 0, constant: height });

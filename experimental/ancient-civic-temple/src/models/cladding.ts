@@ -112,7 +112,7 @@ export class TempleCladding {
     }
     const imbrex = ridgeEnd === null ? modelMesh(cover, "imbrex") :
       cutTileMesh(modelMesh(cover, "imbrex"), [{ x: 0, y: 0, z: -1, constant: ridgeEnd }]);
-    return reviewedModel("tile.roof", "평기와와 둥근기와", [
+    return reviewedModel("tile.roof", "Flat and round roof tiles", [
       ["tegula", roofUvs(tegula)],
       ...(lip === null ? [] : [["lip", roofUvs(lip)] as [string, IAutoMovieMesh]]),
       ...(imbrex === null ? [] : [["imbrex", imbrex] as [string, IAutoMovieMesh]]),
@@ -189,7 +189,7 @@ export class TempleCladding {
     if (length > 0.05) segment(0.13,0.05,length);
     return reviewedModel(
       `tile.ridge.${slopeDegrees}${length === 0.45 ? "" : `.end.${length.toFixed(8)}`}`,
-      `용마루 ${slopeDegrees}°`,
+      `Ridge ${slopeDegrees}°`,
       [["ridge", modelMesh(shell, "ridge")]],
     );
   }

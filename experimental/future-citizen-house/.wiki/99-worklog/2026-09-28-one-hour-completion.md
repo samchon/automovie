@@ -1,6 +1,6 @@
 # One-hour completion, 2026-09-28
 
-Direct user instruction: "딱 한 시간 준다, 그 안에 건물 다 만들고 소품들 다 마무리쳐라. 딱 한 시간이다. 모델러들 GPT-6-Sol High로 킨 뒤, 딱 한 시간 안에 모든걸 끝내라." Deadline 2026-09-28 10:59:00Z. Work is confined to this production on `feat/benchmark-one-hour-completion`, Draft PR #2627. No merge, no root package/scaffold/other production changes, no branch switch, no `git add -A`, and preserve existing PNG and ESM form.
+Direct user instruction (translated from Korean): "I'm giving you exactly one hour; within it, finish the whole building and wrap up all the props. Exactly one hour. Start the modelers with GPT-6-Sol High, then finish everything within exactly one hour." Deadline 2026-09-28 10:59:00Z. Work is confined to this production on `feat/benchmark-one-hour-completion`, Draft PR #2627. No merge, no root package/scaffold/other production changes, no branch switch, no `git add -A`, and preserve existing PNG and ESM form.
 
 
 

@@ -70,7 +70,7 @@ export class TempleEntablature {
       origin:p(-half, 0, 0),
       direction:p(1, 0, 0),
     });
-    return reviewedModel(`beam.colonnade.${side}`, `주랑 ${side} 보`, [
+    return reviewedModel(`beam.colonnade.${side}`, `Portico ${side} beam`, [
       ["timber", modelMesh(builder, "timber")],
     ]);
   }
@@ -103,7 +103,7 @@ export class TempleEntablature {
       0.04,
       { origin:p(0, 0, 0), direction:p(0, 0, 1) },
     );
-    return reviewedModel(`rafter.${variantId}`, `서까래 ${slopeDegrees}°`, [
+    return reviewedModel(`rafter.${variantId}`, `Rafter ${slopeDegrees}°`, [
       ["timber", modelMesh(builder, "timber")],
     ]);
   }
@@ -149,7 +149,7 @@ export class TempleEntablature {
       [-1.65, top(-1.65)],
     ];
     modelExtrudeXY(r,"raking-trim",section,0,0.08);
-    return reviewedModel("entablature.porch", "포치 보와 트림", [
+    return reviewedModel("entablature.porch", "Porch beam and trim", [
       ["beam", modelMesh(b, "beam")],
       ["cornice", modelMesh(c, "cornice")],
       ["raking-trim", modelMesh(r, "raking-trim")],
@@ -258,7 +258,7 @@ export class TempleEntablature {
         { origin:foot, direction:p(dx, dy, 0) },
       );
     }
-    return reviewedModel("truss.sanctuary", "제실 트러스", [
+    return reviewedModel("truss.sanctuary", "Sanctuary truss", [
       ["tie-beam", modelMesh(t, "tie-beam")],
       ["principal", modelMesh(pr, "principal")],
       ["king-post", modelMesh(k, "king-post")],
@@ -280,7 +280,7 @@ export class TempleEntablature {
       origin:p(-halfSpan, 0, 0),
       direction:p(1, 0, 0),
     });
-    return reviewedModel("joist.room", "방 천장 보", [
+    return reviewedModel("joist.room", "Room ceiling joist", [
       ["timber", modelMesh(b, "timber")],
     ]);
   }

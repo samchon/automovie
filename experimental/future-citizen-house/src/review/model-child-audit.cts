@@ -13,7 +13,7 @@ type Correspondence = { id: string, part?: string, retired?: string };
 const root = path.resolve(__dirname, "../..");
 const modelInventory = inventory(root);
 const account = fs.readFileSync(path.join(root, "docs/accounts/models/legacy-fitout.md"), "utf8");
-const rootBlock = account.split("## Item root 대응")[1]?.split("## 직접 primitive와 방 lining")[0];
+const rootBlock = account.split("## Item root correspondence")[1]?.split("## Direct primitives and room lining")[0];
 if (!rootBlock) throw Error("legacy root account is missing");
 const accountRoots = rootBlock.split(/\r?\n/).flatMap((line) => {
   if (!line.startsWith("| ") || line.startsWith("| Source ") || line.startsWith("| ---")) return [];
@@ -27,8 +27,8 @@ const accountRoots = rootBlock.split(/\r?\n/).flatMap((line) => {
 // The account is an input to the check, not a prose echo of the route() code.
 // Every explicitly retired child must be in its finite table, and every helper
 // exported by the legacy fit-out source must have an account row.
-const retiredBlock = account.split("| 명명 퇴역 child ID 또는 유한 전개 |")[1]?.split(/\r?\n\r?\n/)[0];
-const helperBlock = account.split("| helper 또는 수제 child |")[1]?.split(/\r?\n\r?\n/)[0];
+const retiredBlock = account.split("| Named retired child ID or finite expansion |")[1]?.split(/\r?\n\r?\n/)[0];
+const helperBlock = account.split("| Helper or handmade child |")[1]?.split(/\r?\n\r?\n/)[0];
 if (!retiredBlock || !helperBlock) throw Error("legacy child or helper table is missing");
 
 function expandRetirement(pattern: string): string[] {

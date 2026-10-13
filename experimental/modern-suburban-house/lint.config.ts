@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
     fileURLToPath(new URL(".", import.meta.url)),
-    "korean" as AutoMovieProductionLanguage,
+    "english" as AutoMovieProductionLanguage,
   ),
 } satisfies IAutoMovieEvidenceConfigProps;
 

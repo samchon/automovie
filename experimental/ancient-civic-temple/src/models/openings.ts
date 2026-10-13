@@ -221,7 +221,7 @@ export class TempleOpenings {
         );
       }
     });
-    return reviewedModel(`frame.${id}`, `석재 문틀 ${id}`, [
+    return reviewedModel(`frame.${id}`, `Stone door frame ${id}`, [
       ["lining", lining],
       ["surround", surround],
     ]);
@@ -280,7 +280,7 @@ export class TempleOpenings {
         b.frustum("hinge",0.021,0,y-0.05,y+0.05,0.02,0.02,12);
     });
     return posed(
-      reviewedModel(`door.double.${id}`, `양개 문짝 ${id}`, [
+      reviewedModel(`door.double.${id}`, `Double door leaf ${id}`, [
         ["frame", frame],
         ["panel", panel],
         ["plate", plates],
@@ -328,7 +328,7 @@ export class TempleOpenings {
       pinZ(b, "pin", w-0.12, 1.095, -0.05, -0.063, 0.006, 12, -1);
     });
     return posed(
-      reviewedModel(`door.single.${id}`, `외개 문짝 ${id}`, [
+      reviewedModel(`door.single.${id}`, `Single door leaf ${id}`, [
         ["board", board],
         ["batten", batten],
         ["strap", strap],
@@ -398,7 +398,7 @@ export class TempleOpenings {
         );
       }
     });
-    return reviewedModel(`frame.window.${t}`, `채광구 틀 ${t}m`, [
+    return reviewedModel(`frame.window.${t}`, `Light opening frame ${t}m`, [
       ["lining", lining],
       ["surround", surround],
     ]);

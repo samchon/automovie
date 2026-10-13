@@ -24,21 +24,21 @@ function quoteOwnerFailures(rows: Array<{ id:number;file:string;host:string;text
       continue;
     }
     const before = row.text.slice(Math.max(0, at - 90), at).replace(/[‘'"“]\s*$/, "").trim();
-    const namedRaw = /([A-Za-z][A-Za-z0-9-]*)의\s*$/.exec(before)?.[1] ||
-      /([A-Za-z][A-Za-z0-9-]*)\s+설정의\s*$/.exec(before)?.[1] ||
-      /([A-Za-z][A-Za-z0-9-]*)가\s*$/.exec(before)?.[1];
+    const namedRaw = /([A-Za-z][A-Za-z0-9-]*)'s\s*$/.exec(before)?.[1] ||
+      /([A-Za-z][A-Za-z0-9-]*)\s+setting's\s*$/.exec(before)?.[1] ||
+      /([A-Za-z][A-Za-z0-9-]*)\s+(?:states|says)\s*$/.exec(before)?.[1];
     const named = namedRaw === "owner" ? undefined : namedRaw;
         const sourceMatches = (source: string) => {
       const [file, anchor] = source.split("#");
       if (!file || !anchor) return false;
       if (named && ![anchor, file.split("/").at(-1)?.replace(/\.md$/, "")].includes(named)) return false;
-      if (before.endsWith("설정의") || before.includes("설정 ")) {
+      if (before.endsWith("setting's") || before.includes("setting ")) {
         if (!file.startsWith("settings/")) return false;
       }
       if (named) return true;
-      if (file.startsWith("settings/") && before.endsWith("설정의"))
+      if (file.startsWith("settings/") && before.endsWith("setting's"))
         return bodies.get(`${row.file}#${row.host}`)?.includes(`#${anchor}`) ?? false;
-      if (before.endsWith("owner의")) return row.text.slice(0, at).includes(anchor);
+      if (before.endsWith("owner's")) return row.text.slice(0, at).includes(anchor);
       return row.text.slice(0, at).includes(anchor);
     };
     if (!sources.some(sourceMatches)) failures.push(

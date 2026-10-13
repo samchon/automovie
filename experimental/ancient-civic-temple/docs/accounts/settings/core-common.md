@@ -1,45 +1,45 @@
-# 설정 population의 공통 의무
+# Shared obligations of the settings population
 
-## 파일 역할과 납품의 관계 {#file-roles}
+## File roles and their relation to delivery {#file-roles}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 00-delivery의 관찰/운영 조건, 10-building의 연결/사용 입력, 20-envelope의 부재 관계, 30-interiors의 방별 용도, 35-objects의 독립 물체, 40-environment의 외부 가림/빛, 50-production의 실행/판정 경계를 함께 읽어 각 파일이 없어질 때 미정이 되는 후속 결정을 아래에 비교했다.
+@evidence obligations/core/common.md#purpose-fit Reading together the observation and operating conditions of 00-delivery, the connection and use inputs of 10-building, the member relations of 20-envelope, the per-room uses of 30-interiors, the independent objects of 35-objects, the exterior occlusion and light of 40-environment, and the execution and judgment boundary of 50-production, the later decisions that would become undecided without each file are compared below.
 -->
 
 <!--
 -->
 
-이 settings는 약 430㎡ 한 채와 전체 실내를 실제 3D로 관찰하는 library의 부모다. [납품](../../settings/00-delivery.md)이 없으면 같은 방을 어떤 위치·렌즈·운영 조작으로 판단할지 달라진다. [건물](../../settings/10-building.md)이 없으면 방 직접 출입과 운반 포락을 공간 저작자가 새로 정해야 한다. [외피](../../settings/20-envelope.md)는 박공·처마·깊은 개구부·실내 천장이 상자나 판으로 축소되는 것을 막는다. [실내](../../settings/30-interiors.md)는 같은 외피 안에서도 작성·열람·봉헌·보관이 구별될 집기 역할과 기본 상태를 정한다. [물체](../../settings/35-objects.md)는 실내 파일의 물체 이름만으로는 미정인 제단·탁자·용기의 비례와 입체 관계를 채운다. [환경](../../settings/40-environment.md)은 주변 건물·나무·언덕이 신전을 가리지 않을 범위와 모든 프레임의 낮 상태를 정한다. [제작 조건](../../settings/50-production.md)이 없으면 실제 source 대신 UI에 재작성한 건물이나 소프트웨어 렌더를 납품 증거로 쓸 여지가 생긴다. 이 일곱 역할은 한 건물의 관찰에 필요하며 영화·인물·도시 전체를 위한 파일은 두지 않는다.
+These settings are the parent of a library that observes one house of about 430 m² and its whole interior in real 3D. Without [delivery](../../settings/00-delivery.md), the position, lens and operating controls used to judge the same room would vary. Without the [building](../../settings/10-building.md), the space author would have to decide direct room access and carrying envelopes anew. The [envelope](../../settings/20-envelope.md) keeps gables, eaves, deep openings and interior ceilings from shrinking into boxes or slabs. The [interiors](../../settings/30-interiors.md) set the furniture roles and default states that keep writing, reading, offering and storage distinct inside the same envelope. The [objects](../../settings/35-objects.md) fill in the proportions and solid relations of altars, tables and vessels that object names in the interiors file leave undecided. The [environment](../../settings/40-environment.md) sets how far surrounding buildings, trees and hills may stand without hiding the temple, and the daytime state of every frame. Without the [production conditions](../../settings/50-production.md), a building rewritten in the UI or a software render could be offered as delivery evidence instead of the real source. These seven roles are needed to observe one building; there are no files for a film, characters or a whole city.
 
-## 설정과 설계·구현의 분담 {#layer-routing}
+## Division between settings, design and implementation {#layer-routing}
 
 <!--
-@evidence obligations/core/common.md#layer-boundary 전체 일곱 파일은 크기 허용값·형태 정체성·권한·상태를 정하고 방 좌표·prototype mesh·재료 수치·배치 수량·렌더 실행은 후속 분기에 남긴다. 아래 대조는 그 분담을 파일 역할별로 확인한다.
+@evidence obligations/core/common.md#layer-boundary All seven files set size tolerances, form identity, authority and states, and leave room coordinates, prototype meshes, material values, placement counts and render execution to the later branches. The comparison below checks that division per file role.
 -->
 
 <!--
 -->
 
-00-delivery의 build-scope는 후속 분기 배정이지 구현 수량표가 아니다. 10-building의 410~450㎡와 통과 폭은 설계 입력이며 방별 좌표나 벽 압출을 소유하지 않는다. 20-envelope의 처마 높이·경사 허용 범위는 실제 지붕 단면·배수·접합을 대신하지 않고, 색 관계는 materials의 수치 roughness나 texture scale을 정하지 않는다. 30-interiors는 물체의 방별 기능·접근·상태를, 35-objects는 그 물체가 무엇으로 읽혀야 하는지와 크기 범위를 정하며 실제 모델/반복 placement를 만들지 않는다. 40-environment의 거리·빛 방향은 spaces 대지 owner와 systems가 소비할 범위다. 50-production의 CJS producer와 GPU 요구는 실행 경계이며 코드나 성공 로그가 아니다. .wiki의 평면·지붕 후보는 설정 canon의 소유가 아니며 실제 spaces/source 구현도 이 settings 층의 비교 결과에 포함되지 않는다.
+The build-scope of 00-delivery assigns later branches; it is not an implementation quantity table. The 410 to 450 m² and passage widths of 10-building are design inputs and do not own per-room coordinates or wall extrusion. The eave height and slope tolerances of 20-envelope do not replace the real roof section, drainage or joints, and the colour relations do not set the numeric roughness or texture scale of materials. 30-interiors sets each object's per-room function, access and state, and 35-objects sets what each object must read as and its size range; neither makes real models or repeated placements. The distances and light directions of 40-environment are ranges for the spaces site owner and systems to consume. The CJS producer and GPU requirement of 50-production are an execution boundary, not code or a success log. The plan and roof candidates in .wiki are not owned by the settings canon, and the real spaces and source implementation are not part of this settings layer's comparison.
 
-## 한국어와 기술 표기의 접근 {#working-language}
+## Working language and technical notation {#working-language}
 
 <!--
-@evidence obligations/core/common.md#production-language 일곱 파일의 결정을 현대 한국어 기술 서술로 읽었고 00-delivery의 working-language가 stage·threshold·fit-out·compiled topology를 풀이한다. 영어 식별자는 명령/API/소유 분기 주소로 쓰이며 별도 고대어 서사나 무설명 번역판은 없다.
+@evidence obligations/core/common.md#production-language The decisions of all seven files read as plain technical English, and the working-language of 00-delivery explains stage, threshold, fit-out and compiled topology. Identifiers serve as command, API and owning-branch addresses, and there is no separate archaic narration or unexplained translated edition.
 -->
 
 <!--
 -->
 
-[언어 소유](../../settings/00-delivery.md#working-language)는 문서와 뷰어 설명을 한국어로 정한다. settings에서 영문은 library·source 같은 제작 용어, README·파일 경로·API·Git 명령, stage 값과 같은 고정 표식에 쓰였다. 도·m·rad·s의 차이는 좌표 소유가 설명하고 사람의 이동 포락과 카메라 비충돌 영역은 서로 다른 입력으로 서술했다. 한국어 공간명은 관리실·기록실·봉헌물 보관실로 구분되며 영어 파일명이 방의 용도를 대신하지 않는다. viewer의 한국어 조작 설명과 최초 용어 풀이는 앞으로 구현할 요구이며 이미 제공된 UI라는 결론을 내리지 않는다.
+The [language owner](../../settings/00-delivery.md#working-language) sets English for documents and viewer descriptions. In the settings, fixed markers such as production terms like library and source, README, file paths, APIs, Git commands and stage values keep their spelling. The coordinate owner explains the difference between degrees, m, rad and s, and a person's movement envelope and the camera's collision-free region are described as separate inputs. Room names distinguish the office, the records room and the offering store, and file names do not stand in for a room's use. The viewer's control descriptions and first-use glossary are a requirement to implement later, not a conclusion that the UI already provides them.
 
-## 건물 규모에 대한 서술 배분 {#population-scale}
+## Allocation of description by building scale {#population-scale}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 설정의 53 H2를 일곱 파일 전체에서 비교했다. 외피 8·실내 8·독립 물체 9개로 건물/실내를 분해하고 작은 배경은 5개로 제한했다. 설치와 lockfile 권한 정정은 기존 제작 조건의 두 H2에 남겨 건물 범위를 압축하거나 실행 절차를 새 시각 주제로 부풀리지 않았다.
+@evidence obligations/core/common.md#proportionate-development The 53 settings H2s were compared across all seven files. The building and interior decompose into 8 envelope, 8 interior and 9 independent object H2s, and the small background is limited to 5. Installation and lockfile authority corrections stay in the two existing production-condition H2s, so the building scope is neither compressed nor inflated by turning execution procedure into a new visual topic.
 -->
 
 <!--
 -->
 
-현재 H2 분포는 납품 10, 건물 5, 외피 8, 실내 8, 물체 9, 환경 5, 제작 조건 8이다. 단층 신전의 방 관계는 건물의 고정 그래프가 소유하고, 문·지붕·포치·주랑·바닥·천장은 외피에서 개별 결정으로 읽는다. 제실·봉헌실·업무방·마당은 실내에서 다른 사용과 집기 밀도를 받으며 작은 집기는 물체에서 형상·크기·상태까지 받는다. 단순 탁자보다 실패 가능성이 큰 검토 프레임에는 카메라 위치·충돌·보조 관찰 조건을 더 자세히 썼고, 국소 배경은 먼 지형·이웃의 실내를 추가 납품하지 않게 제한했다. 설정에는 부모 authored layer가 없고 영화의 길이/대사/장면 계층도 없으므로 서사 길이 증가 비교는 적용 대상이 아니다. 승인된 draft의 모든 방·물체·관찰 의무와 H2 정체성을 유지했다. 개별 치수 해법과 완결 표면 경로는 이후 설계의 업무이며 이 문서 길이나 H2 수로 구현 품질을 판정하지 않는다.
+The current H2 distribution is delivery 10, building 5, envelope 8, interiors 8, objects 9, environment 5 and production conditions 8. The fixed graph of the building owns the room relations of the single-storey temple, and the doors, roof, porch, portico, floors and ceilings are read as individual decisions in the envelope. The sanctuary, offering room, work rooms and yard receive different uses and furniture densities in the interiors, and small furniture receives its shape, size and state in the objects. Review frames more likely to fail than a simple table describe camera position, collision and auxiliary observation conditions in more detail, and the local background is limited so that distant terrain and neighbouring interiors are not delivered as extras. Settings have no parent authored layer and no film length, dialogue or scene hierarchy, so a narrative length comparison does not apply. Every room, object and observation obligation of the approved draft and its H2 identity are kept. Individual dimensional solutions and complete surface paths are later design work, and implementation quality is not judged by this document's length or H2 count.

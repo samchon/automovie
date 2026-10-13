@@ -130,13 +130,13 @@ function authoredGeometry(): Geometry {
   );
   const [floor] = required(
     parent,
-    new RegExp(`Y = \\[${num}, 2\\.15\\] m의 거친 개구부`),
+    new RegExp(`rough opening X = \\[[^\\]]+\\], Y = \\[${num}, 2\\.15\\] m`),
     "garage floor datum",
   );
   const [reserveMin, reserveMax] = required(
     parent,
     new RegExp(
-      `상부의 가이드/열린 패널 예약은[^\\n]*?Y = \\[${num}, ${num}\\] m`,
+      `upper guide/open-panel reservation[^\\n]*?Y = \\[${num}, ${num}\\] m`,
     ),
     "upper reservation",
   );

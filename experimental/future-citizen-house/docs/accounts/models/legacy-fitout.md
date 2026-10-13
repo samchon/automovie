@@ -1,18 +1,18 @@
-# 기존 방 물체의 모델 인계 계정
+# Model handoff account for existing room objects
 
-[공통 모델 규칙](../../models/000-representation.md#model-address-and-scale)을 참조한다.
+See the [common model rules](../../models/000-representation.md#model-address-and-scale).
 
-## Item root 대응 {#legacy-root-correspondence}
+## Item root correspondence {#legacy-root-correspondence}
 
 <!--
-@evidence contracts/model-fitout-handoff.md#legacy-fitout-child-destination 방 source의 46 Item 작성 지점에서 전개한 54 root를 표에 보존하고, 한 root가 여러 prototype을 쓰는 경우에도 각 child는 아래 변환 규칙에서 한 안정 part/face 주소 또는 명명 퇴역으로 대응한다.
+@evidence contracts/model-fitout-handoff.md#legacy-fitout-child-destination The table keeps the 54 roots expanded from the 46 Item authoring sites of the room sources, and even when one root uses several prototypes, each child corresponds under the conversion rules below to one stable part/face address or one named retirement.
 -->
 
-현재 `src/house/rooms/*.ts`와 `interior.ts`가 생성하는 임시 메시의 작성 지점을 보존한다. 한 행은 하나의 정적 작성 지점이며 반복의 실제 ID는 표기한 유한 범위를 전개한다. 임시 메시를 승인된 modelSource라고 부르지 않는다. `new Item(` 작성 지점은 46개이며 상태·반복을 전개한 root ID는 54개다. 각 root의 null-model parent는 새 instance identity에 대응하고, 자식 solid는 아래 부품 변환 규칙의 안정 주소에 대응한다. 서로 다른 legacy ID를 같은 후속 `instance/part/face` 주소로 합치지 않는다. 배치 좌표·방 membership은 instances가, 발광은 systems가, finish 결합은 materials가 소유한다. `flex-guest-bed`와 `flex-murphy-frame`은 같은 murphy prototype을 소비하지만 `bed-frame`과 `case-*`의 서로 다른 후속 part 주소로 구별한다. 표의 `+`는 prototype들이 한 legacy root에 대응한다는 뜻이며 실제 합성 방식은 각 모델 H2의 `@compose` 또는 `@support`가 정한다. `entry-bench`만 `@compose` wrapper가 bench-base를 한 번 포함하므로 외함을 별도 instance로 다시 배치하지 않는다. 섬·세면대·벽 조리대·쿡탑·오븐의 `@support`는 별도 cabinet instance의 명명된 part 상면과 유한 접촉 범위를 기계로 대조하며, 지지 부품을 장식 물체 안에 중복 생성하지 않는다.
+This preserves the authoring sites of the temporary meshes that the current `src/house/rooms/*.ts` and `interior.ts` generate. One row is one static authoring site, and the actual IDs of a repetition expand the finite range written. A temporary mesh is not called an approved modelSource. There are 46 `new Item(` authoring sites, and 54 root IDs after expanding states and repetitions. The null-model parent of each root corresponds to a new instance identity, and the child solids correspond to the stable addresses of the part conversion rules below. Different legacy IDs are not merged into the same successor `instance/part/face` address. Placement coordinates and room membership are owned by instances, emission by systems, and finish binding by materials. `flex-guest-bed` and `flex-murphy-frame` consume the same murphy prototype but are distinguished by the different successor part addresses of `bed-frame` and `case-*`. A `+` in the table means that the prototypes correspond to one legacy root, and the actual composition is set by each model H2's `@compose` or `@support`. Only for `entry-bench` does the `@compose` wrapper include bench-base once, so the enclosure is not placed again as a separate instance. The `@support` of the island, basin, wall worktop, cooktop, and oven mechanically compares the top face of a named part of a separate cabinet instance with a finite contact range, and the supporting parts are not generated a second time inside the decorative object.
 
-| Source | Legacy Item root ID (전개 수) | 후속 prototype/part owner |
+| Source | Legacy Item root ID (expanded count) | Successor prototype/part owner |
 | --- | --- | --- |
-| bathroom.ts | `bath-vanity` (1) | `basin/1000`, vanity 외함은 `cabinet/vanity/1000x800x480/closed` |
+| bathroom.ts | `bath-vanity` (1) | `basin/1000`, with the vanity enclosure as `cabinet/vanity/1000x800x480/closed` |
 | bathroom.ts | `bath-toilet` (1) | `toilet` |
 | bathroom.ts | `bath-shower` (1) | `shower` |
 | bathroom.ts | `bath-towels` (1) | `cabinet/open-shelf/600x1100x380/open` |
@@ -29,41 +29,41 @@
 | common.ts | `common-coffee` (1) | `coffee-table` |
 | common.ts | `common-media` (1) | `cabinet/media/2000x440x350/closed` |
 | common.ts | `common-dining` (1) | `dining-table` |
-| common.ts | `dining-chair-<z>-<i>` (6: z=-1,+1; i=0..2) | `dining-chair` 여섯 instance |
+| common.ts | `dining-chair-<z>-<i>` (6: z=-1,+1; i=0..2) | six `dining-chair` instances |
 | common.ts | `kitchen-island` (1) | `kitchen-island` + `cabinet/island-base/880x870x2650/closed` |
-| common.ts | `island-stool-<i>` (3: i=0..2) | `island-stool` 세 instance |
+| common.ts | `island-stool-<i>` (3: i=0..2) | three `island-stool` instances |
 | common.ts | `kitchen-wall-bank` (1) | `wall-worktop` + `cooktop` + `oven` + `cabinet/kitchen-base/2900x870x620/closed` |
-| common.ts | `kitchen-overhead` (1) | `cabinet/wall/2900x980x360/closed`의 다섯 leaf |
-| common.ts | `kitchen-fridge-pantry` (1) | `refrigerator`; 기존 cabinet child 중 기기 외관에 없는 내부 선반은 퇴역 목록에 기록 |
+| common.ts | `kitchen-overhead` (1) | the five leaves of `cabinet/wall/2900x980x360/closed` |
+| common.ts | `kitchen-fridge-pantry` (1) | `refrigerator`; among the existing cabinet children, the internal shelves absent from the appliance exterior are recorded in the retirement list |
 | common.ts | `kitchen-sorting` (1) | `cabinet/service/640x840x600/closed` |
 | common.ts | `common-plant` (1) | `potted-plant/1100` |
 | entry.ts | `entry-shoe-bench` (1) | `entry-bench` + `cabinet/bench-base/1150x440x480/closed` |
 | entry.ts | `entry-plant` (1) | `potted-plant/800` |
-| flex.ts | `flex-desk` (1) | `work-desk/flex-1400`의 필수 `folded` 상태 + `work-display` + `work-keyboard` |
+| flex.ts | `flex-desk` (1) | the required `folded` state of `work-desk/flex-1400` + `work-display` + `work-keyboard` |
 | flex.ts | `flex-chair` (1) | `desk-chair` |
 | flex.ts | `flex-books` (1) | `cabinet/open-shelf/950x1350x250/open` |
-| flex.ts | `flex-murphy-frame` (1, 두 상태 공유) | `murphy-bed`의 `case-*`와 상태별 판 |
-| flex.ts | `flex-guest-bed` (1, guest에서만) | `murphy-bed`의 guest `bed-frame/mattress/duvet/pillow/support-*`; 같은 instance의 다른 part |
+| flex.ts | `flex-murphy-frame` (1, shared by both states) | `case-*` of `murphy-bed` and the per-state panels |
+| flex.ts | `flex-guest-bed` (1, in guest only) | guest `bed-frame/mattress/duvet/pillow/support-*` of `murphy-bed`; other parts of the same instance |
 | powder.ts | `powder-toilet` (1) | `toilet` |
-| powder.ts | `powder-basin` (1) | 실제 인자 0.8m를 받는 `basin/800` + `cabinet/vanity/800x800x480/closed` |
+| powder.ts | `powder-basin` (1) | `basin/800`, which takes the actual 0.8m argument, + `cabinet/vanity/800x800x480/closed` |
 | powder.ts | `powder-cleaning` (1) | `cabinet/tall/520x2250x520/closed` |
 | primary.ts | `primary-bed` (1) | `fixed-bed/1800` |
-| primary.ts | `primary-nightstand-<x>` (2: x=1.60,4.16) | `cabinet/nightstand/500x460x460/closed` 두 instance |
+| primary.ts | `primary-nightstand-<x>` (2: x=1.60,4.16) | two `cabinet/nightstand/500x460x460/closed` instances |
 | primary.ts | `primary-wardrobe` (1) | `cabinet/tall/2720x2650x600/closed` |
 | primary.ts | `primary-desk` (1) | `work-desk/bed-1200` + `work-display` + `work-keyboard` |
 | primary.ts | `primary-chair` (1) | `desk-chair` |
 | primary.ts | `primary-plant` (1) | `potted-plant/600` |
-| service-upper.ts | `upper-laundry` (1) | `laundry-washer`와 `laundry-dryer`의 구분된 두 child part/instance |
+| service-upper.ts | `upper-laundry` (1) | two distinct child parts/instances, `laundry-washer` and `laundry-dryer` |
 | service-upper.ts | `upper-mechanical` (1) | `cabinet/service/1100x2400x560/closed` |
 | service-upper.ts | `upper-utility-shelf` (1) | `cabinet/open-shelf/850x2400x450/open` |
 | storage-ground.ts | `ground-store-shelves` (1) | `cabinet/open-shelf/1550x2500x500/open` |
 | storage-upper.ts | `upper-linen-cabinet` (1) | `cabinet/open-shelf/1100x2600x500/open` |
 
-## 직접 primitive와 방 lining {#legacy-direct-correspondence}
+## Direct primitives and room lining {#legacy-direct-correspondence}
 
-`Item` 밖의 직접 primitive 작성 지점 10개는 상태·반복 전개 뒤 18개 element다. source의 `a.box(` 8곳과 `a.ellipsoid(` 2곳을 각각 아래에 둔다. 새 장식은 해당 모델 H2에서 형상만 추가되고 이 표의 legacy element 삭제를 승인하지 않는다.
+The 10 direct primitive authoring sites outside `Item` become 18 elements after expanding states and repetitions. The 8 `a.box(` sites and 2 `a.ellipsoid(` sites of the source are each listed below. A new decoration only adds shape in its model H2 and does not approve deleting the legacy elements of this table.
 
-| Source 작성 지점 | Legacy element ID (전개 수) | 후속 주소 |
+| Source authoring site | Legacy element ID (expanded count) | Successor address |
 | --- | --- | --- |
 | common.ts box | `common-rug` (1) | `living-rug/pile` |
 | common.ts box | `common-display` (1) | `living-display/screen` |
@@ -72,92 +72,92 @@
 | entry.ts box | `entry-bench-cushion` (1) | `entry-bench/cushion` |
 | entry.ts box | `entry-charging-shelf` (1) | `entry-charging-shelf/board` |
 | entry.ts box | `entry-charger` (1) | `entry-charger/body` |
-| primary.ts ellipsoid | `primary-lamp-<x>` (2: x=1.60,4.16) | `portable-lamp/bedside-globe/globe` + 각 system emitter |
-| storage-ground.ts box | `ground-store-basket-<i>` (4: i=0..3) | `storage-basket/wall` 네 instance |
-| storage-upper.ts box | `upper-linen-stack-<i>` (5: i=0..4) | 최종 `folded-towels/120/layer-0..2` 다섯 instance; 아래 높이 전이 참조 |
+| primary.ts ellipsoid | `primary-lamp-<x>` (2: x=1.60,4.16) | `portable-lamp/bedside-globe/globe` + each system emitter |
+| storage-ground.ts box | `ground-store-basket-<i>` (4: i=0..3) | four `storage-basket/wall` instances |
+| storage-upper.ts box | `upper-linen-stack-<i>` (5: i=0..4) | five final `folded-towels/120/layer-0..2` instances; see the height transition below |
 
-기존 `upper-linen-stack-0..4` box는 각각 높이 0.16m의 임시 직육면체다. 이 행은 그 과거 형상을 보존하는 인계 기록이며 최종 prototype 상태를 강제하는 설계 owner가 아니다. 현 429개 방별 사물 모집단의 `@uses 접힌 수건`은 `folded-towels/120`을 선택한다. 따라서 다섯 안정 ID와 선반 바닥 좌표는 [instances 배치](../../instances/001-household-placement.md#direct-fitout)에서 유지하되 최종 높이는 0.12m다. 나머지 상층 수납 수건 세 개도 같은 120 상태로 추가되어 최종 여덟 개가 된다. 기존의 0.16m를 최종 모델 이름 `/160`으로 오해하거나 여덟 개 위에 다섯 개를 중복 생성하면 실패다.
+The existing `upper-linen-stack-0..4` boxes are each temporary cuboids 0.16m high. This row is a handoff record that preserves that past shape, not a design owner that forces the final prototype state. In the current room-by-room object population of 429, `@uses folded towel` selects `folded-towels/120`. The five stable IDs and the shelf bottom coordinates are therefore kept in [instance placement](../../instances/001-household-placement.md#direct-fitout), but the final height is 0.12m. The remaining three towels of the upper storage are also added in the same 120 state, making eight in the end. Mistaking the old 0.16m for a final model name `/160`, or generating five more on top of the eight, is a failure.
 
-## 공통 helper의 자식 면과 발광 {#legacy-helper-correspondence}
+## Child faces and emission of common helpers {#legacy-helper-correspondence}
 
-`Item.box/round`가 낸 child id는 위 root 뒤에 `-<name>`으로 붙는다. work·guest 상태의 child ID 합집합을 [현재 source 전개 producer](../../../src/review/model-child-audit.cjs)로 세고, 각 ID가 아래의 서로 다른 후속 part/face 주소 또는 명명 퇴역 한 곳에만 닿아야 한다. 아래 변환은 재료 문자열(`oak`, `white`, `green`, `tile`, `metal`)이 아니라 호출 경로·부품 역할로 고른다. 각 행의 범위는 정수 반복의 끝까지 포함한다.
+The child ids emitted by `Item.box/round` are appended after the root above as `-<name>`. The union of child IDs of the work and guest states is counted with the [current source expansion producer](../../../src/review/model-child-audit.cjs), and each ID must reach exactly one place: one of the distinct successor part/face addresses below or one named retirement. The conversions below are chosen by call path and part role, not by material string (`oak`, `white`, `green`, `tile`, `metal`). The range of each row includes the end of the integer repetition.
 
-| helper 또는 수제 child | 기존 name 범위 | 후속 part/face 또는 명시 퇴역 |
+| Helper or handmade child | Existing name range | Successor part/face or explicit retirement |
 | --- | --- | --- |
-| `table()` | `top`, `leg-<x>-<z>` (x,z=±1) | dining/coffee `top`, `leg-0..3`; `desk()` 안에서는 work-desk의 `top`, 앞쪽 두 `support-*`; flex의 네 옛 다리와 침실 변종의 뒤쪽 여섯 옛 다리는 명명 퇴역 |
-| `chair()` | `seat`, `back`, `leg-<x>-<z>` | dining-chair는 seat-frame/seat-pad/back/leg, 네 책상 의자의 old seat와 back은 각각 `shell-seat`와 `shell-back`에 일대일 대응하며 upholstery와 leg는 새 주소를 받는다; 한 기존 부재의 새 face는 전체 면을 분할 |
-| `cabinet()` | `back`, `side-±1`, `shelf-0..ceil(H/.38)`, 닫힌 경우 `door-±1`, `handle-±1` | 동일 외함의 back·side·bottom·top·shelf·door 또는 drawer·handle. `shelf-0`은 bottom, 마지막은 top이며 가운데는 형상형에 따라 확정 내부 shelf 또는 아래 표의 명명 퇴역이다. 새 수식이 추가한 shelf는 신규 부재다. `nightstand`·`vanity`·`media`의 old door −1/+1은 새 `drawer-0/1`, `kitchen-base`의 old door −1/+1은 `drawer-0/5`에 일대일 대응한다. 같은 번호의 old handle도 대응하고 나머지 서랍·손잡이는 신규 부재다. `base-drawer` 형상형은 만들지 않는다. 내부 선반의 명명 퇴역은 아래 표에 적는다 |
-| `bed()` | `base`, `leg-<x>-<z>`, `mattress`, `duvet`, `head`, `pillow-<i>` | fixed-bed의 옛 단일 base는 명명 퇴역하고 네 frame rail과 매트리스 아래 `support-deck`을 신규 부품으로 만든다. 나머지는 leg/mattress/duvet/headboard/pillow; guest root의 앞쪽 두 다리만 murphy의 `support-left/right`에 대응한다. 뒤쪽 두 다리와 옛 자유 침대 `head`는 외함 힌지·뒤판 지지로 기능을 옮겨 이름별로 퇴역한다 |
-| `plant()` | `pot`, `stem`, `leaf-0..8` | potted-plant pot/stem/leaf-0..8; 새 branch-0..4·leaf-9..14는 추가 부재 |
-| `desk()` | `table()`의 top/leg, `screen`, `screen-stand`, `keyboard` | work-desk top/앞쪽 support; 옛 flex 네 다리·침실 변종 뒤쪽 다리는 아래 명명 퇴역, 독립 work-display screen/stand, work-keyboard body/keys |
-| `basin()` | `cabinet()`의 판, `rim`, `bowl`, `tap`, `spout`, `mirror` | vanity cabinet의 판, basin rim/bowl/tap-body/tap-spout/mirror의 안정 face |
-| `toilet()` | `pedestal`, `bowl`, `seat`, `cistern`, `flush` | toilet의 같은 역할 part와 각각의 안·밖·rim·edge 주소; lid는 추가 부재 |
-| bathroom.ts shower | `tray`, `drain`, `fixed-screen`, `screen-rail`, `riser`, `head` | shower의 같은 역할 part와 분리한 face; 열린 출입에는 문 part를 추가하지 않음 |
-| common.ts sofa | `plinth`, `back`, `cushion-0..2`, `pillow-0..2`, `arm-±1` | living-sofa의 frame/back-frame/seat/pillow/arm; L자 연장은 신규 part |
-| common.ts island | cabinet 부품 + `counter`, `sink`, `sink-basin`, `tap-upright`, `tap-spout` | island-base 판·`service-door-0/4`·`service-handle-0/4`, kitchen-island counter/sink/tap. 기존 `sink-basin`의 평평한 겹판은 제거하고 음각 bowl로 교체함을 명시 |
-| common.ts wall bank | cabinet 부품 + `worktop`, `hob`, `hob-ring-<x>-<z>`(4), `oven`, `oven-handle` | kitchen-base의 drawer·oven bay, wall-worktop, cooktop zone-0..3, oven body/front/handle |
-| common.ts stool | `seat`, `leg-<x>-<z>` (3×4) | island-stool seat/leg, 고리 footrest는 새 부재 |
-| flex.ts murphy | `back`, `side-<x>`, `top`, work의 `closed-panel`, `pull` | murphy-bed case-back/case-side/case-top/closed-panel/pull; guest frame은 guest root와 구분 |
-| service-upper.ts laundry | `machine-0..1`, `drum-0..1`, `window-0..1`, `controls-0..1` | 0=washer, 1=dryer의 body/drum/window/controls. root는 두 후속 instance를 묶는 현재 group 주소 |
+| `table()` | `top`, `leg-<x>-<z>` (x,z=±1) | dining/coffee `top`, `leg-0..3`; inside `desk()`, the work-desk `top` and the two front `support-*`; the four old flex legs and the six old rear legs of the bedroom variants are named retirements |
+| `chair()` | `seat`, `back`, `leg-<x>-<z>` | for dining-chair, seat-frame/seat-pad/back/leg; the old seat and back of the four desk chairs correspond one to one to `shell-seat` and `shell-back`, and upholstery and leg receive new addresses; the new faces of one existing member divide its whole surface |
+| `cabinet()` | `back`, `side-±1`, `shelf-0..ceil(H/.38)`, when closed `door-±1`, `handle-±1` | back, side, bottom, top, shelf, door or drawer, and handle of the same enclosure. `shelf-0` is the bottom and the last is the top, and the middle ones are, by shape type, either a confirmed internal shelf or a named retirement in the table below. A shelf added by the new formula is a new member. The old door −1/+1 of `nightstand`, `vanity`, and `media` corresponds one to one to the new `drawer-0/1`, and the old door −1/+1 of `kitchen-base` to `drawer-0/5`. The old handle of the same number also corresponds, and the remaining drawers and handles are new members. No `base-drawer` shape type is made. The named retirements of internal shelves are written in the table below |
+| `bed()` | `base`, `leg-<x>-<z>`, `mattress`, `duvet`, `head`, `pillow-<i>` | the old single base of fixed-bed is a named retirement, and four frame rails and a `support-deck` under the mattress are made as new parts. The rest are leg/mattress/duvet/headboard/pillow; only the two front legs of the guest root correspond to murphy's `support-left/right`. The two rear legs and the old freestanding bed `head` move their function to the enclosure hinge and back-panel support and are retired by name |
+| `plant()` | `pot`, `stem`, `leaf-0..8` | potted-plant pot/stem/leaf-0..8; the new branch-0..4 and leaf-9..14 are added members |
+| `desk()` | top/leg of `table()`, `screen`, `screen-stand`, `keyboard` | work-desk top and front supports; the four old flex legs and the rear legs of the bedroom variants are named retirements below; independent work-display screen/stand and work-keyboard body/keys |
+| `basin()` | the panels of `cabinet()`, `rim`, `bowl`, `tap`, `spout`, `mirror` | the panels of the vanity cabinet, and the stable faces of basin rim/bowl/tap-body/tap-spout/mirror |
+| `toilet()` | `pedestal`, `bowl`, `seat`, `cistern`, `flush` | the toilet parts of the same role and each of their inner, outer, rim, and edge addresses; the lid is an added member |
+| bathroom.ts shower | `tray`, `drain`, `fixed-screen`, `screen-rail`, `riser`, `head` | the shower parts of the same role and their separated faces; no door part is added for the open entry |
+| common.ts sofa | `plinth`, `back`, `cushion-0..2`, `pillow-0..2`, `arm-±1` | frame/back-frame/seat/pillow/arm of living-sofa; the L-shaped extension is a new part |
+| common.ts island | cabinet parts + `counter`, `sink`, `sink-basin`, `tap-upright`, `tap-spout` | island-base panels, `service-door-0/4`, and `service-handle-0/4`, and kitchen-island counter/sink/tap. It states that the flat stacked panel of the existing `sink-basin` is removed and replaced by a recessed bowl |
+| common.ts wall bank | cabinet parts + `worktop`, `hob`, `hob-ring-<x>-<z>`(4), `oven`, `oven-handle` | the drawer and oven bays of kitchen-base, wall-worktop, cooktop zone-0..3, and oven body/front/handle |
+| common.ts stool | `seat`, `leg-<x>-<z>` (3×4) | island-stool seat/leg; the ring footrest is a new member |
+| flex.ts murphy | `back`, `side-<x>`, `top`, work's `closed-panel`, `pull` | murphy-bed case-back/case-side/case-top/closed-panel/pull; the guest frame is kept distinct from the guest root |
+| service-upper.ts laundry | `machine-0..1`, `drum-0..1`, `window-0..1`, `controls-0..1` | body/drum/window/controls of 0=washer and 1=dryer. The root is the current group address that binds the two successor instances |
 
-기존 cabinet의 `shelf-0`과 마지막 `shelf-ceil(H/0.38)`은 새 외함의 bottom·top에 각각 대응한다. 열린 책장·tall·service·wall·bench-base·island-base에서 가운데 old shelf j는 새 `shelf-j`로 일대일 이동하고, 새 피치가 추가한 shelf는 새 부품이다. kitchen-overhead의 가운데 두 장(`shelf-1/2`), entry-shoe-bench의 한 장(`shelf-1`), kitchen-island의 두 장(`shelf-1/2`)은 각각 wall·bench-base·island-base의 확정 내부 선반에 대응한다. 닫힌 cabinet의 old door/handle −1은 새 첫 leaf, +1은 새 마지막 leaf에 대응하고 사이 leaf는 신규다. 주방 상부장에서는 `door--1/1`·`handle--1/1`이 각각 다섯 leaf의 `door-0/4`·`handle-0/4`에 닿는다. 길어진 섬 서비스 면의 old door/handle도 `service-door-0/4`·`service-handle-0/4`에 닿고 중간 셋은 신규다. 이 대응은 두 legacy 문을 한 새 문으로 합치지 않는다.
+The `shelf-0` and the last `shelf-ceil(H/0.38)` of an existing cabinet correspond to the bottom and the top of the new enclosure respectively. In the open bookcase, tall, service, wall, bench-base, and island-base, a middle old shelf j moves one to one to the new `shelf-j`, and a shelf added by the new pitch is a new part. The middle two of kitchen-overhead (`shelf-1/2`), the one of entry-shoe-bench (`shelf-1`), and the two of kitchen-island (`shelf-1/2`) correspond to the confirmed internal shelves of wall, bench-base, and island-base respectively. The old door/handle −1 of a closed cabinet corresponds to the new first leaf and +1 to the new last leaf, and the leaves between are new. In the kitchen wall cabinet, `door--1/1` and `handle--1/1` reach `door-0/4` and `handle-0/4` of the five leaves respectively. The old door/handle of the lengthened island service side also reach `service-door-0/4` and `service-handle-0/4`, and the middle three are new. This correspondence does not merge two legacy doors into one new door.
 
-| 명명 퇴역 child ID 또는 유한 전개 | 개수 | 후속 구조와 퇴역 이유 |
+| Named retired child ID or finite expansion | Count | Successor structure and reason for retirement |
 | --- | ---: | --- |
-| `bath-vanity-shelf-1/2`, `powder-basin-shelf-1/2` | 4 | vanity 서랍과 bowl 음각이 내부 선반 부피를 대체한다. |
-| `primary-nightstand-1.6-shelf-1`, `primary-nightstand-4.16-shelf-1` | 2 | 각 full-width 서랍 둘을 위한 빈 내부로 바뀐다. |
-| `common-media-shelf-1` | 1 | 중앙 열린 bay와 좌우 서랍 사이의 기존 통판을 제거한다. |
-| `kitchen-wall-bank-shelf-1/2` | 2 | 오븐 개방 bay와 drawer bank가 대신한다. 신설 `oven-sill`은 오븐을 실제로 받지만 이전 선반 ID를 재사용하지 않는다. |
-| `flex-desk-leg-<x>-<z>` (x,z=−1,+1) | 4 | 왼쪽 서랍장과 오른쪽 접지 telescopic 기둥으로 지지 체계를 바꾸며 네 낱개 다리를 퇴역한다. |
-| `primary-desk-leg-<x>--1`, `child-one-desk-leg-<x>--1`, `child-two-desk-leg-<x>--1` (x=−1,+1) | 6 | 침실 책상 뒤쪽 두 다리씩은 벽측 back rail로 교체한다. 앞쪽 `z=+1` 두 다리씩만 `support-left/right`에 대응한다. |
-| `flex-guest-bed-leg-<x>--1` (x=−1,+1) | 2 | 펼친 침대 뒤쪽 접지는 murphy 외함·pivot이 맡는다. 앞쪽 `z=+1` 둘만 `support-left/right`에 대응한다. |
-| `primary-bed-base`, `child-one-bed-base`, `child-two-bed-base` | 3 | 기존 막힌 단일 base 부피는 퇴역한다. 각 침대에는 [고정 침대](../../models/002-storage-and-sleep.md#fixed-bed)의 `frame-side-left/right`와 `frame-head/foot` 네 열린 rail과 그 사이의 `support-deck`을 새 주소로 저작한다. |
-| `kitchen-fridge-pantry-shelf-0..7` | 8 | 냉장고 내장을 납품하지 않으므로 열린 pantry 선반을 퇴역한다. |
-| `flex-guest-bed-head` | 1 | guest 머리 지지는 murphy 외함 뒤판으로 옮긴다. |
-| `kitchen-island-sink-basin` | 1 | 평판 basin을 퇴역하고 kitchen-island의 음각 bowl로 대체한다. |
+| `bath-vanity-shelf-1/2`, `powder-basin-shelf-1/2` | 4 | The vanity drawers and the recessed bowl replace the internal shelf volume. |
+| `primary-nightstand-1.6-shelf-1`, `primary-nightstand-4.16-shelf-1` | 2 | They become the empty interior for two full-width drawers each. |
+| `common-media-shelf-1` | 1 | The existing through panel between the central open bay and the left and right drawers is removed. |
+| `kitchen-wall-bank-shelf-1/2` | 2 | The open oven bay and the drawer bank replace them. The new `oven-sill` actually carries the oven but does not reuse the earlier shelf IDs. |
+| `flex-desk-leg-<x>-<z>` (x,z=−1,+1) | 4 | The support system changes to the left drawer case and the right grounded telescopic column, retiring the four separate legs. |
+| `primary-desk-leg-<x>--1`, `child-one-desk-leg-<x>--1`, `child-two-desk-leg-<x>--1` (x=−1,+1) | 6 | The two rear legs of each bedroom desk are replaced by a wall-side back rail. Only the two front `z=+1` legs of each correspond to `support-left/right`. |
+| `flex-guest-bed-leg-<x>--1` (x=−1,+1) | 2 | The murphy enclosure and pivot take over the rear grounding of the opened bed. Only the two front `z=+1` correspond to `support-left/right`. |
+| `primary-bed-base`, `child-one-bed-base`, `child-two-bed-base` | 3 | The existing closed single base volume is retired. For each bed, the four open rails `frame-side-left/right` and `frame-head/foot` of the [fixed bed](../../models/002-storage-and-sleep.md#fixed-bed) and the `support-deck` between them are authored as new addresses. |
+| `kitchen-fridge-pantry-shelf-0..7` | 8 | The refrigerator interior is not delivered, so the open pantry shelves are retired. |
+| `flex-guest-bed-head` | 1 | The guest head support moves to the murphy enclosure back panel. |
+| `kitchen-island-sink-basin` | 1 | The flat basin is retired and replaced by the recessed bowl of kitchen-island. |
 
-고정 closet 내부와 실제 냉장고 내부는 같은 기능이 아니다. `kitchen-fridge-pantry-shelf-0..7`은 냉장고 내장을 납품하지 않는 [냉장고 설계](../../models/003-service-fixtures.md#refrigerator)에 따라 **이름을 명시해 의도적으로 제거**하고, `kitchen-fridge-pantry-door-±1`은 두 냉장고 문, `handle-±1`은 상하 손잡이에 대응한다. `flex-guest-bed-head`는 [murphy 설계](../../models/002-storage-and-sleep.md#murphy-bed)의 손님 상태에서 외함 뒤판이 머리 지지를 맡으므로 **이름을 명시해 제거**한다. `flex-guest-bed-pillow-0`과 `flex-guest-bed-duvet`는 각각 같은 설계의 guest `pillow`와 `duvet`에 대응한다. `kitchen-island-sink-basin`은 위의 음각 bowl로 **교체**하며 얕은 판 부피를 중복 보존하지 않는다. 이 삭제·교체는 후속 instanceSource 구현 때 source의 실제 전개 ID와 하나씩 대조해 누락을 실패로 보고해야 한다.
+A fixed closet interior and an actual refrigerator interior are not the same function. `kitchen-fridge-pantry-shelf-0..7` is **intentionally removed by name** under the [refrigerator design](../../models/003-service-fixtures.md#refrigerator), which does not deliver the refrigerator interior, while `kitchen-fridge-pantry-door-±1` corresponds to the two refrigerator doors and `handle-±1` to the upper and lower handles. `flex-guest-bed-head` is **removed by name** because in the guest state of the [murphy design](../../models/002-storage-and-sleep.md#murphy-bed) the enclosure back panel takes over the head support. `flex-guest-bed-pillow-0` and `flex-guest-bed-duvet` correspond to the guest `pillow` and `duvet` of the same design respectively. `kitchen-island-sink-basin` is **replaced** by the recessed bowl above, without keeping the shallow panel volume as a duplicate. When the later instanceSource is implemented, these deletions and replacements must be compared one by one with the source's actual expanded IDs, reporting any omission as a failure.
 
-`lining(a,room)` 12곳은 room 내측 벽의 건축 면이므로 다음 순서대로 **spaces owner**에 남는다: bathroom, child-one, child-two, common, corridor, entry, flex, powder, primary, service-upper, storage-ground, storage-upper. `lights(a,room,points)`도 같은 12곳에서 각각 2,2,1,5,3,3,2,1,2,2,1,1개의 점을 받으며 합계 25점이다. 각 점의 `room-light-trim-i`는 `ceiling-surface-light/trim`, `room-light-i`는 `ceiling-surface-light/diffuser` **및** system emitter로 대응한다. common의 pendant 1과 primary의 bedside 2를 합하면 기존 emissive element는 28개다. 모든 기존 emissive ID마다 후속 instance/part **및** emitter가 필요하다. `lining`은 model prototype이나 material binding을 소유하지 않는다.
+The 12 `lining(a,room)` sites are architectural faces of the room's inner walls, so they remain with the **spaces owner** in this order: bathroom, child-one, child-two, common, corridor, entry, flex, powder, primary, service-upper, storage-ground, storage-upper. `lights(a,room,points)` also receives, at the same 12 sites, 2,2,1,5,3,3,2,1,2,2,1,1 points respectively, 25 points in total. Each point's `room-light-trim-i` corresponds to `ceiling-surface-light/trim`, and `room-light-i` to `ceiling-surface-light/diffuser` **and** a system emitter. Adding the 1 pendant of common and the 2 bedside lamps of primary gives 28 existing emissive elements. Every existing emissive ID needs a successor instance/part **and** an emitter. `lining` owns no model prototype or material binding.
 
-이 계정의 모집단은 정적 작성 지점 `Item` 46 + 직접 primitive 10 + `lining` 12 + `lights` 12 = 80곳이다. [정적 측정 producer](../../../src/review/model-owner-audit.cjs)가 현재 방 source와 이 표의 source별 행 수·빈 owner를 계산하고 누락 행을 제거한 대조가 실패하는지 함께 확인한다. 실제 전개 element ID·중복·퇴역 의도·추가 prototype의 배치는 [상류 이관 조건](../../settings/003-spatial-basis.md#surface-decomposition)의 단일 커밋에서 compiled producer로 재계수한다. 이 초안 표가 현재 source에서 구현됐다는 주장은 `unverified`다.
+The population of this account is 80 sites: static authoring sites `Item` 46 + direct primitives 10 + `lining` 12 + `lights` 12. The [static measurement producer](../../../src/review/model-owner-audit.cjs) computes the per-source row counts and blank owners of the current room sources and of this table, and also confirms that a comparison with a row removed fails. The actual expanded element IDs, duplicates, retirement intent, and placement of added prototypes are recounted with a compiled producer in the single commit of the [upstream handover condition](../../settings/003-spatial-basis.md#surface-decomposition). The claim that this draft table is implemented in the current source is `unverified`.
 
-## 상위·형제 층의 물품 요구 역대응 {#upstream-demand-correspondence}
+## Reverse correspondence of item demands from parent and sibling layers {#upstream-demand-correspondence}
 
-이 표는 이 파일의 legacy 작성 지점이 출처를 못 주는 신규 소품까지 [1층 프로그램](../../settings/002-household.md#ground-program), [작업실 상태](../../settings/002-household.md#flex-states), [2층 프로그램](../../settings/002-household.md#upper-program), [재료의 물체 결합 입력](../../materials/004-wood.md#oak-joinery)을 역방향으로 읽은 요구 행이다. 표의 prototype은 형상 owner이며 방별 member·반복·transform은 이후 instances, 발광은 systems가 맡는다. `현재` 열의 없음은 현재 source에 해당 부재가 없다는 사실이지 납품 제외가 아니다. 외부 수목과 커튼월 roller는 각각 대지·외피의 건축 부재여서 이 모델 모집단에 복제하지 않는다.
+This table lists demand rows read in reverse from the [ground-floor program](../../settings/002-household.md#ground-program), the [workroom states](../../settings/002-household.md#flex-states), the [upper-floor program](../../settings/002-household.md#upper-program), and the [material object binding input](../../materials/004-wood.md#oak-joinery), including new props for which the legacy authoring sites of this file give no source. A prototype in the table is the shape owner, and the per-room members, repetitions, and transforms are later handled by instances, and emission by systems. "none" in the `current` column is the fact that the current source has no such member, not an exclusion from delivery. The exterior trees and the curtain-wall roller are architectural members of the site and the envelope respectively and are not duplicated in this model population.
 
-| 요구와 목적지 | 현재 임시 요소 또는 상태 | models 형상·part 주소 |
+| Demand and destination | Current temporary element or state | models shape and part address |
 | --- | --- | --- |
-| 현관 신발 수납·벤치 | `entry-shoe-bench`, `entry-bench-cushion` | [벤치와 cabinet](../../models/002-storage-and-sleep.md#entry-bench) |
-| 현관 평벽 우편·충전 선반과 충전기 | `entry-charging-shelf`, `entry-charger` | [벽걸이 선반](../../models/002-storage-and-sleep.md#entry-charging-shelf), [충전 물체](../../models/004-decor-and-fixtures.md#entry-charger) |
-| 작업실 조절 책상·접이식 보조판 | `flex-desk`의 단순 table | [flex desk](../../models/001-seating-and-work.md#work-desk) |
-| 작업실 천 씌운 의자 | `flex-chair`의 통판 등 | [desk-chair](../../models/001-seating-and-work.md#desk-chair) |
-| 작업실 벽 선반·개별 책 | `flex-books`; 책은 없음 | [열린 cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [book](../../models/004-decor-and-fixtures.md#books) |
-| 작업실 숨은 수면 수납과 손님 침구 | `flex-murphy-frame`, 손님 상태 `flex-guest-bed` | [두 상태 murphy](../../models/002-storage-and-sleep.md#murphy-bed) |
-| 작업실 사생활 screen | 기존 커튼월 유리·roller | **spaces 외피 부재**; 별도 가구 prototype 없음 |
-| 후면 소파·쿠션·낮은 탁자 | `common-sofa`, `common-coffee`; L자 연장 없음 | [소파](../../models/001-seating-and-work.md#living-sofa), [낮은 탁자](../../models/001-seating-and-work.md#coffee-table) |
-| 후면 media 수납·화면 | `common-media`, `common-display` | [media cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [living-display](../../models/004-decor-and-fixtures.md#living-display) |
-| 후면 독서등·러그·그릇과 쟁반 | `common-rug`; 등·그릇·쟁반 없음 | [reading lamp](../../models/004-decor-and-fixtures.md#portable-lamps), [rug](../../models/004-decor-and-fixtures.md#rugs), [tabletop props](../../models/004-decor-and-fixtures.md#tabletop-props) |
-| 여섯 자리 식탁·천 좌판 의자 | `common-dining`, `dining-chair-*` 여섯 | [table](../../models/001-seating-and-work.md#dining-table), [dining-chair](../../models/001-seating-and-work.md#dining-chair) |
-| 식탁의 가는 원통 펜던트 | 원판형 `dining-pendant`, cord | [pendant](../../models/004-decor-and-fixtures.md#dining-pendant) 및 system emitter |
-| 섬·싱크·고리 스툴 | `kitchen-island`, `island-stool-*` 셋 | [island](../../models/003-service-fixtures.md#kitchen-island), [island-stool](../../models/001-seating-and-work.md#island-stool) |
-| 주방 벽 조리대·쿡탑·오븐·서랍 | `kitchen-wall-bank`의 겹판·두 문 | [조리 기기](../../models/003-service-fixtures.md#cooking-appliances), [drawer cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
-| 냉장고와 별도 tall pantry | `kitchen-fridge-pantry` 한 외함 | [refrigerator](../../models/003-service-fixtures.md#refrigerator), 신규 `cabinet/tall/900x2650x600/closed` |
-| 재활용·주방 상부 수납 | `kitchen-sorting`, `kitchen-overhead` | [service/wall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
-| powder 세면대·거울·변기·청소장 | `powder-basin`(실제 폭 0.80), `powder-toilet`, `powder-cleaning` | [basin/800](../../models/003-service-fixtures.md#basin), [toilet](../../models/003-service-fixtures.md#toilet), [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
-| 1층 창고 선반·바구니 | `ground-store-shelves`, basket 넷 | [open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [basket](../../models/004-decor-and-fixtures.md#storage-basket) |
-| 주침실 double bed·침구·러그 | `primary-bed`; 러그 없음 | [fixed-bed/1800](../../models/002-storage-and-sleep.md#fixed-bed), [bedroom-rug](../../models/004-decor-and-fixtures.md#rugs) |
-| 주침실 협탁·구형 등 두 개 | `primary-nightstand-*`, `primary-lamp-*` 둘 | [nightstand cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [globe lamp](../../models/004-decor-and-fixtures.md#portable-lamps) 및 각 system emitter |
-| 주침실 옷장·책상·책상 의자 | `primary-wardrobe`, `primary-desk`, `primary-chair` | [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [work-desk](../../models/001-seating-and-work.md#work-desk), [desk-chair](../../models/001-seating-and-work.md#desk-chair) |
-| 두 작은 침실의 single bed·옷장 | `child-*-bed`, `child-*-wardrobe` | [fixed-bed/1000](../../models/002-storage-and-sleep.md#fixed-bed), [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
-| 두 작은 침실의 원형 러그 | 현재 없음 | [round-rug/1200](../../models/004-decor-and-fixtures.md#rugs); 방별 배치는 instances가 결정 |
-| 두 작은 침실의 desk/shelf·천 의자·작업등 | `child-*-desk`, `child-*-chair`, child-one의 책장; 작업등 없음 | [work-desk](../../models/001-seating-and-work.md#work-desk), [desk-chair](../../models/001-seating-and-work.md#desk-chair), [desk-task lamp](../../models/004-decor-and-fixtures.md#portable-lamps) |
-| 침실 벽 액자·책·소형 화분 | 바닥 큰 화분만 일부; 액자·개별 책 없음 | [wall-art](../../models/004-decor-and-fixtures.md#wall-art), [book](../../models/004-decor-and-fixtures.md#books), [potted-plant](../../models/004-decor-and-fixtures.md#potted-plant) |
-| 상층 욕실 세면대·변기·샤워·욕조 | `bath-vanity`, `bath-toilet`, `bath-shower`; 욕조 없음 | [basin/1000](../../models/003-service-fixtures.md#basin), [toilet](../../models/003-service-fixtures.md#toilet), [shower](../../models/003-service-fixtures.md#shower), [bathtub](../../models/003-service-fixtures.md#bathtub) |
-| 상층 욕실 수건장·접힌 수건 | `bath-towels` 선반; 개별 수건 없음 | [open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [folded-towel](../../models/004-decor-and-fixtures.md#folded-towels) |
-| 상층 수납 linen·청소장·바구니 | `upper-linen-cabinet`, linen stack; 청소장 없음 | [open cabinet와 신규 tall/600x2300x500](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [folded-towel](../../models/004-decor-and-fixtures.md#folded-towels), [basket](../../models/004-decor-and-fixtures.md#storage-basket) |
-| 상층 설비실 세탁·건조·점검 수납 | `upper-laundry`, `upper-mechanical`, `upper-utility-shelf` | [washer/dryer](../../models/003-service-fixtures.md#laundry-appliances), [service/open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
-| 실내 낮은 화분과 큰 화분 | `entry/common/primary-plant`; 작은 것은 없음 | [potted-plant 0.18..1.10](../../models/004-decor-and-fixtures.md#potted-plant) |
-| 천장 부착등 전체와 직접 발광 세 곳 | `lights()` 25점, pendant 하나, bedside 둘 | [ceiling-surface-light](../../models/004-decor-and-fixtures.md#ceiling-surface-light), [pendant](../../models/004-decor-and-fixtures.md#dining-pendant), [globe lamp](../../models/004-decor-and-fixtures.md#portable-lamps); 각 emissive ID는 system emitter도 필요 |
+| Entry shoe storage and bench | `entry-shoe-bench`, `entry-bench-cushion` | [Bench and cabinet](../../models/002-storage-and-sleep.md#entry-bench) |
+| Entry flat-wall mail and charging shelf and charger | `entry-charging-shelf`, `entry-charger` | [Wall shelf](../../models/002-storage-and-sleep.md#entry-charging-shelf), [charging object](../../models/004-decor-and-fixtures.md#entry-charger) |
+| Workroom adjustable desk and folding auxiliary panel | the simple table of `flex-desk` | [flex desk](../../models/001-seating-and-work.md#work-desk) |
+| Workroom upholstered chair | the solid back of `flex-chair` | [desk-chair](../../models/001-seating-and-work.md#desk-chair) |
+| Workroom wall shelves and individual books | `flex-books`; no books | [open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [book](../../models/004-decor-and-fixtures.md#books) |
+| Workroom hidden sleeping storage and guest bedding | `flex-murphy-frame`, guest state `flex-guest-bed` | [two-state murphy](../../models/002-storage-and-sleep.md#murphy-bed) |
+| Workroom privacy screen | existing curtain-wall glass and roller | **spaces envelope member**; no separate furniture prototype |
+| Rear sofa, cushions, and low table | `common-sofa`, `common-coffee`; no L-shaped extension | [sofa](../../models/001-seating-and-work.md#living-sofa), [low table](../../models/001-seating-and-work.md#coffee-table) |
+| Rear media storage and display | `common-media`, `common-display` | [media cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [living-display](../../models/004-decor-and-fixtures.md#living-display) |
+| Rear reading lamp, rug, bowl, and tray | `common-rug`; no lamp, bowl, or tray | [reading lamp](../../models/004-decor-and-fixtures.md#portable-lamps), [rug](../../models/004-decor-and-fixtures.md#rugs), [tabletop props](../../models/004-decor-and-fixtures.md#tabletop-props) |
+| Six-seat dining table and fabric-seat chairs | `common-dining`, six `dining-chair-*` | [table](../../models/001-seating-and-work.md#dining-table), [dining-chair](../../models/001-seating-and-work.md#dining-chair) |
+| Slender cylindrical pendant over the dining table | disc-shaped `dining-pendant`, cord | [pendant](../../models/004-decor-and-fixtures.md#dining-pendant) and system emitter |
+| Island, sink, and ring stools | `kitchen-island`, three `island-stool-*` | [island](../../models/003-service-fixtures.md#kitchen-island), [island-stool](../../models/001-seating-and-work.md#island-stool) |
+| Kitchen wall worktop, cooktop, oven, and drawers | stacked panels and two doors of `kitchen-wall-bank` | [cooking appliances](../../models/003-service-fixtures.md#cooking-appliances), [drawer cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
+| Refrigerator and separate tall pantry | one enclosure, `kitchen-fridge-pantry` | [refrigerator](../../models/003-service-fixtures.md#refrigerator), new `cabinet/tall/900x2650x600/closed` |
+| Recycling and upper kitchen storage | `kitchen-sorting`, `kitchen-overhead` | [service/wall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
+| Powder basin, mirror, toilet, and cleaning cabinet | `powder-basin` (actual width 0.80), `powder-toilet`, `powder-cleaning` | [basin/800](../../models/003-service-fixtures.md#basin), [toilet](../../models/003-service-fixtures.md#toilet), [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
+| Ground-floor storeroom shelves and baskets | `ground-store-shelves`, four baskets | [open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [basket](../../models/004-decor-and-fixtures.md#storage-basket) |
+| Primary double bed, bedding, and rug | `primary-bed`; no rug | [fixed-bed/1800](../../models/002-storage-and-sleep.md#fixed-bed), [bedroom-rug](../../models/004-decor-and-fixtures.md#rugs) |
+| Primary nightstands and two globe lamps | two each of `primary-nightstand-*` and `primary-lamp-*` | [nightstand cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [globe lamp](../../models/004-decor-and-fixtures.md#portable-lamps) and each system emitter |
+| Primary wardrobe, desk, and desk chair | `primary-wardrobe`, `primary-desk`, `primary-chair` | [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [work-desk](../../models/001-seating-and-work.md#work-desk), [desk-chair](../../models/001-seating-and-work.md#desk-chair) |
+| Single beds and wardrobes of the two small bedrooms | `child-*-bed`, `child-*-wardrobe` | [fixed-bed/1000](../../models/002-storage-and-sleep.md#fixed-bed), [tall cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
+| Round rugs of the two small bedrooms | currently none | [round-rug/1200](../../models/004-decor-and-fixtures.md#rugs); instances decide the per-room placement |
+| Desk or shelf, fabric chair, and task lamp of the two small bedrooms | `child-*-desk`, `child-*-chair`, child-one's bookcase; no task lamp | [work-desk](../../models/001-seating-and-work.md#work-desk), [desk-chair](../../models/001-seating-and-work.md#desk-chair), [desk-task lamp](../../models/004-decor-and-fixtures.md#portable-lamps) |
+| Bedroom wall art, books, and small planters | only some large floor planters; no frames or individual books | [wall-art](../../models/004-decor-and-fixtures.md#wall-art), [book](../../models/004-decor-and-fixtures.md#books), [potted-plant](../../models/004-decor-and-fixtures.md#potted-plant) |
+| Upper bathroom basin, toilet, shower, and bathtub | `bath-vanity`, `bath-toilet`, `bath-shower`; no bathtub | [basin/1000](../../models/003-service-fixtures.md#basin), [toilet](../../models/003-service-fixtures.md#toilet), [shower](../../models/003-service-fixtures.md#shower), [bathtub](../../models/003-service-fixtures.md#bathtub) |
+| Upper bathroom towel cabinet and folded towels | `bath-towels` shelf; no individual towels | [open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [folded-towel](../../models/004-decor-and-fixtures.md#folded-towels) |
+| Upper storage linen, cleaning cabinet, and baskets | `upper-linen-cabinet`, linen stack; no cleaning cabinet | [open cabinet and new tall/600x2300x500](../../models/002-storage-and-sleep.md#cabinet-and-shelf), [folded-towel](../../models/004-decor-and-fixtures.md#folded-towels), [basket](../../models/004-decor-and-fixtures.md#storage-basket) |
+| Upper service room washing, drying, and service storage | `upper-laundry`, `upper-mechanical`, `upper-utility-shelf` | [washer/dryer](../../models/003-service-fixtures.md#laundry-appliances), [service/open cabinet](../../models/002-storage-and-sleep.md#cabinet-and-shelf) |
+| Low and large interior planters | `entry/common/primary-plant`; no small ones | [potted-plant 0.18..1.10](../../models/004-decor-and-fixtures.md#potted-plant) |
+| All ceiling surface lights and the three direct emitters | 25 points of `lights()`, one pendant, two bedside lamps | [ceiling-surface-light](../../models/004-decor-and-fixtures.md#ceiling-surface-light), [pendant](../../models/004-decor-and-fixtures.md#dining-pendant), [globe lamp](../../models/004-decor-and-fixtures.md#portable-lamps); each emissive ID also needs a system emitter |
 
-이 역대응은 legacy 80곳의 현재 배치가 새 prototype을 이미 소비한다는 뜻이 아니다. 신규 pantry·청소장·욕조·소품의 실제 member ID와 관찰은 instanceSources review 이후에 같은 compiled producer에서 받아야 하며 지금은 `unverified`다. 물체 면에 결합할 material H2는 prototype part/face를 받아 다시 판정하고, 이 표가 finish를 결정하지 않는다.
+This reverse correspondence does not mean that the current placement of the 80 legacy sites already consumes the new prototypes. The actual member IDs and observations of the new pantry, cleaning cabinets, bathtub, and props must be received from the same compiled producer after instanceSources review and are `unverified` now. A material H2 to be bound to object faces receives the prototype part/face and is judged again; this table does not decide the finish.

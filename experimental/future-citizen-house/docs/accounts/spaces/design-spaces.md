@@ -1,17 +1,17 @@
-# 공간 설계 의무
+# Spaces design obligations
 
-## 공간 관계의 전체 배정 {#spaces-design-spaces-coverage}
+## Whole assignment of spatial relations {#spaces-design-spaces-coverage}
 
 <!--
-@evidence obligations/design/spaces.md#addressable-spatial-decisions 집·대지·층·방·문·닫힌 경계·계단 구멍·접합·외피·관찰을 각기 안정 H2에 두고 실제 치수 owner와 조립을 구별한다. 한 방이나 개구 변경이 큰 보고 문장 속에 숨지 않는다.
-@evidence obligations/design/spaces.md#space-reference-topology 하나의 좌표 datum에서 site→house→storey→room을 구성하고 외부 entrance와 각 portal·단일 stair·closed boundary를 지정한다. 이름 없는 틈에서 통행을 추정하지 않는다.
-@evidence obligations/design/spaces.md#space-envelope-interface 외부 face는 house를 둘러싸고 room과 opening·floor의 대응은 실제 cell을 소비한다. frame 점유·내벽 junction·외벽 miter가 같은 경계를 중복하거나 비우지 않도록 배정한다.
-@evidence obligations/design/spaces.md#space-access-circulation 모든 직접 문에 유효 폭·높이·host·route와 열림 상태를 두고 계단 route를 tread/참에 연결한다. 가상 원통과 열린 leaf·실물 가구의 간섭은 현재 미검증으로 남겨 논리 연결과 clearance를 혼동하지 않는다.
-@evidence obligations/design/spaces.md#space-review-set plan·계단 section·bay elevation·내외부 원근을 전체 topology 질문에 연결하고 실패 id 및 다섯 reference를 포함한다. 지정한 관찰 역할을 실제 frame 결과나 종료 판정으로 바꾸지 않는다.
+@evidence obligations/design/spaces.md#addressable-spatial-decisions Keeps the house, site, storeys, rooms, doors, closed boundaries, stair hole, junctions, envelope, and observation each in a stable H2 and distinguishes the actual dimension owners from the assembly. A change to one room or opening does not hide inside a large report sentence.
+@evidence obligations/design/spaces.md#space-reference-topology Builds site→house→storey→room from one coordinate datum and designates the exterior entrance, each portal, the single stair, and the closed boundaries. Passage is not inferred from unnamed gaps.
+@evidence obligations/design/spaces.md#space-envelope-interface The exterior faces enclose the house, and the correspondence of rooms with openings and floors consumes actual cells. Frame occupancy, interior wall junctions, and exterior wall miters are assigned so that they neither duplicate nor leave empty the same boundary.
+@evidence obligations/design/spaces.md#space-access-circulation Gives every direct door an effective width and height, host, route, and open state and connects the stair route to the treads and landing. Interference of the virtual cylinder with open leaves and physical furniture is left currently unverified so that the logical connection is not confused with clearance.
+@evidence obligations/design/spaces.md#space-review-set Links the plan, stair section, bay elevation, and interior and exterior perspectives to the full topology questions and includes the failure ids and the five references. The designated observation roles are not turned into actual frame results or a closing verdict.
 -->
 
-001#citizen-house-space와 site-access가 대지와 본채의 포함 및 도착을, 002의 두 level·partition과 각 room이 층 귀속 및 clear cell을 소유한다. 문마다 host wall·유효 치수·행선지·열림 검사 상태를 연결하고, 닫힌 공유 벽도 opening 없는 독립 경계로 남겼다. 단일 계단·바닥 구멍·상층 측벽은 서로 다른 수정 주소지만 같은 도착 관계를 소비한다.
+001#citizen-house-space and site-access own the containment and arrival of the site and main house, and the two levels, partitions, and each room of 002 own the storey membership and clear cells. Each door is linked to its host wall, effective dimensions, destination, and open-check state, and the closed shared walls are also kept as independent boundaries without openings. The single stair, the floor hole, and the upper side walls are different revision addresses but consume the same arrival relation.
 
-003의 입면 face는 house를 enclosing space로 가지며 opening별 실제 room과 cell을 대조한다. 고정창의 span은 room/floor를, bay는 frame 면 폭과 반복 규칙을 소비한다. 내벽 junction과 외벽 miter는 서로 다른 공간 접합이고 두 body가 겹치거나 room·door·stair opening을 침범하지 못하게 한다.
+The elevation faces of 003 have the house as their enclosing space and compare each opening with its actual room and cell. The span of a fixed window consumes the room/floor, and a bay consumes the frame face width and the repetition rule. Interior wall junctions and exterior wall miters are different spatial joints and keep two bodies from overlapping or intruding into a room, door, or stair opening.
 
-관찰은 001#spatial-observation의 plan/section/elevation/내외부 원근과 002#stage-one-verification의 반례 질문으로 배정한다. 모든 공간의 내부 시점과 외부 면·모서리·상하·개구에 실패 id도 유지하며 다섯 reference를 추가한다. 이 배정은 아직 질문의 설계이고 실제 source·compiled topology·원통 통행·GPU 관찰 결과가 아니다. 관찰자의 전체 목록과 저작자 목록을 모두 닫은 독립 판정은 아직 없다.
+Observation is assigned to the plan/section/elevation and interior and exterior perspectives of 001#spatial-observation and the counterexample questions of 002#stage-one-verification. The interior viewpoints of every space and the exterior faces, corners, top and underside, and openings also keep their failure ids, and the five references are added. This assignment is still a design of questions, not an actual result of source, compiled topology, cylinder passage, or GPU observation. There is not yet an independent verdict that closed both the observer's full list and the author's list.

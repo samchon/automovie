@@ -1,97 +1,97 @@
-# 제실 의례와 보관의 별도 사물
+# Separate objects for sanctuary ritual and storage
 
-기존 용기·접은 직물·두 항아리 받침대만으로 읽히지 않는 세 실루엣이다. 모두 로컬 Y-up 미터 좌표를 쓰며 배치와 재료는 각각 instances와 materials가 소유한다. 의례 절차나 특정 시대 유물의 실물 복원을 주장하지 않는다.
+These are three silhouettes that the existing vessels, folded textile and two-place jar rack alone do not convey. All use local Y-up metre coordinates, and instances and materials own their placement and materials respectively. No ritual procedure or physical restoration of a specific period artefact is claimed.
 
-## 낮은 향로 {#censer}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.35×0.22m 향로는 제단 위 보행 포락보다 작다. foot·stem·cup·incense는 +X 시접의 회전체, ash 윗면은 수평 평면 UV0로 정한다.
-@evidenceExclude settings/50-production.md#acceptance 판정 권한과 완료 조건은 제작 절차이며 원형 판은 관찰할 형상과 시점만 제공하므로 모델 H2는 판정 권한을 정의하지 않는다.
-@evidence principles/core/common.md#scope-preservation 제단 위 꺼진 향로의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 발·줄기·재를 담는 컵과 꺼진 향 세 개의 치수·표면·상태를 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#censer와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#censer의 제단 위 꺼진 향로를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract foot·stem·cup·ash·incense의 부재와 열린 컵을 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.22×0.35×0.22m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 컵 속 재와 세 향 줄기가 제단 위에서 분리되어 보이는지 검사한다.
-@evidence principles/design/models.md#model-observable-style-basis 불꽃·연기 없이 간소한 저상 의례 소품으로 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 제단에 놓는 전체 높이 0.35m 향로를 발·줄기·컵·재·향의 독립 표면으로 닫는다.
-@evidence settings/30-interiors.md#sanctuary 제실의 제단과 봉헌 용기 중심을 별도 작은 의례물로 구체화한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 제단 위 꺼진 향로의 settings 정체성 owner가 없어 35-objects#censer를 새로 만들고 30-interiors#sanctuary의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#censer 제단 위 꺼진 향로의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
--->
-
-[사물 정체성](../settings/35-objects.md#censer)과 [사용 공간](../settings/30-interiors.md#sanctuary)이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
-
-로컬 원점은 발 바닥의 중심이다. 원뿔대 발은 Y=0~0.04m, 아래 반지름 0.11m·위 0.09m다. 반지름 0.025m 줄기는 Y=0.04~0.16m이며 발과 줄기의 윗끝은 0.04+0.12=0.16m다. 컵은 바깥쪽 (Y,반지름)=(0.16,0.075),(0.23,0.105)m, 안쪽은 (0.23,0.09),(0.18,0.065)m로 돌아와 열린 윗면과 재를 담는 빈 공간을 만든다. 재 원판은 Y=0.18~0.19m, 반지름 0.064m로 컵 안쪽 바닥 Y=0.18m에 닿고 둘레 20분할이다. 꺼진 향 세 가닥은 X=−0.04m, 0, +0.04m에 서며 Y=0.19~0.35m, 반지름 0.003m다. 점유 상자는 0.22×0.35×0.22m다. 발·줄기·컵은 회전체 20분할, 향은 팔각기둥이다.
-
-실제 위치와 수량은 instances가 정한다.
-
-부재 대응: `foot`=발; `stem`=줄기; `cup`=컵; `ash`=재; `incense`=향.
-
-UV0는 발·줄기·컵·향의 둘레를 로컬 +X 시접에서 호길이 U, 아래에서 위로 모선 길이 V로 펼친다. 컵의 열린 안쪽은 바깥쪽과 별도 시접이고 재의 윗면은 +Y 평면 투영이다. 0.22×0.35×0.22m 점유는 제단 위에 머물며 성인 보행 포락 0.6×0.4×1.9m보다 작다.
-
-part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 상판에 놓이며 향은 타지 않는다. 검토 판의 정면·측면에서 제단 위 낮은 받침과 열린 컵 속 재, 세 향 줄기가 분리되어 보이는지 확인한다. 세 줄기가 보이지 않거나 봉헌 쟁반으로 읽히면 실패다.
-
-## 바닥 좌구 {#floor-cushion}
+## Low censer {#censer}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.46×0.158×0.38m 좌구의 base·pad·fold는 평면 UV0이고 각 층의 단단한 모서리에서 이음을 끊는다.
-@evidenceExclude settings/50-production.md#author-commits 커밋·푸시는 저작 기록이며 어떤 원형의 치수·part·관절·UV0 결정도 그 절차에서 받지 않는다.
-@evidence principles/core/common.md#scope-preservation 작업 스툴과 구별되는 제실 바닥 좌구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 바닥층·두툼한 패드·뒤 접힘선의 치수와 접촉을 확정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#floor-cushion와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#floor-cushion의 작업 스툴과 구별되는 제실 바닥 좌구를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract base·pad·fold 부재와 윗면을 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.46×0.158×0.38m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 펼친 평면과 두께가 접은 직물과 구별되는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 장식·등받이 없는 낮은 앉는 면이다.
-@evidence principles/design/models.md#model-scale-layer-completion 제실 바닥에 놓는 0.46m 폭·0.158m 높이의 좌면 범위와 후속 instances 배치를 구별한다.
-@evidence settings/30-interiors.md#sanctuary 제실의 인체 없는 중심 배치에서 바닥 비품으로만 쓴다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#workstation의 작업 좌석 범위를 관리실·기록실로 좁히고 제실 바닥 좌구는 별도 owner 35-objects#floor-cushion으로 정했다. 30-interiors#sanctuary의 방 목록도 맞춘 뒤 좌구 형상을 설계했다.
-@evidence settings/35-objects.md#floor-cushion 작업 스툴과 구별되는 제실 바닥 좌구의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.22×0.35×0.22m censer is smaller than the walking envelope on the altar. foot, stem, cup and incense are solids of revolution with a +X seam, and the ash top face takes a horizontal planar UV0.
+@evidenceExclude settings/50-production.md#acceptance Judgement authority and completion conditions are production procedure, and the prototype board only provides shapes and views to observe, so a model H2 does not define judgement authority.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the unlit censer on the altar.
+@evidence principles/core/common.md#substantive-completion It sets the dimensions, surfaces and state of the foot, stem, the cup holding ash and three unlit incense sticks.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#censer and 30-interiors#sanctuary as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the unlit censer on the altar of 35-objects#censer to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the foot, stem, cup, ash and incense members and the open cup.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.22×0.35×0.22m occupancy.
+@evidence principles/design/models.md#reviewable-structure It checks that the ash in the cup and the three incense sticks show separately on the altar.
+@evidence principles/design/models.md#model-observable-style-basis It reads as a simple low ritual prop without flame or smoke.
+@evidence principles/design/models.md#model-scale-layer-completion It closes the 0.35m high censer on the altar with independent surfaces for foot, stem, cup, ash and incense.
+@evidence settings/30-interiors.md#sanctuary It makes the sanctuary altar and offering vessel centre concrete as a separate small ritual object.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The unlit censer on the altar had no settings identity owner, so 35-objects#censer was created and added to the room list of 30-interiors#sanctuary. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#censer It takes the existence, form range and state of the unlit censer on the altar and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#floor-cushion)과 [사용 공간](../settings/30-interiors.md#sanctuary)이 이 prototype의 부모다. [레퍼런스 이미지 04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#censer) and the [space of use](../settings/30-interiors.md#sanctuary) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 04](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-로컬 원점은 바닥 중심이다. 아래층 `base`는 폭 0.46m·깊이 0.38m·높이 0.04m이고 그 위 좌면 `pad`는 폭 0.42m·깊이 0.34m·높이 0.10m다. 뒤 접힘선 `fold`는 폭 0.42m·깊이 0.06m·높이 0.018m로 Y=0.14~0.158m, Z=−0.17~−0.11m에 놓인다. 세 부재가 위아래로 접해 전체 높이는 0.04+0.10+0.018=0.158m다. 점유 상자는 0.46×0.158×0.38m다.
+The local origin is the centre of the foot bottom. The frustum foot is Y=0~0.04m, with bottom radius 0.11m and top 0.09m. The stem of radius 0.025m is Y=0.04~0.16m, and the top end of foot and stem is 0.04+0.12=0.16m. The cup goes along (Y,radius)=(0.16,0.075),(0.23,0.105)m on the outside, and the inside returns along (0.23,0.09),(0.18,0.065)m, making an open top and a void that holds the ash. The ash disc is Y=0.18~0.19m with radius 0.064m on the cup inner floor Y=0.18m, which it touches, and has 20 segments around. Three unlit incense sticks stand at X=−0.04m, 0, +0.04m with Y=0.19~0.35m and radius 0.003m. The occupancy box is 0.22×0.35×0.22m. The foot, stem and cup have 20 revolution segments, and the incense sticks are octagonal prisms.
 
-로컬 앞은 +Z이고 접힘선이 있는 뒤쪽은 −Z다. [접은 직물](portable.md#textile)은 덮개이고 이 좌구는 제실 바닥에서 앉는 면을 가진 독립 원형이다.
+instances sets the real position and quantity.
 
-실제 위치와 수량은 instances가 정한다.
+Part map: `foot`=foot; `stem`=stem; `cup`=cup; `ash`=ash; `incense`=incense.
 
-부재 대응: `base`=아래층; `pad`=좌면; `fold`=뒤 접힘선.
+UV0 unwraps the circumference of foot, stem, cup and incense as arc length U from a local +X seam and the generatrix length V from bottom to top. The open inside of the cup has a seam separate from the outside, and the top face of the ash is a +Y planar projection. The 0.22×0.35×0.22m occupancy stays on the altar and is smaller than the adult walking envelope 0.6×0.4×1.9m.
 
-UV0는 `base`·`pad`·`fold`의 각 평면을 면 법선별 기본 투영으로 두고 세 층의 모서리와 part 경계에서 정점을 분리한다. 0.46×0.158×0.38m 점유는 보행 포락 폭 0.6m보다 좁고, 제실 바닥의 실제 놓는 자리는 instances가 고른다.
+Parts and surfaces are `foot`, `stem`, `cup`, `ash` and `incense`. It lies on the top slab of the sanctuary altar, and the incense does not burn. The front and side of the review board check that the low base on the altar, the ash in the open cup and the three incense sticks show separately. If the three sticks do not show or it reads as an offering tray, it is a failure.
 
-part와 표면은 `base`, `pad`, `fold`다. 제실 바닥에 놓고 인물·관절은 포함하지 않는다. 검토 판 정면에서 낮은 좌면이 보이지 않고 접은 천 더미처럼만 보이면 실패다.
-
-## 항아리 한 자리 받침 {#jar-stand}
+## Floor cushion {#floor-cushion}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.60×0.34×0.60m 받침의 foot·post·ring은 +X 시접에서 Y축 회전체 UV0로 펼치고 열린 고리의 안쪽 이음을 분리한다.
-@evidence principles/core/common.md#scope-preservation 한 항아리를 받는 원형 받침의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 원형 발·기둥·윗 고리의 치수와 열린 중심을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#jar-stand와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#jar-stand의 한 항아리를 받는 원형 받침을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract foot·post·ring의 분리된 실체를 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.60×0.34×0.60m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 옆면에서 기둥 주변의 열린 공간과 한 자리 고리가 통짜 항아리로 읽히지 않는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 장식 없는 세 원형 부재로 보관용 지지를 읽힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 자리 선반과 다른 한 자리 원형 받침의 높이 0.34m와 지름 0.60m를 닫는다.
-@evidence settings/30-interiors.md#storage 항아리와 보관 궤가 놓이는 방에 받침 하나를 더한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 한 항아리를 받는 원형 받침의 settings 정체성 owner가 없어 35-objects#jar-stand를 새로 만들고 30-interiors#storage의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#jar-stand 한 항아리를 받는 원형 받침의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The base, pad and fold of the 0.46×0.158×0.38m cushion take planar UV0 and split seams at the hard edges of each layer.
+@evidenceExclude settings/50-production.md#author-commits Commits and pushes are an authoring record, and no prototype takes a dimension, part, joint or UV0 decision from that procedure.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the sanctuary floor cushion distinct from the work stool.
+@evidence principles/core/common.md#substantive-completion It fixes the dimensions and contact of the base layer, the thick pad and the back fold line.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#floor-cushion and 30-interiors#sanctuary as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the sanctuary floor cushion of 35-objects#floor-cushion, distinct from the work stool, to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the base, pad and fold members and the top face.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.46×0.158×0.38m occupancy.
+@evidence principles/design/models.md#reviewable-structure It checks that the spread plan and thickness are distinct from the folded textile.
+@evidence principles/design/models.md#model-observable-style-basis It is a low seat without ornament or backrest.
+@evidence principles/design/models.md#model-scale-layer-completion It distinguishes the 0.46m wide, 0.158m high seat range on the sanctuary floor from the later instances placement.
+@evidence settings/30-interiors.md#sanctuary It is used only as floor furnishing in the figure-free central arrangement of the sanctuary.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The work seat range of 35-objects#workstation was narrowed to the office and records room, and the sanctuary floor cushion was given the separate owner 35-objects#floor-cushion. After the room list of 30-interiors#sanctuary was matched too, the cushion shape was designed.
+@evidence settings/35-objects.md#floor-cushion It takes the existence, form range and state of the sanctuary floor cushion distinct from the work stool and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#jar-stand)과 [사용 공간](../settings/30-interiors.md#storage)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#floor-cushion) and the [space of use](../settings/30-interiors.md#sanctuary) are the parents of this prototype. It compares the form and spatial relations of [reference image 04](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-로컬 원점은 바닥 중심이다. 발은 Y=0~0.05m의 반지름 0.30→0.29m 원뿔대, 기둥은 Y=0.05~0.30m의 반지름 0.06m 원통, 윗 받침 고리는 Y=0.30~0.34m의 바깥 반지름 0.17m·안쪽 반지름 0.045m인 열린 원환 벽이다. 윗 받침 고리 아랫면의 0.045~0.06m 환형 접촉 띠가 기둥 윗면에 닿고 가운데 반지름 0.045m 구멍은 위로 열린다. 각 회전체의 둘레는 16분할이다. 세 부재는 수직으로 접해 높이가 0.05+0.25+0.04=0.34m이고 바깥 지름은 0.60m다. 점유 상자는 0.60×0.34×0.60m다.
+The local origin is the floor centre. The lower layer `base` has width 0.46m, depth 0.38m and height 0.04m, and above it the seat `pad` has width 0.42m, depth 0.34m and height 0.10m. The back fold line `fold` has width 0.42m, depth 0.06m and height 0.018m and lies at Y=0.14~0.158m, Z=−0.17~−0.11m. The three members are stacked face to face, so the overall height is 0.04+0.10+0.018=0.158m. The occupancy box is 0.46×0.158×0.38m.
 
-실제 위치와 수량은 instances가 정한다.
+The local front is +Z, and the back with the fold line is −Z. The [folded textile](portable.md#textile) is a cover, and this cushion is an independent prototype with a seating face on the sanctuary floor.
 
-부재 대응: `foot`=발; `post`=기둥; `ring`=윗 받침.
+instances sets the real position and quantity.
 
-UV0는 발·기둥·윗 고리의 곡면을 +X 시접의 둘레 호길이 U와 단면 모선 길이 V로 전개하며, 고리 안쪽은 바깥면과 별도 시접이다. 0.60×0.34×0.60m 점유는 성인 보행 폭과 같으므로 통로 밖 보관실 자리는 instances가 결정한다.
+Part map: `base`=lower layer; `pad`=seat; `fold`=back fold line.
 
-part와 표면은 `foot`, `post`, `ring`이다. 항아리 한 개만 놓는 받침이며 두 자리 선반이 아니다. 검토 판 옆면에서 기둥의 열린 둘레가 보이지 않고 통짜 항아리처럼 읽히면 실패다.
+UV0 sets each plane of `base`, `pad` and `fold` to the default per-face-normal projection and splits vertices at the edges of the three layers and at part boundaries. The 0.46×0.158×0.38m occupancy is narrower than the 0.6m walking envelope width, and instances chooses the real place on the sanctuary floor.
+
+Parts and surfaces are `base`, `pad` and `fold`. It lies on the sanctuary floor and includes no figure or joint. If, from the front of the review board, the low seat does not show and it reads only as a pile of folded cloth, it is a failure.
+
+## Single jar stand {#jar-stand}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The foot, post and ring of the 0.60×0.34×0.60m stand unwrap as a Y-axis solid-of-revolution UV0 from a +X seam, with a separate inner seam for the open ring.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the round stand that holds one jar.
+@evidence principles/core/common.md#substantive-completion It sets the dimensions and open centre of the round foot, post and top ring.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#jar-stand and 30-interiors#storage as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the round stand holding one jar of 35-objects#jar-stand to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the separate solids of foot, post and ring.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.60×0.34×0.60m occupancy.
+@evidence principles/design/models.md#reviewable-structure From the side it checks that the open space around the post and the single-place ring do not read as a solid jar.
+@evidence principles/design/models.md#model-observable-style-basis Three plain round members convey a storage stand.
+@evidence principles/design/models.md#model-scale-layer-completion It closes the height 0.34m and diameter 0.60m of a single-place round stand distinct from the two-place rack.
+@evidence settings/30-interiors.md#storage It adds one stand to the room where jars and storage chests are placed.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The round stand holding one jar had no settings identity owner, so 35-objects#jar-stand was created and added to the room list of 30-interiors#storage. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#jar-stand It takes the existence, form range and state of the round stand holding one jar and derives the dimensions and parts of an independent prototype.
+-->
+
+The [object identity](../settings/35-objects.md#jar-stand) and the [space of use](../settings/30-interiors.md#storage) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
+
+The local origin is the floor centre. The foot is a frustum of Y=0~0.05m with radius 0.30→0.29m, the post is a cylinder of Y=0.05~0.30m with radius 0.06m, and the top seat ring is an open annular wall of Y=0.30~0.34m with outer radius 0.17m and inner radius 0.045m. The 0.045~0.06m annular contact band on the underside of the top seat ring touches the post top face, and the central hole of radius 0.045m opens upward. Each solid of revolution has 16 segments around. The three members are stacked vertically face to face for a height of 0.05+0.25+0.04=0.34m, and the outer diameter is 0.60m. The occupancy box is 0.60×0.34×0.60m.
+
+instances sets the real position and quantity.
+
+Part map: `foot`=foot; `post`=post; `ring`=top seat.
+
+UV0 unwraps the curved faces of foot, post and top ring as the circumference arc length U from a +X seam and the section generatrix length V, and the inside of the ring has a seam separate from the outer face. The 0.60×0.34×0.60m occupancy equals the adult walking width, so instances decides the storage room place outside the passage.
+
+Parts and surfaces are `foot`, `post` and `ring`. It is a stand holding only one jar, not a two-place rack. If, from the side of the review board, the open circumference of the post does not show and it reads as a solid jar, it is a failure.

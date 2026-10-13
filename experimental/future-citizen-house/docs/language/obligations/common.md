@@ -1,39 +1,39 @@
-# 한국어 의무
+# English obligations
 
-언어 패턴을 비교할 때 `obligations/core/defaults.md`의 기계적 명세 보호 경계를 적용한다. 이 언어별 모집단 결산은 그 경계를 변경하지 않는다.
+Apply the mechanical-specification boundary in `obligations/core/defaults.md` when comparing language patterns; these language-specific accounts do not override it.
 
-## 번역 간섭과 레지스터 모집단 장부 {#korean-population-interference-account}
+## Population register and frame account {#english-population-register-frame-account}
 
 ```contract-rule
 {
-  "id": "korean-population-interference-account",
+  "id": "english-population-register-frame-account",
   "status": "active",
   "safeApplication": "population-distribution",
-  "timing": "after the complete selected Korean-language population exists",
+  "timing": "after the complete selected English-language population exists",
   "sourceIdentity": "campaign-2363-b25-language@8b03cf3b80d205f71d2ba1f5c52c90a02c050b5b"
 }
 ```
 
-선택된 계층 전체가 존재하면 선언한 한국어 변이를 유창하게 읽는 저작 에이전트 자신이 증거 주석을 제외한 전 모집단을 먼저 읽는다. 장면, 화자, 압력과 종결이 다른데도 직역 절 조립, 주어 과잉, 명사화, 높임 또는 설명 골격이 기능 없이 수렴하는지 실제 문장별로 비교하고 후렴, 제도 문서와 인물 말버릇처럼 소유된 반복은 보존한다.
+After the complete selected layer exists, the authoring agent, fluent in the declared English variety, reads its evidence-free population before counting recurrent frames. Compare scenes, speakers, pressures, transitions, and closures, preserve functional refrain and institutional form, and report only convergence whose literal instances share no production-owned reason.
 
-검토 질문: 서로 다른 소재에서 기능 없이 지배하는 한국어 골격은 무엇이며 어떤 실제 구성원이 그 판정을 입증하는가?
+Review question: which English clause frame or register dominates unlike material without a shared function, and which literal members establish that finding?
 
-출처: [Padmakumar와 He의 모델 보조 글쓰기 다양성 연구](https://arxiv.org/abs/2309.05196); [국립국어원 한국어기초사전](https://krdict.korean.go.kr/)
+Sources: [British National Corpus](https://www.english-corpora.org/bnc/); [Padmakumar and He on diversity in model-assisted writing](https://arxiv.org/abs/2309.05196)
 
-## 독자 언어 접근 {#korean-audience-language-access}
+## Audience language access {#english-audience-language-access}
 
 ```contract-rule
 {
-  "id": "korean-audience-language-access",
+  "id": "english-audience-language-access",
   "status": "active",
   "safeApplication": "population-distribution",
-  "timing": "after the complete selected Korean-language population exists",
+  "timing": "after the complete selected English-language population exists",
   "sourceIdentity": "campaign-2363-b25-language@8b03cf3b80d205f71d2ba1f5c52c90a02c050b5b"
 }
 ```
 
-전체 모집단은 설명되지 않은 언어 전환, 전문어, 시대어, 자막, 인용과 번역 판본의 의미와 출처와 상태를 의도 독자가 식별하게 하되 작품이 보존하기로 한 차이를 지우지 않는다.
+The complete population makes unexplained code-switches, specialist terms, historical forms, captions, quotations, and translated variants accessible to the declared audience without erasing distinctions the production intends to preserve.
 
-검토 질문: 어느 한국어 경계 때문에 의도 독자가 제작 결정을 이해하거나 그 출처와 상태를 구분할 수 없는가?
+Review question: which English-language boundary leaves an intended reader unable to identify the meaning, source, or status of a production decision?
 
-출처: [W3C 언어 협상 안내](https://www.w3.org/International/questions/qa-lang-priorities); [W3C TTML2](https://www.w3.org/TR/ttml2/)
+Sources: [W3C Internationalization on language negotiation](https://www.w3.org/International/questions/qa-lang-priorities); [W3C Timed Text Markup Language](https://www.w3.org/TR/ttml2/)

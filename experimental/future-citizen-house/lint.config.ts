@@ -40,7 +40,7 @@ import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
     __dirname,
-    "korean" as AutoMovieProductionLanguage,
+    "english" as AutoMovieProductionLanguage,
   ),
   kind: "library",
   populationScope: { mode: "complete-production" },

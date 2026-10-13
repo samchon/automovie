@@ -32,7 +32,7 @@ export class TempleLandscape {
       [-0.10, 7.6, 0.42, 2.8],
     ])
       modelEllipsoid(m,"crown",p(x,y,0),p(r,h/2,r),10,6);
-    return m.model("landscape.cypress","좁고 높은 상록수");
+    return m.model("landscape.cypress","Narrow tall evergreen");
   }
 
   /**
@@ -58,7 +58,7 @@ export class TempleLandscape {
       [1.15, 3.45, 0.95, 0.90, 1.30, 1.10],
       [0, 3.50, -0.95, 1.05, 1.40, 1.15],
     ]) modelEllipsoid(m,"crown",p(x,y,z),p(rx,ry,rz),10,6);
-    return m.model("landscape.broad-tree","넓은 수관의 나무");
+    return m.model("landscape.broad-tree","Broad-crowned tree");
   }
 
   /**
@@ -79,7 +79,7 @@ export class TempleLandscape {
       m.face("blade",[a,b,tip]);
       m.face("blade",[tip,b,a]);
     }
-    return m.model("landscape.grass-tuft","벽 밑 풀");
+    return m.model("landscape.grass-tuft","Grass at the wall foot");
   }
 
   /**
@@ -247,7 +247,7 @@ export class TempleLandscape {
     }
     const model=m.model(
       `landscape.neighbor-house.${kind}`,
-      `이웃 회벽집 ${kind}`,
+      `Neighbouring plastered house ${kind}`,
     );
     model.parts.push({
       id:"plinth",

@@ -19,13 +19,13 @@ void test("quoted owner must match the H2 containing the quoted words", () => {
     host: "rear-garden-openings",
   };
   const valid = quoteOwnerFailures(
-    [{ ...base, text: "common-kitchen-wall-reservation의 'quoted words'" }],
+    [{ ...base, text: "common-kitchen-wall-reservation's 'quoted words'" }],
     span,
   );
   assert.equal(valid.checked, 1);
   assert.deepEqual(valid.failures, []);
   const mutated = quoteOwnerFailures(
-    [{ ...base, text: "wrong-owner의 'quoted words'" }],
+    [{ ...base, text: "wrong-owner's 'quoted words'" }],
     span,
   );
   assert.equal(mutated.checked, 1);

@@ -1,47 +1,47 @@
-# 전면 왼쪽 자녀 침실
+# Front-Left Child's Bedroom
 
-## 올리브 침실의 자기 경계 {#bedroom-two-plan}
+## Own Boundary of the Olive Bedroom {#bedroom-two-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation bedroom-two의 경계, 복도 쪽 자기 문, 전면 창 소비, 굴뚝 쪽 창 배제, 가구 사용 배정과 source owner를 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m, hall-bedroom-two-door X = [-3.10, -2.10] m와 유효 폭 목표 0.90 m를 정한다.
-@evidence principles/core/common.md#declared-basis 순내부 3.55 × 4.31 m를 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택으로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "복도에서 직접 들어가며 자기 외벽 창"을 +X 문설주 경첩·방 안 +Z 열림의 문과 전면 창 소비로 만든다.
-@evidence principles/design/spaces.md#space-topology 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 복도/주침실과 인접하고 다른 침실이나 욕실을 지나지 않고 들어온다.
-@evidence principles/design/spaces.md#space-boundary-authority 계단실 왼쪽 경계와 전면 창 void를 원래 owner에서 소비하고 복도의 계단 보호 경계에 문짝을 세우지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 문/창 binding, 자기 공간 안 네 방향과 네 모서리의 시야, 가구 접근을 검사한다.
-@evidence settings/10-house.md#bedroom-two 한 자녀의 침대·책상·옷장과 별도 보행길을 넣는 방으로 복도에서 hall-bedroom-two-door로 바로 들어오고 다른 침실이나 욕실을 지나지 않게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 직접 출입·자기 창·별도 id를 대조했고 복도에서 자기 문으로 바로 들어오는 3.55 × 4.31 m 방으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the boundary of bedroom-two, its own door on the hall side, the consumption of the front window, the exclusion of a window on the chimney side, the furniture use assignment, and the source owner.
+@evidence principles/core/common.md#substantive-completion Sets the inner finish X = [-5.50, -1.95], Z = [-4.56, -0.25] m, hall-bedroom-two-door X = [-3.10, -2.10] m, and an effective width target of 0.90 m.
+@evidence principles/core/common.md#declared-basis States that the clear interior of 3.55 × 4.31 m is a choice to fit one child's bed, desk, wardrobe, and a separate walking path.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "It is entered directly from the hall and has a window in its own exterior wall" into a door with +X jamb hinges swinging into the room in +Z and the consumption of the front window.
+@evidence principles/design/spaces.md#space-topology It is adjacent to the front and left exterior walls, the stairwell on the right, and the hall/primary bedroom at the back, and is entered without passing through another bedroom or bathroom.
+@evidence principles/design/spaces.md#space-boundary-authority Consumes the stairwell left boundary and the front window void from their original owners, and raises no leaf at the stair protective boundary of the hall.
+@evidence principles/design/spaces.md#space-verification-address Checks the door/window bindings, the views of the four directions and four corners inside its own space, and furniture access.
+@evidence settings/10-house.md#bedroom-two As a room fitting one child's bed, desk, wardrobe, and a separate walking path, it is entered straight from the hall by hall-bedroom-two-door without passing through another bedroom or bathroom.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared bedroom-two's direct entrance, own window, and separate id; it holds as a 3.55 × 4.31 m room entered straight from the hall through its own door, so there was no parent revision.
 -->
 
-`bedroom-two`는 upper-storey의 전면 왼쪽 방이다. 마감 안쪽 X = [-5.50, -1.95], Z = [-4.56, -0.25] m다. 앞·왼쪽은 [본채 외벽](../00-building.md#main-building-extent), 오른쪽은 [계단실 왼쪽 경계](../02-stair.md#stair-floor-opening), 뒤쪽은 Z = [-4.71, -4.56]의 복도/주침실 경계다. 순내부 예약 3.55 × 4.31 m는 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택이다.
+`bedroom-two` is the front-left room of upper-storey. The inner finish is X = [-5.50, -1.95], Z = [-4.56, -0.25] m. The front and left are the [main block exterior walls](../00-building.md#main-building-extent), the right the [stairwell left boundary](../02-stair.md#stair-floor-opening), and the back the hall/primary bedroom boundary at Z = [-4.71, -4.56]. The clear interior reservation of 3.55 × 4.31 m is a choice to fit one child's bed, desk, wardrobe, and a separate walking path.
 
-`hall-bedroom-two-door`는 뒤쪽 공유 벽에서 X = [-3.10, -2.10], Y = [3.06, 5.26] m의 거친 개구부다. 최종 유효 폭 0.90 m를 목표로 한다. +X 문설주 경첩에서 방 안 +Z 방향으로 열고 복도의 계단 보호 경계에 문짝을 세우지 않는다. [복도](upper-hall.md#upper-hall-plan)에서 자기 문으로 바로 들어오며 다른 침실이나 욕실을 지나지 않는다.
+`hall-bedroom-two-door` is a rough opening X = [-3.10, -2.10], Y = [3.06, 5.26] m in the back shared wall. It targets a final effective width of 0.90 m. It opens from hinges on the +X jamb into the room in the +Z direction, and no leaf is raised at the stair protective boundary of the hall. One enters straight from the [hall](upper-hall.md#upper-hall-plan) through its own door without passing through another bedroom or bathroom.
 
-[올리브 침구의 방](../../settings/10-house.md#bedroom-two)으로 실현하며 [bedroom-two-front-window](../envelope/front.md#bedroom-two-front-window)의 void를 소비한다. 굴뚝 가까운 왼쪽 벽에는 창을 추가하지 않는다. [침대·책상·장의 사용](#bedroom-two-furniture-use)은 창 앞, 문 안쪽과 침대 옆 길을 함께 예약한다. `src/spaces/rooms/bedroom-two.ts`가 완결 내부 owner다. 문/창의 실제 binding·자기 공간 안 네 방향과 네 모서리의 시야·가구 접근은 unverified다.
+It is realized as the [room with olive bedding](../../settings/10-house.md#bedroom-two) and consumes the void of [bedroom-two-front-window](../envelope/front.md#bedroom-two-front-window). No window is added on the left wall near the chimney. [The use of the bed, desk, and closet](#bedroom-two-furniture-use) reserves the space in front of the window, inside the door, and the path beside the bed together. `src/spaces/rooms/bedroom-two.ts` is the complete interior owner. The real door/window bindings, the views of the four directions and four corners inside its own space, and furniture access are unverified.
 
-## 올리브 침실의 잠자리·공부·옷 수납 {#bedroom-two-furniture-use}
+## Sleeping, Study, and Clothes Storage of the Olive Bedroom {#bedroom-two-furniture-use}
 <!--
-@evidence principles/core/common.md#scope-preservation 자녀 침대, 협탁과 등, 책상과 의자 사용, 옷장, 창 접근 경로, 커튼 돌출을 배정한다.
-@evidence principles/core/common.md#substantive-completion 네 가구의 평면·높이·방향 표와 의자 사용 X = [-4.90, -4.15], Z = [-1.45, -0.70] m, 옷장 앞 사용 X = [-3.15, -2.55] m를 정한다.
-@evidence principles/core/common.md#declared-basis 높이는 상층 완성 바닥 기준이며 수치는 몸체·닫힌 문/손잡이의 상한 예약이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "침대를 지나 창과 수납에 접근할 수 있어야"를 협탁 오른쪽과 침대 오른쪽 바닥을 돌아 창에 닿는 경로로 만든다.
-@evidence principles/design/spaces.md#space-topology 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 옷장 몸체를 방 오른쪽 안쪽 면까지로 두고 커튼은 전면 창 안쪽 돌출 0.12 m 이내로 제한해 창대를 포함한 순폭을 다시 읽는다.
-@evidence principles/design/spaces.md#space-verification-address 문 회전·의자 사용·옷장 조작·침대 측면·창 접근의 평면과 02 및 자기 공간 안 시야를 검사한다.
-@evidence settings/10-house.md#bedroom-two 침대·협탁과 조명·책상과 의자·옷 수납을 두고 벽과 가구 틈을 유일한 출입 경로로 삼지 않는다.
-@evidence settings/00-production.md#use-profile 책상 의자를 물려 앉는 사용 범위에 사람 폭을 줄이지 않고 적용한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 가구 목록·창과 수납 접근 조건과 use-profile을 방에 적용했고 가구를 넘지 않는 창 경로가 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Assigns the child's bed, nightstand and lamp, desk and chair use, wardrobe, window access route, and curtain projection.
+@evidence principles/core/common.md#substantive-completion Sets the table of plans, heights, and orientations of the four pieces of furniture, the chair use X = [-4.90, -4.15], Z = [-1.45, -0.70] m, and the wardrobe front use X = [-3.15, -2.55] m.
+@evidence principles/core/common.md#declared-basis States that heights are relative to the upper finished floor and that the values are upper limit reservations of bodies and closed doors/handles.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "The window and storage must be reachable past the bed" into a route that goes around the floor to the right of the nightstand and the bed to reach the window.
+@evidence principles/design/spaces.md#space-topology Branches from its own door off the hall to the three functions and the front window and passes through to no other room.
+@evidence principles/design/spaces.md#space-boundary-authority Keeps the wardrobe body up to the room's right inner face and limits the curtains to an inward projection of 0.12 m at the front window, reading the clear width including the sill again.
+@evidence principles/design/spaces.md#space-verification-address Checks the plan of door swing, chair use, wardrobe operation, bed side, and window access, and the views of 02 and inside its own space.
+@evidence settings/10-house.md#bedroom-two Places the bed, nightstand and lamp, desk and chair, and clothes storage, and does not take the gap between wall and furniture as the sole entrance route.
+@evidence settings/00-production.md#use-profile Applies the person width without shrinking it to the use range of pulling out the desk chair and sitting.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied bedroom-two's furniture list and window/storage access conditions and use-profile to the room; a window route that does not climb over furniture holds, so there was no parent revision.
 -->
 
-같은 bedroom-two/upper-storey에서 침대는 뒤쪽 왼편, 책상은 왼쪽 벽의 전면 창 가까이, 옷장은 오른쪽 벽에 둔다. 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다. 아래 world X/Z m는 몸체·닫힌 문/손잡이의 상한 예약이고 높이는 상층 완성 바닥 기준이다.
+In the same bedroom-two/upper-storey, the bed is at the back left, the desk on the left wall near the front window, and the wardrobe on the right wall. From its own door off the hall one branches to the three functions and the front window and passes through to no other room. The world X/Z m below are upper limit reservations of bodies and closed doors/handles, with heights relative to the upper finished floor.
 
-| 가구 | 평면 예약 | 높이와 방향 |
+| Furniture | Plan reservation | Height and orientation |
 | --- | --- | --- |
-| 자녀 침대 | X = [-5.25, -4.10], Z = [-4.50, -2.35] | 매트리스 상면 0.55 m, 머리판 0.95 m, 머리는 -Z. |
-| 협탁과 등 | X = [-3.95, -3.50], Z = [-4.50, -4.05] | 상면 0.50 m, 등 포함 1.05 m. |
-| 책상 | X는 방 왼쪽 안쪽 면부터 -4.90 m까지, Z = [-1.60, -0.40] | 상면 0.75 m, 좌석은 +X 쪽에서 -X를 향함. |
-| 옷장 | X = -2.55 m부터 방 오른쪽 안쪽 면까지, Z = [-2.95, -1.45] | 높이 2.20 m, -X 쪽 미닫이 문. |
+| Child's bed | X = [-5.25, -4.10], Z = [-4.50, -2.35] | Mattress top 0.55 m, headboard 0.95 m, head at -Z. |
+| Nightstand and lamp | X = [-3.95, -3.50], Z = [-4.50, -4.05] | Top 0.50 m, 1.05 m including the lamp. |
+| Desk | X from the room's left inner face to -4.90 m, Z = [-1.60, -0.40] | Top 0.75 m, the seat facing -X from the +X side. |
+| Wardrobe | X from -2.55 m to the room's right inner face, Z = [-2.95, -1.45] | Height 2.20 m, sliding doors on the -X side. |
 
-책상 의자를 물려 앉는 사용 범위는 X = [-4.90, -4.15], Z = [-1.45, -0.70] m이며 [사람 폭](../../settings/00-production.md#use-profile)을 줄이지 않는다. 옷장 앞 사용은 X = [-3.15, -2.55] m, Z는 옷장과 같은 폭이다. 복도 문에서 협탁 오른쪽을 지나 침대 오른쪽의 바닥으로 돌아 창에 닿는다. 의자 사용 범위의 오른쪽과 옷장 앞 사용 범위의 왼쪽을 통행으로 남기고 가구를 넘어 창에 가는 경로로 대체하지 않는다. 전면 창은 책상과 옷장 사이의 열린 바닥에서 접근한다.
+The use range of pulling out the desk chair and sitting is X = [-4.90, -4.15], Z = [-1.45, -0.70] m, without shrinking the [person width](../../settings/00-production.md#use-profile). The wardrobe front use is X = [-3.15, -2.55] m with Z the same width as the wardrobe. From the hall door one passes right of the nightstand and goes around the floor to the right of the bed to reach the window. The right of the chair use range and the left of the wardrobe front use range are left for passage and are not replaced with a route climbing over furniture to the window. The front window is approached from the open floor between the desk and the wardrobe.
 
-옷장 미닫이와 내부 옷·선반은 몸체 예약 안에 있고 실제 분할·원형은 후속 저작이다. 올리브 침구와 책상 소품은 [둘째 침실 설정](../../settings/10-house.md#bedroom-two)을 소비한다. 얇은 커튼은 그 설정에 없는 추가 공간 결정이며 [여섯 창 공통 점유 띠](../06-openings.md#selected-window-curtain-strips)에서 인계받는다. 전면 창 안쪽 돌출을 0.12 m 이내로 제한하고 창대를 포함한 순폭을 다시 읽는다. 방 전체 면은 기존 owner를 유지한다. 문 회전·의자 사용·옷장 조작·침대 측면·창 접근의 평면과 02 및 자기 공간 안 전체 시야는 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 검사하며 실제 충돌/순폭/프레임은 unverified다.
+The wardrobe sliding doors and the clothes and shelves inside are within the body reservation, and the real division and prototypes are later authoring. The olive bedding and desk props consume the [second bedroom setting](../../settings/10-house.md#bedroom-two). The thin curtains are an additional spatial decision not in that setting, handed over from the [common occupancy strip of the six windows](../06-openings.md#selected-window-curtain-strips). The inward projection at the front window is limited within 0.12 m, and the clear width including the sill is read again. The whole room surface keeps the existing owner. The plan of door swing, chair use, wardrobe operation, bed side, and window access and the views of 02 and of its whole own space are checked by the [observation owner](../04-observations.md#spatial-observation-derivation), and the real collisions/clear width/frames are unverified.

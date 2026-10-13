@@ -1,72 +1,72 @@
-# 전면 왼쪽 거실
+# Front-Left Living Room
 
-## 거실 경계와 직접 출입 {#living-plan}
+## Living Room Boundary and Direct Entrance {#living-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation living-room의 경계, entry-living-door, 문 앞 가구 금지 구역, 공용부 연결·벽난로·창의 소비 관계와 관찰 질문을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [-5.50, -1.95], Z = [-6.05, -0.25] m와 공유 벽의 문 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m, 유효 폭 목표 0.90 m를 정한다.
-@evidence principles/core/common.md#declared-basis 폭 3.55 m·깊이 5.80 m를 소파·벽난로·독서 가구의 길이 방향 배치와 앞뒤 출입 분리를 위한 선택으로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "현관에서 직접 보이며"를 -Z 문설주 경첩으로 거실 쪽 -X로 여는 entry-living-door와 가구를 놓지 않는 문 앞 바닥 X = [-2.89, -1.95]·Z = [-1.40, -0.35]로 만들어 앞쪽 현관에서 보이는 열린 문으로 답한다.
-@evidence principles/design/spaces.md#space-topology 거실의 바깥 두 면은 외벽, 오른쪽은 계단 분리 경계와 현관, 뒤쪽은 공용부라는 인접을 정하고 현관·공용부와 직접 연결한다.
-@evidence principles/design/spaces.md#space-boundary-authority 공용부 쪽 개구부는 common owner, 벽난로 접면은 굴뚝 owner, 두 창 void는 입면 owner에서 소비하고 방 안에서 별도 창 좌표를 만들지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지를 관찰 질문으로 둔다.
-@evidence settings/10-house.md#living ground-storey의 living-room을 entry-living-door로 현관과 직접 연결하고 living-front-window·living-left-window의 void와 벽난로의 왼쪽 외벽 접면을 같은 방 경계에서 소비한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 위치·직접 출입·벽난로 조건을 대조했고 폭 3.55 m·깊이 5.80 m 안에 소파·벽난로·독서 가구의 길이 방향 배치와 앞뒤 출입 분리를 택해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the boundary of living-room, entry-living-door, the no-furniture zone in front of the door, the consumption relations with the common area connection, fireplace, and windows, and the observation questions.
+@evidence principles/core/common.md#substantive-completion Sets the inner finish X = [-5.50, -1.95], Z = [-6.05, -0.25] m, the shared wall door opening Z = [-1.35, -0.35], Y = [0, 2.20] m, and an effective width target of 0.90 m.
+@evidence principles/core/common.md#declared-basis States that the 3.55 m width and 5.80 m depth are choices for the lengthwise arrangement of the sofa, fireplace, and reading furniture and for separating the front and back entrances.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Answers "is visible directly from the entry" with an open door seen from the front entry, by making entry-living-door with hinges on the -Z jamb opening into the living room in -X and a no-furniture floor in front of the door X = [-2.89, -1.95]·Z = [-1.40, -0.35].
+@evidence principles/design/spaces.md#space-topology Sets the adjacency in which the two outer sides of the living room are exterior walls, the right is the stair separation boundary and the entry, and the back is the common area, and connects it directly with the entry and the common area.
+@evidence principles/design/spaces.md#space-boundary-authority Consumes the common-area-side opening from the common owner, the fireplace interface from the chimney owner, and the two window voids from the elevation owners, and makes no separate window coordinates inside the room.
+@evidence principles/design/spaces.md#space-verification-address Keeps as observation questions whether the door and windows hold the same room boundary, whether the sofa/fireplace blocks front-to-back passage, and whether the living room can be seen from the entry.
+@evidence settings/10-house.md#living Connects the ground-storey living-room directly with the entry by entry-living-door and consumes the voids of living-front-window and living-left-window and the left exterior wall interface of the fireplace in the same room boundary.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared living's position, direct entrance, and fireplace conditions; within a 3.55 m width and 5.80 m depth, the lengthwise arrangement of sofa, fireplace, and reading furniture and the separation of front and back entrances were chosen, so there was no parent revision.
 -->
 
-`living-room`은 ground-storey에 속하며 마감 안쪽 X = [-5.50, -1.95], Z = [-6.05, -0.25] m다. 바깥쪽 두 면은 [본채 외벽](../00-building.md#main-building-extent), 오른쪽은 [계단 분리 경계](../02-stair.md#stair-floor-opening)와 현관, 뒤쪽은 후면 공용부다. 폭 3.55 m·깊이 5.80 m의 선택은 [거실의 소파·벽난로·독서 가구](../../settings/10-house.md#living)를 길이 방향으로 배치하고 출입을 앞뒤로 분리하기 위한 것이다.
+`living-room` belongs to ground-storey, with the inner finish X = [-5.50, -1.95], Z = [-6.05, -0.25] m. Its two outer sides are the [main block exterior walls](../00-building.md#main-building-extent), the right is the [stair separation boundary](../02-stair.md#stair-floor-opening) and the entry, and the back is the rear common area. The choice of a 3.55 m width and 5.80 m depth is for arranging the [living room's sofa, fireplace, and reading furniture](../../settings/10-house.md#living) lengthwise and separating the entrances front and back.
 
-`entry-living-door`는 X = [-1.95, -1.80]의 현관/거실 공유 벽에 거친 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m를 만든다. 문틀 뒤 유효 폭 목표는 0.90 m다. -Z 문설주를 경첩으로 삼아 거실 쪽 -X 방향으로 열고, X = [-2.89, -1.95]·Z = [-1.40, -0.35]의 문 앞 바닥에는 가구를 놓지 않는다. 1.00 m 거친 폭에서 문설주 0.03 m 둘과 열린 문짝 두께 0.04 m를 뺀 순폭은 0.90 m이고, 0.94 m 길이의 열린 문짝은 수정된 0.94 m 깊이 예약에 맞는다. 앞쪽 현관에서 보이는 열린 문이 직접 접속을 답한다.
+`entry-living-door` makes a rough opening Z = [-1.35, -0.35], Y = [0, 2.20] m in the entry/living room shared wall at X = [-1.95, -1.80]. The effective width target behind the door frame is 0.90 m. With the -Z jamb as the hinge, it opens toward the living room in the -X direction, and no furniture is placed on the floor in front of the door X = [-2.89, -1.95]·Z = [-1.40, -0.35]. The clear width of the 1.00 m rough width minus two 0.03 m jambs and the 0.04 m thickness of the open leaf is 0.90 m, and the 0.94 m long open leaf fits the revised 0.94 m deep reservation. The open door seen from the front entry answers the direct connection.
 
-후면 공용부로 통하는 상인방 아래의 문짝 없는 개구부는 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 창은 [living-front-window](../envelope/front.md#living-front-window)와 [living-left-window](../envelope/left.md#living-left-window)의 동일 void를 소비하며 방 안쪽에서 별도 창 좌표를 만들지 않는다. 벽난로와 창호의 실제 부재는 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.
+The leafless opening under the lintel leading to the rear common area is owned by the [common area owner](common.md#common-room-plan). The left exterior wall interface and spatial reservation of the fireplace consume the [chimney owner](../envelope/left.md#chimney-roof-interface). The windows consume the same voids of [living-front-window](../envelope/front.md#living-front-window) and [living-left-window](../envelope/left.md#living-left-window), and no separate window coordinates are made inside the room. The real members of the fireplace and windows are incomplete. `src/spaces/rooms/living.ts` owns the complete interior of the room. Whether the living room door and windows hold the same room boundary, whether the sofa/fireplace blocks front-to-back passage, and whether the living room can be seen from the entry are the observation questions. The real clear width, furniture interference, window/chimney binding, and frames are unverified.
 
-## 벽난로를 향한 좌석과 독서 가구 {#living-furniture-use}
+## Seating Facing the Fireplace and Reading Furniture {#living-furniture-use}
 <!--
-@evidence principles/core/common.md#scope-preservation 설정이 요구한 소파·낮은 테이블·안락의자·책장·러그의 점유와 앉고 일어서는 사용, 벽난로 돌출 한계를 모두 배정한다.
-@evidence principles/core/common.md#substantive-completion 네 가구의 평면 예약·높이·방향 표와 소파 앞 사용 X = [-3.45, -2.90], Z = [-3.60, -1.80] m, 다섯 선반을 0.20 m부터 0.35 m 간격으로 산출하는 규칙을 정한다.
-@evidence principles/core/common.md#declared-basis 높이는 1층 완성 바닥 기준이며 수치는 제품 치수나 제작 완료가 아닌 최대 점유 입력이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 소파는 계단 분리벽에 등을 대고 벽난로를 향하며 안락의자와 책장은 뒤쪽에 두는 배치 결정을 설정의 가구 목록에 더한다.
-@evidence principles/design/spaces.md#space-topology 모든 가구와 사용 영역을 living-room 안에 두고 의자 사용 발 점유를 책장 횡단 통로에 합산하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 벽난로 전체 돌출은 굴뚝/실내 접면의 기존 상한에서 받고 hearth나 목재 선반을 통로에 덧붙이지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 평면/단면에서 좌석·테이블·책장과 사용 점유를 겹쳐 읽고 후면까지의 동선을 함께 검사한다.
-@evidence settings/10-house.md#living 패브릭 소파·낮은 목재 테이블·작은 안락의자·짙은 책장·러그를 불이 꺼진 정적 상태의 공간 점유로 두고 소파가 왼쪽 벽난로를 향하게 한다.
-@evidence settings/00-production.md#use-profile 소파 앞 사용 영역에 사람 점유체의 깊이를 X, 폭을 Z로 적용한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 가구 목록과 "좌석이 문·계단 접근을 가로막지 않는다", use-profile의 점유체를 대조했고 네 가구와 사용 범위가 방 안에 들어가 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Assigns all of the occupancy of the sofa, low table, armchair, bookcase, and rug the settings require, the use of sitting down and getting up, and the fireplace projection limit.
+@evidence principles/core/common.md#substantive-completion Sets a table of the plan reservations, heights, and orientations of the four pieces of furniture, the sofa front use X = [-3.45, -2.90], Z = [-3.60, -1.80] m, and the rule deriving five shelves from 0.20 m at 0.35 m spacing.
+@evidence principles/core/common.md#declared-basis States that the heights are relative to the ground-storey finished floor and that the values are maximum occupancy inputs, not product dimensions or completed fabrication.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds to the settings' furniture list the arrangement decision that the sofa backs onto the stair separation wall facing the fireplace and the armchair and bookcase sit at the back.
+@evidence principles/design/spaces.md#space-topology Places all furniture and use zones inside living-room and does not add the foot occupancy of chair use to the passage crossing to the bookcase.
+@evidence principles/design/spaces.md#space-boundary-authority The whole fireplace projection comes from the existing upper limit of the chimney/interior interface, and no hearth or wooden mantel is added onto the passage.
+@evidence principles/design/spaces.md#space-verification-address Reads the seating, table, and bookcase overlaid with the use occupancy in plan/section and checks the circulation to the rear together.
+@evidence settings/10-house.md#living Keeps the fabric sofa, low wooden table, small armchair, dark bookcase, and rug as spatial occupancy in an unlit static state, with the sofa facing the left fireplace.
+@evidence settings/00-production.md#use-profile Applies the person occupancy body's depth to X and width to Z in the use zone in front of the sofa.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared living's furniture list and "The seating does not block door or stair access" with use-profile's occupancy body; the four pieces of furniture and their use ranges fit in the room, so there was no parent revision.
 -->
 
-같은 living-room/ground-storey 안에서 [거실 설정](../../settings/10-house.md#living)의 소파는 오른쪽 계단 분리벽에 등을 대고 왼쪽 벽난로를 향한다. 작은 안락의자와 책장은 뒤쪽에 둔다. 아래 world X/Z m는 몸체·손잡이의 최대 점유 입력이며 높이는 [1층 완성 바닥](../01-storeys.md#storey-datums) 기준이다. 특정 가구 제품의 치수나 제작 완료를 뜻하지 않는다.
+Inside the same living-room/ground-storey, the sofa of the [living room setting](../../settings/10-house.md#living) backs onto the right stair separation wall and faces the left fireplace. The small armchair and bookcase sit at the back. The world X/Z m below are maximum occupancy inputs of bodies and handles, with heights relative to the [ground-storey finished floor](../01-storeys.md#storey-datums). They do not mean the dimensions of a particular furniture product or completed fabrication.
 
-| 가구 | 평면 예약 | 높이와 방향 |
+| Furniture | Plan reservation | Height and orientation |
 | --- | --- | --- |
-| 패브릭 소파 | X = -2.90 m부터 방 오른쪽 안쪽 면까지, Z = [-3.75, -1.65] | 좌면 0.43 m, 등받이 0.90 m, -X를 향함. |
-| 낮은 목재 테이블 | X = [-3.95, -3.45], Z = [-3.30, -2.00] | 상면 0.42 m. 길쭉한 상판은 소파 길이 방향을 따름. |
-| 독서 안락의자 | X = [-3.90, -3.05], Z = [-5.65, -4.80] | 좌면 0.43 m, 등받이 0.90 m, +Z를 향함. |
-| 짙은 책장 | X = -2.30 m부터 방 오른쪽 안쪽 면까지, Z = [-5.90, -4.90] | 높이 1.90 m, 책을 꺼내는 면은 -X. |
+| Fabric sofa | X = -2.90 m to the room's right inner face, Z = [-3.75, -1.65] | Seat 0.43 m, back 0.90 m, facing -X. |
+| Low wooden table | X = [-3.95, -3.45], Z = [-3.30, -2.00] | Top 0.42 m. The elongated top follows the sofa's length direction. |
+| Reading armchair | X = [-3.90, -3.05], Z = [-5.65, -4.80] | Seat 0.43 m, back 0.90 m, facing +Z. |
+| Dark bookcase | X = -2.30 m to the room's right inner face, Z = [-5.90, -4.90] | Height 1.90 m, the face for taking out books is -X. |
 
-소파 앞 앉고 일어서는 사용은 테이블과 소파 사이 X = [-3.45, -2.90], Z = [-3.60, -1.80] m다. [사람 점유체](../../settings/00-production.md#use-profile)의 깊이를 X에, 폭을 Z에 적용한다. 독서 의자의 발/일어서는 범위는 X = [-3.90, -3.05], Z = [-4.80, -4.20] m, 책장 앞 사용은 X = [-2.90, -2.30], Z = [-5.80, -5.00] m다. 의자를 사용하는 순간의 발 점유를 책장으로 가는 횡단 통로에 합산하지 않는다. 책장은 문 없는 선반이며 다섯 선반 상면을 0.20 m부터 0.35 m 간격으로 산출하고 책/물건은 몸체 깊이 안에 둔다.
+The use of sitting down and getting up in front of the sofa is X = [-3.45, -2.90], Z = [-3.60, -1.80] m between the table and the sofa. The depth of the [person occupancy body](../../settings/00-production.md#use-profile) is applied to X and its width to Z. The foot/getting-up range of the reading chair is X = [-3.90, -3.05], Z = [-4.80, -4.20] m, and the use in front of the bookcase is X = [-2.90, -2.30], Z = [-5.80, -5.00] m. The foot occupancy at the moment of using the chair is not added to the crossing passage to the bookcase. The bookcase is shelving without doors, the five shelf tops are derived from 0.20 m at 0.35 m spacing, and books/objects stay inside the body depth.
 
-러그의 평면은 X = [-4.00, -2.00], Z = [-3.90, -1.55] m, 두께 0.008 m 이내로 예약한다. 좌석·테이블 밑에 두고 문 회전이나 벽난로 앞 주 통행 바닥으로 늘리지 않는다. 무늬·패브릭·목재·책/조명과 벽난로 화구·벽돌·선반의 실제 원형/재료는 후속 저작이다. 벽난로 전체 돌출은 [굴뚝/실내 접면](../envelope/left.md#chimney-roof-interface)의 기존 상한 안에서 해결하고 바닥 hearth나 목재 선반을 통로에 덧붙이지 않는다. 불이 꺼진 정적 상태의 공간 배치이며 연소/열 성능 검증은 아니다.
+The plan of the rug is reserved at X = [-4.00, -2.00], Z = [-3.90, -1.55] m, within 0.008 m thick. It lies under the seating and table and is not extended to the door swing or the main passage floor in front of the fireplace. The real prototypes/materials of the pattern, fabric, wood, books/lighting, and the fireplace firebox, brick, and mantel are later authoring. The whole fireplace projection is resolved within the existing upper limit of the [chimney/interior interface](../envelope/left.md#chimney-roof-interface), and no floor hearth or wooden mantel is added onto the passage. This is a spatial arrangement in an unlit static state, not a verification of combustion/thermal performance.
 
-완결 면은 기존 living owner가 유지한다. 평면/단면에서 좌석·테이블·책장과 사용 점유를 겹쳐 읽고 [후면까지의 동선](#living-through-route)을 함께 검사한다. 실제 가구 원형·충돌·착석 시야·벽난로/창의 깊이와 02/04의 거실 읽힘은 [관찰 owner](../04-observations.md#spatial-observation-derivation)의 전체 질문에 들어가며 현재 unverified다.
+The complete faces stay with the existing living owner. The seating, table, and bookcase are read overlaid with the use occupancy in plan/section, and the [circulation to the rear](#living-through-route) is checked together. The real furniture prototypes, collisions, seated views, fireplace/window depth, and the living room readability of 02/04 enter the complete questions of the [observation owner](../04-observations.md#spatial-observation-derivation) and are currently unverified.
 
-## 두 출입과 창·좌석으로 이어지는 바닥 {#living-through-route}
+## Floor Connecting the Two Entrances with the Windows and Seating {#living-through-route}
 <!--
-@evidence principles/core/common.md#scope-preservation 현관 쪽 문에서 공용부 개구부까지의 주 통행 띠, 문 회전 중의 대기, 두 창·소파·책장·의자로 가는 분기를 맡는다.
-@evidence principles/core/common.md#substantive-completion 주 통행 띠 X = [-4.90, -4.00]와 테이블 앞쪽 Z = [-1.45, -0.45] m 바닥, 커튼의 창 안쪽 돌출 0.12 m 이내를 정한다.
-@evidence principles/core/common.md#declared-basis 0.90 m 통로 목표는 use-profile에서 받은 설계 입력 조건이며 실제 순폭 판정이 아니라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 거실이 현관과 공용부를 모두 잇는다는 설정을 벽난로 앞면과 테이블 사이의 띠, 문 없는 경계에서 옆으로 이동하는 경로로 만든다.
-@evidence principles/design/spaces.md#space-topology 같은 living-room 내부에서 현관 문과 공용부 개구부를 잇고 책장 뒤를 숨은 통로로 만들지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 공용부 쪽 주방 진입은 common-clear-routes, 창대/손잡이 돌출은 external-opening-interface에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 두 방의 따로 잰 폭을 더하지 않고 하나의 점유체가 모서리를 도는 경로와 열린 문짝/창대·커튼 사이 통과 폭을 검사한다.
-@evidence settings/00-production.md#use-profile 0.90 m 통로 목표를 X = [-4.90, -4.00] 주 통행 띠의 설계 입력 조건으로 적용하고 문 없는 경계에서는 하나의 점유체가 모서리를 도는 경로로 검사한다.
-@evidence settings/10-house.md#living 좌석이 문 접근을 막지 않도록 소파 착석 영역을 통과 경로로 세지 않는다.
-@evidence obligations/design/spaces.md#space-access-circulation 현관↔공용부의 연결을 거실 안의 구체 통행 띠로 배정하고 의자 사용·책장 횡단 중에도 그 띠를 유지한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work use-profile의 0.90 m 통로 목표와 living의 좌석-접근 조건을 벽난로·테이블 사이에 적용했고 X = [-4.90, -4.00] 띠가 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the main passage strip from the entry-side door to the common area opening, the waiting during door swing, and the branches to the two windows, sofa, bookcase, and chair.
+@evidence principles/core/common.md#substantive-completion Sets the main passage strip X = [-4.90, -4.00], the floor in front of the table Z = [-1.45, -0.45] m, and the curtains' inward projection at the windows within 0.12 m.
+@evidence principles/core/common.md#declared-basis States that the 0.90 m passage target is a design input condition received from use-profile, not a judgment of real clear width.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the setting that the living room connects both the entry and the common area into a strip between the fireplace front and the table and a route that shifts sideways at the doorless boundary.
+@evidence principles/design/spaces.md#space-topology Connects the entry door and the common area opening inside the same living-room, and does not make the space behind the bookcase a hidden passage.
+@evidence principles/design/spaces.md#space-boundary-authority The kitchen entry on the common area side comes from common-clear-routes, and the sill/handle projection from external-opening-interface.
+@evidence principles/design/spaces.md#space-verification-address Does not add widths measured separately in the two rooms, and checks the route of one occupancy body turning the corner and the passage width between the open leaf and the sill/curtains.
+@evidence settings/00-production.md#use-profile Applies the 0.90 m passage target as a design input condition to the X = [-4.90, -4.00] main passage strip, and checks at the doorless boundary the route of one occupancy body turning the corner.
+@evidence settings/10-house.md#living Does not count the sofa seating zone as a passage route, so the seating does not block door access.
+@evidence obligations/design/spaces.md#space-access-circulation Assigns the entry↔common area connection as a concrete passage strip inside the living room and keeps that strip during chair use and crossing to the bookcase.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied use-profile's 0.90 m passage target and living's seating-access condition between the fireplace and the table; the X = [-4.90, -4.00] strip holds, so there was no parent revision.
 -->
 
-같은 living-room 내부에서 [현관 쪽 문](#living-plan)과 [공용부 쪽 개구부](common.md#common-room-plan)를 잇는다. 주 통행 띠는 X = [-4.90, -4.00], Z는 방 뒤쪽 안쪽 면부터 -1.45 m까지다. 벽난로 앞면과 테이블 사이에 두고, [좌석이 문·계단 접근을 가로막지 않는다는 거실 조건](../../settings/10-house.md#living)에 따라 소파 착석 영역을 통과 경로로 세지 않는다. 거실 출입문을 90° 연 상태에서 문짝의 전면 쪽 바닥을 따라 왼쪽으로 먼저 들어온 뒤, 테이블 앞쪽의 Z = [-1.45, -0.45] m 바닥에서 주 통행 띠로 꺾는다. 앞쪽 바닥은 문 안쪽 대기와 연속된 같은 room 표면이며 별도 복도가 아니다. 문 회전 중에는 기다리고, 열린 문짝의 두께/손잡이와 전면 창대·커튼 사이 실제 통과 폭을 함께 검사한다.
+Inside the same living-room it connects the [entry-side door](#living-plan) and the [common-area-side opening](common.md#common-room-plan). The main passage strip is X = [-4.90, -4.00], with Z from the room's back inner face to -1.45 m. It lies between the fireplace front and the table, and per [the living room condition that the seating does not block door or stair access](../../settings/10-house.md#living), the sofa seating zone is not counted as a passage route. With the living room door opened 90°, one first comes in to the left along the floor on the front side of the leaf, then turns into the main passage strip at the floor Z = [-1.45, -0.45] m in front of the table. The front floor is the same room surface continuous with the waiting area inside the door, not a separate hall. During door swing one waits, and the real passage width between the thickness/handle of the open leaf and the front sill/curtains is checked together.
 
-뒤쪽에서는 기기를 닫은 [주방 진입](common.md#common-clear-routes)의 냉장고와 섬 사이로 이어진다. 문 없는 경계에서 통로가 옆으로 이동하므로 두 방의 따로 잰 폭만 더하지 않고 하나의 점유체가 모서리를 도는 경로를 검사한다. 옆 창에는 주 통행 띠에서 왼쪽으로, 앞 창에는 테이블 앞 바닥에서 접근한다. 커튼은 각 창 안쪽 돌출 0.12 m 이내로 제한하고 [창대/손잡이](../06-openings.md#external-opening-interface)를 포함한 실제 접근 여유를 읽는다.
+At the back it continues between the refrigerator and island of the [kitchen entry](common.md#common-clear-routes) with appliances closed. The passage shifts sideways at the doorless boundary, so instead of only adding widths measured separately in the two rooms, the route of one occupancy body turning the corner is checked. The side window is approached to the left from the main passage strip, and the front window from the floor in front of the table. The curtains are limited to an inward projection of 0.12 m at each window, and the real access clearance including the [sill/handle](../06-openings.md#external-opening-interface) is read.
 
-소파는 앞쪽 열린 끝에서 좌석 앞으로 들어가고, 책장은 소파 뒤쪽 Z = [-4.65, -3.75] m 바닥을 가로질러 오른쪽으로 접근한다. 독서 의자는 이 횡단 바닥에서 자기 좌석에 닿는다. 의자 발을 둔 상태와 책을 꺼내러 횡단하는 상태는 순차 사용이며, 어느 상태에서도 왼쪽의 현관↔공용부 주 통행 띠는 유지한다. 책장 뒤를 숨은 통로로 만들지 않는다.
+The sofa is entered in front of the seat from its open front end, and the bookcase is approached to the right across the floor Z = [-4.65, -3.75] m behind the sofa. The reading chair reaches its seat from this crossing floor. Having the chair's feet out and crossing to take out a book are sequential uses, and in either state the entry↔common area main passage strip on the left is kept. The space behind the bookcase is not made a hidden passage.
 
-실제 문틀/열린 문짝·손잡이, 벽난로·소파·테이블·러그와 좌석 사용체를 포함해 앞뒤 양방향 이동과 문 조작을 [전체 관찰](../04-observations.md#spatial-observation-derivation)에서 확인한다. [0.90 m 통로 목표](../../settings/00-production.md#use-profile)는 설계 입력에 적용한 조건이며 실제 산출물 순폭 판정이 아니다. 모든 기본 실내 시점과 02/04 질문은 유지하고 실제 통행·충돌·시야는 unverified다.
+Two-way movement front and back and door operation, including the real door frame/open leaf and handle, the fireplace, sofa, table, rug, and the seated user bodies, are confirmed in the [complete observation](../04-observations.md#spatial-observation-derivation). The [0.90 m passage target](../../settings/00-production.md#use-profile) is a condition applied to the design input, not a judgment of the output clear width. All basic interior viewpoints and the 02/04 questions are kept, and the real passage, collisions, and views are unverified.

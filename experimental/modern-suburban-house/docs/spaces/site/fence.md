@@ -1,75 +1,75 @@
-# 정원을 감싸는 목재 울타리
+# Wooden Fence Enclosing the Garden
 
-## 건물 두 끝에 닿는 울타리 선 {#fence-enclosure-plan}
+## Fence Line Reaching Both Ends of the Building {#fence-enclosure-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation garden-fence의 네 중심선 L·R·B·F, 다섯 연속 구간, 꺾임 접합, 양 건물 끝 접점, 숨은 틈 금지와 owner를 맡는다.
-@evidence principles/core/common.md#substantive-completion L을 굴뚝 덮개와 본채의 더 왼쪽 외곽에서 -X로 0.60 m, R을 세로 관리길 오른쪽 끝에서 +X로 0.35 m, B를 뒤 가로 길 바깥 끝에서 -Z로 0.35 m로 정한다.
-@evidence principles/core/common.md#declared-basis 이 값은 울타리 중심선의 내부 배치 선택이며 필지 경계나 법정 이격 거리가 아니라고 밝히고 좌표는 coordinate-units에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 우측 목재 울타리를 관리문과 함께 정원 뒤까지 이어지는 하나의 울타리 선으로 해석한다.
-@evidence principles/design/spaces.md#space-topology 울타리 양 끝이 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿고 건물 외피가 나머지 정원 경계를 이어 앞마당을 횡단하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner가 소유하고 울타리는 별도 바닥을 만들지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야로 폐합을 검사한다.
-@evidence settings/10-house.md#site-identity 우측의 목재 울타리를 기존 관리문에서 정원 뒤까지 다섯 연속 구간으로 잇고 기존 건물 외피와 함께 정원 쪽 경계를 이루어 앞마당을 가로지르지 않게 한다.
-@evidence obligations/design/spaces.md#space-access-circulation 정원의 닫힌 경계를 울타리와 건물 외피로 배정하고 관리문 외의 숨은 통행 틈을 남기지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 우측 목재 울타리와 maps 소유 경계를 대조했고 울타리 선을 건물·관리길에서 도출할 수 있어 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the four centerlines L, R, B, F of garden-fence, the five continuous segments, the turn junctions, the contacts at both building ends, the ban on hidden gaps, and the owner.
+@evidence principles/core/common.md#substantive-completion Sets L 0.60 m in -X from the more leftward outline of the chimney cap and the main block, R 0.35 m in +X from the right end of the longitudinal service walk, and B 0.35 m in -Z from the outer end of the back cross path.
+@evidence principles/core/common.md#declared-basis States that these values are internal placement choices of the fence centerlines, not a parcel boundary or legal setback, and the coordinates come from coordinate-units.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Interprets the right wooden fence of the site setting as one fence line continuing with the service gate to behind the garden.
+@evidence principles/design/spaces.md#space-topology Both ends of the fence reach the main block left wall and the garage right front corner, the building envelope continues the rest of the garden boundary, and the fence does not cross the front yard.
+@evidence principles/design/spaces.md#space-boundary-authority The ground inside the fence is owned by maps and the terrace and service walk by their spaces owners, and the fence makes no separate floor.
+@evidence principles/design/spaces.md#space-verification-address Checks the closure in the whole plan, the contacts with the walls on both sides, and the inside and outside views of every turn.
+@evidence settings/10-house.md#site-identity Continues the wooden fence on the right from the existing service gate to behind the garden in five continuous segments, forming the garden-side boundary together with the existing building envelope without crossing the front yard.
+@evidence obligations/design/spaces.md#space-access-circulation Assigns the closed boundary of the garden to the fence and the building envelope, and leaves no hidden passage gap other than the service gate.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's right wooden fence and the maps-owned boundary; the fence line can be derived from the building and the service walk, so there was no parent revision.
 -->
 
-`garden-fence`는 `house-site`/`ground-storey`의 외부 경계다. [대지와 식재](../../settings/10-house.md#site-identity)의 우측 목재 울타리를 기존 [관리문](side-walk.md#side-gate-interface)과 함께 정원 뒤까지 이어지는 하나의 울타리로 해석한다. 집 안의 방이나 도로 접근 node를 추가하지 않는다. 울타리 내부의 지표는 maps, 기존 테라스·관리길은 각 spaces owner가 소유하며 울타리가 별도 바닥을 생성하지 않는다.
+`garden-fence` is an exterior boundary of `house-site`/`ground-storey`. The wooden fence on the right of [site and planting](../../settings/10-house.md#site-identity) is interpreted as one fence continuing with the existing [service gate](side-walk.md#side-gate-interface) to behind the garden. No room in the house or road access node is added. The ground inside the fence is owned by maps and the existing terrace and service walk by their spaces owners, and the fence generates no separate floor.
 
-좌표는 [공통 world 기준](../../settings/00-production.md#coordinate-units)이다. 앞쪽 평면 F의 Z는 [관리문 개구부 owner](side-walk.md#side-gate-interface)가 소비한 차고 전면 바깥 면과 같고, 왼쪽 선 L은 [굴뚝 덮개](../envelope/left.md#chimney-roof-interface)와 [본채](../00-building.md#main-building-extent)의 더 왼쪽 외곽에서 -X로 0.60 m, 오른쪽 선 R은 [세로 관리길](side-walk.md#side-walk-plan)의 오른쪽 끝에서 +X로 0.35 m, 뒤쪽 선 B는 같은 owner의 뒤 가로 길 바깥 끝에서 -Z로 0.35 m다. 이 값은 울타리 중심선의 내부 배치 선택이며 필지 경계 선언이나 법정 이격 거리가 아니다. maps의 실제 경계가 이 울타리 점유를 수용하는지는 [입력 인계](00-access.md#map-handoff-inputs)에서 확인해야 한다.
+The coordinates are the [common world reference](../../settings/00-production.md#coordinate-units). The Z of the front plane F equals the garage front outer face that the [service gate opening owner](side-walk.md#side-gate-interface) consumed; the left line L is 0.60 m in -X from the more leftward outline of the [chimney cap](../envelope/left.md#chimney-roof-interface) and the [main block](../00-building.md#main-building-extent); the right line R is 0.35 m in +X from the right end of the [longitudinal service walk](side-walk.md#side-walk-plan); and the back line B is 0.35 m in -Z from the outer end of the back cross path of the same owner. These values are internal placement choices of the fence centerlines, not a parcel boundary declaration or a legal setback. Whether the real maps boundary accommodates this fence occupancy must be confirmed in the [input handoff](00-access.md#map-handoff-inputs).
 
-| 연속 구간 | 중심선의 시작과 끝 | 관계 |
+| Continuous segment | Start and end of the centerline | Relation |
 | --- | --- | --- |
-| 왼쪽 앞 닫힘 | (본채 왼쪽 바깥 X, F) → (L, F) | 창과 굴뚝을 뚫지 않는 본채 왼쪽 전면 벽에서 시작한다. 문은 두지 않는다. |
-| 왼쪽 긴 면 | (L, F) → (L, B) | 굴뚝 옆과 집 뒤 정원을 지나간다. |
-| 뒤쪽 긴 면 | (L, B) → (R, B) | 관리길 뒤쪽을 닫는다. |
-| 오른쪽 긴 면 | (R, B) → (R, F) | 관리길 바깥 여유를 따라 전면으로 돌아온다. |
-| 오른쪽 앞 닫힘 | (R, F) → (차고 오른쪽 바깥 X, F) | 아래 관리문 개구부를 제외하고 차고 외벽에 닿는다. |
+| Left front closure | (main block left outer X, F) → (L, F) | Starts at the main block left front wall without piercing windows or the chimney. No gate is placed. |
+| Left long side | (L, F) → (L, B) | Passes beside the chimney and through the garden behind the house. |
+| Back long side | (L, B) → (R, B) | Closes behind the service walk. |
+| Right long side | (R, B) → (R, F) | Returns to the front along the outer clearance of the service walk. |
+| Right front closure | (R, F) → (garage right outer X, F) | Reaches the garage exterior wall, excluding the service gate opening below. |
 
-위 꺾임은 공유 끝점 하나로 접합하며 겹친 모서리 기둥을 두지 않는다. 양 끝은 각각 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿는다. 기존 건물 외피가 정원 쪽 나머지 경계를 이으므로 앞마당 전체를 횡단하는 울타리를 덧붙이지 않는다. 현관·차도에서 정원으로 가는 외부 경로는 기존 관리문이며, 왼쪽 앞 구간 뒤로 사람이 지나갈 숨은 틈을 남기지 않는다. 패널 밑의 시공 간격은 통행 개구부로 세지 않는다.
+The turns above join at one shared end point, and no overlapping corner posts are placed. The two ends reach the main block left wall and the garage right front corner respectively. The existing building envelope continues the rest of the garden-side boundary, so no fence crossing the whole front yard is added. The exterior route from the entry and driveway to the garden is the existing service gate, and no hidden gap through which a person could pass is left behind the left front segment. The construction clearance under the panels is not counted as a passage opening.
 
-완결 울타리의 양면·끝·모서리·문 개구부·기둥 owner는 `src/spaces/site/fence.ts`, 움직이는 문짝·철물 원형 owner는 [옆마당 대문](../../models/02-exterior-doors.md#side-yard-gate)이며 담당은 이 production의 단일 저작자다. 같은 선의 패널·반복 판재·마감은 후속 단계에서도 이 완결 면 책임을 유지한다. 이 문서는 source 예약이며 실제 길이·부재 수·닫힌 경계·필지 포함을 측정한 결과가 아니다. 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야를 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가하고 실제 폐합은 unverified로 둔다.
+The owner of both faces, ends, corners, gate opening, and posts of the complete fence is `src/spaces/site/fence.ts`, and the prototype owner of the moving leaf and hardware is the [side-yard gate](../../models/02-exterior-doors.md#side-yard-gate), with this production's single author in charge. The panels, repeated boards, and finish of the same line keep this complete face responsibility in later stages too. This document is a source reservation, not a result that measured the real length, member count, closed boundary, or parcel containment. The whole plan, the contacts with the walls on both sides, and the inside and outside views of every turn are added to the [complete observation](../04-observations.md#spatial-observation-derivation), and the real closure is kept unverified.
 
-## 오른쪽 앞 면의 관리문 접속 {#fence-gate-junction}
+## Service Gate Connection of the Right Front Side {#fence-gate-junction}
 <!--
-@evidence principles/core/common.md#scope-preservation 관리문 개구부 비우기, 문기둥, 두 짧은 잔여 패널, 양 건물 접점의 끝기둥과 막음 부재, 닫힘/열림 검사를 맡는다.
-@evidence principles/core/common.md#substantive-completion 문기둥 공간 예약 폭 0.12 m를 개구부 안쪽 경계 바깥에 두고 두 문기둥의 안쪽 면을 개구부 양 끝과 일치시킨다.
-@evidence principles/core/common.md#declared-basis 문 평면·회전·문짝 위아래·손잡이 반경·대기·순폭은 side-gate-interface의 값을 그대로 받는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 관리문 owner가 정한 안쪽 면 사이 개구부에 문기둥 폭 0.12 m와 개구부 밖 받침, 양옆 잔여 패널의 닫힘을 더한다.
-@evidence principles/design/spaces.md#space-topology 오른쪽 앞 구간의 잔여 패널이 문기둥 바깥에서 차고 접점/오른쪽 모서리 기둥까지 닫는다.
-@evidence principles/design/spaces.md#space-boundary-authority 끝기둥/기초 중심을 벽 위에 놓지 않고 외벽을 두 번째 기둥으로 두껍게 하지 않으며 창과 굴뚝을 지지체로 쓰지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 닫힌 문에서 패널/문짝 경계의 연속과 열린 문의 앞뒤 통행·대기·회전을 별도로 검사한다.
-@evidence settings/10-house.md#site-identity 우측 목재 울타리가 관리문까지 실제로 닫히게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 "우측의 목재 울타리"를 관리문 개구부에 대조했고 문기둥과 두 잔여 패널로 울타리를 문까지 닫을 수 있어 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on emptying the service gate opening, the gate posts, the two short remaining panels, the end posts and closure members at the contacts with both buildings, and the closed/open checks.
+@evidence principles/core/common.md#substantive-completion Places the 0.12 m spatial reservation width of the gate posts outside the inner boundary of the opening, and matches the inner faces of the two gate posts with both ends of the opening.
+@evidence principles/core/common.md#declared-basis States that the gate plane, rotation, leaf top and bottom, handle radius, waiting areas, and clear width are received as they are from side-gate-interface.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds to the opening between inner faces set by the service gate owner the 0.12 m gate post width, the bearings outside the opening, and the closure of the remaining panels on both sides.
+@evidence principles/design/spaces.md#space-topology The remaining panels of the right front segment close from outside the gate posts to the garage contact/right corner post.
+@evidence principles/design/spaces.md#space-boundary-authority Does not center end posts/foundations on the wall, does not thicken the exterior wall with a second post, and does not use windows or the chimney as supports.
+@evidence principles/design/spaces.md#space-verification-address Checks separately the continuity of the panel/leaf boundary with the gate closed and the front and back passage, waiting areas, and rotation with the gate open.
+@evidence settings/10-house.md#site-identity Makes the wooden fence on the right really close up to the service gate.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's "the wooden fence ... on the right" with the service gate opening; the gate posts and two remaining panels can close the fence up to the gate, so there was no parent revision.
 -->
 
-위 [오른쪽 앞 구간](#fence-enclosure-plan)에서 [side-yard-gate](side-walk.md#side-gate-interface)의 개구부 X 구간을 그대로 비운다. 문 평면·회전 방향·문짝 위아래·손잡이 반경·앞뒤 대기·최종 순폭은 그 owner의 값이며 여기서 재정의하지 않는다. 패널을 연속 생성한 뒤 문짝만 앞에 붙이는 방식은 이 개구부를 만들지 못한다.
+In the [right front segment](#fence-enclosure-plan) above, the opening X interval of [side-yard-gate](side-walk.md#side-gate-interface) is left empty as it is. The gate plane, rotation direction, leaf top and bottom, handle radius, front and back waiting areas, and final clear width are that owner's values and are not redefined here. Generating the panels continuously and then attaching only a leaf in front does not make this opening.
 
-문기둥의 공간 예약 폭은 0.12 m이며 개구부 안쪽 경계 바깥으로 놓는다. 왼쪽 문기둥의 안쪽 면은 개구부 왼쪽 끝, 오른쪽 문기둥의 안쪽 면은 오른쪽 끝과 일치한다. 오른쪽 앞 구간의 두 짧은 잔여 패널은 문기둥 바깥에서 각각 차고 접점/오른쪽 모서리 기둥까지 닫는다. 길이가 짧다는 이유로 잔여 구간을 삭제하지 않고, 기둥이 필요한 구간을 잠식하면 같은 owner에서 접합 부재를 고친다. 문기둥은 관리길 여유에 허용된 예외지만 문 유효폭을 차지할 권한은 없다. 기둥의 지상 받침도 개구부 X 구간 바깥에 두고, 기초가 포장 아래로 들어가는 부분은 완성 보행면 위로 솟지 않아야 한다.
+The spatial reservation width of the gate posts is 0.12 m, placed outside the inner boundary of the opening. The inner face of the left gate post matches the left end of the opening, and the inner face of the right gate post the right end. The two short remaining panels of the right front segment close from outside the gate posts to the garage contact and the right corner post respectively. The remaining segments are not deleted because they are short, and if they encroach on a segment that needs a post, the junction members are corrected in the same owner. The gate posts are an exception allowed in the service walk clearance but have no authority to occupy the gate's effective width. The above-ground bearing of the posts is also placed outside the opening X interval, and where the foundation enters under the paving it must not rise above the finished walking surface.
 
-양 건물 접점은 독립 끝기둥과 얇은 막음 부재로 벽 외피에 닿게 예약한다. 끝기둥/기초는 중심을 벽 위에 놓지 않고 벽 바깥으로 물려 전체 점유가 건물 바깥에 있도록 하며, 그 사이를 막음 부재가 닫는다. 외벽을 두 번째 기둥으로 두껍게 하거나 거친 벽 좌표만 맞춘 뒤 실제 사이딩 돌출과 틈을 남기지 않는다. 오른쪽은 차고 정면문 바깥의 코너이므로 패널·끝기둥을 차도나 차고 문설주 앞으로 연장하지 않는다. 왼쪽은 [측면 창과 굴뚝](../envelope/left.md#left-openings) 앞의 벽 접면이며 창 개구부나 굴뚝을 울타리 지지체로 쓰지 않는다.
+The contacts with both buildings are reserved to reach the wall envelope with an independent end post and a thin closure member. The end posts/foundations are not centered on the wall but set back outside it so their whole occupancy lies outside the building, and the closure member closes the space between them. The exterior wall is not thickened with a second post, and the real siding projection and gaps are not left after matching only the rough wall coordinates. The right is a corner outside the garage front door, so panels and end posts are not extended in front of the driveway or the garage jambs. The left is a wall interface in front of the [side windows and chimney](../envelope/left.md#left-openings), and the window openings or chimney are not used as fence supports.
 
-기준 상태에서 문을 닫아 패널/문짝의 경계가 이어지는지, 문을 열어 [앞뒤 두 구역](side-walk.md#side-gate-interface)의 통행과 대기·회전이 유지되는지 별도로 검사한다. 양 잔여 구간·문기둥·벽 접점의 실제 부재와 접지, 걸쇠 조작·문 회전·바구니 순폭은 unverified다. 목재 판재 폭·반복 간격·연결 철물의 실제 형태는 후속 부재/모듈 저작에서 이 예약을 소비한다.
+In the baseline state, whether the panel/leaf boundary continues with the gate closed, and whether passage, waiting areas, and rotation of the [two front and back zones](side-walk.md#side-gate-interface) hold with the gate open, are checked separately. The real members and grounding of both remaining segments, the gate posts, and the wall contacts, and the latch operation, gate rotation, and basket clear width are unverified. The real form of wooden board width, repetition spacing, and connecting hardware consumes this reservation in later member/module authoring.
 
-## 지표를 받는 높이와 점유 {#fence-ground-profile}
+## Height and Occupancy Receiving the Ground {#fence-ground-profile}
 <!--
-@evidence principles/core/common.md#scope-preservation 패널 상단과 아래끝의 높이 규칙, 문 앞뒤 접촉, 일반 기둥·패널·기초의 평면 점유, 식재와의 관계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 패널 상단을 관리문 문짝 상단과 같은 world 높이로, 아래끝을 g + 0.05 m로 두고 일반 기둥은 0.12 m 정방형, 패널·연결 부재의 두께 점유는 중심선 양쪽 각각 0.05 m 안으로, 받침/기초의 최대 평면 점유는 0.24 m 정방형으로 예약한다.
-@evidence principles/core/common.md#declared-basis g는 maps의 실제 지표 높이로 아직 없으며 일정 높이로 꾸며 넣지 않는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 목재 울타리를 지표를 따라가는 아래끝과 관리길 제외 여유를 침범하지 않는 기초 점유로 만든다.
-@evidence principles/design/spaces.md#space-topology 문 앞뒤의 보행면과 문기둥 접촉을 관리길 상면 S와 맞추고 일반 기초는 포장에 침투하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 문짝 상단은 side-gate-interface, 제외 여유는 side-walk-plan에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 연속 지표 접촉선과 기둥/패널 아래의 그림자를 각 긴 면의 양쪽 시야와 높이가 달라지는 단면에서 검사한다.
-@evidence settings/10-house.md#site-identity 우측 목재 울타리와 관목이 함께 놓여도 관목이 울타리 아래 틈을 가리지 않게 하고 지표 경사는 maps의 선택으로 받아 g로 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 울타리·관목·maps 소유 지표를 대조했고 g를 변수로 둔 높이 규칙으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the height rules of the panel top and bottom end, the contact in front of and behind the gate, the plan occupancy of ordinary posts, panels, and foundations, and the relation with planting.
+@evidence principles/core/common.md#substantive-completion Reserves the panel top at the same world height as the top of the service gate leaf and the bottom end at g + 0.05 m, ordinary posts as 0.12 m squares, the thickness occupancy of panels and connecting members within 0.05 m on each side of the centerline, and the maximum plan occupancy of bearings/foundations as a 0.24 m square.
+@evidence principles/core/common.md#declared-basis States that g is the real ground height from maps, which does not exist yet, and that it is not faked as a constant height.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the wooden fence a bottom end that follows the ground and a foundation occupancy that does not intrude on the service walk exclusion clearance.
+@evidence principles/design/spaces.md#space-topology Matches the walking surfaces in front of and behind the gate and the gate post contacts with the service walk top S, and ordinary foundations do not penetrate the paving.
+@evidence principles/design/spaces.md#space-boundary-authority The leaf top comes from side-gate-interface and the exclusion clearance from side-walk-plan.
+@evidence principles/design/spaces.md#space-verification-address Checks the continuous ground contact line and the shadows under posts/panels in views from both sides of each long side and in sections where the height changes.
+@evidence settings/10-house.md#site-identity Keeps shrubs from hiding the gap under the fence even when the right wooden fence and shrubs sit together, and receives the ground slope as maps's choice, kept as g.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's fence, shrubs, and maps-owned ground; a height rule with g as a variable makes it hold, so there was no parent revision.
 -->
 
-울타리 패널 상단은 [관리문](side-walk.md#side-gate-interface)의 문짝 상단과 같은 world 높이로 예약한다. 울타리 중심선의 실제 maps 지표 높이를 g라 할 때 패널 아래끝은 g + 0.05 m를 따른다. 문 앞뒤의 보행면과 문기둥 접촉은 관리길 상면 S와 맞아야 한다. 지표가 아직 없으므로 g를 일정 높이로 꾸며 넣거나 패널 높이·접지를 완료했다고 보고하지 않는다. 실제 지표가 올라와 패널 상하가 역전되거나 필요한 통행을 막으면 지표/울타리의 해당 owner에서 해결한다.
+The fence panel top is reserved at the same world height as the leaf top of the [service gate](side-walk.md#side-gate-interface). With g as the real maps ground height at the fence centerline, the panel bottom end follows g + 0.05 m. The walking surfaces in front of and behind the gate and the gate post contacts must match the service walk top S. Because the ground does not exist yet, g is not faked as a constant height, and the panel height and grounding are not reported as complete. If the real ground rises so the panel top and bottom invert or needed passage is blocked, it is resolved in the corresponding ground/fence owner.
 
-고정 울타리의 각 직선 구간은 [외피 면 UV 인계](../03-surface-owners.md#exterior-surface-handoff)에 따라 세계 좌표의 수평 접선(X 또는 Z)을 U, Y를 V로 쓴다. 판재와 가로 보·기둥은 자기 물리 끝에서 면을 절단하지만 같은 구간의 나란한 판재는 세계 위상을 유지한다. 구간의 모서리·관리문 개구부·건물 접점에서 이음이 끝난다. 독립 문짝과 철물의 국소 UV는 models owner가 정하며 고정 패널의 좌표를 문짝에 강제하지 않는다.
+Each straight segment of the fixed fence uses, per the [envelope face UV handoff](../03-surface-owners.md#exterior-surface-handoff), the horizontal tangent (X or Z) of world coordinates as U and Y as V. Boards, rails, and posts cut the face at their own physical ends, but parallel boards of the same segment keep the world phase. Seams end at segment corners, the service gate opening, and building contacts. The local UV of the independent leaf and hardware is set by the models owner, and the coordinates of the fixed panels are not forced onto the leaf.
 
-maps 지표를 받기 전의 차단 뷰에서는 패널 아래끝을 임시로 S + 0.05 m에 그린다. 이는 g의 대입이나 울타리 지면 접촉선 결정이 아니다. 해당 패널은 산출물에 `map-ground-pending`으로 표시하고, 실제 g가 들어오면 각 중심선 위치에서 아래끝과 기둥/기초 접점을 다시 산출한다. 임시 수평선으로 경사 지표나 완성 패널 높이를 검증하지 않는다.
+In the blocking view before the maps ground is received, the panel bottom end is drawn temporarily at S + 0.05 m. This is not a substitution for g or a decision of the fence's ground contact line. Those panels are marked `map-ground-pending` in the output, and once the real g arrives, the bottom end and the post/foundation contacts at each centerline position are derived again. The temporary horizontal line does not verify a sloped ground or the finished panel height.
 
-문기둥을 제외한 일반 기둥은 중심선의 기둥 위치에서 평면 0.12 m 정방형, 패널과 연결 부재의 두께 점유는 중심선 양쪽 각각 0.05 m 안으로 예약한다. 받침/기초의 최대 평면 점유는 같은 기둥 위치 중심의 0.24 m 정방형이다. 이는 접합과 관리길의 제외 여유를 확인할 공간 예약이며 기초 깊이·내풍·구조 성능을 정한 값이 아니다. [관리길 바깥 제외 여유](side-walk.md#side-walk-plan)와 이 최대 점유가 겹치지 않아야 한다. 일반 기초는 포장에 침투하지 않고 문기둥만 기존 예외를 소비한다. 건물 끝기둥은 위 [벽 접점](#fence-gate-junction)의 후퇴를 먼저 적용한다.
+Ordinary posts other than the gate posts are reserved as 0.12 m squares in plan at the post positions on the centerline, and the thickness occupancy of panels and connecting members within 0.05 m on each side of the centerline. The maximum plan occupancy of a bearing/foundation is a 0.24 m square centered on the same post position. This is a spatial reservation for confirming junctions and the service walk exclusion clearance, not a value setting foundation depth, wind resistance, or structural performance. This maximum occupancy must not overlap the [outer exclusion clearance of the service walk](side-walk.md#side-walk-plan). Ordinary foundations do not penetrate the paving, and only the gate posts consume the existing exception. The building end posts first apply the setback of the [wall contacts](#fence-gate-junction) above.
 
-관목·나무를 울타리 아래 틈이나 접점 결함을 가리는 용도로 배치하지 않는다. 식재 원형·수관과 울타리의 실제 점유는 후속 배치에서 대조하며 관리문 대기와 회전, 창·처마 앞 시야를 보존한다. 연속 지표 접촉선과 기둥/패널 아래의 그림자는 각 긴 면의 양쪽 시야 및 높이가 달라지는 단면에서 검사한다. 최종 순폭·지표/기초 간섭·모든 표면 census·01의 목재 경계 읽힘은 unverified다.
+Shrubs and trees are not placed to hide gaps under the fence or junction defects. The real occupancy of planting prototypes/canopies and the fence is compared in later placement, preserving the service gate waiting areas and rotation and the views in front of windows and eaves. The continuous ground contact line and the shadows under posts/panels are checked in views from both sides of each long side and in sections where the height changes. The final clear width, ground/foundation interference, the whole surface census, and the wooden boundary readability of 01 are unverified.

@@ -1,69 +1,69 @@
-# 원주
+# Round columns
 
-## 주랑 원주 {#colonnade-column}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.34×h×0.34m 원형은 12°·19° 보 하부 높이에 맞춰 보행 포락보다 좁은 통행 지지재가 되고, `base`·`shaft`·`capital`의 둥근 옆면은 +X 시접의 Y축 원통 UV를 쓴다.
-@evidence settings/00-delivery.md#build-scope 주랑 원형 H2는 plinth·shaft·capital의 형상을 정하고 실제 주랑의 반복 수와 위치는 instances에 넘겨 제작 분담의 prototype 경계를 지킨다.
-@evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비하고 원형은 보행 포락과 방·지붕의 판정된 순치수로 각자 크기를 정한다.
-@evidence principles/core/common.md#scope-preservation 연속 주랑의 원형 석주 하나를 여섯 부재(기단·받침·몸통·목 띠·받침머리·주두 판)와 높이·점유 상자·part·접촉면까지 온전히 정한다.
-@evidence principles/core/common.md#substantive-completion 부재별 치수, 경사별 보 윗면 접선 식에서 유도한 두 전체 높이 h=2.622862867/2.618208538m와 몸통 높이 h−0.38m, 24분할·법선·모서리 12°와 동측 중간 19° 배치 기준이 있어 source가 기둥 형상을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 가장 넓은 폭 0.34m는 rooms/colonnade.md#ring-volume의 0.35m 기둥 예산, 높이는 주랑 보 아랫면과 roofs/assembly의 주랑 처마 값, 양식은 이미지 02·03·05에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주랑 기둥이라는 설정과 0.35m 예산을 여섯 단 분할·몸통의 좁아짐·주두 판 접촉면이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract plinth·base·shaft·capital 네 part와 표면, 기단 바닥과 주두 판 윗면의 가려진 접촉면, 내부 빈 공간 없음을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 기단 바닥면 중심, 기둥 축을 로컬 +Y로 두고 점유 상자 0.34×h×0.34m의 높이를 보 접선 식으로 유도한다.
-@evidence principles/design/models.md#reviewable-structure 정면·측면 실루엣에서 여섯 단 구분과 몸통 좁아짐을 보고 원통 하나·0.35m 초과 기단·주두 없는 몸통을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 매끈한 몸통·목 띠·정방 주두 판을 양식 근거로 삼고 세로 홈·조각·특정 고대 오더 비례는 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 기둥 높이가 보·서까래·지붕 하부와 산술로 이어지고 포락 대비 약 1.38배·기단 약 0.57배의 비교가 있어 축척과 층이 함께 닫힌다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ring-volume의 0.35m 기둥 예산과 roofs/assembly의 주랑 처마 3.20m를 기둥 폭 0.34m·12°/19° 보 접선에서 유도한 두 높이 2.622862867/2.618208538m에 대조했고 예산 안에 들어 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#colonnade 밝은 원형 석주의 연속 주랑이라는 정체성을 원형 석주 prototype으로 받는다.
-@evidence spaces/rooms/colonnade.md#ring-volume 기단·주두 평면 폭 0.35m 예산과 중정 경계 0.175m 안쪽 축선을 기둥 폭 0.34m와 배치 기준점으로 소비한다.
-@evidence spaces/roofs/assembly.md#roof-junctions 합성 날개 지붕의 중정 쪽 하부 높이에서 서까래 깊이를 뺀 보 윗면으로 기둥 전체 높이를 유도한다.
-@evidence settings/50-production.md#references 이미지 02·03·05의 정방 기단·둥근 받침·매끈한 몸통·목 띠·정방 주두 판을 양식 근거로 쓴다.
-@evidenceExclude spaces/ownership.md#interior-dado 적갈색 하부 띠는 주랑·제실 벽 표면의 높이 분할이며 원주는 벽에서 떨어진 독립 부재라 띠와 만나는 모델 표면이 없다.
--->
-
-[연속 주랑](../settings/20-envelope.md#colonnade)의 밝은 원형 석주다. 이미지 02·03·05에서 읽히는 뚜렷한 정방 기단, 둥근 받침, 위로 약간 가늘어지는 매끈한 몸통, 목 띠와 둥근 받침머리, 정방 판으로 된 주두가 양식 근거다. 세로 홈·조각·특정 고대 오더의 비례는 주장하지 않는다. 판정된 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)이 허용한 기단·주두 평면 폭 0.35m 안에 들도록 가장 넓은 부분을 0.34m로 정했다.
-
-로컬 원점은 기단 바닥면의 중심이며 기둥 축은 로컬 +Y다. 부재는 아래부터 기단(정방 0.34×0.34m, 높이 0.08m), 받침(원통 반지름 0.155m, 높이 0.10m), 몸통(원뿔대, 아래 반지름 0.135m에서 위 0.115m), 목 띠(원통 반지름 0.125m, 높이 0.03m), 받침머리(원뿔대 반지름 0.125m→0.155m, 높이 0.10m), 주두 판(정방 0.34×0.34m, 높이 0.07m)이다. 전체 높이 h는 [주랑 목재 보](entablature.md#colonnade-beam)의 경사별 접촉 식으로 얻은 보 윗면에서 보 깊이 0.28m를 뺀 값이다. 12° 외쪽 변은 h=2.902862867−0.28=2.622862867m, 19° 동측 박공 변은 h=2.898208538−0.28=2.618208538m다. 몸통 높이는 각 h에서 0.08+0.10+0.03+0.10+0.07=0.38m를 뺀 2.242862867m와 2.238208538m다. source는 반올림한 화면 표기가 아니라 앞의 접촉 식을 소비한다. 원형 부재는 24분할 다면체이고 몸통과 받침은 부드러운 법선, 기단과 주두 판은 평평한 면 법선을 쓴다. 점유 상자는 `0.34×h×0.34m`다.
-
-부재 대응: `plinth`=기단; `base`=받침; `shaft`=몸통; `capital`=주두.
-
-part와 표면은 `plinth`, `base`, `shaft`, `capital`(목 띠·받침머리·주두 판) 네 개다. 기단이 바닥에 닿고 주두 판 윗면이 보 아랫면을 받는 면이며 두 면은 가려진 접촉면이다. 내부 빈 공간은 없다. materials는 네 표면에 같은 석재를 줄 수도 있고 기단의 마모만 달리할 수도 있다. 배치 기준점은 원점이며 instances가 중정 경계에서 0.175m 안쪽의 축선 위 간격과 수를 정한다. 모서리 원주는 남·북 보 아래의 12° 높이 변형이고 동측 변 중간 원주는 19° 높이 변형이며, 다른 변 중간 원주는 12° 높이 변형이다. 동측 보의 끝면은 남·북 보 옆면에 닿고, 양끝 아랫면의 0.040m 긴 얕은 턱은 이 모서리 주두 판 윗면에도 닿는다. 동측 변 중간의 온전한 보 아랫면은 19° 높이 원주가 받친다.
-
-검토 판의 정면·측면 실루엣에서 기단·받침·몸통·목 띠·받침머리·주두 판의 여섯 단 구분과 몸통의 좁아짐이 읽혀야 한다. 보행 포락과 나란히 둘 때 기둥이 약 1.38배 높고 기단 폭은 포락 폭의 약 0.57배다. 원통 하나로 된 기둥, 0.35m를 넘는 기단, 주두 없이 보에 닿는 몸통은 이 모델의 실패다.
-
-주랑 `base`·`shaft`·`capital`의 둥근 옆면 UV0는 각 단면의 실제 반지름을 쓰는 Y축 원통 전개이며 +X에 시접을 둔다. 정방 `plinth`와 주두 판의 평면은 면 법선별 기본 투영으로 끊는다.
-
-## 포치 원주 {#porch-column}
+## Colonnade column {#colonnade-column}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 포치 기둥의 0.50×3.20×0.50m 점유는 두 받침 축 X=±1.35m와 보 아랫면을 연결하고, 24각 몸통·받침은 Y축 원통 UV, 정방 기단과 판은 평면 UV를 낸다.
-@evidence settings/00-delivery.md#coordinates 포치 원주의 기단 바닥 Y=0, 중심 Z=10.00m와 높이 치수는 오른손 Y-up의 미터 좌표로 해석한다.
-@evidence principles/core/common.md#scope-preservation 정면 포치의 두 원형 기둥을 여섯 부재 치수, 전체 높이 3.20m, 두 번 배치되는 위치 출처까지 정한다.
-@evidence principles/core/common.md#substantive-completion 부재별 반지름·높이와 주두 판 0.46m, 점유 상자 0.50×3.20×0.50m가 있어 source가 기둥 크기를 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 기단 0.50m는 rooms/entrance.md#entrance-volume의 0.5m 정방 예산과 south-outer 10.25, 높이는 포치 보 아랫면, 양식은 이미지 01에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 기둥이라는 설정을 주랑 원주와 같은 가족의 더 굵은 비례·기단 앞면을 south-outer에 맞추는 배치라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract plinth·base·shaft·capital part와 주두 판 윗면의 포치 보 접촉면, 24분할과 주랑 원주와 같은 법선 규칙을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 기단 바닥 중심, 축을 로컬 +Y로 두고 높이를 양측 받침 완성면 Y=0에서 잰다고 적는다.
-@evidence principles/design/models.md#reviewable-structure 주랑 원주와 나란히 두고 몸통 지름 0.36m가 포락 폭의 약 0.6배인지, 주두 판 없는 몸통이 없는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 문짝보다 조금 높은 포치 기둥 비례를 따르며 주랑 원주보다 가는 기둥을 실패로 두어 같은 가족의 큰 부재라는 판단을 반증 가능하게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 기둥 높이와 포치 보 아랫면 3.20m, 기단 앞면과 south-outer의 일치로 축척과 접촉 층이 닫힌다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work entrance-volume의 0.5m 정방 예산과 기둥 중심 Z=10.00, 포치 보 아랫면 3.20m를 이 기둥에 대조했다. 기둥 위치를 옮긴 부모 수리는 포치 보의 받침 조건에서 드러난 것이라 porch-entablature가 보고하고 이 기둥은 그 결과를 소비한다.
-@evidence settings/20-envelope.md#entrance-porch 두 원형 기둥이 받치는 정면 포치라는 정체성을 포치 원주 prototype으로 받는다.
-@evidence spaces/rooms/entrance.md#entrance-volume 0.5m 정방 이내 기단과 기둥 위치 X=±1.35m·Z=10.00m를 기단 폭과 두 배치 위치로 소비한다.
-@evidence spaces/building.md#plan-datums south-outer 10.25를 기단 앞면이 맞출 선으로 소비한다.
-@evidence settings/50-production.md#references 이미지 01의 포치 기둥 비례를 문짝보다 조금 높은 석주로 옮긴다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.34×h×0.34m prototype becomes a passage support narrower than the walking envelope at the 12° and 19° beam underside heights, and the round sides of `base`, `shaft` and `capital` use a Y-axis cylinder UV with its seam at +X.
+@evidence settings/00-delivery.md#build-scope The colonnade prototype H2 sets the shape of plinth, shaft and capital and hands the repeat count and positions of the real colonnade to instances, keeping the prototype boundary of the production split.
+@evidenceExclude settings/10-building.md#scale The 410 to 450 m² outline and side ratio are consumed by the spaces footprint; prototypes size themselves from the walking envelope and the reviewed clear dimensions of rooms and roofs.
+@evidence principles/core/common.md#scope-preservation One round stone column of the continuous colonnade is fully set, down to its six members (plinth, base, shaft, neck band, echinus, capital plate), height, occupancy box, parts and contact faces.
+@evidence principles/core/common.md#substantive-completion Per-member dimensions, the two overall heights h=2.622862867/2.618208538m derived from the per-slope beam top tangent equations, the shaft height h−0.38m, 24 segments, normals, and the corner 12° and east middle 19° placement datums leave the source no column shape to choose again.
+@evidence principles/core/common.md#declared-basis It states that the widest width 0.34m comes from the 0.35m column budget of rooms/colonnade.md#ring-volume, the height from the colonnade beam underside and the colonnade eave value of roofs/assembly, and the style from images 02, 03 and 05.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a colonnade column and the 0.35m budget into the model decisions of a six-tier division, a tapering shaft and a capital plate contact face.
+@evidence principles/design/models.md#representation-contract It sets the four parts plinth, base, shaft and capital with their surfaces, the hidden contact faces at the plinth bottom and the capital plate top, and the absence of an internal void.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the plinth bottom face with the column axis on local +Y, and derives the height of the 0.34×h×0.34m occupancy box from the beam tangent equation.
+@evidence principles/design/models.md#reviewable-structure The front and side silhouettes show the six-tier division and the tapering shaft, and a single cylinder, a plinth over 0.35m, or a shaft without a capital count as failures.
+@evidence principles/design/models.md#model-observable-style-basis The smooth shaft, neck band and square capital plate are the style basis; fluting, carving and the proportions of a specific ancient order are not claimed.
+@evidence principles/design/models.md#model-scale-layer-completion The column height follows arithmetically from the beam, rafter and roof underside, and the comparisons of about 1.38 times the envelope height and about 0.57 times its width for the plinth close scale and layer together.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The 0.35m column budget of ring-volume and the 3.20m colonnade eave of roofs/assembly were compared with the column width 0.34m and the two heights 2.622862867/2.618208538m derived from the 12°/19° beam tangents; they fit the budget, so the parents were not changed.
+@evidence settings/20-envelope.md#colonnade It receives the identity of a continuous colonnade of bright round stone columns as the round stone column prototype.
+@evidence spaces/rooms/colonnade.md#ring-volume It consumes the 0.35m plan width budget for plinth and capital and the axis 0.175m inside the courtyard boundary as the column width 0.34m and the placement datum.
+@evidence spaces/roofs/assembly.md#roof-junctions It derives the overall column height from the beam top, which is the courtyard-side underside height of the composite wing roof minus the rafter depth.
+@evidence settings/50-production.md#references It uses the square plinth, round base, smooth shaft, neck band and square capital plate of images 02, 03 and 05 as the style basis.
+@evidenceExclude spaces/ownership.md#interior-dado The red-brown lower band is a height division of the colonnade and sanctuary wall surfaces, and the round column is an independent member standing away from the wall, so no model surface meets the band.
 -->
 
-[정면 포치](../settings/20-envelope.md#entrance-porch)의 두 원형 기둥이다. 주랑 원주와 같은 구성의 더 크고 굵은 석주이며 이미지 01의 포치 기둥처럼 문짝보다 조금 높은 비례를 가진다. 판정된 [현관](../spaces/rooms/entrance.md#entrance-volume)이 허용한 0.5m 정방 이내 기단의 앞면을 south-outer에 맞추도록 기단을 0.50m로 정했다. 중심 Z=10.00m에서 기단 앞면이 Z=10.25m가 된다.
+This is the bright round stone column of the [continuous colonnade](../settings/20-envelope.md#colonnade). The style basis is what images 02, 03 and 05 show: a distinct square plinth, a round base, a smooth shaft that tapers slightly upward, a neck band with a round echinus, and a capital made of a square plate. Fluting, carving and the proportions of a specific ancient order are not claimed. The widest part is set at 0.34m so that it fits within the 0.35m plan width for plinth and capital allowed by the reviewed [colonnade space](../spaces/rooms/colonnade.md#ring-volume).
 
-로컬 원점은 기단 바닥 중심, 축은 로컬 +Y다. 기단(정방 0.50m, 높이 0.10m), 받침(원통 반지름 0.21m, 높이 0.13m), 몸통(원뿔대 반지름 0.18m→0.155m, 높이 2.71m), 목 띠(반지름 0.165m, 높이 0.04m), 받침머리(원뿔대 0.165m→0.21m, 높이 0.13m), 주두 판(정방 0.46m, 높이 0.09m)으로 전체 높이 3.20m다. 이 높이는 [포치 보](entablature.md#porch-entablature) 아랫면과 같고 기둥이 서는 양측 받침의 완성면 Y=0에서 잰다. 원형 부재는 24분할이며 법선 규칙은 주랑 원주와 같다. 점유 상자는 0.50×3.20×0.50m다.
+The local origin is the centre of the plinth bottom face, and the column axis is local +Y. From the bottom, the members are the plinth (square 0.34×0.34m, height 0.08m), the base (cylinder radius 0.155m, height 0.10m), the shaft (frustum, bottom radius 0.135m to top 0.115m), the neck band (cylinder radius 0.125m, height 0.03m), the echinus (frustum radius 0.125m→0.155m, height 0.10m) and the capital plate (square 0.34×0.34m, height 0.07m). The overall height h is the beam top obtained from the per-slope contact equation of the [colonnade timber beam](entablature.md#colonnade-beam) minus the beam depth 0.28m. The 12° mono-pitch side is h=2.902862867−0.28=2.622862867m, and the 19° east gable side is h=2.898208538−0.28=2.618208538m. The shaft height is each h minus 0.08+0.10+0.03+0.10+0.07=0.38m, giving 2.242862867m and 2.238208538m. The source consumes the preceding contact equations, not the rounded on-screen notation. Round members are 24-segment polyhedra; the shaft and base use smooth normals, and the plinth and capital plate use flat face normals. The occupancy box is `0.34×h×0.34m`.
 
-부재 대응: `plinth`=기단; `base`=받침; `shaft`=몸통; `capital`=주두.
+Part map: `plinth`=plinth; `base`=base; `shaft`=shaft; `capital`=capital.
 
-part와 표면은 `plinth`, `base`, `shaft`, `capital`이다. 주두 판 윗면은 포치 보를 받는 가려진 접촉면이다. 이 모델은 두 번 배치되며 위치는 현관 설계의 X=±1.35m, Z=10.00m를 instances가 소비한다.
+Parts and surfaces are the four `plinth`, `base`, `shaft` and `capital` (neck band, echinus and capital plate). The plinth touches the floor and the capital plate top face takes the beam underside; both faces are hidden contact faces. There is no internal void. materials may give the four surfaces the same stone or vary only the wear of the plinth. The placement datum is the origin, and instances decide the spacing and count on the axis 0.175m inside the courtyard boundary. The corner columns are the 12° height variant under the north and south beams, the column in the middle of the east side is the 19° height variant, and the middle columns of the other sides are the 12° height variant. The end faces of the east beam touch the side faces of the north and south beams, and the 0.040m long shallow rebate of the underside at both ends also touches the top face of these corner capital plates. The intact beam underside in the middle of the east side is carried by the 19° height column.
 
-포치 `base`·`shaft`·`capital`의 둥근 24각 옆면 UV0는 +X에서 시작하는 Y축 원통 호길이 U와 모선 길이 V다. 정방 `plinth`와 주두 판은 각각 바깥 법선의 평면 투영을 쓴다.
+On the review board, the front and side silhouettes must show the six-tier division of plinth, base, shaft, neck band, echinus and capital plate and the taper of the shaft. Beside the walking envelope, the column is about 1.38 times as tall, and the plinth width is about 0.57 times the envelope width. A column made of a single cylinder, a plinth wider than 0.35m, or a shaft that touches the beam without a capital is a failure of this model.
 
-검토 판에서 주랑 원주와 나란히 두어 같은 가족의 더 큰 부재로 읽히는지, 몸통 지름 0.36m가 보행 포락 폭의 약 0.6배인지 본다. 주랑 원주보다 가는 포치 기둥이나 주두 판 없이 보를 받는 몸통은 실패다.
+The UV0 of the round sides of the colonnade `base`, `shaft` and `capital` is a Y-axis cylinder unwrap using the real radius of each section, with its seam at +X. The planes of the square `plinth` and the capital plate are cut by the default per-face-normal projection.
+
+## Porch column {#porch-column}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The 0.50×3.20×0.50m occupancy of the porch column links the two base axes X=±1.35m with the beam underside; the 24-sided shaft and base take a Y-axis cylinder UV and the square plinth and plate a planar UV.
+@evidence settings/00-delivery.md#coordinates The porch column's plinth bottom Y=0, centre Z=10.00m and height dimensions are read as right-handed Y-up metre coordinates.
+@evidence principles/core/common.md#scope-preservation It sets the two round columns of the front porch down to six member dimensions, the overall height 3.20m and the source of the two placement positions.
+@evidence principles/core/common.md#substantive-completion Per-member radii and heights, the 0.46m capital plate and the 0.50×3.20×0.50m occupancy box leave the source no column size to choose again.
+@evidence principles/core/common.md#declared-basis It states that the 0.50m plinth comes from the 0.5m square budget of rooms/entrance.md#entrance-volume and south-outer 10.25, the height from the porch beam underside, and the style from image 01.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a porch column into the model decisions of a thicker proportion from the same family as the colonnade column and a placement that aligns the plinth front face with south-outer.
+@evidence principles/design/models.md#representation-contract It sets the plinth, base, shaft and capital parts, the porch beam contact face on the capital plate top, 24 segments and the same normal rule as the colonnade column.
+@evidence principles/design/models.md#spatial-convention It places the origin at the plinth bottom centre with the axis on local +Y and states that the height is measured from the finished surface Y=0 of the side plinths.
+@evidence principles/design/models.md#reviewable-structure Beside the colonnade column, it checks whether the shaft diameter 0.36m is about 0.6 times the envelope width and that no shaft lacks a capital plate.
+@evidence principles/design/models.md#model-observable-style-basis It follows the porch column proportion of image 01, slightly taller than the door leaf, and makes a column thinner than the colonnade column a failure, so the judgement of a larger member of the same family can be refuted.
+@evidence principles/design/models.md#model-scale-layer-completion The column height equals the porch beam underside 3.20m and the plinth front face equals south-outer, closing scale and the contact layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The 0.5m square budget of entrance-volume, the column centre Z=10.00 and the porch beam underside 3.20m were compared with this column. The parent repair that moved the column arose from the porch beam's support condition, so porch-entablature reports it and this column consumes the result.
+@evidence settings/20-envelope.md#entrance-porch It receives the identity of a front porch carried by two round columns as the porch column prototype.
+@evidence spaces/rooms/entrance.md#entrance-volume It consumes the plinth within a 0.5m square and the column positions X=±1.35m, Z=10.00m as the plinth width and the two placements.
+@evidence spaces/building.md#plan-datums It consumes south-outer 10.25 as the line the plinth front face aligns with.
+@evidence settings/50-production.md#references It carries the porch column proportion of image 01 into a stone column slightly taller than the door leaf.
+-->
+
+These are the two round columns of the [front porch](../settings/20-envelope.md#entrance-porch). They are larger, thicker stone columns with the same composition as the colonnade column, and like the porch columns of image 01 they are slightly taller than the door leaf. The plinth is set at 0.50m so that the front face of a plinth within the 0.5m square allowed by the reviewed [entrance](../spaces/rooms/entrance.md#entrance-volume) lines up with south-outer. At centre Z=10.00m, the plinth front face lies at Z=10.25m.
+
+The local origin is the centre of the plinth bottom, and the axis is local +Y. The plinth (square 0.50m, height 0.10m), base (cylinder radius 0.21m, height 0.13m), shaft (frustum radius 0.18m→0.155m, height 2.71m), neck band (radius 0.165m, height 0.04m), echinus (frustum 0.165m→0.21m, height 0.13m) and capital plate (square 0.46m, height 0.09m) give an overall height of 3.20m. This height equals the underside of the [porch beam](entablature.md#porch-entablature) and is measured from the finished surface Y=0 of the side plinths the columns stand on. Round members have 24 segments, and the normal rule is the same as for the colonnade column. The occupancy box is 0.50×3.20×0.50m.
+
+Part map: `plinth`=plinth; `base`=base; `shaft`=shaft; `capital`=capital.
+
+Parts and surfaces are `plinth`, `base`, `shaft` and `capital`. The capital plate top face is the hidden contact face that takes the porch beam. This model is placed twice, and instances consume the positions X=±1.35m, Z=10.00m of the entrance design.
+
+The UV0 of the round 24-sided sides of the porch `base`, `shaft` and `capital` is the Y-axis cylinder arc length U starting at +X and the generatrix length V. The square `plinth` and the capital plate each use the planar projection of their outward normal.
+
+On the review board, the column stands beside the colonnade column to check that it reads as a larger member of the same family and that the shaft diameter 0.36m is about 0.6 times the walking envelope width. A porch column thinner than the colonnade column, or a shaft that takes the beam without a capital plate, is a failure.

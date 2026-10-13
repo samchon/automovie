@@ -1,20 +1,20 @@
-# 차고의 낮은 전방 지붕
+# Low Front Roof of the Garage
 
-## 패널문 위의 경사면 {#garage-front-roof}
+## Slope Above the Panel Door {#garage-front-roof}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고 지붕 앞 절반의 날씨 면·아래면, 공유 벽 바깥 접합, 닫힌 패널문과 레일을 위한 내부 높이 유지를 맡는다.
-@evidence principles/core/common.md#substantive-completion Gfront를 이 면에 적용하고 앞 처마·뒤 낮은 용마루·오른쪽 차고 박공·왼쪽 공유 벽 바깥 접합의 경계를 정한다.
-@evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 차고 내부 높이는 ground-threshold-datums에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 차고 지붕 경계, garage-front-opening의 문·가이드 예약, 03-surface-owners의 아래면 owner를 받아, 지붕·문·천장 단면에서 처마 아래면과 문 이동 예약을 함께 대조한다.
-@evidence principles/design/spaces.md#space-topology 지붕판이 본채 공유 벽 바깥에서 끝나 머드룸 천장을 관통하지 않고 앞 처마 아래에 닫힌 패널문이 있는 차고 정면이 온다.
-@evidence principles/design/spaces.md#space-boundary-authority 높이는 Gfront에서 받고 패널문 개구부·상부 가이드·수직 레일의 예약은 garage-front-opening에서 받아 이 면 아래와 대조한다.
-@evidence principles/design/spaces.md#space-verification-address 차고 정면, 본채 벽 접합의 앞 끝, 지붕/문/천장 단면을 차고문을 제거하지 않은 상태로 검사하게 한다.
-@evidence settings/10-house.md#garage 낮은 박공 아래에서 닫힌 패널문과 내부 레일 높이를 유지한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "낮은 박공 지붕"과 "차고문은 닫힌 기준 상태"를 앞 면에 대조했고 Gfront 아래에 닫힌 문과 레일 높이가 남아 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the weather face and underside of the front half of the garage roof, the junction outside the shared wall, and keeping the interior height for the closed panel door and rails.
+@evidence principles/core/common.md#substantive-completion Applies Gfront to this face and sets the boundaries of the front eave, the low ridge at the back, the right garage gable, and the junction outside the shared wall on the left.
+@evidence principles/core/common.md#declared-basis The zone comes from roof-mass-allocation, the height from roof-profile-datums, and the garage interior height from ground-threshold-datums.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the garage roof boundary of 00-junctions, the door and guide reservations of garage-front-opening, and the underside owner of 03-surface-owners, and compares the eave underside with the door travel reservation in the roof/door/ceiling section.
+@evidence principles/design/spaces.md#space-topology The roof plate ends outside the main block shared wall without piercing the mudroom ceiling, and under the front eave comes the garage front with the closed panel door.
+@evidence principles/design/spaces.md#space-boundary-authority The height comes from Gfront, and the reservations of the panel door opening, upper guide, and vertical rails come from garage-front-opening to be compared with the space under this face.
+@evidence principles/design/spaces.md#space-verification-address Has the garage front, the front end of the main block wall junction, and the roof/door/ceiling section checked without removing the garage door.
+@evidence settings/10-house.md#garage Keeps the closed panel door and the interior rail height under the low gable.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared garage's "low gable roof" and "The garage door is in a closed baseline state" with the front face; the closed door and rail height remain under Gfront, so there was no parent revision.
 -->
 
-`roof.garage.front`는 [차고 지붕 영역](00-junctions.md#roof-mass-allocation)의 앞 절반이다. [Gfront](00-junctions.md#roof-profile-datums)의 날씨 면과 아래면을 `src/spaces/roof/garage-front.ts`가 소유한다. 앞은 차고 정면 처마, 뒤는 낮은 용마루, 오른쪽은 차고 박공, 왼쪽은 본채 공유 벽 바깥의 지붕 접합이다. 본채 안에 기울어진 지붕판이 남아 머드룸 천장을 관통하지 않는다.
+`roof.garage.front` is the front half of the [garage roof zone](00-junctions.md#roof-mass-allocation). `src/spaces/roof/garage-front.ts` owns the weather face and underside of [Gfront](00-junctions.md#roof-profile-datums). The front is the garage front eave, the back the low ridge, the right the garage gable, and the left the roof junction outside the main block shared wall. No sloped roof plate remains inside the main block to pierce the mudroom ceiling.
 
-닫힌 패널문과 레일을 위한 차고 내부 높이는 [기존 datum](../01-storeys.md#ground-threshold-datums)을 유지한다. 앞 처마 아래 차고 정면 벽의 패널문 개구부와 상부 가이드·수직 레일의 예약은 [닫힌 차고문과 상부 이동 예약](../envelope/front.md#garage-front-opening)에서 받아 이 지붕 아래와 대조한다. 검사 주소는 차고 정면, 본채 벽 접합의 앞 끝과 지붕/문/천장 단면이다. 차고문을 제거한 빈 공간으로 검사하지 않는다. 실제 부재 간섭·머드룸 문 연계·렌더는 unverified다.
+The garage interior height for the closed panel door and rails keeps the [existing datum](../01-storeys.md#ground-threshold-datums). The panel door opening of the garage front wall under the front eave and the reservations of the upper guide and vertical rails are received from the [closed garage door and upper travel reservation](../envelope/front.md#garage-front-opening) and compared with the space under this roof. The inspection addresses are the garage front, the front end of the main block wall junction, and the roof/door/ceiling section. Inspection is not done in an empty space with the garage door removed. The real member interference, mudroom door coordination, and render are unverified.
 
-차고 앞 흰 처마 하부는 본채 공유 벽 바깥 접점의 앞 자유 처마에서 오른쪽 +X로 잰 거리를 U, 그 처마에서 차고 용마루 쪽 −Z로 올라간 실제 경사 거리를 V로 둔다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 차고 전면 처마·오른쪽 박공 사선의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 본채 공유 벽 접합과 차고 용마루에서 면과 UV를 자르고 벽 속에 묻힌 fascia를 노출시키지 않는다.
+The white eave soffit at the garage front sets U as the distance measured right in +X from the free front eave at the contact outside the main block shared wall, and V as the real slope distance rising from that eave in −Z toward the garage ridge. The shingle weather face keeps the [world slope UV](../03-surface-owners.md#exterior-surface-handoff). The fascia of the exposed thickness faces of the garage front eave and right gable rake restarts the 3D length U at the lexicographically smaller (X,Z) end of each free edge and V as the 0.24 m vertical thickness from the weather face to the underside. The face and UV are cut at the main block shared wall junction and the garage ridge, and fascia buried in the wall is not exposed.

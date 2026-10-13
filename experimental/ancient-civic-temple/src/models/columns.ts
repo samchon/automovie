@@ -217,7 +217,7 @@ export class TempleColumns {
     const shaftTop = height - (0.03 + 0.10 + 0.07);
     return model(
       `column.colonnade.${slopeDegrees}`,
-      `주랑 원주 ${slopeDegrees}°`,
+      `Portico column ${slopeDegrees}°`,
       box(0.34, 0, 0.08, 0.34),
       round(0.08, 0.18, 0.155, 0.155),
       round(shaftBottom, shaftTop, 0.135, 0.115),
@@ -245,7 +245,7 @@ export class TempleColumns {
     const shaftTop = shaftBottom + 2.71;
     return model(
       "column.porch",
-      "포치 원주",
+      "Porch column",
       box(0.50, 0, 0.10, 0.50),
       round(0.10, shaftBottom, 0.21, 0.21),
       round(shaftBottom, shaftTop, 0.18, 0.155),

@@ -1,22 +1,22 @@
-# 주 지붕의 전방 경사면
+# Front Slope of the Main Roof
 
-## 전면 박공과 굴뚝을 받는 면 {#main-front-roof}
+## Face Receiving the Front Gable and the Chimney {#main-front-roof}
 <!--
-@evidence principles/core/common.md#scope-preservation 주 지붕 앞 절반에서 박공 우세 영역과 굴뚝 절단을 뺀 한 완결 경사면, 아래면, 자유 외곽 두께와 처마·홈통·지붕재가 소비할 공유 경계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 날씨 면과 아래면을 Mfront와 수직 두께로 정하고 골짜기·용마루에 겹치는 내부 막음판을 남기지 않는다.
-@evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 박공 우세 영역과 굴뚝 절단은 roof-shared-edges에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 박공·굴뚝 절단과 03-surface-owners의 주 지붕 앞 면·아래면 배정을 받아, 단차·왼쪽 사선·전면 처마의 자유 두께를 닫고 골짜기·용마루 내부 막음판은 두지 않는다.
-@evidence principles/design/spaces.md#space-topology 이 면은 왼쪽에서 본채 측면, 뒤에서 주 용마루, 오른쪽에서 낮은 지붕 위의 단차, 앞에서 처마와 박공 합류에 닿고 지붕 아래는 방의 추가 바닥이나 통행 공간이 아니다.
-@evidence principles/design/spaces.md#space-boundary-authority 골짜기 윤곽은 roof-shared-edges의 등고 경계를 소비하고 처마 끝·홈통·반복 지붕재도 그 공유 경계를 별도 좌표로 다시 만들지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 주 용마루에서 전면 처마로 내려오는 단면, 전면 박공 양쪽 골짜기, 굴뚝 옆 절단과 아래면을 검사하게 한다.
-@evidence settings/10-house.md#main-mass 전면 교차 박공 뒤의 주 지붕을 중첩 없는 노출 면으로 유지한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"와 living의 왼쪽 외벽 굴뚝을 앞 면에 대조했고 박공 우세 영역과 굴뚝 절단을 빼는 것으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on one complete slope of the front half of the main roof minus the gable-dominant zone and the chimney cut, its underside, the free edge thickness, and the shared boundaries that the eaves, gutters, and roofing will consume.
+@evidence principles/core/common.md#substantive-completion Sets the weather face and underside by Mfront and the vertical thickness, and leaves no internal closure plates overlapping the valleys and ridge.
+@evidence principles/core/common.md#declared-basis The zone comes from roof-mass-allocation, the heights from roof-profile-datums, and the gable-dominant zone and chimney cut from roof-shared-edges.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the gable and chimney cuts of 00-junctions and the main roof front face and underside assignment of 03-surface-owners, closes the free thickness of the step, the left rake, and the front eave, and keeps no internal closure plates at the valleys and ridge.
+@evidence principles/design/spaces.md#space-topology This face meets the main block side on the left, the main ridge at the back, the step above the low roof on the right, and the eave and gable join at the front, and the space under the roof is not an additional room floor or passage space.
+@evidence principles/design/spaces.md#space-boundary-authority The valley outline consumes the contour boundary of roof-shared-edges, and the eave end, gutters, and repeated roofing do not remake that shared boundary with separate coordinates.
+@evidence principles/design/spaces.md#space-verification-address Has the section descending from the main ridge to the front eave, the valleys on both sides of the front gable, and the cut beside the chimney and the underside checked.
+@evidence settings/10-house.md#main-mass Keeps the main roof behind the front crossing gable as an exposed face without overlap.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared main-mass's "No gap or overlapping roof plate is left at valleys and junctions" and living's chimney on the left exterior wall with the front face; subtracting the gable-dominant zone and the chimney cut makes it hold, so there was no parent revision.
 -->
 
-`roof.main.front`의 owner는 `src/spaces/roof/main-front.ts`다. [주 지붕 영역](00-junctions.md#roof-mass-allocation)의 앞 절반과 자유 돌출을 받고, 날씨 면/아래면은 [Mfront와 수직 두께](00-junctions.md#roof-profile-datums)를 소비한다. 같은 면에서 [전면 박공의 우세 영역과 굴뚝 절단](00-junctions.md#roof-shared-edges)을 제외한다. 왼쪽은 본채 측면, 뒤는 주 용마루, 오른쪽은 낮은 지붕 위의 단차, 앞은 처마와 박공 합류다.
+The owner of `roof.main.front` is `src/spaces/roof/main-front.ts`. It receives the front half and free overhang of the [main roof zone](00-junctions.md#roof-mass-allocation), and its weather face/underside consume [Mfront and the vertical thickness](00-junctions.md#roof-profile-datums). The [gable-dominant zone of the front gable and the chimney cut](00-junctions.md#roof-shared-edges) are excluded from the same face. The left is the main block side, the back the main ridge, the right the step above the low roof, and the front the eave and gable join.
 
-이 owner는 잘린 뒤의 한 완결 경사면과 아래면, 자유 외곽에서 둘을 잇는 두께를 소유한다. 골짜기/용마루에 겹치는 내부 막음판을 남기지 않는다. 처마 끝·홈통과 반복 지붕재는 이 면의 공유 경계를 소비하며 골짜기 윤곽을 별도 좌표로 다시 만들지 않는다. 지붕 아래는 방의 추가 바닥이나 통행 공간이 아니다.
+This owner owns the one complete slope after cutting, its underside, and the thickness joining the two at the free edges. No internal closure plates overlapping the valleys/ridge are left. The eave end, gutters, and repeated roofing consume the shared boundary of this face and do not remake the valley outline with separate coordinates. The space under the roof is not an additional room floor or passage space.
 
-검사 주소는 주 용마루에서 전면 처마로 내려오는 단면, 전면 박공 양쪽 골짜기, [왼쪽 외벽 굴뚝](../../settings/10-house.md#living) 옆 절단과 아래면이다. 실제 source·면 윤곽·접합 부재·재료와 그림자 읽힘은 unverified다.
+The inspection addresses are the section descending from the main ridge to the front eave, the valleys on both sides of the front gable, and the cut beside the [chimney on the left exterior wall](../../settings/10-house.md#living) and the underside. The real source, face outline, junction members, and material and shadow readability are unverified.
 
-이 owner의 흰 처마 하부는 앞 자유 처마의 왼쪽 끝에서 +X를 U, 그 처마에서 주 용마루 쪽 −Z로 올라간 실제 경사 거리를 V의 원점과 축으로 쓴다. 날씨 면의 지붕널은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 흰 fascia는 전면 자유 처마, X=−6.15 m 왼쪽 노출 사선의 굴뚝 절단 앞뒤 두 구간, X=1.60 m 오른쪽 지붕 단차의 노출 끝에 둔다. 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 모서리 길이 U를 시작하고 날씨 면에서 아래면까지의 0.24 m 수직 두께를 V로 잰다. 굴뚝 notch의 세 두께면은 굴뚝 몸통과 닿는 접면이므로 흰 노출 fascia로 세지 않는다. 박공 골짜기·주 용마루·굴뚝 접합에서는 면과 UV를 끝내며 내부 공유 두께면에 흰 판을 새로 만들지 않는다.
+This owner's white eave soffit uses as origin and axes U along +X from the left end of the free front eave and V as the real slope distance rising from that eave in −Z toward the main ridge. The shingles of the weather face keep the [world slope UV](../03-surface-owners.md#exterior-surface-handoff). The white fascia sits at the free front eave, the two segments before and after the chimney cut of the exposed left rake at X=−6.15 m, and the exposed end of the right roof step at X=1.60 m. Each free edge starts the 3D edge length U at its lexicographically smaller (X,Z) end and measures V as the 0.24 m vertical thickness from the weather face to the underside. The three thickness faces of the chimney notch are interfaces touching the chimney shaft and are not counted as white exposed fascia. At the gable valleys, main ridge, and chimney junction, the face and UV end, and no new white plate is made on the internal shared thickness faces.

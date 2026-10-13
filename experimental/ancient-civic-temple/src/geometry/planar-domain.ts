@@ -1,14 +1,14 @@
 /**
- * 지붕 높이장과 공간 cell이 공유하는 XZ 볼록 영역 계산.
- * 건물 치수/표면 소유를 결정하지 않는다. 입력은 유한한 CCW 볼록 다각형,
- * 출력은 원래 입력을 수정하지 않는 새 다각형이다. 높이는 y=ax+bz+c(m).
- * 수치 오차만 1e-9로 다루며 설계 허용 오차나 틈 메우기로 쓰지 않는다.
+ * XZ convex region computation shared by the roof height field and space cells.
+ * It decides no building dimension or surface ownership. Input is a finite CCW convex polygon,
+ * and output is a new polygon that leaves the input unchanged. Height is y=ax+bz+c (m).
+ * Only numeric error is handled, at 1e-9; it is not a design tolerance or a gap filler.
  */
 export interface PlanPoint { x: number; z: number }
 export interface HeightPlane { x: number; z: number; constant: number }
 /**
- * 지붕 상면 조각. tier는 합성 단위(날개 지붕은 서로 합성, 제실·포치는 그
- * 위에 떠 있는 별도 단위)이고 thickness는 상면에서 하부까지의 수직 두께다.
+ * A roof top-face piece. tier is the composition unit (wing roofs compose with each other, while the
+ * sanctuary and porch are separate units floating above them), and thickness is the vertical depth from top to underside.
  */
 export interface RoofPatch {
   id: string;
@@ -23,14 +23,14 @@ export interface PlanRectangle {
   west: number; east: number; north: number; south: number;
 }
 
-/** 수치 소거 한계. 끝선은 이 값만큼 이동시키지 않는다. */
+/** Numeric cancellation limit. End lines are never moved by this amount. */
 const epsilon = 1e-9;
 
-/** XZ에서 CCW인 네 모서리. 역전되거나 면적 없는 범위는 거부한다. */
+/** Four CCW corners in XZ. Reversed or zero-area ranges are refused. */
 export const rectanglePolygon = (r: PlanRectangle): PlanPoint[] => {
   if (![r.west, r.east, r.north, r.south].every(Number.isFinite) ||
       r.west >= r.east || r.north >= r.south) {
-    throw new Error("planar-domain: 유한하고 양의 면적을 가진 사각형이 필요합니다.");
+    throw new Error("planar-domain: a rectangle with finite positive area is required.");
   }
   return [
     { x: r.west, z: r.north }, { x: r.east, z: r.north },
@@ -38,11 +38,11 @@ export const rectanglePolygon = (r: PlanRectangle): PlanPoint[] => {
   ];
 };
 
-/** 유한한 높이장의 한 점 평가. 입력 평면을 변경하지 않는다. */
+/** Evaluates one point of a finite height field. Does not change the input plane. */
 export const planeHeight = (p: HeightPlane, at: PlanPoint): number =>
   p.x * at.x + p.z * at.z + p.constant;
 
-/** a*x+b*z+c >= 0의 닫힌 반평면으로 clip한다. 빈 결과는 빈 배열이다. */
+/** Clips with the closed half-plane a*x+b*z+c >= 0. An empty result is an empty array. */
 export const clipPlan = (
   polygon: readonly PlanPoint[],
   halfPlane: HeightPlane,
@@ -62,14 +62,14 @@ export const clipPlan = (
   return cleanPlan(result);
 };
 
-/** CCW 변의 왼쪽을 내부로 삼는 반평면. 단위화는 필요하지 않다. */
+/** The half-plane whose inside is left of a CCW edge. No normalization is needed. */
 export const edgeInside = (a: PlanPoint, b: PlanPoint): HeightPlane => ({
   x: a.z - b.z,
   z: b.x - a.x,
   constant: (b.z - a.z) * a.x - (b.x - a.x) * a.z,
 });
 
-/** 볼록 cutter와의 교집합 및 서로 겹치지 않는 바깥 조각을 반환한다. */
+/** Returns the intersection with a convex cutter and the non-overlapping outside pieces. */
 export const partitionPlan = (
   subject: readonly PlanPoint[],
   cutter: readonly PlanPoint[],
@@ -88,8 +88,8 @@ export const partitionPlan = (
 };
 
 /**
- * 면으로 내보낼 조각의 정리: 0.1mm 이내 중복점과 일직선 점을 없애고
- * 1mm² 미만 조각은 빈 배열로 돌려준다. 형상 끝선을 옮기지 않는다.
+ * Cleans pieces to emit as faces: removes duplicate points within 0.1mm and collinear points,
+ * and returns an empty array for pieces under 1mm². Shape end lines are not moved.
  */
 export const simplifyPlan = (points: readonly PlanPoint[]): PlanPoint[] => {
   let ring = points.filter((p, i) => {
@@ -119,7 +119,7 @@ export const simplifyPlan = (points: readonly PlanPoint[]): PlanPoint[] => {
   return doubleArea > 2e-6 ? ring : [];
 };
 
-/** 끝점 중복과 면적 0을 제거하며 빈 영역을 삼각형으로 바꾸지 않는다. */
+/** Removes duplicate end points and zero area, and does not turn an empty region into a triangle. */
 const cleanPlan = (points: PlanPoint[]): PlanPoint[] => {
   const result = points.filter((p, i) => {
     const next = points[(i + 1) % points.length]!;

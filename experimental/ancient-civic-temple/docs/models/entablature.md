@@ -1,181 +1,181 @@
-# 보와 지붕 아래 목조
+# Beams and timber under the roof
 
-## 주랑 목재 보 {#colonnade-beam}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 길이 7.69/7.94m·단면 0.28×0.26m인 `timber`는 기둥 주두와 서까래 사이의 지지 치수로 정하고, 노출 긴 면은 부재 시작→+X 길이를 U로 전개한다.
-@evidence principles/core/common.md#scope-preservation 주랑 네 변의 목재 상부 보를 단면·두 길이 변형·윗면 높이·노출면과 접촉면까지 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.26·깊이 0.28m 단면, 남·북 약 7.69m와 동·서 약 7.94m 길이, 서까래 법선 깊이를 연직으로 환산한 12°/19° 두 높이 식과 모서리의 남·북 보 직접 받침·동측 보 끝면 맞댐 및 양끝 0.040m 턱 절삭이 있어 source가 보 지지점을 다시 설계하지 않는다.
-@evidence principles/core/common.md#declared-basis 폭은 ring-volume의 0.35m 기둥 예산, 길이는 building 기준선의 중정 경계와 기둥 축, 높이는 roofs/assembly 주랑 처마 값에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주랑 목재 상부라는 설정을 기둥 축 사이 길이 가족·두 보가 맞대는 모서리 규칙이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract timber part 하나에 기둥 위·서까래 받침·맞댐 끝면의 가려진 접촉면과 중정·주랑 쪽 노출 네 면을 구별한다.
-@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 길이 중심에 두고 길이 로컬 X, 폭 Z, 깊이 +Y로 정한다.
-@evidence principles/design/models.md#reviewable-structure 2.0m 표본의 정면·측면과 건물 안의 기둥 위 공백·주두보다 넓은 보·모서리 겹침을 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 03·05의 원주 위 수평 목재를 곧은 각재로 받고 조각·몰딩은 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 기둥 주두·서까래·지붕 하부와 높이 산술로 이어진 길이 가족이라 축척·계층·접촉 층이 함께 닫힌다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ring-volume의 기둥 예산, plan-datums의 중정 경계, roofs/assembly의 주랑 처마 3.20m를 보 단면과 경사별 윗면 높이에 대조했고 서까래 법선 깊이 0.12m를 경사별 연직 깊이로 바꿔도 기둥이 서서 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#colonnade 원주 위 어두운 목재 상부라는 정체성을 곧은 목재 보 prototype으로 받는다.
-@evidence spaces/rooms/colonnade.md#ring-volume 0.35m 기둥 예산 안의 보 폭 0.26m와 네 변 배치를 소비한다.
-@evidence spaces/building.md#plan-datums 중정 경계에서 0.175m 안쪽 기둥 축 사이 거리를 두 길이 변형의 산술 입력으로 쓴다.
-@evidence spaces/roofs/assembly.md#roof-junctions 중정 쪽 상면 3.20m, 외쪽 경사 12°, 법선 두께 0.18m를 보 윗면의 접촉 높이 식에 소비한다.
-@evidence settings/50-production.md#references 이미지 03·05의 원주 위를 잇는 굵은 목재를 보의 형태 근거로 쓴다.
-@evidenceExclude spaces/junctions.md#wall-junctions 벽 끝 맞닿음 규칙은 벽 실체끼리의 폐쇄를 정하며 두 보가 모서리에서 맞대는 방식은 이 H2의 끝면 규칙이 따로 정하므로 소비하지 않는다.
--->
-
-[연속 주랑](../settings/20-envelope.md#colonnade)의 어두운 목재 상부 보이며 이미지 03·05에서 원주 위를 수평으로 잇는 굵은 목재가 근거다. 기둥 사이를 한 번에 건너는 곧은 각재로 조각·몰딩은 주장하지 않는다. 단면은 폭 0.26m·깊이 0.28m 직사각형이며 폭은 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)의 0.35m 기둥 예산 안이다. 아래 높이 식의 Y=3.20m 지붕 상면 기준은 [지붕 합성](../spaces/roofs/assembly.md#roof-junctions)에서 받는다.
-
-로컬 원점은 보 아랫면의 길이 방향 중심이고 길이는 로컬 X, 폭은 Z, 깊이는 +Y다. 이 모델은 길이와 지붕 경사를 매개변수로 가진 한 가족이며 source는 판정된 기준선에서 두 길이와 두 높이 변형을 만든다. 남·북 보는 중정 경계에서 0.175m 안쪽의 두 모서리 기둥 축 사이에 기둥 주두 판 반폭을 더한 길이(입력 산술상 약 7.69m)이고, 동·서 보는 남·북 보의 옆면 사이를 잇는 길이(약 7.94m)다. 보 중심선은 중정 경계에서 바깥으로 0.175m이고 보 폭 0.26m이므로 중정 쪽 윗모서리는 경계에서 0.175−0.26/2=0.045m 바깥이다. 그 선의 지붕 경사 α에 대해 slab 하부와 법선 깊이 0.12m 서까래의 아랫면은 `Ybeam(α)=3.20+0.045tan(α)−(0.18+0.12)/cos(α)`다. 12° 외쪽 변은 Ybeam=2.902862867m, 19° 동측 박공 변은 Ybeam=2.898208538m다. 각 변에서 이 값을 보 윗면으로 두고 중정 쪽 윗모서리에서 서까래가 접선으로 받치며 안쪽으로 갈수록 두 부재의 실체가 겹치지 않는다. 끝면 맞춤 턱을 제외한 각 보 몸체 아랫면은 그 변의 Ybeam에서 0.28m 낮고 그 높이 변형은 [주랑 원주](columns.md#colonnade-column)가 소비한다. 네 모서리 원주는 12° 높이 변형으로 남·북 보를 직접 받친다. 동·서 보는 남·북 보의 서로 마주 보는 옆면에 끝면을 맞대고, 각 변의 중간 원주만 해당 경사 높이 변형으로 그 아랫면을 받친다. 동측 보 윗면은 남·북 보보다 0.004654329m 낮지만 끝면의 공통 접촉 높이는 0.275345671m로 양수다. 동측 보의 양끝에서 모서리 주두와 겹치는 길이 0.040m·폭 0.26m의 아랫면을 δ=Ybeam(12°)−Ybeam(19°)=0.004654329m만큼 위로 따내어 남·북 보의 12° 모서리 주두 윗면에 정확히 닿게 한다. 중간 원주 위의 아랫면은 따내지 않으며 보의 끝면·주두와 부피가 관통하지 않는다. 서측 보와 남·북 보는 같은 12° 높이에서 끝면이 맞닿는다. 점유 상자는 길이×0.28×0.26m이며 평평한 면 법선을 쓴다.
-
-부재 대응: `timber`=목재.
-
-part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 중 서까래 받침 구간, 두 보가 맞대는 끝면은 가려진 접촉면이며 나머지 네 면이 중정과 주랑 쪽에 노출된다. 내부 빈 공간은 없다. instances가 네 변에 하나씩 배치하고 materials가 어두운 목재를 결속한다.
-
-검토 판에서는 짧은 길이 표본(2.0m)을 정면·측면으로 보고, 건물 안 관찰에서는 기둥 주두 위에 보가 얹혀 지붕이 기둥에서 떠 보이지 않는지를 본다. 기둥 위 공백, 주두보다 넓게 튀어나온 보, 두 보가 모서리에서 겹쳐 뚫린 형상은 실패다.
-
-주랑 `timber`의 노출 긴 면 UV0는 각 보의 시작 끝에서 로컬 +X 길이를 U로 펴고, 보 끝과 모서리마다 이음을 둔다. 12°·19° 높이 변형에서도 이 장축 투영은 바뀌지 않는다.
-
-## 서까래 {#rafter}
+## Colonnade timber beam {#colonnade-beam}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.08×0.12m 서까래의 연속 부재마다 경사 길이 L/cos(α)+0.12tan(α)를 점유로 두고, `timber`의 처마 쪽 절단→용마루 장축을 U로 전개한다.
-@evidenceExclude settings/50-production.md#measurement-truth 모델 치수는 settings 허용 범위와 reviewed spaces에서 저작한 입력이며 과거 source 메시의 좌표 측정을 설계 원본으로 보존하지 않는다.
-@evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 제실 측벽 두께에서 끊는 두 부재와 지붕 하부 식, 만들지 않는 숨은 서까래까지 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 지붕 조각에서 경사를 유도하는 규칙, 연직 절단을 포함한 L/cos(α)+0.12tan(α) 점유 길이와 주랑·동측 뒷벽 목록 및 제실 서·동의 처마 안쪽 절단→측벽 바깥면, 측벽 안쪽면→용마루 절단선이 있어 source가 벽 안의 숨은 겹침을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 주랑 12°는 west·east·north-canopy·south-canopy 지붕에서, 동측 19°는 roofs/assembly의 판정된 동측 박공에서, 제실 22°는 제실 지붕에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 천장과 지붕 하부의 노출 서까래라는 설정을 경사 매개변수 가족·plumb cut·벽 접촉 끝이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract timber part 하나에서 측벽 바깥쪽 꼬리와 내부 서까래를 각각 닫힌 성분으로 두고, 벽 두께 안의 겹친 목재는 만들지 않으며 22° 지붕 하부 식을 따라 slab 아랫면·보 윗면·벽 절단 끝의 가려진 접촉면을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 처마 쪽 아래 모서리 선의 중심, +Z를 경사 오르는 방향, +Y를 서까래 윗면 법선으로 둔다.
-@evidence principles/design/models.md#reviewable-structure 1.0m 표본의 연직 끝면과 건물 안 처마 아래 서까래 끝 간격, 제실 측벽 단면에서 west/east-room~west/east-ring 벽 두께 공백을 보고 slab만 보이는 주랑 천장·뜬 끝·벽 관통을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 03의 주랑 처마 아래 각재 끝과 이미지 04의 제실 서까래를 근거로 하되 서까래 장식이나 결은 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 경사·수평 길이 매개변수와 배치 간격 제안 0.50m, 골 쪽 단축 규칙의 소유를 함께 정해 반복 prototype 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 네 외쪽 지붕의 12°와 판정된 동측 박공 19°를 서까래 경사에 대조했고 서까래 뒷끝이 닿을 spine·제실 남벽·후퇴벽·남측 파라펫이 모두 판정된 지붕 범위 안에 있어 부모를 고치지 않았다. 동측 19° 수정은 용마루 기와 H2가 보고한다.
-@evidence settings/20-envelope.md#ceilings 주랑과 제실의 노출 목재 서까래라는 천장 설정을 서까래 가족으로 받는다.
-@evidence spaces/roofs/assembly.md#roof-junctions 판정된 지붕의 동측 박공 19°와 골선을 서까래 변형의 경사와 단축 기준으로 쓴다.
-@evidence spaces/roofs/west.md#west-roof 서측 외쪽 지붕 12°와 서측 spine 뒷벽을 서쪽 주랑 서까래의 경사와 끝으로 쓴다.
-@evidence spaces/roofs/east.md#east-roof 동측 박공 19°와 동측 spine을 동쪽 주랑 서까래 변형의 경사와 뒷벽으로 쓴다.
-@evidence spaces/roofs/colonnade.md#north-canopy 북쪽 외쪽 지붕 12°와 제실 남벽을 북쪽 주랑 서까래의 경사와 뒷벽으로 쓴다.
-@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 외쪽 지붕 12°와 후퇴벽·남측 파라펫을 남쪽 주랑 서까래의 경사와 뒷벽으로 쓴다.
-@evidence spaces/building.md#plan-datums 제실 측벽의 west/east-room 바깥면과 west/east-ring 안쪽면을 제실 서까래의 두 절단면과 벽 두께 공백으로 소비한다.
-@evidence spaces/roofs/sanctuary.md#sanctuary-roof 제실 5.35m 지지 높이·22° 경사와 동쪽 5.75m 지지선을 처마 6.25m 안쪽 절단 및 지붕 하부 접촉의 부모 입력으로 쓴다.
-@evidence settings/50-production.md#references 이미지 03의 처마 아래 서까래 끝과 이미지 04의 제실 지붕 아래 서까래를 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale The `timber` of length 7.69/7.94m and section 0.28×0.26m is sized as the support between the column capitals and the rafters, and its exposed long faces unwrap the member start→+X length as U.
+@evidence principles/core/common.md#scope-preservation It sets the timber upper beams of the four colonnade sides down to section, two length variants, top height, exposed faces and contact faces.
+@evidence principles/core/common.md#substantive-completion The width 0.26, depth 0.28m section, the lengths of about 7.69m north-south and about 7.94m east-west, the two 12°/19° height formulas converting the rafter normal depth to vertical, the direct carrying of the north and south beams at the corners, the east beam end-face butt and the 0.040m rebate cut at both ends leave the source no beam bearing to redesign.
+@evidence principles/core/common.md#declared-basis It states that the width comes from the 0.35m column budget of ring-volume, the length from the courtyard boundary and column axes of the building datums, and the height from the colonnade eave value of roofs/assembly.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a timber colonnade upper into the model decisions of a length family between column axes and a corner rule in which two beams butt.
+@evidence principles/design/models.md#representation-contract For one timber part it distinguishes the hidden contact faces over the columns, at the rafter seats and at the butting end faces from the four faces exposed to the courtyard and colonnade.
+@evidence principles/design/models.md#spatial-convention It places the origin at the lengthwise centre of the beam underside, with length on local X, width on Z and depth on +Y.
+@evidence principles/design/models.md#reviewable-structure It sets the front and side of a 2.0m sample and, inside the building, gaps above columns, beams wider than the capital and corner overlaps as refuting observations.
+@evidence principles/design/models.md#model-observable-style-basis It takes the horizontal timber over the round columns of images 03 and 05 as a straight squared timber and does not claim carving or moulding.
+@evidence principles/design/models.md#model-scale-layer-completion It is a length family arithmetically tied in height to the column capitals, rafters and roof underside, so scale, hierarchy and the contact layer close together.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The column budget of ring-volume, the courtyard boundary of plan-datums and the colonnade eave 3.20m of roofs/assembly were compared with the beam section and per-slope top heights; even with the rafter normal depth 0.12m converted to per-slope vertical depth the columns still stood, so the parents were not changed.
+@evidence settings/20-envelope.md#colonnade It receives the identity of a dark timber upper over the round columns as a straight timber beam prototype.
+@evidence spaces/rooms/colonnade.md#ring-volume It consumes the beam width 0.26m within the 0.35m column budget and the placement on four sides.
+@evidence spaces/building.md#plan-datums It uses the distance between the column axes 0.175m inside the courtyard boundary as the arithmetic input of the two length variants.
+@evidence spaces/roofs/assembly.md#roof-junctions It consumes the courtyard-side top 3.20m, the mono-pitch slope 12° and the normal thickness 0.18m in the contact height formula of the beam top.
+@evidence settings/50-production.md#references It uses the thick timber spanning over the round columns in images 03 and 05 as the form basis of the beam.
+@evidenceExclude spaces/junctions.md#wall-junctions The wall end butt rule sets the closure between wall solids, and the way two beams butt at a corner is set separately by this H2's end-face rule, so it is not consumed.
 -->
 
-[천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 반복 서까래 끝이다. 이미지 03의 주랑 처마 아래로 규칙적으로 드러나는 각재 끝과 이미지 04의 제실 지붕 아래 서까래가 근거다. 단면은 폭 0.08m·깊이 0.12m이며 지붕 slab 아랫면 바로 밑에서 경사를 따라 놓인다.
+This is the dark timber upper beam of the [continuous colonnade](../settings/20-envelope.md#colonnade), based on the thick timber spanning horizontally over the round columns in images 03 and 05. It is a straight squared timber crossing between columns in one span, and carving or moulding is not claimed. The section has width 0.26m and depth 0.28m, a rectangle, and the width lies within the 0.35m column budget of the [colonnade space](../spaces/rooms/colonnade.md#ring-volume). The Y=3.20m roof top datum of the height formula below comes from the [roof assembly](../spaces/roofs/assembly.md#roof-junctions).
 
-로컬 원점은 처마 쪽 아래 모서리 선의 중심이다. 로컬 +Z가 경사를 따라 오르는 방향, +Y는 서까래 윗면의 법선이다. 모델은 수평 길이와 경사를 매개변수로 가진 가족이며 source는 판정된 지붕에서 변형을 만든다. 주랑 외쪽 지붕 아래 서까래는 12° 경사로 중정 쪽 처마 끝선에서 주랑 뒷벽(서측·동측 spine의 주랑 쪽 면, 제실 남벽, 후퇴벽, 남측 파라펫)까지 이어지고, 동측 박공 아래는 [판정된 지붕](../spaces/roofs/assembly.md#roof-junctions)의 동측 박공과 같은 19° 경사다. 변형의 경사는 해당 지붕 조각의 경사에서 유도하며 이 문서가 따로 고르지 않는다. 주랑·동측 박공의 처마 쪽 끝은 연직으로 잘린 면(plumb cut)이 드러나고 뒷벽 쪽 끝은 벽면에 닿는다. 제실의 22° 변형은 각 경사면에서 바깥 처마 끝 |X|=6.25m에서 지붕 지지선 |X|=5.75m와 측벽 바깥면 |X|=5.90m의 차이 0.15m만큼 안쪽인 |X|=6.10m에서 [제실 측벽](../spaces/building.md#plan-datums)의 west/east-room 바깥면 |X|=5.90m까지의 외부 꼬리와, west/east-ring 안쪽면 |X|=5.60m부터 X=0 용마루 연직면까지의 내부 서까래를 별도 닫힌 각재로 만든다. 각 절단에서 서까래 윗면의 세계 높이는 `Ytop(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)`이고 아랫면은 이 평행면에서 법선 깊이 0.12m 아래다. west/east-room~west/east-ring 벽 두께 0.30m 안에는 목재를 방출하지 않는다. 각 절단면은 벽면에 맞닿는 가려진 면이고 두 부재의 윗면은 모두 slab 하부에 닿는다. 양 내부 서까래의 윗끝은 X=0 면에서 서로 맞닿고 slab 하부를 뚫지 않는다. 제실 변형에는 주랑 뒷벽 끝 규칙을 적용하지 않는다. 널판 천장 위에 숨는 봉헌실·업무방 위 서까래는 이 표현 상한에서 만들지 않는다. 각 연속 부재에서 L은 처마와 뒷벽의 두 연직 절단면이 아랫모서리를 만나는 점 사이의 수평 거리이고, α는 해당 지붕 경사다. 처마 쪽 연직 절단면의 윗모서리가 로컬 +Z로 0.12tan(α) 더 나가므로 로컬 점유 상자는 `0.08×0.12×(L/cos(α)+0.12tan(α))m`다. 제실은 벽 두께를 건너 하나의 상자로 묶지 않고 외부 꼬리와 내부 부재마다 L을 따로 쓴다.
+The local origin is the lengthwise centre of the beam underside; length is local X, width Z and depth +Y. This model is one family with length and roof slope as parameters, and the source makes the two lengths and two height variants from the reviewed datum lines. The north and south beams have the length between the two corner column axes 0.175m inside the courtyard boundary plus half the capital plate width (about 7.69m by input arithmetic), and the east and west beams span between the side faces of the north and south beams (about 7.94m). The beam centreline is 0.175m outward from the courtyard boundary and the beam width is 0.26m, so the courtyard-side top edge is 0.175−0.26/2=0.045m outside the boundary. For the roof slope α of that line, the underside of the slab soffit and the 0.12m normal-depth rafter is `Ybeam(α)=3.20+0.045tan(α)−(0.18+0.12)/cos(α)`. The 12° mono-pitch side is Ybeam=2.902862867m, and the 19° east gable side is Ybeam=2.898208538m. On each side this value is the beam top, the rafter bears tangentially on the courtyard-side top edge, and further inward the solids of the two members do not overlap. Excluding the end-fitting rebates, the underside of each beam body is 0.28m below the Ybeam of its side, and that height variant is consumed by the [colonnade column](columns.md#colonnade-column). The four corner columns, as the 12° height variant, directly carry the north and south beams. The east and west beams butt their end faces against the facing side faces of the north and south beams, and only the middle column of each side carries their underside with the height variant of that slope. The east beam top is 0.004654329m lower than the north and south beams, but the common contact height of the end faces is 0.275345671m, which is positive. At both ends of the east beam, the underside of length 0.040m and width 0.26m that overlaps the corner capitals is cut upward by δ=Ybeam(12°)−Ybeam(19°)=0.004654329m so that it touches the 12° corner capital tops of the north and south beams exactly. The underside over the middle columns is not cut, and the beam's volume does not penetrate the end faces or capitals. The west beam and the north and south beams abut at their end faces at the same 12° height. The occupancy box is length×0.28×0.26m and uses flat face normals.
 
-부재 대응: `timber`=서까래.
+Part map: `timber`=timber.
 
-part와 표면은 `timber` 하나다. 제실 양쪽의 외부 꼬리와 내부 서까래는 같은 표면 ID 아래 각각 닫힌 연결 성분이며, 벽 속 구간을 잇는 가짜 목재는 없다. 윗면은 지붕 slab 아랫면에, 중간 아랫면은 보 윗면에 닿는 가려진 접촉면이다. 배치 간격(주랑 0.50m 중심 간격을 기본 제안으로 둔다)과 모서리 골 쪽에서 짧아지는 길이는 instances가 판정된 골선에서 유도한다.
+Parts and surfaces are the single `timber`. The part of the underside over the columns, the part of the top face where the rafters bear, and the end faces where two beams butt are hidden contact faces, and the remaining four faces are exposed to the courtyard and colonnade. There is no internal void. instances places one on each of the four sides, and materials binds the dark timber.
 
-검토 판에서 1.0m 표본의 끝면이 연직으로 잘렸는지, 건물 안에서는 중정 쪽 처마 아래로 서까래 끝이 일정 간격으로 드러나는지를 본다. 제실 측벽 west/east-room~west/east-ring 단면에서 벽 두께 안에 목재가 없는지도 확인한다. 서까래 없이 slab 아랫면만 보이는 주랑 천장, 처마 끝을 넘어 공중에 뜬 끝, 벽을 뚫고 나가는 뒷끝은 실패다.
+On the review board a short length sample (2.0m) is viewed from the front and side, and observation inside the building checks that the beams rest on the column capitals so that the roof does not appear to float above the columns. An empty gap above a column, a beam projecting wider than the capital, or two beams overlapping at a corner into a pierced shape is a failure.
 
-서까래 `timber`의 UV0는 벽 두께를 건너지 않는 각 닫힌 목재 부재의 처마 끝에서 용마루 쪽 장축으로 U가 증가한다. 연직 절단 끝과 지붕 하부쪽 모서리에서 정점을 끊는다.
+The UV0 of the exposed long faces of the colonnade `timber` unwraps the local +X length from the start end of each beam as U, with seams at the beam ends and at each corner. This long-axis projection does not change in the 12° and 19° height variants either.
 
-## 포치 보와 박공 트림 {#porch-entablature}
+## Rafter {#rafter}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 포치의 석재 `beam`·`cornice`·`raking-trim`은 두 원주와 반환벽 사이의 판정 높이·폭만 점유하고, 목재 장축 예외 없이 세 part의 바깥 면마다 기본 평면 UV를 적용한다.
-@evidence principles/core/common.md#scope-preservation 포치의 석재 보, 수평 코니스, 두 경사 트림을 치수·위치·접촉까지 정하고 기둥→보→삼각 막음→지붕 끝선의 연속 관계를 보인다.
-@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 반환벽·막음과의 접면, 코니스 돌출 0.08m와 지붕 하부 식으로 얻는 두 경사 트림의 공통 X=0 끝을 정해 source가 접촉 기준을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 길이는 두 반환벽 안쪽 면, 앞면 선은 south-outer, 경사는 roofs/porch 22°, 삼각 막음은 facades/south, 기둥 위치는 entrance-volume에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 정면 포치 설정을 보·코니스·경사 트림의 세 part와 막음 앞면에 붙는 트림이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract beam·cornice·raking-trim part와 보 윗면의 막음 받침 접촉면, 두 끝면과 반환벽 안쪽 면의 맞닿음을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 앞 모서리 중심에 두고 south-outer 안쪽 0.30m 범위와 보 아랫면 3.20m~박공 트림 꼭대기 약 4.473m에서 유도한 점유 상자 3.30×약 1.27×0.38m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 정면·측면의 보·코니스·트림 분리와 용마루 만남, 건물 정면의 기둥→보→박공 연속과 트림 위치를 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 두 원주 위 석재 보와 박공 돌 테두리를 근거로 하고 판 하나로 된 박공을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 기둥 3.20m·보·막음·포치 지붕 끝선이 한 연쇄로 이어져 접촉 층과 축척이 함께 닫힌다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 기둥 중심이 Z=9.68일 때 보와 삼각 막음이 정면 가까이에서 기둥 위에 함께 얹힐 수 없었다. 이 보의 받침 조건이 드러낸 결함이라 spaces/rooms/entrance.md#entrance-volume을 먼저 고쳐 기둥 중심을 Z=10.00, 기단 앞면을 south-outer에 두었다(4db31acf).
-@evidence settings/20-envelope.md#entrance-porch 두 기둥 위 작은 박공의 정면 포치를 보·코니스·경사 트림으로 받는다.
-@evidence spaces/rooms/entrance.md#entrance-volume 수리된 기둥 중심 Z=10.00과 기단 앞면 south-outer를 보가 얹힐 받침 위치로 소비한다.
-@evidence spaces/facades/south.md#south-envelope 보 위에 놓이는 삼각 막음의 위치를 트림이 따라 붙는 앞면으로 소비한다.
-@evidence spaces/roofs/porch.md#porch-roof 포치 지붕 22° 경사와 용마루 X=0을 경사 트림의 기울기와 만남점으로 쓴다.
-@evidence spaces/building.md#plan-datums 두 반환벽 안쪽 면과 south-outer를 보 길이 3.30m와 앞면 범위로 쓴다.
-@evidence settings/50-production.md#references 이미지 01의 기둥 위 두꺼운 석재 보와 박공을 두르는 돌 테두리를 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale Each continuous member of the 0.08×0.12m rafter occupies the slope length L/cos(α)+0.12tan(α), and `timber` unwraps the eave-side cut→ridge long axis as U.
+@evidenceExclude settings/50-production.md#measurement-truth Model dimensions are inputs authored from the settings tolerances and reviewed spaces, and coordinate measurements of past source meshes are not kept as the design original.
+@evidence principles/core/common.md#scope-preservation It groups the rafters of the colonnade mono-pitch roof, the east gable and the sanctuary into one family and sets the section, slope derivation, eave-side vertical cut, back-wall end contact, the two members cut at the sanctuary side wall thickness with their roof underside formula, and the hidden rafters that are not made.
+@evidence principles/core/common.md#substantive-completion The width 0.08, depth 0.12m section, the rule deriving the slope from the roof piece, the L/cos(α)+0.12tan(α) occupancy length including the vertical cut, the colonnade and east back-wall list, and the sanctuary west and east cut lines from inside the eave to the side wall outer face and from the side wall inner face to the ridge leave the source no hidden lap inside the wall to choose anew.
+@evidence principles/core/common.md#declared-basis It states that the colonnade 12° comes from the west, east, north-canopy and south-canopy roofs, the east 19° from the reviewed east gable of roofs/assembly, and the sanctuary 22° from the sanctuary roof.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of exposed rafters in the ceilings and roof undersides into the model decisions of a slope-parameter family, plumb cuts and wall contact ends.
+@evidence principles/design/models.md#representation-contract In one timber part it keeps the tail outside the side wall and the inner rafter as separate closed components, makes no lapped timber inside the wall thickness, and sets the hidden contact faces at the slab underside, beam top and wall cut ends along the 22° roof underside formula.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the eave-side lower edge line, with +Z up the slope and +Y along the rafter top normal.
+@evidence principles/design/models.md#reviewable-structure It views the vertical end face of a 1.0m sample, the spacing of rafter ends under the eaves inside the building, and the empty west/east-room~west/east-ring wall thickness in the sanctuary side wall section, and makes a colonnade ceiling showing only slab, floating ends or wall penetration failures.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the squared timber ends under the colonnade eaves of image 03 and the sanctuary rafters of image 04 but does not claim rafter ornament or grain.
+@evidence principles/design/models.md#model-scale-layer-completion It sets the slope and horizontal length parameters, the 0.50m spacing proposal and the ownership of the shortening rule toward valleys together, completing the repeated prototype layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The 12° of the four mono-pitch roofs and the reviewed east gable 19° were compared with the rafter slope, and the spines, sanctuary south wall, setback wall and south parapet that the rafter back ends reach all lie within the reviewed roof extent, so the parents were not changed. The east 19° revision is reported by the ridge tile H2.
+@evidence settings/20-envelope.md#ceilings It receives the ceiling setting of exposed timber rafters in the colonnade and sanctuary as the rafter family.
+@evidence spaces/roofs/assembly.md#roof-junctions It uses the reviewed east gable 19° and the valley lines of the roof as the slope and shortening datum of the rafter variants.
+@evidence spaces/roofs/west.md#west-roof It uses the west mono-pitch roof 12° and the west spine back wall as the slope and end of the west colonnade rafters.
+@evidence spaces/roofs/east.md#east-roof It uses the east gable 19° and the east spine as the slope and back wall of the east colonnade rafter variant.
+@evidence spaces/roofs/colonnade.md#north-canopy It uses the north mono-pitch roof 12° and the sanctuary south wall as the slope and back wall of the north colonnade rafters.
+@evidence spaces/roofs/colonnade.md#south-canopy It uses the south mono-pitch roof 12°, the setback wall and the south parapet as the slope and back wall of the south colonnade rafters.
+@evidence spaces/building.md#plan-datums It consumes the west/east-room outer face and the west/east-ring inner face of the sanctuary side wall as the two cut faces of the sanctuary rafters and the empty wall thickness.
+@evidence spaces/roofs/sanctuary.md#sanctuary-roof It uses the sanctuary support height 5.35m, the 22° slope and the east support line 5.75m as parent inputs of the cut inside the 6.25m eave and the roof underside contact.
+@evidence settings/50-production.md#references It rests on the rafter ends under the eaves of image 03 and the rafters under the sanctuary roof of image 04.
 -->
 
-[정면 포치](../settings/20-envelope.md#entrance-porch)의 수평 보와 작은 삼각 박공의 가장자리 트림이다. 이미지 01에서 두 원주 위에 얹힌 두꺼운 석재 보와 박공을 두르는 돌 테두리가 근거다. 기둥이 보를, 보가 [삼각 막음](../spaces/facades/south.md#south-envelope)을, 막음 위의 [포치 지붕](../spaces/roofs/porch.md#porch-roof)이 트림 선을 따라 끝나는 연속 관계를 보여 준다.
+These are the repeated rafter ends of the [ceilings and roof undersides](../settings/20-envelope.md#ceilings). The basis is the regular squared timber ends exposed under the colonnade eaves in image 03 and the rafters under the sanctuary roof in image 04. The section has width 0.08m and depth 0.12m, and the rafter lies along the slope directly under the roof slab underside.
 
-로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판 **윗면에 면 접촉으로 얹힌다**. 앞은 로컬 +Z이고 보 앞면은 Z=0, 뒷면은 Z=−0.30m다. 보 윗면 Y=3.50m는 삼각 막음 아랫면 Y=3.50m와 같고, X=±1.65m 끝은 두 반환벽 안쪽 면에 닿는다. 수평 코니스는 보 앞 윗모서리를 따라 연직 높이 0.10m·보 앞면에서 +Z로 0.08m 돌출하는 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 **세계 연직 높이** 0.12m·삼각 막음 앞면에서 +Z로 0.08m 돌출하는 띠 두 개다. 지붕 하부와 닿는 윗선은 `Ytop(X)=4.00+1.65tan(22°)−0.18/cos(22°)−|X|tan(22°)`이며 X는 각각 −1.65~0m와 0~+1.65m다. 아랫선은 `Ytop(X)−0.12m`라 두 트림은 X=0의 같은 단면에서 틈이나 중복 없이 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
+The local origin is the centre of the eave-side lower edge line. Local +Z is the direction up the slope, and +Y is the normal of the rafter top face. The model is a family with horizontal length and slope as parameters, and the source makes the variants from the reviewed roof. The rafters under the colonnade mono-pitch roof run at a 12° slope from the courtyard-side eave line and continue to the colonnade back wall (the colonnade-side faces of the west and east spines, the sanctuary south wall, the setback wall and the south parapet), and those under the east gable have the same 19° slope as the east gable of the [reviewed roof](../spaces/roofs/assembly.md#roof-junctions). The slope of a variant is derived from the slope of its roof piece and is not chosen separately by this document. The eave-side ends of the colonnade and east gable rafters show a vertically cut face (plumb cut), and the back-wall end touches the wall face. On each slope, the 22° variant of the sanctuary makes as separate closed timbers an outer tail from the outer eave end |X|=6.25m moved inward by the difference between the roof support line |X|=5.75m and the side wall outer face |X|=5.90m, 0.15m, to |X|=6.10m, running from there to the west/east-room outer face |X|=5.90m of the [sanctuary side wall](../spaces/building.md#plan-datums), and an inner rafter from the west/east-ring inner face |X|=5.60m to the X=0 ridge plane. At each cut, the world height of the rafter top face is `Ytop(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)`, and the underside is 0.12m below this parallel plane along the normal. Within the west/east-room~west/east-ring wall thickness 0.30m no timber is emitted. Each cut face is a hidden face that abuts the wall face, and the top faces of both members touch the slab underside. The top ends of the two inner rafters abut each other at the X=0 plane and do not pierce the slab underside. The colonnade back-wall end rule does not apply to the sanctuary variant. Rafters over the offering room and work rooms, hidden above the boarded ceiling, are not made at this representation ceiling. In each continuous member, L is the horizontal distance between the points where the eave and back-wall vertical cut faces meet the lower edge, and α is the roof slope. The upper edge of the eave-side vertical cut face extends 0.12tan(α) further along local +Z, so the local occupancy box is `0.08×0.12×(L/cos(α)+0.12tan(α))m`. The sanctuary does not bundle members across the wall thickness into one box and uses L separately for each outer tail and inner member.
 
-부재 대응: `beam`=보; `cornice`=코니스; `raking-trim`=경사 트림.
+Part map: `timber`=rafter.
 
-part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 막음 아랫면을 받는 가려진 접촉면이고 보의 두 끝면은 반환벽 안쪽 면과 맞닿는다. 이 모델은 한 번 배치된다.
+Parts and surfaces are the single `timber`. The outer tails and inner rafters on both sides of the sanctuary are each a closed connected component under the same surface ID, and no fake timber spans the stretch inside the wall. The top face is a hidden contact face touching the roof slab underside, and the middle underside one touching the beam top. The placement spacing (a 0.50m centre spacing in the colonnade is the default proposal) and the lengths shortened toward the corner valleys are derived by instances from the reviewed valley lines.
 
-검토 판에서 정면·측면으로 보와 코니스, 두 경사 트림의 분리와 용마루에서의 만남을 본다. 건물 관찰에서는 정면에서 기둥→보→박공이 틈 없이 이어지고 트림이 포치 지붕 끝선 아래에 붙어 있는지를 확인한다. 기둥 위에서 뜬 보, 삼각 막음과 떨어진 트림, 판 하나로 된 박공은 실패다.
+On the review board, the check is whether the end face of a 1.0m sample is cut vertically, and inside the building whether rafter ends show at regular intervals under the courtyard-side eaves. In the sanctuary side wall west/east-room~west/east-ring section, it is also confirmed that there is no timber within the wall thickness. A colonnade ceiling showing only the slab underside without rafters, an end floating in the air beyond the eave end, or a back end that pierces through the wall is a failure.
 
-포치 `beam`·`cornice`·`raking-trim`의 UV0는 석재 평면의 바깥법선별 기본 투영이다. 박공 경사 트림의 잘린 끝과 보·처마 장식의 part 경계에서 이음을 둔다.
+The UV0 of the rafter `timber` increases U along the long axis toward the ridge from the eave end of each closed timber member that does not cross the wall thickness. Vertices are split at the vertical cut ends and at the roof-underside edges.
 
-## 제실 트러스 {#sanctuary-truss}
+## Porch beam and gable trim {#porch-entablature}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 11.20m 평보와 22° 경사재는 제실 벽 안쪽·지붕 하부의 11.20×약 2.62×0.22m 범위에 머물며, `tie-beam`·`principal`·`king-post`·`strut`의 각 장축을 U로 둔다.
-@evidence principles/core/common.md#scope-preservation 제실의 가운데 기둥 목조 트러스를 평보·경사재·가운데 기둥·버팀재 네 부재와 높이·접촉·창과의 여유까지 정한다.
-@evidence principles/core/common.md#substantive-completion 평보 11.20m·0.22×0.28m·아랫면 4.86m, 경사재의 지붕 하부식과 평보 윗면 절삭, 가운데 기둥 V형 머리, 버팀재 발끝 X=±0.09·Y=5.69m와 위끝 X=±2.80m를 확정해 source가 트러스의 구조 끝점을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 길이는 제실 서·동 벽 안쪽 면, 높이는 roofs/sanctuary의 지지 5.35m와 측벽 안쪽 하부 약 5.22m, 창 여유는 openings.md#clerestories의 창틀 윗끝 약 4.46m에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 높은 목재 박공 천장이라는 설정을 네 부재 트러스와 평보가 창 위 약 0.40m에 걸리는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract tie-beam·principal·king-post·strut part와 평보 끝면의 벽 접촉, 경사재 윗면의 slab 접촉을 정하고 트러스 사이 서까래는 서까래 가족에 맡긴다.
-@evidence principles/design/models.md#spatial-convention 원점을 평보 아랫면 중심에 두고 폭 로컬 X, 두께 Z로 정한다.
-@evidence principles/design/models.md#reviewable-structure 정면 삼각 윤곽과 네 부재 분리, 제실 중심·threshold 시점에서 평보가 창과 문 위에 걸리는지와 경사재가 지붕 하부에 닿는지를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 04의 굵은 평보와 경사 부재를 가운데 기둥 트러스로 받고 벽을 뚫는 평보·판 천장을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 지붕 하부·창 높이·벽 간격과 산술로 이어진 치수와 배치 소유 경계가 있어 제실 천장 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work roofs/sanctuary의 지지 5.35m와 용마루 아래 하부 약 7.48m, 측벽 창 윗끝 4.46m를 트러스 높이에 대조했고 평보가 창 위와 지붕 하부 아래 사이에 들어 부모를 고치지 않았다. 지지 높이 수정은 spaces 쪽 코핑 충돌에서 왔고 트러스는 그 결과에 다시 앉혔다.
-@evidence settings/30-interiors.md#sanctuary 제실의 높은 목재 박공 천장을 트러스가 드러나는 천장으로 받는다.
-@evidence settings/20-envelope.md#ceilings 노출 목재 박공 보라는 천장 설정을 평보와 경사재로 받는다.
-@evidence spaces/roofs/sanctuary.md#sanctuary-roof 지지 5.35m와 22° 박공의 하부를 평보 높이와 경사재 윗면의 기준으로 쓴다.
-@evidence spaces/rooms/sanctuary.md#sanctuary-volume 제실 서·동 벽 안쪽 면 사이 11.20m를 평보 길이로 쓴다.
-@evidence spaces/openings.md#clerestories 측벽 창틀 윗끝 약 4.46m를 평보 아랫면 4.86m와의 여유 기준으로 쓴다.
-@evidence spaces/observations.md#geometry-observations 제실 중심→북·남과 threshold 관찰 station을 평보와 창·문의 관계를 볼 건물 시점으로 쓴다.
-@evidence settings/50-production.md#references 이미지 04의 벽 사이 굵은 평보와 경사 부재를 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale The porch stone `beam`, `cornice` and `raking-trim` occupy only the reviewed height and width between the two round columns and the return walls, and the default planar UV applies to each outer face of the three parts with no timber long-axis exception.
+@evidence principles/core/common.md#scope-preservation It sets the porch stone beam, the horizontal cornice and the two raking trims down to dimensions, positions and contact, and shows the continuous relation of column→beam→triangular infill→roof end line.
+@evidence principles/core/common.md#substantive-completion It sets the beam 3.30×0.30×0.30m with underside 3.20m, its faces against the return walls and infill, the cornice projection 0.08m, and the common X=0 end of the two raking trims from the roof underside formula, so the source does not choose the contact datum again.
+@evidence principles/core/common.md#declared-basis It states that the length comes from the inner faces of the two return walls, the front line from south-outer, the slope from roofs/porch 22°, the triangular infill from facades/south and the column positions from entrance-volume.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the front porch setting into the model decisions of three parts, beam, cornice and raking trim, with the trim attached to the infill front face.
+@evidence principles/design/models.md#representation-contract It sets the beam, cornice and raking-trim parts, the infill-bearing contact face on the beam top, and the abutment of the two end faces with the return wall inner faces.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the front edge of the beam underside and records the occupancy box 3.30×about 1.27×0.38m derived from the 0.30m range inside south-outer and from the beam underside 3.20m to the gable trim top of about 4.473m.
+@evidence principles/design/models.md#reviewable-structure It sets the separation of beam, cornice and trims and their junction at the ridge in front and side views, and the column→beam→gable continuity and trim position on the building front, as refuting observations.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the stone beam over the two round columns and the stone border of the gable in image 01 and makes a gable made of a single slab a failure.
+@evidence principles/design/models.md#model-scale-layer-completion The column 3.20m, the beam, the infill and the porch roof end line form one chain, closing the contact layer and scale together.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work With the column centre at Z=9.68, the beam and the triangular infill could not both rest on the columns near the front. This was a defect exposed by the beam's support condition, so spaces/rooms/entrance.md#entrance-volume was fixed first, putting the column centre at Z=10.00 and the plinth front face on south-outer (4db31acf).
+@evidence settings/20-envelope.md#entrance-porch It receives the front porch with a small gable over two columns as beam, cornice and raking trim.
+@evidence spaces/rooms/entrance.md#entrance-volume It consumes the repaired column centre Z=10.00 and the plinth front face on south-outer as the seat position for the beam.
+@evidence spaces/facades/south.md#south-envelope It consumes the position of the triangular infill set on the beam as the front face the trim follows.
+@evidence spaces/roofs/porch.md#porch-roof It uses the porch roof 22° slope and the ridge X=0 as the inclination and junction point of the raking trims.
+@evidence spaces/building.md#plan-datums It uses the inner faces of the two return walls and south-outer as the beam length 3.30m and the front face range.
+@evidence settings/50-production.md#references It rests on the thick stone beam over the columns and the stone border around the gable of image 01.
 -->
 
-[제실](../settings/30-interiors.md#sanctuary)의 높은 목재 박공 천장과 서까래, [천장 설정](../settings/20-envelope.md#ceilings)의 노출 목재 박공 보가 근거이며 이미지 04에서 벽 사이를 가로지르는 굵은 평보와 경사 부재가 보인다. 형식은 가운데 기둥이 있는 단순한 목조 트러스다.
+These are the horizontal beam of the [front porch](../settings/20-envelope.md#entrance-porch) and the edge trim of its small triangular gable. The basis is the thick stone beam resting on the two round columns and the stone border around the gable in image 01. It shows the continuous relation in which the columns take the beam, the beam takes the [triangular infill](../spaces/facades/south.md#south-envelope), and the [porch roof](../spaces/roofs/porch.md#porch-roof) above the infill ends along the trim line.
 
-로컬 원점은 평보 아랫면의 중심이고 폭 방향은 로컬 X, 두께는 Z다. 평보는 길이 11.20m(제실 서·동 벽 안쪽 면 사이), 단면 0.22×0.28m이며 아랫면 Y=4.86m, 윗면 5.14m로 [제실 지붕](../spaces/roofs/sanctuary.md#sanctuary-roof)(지지 5.35m)의 측벽 안쪽 면 위치 하부(약 5.22m)보다 낮게 벽에 걸린다. 두 경사재는 단면 0.18×0.20m로 평보 양끝 X=±5.60m에서 지붕 하부를 따라 X=0의 용마루 아래까지 오른다. 경사재 윗면은 `Yprincipal(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)`이고 아랫면은 `max(Yprincipal−0.20/cos(22°),5.14)`로 절삭한다. 바깥 끝은 X=±5.60m 연직면, 두 용마루 끝은 X=0 연직면에서 서로 맞댄다. 평보 쪽 아랫끝은 평보 윗면 Y=5.14m로 평평하게 절삭하므로 평보를 뚫지 않는다. 가운데 기둥(0.18×0.18m)은 평보 윗면 Y=5.14m에서 서고 머리는 |X|≤0.09m 범위의 두 경사재 아랫면 `Yprincipal(|X|)−0.20/cos(22°)`를 따르는 V형 절삭면이다(중심 높이 약 7.263m). 두 버팀재(0.14×0.14m)의 발끝 중심은 가운데 기둥의 양 측면 X=±0.09m·Y=5.69m이며 반대쪽 끝 중심은 각 경사재의 수평 구간 중간 X=±2.80m에서 그 아랫면 Y≈6.132m에 놓인다. 버팀재 위끝은 경사재 아랫면, 발끝은 가운데 기둥 측면에 따라 절삭해 두 부재 안으로 관통하지 않는다. 점유 상자는 11.20×약 2.62×0.22m다. 측벽 채광구(창틀 윗끝 약 4.46m)는 평보 아래 약 0.40m에 남는다.
+The local origin is the centre of the front edge (facade side) of the beam underside. The beam is a stone block of length 3.30m (between the inner faces of the two return walls), front-to-back width 0.30m and height 0.30m lying within 0.30m inside south-outer, and its underside Y=3.20m sits on the capital plates of the two [porch columns](columns.md#porch-column) **with their top faces in face contact**, and the front is local +Z, with the beam front face at Z=0 and the back face at Z=−0.30m. The beam top Y=3.50m equals the triangular infill underside Y=3.50m, and the ends X=±1.65m touch the inner faces of the two return walls. The horizontal cornice is a band along the front top edge of the beam with vertical height 0.10m, projecting 0.08m in +Z from the beam front face. The raking trims are two bands along the two sloped edges above the triangular infill front face, with **world vertical height** 0.12m, projecting 0.08m in +Z from the infill front face. The top line touching the roof underside is `Ytop(X)=4.00+1.65tan(22°)−0.18/cos(22°)−|X|tan(22°)`, with X of −1.65~0m and 0~+1.65m respectively. The bottom line is `Ytop(X)−0.12m`, so the two trims meet in the same section at X=0 without a gap or duplication. The occupied height runs from the beam underside 3.20m to the trim top of about 4.473m, so the box is 3.30×about 1.27×0.38m.
 
-부재 대응: `tie-beam`=평보; `principal`=경사재; `king-post`=가운데 기둥; `strut`=버팀재.
+Part map: `beam`=beam; `cornice`=cornice; `raking-trim`=raking trim.
 
-part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의 두 끝면은 벽 안에 닿는 가려진 접촉면이고 경사재 윗면은 지붕 slab 아랫면에 닿는다. 트러스 사이의 제실 서까래는 [서까래](#rafter) 가족을 쓴다. 배치 위치와 수(북·남 박공 벽과 창에서 떨어진 제실 안 Z 위치)는 instances가 정한다.
+Parts and surfaces are `beam`, `cornice` and `raking-trim`. The beam top face is a hidden contact face that takes the triangular infill underside, and the two end faces of the beam abut the inner faces of the return walls. This model is placed once.
 
-검토 판에서 정면으로 삼각 윤곽과 부재 네 종의 분리를, 건물 관찰에서 제실 중심→북·남과 threshold 시점에서 평보가 창과 문 위에 걸리는지, 경사재가 지붕 하부와 떨어지지 않는지를 본다. 벽을 뚫는 평보, 지붕 위로 솟는 경사재, 부재 없이 평평한 판 천장은 실패다.
+On the review board, the front and side views show the separation of the beam, cornice and two raking trims and their junction at the ridge. Building observation checks from the front that column→beam→gable continue without a gap and that the trim is attached under the porch roof end line. A beam floating above the columns, a trim separated from the triangular infill, or a gable made of a single slab is a failure.
 
-제실 트러스의 `tie-beam`은 왼쪽 끝에서 오른쪽 끝으로, `principal`은 측벽 발끝에서 용마루로, `king-post`는 평보 윗면에서 머리로, `strut`은 낮은 발끝에서 경사재 접점으로 UV0의 U를 전개한다. 각 목재 접합의 끝면은 새 평면 투영으로 끊는다.
+The UV0 of the porch `beam`, `cornice` and `raking-trim` is the default projection per outward normal of the stone planes. Seams lie at the cut ends of the raking trims and at the part boundaries of the beam and eave ornament.
 
-## 업무방·봉헌실 천장 보 {#ceiling-joist}
+## Sanctuary truss {#sanctuary-truss}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 방의 west/east-inner~room 순폭에서 얻은 4.00×0.18×0.12m 보가 널판 아래에 머물고, 한 `timber`의 −X 끝에서 +X 끝까지 목재 결 U를 둔다.
-@evidenceExclude settings/50-production.md#runtime-boundary CJS producer와 뷰어 전달 경계는 실행 방법이고 prototype의 형상·표면·관절 선택을 정하지 않는다.
-@evidence principles/core/common.md#scope-preservation 봉헌실과 동측 세 방의 낮은 목재 천장 보를 단면·길이·높이와 배치 소유 경계까지 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.12·깊이 0.18m, 길이 4.00m, 윗면 3.10m·아랫면 2.92m가 있어 source가 천장 보를 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 깊이 0.18m와 보 아래 2.92m는 storey.md#ground-storey의 예산, 길이는 기준선 west/east-inner~room, 문 head 2.36m는 openings.md#doors에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 업무방·봉헌실의 낮은 목재 천장이라는 설정을 네 방 공통 4.00m 보와 널판 접촉이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract timber part 하나에 윗면·두 끝면의 가려진 접촉면과 평평한 면 법선을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 보 아랫면의 길이 중심에 두고 점유 상자 4.00×0.18×0.12m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 1.0m 표본과 각 방 중심·모서리 시점에서 보가 널판 아래 규칙적으로 드러나는지, 2.92m 아래로 처지지 않는지를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 05의 널판 천장 아래 어두운 각재를 근거로 하고 장식 보나 결은 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 층 예산·방 순치수·문 head와 이어진 높이와 0.60m 간격 제안의 소유 경계가 있어 낮은 천장 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work storey의 보 깊이 예산 0.18m와 보 아래 2.92m, 네 방 짧은 변 4.00m, 문 head 2.36m를 보에 대조했고 모두 예산 안이라 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#ceilings 업무방과 봉헌실의 낮은 목재 보 천장을 천장 보 prototype으로 받는다.
-@evidence spaces/storey.md#ground-storey 보 깊이 예산 0.18m와 보 아래 유효 높이 2.92m를 보 단면과 높이로 소비한다.
-@evidence spaces/building.md#plan-datums west/east-inner~west/east-room 사이 4.00m를 보 길이로 쓴다.
-@evidence spaces/openings.md#doors 문 head(2.36m 이하)를 보 아랫면이 남겨야 할 높이 기준으로 쓴다.
-@evidence spaces/rooms/offering.md#offering-volume 봉헌실의 낮은 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidence spaces/rooms/administration.md#office-volume 관리실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidence spaces/rooms/records.md#records-volume 기록실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidence spaces/rooms/storage.md#storage-volume 보관실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidence spaces/observations.md#geometry-observations 각 방 중심→네 방위와 모서리 station을 보의 규칙적 노출을 볼 건물 시점으로 쓴다.
-@evidence settings/50-production.md#references 이미지 05의 널판 천장 아래 어두운 각재를 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale The 11.20m tie beam and 22° principals stay within the 11.20×about 2.62×0.22m range inside the sanctuary walls and under the roof, and the long axis of each of `tie-beam`, `principal`, `king-post` and `strut` is U.
+@evidence principles/core/common.md#scope-preservation It sets the sanctuary king-post timber truss down to its four members, tie beam, principal, king post and strut, with heights, contacts and clearance to the windows.
+@evidence principles/core/common.md#substantive-completion It fixes the tie beam 11.20m, 0.22×0.28m with underside 4.86m, the principal roof underside formula and tie beam top cut, the V-shaped king post head, and the strut foot X=±0.09, Y=5.69m and top end X=±2.80m, so the source does not choose the structural end points of the truss again.
+@evidence principles/core/common.md#declared-basis It states that the length comes from the inner faces of the sanctuary west and east walls, the height from the support 5.35m of roofs/sanctuary and the side wall inner underside of about 5.22m, and the window clearance from the frame top of about 4.46m in openings.md#clerestories.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a high timber gable ceiling into the model decisions of a four-member truss with the tie beam hung about 0.40m above the windows.
+@evidence principles/design/models.md#representation-contract It sets the tie-beam, principal, king-post and strut parts, the wall contact of the tie beam end faces and the slab contact of the principal top faces, and leaves the rafters between trusses to the rafter family.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the tie beam underside, with width on local X and thickness on Z.
+@evidence principles/design/models.md#reviewable-structure It views the triangular front outline and the separation of the four members, and from the sanctuary centre and threshold views whether the tie beam spans above the windows and doors and the principals touch the roof underside.
+@evidence principles/design/models.md#model-observable-style-basis It takes the thick tie beam and sloped members of image 04 as a king-post truss and makes a tie beam piercing the wall or a slab ceiling a failure.
+@evidence principles/design/models.md#model-scale-layer-completion Dimensions arithmetically tied to the roof underside, window height and wall spacing, together with a placement ownership boundary, complete the sanctuary ceiling layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The support 5.35m of roofs/sanctuary, the underside of about 7.48m under the ridge and the side wall window top 4.46m were compared with the truss height, and the tie beam fits between the window tops and the roof underside, so the parents were not changed. The support height revision came from a coping clash on the spaces side, and the truss was seated again on its result.
+@evidence settings/30-interiors.md#sanctuary It receives the high timber gable ceiling of the sanctuary as a ceiling that shows the truss.
+@evidence settings/20-envelope.md#ceilings It receives the ceiling setting of exposed timber gable beams as the tie beam and principals.
+@evidence spaces/roofs/sanctuary.md#sanctuary-roof It uses the support 5.35m and the underside of the 22° gable as the datum for the tie beam height and the principal top faces.
+@evidence spaces/rooms/sanctuary.md#sanctuary-volume It uses the 11.20m between the inner faces of the sanctuary west and east walls as the tie beam length.
+@evidence spaces/openings.md#clerestories It uses the side wall window frame top of about 4.46m as the clearance datum against the tie beam underside 4.86m.
+@evidence spaces/observations.md#geometry-observations It uses the sanctuary centre→north and south and threshold observation stations as the building views for the relation between the tie beam and the windows and doors.
+@evidence settings/50-production.md#references It rests on the thick tie beam between the walls and the sloped members of image 04.
 -->
 
-[천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 업무방과 봉헌실 낮은 목재 보다. 이미지 05에서 널판 천장 아래를 가로지르는 어두운 각재가 근거다. 판정된 [층](../spaces/storey.md#ground-storey)의 보 깊이 예산 0.18m와 보 아래 유효 높이 2.92m를 그대로 쓴다.
+The basis is the high timber gable ceiling and rafters of the [sanctuary](../settings/30-interiors.md#sanctuary) and the exposed timber gable beams of the [ceiling setting](../settings/20-envelope.md#ceilings), and image 04 shows a thick tie beam and sloped members crossing between the walls. The form is a simple timber truss with a king post.
 
-로컬 원점은 보 아랫면의 길이 중심이다. 단면은 폭 0.12m·깊이 0.18m, 길이는 방의 짧은 변 순치수 4.00m(봉헌실과 동측 세 방 모두 west/east-inner~west/east-room 사이)다. 윗면 Y=3.10m가 널판 천장 아랫면에 닿고 아랫면은 2.92m다. 점유 상자는 4.00×0.18×0.12m이며 평평한 면 법선을 쓴다.
+The local origin is the centre of the tie beam underside; the width direction is local X and the thickness Z. The tie beam has length 11.20m (between the inner faces of the sanctuary west and east walls), section 0.22×0.28m, underside Y=4.86m and top 5.14m, hanging on the walls lower than the underside (about 5.22m) at the side wall inner face position of the [sanctuary roof](../spaces/roofs/sanctuary.md#sanctuary-roof) (support 5.35m). The two principals have section 0.18×0.20m and rise from both tie beam ends X=±5.60m along the roof underside up to below the ridge at X=0. The principal top face is `Yprincipal(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)`, and the underside is cut to `max(Yprincipal−0.20/cos(22°),5.14)`. The outer ends are vertical planes at X=±5.60m, and the two ridge ends butt against each other at the X=0 vertical plane. The lower end on the tie beam side is cut flat at the tie beam top Y=5.14m, so it does not pierce the tie beam. The king post (0.18×0.18m) stands on the tie beam top Y=5.14m, and its head is a V-shaped cut face following the underside of the two principals `Yprincipal(|X|)−0.20/cos(22°)` within |X|≤0.09m (centre height about 7.263m); the foot centres of the two struts (0.14×0.14m) are on both sides of the king post X=±0.09m, Y=5.69m, and the opposite end centres lie at the middle of each principal's horizontal span X=±2.80m on its underside Y≈6.132m. The strut top end is cut to the principal underside and the foot end to the king post side, so it does not penetrate into the two members. The occupancy box is 11.20×about 2.62×0.22m. The side wall clerestories (frame top about 4.46m) stay about 0.40m below the tie beam.
 
-부재 대응: `timber`=목재 보.
+Part map: `tie-beam`=tie beam; `principal`=principal; `king-post`=king post; `strut`=strut.
 
-part와 표면은 `timber` 하나이고 윗면과 두 끝면은 가려진 접촉면이다. 간격(0.60m 중심 간격을 기본 제안으로 둔다)과 문·벽 가까이의 끝 위치는 instances가 정한다.
+Parts and surfaces are `tie-beam`, `principal`, `king-post` and `strut`. The two end faces of the tie beam are hidden contact faces touching inside the walls, and the principal top faces touch the roof slab underside. The sanctuary rafters between trusses use the [rafter](#rafter) family. instances sets the placement positions and count (Z positions inside the sanctuary away from the north and south gable walls and windows).
 
-천장 보 `timber`의 UV0는 방의 짧은 변을 가로지르는 로컬 −X 끝에서 +X 끝으로 U가 증가한다. 양쪽 절단면과 상단의 수평면은 평면 법선에 맞춰 별도 이음으로 둔다.
+On the review board the front view shows the triangular outline and the separation of the four member kinds, and building observation from the sanctuary centre→north and south and threshold views checks whether the tie beam spans above the windows and doors and whether the principals stay connected to the roof underside. A tie beam that pierces the wall, a principal rising above the roof, or a flat slab ceiling without members is a failure.
 
-검토 판에서 1.0m 표본을, 건물 관찰에서 각 방 중심→네 방위와 모서리 시점에서 보가 널판 아래에 규칙적으로 드러나고 문 head(2.36m 이하)보다 높게 남는지를 본다. 널판에서 떨어진 보, 벽을 뚫는 끝, 2.92m 아래로 처진 보는 실패다.
+In the sanctuary truss, the U of UV0 unwraps `tie-beam` from left end to right end, `principal` from the side wall foot to the ridge, `king-post` from the tie beam top to the head, and `strut` from the low foot to the principal junction. The end faces of each timber joint are split by a new planar projection.
+
+## Work room and offering room ceiling joist {#ceiling-joist}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The 4.00×0.18×0.12m joist taken from the clear width west/east-inner~room of the rooms stays under the boards, and one `timber` carries a timber grain U from its −X end to its +X end.
+@evidenceExclude settings/50-production.md#runtime-boundary The CJS producer and viewer handoff boundary are an execution method and do not choose the shape, surfaces or joints of a prototype.
+@evidence principles/core/common.md#scope-preservation It sets the low timber ceiling joists of the offering room and the three east rooms down to section, length, height and placement ownership boundary.
+@evidence principles/core/common.md#substantive-completion The width 0.12, depth 0.18m, length 4.00m, top 3.10m and underside 2.92m leave the source no ceiling joist to choose again.
+@evidence principles/core/common.md#declared-basis It states that the depth 0.18m and the 2.92m under the joist come from the budget of storey.md#ground-storey, the length from the datum lines west/east-inner~room, and the door head 2.36m from openings.md#doors.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of low timber ceilings in the work rooms and offering room into the model decisions of a 4.00m joist shared by four rooms and its contact with the boards.
+@evidence principles/design/models.md#representation-contract For one timber part it sets the hidden contact faces of the top face and both end faces and flat face normals.
+@evidence principles/design/models.md#spatial-convention It places the origin at the lengthwise centre of the joist underside and records the occupancy box 4.00×0.18×0.12m.
+@evidence principles/design/models.md#reviewable-structure From a 1.0m sample and each room's centre and corner views it checks that the joists show regularly under the boards and do not sag below 2.92m.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the dark squared timbers under the boarded ceiling of image 05 and does not claim ornamental beams or grain.
+@evidence principles/design/models.md#model-scale-layer-completion The height tied to the storey budget, room clear dimensions and door head and the ownership boundary of the 0.60m spacing proposal complete the low ceiling layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The storey joist depth budget 0.18m, the 2.92m under the joist, the 4.00m short side of the four rooms and the door head 2.36m were compared with the joist; all fit within budget, so the parents were not changed.
+@evidence settings/20-envelope.md#ceilings It receives the low timber beam ceilings of the work rooms and offering room as the ceiling joist prototype.
+@evidence spaces/storey.md#ground-storey It consumes the joist depth budget 0.18m and the clear height 2.92m under the joists as the joist section and height.
+@evidence spaces/building.md#plan-datums It uses the 4.00m between west/east-inner~west/east-room as the joist length.
+@evidence spaces/openings.md#doors It uses the door head (2.36m or less) as the height datum that the joist underside must stay above.
+@evidence spaces/rooms/offering.md#offering-volume It consumes the space under the low boarded ceiling of the offering room as a room where the joists lie.
+@evidence spaces/rooms/administration.md#office-volume It consumes the space under the boarded ceiling of the office as a room where the joists lie.
+@evidence spaces/rooms/records.md#records-volume It consumes the space under the boarded ceiling of the records room as a room where the joists lie.
+@evidence spaces/rooms/storage.md#storage-volume It consumes the space under the boarded ceiling of the storage room as a room where the joists lie.
+@evidence spaces/observations.md#geometry-observations It uses each room centre→four directions and the corner stations as building views of the regular joist exposure.
+@evidence settings/50-production.md#references It rests on the dark squared timbers under the boarded ceiling of image 05.
+-->
+
+These are the low timber joists of the work rooms and offering room in the [ceilings and roof undersides](../settings/20-envelope.md#ceilings). The basis is the dark squared timbers crossing under the boarded ceiling in image 05. The joist depth budget 0.18m and the clear height under the joists 2.92m of the reviewed [storey](../spaces/storey.md#ground-storey) are used as they are.
+
+The local origin is the lengthwise centre of the joist underside. The section has width 0.12m and depth 0.18m, and the length is the room's clear short side 4.00m (between west/east-inner~west/east-room for the offering room and all three east rooms). The top face Y=3.10m touches the boarded ceiling underside, and the underside is 2.92m. The occupancy box is 4.00×0.18×0.12m and uses flat face normals.
+
+Part map: `timber`=timber joist.
+
+Parts and surfaces are the single `timber`, and the top face and both end faces are hidden contact faces. instances sets the spacing (a 0.60m centre spacing is the default proposal) and the end positions near doors and walls.
+
+The UV0 of the ceiling joist `timber` increases U from the local −X end to the +X end across the short side of the room. The cut faces at both ends and the top horizontal face have separate seams following their plane normals.
+
+On the review board a 1.0m sample is viewed, and building observation checks from each room centre toward the four directions and from the corner views that the joists show regularly under the boards and stay higher than the door head (2.36m or less). A joist detached from the boards, an end that pierces the wall, or a joist sagging below 2.92m is a failure.

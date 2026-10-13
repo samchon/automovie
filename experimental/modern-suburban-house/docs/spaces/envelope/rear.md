@@ -1,113 +1,113 @@
-# 후면 처마와 정원 쪽 외벽
+# Rear Eaves and the Garden-Side Exterior Walls
 
-## 두 본채 지붕과 차고 아래의 후면 {#rear-roof-closures}
+## Rear Under the Two Main Block Roofs and the Garage {#rear-roof-closures}
 <!--
-@evidence principles/core/common.md#scope-preservation 본채 후벽의 두 지붕 단차 상단, 차고 후벽, 두 후벽 사이의 노출 측면 배정과 공용부·주침실·옷방 바인딩을 맡는다.
-@evidence principles/core/common.md#substantive-completion 본채 후벽을 주/낮은 뒤 지붕 아래면까지, 차고 후벽을 Gback 아래면까지 닫고 X 분할면의 단차 벽은 오른쪽 입면에 맡기는 폐합을 정한다.
-@evidence principles/core/common.md#declared-basis 후벽 평면은 main-building-extent와 attached-garage-extent, 아래면은 roof-profile-datums, 몸체 배정은 exterior-boundary-junctions에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass·roof-wall-head-junctions의 높이 접촉과 common-room·primary·wardrobe의 후벽 방 바인딩을 받아, 서로 다른 Z에 선 본채/차고 후벽을 한 평면으로 덮지 않고 두 뒤 모서리를 따로 검사한다.
-@evidence principles/design/spaces.md#space-topology 본채 후면 아래는 연속 공용부, 위는 주침실과 별도 옷방에 바인딩되고 본채와 차고 후벽은 서로 다른 Z의 두 평면이다.
-@evidence principles/design/spaces.md#space-boundary-authority +X 단차 벽은 오른쪽 입면 owner, 뒤 처마 돌출은 지붕 owner가 소유하고 두 후벽 사이의 노출 측면은 오른쪽 입면 owner와 같은 모서리를 소비하며 이 H2는 같은 모서리에 두 번째 벽을 겹치지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 후면 전체, 본채와 차고의 두 뒤 모서리, 양쪽 처마 아래, 본채 단차의 후방 끝을 반증 주소로 둔다.
-@evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕이 만드는 높이 차를 후벽 상단에서 닫는다.
-@evidence settings/10-house.md#garage 차고의 낮은 박공 지붕 아래 후벽을 본채 후벽과 별도 평면으로 닫는다.
-@evidence settings/20-verification.md#visual-grammar 본채·차고 후벽의 노출 마감은 Y = 0.60 m에서 벽돌 기단과 백색 사이딩으로 갈리고 정원문은 두 구역을 관통해 빈다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 두 지붕 높이 관계와 garage의 낮은 박공·깊이 6.0–6.6 m를 후면 폐합에 대조했고 두 후벽이 서로 다른 Z에서 닫혀 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the two-roof step top of the main block rear wall, the garage rear wall, the assignment of the exposed side between the two rear walls, and the common area, primary bedroom, and wardrobe bindings.
+@evidence principles/core/common.md#substantive-completion Sets the closure that closes the main block rear wall up to the undersides of the main/low back roofs and the garage rear wall up to the underside of Gback, leaving the step wall at the X division plane to the right elevation.
+@evidence principles/core/common.md#declared-basis The rear wall planes come from main-building-extent and attached-garage-extent, the undersides from roof-profile-datums, and the body assignment from exterior-boundary-junctions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the height contacts of main-mass and roof-wall-head-junctions and the rear wall room bindings of common-room, primary, and wardrobe, and checks the two back corners separately without covering the main block/garage rear walls standing at different Z with one plane.
+@evidence principles/design/spaces.md#space-topology The lower part of the main block rear is bound to the continuous common area and the upper part to the primary bedroom and the separate wardrobe, and the main block and garage rear walls are two planes at different Z.
+@evidence principles/design/spaces.md#space-boundary-authority The +X step wall is owned by the right elevation owner and the back eave projection by the roof owner, the exposed side between the two rear walls consumes the same corner as the right elevation owner, and this H2 does not overlay a second wall on the same corner.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting addresses the whole rear, the two back corners of the main block and garage, under the eaves on both sides, and the back end of the main block step.
+@evidence settings/10-house.md#main-mass Closes at the rear wall top the height difference that the lower roof at the right end of the main block makes.
+@evidence settings/10-house.md#garage Closes the rear wall under the garage's low gable roof as a plane separate from the main block rear wall.
+@evidence settings/20-verification.md#visual-grammar The exposed finish of the main block and garage rear walls divides at Y = 0.60 m into a brick base and white siding, and the garden door passes through both zones as a void.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared the height relation of the two roofs of main-mass and the low gable and 6.0–6.6 m depth of garage with the rear closure; the two rear walls close at different Z, so there was no parent revision.
 -->
 
-`src/spaces/envelope/rear.ts`가 본채와 차고의 후면 완결 입면을 소유한다. [본채 후벽](../00-building.md#main-building-extent)은 기존 외벽 두께 안에서 [주/낮은 뒤 지붕 아래면](../roof/00-junctions.md#roof-profile-datums)까지 닫힌다. 두 지붕은 X 분할면에서 높이가 다르므로 후면 벽 상단도 그 단차를 소비한다. 그곳의 +X 방향 단차 벽은 [오른쪽 입면](right.md#right-roof-closures) 소유이고 후면 owner는 같은 모서리에 두 번째 벽을 겹치지 않는다. 전면 교차 박공의 삼각 벽을 후면에 복제하지 않는다.
+`src/spaces/envelope/rear.ts` owns the rear complete elevation of the main block and garage. The [main block rear wall](../00-building.md#main-building-extent) closes inside the existing exterior wall thickness up to the [undersides of the main/low back roofs](../roof/00-junctions.md#roof-profile-datums). The two roofs differ in height at the X division plane, so the rear wall top also consumes that step. The +X step wall there is owned by the [right elevation](right.md#right-roof-closures), and the rear owner does not overlay a second wall on the same corner. The triangle wall of the front crossing gable is not copied onto the rear.
 
-[시각 문법](../../settings/20-verification.md#visual-grammar)과 [전면에서 정한 공통 경계](front.md#front-roof-closures)에 따라 두 후벽의 노출 외장재는 Y = 0.60 m 아래 적갈색 벽돌 기단, 위 따뜻한 백색 수평 사이딩으로 만난다. 가장 낮은 가족실 창턱 Y = 0.75 m보다 0.15 m 낮은 경계다. 정원문은 양쪽 마감을 가로지르는 같은 원래 개구부이며 마감 벽체가 그 폭을 덮지 않는다. 차고 후벽도 별도 Z 평면에서 같은 높이로 잇되 본채 후벽과 사이의 노출 측면은 [오른쪽 입면](right.md#right-roof-closures)이 잇는다. 마감 경계는 [미해결 지반·구조 기초](../10-ground-floor.md#ground-support-handoff)의 깊이를 정하지 않는다.
+Per the [visual grammar](../../settings/20-verification.md#visual-grammar) and the [common boundary set on the front](front.md#front-roof-closures), the exposed cladding of the two rear walls meets as a red-brown brick base below Y = 0.60 m and warm white horizontal siding above. It is a boundary 0.15 m lower than the lowest family room window sill Y = 0.75 m. The garden door is the same original opening crossing both finishes, and the finish wall does not cover its width. The garage rear wall continues at the same height on a separate Z plane, while the exposed side between it and the main block rear wall is continued by the [right elevation](right.md#right-roof-closures). The finish boundary does not set the depth of the [unresolved ground and structural foundation](../10-ground-floor.md#ground-support-handoff).
 
-[후벽 두께 안팎의 상단](../roof/00-junctions.md#roof-wall-head-junctions)은 각 위치의 지붕 아래면에 닿는다. [뒤 모서리와 단차 벽 접합의 몸체 배정](../07-boundary-assembly.md#exterior-boundary-junctions)을 소비하며, right가 소유하는 노출 면과 rear가 받는 공통 몸체를 두 벽으로 중복 생성하지 않는다.
+The [tops inside and outside the rear wall thickness](../roof/00-junctions.md#roof-wall-head-junctions) reach the roof underside at each position. The [body assignment of the back corners and step wall junctions](../07-boundary-assembly.md#exterior-boundary-junctions) is consumed, and the exposed face right owns and the common body rear receives are not generated twice as two walls.
 
-차고 후벽은 [차고 외곽](../00-building.md#attached-garage-extent)의 같은 평면에서 Gback의 아래면까지 닫는다. 뒤 처마 돌출은 지붕 owner가 소유하며 벽이 그 끝까지 늘어나지 않는다. 본채와 차고의 후벽은 서로 다른 Z에 있으므로 두 뒤 모서리와 그 사이의 노출 본채 측면을 한 평면으로 덮지 않는다. 사이의 측면은 오른쪽 입면 owner와 같은 모서리를 소비한다.
+The garage rear wall closes up to the underside of Gback on the same plane of the [garage outline](../00-building.md#attached-garage-extent). The back eave projection is owned by the roof owner, and the wall does not stretch to its end. The rear walls of the main block and garage are at different Z, so the two back corners and the exposed main block side between them are not covered with one plane. The side between them consumes the same corner as the right elevation owner.
 
-본채 후면의 아래쪽은 [연속 공용부](../rooms/common.md#common-room-plan), 위쪽은 [주침실](../rooms/primary.md#primary-plan)과 [별도 옷방](../rooms/wardrobe.md#primary-wardrobe-plan)에 바인딩한다. 아래 [개구부 배치](#rear-openings)는 공용부에서 정원으로 직접 나가며 차고 뒤를 통과하는 숨은 통로를 만들지 않는다. 검사 주소는 후면 전체, 본채와 차고 각각의 두 뒤 모서리, 양쪽 처마 아래와 본채 단차의 후방 끝이다. 실제 벽/지붕 경계·개구부·대지 연결·프레임은 unverified다.
+The lower part of the main block rear is bound to the [continuous common area](../rooms/common.md#common-room-plan) and the upper part to the [primary bedroom](../rooms/primary.md#primary-plan) and the [separate wardrobe](../rooms/wardrobe.md#primary-wardrobe-plan). The [opening layout](#rear-openings) below goes directly from the common area to the garden and makes no hidden passage through the back of the garage. The inspection addresses are the whole rear, the two back corners of each of the main block and garage, under the eaves on both sides, and the back end of the main block step. The real wall/roof boundaries, openings, site connection, and frames are unverified.
 
-## 공용부와 주침실의 정원 쪽 개구부 {#rear-openings}
+## Garden-Side Openings of the Common Area and Primary Bedroom {#rear-openings}
 <!--
-@evidence principles/core/common.md#scope-preservation 본채 후벽의 창·정원문 배치와 옷방·차고 후벽을 닫는 결정, 창 없는 방의 밝기 관찰 경로까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽 Z = [-10.70, -10.45] m에 공용부 세 개구부와 주침실 창을 두고 창마다 별도 방을 만들지 않는 배치를 정한다.
-@evidence principles/core/common.md#declared-basis 정원문 옆 주방 창은 03의 조리대 위 창과 유리문 관계에서 채택했다고 밝히고 창틀은 공통 인계에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 하나의 공용부 설정을 한 방 안의 주방 창·정원문·가족실 창으로 나누고 옷방 뒤 벽은 옷걸이를 위해 닫는 결정을 더한다.
-@evidence principles/design/spaces.md#space-topology 후면 개구부를 kitchen-dining-family와 primary-bedroom에만 바인딩하고 차고 후벽에는 문이나 창을 두지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 후벽 Z = [-10.70, -10.45] m는 본채 외곽의 뒤 바깥 면에서 나온 구간이고 옷방 뒤 벽을 닫는 결과는 primary-wardrobe-plan의 후면 옷걸이/선반 예약을 소비한다.
-@evidence principles/design/spaces.md#space-verification-address 창/정원문의 방 binding과 뒤 처마·각 모서리의 읽힘을 반증 관찰로 둔다.
-@evidence settings/10-house.md#common-room 주방·식당·가족실을 하나의 연속 공간으로 두어 후면 창마다 칸막이 방을 만들지 않는다.
-@evidence settings/20-verification.md#lighting-state 창이 없는 옷방의 밝기를 채광 결과로 추정하지 않고 후속 실내 조명으로 관찰하게 한다.
-@evidence obligations/design/spaces.md#space-envelope-interface 후면 입면의 개구부를 공용부 세 기능과 주침실의 실내 배치에 묶고 옷방·차고 쪽을 닫아 안팎이 같은 후벽을 설명하게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 연속 공간·정원 출입과 storage의 옷 수납 요구를 후벽에 대조했고 옷방 뒤를 닫아도 설정과 충돌하지 않아 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the window and garden door layout of the main block rear wall, the decision to close the wardrobe and garage rear walls, and the brightness observation route of windowless rooms.
+@evidence principles/core/common.md#substantive-completion Sets the layout that places three common area openings and the primary bedroom window in the rear wall Z = [-10.70, -10.45] m and makes no separate room per window.
+@evidence principles/core/common.md#declared-basis States that the kitchen window beside the garden door was adopted from the relation of the window above the counter and the glass door in 03, and that the window frames come from the common handoff.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Divides the one common area setting into the kitchen window, garden door, and family room window inside one room, and adds the decision to close the wardrobe back wall for hanging.
+@evidence principles/design/spaces.md#space-topology Binds the rear openings only to kitchen-dining-family and primary-bedroom, and places no door or window in the garage rear wall.
+@evidence principles/design/spaces.md#space-boundary-authority The rear wall Z = [-10.70, -10.45] m is the interval coming from the back outer face of the main block outline, and the result of closing the wardrobe back wall consumes the rear hanging/shelf reservation of primary-wardrobe-plan.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the room bindings of windows/garden door and the readability of the back eaves and each corner.
+@evidence settings/10-house.md#common-room Keeps the kitchen, dining, and family room as one continuous space, so no partitioned room is made per rear window.
+@evidence settings/20-verification.md#lighting-state Does not estimate the brightness of the windowless wardrobe as a daylight result, and has it observed with later interior lighting.
+@evidence obligations/design/spaces.md#space-envelope-interface Ties the openings of the rear elevation to the interior layout of the three common area functions and the primary bedroom, and closes the wardrobe and garage sides, so inside and outside explain the same rear wall.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared common-room's continuous space and garden exit and storage's clothes storage requirement with the rear wall; closing the back of the wardrobe does not conflict with the settings, so there was no parent revision.
 -->
 
-[본채 외곽](../00-building.md#main-building-extent)의 뒤 바깥 면 Z = -10.70 m에서 0.25 m 외벽 예약만큼 들어온 본채 후벽 Z = [-10.70, -10.45] m에 [공통 인계](../06-openings.md#external-opening-interface)를 적용한다. 아래 개구부는 각각 자기 방에 바인딩한다. ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에는 [주방 창](#kitchen-rear-window)·[정원문](#garden-door)·[가족실 창](#family-rear-window)의 세 개구부를, upper-storey의 [primary-bedroom](../rooms/primary.md#primary-plan)에는 [주침실 창](#primary-rear-window)을 둔다. 세 공용 기능은 하나의 kitchen-dining-family 공간 안에 있으며 창마다 별도 방을 만들지 않는다. 정원문 옆 주방 창은 03의 조리대 위 창과 유리문 관계에서 채택했다.
+The [common handoff](../06-openings.md#external-opening-interface) is applied to the main block rear wall Z = [-10.70, -10.45] m, coming in by the 0.25 m exterior wall reservation from the back outer face Z = -10.70 m of the [main block outline](../00-building.md#main-building-extent). The openings below are each bound to their own room. The ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan) has three openings, the [kitchen window](#kitchen-rear-window), the [garden door](#garden-door), and the [family room window](#family-rear-window), and the upper-storey [primary-bedroom](../rooms/primary.md#primary-plan) has the [primary bedroom window](#primary-rear-window). The three common functions are inside one kitchen-dining-family space, and no separate room is made per window. The kitchen window beside the garden door was adopted from the relation of the window above the counter and the glass door in 03.
 
-[침실 옷 수납](../../settings/10-house.md#storage)인 옷방의 뒤 벽은 [옷방의 후면 옷걸이/선반 예약](../rooms/wardrobe.md#primary-wardrobe-plan)을 위해 닫고, 차고 후벽에도 추가 문이나 창을 두지 않는다. 창이 없는 방의 밝기는 후속 조명으로 관찰하며 채광 결과로 추정하지 않는다. 아래 창/정원문의 방 binding과 뒤 처마/각 모서리의 실제 읽힘은 unverified다.
+The back wall of the wardrobe, the [bedroom clothes storage](../../settings/10-house.md#storage), is closed for the [rear hanging/shelf reservation of the wardrobe](../rooms/wardrobe.md#primary-wardrobe-plan), and no additional door or window is placed in the garage rear wall either. The brightness of windowless rooms is observed with later lighting and not estimated as a daylight result. The room bindings of the windows/garden door below and the real readability of the back eaves and each corner are unverified.
 
-## 주방 조리대 위의 후면 창 {#kitchen-rear-window}
+## Rear Window Above the Kitchen Counter {#kitchen-rear-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 주방 조리대 위 후면 창 하나와 그 아래 상판 높이 상한을 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부와 아래 상판 0.91 m 이하 예약을 정한다.
-@evidence principles/core/common.md#declared-basis 창틀은 공통 인계에서 받고 상판 높이 0.91 m 이하는 창 아래 trim과 함께 공간을 남기는 가구의 상한 예약이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "창은 외벽과 조리 배치에 종속시키고 싱크를 관통하지 않는다"를 창 하단과 상판 상한의 높이 관계로 만든다.
-@evidence principles/design/spaces.md#space-topology 창을 ground-storey kitchen-dining-family 후벽의 X = [-4.50, -3.30] m 구간, 아래 상판 위에 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 창 아래 상판 높이 상한은 이 H2가 정하고 common-kitchen-wall-reservation이 뒤쪽 상판에서 그 상한을 소비하며 하부장·상부장의 평면을 정한다.
-@evidence principles/design/spaces.md#space-verification-address 조리대/창 단면, 정원문과의 관계, 03의 부재 읽힘을 반증 관찰로 둔다.
-@evidence settings/10-house.md#kitchen-equipment 수도꼭지나 상부장을 창호에 관통시키지 않도록 창 하단 Y = 1.15 m와 상판 0.91 m 이하를 분리한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work kitchen-equipment의 창 종속·싱크 비관통과 "두 수도꼭지를 필수 중복 설비로 해석하지 않는다"를 대조했고 창 하단 Y = 1.15 m를 상판 상한 0.91 m 위에 두어 수도꼭지나 상부장이 창호를 관통하지 않아 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one rear window above the kitchen counter and the upper limit of the countertop height below it.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [-4.50, -3.30], Y = [1.15, 2.30] m of the rear wall and the reservation of the countertop below at 0.91 m or less.
+@evidence principles/core/common.md#declared-basis States that the window frame comes from the common handoff and that the countertop height of 0.91 m or less is an upper limit reservation of furniture that leaves space together with the trim under the window.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "The window is made subordinate to the exterior wall and the cooking layout and does not pass through the sink" into a height relation between the window bottom and the countertop limit.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the X = [-4.50, -3.30] m segment of the ground-storey kitchen-dining-family rear wall, above the countertop below.
+@evidence principles/design/spaces.md#space-boundary-authority This H2 sets the countertop height limit under the window, and common-kitchen-wall-reservation consumes that limit at the back countertop and sets the plans of the lower and upper cabinets.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the counter/window section, the relation with the garden door, and the member readability of 03.
+@evidence settings/10-house.md#kitchen-equipment Separates the window bottom Y = 1.15 m from the countertop at 0.91 m or less, so the faucet or upper cabinets do not pass through the window assembly.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared kitchen-equipment's window subordination and sink non-penetration and "the reference's two faucets are not interpreted as required duplicate equipment"; placing the window bottom Y = 1.15 m above the countertop limit of 0.91 m keeps the faucet and upper cabinets from passing through the window assembly, so there was no parent revision.
 -->
 
-`kitchen-rear-window`는 [후벽](#rear-openings)의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 한 칸이다. 아래 상판은 높이 0.91 m 이하로 예약하여 창 아래 trim과 함께 공간을 남긴다. 가구의 상한 예약이며 수도꼭지나 상부장을 창호에 관통시키지 않는다. 이 상한은 [벽 주방의 뒤쪽 상판](../rooms/common.md#common-kitchen-wall-reservation)이 소비하며 하부장·상부장의 평면은 그 owner가 정한다. 조리대/창 단면·정원문과의 관계·03의 부재 읽힘은 unverified다.
+`kitchen-rear-window` is the opening X = [-4.50, -3.30], Y = [1.15, 2.30] m of the [rear wall](#rear-openings) and belongs to the ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan). It is one vertical light of the [common handoff](../06-openings.md#external-opening-interface). The countertop below is reserved at a height of 0.91 m or less, leaving space together with the trim under the window. It is an upper limit reservation of furniture, and the faucet or upper cabinets do not pass through the window assembly. This limit is consumed by the [back countertop of the wall kitchen](../rooms/common.md#common-kitchen-wall-reservation), and that owner sets the plans of the lower and upper cabinets. The counter/window section, the relation with the garden door, and the member readability of 03 are unverified.
 
-## 가족실의 후면 묶음창 {#family-rear-window}
+## Rear Window Group of the Family Room {#family-rear-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 가족실 좌석과 같은 방에 두는 후면 묶음창 하나를 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부와 수직 창 두 칸을 정한다.
-@evidence principles/core/common.md#declared-basis 창틀은 공통 인계, 위치는 가족실 좌석이 우측이라는 설정에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정 common-room의 오른쪽 좌석과 한 방 유지 결정을 받아, 그 좌석의 후면 창 개구부를 X=[2.75,4.75], Y=[0.75,2.30] m로 정한다.
-@evidence principles/design/spaces.md#space-topology 창을 kitchen-dining-family의 후벽 오른쪽에 속하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 창틀·창대 돌출은 06에서 받고 창 앞 소파와 창대 접근은 common-family-reservation이 이 창을 소비해 배치한다.
-@evidence principles/design/spaces.md#space-verification-address 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남, 채광을 반증 관찰로 둔다.
-@evidence settings/10-house.md#common-room 가족실 좌석을 우측에 둔 공용부의 일부로 이 창을 같은 방에 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 "가족실 좌석은 우측"과 완전 높이 칸막이 금지를 후벽 오른쪽 창에 대조했고 하나의 방 안에서 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one rear window group placed in the same room as the family room seating.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [2.75, 4.75], Y = [0.75, 2.30] m of the rear wall with two vertical lights.
+@evidence principles/core/common.md#declared-basis The window frame comes from the common handoff, and the position from the setting that the family room seating is on the right.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the right-side seating and the one-room decision of the common-room setting, and sets the rear window opening of that seating at X=[2.75,4.75], Y=[0.75,2.30] m.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the right side of the kitchen-dining-family rear wall.
+@evidence principles/design/spaces.md#space-boundary-authority The window frame and sill projection come from 06, and the sofa in front of the window and the sill access are placed by common-family-reservation, consuming this window.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the access in front of the sofa/curtains/sill, the meeting with the side window at the right corner, and daylighting.
+@evidence settings/10-house.md#common-room Places this window in the same room as part of the common area whose family room seating is on the right.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared common-room's "the family room seating on the right" and the ban on full-height partitions with the right rear window; it holds inside one room, so there was no parent revision.
 -->
 
-`family-rear-window`는 [후벽](#rear-openings)의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부다. ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 가족실 좌석과 자기 창이 같은 방 안에 있으며 별도 가족실 벽을 추가하지 않는다. 창의 위치는 [가족실 좌석을 우측에 두는 설정](../../settings/10-house.md#common-room)을 따르고, 창 앞 소파와 창대 접근은 [가족실 좌석 예약](../rooms/common.md#common-family-reservation)이 이 창을 소비해 배치한다. 소파/커튼/창대 앞 접근, 오른쪽 모서리에서 측면 창과의 만남·실제 채광/프레임은 unverified다.
+`family-rear-window` is the opening X = [2.75, 4.75], Y = [0.75, 2.30] m of the [rear wall](#rear-openings). It belongs to the ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan) and has two vertical lights of the [common handoff](../06-openings.md#external-opening-interface). The family room seating and its own window are in the same room, and no separate family room wall is added. The window position follows [the setting that places the family room seating on the right](../../settings/10-house.md#common-room), and the sofa in front of the window and the sill access are placed by the [family room seating reservation](../rooms/common.md#common-family-reservation), consuming this window. The access in front of the sofa/curtains/sill, the meeting with the side window at the right corner, and the real daylighting/frames are unverified.
 
-## 주침실의 후면 묶음창 {#primary-rear-window}
+## Rear Window Group of the Primary Bedroom {#primary-rear-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 후면 묶음창 하나와 옷방으로 확장하지 않는 한계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부와 수직 창 두 칸을 정한다.
-@evidence principles/core/common.md#declared-basis 창의 소속은 primary-plan의 뒤쪽 본체 후벽, 옷방 쪽을 닫는 결정은 rear-openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주침실 창을 뒤 처마 아래 본체 후벽에 두고 옷방까지 걸치지 않게 폭을 제한하는 결정을 더한다.
-@evidence principles/design/spaces.md#space-topology 창을 upper-storey primary-bedroom 후벽에 속하게 하고 같은 후벽의 옷방 구간으로 넘기지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 옷방 구간은 rear-openings와 primary-wardrobe-plan, 뒤 처마와 지붕 아래면은 roof-profile-datums에서 받고 이 H2는 창 좌표와 수직 창 두 칸을 정한다.
-@evidence principles/design/spaces.md#space-verification-address 뒤 처마 아래 창 단면, 침대 양옆에서 창/서랍장에 닿는 경로를 반증 관찰로 둔다.
-@evidence settings/10-house.md#primary-bedroom 주침실에 요구된 창을 upper-storey primary-bedroom 후벽의 수직 창 두 칸으로 실현한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 창 요구와 storage의 옷 수납 요구를 대조했고 창이 옷방 X 구간 전에서 끝나 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one rear window group of the primary bedroom and the limit of not extending it into the wardrobe.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [-3.85, -1.45], Y = [3.91, 5.31] m of the rear wall with two vertical lights.
+@evidence principles/core/common.md#declared-basis The window's membership comes from the back body rear wall of primary-plan, and the decision to close the wardrobe side from rear-openings.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds the decision to place the primary bedroom window in the body rear wall under the back eave and to limit its width so it does not span into the wardrobe.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the upper-storey primary-bedroom rear wall and does not pass it into the wardrobe segment of the same rear wall.
+@evidence principles/design/spaces.md#space-boundary-authority The wardrobe segment comes from rear-openings and primary-wardrobe-plan, and the back eave and roof underside from roof-profile-datums, and this H2 sets the window coordinates and the two vertical lights.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the window section under the back eave and the routes from both sides of the bed to the window/dresser.
+@evidence settings/10-house.md#primary-bedroom Realizes the window required for the primary bedroom as two vertical lights in the upper-storey primary-bedroom rear wall.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared primary-bedroom's window requirement with storage's clothes storage requirement; the window ends before the wardrobe X segment, so there was no parent revision.
 -->
 
-`primary-rear-window`는 [후벽](#rear-openings)의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부다. upper-storey [primary-bedroom](../rooms/primary.md#primary-plan)의 뒤쪽 본체 후벽에 속하고 [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸을 갖는다. 같은 후벽의 [침실 옷 수납](../../settings/10-house.md#storage)인 옷방 구간은 [후면 배치](#rear-openings)가 [옷방의 후면 수납](../rooms/wardrobe.md#primary-wardrobe-plan)을 위해 닫으므로 옷방까지 걸치는 창으로 확장하지 않는다. 창 위의 뒤 처마와 지붕 아래면은 [지붕 높이 owner](../roof/00-junctions.md#roof-profile-datums)에서 받는다. 뒤 처마 아래 창 단면과 침대 양옆에서 창/서랍장에 닿는 경로, 실제 내외부 프레임은 unverified다.
+`primary-rear-window` is the opening X = [-3.85, -1.45], Y = [3.91, 5.31] m of the [rear wall](#rear-openings). It belongs to the back body rear wall of upper-storey [primary-bedroom](../rooms/primary.md#primary-plan) and has two vertical lights of the [common handoff](../06-openings.md#external-opening-interface). The wardrobe segment of the same rear wall, the [bedroom clothes storage](../../settings/10-house.md#storage), is closed by the [rear layout](#rear-openings) for the [rear storage of the wardrobe](../rooms/wardrobe.md#primary-wardrobe-plan), so the window is not extended to span into the wardrobe. The back eave and roof underside above the window come from the [roof height owner](../roof/00-junctions.md#roof-profile-datums). The window section under the back eave, the routes from both sides of the bed to the window/dresser, and the real interior and exterior frames are unverified.
 
-## 공용부에서 정원으로 나가는 문 {#garden-door}
+## Door from the Common Area to the Garden {#garden-door}
 <!--
-@evidence principles/core/common.md#scope-preservation 공용부 정원 출입문의 후벽 void·reveal·문턱판, 안쪽/바깥 대기와 식탁·테라스 관계, models/02의 닫힌 두 문짝과의 표면 owner 구분을 맡는다.
-@evidence principles/core/common.md#substantive-completion 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부에 바깥 -Z로 열리는 유리 경첩 문 두 장, 주 문만 90° 열었을 때의 유효 폭 목표 0.95 m, 깊이 1.80 m의 바깥 대기를 정한다.
-@evidence principles/core/common.md#declared-basis 문짝 회전 반경은 문틀을 뺀 문짝 치수에서 산출하고 바깥 대기 깊이는 문을 당겨 열고 물러서는 저작 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 후면 정원 출입의 설정을 +X 주 문, 양 끝 경첩, 중앙 손잡이, 안쪽 X = [-1.50, 1.50], Z = [-10.45, -9.25]·바깥 Z = [-12.50, -10.70] m 대기로 만든다.
-@evidence principles/design/spaces.md#space-topology garden-door가 kitchen-dining-family와 ground-storey 외부 대기를 잇고 테라스가 그 대기를 포함한다.
-@evidence principles/design/spaces.md#space-boundary-authority 바깥 대기 바닥은 terrace owner, 후벽·문 void·문턱판은 rear owner, 닫힌 정원문 문틀·두 문짝·철물은 models/02로 나누고 문턱은 양쪽 바닥 위 0.02 m 이내로 둔다.
-@evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
-@evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.
-@evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스로 나가는 문과 바깥 대기를 정한다.
-@evidence obligations/design/spaces.md#space-access-circulation 공용부와 정원 사이의 표현된 출입구에 안팎 대기와 주 문 유효폭을 배정해 문과 동선 그래프가 일치하게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 "식탁은 후면 정원 출입 가까이"와 site-identity의 "공용부에서 닿는 작은 포장 테라스"를 후벽 개구부에 대조했고 안쪽 대기를 식탁에서 떼고 바깥 대기를 테라스에 포함해 둘 다 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the rear wall void, reveal, and threshold plate of the common area garden exit, the inner/outer waiting areas and the relation with the dining table and terrace, and the surface owner distinction from the two closed leaves of models/02.
+@evidence principles/core/common.md#substantive-completion Sets in the rear wall opening X = [-1.20, 1.20], Y = [0, 2.25] m two hinged glass doors opening outward to -Z, an effective width target of 0.95 m with only the main door opened 90°, and an outer waiting area 1.80 m deep.
+@evidence principles/core/common.md#declared-basis States that the leaf swing radius is derived from the leaf dimensions excluding the frame, and that the outer waiting area depth is an authoring choice for pulling the door open and stepping back.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the rear garden exit setting into a +X main door, hinges at both ends, a central handle, and waiting areas inside X = [-1.50, 1.50], Z = [-10.45, -9.25] and outside Z = [-12.50, -10.70] m.
+@evidence principles/design/spaces.md#space-topology garden-door connects kitchen-dining-family and the ground-storey exterior waiting area, and the terrace includes that waiting area.
+@evidence principles/design/spaces.md#space-boundary-authority Divides the outer waiting area floor to the terrace owner, the rear wall, door void, and threshold plate to the rear owner, and the closed garden door frame, two leaves, and hardware to models/02, and keeps the threshold within 0.02 m above the floors on both sides.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations two-way passage, leaf/dining table collisions, privacy and daylighting, and the frames of 03.
+@evidence settings/10-house.md#common-room In the relation of the dining table placed near the rear garden exit, keeps the table and chairs from blocking the inner waiting area.
+@evidence settings/10-house.md#site-identity Sets the door and outer waiting area leading out to the small paved terrace reached from the common area.
+@evidence obligations/design/spaces.md#space-access-circulation Assigns inner and outer waiting areas and the main door effective width to the represented entrance between the common area and the garden, so the door and the circulation graph agree.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared common-room's "the dining table near the rear garden exit" and site-identity's "a small paved terrace reached from the common area" with the rear wall opening; separating the inner waiting area from the table and including the outer waiting area in the terrace makes both hold, so there was no parent revision.
 -->
 
-`garden-door`는 [후벽](#rear-openings)의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)와 외부 대기를 잇는다. [공통 인계](../06-openings.md#external-opening-interface)를 소비하며 바깥쪽 -Z 방향으로 열리는 유리 경첩 문 두 장이다. +X 쪽이 일상 진입의 주 문이고 경첩은 양 끝 문설주, 손잡이는 중앙 만남에 둔다. 주 문만 90° 열었을 때 유효 폭 목표는 0.95 m다. 문 한 장의 실제 회전 반경은 문틀을 제외한 문짝 치수에서 산출한다.
+`garden-door` is the opening X = [-1.20, 1.20], Y = [0, 2.25] m of the [rear wall](#rear-openings) and connects the ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan) with the exterior waiting area. It consumes the [common handoff](../06-openings.md#external-opening-interface) and is two hinged glass doors opening outward in the -Z direction. The +X side is the main door for everyday entry, the hinges are at the jambs at both ends, and the handles are at the central meeting. The effective width target with only the main door opened 90° is 0.95 m. The real swing radius of one door is derived from the leaf dimensions excluding the frame.
 
-안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25], 바깥 대기 X = [-1.50, 1.50], Z = [-12.50, -10.70] m는 모두 Y = 0 m의 평탄 바닥으로 예약한다. 바깥 대기는 ground-storey 외부 구역이며 깊이 1.80 m를 택해 문을 당겨 열고 물러서는 공간을 남긴다. 문턱은 양쪽 바닥 위 0.02 m 이내이며 바닥 사이 빈틈을 남기지 않는다.
+The inner waiting area X = [-1.50, 1.50], Z = [-10.45, -9.25] and the outer waiting area X = [-1.50, 1.50], Z = [-12.50, -10.70] m are both reserved as flat floors at Y = 0 m. The outer waiting area is a ground-storey exterior zone, and its depth of 1.80 m is chosen to leave space for pulling the door open and stepping back. The threshold is within 0.02 m above the floors on both sides and leaves no gap between the floors.
 
-`garden-door-threshold` 상면의 UV는 [정원문 개구부](#garden-door)의 왼쪽 문설주 X=−1.20 m에서 U=0으로 시작해 +X로, [본채 후면 벽](../00-building.md#main-building-extent)의 안쪽 면 Z=−10.45 m에서 V=0으로 시작해 바깥쪽 면 Z=−10.70 m로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 테라스와 방 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
+The UV of the `garden-door-threshold` top starts U=0 at the left jamb X=−1.20 m of the [garden door opening](#garden-door) and runs toward +X, and starts V=0 at the inner face Z=−10.45 m of the [main block rear wall](../00-building.md#main-building-extent) and runs to the outer face Z=−10.70 m. The vertical sides use the horizontal tangent U and +Y as V from the lower left corner of each side, and are cut at the jambs, the inner and outer floor contact lines, and the top/side corners. The UV origins of the terrace and room floors are not continued onto the threshold plate.
 
-식탁·의자는 안쪽 대기를 막지 않고, 바깥 대기는 열린 두 문짝과 정원에서 돌아오는 중심 경로를 함께 수용해야 한다. [테라스](../site/terrace.md#garden-terrace-plan)는 이 대기를 포함하고 중앙 경로와 외부 단을 정원 쪽으로 연결한다. 바깥 대기 바닥은 완결 테라스 owner인 `src/spaces/site/terrace.ts`, 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 정원문 문틀·두 문짝·철물은 [모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 맡는다. 이 H2의 문짝 수·방향·회전 예약은 모델의 입력이며 rear source가 그 문짝 메시를 중복 생성하지 않는다. 실제 지표와의 접속은 maps 입력이 없어 미완료다. 실제 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임은 unverified다.
+The table and chairs do not block the inner waiting area, and the outer waiting area must accommodate both open leaves together with the central route returning from the garden. The [terrace](../site/terrace.md#garden-terrace-plan) includes this waiting area and connects the central route and the exterior steps toward the garden. The outer waiting area floor is taken by `src/spaces/site/terrace.ts`, the complete terrace owner, the rear wall, door void, and threshold plate by `src/spaces/envelope/rear.ts`, and the closed garden door frame, two leaves, and hardware by the [model prototype](../../models/02-exterior-doors.md#garden-door-pair). The leaf count, direction, and swing reservation of this H2 are inputs to the model, and the rear source does not generate those leaf meshes twice. The connection to the real ground is incomplete because there is no maps input. The real two-way passage, leaf/dining table collisions, privacy, daylighting, and the frames of 03 are unverified.

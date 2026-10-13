@@ -1,19 +1,19 @@
 <!--
-@evidence discovery/design/models.md#work-specific-model-requirements 임시 room source의 root 54개와 child 501개를 part 주소 또는 명명 퇴역으로 전수 대조해야 한다는 이 집의 인계 조건을 독립 obligation으로 보존한다. 공유 model 형상 의무만으로는 source 작성 지점과 새 part 사이의 1:1 퇴역 경계를 특정하지 못한다.
+@evidence discovery/design/models.md#work-specific-model-requirements Preserves as an independent obligation this house's handoff condition that the 54 roots and 501 children of the temporary room sources must be fully matched against part addresses or named retirements. The shared model shape obligations alone cannot pin down the 1:1 retirement boundary between the source authoring sites and the new parts.
 -->
 
-# 기존 실내 물체의 모델 인계 계약
+# Model handoff contract for existing interior objects
 
-**Status:** 사용자 지시의 전체 실내 완성과 미소유 요소 금지를 적용하는 production-local obligation. `models`의 설계 review는 이후 modelSources나 화면에서 물체가 읽히는지까지 승인하지 않는다.
+**Status:** a production-local obligation applying the user instruction to complete the whole interior and the prohibition of unowned elements. The design review of `models` does not go as far as approving that the objects read in later modelSources or on screen.
 
-## 모든 기존 물체 자식의 단일 목적지 {#legacy-fitout-child-destination}
+## A single destination for every existing object child {#legacy-fitout-child-destination}
 
-현재 방 source가 생성하는 각 fit-out root와 그 모든 child ID는 [인계 계정](../accounts/models/legacy-fitout.md#legacy-root-correspondence)에서 하나의 안정적인 model prototype/part/face 주소 또는 이름을 적은 퇴역으로 대응한다. 동일한 후속 주소로 다른 child를 합치거나, 목적지 part가 실제 모델 설계 H2에 없는 상태를 성공으로 세지 않는다. `settings/003`이 정한 임시 메시의 퇴역 시점까지 source의 현재 물체는 임시 소비로 유지하고, models는 형상·part, instances는 배치, systems는 발광을 각각 결정한다.
+Each fit-out root that the current room sources generate and all of its child IDs correspond, in the [handoff account](../accounts/models/legacy-fitout.md#legacy-root-correspondence), to one stable model prototype/part/face address or a retirement that writes the name. Merging different children into the same successor address, or a state in which the destination part is absent from the actual model design H2, is not counted as success. Until the retirement point of the temporary meshes set by `settings/003`, the source's current objects are kept as temporary consumption, and models decides shape and parts, instances placement, and systems emission.
 
-이 의무는 특정 소파나 선반 하나의 충실도를 대신하지 않는다. 완료 경계는 임시 child의 전수 모집단과 모델 part 주소의 교차 검사에서 빈 목적지가 0이고, 의도적 제거는 이름으로 기록되며, 검사에 child 삭제·주소 삭제 돌연변이를 넣으면 실패하는 것이다. 화면에서 각 물체가 그 물체로 읽히는지는 이후 modelSources와 독립 시각 판정의 별도 질문이며 현재 `unverified`다.
+This obligation does not replace the fidelity of any particular sofa or shelf. The completion boundary is that the cross-check of the full population of temporary children against the model part addresses has 0 empty destinations, intentional removals are recorded by name, and the check fails when child-deletion or address-deletion mutations are inserted. Whether each object reads as that object on screen is a separate question for later modelSources and an independent visual verdict and is currently `unverified`.
 
-Review question: 기존 방 물체의 모든 child가 실행 가능한 모델 주소 또는 명명 퇴역 한 곳에만 닿는가?
+Review question: does every child of the existing room objects reach exactly one place, an executable model address or a named retirement?
 
-Authority: 사용자의 전체 실내 저작 브리프와 v-097 F2, v-115 B3의 전수 인계 지시.
+Authority: the user's whole-interior authoring brief and the full handoff instructions of v-097 F2 and v-115 B3.
 
-Sources: [표면 소유](../settings/003-spatial-basis.md#surface-decomposition), [인계 계정](../accounts/models/legacy-fitout.md#legacy-root-correspondence).
+Sources: [Surface ownership](../settings/003-spatial-basis.md#surface-decomposition), [handoff account](../accounts/models/legacy-fitout.md#legacy-root-correspondence).

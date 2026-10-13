@@ -1,368 +1,368 @@
-# 일상 물체 배치
+# Everyday object placement
 
-이 문서는 `.wiki/사물-목록.md`의 최신 @census 429개를 15개 구역으로 전수 대조한 instance 설계 초안이다. 첫 이력의 422는 과거 단계 수치다. `docs/instances/001-household-placement.md`의 기존 root·직접 fit-out은 같은 모집단의 일부이며 중복 생성하지 않는다. 모델 주소는 `docs/models/001`~`005`의 리뷰된 상태를 소비한다. 좌표는 m, 오른손 Y-up, 전면 -Z이고 모든 모델은 원형 크기 1:1을 쓴다. 아래 수량은 완료된 렌더 수량을 주장하지 않는다.
+This document is a draft instance design that fully matches the latest @census of 429 in `.wiki/object-inventory.md` against 15 areas. The 422 of the first record is a figure from an earlier stage. The existing roots and direct fit-out of `docs/instances/001-household-placement.md` are part of the same population and are not generated twice. The model addresses consume the reviewed states of `docs/models/001`~`005`. Coordinates are in m, right-handed Y-up, front -Z, and every model uses its prototype size 1:1. The counts below do not claim completed render counts.
 
-방 소속·지원면·유일 ID·정확한 변환은 instances 소유다. 현재 room source는 대형 가구와 일부 소품의 기준 좌표만 제공한다. 나머지 소품 좌표는 지지면의 실제 치수와 문·계단·보행 폭을 확인해 결정해야 하며, 근거 없는 균등 산포를 이 설계로 채택하지 않는다. 조명 emitter는 systems와 결합되어야 한다. 현재 검증 전인 개별 변환은 실행 배치로 세지 않는다. 429는 작업실의 work·guest 두 정지 상태를 합친 고유 물체 모집단이다. `손님 침구 세트` 1개, `담요` 1개, `베개` 2개는 guest에서만 외부 침대 위에 활성화되며 work에서는 닫힌 수납 침대 안의 미표현 내용물이다. work 활성 물체는 425개이고 guest 활성 물체는 429개다. 이를 렌더 단의 숨김이나 축소된 소품으로 가장하지 않는다.
+Room membership, support surfaces, unique IDs, and exact transforms are owned by instances. The current room source provides reference coordinates only for large furniture and some props. The remaining prop coordinates must be decided after confirming the actual dimensions of the support surfaces and the door, stair, and walking widths, and baseless uniform scattering is not adopted as this design. Light emitters must be bound with systems. Individual transforms not yet verified are not counted as executed placement. 429 is the unique object population combining the work and guest rest states of the workroom. The 1 `guest bedding set`, 1 `blanket`, and 2 `pillow` are activated on the outer bed only in guest, and in work they are unrepresented contents inside the closed storage bed. The active objects in work number 425 and in guest 429. This is not disguised as hiding at the render stage or as shrunken props.
 
-## 모집단과 변환 규칙 {#population-and-transform}
+## Population and transform rules {#population-and-transform}
 
-각 행의 수량만큼 독립 ID가 필요하다. 반복 ID는 구역·물체 역할·0부터 시작하는 고정 번호를 결합하며, 원본 나열 순서나 런타임 순회 순서에 의존하지 않는다. 부모 좌표계는 건물 세계 좌표다. 바닥 접촉은 1층 0m, 상층 3.20m, 외부는 해당 site 지지면을 따른다. 상판·선반·침대의 자식 물체는 해당 모델의 지지면 높이와 yaw를 반영한다. 지원면의 envelope와 개구 영역을 통과하거나 더 큰 모델로 변경해야 하면 모델·공간 owner로 돌려 보낸다.
+Each row needs as many independent IDs as its count. A repeated ID combines the area, the object role, and a fixed number starting from 0, and does not depend on the original listing order or the runtime traversal order. The parent coordinate system is the building world coordinates. Floor contact follows 0m on the ground floor, 3.20m on the upper floor, and the corresponding site support surface outside. Child objects of tops, shelves, and beds reflect the support surface height and yaw of their model. If an object would pass through the envelope or opening zone of the support surface or would need to change to a larger model, it is sent back to the model or space owner.
 
-## 재사용과 관찰 {#reuse-and-observation}
+## Reuse and observation {#reuse-and-observation}
 
-한 `@uses` 주소는 같은 모델 상태를 공유한다. 이 배치에는 무작위 위치·크기 변종, hero 대체, 밀도 감소, LOD 절환이 없다. 작업실 수납 침대는 work/guest 상태에 따라 하나의 안정 ID가 모델 상태만 변경한다. 검증은 429개 이름·수량·모델 주소의 전수 대조, 고유 ID와 floor/host 접촉·간섭 계측, 각 prop class의 일반 시야 GPU 관찰, 작업/손님 두 상태의 보행·가림 확인을 필요로 한다. 한 프레임의 존재만으로 미관과 접근성이 입증되지 않는다.
+One `@uses` address shares the same model state. This placement has no random position or size variants, hero substitution, density reduction, or LOD switching. The workroom storage bed changes only the model state of one stable ID according to the work/guest state. Verification requires a full match of the 429 names, counts, and model addresses, measurement of unique IDs and floor/host contact and interference, ordinary-view GPU observation of each prop class, and confirmation of walking and occlusion in both the work and guest states. The existence of a single frame alone does not prove aesthetics or accessibility.
 
-## 현관 (23) {#entry}
+## Entry (23) {#entry}
 
-현관 벤치와 충전 선반의 현행 좌표를 기준으로 신발·우산·열쇠·우편물의 접촉면을 정한다. 전면 출입문과 작업실·공용부 통행대는 비운다.
+The contact faces of the shoes, umbrellas, keys, and mail are set from the current coordinates of the entry bench and charging shelf. The front entrance and the walkways to the workroom and common area are kept clear.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 신발 벤치 | 1 | `entry-bench/default` |
-| 충전 선반 | 1 | `entry-charging-shelf/default` |
-| 충전기 | 1 | `entry-charger/default` |
-| 우편 트레이 | 1 | `tabletop-props/tray` |
-| 열쇠 접시 | 1 | `tabletop-props/bowl` |
-| 신발 | 4 | `personal-articles/shoe` |
-| 코트 | 2 | `personal-articles/coat` |
-| 코트 걸이 | 1 | `wall-accessories/coat-hook` |
-| 우산 | 2 | `personal-articles/umbrella` |
-| 우산꽂이 | 1 | `personal-articles/umbrella-stand` |
-| 현관 매트 | 1 | `household-textiles/entry-mat` |
-| 거울 | 1 | `wall-accessories/entry-mirror` |
-| 벽등 | 2 | `wall-accessories/wall-sconce` |
-| 천장 부착등 | 3 | `ceiling-surface-light/default` |
-| 현관 화분 | 1 | `potted-plant/800` |
+| shoe bench | 1 | `entry-bench/default` |
+| charging shelf | 1 | `entry-charging-shelf/default` |
+| charger | 1 | `entry-charger/default` |
+| mail tray | 1 | `tabletop-props/tray` |
+| key dish | 1 | `tabletop-props/bowl` |
+| shoe | 4 | `personal-articles/shoe` |
+| coat | 2 | `personal-articles/coat` |
+| coat hook | 1 | `wall-accessories/coat-hook` |
+| umbrella | 2 | `personal-articles/umbrella` |
+| umbrella stand | 1 | `personal-articles/umbrella-stand` |
+| entry mat | 1 | `household-textiles/entry-mat` |
+| mirror | 1 | `wall-accessories/entry-mirror` |
+| wall sconce | 2 | `wall-accessories/wall-sconce` |
+| ceiling surface light | 3 | `ceiling-surface-light/default` |
+| entry potted plant | 1 | `potted-plant/800` |
 
-검증 분모: 이 구역 23개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 23 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 가변 작업실 (38) {#flex-workroom}
+## Variable workroom (38) {#flex-workroom}
 
-현행 책상·책장·수납 침대의 좌표를 기준으로 작업 물품을 책상 위, 책을 책장 안, 침구를 침대 상태의 지지면에 놓는다. 작업/손님 상태는 같은 수납 침대 ID를 사용한다.
+Using the current coordinates of the desk, bookcase, and storage bed, work items go on the desk, books in the bookcase, and bedding on the support surface of the bed state. The work and guest states use the same storage bed ID.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 높이 조절 책상 | 1 | `work-desk/folded` |
-| 책상 의자 | 1 | `desk-chair/default` |
-| 작업 화면 | 1 | `work-equipment/display` |
-| 키보드 | 1 | `work-equipment/keyboard` |
-| 포인팅 기기 | 1 | `desk-controls/pointing-device` |
-| 작업등 | 1 | `portable-lamps/desk-task` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
-| 열린 책장 | 1 | `cabinet-and-shelf/open-shelf/950x1350x250/open` |
-| 책 | 12 | `books/240x35x160` |
-| 파일 상자 | 3 | `household-boxes/file-box` |
-| 수납 침대 | 1 | `murphy-bed/work` |
-| 손님 침구 세트 | 1 | `household-textiles/bedding-set` |
-| 담요 | 1 | `household-textiles/blanket` |
-| 베개 | 2 | `household-textiles/pillow` |
-| 화분 | 1 | `potted-plant/600` |
-| 컵 | 1 | `tabletop-props/cup` |
-| 수납 바구니 | 2 | `storage-basket/default` |
-| 작업실 안락의자 | 1 | `accent-chair/default` |
-| 작업실 원형 러그 | 1 | `rugs/round1200` |
-| 작업실 액자 | 1 | `wall-art/default` |
-| 작업실 구형등 | 1 | `portable-lamps/bedside-globe` |
-| 작업실 둘째 화분 | 1 | `potted-plant/280` |
+| height-adjustable desk | 1 | `work-desk/folded` |
+| desk chair | 1 | `desk-chair/default` |
+| work display | 1 | `work-equipment/display` |
+| keyboard | 1 | `work-equipment/keyboard` |
+| pointing device | 1 | `desk-controls/pointing-device` |
+| task lamp | 1 | `portable-lamps/desk-task` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
+| open bookcase | 1 | `cabinet-and-shelf/open-shelf/950x1350x250/open` |
+| book | 12 | `books/240x35x160` |
+| file box | 3 | `household-boxes/file-box` |
+| storage bed | 1 | `murphy-bed/work` |
+| guest bedding set | 1 | `household-textiles/bedding-set` |
+| blanket | 1 | `household-textiles/blanket` |
+| pillow | 2 | `household-textiles/pillow` |
+| potted plant | 1 | `potted-plant/600` |
+| cup | 1 | `tabletop-props/cup` |
+| storage basket | 2 | `storage-basket/default` |
+| workroom armchair | 1 | `accent-chair/default` |
+| workroom round rug | 1 | `rugs/round1200` |
+| workroom picture frame | 1 | `wall-art/default` |
+| workroom globe lamp | 1 | `portable-lamps/bedside-globe` |
+| second workroom potted plant | 1 | `potted-plant/280` |
 
-검증 분모: 이 구역 38개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 38 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 거실 구역 (31) {#common-living}
+## Living area (31) {#common-living}
 
-현행 소파·낮은 탁자·미디어 수납장·러그를 지지 기준으로 삼는다. 쿠션은 소파 좌면, 책과 컵은 탁자·수납장, 벽 장식은 벽면에 귀속한다.
+The current sofa, low table, media cabinet, and rug are taken as the support basis. Cushions belong to the sofa seat, books and cups to the table and cabinet, and wall decoration to the wall face.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| L자 소파 | 1 | `living-sofa/chaise-right` |
-| 직선 소파 | 1 | `living-sofa/straight` |
-| 낮은 탁자 | 1 | `coffee-table/default` |
-| 러그 | 1 | `rugs/living` |
-| 미디어 수납장 | 1 | `cabinet-and-shelf/media/2000x440x350/closed` |
-| 거실 화면 | 1 | `living-display/default` |
-| 독서등 | 1 | `portable-lamps/reading` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
-| 장식 쿠션 | 4 | `household-textiles/sofa-cushion` |
-| 담요 | 2 | `household-textiles/blanket` |
-| 책 | 8 | `books/240x35x160` |
-| 액자 | 2 | `wall-art/default` |
-| 큰 화분 | 1 | `potted-plant/1100` |
-| 화분 | 1 | `potted-plant/600` |
-| 그릇 | 1 | `tabletop-props/bowl` |
-| 쟁반 | 1 | `tabletop-props/tray` |
-| 컵 | 2 | `tabletop-props/cup` |
+| L-shaped sofa | 1 | `living-sofa/chaise-right` |
+| straight sofa | 1 | `living-sofa/straight` |
+| low table | 1 | `coffee-table/default` |
+| rug | 1 | `rugs/living` |
+| media cabinet | 1 | `cabinet-and-shelf/media/2000x440x350/closed` |
+| living-room display | 1 | `living-display/default` |
+| reading lamp | 1 | `portable-lamps/reading` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
+| decorative cushion | 4 | `household-textiles/sofa-cushion` |
+| blanket | 2 | `household-textiles/blanket` |
+| book | 8 | `books/240x35x160` |
+| picture frame | 2 | `wall-art/default` |
+| large potted plant | 1 | `potted-plant/1100` |
+| potted plant | 1 | `potted-plant/600` |
+| bowl | 1 | `tabletop-props/bowl` |
+| tray | 1 | `tabletop-props/tray` |
+| cup | 2 | `tabletop-props/cup` |
 
-검증 분모: 이 구역 31개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 31 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 식당 구역 (55) {#common-dining}
+## Dining area (55) {#common-dining}
 
-현행 식탁 중심 (0.55,0,3.85)과 6개 의자 좌표를 사용한다. 식탁 매트와 식기는 여섯 자리의 대응 슬롯에 놓고 서빙 물체는 중앙 슬롯에 둔다.
+The current dining table centre (0.55,0,3.85) and the coordinates of the 6 chairs are used. Placemats and tableware go in the corresponding slots of the six seats, and serving objects in the central slot.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 식탁 | 1 | `dining-table/default` |
-| 식탁 의자 | 6 | `dining-chair/default` |
-| 펜던트 | 1 | `dining-pendant/default` |
-| 천장 부착등 | 1 | `ceiling-surface-light/default` |
-| 식탁 매트 | 6 | `household-textiles/placemat` |
-| 접시 | 6 | `dining-wares/plate` |
-| 공기 | 6 | `tabletop-props/bowl` |
-| 컵 | 6 | `tabletop-props/cup` |
-| 포크 | 6 | `dining-wares/fork` |
-| 숟가락 | 6 | `dining-wares/spoon` |
-| 칼 | 6 | `dining-wares/table-knife` |
-| 서빙 볼 | 2 | `tabletop-props/bowl` |
-| 물병 | 1 | `dining-wares/water-bottle` |
-| 꽃병 | 1 | `dining-wares/flower-vase` |
+| dining table | 1 | `dining-table/default` |
+| dining chair | 6 | `dining-chair/default` |
+| pendant | 1 | `dining-pendant/default` |
+| ceiling surface light | 1 | `ceiling-surface-light/default` |
+| placemat | 6 | `household-textiles/placemat` |
+| plate | 6 | `dining-wares/plate` |
+| rice bowl | 6 | `tabletop-props/bowl` |
+| cup | 6 | `tabletop-props/cup` |
+| fork | 6 | `dining-wares/fork` |
+| spoon | 6 | `dining-wares/spoon` |
+| knife | 6 | `dining-wares/table-knife` |
+| serving bowl | 2 | `tabletop-props/bowl` |
+| water bottle | 1 | `dining-wares/water-bottle` |
+| vase | 1 | `dining-wares/flower-vase` |
 
-검증 분모: 이 구역 55개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 55 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 주방 구역 (45) {#common-kitchen}
+## Kitchen area (45) {#common-kitchen}
 
-현행 섬과 벽 조리대, 상부장, 분리수거장의 위치를 기준으로 조리 물체를 지지면에 귀속한다. 싱크와 쿡탑 점유면은 비우고 하부장 선형등은 장 하부에 고정한다.
+The cooking objects are attached to support surfaces based on the current positions of the island, wall worktop, wall cabinet, and recycling cabinet. The sink and cooktop occupancy is kept clear, and the under-cabinet linear lights are fixed to the cabinet underside.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 섬 | 1 | `kitchen-island/default` |
-| 스툴 | 3 | `island-stool/default` |
-| 벽 조리대·하부장 | 1 | `cooking-appliances/wall-worktop` |
-| 상부장 | 1 | `cabinet-and-shelf/wall/2900x980x360/closed` |
-| 냉장고 | 1 | `refrigerator/default` |
-| 팬트리장 | 1 | `cabinet-and-shelf/tall/900x2650x600/closed` |
-| 쿡탑 | 1 | `cooking-appliances/cooktop` |
-| 오븐 | 1 | `cooking-appliances/oven` |
-| 배기 후드 | 1 | `kitchen-extractor/default` |
-| 분리수거장 | 1 | `cabinet-and-shelf/service/640x840x600/closed` |
-| 분리수거함 | 3 | `household-boxes/recycling-box` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
-| 하부장 선형등 | 2 | `under-cabinet-light/default` |
-| 냄비 | 3 | `kitchen-smallwares/pot` |
-| 팬 | 2 | `kitchen-smallwares/pan` |
-| 도마 | 2 | `kitchen-smallwares/cutting-board` |
-| 칼 블록 | 1 | `kitchen-smallwares/knife-block` |
-| 조리 도구통 | 1 | `kitchen-smallwares/utensil-crock` |
-| 조리 도구 | 5 | `kitchen-smallwares/utensil` |
-| 주전자 | 1 | `kitchen-smallwares/kettle` |
-| 토스터 | 1 | `kitchen-smallwares/toaster` |
-| 커피 기구 | 1 | `kitchen-smallwares/coffee-brewer` |
-| 식기 건조대 | 1 | `kitchen-smallwares/drying-rack` |
-| 행주 | 2 | `household-textiles/dishcloth` |
-| 유리 보관병 | 4 | `kitchen-smallwares/glass-jar` |
-| 뒤 조리대 싱크·수전 | 1 | `rear-counter-sink/default` |
-| 뒤 조리대 화분 | 1 | `potted-plant/280` |
+| island | 1 | `kitchen-island/default` |
+| stool | 3 | `island-stool/default` |
+| wall worktop and base cabinet | 1 | `cooking-appliances/wall-worktop` |
+| wall cabinet | 1 | `cabinet-and-shelf/wall/2900x980x360/closed` |
+| refrigerator | 1 | `refrigerator/default` |
+| pantry cabinet | 1 | `cabinet-and-shelf/tall/900x2650x600/closed` |
+| cooktop | 1 | `cooking-appliances/cooktop` |
+| oven | 1 | `cooking-appliances/oven` |
+| extractor hood | 1 | `kitchen-extractor/default` |
+| recycling cabinet | 1 | `cabinet-and-shelf/service/640x840x600/closed` |
+| recycling bin | 3 | `household-boxes/recycling-box` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
+| under-cabinet linear light | 2 | `under-cabinet-light/default` |
+| pot | 3 | `kitchen-smallwares/pot` |
+| pan | 2 | `kitchen-smallwares/pan` |
+| cutting board | 2 | `kitchen-smallwares/cutting-board` |
+| knife block | 1 | `kitchen-smallwares/knife-block` |
+| utensil crock | 1 | `kitchen-smallwares/utensil-crock` |
+| cooking utensil | 5 | `kitchen-smallwares/utensil` |
+| kettle | 1 | `kitchen-smallwares/kettle` |
+| toaster | 1 | `kitchen-smallwares/toaster` |
+| coffee brewer | 1 | `kitchen-smallwares/coffee-brewer` |
+| dish drying rack | 1 | `kitchen-smallwares/drying-rack` |
+| dishcloth | 2 | `household-textiles/dishcloth` |
+| glass storage jar | 4 | `kitchen-smallwares/glass-jar` |
+| rear counter sink and faucet | 1 | `rear-counter-sink/default` |
+| rear counter potted plant | 1 | `potted-plant/280` |
 
-검증 분모: 이 구역 45개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 45 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 1층 화장실 (14) {#powder-utility}
+## Ground-floor powder room (14) {#powder-utility}
 
-현행 세면대·변기·청소장 좌표에 용기와 수건을 결합한다. 바닥 휴지통과 청소 도구는 문짝·변기 사용 영역에서 벗어난 쪽에 둔다.
+The containers and towels are bound to the current coordinates of the basin, toilet, and cleaning cabinet. The floor waste bin and cleaning tools are placed on the side clear of the door leaf and toilet use zone.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 1층 세면대 | 1 | `basin/800` |
-| 변기 | 1 | `toilet/lid-open` |
-| 1층 청소장 | 1 | `cabinet-and-shelf/tall/520x2250x520/closed` |
-| 비누 용기 | 1 | `bath-accessories/soap-dispenser` |
-| 손 수건 | 2 | `folded-towels/120` |
-| 휴지 걸이 | 1 | `bath-accessories/tissue-holder` |
-| 휴지 | 2 | `bath-accessories/tissue-roll` |
-| 휴지통 | 1 | `bath-accessories/waste-bin` |
-| 청소 도구 | 2 | `household-tools/cleaning-tool` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
+| ground-floor basin | 1 | `basin/800` |
+| toilet | 1 | `toilet/lid-open` |
+| ground-floor cleaning cabinet | 1 | `cabinet-and-shelf/tall/520x2250x520/closed` |
+| soap dispenser | 1 | `bath-accessories/soap-dispenser` |
+| hand towel | 2 | `folded-towels/120` |
+| toilet-paper holder | 1 | `bath-accessories/tissue-holder` |
+| toilet-paper roll | 2 | `bath-accessories/tissue-roll` |
+| waste bin | 1 | `bath-accessories/waste-bin` |
+| cleaning tool | 2 | `household-tools/cleaning-tool` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
 
-검증 분모: 이 구역 14개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 14 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 1층 창고 (20) {#storage-1f}
+## Ground-floor storeroom (20) {#storage-1f}
 
-현행 열린 선반 중심 (-4.90,0,-1.22)과 네 바구니의 높이별 접촉면을 사용한다. 공구·상자·여분 조명을 선반의 실제 비점유 슬롯에 분배한다.
+The current open shelf centre (-4.90,0,-1.22) and the contact faces of the four baskets by height are used. Tools, boxes, and spare lights are distributed into the actual unoccupied slots of the shelves.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 1층 열린 선반 | 2 | `cabinet-and-shelf/open-shelf/1550x2500x500/open` |
-| 바구니 | 4 | `storage-basket/default` |
-| 공구 상자 | 1 | `household-tools/tool-box` |
-| 청소기 | 1 | `household-tools/vacuum` |
-| 접이식 사다리 | 1 | `household-tools/folded-ladder` |
-| 재활용 상자 | 2 | `household-boxes/recycling-box` |
-| 여분 조명 | 2 | `household-tools/spare-light` |
-| 천장 부착등 | 1 | `ceiling-surface-light/default` |
-| 보관 상자 | 6 | `household-boxes/storage-box` |
+| ground-floor open shelf | 2 | `cabinet-and-shelf/open-shelf/1550x2500x500/open` |
+| basket | 4 | `storage-basket/default` |
+| tool box | 1 | `household-tools/tool-box` |
+| vacuum cleaner | 1 | `household-tools/vacuum` |
+| folding ladder | 1 | `household-tools/folded-ladder` |
+| recycling box | 2 | `household-boxes/recycling-box` |
+| spare light | 2 | `household-tools/spare-light` |
+| ceiling surface light | 1 | `ceiling-surface-light/default` |
+| storage box | 6 | `household-boxes/storage-box` |
 
-검증 분모: 이 구역 20개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 20 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 상층 복도 (9) {#upper-corridor}
+## Upper corridor (9) {#upper-corridor}
 
-복도 clear cell과 계단·방문 개구를 먼저 비운다. 낮은 화분과 수납장은 남는 벽면에 붙이고 액자는 벽면 중심, 등은 천장에 귀속한다.
+The corridor clear cell and the stair and room door openings are cleared first. The low planter and cabinet are attached to the remaining wall faces, the picture frames at the wall face centres, and the lights to the ceiling.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 벽 액자 | 2 | `wall-art/default` |
-| 낮은 화분 | 1 | `potted-plant/280` |
-| 천장 부착등 | 5 | `ceiling-surface-light/default` |
-| 작은 수납장 | 1 | `cabinet-and-shelf/nightstand/500x460x460/closed` |
+| wall picture frame | 2 | `wall-art/default` |
+| low potted plant | 1 | `potted-plant/280` |
+| ceiling surface light | 5 | `ceiling-surface-light/default` |
+| small cabinet | 1 | `cabinet-and-shelf/nightstand/500x460x460/closed` |
 
-검증 분모: 이 구역 9개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 9 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 주침실 (43) {#primary-bedroom}
+## Primary bedroom (43) {#primary-bedroom}
 
-현행 침대·협탁·책상·옷장 좌표를 지지 기준으로 삼는다. 침구는 침대, 책상 물체는 책상, 의류는 옷장 안, 책은 책상·협탁의 비점유 면에 놓는다.
+The current coordinates of the bed, nightstands, desk, and wardrobe are taken as the support basis. Bedding goes on the bed, desk objects on the desk, clothing inside the wardrobe, and books on the unoccupied faces of the desk and nightstands.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 더블 침대 | 1 | `fixed-bed/1800` |
-| 협탁 | 2 | `cabinet-and-shelf/nightstand/500x460x460/closed` |
-| 구형 등 | 2 | `portable-lamps/bedside-globe` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
-| 주침실 옷장 | 1 | `cabinet-and-shelf/tall/2720x2650x600/closed` |
-| 주침실 책상 | 1 | `work-desk/bed-1200` |
-| 책상 의자 | 1 | `desk-chair/default` |
-| 작업 화면 | 1 | `work-equipment/display` |
-| 키보드 | 1 | `work-equipment/keyboard` |
-| 침실 러그 | 1 | `rugs/bedroom1600x2200` |
-| 침구 세트 | 1 | `household-textiles/bedding-set` |
-| 베개 | 4 | `household-textiles/pillow` |
-| 담요 | 1 | `household-textiles/blanket` |
-| 옷걸이 | 8 | `personal-articles/hanger` |
-| 옷 | 8 | `personal-articles/garment` |
-| 책 | 4 | `books/240x35x160` |
-| 액자 | 2 | `wall-art/default` |
-| 화분 | 1 | `potted-plant/600` |
-| 물컵 | 1 | `tabletop-props/cup` |
+| double bed | 1 | `fixed-bed/1800` |
+| nightstand | 2 | `cabinet-and-shelf/nightstand/500x460x460/closed` |
+| globe lamp | 2 | `portable-lamps/bedside-globe` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
+| primary wardrobe | 1 | `cabinet-and-shelf/tall/2720x2650x600/closed` |
+| primary desk | 1 | `work-desk/bed-1200` |
+| desk chair | 1 | `desk-chair/default` |
+| work display | 1 | `work-equipment/display` |
+| keyboard | 1 | `work-equipment/keyboard` |
+| bedroom rug | 1 | `rugs/bedroom1600x2200` |
+| bedding set | 1 | `household-textiles/bedding-set` |
+| pillow | 4 | `household-textiles/pillow` |
+| blanket | 1 | `household-textiles/blanket` |
+| clothes hanger | 8 | `personal-articles/hanger` |
+| garment | 8 | `personal-articles/garment` |
+| book | 4 | `books/240x35x160` |
+| picture frame | 2 | `wall-art/default` |
+| potted plant | 1 | `potted-plant/600` |
+| drinking cup | 1 | `tabletop-props/cup` |
 
-검증 분모: 이 구역 43개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 43 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 작은 침실 1 (24) {#child-bedroom-1}
+## Small bedroom 1 (24) {#child-bedroom-1}
 
-현행 싱글 침대·책상·책장·옷장 좌표를 기준으로 침구·책·작업 물체를 각각의 지지면에 놓는다. 장난감 상자는 통행에서 벗어난 바닥에 둔다.
+Based on the current coordinates of the single bed, desk, bookcase, and wardrobe, bedding, books, and work objects go on their respective support surfaces. The toy box goes on the floor out of the passage.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 싱글 침대 | 1 | `fixed-bed/1000` |
-| 아이방 1 옷장 | 1 | `cabinet-and-shelf/tall/1300x2650x600/closed` |
-| 아이방 1 책상 | 1 | `work-desk/bed-1240` |
-| 책상 의자 | 1 | `desk-chair/default` |
-| 작업 화면 | 1 | `work-equipment/display` |
-| 키보드 | 1 | `work-equipment/keyboard` |
-| 아이방 1 책장 | 1 | `cabinet-and-shelf/open-shelf/750x1200x400/open` |
-| 작업등 | 1 | `portable-lamps/desk-task` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
-| 원형 러그 | 1 | `rugs/round1200` |
-| 침구 세트 | 1 | `household-textiles/bedding-set` |
-| 베개 | 2 | `household-textiles/pillow` |
-| 책 | 6 | `books/240x35x160` |
-| 액자 | 1 | `wall-art/default` |
-| 장난감 상자 | 1 | `household-boxes/toy-box` |
-| 소형 화분 | 1 | `potted-plant/280` |
-| 컵 | 1 | `tabletop-props/cup` |
+| single bed | 1 | `fixed-bed/1000` |
+| child room 1 wardrobe | 1 | `cabinet-and-shelf/tall/1300x2650x600/closed` |
+| child room 1 desk | 1 | `work-desk/bed-1240` |
+| desk chair | 1 | `desk-chair/default` |
+| work display | 1 | `work-equipment/display` |
+| keyboard | 1 | `work-equipment/keyboard` |
+| child room 1 bookcase | 1 | `cabinet-and-shelf/open-shelf/750x1200x400/open` |
+| task lamp | 1 | `portable-lamps/desk-task` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
+| round rug | 1 | `rugs/round1200` |
+| bedding set | 1 | `household-textiles/bedding-set` |
+| pillow | 2 | `household-textiles/pillow` |
+| book | 6 | `books/240x35x160` |
+| picture frame | 1 | `wall-art/default` |
+| toy box | 1 | `household-boxes/toy-box` |
+| small potted plant | 1 | `potted-plant/280` |
+| cup | 1 | `tabletop-props/cup` |
 
-검증 분모: 이 구역 24개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 24 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 작은 침실 2 (23) {#child-bedroom-2}
+## Small bedroom 2 (23) {#child-bedroom-2}
 
-현행 싱글 침대·책상·열린 선반·옷장 좌표를 기준으로 침구·책·작업 물체를 각각의 지지면에 놓는다. 바구니는 선반의 비점유 슬롯에 둔다.
+Based on the current coordinates of the single bed, desk, open shelf, and wardrobe, bedding, books, and work objects go on their respective support surfaces. The baskets go in the unoccupied slots of the shelf.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 싱글 침대 | 1 | `fixed-bed/1000` |
-| 아이방 2 옷장 | 1 | `cabinet-and-shelf/tall/1400x2600x540/closed` |
-| 아이방 2 책상 | 1 | `work-desk/bed-1250` |
-| 책상 의자 | 1 | `desk-chair/default` |
-| 작업 화면 | 1 | `work-equipment/display` |
-| 키보드 | 1 | `work-equipment/keyboard` |
-| 아이방 2 열린 선반 | 1 | `cabinet-and-shelf/open-shelf/750x1200x400/open` |
-| 작업등 | 1 | `portable-lamps/desk-task` |
-| 천장 부착등 | 1 | `ceiling-surface-light/default` |
-| 원형 러그 | 1 | `rugs/round1200` |
-| 침구 세트 | 1 | `household-textiles/bedding-set` |
-| 베개 | 2 | `household-textiles/pillow` |
-| 책 | 6 | `books/240x35x160` |
-| 액자 | 1 | `wall-art/default` |
-| 수납 바구니 | 2 | `storage-basket/default` |
-| 소형 화분 | 1 | `potted-plant/280` |
+| single bed | 1 | `fixed-bed/1000` |
+| child room 2 wardrobe | 1 | `cabinet-and-shelf/tall/1400x2600x540/closed` |
+| child room 2 desk | 1 | `work-desk/bed-1250` |
+| desk chair | 1 | `desk-chair/default` |
+| work display | 1 | `work-equipment/display` |
+| keyboard | 1 | `work-equipment/keyboard` |
+| child room 2 open shelf | 1 | `cabinet-and-shelf/open-shelf/750x1200x400/open` |
+| task lamp | 1 | `portable-lamps/desk-task` |
+| ceiling surface light | 1 | `ceiling-surface-light/default` |
+| round rug | 1 | `rugs/round1200` |
+| bedding set | 1 | `household-textiles/bedding-set` |
+| pillow | 2 | `household-textiles/pillow` |
+| book | 6 | `books/240x35x160` |
+| picture frame | 1 | `wall-art/default` |
+| storage basket | 2 | `storage-basket/default` |
+| small potted plant | 1 | `potted-plant/280` |
 
-검증 분모: 이 구역 23개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 23 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 상층 욕실 (31) {#upper-bathroom}
+## Upper bathroom (31) {#upper-bathroom}
 
-현행 세면대·변기·샤워·수건장 좌표를 기준으로 세면 물체와 수건을 놓는다. 욕실 매트는 물기 구역의 바닥에 놓되 출입문과 변기 접근을 피한다.
+Washing objects and towels are placed based on the current coordinates of the basin, toilet, shower, and towel cabinet. The bath mats go on the floor of the wet zone but avoid the entrance door and toilet access.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 상층 세면대 | 1 | `basin/1000` |
-| 변기 | 1 | `toilet/lid-open` |
-| 샤워 설비 | 1 | `shower/default` |
-| 욕조 | 1 | `bathtub/default` |
-| 수건장 | 1 | `cabinet-and-shelf/open-shelf/600x1100x380/open` |
-| 접힌 수건 | 6 | `folded-towels/120` |
-| 칫솔 컵 | 2 | `bath-accessories/toothbrush-cup` |
-| 칫솔 | 4 | `bath-accessories/toothbrush` |
-| 비누 용기 | 2 | `bath-accessories/soap-dispenser` |
-| 샴푸 병 | 2 | `bath-accessories/shampoo-bottle` |
-| 세탁 바구니 | 1 | `bath-accessories/laundry-basket` |
-| 욕실 매트 | 2 | `household-textiles/bath-mat` |
-| 휴지 걸이 | 1 | `bath-accessories/tissue-holder` |
-| 휴지 | 2 | `bath-accessories/tissue-roll` |
-| 휴지통 | 1 | `bath-accessories/waste-bin` |
-| 천장 부착등 | 3 | `ceiling-surface-light/default` |
+| upper basin | 1 | `basin/1000` |
+| toilet | 1 | `toilet/lid-open` |
+| shower | 1 | `shower/default` |
+| bathtub | 1 | `bathtub/default` |
+| towel cabinet | 1 | `cabinet-and-shelf/open-shelf/600x1100x380/open` |
+| folded towel | 6 | `folded-towels/120` |
+| toothbrush cup | 2 | `bath-accessories/toothbrush-cup` |
+| toothbrush | 4 | `bath-accessories/toothbrush` |
+| soap dispenser | 2 | `bath-accessories/soap-dispenser` |
+| shampoo bottle | 2 | `bath-accessories/shampoo-bottle` |
+| laundry hamper | 1 | `bath-accessories/laundry-basket` |
+| bath mat | 2 | `household-textiles/bath-mat` |
+| toilet-paper holder | 1 | `bath-accessories/tissue-holder` |
+| toilet-paper roll | 2 | `bath-accessories/tissue-roll` |
+| waste bin | 1 | `bath-accessories/waste-bin` |
+| ceiling surface light | 3 | `ceiling-surface-light/default` |
 
-검증 분모: 이 구역 31개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 31 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 상층 수납 (28) {#upper-storage}
+## Upper storage (28) {#upper-storage}
 
-현행 린넨장 중심 (-4.90,3.20,0.48)과 다섯 수건 더미를 기준으로 남은 시트·상자·베개를 분리된 선반 슬롯에 놓는다.
+Based on the current linen cabinet centre (-4.90,3.20,0.48) and the five towel stacks, the remaining sheets, boxes, and pillows go in separate shelf slots.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 린넨장 | 1 | `cabinet-and-shelf/open-shelf/1100x2600x500/open` |
-| 상층 청소장 | 1 | `cabinet-and-shelf/tall/600x2300x500/closed` |
-| 바구니 | 3 | `storage-basket/default` |
-| 접힌 수건 | 8 | `folded-towels/120` |
-| 접힌 시트 | 4 | `household-textiles/folded-sheet` |
-| 베개 | 2 | `household-textiles/pillow` |
-| 보관 상자 | 4 | `household-boxes/storage-box` |
-| 청소 도구 | 2 | `household-tools/cleaning-tool` |
-| 휴지 묶음 | 2 | `bath-accessories/tissue-pack` |
-| 천장 부착등 | 1 | `ceiling-surface-light/default` |
+| linen cabinet | 1 | `cabinet-and-shelf/open-shelf/1100x2600x500/open` |
+| upper cleaning cabinet | 1 | `cabinet-and-shelf/tall/600x2300x500/closed` |
+| basket | 3 | `storage-basket/default` |
+| folded towel | 8 | `folded-towels/120` |
+| folded sheet | 4 | `household-textiles/folded-sheet` |
+| pillow | 2 | `household-textiles/pillow` |
+| storage box | 4 | `household-boxes/storage-box` |
+| cleaning tool | 2 | `household-tools/cleaning-tool` |
+| toilet-paper pack | 2 | `bath-accessories/tissue-pack` |
+| ceiling surface light | 1 | `ceiling-surface-light/default` |
 
-검증 분모: 이 구역 28개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 28 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 설비실 (18) {#upper-service}
+## Service room (18) {#upper-service}
 
-현행 세탁기·건조기와 점검 선반을 기준으로 세제·수건·공구를 지지면에 놓는다. 기계 외함의 점검 전면과 출입문을 비운다.
+Detergent, towels, and tools go on support surfaces based on the current washer, dryer, and service shelf. The inspection front of the machine enclosure and the entrance door are kept clear.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 세탁기 | 1 | `laundry-appliances/washer` |
-| 건조기 | 1 | `laundry-appliances/dryer` |
-| 점검 선반 | 1 | `cabinet-and-shelf/open-shelf/850x2400x450/open` |
-| 기계 외함 | 1 | `cabinet-and-shelf/service/1100x2400x560/closed` |
-| 세제 병 | 3 | `bath-accessories/detergent-bottle` |
-| 빨래 바구니 | 2 | `bath-accessories/laundry-basket` |
-| 청소 도구 | 2 | `household-tools/cleaning-tool` |
-| 접힌 수건 | 4 | `folded-towels/120` |
-| 공구 상자 | 1 | `household-tools/tool-box` |
-| 천장 부착등 | 2 | `ceiling-surface-light/default` |
+| washer | 1 | `laundry-appliances/washer` |
+| dryer | 1 | `laundry-appliances/dryer` |
+| service shelf | 1 | `cabinet-and-shelf/open-shelf/850x2400x450/open` |
+| machine enclosure | 1 | `cabinet-and-shelf/service/1100x2400x560/closed` |
+| detergent bottle | 3 | `bath-accessories/detergent-bottle` |
+| laundry basket | 2 | `bath-accessories/laundry-basket` |
+| cleaning tool | 2 | `household-tools/cleaning-tool` |
+| folded towel | 4 | `folded-towels/120` |
+| tool box | 1 | `household-tools/tool-box` |
+| ceiling surface light | 2 | `ceiling-surface-light/default` |
 
-검증 분모: 이 구역 18개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 18 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.
 
-## 진입 외부·정원 (27) {#citizen-site}
+## Approach exterior and garden (27) {#citizen-site}
 
-건물 앞 진입 band x=1.30..2.90 및 보도·차양 정비 면을 비운다. 우편함·택배함은 출입 접근 측, 야외 좌석은 정원, 자전거와 도구는 서비스 측에 둔다.
+The entry band x=1.30..2.90 in front of the building and the path and canopy maintenance surfaces are kept clear. The mailbox and parcel locker go on the entrance access side, the outdoor seating in the garden, and the bicycles and tools on the service side.
 
-| 독립 물체 | 수량 | 모델 상태 |
+| Independent object | Count | Model state |
 | --- | ---: | --- |
-| 우편함 | 1 | `exterior-furnishings/mailbox` |
-| 택배 보관함 | 1 | `household-boxes/parcel-locker` |
-| 외부 벤치 | 1 | `exterior-furnishings/outdoor-bench` |
-| 야외 의자 | 2 | `exterior-furnishings/outdoor-chair` |
-| 작은 야외 탁자 | 1 | `exterior-furnishings/outdoor-table` |
-| 화분 | 4 | `potted-plant/600` |
-| 외부 조명 | 6 | `exterior-furnishings/garden-light` |
-| 빗물통 | 1 | `exterior-furnishings/rain-barrel` |
-| 정원 도구 | 3 | `household-tools/garden-tool` |
-| 호스 릴 | 1 | `household-tools/hose-reel` |
-| 쓰레기통 | 2 | `exterior-furnishings/outdoor-waste-bin` |
-| 자전거 거치대 | 1 | `exterior-furnishings/bike-rack` |
-| 자전거 | 2 | `exterior-furnishings/bicycle` |
-| 현관 발판 매트 | 1 | `household-textiles/outdoor-mat` |
+| mailbox | 1 | `exterior-furnishings/mailbox` |
+| parcel locker | 1 | `household-boxes/parcel-locker` |
+| outdoor bench | 1 | `exterior-furnishings/outdoor-bench` |
+| outdoor chair | 2 | `exterior-furnishings/outdoor-chair` |
+| small outdoor table | 1 | `exterior-furnishings/outdoor-table` |
+| potted plant | 4 | `potted-plant/600` |
+| garden light | 6 | `exterior-furnishings/garden-light` |
+| rain barrel | 1 | `exterior-furnishings/rain-barrel` |
+| garden tool | 3 | `household-tools/garden-tool` |
+| hose reel | 1 | `household-tools/hose-reel` |
+| outdoor waste bin | 2 | `exterior-furnishings/outdoor-waste-bin` |
+| bike rack | 1 | `exterior-furnishings/bike-rack` |
+| bicycle | 2 | `exterior-furnishings/bicycle` |
+| doorstep mat | 1 | `household-textiles/outdoor-mat` |
 
-검증 분모: 이 구역 27개 전체. 같은 공간 ID를 쓰는 거실·식당·주방은 각각 독립 하위 모집단이다.
+Verification denominator: all 27 of this area. The living, dining, and kitchen, which use the same space ID, are each an independent subpopulation.

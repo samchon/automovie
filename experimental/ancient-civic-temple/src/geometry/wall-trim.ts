@@ -1,11 +1,11 @@
 /**
- * 외벽 위의 석재 코핑과 외벽 발치의 석재 기단 띠를 벽 기둥에서 유도한다.
- * 코핑은 평평한 윗면 기둥(파라펫·마당 벽)의 평면 위에 두께만큼 얹히고 양쪽
- * 긴 면과 자유 끝에서 돌출한다. 더 높은 벽으로 이어지는 끝은 돌출하지 않고,
- * 돌출분이 다른 벽 기둥 안으로 들어가는 칸은 버린다. 기단은 건물 외곽선 위
- * 바깥면 중 발치부터 기단 상단까지 끊기지 않은 면 앞에만 돌출하며 상단은
- * 호출자가 준 지면 높이를 따른다. 두 결과 모두 격자 칸의 합집합이라 한 part
- * 안에 겹친 실체가 없고, 맞닿은 칸의 공통 면은 culling으로 제거된다.
+ * Derives the stone coping on top of the outer walls and the stone plinth band at their foot from the wall columns.
+ * The coping sits on the plane of each flat-topped column (parapet, yard wall) by its thickness and projects at
+ * both long faces and free ends. An end that continues into a higher wall does not project, and cells whose
+ * projection would enter another wall column are dropped. The plinth projects only in front of outer faces on
+ * the building outline that run unbroken from the foot to the plinth top, and its top follows the ground height
+ * the caller gives. Both results are unions of grid cells, so no solids overlap inside one part, and the shared
+ * faces of touching cells are removed by culling.
  */
 import { cullCoincidentVerticalFaces } from "./face-culling";
 import { planeHeight, rectanglePolygon, type HeightPlane, type PlanPoint, type PlanRectangle, type RoofPatch } from "./planar-domain";
@@ -13,11 +13,11 @@ import { prismFaces } from "./prism";
 import { wallColumns, wallFaces, type WallFace, type WallSpec } from "./wall-solids";
 
 export interface WallTrimProfile {
-  /** 코핑 돌출(m): 벽 긴 면과 자유 끝에서. */
+  /** Coping projection (m) at the wall's long faces and free ends. */
   copingProjection: number;
-  /** 기단 돌출(m): 외곽 바깥면에서. */
+  /** Plinth projection (m) from the outer outline faces. */
   plinthProjection: number;
-  /** 기단 상단의 지면 위 높이(m). */
+  /** Height (m) of the plinth top above the ground. */
   plinthRise: number;
 }
 
@@ -25,26 +25,26 @@ export interface WallTrimInput {
   walls: readonly WallSpec[];
   roof: readonly RoofPatch[];
   profile: WallTrimProfile;
-  /** 건물 외곽 바깥선. 기단은 이 선 위의 면에만 붙는다. */
+  /** The building's outer outline. The plinth attaches only to faces on this line. */
   outline: PlanRectangle;
-  /** 평면 위치의 지면 평면(기단 상단 = 지면 + rise). */
+  /** The ground plane at a plan position (plinth top = ground + rise). */
   grade: (at: PlanPoint) => HeightPlane;
-  /** 기단 칸을 나눌 지면 경사 전환선(Z). */
+  /** Ground slope break lines (Z) that split the plinth cells. */
   gradeBreaks: readonly number[];
-  /** 외곽 면을 소유한 입면 이름에서 기단 표면 ID를 만든다. */
+  /** Builds the plinth surface ID from the name of the elevation that owns the outline face. */
   plinthSurface: (outerSurface: string) => string;
 }
 
 interface Tagged { rect: PlanRectangle; surface: string; owner: string; core: boolean }
 
-/** 격자 합집합의 한 칸: 평면 사각형 위 하단·상단 평면 사이의 실체. */
+/** One cell of a grid union: the solid between bottom and top planes over a plan rectangle. */
 export interface TrimCell {
   rect: PlanRectangle;
   bottom: HeightPlane;
   top: HeightPlane;
   surface: string;
   owner: string;
-  /** 코핑 칸의 아랫면이 벽 받침면 위에 놓여 가려지는지. */
+  /** Whether the coping cell's underside rests on the wall's bearing face and is hidden. */
   onBed: boolean;
 }
 
@@ -60,7 +60,7 @@ const containsPoint = (polygon: readonly PlanPoint[], p: PlanPoint): boolean => 
   return (b.x - a.x) * (p.z - a.z) - (b.z - a.z) * (p.x - a.x) >= -1e-9;
 });
 
-/** 격자 칸 합집합: 칸 중심을 덮는 첫 태그의 표면을 받는다(core 우선). */
+/** Grid cell union: takes the surface of the first tag covering the cell centre (core first). */
 const gridCells = (tags: readonly Tagged[], reject: (center: PlanPoint) => boolean) => {
   const xs = [...new Set(tags.flatMap((t) => [t.rect.west, t.rect.east]))].sort((a, b) => a - b);
   const zs = [...new Set(tags.flatMap((t) => [t.rect.north, t.rect.south]))].sort((a, b) => a - b);
@@ -80,9 +80,9 @@ const gridCells = (tags: readonly Tagged[], reject: (center: PlanPoint) => boole
 };
 
 /**
- * 코핑: 평평한 윗면에 coping 두께가 있는 기둥마다 그 평면의 외접 사각형을
- * 핵으로 삼는다. 같은 높이의 인접 기둥끼리는 합집합으로 잇고, 벽 평면의
- * 끝(모서리·자유 끝)에서만 길이 방향으로 돌출한다.
+ * Coping: for every column with a coping thickness on a flat top, the bounding rectangle of that plane is
+ * the core. Adjacent columns at the same height are joined by union, and the coping projects along the length
+ * only at the ends of the wall plane (corners and free ends).
  */
 export const copingCells = (input: WallTrimInput): TrimCell[] => {
   const { walls, roof, profile } = input;
@@ -132,7 +132,7 @@ export const copingCells = (input: WallTrimInput): TrimCell[] => {
   return result;
 };
 
-/** 코핑 칸의 면. 받침면 위의 아랫면만 가려진 joint이고 돌출부 아랫면은 코핑이다. */
+/** Faces of a coping cell. Only the underside over the bearing face is a hidden joint; the projection's underside is coping. */
 export const copingFaces = (input: WallTrimInput): WallFace[] => cullCoincidentVerticalFaces(
   copingCells(input).flatMap((cell) => prismFaces(rectanglePolygon(cell.rect), cell.bottom, cell.top).map((face) => ({
     surface: face.side === "bottom" && cell.onBed ? `surface.${cell.owner}.joint` : cell.surface, corners: face.corners,
@@ -140,10 +140,10 @@ export const copingFaces = (input: WallTrimInput): WallFace[] => cullCoincidentV
 );
 
 /**
- * 기단: 외곽선 위에 놓인 바깥면 중 벽 하단에서 시작해 기단 상단보다 높이
- * 이어지는 면 앞에 돌출 띠를 둔다. 문턱 아래처럼 기단 상단보다 낮게 끝나는
- * 면(개구부 아래)은 건너뛰어 void 앞을 막지 않는다. 네 바깥 모서리는 띠끼리
- * 잇는 정사각 칸을 더한다. 칸은 지면 경사 전환선에서 나뉘어 상단이 평면이다.
+ * Plinth: a projecting band in front of outer faces on the outline that start at the wall bottom and continue
+ * above the plinth top. A face that ends below the plinth top, such as under a threshold (below an opening), is
+ * skipped so the void is not blocked. Square cells join the bands at the four outer corners. Cells split at
+ * ground slope break lines so each top is planar.
  */
 export const plinthCells = (input: WallTrimInput): TrimCell[] => {
   const { walls, roof, profile, outline: o } = input;
@@ -170,7 +170,7 @@ export const plinthCells = (input: WallTrimInput): TrimCell[] => {
           north: sign < 0 ? constZ - d : constZ, south: sign < 0 ? constZ : constZ + d };
       }
       if (rect === null) continue;
-      // 면 위쪽 끝(양 꼭짓점 중 낮은 쪽)이 기단 상단보다 낮으면 그 면 앞은 void 아래다.
+      // When the face's upper end (the lower of its two vertices) is below the plinth top, the front of that face is under a void.
       const topEdge = Math.min(...face.corners.filter((c) => c.y > wall.bottom + 1e-9).map((c) => c.y));
       const probe = { x: (rect.west + rect.east) / 2, z: (rect.north + rect.south) / 2 };
       if (!(topEdge > planeHeight(input.grade(probe), probe) + profile.plinthRise + 1e-9)) continue;
@@ -200,7 +200,7 @@ export const plinthCells = (input: WallTrimInput): TrimCell[] => {
   });
 };
 
-/** 기단 칸의 면. 묻힌 아랫면과 벽에 붙은 뒷면은 가려진 joint다. */
+/** Faces of a plinth cell. The buried underside and the back against the wall are hidden joints. */
 export const plinthFaces = (input: WallTrimInput): WallFace[] => cullCoincidentVerticalFaces(
   plinthCells(input).flatMap((cell) => prismFaces(rectanglePolygon(cell.rect), cell.bottom, cell.top).map((face) => {
     const hidden = face.side === "bottom" || (face.side === "edge" && isBackFace(cell.rect, face.normal, input.outline));
@@ -208,7 +208,7 @@ export const plinthFaces = (input: WallTrimInput): WallFace[] => cullCoincidentV
   })),
 );
 
-/** 기단 칸의 옆면 중 외곽선 위에서 벽 쪽을 향한 면(벽과 맞닿는 가려진 면). */
+/** The side faces of a plinth cell on the outline that face the wall (hidden faces touching the wall). */
 const isBackFace = (rect: PlanRectangle, normal: PlanPoint, o: PlanRectangle): boolean =>
   (normal.x > 0.5 && Math.abs(rect.east - o.west) < 1e-9) || (normal.x < -0.5 && Math.abs(rect.west - o.east) < 1e-9) ||
   (normal.z > 0.5 && Math.abs(rect.south - o.north) < 1e-9) || (normal.z < -0.5 && Math.abs(rect.north - o.south) < 1e-9);

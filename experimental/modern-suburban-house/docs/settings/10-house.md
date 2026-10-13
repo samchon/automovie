@@ -1,311 +1,311 @@
-# 주택과 생활 공간의 정체성
+# Identity of the House and Living Spaces
 
-## 규모 {#house-scale}
+## Scale {#house-scale}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고·포치·대지를 제외한 두 층의 외벽 기준 면적을 정해 약 246㎡라는 본채 규모가 부속 공간으로 부풀려지지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 폭·깊이와 합산 면적을 동시에 만족하도록 정하여 spaces가 규모 조건을 새로 발명하지 않고 외곽을 선택할 수 있다.
-@evidence principles/core/common.md#declared-basis 246㎡는 사용자 목표이고 235–255㎡ 및 폭·깊이 범위는 저작자의 설계 선택으로 구별한다.
-@evidence principles/core/settings.md#fact-status 측량 면적을 아는 것이 아니라 목표 범위를 채택했으며 최종 외곽 수치는 spaces에서 산출할 값이다.
-@evidence principles/core/settings.md#source-support 사용자 제공 규모를 넘어 실재 주택의 면적이나 이미지에서 잰 치수를 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 본채의 허용 변화는 두 층의 거의 같은 외곽과 얕은 전면 돌출 안이며 보이드나 후면 증축으로 면적을 옮길 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 폭과 깊이의 범위 안에 들더라도 면적 조건을 함께 만족해야 하고 차고 등의 제외 경계도 고정한다.
-@evidence principles/core/settings.md#observable-identity 넓은 저택이나 다동 배치 대신 거의 겹치는 두 직사각 층의 비례가 보이도록 본채의 크기를 묶는다.
+@evidence principles/core/common.md#scope-preservation Sets the exterior-wall area of the two storeys excluding the garage, porch, and site, so the main block scale of about 246㎡ is not inflated by auxiliary spaces.
+@evidence principles/core/common.md#substantive-completion Sets width, depth, and summed area to be satisfied together, so spaces can choose the outline without inventing a new scale condition.
+@evidence principles/core/common.md#declared-basis Separates 246㎡ as the user's target from 235–255㎡ and the width and depth ranges as the author's design choices.
+@evidence principles/core/settings.md#fact-status A target range was adopted rather than a surveyed area being known, and the final outline values are to be produced in spaces.
+@evidence principles/core/settings.md#source-support Claims no real house area or dimension measured from images beyond the user-provided scale.
+@evidence principles/core/settings.md#capability-boundary The allowed variation of the main block stays within nearly identical outlines of the two storeys and a shallow front projection, and area cannot be moved into a void or a rear addition.
+@evidence principles/core/settings.md#constraint-sufficiency Even within the width and depth ranges the area condition must be satisfied as well, and the exclusion boundary of the garage and the like is also fixed.
+@evidence principles/core/settings.md#observable-identity Binds the main block size so the proportion of two nearly overlapping rectangular storeys shows instead of a large mansion or a multi-building layout.
 -->
 
-사용자가 정한 약 246㎡는 측량값이 아닌 규모 목표다. 저작자는 이를 차고·개방 포치·대지를 제외하고 두 층 외벽 기준 바닥면적을 합한 값으로 해석하며 235–255㎡ 안에서 설계한다. 본채 두 층은 거의 같은 외곽을 가지며 전면 박공의 얕은 돌출만 허용한다. 본채 폭 11.2–11.8 m, 깊이 10.4–11.0 m 범위 안에서 면적 조건도 함께 만족하는 치수를 spaces가 택하고 벽·계단·방의 사용 여유를 근거로 기록한다. 단위와 전면 기준은 00-production.md#coordinate-units를 따른다. 복층 보이드로 면적을 비우거나 후면 증축으로 방을 숨기지 않는다.
+The roughly 246㎡ the user set is a scale target, not a surveyed value. The author interprets it as the sum of the two storeys' floor areas measured to the exterior walls, excluding the garage, open porch, and site, and designs within 235–255㎡. The two storeys of the main block have nearly the same outline, and only a shallow projection of the front gable is allowed. Within a main block width of 11.2–11.8 m and depth of 10.4–11.0 m, spaces chooses dimensions that also satisfy the area condition and records the use clearances of walls, stair, and rooms as the basis. Units and the front reference follow 00-production.md#coordinate-units. Area is not emptied with a double-height void, and rooms are not hidden in a rear addition.
 
-## 본채 매스와 지붕 {#main-mass}
+## Main Mass and Roof {#main-mass}
 <!--
-@evidence principles/core/common.md#scope-preservation 본채와 낮은 우측 차고의 위계, 전면과 측면 박공, 처마 하부까지 맡아 외관을 상자 외곽으로 축소하지 않는다.
-@evidence principles/core/common.md#substantive-completion 용마루 방향과 박공의 합류 관계 및 높이 범위를 정해 지붕 설계가 어떤 집을 만들어야 하는지 확정한다.
-@evidence principles/core/common.md#declared-basis 고정 그래프와 01의 지붕 관계를 계승하며 경사와 순높이 범위는 이 주택의 저작 경계로 둔다.
-@evidence principles/core/settings.md#fact-status 30–38°와 층별 순높이는 실측 사실이 아니라 선택 범위이고 정확한 용마루 높이는 후속 설계값이다.
-@evidence principles/core/settings.md#source-support 01은 박공군의 형태를 지지하며 사진에 존재하지 않는 단면 수치를 출처가 보증한 값으로 제시하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 오른쪽의 낮은 지붕은 같은 본채에 붙은 형상만 허용하며 별동이나 세 번째 층을 만들 권한을 주지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 삼각 벽·양 경사면·처마 밑면을 닫고 골짜기의 틈과 중첩을 금지하여 교차부가 결정되지 않은 채 남지 않게 한다.
-@evidence principles/core/settings.md#observable-identity 정면 왼쪽 큰 박공 뒤의 좌우 용마루와 오른쪽의 낮은 박공이 여러 각도에서 같은 지붕군으로 읽힐 기준이다.
-@evidence obligations/core/settings.md#production-visual-grammar 전면 왼쪽 박공·좌우 주 용마루·우측 낮은 박공과 단층 차고의 위계를 고정하여 다른 각도에서도 같은 지붕군과 층 비례가 읽히게 한다.
+@evidence principles/core/common.md#scope-preservation Takes on the hierarchy of the main block and the low right-hand garage, the front and side gables, and the eave soffits, so the exterior is not reduced to a box outline.
+@evidence principles/core/common.md#substantive-completion Sets the ridge direction, how the gables join, and the height ranges, fixing what house the roof design must make.
+@evidence principles/core/common.md#declared-basis Inherits the fixed graph and the roof relations of 01, and keeps the pitch and clear-height ranges as this house's authoring bounds.
+@evidence principles/core/settings.md#fact-status 30–38° and the per-storey clear heights are a chosen range, not measured facts, and the exact ridge height is a later design value.
+@evidence principles/core/settings.md#source-support 01 supports the shape of the gable group and section values absent from the photograph are not presented as values the source guarantees.
+@evidence principles/core/settings.md#capability-boundary The low roof on the right is allowed only as a shape attached to the same main block and grants no authority to make a separate building or a third storey.
+@evidence principles/core/settings.md#constraint-sufficiency Closes the triangular walls, both slopes, and the eave soffits and forbids gaps and overlaps at valleys, so no intersection is left undecided.
+@evidence principles/core/settings.md#observable-identity The criterion by which the side-to-side ridge behind the large front-left gable and the low right-hand gable read as the same roof group from several angles.
+@evidence obligations/core/settings.md#production-visual-grammar Fixes the hierarchy of the front-left gable, the side-to-side main ridge, the low right-hand gable, and the single-storey garage, so the same roof group and storey proportion read from other angles too.
 -->
 
-사용자 그래프와 외관 레퍼런스 01의 관계를 채택한다. 두 층 본채가 중심이고 우측의 낮은 붙박이 차고가 종속된다. 정면 왼쪽의 전방을 향한 큰 박공, 그 뒤 본채의 좌우 방향 주 용마루, 본채 오른쪽 끝의 더 낮은 지붕과 우측을 향하는 박공이 하나의 지붕군을 이룬다. 오른쪽 박공은 별도 독립 동이나 세 번째 층이 아니다. 각 박공은 실제 삼각 벽과 양쪽 경사 지붕, 처마 밑면으로 닫혀야 한다. 저작 범위는 본채 지붕 경사 30–38°, 외벽 밖 처마 돌출 0.35–0.50 m, 1층 실내 순높이 2.65–2.80 m, 2층 2.50–2.65 m다. 정확한 층판 두께·용마루 높이·교차부는 spaces/models가 결정한다. 골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다.
+The relation between the user graph and exterior reference 01 is adopted. The two-storey main block is central and the low attached garage on the right is subordinate. A large forward-facing gable at the front left, the side-to-side main ridge of the main block behind it, and a lower roof at the right end of the main block with a right-facing gable form one roof group. The right gable is not a separate independent building or a third storey. Each gable must be closed by a real triangular wall, sloped roofs on both sides, and eave soffits. The authoring range is a main roof pitch of 30–38°, an eave projection outside the exterior wall of 0.35–0.50 m, a ground-storey interior clear height of 2.65–2.80 m, and an upper storey of 2.50–2.65 m. The exact floor plate thickness, ridge height, and intersections are decided by spaces/models. No gap or overlapping roof plate is left at valleys and junctions.
 
-## 현관 포치와 외부 진입 {#porch-entry}
+## Front Porch and Exterior Entry {#porch-entry}
 <!--
-@evidence principles/core/common.md#scope-preservation 포치는 전면 거실창부터 현관문까지 덮는 지붕·기둥·실제 단과 보행 접근을 모두 포함한다.
-@evidence principles/core/common.md#substantive-completion 유효 깊이와 바닥 높이, 차고를 가리지 않는 범위를 정하여 단순 차양판 대신 사용할 수 있는 진입부를 요구한다.
-@evidence principles/core/common.md#declared-basis 01의 덮는 범위를 근거로 삼고 깊이 1.6–2.0 m와 단차 0.35–0.55 m는 제작자가 채택한다.
-@evidence principles/core/settings.md#fact-status 포치 수치는 이미지 측정값이 아니며 난간 유무는 채택 높이와 동선으로 판단할 후속 선택이다.
-@evidence principles/core/settings.md#source-support 참조 01에서 읽은 흰 기둥과 목재문을 사용하되 외부 난간의 법적 설치 기준을 추정해 인용하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 보도에서 현관까지 실제 접근을 허용해야 하며 외부 난간 판단을 실내 계단 난간 생략으로 확장할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 기둥 머리·받침·보·처마는 두께를 가진 부재이고 문 옆 벽등과 발판의 위치도 진입에 종속된다.
-@evidence principles/core/settings.md#observable-identity 흰 사각 기둥 아래의 목재 유리 상부 문과 작은 화분, 낮은 포치 지붕이 전면 진입의 식별점이다.
+@evidence principles/core/common.md#scope-preservation The porch includes the roof, columns, real steps, and walking access that cover from the front living room window to the entry door.
+@evidence principles/core/common.md#substantive-completion Sets the clear depth, floor height, and a scope that does not hide the garage, requiring a usable entry instead of a simple awning plate.
+@evidence principles/core/common.md#declared-basis Takes the coverage of 01 as its basis, and the maker adopts a depth of 1.6–2.0 m and a step height of 0.35–0.55 m.
+@evidence principles/core/settings.md#fact-status The porch values are not image measurements, and whether to have a railing is a later choice judged by the adopted height and circulation.
+@evidence principles/core/settings.md#source-support Uses the white columns and wooden door read from reference 01 and does not estimate and cite a legal installation standard for exterior railings.
+@evidence principles/core/settings.md#capability-boundary Real access from the walk to the entry must be allowed, and the exterior railing judgment cannot be extended to omitting the interior stair railing.
+@evidence principles/core/settings.md#constraint-sufficiency Column capitals, bases, beams, and eaves are members with thickness, and the positions of the wall lantern and mat beside the door are also subordinate to the entry.
+@evidence principles/core/settings.md#observable-identity The wooden door with an upper glass panel under the white square columns, a small planter, and the low porch roof are the identifying points of the front entry.
 -->
 
-01의 전면 포치는 왼쪽 거실창과 중앙에서 오른쪽에 놓인 현관문을 함께 덮으며 차고 정면을 가리지 않는다. 저작 선택으로 유효 깊이 1.6–2.0 m, 바닥은 주변 보도보다 0.35–0.55 m 높고 실제 단이 이어진다. 낮은 경사 포치 지붕, 흰 사각 기둥, 기둥 머리와 받침, 보와 처마를 분리된 두께 있는 부재로 읽히게 한다. 외부 보행자는 앞 보도에서 포치와 현관으로 직접 접근한다. 난간 유무는 이 높이·동선과 참조 형상을 함께 검토하되 내부 계단 난간을 생략할 근거로 쓰지 않는다. 현관에는 목재문·유리 상부·어두운 손잡이·측면 벽등·발판과 작은 화분을 둔다.
+The front porch of 01 covers both the living room window on the left and the entry door placed right of center, without hiding the garage front. As an authoring choice, the clear depth is 1.6–2.0 m, the floor is 0.35–0.55 m above the surrounding walk, and real steps lead to it. The low-pitched porch roof, white square columns, column capitals and bases, beams, and eaves read as separate members with thickness. An exterior pedestrian approaches the porch and entry directly from the front walk. Whether to have a railing is reviewed together with this height, the circulation, and the reference shape, but it is not used as a ground for omitting the interior stair railing. The entry has a wooden door, an upper glass panel, a dark handle, a side wall lantern, a mat, and a small planter.
 
-## 실내 현관 {#entry}
+## Interior Entry {#entry}
 <!--
-@evidence principles/core/common.md#scope-preservation 현관을 거실과 중앙 계단에 직접 나뉘는 공간으로 정해 1층 진입 그래프의 두 연결을 보존한다.
-@evidence principles/core/common.md#substantive-completion 대기 공간·문턱·외투 수납과 보행 관계를 정하여 현관이 문 이름만 있는 연결점으로 끝나지 않는다.
-@evidence principles/core/common.md#declared-basis 직접 연결은 사용자 그래프를 따르고 마루·문선·문·매트의 선택은 04에 근거한다.
-@evidence principles/core/settings.md#fact-status 외투 수납을 닫힌 문 안에 두는 것은 저작 결정이며 현관의 실제 치수는 아직 측정 결과가 아니다.
-@evidence principles/core/settings.md#source-support 04가 지지하는 밝은 벽과 목재 진입문 이상의 건물 이력이나 거주 사실은 부여하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 거실 경유만으로 계단에 도달하거나 파우더룸을 지나가는 진입 방식은 이 현관에서 허용되지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 문 여닫힘과 매트·수납이 보행 및 대기 공간을 막지 않는 조건으로 정확한 배치를 선택하게 한다.
-@evidence principles/core/settings.md#observable-identity 참나무색 바닥과 흰 문선 사이의 목재 현관문, 비워 둔 진입 바닥이 작은 주택의 현관으로 읽힌다.
+@evidence principles/core/common.md#scope-preservation Sets the entry as a space that divides directly into the living room and the central stair, preserving the two connections of the ground-storey entry graph.
+@evidence principles/core/common.md#substantive-completion Sets the waiting space, threshold, coat storage, and walking relations, so the entry does not end as a connection point with only a door name.
+@evidence principles/core/common.md#declared-basis The direct connections follow the user graph, and the choice of flooring, casing, door, and mat rests on 04 as its basis.
+@evidence principles/core/settings.md#fact-status Putting the coat storage behind a closed door is an authoring decision, and the entry's real dimensions are not yet a measured result.
+@evidence principles/core/settings.md#source-support Assigns no building history or occupancy fact beyond the light walls and wooden entry door that 04 supports.
+@evidence principles/core/settings.md#capability-boundary An entry arrangement that reaches the stair by way of the living room alone or passes through the powder room is not allowed in this entry.
+@evidence principles/core/settings.md#constraint-sufficiency Has the exact placement chosen on the condition that door swing, mat, and storage do not block walking and waiting space.
+@evidence principles/core/settings.md#observable-identity The wooden entry door between oak-colored flooring and white casing, and the cleared entry floor, read as the entry of a small house.
 -->
 
-고정 그래프의 1층 현관은 포치에서 들어와 거실과 중앙 단일 꺾임계단에 각각 직접 이어지는 분배 공간이다. 왼쪽 거실을 통해서만 계단으로 가게 하지 않고 파우더룸을 통로로 쓰지 않는다. 04를 근거로 참나무색 마루, 밝은 벽·흰 문선, 목재 현관문과 얕은 매트를 채택한다. 문 여닫힘과 보행 경로가 매트·수납에 막히지 않도록 실제 문턱 및 대기 공간을 설계한다. 현관 가까운 외투 수납은 닫힌 문 안으로 넣어 진입 바닥을 비운다.
+The ground-storey entry of the fixed graph is a distribution space entered from the porch that connects directly to the living room and to the central single turning stair. The stair is not reached through the living room on the left alone, and the powder room is not used as a passage. On the basis of 04, oak-colored flooring, light walls and white casing, a wooden entry door, and a shallow mat are adopted. A real threshold and waiting space are designed so door swing and the walking route are not blocked by the mat or storage. The coat storage near the entry is put behind a closed door to keep the entry floor clear.
 
-## 전면 거실 {#living}
+## Front Living Room {#living}
 <!--
-@evidence principles/core/common.md#scope-preservation 전면 왼쪽 거실의 창·현관 및 후면 연결·좌석·벽난로를 함께 맡아 생활실과 외관 창의 대응을 보존한다.
-@evidence principles/core/common.md#substantive-completion 소파·탁자·안락의자·책장·러그의 구성과 동선을 정해 거실이라는 이름 외에 배치의 판단 근거를 준다.
-@evidence principles/core/common.md#declared-basis 전면 창의 소속은 01과 그래프에서, 가구와 벽난로의 인상은 04에서 채택한다.
-@evidence principles/core/settings.md#fact-status 굴뚝과 벽난로를 단면상 연결하는 것은 일관된 설계 선택이고 연소 성능은 채택한 사실이 아니다.
-@evidence principles/core/settings.md#source-support 04의 벽돌 화구는 시각 정체성의 근거이며 실제 난방·배연 성능의 시험 자료로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary 화구는 불이 꺼진 정적 상태이고 소파 등의 점유는 문이나 계단 접근을 차단할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 벽난로는 왼쪽 외벽 굴뚝과 이어져야 하므로 임의 내부 벽의 장식으로 옮길 수 없다.
-@evidence principles/core/settings.md#observable-identity 회색 패브릭과 짙은 책장, 낮은 목재 탁자 옆의 검은 화구·벽돌·목재 선반이 거실의 재료 위계를 만든다.
+@evidence principles/core/common.md#scope-preservation Takes on the window, entry and rear connections, seating, and fireplace of the front-left living room together, preserving the correspondence between the living room and the exterior window.
+@evidence principles/core/common.md#substantive-completion Sets the composition and circulation of the sofa, table, armchair, bookcase, and rug, giving the placement a basis for judgment beyond the name living room.
+@evidence principles/core/common.md#declared-basis The front window's room comes from 01 and the graph, and the impression of the furniture and fireplace is adopted from 04 as well.
+@evidence principles/core/settings.md#fact-status Connecting the chimney and fireplace in section is a consistent design choice, and combustion performance is not an adopted fact.
+@evidence principles/core/settings.md#source-support The brick firebox of 04 is the basis of visual identity and is not used as test data for real heating or flue performance.
+@evidence principles/core/settings.md#capability-boundary The firebox is in a static unlit state, and the occupancy of the sofa and others cannot block door or stair access.
+@evidence principles/core/settings.md#constraint-sufficiency The fireplace must connect to the chimney on the left exterior wall, so it cannot be moved onto an arbitrary interior wall as decoration.
+@evidence principles/core/settings.md#observable-identity The gray fabric and dark bookcase, and the black firebox, brick, and wooden mantel beside the low wooden table, make the material hierarchy of the living room.
 -->
 
-거실은 본채 1층 전면 왼쪽에 있고 현관에서 직접 보이며 후면 공용부와 연결된다. 01의 넓은 전면 창은 이 거실의 외벽에 실제로 속한다. 04의 정체성은 회색/미색 패브릭 소파, 낮은 목재 테이블, 작은 안락의자, 짙은 책장, 절제된 무늬 러그와 벽돌 벽난로다. 좌석이 문·계단 접근을 가로막지 않는다. 벽난로는 왼쪽 외벽의 굴뚝과 단면상 이어지는 위치로 설계하며 검은 화구·벽돌 본체·목재 선반이 구별된다. 불은 꺼진 정적 상태이며 연소·열·배연 성능을 주장하지 않는다.
+The living room is at the front left of the main block ground storey, is visible directly from the entry, and connects to the rear common area. The wide front window of 01 really belongs to this living room's exterior wall. The identity from 04 is a gray/off-white fabric sofa, a low wooden table, a small armchair, a dark bookcase, a restrained patterned rug, and a brick fireplace. The seating does not block door or stair access. The fireplace is designed at a position that connects in section with the chimney of the left exterior wall, and the black firebox, brick body, and wooden mantel are distinct. The fire is in a static unlit state, and no combustion, heat, or flue performance is claimed.
 
-## 단일 꺾임계단 {#stair}
+## Single Turning Stair {#stair}
 <!--
-@evidence principles/core/common.md#scope-preservation 현관에서 상층 복도까지 단 하나의 L형 계단과 두 층의 실제 바닥 개구부를 요구해 수직 동선을 빠뜨리지 않는다.
-@evidence principles/core/common.md#substantive-completion 두 직선 flight와 90° 중간참, 통행을 막지 않는 상부참을 정해 후속 설계가 계단 종류를 다시 택하지 않는다.
-@evidence principles/core/common.md#declared-basis 사용자 단일 꺾임계단 요구를 지키며 03·04의 차이는 이 항목의 목재 디딤판과 검은 난간살로 통일한다.
-@evidence principles/core/settings.md#fact-status 단 수·단높이·디딤 깊이는 층고에서 산출할 값이며 참조 이미지에서 복원한 수치가 아니다.
-@evidence principles/core/settings.md#source-support 03과 04는 계단 인상의 입력일 뿐 동일한 계단의 실측 도면으로 취급하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 한 경로로 두 층을 연결하며 사다리·보조 계단·복층 보이드로 통행이나 머리 공간의 부족을 우회할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency use-profile의 유효폭·머리 공간과 층고 분할 및 단면 검토가 계단 치수 선택을 제한한다.
-@evidence principles/core/settings.md#observable-identity 밝은 목재 디딤판, 흰 챌판과 기둥, 검은 수직 난간살과 목재 손잡이가 꺾임 형태와 함께 보존된다.
-@evidence obligations/core/settings.md#production-visual-grammar 03·04의 서로 다른 난간 표현을 하나의 L형 계단과 목재 디딤판·흰 챌판·검은 난간살로 통일해 내부 view마다 다른 계단을 만들지 않는다.
+@evidence principles/core/common.md#scope-preservation Requires exactly one L-shaped stair from the entry to the upper hall and real floor openings on both storeys, so vertical circulation is not dropped.
+@evidence principles/core/common.md#substantive-completion Sets two straight flights, a 90° intermediate landing, and an upper landing that does not block passage, so later design does not choose the stair type again.
+@evidence principles/core/common.md#declared-basis Keeps the user's single-turning-stair requirement and unifies the differences of 03 and 04 into this item's wooden treads and black balusters.
+@evidence principles/core/settings.md#fact-status The number of steps, riser height, and tread depth are values to derive from the storey height, not values restored from the reference images.
+@evidence principles/core/settings.md#source-support 03 and 04 are inputs to the stair impression and are not treated as measured drawings of the same stair.
+@evidence principles/core/settings.md#capability-boundary One route connects the two storeys, and a shortfall in passage or headroom cannot be bypassed with a ladder, an auxiliary stair, or a double-height void.
+@evidence principles/core/settings.md#constraint-sufficiency The clear width and headroom of use-profile, the division of the storey height, and a section review limit the choice of stair dimensions.
+@evidence principles/core/settings.md#observable-identity Light wooden treads, white risers and posts, black vertical balusters, and a wooden handrail are preserved together with the turning form.
+@evidence obligations/core/settings.md#production-visual-grammar Unifies the different railing expressions of 03 and 04 into one L-shaped stair with wooden treads, white risers, and black balusters, so each interior view does not make a different stair.
 -->
 
-본채 중앙의 계단 한 개가 현관과 2층 짧은 복도를 연결한다. 형태는 두 직선 flight와 중간참으로 90° 꺾이는 L형이며 별도 계단·사다리·복층 보이드는 없다. 03과 04의 차이는 형상 복제가 아닌 같은 계단의 일관된 시공 가능한 해석으로 조정한다. 저작 선택은 밝은 목재 디딤판, 흰 챌판과 기둥, 검은 수직 철제 난간살, 목재 손잡이다. 유효폭·머리 공간은 00-production.md#use-profile에 따른다. 2층 구조 바닥과 아래층 천장에는 실제 통행 개구부가 있어야 하며 중간참과 상부참에 닫힌 벽이나 난간이 통로를 가로지르지 않는다. 계단 경로와 횟수·단높이·디딤 깊이는 정해진 층고를 나누어 spaces가 산출하고 단면으로 검토한다.
+One stair at the center of the main block connects the entry and the short upper-storey hall. Its form is an L shape that turns 90° with two straight flights and an intermediate landing, with no separate stair, ladder, or double-height void. The differences between 03 and 04 are reconciled not by copying a shape but as one consistent, buildable interpretation of the same stair. The authoring choice is light wooden treads, white risers and posts, black vertical steel balusters, and a wooden handrail. Clear width and headroom follow 00-production.md#use-profile. The upper structural floor and the ceiling of the storey below must have a real passage opening, and no closed wall or railing crosses the passage at the intermediate and upper landings. The stair route, count, riser height, and tread depth are produced by spaces by dividing the set storey height and are reviewed in section.
 
-## 후면 공용부 {#common-room}
+## Rear Common Area {#common-room}
 <!--
-@evidence principles/core/common.md#scope-preservation 후면 주방·식당·가족실을 한 공간으로 유지하면서 세 생활 기능과 중앙에서의 접근을 모두 포함한다.
-@evidence principles/core/common.md#substantive-completion 후면 왼쪽 주방, 정원문 가까운 식탁, 우측 좌석과 각 좌석 수를 정해 단일 홀 안의 사용 구성을 완성한다.
-@evidence principles/core/common.md#declared-basis 연속 공용부는 고정 그래프를, 주방·식탁·좌석의 관계는 03을 따르며 좌석 수는 저작자가 정한다.
-@evidence principles/core/settings.md#fact-status 섬 앞 좌석 3개와 식탁의 6개 좌석은 채택한 사용 상태이며 실제 사진의 치수나 거주 인원을 측정한 값이 아니다.
-@evidence principles/core/settings.md#source-support 03이 보여 주는 조리·식사 관계를 사용하고 미국 주택 일반의 표준 배치라고 확대하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 기능은 가구·조명으로 나눌 수 있지만 닫힌 문과 완전 높이 벽으로 세 독립 방을 만들 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 중앙에서 들어오는 경로를 확보하고 작업대와 식탁 사이만을 필수 통로로 삼지 않는 조건이 가구 배치를 제한한다.
-@evidence principles/core/settings.md#observable-identity 후면 왼쪽 벽과 섬의 주방, 정원 출입 가까운 6개 좌석의 식탁, 우측 소파와 낮은 테이블이 연속된 공간 안에서 조리·식사·휴식을 드러낸다.
+@evidence principles/core/common.md#scope-preservation Keeps the rear kitchen, dining, and family room as one space while including all three household functions and access from the center.
+@evidence principles/core/common.md#substantive-completion Sets the rear-left kitchen, the dining table near the garden door, the seating on the right, and each seat count, completing the use composition inside a single hall.
+@evidence principles/core/common.md#declared-basis The continuous common area follows the fixed graph, the relation of kitchen, table, and seating follows 03, and the author sets the seat counts.
+@evidence principles/core/settings.md#fact-status The 3 seats at the island and the 6 seats at the dining table are adopted use states, not dimensions of the real photograph or a measured number of occupants.
+@evidence principles/core/settings.md#source-support Uses the cooking and dining relation that 03 shows, without extending it into a standard layout of American houses in general.
+@evidence principles/core/settings.md#capability-boundary Functions can be divided by furniture and lighting, but three independent rooms cannot be made with closed doors and full-height walls.
+@evidence principles/core/settings.md#constraint-sufficiency The condition that secures a route entering from the center and does not make the gap between the work counter and the table the required passage limits furniture placement.
+@evidence principles/core/settings.md#observable-identity The kitchen at the rear-left wall and island, the 6-seat table near the garden exit, and the sofa and low table on the right show cooking, dining, and rest inside a continuous space.
 -->
 
-사용자 고정 그래프의 주방·식당·가족실은 본채 1층 후면의 하나의 연속 공간이다. 각 기능은 가구와 조명으로 구분하며 완전 높이 벽이나 닫힌 문으로 세 방을 만들지 않는다. 03의 관계를 채택해 주방은 후면 왼쪽 벽과 섬, 식탁은 후면 정원 출입 가까이, 가족실 좌석은 우측에 놓는다. 현관/중앙 동선에서 이 공간으로 들어오며 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다. 섬 앞에는 좌석 3개, 식탁에는 가족과 손님이 함께 앉는 6개 좌석, 가족실에는 소파와 낮은 테이블을 둔다. 조리·식사·휴식의 물건이 각각 식별되어야 한다.
+The kitchen, dining room, and family room of the user fixed graph are one continuous space at the rear of the main block ground storey. Each function is separated by furniture and lighting, and three rooms are not made with full-height walls or closed doors. Adopting the relation of 03, the kitchen is placed at the rear-left wall and island, the dining table near the rear garden exit, and the family room seating on the right. This space is entered from the entry/central circulation, and the gap between the kitchen counters or the dining table does not become the sole passage. The island has 3 seats, the dining table 6 seats where family and guests sit together, and the family room a sofa and low table. The objects of cooking, dining, and rest must each be identifiable.
 
-## 주방 설비 {#kitchen-equipment}
+## Kitchen Equipment {#kitchen-equipment}
 <!--
-@evidence principles/core/common.md#scope-preservation 주방의 수납·조리·냉장·세척 설비와 섬의 두 사용 면을 맡아 공용부의 주방 기능을 빠짐없이 구체화한다.
-@evidence principles/core/common.md#substantive-completion 가전 종류와 손잡이·받침의 읽힘 및 작업면의 여유를 정해 수납장 상자만 놓인 부엌으로 끝나지 않는다.
-@evidence principles/core/common.md#declared-basis 회갈색 패널장과 밝은 상판은 03에서 채택하고 두 수도꼭지의 필수 중복은 저작자가 요구하지 않기로 한다.
-@evidence principles/core/settings.md#fact-status 보조 작업면과 단일 필수 싱크는 해석을 통일한 선택이며 급배수 배치의 외부 사실을 뜻하지 않는다.
-@evidence principles/core/settings.md#source-support 03의 보이는 설비를 식별 근거로 쓰며 특정 가전 모델의 기능이나 규격을 추정하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 정적 가전과 수전을 보여 주지만 급배수·전기를 작동시키지 않고 창이 싱크를 관통하는 배치도 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 섬의 준비 면과 좌석 면을 나누고 소품이 작업면을 가리지 않아야 설비 위치를 채택할 수 있다.
-@evidence principles/core/settings.md#observable-identity 스테인리스 가전과 패널 수납장, 밝은 상판·타일 사이에 서랍과 손잡이의 깊이가 드러나야 주방으로 읽힌다.
+@evidence principles/core/common.md#scope-preservation Takes on the kitchen's storage, cooking, refrigeration, and washing equipment and the two use faces of the island, specifying the kitchen function of the common area without omission.
+@evidence principles/core/common.md#substantive-completion Sets the appliance types, the readability of handles and plinths, and the clearance of work surfaces, so the kitchen does not end as a room with only cabinet boxes placed in it.
+@evidence principles/core/common.md#declared-basis The gray-brown panel cabinets and light countertop are adopted from 03, and the author decides not to require the mandatory duplication of two faucets.
+@evidence principles/core/settings.md#fact-status The auxiliary work surface and the single required sink are a choice that unifies interpretation and do not mean an external fact about plumbing layout.
+@evidence principles/core/settings.md#source-support Uses the visible equipment of 03 as the identifying basis and does not estimate the functions or specifications of a particular appliance model.
+@evidence principles/core/settings.md#capability-boundary Shows static appliances and faucets but does not operate plumbing or electricity, and does not allow a layout in which a window passes through the sink.
+@evidence principles/core/settings.md#constraint-sufficiency Equipment positions can be adopted once the island's prep face and seating face are divided and props do not hide work surfaces.
+@evidence principles/core/settings.md#observable-identity The depth of drawers and handles must show between stainless appliances, panel cabinets, and a light countertop and tile for the room to read as a kitchen.
 -->
 
-03에서 채택한 주방은 회갈색 패널 수납장, 밝은 상판과 타일 backsplash, 스테인리스 냉장고·레인지·전자레인지, 식기세척기, 싱크와 수도꼭지가 있는 섬으로 읽힌다. 창은 외벽과 조리 배치에 종속시키고 싱크를 관통하지 않는다. 섬의 설거지/준비 면과 좌석 면을 구분한다. 후면 벽에는 보조 작업면을 두되 레퍼런스의 두 수도꼭지를 필수 중복 설비로 해석하지 않는다. 서랍·상하부장·가전 손잡이와 받침이 리뷰 거리에서 구별되어야 하며 급배수·전기 시뮬레이션은 하지 않는다. 식료품 일부와 조리도구는 작업면을 가리지 않을 만큼만 둔다.
+The kitchen adopted from 03 reads as gray-brown panel cabinets, a light countertop and tile backsplash, a stainless refrigerator, range, and microwave, a dishwasher, and an island with a sink and faucet. The window is made subordinate to the exterior wall and the cooking layout and does not pass through the sink. The island's washing/prep face and seating face are separated. The rear wall has an auxiliary work surface, but the reference's two faucets are not interpreted as required duplicate equipment. Drawers, upper and lower cabinets, and appliance handles and plinths must be distinguishable at review distance, and no plumbing or electrical simulation is done. Some food and cooking utensils are placed in quantities small enough not to hide the work surfaces.
 
-## 우측 서비스 동선 {#service-band}
+## Right Service Circulation {#service-band}
 <!--
-@evidence principles/core/common.md#scope-preservation 우측 팬트리·파우더룸·세탁 머드룸과 차고를 공용 통로에 연결해 모든 서비스실의 도달성을 맡는다.
-@evidence principles/core/common.md#substantive-completion 통로에서 각 방으로 분기하고 머드룸이 차고에 직접 맞닿는 구조를 정해 이름만 연결한 그래프를 금지한다.
-@evidence principles/core/common.md#declared-basis 서비스 띠의 구성과 직접 차고 연결은 사용자 고정 그래프에서 오며 통과실을 피하는 배치는 이 항목의 선택이다.
-@evidence principles/core/settings.md#fact-status 서비스 경로는 채택한 공간 관계이고 벽·문의 최종 위치는 spaces가 결정할 설계값이다.
-@evidence principles/core/settings.md#source-support 사용자 고정 그래프에 따라 본채 1층 우측 서비스 띠와 차고의 직접 연결을 받으며 최종 벽·문 위치는 spaces가 정할 설계값으로 남긴다.
-@evidence principles/core/settings.md#capability-boundary 팬트리나 파우더룸이 다음 방으로 가는 필수 통로가 될 수 없고 중앙 공용 동선으로 돌아갈 수 있어야 한다.
-@evidence principles/core/settings.md#constraint-sufficiency 머드룸·차고의 직접 접면과 각 실의 분기 접근이 최종 벽과 문으로 성립하지 않으면 이 띠는 실패다.
-@evidence principles/core/settings.md#observable-identity 오른쪽의 서비스실들이 실제 문과 벽을 가지면서 중앙과 차고 사이에 이어지는 띠로 읽혀야 한다.
+@evidence principles/core/common.md#scope-preservation Connects the right-hand pantry, powder room, laundry mudroom, and garage to the common passage, taking on the reachability of every service room.
+@evidence principles/core/common.md#substantive-completion Sets a structure that branches from the passage to each room and in which the mudroom directly abuts the garage, forbidding a graph connected in name only.
+@evidence principles/core/common.md#declared-basis The composition of the service band and the direct garage connection come from the user fixed graph, and the layout that avoids pass-through rooms is this item's choice.
+@evidence principles/core/settings.md#fact-status The service route is an adopted spatial relation, and the final positions of walls and doors are design values that spaces will decide.
+@evidence principles/core/settings.md#source-support Receives, per the user fixed graph, the right-hand service band of the main block ground storey and its direct connection to the garage, and leaves the final wall and door positions as design values for spaces to set.
+@evidence principles/core/settings.md#capability-boundary The pantry or powder room cannot become a required passage to the next room, and one must be able to return to the central common circulation.
+@evidence principles/core/settings.md#constraint-sufficiency If the direct interface of mudroom and garage and the branching access to each room are not realized with final walls and doors, this band fails.
+@evidence principles/core/settings.md#observable-identity The service rooms on the right must read as a band that runs between the center and the garage while having real doors and walls.
 -->
 
-사용자 고정 그래프에 따라 본채 1층 우측 서비스 띠에 팬트리·파우더룸·세탁 겸 머드룸을 놓고 차고와 직접 연결한다. 서비스 접근 통로에서 각 실로 분기하며 팬트리나 파우더룸 내부가 다음 실의 필수 통과 경로가 되지 않는다. 차고 출입문은 머드룸과 직접 맞닿는다. 이 띠의 통로는 본채 중앙 공용 동선과 이어지고 현관으로 돌아갈 수 있다. 최종 벽·문 위치는 spaces가 정하되 이름만 연결한 그래프와 실제 통행이 다르면 실패다.
+Per the user fixed graph, the pantry, powder room, and laundry-mudroom are placed in the right-hand service band of the main block ground storey and connected directly to the garage. The service access passage branches to each room, and the inside of the pantry or powder room does not become a required route through to the next room. The garage door to the house directly abuts the mudroom. This band's passage connects to the central common circulation of the main block and can return to the entry. Spaces sets the final wall and door positions, but if a graph connected in name alone differs from real passage, it fails.
 
-## 팬트리 {#pantry}
+## Pantry {#pantry}
 <!--
-@evidence principles/core/common.md#scope-preservation 주방에 가까운 별도 식품 수납 공간과 그 사용 여유를 정해 팬트리가 빠지거나 통로로 대체되지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 선반·용기·상자와 접근 경계를 함께 정하므로 작은 방에도 식품 보관이라는 구체 사용이 남는다.
-@evidence principles/core/common.md#declared-basis 별도 팬트리의 출입을 주방 또는 인접 서비스 통로에 두는 것은 이 주택의 저작 선택이다.
-@evidence principles/core/settings.md#fact-status 밝은 선반과 연결된 바닥은 채택된 실내 구성으로 외부에서 조사한 팬트리 규격이 아니다.
-@evidence principles/core/settings.md#source-support 이 항목은 레퍼런스에서 읽을 수 없는 식품 보관 치수에 외부 권위를 붙이지 않는다.
-@evidence principles/core/settings.md#capability-boundary 식품을 보관하고 접근하는 방이며 화장실이나 차고를 향한 필수 통과 경로로 사용할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 문을 열었을 때 선반 모서리가 출입 유효폭을 줄이지 않아야 수납 깊이와 문 위치를 확정할 수 있다.
-@evidence principles/core/settings.md#observable-identity 목재 또는 밝은 선반과 식품 용기, 주방에서 이어지는 바닥이 작은 팬트리의 용도를 보여 준다.
+@evidence principles/core/common.md#scope-preservation Sets a separate food storage space near the kitchen and its use clearance, so the pantry is not dropped or replaced by a passage.
+@evidence principles/core/common.md#substantive-completion Sets shelves, containers, boxes, and the access boundary together, so even a small room keeps the concrete use of food storage.
+@evidence principles/core/common.md#declared-basis Placing the separate pantry's entrance on the kitchen or the adjacent service passage is this house's authoring choice.
+@evidence principles/core/settings.md#fact-status Light shelves and a connected floor are an adopted interior composition, not externally researched pantry specifications.
+@evidence principles/core/settings.md#source-support This item attaches no external authority to food storage dimensions that cannot be read from the references.
+@evidence principles/core/settings.md#capability-boundary It is a room for storing and reaching food and cannot be used as a required pass-through route toward the toilet or garage.
+@evidence principles/core/settings.md#constraint-sufficiency Storage depth and door position can be fixed when shelf corners do not reduce the clear entrance width with the door open.
+@evidence principles/core/settings.md#observable-identity Wooden or light shelves, food containers, and a floor continuing from the kitchen show the use of a small pantry.
 -->
 
-저작 선택으로 팬트리는 주방 또는 그에 바로 닿는 서비스 접근 통로에서 열리는 별도 식품 수납 공간이다. 선반·식품 용기·작은 상자와 빈 작업 여유를 갖추며 화장실이나 차고로 가기 위해 통과하지 않는다. 밝은 벽, 목재/밝은 선반, 주방과 이어지는 바닥이 작은 실의 용도를 드러낸다. 문을 열어도 선반 모서리가 유효폭을 줄이지 않게 한다.
+As an authoring choice, the pantry is a separate food storage space that opens from the kitchen or from the service access passage that directly meets it. It has shelves, food containers, small boxes, and empty working clearance, and is not passed through on the way to the toilet or garage. Light walls, wooden/light shelves, and a floor continuing from the kitchen reveal the use of the small room. Even with the door open, shelf corners do not reduce the clear width.
 
-## 파우더룸 {#powder}
+## Powder Room {#powder}
 <!--
-@evidence principles/core/common.md#scope-preservation 1층 서비스 통로의 독립 화장실과 손씻기 기능을 맡아 상층 욕실만으로 위생실 요구를 대신하지 않는다.
-@evidence principles/core/common.md#substantive-completion 변기·세면대·거울·수건·조명과 프라이버시 문을 정해 작은 방의 생활 기능을 완결한다.
-@evidence principles/core/common.md#declared-basis 파우더룸의 존재는 사용자 요구이고 타일·흰 벽 및 두 번째 통행문을 두지 않는 것은 저작 결정이다.
-@evidence principles/core/settings.md#fact-status 욕조와 샤워를 제외한 기구 구성은 채택 사항이며 사용 공간의 수치는 후속 공간 검토 대상이다.
-@evidence principles/core/settings.md#source-support 일반 건축 법규를 인용한 최소 면적이라고 주장하지 않고 이 집에 필요한 기구 접근을 요구한다.
-@evidence principles/core/settings.md#capability-boundary 씻기와 용변 기능만 부여하며 샤워·목욕실이나 차고로 지나가는 통로로 변경하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 변기와 세면대의 점유 및 사용 공간을 따로 검토하고 출입문이 프라이버시를 확보하는 조건을 둔다.
-@evidence principles/core/settings.md#observable-identity 밝은 타일과 따뜻한 흰 벽 안의 변기·작은 세면대·거울이 욕조 없는 파우더룸을 구별한다.
+@evidence principles/core/common.md#scope-preservation Takes on the independent toilet and handwashing function of the ground-storey service passage, so the upper bathrooms alone do not replace the sanitary room requirement.
+@evidence principles/core/common.md#substantive-completion Sets the toilet, washbasin, mirror, towel, lighting, and privacy door, completing the household function of a small room.
+@evidence principles/core/common.md#declared-basis The powder room's existence is a user requirement, and the tile, white walls, and having no second passage door are authoring decisions.
+@evidence principles/core/settings.md#fact-status The fixture composition excluding tub and shower is adopted, and the use space values are subject to later space review.
+@evidence principles/core/settings.md#source-support Does not claim a minimum area citing general building codes and requires the fixture access this house needs.
+@evidence principles/core/settings.md#capability-boundary Grants only washing and toilet functions and is not changed into a shower or bath room or a passage through to the garage.
+@evidence principles/core/settings.md#constraint-sufficiency Reviews the occupancy and use space of the toilet and washbasin separately and sets the condition that the entrance door secures privacy.
+@evidence principles/core/settings.md#observable-identity The toilet, small washbasin, and mirror inside light tile and warm white walls distinguish a powder room without a tub.
 -->
 
-사용자 지정 파우더룸을 1층 서비스 통로에서 직접 들어가는 독립 작은 화장실로 저작한다. 변기와 손씻는 세면대·거울·수건·조명을 갖추고 욕조나 샤워실은 없다. 내부는 밝은 타일 바닥과 따뜻한 흰 벽으로 읽힌다. 출입문은 프라이버시를 확보하고 다음 방이나 차고로 이어지는 두 번째 통행문을 두지 않는다. 이 마감과 두 번째 통행문 금지는 사용자 지정 독립 파우더룸을 실현하는 이 주택의 저작 결정이다. 변기와 세면대의 점유 및 사용 공간을 따로 검토한다.
+The user-specified powder room is authored as an independent small toilet entered directly from the ground-storey service passage. It has a toilet and a handwashing basin, a mirror, a towel, and lighting, and no tub or shower. The interior reads as a light tile floor and warm white walls. The entrance door secures privacy, and there is no second passage door leading to the next room or the garage. This finish and the ban on a second passage door are this house's authoring decisions that realize the user-specified independent powder room. The occupancy and use space of the toilet and washbasin are reviewed separately.
 
-## 세탁 겸 머드룸 {#laundry-mudroom}
+## Laundry and Mudroom {#laundry-mudroom}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고와 서비스 띠 사이의 세탁·신발·외투 기능을 하나의 완충실에 담아 차고 연결과 생활 설비를 함께 맡는다.
-@evidence principles/core/common.md#substantive-completion 두 앞문식 기기와 접는 상판·수납·벤치·걸이, 기기 앞 작업 공간을 정해 단순 연결실보다 구체화한다.
-@evidence principles/core/common.md#declared-basis 세탁 겸 머드룸과 차고의 관계는 사용자 지시이고 나란한 기기와 회색 바닥은 저작자가 선택한다.
-@evidence principles/core/settings.md#fact-status 기기 구성은 정지 상태의 제작 선택이며 세탁 성능이나 실제 제품 치수를 안다는 뜻이 아니다.
-@evidence principles/core/settings.md#source-support 원형 도어와 조작부를 읽히게 할 요구에 특정 제조사의 수치나 성능을 덧붙이지 않는다.
-@evidence principles/core/settings.md#capability-boundary 기기는 정지해 있고 세탁 바구니 작업이 집으로 들어오는 경로를 막는 배치는 허용되지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 기기 깊이·문 프레임·바구니 앞 여유와 차고에서 실내로의 통행을 함께 확보해야 배치가 성립한다.
-@evidence principles/core/settings.md#observable-identity 회색 내구성 바닥 위 나란한 원형 도어와 신발 벤치·외투 걸이가 차고 콘크리트와 다른 완충실로 보인다.
+@evidence principles/core/common.md#scope-preservation Puts the laundry, shoe, and coat functions between the garage and the service band into one buffer room, taking on both the garage connection and the household equipment.
+@evidence principles/core/common.md#substantive-completion Sets two front-loading machines, a folding top, storage, a bench, hooks, and the working space in front of the machines, making it more concrete than a simple connecting room.
+@evidence principles/core/common.md#declared-basis The relation of the laundry-mudroom and garage is a user instruction, and the side-by-side machines and gray floor are the author's choice.
+@evidence principles/core/settings.md#fact-status The machine composition is a production choice in a stopped state and does not mean the washing performance or real product dimensions are known.
+@evidence principles/core/settings.md#source-support Adds no particular manufacturer's values or performance to the requirement that round doors and controls be readable.
+@evidence principles/core/settings.md#capability-boundary The machines are stopped, and a layout in which laundry basket work blocks the route into the house is not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency The layout holds when machine depth, door frames, clearance in front of the basket, and passage from the garage into the house are all secured.
+@evidence principles/core/settings.md#observable-identity Side-by-side round doors, a shoe bench, and coat hooks on a durable gray floor read as a buffer room distinct from the garage concrete.
 -->
 
-사용자 지정 세탁·머드룸을 우측 띠와 차고 사이의 완충실로 저작한다. 나란한 앞문식 세탁기·건조기, 상부장/선반, 접는 상판, 신발 벤치와 외투 걸이를 갖춘다. 밝은 회색의 내구성 바닥은 차고의 거친 콘크리트와 구별된다. 두 기기의 실제 깊이와 원형 도어, 조작부, 차고문과 실내문의 프레임이 보인다. 세탁기 앞 바구니 작업 공간과 차고에서 집으로 들어오는 경로가 겹쳐 막히지 않게 한다. 설비는 정지 상태다.
+The user-specified laundry-mudroom is authored as a buffer room between the right band and the garage. It has a side-by-side front-loading washer and dryer, upper cabinets/shelves, a folding top, a shoe bench, and coat hooks. The light gray durable floor is distinct from the rough concrete of the garage. The real depth, round doors, and controls of both machines and the frames of the garage door and the interior door are visible. The basket working space in front of the washer and the route from the garage into the house do not overlap and block each other. The equipment is in a stopped state.
 
-## 빈 2대 차고 {#garage}
+## Empty Two-Car Garage {#garage}
 <!--
-@evidence principles/core/common.md#scope-preservation 비어 있는 두 대용 차고의 외피·문·천장·바닥·수납과 머드룸 연결을 모두 맡아 차량 금지가 미완성의 구실이 되지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 폭·깊이 범위, 한 개의 분절문과 닫힌 기준 상태 및 내부 관찰 경로를 정해 차고의 실체와 사용 조건을 완성한다.
-@evidence principles/core/common.md#declared-basis 차량 금지는 사용자 명령이 02보다 우선하며 폭 5.8–6.4 m와 깊이 6.0–6.6 m는 설계 채택값이다.
-@evidence principles/core/settings.md#fact-status 외곽 범위와 순내부 폭은 구별하며 실제 수납 깊이는 spaces가 계산할 값으로 남긴다.
-@evidence principles/core/settings.md#source-support 02의 자동차를 근거로 차량을 추가하지 않으며 참조가 차고 실내 폭을 측량해 준다고 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 차고문은 닫힌 상태이고 머드룸으로 내부에 접근하며 차량 생성이나 문 임시 삭제로 검사 조건을 바꿀 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 단층 부속 볼륨 안에서 문 레일·상부 구조와 수납을 완성하고 순폭을 외곽 치수와 별도로 산출해야 한다.
-@evidence principles/core/settings.md#observable-identity 낮은 박공과 흰 외장·벽돌 하부, 어두운 분절문 상부 유리, 빈 콘크리트 바닥과 공구 선반이 차고를 식별한다.
+@evidence principles/core/common.md#scope-preservation Takes on the envelope, door, ceiling, floor, storage, and mudroom connection of the empty two-car garage, so the ban on vehicles does not become an excuse for incompleteness.
+@evidence principles/core/common.md#substantive-completion Sets the width and depth ranges, one sectional door with a closed baseline state, and the interior observation route, completing the garage's substance and use conditions.
+@evidence principles/core/common.md#declared-basis The ban on vehicles is a user command that takes precedence over 02, and a width of 5.8–6.4 m and a depth of 6.0–6.6 m are adopted design values.
+@evidence principles/core/settings.md#fact-status Separates the outline range from the clear interior width and leaves the real storage depth as a value spaces will compute.
+@evidence principles/core/settings.md#source-support Adds no vehicle on the basis of the car in 02 and does not claim that the reference surveys the garage interior width.
+@evidence principles/core/settings.md#capability-boundary The garage door is closed and the interior is reached through the mudroom, and the inspection condition cannot be changed by creating a vehicle or temporarily deleting the door.
+@evidence principles/core/settings.md#constraint-sufficiency Door rails, the upper structure, and storage must be completed inside the single-storey auxiliary volume, and the clear width must be derived separately from the outline dimensions.
+@evidence principles/core/settings.md#observable-identity A low gable, white cladding with a brick base, an upper glazing band on the dark sectional door, an empty concrete floor, and tool shelves identify the garage.
 -->
 
-오른쪽에 붙은 차고는 하나의 1층 부속 볼륨이며 두 대용 폭의 어두운 분절 패널문 하나와 상부 채광 유리를 가진다. 사용자 금지에 따라 자동차는 어떤 형태로도 저작하지 않는다. 02의 차량은 명시적으로 적용하지 않는다. 저작 범위는 외곽 폭 5.8–6.4 m, 깊이 6.0–6.6 m로 하며 순내부 폭과 수납 깊이는 spaces에서 별도로 산출한다. 낮은 박공 지붕, 흰 외장과 하부 벽돌, 차도, 문 레일/상부 구조, 콘크리트 바닥과 내부 천장, 선반·공구 수납을 다른 방과 같은 강도로 완성한다. 차고문은 닫힌 기준 상태이고 내부 관찰은 머드룸 연결을 통해 확보한다. 문을 임시 제거한 외부 view로 완성을 주장하지 않는다.
+The garage attached on the right is one single-storey auxiliary volume with one dark sectional panel door of two-car width and upper daylight glazing. By user prohibition, no car is authored in any form. The vehicle of 02 is explicitly not applied. The authoring range is an outline width of 5.8–6.4 m and depth of 6.0–6.6 m, and the clear interior width and storage depth are derived separately in spaces. The low gable roof, white cladding and lower brick, driveway, door rails/upper structure, concrete floor and interior ceiling, and shelf and tool storage are completed with the same intensity as the other rooms. The garage door is in a closed baseline state, and interior observation is secured through the mudroom connection. Completion is not claimed with an exterior view in which the door is temporarily removed.
 
-## 상층 복도 {#upper-hall}
+## Upper Hall {#upper-hall}
 <!--
-@evidence principles/core/common.md#scope-preservation 계단참부터 세 침실·두 욕실·수납까지 직접 잇는 짧은 복도 하나를 맡아 상층의 모든 분기를 보존한다.
-@evidence principles/core/common.md#substantive-completion 문 여닫힘·도착 여유·계단 구멍의 보호와 통행면을 정해 복도라는 이름뿐인 연결을 피한다.
-@evidence principles/core/common.md#declared-basis 하나의 짧은 복도는 고정 그래프를 따르며 문선·카펫·창틀·손잡이는 05의 인상을 채택한다.
-@evidence principles/core/settings.md#fact-status 직접 연결과 보호 경계는 저작 규칙이며 현재 실제 복도 길이나 문 충돌 검사를 마쳤다는 주장은 없다.
-@evidence principles/core/settings.md#source-support 05를 마감과 문 관계의 근거로 쓰고 사진 밖의 복도 길이 또는 법정 난간 성능을 추론하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 상층에서 숨은 우회로나 안방을 통과하는 욕실 경로는 불가하고 계단 개구부가 통행면을 끊을 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 가까운 문들의 여닫힘과 계단 도착 여유가 함께 성립하며 구멍 주위에는 난간 또는 보호벽이 필요하다.
-@evidence principles/core/settings.md#observable-identity 베이지 카펫과 흰 패널문·문선, 검은 창과 목재 손잡이가 밝고 짧은 상층 분배 공간으로 읽힌다.
+@evidence principles/core/common.md#scope-preservation Takes on one short hall that connects directly from the landing to the three bedrooms, two bathrooms, and storage, preserving every branch of the upper storey.
+@evidence principles/core/common.md#substantive-completion Sets door swing, arrival clearance, protection of the stair hole, and the walking surface, avoiding a connection that is a hall in name alone.
+@evidence principles/core/common.md#declared-basis One short hall follows the fixed graph, and the casing, carpet, window frames, and handles adopt the impression of 05 as well.
+@evidence principles/core/settings.md#fact-status The direct connections and the protective boundary are authoring rules, with no claim that the real hall length or a door collision check is already done.
+@evidence principles/core/settings.md#source-support Uses 05 as the basis for the finish and door relations and does not infer a hall length outside the photograph or legal railing performance.
+@evidence principles/core/settings.md#capability-boundary A hidden detour on the upper storey or a bathroom route through the primary bedroom is impossible, and the stair opening cannot cut the walking surface.
+@evidence principles/core/settings.md#constraint-sufficiency The swing of the nearby doors and the stair arrival clearance hold together, and a railing or protective wall is needed around the hole.
+@evidence principles/core/settings.md#observable-identity Beige carpet, white panel doors and casing, black windows, and wooden handles read as a bright, short upper distribution space.
 -->
 
-사용자 고정 그래프에 따라 계단 상부참에서 시작하는 짧은 복도 하나가 세 침실, 두 욕실, 수납에 직접 닿는다. 거대한 빈 홀이나 둘러 돌아가는 숨은 길, 안방을 거쳐야만 갈 수 있는 두 번째 욕실을 만들지 않는다. 05의 밝은 벽, 흰 문선과 문짝, 베이지 카펫, 검은 창틀, 목재 손잡이를 채택한다. 문들이 가까이 있으나 여닫힘과 계단 도착 여유는 겹쳐 막히지 않는다. 계단 개구부는 난간 또는 낮은 보호벽으로 둘러싸고 복도 통행면은 끊기지 않는다.
+Per the user fixed graph, one short hall starting at the upper stair landing reaches the three bedrooms, two bathrooms, and storage directly. No huge empty hall, hidden path that loops around, or second bathroom reachable only through the primary bedroom is made. The light walls, white casing and leaves, beige carpet, black window frames, and wooden handles of 05 are adopted. The doors are close together, but their swings and the stair arrival clearance do not overlap and block each other. The stair opening is surrounded by a railing or a low protective wall, and the hall walking surface is not cut.
 
-## 주침실 {#primary-bedroom}
+## Primary Bedroom {#primary-bedroom}
 <!--
-@evidence principles/core/common.md#scope-preservation 가장 큰 침실의 직접 복도 접근, 성인 두 명의 취침 및 수납을 맡아 주침실을 침대 한 개로 축소하지 않는다.
-@evidence principles/core/common.md#substantive-completion 양옆 협탁과 발치 여유·서랍장·별도 옷 수납을 정해 큰 방의 차이를 사용 공간으로 설명한다.
-@evidence principles/core/common.md#declared-basis 주침실의 재료와 침구는 02·05에서 채택하고 복도 직접 접근은 사용자 상층 그래프를 보존한다.
-@evidence principles/core/settings.md#fact-status 성인 둘의 침실은 제작자가 채택한 사용 상태이며 참조 속 실제 거주자의 신원이나 인원을 주장하지 않는다.
-@evidence principles/core/settings.md#source-support 02와 05의 침구·목재·창 분위기를 근거로 삼으며 보이지 않는 침대 규격을 외부 사실로 꾸미지 않는다.
-@evidence principles/core/settings.md#capability-boundary 취침과 옷 수납을 제공하지만 욕실 통과로 들어가거나 공용 욕실의 통과실로 사용될 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 큰 침대만으로 면적 차이를 대신하지 않고 양옆·발치 접근 및 수납의 실제 여유를 확보하도록 제한한다.
-@evidence principles/core/settings.md#observable-identity 회베이지 침구의 목재 침대 양옆 조명과 낮은 서랍장, 얇은 커튼이 가장 큰 침실의 차분한 정체성이다.
+@evidence principles/core/common.md#scope-preservation Takes on the direct hall access, sleeping for two adults, and storage of the largest bedroom, so the primary bedroom is not reduced to a single bed.
+@evidence principles/core/common.md#substantive-completion Sets nightstands on both sides, clearance at the foot, a dresser, and separate clothes storage, explaining the large room's difference as use space.
+@evidence principles/core/common.md#declared-basis The primary bedroom's materials and bedding are adopted from 02 and 05, and direct hall access preserves the user upper graph.
+@evidence principles/core/settings.md#fact-status A bedroom for two adults is a use state the maker adopted, and claims no identity or number of the real occupants in the reference.
+@evidence principles/core/settings.md#source-support Takes the bedding, wood, and window mood of 02 and 05 as its basis and does not dress an unseen bed size up as an external fact.
+@evidence principles/core/settings.md#capability-boundary Provides sleeping and clothes storage but cannot be entered by passing through a bathroom or used as a pass-through room for the shared bathroom.
+@evidence principles/core/settings.md#constraint-sufficiency Does not let a big bed alone stand in for the area difference and limits the design to securing real clearance for side and foot access and storage.
+@evidence principles/core/settings.md#observable-identity A wooden bed with gray-beige bedding, lamps on both sides, a low dresser, and thin curtains are the calm identity of the largest bedroom.
 -->
 
-사용자 상층 그래프에 따라 상층의 가장 큰 침실로 복도에서 직접 들어간다. 성인 둘의 침대, 양옆 협탁과 조명, 낮은 서랍장, 별도 옷 수납이 있어야 한다. 02와 05를 근거로 회베이지 침구·목재 침대·중성 카펫·밝은 벽, 창과 얇은 커튼을 채택한다. 큰 방이라는 차이는 침대만 키우는 대신 양옆과 발치의 사용 여유 및 수납으로 드러낸다. 욕실을 통과해야 방에 들어가거나 방을 통과해야 공용 욕실에 갈 수 없다.
+Per the user upper graph, the largest bedroom of the upper storey is entered directly from the hall. It must have a bed for two adults, nightstands and lamps on both sides, a low dresser, and separate clothes storage. On the basis of 02 and 05, gray-beige bedding, a wooden bed, neutral carpet, light walls, a window, and thin curtains are adopted. The difference of being a large room is shown by the use clearance at the sides and foot and by storage, instead of only enlarging the bed. The room cannot require passing through a bathroom to enter, nor passing through the room to reach the shared bathroom.
 
-## 올리브 침구의 작은 침실 {#bedroom-two}
+## Small Bedroom with Olive Bedding {#bedroom-two}
 <!--
-@evidence principles/core/common.md#scope-preservation 올리브 침구의 자녀 방에 독립 문·창·가구·전체 관찰을 부여해 두 번째 작은 침실과 별도 소유를 유지한다.
-@evidence principles/core/common.md#substantive-completion 취침·학습·옷 수납과 창 접근까지 정해 작은 방을 침대만 놓는 여분 공간으로 남기지 않는다.
-@evidence principles/core/common.md#declared-basis 올리브색은 02에서 채택하고 책상·의자와 독립 접근은 자녀 한 명의 생활을 위한 저작 결정이다.
-@evidence principles/core/settings.md#fact-status 자녀 한 명의 사용은 주택을 설계하는 채택 조건이며 외부 인물의 실제 생활 정보가 아니다.
-@evidence principles/core/settings.md#source-support 02의 색을 식별 근거로 사용하되 자녀의 나이·신체 규격을 이미지에서 알아냈다고 하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 침대·창·수납을 사용할 수 있어야 하며 가구와 벽의 틈만으로 방에 들어가는 경로는 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency bedroom-three와 id·문·경계·관찰을 나누어 공유 침실 하나로 두 방의 요구를 대신할 수 없게 한다.
-@evidence principles/core/settings.md#observable-identity 올리브 침구와 목재 침대, 책상·의자 및 자기 외벽 창이 중성 카펫 위의 독립 자녀 방을 드러낸다.
+@evidence principles/core/common.md#scope-preservation Gives the child's room with olive bedding an independent door, window, furniture, and complete observation, keeping it a second small bedroom with separate ownership.
+@evidence principles/core/common.md#substantive-completion Sets sleeping, study, clothes storage, and window access, so the small room is not left as a spare space with only a bed.
+@evidence principles/core/common.md#declared-basis The olive color is adopted from 02, and the desk, chair, and independent access are authoring decisions for one child's life.
+@evidence principles/core/settings.md#fact-status Use by one child is an adopted condition for designing the house, not real life information about an outside person.
+@evidence principles/core/settings.md#source-support Uses the color of 02 as the identifying basis and does not say the child's age or body size was learned from the image.
+@evidence principles/core/settings.md#capability-boundary The bed, window, and storage must be usable, and a route into the room through the gap between furniture and wall alone is not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency Separates id, door, boundary, and observation from bedroom-three, so one shared bedroom cannot stand in for the requirements of two rooms.
+@evidence principles/core/settings.md#observable-identity Olive bedding, a wooden bed, a desk and chair, and a window in its own exterior wall show an independent child's room on neutral carpet.
 -->
 
-02에서 채택한 올리브색 침구의 작은 침실은 자녀 한 명이 쓰는 독립 공간이다. 복도에서 직접 들어가며 자기 외벽 창, 침대, 협탁과 조명, 책상과 의자, 옷 수납을 갖춘다. 목재 침대와 중성 카펫·밝은 벽이 주침실의 재료 체계를 잇는다. 침대를 지나 창과 수납에 접근할 수 있어야 하며 벽과 가구 틈을 유일한 출입 경로로 삼지 않는다. bedroom-three와 별도 공간 id·문·경계·전체 관찰을 가진다.
+The small bedroom with olive bedding adopted from 02 is an independent space used by one child. It is entered directly from the hall and has a window in its own exterior wall, a bed, a nightstand and lamp, a desk and chair, and clothes storage. The wooden bed, neutral carpet, and light walls continue the material system of the primary bedroom. The window and storage must be reachable past the bed, and the gap between wall and furniture is not taken as the sole entrance route. It has a space id, door, boundary, and complete observation separate from bedroom-three.
 
-## 청회색 침구의 작은 침실 {#bedroom-three}
+## Small Bedroom with Blue-Gray Bedding {#bedroom-three}
 <!--
-@evidence principles/core/common.md#scope-preservation 두 번째 자녀 방도 자기 문·창과 취침·학습·수납을 갖도록 해 침실 수를 이름만 늘리는 일을 막는다.
-@evidence principles/core/common.md#substantive-completion 첫 자녀 방과 동등한 기능을 요구하면서 색과 창 주위 배치의 차이를 정해 별도 방의 판단 기준을 준다.
-@evidence principles/core/common.md#declared-basis 청회색 침구는 02의 채택 요소이고 좌표 복제를 거부하는 배치 조건은 저작자가 정한다.
-@evidence principles/core/settings.md#fact-status 정확한 가구 위치는 자기 창과 벽에 맞춰 정할 설계값이며 참조 좌표를 읽은 결과가 아니다.
-@evidence principles/core/settings.md#source-support 02는 청회색 침구의 시각 입력이며 두 작은 방의 실제 크기가 같다는 외부 근거로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary upper-hall에서 직접 도달해야 하고 기능을 수납실 규모로 축소하는 변형은 허용되지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 자기 외벽과 창에 맞는 가구 배치를 요구하여 bedroom-two의 좌표를 옮기는 것만으로 완료할 수 없게 한다.
-@evidence principles/core/settings.md#observable-identity 청회색 침구와 별도 창 주변 배치가 올리브 방과 구별되면서 책상·침대·옷 수납이 자녀 생활을 드러낸다.
+@evidence principles/core/common.md#scope-preservation Gives the second child's room its own door and window and sleeping, study, and storage too, preventing the bedroom count from growing in name only.
+@evidence principles/core/common.md#substantive-completion Requires function equal to the first child's room while setting the difference in color and in the arrangement around the window, giving the criterion for a separate room.
+@evidence principles/core/common.md#declared-basis The blue-gray bedding is an adopted element of 02, and the author sets the placement condition that refuses copying coordinates.
+@evidence principles/core/settings.md#fact-status The exact furniture positions are design values to set against its own window and walls, not the result of reading reference coordinates.
+@evidence principles/core/settings.md#source-support 02 is the visual input for the blue-gray bedding and is not used as an external basis that the two small rooms have the same real size.
+@evidence principles/core/settings.md#capability-boundary It must be reached directly from upper-hall, and a variant that shrinks its function to the scale of a storage room is not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency Requires a furniture arrangement that fits its own exterior wall and window, so moving the coordinates of bedroom-two cannot complete it.
+@evidence principles/core/settings.md#observable-identity The blue-gray bedding and the separate arrangement around the window distinguish it from the olive room, while the desk, bed, and clothes storage show a child's life.
 -->
 
-02의 청회색 침구를 식별점으로 채택한 두 번째 자녀 침실이다. upper-hall에서 직접 닿는 자기 문과 외벽 창, 침대·협탁/등·책상/의자·옷 수납을 갖춘다. 첫 자녀 침실과 같은 생활 기능을 제공하되 침구색과 창 주변 가구 배치로 별도 방임이 읽혀야 한다. 수납실만 한 크기로 축소하지 않는다. 정확한 위치와 가구 배치는 공간 설계가 자기 창과 실제 벽에 맞춰 정하며 bedroom-two의 좌표 복사로 대신하지 않는다.
+It is the second child's bedroom, adopting the blue-gray bedding of 02 as its identifying point. It has its own door reached directly from upper-hall, an exterior-wall window, a bed, a nightstand/lamp, a desk/chair, and clothes storage. It provides the same household functions as the first child's bedroom, but must read as a separate room through the bedding color and the furniture arrangement around the window. It is not shrunk to the size of a storage room. Space design sets the exact position and furniture arrangement against its own window and real walls, and it is not replaced by a copy of the coordinates of bedroom-two.
 
-## 샤워 욕실 {#shower-bathroom}
+## Shower Bathroom {#shower-bathroom}
 <!--
-@evidence principles/core/common.md#scope-preservation 복도 직접 접근의 첫 욕실에 샤워·세면·변기와 문턱 마감을 모두 정해 공용 욕실 한 곳의 기능을 맡는다.
-@evidence principles/core/common.md#substantive-completion 유리 샤워부스와 기구 접근, 카펫 종료 및 두 문 간섭 조건을 정해 욕실을 장식적인 타일 방으로 끝내지 않는다.
-@evidence principles/core/common.md#declared-basis 05의 흰 타일·검은 금속·회갈색 세면장을 채택하고 공용 복도 접근은 고정 그래프를 따른다.
-@evidence principles/core/settings.md#fact-status 기구 점유와 접근은 앞으로 검사할 조건이며 배관이 작동하거나 검증되었다는 사실은 채택하지 않는다.
-@evidence principles/core/settings.md#source-support 05는 기구와 재료의 읽힘을 뒷받침할 뿐 방수·급배수 성능 인증 자료가 아니다.
-@evidence principles/core/settings.md#capability-boundary 샤워와 위생 기능의 정적 실내이며 주침실을 통해서만 들어오는 전용 욕실로 바꿀 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 샤워문과 출입문이 기구 사용을 동시에 막지 않고 복도 카펫이 문턱에서 끝나야 배치를 채택할 수 있다.
-@evidence principles/core/settings.md#observable-identity 흰 타일과 투명 부스의 검은 손잡이, 목재빛 세면장 및 도기 경계가 샤워 욕실을 구분한다.
+@evidence principles/core/common.md#scope-preservation Sets the shower, washbasin, toilet, and threshold finish of the first bathroom with direct hall access, taking on the function of one shared bathroom.
+@evidence principles/core/common.md#substantive-completion Sets the glass shower booth, fixture access, carpet termination, and the interference condition of the two doors, so the bathroom does not end as a decorative tiled room.
+@evidence principles/core/common.md#declared-basis Adopts the white tile, black metal, and gray-brown vanity of 05, and the shared hall access follows the fixed graph.
+@evidence principles/core/settings.md#fact-status Fixture occupancy and access are conditions to inspect later, and the fact that plumbing works or has been verified is not adopted.
+@evidence principles/core/settings.md#source-support 05 supports the readability of fixtures and materials and is not certification data for waterproofing or plumbing performance.
+@evidence principles/core/settings.md#capability-boundary A static interior of shower and sanitary functions that cannot be changed into a private bathroom entered only through the primary bedroom.
+@evidence principles/core/settings.md#constraint-sufficiency The layout can be adopted when the shower door and entrance door do not block fixture use at the same time and the hall carpet ends at the threshold.
+@evidence principles/core/settings.md#observable-identity White tile, the black handle of a clear booth, a wood-toned vanity, and the ceramic boundaries distinguish the shower bathroom.
 -->
 
-상층 복도에서 직접 들어가는 첫 욕실(사용자 고정 그래프)은 05를 근거로 유리 샤워부스·세면대·변기를 가진다. 또한 05를 근거로 흰 타일, 유리문과 검은 금속 손잡이, 목재/회갈색 세면장, 거울, 수건과 세면 소품을 둔다. 도기·유리·금속 및 방수 바닥의 경계가 읽히고 복도 카펫은 문턱에서 끝난다. 주침실을 통과해야 접근하는 전용 욕실로 바꾸지 않는다. 샤워문과 실 출입문이 기구 사용 공간을 동시에 막지 않아야 한다. 배관 성능을 주장하지 않으며 기구의 실제 점유·접근·시각 읽힘은 검사한다.
+The first bathroom entered directly from the upper hall (user fixed graph) has, on the basis of 05, a glass shower booth, a washbasin, and a toilet. Also on the basis of 05, it has white tile, a glass door with a black metal handle, a wooden/gray-brown vanity, a mirror, towels, and washing props. The boundaries of ceramic, glass, metal, and the waterproof floor read, and the hall carpet ends at the threshold. It is not changed into a private bathroom reached by passing through the primary bedroom. The shower door and the room entrance door must not block fixture use space at the same time. No plumbing performance is claimed, and the fixtures' real occupancy, access, and visual readability are inspected.
 
-## 욕조 욕실 {#tub-bathroom}
+## Tub Bathroom {#tub-bathroom}
 <!--
-@evidence principles/core/common.md#scope-preservation 두 번째 욕실의 독립 복도 문과 욕조·세면대·변기를 맡아 두 욕실을 한 방 안의 두 구역으로 합치지 않는다.
-@evidence principles/core/common.md#substantive-completion 욕조 접근과 샤워 수전·커튼·거울·수건을 정해 목욕실의 기능과 정적 상태를 사용할 수 있게 한다.
-@evidence principles/core/common.md#declared-basis 욕조 겸 샤워와 밝은 타일은 02에서 채택하며 독립 실 경계와 직접 접근은 상층 그래프를 따른다.
-@evidence principles/core/settings.md#fact-status 기구의 정지 상태와 커튼 구성은 저작 선택이고 물이나 증기가 생기는 능력은 선언하지 않는다.
-@evidence principles/core/settings.md#source-support 02의 욕조 표현을 사용하지만 가려진 배관이나 욕조 용량을 확인한 사실로 제시하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 용변 기구를 넘어가지 않고 욕조에 접근하며 물·증기·급배수 시뮬레이션 없이 정적 설비만 보여 준다.
-@evidence principles/core/settings.md#constraint-sufficiency 샤워 욕실과 벽으로 분리되고 자기 문을 가지며 욕조까지 막힘없는 경로가 성립해야 한다.
-@evidence principles/core/settings.md#observable-identity 욕조 가장자리와 커튼 레일, 회갈색 세면장과 밝은 타일이 유리 부스 욕실과 다른 목욕 공간으로 읽힌다.
+@evidence principles/core/common.md#scope-preservation Takes on the second bathroom's independent hall door and its tub, washbasin, and toilet, so the two bathrooms are not merged into two zones of one room.
+@evidence principles/core/common.md#substantive-completion Sets tub access, the shower valve, curtain, mirror, and towels, making the function and static state of the bath room usable.
+@evidence principles/core/common.md#declared-basis The tub-shower and light tile are adopted from 02, and the independent room boundary and direct access follow the upper graph.
+@evidence principles/core/settings.md#fact-status The fixtures' stopped state and the curtain composition are authoring choices, and no ability to produce water or steam is declared.
+@evidence principles/core/settings.md#source-support Uses the tub expression of 02 but does not present hidden plumbing or tub capacity as confirmed facts.
+@evidence principles/core/settings.md#capability-boundary Reaches the tub without stepping over the toilet fixture and shows only static equipment without water, steam, or plumbing simulation.
+@evidence principles/core/settings.md#constraint-sufficiency It must be separated from the shower bathroom by a wall, have its own door, and have an unobstructed route to the tub.
+@evidence principles/core/settings.md#observable-identity The tub rim and curtain rail, the gray-brown vanity, and light tile read as a bathing space different from the glass-booth bathroom.
 -->
 
-사용자 상층 그래프에 따라 상층 복도에 자기 문을 가진 두 번째 욕실로, 02의 욕조 겸 샤워·세면대·변기를 채택한다. 밝은 타일과 회갈색 세면장, 욕조 가장자리, 샤워 수전과 curtain rail/커튼, 거울, 수건이 욕조 욕실의 기능을 드러낸다. 샤워 욕실과 벽을 사이에 둔 독립 공간이며 한 실의 좌우 구역으로 합치지 않는다. 출입과 욕조 접근은 변기나 세면장을 넘어가지 않고 가능한 경로로 설계한다. 기구는 정지 상태이며 물·증기·급배수 시뮬레이션은 없다.
+Per the user upper graph, it is the second bathroom with its own door on the upper hall and adopts the tub-shower, washbasin, and toilet of 02. Light tile and a gray-brown vanity, the tub rim, the shower valve and curtain rail/curtain, a mirror, and towels show the function of the tub bathroom. It is an independent space with a wall between it and the shower bathroom and is not merged into left and right zones of one room. Entry and tub access are designed as a route possible without stepping over the toilet or vanity. The fixtures are in a stopped state, and there is no water, steam, or plumbing simulation.
 
-## 수납 {#storage}
+## Storage {#storage}
 <!--
-@evidence principles/core/common.md#scope-preservation 상층 린넨·현관 외투·침실 옷 수납의 사용 관계와 내부 깊이를 맡아 수납 요구를 빈 문짝으로 대신하지 않는다.
-@evidence principles/core/common.md#substantive-completion 선반·수건·옷걸이 및 각 사용 공간에서의 직접 접근을 정하고 사람이 들어가는 수납의 관찰 범위도 확정한다.
-@evidence principles/core/common.md#declared-basis 상층 수납은 사용자 요구이며 린넨을 계단참 가까이 배치하는 방법은 저작자의 채택이다.
-@evidence principles/core/settings.md#fact-status 붙박이장과 사람이 들어가는 방의 최종 분류는 실제 공간 저작에 달렸으며 이름만으로 방이 아니라고 확정하지 않는다.
-@evidence principles/core/settings.md#source-support 린넨과 외투의 배치는 제작 결정이고 외부 주택의 숨은 수납 깊이를 조사한 주장으로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary 물건 보관에 쓰이며 숨은 통로가 될 수 없고 실로 만든 경우 다른 방의 전체 관찰 의무를 면제할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 실제 내부 깊이·문선·문짝과 직접 접근을 갖추며 공간으로 저작한 수납은 그 경계 기준으로 관찰한다.
-@evidence principles/core/settings.md#observable-identity 계단참의 접힌 수건 선반과 각 침실의 옷걸이, 현관 외투장이 쓰는 물건에 따라 서로 다른 수납으로 보인다.
+@evidence principles/core/common.md#scope-preservation Takes on the use relations and interior depth of upper linen, entry coat, and bedroom clothes storage, so the storage requirement is not replaced by empty leaves.
+@evidence principles/core/common.md#substantive-completion Sets shelves, towels, hangers, and direct access from each use space, and also fixes the observation scope of storage a person walks into.
+@evidence principles/core/common.md#declared-basis The upper storage is a user requirement, and placing the linen near the landing is the author's adoption.
+@evidence principles/core/settings.md#fact-status The final classification of built-in closets versus rooms a person walks into depends on the real space authoring, and a name alone does not settle that something is not a room.
+@evidence principles/core/settings.md#source-support The placement of linen and coats is a production decision and is not used as a claim of having researched the hidden storage depth of an outside house.
+@evidence principles/core/settings.md#capability-boundary Used for keeping things, it cannot become a hidden passage, and if made into a room it cannot exempt other rooms from the complete-observation duty.
+@evidence principles/core/settings.md#constraint-sufficiency Has real interior depth, casing, leaves, and direct access, and storage authored as a space is observed by its boundary.
+@evidence principles/core/settings.md#observable-identity The folded towel shelves at the landing, the hangers in each bedroom, and the entry coat closet appear as different storage according to the things they hold.
 -->
 
-사용자의 상층 수납 요구를 실현하는 저작 선택으로 계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건을 둔다. 현관 외투장과 각 침실 옷장은 쓰는 공간에서 직접 닿는 수납으로 만들고 숨은 통로가 되지 않는다. 문짝·문선·옷걸이/선반과 실제 내부 깊이가 있어야 한다. 사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담한다. 붙박이장이라는 이름으로 실제 방의 질문을 없애지 않는다.
+As an authoring choice that realizes the user's upper storage requirement, the hall storage near the landing has linen shelves and folded towels. The entry coat closet and each bedroom wardrobe are made as storage reached directly from the space that uses them and do not become hidden passages. They must have leaves, casing, hangers/shelves, and real interior depth. If a storage room a person walks into is authored as a space, it carries the same complete observation as other rooms. The name built-in closet does not remove the questions of a real room.
 
-## 개구부의 읽힘 {#openings}
+## Readability of Openings {#openings}
 <!--
-@evidence principles/core/common.md#scope-preservation 창과 문의 실제 프레임·깊이·유리·문짝·하드웨어를 맡아 외피 개구부를 사각 구멍으로 남기지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 위계와 소속 방, 문 기준 상태 및 내부 접근 조작까지 정해 개구부 구현이 필요한 의미를 완성한다.
-@evidence principles/core/common.md#declared-basis 검은 외부 창과 흰 trim은 01에서, 실내 흰 패널문은 03–05에서 채택하고 개폐 기준 상태는 저작자가 정한다.
-@evidence principles/core/settings.md#fact-status 창·문 정체성과 상태는 제작 canon이며 실제 유리의 광학 수치나 문 제품 규격을 알고 있다는 뜻이 아니다.
-@evidence principles/core/settings.md#source-support 참조의 창틀 인상을 사용하되 사진만으로 벽체 깊이나 유리 투과율을 측정했다고 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 실내 문은 통행이 읽히게 열고 외부 문은 닫되 관찰 조작으로 접근하며 유리를 검은 불투명 판으로 대체할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 창이 속한 방과 외벽이 일치해야 하고 프레임·sash·창대의 두께와 문턱이 각각 구별되어야 한다.
-@evidence principles/core/settings.md#observable-identity 넓은 거실 묶음창과 작은 계단 창의 위계, 검은 창틀·흰 돌출 trim·빛에 반응하는 유리가 외관의 깊이를 만든다.
+@evidence principles/core/common.md#scope-preservation Takes on the real frames, depth, glass, leaves, and hardware of windows and doors, so envelope openings are not left as square holes.
+@evidence principles/core/common.md#substantive-completion Sets the window hierarchy and owning rooms, door baseline states, and interior access controls, completing the meaning that the opening implementation needs.
+@evidence principles/core/common.md#declared-basis Black exterior windows and white trim are adopted from 01 and interior white panel doors from 03–05, and the author sets the open/closed baseline state.
+@evidence principles/core/settings.md#fact-status Window and door identity and states are production canon and do not mean the optical values of real glass or door product specifications are known.
+@evidence principles/core/settings.md#source-support Uses the window frame impression of the references and does not claim to have measured wall depth or glass transmittance from the photographs alone.
+@evidence principles/core/settings.md#capability-boundary Interior doors open so passage reads and exterior doors are closed while reached through observation controls, and glass cannot be replaced by a black opaque plate.
+@evidence principles/core/settings.md#constraint-sufficiency The room a window belongs to must match its exterior wall, and the thickness of frame, sash, and sill and the threshold must each be distinct.
+@evidence principles/core/settings.md#observable-identity The hierarchy of the wide living room window group and the small stair window, black window frames, white projecting trim, and glass that responds to light make the depth of the exterior.
 -->
 
-01의 검은 창틀과 흰 외부 trim, 03–05의 흰 실내 문선 및 패널문을 채택한다. 외부 창은 실제 두께 있는 frame·sash·유리·살대·창대·벽과의 깊이를 갖고, 문은 문짝·경첩측·손잡이·문틀·문턱이 구별된다. 전면 거실은 넓은 묶음창, 상층 전면은 침실 창들과 계단/복도용의 더 작은 창으로 위계가 생긴다. 창을 배정한 방과 그 창을 품은 외벽이 같아야 한다. 문은 기준 상태에서 통행을 읽을 수 있게 열고 외부 현관·정원문·차고문은 닫되 관찰 조작으로 내부 접근 가능하게 한다. 유리는 구멍도 불투명 검은 판도 아니며 실내외 밝기 차이에 반응한다.
+The black window frames and white exterior trim of 01 and the white interior casing and panel doors of 03–05 are adopted. Exterior windows have real-thickness frame, sash, glass, muntins, sill, and depth relative to the wall, and doors distinguish leaf, hinge side, handle, frame, and threshold. A hierarchy arises with a wide window group in the front living room, and on the upper front the bedroom windows and a smaller window for the stair/hall. The room a window is assigned to and the exterior wall that holds that window must be the same. Doors are open in the baseline state so passage can be read, and the exterior entry, garden door, and garage door are closed but the interior remains reachable through observation controls. Glass is neither a hole nor an opaque black plate and responds to the brightness difference between inside and outside.
 
-## 대지와 식재 {#site-identity}
+## Site and Planting {#site-identity}
 <!--
-@evidence principles/core/common.md#scope-preservation 앞 보도·연석·차도·현관길·잔디·화단과 후면 테라스를 맡아 집이 서는 대지와 생활 연결을 포함한다.
-@evidence principles/core/common.md#substantive-completion 성목·뒤 나무·우측 울타리의 관계와 식재 실루엣을 정해 대지를 블록 배경으로 대체하지 못하게 한다.
-@evidence principles/core/common.md#declared-basis 01의 대지 인상을 채택하며 구체 경계·식재 위치·지표 경사는 maps에서 정할 제작 선택으로 배분한다.
-@evidence principles/core/settings.md#fact-status 완만한 평지와 테라스는 저작한 환경이며 측량·토목 인증이나 실주소 정보로 제시하지 않는다.
-@evidence principles/core/settings.md#source-support 01은 나무와 집의 규모 관계를 지지하지만 이미지 밖의 도시나 필지 정보를 사실로 확장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 후면 테라스는 공용부에서 접근할 수 있어야 하며 외부 관찰을 가리는 배경 판이나 직육면체 식재를 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 차고 차도와 현관 보행길을 나누고 나무는 가지·수관·잎 덩어리·접지 그림자를 갖추는 조건으로 설계한다.
-@evidence principles/core/settings.md#observable-identity 전면 왼쪽 성목과 뒤쪽 나무, 오른쪽 목재 울타리 및 낮은 화단이 완성된 교외 주택 대지의 규모를 드러낸다.
+@evidence principles/core/common.md#scope-preservation Takes on the front sidewalk, curb, driveway, entry walk, lawn, beds, and rear terrace, including the site the house stands on and its household connections.
+@evidence principles/core/common.md#substantive-completion Sets the relation of the mature tree, the rear trees, and the right fence and the planting silhouettes, so the site cannot be replaced by a block background.
+@evidence principles/core/common.md#declared-basis Adopts the site impression of 01 and allocates the concrete boundaries, planting positions, and ground slope as production choices to be set in maps.
+@evidence principles/core/settings.md#fact-status The gently level ground and terrace are an authored environment and are not presented as survey or civil certification or real address information.
+@evidence principles/core/settings.md#source-support 01 supports the scale relation of trees and house but does not extend into city or parcel information outside the image as fact.
+@evidence principles/core/settings.md#capability-boundary The rear terrace must be reachable from the common area, and background boards or box-shaped planting that hide exterior observation are not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency Separates the garage driveway from the entry walk and designs trees on the condition that they have branches, canopy, leaf masses, and grounded shadows.
+@evidence principles/core/settings.md#observable-identity The front-left mature tree and the trees behind, the wooden fence on the right, and low beds show the scale of a finished suburban house site.
 -->
 
-01을 바탕으로 완만한 평지의 주택 대지, 앞 보도·낮은 연석·차도 가장자리, 차고 진입 콘크리트 차도, 현관 보행길, 잔디와 낮은 화단을 만든다. 왼쪽 전면의 성목, 뒤쪽의 나무, 우측의 목재 울타리와 관목이 집의 규모를 설명한다. 식재는 가지·수관·잎 덩어리의 불규칙한 실루엣과 접지 그림자를 가지며 직육면체로 대리하지 않는다. 후면 정원에는 공용부에서 닿는 작은 포장 테라스와 식탁·의자를 둔다. 이웃집·도시·실주소는 전달 대상이 아니며 외부 관찰을 가리는 배경 판을 두지 않는다. 구체 경계·식재 위치·배수처럼 보이는 지표 경사는 maps의 저작 선택이고 측량/토목 인증이 아니다.
+On the basis of 01, a gently level house site, the front sidewalk, a low curb, the driveway edge, a concrete driveway into the garage, an entry walk, lawn, and low beds are made. The mature tree at the left front, the trees behind, and the wooden fence and shrubs on the right explain the scale of the house. The planting has irregular silhouettes of branches, canopy, and leaf masses and grounded shadows, and is not stood in for by boxes. The rear garden has a small paved terrace reached from the common area, with a table and chairs. Neighboring houses, the city, and a real address are not delivered, and no background board hides exterior observation. The concrete boundaries, planting positions, and a ground slope that looks like drainage are authoring choices of maps, not survey or civil certification.

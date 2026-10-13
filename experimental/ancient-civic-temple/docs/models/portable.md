@@ -1,413 +1,413 @@
-# 신전의 이동식 비품과 소품
+# Movable furnishings and props of the temple
 
-이 파일은 사물 단계의 재사용 prototype을 소유한다. 오른손 Y-up 미터 좌표와 [공통 축척](../contracts/principles-models.md#temple-reference-scale)을 쓰며 각 H2의 산문 치수와 식만 형상 설계의 입력이다. 점유 상자는 각 part 실체 범위의 합집합을 기준으로 하며 그 합집합을 여유 있게 감싸면 보수적 경계라고 명시한다. 방별 복제 수·회전·간격은 instances가 정한다. 표면 ID는 part 이름이며 별도 하위 표면이 필요한 경우에만 이름을 더한다. 모든 바닥 접촉형의 로컬 Y=0은 바닥면이고, 제조·하중·역사적 실물 복원을 주장하지 않는다.
+This file owns the reusable prototypes of the objects stage. It uses right-handed Y-up metre coordinates and the [shared scale](../contracts/principles-models.md#temple-reference-scale), and only the prose dimensions and formulas of each H2 are inputs to the shape design. The occupancy box is based on the union of the solid ranges of each part, and when it generously wraps that union it is stated to be a conservative bound. instances sets the per-room copy count, rotation and spacing. The surface ID is the part name, and a name is added only when a separate sub-surface is needed. For every floor-standing object the local Y=0 is the floor face, and no manufacture, load or historical physical restoration is claimed.
 
-## 대기와 작업용 석재 벤치 {#bench}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.40×0.46×0.45m 벤치는 성인 보행 포락보다 낮고 중정 통로 옆에 머물며, 석재 `seat`·`pier`의 각 노출 평면을 바깥법선별 기본 UV로 둔다.
-@evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings의 색인이고 원형은 지도가 가리키는 외피·실내·물체·환경 H2를 직접 소비하므로 지도 자체에서 추가 형상을 받지 않는다.
-@evidence principles/core/common.md#scope-preservation 중정과 정문의 낮은 대기 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 상판과 두 받침의 치수·접촉면·폭 매개변수, 열린 하부와 점유 상자를 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bench와 30-interiors#fountain이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bench의 중정과 정문의 낮은 대기 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract seat·pier의 접촉, 좌석 아래 빈 공간, 막힌 상자형 벤치를 제외한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점, 앞 +Z, 폭 변형과 합집합 점유 범위를 정한다.
-@evidence principles/design/models.md#reviewable-structure 정면·옆면에서 0.40m 열린 하부와 두 받침의 분리가 보이는지 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 장식 없는 두 지지체와 두꺼운 돌판으로 공용 비품을 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 1.40m 기본형과 폭 1.10m 변형을 같은 접합법으로 정하고 두 변형의 점유 상자를 닫는다.
-@evidence settings/30-interiors.md#fountain 중정 가장자리에 놓일 낮은 벤치를 받아 분수 중심 보행선을 남기는 배치를 instances에 넘긴다.
-@evidence settings/50-production.md#references 이미지 01·03·05의 절제된 돌·목재 집기 규모를 비교 기준으로 사용한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 중정과 정문의 낮은 대기 비품의 settings 정체성 owner가 없어 35-objects#bench를 새로 만들고 30-interiors#fountain의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#bench 중정과 정문의 낮은 대기 비품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
--->
-
-[사물 정체성](../settings/35-objects.md#bench)과 [사용 공간](../settings/30-interiors.md#fountain)이 이 prototype의 부모다. [레퍼런스 이미지 01·03·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
-
-벤치는 등받이·팔걸이 없는 석판과 분리된 두 석재 받침이다. 로컬 원점은 지면 중심, 앞은 +Z다. 기본 폭 W=1.40m, 짧은 변형 W=1.10m이며 다른 수치는 공유한다. 상판 두께 0.06m·깊이 0.45m, 윗면 Y=0.46m다. 받침 폭 0.12m·깊이 0.36m이고 두 중심은 X=±(W/2−0.17)m다. 받침은 Y=0~0.40m, 상판은 Y=0.40~0.46m라 접촉하고 아래 가운데는 열린다. 기본형 점유 상자는 1.40×0.46×0.45m이고 짧은 변형은 W만 대입한다.
-
-정문·중정·주랑 가장자리의 대기 비품으로 쓰되 실제 수량과 통로 밖 위치는 instances가 정한다.
-
-부재 대응: `seat`=상판; `pier`=받침.
-
-part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의 결은 후속 materials가 받는다. 검토 판의 정면·측면에서 0.40m 열린 하부와 두 받침의 분리를 본다. 지면과 떨어진 받침이나 막힌 상자형 벤치는 실패다.
-
-벤치 `seat`와 두 `pier`의 UV0는 각각의 윗면·옆면 바깥법선에 따른 기본 평면 투영이다. 0.40m 열린 하부를 채우지 않고 받침과 상판의 맞댐에서 이음을 둔다.
-
-## 들고 놓는 소형 등잔 {#portable-lamp}
+## Stone bench for waiting and work {#bench}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.24×0.28×0.24m 소형 등잔은 손에 드는 비품 범위에 맞고, `foot`·`stem`·`dish`의 둥근 옆면은 +X 시접의 Y축 회전체 UV, 접시 안쪽은 별도 최저 고리 V를 쓴다.
-@evidenceExclude settings/00-delivery.md#delivery-scope 납품 공간 목록과 뷰어 약속은 spaces와 viewer가 맡고 모델 원형의 사물 종류는 35-objects와 30-interiors의 개별 정체성에서 받는다.
-@evidence principles/core/common.md#scope-preservation 높은 제실 등잔대와 별개인 이동식 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 발·줄기·오목한 접시의 범위와 연결 높이, 16분할 원형 면을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#portable-lamp와 20-envelope#entrance-porch·30-interiors#fountain·#offering-room·#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#portable-lamp의 높은 제실 등잔대와 별개인 이동식 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract foot·stem·dish와 위로 열린 접시, 불꽃 없는 proxy를 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.24×0.28×0.24m 점유 상자를 정한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 접시 깊이와 가는 지지대가 한 원통으로 합쳐지지 않는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 02·04의 얕은 접시와 어두운 금속 실루엣을 소형으로 변주한다.
-@evidence principles/design/models.md#model-scale-layer-completion 큰 등잔대와 소형 등잔의 규모 차이와 표면 경계가 정해져 방별 비품이 같은 원형을 쓴다.
-@evidence settings/30-interiors.md#services 꺼진 등잔 상태를 소형 비품에도 적용한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#lampstands의 높은 등잔대와 구별할 소형 이동식 비품 owner가 없어 35-objects#portable-lamp를 새로 만들고 20-envelope#entrance-porch의 정문 목록과 30-interiors의 중정·봉헌실·관리실 방 목록에 넣었다. 등잔대와 별도 정체성을 먼저 정한 뒤 형상 산문을 썼다.
-@evidence settings/35-objects.md#portable-lamp 높은 제실 등잔대와 별개인 이동식 비품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 1.40×0.46×0.45m bench is lower than the adult walking envelope and stays beside the courtyard passage, and each exposed plane of the stone `seat` and `pier` takes the default per-outward-normal UV.
+@evidenceExclude settings/00-delivery.md#coverage-map The settings ownership map is an index of settings, and the prototype consumes the envelope, interior, object and environment H2s the map points to directly, so it takes no extra shape from the map itself.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the low waiting furnishing of the courtyard and main door.
+@evidence principles/core/common.md#substantive-completion It sets the dimensions, contact faces and width parameter of the top slab and two piers, the open lower part and the occupancy box.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#bench and 30-interiors#fountain as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the low waiting furnishing of the courtyard and main door of 35-objects#bench to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the contact of seat and pier and the void under the seat, and excludes a closed box-shaped bench.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin, the front on +Z, the width variant and the union occupancy range.
+@evidence principles/design/models.md#reviewable-structure It checks that the 0.40m open lower part and the separation of the two piers show from the front and side.
+@evidence principles/design/models.md#model-observable-style-basis Two plain stands and a thick stone slab convey a shared furnishing.
+@evidence principles/design/models.md#model-scale-layer-completion It sets the 1.40m base form and the 1.10m wide variant with the same joint method and closes the occupancy boxes of both variants.
+@evidence settings/30-interiors.md#fountain It takes the low bench at the courtyard edge and hands instances a placement that keeps the walking line around the fountain.
+@evidence settings/50-production.md#references It uses the restrained scale of stone and timber furnishings of images 01, 03 and 05 as the comparison datum.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The low waiting furnishing of the courtyard and main door had no settings identity owner, so 35-objects#bench was created and added to the room list of 30-interiors#fountain. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#bench It takes the existence, form range and state of the low waiting furnishing of the courtyard and main door and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#portable-lamp)과 [정문](../settings/20-envelope.md#entrance-porch)·[중정](../settings/30-interiors.md#fountain)·[봉헌실](../settings/30-interiors.md#offering-room)·[관리실](../settings/30-interiors.md#administration)의 사용 공간이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#bench) and the [space of use](../settings/30-interiors.md#fountain) are the parents of this prototype. It compares the form and spatial relations of [reference images 01, 03 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-이 등잔은 [높은 금속 등잔대](fixtures.md#lampstand)와 별도인 이동식 비품이며 기름·심지·불꽃의 작동은 표시하지 않는다. 정문·중정·봉헌실·관리실에서 같은 비품을 쓴다. 로컬 원점은 발 바닥 중심이다. 발은 반지름 0.10m·높이 0.035m의 16분할 원판, 줄기는 반지름 0.012m·Y=0.035~0.23m 원통, 접시는 바깥 반지름 0.12m·Y=0.23~0.28m의 열린 평바닥 컵이다. 접시 안쪽 반지름 0.105m, 바닥 두께 0.008m이며 윗면 고리 두께는 0.015m다. 줄기는 발 윗면과 접시 아랫면에 각각 닿는다. 점유 상자는 0.24×0.28×0.24m다.
+The bench is a stone slab without backrest or armrests on two separate stone piers. The local origin is the ground centre, and the front is +Z. The base width is W=1.40m and the short variant W=1.10m, and the other values are shared. The top slab has thickness 0.06m and depth 0.45m, with top face Y=0.46m. The piers have width 0.12m and depth 0.36m, and their two centres are X=±(W/2−0.17)m. The piers are Y=0~0.40m, and the top slab is Y=0.40~0.46m, so they are in contact, and the middle underneath is open. The base-form occupancy box is 1.40×0.46×0.45m, and the short variant substitutes only W.
 
-실제 위치와 수량은 instances가 정한다.
+It serves as a waiting furnishing at the edges of the main door, courtyard and colonnade, but instances sets the real quantity and the positions outside passages.
 
-부재 대응: `foot`=발; `stem`=줄기; `dish`=접시.
+Part map: `seat`=top slab; `pier`=pier.
 
-part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이고 접시 안쪽 면은 별도 법선과 UV 이음을 가진다. 검토 판에서 원형 접시의 실제 오목함과 줄기 끝 접촉을 본다. 불꽃을 더하거나 접시를 막힌 원판으로 바꾸면 실패다.
+Parts and surfaces are `seat` and `pier`. The top face of `seat` is the used face, and the material grain is taken later by materials. From the front and side of the review board, the 0.40m open lower part and the separation of the two piers are viewed. A pier away from the ground or a closed box-shaped bench is a failure.
 
-소형 등잔의 `foot`·`stem`·`dish`는 +X 시접부터 둘레 호길이 U·단면 모선 V로 UV0를 편다. 오목한 접시 안쪽은 바깥쪽과 분리하고 아래 원판은 평면 투영한다.
+The UV0 of the bench `seat` and the two `pier` is the default planar projection along the outward normal of each top and side face. The 0.40m open lower part is not filled, and seams lie at the butts of the piers and the top slab.
 
-## 항아리 두 자리 받침대 {#jar-rack}
+## Small portable lamp {#portable-lamp}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.18×0.28×0.58m 두 자리 받침의 목재 `top`은 +X U·정방 `leg`는 +Y U이고, 상판이 소유한 두 홈 벽은 Y축 둘레 U·모선 V, `well` 바닥은 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 두 항아리를 받는 보관실 가구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 상판·두 홈·네 다리의 치수와 열린 아래, 저장 항아리 바닥 반지름 0.10m보다 큰 홈 반지름 0.16m를 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#jar-rack와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#jar-rack의 두 항아리를 받는 보관실 가구를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract top·leg·well의 실제 얕은 홈과 접촉면을 정하고 항아리 자체는 재저작하지 않는다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 앞 +Z, 1.18×0.28×0.58m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 위와 옆에서 두 홈, 네 다리, 상판 아래 개방을 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 분리된 보관 물건을 한 큰 상자로 덮지 않는 낮은 목재 받침으로 읽힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 홈 반지름 0.16m가 저장 항아리와 운반 항아리의 바닥보다 커 한 받침 치수군으로 확정한다.
-@evidence settings/30-interiors.md#storage 보관실 벽쪽 물품이 통로를 남기도록 놓이는 받침이다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 두 항아리를 받는 보관실 가구의 settings 정체성 owner가 없어 35-objects#jar-rack를 새로 만들고 30-interiors#storage의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#jar-rack 두 항아리를 받는 보관실 가구의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.24×0.28×0.24m small lamp fits the range of hand-held furnishings; the round sides of `foot`, `stem` and `dish` use a Y-axis solid-of-revolution UV with a +X seam, and the dish interior a separate lowest-ring V.
+@evidenceExclude settings/00-delivery.md#delivery-scope The delivered space list and viewer promise belong to spaces and the viewer, and the object kinds of model prototypes come from the individual identities of 35-objects and 30-interiors.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the movable furnishing separate from the tall sanctuary lampstand.
+@evidence principles/core/common.md#substantive-completion It sets the ranges of foot, stem and concave dish, the joining heights and the 16-segment round faces.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#portable-lamp and 20-envelope#entrance-porch, 30-interiors#fountain, #offering-room and #administration as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the movable furnishing of 35-objects#portable-lamp, separate from the tall sanctuary lampstand, to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets foot, stem and dish, the dish open upward and a flameless proxy.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.24×0.28×0.24m occupancy box.
+@evidence principles/design/models.md#reviewable-structure From the side it checks that the dish depth and the thin stand do not merge into one cylinder.
+@evidence principles/design/models.md#model-observable-style-basis It varies the shallow dish and dark metal silhouette of images 02 and 04 at a small scale.
+@evidence principles/design/models.md#model-scale-layer-completion The scale difference between the large lampstand and the small lamp and the surface boundaries are set, so the furnishings of each room use the same prototype.
+@evidence settings/30-interiors.md#services It applies the unlit lamp state to the small furnishing too.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work There was no owner for a small movable furnishing distinct from the tall lampstand of 35-objects#lampstands, so 35-objects#portable-lamp was created and added to the main door list of 20-envelope#entrance-porch and the courtyard, offering room and office room lists of 30-interiors. The identity separate from the lampstand was set first, then the shape prose was written.
+@evidence settings/35-objects.md#portable-lamp It takes the existence, form range and state of the movable furnishing separate from the tall sanctuary lampstand and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#jar-rack)과 [사용 공간](../settings/30-interiors.md#storage)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#portable-lamp) and the spaces of use of the [main door](../settings/20-envelope.md#entrance-porch), [courtyard](../settings/30-interiors.md#fountain), [offering room](../settings/30-interiors.md#offering-room) and [office](../settings/30-interiors.md#administration) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 04](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-받침대는 항아리 둘의 prototype이 아니라 그 밑의 독립된 낮은 목재 가구다. 실제 위치와 수량은 instances가 정한다. 로컬 원점은 바닥 중심이며 긴 변은 X, 앞은 +Z다. 상판은 폭 1.18m·깊이 0.58m·두께 0.06m로 Y=0.22~0.28m에 있다. 네 다리는 정방 0.07m이고 중심 (X,Z)=(±0.52,±0.22)m에 놓여 Y=0~0.22m에서 상판에 닿는다. 상판의 두 원형 홈은 중심 X=±0.29m·Z=0, 반지름 0.16m, 깊이 0.012m이며 위로 열리고 판을 관통하지 않는다. `top`은 Y=0.22~0.268m의 온전한 하부 판과 Y=0.268~0.28m의 두 원형 구멍 바깥쪽 판·구멍 벽을 소유한다. `well`은 두 구멍 각각의 Y=0.268m 바닥면만 소유하며 두께 없는 면이므로 `top`과 부피를 겹치지 않는다. 홈 바닥은 항아리의 인스턴스 받침 datum이며 실제 접촉 판단은 instances가 한다. 점유 상자는 1.18×0.28×0.58m다.
+This lamp is a movable furnishing separate from the [tall metal lampstand](fixtures.md#lampstand), and the working of oil, wick and flame is not shown. The same furnishing is used at the main door, courtyard, offering room and office. The local origin is the centre of the foot bottom. The foot is a 16-segment disc of radius 0.10m and height 0.035m, the stem is a cylinder of radius 0.012m at Y=0.035~0.23m, and the dish is an open flat-bottomed cup of outer radius 0.12m at Y=0.23~0.28m. The dish inner radius is 0.105m, the bottom thickness 0.008m, and the top ring thickness 0.015m. The stem touches the foot top face and the dish underside respectively. The occupancy box is 0.24×0.28×0.24m.
 
-홈의 둥근 옆벽은 `top`의 구멍 안쪽 면이고 `well`은 Y=0.268m의 홈 바닥만 소유한다. 홈 반지름 0.16m는 [저장 항아리](wares.md#storage-jar)의 바닥 반지름 0.10m와 [운반 항아리](wares.md#carry-jar)의 바닥 반지름 0.07m보다 크다. `well` 바닥 아래의 상판 실체는 `top`에 이어지며 두 part가 같은 부피를 중복 방출하지 않는다.
+instances sets the real position and quantity.
 
-부재 대응: `top`=상판; `leg`=다리; `well`=홈 바닥.
+Part map: `foot`=foot; `stem`=stem; `dish`=dish.
 
-part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검토 판의 상면에서 두 빈 홈, 측면에서 열린 하부를 확인한다. 홈이 관통하거나 홈 없이 도기와 겹치는 판은 실패다.
+Parts and surfaces are `foot`, `stem` and `dish`. The three solids of revolution have 16 segments around, and the dish inner face has its own normals and UV seam. On the review board the real concavity of the round dish and the stem end contact are viewed. Adding a flame or turning the dish into a closed disc is a failure.
 
-두 자리 받침 `top`의 긴 상판은 폭 +X, 네 `leg`는 바닥에서 위로 +Y를 UV0의 U로 둔다. `top`에 속한 두 원형 홈 벽은 +X 시접의 Y축 둘레 호길이 U·모선 V로 펴고 `well` 바닥은 수평 평면 투영으로 별도 이음을 둔다.
+The `foot`, `stem` and `dish` of the small lamp unwrap UV0 as a circumference arc-length U from a +X seam and a section generatrix V. The concave dish interior is separated from the outside, and the lower disc is projected planarly.
 
-## 양손 운반 멜대 {#carrying-yoke}
+## Two-place jar rack {#jar-rack}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.16×0.17×0.12m 멜대의 X 길이는 양손 운반 폭으로 정하고, 목재 `beam`은 −X→+X 장축 U, 양 끝 `hook`은 YZ 원환의 큰 원·관 단면 호길이 UV다.
-@evidence principles/core/common.md#scope-preservation 서비스 마당에 내려놓는 운반 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 막대·고리의 치수·중심·접촉과 고정 상태를 정해 하중 계산으로 오해되지 않게 한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#carrying-yoke와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#carrying-yoke의 서비스 마당에 내려놓는 운반 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract beam·hook의 분리와 고리 구멍을 정하고 줄·하중은 포함하지 않는다.
-@evidence principles/design/models.md#spatial-convention 막대 중심 원점, +X 장축, 1.16×0.17×0.12m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure ±X 끝 입면에서 가는 가로대 양끝과 두 고리 안쪽의 빈 공간을 본다.
-@evidence principles/design/models.md#model-observable-style-basis 마당의 손운반 규모를 단순한 목재 직선과 금속 고리의 구성으로 읽힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 양끝 고리의 범위와 배치 후 들기 동작 제외를 확정한다.
-@evidence settings/30-interiors.md#service-yard 열린 작업 마당의 소수 운반물에 속한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 서비스 마당에 내려놓는 운반 비품의 settings 정체성 owner가 없어 35-objects#carrying-yoke를 새로 만들고 30-interiors#service-yard의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#carrying-yoke 서비스 마당에 내려놓는 운반 비품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The timber `top` of the 1.18×0.28×0.58m two-place rack takes a +X U and the square `leg` a +Y U, the two well walls owned by the top slab take a Y-axis circumference U and generatrix V, and the `well` floor a planar UV.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the storage room furniture that holds two jars.
+@evidence principles/core/common.md#substantive-completion It sets the dimensions of the top slab, two wells and four legs, the open underside, and the well radius 0.16m larger than the storage jar base radius 0.10m.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#jar-rack and 30-interiors#storage as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the storage room furniture of 35-objects#jar-rack that holds two jars to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the real shallow wells and contact faces of top, leg and well and does not re-author the jars themselves.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin, the front on +Z and the 1.18×0.28×0.58m occupancy.
+@evidence principles/design/models.md#reviewable-structure It views the two wells, four legs and the opening under the top slab from above and the side.
+@evidence principles/design/models.md#model-observable-style-basis It reads as a low timber rack that does not cover the separate stored objects of images 02 and 05 with one large box.
+@evidence principles/design/models.md#model-scale-layer-completion The two well radii 0.16m are larger than the bases of the storage jar and the carrying jar, fixing one rack size group.
+@evidence settings/30-interiors.md#storage It is a rack placed so that the wall-side goods of the storage room leave a passage.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The storage room furniture holding two jars had no settings identity owner, so 35-objects#jar-rack was created and added to the room list of 30-interiors#storage. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#jar-rack It takes the existence, form range and state of the storage room furniture holding two jars and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#carrying-yoke)과 [사용 공간](../settings/30-interiors.md#service-yard)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#jar-rack) and the [space of use](../settings/30-interiors.md#storage) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-멜대는 사용하지 않을 때 내려놓는 고정 상태다. 로컬 원점은 막대 중심이고 장축은 +X다. 목재 가로대는 X=−0.58~0.58m·Y=−0.025~0.025m·Z=−0.025~0.025m다. 양끝 금속 고리는 YZ 평면의 외반지름 0.06m·내반지름 0.04m인 16×8분할 원환이고 중심 X=±0.50m·Y=−0.085m·Z=0이다. 고리의 윗면 Y=−0.025m가 가로대 아랫면에 닿고 고리의 안쪽은 비어 있다. 점유 상자는 1.16×0.17×0.12m다.
+The rack is not a prototype of the two jars but an independent low timber piece of furniture under them. instances sets the real position and quantity. The local origin is the floor centre, the long side is X, and the front is +Z. The top slab has width 1.18m, depth 0.58m and thickness 0.06m and lies at Y=0.22~0.28m. The four legs are square 0.07m, with centres (X,Z)=(±0.52,±0.22)m, and at Y=0~0.22m they touch the top slab. The two round wells of the top slab are at centre X=±0.29m, Z=0, with radius 0.16m and depth 0.012m, open upward, and do not penetrate the board. `top` owns the intact lower board at Y=0.22~0.268m and the board outside the two round holes and the hole walls at Y=0.268~0.28m. `well` owns only the Y=0.268m floor face of each of the two holes and, being a zero-thickness face, shares no volume with `top`. The well floor is the instance support datum of the jar, and instances makes the real contact judgement. The occupancy box is 1.18×0.28×0.58m.
 
-실제 위치와 수량은 instances가 정한다.
+The round side walls of the wells are the inner faces of the holes in `top`, and `well` owns only the well floor at Y=0.268m. The well radius 0.16m is larger than the base radius 0.10m of the [storage jar](wares.md#storage-jar) and the base radius 0.07m of the [carrying jar](wares.md#carry-jar). The top slab solid under the `well` floor continues into `top`, and the two parts do not emit the same volume twice.
 
-부재 대응: `beam`=가로대; `hook`=고리.
+Part map: `top`=top slab; `leg`=leg; `well`=well floor.
 
-part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이며 첫 중심은 −X 쪽이다. 검토 판의 ±X 끝 입면에서 고리 두 구멍과 나무·금속 부재의 분리를 본다. 실제 적재 강도나 운반 동작은 주장하지 않는다.
+Parts and surfaces are `top`, `leg` and `well`. The well circumference has 16 segments. On the review board the two empty wells are checked from above and the open underside from the side. A board whose wells penetrate it, or a board without wells that clashes with the ceramics, is a failure.
 
-멜대 `beam`은 로컬 −X 끝에서 +X 끝으로 목재 결 UV0의 U를 늘리고, 두 `hook`은 YZ 평면 원환의 중심선·관 둘레 호길이로 편다. 막대 끝과 고리 부착점은 별도 이음이다.
+The long top slab of the two-place rack `top` takes +X across its width, and the four `leg` +Y upward from the floor, as the U of UV0. The two round well walls belonging to `top` unwrap as a Y-axis circumference arc-length U and generatrix V from a +X seam, and the `well` floor has a separate seam with a horizontal planar projection.
 
-## 작은 손수레 {#handcart}
+## Two-handed carrying yoke {#carrying-yoke}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.76×0.72×1.80m 손수레의 긴 판은 보행 포락 옆으로 밀 수 있는 고정 형상이며, `deck`·`handle`·`support`는 각 장축 U, X축 `axle`·`wheel`은 둘레 U·축 길이 V다.
-@evidence principles/core/common.md#scope-preservation 바퀴가 멈춘 서비스 마당의 외부 소품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 상판·두 바퀴·축·손잡이의 닫힌 범위와 바닥 접촉을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#handcart와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#handcart의 바퀴가 멈춘 서비스 마당의 외부 소품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract deck·axle·wheel·handle의 분리와 열린 밑면, 정지된 바퀴를 정한다.
-@evidence principles/design/models.md#spatial-convention 축 아래 바닥 중심 원점, 앞 +Z, 각 part의 합집합인 0.76×0.72×1.80m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 정면·측면에서 두 바퀴의 지면 접촉과 판 아래 빈 공간을 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 작은 외부 반입을 거친 마차가 아닌 손수레 실루엣으로 한정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 서비스 마당에 정지된 폭 0.76m 손수레의 판·바퀴·축·손잡이·지지재를 한 점유 상자로 확정한다.
-@evidence settings/30-interiors.md#service-yard 외부 반입 문이 있는 작업 마당의 비품으로 받는다.
-@evidence settings/10-building.md#use-profile 바퀴 굴림·문 통과를 입증하지 않는 정지 외부 소품의 경계를 따른다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 10-building#use-profile의 바퀴 운반 제외를 정지한 외부 소품에는 허용하도록 수리하고 35-objects#handcart와 30-interiors#service-yard의 정체성·방 목록을 먼저 정했다. 그 경계 안에서 판·바퀴·축·손잡이를 설계했다.
-@evidence settings/35-objects.md#handcart 바퀴가 멈춘 서비스 마당의 외부 소품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The X length of the 1.16×0.17×0.12m yoke is set to the two-handed carrying width; the timber `beam` takes a −X→+X long-axis U, and the `hook` at both ends a large-circle and tube-section arc-length UV of a YZ torus.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the carrying furnishing set down in the service yard.
+@evidence principles/core/common.md#substantive-completion It sets the dimensions, centres and contact of the bar and hooks and the fixed state, so it is not mistaken for a load calculation.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#carrying-yoke and 30-interiors#service-yard as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the carrying furnishing of 35-objects#carrying-yoke set down in the service yard to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the separation of beam and hook and the hook holes and includes no rope or load.
+@evidence principles/design/models.md#spatial-convention It sets the bar-centre origin, the +X long axis and the 1.16×0.17×0.12m occupancy.
+@evidence principles/design/models.md#reviewable-structure It views both ends of the thin beam and the voids inside the two hooks on the ±X end elevations.
+@evidence principles/design/models.md#model-observable-style-basis It reads the hand-carrying scale of the yard as a composition of a simple straight timber and metal hooks.
+@evidence principles/design/models.md#model-scale-layer-completion It fixes the range of the hooks at both ends and excludes any lifting motion after placement.
+@evidence settings/30-interiors.md#service-yard It belongs to the few carried goods of the open work yard.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The carrying furnishing set down in the service yard had no settings identity owner, so 35-objects#carrying-yoke was created and added to the room list of 30-interiors#service-yard. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#carrying-yoke It takes the existence, form range and state of the carrying furnishing set down in the service yard and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#handcart)과 [사용 공간](../settings/30-interiors.md#service-yard)이 이 prototype의 부모다. [레퍼런스 이미지 01·02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#carrying-yoke) and the [space of use](../settings/30-interiors.md#service-yard) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-손수레는 바퀴 둘과 긴 손잡이 둘이 붙은 작은 빈 운반대다. 로컬 원점은 바퀴 축의 수평 중심 아래 지면, 앞은 +Z다. 바퀴 중심은 (X,Y,Z)=(±0.34,0.23,0.10)m, 반지름 0.23m·두께 0.08m이고 X축 회전 원통 16분할이다. 두 바퀴의 바깥 X끝은 ±0.38m다. 축은 X=−0.34~0.34m, Y=0.23m, Z=0.10m를 잇는 반지름 0.018m 원통이다. 판은 X=−0.30~0.30m·Y=0.43~0.49m·Z=−0.65~0.60m다. 손잡이는 판 뒤쪽 Z=−0.65m에서 Z=−1.20m까지 X=±0.24m의 두 각재로 이어지고 Y=0.43~0.72m로 올라간다. 바퀴 아래는 Y=0에서 지면에 접하고 판 아래 중앙은 열려 있다. 점유 상자는 0.76×0.72×1.80m다.
+The yoke is in the fixed state of being set down when not in use. The local origin is the bar centre, and the long axis is +X. The timber beam is X=−0.58~0.58m, Y=−0.025~0.025m, Z=−0.025~0.025m. The metal hooks at both ends are 16×8-segment tori in the YZ plane with outer radius 0.06m and inner radius 0.04m, at centre X=±0.50m, Y=−0.085m, Z=0. The hook top face Y=−0.025m touches the beam underside, and the inside of the hook is empty. The occupancy box is 1.16×0.17×0.12m.
 
-축 원통은 둘레 16분할이다. 판의 아랫면 Y=0.43m와 축의 윗면 Y=0.248m 사이는 중심 (X,Z)=(±0.24,0.10)m, X·Z 각 0.04m 단면의 연직 목재 지지재 두 개가 잇는다. 지지재의 Y 범위는 0.248~0.43m이며 윗면은 판에, 아랫면은 축에 닿는다. 지지재는 Z=0.08~0.12m다. 두 손잡이는 X 폭 0.04m·연직 두께 0.04m 각재다. 중심선은 각각 X=±0.24m, (Y,Z)=(0.45,−0.65)m에서 (0.70,−1.20)m까지 직선이고 단면을 그 중심선에 따라 평행 이동한다. 손잡이는 Z=−1.20~−0.65m다. 시작면은 판의 뒤쪽 단면과 겹쳐 고정되고 끝의 점유 높이는 Y=0.72m다.
+instances sets the real position and quantity.
 
-축의 양끝은 두 바퀴의 안쪽 면에서 각각 X 방향으로 0.04m 들어가 바퀴 중심에 고정된다.
+Part map: `beam`=beam; `hook`=hook.
 
-실제 위치와 수량은 instances가 정한다.
+Parts and surfaces are `beam` and `hook`. The two hooks are repeats of the same shape, and the first centre is on the −X side. On the ±X end elevations of the review board, the two hook holes and the separation of timber and metal members are viewed. Real load strength or carrying motion is not claimed.
 
-부재 대응: `deck`=판; `axle`=축; `wheel`=바퀴; `handle`=손잡이; `support`=지지재.
+The yoke `beam` increases the timber grain U of UV0 from the local −X end to the +X end, and the two `hook` unwrap with the centreline and tube circumference arc lengths of a YZ-plane torus. The beam ends and the hook anchor points are separate seams.
 
-part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정지된 고정 부재이고 굴림 애니메이션 인터페이스는 없다. 검토 판에서 두 바퀴의 같은 지면 접촉, 축에서 판까지 이어지는 지지재, 판 아래 빈 공간과 뒤 손잡이를 본다. 외관으로 하중 성능을 주장하지 않는다.
-
-손수레 `deck`의 긴 +Z, 두 `handle`의 뒤로 뻗는 축, 세로 `support`의 +Y를 각각 UV0의 U로 둔다. `axle`·두 `wheel`은 +Z에서 +Y로 도는 X축 원통 둘레 U와 +X 축 길이 V로 전개한다.
-
-## 손잡이 있는 물동이 {#bucket}
+## Small handcart {#handcart}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 손잡이를 포함한 보수적 0.315×0.4502×0.30m 물동이는 손에 드는 포락에 머물고, `body`의 안팎은 별도 Y축 회전체 UV, `handle`은 +X 부착점→−X 부착점 관 호길이 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 열린 입과 손잡이가 있는 마당 용기의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 바닥·벌어진 윗입·안쪽 바닥과 몸체 16분할, 손잡이 반타원의 두 접점·꼭대기·12구간 경로를 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bucket와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bucket의 열린 입과 손잡이가 있는 마당 용기를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract body·handle, 열린 입, 실제 안쪽 바닥과 손잡이 아래 빈 공간을 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점에서 매끈한 외피 0.315×0.45×0.30m와 실제 다면체의 Y 약 0.450114m를 구별하고 이를 감싸는 점유 상자 0.315×0.4502×0.30m를 정한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 손잡이 고리와 안쪽 깊이가 도기 항아리와 구별되는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 물을 나르는 낮은 도구의 벌어진 입과 단일 고리 실루엣을 채택한다.
-@evidence principles/design/models.md#model-scale-layer-completion 수반보다 작은 크기와 열린 경계, 방별 반복 소유를 정해 물동이 역할을 닫는다.
-@evidence settings/30-interiors.md#service-yard 외부 작업 마당의 손운반 비품으로 받는다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 열린 입과 손잡이가 있는 마당 용기의 settings 정체성 owner가 없어 35-objects#bucket를 새로 만들고 30-interiors#service-yard의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#bucket 열린 입과 손잡이가 있는 마당 용기의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The long deck of the 0.76×0.72×1.80m handcart is a fixed shape that can be pushed beside the walking envelope; `deck`, `handle` and `support` take their long axes as U, and the X-axis `axle` and `wheel` a circumference U and axial length V.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the outdoor prop of the service yard with stopped wheels.
+@evidence principles/core/common.md#substantive-completion It sets the closed ranges and ground contact of the deck, two wheels, axle and handles.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#handcart and 30-interiors#service-yard as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the outdoor prop with stopped wheels of 35-objects#handcart in the service yard to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the separation of deck, axle, wheel and handle, the open underside and the stationary wheels.
+@evidence principles/design/models.md#spatial-convention It sets the origin at the floor centre below the axle, the front on +Z, and the 0.76×0.72×1.80m occupancy that is the union of the parts.
+@evidence principles/design/models.md#reviewable-structure It checks the ground contact of the two wheels and the void under the deck from the front and side.
+@evidence principles/design/models.md#model-observable-style-basis It limits the silhouette to a handcart, not a rough wagon, for small outdoor deliveries.
+@evidence principles/design/models.md#model-scale-layer-completion It fixes the deck, wheels, axle, handles and supports of the 0.76m wide handcart stopped in the service yard as one occupancy box.
+@evidence settings/30-interiors.md#service-yard It receives it as a furnishing of the work yard with an outside delivery door.
+@evidence settings/10-building.md#use-profile It follows the boundary of a stationary outdoor prop that proves neither wheel rolling nor door passage.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The wheeled-carrying exclusion of 10-building#use-profile was repaired to allow stationary outdoor props, and the identity and room list of 35-objects#handcart and 30-interiors#service-yard were set first. The deck, wheels, axle and handles were designed within that boundary.
+@evidence settings/35-objects.md#handcart It takes the existence, form range and state of the outdoor prop with stopped wheels in the service yard and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#bucket)과 [사용 공간](../settings/30-interiors.md#service-yard)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#handcart) and the [space of use](../settings/30-interiors.md#service-yard) are the parents of this prototype. It compares the form and spatial relations of [reference images 01, 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-물동이는 고정된 빈 용기이고 물 표면·실제 담기는 양은 모델에 없다. 로컬 원점은 바닥 중심이다. 몸체 바깥은 Y=0에서 반지름 0.11m, Y=0.28m에서 반지름 0.15m로 벌어지는 16분할 원뿔대다. 바닥 두께 0.02m이며 안쪽은 Y=0.02m에서 반지름 0.095m부터 입 아래 반지름 0.135m까지 열려 있다. 손잡이는 XY 평면의 반타원 중심선을 따르는 관이고 관 반지름 0.01m·둘레 8분할이다. 손잡이 가운데 아래는 빈 공간이다.
+The handcart is a small empty carrier with two wheels and two long handles attached. The local origin is the ground below the horizontal centre of the wheel axle, and the front is +Z. The wheel centres are (X,Y,Z)=(±0.34,0.23,0.10)m, with radius 0.23m and thickness 0.08m, as X-axis cylinders of revolution with 16 segments. The outer X ends of the two wheels are ±0.38m. The axle is a cylinder of radius 0.018m spanning X=−0.34~0.34m, Y=0.23m, Z=0.10m. The deck is X=−0.30~0.30m, Y=0.43~0.49m, Z=−0.65~0.60m. The handles continue as two square timbers at X=±0.24m from the deck back Z=−0.65m to Z=−1.20m and rise over Y=0.43~0.72m. The wheel bottoms are in contact with the ground at Y=0, and the middle under the deck is open. The occupancy box is 0.76×0.72×1.80m.
 
-손잡이 중심선은 반타원으로 정한다. t=0..π를 12등분하고 각 점을 (X,Y,Z)=(0.1475 cos t,0.27+0.17 sin t,0)m에 놓아 양끝 (±0.1475,0.27)m과 꼭대기 (0,0.44)m를 정확히 지난다. 매끈한 관 외피의 바깥 X는 ±0.1575m, 꼭대기 Y는 0.45m이며 접점 중심은 몸체 바깥면에 약 0.0011m 들어가되 12구간의 8각 관 전체는 안쪽 벽에 닿지 않는다. 이 매끈한 기준 외피 상자는 0.315×0.45×0.30m다. 실제 12구간·8각 관은 mitre 꼭짓점에서 Y 약 0.450114m까지 이른다. 점유 상자는 0.315×0.4502×0.30m로 실제 다면체 합집합을 여유 있게 감싸는 보수적 경계다. 실제 다면체의 X 폭은 약 0.3149m다.
+The axle cylinder has 16 segments around. Between the deck underside Y=0.43m and the axle top face Y=0.248m, centred at (X,Z)=(±0.24,0.10)m with an X and Z section of 0.04m each, two vertical timber supports join them. The Y range of the supports is 0.248~0.43m, and their top face touches the deck and their underside the axle. The supports are Z=0.08~0.12m. The two handles are square timbers of X width 0.04m and vertical thickness 0.04m. The centrelines are straight lines at X=±0.24m from (Y,Z)=(0.45,−0.65)m to (0.70,−1.20)m, and the section is translated along the centreline. The handles are Z=−1.20~−0.65m. The start face overlaps the back section of the deck and is fixed there, and the occupied height of the end is Y=0.72m.
 
-손잡이 관의 양끝은 몸체 벽 안으로 들어가 고정되며 끝 원판의 일부는 몸체 밖에 드러난다. 가운데 호와 몸체 사이에는 열린 빈 공간이 남는다.
+Each end of the axle enters 0.04m in the X direction from the inner face of each wheel and is fixed at the wheel centre.
 
-이 물동이는 [중정 분수](fixtures.md#fountain)보다 작은 별도 빈 용기다. 중정과 서비스 마당의 손운반 비품이라는 배치 역할은 instances가 받으며 실제 운반 동작은 없다.
+instances sets the real position and quantity.
 
-부재 대응: `body`=몸체; `handle`=손잡이.
+Part map: `deck`=deck; `axle`=axle; `wheel`=wheel; `handle`=handle; `support`=support.
 
-part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV 이음이다. 검토 판에서 벌어진 입과 반타원 손잡이의 실제 빈 공간을 본다. 끝 원판의 일부 노출은 접합의 일부로 읽고, 손잡이 끝 링이 몸체에 삽입되지 않거나 손잡이가 몸체에서 뜨거나 입이 막히면 실패다.
+Parts and surfaces are `deck`, `axle`, `wheel`, `handle` and `support`. The wheels are stationary fixed members, and there is no rolling animation interface. On the review board the same ground contact of the two wheels, the supports running from the axle to the deck, the void under the deck and the rear handles are viewed. No load capacity is claimed from appearance.
 
-물동이 `body`의 안팎은 각자 +X 시접의 둘레 U·모선 V로 UV0를 편다. 반타원 `handle`은 +X 시작점부터 −X 끝점까지 중심선 호길이를 U·관 둘레를 V로 삼고 두 관 끝에서 이음을 둔다.
+The long +Z of the handcart `deck`, the backward-extending axis of the two `handle` and the +Y of the vertical `support` are each the U of UV0. The `axle` and two `wheel` unwrap with an X-axis cylinder circumference U turning from +Z to +Y and a +X axial length V.
 
-## 흙을 담은 낮은 화분 {#planter}
+## Bucket with handle {#bucket}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.42×0.36×0.42m 낮은 화분은 포치 통로의 낮은 비품 범위에 맞고, 둥근 `pot` 옆면은 +X 시접 회전체 UV, 수평 `soil` 노출면은 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 중정 가장자리의 흙 화분의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 바닥·테두리·내벽·흙면의 높이와 빈 윗공간을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#planter와 30-interiors#fountain이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#planter의 중정 가장자리의 흙 화분을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract pot·soil 표면, 열린 위, 흙 위 식물의 별도 배치를 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.42×0.36×0.42m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 평면에서 흙면이 도기 테두리 아래에 있고 화분 위가 열린지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 단순한 넓은 입의 도기와 작은 흙 면으로 정원 장식 과장을 피한다.
-@evidence principles/design/models.md#model-scale-layer-completion 식물 개체·위치는 instances에 넘기고 도기와 흙의 경계만 이 원형에서 닫는다.
-@evidence settings/40-environment.md#vegetation 낮은 식생을 개별 식물 prototype으로 받으며 화분 자체가 나무를 대신하지 않는다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 중정 가장자리의 흙 화분의 settings 정체성 owner가 없어 35-objects#planter를 새로 만들고 30-interiors#fountain의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#planter 중정 가장자리의 흙 화분의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The conservative 0.315×0.4502×0.30m bucket including the handle stays within a hand-held envelope; the inside and outside of `body` use separate Y-axis solid-of-revolution UVs, and `handle` a +X anchor→−X anchor tube arc-length UV.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the yard vessel with an open mouth and a handle.
+@evidence principles/core/common.md#substantive-completion It sets the base, widened mouth, inner floor and 16 body segments, and the two anchor points, top and 12-span path of the half-ellipse handle.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#bucket and 30-interiors#service-yard as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the yard vessel with an open mouth and a handle of 35-objects#bucket to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets body and handle, the open mouth, the real inner floor and the void under the handle.
+@evidence principles/design/models.md#spatial-convention From the floor-centre origin it distinguishes the smooth hull 0.315×0.45×0.30m from the real polyhedron's Y of about 0.450114m and sets the occupancy box 0.315×0.4502×0.30m that wraps it.
+@evidence principles/design/models.md#reviewable-structure From the side it checks that the handle loop and inner depth are distinguishable from a ceramic jar.
+@evidence principles/design/models.md#model-observable-style-basis It adopts the widened mouth and single loop silhouette of a low tool for carrying water.
+@evidence principles/design/models.md#model-scale-layer-completion It sets a size smaller than the basin, an open boundary and the ownership of per-room repetition, closing the bucket role.
+@evidence settings/30-interiors.md#service-yard It receives it as a furnishing moved by hand in the outdoor work yard.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The yard vessel with an open mouth and a handle had no settings identity owner, so 35-objects#bucket was created and added to the room list of 30-interiors#service-yard. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#bucket It takes the existence, form range and state of the yard vessel with an open mouth and a handle and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#planter)과 [사용 공간](../settings/30-interiors.md#fountain)이 이 prototype의 부모다. [레퍼런스 이미지 01·03](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#bucket) and the [space of use](../settings/30-interiors.md#service-yard) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-화분은 외부에 놓는 넓은 도기다. 로컬 원점은 바닥 중심이다. 바깥 몸체는 바닥 반지름 0.14m에서 윗입 반지름 0.21m까지 Y=0~0.36m로 벌어지고, 안쪽은 반지름 0.12m에서 0.19m까지 바닥 Y=0.03m에서 열린다. 테두리는 반지름 방향 두께 0.02m다. 노출 흙면은 아랫면 Y=0.03m에서 반지름 0.12m, 윗면 Y=0.270m에서 반지름 0.165m인 닫힌 흙 부피이며 테두리보다 0.09m 낮다. 그 위 식물은 [풀 prototype](landscape.md#grass-tuft)의 인스턴스이고 흙면 자체는 심을 수 있는 구멍을 만들지 않는다. 원형 면은 16분할이다. 점유 상자는 0.42×0.36×0.42m다.
+The bucket is a fixed empty vessel, and a water surface or a real contained amount is absent from the model. The local origin is the floor centre. The body outside is a 16-segment frustum widening from radius 0.11m at Y=0 to radius 0.15m at Y=0.28m. The bottom thickness is 0.02m, and the inside is open from radius 0.095m at Y=0.02m up to radius 0.135m under the mouth. The handle is a tube along a half-ellipse centreline in the XY plane, with tube radius 0.01m and 8 segments around. The space under the middle of the handle is empty.
 
-Y=0.270m에서 안쪽 벽 반지름은 0.12+(0.19−0.12)(0.270−0.03)/(0.36−0.03)≈0.1709m다. 흙면의 윗면 반지름은 0.165m로 두어 안쪽 벽과 약 0.0059m 간격을 남긴다. 흙면의 아랫면은 화분 안쪽 바닥 Y=0.03m에 닿는다.
+The handle centreline is set as a half-ellipse. t=0..π is divided into 12 equal parts, and each point is placed at (X,Y,Z)=(0.1475 cos t,0.27+0.17 sin t,0)m, passing exactly through the ends (±0.1475,0.27)m and the top (0,0.44)m. The outer X of the smooth tube hull is ±0.1575m and its top Y is 0.45m, and the contact centre enters the body outer face by about 0.0011m, while the whole 12-span octagonal tube does not touch the inner wall. This smooth reference hull box is 0.315×0.45×0.30m. The real 12-span octagonal tube reaches Y of about 0.450114m at the mitre vertices. The occupancy box is 0.315×0.4502×0.30m, a conservative bound that generously wraps the real polyhedral union. The X width of the real polyhedron is about 0.3149m.
 
-실제 위치와 수량은 instances가 정한다.
+Both ends of the handle tube enter the body wall and are fixed, and part of the end discs shows outside the body. An open void remains between the middle arc and the body.
 
-부재 대응: `pot`=화분; `soil`=흙면.
+This bucket is a separate empty vessel smaller than the [courtyard fountain](fixtures.md#fountain). instances takes the placement role of a furnishing moved by hand in the courtyard and service yard, and there is no real carrying motion.
 
-part와 표면은 `pot`, `soil`이다. `soil`은 바닥에서 노출 윗면까지 이어진 닫힌 부피이고 `pot`과 부피를 겹쳐 방출하지 않는다. 검토 판의 평면·측면에서 흙면이 테두리 안쪽에 담기고 외벽을 뚫지 않는지 본다. 식물의 종류와 개수는 이 모델의 형상이 아니다.
+Part map: `body`=body; `handle`=handle.
 
-화분 `pot`의 바깥·안쪽은 +X 시접에서 둘레 U·모선 V를 각각 전개한다. `soil`의 윗면은 +Y 바깥법선의 평면 UV0를 쓰고 테두리와 흙의 part 경계에서 이음을 둔다.
+Parts and surfaces are `body` and `handle`. The inner face of `body` has its own normals and UV seam. On the review board the widened mouth and the real void of the half-ellipse handle are viewed. The partial exposure of the end discs reads as part of the joint, and a shape whose handle end rings are not inserted into the body, whose handle floats off the body, or whose mouth is closed is a failure.
 
-## 무문양 봉헌판 {#votive-plaque}
+The inside and outside of the bucket `body` each unwrap UV0 with a circumference U and generatrix V from their own +X seam. The half-ellipse `handle` takes the centreline arc length from the +X start point to the −X end point as U and the tube circumference as V, with seams at both tube ends.
+
+## Low planter with soil {#planter}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.36×0.42×0.14m 봉헌판은 책상·제단 위에 놓일 작은 입체판이고, 글자 없는 `base`·`slab`의 각 직사각 노출면은 기본 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 봉헌실의 글자 없는 판의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 받침 폭과 앞뒤 안정 면, 판 높이·두께·접촉을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#votive-plaque와 30-interiors#offering-room이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#votive-plaque의 봉헌실의 글자 없는 판을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract base·slab의 분리와 앞뒤 평면, 판 자체의 글자·그림 부재를 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점, 앞 +Z, 0.36×0.42×0.14m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 정면·옆면에서 얇은 판이 낮은 발에 서 있는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 읽히는 비문 대신 윤곽과 빈 판으로 작은 봉헌 표시를 만든다.
-@evidence principles/design/models.md#model-scale-layer-completion 한 크기 원형을 봉헌실 소품으로 정하고 내용 글자는 포함하지 않는다.
-@evidence settings/10-building.md#civic-identity 고대 언어의 가짜 비문을 물체 표면에도 만들지 않는다.
-@evidence settings/30-interiors.md#offering-room 손에 드는 작은 봉헌물의 한 종류로 놓인다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 봉헌실의 글자 없는 판의 settings 정체성 owner가 없어 35-objects#votive-plaque를 새로 만들고 30-interiors#offering-room의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#votive-plaque 봉헌실의 글자 없는 판의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.42×0.36×0.42m low planter fits the low furnishing range of the porch passage; the round `pot` sides use a solid-of-revolution UV with a +X seam, and the horizontal exposed `soil` face a planar UV.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the soil planter at the courtyard edge.
+@evidence principles/core/common.md#substantive-completion It sets the heights of the base, rim, inner wall and soil face and the empty space above.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#planter and 30-interiors#fountain as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the soil planter at the courtyard edge of 35-objects#planter to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the pot and soil surfaces, the open top and the separate placement of plants on the soil.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.42×0.36×0.42m occupancy.
+@evidence principles/design/models.md#reviewable-structure In plan it checks that the soil face is below the ceramic rim and the top of the planter is open.
+@evidence principles/design/models.md#model-observable-style-basis A simple wide-mouthed ceramic and a small soil face avoid exaggerating garden ornament.
+@evidence principles/design/models.md#model-scale-layer-completion It hands plant instances and positions to instances and closes only the boundary of ceramic and soil in this prototype.
+@evidence settings/40-environment.md#vegetation It receives low vegetation as individual plant prototypes, and the planter itself does not stand in for a tree.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The soil planter at the courtyard edge had no settings identity owner, so 35-objects#planter was created and added to the room list of 30-interiors#fountain. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#planter It takes the existence, form range and state of the soil planter at the courtyard edge and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#votive-plaque)과 [사용 공간](../settings/30-interiors.md#offering-room)이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#planter) and the [space of use](../settings/30-interiors.md#fountain) are the parents of this prototype. It compares the form and spatial relations of [reference images 01 and 03](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-봉헌판은 쓰거나 읽을 수 있는 글자가 없는 작은 직사각 판이다. 로컬 원점은 받침 바닥 중심이고 앞은 +Z다. 받침은 폭 0.36m·깊이 0.14m·높이 0.04m 상자다. 판은 폭 0.32m·높이 0.38m·두께 0.035m이며 중앙에서 Y=0.04~0.42m로 올라 받침 윗면에 닿는다. 새긴 문자·도상·실제 봉헌자 이름은 없다. 점유 상자는 0.36×0.42×0.14m다.
+The planter is a wide ceramic piece placed outside. The local origin is the floor centre. The outer body widens from base radius 0.14m to mouth radius 0.21m over Y=0~0.36m, and the inside is open from radius 0.12m to 0.19m from the floor Y=0.03m. The rim has radial thickness 0.02m. The exposed soil surface is a closed soil volume with underside Y=0.03m at radius 0.12m and top face Y=0.270m at radius 0.165m, 0.09m below the rim. The plants above it are instances of the [grass prototype](landscape.md#grass-tuft), and the soil surface itself makes no planting holes. Round faces have 16 segments. The occupancy box is 0.42×0.36×0.42m.
 
-실제 위치와 수량은 instances가 정한다.
+At Y=0.270m the inner wall radius is 0.12+(0.19−0.12)(0.270−0.03)/(0.36−0.03)≈0.1709m. The top radius of the soil surface is set at 0.165m, leaving a gap of about 0.0059m to the inner wall. The soil surface underside lies on the pot inner floor Y=0.03m, touching it.
 
-부재 대응: `base`=받침; `slab`=판.
+instances sets the real position and quantity.
 
-part와 표면은 `base`, `slab`이다. 검토 판의 앞·옆에서 판과 받침이 닿고 직사각 판의 두께가 남는지 본다. 글자가 읽히거나 받침 없이 공중에 서면 실패다.
+Part map: `pot`=pot; `soil`=soil surface.
 
-봉헌판 `base`·`slab`의 UV0는 판 앞뒤와 받침 윗·옆면 각각의 바깥법선별 기본 평면 투영이다. 받침 위에 판이 서는 맞댐과 무문양 판의 모서리에서 이음을 둔다.
+Parts and surfaces are `pot` and `soil`. `soil` is a closed volume continuing from the floor to the exposed top face and does not emit volume overlapping `pot`. On the plan and side of the review board it is checked that the soil surface sits inside the rim and does not pierce the outer wall. The kind and number of plants are not the shape of this model.
 
-## 낮은 봉헌 쟁반 {#offering-tray}
+The outside and inside of the planter `pot` each unwrap a circumference U and generatrix V from a +X seam. The top face of `soil` uses a planar UV0 along the +Y outward normal, with seams at the part boundary of rim and soil.
+
+## Plain votive plaque {#votive-plaque}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.52×0.055×0.34m 쟁반은 손에 드는 낮은 비품 크기와 열린 가운데를 지키고, `floor` 바닥과 네 `rim` 판의 평면 UV를 각 바깥법선으로 정한다.
-@evidence principles/core/common.md#scope-preservation 그릇을 모아 놓는 얕은 쟁반의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 바닥 판·네 림의 폭·두께·접촉과 빈 안쪽 범위를 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#offering-tray와 30-interiors#offering-room이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#offering-tray의 그릇을 모아 놓는 얕은 쟁반을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract floor·rim의 닫힌 판과 열린 위, 담긴 그릇의 별도 인스턴스를 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.52×0.055×0.34m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 위에서 열린 가운데와 네 림, 측면에서 실제 깊이를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 낮은 얇은 테두리가 탁자의 큰 석재 상판과 시각적으로 구별된다.
-@evidence principles/design/models.md#model-scale-layer-completion 접시와 작은 도기의 받침 높이가 정해져 배치만 instances가 남긴다.
-@evidence settings/30-interiors.md#offering-room 작은 봉헌 용기를 탁자 위에 모아 놓는 역할을 받는다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 그릇을 모아 놓는 얕은 쟁반의 settings 정체성 owner가 없어 35-objects#offering-tray를 새로 만들고 30-interiors#offering-room의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#offering-tray 그릇을 모아 놓는 얕은 쟁반의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.36×0.42×0.14m votive plaque is a small solid plate to stand on a desk or altar, and each rectangular exposed face of the letterless `base` and `slab` uses the default planar UV.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the letterless plaque of the offering room.
+@evidence principles/core/common.md#substantive-completion It sets the base width and front and back stable faces and the plaque height, thickness and contact.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#votive-plaque and 30-interiors#offering-room as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the letterless plaque of the offering room of 35-objects#votive-plaque to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the separation of base and slab, the front and back planes, and the absence of letters or images on the slab itself.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin, the front on +Z and the 0.36×0.42×0.14m occupancy.
+@evidence principles/design/models.md#reviewable-structure From the front and side it checks that the thin slab stands on a low foot.
+@evidence principles/design/models.md#model-observable-style-basis It makes a small votive marker with an outline and a blank slab instead of a readable inscription.
+@evidence principles/design/models.md#model-scale-layer-completion It sets a one-size prototype as an offering room prop and includes no content letters.
+@evidence settings/10-building.md#civic-identity It does not make fake inscriptions in an ancient language on object surfaces either.
+@evidence settings/30-interiors.md#offering-room It is placed as one kind of small hand-held offering.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The letterless plaque of the offering room had no settings identity owner, so 35-objects#votive-plaque was created and added to the room list of 30-interiors#offering-room. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#votive-plaque It takes the existence, form range and state of the letterless plaque of the offering room and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#offering-tray)과 [사용 공간](../settings/30-interiors.md#offering-room)이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#votive-plaque) and the [space of use](../settings/30-interiors.md#offering-room) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 04](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-쟁반은 열린 바닥을 네 개의 낮은 테두리가 감싼 직사각형이다. 로컬 원점은 아래면 중심, 긴 변은 X다. 바닥은 폭 0.52m·깊이 0.34m·두께 0.018m다. 네 림은 바닥 바깥 가장자리에서 안쪽으로 0.015m 두께이고 Y=0.018~0.055m로 오르며 모서리에서는 맞댄다. 안쪽의 유효 평면은 0.49×0.31m이고 바닥 윗면 Y=0.018m에서 열린다. 점유 상자는 0.52×0.055×0.34m다.
+The votive plaque is a small rectangular slab with no letters to write or read. The local origin is the centre of the base bottom, and the front is +Z. The base is a box of width 0.36m, depth 0.14m and height 0.04m. The slab has width 0.32m, height 0.38m and thickness 0.035m and rises at the centre over Y=0.04~0.42m, touching the base top face. There are no carved letters, images or real donor names. The occupancy box is 0.36×0.42×0.14m.
 
-앞뒤 X 방향 림 둘은 X=−0.26~0.26m, Z=−0.17~−0.155m와 Z=0.155~0.17m를 각각 차지한다. 좌우 Z 방향 림 둘은 X=−0.26~−0.245m와 X=0.245~0.26m, Z=−0.155~0.155m를 각각 차지한다. 모서리는 면을 맞대되 림끼리 부피를 겹치지 않는다.
+instances sets the real position and quantity.
 
-봉헌실의 [봉헌 탁자](fixtures.md#offering-table) 또는 제실 제단 위에서 작은 그릇을 모으는 배치와 그릇 수는 instances가 정한다.
+Part map: `base`=base; `slab`=slab.
 
-부재 대응: `floor`=바닥; `rim`=림.
+Parts and surfaces are `base` and `slab`. From the front and side of the review board it is checked that the slab and base touch and that the thickness of the rectangular slab remains. If letters read or it stands in the air without a base, it is a failure.
 
-part와 표면은 `floor`, `rim`이다. `rim` 행은 네 외곽 판의 합집합 범위이며 가운데를 채운 상자가 아니다. 검토 판의 평면·측면에서 빈 가운데와 네 테두리의 맞댐을 본다. 얕은 그릇 하나와 구별되지 않는 원판은 실패다.
+The UV0 of the votive plaque `base` and `slab` is the default planar projection along the outward normal of the slab front and back and of the base top and sides. Seams lie at the butt where the slab stands on the base and at the edges of the plain slab.
 
-쟁반 `floor`와 네 변 `rim`의 UV0는 수평 바닥과 수직 테두리마다 바깥법선별 평면 투영을 쓴다. 열린 가운데를 판으로 메우지 않고 네 모서리 및 part 경계에서 이음을 둔다.
-
-## 접은 직물 {#textile}
+## Low offering tray {#offering-tray}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.55×0.045×0.40m 접은 직물은 책상·선반 윗면에 얹히고, 하나의 `cloth` 안에서 두 겹의 윗·아랫면과 접힌 띠를 각각 평면 UV로 끊는다.
-@evidence principles/core/common.md#scope-preservation 바닥 좌구와 구별되는 접은 덮개 천의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 가로·세로·두께 매개변수와 접힌 양끝, 바닥 접촉을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#textile와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#textile의 바닥 좌구와 구별되는 접은 덮개 천을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract cloth의 양면·두께·접힘 경계와 미세 직조 제외를 정한다.
-@evidence principles/design/models.md#spatial-convention 아래면 중심 원점, 앞 +Z, 0.55×0.045×0.40m 기본 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 얇지만 0이 아닌 두께와 두 겹 접힘이 읽히는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 거친 직조를 형상으로 과장하지 않고 낮은 접힘 윤곽으로 생활 소품을 읽힌다.
-@evidence principles/design/models.md#model-scale-layer-completion W·D·T만 바꾼 기본 접은 천과 작은 덮개 변형을 정하고 재질 차이는 materials에 넘긴다.
-@evidence settings/30-interiors.md#sanctuary 제실의 제단 위 소품은 중심 위계를 가리지 않는다.
-@evidence settings/30-interiors.md#storage 큰 용기를 다루는 방의 덮개 비품이다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 바닥 좌구와 구별되는 접은 덮개 천의 settings 정체성 owner가 없어 35-objects#textile를 새로 만들고 30-interiors#storage의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#textile 바닥 좌구와 구별되는 접은 덮개 천의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.52×0.055×0.34m tray keeps the size of a low hand-held furnishing and an open middle, and sets the planar UVs of the `floor` and the four `rim` boards by each outward normal.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the shallow tray that gathers bowls.
+@evidence principles/core/common.md#substantive-completion It sets the width, thickness and contact of the floor board and four rims and the empty inner range.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#offering-tray and 30-interiors#offering-room as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the shallow tray that gathers bowls of 35-objects#offering-tray to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the closed boards of floor and rim, the open top and the separate instances of the bowls it holds.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.52×0.055×0.34m occupancy.
+@evidence principles/design/models.md#reviewable-structure It views the open middle and the four rims from above and the real depth from the side.
+@evidence principles/design/models.md#model-observable-style-basis The low thin border is visually distinct from the large stone top slab of the table.
+@evidence principles/design/models.md#model-scale-layer-completion The seat height for dishes and small ceramics is set, so only the placement is left to instances.
+@evidence settings/30-interiors.md#offering-room It takes the role of gathering small offering vessels on the table.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The shallow tray that gathers bowls had no settings identity owner, so 35-objects#offering-tray was created and added to the room list of 30-interiors#offering-room. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#offering-tray It takes the existence, form range and state of the shallow tray that gathers bowls and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#textile)과 [사용 공간](../settings/30-interiors.md#storage)이 이 prototype의 부모다. [레퍼런스 이미지 04·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#offering-tray) and the [space of use](../settings/30-interiors.md#offering-room) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 04](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-하나의 접은 덮개 천 원형에 폭 W·깊이 D·두께 T만 준다. 기본 접은 천은 W=0.55m·D=0.40m·T=0.045m이고 작은 덮개는 W=0.42m·D=0.36m·T=0.03m 변형이다. [바닥 좌구](ritual.md#floor-cushion)는 별도 원형이며 이 직물의 변형이 아니다. 로컬 원점은 아래면 중심, 앞은 +Z다. 아래 겹은 Y=0~T/4, 위 겹은 Y=3T/4~T의 닫힌 얇은 판이고 그 사이 T/2 간격은 빈다. 앞뒤 접힘 띠는 Z=±(D/2−0.015)~±D/2m, Y=T/4~3T/4의 직사각 단면으로 두 겹에 닿는다. 각 띠는 X=−W/2~W/2m까지 뻗고 좌우 X 끝의 두 겹 사이는 열린다. 네 모서리는 단단한 직각으로 한정한 blocking proxy이며 실의 직조·주름 결·봉합선은 geometry가 아니다. 기본형 점유 상자는 0.55×0.045×0.40m이고 변형은 W×T×D를 대입한다.
+The tray is a rectangle in which four low borders surround an open floor. The local origin is the centre of the bottom face, and the long side is X. The floor has width 0.52m, depth 0.34m and thickness 0.018m. The four rims are 0.015m thick inward from the outer floor edge and rise over Y=0.018~0.055m, butting at the corners. The effective inner plane is 0.49×0.31m and opens at the floor top face Y=0.018m. The occupancy box is 0.52×0.055×0.34m.
 
-방별 용도는 제실의 제단 위 천, 봉헌실·관리실·기록실의 작업용 천, 보관실 큰 용기의 덮개다. 어느 천도 제단의 시각적 중심과 통로를 가리지 않도록 위치·수량은 instances가 정한다.
+The two X-direction front and back rims occupy X=−0.26~0.26m with Z=−0.17~−0.155m and Z=0.155~0.17m respectively. The two Z-direction left and right rims occupy X=−0.26~−0.245m and X=0.245~0.26m with Z=−0.155~0.155m respectively. The corners butt face to face, but the rims share no volume.
 
-부재 대응: `cloth`=직물.
+instances sets the placement for gathering small bowls on the [offering table](fixtures.md#offering-table) of the offering room or the sanctuary altar, and the number of bowls.
 
-part와 표면은 `cloth`이고 위아래 겹과 접힌 띠는 한 표면 ID 아래 서로 다른 UV 이음이다. 검토 판의 측면에서 두 겹과 빈 간격, 앞뒤 접힘 띠 및 놓인 면의 접촉을 본다. 두 겹이 하나의 꽉 찬 판으로 보이면 실패다. 보이지 않는 직물 물성을 형상에서 추론하지 않는다.
+Part map: `floor`=floor; `rim`=rim.
 
-접힌 `cloth`의 두 평판과 앞뒤 접힌 띠는 각각 바깥법선별 기본 UV0를 쓰고, 접힌 모서리에서는 같은 part 안에서도 정점을 복제해 이음을 둔다. 두 겹 사이 빈 높이는 무늬를 위한 면으로 채우지 않는다.
+Parts and surfaces are `floor` and `rim`. The `rim` row is the union range of the four outer boards, not a box filling the middle. On the plan and side of the review board the empty middle and the butts of the four borders are viewed. A disc indistinguishable from one shallow bowl is a failure.
 
-## 필기용 첨필 {#stylus}
+The UV0 of the tray `floor` and the four-sided `rim` uses a planar projection per outward normal for the horizontal floor and each vertical border. The open middle is not filled with a board, and seams lie at the four corners and part boundaries.
+
+## Folded textile {#textile}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.012×0.012m 첨필은 작성 도구 크기이고, X축 `shaft`는 +Z→+Y 둘레 U·+X 길이 V, 경사 `tip` 면은 바깥법선의 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 작성 책상 위의 첨필의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 길이·두께·끝 접점과 원통 분할을 정해 책상 위에서 읽히는 최소 형상을 확정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#stylus와 30-interiors#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#stylus의 작성 책상 위의 첨필을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract shaft·tip의 접촉과 문자를 새기지 않는 외형을 정한다.
-@evidence principles/design/models.md#spatial-convention 중앙 원점, +X 장축, 0.22×0.012×0.012m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 위에서 가는 막대와 끝의 원뿔이 구별되는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 기능을 과장된 장식 없이 가는 봉과 점으로 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 필기판과 별개 원형으로 정하고 실제 글자 생성은 제외한다.
-@evidence settings/30-interiors.md#administration 작은 작성실의 도구 용기와 작업대에 놓일 물체다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 작성 책상 위의 첨필의 settings 정체성 owner가 없어 35-objects#stylus를 새로 만들고 30-interiors#administration의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#stylus 작성 책상 위의 첨필의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.55×0.045×0.40m folded textile lies on desk and shelf tops, and within one `cloth` the top and bottom faces of the two layers and the fold bands are each split with planar UVs.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the folded cover cloth distinct from the floor cushion.
+@evidence principles/core/common.md#substantive-completion It sets the width, depth and thickness parameters, the folded ends and the floor contact.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#textile and 30-interiors#storage as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the folded cover cloth of 35-objects#textile, distinct from the floor cushion, to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the two faces, thickness and fold boundaries of the cloth and excludes fine weave.
+@evidence principles/design/models.md#spatial-convention It sets the bottom-face-centre origin, the front on +Z and the 0.55×0.045×0.40m base occupancy.
+@evidence principles/design/models.md#reviewable-structure From the side it checks that a thin but non-zero thickness and the two-layer fold read.
+@evidence principles/design/models.md#model-observable-style-basis It conveys an everyday prop through a low fold outline without exaggerating the rough weave as shape.
+@evidence principles/design/models.md#model-scale-layer-completion It sets the base folded cloth and the small cover variant that change only W, D and T, and hands material differences to materials.
+@evidence settings/30-interiors.md#sanctuary The prop on the sanctuary altar does not hide the central hierarchy.
+@evidence settings/30-interiors.md#storage It is a cover furnishing of the room that handles large vessels.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The folded cover cloth distinct from the floor cushion had no settings identity owner, so 35-objects#textile was created and added to the room list of 30-interiors#storage. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#textile It takes the existence, form range and state of the folded cover cloth distinct from the floor cushion and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#stylus)과 [사용 공간](../settings/30-interiors.md#administration)이 이 prototype의 부모다. [레퍼런스 이미지 05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#textile) and the [space of use](../settings/30-interiors.md#storage) are the parents of this prototype. It compares the form and spatial relations of [reference images 04 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-첨필은 로컬 +X 방향으로 뾰족해지는 작은 막대다. [필기판](portable.md#writing-tablet)과 별도의 원형이며 실제 글자를 만들지 않는다. 원점은 전체 길이의 중앙이다. 몸통은 X=−0.11~0.09m, 반지름 0.006m의 8분할 원통이다. 끝은 X=0.09~0.11m에서 반지름 0.006m에서 0으로 좁아지는 8분할 원뿔이며 몸통 끝면과 접한다. 손잡이 문양·실제 필기 자국은 없다. 점유 상자는 0.22×0.012×0.012m다.
+One folded cover cloth prototype is given only width W, depth D and thickness T. The base folded cloth is W=0.55m, D=0.40m, T=0.045m, and the small cover is a variant with W=0.42m, D=0.36m, T=0.03m. The [floor cushion](ritual.md#floor-cushion) is a separate prototype, not a variant of this textile. The local origin is the bottom face centre, and the front is +Z. The lower layer is Y=0~T/4 and the upper layer Y=3T/4~T, closed thin boards with an empty T/2 gap between them. The front and back fold bands have a rectangular section of Z=±(D/2−0.015)~±D/2m, Y=T/4~3T/4 and touch the two layers. Each band runs over X=−W/2~W/2m, and between the two layers at the left and right X ends it is open. The four corners are a blocking proxy limited to hard right angles, and the weave of threads, crease grain and seams are not geometry. The base-form occupancy box is 0.55×0.045×0.40m, and the variant substitutes W×T×D.
 
-관리실과 기록실의 책상 위에 도구 용기와 함께 놓이며 실제 위치·회전은 instances가 정한다.
+The per-room uses are the cloth on the sanctuary altar, the work cloths of the offering room, office and records room, and the covers of the large vessels in the storage room. instances sets positions and quantity so that no cloth hides the visual centre of the altar or a passage.
 
-부재 대응: `shaft`=몸통; `tip`=끝.
+Part map: `cloth`=textile.
 
-part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없고 끝이 몸통과 다른 경사로 읽히는지 본다. 책상 위 실제 배치와 회전은 instances가 정한다.
+Parts and surfaces are `cloth`, and the upper and lower layers and the folded bands are different UV seams under one surface ID. From the side of the review board the two layers and the empty gap, the front and back fold bands and the contact with the face it lies on are viewed. If the two layers look like one solid board, it is a failure. Invisible textile properties are not inferred from the shape.
 
-첨필 `shaft`의 UV0는 +Z 시접부터 +Y로 도는 X축 원통 둘레 U와 −X→+X 길이 V다. 뾰족한 `tip`의 각 경사 삼각면은 자기 바깥법선의 평면 투영으로 나뉘는 이음을 둔다.
+The two flat boards and the front and back folded bands of the folded `cloth` each use the default UV0 per outward normal, and at the folded edges vertices are copied even within the same part to place seams. The empty height between the two layers is not filled with faces for a pattern.
 
-## 글자 없는 필기판 {#writing-tablet}
+## Writing stylus {#stylus}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.28×0.025×0.22m 필기판은 책상 위 작은 작업면이며, 테두리 `frame`과 낮은 `writing-face`의 각 평면은 기본 UV로 투영하고 중앙 단차를 이음으로 둔다.
-@evidenceExclude settings/00-delivery.md#working-language 작업 언어는 필기판의 형상 치수나 UV0 입력이 아니며 models 계정의 production-language H2가 원형 산문의 한국어 표기를 맡는다.
-@evidence principles/core/common.md#scope-preservation 글자 없는 작성 판의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 바깥 판·안쪽 면의 두께와 단차를 정해 상판 위에 놓을 수 있는 형상으로 닫는다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#writing-tablet와 30-interiors#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#writing-tablet의 글자 없는 작성 판을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract frame·writing-face의 표면 분리와 실제 움푹한 중앙을 정한다.
-@evidence principles/design/models.md#spatial-convention 아래면 중심 원점과 0.28×0.025×0.22m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 상면에서 테두리 네 면과 낮은 중앙이 읽히는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 글자를 쓰지 않고 얕은 작업면과 목재 둘레만으로 작성 도구를 나타낸다.
-@evidence principles/design/models.md#model-scale-layer-completion 첨필보다 큰 독립 판이지만 책상 상판보다 작아 작업실 소품의 관계가 닫힌다.
-@evidence settings/30-interiors.md#administration 작업이 멈춘 작은 작성실의 책상 위 소품이다.
-@evidence settings/10-building.md#civic-identity 가짜 비문과 문자 재현을 이 물체에서도 금지한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 글자 없는 작성 판의 settings 정체성 owner가 없어 35-objects#writing-tablet를 새로 만들고 30-interiors#administration의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#writing-tablet 글자 없는 작성 판의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.22×0.012×0.012m stylus is a writing tool size; the X-axis `shaft` takes a +Z→+Y circumference U and +X length V, and the sloped `tip` faces planar UVs of their outward normals.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the stylus on the writing desk.
+@evidence principles/core/common.md#substantive-completion It sets the length, thickness, tip contact and cylinder segments, fixing the minimum shape that reads on a desk.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#stylus and 30-interiors#administration as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the stylus on the writing desk of 35-objects#stylus to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the contact of shaft and tip and an exterior with no carved letters.
+@evidence principles/design/models.md#spatial-convention It sets the central origin, the +X long axis and the 0.22×0.012×0.012m occupancy.
+@evidence principles/design/models.md#reviewable-structure From above it checks that the thin rod and the cone of the tip are distinguishable.
+@evidence principles/design/models.md#model-observable-style-basis It conveys the function through a thin rod and a point without exaggerated ornament.
+@evidence principles/design/models.md#model-scale-layer-completion It is set as a prototype separate from the writing tablet and excludes the creation of real letters.
+@evidence settings/30-interiors.md#administration It is an object placed with the tool vessel and on the workbench of the small writing room.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The stylus on the writing desk had no settings identity owner, so 35-objects#stylus was created and added to the room list of 30-interiors#administration. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#stylus It takes the existence, form range and state of the stylus on the writing desk and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#writing-tablet)과 [사용 공간](../settings/30-interiors.md#administration)이 이 prototype의 부모다. [레퍼런스 이미지 05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#stylus) and the [space of use](../settings/30-interiors.md#administration) are the parents of this prototype. It compares the form and spatial relations of [reference image 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-필기판은 글자 없는 얕은 사각 목재 틀이다. 원점은 아래면 중심, 긴 변은 X다. 바깥 폭 0.28m·깊이 0.22m·높이 0.025m이고 테두리는 안쪽으로 폭 0.018m 남긴다. 가운데 쓰기 면은 X=−0.122~0.122m·Z=−0.092~0.092m에 놓인 두께 0.001m의 빈 양피지 면으로 윗면 Y=0.014m다. 중앙 목재 판은 아래면 Y=0부터 윗면 Y=0.013m까지 막히고, 쓰기 면은 그 윗면에 접하므로 부피를 겹치지 않는다. 테두리 윗면 Y=0.025m와 쓰기 면의 0.011m 단차가 있다. 점유 상자는 0.28×0.025×0.22m다.
+The stylus is a small rod that sharpens in the local +X direction. It is a prototype separate from the [writing tablet](portable.md#writing-tablet) and makes no real letters. The origin is the middle of the overall length. The shaft is an 8-segment cylinder of X=−0.11~0.09m with radius 0.006m. The tip is an 8-segment cone narrowing from radius 0.006m to 0 over X=0.09~0.11m, in contact with the shaft end face. There are no grip patterns or real writing marks. The occupancy box is 0.22×0.012×0.012m.
 
-관리실·기록실의 작업이 멈춘 책상 위 빈 필기면으로 쓰고 두루마리와의 간격은 instances가 정한다. 폭 0.28m는 [첨필](portable.md#stylus)의 길이 0.22m보다 크고 [열람 탁자](fixtures.md#desk)의 폭 0.90m보다 작아 같은 작업면에 놓일 수 있다.
+It lies with the tool vessel on the desks of the office and records room, and instances sets the real position and rotation.
 
-부재 대응: `frame`=틀; `writing-face`=쓰기 면.
+Part map: `shaft`=shaft; `tip`=tip.
 
-part와 표면은 `frame`, `writing-face`다. `writing-face`는 틀 내부의 윗면이며 중복된 판 부피가 아니다. 검토 판에서 중앙 단차를 읽고 빈 구멍이나 임의의 글자가 없는지 본다.
+Parts and surfaces are `shaft` and `tip`. On the review board it is checked that the joint has no gap and that the tip reads with a slope different from the shaft. instances sets the real placement and rotation on the desk.
 
-필기판 `frame`·`writing-face`의 UV0는 수평 쓰기 면과 둘레 턱의 바깥법선별 평면 투영이다. 글자나 비문을 새기지 않고 중앙 단차와 두 part 경계에서 이음을 둔다.
+The UV0 of the stylus `shaft` is an X-axis cylinder circumference U turning from a +Z seam toward +Y and a −X→+X length V. Each sloped triangular face of the pointed `tip` has seams split by the planar projection of its own outward normal.
 
-## 묶는 끈 뭉치 {#rope-coil}
+## Letterless writing tablet {#writing-tablet}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.226×0.024×0.226m 끈 뭉치는 작은 보관 비품이고, 세 XZ 고리 `rope`는 중심선 호길이 U·관 둘레 V, 위를 묶는 `tie`는 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 기록물에 묶인 끈과 별도인 느슨한 고리의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 세 반지름·관 굵기·띠 접촉과 분할 수를 정해 끈을 평면 그림으로 대체하지 않는다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#rope-coil와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#rope-coil의 기록물에 묶인 끈과 별도인 느슨한 고리을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
-@evidence principles/design/models.md#representation-contract rope·tie의 접촉과 세 고리 사이 빈 간극을 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.226×0.024×0.226m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 평면에서 세 선과 간극, 측면에서 작은 높이가 보이는지 본다.
-@evidence principles/design/models.md#model-observable-style-basis 미세 꼬임 무늬 대신 세 두꺼운 원환의 실루엣으로 소도구를 읽힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 문서에 묶인 끈과 분리된 느슨한 정지 고리의 점유 상자를 닫고 실제 배치·결속은 instances에 남긴다.
-@evidence settings/30-interiors.md#storage 보관실에서 물건을 묶는 비품의 자리다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 기록물에 묶인 끈과 별도인 느슨한 고리의 settings 정체성 owner가 없어 35-objects#rope-coil를 새로 만들고 30-interiors#storage의 방 목록에 넣었다. 이 부모 수리를 마친 뒤 형상 산문을 정했다.
-@evidence settings/35-objects.md#rope-coil 기록물에 묶인 끈과 별도인 느슨한 고리의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.28×0.025×0.22m writing tablet is a small work surface on a desk; each plane of the border `frame` and the low `writing-face` is projected with the default UV, and the central step is a seam.
+@evidenceExclude settings/00-delivery.md#working-language The working language is no shape dimension or UV0 input of the writing tablet, and the production-language H2 of the models account covers the English notation of the prototype prose.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the letterless writing board.
+@evidence principles/core/common.md#substantive-completion It sets the thickness and step of the outer board and inner face, closing a shape that can lie on a top slab.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#writing-tablet and 30-interiors#administration as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the letterless writing board of 35-objects#writing-tablet to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the surface separation of frame and writing-face and the real recessed middle.
+@evidence principles/design/models.md#spatial-convention It sets the bottom-face-centre origin and the 0.28×0.025×0.22m occupancy.
+@evidence principles/design/models.md#reviewable-structure From above it checks that the four border sides and the low middle read.
+@evidence principles/design/models.md#model-observable-style-basis It shows a writing tool with only a shallow work surface and a timber border, without writing letters.
+@evidence principles/design/models.md#model-scale-layer-completion It is an independent board larger than the stylus but smaller than the desk top slab, closing the relation of the work room props.
+@evidence settings/30-interiors.md#administration It is a prop on the desk of the small writing room where work has stopped.
+@evidence settings/10-building.md#civic-identity It bans fake inscriptions and reproduced script on this object too.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The letterless writing board had no settings identity owner, so 35-objects#writing-tablet was created and added to the room list of 30-interiors#administration. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#writing-tablet It takes the existence, form range and state of the letterless writing board and derives the dimensions and parts of an independent prototype.
 -->
 
-[사물 정체성](../settings/35-objects.md#rope-coil)과 [사용 공간](../settings/30-interiors.md#storage)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+The [object identity](../settings/35-objects.md#writing-tablet) and the [space of use](../settings/30-interiors.md#administration) are the parents of this prototype. It compares the form and spatial relations of [reference image 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
 
-끈 뭉치는 실제 감김 역학이 아니라 내려놓은 세 동심 고리다. 로컬 원점은 바닥 중심이고 고리 중심은 모두 (0,0.008,0)m다. 중심선 반지름은 안쪽부터 0.045m·0.075m·0.105m, 관 반지름은 0.008m다. 각 원환은 주환 16분할·관 8분할이며 매끈한 원환 기준 가장 가까운 고리 표면 사이에는 0.014m 빈 간극이 있고, 16각 다면체의 실제 간극은 약 0.0137m다. X=−0.012~0.012m 폭의 얇은 묶음 띠는 Z=−0.113~0.113m로 세 고리 위 Y=0.016~0.024m에 닿아 고리들을 가로지르되 가운데 빈 구멍을 바닥까지 막지 않는다. 점유 상자는 0.226×0.024×0.226m다.
+The writing tablet is a shallow rectangular timber frame without letters. The origin is the bottom face centre, and the long side is X. It has outer width 0.28m, depth 0.22m and height 0.025m, and the border leaves a border of width 0.018m inward. The central writing face is a blank parchment face of thickness 0.001m at X=−0.122~0.122m, Z=−0.092~0.092m, with top face Y=0.014m. The central timber board is closed from bottom face Y=0 to top face Y=0.013m, and the writing face touches that top face, so they share no volume. There is a 0.011m step between the border top face Y=0.025m and the writing face. The occupancy box is 0.28×0.025×0.22m.
 
-기록실·보관실·서비스 마당에 별도 놓는 끈이며 기존 두루마리에 붙은 묶음 끈과 다르다. 보관실에서 물품을 묶는 자리와 실제 결속 관계는 instances가 정한다.
+It serves as a blank writing face on the desks of the office and records room where work has stopped, and instances sets the spacing to the scrolls. The width 0.28m is larger than the 0.22m length of the [stylus](portable.md#stylus) and smaller than the 0.90m width of the [reading table](fixtures.md#desk), so they can lie on the same work surface.
 
-부재 대응: `rope`=고리; `tie`=묶음 띠.
+Part map: `frame`=frame; `writing-face`=writing face.
 
-part와 표면은 `rope`, `tie`다. 검토 판에서 세 간극과 띠의 위쪽 접촉을 본다. 끈 한 가닥의 미세한 꼬임, 물체를 실제로 묶는 물리 동작은 표시하지 않는다.
+Parts and surfaces are `frame` and `writing-face`. `writing-face` is the top face inside the frame, not a duplicated board volume. On the review board the central step is read and it is checked that there is no empty hole and no arbitrary letters.
 
-세 `rope` 고리는 XZ 평면의 큰 원 중심선과 작은 관 둘레 호길이를 각각 UV0의 U·V로 펴고, 위를 가로지르는 직사각 `tie`는 면 법선별 평면 투영을 쓴다. 고리 시접과 띠 모서리에서 끊는다.
+The UV0 of the writing tablet `frame` and `writing-face` is a planar projection per outward normal of the horizontal writing face and the surrounding ledge. No letters or inscriptions are cut, and seams lie at the central step and the boundary of the two parts.
+
+## Bundle of binding rope {#rope-coil}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The 0.226×0.024×0.226m rope bundle is a small storage furnishing; the three XZ rings `rope` take a centreline arc-length U and tube circumference V, and the binding `tie` on top a planar UV.
+@evidence principles/core/common.md#scope-preservation This H2 sets together the form, parts, occupancy range, review and instances placement ownership of the loose rings separate from the rope tied to records.
+@evidence principles/core/common.md#substantive-completion It sets the three radii, tube thickness, band contact and segment counts, so the rope is not replaced by a flat picture.
+@evidence principles/core/common.md#declared-basis The first paragraph distinguishes the 2026-09-25 user instruction to make objects as the existence scope, 35-objects#rope-coil and 30-interiors#storage as parent authority, the reference images as visual basis, and dimensions and joints as model decisions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It narrows the loose rings of 35-objects#rope-coil, separate from the rope tied to records, to a local origin, shape dimensions, parts and surfaces and a reviewable occupancy box.
+@evidence principles/design/models.md#representation-contract It sets the contact of rope and tie and the empty gaps between the three rings.
+@evidence principles/design/models.md#spatial-convention It sets the floor-centre origin and the 0.226×0.024×0.226m occupancy.
+@evidence principles/design/models.md#reviewable-structure It checks that the three lines and gaps show in plan and the small height from the side.
+@evidence principles/design/models.md#model-observable-style-basis It conveys the small tool through the silhouette of three thick tori instead of a fine twist pattern.
+@evidence principles/design/models.md#model-scale-layer-completion It closes the occupancy box of the loose stationary rings separate from the rope tied to documents and leaves the real placement and binding to instances.
+@evidence settings/30-interiors.md#storage It is the place of the furnishing for tying goods in the storage room.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work The loose rings separate from the rope tied to records had no settings identity owner, so 35-objects#rope-coil was created and added to the room list of 30-interiors#storage. The shape prose was set after this parent repair.
+@evidence settings/35-objects.md#rope-coil It takes the existence, form range and state of the loose rings separate from the rope tied to records and derives the dimensions and parts of an independent prototype.
+-->
+
+The [object identity](../settings/35-objects.md#rope-coil) and the [space of use](../settings/30-interiors.md#storage) are the parents of this prototype. It compares the form and spatial relations of [reference images 02 and 05](../settings/50-production.md#references), and the existence of the object comes from the user's 2026-09-25 instruction to make all objects. The dimensions and joints below are model decisions within that range.
+
+The rope bundle is three concentric rings laid down, not real coiling mechanics. The local origin is the floor centre, and the ring centres are all (0,0.008,0)m. The centreline radii are, from the inside, 0.045m, 0.075m and 0.105m, and the tube radius is 0.008m. Each torus has 16 main segments and 8 tube segments, and between the nearest ring surfaces of the smooth tori there is an empty gap of 0.014m, while the real gap of the 16-sided polyhedra is about 0.0137m. The thin tie band of width X=−0.012~0.012m spans Z=−0.113~0.113m and Y=0.016~0.024m above the three rings, touching them and crossing the rings without closing the central empty hole down to the floor. The occupancy box is 0.226×0.024×0.226m.
+
+It is rope placed separately in the records room, storage room and service yard and differs from the binding tie attached to the existing scrolls. instances sets where goods are tied in the storage room and the real binding relation.
+
+Part map: `rope`=ring; `tie`=tie band.
+
+Parts and surfaces are `rope` and `tie`. On the review board the three gaps and the upper contact of the band are viewed. The fine twist of a single strand and the physical motion of actually tying objects are not shown.
+
+The three `rope` rings unwrap the large-circle centreline and the small tube circumference arc lengths of the XZ plane as the U and V of UV0, and the rectangular `tie` crossing above uses a planar projection per face normal. They split at the ring seams and the band edges.

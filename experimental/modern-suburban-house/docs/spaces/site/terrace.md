@@ -1,54 +1,54 @@
-# 공용부에서 이어지는 정원 테라스
+# Garden Terrace Continuing from the Common Area
 
-## 정원문 대기와 포장 테라스 {#garden-terrace-plan}
+## Garden Door Waiting Area and Paved Terrace {#garden-terrace-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation garden-terrace의 포장 범위, 정원문 대기의 포함, 중앙 보행 띠, 야외 가구 예약, 완결 테라스 owner와 미완료 접지를 맡는다.
-@evidence principles/core/common.md#substantive-completion X = [-1.80, 4.50] m, 바깥 끝 Z = -14.40 m 포장과 정원문 중심 X를 축으로 한 폭 1.50 m 보행 띠, 가구 예약 X = [1.50, 4.20], Z = [-14.10, -11.40] m를 정한다.
-@evidence principles/core/common.md#declared-basis 상면은 garden-door 바깥 대기 높이에서 받고 치수는 03의 야외 식사 자리가 읽히도록 한 저작 선택이며 사진 치수 추정이 아니라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "공용부에서 닿는 작은 포장 테라스와 식탁·의자"를 문 회전과 중앙 경로가 빠진 가구 예약으로 만든다.
-@evidence principles/design/spaces.md#space-topology 테라스는 집 쪽 정원문과 후벽, 바깥쪽 외부 단, 양옆 지표와 맞닿고 지붕이나 벽으로 공용부를 증축하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 후벽·문 void·문턱판은 rear owner, 닫힌 정원문 문틀·두 문짝·철물은 models/02, 테라스 상부판·단 몸체는 terrace owner로 나누고 벽 안쪽에 포장을 겹치지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 문턱·열린 양 문짝·의자 점유와 중앙 경로를 평면/단면과 03의 양방향 시야로 검사한다.
-@evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스에 식탁·의자를 둘 예약을 만든다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 작은 포장 테라스·식탁과 의자, common-room의 정원 출입을 대조했고 문 대기를 포함한 포장으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the paving extent of garden-terrace, the inclusion of the garden door waiting area, the central walking strip, the outdoor furniture reservation, the complete terrace owner, and the incomplete grounding.
+@evidence principles/core/common.md#substantive-completion Sets the paving X = [-1.80, 4.50] m with outer end Z = -14.40 m, a 1.50 m wide walking strip on the axis of the garden door center X, and the furniture reservation X = [1.50, 4.20], Z = [-14.10, -11.40] m.
+@evidence principles/core/common.md#declared-basis States that the top comes from the height of the outer waiting area of garden-door and that the dimensions are an authoring choice to make the outdoor dining place of 03 readable, not an estimate of photograph dimensions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes "a small paved terrace reached from the common area, with a table and chairs" into a furniture reservation that excludes the door rotation and the central route.
+@evidence principles/design/spaces.md#space-topology The terrace meets the garden door and rear wall on the house side, the exterior steps on the outer side, and the ground on both sides, and does not extend the common area with a roof or walls.
+@evidence principles/design/spaces.md#space-boundary-authority Divides the rear wall, door void, and threshold plate to the rear owner, the closed garden door frame, two leaves, and hardware to models/02, and the terrace top slab and step bodies to the terrace owner, and does not overlap paving inside the wall.
+@evidence principles/design/spaces.md#space-verification-address Checks the threshold, both open leaves, chair occupancy, and the central route in plans/sections and the two-way views of 03.
+@evidence settings/10-house.md#site-identity Makes a reservation for placing a table and chairs on the small paved terrace reached from the common area.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's small paved terrace with table and chairs and common-room's garden exit; it holds as paving that includes the door waiting area, so there was no parent revision.
 -->
 
-`garden-terrace`는 [대지와 식재](../../settings/10-house.md#site-identity)가 공용부에서 닿게 둔 작은 포장 테라스이며 house-site/ground-storey의 외부 공간이다. X = [-1.80, 4.50] m, 바깥 끝 Z = -14.40 m의 포장으로 택하고 집 쪽 끝은 [본채 후벽](../00-building.md#main-building-extent)의 바깥 면을 소비한다. 상면은 [garden-door 바깥 대기](../envelope/rear.md#garden-door)의 높이에 맞춘다. 그 대기는 이 테라스에 포함되는 사용 구역이며 별도 겹친 판을 만들지 않는다. 집 쪽은 [공용부 정원 출입](../../settings/10-house.md#common-room)의 정원문과 실제 후벽, 바깥쪽은 아래 외부 단, 양옆은 지표와 맞닿는 낮은 포장 단부다. 지붕이나 벽을 추가해 공용부를 증축하지 않는다.
+`garden-terrace` is the small paved terrace that [site and planting](../../settings/10-house.md#site-identity) places within reach of the common area, and an exterior space of house-site/ground-storey. It is chosen as paving X = [-1.80, 4.50] m with outer end Z = -14.40 m, and its house-side end consumes the outer face of the [main block rear wall](../00-building.md#main-building-extent). The top matches the height of the [outer waiting area of garden-door](../envelope/rear.md#garden-door). That waiting area is a use zone included in this terrace, and no separate overlapping plate is made. On the house side it meets the garden door of the [common area garden exit](../../settings/10-house.md#common-room) and the real rear wall, on the outer side the exterior steps below, and on both sides it is a low paving end meeting the ground. The common area is not extended by adding a roof or walls.
 
-문 앞 대기를 지나 바깥 외부 단까지 이어지는 보행 띠는 정원문 중심 X를 축으로 폭 1.50 m다. 가구 사용 예약은 X = [1.50, 4.20], Z = [-14.10, -11.40] m이며 식탁과 의자의 꺼낸 상태까지 이 안에 담도록 후속 가구 owner에 인계한다. 별도 식탁 geometry나 좌석 수는 이 단계에서 복제하지 않는다. 문짝의 회전 영역과 대기, 중앙 경로는 가구 예약에 들어가지 않는다. 03의 정원문 너머에서 작은 야외 식사 자리가 읽히도록 한 저작 선택이며 사진 치수를 추정한 값이 아니다.
+The walking strip running past the waiting area in front of the door to the outer exterior steps is 1.50 m wide on the axis of the garden door center X. The furniture use reservation is X = [1.50, 4.20], Z = [-14.10, -11.40] m, handed to the later furniture owner so that the table and chairs, including their pulled-out state, fit inside it. Separate table geometry or a seat count is not copied at this stage. The rotation area of the leaves, the waiting area, and the central route do not enter the furniture reservation. This is an authoring choice to make a small outdoor dining place readable beyond the garden door of 03, not an estimate of photograph dimensions.
 
-상면/옆면과 문 앞 대기를 포함한 완결 테라스는 `src/spaces/site/terrace.ts`가 소유한다. [정원문 경계](../envelope/rear.md#garden-door)의 본채 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 문틀·두 문짝·철물은 [정원문 모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 만들며 terrace source는 벽 안쪽이나 문 충전 면에 겹치지 않는다. 상부판·가장자리·단의 몸체는 [높은 평탄면 지지](01-paving-support.md#raised-platform-support), 아래 대기는 [보행 포장 두께](01-paving-support.md#paving-depth-reservation)를 소비한다. 실제 지반/기초·방수/배수 접합과 마감은 후속 단계의 미완료다. 현재 평탄 사용면 예약만으로 배수나 시공 성능이 검증됐다고 주장하지 않는다. 문턱·열린 양 문짝·의자 점유와 중앙 경로를 평면/단면과 03의 양방향 시야에서 검사하며 실제 통행·부재·프레임은 unverified다.
+The complete terrace including the top/sides and the waiting area in front of the door is owned by `src/spaces/site/terrace.ts`. The main block rear wall, door void, and threshold plate of the [garden door boundary](../envelope/rear.md#garden-door) are made by `src/spaces/envelope/rear.ts`, and the closed frame, two leaves, and hardware by the [garden door model prototype](../../models/02-exterior-doors.md#garden-door-pair), and the terrace source does not overlap the inside of the wall or the door fill faces. The bodies of the top slab, edges, and steps consume the [raised flat surface support](01-paving-support.md#raised-platform-support), and the lower waiting area the [walking paving thickness](01-paving-support.md#paving-depth-reservation). The real soil/foundation, waterproofing/drainage junctions, and finish are incomplete in later stages. The current flat use surface reservation alone is not claimed to verify drainage or construction performance. The threshold, both open leaves, chair occupancy, and the central route are checked in plans/sections and the two-way views of 03, and the real passage, members, and frames are unverified.
 
-## 테라스에서 지표로 내려가는 단 {#garden-steps-plan}
+## Steps Descending from the Terrace to the Ground {#garden-steps-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation 테라스와 아래 대기를 잇는 외부 단의 개수·높이·깊이·폭과 owner, 열린 가장자리의 미완료를 맡는다.
-@evidence principles/core/common.md#substantive-completion -Z로 0.15 m씩 내려가는 챌판 세 개와 깊이 0.30 m의 수평 디딤 두 개를 정한다.
-@evidence principles/core/common.md#declared-basis 폭/중심 X는 테라스 중앙 보행 띠, 첫 챌판 위치는 테라스 바깥 끝에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 위 테라스의 중앙 보행 띠와 아래 대기 사이의 높이 차를 -Z로 0.15 m씩 내려가는 세 챌판과 깊이 0.30 m 두 디딤의 외부 연결 구역으로 만들고 층간 main-stair와 구별한다.
-@evidence principles/design/spaces.md#space-topology garden-steps는 house-site/ground-storey의 외부 연결 구역이며 층간 연결 main-stair를 복제하거나 바꾸지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 세 번째 디딤을 아래 대기에 겹치지 않고 단·하부는 src/spaces/site/terrace.ts가 소유한다.
-@evidence principles/design/spaces.md#space-verification-address 위에서 내려다보는 첫 단의 읽힘, 아래에서 돌아오는 마지막 단과 문짝/가구를 검사한다.
-@evidence settings/10-house.md#site-identity 테라스 바깥 끝에서 아래 대기로 내려가는 세 챌판·두 디딤의 외부 단을 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 테라스와 stair의 "별도 계단·사다리"가 층간 연결에 한정됨을 대조했고 외부 단이 층간 연결이 아니어서 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the count, heights, depths, and width of the exterior steps connecting the terrace and the lower waiting area, their owner, and the incomplete open edges.
+@evidence principles/core/common.md#substantive-completion Sets three risers descending 0.15 m each toward -Z and two horizontal treads 0.30 m deep.
+@evidence principles/core/common.md#declared-basis The width/center X comes from the central walking strip of the terrace, and the first riser position from the outer end of the terrace.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the height difference between the central walking strip of the terrace above and the lower waiting area into an exterior connection zone of three risers descending 0.15 m each toward -Z and two treads 0.30 m deep, distinguished from the interstorey main-stair.
+@evidence principles/design/spaces.md#space-topology garden-steps is an exterior connection zone of house-site/ground-storey and does not copy or change the interstorey connection main-stair.
+@evidence principles/design/spaces.md#space-boundary-authority A third tread is not overlapped onto the lower waiting area, and the steps and their underside are owned by src/spaces/site/terrace.ts.
+@evidence principles/design/spaces.md#space-verification-address Checks the readability of the first step looking down from above, the last step coming back from below, and the leaves/furniture.
+@evidence settings/10-house.md#site-identity Places exterior steps of three risers and two treads descending from the outer end of the terrace to the lower waiting area.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's terrace with the limitation of stair's "separate stair, ladder" to interstorey connection; the exterior steps are not an interstorey connection, so there was no parent revision.
 -->
 
-`garden-steps`는 house-site/ground-storey의 외부 연결 구역이며 위 테라스와 [아래 대기](#garden-lower-landing-plan)를 잇는다. [층간 연결](../../settings/10-house.md#stair)인 [main-stair](../02-stair.md#stair-reservation)를 복제하거나 바꾸지 않는다. 폭/중심 X는 테라스 중앙 보행 띠를 소비하고 첫 챌판은 테라스 바깥 끝에 둔다. -Z로 나아가며 0.15 m씩 내려가는 챌판 세 개와 깊이 0.30 m의 수평 디딤 두 개를 둔다. 별도 세 번째 디딤을 아래 대기에 겹치지 않는다.
+`garden-steps` is an exterior connection zone of house-site/ground-storey and connects the terrace above with the [lower waiting area](#garden-lower-landing-plan). It does not copy or change [main-stair](../02-stair.md#stair-reservation), the [interstorey connection](../../settings/10-house.md#stair). The width/center X consumes the central walking strip of the terrace, and the first riser is placed at the outer end of the terrace. Proceeding toward -Z, there are three risers descending 0.15 m each and two horizontal treads 0.30 m deep. No separate third tread is overlapped onto the lower waiting area.
 
-단·하부의 owner는 `src/spaces/site/terrace.ts`다. 위에서 내려다보는 첫 단의 읽힘, 아래에서 돌아오는 마지막 단과 문짝/가구를 검사한다. 낮은 테라스의 열린 가장자리와 지지·마감·접지 그림자를 포함한 실제 경계는 unverified이며 난간/배수/구조 인증을 완료한 결과가 아니다.
+The owner of the steps and their underside is `src/spaces/site/terrace.ts`. The readability of the first step looking down from above, the last step coming back from below, and the leaves/furniture are checked. The real boundary including the open edges of the low terrace and the support, finish, and grounding shadows is unverified and is not the result of completed railing/drainage/structural certification.
 
-## 정원 지표에 닿을 아래 대기 {#garden-lower-landing-plan}
+## Lower Waiting Area Meeting the Garden Ground {#garden-lower-landing-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation 단 아래 평탄 대기의 깊이·폭·높이, 관리길과의 접속, 장애물 금지, 지표 접촉의 미완료를 맡는다.
-@evidence principles/core/common.md#substantive-completion 마지막 챌판부터 -Z로 깊이 1.20 m, 단과 같은 폭, 높이는 테라스 상면에서 세 단 높이를 뺀 값의 평탄 면을 정한다.
-@evidence principles/core/common.md#declared-basis 높이는 테라스 상면과 garden-steps에서 산출하고 양옆 지표 접촉은 maps 입력이 없어 미완료라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 단에서 내려온 점유체가 정원으로 나가고 돌아와 방향을 잡는 대기를 관리길 끝선과 공유하는 면으로 만든다.
-@evidence principles/design/spaces.md#space-topology garden-lower-landing은 house-site/ground-storey의 외부 대기이며 바깥 끝을 측면 관리길의 뒤쪽 가로 길이 같은 높이에서 소비한다.
-@evidence principles/design/spaces.md#space-boundary-authority 지표를 임의로 연장하거나 별도 지형 면과 겹치지 않고 아래 대기를 terrace owner가 소유한다.
-@evidence principles/design/spaces.md#space-verification-address 아래 대기 깊이·점유체의 돌아서기·지표 접촉을 평면/단면과 양방향 시야에서 검사한다.
-@evidence settings/10-house.md#site-identity 후면 정원의 테라스 아래에서 정원으로 나가는 대기를 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 테라스와 maps 소유 지표를 대조했고 대기 높이를 단에서 산출할 수 있어 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the depth, width, and height of the flat waiting area below the steps, the connection with the service walk, the ban on obstacles, and the incomplete ground contact.
+@evidence principles/core/common.md#substantive-completion Sets a flat surface 1.20 m deep toward -Z from the last riser, of the same width as the steps, at a height equal to the terrace top minus the three step heights.
+@evidence principles/core/common.md#declared-basis Derives the height from the terrace top and garden-steps, and states that the ground contact on both sides is incomplete because there is no maps input.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the waiting area, where an occupancy body coming down the steps goes out to the garden, returns, and turns, into a face shared with the service walk end line.
+@evidence principles/design/spaces.md#space-topology garden-lower-landing is an exterior waiting area of house-site/ground-storey, and its outer end is consumed at the same height by the back cross path of the side service walk.
+@evidence principles/design/spaces.md#space-boundary-authority Does not extend the ground arbitrarily or overlap a separate terrain face, and the lower waiting area is owned by the terrace owner.
+@evidence principles/design/spaces.md#space-verification-address Checks the lower waiting area depth, the turning of the occupancy body, and the ground contact in plans/sections and two-way views.
+@evidence settings/10-house.md#site-identity Places a waiting area below the terrace of the rear garden from which one goes out into the garden.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared site-identity's terrace with the maps-owned ground; the waiting area height can be derived from the steps, so there was no parent revision.
 -->
 
-`garden-lower-landing`은 house-site/ground-storey의 외부 대기 구역이다. [외부 단](#garden-steps-plan)의 마지막 챌판부터 -Z 방향으로 깊이 1.20 m, 단과 같은 폭의 평탄 면이며 그 높이는 테라스 상면에서 세 단 높이를 뺀 값이다. 계단에서 내려온 점유체가 정원으로 나가고 돌아와 방향을 잡는 곳이다. 바깥 끝은 [측면 관리길의 뒤쪽 가로 길](side-walk.md#side-walk-plan)이 같은 높이에서 소비한다. 양옆과 주변의 실제 지표 접촉은 maps 입력이 없어 미완료다.
+`garden-lower-landing` is an exterior waiting zone of house-site/ground-storey. It is a flat surface 1.20 m deep in the -Z direction from the last riser of the [exterior steps](#garden-steps-plan), of the same width as the steps, and its height is the terrace top minus the three step heights. It is where an occupancy body coming down the stair goes out to the garden, returns, and turns. Its outer end is consumed at the same height by the [back cross path of the side service walk](side-walk.md#side-walk-plan). The real ground contact on both sides and around is incomplete because there is no maps input.
 
-지표를 임의로 연장하거나 화단으로 단차를 숨기지 않는다. 단의 양옆과 아래 대기에는 화분·돌·뿌리 등 통행 장애를 놓지 않는다. 아래 대기도 `src/spaces/site/terrace.ts`가 같은 외부 접속으로 소유하며 별도 지형 면과 겹치지 않는다. 아래 대기 깊이·점유체의 돌아서기·지표 접촉을 평면/단면과 양방향 시야에서 검사한다. 실제 구역 binding·접지·통행은 unverified다.
+The ground is not extended arbitrarily, and the level difference is not hidden with a bed. No planters, stones, roots, or other passage obstacles are placed beside the steps or on the lower waiting area. The lower waiting area is also owned by `src/spaces/site/terrace.ts` as the same exterior connection and does not overlap a separate terrain face. The lower waiting area depth, the turning of the occupancy body, and the ground contact are checked in plans/sections and two-way views. The real zone binding, grounding, and passage are unverified.

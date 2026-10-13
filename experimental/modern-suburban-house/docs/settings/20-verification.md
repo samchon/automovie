@@ -1,248 +1,248 @@
-# 표현과 검증 조건
+# Expression and Verification Conditions
 
-## 레퍼런스 권위 {#reference-authority}
+## Reference Authority {#reference-authority}
 <!--
-@evidence principles/core/common.md#scope-preservation 다섯 입력을 모두 유지하면서 차량과 계단 차이를 처리하고 고정 그래프 변경이 필요한 경우 조정자에게 올리도록 범위를 고정한다.
-@evidence principles/core/common.md#substantive-completion 레퍼런스가 정하는 형태·색·재료와 정하지 않는 치수·실재 정보를 구별하여 하위 저작자가 사용할 권위 경계를 확정한다.
-@evidence principles/core/common.md#declared-basis 입력 경로와 파일명을 사용자 제공 자료로 명시하고 충돌 시 그래프 우선이라는 사용자 결정을 적용한다.
-@evidence principles/core/settings.md#fact-status 원본을 본 인상은 시각 채택의 근거이며 측량 사실이 아니고 계단 해석은 한 집 canon으로 통일한 선택이다.
-@evidence principles/core/settings.md#source-support 다섯 원본의 정확한 경로와 장면을 지목하며 이미지 속 숫자와 픽셀 역산에는 사실의 권위를 부여하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 참조는 정적 주택의 정체성을 제한하지만 차량 생성이나 그래프 변경을 허가하지 않고 배경판으로 붙일 수도 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 차량은 garage의 금지에 종속되고 그래프를 보존할 수 없는 세부는 stop 및 조정자 판정으로 처리한다.
-@evidence principles/core/settings.md#observable-identity 외관·절개·공용부·현관 계단·상층을 같은 집의 서로 다른 질문으로 묶어 한 장만 닮는 재현을 막는다.
-@evidence obligations/core/settings.md#production-visual-grammar 다섯 사진은 형태·재료 입력으로만 사용하고 계단 차이는 10의 canon으로 통일하며 차량은 명시 금지, 그래프를 바꿔야 하는 차이는 조정자 결정으로 남긴다.
+@evidence principles/core/common.md#scope-preservation Keeps all five inputs while handling the vehicle and stair differences, and fixes the scope so a case that needs a fixed graph change is raised to the coordinator.
+@evidence principles/core/common.md#substantive-completion Separates the form, color, and material the references set from the dimensions and real-world information they do not set, fixing the authority boundary later authors use.
+@evidence principles/core/common.md#declared-basis States the input path and file names as user-provided material and applies the user's decision that the graph wins on conflict.
+@evidence principles/core/settings.md#fact-status The impression of viewing the originals is the basis of visual adoption, not a survey fact, and the stair interpretation is a choice unified into one house canon.
+@evidence principles/core/settings.md#source-support Points at the exact paths and scenes of the five originals and grants no factual authority to numbers in the images or to pixel back-calculation.
+@evidence principles/core/settings.md#capability-boundary The references limit the identity of a static house but permit neither vehicle creation nor graph change, and they cannot be pasted on as background boards.
+@evidence principles/core/settings.md#constraint-sufficiency The vehicle is subordinate to the garage ban, and detail that cannot preserve the graph is handled by a stop and the coordinator's judgment.
+@evidence principles/core/settings.md#observable-identity Binds the exterior, cutaway, common area, entry stair, and upper storey as different questions about the same house, preventing a reproduction that resembles only one picture.
+@evidence obligations/core/settings.md#production-visual-grammar Uses the five photographs only as form and material input, unifies the stair difference into the canon of 10, explicitly bans the vehicle, and leaves differences that would change the graph to the coordinator's decision.
 -->
 
-사용자가 제공한 D:/AutoMovieBench/refs-20260916/1952/의 01-exterior.png, 02-section-axonometric.png, 03-common-room.png, 04-living-entry.png, 05-upper-private-floor.png가 순서대로 외관, 절개 조감, 후면 공용부, 현관·거실·계단, 상층 사적 구역의 입력이다. 원본 제공 이미지를 직접 본 인상은 형태·색·재료·관계의 근거이며 치수 도면이나 실재 주택 조사 자료는 아니다. 픽셀 비례의 역산과 이미지 속 숫자의 사실화는 하지 않는다. 02의 자동차는 10-house.md#garage의 명시적 차량 금지에 종속된다. 내부 시점 사이에서 계단 난간·창 배치가 다른 것은 10-house.md의 한 집 canon으로 통일한다. 나머지 충돌도 고정 그래프를 보존하며 조정하고 그래프 변경을 요구하는 경우 저작을 멈춰 조정자에게 올린다. 원본 이미지를 background, billboard, texture로 붙이지 않는다.
+The user-provided files 01-exterior.png, 02-section-axonometric.png, 03-common-room.png, 04-living-entry.png, and 05-upper-private-floor.png in D:/AutoMovieBench/refs-20260916/1952/ are, in order, the inputs for the exterior, the cutaway bird's-eye view, the rear common area, the entry, living room, and stair, and the upper private zone. The impression from viewing the original provided images directly is the basis for form, color, material, and relations, not a dimensioned drawing or survey material of a real house. Pixel proportions are not back-calculated, and numbers in the images are not made into facts. The car in 02 is subordinate to the explicit vehicle ban of 10-house.md#garage. The differences in stair railing and window placement between interior viewpoints are unified into the one-house canon of 10-house.md. Other conflicts are also reconciled while preserving the fixed graph, and when a graph change would be required, authoring stops and the matter is raised to the coordinator. The original images are not pasted on as background, billboard, or texture.
 
-## 공통 재료와 외피 인상 {#visual-grammar}
+## Common Materials and Envelope Impression {#visual-grammar}
 <!--
-@evidence principles/core/common.md#scope-preservation 외벽·지붕·굴뚝·개구부 접합과 층별 바닥의 재료 구역을 모두 정해 임의 패치 마감으로 범위를 축소하지 않는다.
-@evidence principles/core/common.md#substantive-completion 색 이름뿐 아니라 siding course·벽돌 줄눈·shingle 중첩·trim 음영의 관계를 정해 공통 외피 언어를 완성한다.
-@evidence principles/core/common.md#declared-basis 레퍼런스의 palette를 채택하고 면 경계와 UV 좌표는 spaces/models, 반복 길이·광학값은 materials에 배분한다.
-@evidence principles/core/settings.md#fact-status 따뜻한 백색과 charcoal의 조합은 채택한 canon이며 광학 수치가 실측되었다고 주장하지 않는다.
-@evidence principles/core/settings.md#source-support 제공 이미지에서 읽은 색과 재료 관계를 사용하고 특정 제조사 마감재의 물성표로 확대하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 벽돌은 기단·굴뚝·벽난로에만 연속적으로 놓이고 창·문을 덮는 마감이나 무작위 색 패치는 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 굴뚝은 왼쪽 벽난로부터 cap까지 이어지고 각 바닥 재료의 경계는 사용하는 방과 일치해야 한다.
-@evidence principles/core/settings.md#observable-identity 흰 수평 사이딩과 어두운 지붕·창틀, 적갈색 벽돌, 꿀빛 목재가 돌출 trim의 그림자로 하나의 집을 형성한다.
-@evidence obligations/core/settings.md#production-visual-grammar 백색 수평 siding·charcoal 창과 지붕·적갈색 벽돌·목재와 실내 직물의 색 관계 및 연속 course·줄눈·shingle·돌출 trim의 적용 구역을 정해 외피와 실내를 같은 재료 언어로 묶는다.
+@evidence principles/core/common.md#scope-preservation Sets all material zones of the exterior walls, roof, chimney, opening junctions, and each storey's floor, so the scope is not reduced to arbitrary patch finishes.
+@evidence principles/core/common.md#substantive-completion Sets the relations of siding courses, brick joints, shingle overlap, and trim shading beyond color names, completing the common envelope language.
+@evidence principles/core/common.md#declared-basis Adopts the references' palette, and allocates face boundaries and UV coordinates to spaces/models and repeat lengths and optical values to materials.
+@evidence principles/core/settings.md#fact-status The combination of warm white and charcoal is adopted canon, with no claim that optical values were measured.
+@evidence principles/core/settings.md#source-support Uses the color and material relations read from the provided images, without extending them into a particular manufacturer's finish data sheet.
+@evidence principles/core/settings.md#capability-boundary Brick sits continuously only on the base, chimney, and fireplace, and finishes covering windows and doors or random color patches are not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency The chimney runs from the left fireplace to the cap, and the boundary of each floor material must match the room that uses it.
+@evidence principles/core/settings.md#observable-identity White horizontal siding, dark roof and window frames, red-brown brick, and honey-toned wood form one house with the shadows of projecting trim.
+@evidence obligations/core/settings.md#production-visual-grammar Sets the color relations of white horizontal siding, charcoal windows and roof, red-brown brick, wood, and interior textiles, and the application zones of continuous courses, joints, shingles, and projecting trim, binding the envelope and interior into the same material language.
 -->
 
-레퍼런스에서 채택한 palette는 따뜻한 백색 수평 lap siding, 창틀과 차고문의 짙은 charcoal, 흰 trim, 붉은갈색 벽돌 기단과 굴뚝, 꿀빛/중간갈색 목재, 회베이지 실내 직물이다. 지붕은 작고 규칙적인 어두운 asphalt shingle의 중첩 결로 읽힌다. siding은 외벽면 전체를 일관된 course로 덮고 brick은 기단·굴뚝·벽난로에만 연속적인 줄눈을 가지며 창·문을 가리지 않는다. 굴뚝은 왼쪽 벽난로에서 지붕 위로 솟는 벽돌 몸체와 마감 cap을 갖춘다. trim은 벽과 창·문·처마의 접합을 실제 돌출과 음영으로 설명한다. 불규칙한 색 패치로 재료를 대신하지 않는다. 실내 1층 마루, 상층 침실/복도 카펫, 욕실 타일, 차고 콘크리트의 경계는 방의 사용과 맞는다. 각 면의 경계와 UV 좌표(축·원점·이음)는 그 면을 만드는 spaces/models가 소유하고, 재료 반복 길이·광학값·텍스처는 materials가 소유한다.
+The palette adopted from the references is warm white horizontal lap siding, deep charcoal for window frames and the garage door, white trim, a red-brown brick base and chimney, honey/mid-brown wood, and gray-beige interior textiles. The roof reads as the overlapping grain of small, regular dark asphalt shingles. The siding covers every exterior wall face with consistent courses, and the brick has continuous joints only on the base, chimney, and fireplace and does not hide windows or doors. The chimney has a brick body rising from the left fireplace above the roof and a finished cap. The trim explains the junctions of wall with windows, doors, and eaves through real projection and shading. Irregular color patches do not stand in for materials. The boundaries of the interior ground-storey wood flooring, upper bedroom/hall carpet, bathroom tile, and garage concrete match the use of the rooms. The boundary and UV coordinates (axes, origin, seams) of each face are owned by the spaces/models that make that face, and material repeat length, optical values, and textures are owned by materials.
 
-## 표현 수준 {#fidelity}
+## Level of Expression {#fidelity}
 <!--
-@evidence principles/core/common.md#scope-preservation 사용자가 요구한 외피 부재·모든 실내·재료·빛·대지를 실제 캡처의 대상으로 유지하여 blocking으로 목표를 낮추지 않는다.
-@evidence principles/core/common.md#substantive-completion 결정론적 3D를 직접 평가하되 픽셀 일치와 안전 인증의 주장은 제외하는 표현 수준을 확정한다.
-@evidence principles/core/common.md#declared-basis 기존 topology PASS로 부족하다는 사용자 재지시에서 실제 캡처의 읽힘을 이 production의 우선 기준으로 채택한다.
-@evidence principles/core/settings.md#fact-status 여기서 정한 것은 목표 표현 수준이지 아직 존재하지 않는 모델의 품질을 확인한 사실이 아니다.
-@evidence principles/core/settings.md#source-support 사용자의 캡처 기준을 직접 근거로 삼으며 사진의 사실성이나 구조 인증을 엔진의 검증된 능력으로 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 외부 생성 이미지와 보이는 부분만의 별도 모델로 품질을 보충할 수 없고 단순 blocking을 최종 결과로 제출할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 측량·법규 주장을 하지 않는 한계가 문짝·난간·생활 기능의 생략을 허용하지 않는다고 경계를 명시한다.
-@evidence principles/core/settings.md#observable-identity 포치·굴뚝·창호의 깊이와 각 방의 생활 기능이 리뷰 거리에서 읽히는 결정론적 3D 자체가 정체성의 판정 표면이다.
-@evidence obligations/core/settings.md#production-fidelity-tier 결정론적 3D 자체를 전달하며 부재·생활 기능·빛의 실제 읽힘을 요구하고 사진 픽셀 일치·측량·안전 인증은 주장하지 않는다. 외부 생성 이미지나 topology PASS가 이 표현 수준을 대신하지 못한다.
+@evidence principles/core/common.md#scope-preservation Keeps the envelope members, every interior, materials, light, and site the user required as subjects of real captures, so the target is not lowered to blocking.
+@evidence principles/core/common.md#substantive-completion Fixes a level of expression that evaluates deterministic 3D directly while excluding claims of pixel match and safety certification.
+@evidence principles/core/common.md#declared-basis Adopts, from the user's re-instruction that the existing topology PASS is not enough, the readability of real captures as this production's primary criterion.
+@evidence principles/core/settings.md#fact-status What is set here is the target level of expression, not a fact confirming the quality of models that do not yet exist.
+@evidence principles/core/settings.md#source-support Takes the user's capture criterion as the direct basis and does not claim photographic realism or structural certification as verified engine capability.
+@evidence principles/core/settings.md#capability-boundary Quality cannot be supplemented with external generated images or a separate model of the visible parts alone, and plain blocking cannot be submitted as the final result.
+@evidence principles/core/settings.md#constraint-sufficiency States the boundary that the limit of making no survey or code claim does not permit omitting leaves, railings, or household functions.
+@evidence principles/core/settings.md#observable-identity The deterministic 3D itself, in which the depth of the porch, chimney, and windows and doors and each room's household function read at review distance, is the judgment surface of identity.
+@evidence obligations/core/settings.md#production-fidelity-tier Delivers the deterministic 3D itself, requires the real readability of members, household function, and light, and claims no photographic pixel match, survey, or safety certification. External generated images or a topology PASS cannot stand in for this level of expression.
 -->
 
-이 production의 사용자 지시는 매스와 지붕, 개구부 비례/위치, 포치·기둥·처마·trim·굴뚝·계단·난간·창호·문짝, 재료·빛·그림자·조경과 모든 실내가 실제 캡처에서 읽혀야 한다는 것이다. 결정론적 3D 자체가 검토 대상이다. 단순 blocking 또는 topology PASS만으로 이 요구를 낮추지 않는다. 사진과의 픽셀 일치나 측량·구조 안전·법규 인증은 주장하지 않지만, 이 한계가 부재나 생활 기능의 생략을 허용하지는 않는다. 외부 생성 이미지로 품질을 보충하거나 보이는 부분만 별도 모델로 만들지 않는다.
+The user instruction for this production is that the mass and roof, opening proportions/positions, porch, columns, eaves, trim, chimney, stair, railings, windows and doors, leaves, materials, light, shadow, landscape, and every interior must read in real captures. The deterministic 3D itself is the subject of review. This requirement is not lowered by plain blocking or a topology PASS alone. No pixel match with the photographs or survey, structural safety, or code certification is claimed, but this limit does not permit omitting members or household functions. Quality is not supplemented with external generated images, and the visible parts alone are not made as a separate model.
 
-## 빛과 기준 상태 {#lighting-state}
+## Light and Baseline State {#lighting-state}
 <!--
-@evidence principles/core/common.md#scope-preservation 외부 key와 하늘 fill, 실내 자연광과 생활 조명을 함께 정해 밝은 외관만으로 조명 범위를 대신하지 않는다.
-@evidence principles/core/common.md#substantive-completion 광원 방향·그늘 처리·날씨·노출 일관성을 정하여 렌더 담당자가 시간대나 방별 보정을 새로 발명하지 않게 한다.
-@evidence principles/core/common.md#declared-basis 늦은 오후의 인상은 01을 따르고 전면 왼쪽 key와 고정 노출은 제작자가 택한 기준 상태다.
-@evidence principles/core/settings.md#fact-status 일조 방향은 지리·날짜 계산 결과가 아니며 최종 노출과 white balance는 구현 때 기록할 선택값이다.
-@evidence principles/core/settings.md#source-support 01의 부드러운 빛을 시각 근거로 삼되 촬영 시간이나 실제 태양 위치를 이미지에서 알아냈다고 하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 바람·강수는 정지하고 실내 기구는 켜진 상태이며 view마다 임의 밝기를 조절해 어두운 방을 숨길 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 뒤 오른쪽 그림자와 하늘 fill을 함께 요구하고 실내 발광판이 공간의 깊이를 지우지 않는 조건을 둔다.
-@evidence principles/core/settings.md#observable-identity 부드러운 외부 그늘 안에서도 재료가 보이고 따뜻한 pendant·식탁등·협탁등이 실내 용도를 구별하는 상태를 유지한다.
-@evidence obligations/core/settings.md#production-visual-grammar 전면 왼쪽의 오후 key와 하늘 fill, 켜진 따뜻한 실내등 및 정지 날씨를 공통 상태로 정하고 view별 임의 노출로 재료와 방의 어둠을 감추지 못하게 한다.
+@evidence principles/core/common.md#scope-preservation Sets the exterior key, sky fill, interior daylight, and household lighting together, so a bright exterior alone does not stand in for the lighting scope.
+@evidence principles/core/common.md#substantive-completion Sets light direction, shade handling, weather, and exposure consistency, so the rendering author does not invent a new time of day or per-room correction.
+@evidence principles/core/common.md#declared-basis The late-afternoon impression follows 01, and the front-left key and fixed exposure are a baseline state the maker chose.
+@evidence principles/core/settings.md#fact-status The sun direction is not the result of a geographic or date calculation, and the final exposure and white balance are chosen values to record at implementation.
+@evidence principles/core/settings.md#source-support Takes the soft light of 01 as visual basis and does not say the capture time or real sun position was learned from the image.
+@evidence principles/core/settings.md#capability-boundary Wind and precipitation are still and interior fixtures are on, and a dark room cannot be hidden by adjusting brightness arbitrarily per view.
+@evidence principles/core/settings.md#constraint-sufficiency Requires both shadows toward the rear right and the sky fill, and sets the condition that interior emissive panels do not erase the depth of the space.
+@evidence principles/core/settings.md#observable-identity Keeps the state in which materials show even inside soft exterior shade and the warm pendant, dining lamp, and nightstand lamps distinguish interior uses.
+@evidence obligations/core/settings.md#production-visual-grammar Sets the front-left afternoon key, sky fill, lit warm interior lights, and still weather as the common state, so arbitrary per-view exposure cannot hide the darkness of materials and rooms.
 -->
 
-01의 부드러운 늦은 오후 인상을 저작 기준으로 삼는다. 제작 선택상 key light는 집의 전면 왼쪽 위에서 오고 그림자는 뒤 오른쪽으로 놓이며 하늘의 부드러운 fill이 깊은 그늘을 완전 검정으로 닫지 않는다. 일조 방향은 지리/날짜 계산값이 아니다. 실내는 창 자연광과 켜진 따뜻한 천장등·주방 pendant·식탁등·협탁등이 함께 읽히고 조명 기구가 발광판 하나로 공간을 평평하게 지우지 않는다. 날씨는 맑거나 얇은 구름, 바람과 강수는 정지다. 고정 노출과 white balance를 기록하고 어두운 방을 view별 임의 밝기로 숨기지 않는다. 각 방의 필요 광원·그림자·재질 반응은 systems/materials가 실현한다.
+The soft late-afternoon impression of 01 is the authoring criterion. As a production choice, the key light comes from above the front left of the house, shadows fall toward the rear right, and the soft fill of the sky does not close deep shade to full black. The sun direction is not a geographic/date calculation value. Inside, window daylight and lit warm ceiling lights, kitchen pendants, a dining lamp, and nightstand lamps read together, and light fixtures do not flatten the space with a single emissive panel. The weather is clear or thinly clouded, and wind and precipitation are still. Fixed exposure and white balance are recorded, and dark rooms are not hidden with arbitrary per-view brightness. The light sources, shadows, and material responses each room needs are realized by systems/materials.
 
-## 실제 3D 렌더 경계 {#renderer-boundary}
+## Real 3D Render Boundary {#renderer-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 실제 건물 canvas의 원근·깊이·재질·그림자와 GPU 캡처 경로를 맡아 화면 모사로 3D 요구를 대신하지 않는다.
-@evidence principles/core/common.md#substantive-completion 검사 모드 calibration과 실제 canvas의 RENDERER 보고, 빈 화면·오류·overlay의 실패 조건까지 정해 렌더 확인의 경계를 완성한다.
-@evidence principles/core/common.md#declared-basis 사용자 「저작 브리프 — 현대 미국 교외 2층 단독주택」의 「이번의 기준」이 지정한 Playwright channel: "chromium"과 실제 건물 canvas의 RENDERER 보고를 따르며 캡처 API 선택은 설치본을 읽을 source에 배분한다.
-@evidence principles/core/settings.md#fact-status GPU와 3D는 이행할 요구이지 현재 하드웨어 사용을 확인한 결과가 아니며 실제 renderer 문자열은 아직 보고할 값이 없다.
-@evidence principles/core/settings.md#source-support Playwright channel: "chromium"과 RENDERER 보고의 직접 근거는 사용자 브리프 「이번의 기준」의 GPU 검토 지시이며, 이 항목은 그 요구를 채택한다. 구현 API의 세부는 source가 설치된 문서에서 확인할 사항이다.
-@evidence principles/core/settings.md#capability-boundary 라벨은 기본 화면을 가릴 수 없고 별도 빈 canvas의 probe나 기본 헤드리스 결과가 건물 GPU 프레임을 대체할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 렌더 완료 동기화와 실제 canvas 식별이 있어야 캡처를 해석할 수 있으며 빈 화면과 오류 배너는 성공으로 취급하지 않는다.
-@evidence principles/core/settings.md#observable-identity 원근과 깊이·재질·그림자로 부재가 보이는 건물 화면을 요구하고 calibration은 검사 모드에 한정해 주택 인상을 보존한다.
-@evidence obligations/core/settings.md#delivery-review-condition 실제 건물 canvas에서 Playwright channel: "chromium"의 WebGL 프레임과 RENDERER를 읽으며 별도 probe·빈 화면·오류·가리는 overlay를 이 주택의 재현 가능한 리뷰 출력으로 인정하지 않는다.
+@evidence principles/core/common.md#scope-preservation Takes on the perspective, depth, materials, and shadows of the real building canvas and the GPU capture path, so a screen imitation does not stand in for the 3D requirement.
+@evidence principles/core/common.md#substantive-completion Sets inspection-mode calibration, the RENDERER report of the real canvas, and the failure conditions of blank screens, errors, and overlays, completing the boundary of render confirmation.
+@evidence principles/core/common.md#declared-basis Follows the Playwright channel: "chromium" and the RENDERER report of the real building canvas that the user's "Authoring Brief — Contemporary American Suburban Two-Storey Detached House" specifies in its "Criteria for This Round", and allocates the capture API choice to the source that reads the installed version.
+@evidence principles/core/settings.md#fact-status GPU and 3D are requirements to fulfill, not a result confirming current hardware use, and there is no real renderer string to report yet.
+@evidence principles/core/settings.md#source-support The direct basis for the Playwright channel: "chromium" and the RENDERER report is the GPU review instruction in the user brief's "Criteria for This Round", and this item adopts that requirement. The details of the implementation API are for the source to confirm in the installed documentation.
+@evidence principles/core/settings.md#capability-boundary Labels cannot cover the default screen, and a probe on a separate blank canvas or a default headless result cannot replace the building's GPU frame.
+@evidence principles/core/settings.md#constraint-sufficiency A capture can be interpreted when render-completion synchronization and identification of the real canvas are present, and blank screens and error banners are not treated as success.
+@evidence principles/core/settings.md#observable-identity Requires a building screen in which members show through perspective, depth, materials, and shadow, and limits calibration to the inspection mode to preserve the house impression.
+@evidence obligations/core/settings.md#delivery-review-condition Reads the WebGL frame and RENDERER of Playwright channel: "chromium" from the real building canvas, and does not accept a separate probe, a blank screen, errors, or covering overlays as this house's reproducible review output.
 -->
 
-사용자 지정 경로는 원근 camera·WebGL 깊이·재질·조명·그림자를 사용하는 실제 3D viewer다. 라벨 기본 꺼짐과 검사 모드 분리는 00-production.md#operator-access를 따른다. GPU 검토는 사용자의 주택 저작 브리프 「이번의 기준」에서 명시적으로 지정한 Playwright channel: "chromium"을 사용하고 건물을 그리는 실제 canvas의 RENDERER 문자열을 보고한다. 기본 헤드리스 채널의 소프트웨어 래스터 결과나 별도 빈 canvas의 하드웨어 probe는 건물 GPU 프레임의 증거가 아니다. 캡처가 빈 화면·에러 배너·건물을 가리는 overlay이면 결함이다. 수동 calibration 형상을 검사 모드에서 먼저 보고 축·scale·깊이를 확인하며, preserveDrawingBuffer와 렌더 완료 동기화 등 실제 캡처 경계는 source가 읽은 API로 구현한다.
+The user-specified path is a real 3D viewer using a perspective camera, WebGL depth, materials, lighting, and shadows. Labels off by default and the separation of the inspection mode follow 00-production.md#operator-access. GPU review uses the Playwright channel: "chromium" that the user's house authoring brief explicitly specifies in "Criteria for This Round", and reports the RENDERER string of the real canvas that draws the building. A software raster result from the default headless channel or a hardware probe on a separate blank canvas is not evidence of the building's GPU frame. A capture that is a blank screen, an error banner, or an overlay covering the building is a defect. Manual calibration shapes are viewed first in the inspection mode to confirm axes, scale, and depth, and the real capture boundary, such as preserveDrawingBuffer and render-completion synchronization, is implemented with the API the source read.
 
-## 리뷰 프레임 조건 {#frame-condition}
+## Review Frame Conditions {#frame-condition}
 <!--
-@evidence principles/core/common.md#scope-preservation 외부·지붕·실내의 비교 조건과 보충 view를 정하면서 절개 조감이 온전한 외피 질문을 대체하지 못하게 한다.
-@evidence principles/core/common.md#substantive-completion canvas 크기·DPR·눈높이·FOV·near 및 최종 pose 기록을 정해 리뷰 거리를 재현 가능한 조건으로 만든다.
-@evidence principles/core/common.md#declared-basis 1536×1024와 DPR 1, 외부 45°·실내 60°는 제작 선택이며 02는 사용자 지정 절개 검사 역할을 따른다.
-@evidence principles/core/settings.md#fact-status 시점 수치는 초기 채택 조건이고 실제 경계에 따라 옮긴 최종 pose는 후속 관찰에서 기록할 결과다.
-@evidence principles/core/settings.md#source-support 카메라 값에 사진의 촬영정보라는 권위를 붙이지 않고 제공 장면의 비교를 위한 자체 조건으로 명시한다.
-@evidence principles/core/settings.md#capability-boundary 실내가 좁다고 극단적 광각이나 orthographic으로 통행 문제를 감출 수 없고 세부 view 추가도 원래 질문을 없애지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 외부는 집·포치·차도 접점을 담는 거리, 실내는 자기 경계 안의 1.6 m 높이를 출발점으로 하며 조정 이유를 남긴다.
-@evidence principles/core/settings.md#observable-identity 정면 약간 오른쪽 사람 눈높이의 외관과 방 안의 원근 화면이 작은 부재와 공간 용도를 판단할 공통 거리 기준이다.
-@evidence obligations/core/settings.md#delivery-review-condition 1536×1024·DPR 1과 외부 눈높이 1.6 m·FOV 45°, 실내 높이 1.6 m·FOV 60°·near 0.05 m를 비교 조건으로 택하고 실제 경계에 맞춘 최종 pose 기록과 원래 질문을 보존하는 보충 view를 요구한다.
+@evidence principles/core/common.md#scope-preservation Sets the comparison conditions and supplementary views for the exterior, roof, and interior, while keeping the cutaway bird's-eye view from replacing the intact-envelope questions.
+@evidence principles/core/common.md#substantive-completion Sets canvas size, DPR, eye height, FOV, near, and final pose recording, making the review distance a reproducible condition.
+@evidence principles/core/common.md#declared-basis 1536×1024 with DPR 1 and exterior 45° and interior 60° are production choices, and 02 follows its user-specified cutaway inspection role.
+@evidence principles/core/settings.md#fact-status The viewpoint values are initial adopted conditions, and the final pose moved according to real boundaries is a result to record in later observation.
+@evidence principles/core/settings.md#source-support Attaches no authority of photographic capture metadata to the camera values and states them as the production's own conditions for comparing the provided scenes.
+@evidence principles/core/settings.md#capability-boundary A passage problem cannot be hidden with an extreme wide angle or orthographic view because an interior is narrow, and adding a detail view does not remove the original question.
+@evidence principles/core/settings.md#constraint-sufficiency The exterior starts from a distance that frames the house, porch, and driveway contact, and the interior from a 1.6 m height inside its own boundary, and the reason for any adjustment is recorded.
+@evidence principles/core/settings.md#observable-identity An exterior at human eye height slightly right of the front and a perspective screen inside the room are the common distance criterion for judging small members and space use.
+@evidence obligations/core/settings.md#delivery-review-condition Takes 1536×1024, DPR 1, an exterior eye height of 1.6 m with FOV 45°, and an interior height of 1.6 m with FOV 60° and near 0.05 m as comparison conditions, and requires recording the final pose fitted to real boundaries and supplementary views that preserve the original question.
 -->
 
-제작 선택으로 비교 프레임은 canvas 1536×1024, device pixel ratio 1, 색을 가리지 않는 중성 배경을 기본으로 한다. 외부 기본 view는 정면 약간 오른쪽에서 사람 눈높이 1.6 m, 수직 FOV 45°로 집과 포치·차도·대지 접점이 화면 안에 들어오는 거리에서 촬영한다. 높이 있는 roof view는 독립 외부 관찰로 추가한다. 실내 threshold·모서리·중심 view는 완성 바닥 위 1.6 m, 수직 FOV 60°, near 0.05 m를 초기 선택으로 삼되 실제 경계에 따라 시점을 안쪽으로 옮긴 근거와 최종 pose를 기록한다. 극단적 광각이나 orthographic 실내가 방의 통행 문제를 감추지 않게 한다. 세부가 안 읽히면 가까운 보충 view를 더하고 원래 질문은 남긴다. 02는 절개 검사로만 비교하며 외피를 켠 01·03·04·05 전달용 view를 대체하지 않는다. 검사 모드의 부재 단독 보기는 실제 payload의 part id를 지정해 다른 mesh를 숨기는 추가 관찰이다. 지정한 mesh의 위치·법선·UV·재료와 전역 조명은 그대로 쓰고, 숨긴 부재의 목록과 part id를 캡처 기록에 남긴다. 이것은 가려진 지붕 아래 면의 형상·법선·재료를 확인하며, 온전한 집 안의 자기 공간 관찰이나 다른 부재와의 접합/충돌 판정을 대신하지 않는다.
+As a production choice, the comparison frame defaults to a 1536×1024 canvas, device pixel ratio 1, and a neutral background that does not hide color. The default exterior view is taken from slightly right of the front at a human eye height of 1.6 m with a vertical FOV of 45°, at a distance where the house, porch, driveway, and site contact fall inside the frame. A raised roof view is added as an independent exterior observation. Interior threshold, corner, and center views take 1.6 m above the finished floor, vertical FOV 60°, and near 0.05 m as the initial choice, and record the reason and final pose when the viewpoint is moved inward according to real boundaries. An extreme wide angle or orthographic interior must not hide a room's passage problems. If a detail does not read, a closer supplementary view is added and the original question remains. 02 is compared only as a cutaway inspection and does not replace the envelope-on delivery views 01, 03, 04, and 05. The single-member view of the inspection mode is an additional observation that names part ids of the real payload and hides the other meshes. It uses the named meshes' positions, normals, UVs, materials, and the global lighting as they are, and records the list and part ids of the hidden members in the capture record. It confirms the shape, normals, and materials of faces hidden under the roof, and does not replace observation of its own space inside the intact house or the judgment of joints/collisions with other members.
 
-## 관찰 배분 {#observation-allocation}
+## Observation Allocation {#observation-allocation}
 <!--
-@evidence principles/core/common.md#scope-preservation 전체 topology 파생 질문에 다섯 참조 질문을 더해 일부 대표 장면만으로 완료 분모를 줄이지 않는다.
-@evidence principles/core/common.md#substantive-completion spaces의 정체성, source의 id·pose·binding 파생, viewer의 위치 실현을 나누어 관찰 생성의 책임을 확정한다.
-@evidence principles/core/common.md#declared-basis 전체 관찰 의무는 observation-denominator의 compiled-denominator를 원문으로 삼고 레퍼런스별 추가 질문을 이곳에서 배분한다.
-@evidence principles/core/settings.md#fact-status 현재 topology가 없으므로 관찰 수와 수행 완료를 미확정으로 두며 이후 컴파일 산출물만 그 값을 정할 수 있다.
-@evidence principles/core/settings.md#source-support 01–05의 제공 장면을 추가 질문의 직접 입력으로 쓰며 사진이 전체 방 목록을 증명한다고 취급하지 않는다.
-@evidence principles/core/settings.md#capability-boundary viewer는 파생된 위치와 방향을 실현하고 방 안 질문이 다른 방이나 벽을 향하면 그대로 올바르다고 받아들일 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency storey·방·노출 경계·지붕·개구부를 먼저 정체화해야 파생 질문을 만들 수 있으며 settings 상수로 수를 선점하지 않는다.
-@evidence principles/core/settings.md#observable-identity 01의 온전한 외관부터 05의 문·침실·욕실·계단참까지 생활 관계가 관찰되게 해 장면마다 다른 건물로 보이는 일을 검사한다.
-@evidence contracts/observation-denominator.md#compiled-denominator spaces가 노출 경계·방·지붕·개구부를 정체화하고 source가 컴파일된 질문·pose·binding을 파생하며 viewer가 이를 실현하도록 배분한다. 다섯 장면의 질문은 그 집합에 더하며 아직 관찰 수나 실행 완료를 주장하지 않는다.
+@evidence principles/core/common.md#scope-preservation Adds the five reference questions to the questions derived from the whole topology, so the completion denominator is not reduced to a few representative scenes.
+@evidence principles/core/common.md#substantive-completion Divides the identity of spaces, the derivation of ids, poses, and bindings in source, and the position realization of the viewer, fixing the responsibility for producing observations.
+@evidence principles/core/common.md#declared-basis Takes compiled-denominator of observation-denominator as the source text of the complete observation duty and allocates the per-reference additional questions here.
+@evidence principles/core/settings.md#fact-status With no topology yet, the observation count and completion of execution are left undetermined, and only later compiled output can set those values.
+@evidence principles/core/settings.md#source-support Uses the provided scenes 01–05 as direct input for additional questions and does not treat the photographs as proving the complete room list.
+@evidence principles/core/settings.md#capability-boundary The viewer realizes the derived positions and directions, and cannot accept an in-room question as correct when it faces another room or a wall.
+@evidence principles/core/settings.md#constraint-sufficiency Derived questions can be made after storeys, rooms, exposed boundaries, roof, and openings are identified, and settings constants do not claim the count in advance.
+@evidence principles/core/settings.md#observable-identity Has the household relations observed from the intact exterior of 01 to the doors, bedrooms, bathrooms, and landing of 05, inspecting whether the building looks different in each scene.
+@evidence contracts/observation-denominator.md#compiled-denominator Allocates so that spaces identifies exposed boundaries, rooms, roof, and openings, source derives the compiled questions, poses, and bindings, and the viewer realizes them. The questions of the five scenes are added to that set, and no observation count or completion of execution is claimed yet.
 -->
 
-settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.md#compiled-denominator다. spaces가 storey·방·실제 노출 경계·지붕·개구부의 정체성과 연결을 만들고 matching source가 그 컴파일 산출물에서 질문·id·pose·binding을 파생한다. viewer는 그 위치와 보는 방향을 그대로 실현하고 방 안 질문이 다른 방이나 벽을 보는지 확인한다. 레퍼런스 01은 온전한 외관, 02는 두 층의 분리 검사, 03은 연속 공용부, 04는 현관/거실/단일 계단 관계, 05는 복도/문/침실/욕실과 계단참을 추가로 묻는다. 아직 topology가 없는 settings에서는 관찰 수를 상수로 정하거나 수행 완료로 기록하지 않는다.
+The source text of the complete observation duty of settings is ../contracts/observation-denominator.md#compiled-denominator. Spaces makes the identity and connections of storeys, rooms, real exposed boundaries, roof, and openings, and the matching source derives questions, ids, poses, and bindings from that compiled output. The viewer realizes those positions and view directions as they are and confirms whether an in-room question looks at another room or a wall. Reference 01 additionally asks about the intact exterior, 02 the separated inspection of the two storeys, 03 the continuous common area, 04 the entry/living room/single stair relation, and 05 the hall/doors/bedrooms/bathrooms and landing. In settings, which has no topology yet, the observation count is not set as a constant or recorded as complete.
 
-## 측정과 프레임의 책임 {#data-authority}
+## Responsibility of Measurement and Frames {#data-authority}
 <!--
-@evidence principles/core/common.md#scope-preservation 수치·연결·점유·시점 포함 검사와 프레임 읽힘을 모두 맡겨 문 이름 연결만으로 실체를 추정하지 않는다.
-@evidence principles/core/common.md#substantive-completion 컴파일 값과 프레임의 질문을 나누고 revision·camera·raster·runtime을 묶어 어떤 결과를 현재 증거로 읽을지 확정한다.
-@evidence principles/core/common.md#declared-basis 수·id·위치·치수의 출처와 unverified 처리는 사용자 지시이며 실제 경계 검사를 별도로 요구하는 것이 이 항목의 적용이다.
-@evidence principles/core/settings.md#fact-status 계측기가 없거나 실패한 항목은 unverified이고 수작업 추정과 소스 상수는 측정 결과의 지위를 갖지 않는다.
-@evidence principles/core/settings.md#source-support 기술 결과는 현재 컴파일 산출물과 실제 프레임으로 지지해야 하며 유사 명령이나 오래된 캡처에 권위를 빌리지 않는다.
-@evidence principles/core/settings.md#capability-boundary 프레임은 리뷰 거리의 읽힘을 답할 수 있지만 방 이름 두 개만으로 실제 문과 장애물 없는 경로를 증명할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 입력 revision과 camera·raster·runtime 및 검사 모드가 결합되지 않은 stale frame을 새 결과로 쓰지 못하게 한다.
-@evidence principles/core/settings.md#observable-identity 각 부재가 자기 자신으로, 방이 자기 용도로 읽히는 질문을 수치 검사와 분리해 시각 정체성의 독립 판단을 보존한다.
+@evidence principles/core/common.md#scope-preservation Assigns numbers, connections, occupancy, viewpoint containment checks, and frame readability, so substance is not inferred from door-name connections alone.
+@evidence principles/core/common.md#substantive-completion Divides compiled values from frame questions and binds revision, camera, raster, and runtime, fixing which result is read as current evidence.
+@evidence principles/core/common.md#declared-basis The source of counts·ids·positions·dimensions and their unverified handling are a user instruction, and requiring a separate real boundary check is this item's application.
+@evidence principles/core/settings.md#fact-status An item without a measuring tool or whose tool failed is unverified, and manual estimates and source constants do not have the status of measurement results.
+@evidence principles/core/settings.md#source-support Technical results must be supported by the current compiled output and real frames, and borrow no authority from similar commands or old captures.
+@evidence principles/core/settings.md#capability-boundary Frames can answer readability at review distance but cannot prove a real door and an obstacle-free route from two room names.
+@evidence principles/core/settings.md#constraint-sufficiency Prevents a stale frame not bound to the input revision, camera, raster, runtime, and inspection mode from being used as a new result.
+@evidence principles/core/settings.md#observable-identity Separates the question of whether each member reads as itself and each room as its use from numeric checks, preserving the independent judgment of visual identity.
 -->
 
-사용자 지시에 따라 수·id·위치·binding·치수는 컴파일된 산출물에서 읽는다. 문 두 개가 같은 방 이름을 연결한다는 정보로 실제 뚫린 문이나 장애물 없는 경로를 추정하지 않는다. 실제 경계·문턱·개구부·층판·가구 점유에 대한 검사와 실내 시점의 포함 여부를 별도로 답한다. 프레임의 질문은 리뷰 거리에서 그 부재가 자기 자신으로, 방이 그 방으로 읽히는가다. 계측 도구가 실패하거나 아직 없으면 해당 항목은 unverified이며 비슷한 명령·수작업 추정·소스 상수를 결과처럼 대체하지 않는다. 관찰은 revision·입력·실제 camera·raster·runtime·검사 모드 여부와 결합하고 stale frame을 새 결과로 쓰지 않는다.
+Per user instruction, counts, ids, positions, bindings, and dimensions are read from the compiled output. A real open door or obstacle-free route is not inferred from the information that two doors connect the same room names. Checks on real boundaries, thresholds, openings, floor plates, and furniture occupancy, and whether interior viewpoints are contained, are answered separately. The question of a frame is whether, at review distance, the member reads as itself and the room as that room. If a measuring tool fails or does not exist yet, the item is unverified, and similar commands, manual estimates, or source constants are not substituted as if they were results. Observations are bound to the revision, input, real camera, raster, runtime, and inspection-mode status, and a stale frame is not used as a new result.
 
-## 표면 분해 인계 {#surface-allocation}
+## Surface Decomposition Handoff {#surface-allocation}
 <!--
-@evidence principles/core/common.md#scope-preservation 입면·방 내부·층 바닥과 천장·계단 구멍의 소유와 파일 분해를 맡겨 완결 표면이 여러 소유자에게 찢어지지 않게 한다.
-@evidence principles/core/common.md#substantive-completion spaces에서 경계를 선언하고 models·instances·materials가 같은 binding을 이어받는 인계 규칙을 완성한다.
-@evidence principles/core/common.md#declared-basis surface-ownership의 whole-surface-owner를 적용하고 한 저작자여도 분해를 생략하지 않는 사용자 요구를 따른다.
-@evidence principles/core/settings.md#fact-status 여기서는 의무를 채택했을 뿐 실제 면 목록은 topology 이후에만 정할 수 있으므로 소유 선언 완료라고 하지 않는다.
-@evidence principles/core/settings.md#source-support 표면 분해는 사용자 제작 규칙에 근거하며 존재하지 않는 컴파일 면 id를 외부 사실처럼 제공하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 같은 완결 면에 여러 독립 기준을 적용하거나 외장 모듈을 무작위 레코드 복제로 덮는 제작 방식은 허용되지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 1단계 폐쇄 전에 owner와 파일 경계를 선언하고 모든 후속 부재·반복 모듈·마감이 동일 surface binding을 사용해야 한다.
-@evidence principles/core/settings.md#observable-identity 한 입면의 siding과 한 방의 마감이 경계에 맞게 연속해서 읽히도록 완결 표면을 시각적 소유 단위로 보존한다.
-@evidence contracts/surface-ownership.md#whole-surface-owner 1단계 폐쇄 전에 spaces가 입면·방 내부 완결 면·층 바닥과 천장·계단 구멍 및 접합의 owner와 파일 경계를 선언하고 models·instances·materials가 같은 surface binding을 이어받게 한다. 실제 면 목록의 완료는 topology를 기다린다.
+@evidence principles/core/common.md#scope-preservation Assigns the ownership and file decomposition of elevations, room interiors, storey floors and ceilings, and stair holes, so a complete surface is not torn among several owners.
+@evidence principles/core/common.md#substantive-completion Completes the handoff rule in which spaces declares the boundaries and models, instances, and materials inherit the same binding.
+@evidence principles/core/common.md#declared-basis Applying whole-surface-owner of surface-ownership without skipping decomposition even with one author is a user requirement.
+@evidence principles/core/settings.md#fact-status Here the duty is merely adopted, and the real face list can be set only after topology, so ownership declaration is not called complete.
+@evidence principles/core/settings.md#source-support The surface decomposition rests on the user production rule and does not supply nonexistent compiled face ids as if they were external facts.
+@evidence principles/core/settings.md#capability-boundary A production method that applies several independent references to the same complete face or covers exterior modules with random record copies is not allowed.
+@evidence principles/core/settings.md#constraint-sufficiency Owners and file boundaries are declared before stage-1 closure, and every later member, repeated module, and finish must use the same surface binding.
+@evidence principles/core/settings.md#observable-identity Preserves the complete surface as the visual unit of ownership, so the siding of one elevation and the finish of one room read continuously to their boundaries.
+@evidence contracts/surface-ownership.md#whole-surface-owner Before stage-1 closure, spaces declares the owners and file boundaries of elevations, complete room-interior faces, storey floors and ceilings, stair holes, and junctions, and models, instances, and materials inherit the same surface binding. Completion of the real face list waits for topology.
 -->
 
-사용자 제작 규칙에 따라 ../contracts/surface-ownership.md#whole-surface-owner를 1단계 폐쇄의 필수 산출물로 적용한다. spaces는 외부 입면, 각 방 내부의 완결 면, 각 층 바닥·천장·계단 구멍과 접합의 owner 및 source 파일 경계를 처음부터 선언한다. models는 그 경계를 받아 두께 있는 부재를, instances는 측정값과 반복 법칙으로 외장 모듈을, materials는 동일 surface binding으로 마감을 구현한다. 같은 완결 표면의 무작위 레코드 복제나 여러 소유자의 독립 기준을 허용하지 않는다. 저작자 한 명이 구현해도 표면 소유와 파일 분해를 생략하지 않는다. 이번 settings는 이 인계 의무를 정하며 실제 면 목록은 1단계 topology 없이는 완료할 수 없다.
+By the user production rule, ../contracts/surface-ownership.md#whole-surface-owner is applied as a mandatory output of stage-1 closure. Spaces declares from the start the owners and source file boundaries of the exterior elevations, the complete faces inside each room, and each storey's floor, ceiling, stair hole, and junctions. Models receives those boundaries and implements members with thickness, instances implements exterior modules from measured values and repetition laws, and materials implements finishes with the same surface binding. Random record copies of the same complete surface and independent references from several owners are not allowed. Even if one author implements everything, surface ownership and file decomposition are not skipped. These settings set this handoff duty, and the real face list cannot be completed without stage-1 topology.
 
-## 실행과 모듈 경계 {#execution-boundary}
+## Execution and Module Boundary {#execution-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation CJS 엔진과 브라우저 viewer 사이의 해석·전송 경계를 맡아 viewer 구현을 위해 저장소 모듈 체계를 바꾸지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 서버에서 현재 source를 공개 API로 해석하고 산출물을 전달하는 방식을 택해 별도 집 생성이나 JSON 상태 파일을 배제한다.
-@evidence principles/core/common.md#declared-basis CommonJS 유지와 우회 금지는 사용자 결정이고 서버 측 해석은 그 경계를 지키기 위한 이 production의 선택이다.
-@evidence principles/core/settings.md#fact-status 서버 구조는 채택안이며 구체 entry·API·의존성의 사용 가능성은 설치본을 읽은 뒤 확정할 미검증 사항이고, 뷰어 실행기는 viewer-handoff가 조정자 지시로 이미 정한 사실로 따른다.
-@evidence principles/core/settings.md#source-support 엔진 경계는 사용자에게서 인계된 조건으로 쓰고 기억한 패키지 API나 ESM 설정을 지원 사실로 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 서버는 source와 다른 집을 만들 수 없고 directory re-export를 monkeypatch·hardcode·우회 설정으로 통과시킬 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 설치본의 공개 API가 이 경로를 지지하지 못하면 조정자에게 제한을 보고하며 repository 변경으로 해소하지 않는다.
-@evidence principles/core/settings.md#observable-identity 브라우저에 전달되는 것은 현재 집의 컴파일 산출물이어야 하므로 화면만 닮은 별개 모델이 시각 정체성을 대신할 수 없다.
+@evidence principles/core/common.md#scope-preservation Takes on the resolution and transfer boundary between the CJS engine and the browser viewer, so the repository module system is not changed for the viewer implementation.
+@evidence principles/core/common.md#substantive-completion Chooses the method of resolving the current source through the public API on the server and transferring the output, excluding separate house generation or JSON state files.
+@evidence principles/core/common.md#declared-basis Keeping CommonJS and banning workarounds is the user's decision, and server-side resolution is this production's choice for keeping that boundary.
+@evidence principles/core/settings.md#fact-status The server structure is the adopted plan, the availability of the concrete entry, API, and dependencies is unverified until the installed version is read, and the viewer launcher follows as a fact viewer-handoff already set by coordinator instruction.
+@evidence principles/core/settings.md#source-support Uses the engine boundary as a condition handed over from the user and does not claim a remembered package API or ESM setting as supported fact.
+@evidence principles/core/settings.md#capability-boundary The server cannot make a house different from the source and cannot pass a directory re-export with monkeypatching, hardcoding, or workaround settings.
+@evidence principles/core/settings.md#constraint-sufficiency If the public API of the installed version cannot support this path, the limitation is reported to the coordinator and not resolved by changing the repository.
+@evidence principles/core/settings.md#observable-identity What reaches the browser must be the compiled output of the current house, so a separate model that resembles only the screen cannot stand in for visual identity.
 -->
 
-사용자 지시로 @automovie/engine의 CommonJS 경계를 유지한다. 엔진을 ESM으로 바꾸거나 directory re-export를 monkeypatch·hardcode·우회 설정으로 통과시키지 않는다. viewer 구현의 선택은 서버 측 CJS에서 공개 엔진 API로 현재 source를 해석하고 그 산출물을 브라우저에 전달하는 구조다. 서버는 별도 집을 생성하지 않고 응답 데이터는 일시적인 전송값이며 추가 JSON 상태 파일을 남기지 않는다. 생성된 package.json의 기존 도구 설정 자체를 엔진 ESM 전환의 허가로 해석하지 않는다. 구체 entry·API·의존성은 설치본을 읽고 source 단계에서 결정한다. 뷰어 실행 스크립트의 실행기는 [viewer-handoff](#viewer-handoff)가 정하고 이 H2는 다시 정하지 않는다. 의존성의 선언과 설치 절차는 implementation-boundary에 따른다. renderer가 경계를 못 지키면 조정자에게 제한을 보고하고 저장소 코드를 바꾸지 않는다.
+By user instruction, the CommonJS boundary of @automovie/engine is kept. The engine is not changed to ESM, and a directory re-export is not passed with monkeypatching, hardcoding, or workaround settings. The viewer implementation's choice is a structure that resolves the current source through the public engine API in server-side CJS and transfers that output to the browser. The server generates no separate house, the response data is a transient transfer value, and no additional JSON state file is left. The existing tool settings of the generated package.json are not interpreted as permission to convert the engine to ESM. The concrete entry, API, and dependencies are decided at the source stage after reading the installed version. The launcher of the viewer run script is set by [viewer-handoff](#viewer-handoff), and this H2 does not set it again. The declaration and installation procedure of dependencies follows implementation-boundary. If the renderer cannot keep the boundary, the limitation is reported to the coordinator and the repository code is not changed.
 
-## 저작 순서 {#lifecycle-boundary}
+## Authoring Order {#lifecycle-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 매스·공간 그래프와 표면 분해부터 외피·모듈·fit-out·마감까지 거친 순서의 저작 범위를 보존한다.
-@evidence principles/core/common.md#substantive-completion 1단계의 storey 소속·실제 도달성 검사와 상태의 전진 및 오류 수리 방식을 정해 단계 폐쇄 조건을 사용할 수 있게 한다.
-@evidence principles/core/common.md#declared-basis 건물부터 마감하고 별도 사물은 두라는 최신 사용자 순서와 role-boundary의 저작자 자체 판정을 이어받으며 evidence 완료 지시를 현재 계약에 적용한다.
-@evidence principles/core/settings.md#fact-status 폐쇄 조건은 채택한 절차이지 공간과 문·계단이 이미 검증되었다는 완료 사실이 아니다.
-@evidence principles/core/settings.md#source-support 사용자가 준 제작 단계와 계약 상태를 근거로 하며 이전 세션의 문서 gate를 현재 시각 검증의 출처로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary 완료된 층을 되돌릴 수 없으며 이후 오류는 최초 소유 내용의 수정 이유와 영향받은 재검사로 처리한다.
-@evidence principles/core/settings.md#constraint-sufficiency 모든 공간의 storey 소속과 끊김 없는 실제 경로, 요구 원형과 현재 출력의 자체 판독이 없으면 건물 경계를 닫지 않는다. 촬영 완료나 lint 성공만으로 다음 상태를 선언하지 않는다.
-@evidence principles/core/settings.md#observable-identity 형태와 동선을 먼저 고정한 뒤 부재·반복 외장·실내·재료를 더하므로 마감으로 잘못된 집의 매스를 가리는 순서를 막는다.
+@evidence principles/core/common.md#scope-preservation Preserves the authoring scope across the order from mass, space graph, and surface decomposition to envelope, modules, fit-out, and finish.
+@evidence principles/core/common.md#substantive-completion Sets stage 1's storey membership and real reachability checks, state advancement, and the way errors are repaired, making the stage-closure conditions usable.
+@evidence principles/core/common.md#declared-basis Inherits the latest user order to finish the building first and leave separate objects, and the author's own judgment of role-boundary, and applies the evidence completion instruction to the current contract.
+@evidence principles/core/settings.md#fact-status The closure conditions are an adopted procedure, not a completion fact that spaces, doors, and the stair are already verified.
+@evidence principles/core/settings.md#source-support Rests on the production stages and contract states the user gave and does not use a previous session's document gate as the source of current visual verification.
+@evidence principles/core/settings.md#capability-boundary A completed layer cannot be reverted, and later errors are handled by correcting the earliest owned content with a reason and rechecking what is affected.
+@evidence principles/core/settings.md#constraint-sufficiency The building boundary is not closed without every space's storey membership, unbroken real routes, and the author's own reading of the required prototypes and current output. The next state is not declared from finished captures or lint success alone.
+@evidence principles/core/settings.md#observable-identity Form and circulation are fixed first and then members, repeated cladding, interiors, and materials are added, preventing an order in which finishes hide the mass of a wrong house.
 -->
 
-사용자의 제작 순서는 매스/공간 그래프와 표면 분해를 함께 닫고, 실제 외피 부재, 외피 반복 모듈, fit-out, 재료 읽힘과 정리로 전진하는 것이다. 1단계 폐쇄에는 모든 공간의 storey 소속과 모든 요구 공간에 실제 문·계단·복도로 끊김 없이 도달하는 검사가 포함된다. settings를 먼저 완성하고 role-boundary의 저작자 자체 렌더 판정으로 각 경계를 진행한다. 최신 사용자 지시대로 완료 층은 evidence에서 닫고 미완 사물이 포함된 source 전체 모집단은 draft로 보존한다. 이후 오류는 이유를 기록해 최초 소유 내용을 수정하고 영향받은 검사를 다시 수행한다. 건물 자체 완료 후 별도 사물은 시작하지 않고 원래 초안과 실패·관찰 기록을 보존해 제출한다.
+The user's production order is to close the mass/space graph and the surface decomposition together, then advance to real envelope members, envelope repetition modules, fit-out, and material readability and cleanup. Stage-1 closure includes a check that every space has storey membership and that every required space is reached without a break through real doors, stairs, and halls. Settings is completed first, and each boundary proceeds by the author's own render judgment under role-boundary. Per the latest user instruction, completed layers close at evidence, and the whole source population that includes unfinished objects is preserved as draft. Later errors are recorded with a reason, the earliest owned content is corrected, and the affected checks are rerun. After the building itself is complete, separate objects are not started, and the original drafts and failure and observation records are preserved and submitted.
 
-## 저작·계측·판정 권한 {#role-boundary}
+## Authoring, Measurement, and Judgment Authority {#role-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 저작자가 자기 소스·렌더 판정·수리를 모두 맡고 감독은 세션·원문 전달·관찰·Git 순서 조율을 맡는 사용자 지정 경계를 유지한다.
-@evidence principles/core/common.md#substantive-completion 관찰에 대한 측정 반박과 설치·서버·제출의 담당 owner를 명시해 각 주체가 할 수 있는 일을 확정한다.
-@evidence principles/core/common.md#declared-basis 모델러 스스로 렌더 샷을 보고 고치며 별도 판정 에이전트를 두지 말라는 최신 사용자 원문을 권한 근거로 삼는다.
-@evidence principles/core/settings.md#fact-status 관찰은 원인이나 승인으로 확정된 사실이 아니며 현재 산출물의 측정으로 재검토할 수 있는 주장이다.
-@evidence principles/core/settings.md#source-support 역할 권한은 사용자에게서 왔으며 관찰자의 과거 정확도에 대한 추정으로 현재 관찰을 채택하거나 폐기하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 본인 production만 쓰고 전체 렌더를 직접 판정하며 별도 reviewer를 만들지 않는다. 그래프 변경 충돌과 공유 Git index 순서는 감독에게 올린다.
-@evidence principles/core/settings.md#constraint-sufficiency 설치·기동·커밋은 각 경계 항목에 연결하고 자기 화면 판정·실제 검사·최종 전체 자체 검토가 마감되기 전에는 건물 완료를 선언하지 않는다.
-@evidence principles/core/settings.md#observable-identity 같은 집으로 읽힌다는 판정을 저작자의 소스 설명이 아니라 직접 표시된 원본 픽셀과 유한 관찰 집합에 결합한다.
+@evidence principles/core/common.md#scope-preservation Keeps the user-specified boundary in which the author takes on its own source, render judgment, and repair, and the supervisor takes on the session, delivery of source text, observation, and Git order coordination.
+@evidence principles/core/common.md#substantive-completion States measurement rebuttal of observations and the owners of installation, server, and submission, fixing what each subject can do.
+@evidence principles/core/common.md#declared-basis Takes as the basis of authority the latest user source text saying the modeler views and fixes render shots on its own and keeps no separate judging agent.
+@evidence principles/core/settings.md#fact-status An observation is a claim that can be re-examined by measuring the current output, not a fact settled as a cause or approval.
+@evidence principles/core/settings.md#source-support Role authority came from the user, and a current observation is neither adopted nor discarded on an estimate of the observer's past accuracy.
+@evidence principles/core/settings.md#capability-boundary The author writes only its own production, judges every render directly, and makes no separate reviewer. Graph-change conflicts and the order of the shared Git index are raised to the supervisor.
+@evidence principles/core/settings.md#constraint-sufficiency Installation, startup, and commits are linked to their boundary items, and building completion is not declared before the author's own screen judgment, real checks, and final complete self-review are finished.
+@evidence principles/core/settings.md#observable-identity Binds the judgment of reading as the same house to directly displayed original pixels and a finite observation set, not to the author's source explanation.
 -->
 
-최신 사용자 지시대로 저작자는 이 production의 소스·자기 fan-out·수리와 자체 렌더 판정을 소유한다. 별도 판정 에이전트를 두지 않는다. 감독은 세션 유지·사용자 원문 전달·관찰·기록·공유 Git index 순서 조율을 맡으며 저작이나 건물 완료 판정을 대신하지 않는다. 관찰은 원인이나 승인으로 받아들이지 않고 실제 현재 산출물과 대조한다. 그래프 변경이 필요한 충돌은 감독에게 올린다. 설치 권한은 implementation-boundary, 서버 기동은 viewer-handoff, 저작자의 커밋·푸시는 submission-boundary가 각각 소유한다. 이전의 독립 reviewer 지시는 작업 이력에 보존하고 이 최신 사용자 지시로 대체한다.
+Per the latest user instruction, the author owns this production's source, its own fan-out, repair, and its own render judgment. No separate judging agent is kept. The supervisor takes on session upkeep, delivery of the user's source text, observation, recording, and coordination of the shared Git index order, and does not replace authoring or the building completion judgment. Observations are not accepted as causes or approvals but checked against the real current output. Conflicts that need a graph change are raised to the supervisor. Installation authority is owned by implementation-boundary, server startup by viewer-handoff, and the author's commits and pushes by submission-boundary. The earlier independent reviewer instruction is preserved in the work history and replaced by this latest user instruction.
 
-## 편집과 의존성 경계 {#implementation-boundary}
+## Editing and Dependency Boundary {#implementation-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 허용 편집 범위, 루트 pnpm-lock.yaml의 단일 예외, 의존성 선언과 설치·lockfile 제출 절차를 맡아 이 production 저작이 저장소나 다른 저작물로 번지지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 의존성은 이 production의 package.json에 선언하고, 바꾼 turn에 루트에서 pnpm install을 실행해 갱신된 lockfile을 같은 커밋에 넣으며 lockfile은 손으로 편집하지 않는다고 정한다.
-@evidence principles/core/common.md#declared-basis production 안 편집 범위는 사용자 지시이고 루트 pnpm install과 lockfile 동시 커밋은 조정자의 g4 인계 지시이며 파일 위치는 README ownership과 연결한다.
-@evidence principles/core/settings.md#fact-status package.json에 선언한 의존성은 pnpm install을 실행해 lockfile이 바뀌기 전까지는 선언일 뿐이고 설치된 기능이 아니다.
-@evidence principles/core/settings.md#source-support 지원 기능은 설치본 확인으로 판단하며 패키지 이름을 아는 것만으로 사용 가능하다고 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary packages·.agents·다른 production·human face 코드와 lockfile 밖의 루트 파일은 편집할 수 없고 lockfile도 손으로 고치지 않고 pnpm install의 결과로만 바꾼다.
-@evidence principles/core/settings.md#constraint-sufficiency lockfile을 빠뜨린 커밋이 공유 브랜치의 설치를 깨뜨리는 조건을 적어 의존성 변경과 lockfile을 한 커밋에 묶고, 새 파일은 ownership을 먼저 읽게 한다.
-@evidence principles/core/settings.md#observable-identity 이 경계는 주택 외관을 추가로 정의하지 않으며 execution-boundary의 현재 source와 연결된 3D만 구현 대상으로 유지한다.
+@evidence principles/core/common.md#scope-preservation Takes on the allowed edit scope, the single exception of the root pnpm-lock.yaml, and the procedure of declaring dependencies, installing, and submitting the lockfile, so this production's authoring does not spread into the repository or other works.
+@evidence principles/core/common.md#substantive-completion Sets that dependencies are declared in this production's package.json, that in the turn that changes them pnpm install is run at the root and the updated lockfile goes into the same commit, and that the lockfile is not edited by hand.
+@evidence principles/core/common.md#declared-basis The edit scope inside the production is a user instruction; committing the root pnpm install together with the lockfile is the coordinator's g4 handoff instruction; and the file location links to README ownership.
+@evidence principles/core/settings.md#fact-status A dependency declared in package.json is just a declaration and not an installed feature until pnpm install is run and the lockfile changes.
+@evidence principles/core/settings.md#source-support Supported features are judged by checking the installed version, with no claim that knowing a package name makes it usable.
+@evidence principles/core/settings.md#capability-boundary packages, .agents, other productions, human face code, and root files other than the lockfile cannot be edited, and the lockfile is not fixed by hand and changes only as the result of pnpm install.
+@evidence principles/core/settings.md#constraint-sufficiency States the condition that a commit missing the lockfile breaks installation on the shared branch, binding a dependency change and the lockfile into one commit, and has ownership read first for a new file.
+@evidence principles/core/settings.md#observable-identity This boundary defines no further house exterior and keeps only the 3D connected to the current source of execution-boundary as the implementation target.
 -->
 
-사용자가 허용한 편집 범위는 이 production의 저작 파일이다. packages, .agents, 다른 production, 저장소 루트 파일 및 human face 코드는 편집하지 않는다. 예외는 하나다. 조정자의 인계 지시에 따라 의존성을 바꾼 turn에는 저장소 루트에서 `pnpm install`을 실행하고 그 결과로 바뀐 `pnpm-lock.yaml`을 같은 커밋에 넣는다. lockfile을 빠뜨린 커밋은 공유 브랜치의 설치와 CI를 깨뜨리기 때문이다. lockfile은 손으로 편집하지 않고 설치가 만든 결과만 제출한다. 파일을 추가하기 전에 README의 ownership을 따른다. 필요한 의존성은 이 production의 package.json에 선언한다. 엔진과 뷰어의 모듈 경계는 execution-boundary에 따르며 설치된 기능의 부재를 저장소 수정이나 우회 설정으로 보충하지 않는다.
+The edit scope the user allowed is this production's authored files. packages, .agents, other productions, repository root files, and human face code are not edited. There is one exception. Per the coordinator's handoff instruction, in a turn that changes dependencies, `pnpm install` is run at the repository root and the `pnpm-lock.yaml` it changes goes into the same commit. This is because a commit missing the lockfile breaks installation and CI on the shared branch. The lockfile is not edited by hand, and the result the installation produced is what is submitted. Before adding a file, the README ownership is followed. Needed dependencies are declared in this production's package.json. The module boundary of the engine and viewer follows execution-boundary, and the absence of an installed feature is not made up for with repository modification or workaround settings.
 
-## 정규 검증 명령 {#validation-boundary}
+## Canonical Verification Command {#validation-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation README 소유의 정확한 npm run lint와 명령·종료 코드 보고를 맡아 대체 검증으로 완료를 선언하지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 실행 장소와 금지된 플래그·직접 binary·우회 설정을 정해 정규 결과와 미실행을 구별할 수 있다.
-@evidence principles/core/common.md#declared-basis 검증 명령의 선택은 사용자 명시 지시이고 측정 부재의 처리는 data-authority의 책임을 따른다.
-@evidence principles/core/settings.md#fact-status 명령을 실행하지 않았거나 종료 결과를 받지 못했다면 통과도 실패도 확정하지 않는 상태로 남긴다.
-@evidence principles/core/settings.md#source-support 검증 주장은 실제 npm run lint 실행과 반환된 종료 코드에만 근거하며 비슷한 도구의 결과를 빌리지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 지정 명령을 실행할 수 있지만 옵션 추가나 다른 binary로 검증 의미를 바꿀 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency production 디렉터리에서 그대로 실행하고 실제 명령·종료 코드를 함께 기록해야 검증 보고가 성립한다.
-@evidence principles/core/settings.md#observable-identity lint는 시각 정체성의 판정 표면을 갖지 않으므로 프레임 읽힘의 책임은 data-authority에 그대로 남겨 둔다.
+@evidence principles/core/common.md#scope-preservation Takes on the exact README-owned npm run lint and reporting of the command and exit code, so completion is not declared by substitute verification.
+@evidence principles/core/common.md#substantive-completion Sets the place of execution and the forbidden flags, direct binaries, and workaround settings, making it possible to distinguish a canonical result from no run.
+@evidence principles/core/common.md#declared-basis The choice of the verification command is the user's explicit instruction, and the handling of missing measurement follows the responsibility of data-authority.
+@evidence principles/core/settings.md#fact-status If the command was not run or its exit result was not received, the state stays as neither pass nor fail.
+@evidence principles/core/settings.md#source-support A verification claim rests only on a real npm run lint run and the returned exit code and does not borrow the result of a similar tool.
+@evidence principles/core/settings.md#capability-boundary The author can run the specified command but cannot change the meaning of verification by adding options or using another binary.
+@evidence principles/core/settings.md#constraint-sufficiency A verification report holds when the command is run as is in the production directory and the real command and exit code are recorded together.
+@evidence principles/core/settings.md#observable-identity lint has no judgment surface for visual identity, so the responsibility for frame readability stays with data-authority.
 -->
 
-사용자가 지정한 정규 evidence 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다. 별도의 npm run check는 settings 문서 review 행의 어휘 대조·모델 계정과 결합·접촉·기하·테스트를 끝까지 실행하고 lint도 함께 호출해 확인된 실패 수와 종료 코드를 합친다. check는 lint의 판정 의미를 대체하지 않는다. 정규 lint에 추가 플래그, binary 직접 호출과 우회 설정을 사용하지 않는다. 보고에는 실제 실행한 두 명령과 각 종료 코드를 함께 적고, 실행되지 않은 명령이나 결과를 수령하지 못한 명령을 통과 또는 실패로 꾸미지 않는다. 측정 수단의 부재와 프레임의 책임은 data-authority에 따른다.
+The canonical evidence verification command the user specified is npm run lint, exactly as the README owns it, in this production directory. The separate npm run check runs to the end the lexical comparison of settings document review rows, model accounts and bindings, contacts, geometry, and tests, also calls lint, and sums the confirmed failure count and exit codes. check does not replace the judgment meaning of lint. No extra flag, direct binary call, or workaround setting is used for the canonical lint. The report records both commands actually run with each exit code, and a command that was not run or whose result was not received is not dressed up as pass or fail. The absence of a measurement means and the responsibility of frames follow data-authority.
 
-## 커밋과 푸시 {#submission-boundary}
+## Commit and Push {#submission-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 이 production 경로와 의존성 변경 turn의 pnpm-lock.yaml만의 staging·commit·push와 오류 보고를 맡아 공유 checkout에서 남의 변경을 제출 범위에 넣지 않는다.
-@evidence principles/core/common.md#substantive-completion 명시 경로 add, 의존성 변경 turn의 lockfile add, commit과 지정 브랜치 push, non-fast-forward 거부의 처리까지 제출 절차를 완성한다.
-@evidence principles/core/common.md#declared-basis 저작자 직접 제출과 pull --rebase 금지는 사용자의 최신 정정에 따른 것으로 이전 제출 지시를 대체한다.
-@evidence principles/core/settings.md#fact-status 공유 checkout은 조정자가 인계한 실행 조건이며 push 성공과 커밋 해시는 실행 후에만 보고할 결과다.
-@evidence principles/core/settings.md#source-support 제출 방식은 현재 사용자 명령으로 지지하며 네트워크 상태나 원격 동기화를 실행 없이 성공했다고 추정하지 않는다.
-@evidence principles/core/settings.md#capability-boundary production 경로와 lockfile 밖의 다른 경로 staging·타인 변경 stash·master·force-push·히스토리 재작성이 금지되고 non-fast-forward를 우회할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 최소 turn 끝과 단계 폐쇄 때 명시 경로를 제출하며 파생 파일 정리 및 해시·push 종료 코드 보고를 요구한다.
-@evidence principles/core/settings.md#observable-identity 제출은 현재 주택 소스의 재현 가능한 경계를 보존하는 행위이며 커밋이나 push 성공을 화면의 완성으로 취급하지 않는다.
+@evidence principles/core/common.md#scope-preservation Takes on staging, commit, and push of this production path, plus pnpm-lock.yaml in a dependency-change turn, and error reporting, so others' changes in the shared checkout do not enter the submission scope.
+@evidence principles/core/common.md#substantive-completion Completes the submission procedure with explicit-path add, lockfile add in a dependency-change turn, commit, push to the specified branch, and handling of a non-fast-forward rejection.
+@evidence principles/core/common.md#declared-basis Direct submission by the author and the ban on pull --rebase follow the user's latest correction, replacing the earlier submission instruction.
+@evidence principles/core/settings.md#fact-status The shared checkout is an execution condition the coordinator handed over, and push success and the commit hash are results to report only after running.
+@evidence principles/core/settings.md#source-support The submission method is supported by the current user command, and network state or remote synchronization is not assumed successful without running.
+@evidence principles/core/settings.md#capability-boundary Staging other paths outside the production path and lockfile, stashing others' changes, master, force-push, and history rewriting are forbidden, and a non-fast-forward cannot be bypassed.
+@evidence principles/core/settings.md#constraint-sufficiency Submits explicit paths at least at the end of each turn and at stage closure, and requires cleanup of derived files and a report of the hash and push exit code.
+@evidence principles/core/settings.md#observable-identity Submission is an act that preserves the reproducible boundary of the current house source, and commit or push success is not treated as completion of the screen.
 -->
 
-사용자의 현재 지시에 따라 저작자가 최소 매 turn 끝과 단계 폐쇄/뷰어 구현 때 커밋·푸시한다. 파생 산출물·캐시·임시 파일을 정리하고 저장소 루트에서 git add experimental/modern-suburban-house, git commit -m "feat(experimental): <변경 요약>", git push origin benchmark/1951-1953-harness 순서로 제출한다. [implementation-boundary](#implementation-boundary)에 따라 의존성을 바꿔 pnpm-lock.yaml이 갱신된 turn에는 git add pnpm-lock.yaml을 명시 경로로 더해 같은 커밋에 넣는다. 조정자와 저작자들이 같은 checkout·로컬 브랜치를 공유하므로 git pull --rebase는 실행하지 않는다. 다른 저작자의 경로를 스테이지하거나 미커밋 변경을 stash하지 않고 다른 저작자의 커밋도 수정하지 않는다. git add -A, master 접촉, force-push와 히스토리 재작성은 금지한다. .wiki는 gitignore된 작업 이력이므로 커밋하지 않는다. 매 turn 보고에 커밋 해시와 git push 종료 코드를 남긴다. push가 non-fast-forward로 거부되거나 Git·네트워크 오류가 발생하면 정확한 오류와 종료 코드를 보고하고 우회하지 않는다.
+Per the user's current instruction, the author commits and pushes at least at the end of every turn and at stage closure/viewer implementation. Derived outputs, caches, and temporary files are cleaned up, and the submission runs from the repository root in the order git add experimental/modern-suburban-house, git commit -m "feat(experimental): <change summary>", git push origin benchmark/1951-1953-harness. Per [implementation-boundary](#implementation-boundary), in a turn where a dependency change updated pnpm-lock.yaml, git add pnpm-lock.yaml is added as an explicit path into the same commit. Because the coordinator and authors share the same checkout and local branch, git pull --rebase is not run. Other authors' paths are not staged, uncommitted changes are not stashed, and other authors' commits are not modified. git add -A, touching master, force-push, and history rewriting are forbidden. .wiki is gitignored work history and is not committed. Each turn's report records the commit hash and the git push exit code. If a push is rejected as non-fast-forward or a Git or network error occurs, the exact error and exit code are reported and not bypassed.
 
-## 뷰어 실행 인계 {#viewer-handoff}
+## Viewer Run Handoff {#viewer-handoff}
 <!--
-@evidence principles/core/common.md#scope-preservation 뷰어 구현 뒤 보고할 실행 명령·디렉터리·포트·경로, `--port`와 기본 4173, lint와 분리된 실행기, 저작자의 짧은 기동 확인과 조정자의 상시 기동을 함께 맡는다.
-@evidence principles/core/common.md#substantive-completion 포트는 `--port` 인자와 기본 4173, 실행은 evidence lint와 분리한 `tsx`, 저작자는 HTTP 200·콘솔 오류 없음 확인 뒤 종료, 상시 기동은 조정자로 정해 인계 상태를 확정한다.
-@evidence principles/core/common.md#declared-basis 4173·`--port`·`tsx` 분리·짧은 기동 확인은 조정자의 g4 인계 지시, 상시 기동의 분업은 사용자 지시, 실제 3D 요구는 renderer-boundary에서 이어받는다고 나눈다.
-@evidence principles/core/settings.md#fact-status 4173과 `--port`는 조정자가 배정한 운영 사실이고 새 viewer가 없는 동안 시작 경로는 미확정이며 이전 viewer의 주소를 현재 사실로 보고하지 않는다.
-@evidence principles/core/settings.md#source-support 포트와 실행기의 근거는 조정자 인계 지시이고 보고할 실행 정보는 구현된 현재 viewer의 명령에서 나와야 하며 다른 세션의 경로를 재사용하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 구현 turn에서 서버를 잠깐 띄워 확인하고 종료할 수 있으나 상시 유지는 조정자 몫이며 이 분업이 3D 요구를 낮추지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 시작 명령·cwd·포트·URL 경로 네 정보, 인자가 없을 때의 4173, 확인 기준 두 가지가 갖춰져야 조정자가 현재 소스의 viewer를 열 수 있다.
-@evidence principles/core/settings.md#observable-identity 인계된 화면은 renderer-boundary의 실제 3D 집이어야 하며 HTTP 200만으로 빈 canvas나 옛 viewer를 새 외관의 관찰 대상으로 인정하지 않는다.
+@evidence principles/core/common.md#scope-preservation Takes on together the run command, directory, port, and path to report after implementing the viewer, `--port` with the default 4173, a launcher separate from lint, the author's short startup check, and the coordinator's continuous running.
+@evidence principles/core/common.md#substantive-completion Fixes the handoff state by setting the port to the `--port` argument with default 4173, the run to `tsx` separate from evidence lint, the author to shut down after confirming HTTP 200 and no console errors, and continuous running to the coordinator.
+@evidence principles/core/common.md#declared-basis Divides it so that 4173, `--port`, the `tsx` separation, and the short startup check come from the coordinator's g4 handoff instruction; the division of labor for continuous running is a user instruction; and the real 3D requirement is inherited from renderer-boundary.
+@evidence principles/core/settings.md#fact-status 4173 and `--port` are operating facts the coordinator assigned, the start path is undetermined while there is no new viewer, and the address of an earlier viewer is not reported as a current fact.
+@evidence principles/core/settings.md#source-support The basis of the port and launcher is a coordinator handoff instruction; the run information to report must come from the command of the current implemented viewer, and another session's path is not reused.
+@evidence principles/core/settings.md#capability-boundary The author may start the server briefly in an implementation turn to check it and shut it down, while continuous upkeep belongs to the coordinator, and this division of labor does not lower the 3D requirement.
+@evidence principles/core/settings.md#constraint-sufficiency The four pieces of information, start command, cwd, port, and URL path, the 4173 used without an argument, and the two check criteria must be in place for the coordinator to open the viewer of the current source.
+@evidence principles/core/settings.md#observable-identity The handed-over screen must be the real 3D house of renderer-boundary, and HTTP 200 alone does not admit a blank canvas or an old viewer as the observation subject of the new exterior.
 -->
 
-사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다. 뷰어 서버는 `--port` 인자로 포트를 받고 인자가 없으면 조정자가 배정한 4173을 쓴다. 실행 스크립트는 조정자 지시대로 `tsx`로 돌려 evidence 그래프 lint와 분리한다. lint가 실패한 동안에도 서버 기동이 막히지 않게 하기 위한 분리이며 lint를 건너뛰는 검증 경로가 아니다. 조정자 인계에 따라 저작자는 구현 turn에서 서버를 잠깐 띄워 HTTP 200과 브라우저 콘솔 오류 없음을 확인한 뒤 종료한다. 사용자 지시에 따라 상시 기동과 유지는 조정자가 맡는다. 이 인계는 renderer-boundary가 요구하는 실제 3D 결과와 현재 소스 연결을 약화하지 않으며, HTTP 200은 화면의 합격이 아니다. viewer 미구현 상태에서는 이전 뷰어의 명령이나 주소를 새 실행 경로로 보고하지 않는다.
+Per the instructions of the user and the coordinator, once the viewer is implemented, the start command, run directory, port, and path to open are reported. The viewer server takes its port from the `--port` argument and, without one, uses 4173 that the coordinator assigned. Per coordinator instruction, the run script runs under `tsx`, separate from the evidence graph lint. The separation keeps server startup from being blocked while lint fails, and it is not a verification path that skips lint. Per the coordinator handoff, the author starts the server briefly in the implementation turn, confirms HTTP 200 and no browser console errors, and then shuts it down. Per user instruction, continuous running and upkeep are taken on by the coordinator. This handoff does not weaken the real 3D result and the current source connection that renderer-boundary requires, and HTTP 200 is not a pass of the screen. While the viewer is not implemented, the command or address of an earlier viewer is not reported as the new run path.
 
-## 완료와 기록 {#completion-boundary}
+## Completion and Records {#completion-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 저작자와 관찰자의 목록, 다섯 추가 질문과 현재 GPU 프레임을 최종 판정 범위로 유지한다.
-@evidence principles/core/common.md#substantive-completion 미수령·실패·폐기·악화·unverified의 기록과 현재 revision 결합을 정해 무엇을 완료라고 부를지 확정한다.
-@evidence principles/core/common.md#declared-basis 양쪽 목록은 observation-denominator의 dual-completion을 따르며 사용자 최신 지시대로 모델러 스스로 화면을 판정·수리하고 성공·실패를 같은 비중으로 기록한다.
-@evidence principles/core/settings.md#fact-status 관찰자 목록이 없으면 미수령이며 lint 통과는 현재 선언 검증일 뿐 시각 품질 승인이라는 사실로 바뀌지 않는다.
-@evidence principles/core/settings.md#source-support 현재 저작물과 산출물만 판정 근거이고 이전 fingerprint나 stale frame을 새 완료의 출처로 사용할 수 없다.
-@evidence principles/core/settings.md#capability-boundary 한쪽 목록이 비어도 종료할 수 없으며 지원되지 않거나 표현하지 못한 항목을 성공 기록 뒤로 숨길 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 매 round 미완료를 보고하고 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임을 저작자가 직접 판정하며 전체 자체 검토의 두 clean round와 실제 검사·소유 프로세스 종료를 마감한다.
-@evidence principles/core/settings.md#observable-identity 각 부재와 방이 읽히는지의 실제 프레임을 최종 판정에 넣어 문서와 topology만 맞는 상자 집을 완성으로 부르지 않게 한다.
-@evidence contracts/observation-denominator.md#dual-completion 저작자와 관찰자 양쪽 미완료 모집단을 보존하고 모델러 자신의 화면 판정·수리를 요구한다. 목록 미수령·unverified를 빈 목록으로 바꾸지 않으며 lint와 과거 fingerprint를 현재 GPU 프레임 판정의 대리로 쓰지 않는다.
+@evidence principles/core/common.md#scope-preservation Keeps the author's and the observer's lists, the five additional questions, and the current GPU frames as the scope of final judgment.
+@evidence principles/core/common.md#substantive-completion Sets the recording of not-received, failed, discarded, worsened, and unverified items and the binding to the current revision, fixing what is called complete.
+@evidence principles/core/common.md#declared-basis Both lists follow dual-completion of observation-denominator, and per the user's latest instruction the modeler judges and repairs the screen on its own and records successes and failures with equal weight.
+@evidence principles/core/settings.md#fact-status Without the observer's list it is not received, and a lint pass is verification of the current declaration and does not turn into the fact of visual quality approval.
+@evidence principles/core/settings.md#source-support The current authored work and output are the only basis of judgment, and an earlier fingerprint or stale frame cannot be used as the source of a new completion.
+@evidence principles/core/settings.md#capability-boundary Work cannot end even if one list is empty, and unsupported or inexpressible items cannot be hidden behind success records.
+@evidence principles/core/settings.md#constraint-sufficiency Reports incompletions every round, has the author judge every real observation, the five additional questions, and the current GPU frames directly, and finishes with two clean rounds of complete self-review, real checks, and termination of owned processes.
+@evidence principles/core/settings.md#observable-identity Puts the real frames of whether each member and room reads into the final judgment, so a box house that matches only documents and topology is not called complete.
+@evidence contracts/observation-denominator.md#dual-completion Preserves both the author's and the observer's incompletion populations and requires the modeler's own screen judgment and repair. A not-received list or unverified items are not turned into an empty list, and lint and past fingerprints are not used as a proxy for judging the current GPU frames.
 -->
 
-../contracts/observation-denominator.md#dual-completion의 양쪽 목록을 보존한다. 사용자 최신 지시대로 모델러 스스로 실제 렌더 샷을 보며 판정하고 수리하며 별도 판정 에이전트는 두지 않는다. 저작자는 매 round 자기 미완료를 보고하고 관찰자의 목록이 없으면 미수령으로 기록한다. 시도와 폐기, 악화, 오류와 우회, 표현 불가, unverified는 성공과 같은 비중으로 해당 저작 owner의 관찰 및 작업 이력에 남긴다. 판정은 현재 저작 내용과 산출물에 결합하며 이전 상태의 fingerprint를 재사용하지 않는다. lint 통과는 현재 선언의 검증이고 시각 품질 승인이 아니다. 최종 승인 전 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임을 모델러가 직접 판정해야 한다.
+Both lists of ../contracts/observation-denominator.md#dual-completion are preserved. Per the user's latest instruction, the modeler judges and repairs while viewing real render shots on its own, and no separate judging agent is kept. The author reports its own incompletions every round and records the observer's list as not received when it is absent. Attempts and discards, worsening, errors and workarounds, inexpressibility, and unverified items are left in the observation and work history of the relevant authoring owner with the same weight as successes. Judgment is bound to the current authored content and output, and an earlier state's fingerprint is not reused. A lint pass is verification of the current declaration, not visual quality approval. Before final approval, the modeler must directly judge every real observation, the five additional questions, and the current GPU frames.

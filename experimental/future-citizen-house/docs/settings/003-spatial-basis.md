@@ -1,145 +1,145 @@
-# 공간 기준
+# Spatial basis
 
-## 좌표와 전체 치수 {#coordinate-datum}
-
-<!--
-@evidence principles/core/common.md#declared-basis Y-up·m·전면 -Z·우측 +X는 이 제작의 좌표 선택이고 11×12m 두 층과 약 250㎡는 사용자 목표다.
-@evidence principles/core/common.md#scope-preservation 좌표·시간 관례를 한곳에 두고 정확한 방 치수는 spaces의 매스와 층 owner를 소비하게 한다.
-@evidence principles/core/common.md#substantive-completion 바닥 y=0과 정지 library의 시간축 부재, UI 조작 초 단위를 정해 공유 기준을 닫는다.
-@evidence principles/core/settings.md#fact-status gross와 유효 면적을 혼용하지 않고 reference pixel이나 제작 치수를 실물 측량으로 읽지 않는다.
-@evidence principles/core/settings.md#source-support 축과 단위는 선언한 제작 관례이며 실제 건물 측량이나 법규·구조 인증의 외부 출처를 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 뷰어 조작 시간은 초를 사용하지만 건물 상태를 자동으로 진행하는 시간축은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 정확한 매스·층선·벽·방 경계는 링크한 설계 owner만 수정한다. 건축 source는 구현됐고 이전 독립 판정의 계측·GPU 관찰 이력이 있으나 현재 수정 트리의 전체 관찰은 별도로 검증한다.
-@evidence principles/core/settings.md#observable-identity 세계의 앞·뒤·우측과 1층 기준 바닥이 고정돼 서로 다른 관찰자가 집을 반대로 재구성하지 않는다.
--->
-
-**상태: v-112 독립 판정에서 settings·spaces·spaceSources의 review 자격이 재확인됐다.** 세계 단위는 m이며 오른손 Y-up 좌표다. +X는 평면 기준 우측, +Z는 후면, 전면은 -Z이며 1층 바닥은 y=0을 기준으로 한다. 정지 library이며 납품 시간축과 fps는 없다. 뷰어의 조작 시간은 초를 쓰되 건물의 상태를 자동 진행시키지 않는다. 약 11×12m 두 층과 약 250㎡라는 목표를 따른다. gross와 유효 면적을 혼용하지 않으며 reference pixel로 치수를 역산하지 않는다.
-
-전면 바깥(-Z)에서 +Z를 보는 +Y-up 카메라의 화면 오른쪽은 -X다. 평면 우측과 관찰자 화면 우측을 같은 말로 쓰지 않는다. 외피의 “우측 불투명 코어”와 입면 좌우 이름은 reference 전면 관찰 화면을 기준으로 하며, 따라서 코어는 -X 쪽이다.
-
-정확한 매스·층선·벽 두께·방 경계는 [공간 설계의 매스와 층](../spaces/002-spatial-graph.md#mass-and-storeys)이 소유한다. 각 수치는 제작 결정이며 실제 건축물의 측량이나 법규·구조 인증이 아니다. 현재 건축 source가 이 치수를 구현했고 이전 독립 판정의 계측 이력이 있다. 이 문장은 수정 트리의 전체 치수·시각 검증을 대신하지 않는다.
-
-## 1층 공간 그래프 {#ground-graph}
+## Coordinates and overall dimensions {#coordinate-datum}
 
 <!--
-@evidence principles/core/common.md#declared-basis 현관 직결 계단·작업실·공용부와 우측 불투명 코어는 사용자 고정 공간 그래프다.
-@evidence principles/core/common.md#scope-preservation 현관에서 세 기능으로 직접 연결되는 관계와 모든 room의 storey 귀속을 보존한다.
-@evidence principles/core/common.md#substantive-completion 분할·문은 ground-partition, 층간 route·바닥 구멍은 single-stair가 소유하도록 설계 소비 경계를 지정한다.
-@evidence principles/core/settings.md#fact-status from/to 이름이나 바닥 선은 통행의 관찰 결과가 아니며 실제 벽 구멍·참·바닥이 필요하다고 구분한다.
-@evidence principles/core/settings.md#source-support 고정 연결은 브리프의 직접 조건이고 실제 통행 안전이나 허가된 평면이라는 외부 인증을 붙이지 않는다.
-@evidence principles/core/settings.md#capability-boundary 현관이 통행을 연결해야 하며 논리 id만으로 벽을 통과하는 능력을 부여하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 무소유 접근 틈을 쓰지 않고 요구 room이 한 storey에 속한 실제 연결을 구현해야 한다.
-@evidence principles/core/settings.md#observable-identity 현관에서 전면 작업실과 뒤의 연속 living/dining/kitchen, 중앙 단일 계단이 읽히는 1층 관계를 고정한다.
+@evidence principles/core/common.md#declared-basis Y-up, metres, front -Z, and right +X are this production's coordinate choice, and two storeys of 11×12m and about 250㎡ are user targets.
+@evidence principles/core/common.md#scope-preservation Keeps the coordinate and time conventions in one place and has exact room dimensions consume the mass and storey owner of spaces.
+@evidence principles/core/common.md#substantive-completion Closes the shared basis by setting the floor y=0, the absence of a timeline in the static library, and seconds as the unit of UI operation.
+@evidence principles/core/settings.md#fact-status Does not mix gross and net area and does not read reference pixels or production dimensions as physical surveys.
+@evidence principles/core/settings.md#source-support The axes and units are a declared production convention and claim no external source of actual building survey or code or structural certification.
+@evidence principles/core/settings.md#capability-boundary Viewer operation time uses seconds, but no timeline that advances the building state automatically is delivered.
+@evidence principles/core/settings.md#constraint-sufficiency Only the linked design owner changes the exact mass, storey lines, walls, and room boundaries. The architectural source is implemented and has a history of measurement and GPU observation from earlier independent verdicts, but the full observation of the current revised tree is verified separately.
+@evidence principles/core/settings.md#observable-identity The world's front, rear, and right and the ground-floor reference floor are fixed, so different observers do not reconstruct the house mirrored.
 -->
 
-**권한: 사용자 직접 지시.** 현관은 단일 꺾임계단, 후면의 연속 거실·식당·주방, 전면 가변 작업실에 직접 연결된다. 욕실·수납·설비는 우측 불투명 코어에 모은다. 실제 벽과 문 구멍, 계단의 참과 바닥이 이 연결을 제공해야 하며 from/to 이름이나 바닥 위 선만으로 통행을 주장하지 않는다.
+**Status: the review eligibility of settings, spaces, and spaceSources was reconfirmed in the v-112 independent verdict.** The world unit is m in right-handed Y-up coordinates. +X is right in plan, +Z is the rear, the front is -Z, and the ground floor is at y=0. This is a static library with no delivered timeline or fps. Viewer operation time uses seconds but does not advance the building's state automatically. It follows the targets of two storeys of about 11×12m and about 250㎡. Gross and net area are not mixed, and dimensions are not back-computed from reference pixels.
 
-[1층 분할](../spaces/002-spatial-graph.md#ground-partition)이 구획과 문 위치를, [단일 계단](../spaces/002-spatial-graph.md#single-stair)이 층간 route와 필수 slab opening을 소유한다. required room은 하나의 storey에 속하며 무소유 접근 틈을 사용하지 않는다.
+For a +Y-up camera outside the front (-Z) looking toward +Z, screen right is -X. Plan right and the observer's screen right are not called by the same word. The envelope's "right opaque core" and the left/right names of the elevations are based on the reference front observation screen, so the core is on the -X side.
 
-## 2층 공간 그래프 {#upper-graph}
+The exact mass, storey lines, wall thicknesses, and room boundaries are owned by [mass and storeys of the space design](../spaces/002-spatial-graph.md#mass-and-storeys). Each number is a production decision, not a survey of an actual building or code or structural certification. The current architectural source implements these dimensions and has a measurement history from earlier independent verdicts. This sentence does not replace the full dimensional and visual verification of the revised tree.
+
+## Ground-floor spatial graph {#ground-graph}
 
 <!--
-@evidence principles/core/common.md#declared-basis 짧은 일자 복도에서 요구 방에 직접 닿는 관계는 브리프이고 upper-service 채택은 확정한 생활 프로그램을 따른다.
-@evidence principles/core/common.md#scope-preservation 주침실·두 작은 침실·욕실·수납·설비실을 하나의 복도에 남기고 분기·단절을 금지한다.
-@evidence principles/core/common.md#substantive-completion 계단 구멍은 단일 계단의 일부로 허용하고 참조 세부가 고정 그래프와 충돌하면 coordinator에게 올리는 조건을 정한다.
-@evidence principles/core/settings.md#fact-status 필수 계단 구멍을 금지된 복층 거실 보이드와 동일하다고 해석한 이전 주장을 유지하지 않는다.
-@evidence principles/core/settings.md#source-support 상층 연결과 금지 구조는 사용자 계약에 근거하며 reference를 치수 도면이나 법적 허용의 근거로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary 계단과 그 난간은 층간 연결을 제공하되 두 번째 계단이나 별도 거실 보이드를 추가할 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 참조를 구현하려면 사용자 그래프를 바꿔야 하는 경우 해당 저작을 멈추고 coordinator 결정으로만 바꾼다.
-@evidence principles/core/settings.md#observable-identity 계단참에서 시작하는 하나의 짧고 곧은 복도와 직접 면한 방문들이 상층 사적 구역의 형태다.
+@evidence principles/core/common.md#declared-basis The stair, workroom, and common area connected directly to the entry and the right opaque core are the user's fixed spatial graph.
+@evidence principles/core/common.md#scope-preservation Preserves the direct connections from the entry to the three functions and the storey membership of every room.
+@evidence principles/core/common.md#substantive-completion Designates the design consumption boundary so that ground-partition owns the division and doors and single-stair owns the inter-storey route and floor hole.
+@evidence principles/core/settings.md#fact-status Distinguishes that from/to names or lines on the floor are not observations of passage and that actual wall holes, landings, and floors are needed.
+@evidence principles/core/settings.md#source-support The fixed connections are direct conditions of the brief, and no external certification of actual passage safety or a permitted plan is attached.
+@evidence principles/core/settings.md#capability-boundary The entry must connect passage, and a logical id alone gives no ability to pass through walls.
+@evidence principles/core/settings.md#constraint-sufficiency Uses no unowned access gap and must implement actual connections in which each required room belongs to one storey.
+@evidence principles/core/settings.md#observable-identity Fixes the ground-floor relation in which the front workroom, the continuous living/dining/kitchen at the rear, and the central single stair read from the entry.
 -->
 
-**권한: 사용자 직접 지시.** 계단참에서 시작하는 짧은 일자 복도 하나가 주침실, 작은 침실 둘, 욕실과 수납에 실제 문으로 직접 연결된다. 설비·세탁실 upper-service도 같은 복도에서 직접 접근한다. 분기 복도, 두 번째 계단, 단절된 방, 별도 복층 거실 보이드는 만들지 않는다.
+**Authority: direct user instruction.** The entry connects directly to the single dog-leg stair, the continuous living, dining, and kitchen at the rear, and the front variable workroom. The bathroom, storage, and services are gathered in the right opaque core. Actual walls and door holes and the stair's landing and floors must provide these connections, and passage is not claimed from from/to names or lines on the floor alone.
 
-[2층 분할](../spaces/002-spatial-graph.md#upper-partition)이 방·복도·문 위치를 소유한다. 필수 계단 구멍과 그 난간은 허용된 단일 계단의 일부다. reference의 모든 세부를 동시에 구현하려면 이 사용자 그래프를 바꿔야 하는 경우에는 affected authorship을 멈추고 coordinator의 결정을 받는다.
+[Ground-floor partition](../spaces/002-spatial-graph.md#ground-partition) owns the division and door positions, and [single stair](../spaces/002-spatial-graph.md#single-stair) owns the inter-storey route and the required slab opening. A required room belongs to one storey and uses no unowned access gap.
 
-## 외피와 개구부 {#envelope-and-privacy}
+## Upper-floor spatial graph {#upper-graph}
 
 <!--
-@evidence principles/core/common.md#declared-basis 커튼월 위치와 opaque core는 브리프이고 목재문·계단 유리·평지붕·PV의 landmark 관계는 제공 이미지의 해석이다.
-@evidence principles/core/common.md#scope-preservation 전면 계단·후면 대부분·상층 전면의 유리, 우측 코어, 실제 창호 부재와 외부 차양을 외피 범위에 모두 남긴다.
-@evidence principles/core/common.md#substantive-completion 목재문과 계단 유리의 화면 관계, floor/transom·room/jamb 일치, 실물 frame·reveal·sill·하드웨어와 평지붕 캐노피를 결정한다.
-@evidence principles/core/settings.md#fact-status 좌표 +X와 전면 화면 좌우를 구분하고 박공·굴뚝은 reference에서 확인되지 않은 항목으로 추가하지 않는다.
-@evidence principles/core/settings.md#source-support 외피의 근거는 첨부 PNG의 관찰 관계이며 사진 픽셀에서 치수나 실제 구조 안전을 역산하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 이 H2는 고정 외피의 관계와 부재를 정하며 유리의 상태 능력을 새로 정의하지 않는다. 변할 tint·shade와 고정 층은 privacy-states가 소유한다.
-@evidence principles/core/settings.md#constraint-sufficiency 커튼월을 바닥선·방 경계에 맞추고 본채 cantilever를 만들지 않으며 정확한 반복 범위는 공간 설계의 입면 인터페이스에서 받는다.
-@evidence principles/core/settings.md#observable-identity 전면 원근 화면의 목재문-계단유리 관계, 어두운 frame·밝은 석재 계열 벽·얇은 PV 캐노피가 같은 집의 외형을 고정한다.
+@evidence principles/core/common.md#declared-basis Reaching the required rooms directly from a short straight corridor is from the brief, and adopting upper-service follows the confirmed living program.
+@evidence principles/core/common.md#scope-preservation Keeps the primary bedroom, two small bedrooms, bathroom, storage, and service room on one corridor and forbids branching and disconnection.
+@evidence principles/core/common.md#substantive-completion Allows the stair hole as part of the single stair and sets the condition of escalating to the coordinator when a reference detail conflicts with the fixed graph.
+@evidence principles/core/settings.md#fact-status Does not keep the earlier claim that interpreted the required stair hole as the same as the forbidden double-height living void.
+@evidence principles/core/settings.md#source-support The upper connections and forbidden structures rest on the user contract, and the references are not used as dimensioned drawings or a basis for legal permission.
+@evidence principles/core/settings.md#capability-boundary The stair and its railing provide the inter-storey connection but cannot add a second stair or a separate living void.
+@evidence principles/core/settings.md#constraint-sufficiency If implementing a reference would require changing the user graph, that authoring stops and changes only by a coordinator decision.
+@evidence principles/core/settings.md#observable-identity One short straight corridor starting at the stair landing, with room doors facing it directly, is the form of the upper private zone.
 -->
 
-**권한: 사용자 브리프와 다섯 reference의 형태 해석.** 전면 계단실, 후면 대부분, 상층 전면 일부가 curtainwall이고 우측 service core는 불투명하다. 전면 원근 관찰 화면에서 목재 출입문이 계단실 유리의 왼쪽에 읽히게 한다. 이것은 좌표 +X를 화면 오른쪽으로 간주하라는 뜻이 아니다. 작업실은 +X 쪽 전면에 두며 현관에서 직접 문으로 이어진다. reference의 우측 불투명 코어는 전면 화면 오른쪽인 -X 쪽을 뜻한다. floor/transom과 room/jamb 경계를 맞춘다. 실제 mullion·transom·head·sill·reveal·door leaf·frame·하드웨어가 리뷰 거리에서 읽혀야 한다. 경계의 치수와 반복 범위는 [입면 인터페이스](../spaces/002-spatial-graph.md#envelope-interface)를 소비한다.
+**Authority: direct user instruction.** One short straight corridor starting at the stair landing connects directly, through actual doors, to the primary bedroom, the two small bedrooms, the bathroom, and storage. The service and laundry room upper-service is also accessed directly from the same corridor. No branching corridor, second stair, disconnected room, or separate double-height living void is made.
 
-평지붕 위에 얇은 태양광 캐노피를 두고 그 지지와 연결을 보여 준다. 본채의 캔틸레버를 만들지 않는다. 밝은 석재 계열 불투명 면, 어두운 금속 frame, 연속된 목재 floor와 cabinetry가 공통 재료 언어다. 박공이나 굴뚝은 제공 reference의 관찰 결과가 아니므로 추가하지 않는다.
+[Upper-floor partition](../spaces/002-spatial-graph.md#upper-partition) owns the room, corridor, and door positions. The required stair hole and its railing are part of the allowed single stair. If implementing every detail of the references at once would require changing this user graph, the affected authorship stops and receives the coordinator's decision.
 
-유리의 초기값·상태별 tint/shade와 고정 반투명 층은 [프라이버시 상태](#privacy-states)가 소유한다.
-
-## 프라이버시 상태 {#privacy-states}
+## Envelope and openings {#envelope-and-privacy}
 
 <!--
-@evidence principles/core/common.md#declared-basis 많은 유리와 주거 프라이버시를 함께 해결하라는 브리프를 공간별 세 정지 광학 상태로 구체화한 제작 선택이다.
-@evidence principles/core/common.md#scope-preservation 공용·계단·작업실·침실·욕실의 프라이버시를 모두 남기며 tint 하나로 고정 반투명 층과 실제 shade를 대체하지 않는다.
-@evidence principles/core/common.md#substantive-completion 낮 초기값, 사적 상태의 60%/100% shade, 야간 shade의 100%와 고정 층·광원의 불변 조건을 정한다.
-@evidence principles/core/settings.md#fact-status 세 상태는 저작한 광학 표현이고 실제 밤 기상·전기변색·방범·에너지 성능의 입증이 아니다.
-@evidence principles/core/settings.md#source-support 상태별 shade 비율은 제작 입력이며 실물 전기변색 제품이나 시험 성적의 성능 수치를 인용한 것이 아니다.
-@evidence principles/core/settings.md#capability-boundary 유리 tint와 roller shade의 내려온 면적은 바뀌지만 욕실의 고정 반투명 층·외부 차양·비교 광원·노출은 바뀌지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 낮에도 작업실·침실의 하부 시선대와 욕실은 반투명이며 사적 상태의 공용부·계단만 shade 60%, 사적 방은100%로 구분한다.
-@evidence principles/core/settings.md#observable-identity 밝고 투명한 공용 유리, 사적 방의 반투명 하부, 실제 내려온 shade 면적과 고정 욕실 유리가 각 상태에서 구별돼야 한다.
+@evidence principles/core/common.md#declared-basis The curtain-wall positions and the opaque core are from the brief, and the landmark relations of the wooden door, stair glass, flat roof, and PV are an interpretation of the provided images.
+@evidence principles/core/common.md#scope-preservation Keeps in the envelope scope all of the glass of the front stair, most of the rear, and the upper front, the right core, the actual glazing members, and the exterior shading.
+@evidence principles/core/common.md#substantive-completion Decides the screen relation of the wooden door and the stair glass, the floor/transom and room/jamb alignment, the physical frames, reveals, sills, and hardware, and the flat-roof canopy.
+@evidence principles/core/settings.md#fact-status Distinguishes coordinate +X from the left and right of the front screen and does not add a gable or chimney, which are not confirmed in the references.
+@evidence principles/core/settings.md#source-support The basis of the envelope is the observed relations of the attached PNGs, and no dimensions or actual structural safety are back-computed from photo pixels.
+@evidence principles/core/settings.md#capability-boundary This H2 sets the relations and members of the fixed envelope and defines no new state capability of the glass. The changing tint and shade and the fixed layers are owned by privacy-states.
+@evidence principles/core/settings.md#constraint-sufficiency Aligns the curtain wall to the floor lines and room boundaries, makes no cantilever of the main house, and takes the exact repetition range from the elevation interface of the space design.
+@evidence principles/core/settings.md#observable-identity The wooden door and stair glass relation on the front perspective screen, the dark frames, the bright stone-family walls, and the thin PV canopy fix the appearance of the same house.
 -->
 
-**근거: 사용자 프라이버시 요구를 정지 광학 상태로 해석한 제작 선택이다.** 기본 상태는 낮이다. 후면 공용부와 전면 계단 유리는 밝고 투명하며 roller shade는 올려 둔다. 전면 작업실과 상층 침실의 하부 시선대는 반투명이고 위쪽 tint 유리는 그보다 밝게 보인다. 욕실은 모든 상태에서 전체 privacy glazing을 반투명으로 유지한다. 외부 차양은 세 상태 모두 같은 위치다.
+**Authority: the user brief and the shape interpretation of the five references.** The front stairwell, most of the rear, and part of the upper front are curtain wall, and the right service core is opaque. On the front perspective observation screen, the wooden entrance door reads to the left of the stairwell glass. This does not mean that coordinate +X should be taken as screen right. The workroom is at the front on the +X side and connects directly from the entry through a door. The references' right opaque core means the -X side, which is the right of the front screen. The floor/transom and room/jamb boundaries are aligned. The actual mullions, transoms, heads, sills, reveals, door leaves, frames, and hardware must read at review distance. The dimensions and repetition range of the boundaries consume the [elevation interface](../spaces/002-spatial-graph.md#envelope-interface).
 
-사적 상태에서는 공용부와 계단 유리를 어둡게 tint하고 shade를 창 clear height의 60%까지 내린다. 작업실·침실은 shade를 100% 내린다. 야간 shade 상태에서는 모든 거주 구역의 shade를 100% 내리고 문·계단실의 필요한 채광 영역도 투명한 실내 노출로 남기지 않는다. 욕실의 고정 반투명 층은 그대로다. 두 변경 상태를 비교할 때 기본 광원과 노출은 바꾸지 않으며 실제 밤을 재현했다고 주장하지 않는다.
+A thin solar canopy sits above the flat roof, showing its supports and connections. No cantilever of the main house is made. Bright stone-family opaque faces, dark metal frames, and continuous wood floors and cabinetry are the common material language. A gable or chimney is not an observation of the provided references and is not added.
 
-유리 tint, 고정 반투명 층, roller shade의 실제 내려온 면적은 서로 다른 속성이다. 모두를 투명도 한 값으로 대신하지 않는다. 재료의 정규화 광학 입력과 shade geometry는 이 상태 의미를 실현하는 설계가 소유한다. source는 각 façade의 room 소유에서 적용 대상을 읽고 상태를 일괄 적용한다. 실제 전기변색 장치·에너지·방범 성능은 unverified다.
+The initial values of the glass, the per-state tint and shade, and the fixed translucent layers are owned by [Privacy states](#privacy-states).
 
-## 표면 소유 선언 {#surface-decomposition}
+## Privacy states {#privacy-states}
 
 <!--
-@evidence principles/core/common.md#declared-basis 완결 시각 표면 하나를 한 저작자가 소유하라는 사용자 지시를 채택한다.
-@evidence principles/core/common.md#scope-preservation 네 전체 입면·지붕·층·계단·개별 방·대지를 독립 완결 표면으로 보존해 같은 면을 나눠 칠하지 않는다.
-@evidence principles/core/common.md#substantive-completion 이 H2가 구체 표면별 저작자와 source 모듈 배정을 소유하고 기존 한 source 파일의 이름만 바꾸는 완료를 거부한다.
-@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체·발광 메시와 건축·방 source의 임시 material 문자열을 최종 models·instances·systems·materials owner와 구분하며 상류 소유 경계는 v-112에서 독립 재판정을 통과했고 물체·재료의 후속 source 이관은 미완료다.
-@evidence principles/core/settings.md#source-support 표면별 소유는 사용자 저작 절차이며 자동으로 geometry 품질을 보장한다는 외부 성능 주장으로 쓰지 않는다.
-@evidence principles/core/settings.md#capability-boundary 표면 owner의 편집 권한은 제작 책임이며 건물 부재의 동작 능력이 아니다. 배정된 저작자는 유리·가구의 상태 제약을 해당 설정에서 받아야 한다.
-@evidence principles/core/settings.md#constraint-sufficiency 문자열 그룹만 선언한 채 분해 완료라고 하지 않고 실제 모듈 구현과 독립 판정을 요구한다.
-@evidence principles/core/settings.md#observable-identity 표면의 단독 저작자 배정은 작업 책임이고 새로운 입면이나 방의 감각 정체가 아니다. 네 입면·방의 실제 형태는 링크한 공간 설계와 이 파일의 외피 owner가 정한다.
+@evidence principles/core/common.md#declared-basis A production choice that makes the brief to resolve plenty of glass together with residential privacy concrete as three static optical states per space.
+@evidence principles/core/common.md#scope-preservation Keeps the privacy of the common area, stair, workroom, bedrooms, and bathroom and does not replace the fixed translucent layers and actual shades with a single tint.
+@evidence principles/core/common.md#substantive-completion Sets the daytime initial value, the 60%/100% shade of the private state, the 100% of the night shade, and the invariance conditions of the fixed layers and light sources.
+@evidence principles/core/settings.md#fact-status The three states are an authored optical representation, not proof of actual night weather, electrochromic, security, or energy performance.
+@evidence principles/core/settings.md#source-support The per-state shade ratios are production inputs, not performance figures cited from a real electrochromic product or test report.
+@evidence principles/core/settings.md#capability-boundary The glass tint and the lowered area of the roller shade change, but the bathroom's fixed translucent layer, the exterior shading, the comparison light, and the exposure do not.
+@evidence principles/core/settings.md#constraint-sufficiency Even by day the lower sightline band of the workroom and bedrooms and the bathroom are translucent, and in the private state only the common area and stair get 60% shade while the private rooms get 100%.
+@evidence principles/core/settings.md#observable-identity The bright transparent common glass, the translucent lower band of the private rooms, the actual lowered shade area, and the fixed bathroom glass must be distinguishable in each state.
 -->
 
-**권한: 사용자 직접 지시와 분기 계약.** 완결된 시각 표면의 단독 저작은 사용자 지시다. 물체 형상·표면 주소를 models, 배치를 instances, 발광 과정을 systems, finish 결합을 materials에 나누는 근거는 [분기 소유 표](../../.agents/skills/source-authoring/design-branches.md)와 v-097 F1 상류 수리 지시다. 아래 배정은 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 건축 owner와 구현 모듈을 정한다. 현행 source 보존은 GPU 관찰 경로를 유지하기 위한 임시 결정이다. 상류 소유 수정은 v-112 독립 재판정을 통과했고 물체·재료 source 이관은 아직 미완료다.
+**Basis: a production choice that interprets the user's privacy requirement as static optical states.** The default state is day. The rear common area and the front stair glass are bright and transparent, and the roller shades are raised. The lower sightline band of the front workroom and the upper bedrooms is translucent, and the tinted glass above it looks brighter. The bathroom keeps its whole privacy glazing translucent in every state. The exterior shading is in the same position in all three states.
 
-**상태: 기존 건축 표면 source와 평벽 부착 현관 선반 source는 구현됐고 물체 소유권·재료 결합 이관은 미완료다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현관의 우편·충전 기능은 벽을 파지 않은 선반으로 실현하며 건축 niche 구멍이나 lining은 없다. 현재 건축·방 source에 직접 적힌 material 문자열은 materialSources의 승인된 finish 결합이 아닌 임시 값이다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 완결 건축 표면 하나는 한 명에게 통째로 배정한다. 파일명이나 임시 메시 존재를 이관 완료로 세지 않는다.
+In the private state, the common area and stair glass are tinted dark and the shades are lowered to 60% of the window's clear height. The workroom and bedrooms lower their shades 100%. In the night shade state, the shades of every living zone are lowered 100%, and the needed daylight areas of the doors and stairwell are not left as transparent interior exposure either. The bathroom's fixed translucent layer stays as it is. When comparing the two changed states, the default light and exposure are not changed, and no claim is made of reproducing an actual night.
 
-입면은 전면·후면·좌측·우측을 각각 하나의 전체로 소유한다. 좌측·우측은 전면 관찰 화면 기준이며 좌측은 +X, 우측 서비스 코어는 -X다. front stair/flex처럼 같은 입면을 분할하지 않는다. 각 방의 바닥·천장을 제외한 내측 벽의 최종 노출 면은 room owner가 만들고 두 child room이나 세 core room을 하나로 합치지 않는다. 현관 충전 선반은 건축 구멍 없는 벽걸이 물체다. 벤치·선반·책상·의자·침대·수납장·주방 및 위생 기구·실내 화분과 식물·소품·등기구의 재사용 가능한 형상과 안정된 노출 part/face 주소는 models가 맡는다. prototype의 방별 membership·transform·반복과 가변 상태별 물체 배치는 instances가, 광원의 발광·조도·상태 과정은 systems가 맡는다. 건축 면과 물체 면의 안정 주소는 각각 spaces와 models가 노출하고, finish 결합과 재료 응답은 materials가 그 주소에 대해 결정한다. 면 생성 owner는 결정된 finish id를 운반하되 결합을 다시 고르지 않는다. 내부 구조 벽 몸체와 접합부는 topology 입력을 소비하는 층 owner가, 외벽 몸체와 외부 모서리는 해당 입면 owner가 만든다. 입면 외측/room 내측은 서로 다른 실제 면이다. 연속 바닥과 실내 천장의 최종 노출 면 geometry는 해당 storey owner가 소유하고 materials의 finish 결합을 운반한다. room owner는 그 면을 생성하거나 결합을 결정하지 않는다. roof owner의 하부는 실외 처마 부분만 노출되며 실내 천장의 최종 노출 면은 upper owner다. 구조 slab의 몸체 하부는 실내 ceiling finish 뒤의 숨은 구조면이며 시각 마감으로 중복 생성하지 않는다. 동일한 면을 두 번 생성하지 않는다.
+The glass tint, the fixed translucent layer, and the actual lowered area of the roller shade are different properties. None of them is replaced by a single transparency value. The normalized optical inputs of the materials and the shade geometry are owned by the design that realizes this state meaning. The source reads the targets from each façade's room ownership and applies the state in bulk. The actual electrochromic device, energy, and security performance are unverified.
 
-| 완결 표면 | 단독 저작자 | 구현 source 배정 | 포함 범위 |
+## Surface ownership declaration {#surface-decomposition}
+
+<!--
+@evidence principles/core/common.md#declared-basis Adopts the user instruction that one author owns one complete visual surface.
+@evidence principles/core/common.md#scope-preservation Preserves the four whole elevations, roof, storeys, stair, individual rooms, and site as independent complete surfaces so that the same face is not painted in parts.
+@evidence principles/core/common.md#substantive-completion This H2 owns the assignment of authors and source modules per concrete surface and rejects a completion that only renames one existing source file.
+@evidence principles/core/settings.md#fact-status This assignment distinguishes the temporary object and emissive meshes of the existing room sources and the temporary material strings of the architectural and room sources from the final models, instances, systems, and materials owners; the upstream ownership boundary passed an independent re-verdict at v-112, and the later source handover of objects and materials is incomplete.
+@evidence principles/core/settings.md#source-support Per-surface ownership is a user authoring procedure and is not used as an external performance claim that geometry quality is automatically guaranteed.
+@evidence principles/core/settings.md#capability-boundary A surface owner's edit authority is a production responsibility, not an operating capability of building members. The assigned author must take the state constraints of the glass and furniture from the corresponding settings.
+@evidence principles/core/settings.md#constraint-sufficiency Does not call the decomposition complete with only string groups declared and requires actual module implementation and an independent verdict.
+@evidence principles/core/settings.md#observable-identity Assigning a surface to a sole author is a work responsibility, not a new sensory identity of an elevation or room. The actual forms of the four elevations and the rooms are set by the linked space design and the envelope owner of this file.
+-->
+
+**Authority: direct user instruction and the branch contract.** Sole authorship of a complete visual surface is a user instruction. The basis for dividing object shape and surface addresses to models, placement to instances, the emission process to systems, and finish binding to materials is the [branch ownership table](../../.agents/skills/source-authoring/design-branches.md) and the v-097 F1 upstream repair instruction. The assignment below sets the sole architectural owner and implementation module of the four whole elevations, roof/canopy, the two storeys, the single stair, the individual rooms, and the site. Preserving the current source is a temporary decision to keep the GPU observation path. The upstream ownership revision passed the v-112 independent re-verdict, and the object and material source handover is still incomplete.
+
+**Status: the existing architectural surface source and the flat-wall entry shelf source are implemented, and the object ownership and material binding handover are incomplete.** This consumes the [stage 1 graph](../spaces/002-spatial-graph.md). The entry's mail and charging function is realized by a shelf that does not cut into the wall, with no architectural niche hole or lining. The material strings written directly in the current architectural and room sources are temporary values, not finish bindings approved by materialSources. The current author is one main author, and the independent reviewer has no write authority. Even with a future fan-out, one complete architectural surface is assigned whole to one person. A filename or the existence of a temporary mesh is not counted as a completed handover.
+
+Each elevation, front, rear, left, and right, is owned as one whole. Left and right are based on the front observation screen; left is +X and the right service core is -X. The same elevation is not split, as in a front stair/flex split. The final exposed faces of each room's inner walls, excluding floor and ceiling, are made by the room owner, and two child rooms or three core rooms are not merged into one. The entry charging shelf is a wall-mounted object without an architectural hole. The reusable shapes and stable exposed part/face addresses of benches, shelves, desks, chairs, beds, storage cabinets, kitchen and sanitary fixtures, indoor planters and plants, props, and luminaires are handled by models. The per-room membership, transforms, and repetition of prototypes and the per-variable-state object placement are handled by instances, and the emission, illuminance, and state process of light sources by systems. The stable addresses of architectural faces and object faces are exposed by spaces and models respectively, and materials decides the finish binding and material response for those addresses. A face-generating owner carries the decided finish id but does not choose the binding again. The interior structural wall bodies and junctions are made by the storey owner consuming the topology input, and the exterior wall bodies and outer corners by the corresponding elevation owner. The elevation exterior and the room interior are different actual faces. The final exposed face geometry of the continuous floors and interior ceilings is owned by the corresponding storey owner, which carries the finish binding of materials. The room owner neither generates those faces nor decides their binding. Only the exterior eave part of the roof owner's underside is exposed, and the final exposed face of the interior ceiling belongs to the upper owner. The underside of the structural slab body is a hidden structural face behind the interior ceiling finish and is not generated again as a visual finish. The same face is not generated twice.
+
+| Complete surface | Sole author | Assigned implementation source | Scope |
 | --- | --- | --- | --- |
-| 전면 전체 | main author | src/house/envelope/front.ts | 두 층 창호·현관문 외측·계단 유리·spandrel·jamb·shade |
-| 후면 전체 | main author | src/house/envelope/rear.ts | 공용부·주침실 유리·bath closure·모든 frame과 shade |
-| 좌측 전체 | main author | src/house/envelope/left.ts | 불투명 return·설계된 opening·이음·roof 접합 |
-| 우측 전체 | main author | src/house/envelope/right.ts | service wall·privacy opening·panel joint |
-| 지붕·캐노피의 상하 전체 | main author | src/house/envelope/roof.ts | roof 구조·상면·실외에 노출된 처마 하부·edge·지지·PV·반복 slat |
-| 1층 구조와 연속 바닥/천장 | main author | src/house/storeys/ground.ts | datum·벽체 몸체·공유 opening void·floor/ceiling 경계 |
-| 2층 구조와 연속 바닥/천장 | main author | src/house/storeys/upper.ts | slab과 계단 구멍·벽체 몸체·opening void·층선 |
-| 한 개의 꺾임계단 | main author | src/house/circulation/stair.ts | 두 flight·참·tread·riser·stringer·guard·handrail·slab-hole 입력 |
-| 현관 | main author | src/house/rooms/entry.ts | 내측 벽면·문 내측; 충전 선반은 건축 niche가 아닌 별도 물체 |
-| 가변 작업실 | main author | src/house/rooms/flex.ts | 내측 벽면·미닫이문 내측 |
-| 연속 공용부 | main author | src/house/rooms/common.ts | 하나의 living/dining/kitchen 방 경계와 내측 벽면 |
-| 1층 powder/utility | main author | src/house/rooms/powder.ts | 방 내측 벽면 |
-| 1층 수납 | main author | src/house/rooms/storage-ground.ts | 방 내측 벽면 |
-| 주침실 | main author | src/house/rooms/primary.ts | 방 내측 벽면 |
-| 작은 침실 1 | main author | src/house/rooms/child-one.ts | L자 방 전체 내측 벽면 |
-| 작은 침실 2 | main author | src/house/rooms/child-two.ts | 방 전체 내측 벽면 |
-| 상층 복도 | main author | src/house/rooms/corridor.ts | 일자 통로의 내측 벽면·방문 내측 경계 |
-| 상층 욕실 | main author | src/house/rooms/bathroom.ts | 방 내측 벽면 |
-| 상층 수납 | main author | src/house/rooms/storage-upper.ts | 방 내측 벽면 |
-| 상층 설비 | main author | src/house/rooms/service-upper.ts | 점검 영역의 건축적 경계와 내측 벽면 |
-| 대지·조경 전체 | main author | src/house/site/garden.ts | 지면·보도·현관 외부 계단·식재·접지 |
+| Whole front | main author | src/house/envelope/front.ts | two-storey glazing, exterior of the entrance door, stair glass, spandrel, jamb, shade |
+| Whole rear | main author | src/house/envelope/rear.ts | common area and primary bedroom glass, bath closure, all frames and shades |
+| Whole left | main author | src/house/envelope/left.ts | opaque return, designed openings, joints, roof junction |
+| Whole right | main author | src/house/envelope/right.ts | service wall, privacy opening, panel joints |
+| Whole roof and canopy, top and underside | main author | src/house/envelope/roof.ts | roof structure, top face, exterior-exposed eave underside, edge, supports, PV, repeated slats |
+| Ground-floor structure and continuous floor/ceiling | main author | src/house/storeys/ground.ts | datum, wall bodies, shared opening voids, floor/ceiling boundary |
+| Upper-floor structure and continuous floor/ceiling | main author | src/house/storeys/upper.ts | slab and stair hole, wall bodies, opening voids, storey line |
+| One dog-leg stair | main author | src/house/circulation/stair.ts | two flights, landing, treads, risers, stringers, guard, handrail, slab-hole input |
+| Entry | main author | src/house/rooms/entry.ts | inner wall faces, door interior; the charging shelf is a separate object, not an architectural niche |
+| Variable workroom | main author | src/house/rooms/flex.ts | inner wall faces, sliding door interior |
+| Continuous common area | main author | src/house/rooms/common.ts | one living/dining/kitchen room boundary and inner wall faces |
+| Ground-floor powder/utility | main author | src/house/rooms/powder.ts | room inner wall faces |
+| Ground-floor storage | main author | src/house/rooms/storage-ground.ts | room inner wall faces |
+| Primary bedroom | main author | src/house/rooms/primary.ts | room inner wall faces |
+| Small bedroom 1 | main author | src/house/rooms/child-one.ts | inner wall faces of the whole L-shaped room |
+| Small bedroom 2 | main author | src/house/rooms/child-two.ts | inner wall faces of the whole room |
+| Upper corridor | main author | src/house/rooms/corridor.ts | inner wall faces of the straight passage, inner boundary of the room doors |
+| Upper bathroom | main author | src/house/rooms/bathroom.ts | room inner wall faces |
+| Upper storage | main author | src/house/rooms/storage-upper.ts | room inner wall faces |
+| Upper services | main author | src/house/rooms/service-upper.ts | architectural boundary of the inspection area and inner wall faces |
+| Whole site and landscape | main author | src/house/site/garden.ts | ground, paths, exterior entry steps, planting, grounding |
 
-공유 portal owner는 문 구멍의 위치·clear 치수·host wall·from/to 공간·상태를 한 번만 선언한다. 입면과 방이 같은 문짝 geometry를 각각 복제하지 않는다. 주체 생성 owner는 문짝 양면의 안정 주소와 seam을 소유하고 materials가 그 주소에 대한 양면 finish 결합을 결정한다. 상대 owner는 자기 면의 요구를 입력으로 넘긴다. seam 변경은 이웃 표면의 재검증을 일으키며 소유권을 분할하지 않는다.
+The shared portal owner declares the door hole's position, clear dimensions, host wall, from/to spaces, and state only once. The elevation and the room do not each duplicate the same door leaf geometry. The subject's generating owner owns the stable addresses and seam of both faces of the door leaf, and materials decides the two-sided finish binding for those addresses. The other owner passes the requirements of its own face as input. A seam change triggers reverification of the neighbouring surface and does not split ownership.
 
-**이관 중 상태와 퇴역 책임.** 현재 `src/house/rooms/*.ts`는 `src/house/rooms/interior.ts`의 물체 함수와 `lights()`뿐 아니라 `common.ts`의 `dining-pendant`, `primary.ts`의 두 `primary-lamp`처럼 직접 만든 발광 메시도 사용한다. 모두 이전 구현의 임시 소비 경로다. 현재 관찰 집합을 유지하기 위해 `instanceSources`와 `systemSources`가 모두 독립 판정으로 `review`에 이를 때까지 그 메시를 남기고 이 경로에 새 물체 형상이나 part 주소를 저작하지 않는다. main author가 `modelSources`에서 prototype과 표면 주소, `instanceSources`에서 방별 배치와 반복, `systemSources`에서 발광 과정과 element를 구현·판정받는다. 두 후속 source가 review에 도달한 직후 main author는 **단일 커밋의 한 트리**에서 방 source의 물체·발광 호출과 `interior.ts`의 중복 함수를 제거하고 중립 조립 경로로 교체한다. 퇴역 전 모든 기존 물체 element ID마다 후속 instance ID와 model part/face ID를, 모든 기존 emissive element ID마다 후속 instance ID와 model luminaire part/face ID **및** system emitter ID를 대응표의 한 행에 함께 연결한다. 발광 element가 `lights()`에서 왔는지 직접 primitive에서 왔는지는 이 전수 조건을 바꾸지 않는다. 하나의 후속 주소를 두 퇴역 element의 대체라고 중복 계상하지 않으며 의도적 제거는 원래 ID와 이유를 명시한다. 컴파일된 topology와 관찰 집합에서 누락 0·중복 0을 확인한다. 현재 viewer는 emissive element마다 SpotLight를 만들므로 모든 발광 element의 systemSources 대체가 review에 이르기 전에 하나도 퇴역시키지 않는다. `spaceSources`는 `src/models`나 `src/instances`를 직접 또는 간접 import하거나 물체 prototype을 생성하지 않는다. 현재 방 source의 물체 메시와 마감 문자열은 승인된 영구 소유권이 아니며 현재 시각·재료 판정은 `unverified`다.
+**State during the handover and retirement responsibility.** The current `src/house/rooms/*.ts` use not only the object functions and `lights()` of `src/house/rooms/interior.ts` but also directly made emissive meshes such as `dining-pendant` in `common.ts` and the two `primary-lamp` in `primary.ts`. All of them are temporary consumption paths of the earlier implementation. To keep the current observation set, those meshes remain until both `instanceSources` and `systemSources` reach `review` by an independent verdict, and no new object shape or part address is authored on this path. The main author implements and gets verdicts on the prototypes and surface addresses in `modelSources`, the per-room placement and repetition in `instanceSources`, and the emission process and elements in `systemSources`. Right after the two later sources reach review, the main author, in **one tree of a single commit**, removes the object and emissive calls of the room sources and the duplicate functions of `interior.ts` and replaces them with the neutral assembly path. Before retirement, every existing object element ID is linked in one row of the correspondence table with its successor instance ID and model part/face ID, and every existing emissive element ID with its successor instance ID, model luminaire part/face ID, **and** system emitter ID. Whether an emissive element came from `lights()` or from a direct primitive does not change this full-coverage condition. One successor address is not counted twice as the replacement of two retired elements, and an intentional removal states the original ID and the reason. 0 missing and 0 duplicates are confirmed in the compiled topology and the observation set. The current viewer creates a SpotLight for every emissive element, so none of them is retired before the systemSources replacement of every emissive element reaches review. `spaceSources` neither imports `src/models` or `src/instances` directly or indirectly nor generates object prototypes. The object meshes and finish strings of the current room sources are not approved permanent ownership, and the current visual and material verdicts are `unverified`.
 
-**조립과 관찰 도구의 책임.**
+**Responsibilities of the assembly and observation tools.**
 
-현재 `src/spaces/citizen-house.ts`는 `buildHouse()`의 임시 fit-out까지 받은 environment를 library에 등록한다. 이관 뒤 중립 조립 경계의 이름은 `src/house/build.ts`이며 `buildHouse()`가 spaces·models·materials·instances·systems의 독립 source를 소비해 단일 environment를 만든다. `src/spaces/citizen-house.ts`는 spaces 분기의 건축 산출물만 제공하도록 분리하고 다른 분기의 source를 직접 또는 간접 import하지 않는다. 최종 library 등록과 viewer는 중립 `buildHouse()` 결과를 사용한다. graph, room bounds, portal, stair, 각 완결 건축 표면은 별도 module로 구현한다. 공통 primitive helper는 단위 geometry 생성만 맡고 방 배치나 입면을 결정하지 않는다.
+The current `src/spaces/citizen-house.ts` registers in the library the environment received from `buildHouse()`, including the temporary fit-out. After the handover the name of the neutral assembly boundary is `src/house/build.ts`, and `buildHouse()` consumes the independent sources of spaces, models, materials, instances, and systems to make a single environment. `src/spaces/citizen-house.ts` is separated to provide only the architectural output of the spaces branch and does not import the sources of other branches directly or indirectly. The final library registration and the viewer use the result of the neutral `buildHouse()`. The graph, room bounds, portals, stair, and each complete architectural surface are implemented as separate modules. The common primitive helpers only generate unit geometry and decide no room placement or elevation.
 
-viewer의 server·메시 upload·조명·camera controls·검사 overlay·관찰집합 derivation은 각각 도구 책임으로 분리한다. 뷰어가 source의 새 geometry나 room bounds를 발명하지 않는다. 관찰집합은 성공적으로 컴파일한 현재 topology에서 생성하며 독립 observer는 그 분모를 축소할 수 없다. 이 도구 배정은 특정 view를 미리 성공 처리하거나 누락된 opening을 감추는 수단이 아니다.
+The viewer's server, mesh upload, lighting, camera controls, inspection overlay, and observation set derivation are each separated as tool responsibilities. The viewer invents no new geometry or room bounds of the source. The observation set is generated from the current topology that compiled successfully, and an independent observer cannot reduce that denominator. This tool assignment is not a means to pre-pass a particular view or hide a missing opening.

@@ -1,8 +1,8 @@
 /**
- * 벽의 한 수직 면을 옆에 닿는 지붕의 하부·상면 선으로 세 띠로 나눈다.
- * 하부 아래는 실내/주랑 마감, 지붕 두께 안은 가려진 접면, 상면 위는
- * 하늘에 드러난 파라펫/박공의 외면이다. 면 형상은 바꾸지 않고 같은 평면의
- * 사다리꼴로만 나누며 원래 감김 순서를 유지한다(수치 한계 1e-6 m).
+ * Splits one vertical wall face into three bands along the underside and top lines of the roof beside it.
+ * Below the underside is the interior or portico finish, inside the roof thickness is the hidden contact face,
+ * and above the top is the sky-exposed outer face of the parapet or gable. The face shape is unchanged: it is
+ * only split into coplanar trapezoids that keep the original winding (numeric limit 1e-6 m).
  */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { planeHeight, type HeightPlane } from "./planar-domain";
@@ -11,8 +11,8 @@ import type { WallFace } from "./wall-solids";
 interface Line { a: number; b: number }
 
 /**
- * corners는 prism 옆면 순서 [a아래, a위, b위, b아래]다. owners의 빈 문자열
- * 띠는 내보내지 않는다.
+ * corners follow the prism side order [a bottom, a top, b top, b bottom]. A band whose owner is the empty
+ * string is not emitted.
  */
 export const splitVerticalFace = (
   corners: readonly IAutoMovieVector3[],
@@ -71,9 +71,9 @@ export const splitVerticalFace = (
 };
 
 /**
- * 볼록 수직 면을 수평면 y=level에서 아래·위 두 볼록 면으로 나눈다.
- * 꼭짓점 순서를 유지하므로 바깥 법선이 바뀌지 않는다. 한쪽만 걸치면
- * 원래 면을 그 쪽 표면으로 돌려주고, 면적 없는 조각은 버린다.
+ * Splits a convex vertical face at the horizontal plane y=level into a lower and an upper convex face.
+ * Vertex order is kept, so the outward normal does not change. A face entirely on one side is returned
+ * whole as that side's surface, and pieces without area are dropped.
  */
 export const splitAtLevel = (face: WallFace, level: number, below: string, above: string): WallFace[] => {
   const clip = (keepBelow: boolean): IAutoMovieVector3[] => {

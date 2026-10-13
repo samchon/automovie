@@ -1,142 +1,142 @@
-# 개구부 부재
+# Opening members
 
-## 석재 문틀 {#door-frame}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 여덟 개구의 두께와 유효 폭에서 얻은 `(폭+0.44)×(높이+0.22)×(벽 두께+0.06)m` 안에 `lining`·`surround`를 두고, 석재 안감·양면 테의 면 법선별 평면 UV를 쓴다.
-@evidenceExclude settings/00-delivery.md#accessibility 한국어 UI와 키보드 조작은 viewer의 산출물이며 49개 원형의 점유·관절·UV0 중 어느 것도 그 조작을 형상 입력으로 쓰지 않는다.
-@evidenceExclude settings/10-building.md#fixed-graph 방 순서·문 연결·주랑 루프는 spaces의 설계이고 원형은 판정된 room volume과 문 치수만 받아 건물 그래프를 다시 만들지 않는다.
-@evidence principles/core/common.md#scope-preservation 여덟 문의 벽 두께 안 안감 세 조각과 양면 테를 치수·변형·접촉·통과 영역까지 정하고 문턱 바닥은 방 소유로 남긴다.
-@evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감과 양면 테의 모서리 겹침을 정해 source가 테의 닫힘 방식을 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 유효 치수·틀 0.06m는 openings.md#doors와 #boundary-ownership, 벽 두께 0.30/0.60m는 판정된 경계, 돌 테의 존재는 20-envelope#walls의 석재 문 주변에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 문설주와 문 주변 틀이라는 설정을 void를 채우는 안감과 벽면 위 테라는 두 표면 모델로 바꾼다.
-@evidence principles/design/models.md#representation-contract lining·surround part와 테의 윗모서리 소유, 안감 바깥면·테 뒷면의 가려진 접촉면, 유효 통과 영역의 negative space를 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 void 바닥 가장자리 선의 중심(문턱 완성면 Y=0, 벽 중심면)에 두고 X 벽 길이·Z 벽 두께·+Y 위로 정한다.
-@evidence principles/design/models.md#reviewable-structure 1.0×2.2×0.3m 변형의 세 시점과 건물의 각 문 양면에서 틀이 void를 정확히 채우고 유효 폭을 줄이지 않는지를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 03·04의 넓은 돌 테와 이미지 05의 깊은 reveal을 근거로 하고 평면 테만 있는 문을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 문 표의 여덟 조합과 벽 두께가 변형을 모두 정하고 점유 상자 식이 있어 개구부 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work openings.md#doors의 여덟 유효 치수, #boundary-ownership의 0.06m 틀과 void, storey의 문턱 바닥 소유를 안감·테에 대조했고 void와 틀이 정확히 맞아 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#openings 벽 두께 안의 깊은 문설주·상인방과 문 주변 틀이라는 개구부 설정을 안감과 테로 받는다.
-@evidence spaces/openings.md#doors 여덟 문의 유효 폭·높이와 문이 뚫린 벽을 문틀 변형의 입력으로 소비한다.
-@evidence spaces/openings.md#boundary-ownership 각 가장자리 0.06m 틀과 void가 경계 한 곳에만 속한다는 규칙을 안감 두께와 void 채움으로 소비한다.
-@evidence spaces/storey.md#threshold-support 문턱 바닥이 방 소유라는 배정을 받아 문틀이 바닥을 만들지 않는다.
-@evidence settings/20-envelope.md#walls 문 주변이 연한 회백색 석재로 회벽을 나눈다는 설정을 벽면 위 surround 표면으로 받는다.
-@evidence settings/50-production.md#references 이미지 03·04의 문 둘레 돌 테와 이미지 05의 깊은 reveal을 근거로 쓴다.
-@evidenceExclude spaces/facades/east.md#east-envelope 동측 외벽의 서비스 문 void는 openings.md#doors 표로 받으며 입면의 완결 외면·기단·코핑은 spaces 벽이 소유해 문틀이 입면에서 받는 결정이 없다.
--->
-
-[개구부와 문짝](../settings/20-envelope.md#openings)의 벽 두께 안 깊은 문설주·상인방과 문 주변 틀이다. 이미지 03·04에서 문 둘레를 두르는 넓은 돌 테와 이미지 05의 깊은 reveal이 근거다. 판정된 [출입문 표](../spaces/openings.md#doors)의 유효 폭·높이와 [경계 소유](../spaces/openings.md#boundary-ownership)의 각 가장자리 0.06m 틀, [석재 문 주변 벽](../settings/20-envelope.md#walls)의 0.30/0.60m 두께를 그대로 소비하며 void 위치를 새로 정하지 않는다.
-
-로컬 원점은 void 바닥 가장자리 선의 중심, 곧 문턱 완성면 Y=0에서 벽 중심면 위의 점이다. 로컬 X는 벽 길이 방향, Z는 벽 두께 방향, +Y는 위다. 안감은 세 조각으로, 두 문설주는 폭 0.06m·높이(유효 높이+0.06m)이고 상인방은 길이(유효 폭+0.12m)·높이 0.06m이며 세 조각의 깊이는 그 문이 뚫린 벽의 두께(0.30m 또는 0.60m)다. 벽 양면에는 void 둘레를 두르는 테(폭 0.16m, 벽면에서 0.03m 돌출)가 문설주 양옆과 상인방 위를 감싼다. 각 면의 테 윗띠는 길이 (유효 폭+0.44m)로 양쪽 옆띠 위를 덮고 위쪽 두 모서리를 채운다. 변형은 판정된 여덟 문의 (유효 폭, 유효 높이, 벽 두께) 조합에서 source가 만든다. 점유 상자는 (유효 폭+0.44m)×(유효 높이+0.22m)×(벽 두께+0.06m)다.
-
-부재 대응: `lining`=안감; `surround`=테.
-
-part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 나눠 materials가 안감과 테에 다른 마감을 줄 수 있다. 안감 바깥면과 테 뒷면은 벽 void 면·벽면과 맞닿는 가려진 접촉면이다. 유효 통과 영역(유효 폭×유효 높이)은 비어 있는 negative space이며 문턱 바닥은 이 모델이 아니라 방 바닥 소유다.
-
-검토 판에서 1.0×2.2×0.3m 변형을 정면·측면·3/4로 보고 안감 깊이와 테 돌출이 분리돼 읽히는지 본다. 건물 관찰에서는 각 문 양면에서 틀이 void를 정확히 채우고 벽과 틈이 없으며 유효 폭을 줄이지 않는지를 확인한다. 벽면에 붙인 평면 테만 있고 깊이 방향 안감이 없는 문, void보다 큰 안감, 유효 폭을 침범한 틀은 실패다.
-
-문틀 `lining`과 `surround`의 UV0는 각 석재 막대의 바깥 법선에 따른 기본 평면 투영이다. 안감 깊이 방향의 단단한 모서리, 양면 테의 앞뒤 돌출 모서리 및 두 part 경계에서 이음을 둔다.
-
-## 양개 목재 문짝 {#double-door-leaf}
+## Stone door frame {#door-frame}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.8m·1.4m 통과 폭을 반씩 쓰는 각 짝의 닫힌 점유 X=0~폭/2·Y=0.01~2.5m에 목재 세로 +Y/가로 +X U, 두 면의 연결 핀 법선축 원통 U/V와 고리 XY 원환을 배정한다.
-@evidence principles/core/common.md#scope-preservation 정문과 제실 문의 양개 목재 문짝을 두 변형으로 한정하고 짝 치수·테두리와 판·손잡이·경첩·관절·표면까지 정한다.
-@evidence principles/core/common.md#substantive-completion 선대·가로대·판 두께와 바닥 띄움, 손잡이 X·양면 Z·Y=1.104m 핀, 반지름 0.06m의 받침판 둘레 16분할·첫 꼭짓점 +X, 연결 핀 둘레 12분할, 원환 16×8분할과 경첩 12분할을 함께 정해 철물 접점을 고정한다.
-@evidence principles/core/common.md#declared-basis 변형 치수는 openings.md#doors의 door-entry 1.8×2.5m·door-sanctuary 1.4×2.5m, 열림 판정 1.4m는 10-building#use-profile, 관절은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 어두운 목재 양개문이라는 설정을 테두리 판문 구조와 짝마다 hinge node를 가진 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract frame·panel·plate·pin·ring·hinge part로 목재와 철물의 각 독립 표면을 구별하고 손잡이·경첩을 짝 node의 자식으로 둔다.
-@evidence principles/design/models.md#spatial-convention 짝 원점을 경첩 쪽 판 모서리 바닥 점, hinge 축을 X=+0.021·Z=0에 두고 여는 쪽 벽면 0.05m 안쪽에 설치하며 닫힌 자세의 X·Z 범위를 적는다.
-@evidence principles/design/models.md#reviewable-structure 닫힘·열림 두 상태의 정면·평면과 건물 안에서 열린 짝이 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 정문 양개문과 이미지 04의 판과 테두리를 근거로 하고 판 하나로 된 문을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 변형 치수·관절 범위·기본 open 상태·열린 폭 판정이 함께 정해져 관절 모델 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work door-entry·door-sanctuary의 유효 치수와 room-double 스윙, use-profile의 열린 정문 1.4m를 짝 폭 0.9/0.7m에 대조했고 90° 열린 두 짝의 두께와 손잡이 돌출을 빼도 정문에 산술상 약 1.62m가 남아 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#openings 어두운 목재 양개 정문과 제실 문이라는 설정을 양개 문짝 두 변형으로 받는다.
-@evidence spaces/openings.md#doors door-entry 1.8×2.5m와 door-sanctuary 1.4×2.5m, room-double 스윙을 두 변형 치수와 여는 방향으로 소비한다.
-@evidence settings/10-building.md#use-profile 열린 정문 1.4m 통과 조건을 열린 짝이 남길 유효폭 판정으로 쓴다.
-@evidence settings/50-production.md#references 이미지 01의 정문 양개문과 이미지 04의 판·테두리를 근거로 쓴다.
-@evidenceExclude spaces/circulation.md#public-route 현관-주랑 순환 경로는 문 위치와 통과 순서로 이미 openings.md#doors에 실현됐고 문짝은 그 경로에 새 형상을 더하지 않고 통과 폭만 use-profile로 판정한다.
+@evidence contracts/principles-models.md#temple-reference-scale `lining` and `surround` sit inside `(width+0.44)×(height+0.22)×(wall thickness+0.06)m` derived from the thickness and clear width of the eight openings, and the stone lining and two-face surround use per-face-normal planar UVs.
+@evidenceExclude settings/00-delivery.md#accessibility The English UI and keyboard controls are viewer outputs, and none of the occupancy, joints or UV0 of the 49 prototypes uses those controls as a shape input.
+@evidenceExclude settings/10-building.md#fixed-graph Room order, door connections and the colonnade loop are the spaces design; prototypes take only the reviewed room volumes and door dimensions and do not rebuild the building graph.
+@evidence principles/core/common.md#scope-preservation It sets the three lining pieces inside the wall thickness and the surrounds on both faces of the eight doors down to dimensions, variants, contact and passage area, and leaves the threshold floor to the rooms.
+@evidence principles/core/common.md#substantive-completion It sets the 0.06m jambs, the lintel, the wall-thickness-deep lining and the corner lap of the two-face surround, so the source does not choose how the surround closes.
+@evidence principles/core/common.md#declared-basis It states that the clear dimensions and 0.06m frame come from openings.md#doors and #boundary-ownership, the wall thickness 0.30/0.60m from the reviewed boundaries, and the presence of the stone surround from the stone door surrounds of 20-envelope#walls.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of deep jambs and a door surround frame into a two-surface model of a lining filling the void and a surround on the wall face.
+@evidence principles/design/models.md#representation-contract It sets the lining and surround parts, the surround's ownership of its top corners, the hidden contact faces at the lining outer face and the surround back face, and the negative space of the clear passage area.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the void's floor edge line (threshold finish Y=0, wall centre plane), with X along the wall, Z through the wall thickness and +Y up.
+@evidence principles/design/models.md#reviewable-structure It checks in three views of the 1.0×2.2×0.3m variant and on both faces of every door in the building that the frame fills the void exactly and does not reduce the clear width.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the wide stone surrounds of images 03 and 04 and the deep reveal of image 05 and makes a door with only a flat surround a failure.
+@evidence principles/design/models.md#model-scale-layer-completion The eight combinations of the door table and the wall thickness set every variant, and the occupancy box formula completes the opening layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The eight clear dimensions of openings.md#doors, the 0.06m frame and void of #boundary-ownership and the threshold floor ownership of storey were compared with the lining and surround; void and frame fit exactly, so the parents were not changed.
+@evidence settings/20-envelope.md#openings It receives the opening setting of deep jambs and lintels inside the wall thickness and door surround frames as the lining and surround.
+@evidence spaces/openings.md#doors It consumes the clear width and height of the eight doors and the wall each door pierces as the inputs of the door frame variants.
+@evidence spaces/openings.md#boundary-ownership It consumes the rule that each edge's 0.06m frame and void belong to one boundary only as the lining thickness and void fill.
+@evidence spaces/storey.md#threshold-support It takes the assignment of the threshold floor to the room, so the door frame makes no floor.
+@evidence settings/20-envelope.md#walls It receives the setting that light grey-white stone divides the plaster around doors as the surround surface on the wall face.
+@evidence settings/50-production.md#references It rests on the stone surrounds around the doors of images 03 and 04 and the deep reveal of image 05.
+@evidenceExclude spaces/facades/east.md#east-envelope The service door void of the east exterior wall is received through the openings.md#doors table, and the finished outer face, plinth and coping of the facade are owned by the spaces walls, so the door frame takes no decision from the facade.
 -->
 
-[개구부와 문짝](../settings/20-envelope.md#openings)의 어두운 목재 양개 정문과 제실 문이다. 이미지 01의 정문 양개문과 이미지 04의 판과 테두리가 근거다. 판정된 `door-entry`(유효 1.8×2.5m)와 `door-sanctuary`(1.4×2.5m)의 두 변형만 만들며 한 짝의 폭은 유효 폭의 절반이다.
+These are the deep jambs and lintel inside the wall thickness and the door surround frame of [openings and door leaves](../settings/20-envelope.md#openings). The basis is the wide stone surround around the door in images 03 and 04 and the deep reveal of image 05. It consumes as they are the clear width and height of the reviewed [door table](../spaces/openings.md#doors), each edge's 0.06m frame from [boundary ownership](../spaces/openings.md#boundary-ownership), and the 0.30/0.60m thickness of the [stone door surround walls](../settings/20-envelope.md#walls), and does not set void positions anew.
 
-각 짝의 로컬 원점은 판의 경첩 쪽 아래 모서리다. `hinge.<짝 ID>`의 연직 회전축은 이 원점에서 X=+0.021m·Z=0m이며 문틀 안감 안쪽 끝 X=0에서 통과 영역 쪽으로 0.02m 물러난다. 설치 때 여는 쪽 벽면에서 0.05m 안쪽의 판 Z=0면을 기준으로 하고, room-double 스윙 방향으로 로컬 축을 향하게 한다. 닫힌 자세에서 판은 로컬 X 0~(유효 폭/2), Z −0.05~0 범위를 차지하고 바닥에서 0.01m 띄워 높이는 유효 높이−0.01m다. 판은 두께 0.05m이며 선대 폭 0.10m, 윗 가로대 0.10m, 가운데 가로대 0.10m(아랫면 높이 1.00m), 아래 가로대 0.16m로 테두리를 짜고 그 사이 두 판은 양면에서 0.015m 들어가 두께 0.02m다. 맞닿는 선대 쪽 높이 1.05m에 청동 고리 손잡이(바깥 반지름 0.06m, 관 반지름 0.006m)와 받침판(반지름 0.06m, 두께 0.006m, 둘레 16분할 원판)이 양면에 있고, 경첩 쪽 모서리 위·아래에 핀 경첩(반지름 0.02m, 높이 0.10m 원통) 두 개가 있다. 손잡이와 받침판 중심은 각 짝의 X=(유효 폭/2)−0.15m·Y=1.05m이고 받침판은 문 중앙 가로대의 면 Z=0~+0.006m/−0.056~−0.05m에서 판문과 면 접촉한다. 받침판 16각형은 0번 꼭짓점이 +X이고 4번 꼭짓점이 +Y다. 중심 Y=1.05m·반지름 0.06m이므로 Y=0.99~1.11m이며 Y=1.00~1.10m 띠는 가로대에 직접 붙고 위와 아래 각 0.01m는 가로대를 벗어나 판면 위에 뜬다. 판 전체는 가운데 띠를 통해 문에 붙는다. 고리 중심면은 Z=+0.015m/−0.065m다. 고리는 로컬 XY 평면 원환(주환 16분할·관 8분할)이며 중심선 반지름 0.054m다. 반지름 0.006m의 연결 핀 두 개는 둘레 12분할 원통으로 각 받침판 바깥면의 (X,Y)=(손잡이 중심 X,1.104m)에서 해당 면 법선 방향으로 길이 0.009m 뻗어 고리 맨 위 관의 중심선과 겹친다. 핀 축의 받침판 중심으로부터 거리 0.054m에 핀 반지름 0.006m를 더해도 받침판 반지름 0.06m 안이며 접촉 원판 넓이는 양수다. 앞핀은 Z=+0.006~+0.015m, 뒷핀은 Z=−0.056~−0.065m이므로 고리와 받침판 모두에 실체 접촉하고 그 조립은 가로대를 통해 문에 붙는다. 두 경첩 원통 중심은 회전축과 같은 X=+0.021m·Z=0m, Y=0.25m와 (유효 높이−0.25m)이며 둘레 12분할이다. 철물까지 포함한 닫힌 한 짝의 점유 범위는 X=0~(유효 폭/2)m, Y=0.01~유효 높이 m, Z=−0.071~+0.021m다.
+The local origin is the centre of the void's floor edge line, that is, the point on the wall centre plane at the threshold finish Y=0. Local X is along the wall, Z through the wall thickness, and +Y up. The lining has three pieces: the two jambs have width 0.06m and height (clear height+0.06m), the lintel has length (clear width+0.12m) and height 0.06m, and the depth of the three pieces is the thickness of the wall the door pierces (0.30m or 0.60m). On both wall faces a surround (width 0.16m, projecting 0.03m from the wall face) runs around the void and wraps the sides of the jambs and the top of the lintel. The top band of the surround on each face has length (clear width+0.44m), covers the tops of the two side bands and fills the two upper corners. The source makes the variants from the (clear width, clear height, wall thickness) combinations of the eight reviewed doors. The occupancy box is (clear width+0.44m)×(clear height+0.22m)×(wall thickness+0.06m).
 
-부재 대응: `frame`=선대; `panel`=판; `plate`=받침판; `pin`=연결 핀; `ring`=고리; `hinge`=경첩.
+Part map: `lining`=lining; `surround`=surround.
 
-관절 인터페이스는 [공통 관절 규칙](../contracts/obligations-models.md#temple-articulation-map)의 `hinge.<짝 ID>`이며 범위 0°~90°, 기본 `open` 90°, 여는 방향은 spaces의 스윙 예약이다. 손잡이·경첩은 짝 node의 자식이다. part와 표면은 `frame`(선대·가로대), `panel`, `plate`, `pin`, `ring`, `hinge`로 나눠 목재와 금속의 각 표면을 구별한다.
+Parts and surfaces are `lining` (lining) and `surround` (surround on both faces), and splitting the two surfaces lets materials give the lining and surround different finishes. The outer face of the lining and the back face of the surround are hidden contact faces that abut the wall void faces and wall faces. The clear passage area (clear width×clear height) is empty negative space, and the threshold floor belongs to the room floor, not this model.
 
-검토 판에서 닫힘·열림 두 상태의 정면·평면을 보고 판의 들어간 면과 테두리, 손잡이와 경첩이 분리돼 읽히는지 확인한다. 건물 관찰에서는 열린 짝이 벽에 닿기 전 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지 본다. 판 하나로 된 문, 문틀보다 큰 짝, 열림 상태에서 벽이나 기둥을 뚫는 짝은 실패다.
+On the review board the 1.0×2.2×0.3m variant is viewed from the front, side and three-quarter views to check that the lining depth and surround projection read separately. Building observation checks on both faces of each door that the frame fills the void exactly, leaves no gap to the wall and does not reduce the clear width. A door with only a flat surround attached to the wall face and no lining through the depth, a lining larger than the void, or a frame intruding into the clear width is a failure.
 
-양개 문짝 `frame`의 선대와 `panel`은 세로 +Y, 가로대는 +X 길이를 UV0의 U로 둔다. `plate`는 평면 투영, 양면 `pin`은 각 문면 법선축 원통, `ring`은 XY 원환, `hinge`는 Y축 원통으로 전개하고 철물 접점에서 이음을 끊는다.
+The UV0 of the door frame `lining` and `surround` is the default planar projection along the outward normal of each stone bar. Seams lie at the hard edges along the lining depth, at the front and back projecting edges of the surrounds on both faces, and at the boundary between the two parts.
 
-## 외개 목재 문짝 {#single-door-leaf}
+## Double timber door leaf {#double-door-leaf}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 세 외개문 변형의 폭 1.0/1.1/1.2m와 닫힌 두께 −0.068~+0.031m를 각각 문턱·스윙에 대조하며, 다섯 `board`는 +Y U, `batten`·`strap`은 +X U, 양면 `pin`·`ring`은 원통·원환 UV를 쓴다.
-@evidenceExclude settings/50-production.md#execution-authority 작업과 실행 권한은 저작 행위의 규칙이고 문짝 hinge 및 다른 원형의 형상 인터페이스를 고르는 근거가 아니다.
-@evidence principles/core/common.md#scope-preservation 봉헌실·세 업무방·마당 두 문의 외개 판문을 세 치수 변형으로 정하고 가로 띠·쇠 띠 경첩·이음 홈·손잡이·관절·표면까지 정한다.
-@evidence principles/core/common.md#substantive-completion 가로 띠·쇠 띠·같은 너비의 널 다섯 장과 이음 홈 X=jw/5, 쇠 띠의 X 시작·Y 중심·앞면 Z에 손잡이 위치, 양면 연결 핀 둘레 12분할과 원환 16×8분할을 더해 source가 철물 접점을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 변형 치수와 여는 방향은 openings.md#doors의 여섯 문과 스윙, 열린 폭 0.9m 판정은 10-building#use-profile, 관절 규칙은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스·업무 문의 단순한 판문이라는 설정을 한 면에만 띠와 쇠 띠가 있는 비대칭 판과 hinge node라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract board·batten·strap·pin·ring part로 목재와 금속 표면을 나누고 여는 쪽 면과 반대면의 형상 차이를 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 경첩 쪽 판 모서리 바닥 점으로 두고 외개 hinge 축은 쇠 띠 앞면 Z=+0.031m, 닫힌 짝 폭 = 유효 폭·높이 = 유효 높이−0.01m로 정한다.
-@evidence principles/design/models.md#reviewable-structure 두 상태와 두 면에서 띠가 한 면에만 있는지, 이음 홈이 반대면에서 읽히는지, 열린 짝이 스윙 예약 안에 머무는지를 본다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 판문을 근거로 하고 양개문과 구별되지 않는 판을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 치수 변형·경첩 쪽·여는 방향·열린 폭 판정이 함께 정해져 외개 문 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 여섯 문의 유효 치수(1.2×2.3, 1.0×2.2, 1.1×2.2m)와 북·남 스윙 예약, use-profile의 방 문 0.9m를 짝 폭에 대조했고 가장 좁은 1.0m 문에서도 열린 짝 두께와 손잡이 돌출을 빼면 산술상 최소 0.901m가 남아 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#openings 봉헌실·업무방·마당의 목재 판문이라는 개구부 설정을 외개 문짝으로 받는다.
-@evidence spaces/openings.md#doors door-offering·door-administration·door-records·door-yard·door-storage·door-service-exterior의 치수와 스윙을 세 변형과 여는 방향으로 소비한다.
-@evidence settings/10-building.md#use-profile 방 문 0.9m 통과 조건을 열린 외개 짝이 남길 유효 폭 판정으로 쓴다.
-@evidence settings/50-production.md#references 이미지 01의 서비스 문과 이미지 05의 업무방 문을 근거로 쓴다.
-@evidenceExclude spaces/circulation.md#service-route 마당에서 보관실까지의 반입 순서는 door-yard·door-storage 위치로 openings.md#doors에 이미 실현됐고 문짝 형상은 그 순서에서 새로 받는 결정이 없다.
-@evidenceExclude spaces/site.md#site-connections 대지 connector는 서비스 문 밖 앞마당과 정문 진입의 보행 연결이며 door-service-exterior 짝은 외벽 void 안에서만 돌아 connector 끝점을 바꾸지 않는다.
-@evidenceExclude spaces/building.md#approach-contacts 정문 도로와 서비스 외부 접점의 높이·위치는 spaces가 문턱과 connector로 소유하고 문짝은 문턱 완성면 위 0.01m에서 도는 판이라 접점을 소비하지 않는다.
+@evidence contracts/principles-models.md#temple-reference-scale The closed occupancy X=0~width/2, Y=0.01~2.5m of each leaf, which uses half of the 1.8m or 1.4m passage width, is assigned a timber vertical +Y / horizontal +X U, a cylinder U/V about the normal axis for the connecting pins on both faces, and an XY torus for the ring.
+@evidence principles/core/common.md#scope-preservation It limits the double timber door leaves of the main door and the sanctuary door to two variants and sets the leaf dimensions, frame and panel, handle, hinges, joint and surfaces.
+@evidence principles/core/common.md#substantive-completion It sets together the stile, rail and panel thickness and floor clearance, the handle X, the Z of both faces and the Y=1.104m pin, the 0.06m radius plate with 16 segments around and its first vertex at +X, the connecting pins with 12 segments around, the 16×8-segment torus and the hinge with 12 segments, fixing the hardware contact points.
+@evidence principles/core/common.md#declared-basis It states that the variant dimensions come from door-entry 1.8×2.5m and door-sanctuary 1.4×2.5m of openings.md#doors, the open judgement 1.4m from 10-building#use-profile, and the joint from ../contracts/obligations-models.md#temple-articulation-map.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of dark timber double doors into the model decisions of a framed panel door with one hinge node per leaf.
+@evidence principles/design/models.md#representation-contract The frame, panel, plate, pin, ring and hinge parts distinguish each independent timber and hardware surface, and the handle and hinges are children of the leaf node.
+@evidence principles/design/models.md#spatial-convention It places the leaf origin at the floor point of the hinge-side panel corner and the hinge axis at X=+0.021, Z=0, installs the leaf 0.05m inside the opening-side wall face, and records the X and Z ranges of the closed pose.
+@evidence principles/design/models.md#reviewable-structure It views the front and plan in the closed and open states and checks inside the building that an open leaf stops at 90° and leaves at least the 1.4m clear width of the main door.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the double main door of image 01 and the panels and frames of image 04 and makes a door made of a single slab a failure.
+@evidence principles/design/models.md#model-scale-layer-completion The two variant dimensions, the joint range, the default open state and the open width judgement are set together, completing the jointed model layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The clear dimensions of door-entry and door-sanctuary, the room-double swing and the open main door 1.4m of use-profile were compared with the leaf widths 0.9/0.7m; even after subtracting the thickness and handle projection of two leaves open at 90°, about 1.62m remains by arithmetic in the main door, so the parents were not changed.
+@evidence settings/20-envelope.md#openings It receives the setting of a dark timber double main door and sanctuary door as the two double leaf variants.
+@evidence spaces/openings.md#doors It consumes door-entry 1.8×2.5m, door-sanctuary 1.4×2.5m and the room-double swing as the two variant dimensions and the opening direction.
+@evidence settings/10-building.md#use-profile It uses the 1.4m passage condition of the open main door as the judgement of the clear width an open leaf must leave.
+@evidence settings/50-production.md#references It rests on the double main door of image 01 and the panels and frames of image 04.
+@evidenceExclude spaces/circulation.md#public-route The entrance-colonnade circulation route is already realized in openings.md#doors as door positions and passage order, and the door leaf adds no new shape to that route, judging only the passage width through use-profile.
 -->
 
-봉헌실·세 업무방·마당 두 문의 외개 목재 문이다. 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 단순한 판문이 근거다. 판정된 `door-offering`(1.2×2.3m), `door-administration`·`door-records`·`door-yard`(1.0×2.2m), `door-storage`·`door-service-exterior`(1.1×2.2m)의 세 치수 변형을 만든다.
+These are the dark timber double-leaf main door and sanctuary door of [openings and door leaves](../settings/20-envelope.md#openings). The basis is the double main door of image 01 and the panels and frames of image 04. Only the two variants of the reviewed `door-entry` (clear 1.8×2.5m) and `door-sanctuary` (1.4×2.5m) are made, and the width of one leaf is half the clear width.
 
-로컬 원점은 경첩 쪽 판 모서리의 바닥 점이며 닫힌 자세의 판 방향은 양개 문짝과 같다. 외개문 `hinge.<문 ID>`의 연직 축은 이 원점에서 X=0·Z=+0.031m, 곧 쇠 띠 경첩의 앞면에 놓인다. 정해진 방 쪽 스윙에 맞춰 prototype 전체를 설치한 뒤 `open`은 이 로컬 축을 기준으로 −90° 회전한다. 열림 때 여는 쪽 면의 Z≤+0.031m는 Xopen=0.031m−Z≥0가 되어 문틀 안감 X<0 안으로 들어가지 않는다. 짝은 폭 = 유효 폭, 높이 = 유효 높이−0.01m, 두께 0.05m이다. 여는 쪽 면에는 가로 띠 두 줄(연직 폭 0.12m, 두께 0.025m, 아랫면 높이 0.25m와 유효 높이−0.40m)이 있다. 각 쇠 띠 경첩은 X=0에서 시작해 X=0.6×유효 폭에서 끝나며 Y 중심은 아래 띠 0.31m, 위 띠 유효 높이−0.34m다. 연직 폭 0.04m·두께 0.006m이고 앞면 Z=+0.025~+0.031m에 놓여 두 가로 띠의 앞면과 면 접촉한다. 반대면에는 유효 폭 w를 각 w/5의 같은 너비로 나눈 세로 널 다섯 장의 이음 홈만 보인다. 홈 네 줄은 X=jw/5(j=1..4)에 중심을 두고 각각 폭 0.01m·깊이 0.004m다. 경첩 반대쪽의 쇠 고리 손잡이(바깥 반지름 0.05m, 관 반지름 0.005m)는 양면에서 중심 X=(유효 폭−0.12m)·Y=1.05m, Z=+0.025m/−0.063m이고 로컬 XY 평면의 주환 16분할·관 8분할이다. 각 고리의 중심선 반지름은 0.045m다. 앞·뒤 연결 핀은 반지름 0.006m·둘레 12분할 원통이고 (X,Y)=(유효 폭−0.12m,1.095m)에서 판 앞면 Z=0m→+0.025m와 뒷면 Z=−0.05m→−0.063m로 각각 앞핀 0.025m·뒷핀 0.013m 뻗는다. 각 핀의 끝은 고리 맨 위 관 중심선과 겹치므로 고리와 판 양쪽에 실체 접촉한다. 쇠 띠와 고리까지 포함한 닫힌 문짝 점유 범위는 X=0~유효 폭 m, Y=0.01~유효 높이 m, Z=−0.068~+0.031m다.
+The local origin of each leaf is the hinge-side lower corner of the panel. The vertical rotation axis of `hinge.<leaf ID>` is at X=+0.021m, Z=0m from this origin, set back 0.02m toward the passage from the inner end X=0 of the frame lining. At installation the panel's Z=0 face 0.05m inside the opening-side wall face is the datum, and the local axes face the room-double swing direction. In the closed pose the panel occupies local X 0~(clear width/2) and Z −0.05~0, raised 0.01m above the floor, so its height is clear height−0.01m. The panel is 0.05m thick and framed by stiles of width 0.10m, a top rail 0.10m, a middle rail 0.10m (underside height 1.00m) and a bottom rail 0.16m, and the two boards between them are recessed 0.015m on both faces, leaving a thickness of 0.02m. On the abutting stile side height 1.05m, a bronze ring handle (outer radius 0.06m, tube radius 0.006m) and a plate (radius 0.06m, thickness 0.006m, disc with 16 segments around) are on both faces, and two pin hinges (radius 0.02m, height 0.10m cylinders) are at the top and bottom of the hinge-side edge. The handle and plate centres are at X=(clear width/2)−0.15m, Y=1.05m of each leaf, and the plate is in face contact with the door at the middle rail faces Z=0~+0.006m/−0.056~−0.05m. The plate's 16-gon has vertex 0 at +X and vertex 4 at +Y. With centre Y=1.05m and radius 0.06m it spans Y=0.99~1.11m; the Y=1.00~1.10m band attaches directly to the rail, and 0.01m above and below each leave the rail and float over the panel face. The whole plate attaches to the door through the middle band. The ring centre planes are Z=+0.015m/−0.065m. The ring is a torus in the local XY plane (16 main segments and 8 tube segments) with centreline radius 0.054m. The two connecting pins of radius 0.006m are cylinders with 12 segments around that extend 0.009m along the face normal from (X,Y)=(handle centre X,1.104m) on the outer face of each plate and overlap the centreline of the ring's top tube. Adding the pin radius 0.006m to the distance 0.054m of the pin axis from the plate centre stays within the plate radius 0.06m, and the contact disc area is positive. The front pin is Z=+0.006~+0.015m and the back pin Z=−0.056~−0.065m, so both have solid contact with the ring and the plate, and that assembly attaches to the door through the rail. The two hinge cylinder centres are at the same X=+0.021m, Z=0m as the rotation axis, at Y=0.25m and (clear height−0.25m), with 12 segments around. The occupancy range of one closed leaf including hardware is X=0~(clear width/2)m, Y=0.01~clear height m, Z=−0.071~+0.021m.
 
-부재 대응: `board`=널; `batten`=가로 띠; `strap`=쇠 띠; `pin`=연결 핀; `ring`=고리.
+Part map: `frame`=stile; `panel`=panel; `plate`=plate; `pin`=connecting pin; `ring`=ring; `hinge`=hinge.
 
-관절은 `hinge.<문 ID>` 하나이며 범위와 기본 상태는 공통 규칙을, 경첩 쪽과 여는 방향은 spaces의 스윙 예약(봉헌실 북쪽, 관리실·기록실·보관실 남쪽, 마당 두 문 북쪽)을 따른다. part와 표면은 `board`, `batten`, `strap`, `pin`, `ring`이다.
+The joint interface is `hinge.<leaf ID>` of the [shared articulation rule](../contracts/obligations-models.md#temple-articulation-map), with range 0°~90° and default `open` 90°, and the opening direction is the swing reservation of spaces. The handle and hinges are children of the leaf node. Parts and surfaces are split into `frame` (stiles and rails), `panel`, `plate`, `pin`, `ring` and `hinge`, distinguishing each timber and metal surface.
 
-검토 판에서 두 상태와 두 면을 보고 가로 띠·쇠 띠가 한 면에만 있는지, 이음 홈이 반대면에서 읽히는지 본다. 건물 관찰에서는 열린 짝이 방 안 스윙 예약 안에 머물고 유효 폭 0.9m 이상을 남기는지 확인한다. 양개 문과 구별되지 않는 판, 스윙 예약 밖으로 여는 짝은 실패다.
+On the review board the front and plan of the closed and open states are viewed to check that the recessed panels and frame, the handle and the hinges read separately. Building observation checks that an open leaf stops at 90° before touching the wall and leaves at least the 1.4m clear width of the main door. A door made of a single slab, a leaf larger than the frame, or a leaf that pierces a wall or column when open is a failure.
 
-외개 `board` 다섯 장은 아래→위 +Y를 UV0의 U로, 두 `batten`과 쇠 `strap`은 경첩→손잡이 +X를 U로 둔다. 양면 `pin`은 문면 법선 방향 원통, `ring`은 로컬 XY 원환의 주환 16분할·관 8분할로 펴고 널 이음과 철물 part 경계에서 끊는다.
+For the double leaf, the stiles of `frame` and the `panel` take vertical +Y, and the rails the +X length, as the U of UV0. `plate` uses a planar projection, the `pin` on both faces a cylinder about each door face normal, `ring` an XY torus and `hinge` a Y-axis cylinder, with seams split at the hardware junctions.
 
-## 채광구 석재 틀 {#window-frame}
+## Single timber door leaf {#single-door-leaf}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.4×0.4m 채광구 주변 0.72×0.72×(0.30/0.60+0.03)m 점유는 제실 벽 두께와 창틀 돌출을 따르고, `lining`·`surround` 석재 면은 기본 평면 UV를 쓴다.
-@evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source의 실제 표시 경로이고 중립 원형 검토 판은 별도 장면이라 그 모드·절개를 형상 기준으로 쓰지 않는다.
-@evidence principles/core/common.md#scope-preservation 제실 채광구의 깊은 석재 안감과 바깥 테를 두 벽 두께 변형으로 정하고 유리·창살·덧문이 없음을 밝힌다.
-@evidence principles/core/common.md#substantive-completion 안감 폭 0.06m와 벽 두께 깊이, 외부 면 테 0.10m·돌출 0.03m, 점유 상자 0.72×0.72×(벽 두께+0.03)m가 있어 source가 창틀을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 유효 0.4×0.4m와 틀 0.06m는 openings.md#clerestories, 벽 두께는 북측 박공 0.60m·제실 남벽과 spine 0.30m, 외부 면 방향은 #boundary-ownership의 위쪽 외부 경계에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 틀의 작은 채광구라는 설정을 안쪽은 reveal만, 바깥에만 테가 있는 비대칭 창틀 모델로 바꾼다.
-@evidence principles/design/models.md#representation-contract lining·surround part와 안감·테의 가려진 접촉면, 0.4×0.4m의 빈 통과 영역을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 void 아랫변 중심(창대 높이−0.06m, 벽 중심면)에 둔다.
-@evidence principles/design/models.md#reviewable-structure 정면과 45° 시점의 깊은 안감·바깥 테와 건물의 실내 쪽 reveal·외부 쪽 테를 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 04의 벽 위쪽 작은 창과 깊은 틀을 근거로 하고 유리 판·얕은 안감을 실패로 둔다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 벽 두께 변형과 외부 면 방향의 소유가 정해져 여덟 창이 모두 이 prototype으로 덮인다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work clerestories의 유효 치수·창대 높이와 수리된 위쪽 외부 경계를 두 두께 변형에 대조했고 여덟 창 모두 외부 면이 정해져 모델 쪽에서 부모를 더 고치지 않았다. 창 결속 수리(c7af729c)는 space-source 작업에서 먼저 드러났다.
-@evidence settings/20-envelope.md#openings 깊은 석재 틀과 내부 reveal을 가진 작은 채광구라는 설정을 창틀 prototype으로 받는다.
-@evidence spaces/openings.md#clerestories 유효 0.4×0.4m, 틀 0.06m, 박공 창과 측벽 창의 결속 벽을 두 변형으로 소비한다.
-@evidence spaces/openings.md#boundary-ownership 측벽·남측 창이 결속된 위쪽 외부 경계를 테가 붙을 외부 면 방향으로 소비한다.
-@evidence spaces/facades/north.md#north-envelope 박공 창의 외부 면이 북측 입면이라는 사실을 0.60m 변형의 테 방향으로 쓴다.
-@evidence settings/50-production.md#references 이미지 04의 벽 위쪽 작은 창과 깊은 틀을 근거로 쓴다.
-@evidenceExclude spaces/facades/west.md#west-envelope 서측 봉헌실 외벽은 창이 없는 연속 외피라 채광구 틀 변형이 놓이지 않고 다른 모델도 서측 입면을 소비하지 않는다.
+@evidence contracts/principles-models.md#temple-reference-scale The widths 1.0/1.1/1.2m and the closed thickness −0.068~+0.031m of the three single-leaf variants are compared with the threshold and swing, and the five `board` use a +Y U, `batten` and `strap` a +X U, and the two-face `pin` and `ring` cylinder and torus UVs.
+@evidenceExclude settings/50-production.md#execution-authority Work and execution authority are rules for authoring acts and are no basis for choosing the door hinge or the shape interfaces of other prototypes.
+@evidence principles/core/common.md#scope-preservation It sets the single-leaf boarded doors of the offering room, the three work rooms and the two yard doors as three size variants, down to battens, iron strap hinges, joint grooves, handle, joint and surfaces.
+@evidence principles/core/common.md#substantive-completion It adds to the battens, iron straps, five equal-width boards and joint grooves X=jw/5 the X start, Y centre and front Z of the iron straps, the handle position, the two-face connecting pins with 12 segments around and the 16×8-segment torus, so the source does not choose the hardware contact points anew.
+@evidence principles/core/common.md#declared-basis It states that the variant dimensions and opening directions come from the six doors and swings of openings.md#doors, the open width judgement 0.9m from 10-building#use-profile, and the joint rule from ../contracts/obligations-models.md#temple-articulation-map.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of simple boarded service and work doors into the model decisions of an asymmetric board with battens and iron straps on one face only and a hinge node.
+@evidence principles/design/models.md#representation-contract The board, batten, strap, pin and ring parts separate timber and metal surfaces and set the shape difference between the opening-side face and the opposite face.
+@evidence principles/design/models.md#spatial-convention It places the origin at the floor point of the hinge-side panel corner and sets the single-leaf hinge axis at the iron strap front face Z=+0.031m, the closed leaf width = clear width and height = clear height−0.01m.
+@evidence principles/design/models.md#reviewable-structure In both states and on both faces it checks that the battens are on one face only, that the joint grooves read on the opposite face, and that an open leaf stays within the swing reservation.
+@evidence principles/design/models.md#model-observable-style-basis It rests on boarded doors of vertical boards tied by horizontal battens, like the service door of image 01 and the work room door of image 05, and makes a board indistinguishable from a double door a failure.
+@evidence principles/design/models.md#model-scale-layer-completion The three size variants, the hinge side, the opening direction and the open width judgement are set together, completing the single-leaf door layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The clear dimensions of the six doors (1.2×2.3, 1.0×2.2, 1.1×2.2m), the north and south swing reservations and the 0.9m room door of use-profile were compared with the leaf widths; even at the narrowest 1.0m door, subtracting the open leaf thickness and handle projection leaves at least 0.901m by arithmetic, so the parents were not changed.
+@evidence settings/20-envelope.md#openings It receives the opening setting of timber boarded doors in the offering room, work rooms and yard as the single door leaf.
+@evidence spaces/openings.md#doors It consumes the dimensions and swings of door-offering, door-administration, door-records, door-yard, door-storage and door-service-exterior as the three variants and opening directions.
+@evidence settings/10-building.md#use-profile It uses the 0.9m passage condition of room doors as the judgement of the clear width an open single leaf must leave.
+@evidence settings/50-production.md#references It rests on the service door of image 01 and the work room door of image 05.
+@evidenceExclude spaces/circulation.md#service-route The delivery order from the yard to the storage room is already realized in openings.md#doors as the door-yard and door-storage positions, and the door leaf shape takes no new decision from that order.
+@evidenceExclude spaces/site.md#site-connections The site connectors are the walking links from the forecourt outside the service door and the main door approach, and the door-service-exterior leaf turns only inside the exterior wall void, so it does not change the connector end points.
+@evidenceExclude spaces/building.md#approach-contacts The height and position of the main door road and the service exterior contact are owned by spaces as the threshold and connector, and the door leaf is a board turning 0.01m above the threshold finish, so it does not consume the contacts.
 -->
 
-[개구부와 문짝](../settings/20-envelope.md#openings)의 깊은 석재 틀과 내부 reveal을 가진 작은 채광구다. 이미지 04의 벽 위쪽 작은 창과 깊은 틀이 근거이며 유리·창살·덧문은 두지 않는다. 판정된 [채광구](../spaces/openings.md#clerestories)의 유효 0.4×0.4m와 0.06m 틀을 소비한다.
+These are the single-leaf timber doors of the offering room, the three work rooms and the two yard doors. The basis is the simple boarded door with vertical boards tied by horizontal battens, like the service door of image 01 and the work room door of image 05. Three size variants are made from the reviewed `door-offering` (1.2×2.3m), `door-administration`, `door-records` and `door-yard` (1.0×2.2m), and `door-storage` and `door-service-exterior` (1.1×2.2m).
 
-로컬 원점은 void 아랫변의 중심(창대 높이−0.06m, 벽 중심면)이다. 안감 네 조각은 폭 0.06m이며 깊이는 벽 두께(북측 박공 0.60m, 제실 남벽과 두 spine 0.30m)다. 외부 면에만 폭 0.10m, 돌출 0.03m의 테가 네 변을 두른다. 변형은 두 벽 두께에 따른 두 개다. 점유 상자는 0.72×0.72×(벽 두께+0.03)m다.
+The local origin is the floor point of the hinge-side panel corner, and the panel direction in the closed pose is the same as the double leaf. The vertical axis of the single-leaf `hinge.<door ID>` is at X=0, Z=+0.031m from this origin, that is, on the front face of the iron strap hinges. After the whole prototype is installed to the set swing toward the room, `open` rotates −90° about this local axis. When open, Z≤+0.031m on the opening-side face becomes Xopen=0.031m−Z≥0, so it does not enter the frame lining X<0. The leaf has width = clear width, height = clear height−0.01m and thickness 0.05m. On the opening-side face there are two horizontal battens (vertical width 0.12m, thickness 0.025m, underside heights 0.25m and clear height−0.40m). Each iron strap hinge starts at X=0 and ends at X=0.6×clear width, and its Y centre is 0.31m on the lower batten and clear height−0.34m on the upper batten. They have vertical width 0.04m and thickness 0.006m and lie with their front at Z=+0.025~+0.031m, in face contact with the front faces of the two battens. On the opposite face only the joint grooves of five vertical boards dividing the clear width w into equal widths w/5 show. The four grooves are centred at X=jw/5 (j=1..4), each of width 0.01m and depth 0.004m. The iron ring handle opposite the hinge (outer radius 0.05m, tube radius 0.005m) is on both faces at centre X=(clear width−0.12m), Y=1.05m, Z=+0.025m/−0.063m, in the local XY plane with 16 main segments and 8 tube segments. The centreline radius of each ring is 0.045m. The front and back connecting pins are cylinders of radius 0.006m with 12 segments around, and from (X,Y)=(clear width−0.12m,1.095m) they extend from the board front face Z=0m→+0.025m and back face Z=−0.05m→−0.063m, the front pin 0.025m and the back pin 0.013m. The end of each pin overlaps the top tube centreline of the ring, so it is in solid contact with both the ring and the board. The occupancy range of the closed leaf including the iron straps and rings is X=0~clear width m, Y=0.01~clear height m, Z=−0.068~+0.031m.
 
-부재 대응: `lining`=안감; `surround`=테.
+Part map: `board`=board; `batten`=batten; `strap`=iron strap; `pin`=connecting pin; `ring`=ring.
 
-part와 표면은 `lining`, `surround`이다. 안감 바깥면과 테 뒷면은 벽과 맞닿는 가려진 접촉면이고 0.4×0.4m의 통과 영역은 비어 있다. 외부 면은 박공 창에서는 북측 입면·주랑 지붕 쪽, 측벽 창에서는 봉헌실 지붕·마당 쪽이며 instances가 그 방향을 소비한다.
+The joint is the single `hinge.<door ID>`; its range and default state follow the shared rule, and its hinge side and opening direction follow the swing reservations of spaces (offering room north; office, records room and storage room south; the two yard doors north). Parts and surfaces are `board`, `batten`, `strap`, `pin` and `ring`.
 
-검토 판에서 정면과 45° 시점으로 깊은 안감과 바깥 테를 보고, 건물 관찰에서 실내 쪽에는 테 없이 reveal만 있고 외부에서는 테가 보이는지 확인한다. 유리 판, 벽 두께보다 얕은 안감, void를 막은 틀은 실패다.
+On the review board both states and both faces are viewed to check that the battens and iron straps are on one face only and that the joint grooves read on the opposite face. Building observation checks that an open leaf stays within the swing reservation inside the room and leaves at least 0.9m of clear width. A board indistinguishable from a double door, or a leaf opening outside the swing reservation, is a failure.
 
-채광구 `lining`·`surround`의 UV0는 각 석재 안감과 외부 테의 바깥 면 법선에 따른 기본 평면 투영이다. 0.30m·0.60m 벽 깊이 변형의 막대 맞댐과 두 part 경계에서 이음을 둔다.
+The five single-leaf `board` take bottom→top +Y as the U of UV0, and the two `batten` and the iron `strap` take hinge→handle +X as U. The `pin` on both faces unwraps as a cylinder along the door face normal and `ring` as a local XY torus with 16 main segments and 8 tube segments, split at board joints and hardware part boundaries.
+
+## Clerestory stone frame {#window-frame}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The 0.72×0.72×(0.30/0.60+0.03)m occupancy around the 0.4×0.4m clerestory follows the sanctuary wall thickness and frame projection, and the `lining` and `surround` stone faces use the default planar UV.
+@evidenceExclude spaces/observations.md#viewer-path viewer-path is the real display path of the building source, and the neutral prototype review board is a separate scene, so its modes and cuts are not used as a shape datum.
+@evidence principles/core/common.md#scope-preservation It sets the deep stone lining and outer surround of the sanctuary clerestory as two wall thickness variants and states that there is no glass, bars or shutters.
+@evidence principles/core/common.md#substantive-completion The lining width 0.06m with wall-thickness depth, the outer surround 0.10m with 0.03m projection and the occupancy box 0.72×0.72×(wall thickness+0.03)m leave the source no window frame to choose again.
+@evidence principles/core/common.md#declared-basis It states that the clear 0.4×0.4m and the 0.06m frame come from openings.md#clerestories, the wall thickness from the north gable 0.60m and the sanctuary south wall and spines 0.30m, and the outer face direction from the upper exterior boundary of #boundary-ownership.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a small deep-framed clerestory into an asymmetric window frame model with only a reveal inside and a surround only outside.
+@evidence principles/design/models.md#representation-contract It sets the lining and surround parts, the hidden contact faces of lining and surround, and the empty 0.4×0.4m passage area.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the void's lower edge (sill height−0.06m, wall centre plane).
+@evidence principles/design/models.md#reviewable-structure It sets the deep lining and outer surround in front and 45° views, and the inner reveal and outer surround in the building, as refuting observations.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the small high window and deep frame of image 04 and makes a glass pane or a shallow lining a failure.
+@evidence principles/design/models.md#model-scale-layer-completion The two wall thickness variants and the ownership of the outer face direction are set, so all eight windows are covered by this prototype.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The clear dimensions and sill heights of clerestories and the repaired upper exterior boundary were compared with the two thickness variants, and all eight windows have a set outer face, so the model side changed no further parent. The window binding repair (c7af729c) surfaced first in the space-source work.
+@evidence settings/20-envelope.md#openings It receives the setting of a small clerestory with a deep stone frame and inner reveal as the window frame prototype.
+@evidence spaces/openings.md#clerestories It consumes the clear 0.4×0.4m, the 0.06m frame and the binding walls of the gable and side wall windows as two variants.
+@evidence spaces/openings.md#boundary-ownership It consumes the upper exterior boundary to which the side and south windows are bound as the outer face direction where the surround attaches.
+@evidence spaces/facades/north.md#north-envelope It uses the fact that the outer face of the gable window is the north facade as the surround direction of the 0.60m variant.
+@evidence settings/50-production.md#references It rests on the small high window and deep frame of image 04.
+@evidenceExclude spaces/facades/west.md#west-envelope The west exterior wall of the offering room is a continuous envelope without windows, so no clerestory frame variant is placed there and no other model consumes the west facade either.
+-->
+
+This is the small clerestory with a deep stone frame and an inner reveal of [openings and door leaves](../settings/20-envelope.md#openings). The basis is the small high window with a deep frame in image 04, and no glass, bars or shutters are provided. It consumes the clear 0.4×0.4m and the 0.06m frame of the reviewed [clerestories](../spaces/openings.md#clerestories).
+
+The local origin is the centre of the void's lower edge (sill height−0.06m, wall centre plane). The four lining pieces have width 0.06m, and their depth is the wall thickness (north gable 0.60m, sanctuary south wall and two spines 0.30m). Only the outer face has a surround of width 0.10m and projection 0.03m around the four sides. There are two variants, one per wall thickness. The occupancy box is 0.72×0.72×(wall thickness+0.03)m.
+
+Part map: `lining`=lining; `surround`=surround.
+
+Parts and surfaces are `lining` and `surround`. The outer face of the lining and the back face of the surround are hidden contact faces that abut the wall, and the 0.4×0.4m passage area is empty. The outer face is toward the north facade and colonnade roof for the gable window and toward the offering room roof and yard for the side wall windows, and instances consumes that direction.
+
+On the review board the front and 45° views show the deep lining and outer surround, and building observation checks that the interior side has only a reveal without a surround and that the surround shows from outside. Glass panes, a lining shallower than the wall thickness, or a frame blocking the void is a failure.
+
+The UV0 of the clerestory `lining` and `surround` is the default planar projection along the outer face normal of each stone lining piece and outer surround. Seams lie at the bar butts of the 0.30m and 0.60m wall depth variants and at the boundary of the two parts.

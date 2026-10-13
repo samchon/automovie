@@ -1,40 +1,40 @@
-# 앞쪽 파우더룸
+# Front Powder Room
 
-## 단일 출입과 기구 예약 {#powder-plan}
+## Single Entrance and Fixture Reservations {#powder-plan}
 <!--
-@evidence principles/core/common.md#scope-preservation powder-room의 경계, 단일 실문, 변기·세면대 예약, 노출 입면 구분과 비통과 조건을 맡는다.
-@evidence principles/core/common.md#substantive-completion 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m, 문 개구부 Z = [-1.65, -0.70] m와 유효 폭 목표 0.85 m, 변기 X = [4.75, 5.50]·Z = [-1.65, -0.95], 세면대 X = [3.65, 4.25]·Z = [-0.70, -0.25] m를 정한다.
-@evidence principles/core/common.md#declared-basis 기구 박스는 최종 제품 치수가 아닌 사용 공간을 먼저 남기는 상한이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 통로에서 직접 들어가는 작은 화장실을 -Z 문설주 경첩·실내 +X 열림과 변기/세면대의 벽 배치로 만든다.
-@evidence principles/design/spaces.md#space-topology 파우더룸은 서비스 띠 앞쪽의 독립실이고 차고나 다른 실로 이어지는 문이 없다.
-@evidence principles/design/spaces.md#space-boundary-authority 오른쪽 벽은 차고 접합을 소비하고 차고 전면보다 앞의 짧은 끝만 외부 노출로 두어 오른쪽 전체를 입면으로 중복 저작하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 문틀·기구·사용 동작과 작은 방의 자기 공간 안 관찰을 검사 대상으로 둔다.
-@evidence settings/10-house.md#powder 변기와 세면대만 두고 욕조·샤워와 두 번째 통행문이 없는 독립 작은 화장실로 만든다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work powder의 단일 출입·욕조 없음·기구 사용 공간 검토와 service-band의 비통과 조건을 대조했고 X = [3.22, 5.50], Z = [-1.90, -0.25] m 실에 두 기구가 들어가 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the boundary of powder-room, the single room door, the toilet and washbasin reservations, the distinction of the exposed elevation, and the non-passage condition.
+@evidence principles/core/common.md#substantive-completion Sets the inner finish X = [3.22, 5.50], Z = [-1.90, -0.25] m, the door opening Z = [-1.65, -0.70] m with an effective width target of 0.85 m, the toilet X = [4.75, 5.50]·Z = [-1.65, -0.95], and the washbasin X = [3.65, 4.25]·Z = [-0.70, -0.25] m.
+@evidence principles/core/common.md#declared-basis States that the fixture boxes are upper limits that leave use space first, not final product dimensions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the small toilet entered directly from the service passage into a door with -Z jamb hinges swinging into the interior in +X and a wall arrangement of the toilet/washbasin.
+@evidence principles/design/spaces.md#space-topology The powder room is an independent room at the front of the service band with no door leading to the garage or another room.
+@evidence principles/design/spaces.md#space-boundary-authority The right wall consumes the garage junction, and only the short end in front of the garage front is left exposed outside, so the whole right side is not authored twice as an elevation.
+@evidence principles/design/spaces.md#space-verification-address Keeps the door frame, fixtures, use motions, and the observation inside the small room's own space as inspection targets.
+@evidence settings/10-house.md#powder Makes an independent small toilet with only a toilet and washbasin, without a tub, shower, or second passage door.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared powder's single entrance, no tub, and fixture use space review with service-band's non-passage condition; the two fixtures fit in the X = [3.22, 5.50], Z = [-1.90, -0.25] m room, so there was no parent revision.
 -->
 
-`powder-room`은 ground-storey, [서비스 띠](../../settings/10-house.md#service-band)의 앞쪽 독립실이다. 마감 안쪽 X = [3.22, 5.50], Z = [-1.90, -0.25] m다. 전면은 [본채 외벽](../00-building.md#main-building-extent), 뒤는 Z = [-2.05, -1.90]의 세탁실 칸막이, 서쪽은 [서비스 칸막이](service.md#service-access-plan)다. 오른쪽 벽은 [차고 접합](../00-building.md#attached-garage-extent)을 소비하며 차고 전면보다 앞인 짧은 끝만 외부에 노출된다. 오른쪽 전체를 노출 입면으로 중복 저작하지 않는다. [설정](../../settings/10-house.md#powder)에 따라 변기와 세면대만 두고 차고나 다른 실로 이어지는 문은 없다.
+`powder-room` is an independent room of ground-storey at the front of the [service band](../../settings/10-house.md#service-band). The inner finish is X = [3.22, 5.50], Z = [-1.90, -0.25] m. The front is the [main block exterior wall](../00-building.md#main-building-extent), the back the laundry partition at Z = [-2.05, -1.90], and the west the [service partition](service.md#service-access-plan). The right wall consumes the [garage junction](../00-building.md#attached-garage-extent), and only the short end in front of the garage front is exposed outside. The whole right side is not authored twice as an exposed elevation. Per the [settings](../../settings/10-house.md#powder), only a toilet and washbasin are placed, and there is no door leading to the garage or another room.
 
-`service-powder-door`의 거친 개구부는 서쪽 칸막이의 Z = [-1.65, -0.70], Y = [0, 2.20] m다. 유효 폭 목표는 0.85 m다. -Z 문설주 경첩에서 실내 +X 방향으로 열리며 통로로 회전하지 않는다. 변기 예약은 X = [4.75, 5.50]·Z = [-1.65, -0.95], 세면대 예약은 X = [3.65, 4.25]·Z = [-0.70, -0.25] m다. 기구의 형태나 최종 제품 치수가 아니라 사용 공간을 먼저 남기는 상한 박스다.
+The rough opening of `service-powder-door` is Z = [-1.65, -0.70], Y = [0, 2.20] m in the west partition. The effective width target is 0.85 m. It opens from hinges on the -Z jamb into the interior in the +X direction and does not swing into the passage. The toilet reservation is X = [4.75, 5.50]·Z = [-1.65, -0.95], and the washbasin reservation X = [3.65, 4.25]·Z = [-0.70, -0.25] m. These are upper limit boxes that leave use space first, not the fixture forms or final product dimensions.
 
-변기 앞과 세면대 앞은 [사용/문 조작 예약](#powder-fixture-use)을 소비한다. `src/spaces/rooms/powder.ts`가 소유하며 후속 fit-out은 이 예약 안의 실제 기구로 다시 측정한다. 문틀·기구·사용 동작과 작은 방의 자기 공간 안 관찰은 unverified다.
+The spaces in front of the toilet and the washbasin consume the [use/door operation reservations](#powder-fixture-use). `src/spaces/rooms/powder.ts` owns it, and later fit-out measures the real fixtures inside these reservations again. The door frame, fixtures, use motions, and the observation inside the small room's own space are unverified.
 
-## 손씻기와 변기 접근 및 문 조작 {#powder-fixture-use}
+## Handwashing, Toilet Access, and Door Operation {#powder-fixture-use}
 <!--
-@evidence principles/core/common.md#scope-preservation 변기와 세면대의 사용 바닥, 순차 사용, 문 조작 대기, 거울과 수건의 위치를 맡는다.
-@evidence principles/core/common.md#substantive-completion 변기 전면 사용 X = [4.15, 4.75], Z = [-1.60, -1.00] m, 세면대 앞 X = [3.65, 4.25], Z = [-1.15, -0.70] m, 문 대기 X = [4.25, 4.85], Z = [-0.85, -0.40] m를 정한다.
-@evidence principles/core/common.md#declared-basis 높이는 방의 완성 바닥 기준이며 사람의 폭/깊이는 use-profile을 기구 방향에 맞춰 적용한다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "변기와 세면대의 점유 및 사용 공간을 따로 검토"를 두 사용 바닥과 문 회전 중의 대기 위치로 나눈다.
-@evidence principles/design/spaces.md#space-topology 두 기구 앞 사용을 같은 powder-room 안의 순차 사용으로 두고 문을 제거해 통행을 만들지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 기구 몸체 예약은 powder-plan에서 받고 수건 돌출과 대기를 분리한다.
-@evidence principles/design/spaces.md#space-verification-address 사용 순서의 실제 점유, 문 손잡이 접근, 작은 방 안의 모든 관찰과 화장실 읽힘을 공간 관찰에 포함한다.
-@evidence settings/10-house.md#powder 변기·세면대·거울·수건을 두고 두 기구의 사용 공간을 따로 예약한다.
-@evidence settings/00-production.md#use-profile 사람 점유체의 폭은 X, 깊이는 Z에 적용해 문 대기를 예약한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work powder의 기구 목록·프라이버시 문과 use-profile의 점유체를 두 사용 바닥과 문 대기에 적용했고 순차 사용으로 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the use floors of the toilet and washbasin, sequential use, the waiting position for door operation, and the positions of the mirror and towel.
+@evidence principles/core/common.md#substantive-completion Sets the toilet front use X = [4.15, 4.75], Z = [-1.60, -1.00] m, the area in front of the washbasin X = [3.65, 4.25], Z = [-1.15, -0.70] m, and the door waiting area X = [4.25, 4.85], Z = [-0.85, -0.40] m.
+@evidence principles/core/common.md#declared-basis States that heights are relative to the room's finished floor and that the person width/depth of use-profile is applied according to the fixture orientation.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Divides "The occupancy and use space of the toilet and washbasin are reviewed separately" into two use floors and a waiting position during door swing.
+@evidence principles/design/spaces.md#space-topology Keeps the use in front of the two fixtures as sequential use inside the same powder-room, and does not make passage by removing the door.
+@evidence principles/design/spaces.md#space-boundary-authority The fixture body reservations come from powder-plan, and the towel projection is separated from the waiting area.
+@evidence principles/design/spaces.md#space-verification-address Includes the real occupancy of the use sequence, door handle access, all observations inside the small room, and the readability of the toilet in the spatial observation.
+@evidence settings/10-house.md#powder Places the toilet, washbasin, mirror, and towel, and reserves the use spaces of the two fixtures separately.
+@evidence settings/00-production.md#use-profile Reserves the door waiting area by applying the person occupancy body's width to X and depth to Z.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied powder's fixture list and privacy door and use-profile's occupancy body to the two use floors and the door waiting area; it holds as sequential use, so there was no parent revision.
 -->
 
-같은 powder-room/ground-storey 안의 [두 기구](#powder-plan)에 대한 사용 공간이다. 변기는 오른쪽 벽을 등지고 -X를 향하며 좌면 높이 0.43 m·최대 높이 0.82 m의 공간 입력으로 둔다. 전면 사용 바닥은 X = [4.15, 4.75], Z = [-1.60, -1.00] m다. 세면대는 전면 벽을 등지고 -Z를 향하며 상면 높이 0.85 m, 앞쪽 사용 바닥은 X = [3.65, 4.25], Z = [-1.15, -0.70] m다. 모든 높이는 방의 완성 바닥 기준이다. 사람의 폭/깊이는 [사용체](../../settings/00-production.md#use-profile)를 기구 방향에 맞춰 적용하고 기구의 손잡이/수전까지 기존 몸체 예약 안에 둔다.
+These are the use spaces for the [two fixtures](#powder-plan) inside the same powder-room/ground-storey. The toilet backs onto the right wall facing -X, as a spatial input with a seat height of 0.43 m and a maximum height of 0.82 m. Its front use floor is X = [4.15, 4.75], Z = [-1.60, -1.00] m. The washbasin backs onto the front wall facing -Z, with a top height of 0.85 m and a front use floor X = [3.65, 4.25], Z = [-1.15, -0.70] m. All heights are relative to the room's finished floor. The person width/depth of the [user body](../../settings/00-production.md#use-profile) is applied according to the fixture orientation, and the fixtures' handles/faucets stay inside the existing body reservations.
 
-변기와 세면대의 사용 바닥은 한 사람이 순서대로 쓰는 영역이며 겹치는 부분을 동시 독립 사용으로 세지 않는다. 방 출입문을 움직이는 동안에는 기구 앞 일부 영역이 문 회전 범위와 겹칠 수 있다. 문을 닫거나 열 때의 실내 대기는 X = [4.25, 4.85], Z = [-0.85, -0.40] m에 두고, 사람의 폭은 X, 깊이는 Z에 적용한다. 문이 열린 뒤 기구로 이동한다. 손잡이 조작은 그 대기에서 문 쪽으로 접근하는 순서까지 실제 부재로 검사한다. 실문은 [파우더룸 설정](../../settings/10-house.md#powder)의 프라이버시를 위해 닫을 수 있어야 하며 door를 제거해서 통행을 만들지 않는다.
+The use floors of the toilet and washbasin are zones one person uses in sequence, and their overlapping part is not counted as simultaneous independent use. While the room door is moving, part of the area in front of the fixtures may overlap the door swing range. The interior waiting position while closing or opening the door is at X = [4.25, 4.85], Z = [-0.85, -0.40] m, applying the person's width to X and depth to Z. After the door opens, one moves to the fixtures. Handle operation is checked with real members up to the sequence of approaching the door from that waiting area. The room door must be closable for the privacy of the [powder room setting](../../settings/10-house.md#powder), and passage is not made by removing the door.
 
-거울은 세면대 위 전면 벽에서 세면대 X 범위, 높이 1.10–1.90 m, 돌출 0.04 m 이내의 예약이다. 수건은 같은 전면 벽 X = [4.40, 4.90] m, 높이 1.20–1.50 m에서 최대 0.08 m 돌출 안에 둔다. 위 대기는 벽에서 물려 수건 돌출과 분리하며 발바닥뿐 아니라 사람의 전체 높이에서 대조한다. 조명·도기·거울/수건의 구체 부재는 후속 models/instances/materials가 이 공간 입력을 소비한다. 사용 순서의 실제 점유·문 손잡이 접근·작은 방 안의 모든 관찰과 화장실 읽힘은 [공간 관찰](../04-observations.md#spatial-observation-derivation)에 포함하고 현재 unverified다.
+The mirror is a reservation on the front wall above the washbasin over the washbasin X range, at a height of 1.10–1.90 m with a projection within 0.04 m. The towel is on the same front wall at X = [4.40, 4.90] m, at a height of 1.20–1.50 m within a maximum projection of 0.08 m. The waiting area above is set back from the wall, separated from the towel projection, and compared over the person's whole height, not just the feet. The concrete members of lighting, ceramics, and mirror/towel are made by later models/instances/materials consuming this spatial input. The real occupancy of the use sequence, door handle access, all observations inside the small room, and the toilet readability are included in the [spatial observation](../04-observations.md#spatial-observation-derivation) and are currently unverified.

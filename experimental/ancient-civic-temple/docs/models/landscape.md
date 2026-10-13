@@ -1,153 +1,153 @@
-# 대지의 수목과 이웃 외피
+# Site trees and neighbouring envelopes
 
-## 좁고 높은 상록수 {#cypress}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.50×9.0×1.50m 상록수는 성인 포락보다 높고 대지 배치 구역에 놓이며, `trunk` 12각 옆면은 +X 시접의 Y축 원통 UV, 세 `crown` 덩어리는 각 면 평면 UV를 쓴다.
-@evidence settings/40-environment.md#daylight 상록수의 세 수관 덩어리와 줄기 사이 빈틈은 정면 좌측 위 45° 주광과 하늘 보조광을 고정한 중립 판에서 판독한다.
-@evidence principles/core/common.md#scope-preservation 좁고 높은 상록수를 줄기와 겹친 세 수관 덩어리, 높이·분할·법선, 덩어리 사이 빈틈까지 정한다.
-@evidence principles/core/common.md#substantive-completion 줄기 원뿔대의 둘레 12분할과 세 타원체의 반지름·높이·중심 XYZ·10×6분할을 확정해 source가 수관 축이나 줄기 단면을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 나무 정체성은 40-environment#vegetation과 이미지 01, 놓일 곳은 spaces/site.md#placement-zones에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 식생 설정을 한 덩어리 원뿔이 아닌 세 덩어리 수관과 빈틈이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract trunk·crown part와 덩어리 사이 허리의 빈틈, 10×6분할과 평평한 면 법선을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 줄기 밑동의 지면 중심에 두고 점유 상자 약 1.50×9.0×1.50m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 포락 대비 약 4.7배 높이와 세 덩어리 겹침을 보고 단일 원뿔·직육면체 수관·줄기 없는 덩어리를 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 짙은 세로 수관을 근거로 하고 종의 식물학적 정확성은 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 높이·덩어리 구성과 배치 구역 안의 위치·크기 변형 소유가 정해져 수목 prototype 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vegetation의 좁은 수관 나무와 placement-zones의 네 구역을 약 9.0m 높이·1.50m 폭에 대조했고 구역 안에 놓일 수 있어 부모를 고치지 않았다.
-@evidence settings/40-environment.md#vegetation 키 큰 좁은 수관의 상록수를 세 덩어리 수관 나무로 받는다.
-@evidence spaces/site.md#placement-zones 이웃·수목을 허용하는 네 배치 구역을 개체 위치가 들어갈 범위로 넘긴다.
-@evidence settings/50-production.md#references 이미지 01의 짙은 세로 수관을 근거로 쓴다.
-@evidenceExclude settings/40-environment.md#distant-terrain 국소 대지 직사각형 밖 먼 지형은 식생 개체를 납품하지 않는 배경 능선이라 수목 prototype이 놓이지 않고 능선 형상은 spaces 대지가 소유한다.
-@evidenceExclude spaces/site.md#site-grade 수목 원점은 지면 중심이며 놓일 지면 높이는 instances가 대지 지면 규칙에서 읽어 prototype이 경사를 담지 않는다.
--->
-
-[식생](../settings/40-environment.md#vegetation)의 키 큰 좁은 수관 나무다. 이미지 01의 짙은 세로 수관이 근거이며 종의 식물학적 정확성은 주장하지 않는다. 줄기·가지 덩어리·잎 덩어리 사이의 빈틈이 리뷰 거리에서 읽혀야 하므로 한 덩어리 원뿔이 아니라 겹친 세 덩어리로 만든다. 줄기 원뿔대의 둘레는 12분할이고 높이 방향은 한 구간이다.
-
-로컬 원점은 줄기 밑동의 지면 중심이다. 줄기는 반지름 0.12m에서 0.08m로 줄어드는 원뿔대(높이 1.4m)이고, 수관은 세 개의 길쭉한 타원체 덩어리가 위로 겹친다. 아래 덩어리의 중심 (X,Y,Z)은 (0,3.0,0)m, 수평 반지름 0.75m, 전체 높이 3.6m다. 가운데는 (+0.10,5.4,0)m·반지름 0.62m·높이 3.4m, 위는 (-0.10,7.6,0)m·반지름 0.42m·높이 2.8m다. 두 위쪽 축은 X축에서 서로 반대로 0.10m 어긋난다. 전체 높이 9.0m, 타원체는 10분할(둘레)×6분할(높이) 다면체이며 평평한 면 법선으로 잎 덩어리의 면이 읽히게 한다. 매끈한 타원체 기준 극값으로 얻는 보수적 점유 상자는 1.50×9.0×1.50m다. 10각 단면 다면체의 실제 Z 폭은 약 1.427m다.
-
-줄기 윗끝 Y=1.4m는 아래 수관 덩어리의 아랫끝 Y=1.2m보다 0.20m 안으로 들어가 두 부재를 결합한다.
-
-부재 대응: `trunk`=줄기; `crown`=수관.
-
-part와 표면은 `trunk`, `crown`이다. 덩어리 사이 허리의 좁아짐이 빈틈이다. 개체 위치·크기 변형·수는 instances가 [배치 구역](../spaces/site.md#placement-zones) 안에서 정한다.
-
-세 수관 덩어리와 줄기 사이의 빈틈은 [주광과 대기](../settings/40-environment.md#daylight)의 정면 좌측 위 고도 45° 주광과 하늘 보조광을 설정한 중립 판에서 읽는다.
-
-검토 판에서 보행 포락 대비 약 4.7배 높이와 세 덩어리의 겹침을 본다. 단일 원뿔, 직육면체 수관, 줄기 없는 덩어리는 실패다.
-
-상록수 `trunk`의 UV0는 밑동 +X 시접에서 둘레 호길이 U·높이 V로 편다. 세 `crown` 타원체의 면은 각 바깥법선별 기본 평면 투영을 쓰고 덩어리 경계에서 끊는다.
-
-## 넓은 수관의 나무 {#broad-tree}
+## Tall narrow evergreen {#cypress}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 약 4.4×5.2×4.2m 활엽수는 사람 포락을 넘어 대지에 두고, `trunk`는 Y축 둘레 UV, 세 `branch`는 가지축에 +X를 투영한 시접의 둘레 U·길이 V, `crown`은 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 낮고 넓은 수관 나무를 줄기·세 가지·여섯 수관 덩어리와 빈틈·분할까지 정한다.
-@evidence principles/core/common.md#substantive-completion 줄기·세 가지의 끝 좌표와 여섯 수관의 중심·세 반축, 줄기 12분할·가지 8분할을 확정해 source가 덩어리 위치나 가지 단면을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 나무 정체성은 40-environment#vegetation과 이미지 01·03, 놓일 곳은 spaces/site.md#placement-zones에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 식생 설정을 가지가 보이는 여섯 덩어리 수관이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract trunk·branch·crown part와 덩어리 사이 가지가 보이는 빈틈, 10×6분할과 평평한 면 법선을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 줄기 밑동의 지면 중심에 두고 점유 상자 약 4.4×5.2×4.2m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 정면·평면의 줄기·가지·덩어리 사이 빈틈을 보고 구 하나 수관·가지 없는 덩어리를 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01·03의 둥글게 퍼진 회녹색 수관을 근거로 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 가지와 수관 덩어리의 층과 위치·크기·회전 변형 소유가 정해져 넓은 나무 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vegetation의 넓은 수관 나무와 placement-zones의 구역 폭을 약 4.4m 수관에 대조했고 1.5m 물러난 구역 안에 들어 부모를 고치지 않았다.
-@evidence settings/40-environment.md#vegetation 낮고 넓은 회녹색 수관 나무를 가지와 여섯 덩어리 수관으로 받는다.
-@evidence spaces/site.md#placement-zones 포장에서 1.5m 물러난 배치 구역을 넓은 수관이 놓일 범위로 넘긴다.
-@evidence settings/50-production.md#references 이미지 01·03의 둥글게 퍼진 수관을 근거로 쓴다.
-@evidenceExclude spaces/site.md#site-extent 대지 범위 25m는 배치 구역이 이미 담아 수목 prototype은 범위 대신 구역만 소비하고 대지 단위의 cell·model을 만들지 않는다.
+@evidence contracts/principles-models.md#temple-reference-scale The 1.50×9.0×1.50m evergreen is taller than the adult envelope and stands in the site placement zones; the 12-sided sides of `trunk` use a Y-axis cylinder UV with a +X seam, and the three `crown` masses use per-face planar UVs.
+@evidence settings/40-environment.md#daylight The gaps between the three crown masses and the trunk of the evergreen are read on the neutral board with the front upper-left 45° daylight and sky fill fixed.
+@evidence principles/core/common.md#scope-preservation It sets the tall narrow evergreen down to the trunk and three overlapping crown masses, height, segments, normals and the gaps between masses.
+@evidence principles/core/common.md#substantive-completion It fixes the 12 segments around the trunk frustum and the radii, heights, centre XYZ and 10×6 segments of the three ellipsoids, so the source does not choose the crown axes or trunk section again.
+@evidence principles/core/common.md#declared-basis It states that the tree identity comes from 40-environment#vegetation and image 01 and the place from spaces/site.md#placement-zones.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the vegetation setting into the model decision of a three-mass crown with gaps rather than a single cone.
+@evidence principles/design/models.md#representation-contract It sets the trunk and crown parts, the gaps at the waists between masses, 10×6 segments and flat face normals.
+@evidence principles/design/models.md#spatial-convention It places the origin at the ground centre of the trunk base and records the occupancy box of about 1.50×9.0×1.50m.
+@evidence principles/design/models.md#reviewable-structure It views the height of about 4.7 times the envelope and the lapping of the three masses, and makes a single cone, a cuboid crown or masses without a trunk a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the dark vertical crowns of image 01 and does not claim botanical accuracy of the species.
+@evidence principles/design/models.md#model-scale-layer-completion Height, mass composition and the ownership of position and size variants within the placement zones are set, completing the tree prototype layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The narrow-crowned tree of vegetation and the four zones of placement-zones were compared with the height of about 9.0m and the width 1.50m; it can stand within the zones, so the parents were not changed.
+@evidence settings/40-environment.md#vegetation It receives the tall narrow-crowned evergreen as a three-mass crown tree.
+@evidence spaces/site.md#placement-zones It hands the four placement zones that allow neighbours and trees over as the range for individual positions.
+@evidence settings/50-production.md#references It rests on the dark vertical crowns of image 01.
+@evidenceExclude settings/40-environment.md#distant-terrain The distant terrain outside the local site rectangle is a background ridge that delivers no vegetation instances, so no tree prototype stands there, and the ridge shape is owned by the spaces site.
+@evidenceExclude spaces/site.md#site-grade The tree origin is the ground centre, and instances reads the ground height from the site ground rule, so the prototype carries no slope.
 -->
 
-[식생](../settings/40-environment.md#vegetation)의 낮고 넓은 회녹색 수관 나무다. 이미지 01·03의 둥글게 퍼진 수관이 근거다. 줄기 원뿔대는 둘레 12분할·높이 한 구간, 세 가지 원통은 각자 둘레 8분할·길이 한 구간이다.
+This is the tall narrow-crowned tree of the [vegetation](../settings/40-environment.md#vegetation). The basis is the dark vertical crowns of image 01, and botanical accuracy of the species is not claimed. The gaps between the trunk, the branch masses and the leaf masses must read at review distance, so it is made of three overlapping masses rather than a single cone mass. The trunk frustum has 12 segments around and one span in height.
 
-로컬 원점은 줄기 밑동의 지면 중심이다. 줄기는 반지름 0.18m에서 0.13m로 줄어드는 원뿔대(높이 1.6m)다. 반지름 0.07m인 세 가지는 줄기 중심 (0,1.5,0)m에서 각각 (-1.05,2.6,-0.55)m, (+1.05,2.6,-0.55)m, (0,2.6,+1.10)m로 뻗으며 길이는 약 1.6m다. 수관은 다음 여섯 타원체의 중심과 X·Y·Z 반축으로 정한다. 모든 좌표와 반축은 m다.
+The local origin is the ground centre at the trunk base. The trunk is a frustum (height 1.4m) narrowing from radius 0.12m to 0.08m, and the crown is three elongated ellipsoid masses overlapping upward. The centre (X,Y,Z) of the lower mass is (0,3.0,0)m, horizontal radius 0.75m, overall height 3.6m. The middle one is (+0.10,5.4,0)m, radius 0.62m, height 3.4m, and the upper one (-0.10,7.6,0)m, radius 0.42m, height 2.8m. The two upper axes are offset 0.10m in opposite X directions. The overall height is 9.0m, and the ellipsoids are polyhedra of 10 segments around by 6 segments in height whose flat face normals let the faces of the leaf masses read. Taken from the extremes of the smooth ellipsoids, the conservative occupancy box is 1.50×9.0×1.50m. The real Z width of the 10-gon section polyhedra is about 1.427m.
 
-| 덩어리 | 중심 (X,Y,Z) | 반축 (X,Y,Z) |
+The trunk top end Y=1.4m enters 0.20m into the lower crown mass beyond its bottom end Y=1.2m and unites the two members.
+
+Part map: `trunk`=trunk; `crown`=crown.
+
+Parts and surfaces are `trunk` and `crown`. The narrowing waists between the masses are the gaps. instances sets the individual positions, size variants and count within the [placement zones](../spaces/site.md#placement-zones).
+
+The gaps between the three crown masses and the trunk are read on the neutral board set with the front upper-left 45° altitude daylight and sky fill of [daylight and atmosphere](../settings/40-environment.md#daylight).
+
+On the review board the height of about 4.7 times the walking envelope and the lapping of the three masses are viewed. A single cone, a cuboid crown or masses without a trunk is a failure.
+
+The UV0 of the evergreen `trunk` unwraps the circumference arc length U and the height V from a +X seam at the base. The faces of the three `crown` ellipsoids use the default planar projection per outward normal and split at the mass boundaries.
+
+## Broad-crowned tree {#broad-tree}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The broadleaf tree of about 4.4×5.2×4.2m stands on the site beyond the human envelope; `trunk` uses a Y-axis circumference UV, the three `branch` a circumference U and length V with the seam at +X projected orthogonally onto the branch axis, and `crown` planar UVs.
+@evidence principles/core/common.md#scope-preservation It sets the low broad-crowned tree down to trunk, three branches, six crown masses, gaps and segments.
+@evidence principles/core/common.md#substantive-completion It fixes the end coordinates of the trunk and three branches, the centres and three semi-axes of the six crown masses, 12 trunk segments and 8 branch segments, so the source does not choose mass positions or branch sections again.
+@evidence principles/core/common.md#declared-basis It states that the tree identity comes from 40-environment#vegetation and images 01 and 03 and the place from spaces/site.md#placement-zones.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the vegetation setting into the model decision of a six-mass crown in which the branches show.
+@evidence principles/design/models.md#representation-contract It sets the trunk, branch and crown parts, the gaps between masses where branches show, 10×6 segments and flat face normals.
+@evidence principles/design/models.md#spatial-convention It places the origin at the ground centre of the trunk base and records the occupancy box of about 4.4×5.2×4.2m.
+@evidence principles/design/models.md#reviewable-structure It views the trunk, branches and gaps between masses in front and plan, and makes a one-sphere crown or masses without visible branches a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the round, spreading grey-green crowns of images 01 and 03.
+@evidence principles/design/models.md#model-scale-layer-completion The layers of branches and crown masses and the ownership of position, size and rotation variants are set, completing the broad tree layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The broad-crowned tree of vegetation and the zone widths of placement-zones were compared with the crown of about 4.4m; it fits within the zones set back 1.5m, so the parents were not changed.
+@evidence settings/40-environment.md#vegetation It receives the low, broad grey-green crowned tree as branches and a six-mass crown.
+@evidence spaces/site.md#placement-zones It hands the placement zones set back 1.5m from the paving over as the range where the broad crown stands.
+@evidence settings/50-production.md#references It rests on the round, spreading crowns of images 01 and 03.
+@evidenceExclude spaces/site.md#site-extent The 25m site extent is already contained by the placement zones, so the tree prototype consumes only the zones instead of the extent and makes no site-level cell or model.
+-->
+
+This is the low, broad grey-green crowned tree of the [vegetation](../settings/40-environment.md#vegetation). The basis is the round, spreading crowns of images 01 and 03. The trunk frustum has 12 segments around and one span in height, and the three branch cylinders each have 8 segments around and one span in length.
+
+The local origin is the ground centre at the trunk base. The trunk is a frustum (height 1.6m) narrowing from radius 0.18m to 0.13m. The three branches of radius 0.07m extend from the trunk centre (0,1.5,0)m to (-1.05,2.6,-0.55)m, (+1.05,2.6,-0.55)m and (0,2.6,+1.10)m respectively, with lengths of about 1.6m. The crown is set by the centres and X, Y, Z semi-axes of the following six ellipsoids. All coordinates and semi-axes are in m.
+
+| Mass | Centre (X,Y,Z) | Semi-axes (X,Y,Z) |
 | --- | --- | --- |
-| 뒤왼쪽 | (-1.05,3.25,-0.55) | (1.15,1.35,1.05) |
-| 뒤오른쪽 | (+1.05,3.25,-0.55) | (1.15,1.35,1.05) |
-| 중앙 | (0,3.55,+0.85) | (1.20,1.65,1.20) |
-| 앞왼쪽 | (-1.15,3.45,+0.95) | (0.90,1.30,1.10) |
-| 앞오른쪽 | (+1.15,3.45,+0.95) | (0.90,1.30,1.10) |
-| 뒤중앙 | (0,3.50,-0.95) | (1.05,1.40,1.15) |
+| back left | (-1.05,3.25,-0.55) | (1.15,1.35,1.05) |
+| back right | (+1.05,3.25,-0.55) | (1.15,1.35,1.05) |
+| centre | (0,3.55,+0.85) | (1.20,1.65,1.20) |
+| front left | (-1.15,3.45,+0.95) | (0.90,1.30,1.10) |
+| front right | (+1.15,3.45,+0.95) | (0.90,1.30,1.10) |
+| back centre | (0,3.50,-0.95) | (1.05,1.40,1.15) |
 
-수관 꼭대기 5.20m, X 범위 -2.20~+2.20m, Z 범위 -2.10~+2.05m여서 매끈한 타원체 기준 보수적 점유 상자는 약 4.4×5.2×4.2m이고, 10각 단면 다면체의 실제 Z 폭은 약 4.04m다. 덩어리 사이에 가지가 보이는 빈틈이 남아야 한다. 타원체는 10×6분할, 평평한 면 법선이다.
+With the crown top 5.20m, X range -2.20~+2.20m and Z range -2.10~+2.05m, the conservative occupancy box is about 4.4×5.2×4.2m by the smooth ellipsoids, and the real Z width of the 10-gon section polyhedra is about 4.04m. Gaps where branches show must remain between the masses. The ellipsoids have 10×6 segments and flat face normals.
 
-세 가지의 밑동은 줄기 윗부분 안으로 들어가 접합부를 고정한다. 가지의 반대쪽 끝은 각 수관 덩어리 안으로 들어가 접합부를 고정한다. 가지의 중간은 수관 덩어리 사이에서 보인다.
+The bases of the three branches enter into the upper part of the trunk and fix the junction. The opposite end of each branch enters into a crown mass and fixes the junction. The middle of each branch shows between the crown masses.
 
-부재 대응: `trunk`=줄기; `branch`=가지; `crown`=수관.
+Part map: `trunk`=trunk; `branch`=branch; `crown`=crown.
 
-part와 표면은 `trunk`, `branch`, `crown`이다. 위치·크기·회전 변형은 instances가 [배치 구역](../spaces/site.md#placement-zones) 안에서 정한다.
+Parts and surfaces are `trunk`, `branch` and `crown`. instances sets the position, size and rotation variants within the [placement zones](../spaces/site.md#placement-zones).
 
-검토 판에서 정면·평면으로 줄기와 가지, 덩어리 사이 빈틈을 본다. 구 하나의 수관, 가지가 보이지 않는 덩어리는 실패다.
+On the review board the front and plan views show the trunk and branches and the gaps between masses. A crown of one sphere, or masses with no visible branches, is a failure.
 
-넓은 나무 `trunk`는 +X 시접의 Y축 원통 UV0를, 세 `branch`는 시작점 축에 +X를 직교 투영한 시접에서 둘레 U·가지 길이 V를 쓴다. `crown` 타원체는 면 법선별 평면 UV로 끊는다.
+The broad tree `trunk` uses a Y-axis cylinder UV0 with a +X seam, and the three `branch` use a circumference U and branch length V from a seam where +X is projected orthogonally onto the start axis. The `crown` ellipsoids split with per-face-normal planar UVs.
 
-## 벽 밑 풀 {#grass-tuft}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 최대 0.35m 풀 포락은 성인 통행보다 낮고 문턱 밖 띠에만 놓이며, 한 `blade`의 여러 평평한 앞뒤 면은 각 바깥법선의 기본 UV로 투영한다.
-@evidence principles/core/common.md#scope-preservation 벽 밑 풀 포기를 잎 열두 장의 삼각 판 묶음과 높이·양면 표면·배치 금지 구역까지 정한다.
-@evidence principles/core/common.md#substantive-completion 열두 잎의 폭·높이·방위·바깥 기울기를 잎 번호의 결정론적 식으로 정해 source가 각도를 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 풀 정체성은 40-environment#vegetation과 이미지 01, 벽 가장자리 마른 흙은 40-environment#site, 풀 띠는 spaces/site.md#placement-zones에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 벽 밑 소량 풀이라는 설정을 양면 잎 판 묶음과 문턱·보행 경로 배제라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract blade part 하나와 양면 표면을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 포기의 지면 중심에 둔다.
-@evidence principles/design/models.md#reviewable-structure 벽 기단 옆 규모가 포락의 약 0.15배인지 보고 직육면체 풀·문 앞을 막는 포기를 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 벽 가장자리 마른 풀 포기를 근거로 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 크기와 풀 띠 안의 배치 소유가 정해져 풀 prototype 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work site 설정의 벽 가장자리 흙 구간과 placement-zones의 풀 띠 0.6m·접근 포장 금지 0.5m를 포기 폭 0.35m에 대조했고 띠 안에 놓일 수 있어 부모를 고치지 않았다.
-@evidence settings/40-environment.md#vegetation 벽 밑 소량 풀을 잎 판 묶음으로 받는다.
-@evidence settings/40-environment.md#site 벽 가장자리의 좁은 마른 흙 구간을 풀 포기가 놓일 지면으로 받는다.
-@evidence spaces/site.md#placement-zones 벽 밑 풀 띠 폭 0.6m와 접근 포장 금지 폭 0.5m를 배치 범위로 넘긴다.
-@evidence settings/50-production.md#references 이미지 01의 벽 가장자리 마른 풀을 근거로 쓴다.
-@evidenceExclude spaces/storey.md#wall-ground-contact 외벽 하단 접촉은 벽이 지면 최저값까지 내려가는 spaces 규칙이며 풀 포기는 그 앞 흙띠 위에 놓일 뿐 벽 하단을 바꾸지 않는다.
--->
-
-[식생](../settings/40-environment.md#vegetation)의 벽 밑 소량 풀이다. 이미지 01의 벽 가장자리 마른 풀 포기가 근거다. [국소 대지](../settings/40-environment.md#site)의 마른 흙 위에 놓이고, [배치 구역](../spaces/site.md#placement-zones)의 벽 밑 풀 띠 안에서 instances가 실제 위치를 정한다.
-
-로컬 원점은 포기의 지면 중심이다. 열두 잎 `bladeFan(i)`에서 i는 0~11의 정수이며 방위 θ=2πi/12다. 잎 너비는 `0.02+0.005×(i mod 3)`m, 끝 높이는 `0.20+0.15×((5i mod 12)/11)`m, 바닥 중심은 원점에서 θ 방향 0.03m, 끝의 바깥 기울기는 바닥 중심에서 같은 방향으로 `0.08+0.04×((i mod 4)/3)`m다. 각 잎의 밑변은 바닥 중심에서 θ에 수직으로 너비의 절반씩 벌어지고 꼭짓점은 위 끝 위치다. 이 삼각 판 묶음의 잎은 양면 표면이다. 점유 상자는 최대 반경 0.15m·높이 0.35m를 여유 있게 감싸는 0.35×0.35×0.35m다.
-
-부재 대응: `blade`=잎.
-
-part와 표면은 `blade` 하나다. 위치·수·크기 변형은 instances가 [벽 밑 풀 띠](../spaces/site.md#placement-zones) 안에서 정하며 문턱·보행 경로에는 두지 않는다.
-
-검토 판에서 벽 기단 옆에 둔 규모가 보행 포락의 약 0.15배인지 본다. 직육면체 풀, 문 앞을 막는 포기는 실패다.
-
-풀 `blade`의 앞뒷면 UV0는 각 면의 바깥법선으로 고른 평면 투영이며, 얇은 잎 외곽에서 정점을 분리한다. 0.35m 점유 밖으로 잎 무늬를 위한 추가 기하를 만들지 않는다.
-
-## 이웃 회벽집 외피 {#neighbor-house}
+## Grass at the wall foot {#grass-tuft}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale A 8.6×4.733×6.6m·B 6.6×5.952×7.6m 외피는 사람 포락보다 크지만 대지 배치 구역에 머물고, `roof`의 +Z 앞 경사 +X U·−Z 뒤 경사 −X U·외쪽 +X U와 각 처마→높은 쪽 V를 쓴다.
-@evidenceExclude settings/00-delivery.md#governing-aim 다섯 reference의 건물 전체 대조는 건물 관찰 위치가 맡고 원형 검토 판은 분리된 부재 형상·빈 공간만 판단한다.
-@evidenceExclude spaces/building.md#footprint 외곽 footprint는 건물 매스가 소유하고 모델은 방·주랑·지붕의 판정된 순치수와 기준선만 받아 독립 부재를 만든다.
-@evidence principles/core/common.md#scope-preservation 이웃 회벽집 외피를 두 변형의 벽체·지붕·문창 자리·기단 띠와 외피 한정 조건까지 정한다.
-@evidence principles/core/common.md#substantive-completion A의 양 박공벽과 B의 경사 윗선을 포함한 두께 0.30m 벽·지붕 치수에 더해 앞면 좌표계의 문·창 중심·유효 크기·깊이 0.20m와 남는 뒷벽 0.10m를 두 변형 모두 확정한다.
-@evidence principles/core/common.md#declared-basis 정체성은 40-environment#neighborhood와 이미지 01, 놓일 곳은 spaces/site.md#placement-zones, 높이 비교 기준은 junctions#plinth-coping의 코핑 4.85m에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주변 건물 설정을 실내 없는 외피 두 변형과 신전보다 낮거나 비슷한 높이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract wall·plinth·roof·recess part와 벽 두께 0.30m 중 0.20m만 파고 0.10m를 남기는 문·창 자리, 기와 모듈 없는 slab 지붕이라는 배경 상한을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥 사각형 중심 지면에 두고 두 변형의 점유 상자를 적는다.
-@evidence principles/design/models.md#reviewable-structure 두 변형의 정면·3/4와 코핑 4.85m 대비 높이를 보고 신전보다 높은 이웃·뚫린 창·단색 상자를 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 01의 좁은 길 건너 낮은 기와지붕 집들을 근거로 하되 배경 상한으로 기와 모듈은 두지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 변형과 높이 비교, 배치 구역 안 위치·회전 소유가 정해져 배경 외피 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work neighborhood의 신전보다 낮거나 비슷한 건물, placement-zones의 네 구역, 코핑 4.85m를 두 변형의 계산 높이 4.733/5.952m에 대조했다. B는 코핑보다 높지만 제실 용마루 약 7.67m보다 낮아 비슷한 높이 범위에 들고 가림은 instances 배치가 맡는다.
-@evidence settings/40-environment.md#neighborhood 신전보다 낮거나 비슷한 회벽 건물을 외피 두 변형으로 받는다.
-@evidence spaces/site.md#placement-zones 이웃 집을 허용하는 배치 구역을 위치·회전·수가 정해질 범위로 넘긴다.
-@evidence spaces/junctions.md#plinth-coping 파라펫 코핑 윗면 4.85m를 두 변형 높이의 비교 기준으로 쓴다.
-@evidence settings/50-production.md#references 이미지 01의 길 건너 낮은 기와지붕 집들을 근거로 쓴다.
-@evidenceExclude spaces/site.md#distant-ridge 먼 능선과 기슭은 spaces 대지의 site-distant 열린 표면이 이미 소유하고 이웃 외피는 25m 국소 배치 구역 안에만 놓여 능선을 소비하지 않는다.
-@evidenceExclude spaces/site.md#site-paving 흙띠·포장·이웃 바닥 구획은 spaces 대지 표면이며 이웃 외피는 바닥 없는 벽·지붕 껍질이라 구획을 다시 만들지 않는다.
+@evidence contracts/principles-models.md#temple-reference-scale The grass envelope of at most 0.35m is lower than adult passage and lies only in the band outside thresholds, and the several flat front and back faces of one `blade` are projected with the default UV of each outward normal.
+@evidence principles/core/common.md#scope-preservation It sets the grass tuft at the wall foot down to a bundle of twelve triangular blade plates, height, double-sided surfaces and the zones where placement is banned.
+@evidence principles/core/common.md#substantive-completion It sets the width, height, direction and outward lean of the twelve blades by deterministic formulas of the blade index, so the source does not choose the angles again.
+@evidence principles/core/common.md#declared-basis It states that the grass identity comes from 40-environment#vegetation and image 01, the dry soil at the wall edge from 40-environment#site, and the grass band from spaces/site.md#placement-zones.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of a little grass at the wall foot into the model decisions of a bundle of double-sided blade plates and the exclusion of thresholds and walking paths.
+@evidence principles/design/models.md#representation-contract It sets one blade part and its double-sided surfaces.
+@evidence principles/design/models.md#spatial-convention It places the origin at the ground centre of the tuft.
+@evidence principles/design/models.md#reviewable-structure It checks that the scale beside the wall plinth is about 0.15 times the envelope and makes cuboid grass or a tuft blocking a door a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the dry grass tufts at the wall edge of image 01.
+@evidence principles/design/models.md#model-scale-layer-completion The size and the placement ownership within the grass band are set, completing the grass prototype layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The soil strip at the wall edge of the site setting and the 0.6m grass band and 0.5m approach paving exclusion of placement-zones were compared with the tuft width 0.35m; it can lie within the band, so the parents were not changed.
+@evidence settings/40-environment.md#vegetation It receives the little grass at the wall foot as a bundle of blade plates.
+@evidence settings/40-environment.md#site It receives the narrow dry soil strip at the wall edge as the ground where the tufts lie.
+@evidence spaces/site.md#placement-zones It hands the 0.6m wide wall-foot grass band and the 0.5m approach paving exclusion over as the placement range.
+@evidence settings/50-production.md#references It rests on the dry grass at the wall edge of image 01.
+@evidenceExclude spaces/storey.md#wall-ground-contact The exterior wall bottom is the spaces rule that walls go down to the lowest ground value, and the grass tuft only lies on the soil strip in front of it without changing the wall bottom.
 -->
 
-[주변 건물과 먼 배경](../settings/40-environment.md#neighborhood)의 신전보다 낮거나 비슷한 회벽 건물이다. 이미지 01의 좁은 길 건너 낮은 기와지붕 집들이 근거이며 외피만 만들고 실내와 이동 경로는 없다. 두 변형으로 반복감을 줄인다.
+This is the little grass at the wall foot of the [vegetation](../settings/40-environment.md#vegetation). The basis is the dry grass tufts at the wall edge in image 01. It lies on the dry soil of the [local site](../settings/40-environment.md#site), and instances sets the real positions within the wall-foot grass band of the [placement zones](../spaces/site.md#placement-zones).
 
-변형 A는 단층 박공집이다. 로컬 원점은 바닥 사각형의 중심 지면이며 벽 바닥은 X=±4.0m·Z=±3.0m다. 네 벽의 실체 두께는 안쪽으로 0.30m다. 용마루는 X축과 평행하고 Z=0m에 있다. 지붕 윗면은 처마 끝 Z=±3.30m에서 Y=3.40m, 중심에서 `3.40+3.30×tan(22°)=4.733m`다. 네 변의 처마는 벽 밖으로 0.30m 나오며 slab 두께는 연직 0.16m다. 앞·뒤 긴 벽은 Z=±3.0m에서 지붕 아랫면 `3.40+0.30×tan(22°)−0.16=3.361m`까지 오르고, X=±4.0m의 두 짧은 끝은 이 높이의 벽 위에 중심 높이 `4.733−0.16=4.573m`까지 올라가는 닫힌 삼각 박공벽을 `wall` part에 포함한다. 양 끝 다락이 관통해 보이는 구멍은 없다. 앞면은 로컬 +Z의 긴 벽이고 그 안에서 문·창 X 중심과 바닥 기준 Y를 정한다. A의 문은 X=0m·하단 Y=0m·크기 1.0×2.1m, 두 창은 X=±2.20m·하단 Y=1.35m·각 0.6×0.8m다. 변형 B는 두 층 높이의 외쪽 지붕 집으로 벽 바닥이 X=±3.0m·Z=±3.5m이며 같은 0.30m 실체 두께를 안쪽으로 쓴다. 앞벽선 Z=+3.5m의 지붕 윗면 Y=4.40m에서 뒤쪽으로 12° 올라가므로 뒤벽선 Z=−3.5m의 윗면은 `4.40+7.0×tan(12°)=5.888m`, 앞 처마 끝 Z=+3.8m는 4.336m, 뒤 처마 끝 Z=−3.8m는 5.952m다. 네 변에 0.30m 처마를 두고 slab 윗면에서 연직 0.16m 아래를 벽 윗선으로 삼는다. 따라서 앞벽은 Y=4.24m, 뒤벽은 Y=5.728m까지 닫히며 두 옆벽은 `Y=4.24+(3.5−Z)×tan(12°)`의 사다리꼴 윗선을 따라 지붕 아래를 막는다. B의 앞면도 로컬 +Z이며 문은 X=0m·하단 Y=0m·크기 1.0×2.1m, 네 창은 X=±1.70m와 하단 Y=1.25m·2.95m의 모든 조합이며 각 0.6×0.8m다. 두 변형의 모든 문·창 자리는 앞면에서 안쪽으로 0.20m 들어가고 막힌 뒷면을 가진다. 벽 두께 0.30m에서 오목 깊이 0.20m를 빼면 불투명한 뒷벽 0.10m가 남는다. 두 변형 모두 바닥에서 0.5m 높이의 기단 띠 면을 따로 가진다. 지붕은 기와 모듈을 배치하지 않는 slab으로 배경 표현 상한을 지킨다. 지붕 처마 끝까지 포함한 점유 상자는 A 8.6×4.733×6.6m, B 6.6×5.952×7.6m다.
+The local origin is the ground centre of the tuft. For the twelve blades `bladeFan(i)`, i is an integer 0~11 and the direction is θ=2πi/12. The blade width is `0.02+0.005×(i mod 3)`m, the tip height is `0.20+0.15×((5i mod 12)/11)`m, the base centre is 0.03m from the origin in direction θ, and the outward lean of the tip from the base centre in the same direction is `0.08+0.04×((i mod 4)/3)`m. The base edge of each blade spreads half the width to each side of the base centre perpendicular to θ, and the apex is the tip position. The blades of this bundle of triangular plates are double-sided surfaces. The occupancy box is 0.35×0.35×0.35m, which generously wraps the maximum radius 0.15m and height 0.35m.
 
-부재 대응: `wall`=벽; `plinth`=기단 띠; `roof`=지붕; `recess`=문·창 자리. 기단 띠는 벽 바깥 0.008m 두께의 폐합 띠이며 앞뒤 띠가 모서리의 0.008×0.008m 정사각형까지 돌아 옆 띠와 면으로 만난다. 앞 문 폭 1.0m 구간은 비운다. 공유 면을 제거한 합집합 외피를 방출하여 모서리 한 선에 네 삼각형이 겹치지 않게 한다.
+Part map: `blade`=blade.
 
-part와 표면은 `wall`, `plinth`, `roof`, `recess`(문·창 자리 안쪽 면)이다. 문·창 자리는 막힌 오목 공간이며 뚫리지 않는다. 위치·회전·수는 신전의 박공·포치·외곽을 가리지 않도록 instances가 [배치 구역](../spaces/site.md#placement-zones) 안에서 정한다.
+Parts and surfaces are the single `blade`. instances sets the positions, count and size variants within the [wall-foot grass band](../spaces/site.md#placement-zones) and places none on thresholds or walking paths.
 
-검토 판에서 두 변형의 정면과 3/4를 보고, 신전 파라펫 코핑 4.85m와 비교해 A가 낮고 B가 비슷한 높이인지 본다. 신전보다 높은 이웃, 실내가 보이는 뚫린 창, 단색 상자는 실패다.
+On the review board it stands beside the wall plinth to check that its scale is about 0.15 times the walking envelope. Cuboid grass, or a tuft blocking a door, is a failure.
 
-이웃집 `roof`의 UV0는 로컬 +Z 앞 박공 경사에서 +X U, −Z 뒤 박공 경사에서 −X U, 외쪽 단경사에서 +X U를 쓰며 세 경사 모두 처마에서 높은 쪽으로 실제 경사 길이 V가 증가한다. `wall`·`plinth`·막힌 `recess`는 바깥법선별 기본 평면 투영으로 끊는다.
+The front and back UV0 of the grass `blade` is a planar projection chosen by the outward normal of each face, with vertices split at the thin blade outlines. No extra geometry for a leaf pattern is made outside the 0.35m occupancy.
+
+## Neighbouring plaster house envelope {#neighbor-house}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The A 8.6×4.733×6.6m and B 6.6×5.952×7.6m envelopes are larger than the human envelope but stay in the site placement zones, and `roof` uses +X U on the +Z front slope, −X U on the −Z back slope and +X U on the mono-pitch, each with V from the eave to the high side.
+@evidenceExclude settings/00-delivery.md#governing-aim Comparing the whole building against the five references belongs to the building observation positions, and the prototype review board judges only the shapes and voids of separated members.
+@evidenceExclude spaces/building.md#footprint The outer footprint is owned by the building mass, and models take only the reviewed clear dimensions and datum lines of rooms, colonnade and roofs to make independent members.
+@evidence principles/core/common.md#scope-preservation It sets the neighbouring plaster house envelope down to the walls, roof, door and window recesses and plinth band of the two variants and the envelope-only condition.
+@evidence principles/core/common.md#substantive-completion In addition to the 0.30m thick walls and roof dimensions including the two gable walls of A and the sloped wall top of B, it fixes for both variants the door and window centres in the front-face frame, their clear sizes, the 0.20m depth and the remaining 0.10m back wall.
+@evidence principles/core/common.md#declared-basis It states that the identity comes from 40-environment#neighborhood and image 01, the place from spaces/site.md#placement-zones, and the height comparison datum from the coping 4.85m of junctions#plinth-coping.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the setting of surrounding buildings into the model decisions of two envelope-only variants with no interior and a height lower than or similar to the temple.
+@evidence principles/design/models.md#representation-contract It sets the wall, plinth, roof and recess parts, the door and window recesses that cut only 0.20m of the 0.30m wall and keep 0.10m, and the background ceiling of a slab roof without tile modules.
+@evidence principles/design/models.md#spatial-convention It places the origin on the ground at the centre of the floor rectangle and records the occupancy boxes of the two variants.
+@evidence principles/design/models.md#reviewable-structure It views the front and three-quarter views of the two variants and their height against the coping 4.85m, and makes a neighbour taller than the temple, pierced windows or a single-colour box a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the low tile-roofed houses across the narrow street in image 01 but provides no tile modules because of the background ceiling.
+@evidence principles/design/models.md#model-scale-layer-completion The two variants, the height comparison and the ownership of position and rotation within the placement zones are set, completing the background envelope layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The buildings lower than or similar to the temple of neighborhood, the four zones of placement-zones and the coping 4.85m were compared with the calculated heights 4.733/5.952m of the two variants. B is higher than the coping but lower than the sanctuary ridge of about 7.67m, so it falls in the similar height range, and occlusion is handled by instances placement.
+@evidence settings/40-environment.md#neighborhood It receives the plaster buildings lower than or similar to the temple as two envelope variants.
+@evidence spaces/site.md#placement-zones It hands the placement zones that allow neighbouring houses over as the range where position, rotation and count are set.
+@evidence spaces/junctions.md#plinth-coping It uses the parapet coping top 4.85m as the height comparison datum for the two variants.
+@evidence settings/50-production.md#references It rests on the low tile-roofed houses across the street in image 01.
+@evidenceExclude spaces/site.md#distant-ridge The distant ridge and foothills are already owned by the site-distant open surface of the spaces site, and the neighbouring envelope lies only within the 25m local placement zones, so it does not consume the ridge.
+@evidenceExclude spaces/site.md#site-paving The soil strips, paving and neighbour floor plots are spaces site surfaces, and the neighbouring envelope is a floorless shell of walls and roof, so it does not make the plots again.
+-->
+
+These are plaster buildings of the [surroundings and distant background](../settings/40-environment.md#neighborhood) that are lower than or similar to the temple. The basis is the low tile-roofed houses across the narrow street in image 01; only the envelope is made, with no interior or movement path. Two variants reduce the sense of repetition.
+
+Variant A is a single-storey gable house. The local origin is the ground at the centre of the floor rectangle, and the wall base is X=±4.0m, Z=±3.0m. The solid thickness of the four walls is 0.30m inward. The ridge is parallel to the X axis at Z=0m. The roof top face is Y=3.40m at the eave ends Z=±3.30m and `3.40+3.30×tan(22°)=4.733m` at the centre. The eaves on the four sides project 0.30m beyond the walls, and the slab thickness is vertical 0.16m. The front and back long walls at Z=±3.0m rise to the roof underside `3.40+0.30×tan(22°)−0.16=3.361m`, and at the two short ends X=±4.0m the `wall` part includes closed triangular gable walls rising above walls of this height to the centre height `4.733−0.16=4.573m`. No penetrating hole lets the attic at either end show. The front is the long wall on local +Z, and the door and window X centres and floor-based Y are set within it. The door of A is at X=0m, bottom Y=0m, size 1.0×2.1m, and the two windows are at X=±2.20m, bottom Y=1.35m, each 0.6×0.8m. Variant B is a two-storey-high mono-pitch house whose wall base is X=±3.0m, Z=±3.5m, using the same 0.30m solid thickness inward. From the roof top face Y=4.40m on the front wall line Z=+3.5m the roof rises 12° toward the back, so the top face on the back wall line Z=−3.5m is `4.40+7.0×tan(12°)=5.888m`, the front eave end Z=+3.8m is 4.336m and the rear eave end Z=−3.8m is 5.952m. There are 0.30m eaves on the four sides, and the line 0.16m vertically below the slab top is the wall top. Therefore the front wall closes up to Y=4.24m and the back wall up to Y=5.728m, and the two side walls close under the roof along the trapezoidal top `Y=4.24+(3.5−Z)×tan(12°)`. The front of B is also local +Z; the door is at X=0m, bottom Y=0m, size 1.0×2.1m, and the four windows are at X=±1.70m and bottom Y=1.25m and 2.95m in all combinations, each 0.6×0.8m. All door and window recesses of both variants are recessed 0.20m inward from the front face and have closed backs. Subtracting the recess depth 0.20m from the wall thickness 0.30m leaves an opaque back wall of 0.10m. Both variants have a separate plinth band face 0.5m high from the floor. The roof is a slab without placed tile modules, keeping the background representation ceiling. Including the roof eave ends, the occupancy box is A 8.6×4.733×6.6m, B 6.6×5.952×7.6m.
+
+Part map: `wall`=wall; `plinth`=plinth band; `roof`=roof; `recess`=door and window recess. The plinth band is a closed band 0.008m thick outside the wall, and the front and back bands turn the corners up to a 0.008×0.008m square so that their faces meet the side bands. The 1.0m width of the front door is left open. The union envelope with shared faces removed is emitted so that four triangles do not lie on one corner line.
+
+Parts and surfaces are `wall`, `plinth`, `roof` and `recess` (inner faces of the door and window recesses). The door and window recesses are closed concave spaces and are not pierced. instances sets the position, rotation and count within the [placement zones](../spaces/site.md#placement-zones) so that they do not hide the temple's gables, porch or outline.
+
+On the review board the front and three-quarter views of the two variants are viewed, and against the temple parapet coping 4.85m, A must be lower and B of similar height. A neighbour taller than the temple, pierced windows that show an interior, or a single-colour box is a failure.
+
+The UV0 of the neighbouring house `roof` uses +X U on the front gable slope at local +Z, −X U on the back gable slope at −Z and +X U on the mono-pitch slope, and on all three slopes the real slope length V increases from the eave to the high side. `wall`, `plinth` and the closed `recess` split by the default planar projection per outward normal.

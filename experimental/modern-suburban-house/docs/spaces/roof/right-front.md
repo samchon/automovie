@@ -1,20 +1,20 @@
-# 본채 오른쪽의 낮은 전방 지붕
+# Low Front Roof on the Right of the Main Block
 
-## 높은 지붕 아래에 붙는 앞 면 {#right-front-roof}
+## Front Face Attached Below the High Roof {#right-front-roof}
 <!--
-@evidence principles/core/common.md#scope-preservation 본채 오른쪽 영역 앞 절반의 날씨 면·아래면, 상층 전면 창 위 벽 높이의 보존, 차고 지붕과의 높이 구별을 맡는다.
-@evidence principles/core/common.md#substantive-completion Rfront를 이 면의 날씨 면·아래면에 적용해 주 지붕보다 낮은 앞 면을 확정하고 완결 경사면과 아래면을 right-front.ts 한 owner에 둔다.
-@evidence principles/core/common.md#declared-basis 앞 절반 영역과 Rfront는 roof/00에서, 왼쪽 접합은 right-roof-closures의 단차 벽에서 받고 차고와의 높이 차이는 garage-front-roof와 비교해 읽는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 오른쪽 낮은 지붕의 앞 면과 상층 전면 창을 같은 단면에서 대조해 창 위 외벽 높이를 남긴다.
-@evidence principles/design/spaces.md#space-topology 앞은 본채 정면 처마, 뒤는 낮은 용마루, 오른쪽은 본채 측면의 박공 사선 모서리, 왼쪽은 주 지붕 단차이며 차고 위에 떠 있는 별도 상자가 아니다.
-@evidence principles/design/spaces.md#space-boundary-authority 높이와 아래면은 Rfront를 소비하고 왼쪽 접합은 right-roof-closures의 단차 벽을 소비하므로 이 면은 단차 벽을 만들지 않고 완결 경사면과 아래면을 소유한다.
-@evidence principles/design/spaces.md#space-verification-address 주 지붕 단차의 전면 끝, 상층 창/처마 단면, 낮은 용마루의 정면 실루엣을 검사하게 한다.
-@evidence settings/10-house.md#main-mass 본채 안에서 낮아지는 오른쪽 지붕을 상층 전면 창 위에 유지한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "본채 오른쪽 끝의 더 낮은 지붕"과 "오른쪽 박공은 별도 독립 동이나 세 번째 층이 아니다"를 앞 면에 대조했고 Rfront가 본채 영역 안에서 상층 창 위에 남아 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the weather face and underside of the front half of the main block right zone, the preservation of the wall height above the upper front windows, and the height distinction from the garage roof.
+@evidence principles/core/common.md#substantive-completion Applies Rfront to this face's weather face and underside, fixing a front face lower than the main roof, and keeps the complete slope and underside in one owner, right-front.ts.
+@evidence principles/core/common.md#declared-basis States that the front half zone and Rfront come from roof/00 and the left junction from the step wall of right-roof-closures, and that the height difference from the garage is read by comparison with garage-front-roof.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Compares the front face of the low right roof and the upper front windows in the same section, leaving the exterior wall height above the windows.
+@evidence principles/design/spaces.md#space-topology The front is the main block front eave, the back the low ridge, the right the gable rake edge of the main block side, and the left the main roof step, and it is not a separate box floating above the garage.
+@evidence principles/design/spaces.md#space-boundary-authority The height and underside consume Rfront and the left junction consumes the step wall of right-roof-closures, so this face does not make the step wall and owns the complete slope and underside.
+@evidence principles/design/spaces.md#space-verification-address Has the front end of the main roof step, the upper window/eave section, and the front silhouette of the low ridge checked.
+@evidence settings/10-house.md#main-mass Keeps the right roof that lowers within the main block above the upper front windows.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared main-mass's "a lower roof at the right end of the main block" and "The right gable is not a separate independent building or a third storey" with the front face; Rfront stays above the upper windows inside the main block zone, so there was no parent revision.
 -->
 
-`roof.right.front`는 [본채 오른쪽 영역](00-junctions.md#roof-mass-allocation)의 앞 절반이다. 높이와 아래면은 [Rfront](00-junctions.md#roof-profile-datums), 왼쪽 접합은 [단차 벽](../envelope/right.md#right-roof-closures)을 소비한다. 앞은 본채 정면 처마, 뒤는 낮은 용마루, 오른쪽은 본채 측면의 박공 사선 모서리다. 차고 위에 떠 있는 별도 상자나 추가 바닥을 만들지 않는다.
+`roof.right.front` is the front half of the [main block right zone](00-junctions.md#roof-mass-allocation). The height and underside consume [Rfront](00-junctions.md#roof-profile-datums), and the left junction the [step wall](../envelope/right.md#right-roof-closures). The front is the main block front eave, the back the low ridge, and the right the gable rake edge of the main block side. No separate box or additional floor floating above the garage is made.
 
-`src/spaces/roof/right-front.ts`가 완결 경사면·아래면을 소유한다. 상층 전면 창 위의 벽 높이를 보존하고 [차고 지붕](garage-front.md#garage-front-roof)과 서로 다른 높이의 외피로 읽히게 한다. 주 지붕 단차의 전면 끝, 상층 창/처마 단면과 낮은 용마루의 정면 실루엣을 검사한다. 실제 부재·창 binding·그림자와 프레임 대조는 unverified다.
+`src/spaces/roof/right-front.ts` owns the complete slope and underside. It preserves the wall height above the upper front windows and reads as an envelope at a different height from the [garage roof](garage-front.md#garage-front-roof). The front end of the main roof step, the upper window/eave section, and the front silhouette of the low ridge are checked. The real members, window bindings, shadows, and frame comparison are unverified.
 
-이 owner의 흰 처마 하부는 본채 오른쪽 앞 자유 처마의 왼쪽 끝 X=1.60 m에서 +X를 U, 그 처마에서 낮은 용마루 쪽 −Z로 올라간 실제 경사 거리를 V로 둔다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 전면 처마·오른쪽 사선의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 왼쪽 단차와 낮은 용마루에서 면과 UV를 끝내고 차고 지붕 fascia로 한 장을 이어 가지 않는다.
+This owner's white eave soffit sets U along +X from the left end X=1.60 m of the free front eave on the main block right, and V as the real slope distance rising from that eave in −Z toward the low ridge. The shingle weather face keeps the [world slope UV](../03-surface-owners.md#exterior-surface-handoff). The fascia of the exposed thickness faces of the front eave and right rake restarts the 3D length U at the lexicographically smaller (X,Z) end of each free edge and V as the 0.24 m vertical thickness from the weather face to the underside. The face and UV end at the left step and the low ridge, and do not continue as one sheet into the garage roof fascia.

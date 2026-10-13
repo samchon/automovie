@@ -38,7 +38,7 @@ function dataRows(value: string) {
   return value.split(/\r?\n/).filter((line) => {
     if (!/^\| [^\-|]/.test(line)) return false;
     const first = line.split("|")[1].trim();
-    return !/^Source(?:\s|$)|^요구와 목적지$/.test(first);
+    return !/^Source(?:\s|$)|^Demand and destination$/.test(first);
   });
 }
 
@@ -76,17 +76,17 @@ function audit(account: string, roomOverride?: string) {
   }
 
   const roots = ownedRows(
-    section(account, "## Item root 대응", "## 직접 primitive와 방 lining"),
+    section(account, "## Item root correspondence", "## Direct primitives and room lining"),
   );
   const direct = ownedRows(
     section(
       account,
-      "## 직접 primitive와 방 lining",
-      "## 공통 helper의 자식 면과 발광",
+      "## Direct primitives and room lining",
+      "## Child faces and emission of common helpers",
     ),
   );
   const demands = ownedRows(
-    section(account, "## 상위·형제 층의 물품 요구 역대응", undefined),
+    section(account, "## Reverse correspondence of item demands from parent and sibling layers", undefined),
   );
     const accountedBySource: Record<string, number> = {};
     const accountedDirect: Record<string, number> = {};
@@ -161,7 +161,7 @@ function audit(account: string, roomOverride?: string) {
   );
   const roomSource =
     roomOverride ??
-    fs.readFileSync(path.join(root, ".wiki/사물-목록.md"), "utf8");
+    fs.readFileSync(path.join(root, ".wiki/object-inventory.md"), "utf8");
   const models = inventory(root);
   const surfaces = objectSurfaceBindings(
     root,
@@ -236,7 +236,7 @@ function audit(account: string, roomOverride?: string) {
   ];
   const census = censusRows[0];
   const declaredTotal =
-    /^\| 합계 \| \*\*(\d+)\*\* \|[^\n]*\| \*\*(\d+)\*\* \|$/m.exec(roomSource);
+    /^\| Total \| \*\*(\d+)\*\* \|[^\n]*\| \*\*(\d+)\*\* \|$/m.exec(roomSource);
   if (censusRows.length !== 1 || Number(census?.[1]) !== modelRooms)
     errors.push(`declared space count differs from ${modelRooms}`);
   if (Number(census?.[2]) !== modelObjects)
@@ -292,8 +292,8 @@ const account = fs.readFileSync(accountPath, "utf8");
 const result = audit(account);
 const rootSection = section(
   account,
-  "## Item root 대응",
-  "## 직접 primitive와 방 lining",
+  "## Item root correspondence",
+  "## Direct primitives and room lining",
 );
 const firstRow = dataRows(rootSection)[0];
 const removed = account.replace(firstRow, "");
@@ -305,14 +305,14 @@ if (negative.errors.length === 0)
     "negative control did not fail after removing a root owner row",
   );
 const roomSource = fs.readFileSync(
-  path.join(root, ".wiki/사물-목록.md"),
+  path.join(root, ".wiki/object-inventory.md"),
   "utf8",
 );
 const census = /^@census spaces=(\d+) objects=(\d+) covered=(\d+)$/m.exec(
   roomSource,
 );
 const declaredTotal =
-  /^\| 합계 \| \*\*(\d+)\*\* \|[^\n]*\| \*\*(\d+)\*\* \|$/m.exec(roomSource);
+  /^\| Total \| \*\*(\d+)\*\* \|[^\n]*\| \*\*(\d+)\*\* \|$/m.exec(roomSource);
 const recap = /^\| [^|]+ \| (\d+) \| [^|]+ \| (\d+) \|$/m.exec(roomSource);
 if (!census || !declaredTotal || !recap)
   throw Error("room census declaration absent");

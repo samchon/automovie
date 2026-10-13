@@ -86,7 +86,7 @@ function objectSurfaceBindings(root: string, models: Map<string,Map<string,Set<s
       if (!responseDefined(root, finishMatch[2]))
         errors.push(`${finishMatch[1]}: response color/roughness or linked H2 absent`);
     }
-    if (scale === "없음") {
+    if (scale === "none") {
       if (!/normal/.test(uv) || !/^solid/.test(fallback))
         errors.push(`${owner}: solid response policy absent`);
     } else {

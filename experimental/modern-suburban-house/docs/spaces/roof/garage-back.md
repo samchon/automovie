@@ -1,20 +1,20 @@
-# 차고의 낮은 후방 지붕
+# Low Back Roof of the Garage
 
-## 차고 후벽과 본채 접합 {#garage-back-roof}
+## Garage Rear Wall and Main Block Junction {#garage-back-roof}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고 지붕 뒤 절반의 날씨 면·아래면, 차고 후벽 위 자유 처마, 본채 벽 접합과 뒤 돌출이 본채 창에 미치는 관계를 맡는다.
-@evidence principles/core/common.md#substantive-completion Gback을 뒤 절반에 적용해 차고 용마루에서 후벽 처마까지 닫고 이 면을 후면의 별도 작은 동으로 늘리지 않는다.
-@evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 본채 벽과의 접촉선은 right-roof-closures에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 지붕 뒤 면의 돌출과 본채 오른쪽 외벽의 공용부·상층 욕실 창이 겹치는지를 창 H2의 위치와 지붕 접촉선으로 검사한다.
-@evidence principles/design/spaces.md#space-topology 앞은 차고 용마루, 뒤는 차고 후벽 위 자유 처마, 오른쪽은 박공 사선 모서리, 왼쪽은 본채 벽 접합이다.
-@evidence principles/design/spaces.md#space-boundary-authority 높이는 Gback에서 받고 창 위치는 family-right-window와 tub-right-window에서 받아 오른쪽 입면의 지붕 접촉선과 함께 읽으며 이 면이 창 좌표를 정하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 뒤 처마 아래에서 본채 접점까지, 차고 내부 천장과 위 구조, 후방 경사면 전체와 공용부·욕조 욕실 창과의 겹침을 검사하게 한다.
-@evidence settings/10-house.md#garage 단층 차고의 후벽 위를 낮은 지붕으로 닫고 후면의 별동으로 늘리지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 "하나의 1층 부속 볼륨"과 깊이 6.0–6.6 m를 뒤 면에 대조했고 Gback이 차고 후벽 위에서 끝나 별동 없이 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the weather face and underside of the back half of the garage roof, the free eave above the garage rear wall, the main block wall junction, and the relation of the back projection to the main block windows.
+@evidence principles/core/common.md#substantive-completion Applies Gback to the back half to close from the garage ridge to the rear wall eave, and does not stretch this face into a separate small building at the rear.
+@evidence principles/core/common.md#declared-basis The zone comes from roof-mass-allocation, the height from roof-profile-datums, and the contact line with the main block wall from right-roof-closures.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Checks with the window H2 positions and the roof contact line whether the projection of the garage roof back face overlaps the common area and upper bathroom windows of the main block right exterior wall.
+@evidence principles/design/spaces.md#space-topology The front is the garage ridge, the back the free eave above the garage rear wall, the right the gable rake edge, and the left the main block wall junction.
+@evidence principles/design/spaces.md#space-boundary-authority The height comes from Gback, and the window positions come from family-right-window and tub-right-window, read together with the roof contact line of the right elevation, so this face does not set window coordinates.
+@evidence principles/design/spaces.md#space-verification-address Has it checked from under the back eave to the main block contact, the garage interior ceiling and structure above, the whole back slope, and overlaps with the common area and tub bathroom windows.
+@evidence settings/10-house.md#garage Closes the space above the rear wall of the single-storey garage with a low roof and does not stretch it into a detached building at the rear.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared garage's "one single-storey auxiliary volume" and 6.0–6.6 m depth with the back face; Gback ends above the garage rear wall and holds without a detached building, so there was no parent revision.
 -->
 
-`roof.garage.back`과 아래면은 `src/spaces/roof/garage-back.ts`가 소유한다. [차고 영역](00-junctions.md#roof-mass-allocation)의 뒤 절반에 [Gback](00-junctions.md#roof-profile-datums)을 적용한다. 앞은 차고 용마루, 뒤는 차고 후벽의 자유 처마, 오른쪽은 박공 사선 모서리, 왼쪽은 본채 벽 접합이다.
+`roof.garage.back` and its underside are owned by `src/spaces/roof/garage-back.ts`. It applies [Gback](00-junctions.md#roof-profile-datums) to the back half of the [garage zone](00-junctions.md#roof-mass-allocation). The front is the garage ridge, the back the free eave of the garage rear wall, the right the gable rake edge, and the left the main block wall junction.
 
-후면 돌출이 본채의 [공용부 창](../envelope/right.md#family-right-window)이나 [상층 욕조 욕실 창](../envelope/right.md#tub-right-window)과 겹치는지는 그 창 H2의 위치와 [오른쪽 입면](../envelope/right.md#right-roof-closures)의 지붕 접촉선을 함께 읽어 검사하며 이 면은 창 좌표를 정하지 않는다. 이 면을 후면의 별도 작은 동으로 늘리지 않는다. 뒤 처마 아래에서 본채 접점까지, 차고 내부 천장과 위 구조, 후방 경사면 전체가 검사 주소다. 실제 source·면 census·창과의 간섭·시각 읽힘은 unverified다.
+Whether the rear projection overlaps the main block's [common area window](../envelope/right.md#family-right-window) or [upper tub bathroom window](../envelope/right.md#tub-right-window) is checked by reading those window H2 positions together with the roof contact line of the [right elevation](../envelope/right.md#right-roof-closures), and this face does not set window coordinates. This face is not stretched into a separate small building at the rear. From under the back eave to the main block contact, the garage interior ceiling and structure above, and the whole back slope are the inspection addresses. The real source, face census, interference with windows, and visual readability are unverified.
 
-차고 뒤 흰 처마 하부는 본채 공유 벽 바깥 접점의 뒤 자유 처마에서 오른쪽 +X로 잰 거리를 U, 그 처마에서 차고 용마루 쪽 +Z로 올라간 실제 경사 거리를 V로 둔다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 차고 후면 처마·오른쪽 박공 사선의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 본채 벽 접합과 차고 용마루에서 면과 UV를 자르며 다른 박공 면으로 UV를 통과시키지 않는다.
+The white eave soffit at the garage back sets U as the distance measured right in +X from the free back eave at the contact outside the main block shared wall, and V as the real slope distance rising from that eave in +Z toward the garage ridge. The shingle weather face keeps the [world slope UV](../03-surface-owners.md#exterior-surface-handoff). The fascia of the exposed thickness faces of the garage back eave and right gable rake restarts the 3D length U at the lexicographically smaller (X,Z) end of each free edge and V as the 0.24 m vertical thickness from the weather face to the underside. The face and UV are cut at the main block wall junction and the garage ridge, and the UV does not pass into other gable faces.

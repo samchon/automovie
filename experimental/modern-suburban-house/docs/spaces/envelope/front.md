@@ -1,142 +1,142 @@
-# 전면 지붕과 실내 경계
+# Front Roof and Interior Boundaries
 
-## 박공 삼각 벽과 포치 위의 외벽 {#front-roof-closures}
+## Gable Triangle Wall and the Exterior Wall Above the Porch {#front-roof-closures}
 <!--
-@evidence principles/core/common.md#scope-preservation 왼쪽 박공 삼각 벽, 주/낮은 지붕 아래의 나머지 전면 벽, 차고 정면까지 하나의 전면 owner가 닫고 좌·중·우 구간의 방 바인딩을 모두 남긴다.
-@evidence principles/core/common.md#substantive-completion 삼각 벽 높이를 F의 아래면에서 읽고 정면에 삼각 판을 겹쳐 박공처럼 보이게 하는 방식을 금지하는 전면 폐합 규칙을 정한다.
-@evidence principles/core/common.md#declared-basis 외곽은 main-building-extent, 박공 배정과 F 아래면은 roof-mass-allocation·roof-profile-datums, 벽 두께 상단은 roof-wall-head-junctions에서 받는다고 링크로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 실제 박공 삼각 벽과 00-junctions의 벽 두께 폐합을 받아, 전면 좌·중·우의 거실·두 침실·현관·계단 창·서비스 띠 바인딩을 정한다.
-@evidence principles/design/spaces.md#space-topology 전면 벽이 왼쪽 거실/올리브 침실, 가운데 현관문/계단 창, 오른쪽 청회색 침실/서비스 띠를 감싸고 차고문은 본채 방에 묶지 않는 포함 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 벽 두께·지붕 아래면·앞 모서리와 단차 벽의 단일 몸체를 모두 원래 owner에서 소비하고 다른 입면의 완결 마감을 전면 파일에서 복제하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 정면 전체·두 전면 모서리·삼각 벽/처마 아래 단면에서 계단의 작은 창이 박공 골짜기나 포치 접합에 잘리는지를 반증 주소로 둔다.
-@evidence settings/10-house.md#main-mass 정면 왼쪽의 전방을 향한 큰 박공을 실제 삼각 벽으로 전면 벽 두께 안에서 닫고 판 하나로 대체하지 않는다.
-@evidence settings/20-verification.md#visual-grammar 전면 본채와 차고의 노출 외벽을 Y = 0.60 m에서 적갈색 벽돌 기단과 백색 수평 사이딩으로 나누고 두 출입문 폭은 실제 면에서 비워 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 왼쪽 전방 박공·처마 0.35–0.50 m 범위와 house-scale의 "전면 박공의 얕은 돌출만 허용"을 전면 벽 폐합에 적용했고 삼각 벽을 기존 벽 두께 안에서 닫을 수 있어 부모를 고칠 필요가 없었다.
+@evidence principles/core/common.md#scope-preservation One front owner closes the left gable triangle wall, the rest of the front wall under the main and low roofs, and the garage front, and keeps all the room bindings of the left, middle, and right segments.
+@evidence principles/core/common.md#substantive-completion Sets the front closure rule that reads the triangle wall height from the underside of F and forbids overlaying a triangular plate on the front to look like a gable.
+@evidence principles/core/common.md#declared-basis States through links that the outline comes from main-building-extent, the gable assignment and F underside from roof-mass-allocation and roof-profile-datums, and the wall thickness top from roof-wall-head-junctions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the real gable triangle wall of the settings and the wall thickness closure of 00-junctions, and sets the left, middle, and right front bindings of the living room, two bedrooms, entry, stair window, and service band.
+@evidence principles/design/spaces.md#space-topology Sets the containment relation in which the front wall wraps the living room/olive bedroom on the left, the entry door/stair window in the middle, and the blue-gray bedroom/service band on the right, and the garage door is not bound to a main block room.
+@evidence principles/design/spaces.md#space-boundary-authority Consumes the wall thickness, roof underside, and the single bodies of the front corners and step wall all from their original owners, and does not copy the complete finishes of other elevations in the front file.
+@evidence principles/design/spaces.md#space-verification-address Keeps as the refuting address whether the small stair window is cut by the gable valley or the porch junction, in the whole front, the two front corners, and the triangle wall/under-eave sections.
+@evidence settings/10-house.md#main-mass Closes the large forward-facing gable at the front left with a real triangle wall inside the front wall thickness and does not replace it with a single plate.
+@evidence settings/20-verification.md#visual-grammar Divides the exposed exterior walls of the front main block and garage at Y = 0.60 m into a red-brown brick base and white horizontal siding, and leaves the width of the two entrance doors empty in the real face.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied main-mass's left forward gable and 0.35–0.50 m eave range and house-scale's "only a shallow projection of the front gable is allowed" to the front wall closure; the triangle wall can close inside the existing wall thickness, so there was no need to revise the parent.
 -->
 
-전면 전체 입면 owner는 `src/spaces/envelope/front.ts`다. [본채 전면](../00-building.md#main-building-extent)의 벽과 [왼쪽 박공](../roof/00-junctions.md#roof-mass-allocation)은 [같은 외곽](../../settings/10-house.md#house-scale)에서 닫힌다. 박공 삼각 벽의 높이는 [F의 아래면](../roof/00-junctions.md#roof-profile-datums)에서 읽고, 나머지 전면은 주/낮은 지붕의 해당 외벽선 아래면까지 이어진다. 정면에 삼각 판을 별도로 겹쳐 박공처럼 보이게 하지 않는다. 정면 벽의 실제 두께는 기존 외벽 예약을 사용한다.
+The whole front elevation owner is `src/spaces/envelope/front.ts`. The wall of the [main block front](../00-building.md#main-building-extent) and the [left gable](../roof/00-junctions.md#roof-mass-allocation) close in the [same outline](../../settings/10-house.md#house-scale). The height of the gable triangle wall is read from the [underside of F](../roof/00-junctions.md#roof-profile-datums), and the rest of the front continues up to the underside at the corresponding exterior wall line of the main and low roofs. No separate triangular plate is overlaid on the front to look like a gable. The real thickness of the front wall uses the existing exterior wall reservation.
 
-[시각 문법](../../settings/20-verification.md#visual-grammar)의 붉은갈색 벽돌 기단은 본채와 차고 전면의 노출 벽에서 Y = 0.60 m까지 이어지고 그 위는 따뜻한 백색 수평 사이딩이다. 이 상단은 가장 낮은 거실 전면 창턱 Y = 0.70 m보다 0.10 m 낮아 창을 가리지 않는다. 현관문과 차고문은 벽돌·사이딩 두 구역을 관통하는 기존 하나의 개구부로 남고, 벽돌 구역도 각각 문 아래의 원래 바닥 지지 예약까지만 닫힌다. 두 구역은 같은 벽 두께 안에서 맞닿는 실제 벽면이며 얇은 중복 덧판이 아니다. Y = 0.60 m는 외장 마감 경계이고 [미해결 지반·구조 기초](../10-ground-floor.md#ground-support-handoff)의 상단이나 하단을 결정하지 않는다.
+The red-brown brick base of the [visual grammar](../../settings/20-verification.md#visual-grammar) continues up to Y = 0.60 m on the exposed walls of the main block and garage front, and above it is warm white horizontal siding. This top is 0.10 m lower than the lowest living room front window sill Y = 0.70 m, so it does not hide the window. The entry door and the garage door remain single existing openings passing through both the brick and siding zones, and the brick zone also closes only down to the original floor support reservation under each door. The two zones are real wall faces meeting inside the same wall thickness, not thin duplicate overlay plates. Y = 0.60 m is a cladding finish boundary and does not decide the top or bottom of the [unresolved ground and structural foundation](../10-ground-floor.md#ground-support-handoff).
 
-위 입면의 외측 높이와 [벽 두께 전체의 상단](../roof/00-junctions.md#roof-wall-head-junctions)을 구별한다. 박공 교차선과 높은/낮은 지붕 분할을 벽 두께 안에서도 유지하고, [앞 모서리·차고 공유 벽·단차 벽의 단일 몸체](../07-boundary-assembly.md#exterior-boundary-junctions)를 소비한다. 다른 입면의 완결 마감까지 전면 파일에서 복제하지 않는다.
+The outer height of the elevation above is distinguished from the [top of the whole wall thickness](../roof/00-junctions.md#roof-wall-head-junctions). The gable intersection line and the high/low roof division are kept inside the wall thickness too, and the [single bodies of the front corners, garage shared wall, and step wall](../07-boundary-assembly.md#exterior-boundary-junctions) are consumed. The complete finishes of other elevations are not copied in the front file.
 
-왼쪽은 [거실](../rooms/living.md#living-plan)과 [올리브 침실](../rooms/bedroom-two.md#bedroom-two-plan), 가운데는 [현관문](../rooms/entry.md#entry-plan)과 [계단 창](../02-stair.md#stair-floor-opening), 오른쪽은 [청회색 침실](../rooms/bedroom-three.md#bedroom-three-plan)과 서비스 띠에 각각 바인딩한다. 포치가 거실창과 현관문을 덮는 관계는 [포치 지붕](../porch.md#porch-roof-columns)이 소유한다. 차고 정면 역시 같은 완결 입면 owner가 소비하되 차고문을 본채 방에 바인딩하지 않는다.
+The left is bound to the [living room](../rooms/living.md#living-plan) and the [olive bedroom](../rooms/bedroom-two.md#bedroom-two-plan), the middle to the [entry door](../rooms/entry.md#entry-plan) and the [stair window](../02-stair.md#stair-floor-opening), and the right to the [blue-gray bedroom](../rooms/bedroom-three.md#bedroom-three-plan) and the service band. The relation of the porch covering the living room window and the entry door is owned by the [porch roof](../porch.md#porch-roof-columns). The garage front is consumed by the same complete elevation owner too, but the garage door is not bound to a main block room.
 
-아래 [개구부 배치](#front-openings)는 포치 벽 접합 위와 주/낮은 지붕 처마 아래에 남는 외벽을 소비한다. 특히 계단의 작은 창이 박공 골짜기·포치 접합에 잘리거나, 방 없이 입면에만 붙으면 실패다. 검사 주소는 정면 전체와 두 전면 모서리, 각 삼각 벽/처마 아래 단면 및 모든 실제 개구부다. 실제 void·문틀/창틀과 전체 형상·재료·GPU 프레임은 unverified다.
+The [opening layout](#front-openings) below consumes the exterior wall remaining above the porch wall junction and below the eaves of the main and low roofs. In particular, it is a failure if the small stair window is cut by the gable valley or the porch junction, or is attached to the elevation only, without a room. The inspection addresses are the whole front and the two front corners, the section under each triangle wall/eave, and every real opening. The real voids, door frames/window frames, and the overall shape, materials, and GPU frames are unverified.
 
-## 거실·침실·계단의 창과 현관문 {#front-openings}
+## Windows of the Living Room, Bedrooms, and Stair, and the Entry Door {#front-openings}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실의 세 칸 창, 상층 두 침실 창, 작은 계단 창의 위계와 파우더룸·서비스 접근 전면에 창을 두지 않는 결정까지 본채 전면 벽의 창 배치를 맡고, 현관문 void는 entry-plan, 차고문은 garage-front-opening에 남긴다.
-@evidence principles/core/common.md#substantive-completion 본채 전면 벽의 두께 방향 Z = [-0.25, 0] m를 그 벽 창들의 관통 구간으로 정하고 각 창을 자기 방/계단에 하나씩 바인딩한다.
-@evidence principles/core/common.md#declared-basis 창의 위계는 01에서 채택했고 벽 두께 구간은 링크한 본채 외곽의 외벽 예약에서 받았으며 치수는 방 폭·지붕·포치 여유에서 저작 선택했다고 근거를 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation openings 설정의 넓은 묶음창·침실 창들·더 작은 계단 창의 위계를 어느 방의 몇 칸 창인지와 창이 없는 전면 구간으로 확정한다.
-@evidence principles/design/spaces.md#space-topology 각 전면 창이 거실·상층 두 침실·계단 가운데 자기 공간의 외벽에 속하고 파우더룸과 서비스 접근의 전면은 창을 추가하지 않은 벽으로 남는다.
-@evidence principles/design/spaces.md#space-boundary-authority 본채 전면 벽의 Z = [-0.25, 0] m를 링크한 본채 외곽의 Z = 0 m 바깥 면과 0.25 m 외벽 예약에서 받고, 창틀은 06 공통 인계, 현관문 void는 entry owner, 차고문은 garage-front-opening에 두어 창 배치 밖의 경계를 다시 정하지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 입면과 방 내부 양쪽의 창 위계·밝기를 실제 프레임의 비교 대상으로 남긴다.
-@evidence settings/10-house.md#openings 전면 거실의 넓은 묶음창, 상층 침실 창들, 계단/복도용의 더 작은 창이라는 위계를 본채 전면 벽의 실제 방 바인딩으로 나눈다.
-@evidence obligations/design/spaces.md#space-envelope-interface 본채 전면 벽의 창을 아래 창 H2마다 거실·상층 두 침실·계단 가운데 자기 방/계단 하나에 바인딩해 외부 창 위계와 방 배치가 서로 다른 집을 묘사하지 않게 한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "창을 배정한 방과 그 창을 품은 외벽이 같아야 한다"와 01의 전면 위계를 전면 방 배치에 대조했고 파우더룸 전면을 창 없이 닫아도 설정 요구와 충돌하지 않았다.
+@evidence principles/core/common.md#scope-preservation Takes on the window layout of the main block front wall, including the hierarchy of the three-light living room window, the two upper bedroom windows, and the small stair window, and the decision to place no window on the front of the powder room and service access, leaving the entry door void to entry-plan and the garage door to garage-front-opening.
+@evidence principles/core/common.md#substantive-completion Sets the thickness direction Z = [-0.25, 0] m of the main block front wall as the through interval of the windows of that wall, and binds each window to its own room/stair one by one.
+@evidence principles/core/common.md#declared-basis Separates the bases: the window hierarchy was adopted from 01, the wall thickness interval was received from the exterior wall reservation of the linked main block outline, and the dimensions were chosen as authoring choices from the room widths, roof, and porch clearance.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Fixes the openings setting's hierarchy of a wide window group, bedroom windows, and a smaller stair window as which room has how many lights and which front segments have no window.
+@evidence principles/design/spaces.md#space-topology Each front window belongs to the exterior wall of its own space among the living room, the two upper bedrooms, and the stair, and the fronts of the powder room and service access stay as walls with no added window.
+@evidence principles/design/spaces.md#space-boundary-authority Receives Z = [-0.25, 0] m of the main block front wall from the Z = 0 m outer face of the linked main block outline and the 0.25 m exterior wall reservation, and keeps the window frames in the common handoff of 06, the entry door void with the entry owner, and the garage door in garage-front-opening, so boundaries outside the window layout are not set again.
+@evidence principles/design/spaces.md#space-verification-address Leaves the window hierarchy and brightness from both the elevation and the room interiors as comparison targets of real frames.
+@evidence settings/10-house.md#openings Divides the hierarchy of a wide window group in the front living room, bedroom windows on the upper storey, and a smaller window for the stair/hall into real room bindings of the main block front wall.
+@evidence obligations/design/spaces.md#space-envelope-interface Binds each window of the main block front wall, per window H2 below, to its own one room/stair among the living room, the two upper bedrooms, and the stair, so the exterior window hierarchy and the room layout do not depict different houses.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared openings' "The room a window is assigned to and the exterior wall that holds that window must be the same" and the front hierarchy of 01 with the front room layout; closing the powder room front without a window did not conflict with the settings requirement.
 -->
 
-[공통 개구부 인계](../06-openings.md#external-opening-interface)를 적용한다. 본채 전면 벽의 두께 방향은 [본채 외곽](../00-building.md#main-building-extent)의 Z = 0 m 바깥 면에서 0.25 m 외벽 예약만큼 들어온 Z = [-0.25, 0] m다. 아래 창들은 각각 자기 방/계단에 바인딩한다. 거실의 넓은 세 칸 창, 상층 두 침실의 두 칸 창과 작은 계단 창의 위계를 01에서 채택했으며 치수는 방 폭·지붕·포치 여유에서 선택했다. 파우더룸과 서비스 접근의 전면에는 창을 추가하지 않는다. 제목의 현관문은 void를 [현관](../rooms/entry.md#entry-plan)에 남기고 외부 충전만 [목재 현관문](#front-entry-filling)이 맡으며, 차고문은 [닫힌 차고문](#garage-front-opening)이 맡는다. 입면/방 내부 양쪽의 창 위계·밝기는 실제 프레임에서 unverified다.
+The [common opening handoff](../06-openings.md#external-opening-interface) is applied. The thickness direction of the main block front wall is Z = [-0.25, 0] m, coming in by the 0.25 m exterior wall reservation from the Z = 0 m outer face of the [main block outline](../00-building.md#main-building-extent). The windows below are each bound to their own room/stair. The hierarchy of the wide three-light living room window, the two-light windows of the two upper bedrooms, and the small stair window was adopted from 01, and the dimensions were chosen from the room widths, roof, and porch clearance. No window is added on the front of the powder room and service access. For the entry door of the title, the void stays with the [entry](../rooms/entry.md#entry-plan) and only the exterior fill is taken by the [wooden entry door](#front-entry-filling), and the garage door is taken by the [closed garage door](#garage-front-opening). The window hierarchy and brightness from both the elevation and the room interiors are unverified in real frames.
 
-## 포치 아래 거실 묶음창 {#living-front-window}
+## Living Room Window Group Under the Porch {#living-front-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실 전면 묶음창 하나의 void, 수직 세 칸 분할, 포치 보와의 높이 관계를 모두 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 전면 벽의 X = [-5.10, -2.30], Y = [0.70, 2.30] m 개구부와 수직 창 세 칸을 확정한다.
-@evidence principles/core/common.md#declared-basis 넓은 창 위계는 01에서, 창틀은 공통 창틀 예약에서, 벽 구간은 front-openings에서 받고 living-room 소속은 living-plan 링크로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정 living의 전면 창 소속과 front-openings의 세 칸 분할을 받아, 거실 벽의 X=[-5.10,-2.30], Y=[0.70,2.30] m 개구부를 정한다.
-@evidence principles/design/spaces.md#space-topology 창을 ground-storey의 living-room 전면 외벽에 속하게 하고 포치 지붕 아래에 놓는다.
-@evidence principles/design/spaces.md#space-boundary-authority 벽 두께와 창틀 깊이는 front-openings·external-opening-interface에서, 창을 덮는 관계와 포치 보 높이는 porch-roof-columns에서 받는다.
-@evidence principles/design/spaces.md#space-verification-address 같은 void가 거실 안쪽과 일치하는지, 포치 기둥이 묶음창을 가리는지를 기둥/보/창틀을 함께 검사한다.
-@evidence settings/10-house.md#living 거실 외벽에 실제로 속하는 넓은 전면 창을 이 개구부 하나로 실현한다.
-@evidence settings/10-house.md#porch-entry 포치가 왼쪽 거실창을 덮는 관계 때문에 위 trim과 포치 보 높이를 함께 검사 대상으로 둔다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 넓은 전면창 소속과 porch-entry의 거실창·현관문을 함께 덮는 포치, 유효 깊이 1.6–2.0 m를 대조했고 창이 포치 아래 전면 벽에 들어가 부모 수정이 필요 없었다.
+@evidence principles/core/common.md#scope-preservation This H2 takes on the void of the one living room front window group, its three vertical lights, and its height relation with the porch beam.
+@evidence principles/core/common.md#substantive-completion Fixes the opening X = [-5.10, -2.30], Y = [0.70, 2.30] m of the front wall and the three vertical lights.
+@evidence principles/core/common.md#declared-basis The wide window hierarchy comes from 01, the window frame from the common frame reservation, and the wall segment from front-openings, and the living-room membership is stated with the living-plan link.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the front window membership of the living setting and the three-light division of front-openings, and sets the opening X=[-5.10,-2.30], Y=[0.70,2.30] m in the living room wall.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the front exterior wall of the ground-storey living-room and places it under the porch roof.
+@evidence principles/design/spaces.md#space-boundary-authority The wall thickness and window frame depth come from front-openings and external-opening-interface, and the covering relation and porch beam height from porch-roof-columns.
+@evidence principles/design/spaces.md#space-verification-address Checks the columns, beam, and window frames together for whether the same void matches the living room interior and whether the porch columns hide the window group.
+@evidence settings/10-house.md#living Realizes the wide front window that really belongs to the living room exterior wall with this one opening.
+@evidence settings/10-house.md#porch-entry Because the porch covers the left living room window, keeps the upper trim and the porch beam height together as inspection targets.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared living's wide front window membership with porch-entry's porch covering the living room window and entry door and its 1.6–2.0 m effective depth; the window fits into the front wall under the porch, so no parent revision was needed.
 -->
 
-`living-front-window`는 [전면 벽](#front-openings)의 X = [-5.10, -2.30], Y = [0.70, 2.30] m 개구부로 ground-storey의 [living-room](../rooms/living.md#living-plan)에 속한다. [공통 창틀 예약](../06-openings.md#external-opening-interface) 안의 수직 창 세 칸이며 01의 넓은 창 위계를 맡는다. 이 창은 [포치 지붕](../porch.md#porch-roof-columns)이 덮는 전면 벽 구간에 있고, 위 trim은 그 owner의 포치 보 아래와 높이가 가까워 기둥/보/창틀을 함께 검사한다. 같은 void가 거실 안쪽과 일치하는지, 포치 기둥이 묶음창을 가리는지와 실제 깊이/그림자는 unverified다.
+`living-front-window` is the opening X = [-5.10, -2.30], Y = [0.70, 2.30] m of the [front wall](#front-openings) and belongs to the ground-storey [living-room](../rooms/living.md#living-plan). It has three vertical lights inside the [common window frame reservation](../06-openings.md#external-opening-interface) and carries the wide window hierarchy of 01. This window is in the front wall segment covered by the [porch roof](../porch.md#porch-roof-columns), and its upper trim is close in height to the underside of that owner's porch beam, so the columns, beam, and window frames are checked together. Whether the same void matches the living room interior, whether the porch columns hide the window group, and the real depth/shadow are unverified.
 
-## 왼쪽 자녀실의 정면 창 {#bedroom-two-front-window}
+## Front Window of the Left Child's Room {#bedroom-two-front-window}
 <!--
-@evidence principles/core/common.md#scope-preservation bedroom-two의 전면 벽 창 하나와 그 위/아래 trim·두 지붕의 단면 관계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 전면 벽의 X = [-4.80, -2.70], Y = [3.91, 5.31] m 개구부와 수직 창 두 칸을 정한다.
-@evidence principles/core/common.md#declared-basis 창 형식은 공통 인계, 위 한계는 roof-profile-datums의 F 아래면, 아래 한계는 porch-roof-columns의 포치 벽 접합에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation bedroom-two의 "자기 외벽 창"을 전면 박공 아래·포치 벽 접합 위의 X = [-4.80, -2.70], Y = [3.91, 5.31] m 수직 두 칸 창으로 정한다.
-@evidence principles/design/spaces.md#space-topology 창을 upper-storey bedroom-two의 전면 벽, 전면 박공 아래에 바인딩하고 장식용 가짜 창을 금지한다.
-@evidence principles/design/spaces.md#space-boundary-authority F 아래면은 roof-profile-datums, 포치 벽 접합은 porch-roof-columns에서 소비하고 창 좌표는 이 H2가 소유한다.
-@evidence principles/design/spaces.md#space-verification-address 창 위/아래 trim과 두 지붕의 단면, 침대/책상에서의 창 접근을 반증 관찰로 둔다.
-@evidence settings/10-house.md#bedroom-two 한 자녀의 독립 침실이 갖는 자기 외벽 창을 전면 박공 아래 두 칸 창으로 실현한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-two의 자기 외벽 창과 main-mass의 전면 박공을 창 높이에 적용했고 Y = [3.91, 5.31] m가 두 지붕 사이에 들어가 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one front wall window of bedroom-two and the section relation of its upper and lower trim with the two roofs.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [-4.80, -2.70], Y = [3.91, 5.31] m of the front wall with two vertical lights.
+@evidence principles/core/common.md#declared-basis The window form comes from the common handoff, the upper limit from the F underside of roof-profile-datums, and the lower limit from the porch wall junction of porch-roof-columns.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Sets bedroom-two's "a window in its own exterior wall" as a two-light vertical window X = [-4.80, -2.70], Y = [3.91, 5.31] m below the front gable and above the porch wall junction.
+@evidence principles/design/spaces.md#space-topology Binds the window to the front wall of upper-storey bedroom-two below the front gable, and forbids decorative fake windows.
+@evidence principles/design/spaces.md#space-boundary-authority The F underside is consumed from roof-profile-datums and the porch wall junction from porch-roof-columns, and the window coordinates are owned by this H2.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the section of the window's upper/lower trim and the two roofs, and window access from the bed/desk.
+@evidence settings/10-house.md#bedroom-two Realizes the window in its own exterior wall that a child's independent bedroom has as a two-light window below the front gable.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied bedroom-two's own exterior wall window and main-mass's front gable to the window height; Y = [3.91, 5.31] m fits between the two roofs, so there was no parent revision.
 -->
 
-`bedroom-two-front-window`는 [전면 벽](#front-openings)의 X = [-4.80, -2.70], Y = [3.91, 5.31] m 개구부로 upper-storey의 [bedroom-two](../rooms/bedroom-two.md#bedroom-two-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)에 따른 수직 창 두 칸이다. [지붕군](../../settings/10-house.md#main-mass)의 [전면 박공 F의 아래면](../roof/00-junctions.md#roof-profile-datums) 아래, [포치 지붕의 벽 접합](../porch.md#porch-roof-columns) 위의 방 창이며 장식용 가짜 창이 아니다. 창 위/아래 trim과 두 지붕의 단면, 침대/책상에서 창 접근과 실제 프레임은 unverified다.
+`bedroom-two-front-window` is the opening X = [-4.80, -2.70], Y = [3.91, 5.31] m of the [front wall](#front-openings) and belongs to the upper-storey [bedroom-two](../rooms/bedroom-two.md#bedroom-two-plan). It has two vertical lights per the [common handoff](../06-openings.md#external-opening-interface). It is a room window below the [underside of front gable F](../roof/00-junctions.md#roof-profile-datums) of the [roof group](../../settings/10-house.md#main-mass) and above the [wall junction of the porch roof](../porch.md#porch-roof-columns), not a decorative fake window. The section of the window's upper/lower trim and the two roofs, window access from the bed/desk, and the real frames are unverified.
 
-## 층간 계단실의 작은 창 {#stair-front-window}
+## Small Window of the Interstorey Stairwell {#stair-front-window}
 <!--
-@evidence principles/core/common.md#scope-preservation 상층 높이에 있지만 계단실에 속하는 작은 전면 창 하나와 그 소속 공간을 맡는다.
-@evidence principles/core/common.md#substantive-completion 전면 벽의 X = [-1.62, -0.84], Y = [4.11, 5.21] m 개구부를 작은 수직 고정창 한 칸으로 정한다.
-@evidence principles/core/common.md#declared-basis main-stair 층간 공간의 소속은 stair-floor-opening에서, 작은 수직 고정창 형식은 공통 인계에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation openings의 작은 창과 stair-floor-opening의 계단 공간 소속을 받아, 전면 벽의 X=[-1.62,-0.84], Y=[4.11,5.21] m 개구부를 정한다.
-@evidence principles/design/spaces.md#space-topology 창을 main-stair의 층간 공간에 속하게 하고 별도 복도/침실 바인딩이나 존재하지 않는 2층 바닥의 추가를 금지한다.
-@evidence principles/design/spaces.md#space-boundary-authority 계단 구멍과 계단실 경계는 02-stair가 소유하고 이 H2는 창 void만 저작한다.
-@evidence principles/design/spaces.md#space-verification-address 창 폭/trim과 계단실 경계의 일치, 위 박공 골짜기와 아래 포치 접합의 단면, 05의 밝은 계단참 읽힘을 반증 관찰로 둔다.
-@evidence settings/10-house.md#openings 상층 전면의 침실 창보다 작은 계단용 창으로 위계를 만든다.
-@evidence settings/10-house.md#stair 상층 높이의 계단 창을 main-stair의 층간 공간에 바인딩하고 별도 복도/침실 바인딩이나 존재하지 않는 2층 바닥을 덧붙이지 않는다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 작은 계단/복도 창 위계와 stair의 "별도 계단·사다리·복층 보이드는 없다"를 대조했고 창을 계단실에 두어도 두 조건이 함께 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one small front window that sits at upper-storey height but belongs to the stairwell, and its owning space.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [-1.62, -0.84], Y = [4.11, 5.21] m of the front wall as one small vertical fixed light.
+@evidence principles/core/common.md#declared-basis The membership in the main-stair interstorey space comes from stair-floor-opening, and the small vertical fixed window form from the common handoff.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives the small window of openings and the stair space membership of stair-floor-opening, and sets the opening X=[-1.62,-0.84], Y=[4.11,5.21] m of the front wall.
+@evidence principles/design/spaces.md#space-topology Makes the window belong to the interstorey space of main-stair, and forbids a separate hall/bedroom binding or the addition of a nonexistent upper floor.
+@evidence principles/design/spaces.md#space-boundary-authority The stair hole and stairwell boundary are owned by 02-stair, and this H2 authors only the window void.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the match of window width/trim with the stairwell boundary, the sections with the gable valley above and the porch junction below, and the bright landing readability of 05.
+@evidence settings/10-house.md#openings Makes the hierarchy with a stair window smaller than the bedroom windows on the upper front.
+@evidence settings/10-house.md#stair Binds the stair window at upper-storey height to the interstorey space of main-stair and adds no separate hall/bedroom binding or nonexistent upper floor.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared openings' small stair/hall window hierarchy with stair's "with no separate stair, ladder, or double-height void"; placing the window in the stairwell lets both conditions hold together, so there was no parent revision.
 -->
 
-`stair-front-window`는 [전면 벽](#front-openings)의 X = [-1.62, -0.84], Y = [4.11, 5.21] m 개구부다. [공통 인계](../06-openings.md#external-opening-interface)에 따른 작은 수직 고정창 한 칸이며 상층 높이지만 ground-storey 소속 [main-stair의 층간 공간](../02-stair.md#stair-floor-opening)에 속한다. 별도 복도/침실에 바인딩하거나 존재하지 않는 2층 바닥을 덧붙이지 않는다. 창 폭/trim과 실제 계단실 경계의 일치, 위 박공 골짜기·아래 포치 접합과의 단면 및 05에서 요구한 밝은 계단참 읽힘은 unverified다.
+`stair-front-window` is the opening X = [-1.62, -0.84], Y = [4.11, 5.21] m of the [front wall](#front-openings). It is one small vertical fixed light per the [common handoff](../06-openings.md#external-opening-interface), and although it is at upper-storey height it belongs to the [interstorey space of main-stair](../02-stair.md#stair-floor-opening) of ground-storey. It is not bound to a separate hall/bedroom, and no nonexistent upper floor is added. The match of window width/trim with the real stairwell boundary, the sections with the gable valley above and the porch junction below, and the bright landing readability required by 05 are unverified.
 
-## 오른쪽 자녀실의 정면 창 {#bedroom-three-front-window}
+## Front Window of the Right Child's Room {#bedroom-three-front-window}
 <!--
-@evidence principles/core/common.md#scope-preservation bedroom-three의 전면 창 하나와 낮은 본채 지붕 아래 trim 한계를 맡는다.
-@evidence principles/core/common.md#substantive-completion 전면 벽의 X = [2.65, 4.75], Y = [3.91, 5.31] m 개구부와 수직 창 두 칸을 정한다.
-@evidence principles/core/common.md#declared-basis 수직 창 형식은 공통 인계, 위 trim 한계는 낮은 본채 지붕 아래면, 벽 구간은 front-openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation bedroom-three의 자기 창과 right-roof-closures의 전면 창 배정을 받아, 전면 오른쪽 X=[2.65,4.75], Y=[3.91,5.31] m 개구부를 정한다.
-@evidence principles/design/spaces.md#space-topology 창을 upper-storey bedroom-three의 전면 외벽에 바인딩하고 차고 지붕 위 측면 벽으로 옮기지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 낮은 본채 지붕 아래면은 roof-profile-datums에서 소비하고 창의 위 trim을 그 아래로 제한하는 결과를 이 H2에 둔다.
-@evidence principles/design/spaces.md#space-verification-address 침실 안쪽 reveal, 낮은 처마와 창의 단면, 01 정면 위계를 반증 관찰로 둔다.
-@evidence settings/10-house.md#bedroom-three 두 번째 자녀 침실의 자기 외벽 창을 전면 오른쪽 두 칸 창으로 실현한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-three의 자기 외벽 창과 main-mass의 본채 오른쪽 더 낮은 지붕을 대조했고 위 trim을 낮은 지붕 아래면 아래에 둘 수 있어 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the one front window of bedroom-three and the trim limit under the low main block roof.
+@evidence principles/core/common.md#substantive-completion Sets the opening X = [2.65, 4.75], Y = [3.91, 5.31] m of the front wall with two vertical lights.
+@evidence principles/core/common.md#declared-basis The vertical window form comes from the common handoff, the upper trim limit from the underside of the low main block roof, and the wall segment from front-openings.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Receives bedroom-three's own window and the front window assignment of right-roof-closures, and sets the opening X=[2.65,4.75], Y=[3.91,5.31] m on the right of the front.
+@evidence principles/design/spaces.md#space-topology Binds the window to the front exterior wall of upper-storey bedroom-three and does not move it to the side wall above the garage roof.
+@evidence principles/design/spaces.md#space-boundary-authority Consumes the underside of the low main block roof from roof-profile-datums and keeps in this H2 the result that limits the window's upper trim to below it.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the bedroom inner reveal, the section of the low eave and window, and the front hierarchy of 01.
+@evidence settings/10-house.md#bedroom-three Realizes the second child's bedroom's own exterior wall window as a two-light window on the right of the front.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared bedroom-three's own exterior wall window with main-mass's lower roof at the right of the main block; the upper trim can stay below the low roof underside, so there was no parent revision.
 -->
 
-`bedroom-three-front-window`는 [전면 벽](#front-openings)의 X = [2.65, 4.75], Y = [3.91, 5.31] m 개구부로 upper-storey의 [bedroom-three](../rooms/bedroom-three.md#bedroom-three-plan)에 속한다. [공통 인계](../06-openings.md#external-opening-interface)의 수직 창 두 칸이다. 위 trim을 [지붕군](../../settings/10-house.md#main-mass)의 [낮은 본채 지붕 아래면](../roof/00-junctions.md#roof-profile-datums)보다 아래에 남기고 차고 위 측면 창으로 대신하지 않는다. 침실 안쪽 reveal·낮은 처마/창 단면·01 정면 위계의 실제 프레임은 unverified다.
+`bedroom-three-front-window` is the opening X = [2.65, 4.75], Y = [3.91, 5.31] m of the [front wall](#front-openings) and belongs to the upper-storey [bedroom-three](../rooms/bedroom-three.md#bedroom-three-plan). It has two vertical lights of the [common handoff](../06-openings.md#external-opening-interface). The upper trim stays below the [underside of the low main block roof](../roof/00-junctions.md#roof-profile-datums) of the [roof group](../../settings/10-house.md#main-mass), and a side window above the garage does not stand in for it. The real frames of the bedroom inner reveal, the low eave/window section, and the front hierarchy of 01 are unverified.
 
-## 목재 현관문의 외부 충전 {#front-entry-filling}
+## Exterior Fill of the Wooden Entry Door {#front-entry-filling}
 <!--
-@evidence principles/core/common.md#scope-preservation 현관문의 외부 충전인 문짝·상부 유리 분할·손잡이 위치와 01/04의 관찰 질문을 함께 맡는다.
-@evidence principles/core/common.md#substantive-completion 목재 문짝 상부 유리를 문짝 안에서 세 열·두 행으로 반복 분할하고 검은 손잡이를 경첩 반대편에 두는 구성을 정한다.
-@evidence principles/core/common.md#declared-basis front-door의 void·순폭 목표·경첩/열림은 entry-plan에서 그대로 받고, 상부 유리의 세 열·두 행 분할과 경첩 반대편 검은 손잡이는 공통 인계에 따라 이 H2가 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 설정의 "목재문·유리 상부·어두운 손잡이"를 반복 분할 규칙과 손잡이 측으로 구체화한다.
-@evidence principles/design/spaces.md#space-topology front-door가 ground-storey 포치와 현관(entry-plan)을 잇는 연결임을 유지하고 상부 유리를 계단 창이나 별도 현관 바닥과 연결하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 문턱 UV의 U 원점에 필요한 현관문 왼쪽 문설주 값을 entry-plan에서 받고, 이 H2는 문턱 면의 UV 진행과 절단만 정한다.
-@evidence principles/design/spaces.md#space-verification-address 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이, 문 앞 양방향 통행을 반증 관찰로 둔다.
-@evidence settings/10-house.md#porch-entry 현관의 목재문·유리 상부·어두운 손잡이를 문짝 안의 분할과 손잡이 배치로 구현할 입력으로 만든다.
-@evidence settings/10-house.md#openings 문짝 안에서 검은 손잡이를 경첩 반대편에 두어 경첩측과 손잡이측을 나눈다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work porch-entry의 "목재문·유리 상부·어두운 손잡이"와 openings의 "문짝·경첩측·손잡이·문틀·문턱이 구별된다"를 entry-plan의 문 void에 대조했고 문짝 안의 세 열·두 행 유리와 경첩 반대편 손잡이로 문짝·손잡이 구성이 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on together the exterior fill of the entry door, that is the leaf, the upper glass division, and the handle position, and the observation questions of 01/04.
+@evidence principles/core/common.md#substantive-completion Sets the composition in which the upper glass of the wooden leaf is divided repeatedly into three columns and two rows inside the leaf and the black handle sits opposite the hinges.
+@evidence principles/core/common.md#declared-basis Receives the void, clear width target, and hinge/opening of front-door as they are from entry-plan, and this H2 sets, per the common handoff, the three-column, two-row division of the upper glass and the black handle opposite the hinges.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Makes the porch setting's "a wooden door, an upper glass panel, a dark handle" concrete as a repeated division rule and a handle side.
+@evidence principles/design/spaces.md#space-topology Keeps front-door as the connection between the ground-storey porch and the entry (entry-plan), and does not connect the upper glass with the stair window or a separate entry floor.
+@evidence principles/design/spaces.md#space-boundary-authority Receives from entry-plan the left jamb value of the entry door needed for the U origin of the threshold UV, and this H2 sets only the UV progression and cuts of the threshold face.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the entry door and porch connection of 01/04, the door frame depth, wood/upper glass, the open leaf and handle, and two-way passage in front of the door.
+@evidence settings/10-house.md#porch-entry Makes the wooden door, upper glass panel, and dark handle of the entry into input to implement as the division inside the leaf and the handle placement.
+@evidence settings/10-house.md#openings Places the black handle opposite the hinges inside the leaf, dividing the hinge side from the handle side.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared porch-entry's "a wooden door, an upper glass panel, a dark handle" and openings' "doors distinguish leaf, hinge side, handle, frame, and threshold" with the door void of entry-plan; the three-column, two-row glass inside the leaf and the handle opposite the hinges realize the leaf and handle composition, so there was no parent revision.
 -->
 
-`front-door`의 void·순폭 목표·경첩/열림은 [현관 owner](../rooms/entry.md#entry-plan) 그대로다. ground-storey의 포치와 현관을 잇는다. [공통 인계](../06-openings.md#external-opening-interface)에 따라 목재 문짝 상부 유리는 문짝 안에서 세 열·두 행으로 반복 분할하고 검은 손잡이는 경첩 반대편에 둔다. 이 유리를 계단 창과 연결하거나 별도 현관 바닥으로 해석하지 않는다.
+The void, clear width target, and hinge/opening of `front-door` stay exactly as the [entry owner](../rooms/entry.md#entry-plan) set them. It connects the ground-storey porch and the entry. Per the [common handoff](../06-openings.md#external-opening-interface), the upper glass of the wooden leaf is divided repeatedly into three columns and two rows inside the leaf, and the black handle is placed opposite the hinges. This glass is not connected with the stair window or interpreted as a separate entry floor.
 
-`front-door-threshold` 상면의 UV는 [현관 owner](../rooms/entry.md#entry-plan)의 왼쪽 문설주 X=0.40 m에서 U=0으로 시작해 +X로, [본채 전면 벽](../00-building.md#main-building-extent)의 안쪽 면 Z=−0.25 m에서 V=0으로 시작해 바깥쪽 면 Z=0 m로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 포치 바닥과 현관 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
+The UV of the `front-door-threshold` top starts U=0 at the left jamb X=0.40 m of the [entry owner](../rooms/entry.md#entry-plan) and runs toward +X, and starts V=0 at the inner face Z=−0.25 m of the [main block front wall](../00-building.md#main-building-extent) and runs to the outer face Z=0 m. The vertical sides use the horizontal tangent U and +Y as V from the lower left corner of each side, and are cut at the jambs, the inner and outer floor contact lines, and the top/side corners. The UV origins of the porch floor and the entry floor are not continued onto the threshold plate.
 
-관찰은 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이를 포함한다. 실제 부재/void·문 앞 양방향 통행·01/04 비교는 unverified다.
+The observations include the entry door and porch connection of 01/04, the door frame depth, wood/upper glass, and the open leaf and handle. The real members/void, two-way passage in front of the door, and the 01/04 comparison are unverified.
 
-## 닫힌 차고문과 상부 이동 예약 {#garage-front-opening}
+## Closed Garage Door and Upper Travel Reservation {#garage-front-opening}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고의 닫힌 분절 패널문, 패널/채광 반복, 안쪽 상부 가이드와 수직 레일 예약, 차도 접합을 모두 맡는다.
-@evidence principles/core/common.md#substantive-completion 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m 개구부, 유효 폭 목표 4.80 m, 네 수평 패널과 맨 위 네 열 유리를 정한다.
-@evidence principles/core/common.md#declared-basis 바닥은 ground-threshold-datums의 차고 datum, 차도 상면은 driveway owner에서 받고 패널 높이는 문짝 유효 높이의 균등 분할로 산출한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 두 대용 폭의 분절 패널문 하나와 상부 채광 유리를 가운데 기둥 없는 단일 개구부, 네 수평 패널, 가이드/열린 패널 예약 X = [6.00, 11.20], Z = [-3.40, -0.55], Y = [2.15, 2.50] m와 양 끝 수직 레일 띠로 바꾼다.
-@evidence principles/design/spaces.md#space-topology garage-front-door를 garage 전면 벽에 두고 차도와 문턱 바닥에서 접하게 하며 기본 닫힘에서 내부 관찰은 머드룸을 통하게 한다.
-@evidence principles/design/spaces.md#space-boundary-authority 차고 바닥 datum과 차도 상면은 원래 owner에서 소비하고 패널 수와 반복을 외벽의 별도 opening 수로 세지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 열린 패널 순높이, 곡선 레일의 이동/간섭, 상부 예약과 천장/보/수납의 대조, 빈 차고의 읽힘을 반증 관찰로 둔다.
-@evidence settings/10-house.md#garage 두 대용 폭 분절 패널문 하나·상부 채광 유리·문 레일/상부 구조와 닫힌 기준 상태를 개구부와 이동 예약으로 만든다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 외곽 폭 5.8–6.4 m 범위, 문 하나·상부 유리·레일, "문을 임시 제거한 외부 view로 완성을 주장하지 않는다"를 X = [6.10, 11.10] m 개구부와 레일 예약에 적용했고 모두 함께 성립해 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation Takes on the closed sectional panel door of the garage, the panel/daylight repetition, the inner upper guide and vertical rail reservations, and the driveway junction.
+@evidence principles/core/common.md#substantive-completion Sets in the front wall Z = [-0.55, -0.30] m the opening X = [6.10, 11.10], Y = [-0.15, 2.15] m, an effective width target of 4.80 m, four horizontal panels, and four columns of glass in the top panel.
+@evidence principles/core/common.md#declared-basis The floor comes from the garage datum of ground-threshold-datums and the driveway top from the driveway owner, and the panel heights are derived as an even division of the effective leaf height.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns one two-car-wide sectional panel door with upper daylight glazing into a single opening without a center post, four horizontal panels, the guide/open-panel reservation X = [6.00, 11.20], Z = [-3.40, -0.55], Y = [2.15, 2.50] m, and vertical rail strips at both ends.
+@evidence principles/design/spaces.md#space-topology Places garage-front-door in the garage front wall meeting the driveway at the threshold floor, and has interior observation in the default closed state go through the mudroom.
+@evidence principles/design/spaces.md#space-boundary-authority Consumes the garage floor datum and the driveway top from their original owners, and does not count the panel count and repetition as a count of separate openings in the exterior wall.
+@evidence principles/design/spaces.md#space-verification-address Keeps as refuting observations the clear height of open panels, the travel/interference of the curved rails, the comparison of the upper reservation with the ceiling, beams, and storage, and the readability of the empty garage.
+@evidence settings/10-house.md#garage Makes one two-car-wide sectional panel door, upper daylight glazing, door rails/upper structure, and the closed baseline state into the opening and travel reservation.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Applied garage's outline width range of 5.8–6.4 m, one door, upper glazing, rails, and "Completion is not claimed with an exterior view in which the door is temporarily removed" to the X = [6.10, 11.10] m opening and the rail reservation; all hold together, so there was no parent revision.
 -->
 
-`garage-front-door`는 [차고](../rooms/garage-interior.md#garage-interior-plan)의 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m의 거친 개구부로 택한다. 바닥은 [차고 datum](../01-storeys.md#ground-threshold-datums)이고 최종 유효 폭 목표는 4.80 m, 높이는 2.15 m다. 두 대 폭의 분절 패널문 하나이며 가운데 고정 기둥이나 두 개의 독립 문으로 나누지 않는다. [차도 상면](../site/driveway.md#driveway-plan)은 이 문턱 바닥과 바깥 벽면에서 접하며 실제 void/문틀 뒤의 접합은 unverified다.
+`garage-front-door` is chosen as the rough opening X = [6.10, 11.10], Y = [-0.15, 2.15] m in the front wall Z = [-0.55, -0.30] m of the [garage](../rooms/garage-interior.md#garage-interior-plan). The floor is the [garage datum](../01-storeys.md#ground-threshold-datums), the final effective width target is 4.80 m, and the height is 2.15 m. It is one sectional panel door of two-car width and is not divided by a fixed center post or into two independent doors. The [driveway top](../site/driveway.md#driveway-plan) meets this threshold floor at the outer wall face, and the junction behind the real void/door frame is unverified.
 
-닫힌 문은 네 수평 패널로 나누며 높이는 전체 문짝의 유효 높이에서 같은 간격으로 산출한다. 맨 위 패널 안의 채광 유리는 네 열로 반복 배치하고 나머지 패널에는 불투명한 사각 분절을 둔다. 실제 frame·패널 두께·레일·곡선 가이드의 geometry는 후속 부재가 소유한다. 패널 수와 반복을 외벽의 별도 opening 수로 잘못 보고하지 않는다.
+The closed door is divided into four horizontal panels, with heights derived at equal spacing from the effective height of the whole leaf. The daylight glass in the top panel is repeated in four columns, and the other panels have opaque rectangular sections. The geometry of the real frame, panel thickness, rails, and curved guides is owned by later members. The panel count and repetition are not wrongly reported as a count of separate openings in the exterior wall.
 
-문 안쪽 상부의 가이드/열린 패널 예약은 X = [6.00, 11.20], Z = [-3.40, -0.55], Y = [2.15, 2.50] m다. 양쪽 수직 레일은 이 X 범위의 양 끝 0.16 m 띠, Z = [-0.72, -0.55] m에서 차고 바닥부터 상부 예약까지 이어진다. 이 전체 점유를 차고 천장/보/수납과 대조한다. 머드룸 문 앞 바닥까지 상부 문을 밀어 넣지 않는다. 문은 기본 닫힘이며 머드룸을 통해 검사한다. 실제 열린 패널 순높이·곡선 레일의 이동/간섭·빈 차고의 읽힘은 unverified다.
+The upper guide/open-panel reservation inside the door is X = [6.00, 11.20], Z = [-3.40, -0.55], Y = [2.15, 2.50] m. The vertical rails on both sides run in 0.16 m strips at both ends of this X range, at Z = [-0.72, -0.55] m, from the garage floor up to the upper reservation. This whole occupancy is compared with the garage ceiling, beams, and storage. The upper door is not pushed in up to the floor in front of the mudroom door. The door is closed by default and is inspected through the mudroom. The real clear height of open panels, the travel/interference of the curved rails, and the readability of the empty garage are unverified.

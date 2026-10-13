@@ -1,202 +1,202 @@
-# 용기와 기록물
+# Vessels and records
 
-## 큰 저장 항아리 {#storage-jar}
-
-<!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.495×0.70×0.48m 저장 항아리는 큰 항아리 설정 범위에 맞고, `body`는 +X 시접의 Y축 회전체, 양쪽 XY `handle`은 큰 원·관의 호길이 UV를 쓴다.
-@evidenceExclude settings/00-delivery.md#operative-subjects 주체 표가 분류한 봉헌물·문서·용기·가구의 개별 정체성은 35-objects가, 분수 물은 30-interiors가 소유하므로 원형은 분류표를 형상 근거로 재사용하지 않는다.
-@evidence principles/core/common.md#scope-preservation 큰 저장 항아리를 회전체 윤곽 다섯 점·열린 입·어깨 손잡이 두 개까지 정한다.
-@evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이, ±X 어깨에 로컬 XY 평면으로 향하는 두 고리 손잡이의 중심·원환 치수, 몸체 16분할을 확정해 source가 항아리 손잡이 방향을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 윤곽 구성은 35-objects#vessels, 쓰이는 곳은 30-interiors#storage와 #service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 배·어깨·목·입술 네 구간과 열린 입이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 0.15m의 보이는 빈 공간, 부드러운 법선을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이 끝 X=±0.2475m를 포함한 점유 상자 0.495×0.70×0.48m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 측면 실루엣의 네 구간과 열린 입을 보고 구체·원통·막힌 입을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 벽을 따라 선 큰 항아리를 근거로 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 윤곽과 크기군 반복 소유가 정해져 저장 용기 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 구성과 storage·service-yard의 벽 따라 놓인 큰 항아리를 높이 0.70m에 대조했고 부모를 고칠 모순이 없었다.
-@evidence settings/35-objects.md#vessels 바닥·부푼 배·좁은 목·입술과 열린 입의 도기 구성을 큰 항아리 윤곽으로 받는다.
-@evidence settings/30-interiors.md#storage 보관실 벽을 따라 놓인 큰 도기 항아리를 이 prototype으로 받는다.
-@evidence settings/30-interiors.md#service-yard 서비스 마당의 소수 항아리를 같은 prototype으로 받는다.
-@evidence settings/50-production.md#references 이미지 02·05의 큰 항아리를 근거로 쓴다.
-@evidenceExclude spaces/rooms/service-yard.md#yard-volume 마당 volume의 열린 범위와 court-eave 상한은 항아리·바구니 prototype의 형상을 제약하지 않고 마당 안 위치와 수는 instances가 정해 어떤 모델도 이 volume을 소비하지 않는다.
--->
-
-[보관실](../settings/30-interiors.md#storage)과 서비스 마당의 큰 도기 항아리다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 바닥·부푼 배·좁은 목·입술과 열린 입, 이미지 02·05의 벽을 따라 선 큰 항아리가 근거다.
-
-로컬 원점은 바닥면 중심이다. 회전체 바깥 윤곽은 (높이,반지름)=(0,0.10),(0.40,0.24),(0.58,0.18),(0.64,0.08),(0.70,0.10)m의 직선 연결이다. 입 안쪽은 (0.70,0.08)→(0.64,0.055)→(0.55,0.04)m의 직선 연결 뒤 Y=0.55m에서 반지름 0까지 닫힌 바닥이며 입술 아래 목의 벽 두께는 0.025m다. 어깨의 작은 고리 손잡이 두 개(중심선 반지름 0.04m, 관 반지름 0.0075m)는 각각 중심 (X,Y,Z)=(±0.20,0.58,0)m이며 로컬 XY 평면에 세운다. 원환은 주환 16분할·관 8분할로 몸체 어깨에 닿고 두 손잡이는 서로 반대 X 방향으로 선다. 몸체 회전 16분할, 부드러운 법선이다. 바깥 손잡이 끝 X=±0.2475m와 배의 Z=±0.24m를 포함한 점유 상자는 0.495×0.70×0.48m다.
-
-두 손잡이 원환의 안쪽 관은 몸체 어깨 안으로 들어가 고정되고 바깥쪽 관은 손가락이 통과하는 열린 고리를 남긴다.
-
-부재 대응: `body`=바깥 윤곽; `handle`=손잡이.
-
-part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공간이다. 크기군 반복과 위치는 instances가 정한다.
-
-검토 판에서 측면 실루엣의 배·어깨·목·입술 네 구간과 열린 입을 본다. 구체나 원통, 입이 막힌 항아리는 실패다.
-
-저장 항아리 `body`의 바깥·입 안쪽 UV0는 각 단면 고리의 실제 반지름을 U, 바닥 또는 안쪽 최저 고리부터의 모선 길이를 V로 둔다. 두 XY `handle`은 큰 원·관 단면의 호길이로 펴고 +X 시접에서 끊는다.
-
-## 운반 항아리 {#carry-jar}
+## Large storage jar {#storage-jar}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 보수적 0.436×0.50×0.30m 운반 항아리 점유는 손잡이 돌출을 포함하며, `body`는 Y축 회전체, ±X 베지어 `handle`은 아래 부착점→위 부착점 호길이 U와 관 둘레 V를 쓴다.
-@evidence principles/core/common.md#scope-preservation 운반 항아리를 윤곽 다섯 점·입 안쪽 깊이·목과 어깨를 잇는 세로 고리 손잡이 두 개까지 정한다.
-@evidence principles/core/common.md#substantive-completion 몸체의 높이별 반지름과 입 안쪽 0.10m, ±X 손잡이의 두 부착점·바깥 제어점·곡선 분할·관 굵기를 정해 source가 곡선 경로를 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 몸체와 붙은 곡면 손잡이는 35-objects#vessels, 보관실의 손잡이 달린 운반 용기는 30-interiors#storage에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 큰 항아리와 구별되는 중간 크기와 세로 고리 손잡이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract body·handle part와 손잡이 안쪽 고리·입 안쪽의 빈 공간을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이 제어점의 보수적 외피 상자와 실제 다면체 점유 상자를 구별한다.
-@evidence principles/design/models.md#reviewable-structure 큰 항아리 옆에서 크기와 손잡이 형태가 다른 종류로 읽히는지 보고 몸체에서 떨어진 손잡이를 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 몸체에 붙은 곡면 손잡이라는 도기 설정을 형상으로 반증 가능하게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 윤곽·손잡이와 위치 소유가 정해져 운반 용기 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels와 storage 설정의 손잡이 달린 운반 용기를 높이 0.50m 윤곽에 대조했고 부모를 고칠 모순이 없었다.
-@evidence settings/35-objects.md#vessels 몸체와 붙은 곡면 손잡이 도기를 운반 항아리 윤곽으로 받는다.
-@evidence settings/30-interiors.md#storage 보관실의 손잡이 달린 운반 용기를 이 prototype으로 받는다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.495×0.70×0.48m storage jar fits the large jar setting range; `body` is a Y-axis solid of revolution with a +X seam, and the two XY `handle` use large-circle and tube arc-length UVs.
+@evidenceExclude settings/00-delivery.md#operative-subjects The individual identities of offerings, documents, vessels and furniture classified by the subject table are owned by 35-objects, and the fountain water by 30-interiors, so the prototype does not reuse the classification table as a shape basis.
+@evidence principles/core/common.md#scope-preservation It sets the large storage jar down to five profile points of the solid of revolution, an open mouth and two shoulder handles.
+@evidence principles/core/common.md#substantive-completion It fixes the radius per height, the mouth interior depth, the centres and torus dimensions of the two ring handles facing the local XY plane on the ±X shoulder, and 16 body segments, so the source does not choose the jar handle direction anew.
+@evidence principles/core/common.md#declared-basis It states that the profile composition comes from 35-objects#vessels, the places of use from 30-interiors#storage and #service-yard, and the form from images 02 and 05.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the ceramics setting into the model decisions of four zones, belly, shoulder, neck and lip, and an open mouth.
+@evidence principles/design/models.md#representation-contract It sets the body and handle parts, the visible 0.15m void inside the mouth and smooth normals.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the floor face and records the occupancy box 0.495×0.70×0.48m including the handle ends X=±0.2475m.
+@evidence principles/design/models.md#reviewable-structure It views the four zones of the side silhouette and the open mouth and makes a sphere, a cylinder or a closed mouth a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the large jars standing along the walls in images 02 and 05.
+@evidence principles/design/models.md#model-scale-layer-completion The profile and the ownership of size-group repetition are set, completing the storage vessel layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The composition of vessels and the large jars along the walls of storage and service-yard were compared with the height 0.70m, and there was no contradiction requiring a parent change.
+@evidence settings/35-objects.md#vessels It receives the ceramics composition of base, swelling belly, narrow neck, lip and open mouth as the large jar profile.
+@evidence settings/30-interiors.md#storage It receives the large ceramic jars along the storage room walls as this prototype.
+@evidence settings/30-interiors.md#service-yard It receives the few jars of the service yard as the same prototype.
+@evidence settings/50-production.md#references It rests on the large jars of images 02 and 05.
+@evidenceExclude spaces/rooms/service-yard.md#yard-volume The open extent and court-eave ceiling of the yard volume do not constrain the shape of the jar and basket prototypes, and instances sets the positions and count in the yard, so no model consumes this volume.
 -->
 
-손잡이 달린 중간 크기 운반 용기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 몸체와 붙은 곡면 손잡이가 근거다. [보관실](../settings/30-interiors.md#storage)의 운반 용기 역할을 맡고 실제 위치와 복제 수는 instances가 정한다.
+These are the large ceramic jars of the [storage room](../settings/30-interiors.md#storage) and the service yard. The basis is the base, swelling belly, narrow neck, lip and open mouth of [ceramics and offering bowls](../settings/35-objects.md#vessels) and the large jars standing along the walls in images 02 and 05.
 
-로컬 원점은 바닥면 중심이다. 바깥 윤곽은 (높이,반지름)=(0,0.07),(0.28,0.15),(0.40,0.10),(0.45,0.05),(0.50,0.06)m의 직선 연결이다. 입 안쪽은 (0.50,0.04)→(0.45,0.03)→(0.40,0.025)m의 직선 연결 뒤 Y=0.40m에서 중심까지 닫힌 바닥으로, 목의 최소 벽 두께가 0.02m다. 목과 어깨를 잇는 세로 고리 손잡이 두 개(관 반지름 0.018m)는 로컬 ±X 면에서 아래 부착점 (±0.15,0.28,0)m, 위 부착점 (±0.06,0.45,0)m을 잇는다. 각 경로는 아래점→(±0.20,0.30,0)→(±0.20,0.43,0)→위점을 제어점으로 하는 3차 베지어 곡선이며 길이 12분할·관 둘레 8분할이다. 몸체 회전 16분할이다. 점유 상자는 0.436×0.50×0.30m로 제어점 외피를 여유 있게 감싸는 보수적 경계다. 지정된 분할 수로 만든 실제 다면체 합집합 상자는 약 0.396×0.50×0.30m다.
+The local origin is the centre of the floor face. The outer profile of the solid of revolution is the straight connection of (height,radius)=(0,0.10),(0.40,0.24),(0.58,0.18),(0.64,0.08),(0.70,0.10)m. The mouth interior is the straight connection of (0.70,0.08)→(0.64,0.055)→(0.55,0.04)m followed by a floor closed at Y=0.55m to radius 0, and the neck wall under the lip is 0.025m thick. The two small ring handles on the shoulder (centreline radius 0.04m, tube radius 0.0075m) each have centre (X,Y,Z)=(±0.20,0.58,0)m and stand in the local XY plane. The torus has 16 main segments and 8 tube segments and touches the body shoulder, and the two handles stand in opposite X directions. The body has 16 revolution segments and smooth normals. Including the outer handle ends X=±0.2475m and the belly Z=±0.24m, the occupancy box is 0.495×0.70×0.48m.
 
-손잡이 아래·위 부착단의 관은 첫·끝 현에 수직인 끝 링으로 몸체 벽 안에 각각 최대 약 0.0029m·0.0080m 들어가 고정되고, 그 사이 고리 안쪽은 열린다. 두 끝 원판의 일부는 몸체 밖에 드러나며, 원판 전체가 묻힌 형상은 아니다.
+The inner tubes of the two handle tori enter the body shoulder and are fixed, and the outer tubes leave an open loop a finger passes through.
 
-부재 대응: `body`=바깥 윤곽; `handle`=손잡이.
+Part map: `body`=outer profile; `handle`=handle.
 
-part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽이 빈 공간이다. 위치는 instances가 정한다.
+Parts and surfaces are `body` and `handle`. The 0.15m inside the mouth is a visible void. instances sets the size-group repetition and positions.
 
-검토 판에서 큰 항아리 옆에 두어 크기와 손잡이 형태가 다른 종류로 읽히는지 본다. 끝 원판의 노출은 접합의 일부로 읽고, 손잡이 끝 링이 몸체에 삽입되지 않거나 손잡이가 몸체에서 떨어진 형상은 실패다.
+On the review board the side silhouette shows the four zones of belly, shoulder, neck and lip and the open mouth. A sphere, a cylinder or a jar with a closed mouth is a failure.
 
-운반 항아리 `body`는 +X 시접의 회전체 UV0를 바깥면과 입 안쪽에서 따로 전개한다. ±X `handle`은 각 아래 부착점부터 위 부착점까지 중심선 호길이를 U, 관 단면 호길이를 V로 두고 접합점에서 끊는다.
+The outer and mouth-interior UV0 of the storage jar `body` take the real radius of each section ring as U and the generatrix length from the base or the lowest inner ring as V. The two XY `handle` unwrap with the arc lengths of the large circle and the tube section and split at a +X seam.
 
-## 작은 탁상 용기 {#small-vessel}
+## Carrying jar {#carry-jar}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale X −0.08~0.11m·Y 0~0.20m의 탁상 용기는 한쪽 손잡이 돌출을 점유에 포함하고, 12각 `body`는 회전체 UV, +X `handle`은 아래→위 관 호길이 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 작은 탁상 용기를 윤곽 네 점·입 안쪽 깊이·손잡이 하나까지 정한다.
-@evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이에 +X 손잡이의 아래·위 부착점, 두 제어점과 12구간 경로·관 8분할을 더해 source가 손잡이 형상을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 높이 0.12~0.30m 탁상 용기 범위는 35-objects#vessels에서, 작은 도구 용기라는 관리실의 쓰임은 30-interiors#administration에서 받는다. 봉헌실·감실의 배치는 각 선반·감실 모델 H2와 instances가 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 좁은 목과 한쪽 손잡이의 0.20m 용기라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 빈 공간을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이를 포함한 점유 범위 X=−0.08~0.11m·Y=0~0.20m·Z=−0.08~0.08m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 한 손잡이와 좁은 목을 보고 작은 원통을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 탁상 용기 범위를 손잡이와 좁은 목이라는 관찰 결정으로 좁힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 높이 0.20m가 탁상 범위 안이고 위치·수량 소유가 정해져 탁상 용기 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 0.12~0.30m 범위를 높이 0.20m에 대조했고 감실 칸 0.80m·선반 칸 높이 안에 들어 부모를 고치지 않았다.
-@evidence settings/35-objects.md#vessels 높이 0.12~0.30m 탁상 용기 범위를 0.20m 용기로 받는다.
-@evidence settings/30-interiors.md#administration 작업대의 작은 도구 용기를 이 열린 입을 가진 작은 탁상 용기로 받으며 도구의 수와 배치는 instances에 남긴다.
+@evidence contracts/principles-models.md#temple-reference-scale The conservative 0.436×0.50×0.30m carrying jar occupancy includes the handle projection; `body` is a Y-axis solid of revolution, and the ±X Bézier `handle` uses a lower anchor→upper anchor arc-length U and a tube circumference V.
+@evidence principles/core/common.md#scope-preservation It sets the carrying jar down to five profile points, the mouth interior depth and two vertical ring handles linking neck and shoulder.
+@evidence principles/core/common.md#substantive-completion It sets the body radius per height, the 0.10m mouth interior, and the two anchor points, outer control points, curve segments and tube thickness of the ±X handles, so the source does not choose the curve path anew.
+@evidence principles/core/common.md#declared-basis It states that the curved handle attached to the body comes from 35-objects#vessels and the handled carrying vessel of the storage room from 30-interiors#storage.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the ceramics setting into the model decisions of a medium size distinct from the large jar and vertical ring handles.
+@evidence principles/design/models.md#representation-contract It sets the body and handle parts and the voids of the handle loops and mouth interior.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the floor face and distinguishes the conservative hull box of the handle control points from the real polyhedral occupancy box.
+@evidence principles/design/models.md#reviewable-structure Beside the large jar it checks that size and handle form read as a different kind and makes a handle detached from the body a failure.
+@evidence principles/design/models.md#model-observable-style-basis It makes the ceramics setting of a curved handle attached to the body refutable through shape.
+@evidence principles/design/models.md#model-scale-layer-completion Profile, handles and position ownership are set, completing the carrying vessel layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The handled carrying vessel of the vessels and storage settings was compared with the 0.50m high profile, and there was no contradiction requiring a parent change.
+@evidence settings/35-objects.md#vessels It receives ceramics with a curved handle attached to the body as the carrying jar profile.
+@evidence settings/30-interiors.md#storage It receives the handled carrying vessel of the storage room as this prototype.
 -->
 
-봉헌실·관리실·감실의 작은 도기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 높이 0.12~0.30m 탁상 용기가 근거다. [관리실](../settings/30-interiors.md#administration)의 작은 도구 용기는 이 원형의 열린 입을 쓰는 한 배치다. 도구의 수와 배치 위치는 instances가 정한다.
+This is a medium-sized carrying vessel with handles. The basis is the body and the attached curved handle of [ceramics and offering bowls](../settings/35-objects.md#vessels). It takes the role of the carrying vessel of the [storage room](../settings/30-interiors.md#storage), and instances sets its real positions and copy count.
 
-로컬 원점은 바닥면 중심이다. 바깥 윤곽은 (높이,반지름)=(0,0.05),(0.10,0.08),(0.16,0.035),(0.20,0.045)m의 직선 연결이다. 입 안쪽은 (0.20,0.028)→(0.16,0.022)→(0.15,0.018)m의 직선 연결 뒤 Y=0.15m에서 중심까지 닫힌 바닥으로, 목의 벽 두께가 0.013m다. 한쪽 +X의 고리 손잡이(관 반지름 0.01m)는 아래 부착점 (0.07,0.10,0)m에서 제어점 (0.10,0.10,0)m·(0.10,0.16,0)m를 지나 위 부착점 (0.035,0.16,0)m으로 이어지는 3차 베지어 곡선이다. 경로 12분할·관 둘레 8분할, 몸체 회전 12분할이다. 손잡이의 실제 최대 X는 약 0.0994m이고, 제어점의 X 상한 0.10m에 관 반지름을 더한 보수적 점유 X 상한은 0.11m다. 점유 상자는 X −0.08~0.11m, Y 0~0.20m, Z −0.08~0.08m다.
+The local origin is the centre of the floor face. The outer profile is the straight connection of (height,radius)=(0,0.07),(0.28,0.15),(0.40,0.10),(0.45,0.05),(0.50,0.06)m. The mouth interior is the straight connection of (0.50,0.04)→(0.45,0.03)→(0.40,0.025)m followed by a floor closed at Y=0.40m to the centre, and the minimum neck wall thickness is 0.02m. The two vertical ring handles linking neck and shoulder (tube radius 0.018m) join the lower anchor point (±0.15,0.28,0)m and the upper anchor point (±0.06,0.45,0)m on the local ±X faces. Each path is a cubic Bézier curve with lower point→(±0.20,0.30,0)→(±0.20,0.43,0)→upper point as control points, with 12 segments along its length and 8 segments around the tube. The body has 16 revolution segments. The occupancy box is 0.436×0.50×0.30m, a conservative bound that generously wraps the control point hull. The real polyhedral union box made with the specified segment counts is about 0.396×0.50×0.30m.
 
-손잡이 아래·위 부착단의 관은 첫·끝 현에 수직인 끝 링으로 몸체 벽 안에 각각 최대 약 0.0085m·0.0065m 들어가 고정되고, 그 사이 고리 안쪽은 열린다.
+The tubes at the lower and upper anchored ends of the handle enter the body wall with end rings perpendicular to the first and last chords, up to about 0.0029m and 0.0080m respectively, and are fixed, while the inside of the loop between them stays open. Part of the two end discs shows outside the body; the discs are not wholly buried.
 
-부재 대응: `body`=바깥 윤곽; `handle`=손잡이.
+Part map: `body`=outer profile; `handle`=handle.
 
-part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정한다.
+Parts and surfaces are `body` and `handle`. The loops inside the handles and the mouth interior are voids. instances sets the position.
 
-검토 판에서 한 손잡이와 좁은 목을 본다. 작은 원통은 실패다.
+On the review board it stands beside the large jar to check that its size and handle form read as a different kind. The exposure of the end discs reads as part of the joint, and a shape whose handle end rings are not inserted into the body, or whose handle is detached from the body, is a failure.
 
-작은 용기 `body`는 바깥과 입 안쪽의 별도 +X 시접에서 둘레 U·모선 V를 펴고, 한쪽 +X `handle`은 아래 접점부터 위 접점까지 관의 중심선 U·단면 V를 쓴다.
+The carrying jar `body` unwraps the solid-of-revolution UV0 with a +X seam separately on the outer face and the mouth interior. Each ±X `handle` takes the centreline arc length from the lower anchor point to the upper anchor point as U and the tube section arc length as V, splitting at the joints.
 
-## 얕은 봉헌 그릇 {#offering-bowl}
+## Small table vessel {#small-vessel}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.06×0.22m 얕은 그릇은 제단 상판에 놓이고, 단일 `bowl`의 오목 안쪽은 바깥과 별도 최저 고리에서 시작하는 Y축 회전체 UV를 낸다.
-@evidence principles/core/common.md#scope-preservation 얕은 봉헌 그릇을 지름·높이·테두리 두께·오목면·굽까지 정한다.
-@evidence principles/core/common.md#substantive-completion 지름 0.22m·높이 0.06m, 안팎 단면 좌표와 테두리 0.012m·안쪽 깊이 0.045m·굽 치수·둘레 24분할이 있어 source가 그릇 껍질을 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 지름 0.15~0.30m와 두꺼운 테두리·오목한 안쪽은 35-objects#vessels에서, 놓이는 면은 제단·탁자·진열대 모델 H2에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 봉헌 그릇 설정을 수평 두께 0.012m의 두꺼운 테두리·오목 껍질·굽이라는 모델 결정으로 바꾸고 재료 선택은 materials에 남긴다.
-@evidence principles/design/models.md#representation-contract bowl part 하나와 오목한 안쪽 빈 공간을 정하고 금속·도기 선택을 materials에 넘긴다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 점유 상자 0.22×0.06×0.22m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 측면의 두꺼운 테두리와 오목한 안쪽을 보고 납작한 원판을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 두꺼운 테두리와 오목한 안쪽이라는 설정을 측면 윤곽으로 반증 가능하게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 치수가 제단 상판 1.40×0.75m 위에 놓일 규모이고 위치 소유가 정해져 봉헌 그릇 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 지름 범위와 제단·탁자·진열대 윗면을 지름 0.22m에 대조했고 모두 올릴 수 있어 부모를 고치지 않았다.
-@evidence settings/35-objects.md#vessels 지름 0.15~0.30m, 두꺼운 테두리와 오목한 안쪽의 그릇을 0.22m 그릇으로 받는다.
+@evidence contracts/principles-models.md#temple-reference-scale The table vessel of X −0.08~0.11m and Y 0~0.20m includes the projection of its one handle in its occupancy, and the 12-sided `body` uses a solid-of-revolution UV and the +X `handle` a bottom→top tube arc-length UV.
+@evidence principles/core/common.md#scope-preservation It sets the small table vessel down to four profile points, the mouth interior depth and one handle.
+@evidence principles/core/common.md#substantive-completion It adds to the radius per height and mouth interior depth the lower and upper anchor points of the +X handle, two control points, a 12-segment path and 8 tube segments, so the source does not choose the handle shape anew.
+@evidence principles/core/common.md#declared-basis The 0.12~0.30m table vessel range is received from 35-objects#vessels and the office use as a small tool vessel from 30-interiors#administration. Placement in the offering room and niche is received by each shelf and niche model H2 and instances.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the ceramics setting into the model decision of a 0.20m vessel with a narrow neck and one handle.
+@evidence principles/design/models.md#representation-contract It sets the body and handle parts and the void inside the mouth.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the floor face and records the occupancy range X=−0.08~0.11m, Y=0~0.20m, Z=−0.08~0.08m including the handle.
+@evidence principles/design/models.md#reviewable-structure It views the one handle and the narrow neck and makes a small cylinder a failure.
+@evidence principles/design/models.md#model-observable-style-basis It narrows the table vessel range to the observable decisions of a handle and a narrow neck.
+@evidence principles/design/models.md#model-scale-layer-completion The height 0.20m lies within the table range and the position and quantity ownership is set, completing the table vessel layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The 0.12~0.30m range of vessels was compared with the height 0.20m; it fits within the 0.80m niche recess and the shelf cell heights, so the parents were not changed.
+@evidence settings/35-objects.md#vessels It receives the 0.12~0.30m table vessel range as the 0.20m vessel.
+@evidence settings/30-interiors.md#administration It receives the small tool vessel of the workbench as this small table vessel with an open mouth and leaves the number and placement of tools to instances.
 -->
 
-제단·봉헌 탁자·진열대의 얕은 그릇이다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 지름 0.15~0.30m, 두꺼운 테두리와 오목한 안쪽 면이 근거다.
+These are the small ceramics of the offering room, office and niche. The basis is the 0.12~0.30m high table vessel of [ceramics and offering bowls](../settings/35-objects.md#vessels). The small tool vessel of the [office](../settings/30-interiors.md#administration) is one placement using the open mouth of this prototype. instances sets the number of tools and the placement positions.
 
-로컬 원점은 바닥면 중심이다. 지름 0.22m·높이 0.06m 껍질이며 테두리의 수평 두께는 0.012m다. 회전 단면의 안쪽 (반지름,Y)=(0,0.015),(0.05,0.027),(0.08,0.043),(0.098,0.06)m와 바깥쪽 (0.11,0.06),(0.104,0.04),(0.085,0.018),(0.04,0.01)m를 이 순서로 직선 연결한다. 아래 굽은 반지름 0.04m로 Y=0~0.01m이며 밑면은 중심까지 닫는다. 따라서 안쪽 깊이는 0.045m이고 각 높이에서 바깥 반지름이 안쪽보다 커 벽 두께가 양수다. 안쪽 중심에서 바깥쪽 굽의 아랫끝까지 위 순서의 여덟 선형 구간을 둘레 24분할과 교차해 삼각화한다. 안쪽 중심→첫 안쪽 고리와 굽 아랫끝→바닥 중심의 두 원판은 각각 24개 삼각형으로 닫는다. 점유 상자는 0.22×0.06×0.22m다.
+The local origin is the centre of the floor face. The outer profile is the straight connection of (height,radius)=(0,0.05),(0.10,0.08),(0.16,0.035),(0.20,0.045)m. The mouth interior is the straight connection of (0.20,0.028)→(0.16,0.022)→(0.15,0.018)m followed by a floor closed at Y=0.15m to the centre, and the neck wall thickness is 0.013m. The ring handle on the one +X side (tube radius 0.01m) is a cubic Bézier curve that runs from the lower anchor point (0.07,0.10,0)m through the control points (0.10,0.10,0)m and (0.10,0.16,0)m and continues to the upper anchor point (0.035,0.16,0)m. It has 12 segments along its path and 8 segments around the tube, and the body has 12 revolution segments. The real maximum X of the handle is about 0.0994m, and the conservative occupancy X ceiling, the control point X ceiling 0.10m plus the tube radius, is 0.11m. The occupancy box is X −0.08~0.11m, Y 0~0.20m, Z −0.08~0.08m.
 
-그릇 지름 0.22m는 [제단](fixtures.md#altar)의 상판 1.40×0.75m 안에 들어간다. 상판 위의 실제 위치는 instances가 정한다.
+The tubes at the lower and upper anchored ends of the handle enter the body wall with end rings perpendicular to the first and last chords, up to about 0.0085m and 0.0065m respectively, and are fixed, while the inside of the loop between them stays open.
 
-부재 대응: `bowl`=껍질.
+Part map: `body`=outer profile; `handle`=handle.
 
-part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고른다. 오목한 안쪽이 빈 공간이다. 위치는 instances가 정한다.
+Parts and surfaces are `body` and `handle`. instances sets the position and quantity.
 
-검토 판에서 측면으로 두꺼운 테두리와 오목한 안쪽을 본다. 납작한 원판은 실패다.
+On the review board the one handle and the narrow neck are viewed. A small cylinder is a failure.
 
-봉헌 그릇 `bowl`의 바깥·오목 안쪽은 각기 +X 시접을 가진 둘레 호길이 U와 단면 모선 V로 UV0를 편다. 굽 아랫면은 −Y 바깥법선의 평면 투영으로 별도 이음을 둔다.
+The small vessel `body` unwraps a circumference U and generatrix V from separate +X seams on the outside and the mouth interior, and the one +X `handle` uses the tube centreline U and section V from the lower junction to the upper junction.
 
-## 운반 바구니 {#basket}
+## Shallow offering bowl {#offering-bowl}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 돌출 살과 테를 포함한 0.43×0.32×0.43m 바구니 점유는 열린 입을 남기며, `wall` 회전체·`rim` 원환은 호길이 UV, 세로 살은 +Y U, `floor`는 평면 UV를 쓴다.
-@evidence principles/core/common.md#scope-preservation 운반 바구니를 벌어지는 원통 껍질·안쪽 바닥·띠와 살의 요철·테두리까지 정한다.
-@evidence principles/core/common.md#substantive-completion 지름·높이·벽 두께, 벽·바닥·열 줄 띠 둘레 24분할, 세로 살 24개의 Y=0.02~0.305m 범위·폭 0.012m·벽 면 기준 돌출 0.004m·시작각 7.5°, 테두리 원환 24×8분할을 확정해 source가 곡면이나 살 단면을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 구성은 35-objects#baskets, 쓰이는 곳은 30-interiors#storage·#service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 짠 바구니 설정을 그림 판이 아닌 띠·살 요철의 기하라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract wall·rim·floor part와 위로 열린 빈 공간을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 테두리 관 반지름까지 포함한 점유 상자 0.43×0.32×0.43m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 가까이서 띠와 살의 요철, 멀리서 둥근 테두리를 보고 매끈한 통·무늬만 그린 원통을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 둥근 몸체와 테두리를 근거로 하고 짜임 무늬를 texture로 대신하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 요철 규모가 리뷰 거리와 맞고 위치·수 소유가 정해져 바구니 층이 완결된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work baskets 구성과 storage·service-yard의 바구니를 지름 0.40m에 대조했고 부모를 고칠 모순이 없었다.
-@evidence settings/35-objects.md#baskets 황갈색 짠 운반 바구니를 띠·살 요철의 원통 껍질로 받는다.
-@evidence settings/30-interiors.md#storage 보관실의 짠 바구니를 이 prototype으로 받는다.
-@evidence settings/30-interiors.md#service-yard 서비스 마당의 운반 바구니를 같은 prototype으로 받는다.
-@evidence settings/50-production.md#references 이미지 02·05의 둥근 몸체와 테두리를 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.22×0.06×0.22m shallow bowl lies on the altar top slab, and the concave inside of the single `bowl` takes a Y-axis solid-of-revolution UV starting from a lowest ring separate from the outside.
+@evidence principles/core/common.md#scope-preservation It sets the shallow offering bowl down to diameter, height, rim thickness, concave face and foot.
+@evidence principles/core/common.md#substantive-completion The diameter 0.22m, height 0.06m, inner and outer section coordinates, the 0.012m rim, the 0.045m inner depth, the foot dimensions and the 24 segments around leave the source no bowl shell to choose again.
+@evidence principles/core/common.md#declared-basis It states that the 0.15~0.30m diameter, thick rim and concave inside come from 35-objects#vessels and the faces it lies on from the altar, table and display shelf model H2s.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the offering bowl setting into the model decisions of a thick rim of horizontal thickness 0.012m, a concave shell and a foot, and leaves the material choice to materials.
+@evidence principles/design/models.md#representation-contract It sets one bowl part and the concave inner void and hands the choice of metal or ceramic to materials.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the floor face and records the occupancy box 0.22×0.06×0.22m.
+@evidence principles/design/models.md#reviewable-structure It views the thick rim and concave inside in side view and makes a flat disc a failure.
+@evidence principles/design/models.md#model-observable-style-basis It makes the setting of a thick rim and concave inside refutable through the side profile.
+@evidence principles/design/models.md#model-scale-layer-completion The dimensions are at a scale to lie on the 1.40×0.75m altar top slab and the position ownership is set, completing the offering bowl layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The diameter range of vessels and the tops of the altar, table and display shelf were compared with the 0.22m diameter; it can go on all of them, so the parents were not changed.
+@evidence settings/35-objects.md#vessels It receives the bowl of diameter 0.15~0.30m with a thick rim and concave inside as the 0.22m bowl.
 -->
 
-[운반 바구니](../settings/35-objects.md#baskets)의 황갈색 짠 바구니다. 이미지 02·05의 둥근 몸체와 테두리가 근거다. 짜임은 리뷰 거리에서 띠와 살의 요철로 표현하며 전면 그림 판을 쓰지 않는다.
+This is the shallow bowl of the altar, offering table and display shelf. The basis is the 0.15~0.30m diameter, thick rim and concave inside of [ceramics and offering bowls](../settings/35-objects.md#vessels).
 
-로컬 원점은 바닥면 중심이다. 지름 0.40m·높이 0.32m의 약간 벌어지는 원통 껍질(아래 반지름 0.18m, 위 0.20m, 벽 두께 0.015m)이며 벽의 안팎은 같은 둘레 24분할로 나눈다. 바닥은 Y=0~0.02m, 바깥 반지름 0.18m의 닫힌 원판이다. Y=0의 아랫면은 반지름 0.18m 원판, Y=0.02m의 안쪽 바닥 윗면은 반지름 0.165m 원판과 반지름 0.165~0.18m 고리판이며 모두 둘레 24분할로 맞춘다. 두 원판은 각각 둘레 24분할·중심 부채꼴 24삼각형, 고리판은 둘레 24분할의 24사각형을 두 삼각형씩으로 닫고, 바깥 둘레의 Y=0~0.02m 옆면도 24사각형으로 잇는다. 벽은 Y=0.02~0.305m를 열 칸으로 나눈 각 칸 중심에 연직 폭 0.016m인 가로 띠를 둔다. 가로 띠도 벽과 정렬한 둘레 24분할이며 아래에서 j=0..9로 세어 짝수 j 띠만 0.004m 바깥으로 나오고 홀수 j는 벽과 같은 반지름이다. 24개의 세로 살은 둘레를 따라 중심각 15°마다 놓이며 각 살의 접선 방향 폭은 0.012m, 바깥 돌출은 0.004m, 높이 범위는 Y=0.02~0.305m다. 테두리는 중심선 반지름 0.20m·중심 높이 Y=0.305m·관 반지름 0.015m인 원환(주환 24분할·관 8분할)으로 벽 상단과 접하고 맨 위가 Y=0.32m다. 돌출 살과 테두리의 최대 반지름 0.215m를 포함한 점유 상자는 0.43×0.32×0.43m다.
+The local origin is the centre of the floor face. It is a shell of diameter 0.22m and height 0.06m, and the horizontal thickness of the rim is 0.012m. The inner side of the revolved section (radius,Y)=(0,0.015),(0.05,0.027),(0.08,0.043),(0.098,0.06)m and the outer side (0.11,0.06),(0.104,0.04),(0.085,0.018),(0.04,0.01)m are connected by straight lines in this order. The foot below has radius 0.04m at Y=0~0.01m, and the bottom face is closed to the centre. The inner depth is therefore 0.045m, and at each height the outer radius exceeds the inner, so the wall thickness is positive. From the inner centre to the lower end of the outer foot, the eight linear segments in the order above are crossed with 24 segments around and triangulated. The two discs, inner centre→first inner ring and foot lower end→base centre, are each closed with 24 triangles. The occupancy box is 0.22×0.06×0.22m.
 
-k번째 세로 살(k=0..23)의 시작각은 θ₀=7.5°이고 중심각은 θ(k)=7.5°+15°k다. 각 살은 24각형 벽 면의 가운데에 앉는다. 살의 안쪽 면은 해당 벽 면과 같은 평면이고 바깥 면은 그 면의 바깥 법선 방향으로 0.004m 나온다. 폭 0.012m는 해당 평면의 접선 방향으로 중심에서 양쪽 0.006m씩 잰다.
+The bowl diameter 0.22m fits within the 1.40×0.75m top slab of the [altar](fixtures.md#altar). instances sets the real position on the top slab.
 
-부재 대응: `wall`=벽; `rim`=테두리; `floor`=안쪽 바닥.
+Part map: `bowl`=shell.
 
-part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이다. 보관실·마당의 위치와 수는 instances가 정한다.
+Parts and surfaces are the single `bowl`, and materials chooses metal or ceramic. The concave inside is a void. instances sets the position.
 
-검토 판에서 가까이서 띠와 살의 요철, 멀리서 둥근 테두리를 본다. 매끈한 통, 무늬만 그린 원통은 실패다.
+On the review board the side view shows the thick rim and concave inside. A flat disc is a failure.
 
-바구니 `wall`의 안팎은 각자 +X 시접의 둘레 U·세로 모선 V, 열 가로 띠는 둘레 U, 24개 세로 살은 +Y U로 둔다. `rim`은 큰 원·관 호길이, `floor`는 수평 평면 UV0로 펴고 열린 입과 part 경계에서 끊는다.
+The outside and concave inside of the offering bowl `bowl` each unwrap UV0 with a circumference arc-length U from its own +X seam and a section generatrix V. The foot underside has a separate seam with a planar projection along the −Y outward normal.
 
-## 두루마리 {#scroll}
+## Carrying basket {#basket}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 말린 0.288×0.07×0.07m·묶음 세 원통·펼친 0.25×0.04×약 0.4074m를 각 점유로 두고, `sheet` 원통은 둘레 U·X축 V, 펼친 판은 +Z U·+X V, `tie`는 YZ 원환이다.
-@evidence principles/core/common.md#scope-preservation 두루마리를 말린 한 개·세 개 묶음·펼친 한 장의 세 변형과 말림 심·끈까지 정한다.
-@evidence principles/core/common.md#substantive-completion 반지름 0.03m·길이 0.28m 원통과 양끝 0.004m 심 돌출, 한 개·세 개의 끈 접촉 경로, 펼친 장과 양끝 말림 중심을 수치로 정해 source가 세 변형의 점유 범위를 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 구성은 35-objects#scrolls, 칸 선반에 놓임은 30-interiors#records, 형태는 이미지 02·05, 글자 없음은 10-building#civic-identity에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 두루마리 설정을 세 변형과 끝면 심·끈으로 막대와 구별되는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract sheet·tie part를 정하고 읽을 수 있는 글자가 없음을 적는다.
-@evidence principles/design/models.md#spatial-convention 말린 두루마리의 원점을 원통 축 중심, 축을 로컬 X로 둔다.
-@evidence principles/design/models.md#reviewable-structure 끝면의 말림 심과 끈이 돌·나무 막대와 구별되는지 보고 막힌 끝면·글자 있는 장을 실패로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 칸 안 원통 묶음과 책상 위 펼친 장을 근거로 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 말린 변형 길이 0.28m는 칸 선반 폭 약 0.41m 안에 들어가고 칸별 수량은 instances에 남는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work scrolls 구성과 records의 칸 선반 보관, civic-identity의 가짜 비문 금지를 세 변형에 대조했고 칸에 들어가 부모를 고치지 않았다.
-@evidence settings/35-objects.md#scrolls 말린 기록물을 세 변형의 두루마리로 받는다.
-@evidence settings/30-interiors.md#records 기록실 칸 선반의 마른 두루마리를 이 prototype으로 받는다.
-@evidence settings/10-building.md#civic-identity 고대 언어의 가짜 비문을 만들지 않는다는 정체성을 글자 없는 펼친 장으로 받는다.
-@evidence settings/50-production.md#references 이미지 02·05의 칸 안 원통 묶음과 펼친 한 장을 근거로 쓴다.
+@evidence contracts/principles-models.md#temple-reference-scale The 0.43×0.32×0.43m basket occupancy including the projecting slats and rim leaves the mouth open; the `wall` solid of revolution and the `rim` torus use arc-length UVs, the vertical slats a +Y U, and `floor` a planar UV.
+@evidence principles/core/common.md#scope-preservation It sets the carrying basket down to the flaring cylindrical shell, inner floor, the relief of bands and slats, and the rim.
+@evidence principles/core/common.md#substantive-completion It fixes diameter, height, wall thickness, 24 segments around for the wall, floor and ten band rows, the 24 vertical slats with range Y=0.02~0.305m, width 0.012m, projection 0.004m from the wall face and start angle 7.5°, and the 24×8-segment rim torus, so the source does not choose the curved surfaces or slat sections anew.
+@evidence principles/core/common.md#declared-basis It states that the composition comes from 35-objects#baskets, the places of use from 30-interiors#storage and #service-yard, and the form from images 02 and 05.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the woven basket setting into the model decision of a geometry of band and slat relief rather than a painted board.
+@evidence principles/design/models.md#representation-contract It sets the wall, rim and floor parts and the void open upward.
+@evidence principles/design/models.md#spatial-convention It places the origin at the centre of the floor face and records the occupancy box 0.43×0.32×0.43m including the rim tube radius.
+@evidence principles/design/models.md#reviewable-structure It views the relief of bands and slats close up and the round rim from afar, and makes a smooth tub or a cylinder with only a painted pattern a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the round body and rim of images 02 and 05 and does not replace the weave with a texture.
+@evidence principles/design/models.md#model-scale-layer-completion The relief scale fits the review distance and the position and count ownership is set, completing the basket layer.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The baskets composition and the baskets of storage and service-yard were compared with the 0.40m diameter, and there was no contradiction requiring a parent change.
+@evidence settings/35-objects.md#baskets It receives the tan woven carrying basket as a cylindrical shell with band and slat relief.
+@evidence settings/30-interiors.md#storage It receives the woven baskets of the storage room as this prototype.
+@evidence settings/30-interiors.md#service-yard It receives the carrying baskets of the service yard as the same prototype.
+@evidence settings/50-production.md#references It rests on the round body and rim of images 02 and 05.
 -->
 
-[두루마리](../settings/35-objects.md#scrolls)의 말린 기록물이다. 이미지 02·05의 칸 안에 눕혀진 원통 묶음과 책상 위 펼친 한 장이 근거이며 [고대 언어의 가짜 비문 금지](../settings/10-building.md#civic-identity)에 따라 읽을 수 있는 글자는 없다. [기록실](../settings/30-interiors.md#records)의 여러 칸과 [관리실](../settings/30-interiors.md#administration)의 작은 작업대에 놓일 말린 한 개, 세 개 묶음, 펼친 한 장의 세 변형이다.
+This is the tan woven basket of the [carrying basket](../settings/35-objects.md#baskets). The basis is the round body and rim of images 02 and 05. The weave is expressed at review distance by the relief of bands and slats, and no painted front board is used.
 
-말린 두루마리는 로컬 원점이 원통 축의 중심이고 축은 로컬 X다. 반지름 0.03m·길이 0.28m 원통의 양끝 면에 반지름 0.012m의 말림 심이 0.004m씩 튀어나와 X 범위는 −0.144~+0.144m다. 한 개의 묶음 끈은 X=0 평면에서 중심선 반지름 0.0325m·관 반지름 0.0025m인 원환으로 종이에 닿고, 주환 16·관 8분할이다. 세 개 묶음은 이 원통을 축 X로 나란히 두되 YZ 중심을 (0,−0.03),(0,+0.03),(0.03√3,0)m로 정해 매끈한 원통 기준 서로 접하게 쌓는다. 16각 다면체에서 위 원통과 아래 두 원통의 마주 보는 평행 면 사이 틈은 약 0.00102m다. 한 끈의 중심선은 세 중심의 정삼각형 볼록 껍질을 반지름 0.0325m로 바깥 평행 이동한 둥근 삼각형이고 X=0에 놓인다. 세 모서리의 호는 각각 16분할, 세 직선은 한 구간, 관 반지름은 0.0025m·둘레 8분할이라 세 원통의 바깥면에 닿는다. 펼친 한 장은 로컬 X 폭 0.25m·Z 길이 0.35m·두께 0.002m 판으로 Y=0~0.002m에 놓인다. 양쪽 짧은 변 Z=±0.175m에 닿는 말린 끝은 X축 반지름 0.02m·길이 0.25m 원통이며 그 중심은 `(Y,Z)=(0.02,±(0.175+√(0.02²−0.018²)))m`다. 따라서 원통과 종이 윗모서리 사이 Y 차 0.018m와 Z 차 √(0.02²−0.018²)m의 제곱합은 반지름²이고 매끈한 원통 기준 접점이 종이 모서리 위에 있다. 16각 다면체에서는 양쪽 종이 모서리와 각각 약 0.00019m 떨어진다. 원통은 모두 둘레 16분할이다. 점유 상자는 말린 것 0.288×0.07×0.07m, 묶음 0.288×(0.03√3+0.07)×0.13m, 펼친 것 `0.25×0.04×(2×(0.175+√(0.02²−0.018²)+0.02))m`(Z 약 0.4074m)다.
+The local origin is the centre of the floor face. It is a slightly flaring cylindrical shell of diameter 0.40m and height 0.32m (bottom radius 0.18m, top 0.20m, wall thickness 0.015m), and the inside and outside of the wall are divided into the same 24 segments around. The floor is a closed disc at Y=0~0.02m with outer radius 0.18m. The underside at Y=0 is a disc of radius 0.18m, and the inner floor top at Y=0.02m is a disc of radius 0.165m plus an annular plate of radius 0.165~0.18m, all matched to 24 segments around. The two discs each have 24 segments around and 24 central fan triangles, the annular plate closes its 24 quads of 24 segments around with two triangles each, and the side face Y=0~0.02m of the outer circumference also joins with 24 quads. The wall divides Y=0.02~0.305m into ten bands and places a horizontal band of vertical width 0.016m at the centre of each. The horizontal bands are also aligned with the wall at 24 segments around; counting from the bottom as j=0..9, only the even j bands project 0.004m outward, and the odd j stay at the wall radius. The 24 vertical slats are placed every 15° of central angle around the circumference; the tangential width of each slat is 0.012m, the outward projection is 0.004m, and the height range is Y=0.02~0.305m. The rim is a torus of centreline radius 0.20m, centre height Y=0.305m and tube radius 0.015m (24 main segments and 8 tube segments), in contact with the wall top, and its top is Y=0.32m. Including the maximum radius 0.215m of the projecting slats and rim, the occupancy box is 0.43×0.32×0.43m.
 
-세 개 묶음의 첫 종이 원통, 둘째 종이 원통, 셋째 종이 원통은 각자 닫힌 부재이고 바깥 끈이 그 셋을 감싼다.
+The start angle of the k-th vertical slat (k=0..23) is θ₀=7.5°, and its central angle is θ(k)=7.5°+15°k. Each slat sits in the middle of a 24-gon wall face. The inner face of a slat is coplanar with the corresponding wall face, and its outer face projects 0.004m along the outward normal of that face. The width 0.012m is measured 0.006m to each side of the centre along the tangent of that plane.
 
-말린 변형 길이 0.28m는 [기록실 칸 선반](fixtures.md#scroll-shelf)의 한 칸 폭 약 0.41m 안에 들어간다. 펼친 장은 책상 위에 놓이며 칸별 수량은 instances가 정한다.
+Part map: `wall`=wall; `rim`=rim; `floor`=inner floor.
 
-부재 대응: `sheet`=종이; `sheet-1`=첫 종이 원통; `sheet-2`=둘째 종이 원통; `sheet-3`=셋째 종이 원통; `tie`=끈.
+Parts and surfaces are `wall`, `rim` and `floor`. The inside is a void open upward. instances sets the positions and count in the storage room and yard.
 
-part와 표면은 `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie`다. 위치와 칸별 수량은 instances가 정한다.
+On the review board the relief of bands and slats is viewed close up and the round rim from afar. A smooth tub, or a cylinder with only a painted pattern, is a failure.
 
-말린 `sheet`와 묶음의 `sheet-1`·`sheet-2`·`sheet-3`는 +Z 시접에서 +Y로 도는 X축 원통 둘레를 UV0의 U, 축 +X 길이를 V로 둔다. 펼친 판은 긴 +Z를 U·+X를 V로 두고, 묶는 `tie`는 YZ 원환의 큰 원·관 단면 호길이로 편다.
+The inside and outside of the basket `wall` each take a circumference U and vertical generatrix V from their own +X seam, the ten horizontal bands a circumference U, and the 24 vertical slats a +Y U. `rim` unwraps with the large-circle and tube arc lengths and `floor` with a horizontal planar UV0, split at the open mouth and part boundaries.
 
-검토 판에서 끝면의 말림 심과 끈이 돌이나 나무 막대와 구별되는지 본다. 끝면이 막힌 원통, 글자가 있는 펼친 장은 실패다.
+## Scroll {#scroll}
+
+<!--
+@evidence contracts/principles-models.md#temple-reference-scale The rolled 0.288×0.07×0.07m, the bundle of three cylinders and the opened 0.25×0.04×about 0.4074m are each set as an occupancy; the `sheet` cylinder takes a circumference U and an X-axis V, the opened board a +Z U and +X V, and `tie` is a YZ torus.
+@evidence principles/core/common.md#scope-preservation It sets the scroll down to the three variants, one rolled, a bundle of three and one opened sheet, with the roll cores and the tie.
+@evidence principles/core/common.md#substantive-completion It sets numerically the radius 0.03m, length 0.28m cylinder with 0.004m core projection at both ends, the tie contact paths for one and three, and the opened sheet with the roll centres at both ends, so the source does not choose the occupancy of the three variants again.
+@evidence principles/core/common.md#declared-basis It states that the composition comes from 35-objects#scrolls, the placement in cell shelves from 30-interiors#records, the form from images 02 and 05, and the absence of letters from 10-building#civic-identity.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the scroll setting into the model decision of three variants distinguished from rods by end-face cores and a tie.
+@evidence principles/design/models.md#representation-contract It sets the sheet and tie parts and records that there are no readable letters.
+@evidence principles/design/models.md#spatial-convention It places the origin of the rolled scroll at the centre of the cylinder axis with the axis on local X.
+@evidence principles/design/models.md#reviewable-structure It checks that the end-face roll cores and tie are distinguishable from stone or timber rods and makes closed end faces or a sheet with letters a failure.
+@evidence principles/design/models.md#model-observable-style-basis It rests on the cylinder bundles in cells and the opened sheet on a desk in images 02 and 05.
+@evidence principles/design/models.md#model-scale-layer-completion The rolled variant length 0.28m fits within the cell shelf width of about 0.41m, and the count per cell stays with instances.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The scrolls composition, the cell shelf storage of records and the fake inscription ban of civic-identity were compared with the three variants; they fit the cells, so the parents were not changed.
+@evidence settings/35-objects.md#scrolls It receives rolled records as a scroll in three variants.
+@evidence settings/30-interiors.md#records It receives the dry scrolls of the records room cell shelf as this prototype.
+@evidence settings/10-building.md#civic-identity It receives the identity of making no fake inscriptions in an ancient language as an opened sheet without letters.
+@evidence settings/50-production.md#references It rests on the cylinder bundles in cells and the opened sheet of images 02 and 05.
+-->
+
+These are the rolled records of the [scroll](../settings/35-objects.md#scrolls). The basis is the cylinder bundles laid in cells and the opened sheet on a desk in images 02 and 05, and following the [ban on fake inscriptions in an ancient language](../settings/10-building.md#civic-identity) there are no readable letters. There are three variants, one rolled, a bundle of three and one opened sheet, placed in the many cells of the [records room](../settings/30-interiors.md#records) and on the small workbench of the [office](../settings/30-interiors.md#administration).
+
+For the rolled scroll the local origin is the centre of the cylinder axis, and the axis is local X. A cylinder of radius 0.03m and length 0.28m with roll cores of radius 0.012m protruding 0.004m from each end face spans X=−0.144~+0.144m. The tie of a single roll is a torus in the X=0 plane of centreline radius 0.0325m and tube radius 0.0025m touching the paper, with 16 main and 8 tube segments. The bundle of three lays these cylinders side by side along the X axis with YZ centres (0,−0.03),(0,+0.03),(0.03√3,0)m, stacking them in contact with each other as smooth cylinders. On the 16-sided polyhedra, the gap between the facing parallel faces of the upper cylinder and the two lower cylinders is about 0.00102m. The centreline of one tie is the rounded triangle offset outward by radius 0.0325m from the convex hull of the equilateral triangle of the three centres, lying at X=0. The arcs of the three corners each have 16 segments, the three straight lines one span each, and the tube radius 0.0025m with 8 segments around, so it touches the outer faces of the three cylinders. The opened sheet is a board of local X width 0.25m, Z length 0.35m and thickness 0.002m, lying at Y=0~0.002m. The rolled ends touching the two short sides Z=±0.175m are cylinders of X-axis radius 0.02m and length 0.25m, whose centre is `(Y,Z)=(0.02,±(0.175+√(0.02²−0.018²)))m`. Therefore the sum of squares of the Y difference 0.018m and the Z difference √(0.02²−0.018²)m between the cylinder and the paper top edge is radius², and the smooth-cylinder tangent point lies on the paper edge. On the 16-sided polyhedra each end stays about 0.00019m from the paper edge on its side. All cylinders have 16 segments around. The occupancy box is rolled 0.288×0.07×0.07m, bundle 0.288×(0.03√3+0.07)×0.13m, opened `0.25×0.04×(2×(0.175+√(0.02²−0.018²)+0.02))m` (Z about 0.4074m).
+
+The first paper cylinder, second paper cylinder and third paper cylinder of the bundle of three are each closed members, and the outer tie wraps the three.
+
+The rolled variant length 0.28m fits within the cell width of about 0.41m of the [records room cell shelf](fixtures.md#scroll-shelf). The opened sheet lies on a desk, and instances sets the count per cell.
+
+Part map: `sheet`=paper; `sheet-1`=first paper cylinder; `sheet-2`=second paper cylinder; `sheet-3`=third paper cylinder; `tie`=tie.
+
+Parts and surfaces are `sheet`, `sheet-1`, `sheet-2`, `sheet-3` and `tie`. instances sets the positions and count per cell.
+
+The rolled `sheet` and the bundled `sheet-1`, `sheet-2` and `sheet-3` take the X-axis cylinder circumference turning from a +Z seam toward +Y as the U of UV0 and the axial +X length as V. The opened board takes the long +Z as U and +X as V, and the binding `tie` unwraps with the large-circle and tube-section arc lengths of the YZ torus.
+
+On the review board the end-face roll cores and tie must be distinguishable from stone or timber rods. A cylinder with closed end faces, or an opened sheet with letters, is a failure.
